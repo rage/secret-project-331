@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
 import { scrollToLocatorsParentIframeAndClick } from "@/utils/iframeLocators"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -34,6 +35,7 @@ test("Exercise score updates gradually", async ({ page }) => {
       .getByRole("checkbox", { name: "Incorrect" }),
   )
   await page.getByRole("button", { name: "Submit" }).click()
+  await waitForSpinnersToDisappear(page)
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible()
   await expect(page.getByTestId("exercise-points")).toContainText("2/3")
 
@@ -54,6 +56,7 @@ test("Exercise score updates gradually", async ({ page }) => {
       .getByRole("checkbox", { name: "Correct", exact: true }),
   )
   await page.getByRole("button", { name: "Submit" }).click()
+  await waitForSpinnersToDisappear(page)
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible()
   // Points should stay the same since previous answer was more correct
   await expect(page.getByTestId("exercise-points")).toContainText("2/3")
@@ -75,6 +78,7 @@ test("Exercise score updates gradually", async ({ page }) => {
       .getByRole("checkbox", { name: "Correct", exact: true }),
   )
   await page.getByRole("button", { name: "Submit" }).click()
+  await waitForSpinnersToDisappear(page)
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible()
   await expect(page.getByTestId("exercise-points")).toContainText("3/3")
 })

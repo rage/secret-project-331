@@ -51,12 +51,6 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     }),
   )
 
-  useEffect(() => {
-    if (sisuQuery.data) {
-      setValue("description", sisuQuery.data.course_description)
-    }
-  })
-
   const methods = useForm<CourseUpdate>({
     defaultValues: {
       ...course,
@@ -72,6 +66,14 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
       flagged_answers_threshold: course.flagged_answers_threshold ?? undefined,
     })
   }, [course, reset])
+
+  // Populate the field once the Sisu-generated description loads. Keyed on the fetched data so it
+  // does not re-run on every render and clobber the user's edits.
+  useEffect(() => {
+    if (sisuQuery.data) {
+      setValue("description", sisuQuery.data.course_description)
+    }
+  }, [sisuQuery.data, setValue])
 
   const setUpdateCourseMutation = useToastMutationOptions(
     updateCourseMutation(),

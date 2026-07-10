@@ -62,6 +62,7 @@ async function deletePage(page: Page, pageText: string) {
     await page.getByRole("button", { name: "Delete" }).click()
     await respondToConfirmDialog(page, true)
     await expect(page.getByText("Successfully deleted")).toBeVisible()
+    await expect(page.getByRole("row").filter({ hasText: pageText })).toHaveCount(0)
     await verifyDialogState(page, false, true)
   })
 }

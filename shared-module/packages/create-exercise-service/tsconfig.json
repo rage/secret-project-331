@@ -6,6 +6,7 @@
     "lib": ["esnext"],
     "types": ["node"],
     "strict": true,
+    "noFallthroughCasesInSwitch": true,
     "noEmit": true,
     "esModuleInterop": true,
     "allowImportingTsExtensions": true,

@@ -1598,6 +1598,7 @@ export type NewPage = {
    * If set, set this page to be the front page of this course part.
    */
   front_page_of_chapter_id?: string | null
+  hidden: boolean
   title: string
   url_path: string
 }

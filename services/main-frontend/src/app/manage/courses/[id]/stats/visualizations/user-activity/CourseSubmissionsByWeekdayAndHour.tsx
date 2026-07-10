@@ -149,7 +149,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
 
                       type: "scatter",
                       // eslint-disable-next-line
-                  data: entries.map((o) => [o.hour ?? -1, o.count ?? -1]),
+                      data: entries.map((o) => [o.hour ?? -1, o.count ?? -1]),
                       symbolSize: function (dataItem) {
                         // scaling the size so that the largest value has size maxCircleSize
                         return (dataItem[1] / data.maxValue) * maxCircleSize

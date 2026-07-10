@@ -2,13 +2,6 @@
   "name": "main-frontend",
   "version": "0.1.0",
   "private": true,
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --turbopack",
@@ -109,12 +102,20 @@
     "@types/react-dom": "^19.2.3",
     "@types/remarkable": "^2.0.8",
     "@types/sanitize-html": "^2.16.1",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "postcss-styled-syntax": "^0.7.2",
     "stylelint": "^17.14.0",
     "stylelint-config-recommended": "^18.0.0",
     "ts-jest": "^29.4.11",
-    "typescript": "^6.0.3"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
   }
 }

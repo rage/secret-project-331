@@ -617,23 +617,39 @@ async fn process_llm_response(response: Response) -> ChatbotResult<LLMResponse> 
             error = %error_text,
             "Error calling LLM API"
         );
-        let azure_error: Option<ResponseError> =
-            serde_json::from_str::<AzureResponse>(&error_text)?.error;
-        let mut error = chatbot_err!(
-            FailedAzureResponse,
-            format!(
-                "Error calling LLM API: Status: {}. Error: {}",
-                status,
-                &azure_error
-                    .as_ref()
-                    .and_then(|e| e.code.to_owned())
-                    .or_else(|| azure_error.as_ref().and_then(|e| e.error_type.to_owned()))
-                    .unwrap_or(error_text)
-            )
-        );
-        if let Some(e) = azure_error {
-            error.add_azure_source(e);
+        // Azure can return a JSON Response, so parse it and take the error from it.
+        let azure_response = serde_json::from_str::<AzureResponse>(&error_text);
+        let error = match azure_response {
+            Ok(response) => {
+                let azure_error = response.error;
+                // Format the error message to be minimal and add the Azure source.
+                let mut error = chatbot_err!(
+                    FailedAzureResponse,
+                    format!(
+                        "Error calling LLM API: Status: {}. Error: {}",
+                        status,
+                        &azure_error
+                            .as_ref()
+                            .and_then(|e| e.code.to_owned())
+                            .or_else(|| azure_error.as_ref().and_then(|e| e.error_type.to_owned()))
+                            .unwrap_or(error_text)
+                    )
+                );
+                if let Some(e) = azure_error {
+                    error.add_azure_source(e);
+                };
+                error
+            }
+            // If Azure returned data in some other shape, just show the unparsed text.
+            Err(_) => chatbot_err!(
+                FailedAzureResponse,
+                format!(
+                    "Error calling LLM API: Status: {}. Error: {}",
+                    status, &error_text
+                )
+            ),
         };
+
         return Err(error);
     }
 
@@ -704,22 +720,37 @@ pub async fn make_streaming_llm_request(
             error = %error_text,
             "Error calling streaming LLM API"
         );
-        let azure_error: Option<ResponseError> =
-            serde_json::from_str::<AzureResponse>(&error_text)?.error;
-        let mut error = chatbot_err!(
-            FailedAzureResponse,
-            format!(
-                "Error calling LLM API: Status: {}. Error: {}",
-                status,
-                &azure_error
-                    .as_ref()
-                    .and_then(|e| e.code.to_owned())
-                    .or_else(|| azure_error.as_ref().and_then(|e| e.error_type.to_owned()))
-                    .unwrap_or(error_text)
-            )
-        );
-        if let Some(e) = azure_error {
-            error.add_azure_source(e);
+        // Azure can return a JSON Response, so parse it and take the error from it.
+        let azure_response = serde_json::from_str::<AzureResponse>(&error_text);
+        let error = match azure_response {
+            Ok(response) => {
+                let azure_error = response.error;
+                // Format the error message to be minimal and add the Azure source.
+                let mut error = chatbot_err!(
+                    FailedAzureResponse,
+                    format!(
+                        "Error calling LLM API: Status: {}. Error: {}",
+                        status,
+                        &azure_error
+                            .as_ref()
+                            .and_then(|e| e.code.to_owned())
+                            .or_else(|| azure_error.as_ref().and_then(|e| e.error_type.to_owned()))
+                            .unwrap_or(error_text)
+                    )
+                );
+                if let Some(e) = azure_error {
+                    error.add_azure_source(e);
+                };
+                error
+            }
+            // If Azure returned data in some other shape, just show the unparsed text.
+            Err(_) => chatbot_err!(
+                FailedAzureResponse,
+                format!(
+                    "Error calling LLM API: Status: {}. Error: {}",
+                    status, &error_text
+                )
+            ),
         };
 
         return Err(error);

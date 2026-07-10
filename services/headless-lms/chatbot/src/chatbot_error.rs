@@ -3,7 +3,6 @@ Contains error and result types for all the chatbot functions.
 */
 
 use std::fmt::Display;
-use std::ops::Deref;
 use std::panic::Location;
 
 use backtrace::Backtrace;
@@ -185,7 +184,7 @@ impl ChatbotError {
 
 impl From<url::ParseError> for ChatbotError {
     fn from(source: url::ParseError) -> Self {
-        ChatbotError::new(
+        Self::new(
             ChatbotErrorType::UrlParse,
             source.to_string(),
             Some(source.into()),
@@ -195,7 +194,7 @@ impl From<url::ParseError> for ChatbotError {
 
 impl From<tokio::io::Error> for ChatbotError {
     fn from(source: tokio::io::Error) -> Self {
-        ChatbotError::new(
+        Self::new(
             ChatbotErrorType::TokioIo,
             source.to_string(),
             Some(source.into()),
@@ -205,7 +204,7 @@ impl From<tokio::io::Error> for ChatbotError {
 
 impl From<serde_json::Error> for ChatbotError {
     fn from(source: serde_json::Error) -> Self {
-        ChatbotError::new(
+        Self::new(
             ChatbotErrorType::SerdeJson,
             source.to_string(),
             Some(source.into()),
@@ -215,7 +214,7 @@ impl From<serde_json::Error> for ChatbotError {
 
 impl From<sqlx::Error> for ChatbotError {
     fn from(err: sqlx::Error) -> ChatbotError {
-        ChatbotError::new(
+        Self::new(
             ChatbotErrorType::SqlxError,
             err.to_string(),
             Some(err.into()),
@@ -225,7 +224,7 @@ impl From<sqlx::Error> for ChatbotError {
 
 impl From<reqwest::Error> for ChatbotError {
     fn from(err: reqwest::Error) -> ChatbotError {
-        ChatbotError::new(
+        Self::new(
             ChatbotErrorType::ReqwestError,
             err.to_string(),
             Some(err.into()),

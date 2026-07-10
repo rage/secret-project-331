@@ -370,7 +370,7 @@ async fn process_block_chunk(
         Ok(completion) => completion,
         Err(e) => {
             error!("Failed to process chunk: {}", e);
-            return Err(ChatbotError::from(e));
+            return Err(e);
         }
     };
 

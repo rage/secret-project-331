@@ -1477,8 +1477,8 @@ pub async fn send_chat_request_and_parse_stream(
                 }}
             }
 
-            // update response_id once it's found.
             let response_message = {
+                // update response_id once it's found.
                 let mut response_id = response_id.lock().await;
                 *response_id = received_response_id;
 
@@ -1511,8 +1511,7 @@ pub async fn send_chat_request_and_parse_stream(
                     parse_tool(&mut conn, stream, conversation_id, &user_context).await
                 }
                 ResponseStreamType::TextResponse(stream) => {
-                    // update citation ids and update the response_message_id arc mutex.
-                    // then, stream the response in parse_text_response.
+                    // update citation ids. then, stream the response in parse_text_response.
                     let response_id = response_id.lock().await;
                     models::chatbot_conversation_messages_citations::update_citation_message_ids(
                         &mut conn,

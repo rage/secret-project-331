@@ -140,19 +140,9 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     },
   })
 
-  console.log("SISUDATA: ", sisuQuery.data)
-
   const { control, register, handleSubmit, setValue, watch } = methods
 
   const course_preqs = watch("course_prerequisites")
-
-  console.log("SET VALUE: ", course_preqs)
-
-  // const useSuggestedDescription = watch("useSuggestedDescription")
-  // const useSuggestedPrerequisites = watch("useSuggestedPrerequisites")
-  // const useSuggestedAudiences = watch("useSuggestedAudiences")
-
-  //console.log("USE SUGGESTED AUDIENCE: ", useSuggestedPrerequisites)
 
   const {
     fields: prereqField,

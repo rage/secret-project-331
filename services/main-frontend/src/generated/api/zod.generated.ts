@@ -749,6 +749,14 @@ export const zCoursePrerequisite = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zCompleteCourseMetadata = z.object({
+  course: zCourse,
+  course_audiences: z.array(zCourseAudience),
+  course_instances: z.array(zCourseInstance),
+  course_prerequisites: z.array(zCoursePrerequisite),
+  default_module: zCourseModule,
+})
+
 export const zCourseMetadata = z.object({
   course_audiences: z.array(zCourseAudience),
   course_description: z.string().nullish(),
@@ -3691,6 +3699,15 @@ export const zGetCourseAudiencesPath = z.object({
  * Course audiences
  */
 export const zGetCourseAudiencesResponse = z.array(zCourseAudience)
+
+export const zGetCourseMetadataPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Course metadata
+ */
+export const zGetCourseMetadataResponse = zCompleteCourseMetadata
 
 export const zGetCoursePrerequisitesPath = z.object({
   course_id: z.uuid(),

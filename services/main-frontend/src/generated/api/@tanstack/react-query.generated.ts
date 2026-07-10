@@ -135,6 +135,7 @@ import {
   getCourseInstances,
   getCourseInstanceUserProgress,
   getCourseLanguageVersions,
+  getCourseMetadata,
   getCourseModule,
   getCourseModuleCompletion,
   getCourseModuleCompletionRegistrationLink,
@@ -532,6 +533,8 @@ import type {
   GetCourseInstanceUserProgressData,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponse,
+  GetCourseMetadataData,
+  GetCourseMetadataResponse,
   GetCourseModuleCompletionData,
   GetCourseModuleCompletionRegistrationLinkData,
   GetCourseModuleCompletionRegistrationLinkResponse,
@@ -3346,6 +3349,30 @@ export const getCourseAudiencesOptions = (options: Options<GetCourseAudiencesDat
         throwOnError: true,
       }),
     queryKey: getCourseAudiencesQueryKey(options),
+  })
+
+export const getCourseMetadataQueryKey = (options: Options<GetCourseMetadataData>) =>
+  createQueryKey("getCourseMetadata", options)
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.
+ */
+export const getCourseMetadataOptions = (options: Options<GetCourseMetadataData>) =>
+  queryOptions<
+    GetCourseMetadataResponse,
+    DefaultError,
+    GetCourseMetadataResponse,
+    ReturnType<typeof getCourseMetadataQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseMetadata({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseMetadataQueryKey(options),
   })
 
 export const getCoursePrerequisitesQueryKey = (options: Options<GetCoursePrerequisitesData>) =>

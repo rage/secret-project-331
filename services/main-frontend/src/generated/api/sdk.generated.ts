@@ -259,6 +259,8 @@ import type {
   GetCourseInstanceUserProgressResponses,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponses,
+  GetCourseMetadataData,
+  GetCourseMetadataResponses,
   GetCourseModuleCompletionData,
   GetCourseModuleCompletionRegistrationLinkData,
   GetCourseModuleCompletionRegistrationLinkResponses,
@@ -717,6 +719,7 @@ import {
   zGetCourseInstanceResponse,
   zGetCourseInstancesResponse,
   zGetCourseLanguageVersionsResponse,
+  zGetCourseMetadataResponse,
   zGetCourseModuleCompletionRegistrationLinkResponse,
   zGetCourseModuleCompletionResponse,
   zGetCourseModuleCompletionsForUserResponse,
@@ -2610,6 +2613,20 @@ export const getCourseAudiences = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCourseAudiencesResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/get-course-audiences",
+    ...options,
+  })
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.
+ */
+export const getCourseMetadata = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseMetadataData, ThrowOnError>,
+): RequestResult<GetCourseMetadataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseMetadataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseMetadataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-metadata",
     ...options,
   })
 

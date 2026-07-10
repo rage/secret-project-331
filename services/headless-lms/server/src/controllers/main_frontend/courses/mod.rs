@@ -11,6 +11,7 @@ use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
     course_audiences::CourseAudience,
     course_prerequisites::CoursePrerequisite,
+    courses::CompleteCourseMetadata,
     partner_block::PartnersBlock,
     suspected_cheaters::{CourseModuleThresholdInfo, SuspectedCheaterStatus, SuspectedCheaters},
 };
@@ -126,7 +127,8 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_sisu_course_llm_descriptions,
         update_metadata,
         get_course_prerequisites,
-        get_course_audiences
+        get_course_audiences,
+        get_course_metadata
     ),
     nest(
         (path = "/{course_id}/chatbots", api = chatbots::MainFrontendCourseChatbotsApiDoc),
@@ -2784,6 +2786,35 @@ async fn get_course_audiences(
 
     token.authorized_ok(web::Json(audiences))
 }
+
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-metadata",
+    operation_id= "getCourseMetadata",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course metadata", body = CompleteCourseMetadata)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_metadata(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CompleteCourseMetadata>> {
+    let mut conn: sqlx::pool::PoolConnection<Postgres> = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let metadata = models::courses::get_metadata(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(metadata))
+}
 /**
 Add a route for each controller in this module.
 
@@ -3013,5 +3044,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/get-course-audiences",
             web::get().to(get_course_audiences),
+        )
+        .route(
+            "/{course_id}/get-course-metadata",
+            web::get().to(get_course_metadata),
         );
 }

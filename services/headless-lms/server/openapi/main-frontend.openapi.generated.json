@@ -3209,6 +3209,37 @@
         }
       }
     },
+    "/api/v0/main-frontend/courses/{course_id}/get-course-metadata": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nget `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.",
+        "operationId": "getCourseMetadata",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompleteCourseMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/courses/{course_id}/get-course-prerequisites": {
       "get": {
         "tags": ["courses"],
@@ -12196,6 +12227,42 @@
             "type": ["integer", "null"],
             "format": "int32",
             "description": "The day offset from the cohort start (only applicable for daily cohorts)."
+          }
+        }
+      },
+      "CompleteCourseMetadata": {
+        "type": "object",
+        "required": [
+          "course",
+          "course_instances",
+          "default_module",
+          "course_prerequisites",
+          "course_audiences"
+        ],
+        "properties": {
+          "course": {
+            "$ref": "#/components/schemas/Course"
+          },
+          "course_audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseAudience"
+            }
+          },
+          "course_instances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseInstance"
+            }
+          },
+          "course_prerequisites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CoursePrerequisite"
+            }
+          },
+          "default_module": {
+            "$ref": "#/components/schemas/CourseModule"
           }
         }
       },

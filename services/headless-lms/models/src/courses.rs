@@ -1,6 +1,7 @@
 use crate::{
     chapters::{Chapter, course_chapters},
     course_audiences::{CourseAudience, NewCourseAudience},
+    course_instances::CourseInstance,
     course_modules::CourseModule,
     course_prerequisites::{
         CoursePrerequisite, NewCoursePrerequisite, insert_course_prerequisites,
@@ -1540,4 +1541,36 @@ RETURNING id, description
         course_prerequisites: prerequisites,
     };
     Ok(res)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CompleteCourseMetadata {
+    course: Course,
+    course_instances: Vec<CourseInstance>,
+    default_module: CourseModule,
+    course_prerequisites: Vec<CoursePrerequisite>,
+    course_audiences: Vec<CourseAudience>,
+}
+
+pub async fn get_metadata(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CompleteCourseMetadata> {
+    let prerequisites: Vec<CoursePrerequisite> =
+        crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    let audiences: Vec<CourseAudience> =
+        crate::course_audiences::get_by_course_id(conn, course_id).await?;
+    let course = get_course(conn, course_id).await?;
+    let instances =
+        crate::course_instances::get_course_instances_for_course(conn, course_id).await?;
+    let module = crate::course_modules::get_default_by_course_id(conn, course_id).await?;
+
+    let metadata = CompleteCourseMetadata {
+        course: course,
+        course_instances: instances,
+        default_module: module,
+        course_prerequisites: prerequisites,
+        course_audiences: audiences,
+    };
+    Ok(metadata)
 }

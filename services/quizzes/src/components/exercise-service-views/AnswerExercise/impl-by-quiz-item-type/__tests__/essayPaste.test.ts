@@ -49,6 +49,48 @@ describe("isLargePaste", () => {
   it("is false for a block just under the character fallback with few words", () => {
     expect(isLargePaste("x".repeat(LARGE_PASTE_CHAR_THRESHOLD - 1))).toBe(false)
   })
+
+  it("does not count links toward the word threshold", () => {
+    const links = Array.from({ length: 10 }, (_, i) => `https://example.com/source-${i}`).join(" ")
+    expect(isLargePaste(`${words(LARGE_PASTE_WORD_THRESHOLD - 1)} ${links}`)).toBe(false)
+  })
+
+  it("does not count links toward the character fallback", () => {
+    const longUrl = `https://example.com/${"a".repeat(LARGE_PASTE_CHAR_THRESHOLD)}`
+    expect(isLargePaste(`see ${longUrl}`)).toBe(false)
+  })
+
+  it("excludes www-prefixed links without a scheme", () => {
+    const longUrl = `www.example.com/${"a".repeat(LARGE_PASTE_CHAR_THRESHOLD)}`
+    expect(isLargePaste(`see ${longUrl}`)).toBe(false)
+  })
+
+  it("still warns when the non-link content alone is large", () => {
+    expect(isLargePaste(`${words(LARGE_PASTE_WORD_THRESHOLD)} https://example.com`)).toBe(true)
+  })
+
+  it("does not count DOIs", () => {
+    expect(isLargePaste(`see doi:10.1000/${"x".repeat(LARGE_PASTE_CHAR_THRESHOLD)}`)).toBe(false)
+    expect(isLargePaste(`see 10.1000/${"x".repeat(LARGE_PASTE_CHAR_THRESHOLD)}`)).toBe(false)
+  })
+
+  it("does not count email addresses toward the word threshold", () => {
+    const emails = Array.from({ length: 10 }, (_, i) => `author-${i}@university.fi`).join(" ")
+    expect(isLargePaste(`${words(LARGE_PASTE_WORD_THRESHOLD - 1)} ${emails}`)).toBe(false)
+  })
+
+  it("does not count bare domains with a path", () => {
+    const bareUrl = `example.com/${"a".repeat(LARGE_PASTE_CHAR_THRESHOLD)}`
+    expect(isLargePaste(`see ${bareUrl}`)).toBe(false)
+  })
+
+  it("does not count numeric citation markers toward the word threshold", () => {
+    const wordsWithMarkers = Array.from(
+      { length: LARGE_PASTE_WORD_THRESHOLD - 1 },
+      (_, i) => `w${i} [${i % 100}]`,
+    ).join(" ")
+    expect(isLargePaste(wordsWithMarkers)).toBe(false)
+  })
 })
 
 describe("getEssayPasteWarning", () => {

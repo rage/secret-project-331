@@ -38,7 +38,7 @@
   "error-answer-does-not-match-the-specified-answer-format": "Vastaus ei vastaa muotoilun kanssa, joka on osoitettu tälle tehtävälle",
   "error-quiz-item-added-after-answering": "Tähän kohtaan on lisätty kysymys sen jälkeen kun vastaus oli lähetetty.",
   "essay-paste-warning-acknowledge": "Ymmärrän",
-  "essay-paste-warning-body": "Varmista, että sinulla on lupa tähän.\n\nTekoälyn käyttö on kielletty MOOC-kursseilla, ellei sitä ole kurssin materiaaleissa erikseen sallittu. Jos käyttö on sallittu, seuraa annettuja ohjeita ja raportoi tekoälyn käytöstä. Sääntöjen rikkominen on vilppiä. Vaikka tekoälyn käyttö olisi poikkeuksellisesti sallittu, sinun on silti noudatettava yliopiston ohjeita. Oletuksena käyttö ei ole sallittua.\n\nTämä tapaus kirjataan ylös.",
+  "essay-paste-warning-body": "Varmista, että sinulla on lupa tähän.\n\nTekoälyn käyttö on kielletty MOOC-kursseilla, ellei sitä ole kurssin materiaaleissa erikseen sallittu. Jos käyttö on sallittu, seuraa annettuja ohjeita ja raportoi tekoälyn käytöstä. Sääntöjen rikkominen on vilppiä. Vaikka tekoälyn käyttö olisi poikkeuksellisesti sallittu, sinun on silti noudatettava yliopiston ohjeita. Oletuksena käyttö ei ole sallittua.\n\nLähdeviitteiden liittäminen on yleensä sallittua. Tämä tapaus kirjataan ylös.",
   "essay-paste-warning-title": "Vastauksen liittäminen",
   "exact-string": "Tarkka teksti",
   "examples-of-grading-policies": "Esimerkkejä arvostelukäytännöistä",

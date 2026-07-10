@@ -17,16 +17,35 @@ export const LARGE_PASTE_WORD_THRESHOLD = 50
 export const LARGE_PASTE_CHAR_THRESHOLD = 400
 
 /**
- * Whether a pasted chunk of text is large enough to warrant the academic-integrity warning. Pure so
- * it can be unit tested independently of the essay component.
+ * Citation-like content that should not count toward the paste size: URLs, DOIs, email addresses,
+ * bare domains with a path, and numbered citation markers like [1].
+ */
+const CITATION_PATTERNS: RegExp[] = [
+  /(?:https?:\/\/|www\.)\S+/gi,
+  /\bdoi:\s?\S+/gi,
+  /\b10\.\d{4,9}\/\S+/g,
+  /\S+@\S+\.\S+/g,
+  /(?:[\w-]+\.)+[a-z]{2,}\/\S*/gi,
+  /\[\d{1,3}\]/g,
+]
+
+/**
+ * Whether a pasted chunk of text is large enough to warrant the academic-integrity warning.
+ * Citation-like content (links, DOIs, emails, citation markers) is excluded from the measurement
+ * so that pasting citations doesn't trigger the warning. Pure so it can be unit tested
+ * independently of the essay component.
  */
 export function isLargePaste(pastedText: string): boolean {
   if (!pastedText) {
     return false
   }
+  const withoutCitations = CITATION_PATTERNS.reduce(
+    (text, pattern) => text.replace(pattern, " "),
+    pastedText,
+  )
   return (
-    wordCount(pastedText) >= LARGE_PASTE_WORD_THRESHOLD ||
-    pastedText.trim().length >= LARGE_PASTE_CHAR_THRESHOLD
+    wordCount(withoutCitations) >= LARGE_PASTE_WORD_THRESHOLD ||
+    withoutCitations.trim().length >= LARGE_PASTE_CHAR_THRESHOLD
   )
 }
 

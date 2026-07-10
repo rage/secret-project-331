@@ -154,7 +154,9 @@
     "jsx-a11y/tabindex-no-positive": "error",
     "react/display-name": "error",
     "react/react-in-jsx-scope": "off",
-    "react/jsx-key": "warn",
+    "react/jsx-key": "error",
+    "react/iframe-missing-sandbox": "error",
+    "react/no-unstable-nested-components": ["error", { "allowAsProps": true }],
     "react/jsx-no-comment-textnodes": "error",
     "react/jsx-no-duplicate-props": "error",
     "react/jsx-no-target-blank": "error",
@@ -335,7 +337,7 @@
         ],
         "curly": ["error", "all"],
         "nextjs/no-img-element": "off",
-        "react/rules-of-hooks": "warn",
+        "react/rules-of-hooks": "error",
         "react/exhaustive-deps": [
           "warn",
           {
@@ -476,7 +478,7 @@
       "jsPlugins": ["eslint-plugin-explicit-use-directives"]
     },
     {
-      "files": ["**/*.stories.@(ts|tsx|js|jsx|mjs|cjs)", "**/*.story.@(ts|tsx|js|jsx|mjs|cjs)"],
+      "files": ["**/*.stories.{ts,tsx,js,jsx,mjs,cjs}", "**/*.story.{ts,tsx,js,jsx,mjs,cjs}"],
       "rules": {
         "storybook/await-interactions": "error",
         "storybook/context-in-play-function": "error",
@@ -494,7 +496,7 @@
       "jsPlugins": ["eslint-plugin-storybook"]
     },
     {
-      "files": [".storybook/main.@(js|cjs|mjs|ts)"],
+      "files": [".storybook/main.{js,cjs,mjs,ts}"],
       "rules": {
         "storybook/no-uninstalled-addons": "error"
       },

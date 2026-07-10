@@ -421,6 +421,8 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
               src={embedUrl}
               title={t("title-youtube-video-player")}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              // Cross-origin YouTube player; both flags are required and the frame runs under youtube.com, not our origin.
+              // oxlint-disable-next-line react/iframe-missing-sandbox
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"
               allowFullScreen
               data-testid="youtube-player-iframe"

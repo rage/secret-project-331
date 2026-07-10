@@ -241,6 +241,7 @@ const SubmissionFeedbackMessage: React.FC<
     }
     return feedBackForOption ? (
       <div
+        key={option.id}
         className={css`
           margin: 0.5rem 0.5rem 1rem 0;
           display: flex;

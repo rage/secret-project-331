@@ -29,6 +29,8 @@ export const ThingLinkEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribut
           src={props.url}
           allow="fullscreen"
           title={THINGLINK}
+          // Cross-origin ThingLink embed; both flags are required and the frame runs under thinglink.com, not our origin.
+          // oxlint-disable-next-line react/iframe-missing-sandbox
           sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation allow-popups allow-popups-to-escape-sandbox"
         ></iframe>
 

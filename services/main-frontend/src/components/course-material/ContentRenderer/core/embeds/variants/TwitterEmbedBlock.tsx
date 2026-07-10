@@ -24,6 +24,8 @@ export const TwitterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes
       src={window.URL.createObjectURL(blob)}
       // eslint-disable-next-line i18next/no-literal-string
       title={"Twitter"}
+      // Renders Twitter's own oembed HTML from a same-origin blob; the widget script needs both flags.
+      // oxlint-disable-next-line react/iframe-missing-sandbox
       sandbox="allow-scripts allow-same-origin"
       frameBorder="0"
       className={css`

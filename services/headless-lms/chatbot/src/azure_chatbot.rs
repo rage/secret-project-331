@@ -1343,14 +1343,14 @@ fn error_event_string_from_message(
 /// These types of ChatbotErrors shouldn't be shown to the user and are likely created
 /// from an unrecoverable error in our code that should make the stream fail.
 fn check_error_should_terminate_stream(err: &ChatbotErrorType) -> bool {
-    [
-        ChatbotErrorType::SerdeJson,
-        ChatbotErrorType::DeserializationError,
-        ChatbotErrorType::SqlxError,
-        ChatbotErrorType::ReqwestError,
-        ChatbotErrorType::UrlParse,
-    ]
-    .contains(err)
+    matches!(
+        err,
+        ChatbotErrorType::SerdeJson
+            | ChatbotErrorType::DeserializationError
+            | ChatbotErrorType::SqlxError
+            | ChatbotErrorType::ReqwestError
+            | ChatbotErrorType::UrlParse
+    )
 }
 
 /// Send and parse a Chatbot message and response and stream it to the user.

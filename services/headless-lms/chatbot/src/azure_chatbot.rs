@@ -32,7 +32,8 @@ use utoipa::ToSchema;
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::provider_tools::azure_ai_search::get_azure_ai_search_tool_definition;
 use crate::chatbot_tools::{
-    AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
+    AzureLLMToolDefinition, ChatbotTool, ToolProperties, call_chatbot_tool,
+    get_chatbot_tool_definitions,
 };
 use crate::citations::chatbot_cited_documents_to_citations;
 use crate::llm_utils::{
@@ -839,7 +840,7 @@ async fn parse_tool<'a>(
     conversation_id: Uuid,
     user_context: &'a ChatbotUserContext,
 ) -> BoxStream<'a, ChatbotResult<StreamEvent<'a>>> {
-    let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
+    let mut function_name_id_args: Vec<(String, String, String)> = vec![];
     let mut messages = vec![];
     let mut common_response_id: Option<String> = None;
     let mut response_received = false;
@@ -921,21 +922,20 @@ async fn parse_tool<'a>(
             };
             let mut tool_msgs = Vec::new();
 
-            for (name, id, args) in function_name_id_args.iter() {
-                let tool = get_chatbot_tool(conn, name, args, user_context).await?;
-                let output = tool.get_tool_output();
+            for (name, id, args) in function_name_id_args.into_iter() {
+                let tool_result = call_chatbot_tool(conn, &name, args, user_context).await?;
 
                 tool_msgs.push(APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
                         response_id: response_id.to_owned(),
                         call_id: id.to_owned(),
                         tool_name: name.to_owned(),
-                        arguments: serde_json::to_string(tool.get_arguments())?,
+                        arguments: tool_result.arguments,
                     },
                 });
                 let function_call_output = OutputItem::FunctionCallOutput {
                         call_id: id.to_owned(),
-                        output,
+                        output: tool_result.output,
                         response_id: response_id.to_owned(),
                     };
                 tool_msgs.push(APIOutputMessage {
@@ -973,7 +973,7 @@ async fn parse_tool<'a>(
                     function_name_id_args.push((
                         tool_name,
                         call_id,
-                        serde_json::from_str::<Value>(&arguments)?,
+                        arguments,
                     ));
                     yield StreamEvent::Item(StreamItem { item, finished: false });
                 }

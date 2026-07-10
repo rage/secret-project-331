@@ -3,18 +3,28 @@ use sqlx::PgConnection;
 use crate::{
     azure_chatbot::ChatbotUserContext,
     chatbot_tools::{AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolType, ToolProperties},
-    prelude::ChatbotResult,
+    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
 };
 
-pub type DocumentLookupTool = ToolProperties<i32, i32>;
+pub type DocumentLookupTool = ToolProperties<DocumentLookupState, DocumentLookupArguments>;
+
+pub struct DocumentLookupState {
+    lookup_success: bool,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct DocumentLookupArguments {
+    title: String,
+    filepath: String,
+}
 
 impl ChatbotTool for DocumentLookupTool {
-    type State = i32;
-
-    type Arguments = i32;
+    type State = DocumentLookupState;
+    type Arguments = DocumentLookupArguments;
 
     fn parse_arguments(args_string: String) -> ChatbotResult<Self::Arguments> {
-        todo!()
+        serde_json::from_str::<Self::Arguments>(&args_string)
+            .map_err(|e| chatbot_err!(InvalidToolArguments, "Couldn't parse tool arguments", e))
     }
 
     async fn from_db_and_arguments(

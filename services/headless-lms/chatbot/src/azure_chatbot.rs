@@ -191,8 +191,10 @@ pub struct IncompleteReason {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ResponseOutput {
     /// The event type of this response
+    // Optional so a streamed `data:` line that omits `type` still deserializes and is ignored,
+    // rather than aborting the whole chat stream.
     #[serde(rename = "type")]
-    pub response_type: String, // for examples check out ALL_EXPECTED_EVENTS
+    pub response_type: Option<String>, // for examples check out ALL_EXPECTED_EVENTS
     pub delta: Option<String>,
     pub item: Option<OutputItem>,
     pub response: Option<Response>,
@@ -987,7 +989,7 @@ async fn parse_tool<'a>(
                     ))?}
                 },
                 _ => {
-                    let finished = response_output.response_type.as_str() == "response.output_item.done";
+                    let finished = response_output.response_type.as_deref() == Some("response.output_item.done");
                     yield StreamEvent::Item(StreamItem { item: item.to_owned(), finished});
 
                     // add this output item to the messages to be included in the next
@@ -1241,7 +1243,7 @@ async fn parse_text_response<'a>(
                     OutputItem::Message { .. } => continue,
                     OutputItem::FunctionCall { .. } => Err(chatbot_err!(StreamingError, "Error: unexpected function call after / during a text response.".to_string()))?,
                     _ => {
-                        let finished = &response_output.response_type == "response.output_item.done";
+                        let finished = response_output.response_type.as_deref() == Some("response.output_item.done");
                         yield StreamEvent::Item(StreamItem { item: item.to_owned(), finished });
                         continue;
                     },
@@ -1432,8 +1434,8 @@ pub async fn send_chat_request_and_parse_stream(
                     Ok(StreamEvent::Item(item)) => {
                         if item.finished {
                             // save it to db and put it in the LLM Request input
-                            // in case another request will be made
-                            let mut conn = pool.acquire().await?;
+                            // in case another request will be made. Reuse the iteration's `conn`
+                            // (still free here) instead of acquiring a second pool connection.
                             let message = process_output_item(&mut conn, item.item.to_owned(), conversation_id, &app_config).await?;
                             let input_message = APIInputMessage::try_from(message)?;
                             chat_request.input.push(input_message);

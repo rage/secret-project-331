@@ -15,7 +15,8 @@ import "@fontsource/space-mono/400.css"
 const globalCss = css`
   ${cssReset}
 
-  html, body {
+  html,
+  body {
     font-family: ${primaryFont};
     font-weight: 400;
     font-size: ${defaultFontSizePx}px;

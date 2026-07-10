@@ -880,6 +880,7 @@ function CoursePlanWorkspacePage() {
                       <h3 className={sectionTitleStyles}>Assistant</h3>
                       {/* eslint-disable-next-line i18next/no-literal-string */}
                       <p className={aboutTextStyles}>
+                        {/* eslint-disable-next-line i18next/no-literal-string */}
                         A course design assistant chatbot will appear here to help you with tasks
                         and questions about each stage.
                       </p>

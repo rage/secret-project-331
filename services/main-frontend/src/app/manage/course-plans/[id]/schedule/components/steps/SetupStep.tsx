@@ -79,7 +79,6 @@ export default function SetupStep({
         <div className={fieldStyles}>
           <Select
             id="course-size"
-
             name="courseSize"
             control={control}
             label={t("course-plans-course-size-label")}
@@ -90,7 +89,6 @@ export default function SetupStep({
         <div className={fieldStyles}>
           <YearMonthField
             id="starts-on-month"
-
             name="startsOnMonth"
             control={control}
             label={t("course-plans-wizard-starts-on-month-label")}

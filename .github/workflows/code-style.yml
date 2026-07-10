@@ -32,8 +32,10 @@ jobs:
         uses: docker://rhysd/actionlint:latest
         with:
           args: -color
-      - name: Eslint
-        run: pnpm run eslint:ci
+      - name: Oxlint
+        run: pnpm run lint:ci
+      - name: Oxfmt
+        run: pnpm run format:check
       - name: Stylelint
         run: pnpm run lint:css
       - name: Cargo fmt

@@ -94,15 +94,13 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             text-align: center;
             transition: transform 0.4s ease-out;
             transform-style: preserve-3d;
-            transform: ${
-              isFlipped
-                ? isHovered
-                  ? "rotateY(180deg)"
-                  : "rotateY(180deg)"
-                : isHovered
-                  ? "rotateY(10deg)"
-                  : "rotateY(0)"
-            };
+            transform: ${isFlipped
+              ? isHovered
+                ? "rotateY(180deg)"
+                : "rotateY(180deg)"
+              : isHovered
+                ? "rotateY(10deg)"
+                : "rotateY(0)"};
           `}
         >
           <div

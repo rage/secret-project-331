@@ -145,6 +145,7 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
                   })
                 }}
               />
+              {/* eslint-disable-next-line i18next/no-literal-string */}
               <span className={styles.searchIcon}>🔍</span>
             </div>
 

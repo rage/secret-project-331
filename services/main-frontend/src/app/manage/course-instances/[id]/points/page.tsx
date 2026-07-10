@@ -139,7 +139,7 @@ const CourseInstancePointsList: React.FC = () => {
                 <thead
                   className={css`
                     th {
-                      font-weight: ${fontWeights.medium}!important;
+                      font-weight: ${fontWeights.medium} !important;
                     }
                   `}
                 >

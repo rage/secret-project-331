@@ -56,7 +56,8 @@ export async function execWithTimeout(
 
   /** Socket returned by kubeExec.exec(); has onclose and optional close/destroy. */
   let execSocket:
-    { onclose?: (() => void) | null; close?: () => void; destroy?: () => void } | undefined
+    | { onclose?: (() => void) | null; close?: () => void; destroy?: () => void }
+    | undefined
   const connectTimeoutMs = timeoutMs
   let connectTimer: NodeJS.Timeout | undefined
   const connectTimeoutPromise = new Promise<never>((_resolve, reject) => {
@@ -302,7 +303,8 @@ async function copySubmissionToPod(
 }
 
 export type TmcRunOutcome =
-  { timedOut: true } | { timedOut: false; output: string; parsed: unknown }
+  | { timedOut: true }
+  | { timedOut: false; output: string; parsed: unknown }
 
 /**
  * Run `/tmc-run`, then read `/app/test_output.txt` from the pod and parse it as JSON.

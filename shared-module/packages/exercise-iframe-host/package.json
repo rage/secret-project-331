@@ -21,6 +21,7 @@
     "@types/node": "^25.9.1",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "i18next": "^26.3.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
@@ -29,7 +30,7 @@
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-i18next": "^17.0.8",
-    "typescript": "^6.0.3"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "peerDependencies": {
     "i18next": ">=23.0.0",

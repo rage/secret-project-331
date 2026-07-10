@@ -52,3 +52,8 @@ confirmModulesPurge: false
 updateNotifier: false
 
 verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  - "typescript@7.0.2"
+  - "@typescript/typescript-*"
+  - "@typescript/typescript6@6.0.2"

@@ -58,6 +58,9 @@ updateNotifier: false
 verifyDepsBeforeRun: install
 
 minimumReleaseAgeExclude:
+  - "typescript@7.0.2"
+  - "@typescript/typescript-*"
+  - "@typescript/typescript6@6.0.2"
   - postcss@8.5.10
   - "@babel/plugin-transform-modules-systemjs@7.29.4"
   - qs@6.15.2

@@ -405,7 +405,6 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: ./shared-module/packages/exercise-protocol
       - name: Typecheck
-        # Invoked from repo root with -p so it uses the root `tsc`, not the workspace's typescript@6.
         run: pnpm exec tsc -p ./shared-module/packages/exercise-protocol --noEmit
       - name: Check generated guards are up to date
         run: |

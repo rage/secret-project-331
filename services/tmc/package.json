@@ -83,11 +83,12 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@types/tar-stream": "^3.1.4",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@vitejs/plugin-react": "^6.0.3",
     "jsdom": "^27.0.0",
     "postcss-styled-syntax": "^0.7.2",
     "pyodide": "^314.0.1",
-    "typescript": "^6.0.3",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "^4.1.9"
   },

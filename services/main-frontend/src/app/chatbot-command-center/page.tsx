@@ -1,21 +1,30 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import ChatbotCommandCenter from "./ChatbotCommandCenter"
 
+import { getChatbotCommandCenterDataOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const ChatbotCommandCenterPage: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("chatbot-command-center-heading"))
 
+  const chatbotQuery = useQuery({
+    ...getChatbotCommandCenterDataOptions(),
+  })
+
   return (
     <>
       <h1>{t("title-chatbot-command-center")}</h1>
-      <ChatbotCommandCenter />
+      <QueryResult query={chatbotQuery}>
+        {(dataArray) => <ChatbotCommandCenter chatbotData={dataArray} />}
+      </QueryResult>
     </>
   )
 }

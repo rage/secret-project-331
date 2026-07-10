@@ -1,7 +1,6 @@
 {
   "recommendations": [
     "oxc.oxc-vscode",
-    "TypeScriptTeam.native-preview",
     "editorconfig.editorconfig",
     "rust-lang.rust-analyzer",
     "ms-kubernetes-tools.vscode-kubernetes-tools",

@@ -184,6 +184,6 @@
     ],
   },
   "extensions": {
-    "recommendations": ["mkhl.direnv", "TypeScriptTeam.native-preview", "oxc.oxc-vscode"],
+    "recommendations": ["mkhl.direnv", "oxc.oxc-vscode"],
   },
 }

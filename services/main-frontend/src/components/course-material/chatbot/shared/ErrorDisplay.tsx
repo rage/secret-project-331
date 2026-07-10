@@ -11,7 +11,8 @@ import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normaliz
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 
 interface ErrorDisplayProps {
-  error: unknown | string
+  /// An unknown error type, can also be StreamEventError
+  error: unknown
 }
 
 /** Formats chatbot errors using normalized display metadata. */
@@ -70,7 +71,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
   const { t } = useTranslation()
   const [showDetails, setShowDetails] = useState(false)
 
-  let parsed = zStreamEventError.safeParse(error)
+  const parsed = zStreamEventError.safeParse(error)
 
   const formattedError = parsed.success
     ? {
@@ -94,7 +95,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
           box-shadow:
             0 2px 8px ${baseTheme.colors.red[200]}60,
             0 1px 3px ${baseTheme.colors.red[300]}40;
-          overflow: scroll;
+          overflow: auto;
           backdrop-filter: blur(4px);
         `}
       >

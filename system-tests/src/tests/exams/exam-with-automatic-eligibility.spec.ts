@@ -31,7 +31,6 @@ test("Can take exam after enough course points", async ({ page, headless }, test
   await selectCourseInstanceIfPrompted(page)
   await page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).waitFor()
   await page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
-  await page.getByRole("button", { name: "Try again" }).waitFor()
   await expect(page.frameLocator("iframe").getByRole("checkbox", { name: "b" })).toBeChecked()
   await page.getByRole("button", { name: "Submit" }).click()
   await page.getByRole("button", { name: "Try again" }).waitFor()

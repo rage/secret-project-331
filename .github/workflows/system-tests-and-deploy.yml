@@ -642,5 +642,5 @@ jobs:
         working-directory: ./system-tests/
 
       - name: Run tsc
-        # Native TS 7 (root `tsc`), invoked from repo root with -p so it uses the root compiler.
+        # Invoked from repo root with -p so it uses the root `tsc`, not the workspace's typescript@6.
         run: pnpm exec tsc -p ./system-tests --noEmit

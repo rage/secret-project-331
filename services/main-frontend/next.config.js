@@ -11,8 +11,8 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Type errors are gated by the separate fast native-TS 7 check (bin/tsc-check-all + the CI
-  // "Typecheck (native TS 7)" step), so skip Next's slower in-build type-check.
+  // Type errors are gated by the separate fast tsc check (bin/tsc-check-all + the CI
+  // "Typecheck" step), so skip Next's slower in-build type-check.
   typescript: {
     ignoreBuildErrors: true,
   },

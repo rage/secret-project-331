@@ -48,8 +48,8 @@ updateNotifier: false
 verifyDepsBeforeRun: install
 
 minimumReleaseAgeExclude:
-  # TypeScript 7.0 GA (native) + v6 API compat package, published at GA and newer than the 7-day gate.
-  # typescript@7 lists all 20 platform native-binary packages as deps, so exempt them all.
+  # TypeScript 7.0 GA + the v6 API compat package, published at GA and newer than the 7-day gate.
+  # typescript@7 lists all 20 platform binary packages as deps, so exempt them all.
   - "typescript@7.0.2"
   - "@typescript/typescript-*"
   - "@typescript/typescript6@6.0.2"

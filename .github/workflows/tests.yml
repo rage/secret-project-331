@@ -171,7 +171,7 @@ jobs:
       - name: pnpm install --frozen-lockfile
         run: pnpm install --frozen-lockfile
         working-directory: ./services/cms
-      - name: Typecheck (native TS 7)
+      - name: Typecheck
         run: pnpm exec tsc -p ./services/cms --noEmit
       - name: Run tests
         run: pnpm run test
@@ -227,7 +227,7 @@ jobs:
       - name: pnpm install --frozen-lockfile
         run: pnpm install --frozen-lockfile
         working-directory: ./services/quizzes
-      - name: Typecheck (native TS 7)
+      - name: Typecheck
         run: pnpm exec tsc -p ./services/quizzes --noEmit
       - name: Run tests
         run: pnpm run test
@@ -254,7 +254,7 @@ jobs:
       - name: pnpm install --frozen-lockfile
         run: pnpm install --frozen-lockfile
         working-directory: ./services/main-frontend
-      - name: Typecheck (native TS 7)
+      - name: Typecheck
         run: pnpm exec tsc -p ./services/main-frontend --noEmit
       - name: Run tests
         run: pnpm run test
@@ -281,7 +281,7 @@ jobs:
       - name: pnpm install --frozen-lockfile
         run: pnpm install --frozen-lockfile
         working-directory: ./services/example-exercise
-      - name: Typecheck (native TS 7)
+      - name: Typecheck
         run: pnpm exec tsc -p ./services/example-exercise --noEmit
       - name: Test Summary
         if: always()
@@ -305,7 +305,7 @@ jobs:
       - name: pnpm install --frozen-lockfile
         run: pnpm install --frozen-lockfile
         working-directory: ./services/tmc
-      - name: Typecheck (native TS 7)
+      - name: Typecheck
         run: pnpm exec tsc -p ./services/tmc --noEmit
       - name: Test Summary
         if: always()
@@ -405,7 +405,7 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: ./shared-module/packages/exercise-protocol
       - name: Typecheck
-        # Native TS 7 (root `tsc`), invoked from repo root with -p so it uses the root compiler.
+        # Invoked from repo root with -p so it uses the root `tsc`, not the workspace's typescript@6.
         run: pnpm exec tsc -p ./shared-module/packages/exercise-protocol --noEmit
       - name: Check generated guards are up to date
         run: |

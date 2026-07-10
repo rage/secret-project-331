@@ -2,7 +2,6 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
-# Type-checks run with the native TypeScript 7 compiler (root `tsc` = @typescript/native).
 # Invoke from the repo root with `-p <dir>` (do NOT `cd` into the workspace: that would pick up
 # the workspace's own typescript@6 `tsc`). Resolution still follows each project's node_modules.
 run_command pnpm exec concurrently \

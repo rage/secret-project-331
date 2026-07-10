@@ -91,7 +91,7 @@ const MultipleChoiceSubmission: React.FC<
       >
         <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
       </div>
-      <p
+      <div
         className={css`
           color: ${quizTheme.quizBodyColor};
           font-size: ${quizTheme.quizBodyFontSize};
@@ -101,7 +101,7 @@ const MultipleChoiceSubmission: React.FC<
         {public_quiz_item.body && (
           <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.body} />
         )}
-      </p>
+      </div>
       <div
         className={css`
           display: flex;

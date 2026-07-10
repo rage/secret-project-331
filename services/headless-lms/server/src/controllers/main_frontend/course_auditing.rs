@@ -1,5 +1,5 @@
 use models::courses::{CourseToAudit, CourseToAuditUpdate};
-use utoipa::{OpenApi, ToSchema};
+use utoipa::OpenApi;
 
 use crate::prelude::*;
 

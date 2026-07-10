@@ -4,20 +4,15 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { ArrowDown } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import CourseAuditingCard from "./CourseAuditingCard"
-import SectionCollapsibleHeader from "./SectionCollapsibleHeader"
 import {
-  analysisSectionBodyId,
-  analysisSectionHeadingId,
-  type AnalysisSectionIndex,
   CourseFilterIcon,
   ICON_SIZE_SECTION,
   ICON_SIZE_SECTION_BADGE,
-  SECTION_HEADER_ICONS,
   sectionBodyStyles,
   sectionCardStyles,
   sectionChevronStyles,
@@ -25,8 +20,7 @@ import {
   sectionHeaderRowStyles,
   sectionTitleStyles,
   sectionToggleStyles,
-  subsectionTitleStyles,
-} from "./analysisFormDomain"
+} from "./courseAuditingStyles"
 
 import { getCoursesForAuditingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { CourseToAudit } from "@/generated/api/types.generated"
@@ -38,10 +32,9 @@ import { Button, Checkbox, nullIfEmpty, QueryResult, TextField } from "@/shared-
 export type CourseFilter = {
   search_course: string
   empty_uh_course_code: boolean
-  ended: boolean
+  closed: boolean
 }
 
-// TODO: can save and prepare for backend ??
 const CourseAuditing = () => {
   const { t } = useTranslation()
   const getCoursesForAuditing = useQuery(getCoursesForAuditingOptions())
@@ -78,7 +71,11 @@ const CourseAuditing = () => {
           if (filterProps.empty_uh_course_code && course.uh_course_code !== null) {
             return false
           }
-          if (filterProps.ended && !course.closed_at) {
+          if (
+            filterProps.closed && course.closed_at != null
+              ? parseISO(course.closed_at).getTime() < Date.now()
+              : false
+          ) {
             return false
           }
           return true
@@ -87,7 +84,6 @@ const CourseAuditing = () => {
     [courseData, filterProps],
   )
 
-  //console.log(parseISO(filteredCourses[47]?.closed_at) < Date.now())
   return (
     <div
       className={css`
@@ -124,13 +120,15 @@ const CourseAuditing = () => {
             {t("button-reset")}
           </Button>
         </div>
-        <TextField
-          name="search_course"
-          control={control}
-          rules={nullIfEmpty}
-          label={t("course-auditing-filter-search-course")}
-          description={t("course-auditing-filter-search-course-description")}
-        />
+        <div className={sectionHeaderRowStyles}>
+          <TextField
+            name="search_course"
+            control={control}
+            rules={nullIfEmpty}
+            label={t("course-auditing-filter-search-course")}
+            description={t("course-auditing-filter-search-course-description")}
+          />
+        </div>
         {expanded && (
           <div className={sectionBodyStyles}>
             <Checkbox
@@ -138,7 +136,7 @@ const CourseAuditing = () => {
               control={control}
               label={t("course-auditing-filter-empty-uh-course-code")}
             />
-            <Checkbox name="ended" control={control} label={t("course-auditing-filter-closed")} />
+            <Checkbox name="closed" control={control} label={t("course-auditing-filter-closed")} />
           </div>
         )}
       </div>

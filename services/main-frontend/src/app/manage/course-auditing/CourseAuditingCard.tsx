@@ -15,7 +15,12 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { uhLinkStyles } from "./analysisFormDomain"
+import {
+  uhCalloutStyles,
+  uhCalloutTitleStyles,
+  uhLineStyles,
+  uhLinkStyles,
+} from "./courseAuditingStyles"
 
 import { updateCourseAfterAuditingMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseToAudit, CourseToAuditUpdate } from "@/generated/api/types.generated"
@@ -107,8 +112,9 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
   const FieldSet = styled.fieldset`
     margin-bottom: 1rem;
     border: 1px solid ${baseTheme.colors.gray[200]};
-    border-radius: 4px;
+    border-radius: 0.5rem;
     padding: 0.5rem 1rem;
+    background: white;
   `
 
   const Legend = styled.legend`
@@ -239,10 +245,28 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               <Legend>{t("text-field-label-description")}</Legend>
               <span> {course.description} </span>
             </FieldSet>
+            <div className={uhCalloutStyles}>
+              <p className={uhCalloutTitleStyles}>{t("text-field-label-description")}</p>
+              <p className={uhLineStyles}>{course.description}</p>
+            </div>
+            <div>
+              <strong>{t("title-default-module-uh-course-code") + ":"}</strong>
+              <br />
+              <span>{course.uh_course_code}</span>
+            </div>
+            <div>
+              <p className={fieldTitleStyle}>{t("title-default-module-uh-course-code")}:</p>
+              <br />
+              <span> {course.uh_course_code} </span>
+            </div>
             <FieldSet>
               <Legend>{t("title-default-module-uh-course-code")}</Legend>
               <span> {course.uh_course_code} </span>
             </FieldSet>
+            <div className={uhCalloutStyles}>
+              <p className={uhCalloutTitleStyles}>{t("title-default-module-uh-course-code")}</p>
+              <p className={uhLineStyles}>{course.uh_course_code}</p>
+            </div>
           </div>
         )}
         <div

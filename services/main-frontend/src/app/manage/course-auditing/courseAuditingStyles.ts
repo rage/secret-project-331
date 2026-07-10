@@ -1,20 +1,9 @@
 import { css } from "@emotion/css"
-import {
-  AccountsGroupPeople,
-  Coins,
-  Document,
-  Filter,
-  Pencil,
-  Statistics,
-  Users,
-} from "@vectopus/atlas-icons-react"
-import type { TFunction } from "i18next"
-import { createElement, type ReactNode } from "react"
+import { Filter } from "@vectopus/atlas-icons-react"
 
-import type { AnalysisWorkspaceV1, CourseDesignerStage } from "@/generated/api/types.generated"
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { stringToNumberOrNull } from "@/shared-module/components"
 
 export const STAGE_ANALYSIS: CourseDesignerStage = "Analysis"
 export const FIELD_CREDITS = "credits"
@@ -40,219 +29,7 @@ export const ROWS_SHORT = 2
 export const ICON_SIZE_SECTION = 14
 export const ICON_SIZE_SECTION_BADGE = 18
 
-export const ANALYSIS_WORKSPACE_SCHEMA_V1 = "analysis_v1" as const
-
-export const LANGUAGE_OPTIONS = [
-  { key: "en", value: "English" },
-  { key: "fi", value: "Finnish" },
-  { key: "sv", value: "Swedish" },
-  { key: "no", value: "Norwegian" },
-  { key: "da", value: "Danish" },
-  { key: "de", value: "German" },
-  { key: "fr", value: "French" },
-  { key: "es", value: "Spanish" },
-  { key: "it", value: "Italian" },
-] as const
-export const SECTION_COUNT = 6
-export const SECTION_DOM_PREFIX = "analysis-section-"
-
-export type AnalysisSectionIndex = 1 | 2 | 3 | 4 | 5 | 6
-
-export type AnalysisWorkspaceFormValues = Omit<AnalysisWorkspaceV1, "open_period_all">
-
-export type ContributorFieldKey = keyof Pick<
-  AnalysisWorkspaceV1,
-  | "contributors_instructional_designer"
-  | "contributors_subject_matter_experts"
-  | "contributors_editors"
-  | "contributors_support_staff"
->
-
-/** Stable DOM id for the section heading (aria-labelledby). */
-export function analysisSectionHeadingId(n: AnalysisSectionIndex): string {
-  return `${SECTION_DOM_PREFIX}${n}-heading`
-}
-
-/** Stable DOM id for the collapsible section body (aria-controls). */
-export function analysisSectionBodyId(n: AnalysisSectionIndex): string {
-  return `${SECTION_DOM_PREFIX}${n}-body`
-}
-
-/** Default empty Analysis workspace v1 payload. */
-export function defaultAnalysisWorkspaceV1(): AnalysisWorkspaceV1 {
-  return {
-    course_title: null,
-    credits: null,
-    language: null,
-    target_group: null,
-    mode_synchronous: false,
-    mode_asynchronous: false,
-    open_period_i: false,
-    open_period_ii: false,
-    open_period_iii: false,
-    open_period_iv: false,
-    open_period_all: false,
-    responsible_teachers: null,
-    degree_programme: null,
-    course_type: null,
-    students_demographic_data: null,
-    wishes_topics: null,
-    wishes_content_format_text: false,
-    wishes_content_format_video: false,
-    wishes_content_format_podcast: false,
-    wishes_content_format_xr: false,
-    wishes_content_format_notes: null,
-    wishes_assessment_text: null,
-    wishes_other_suggestions: null,
-    market_results: null,
-    resources_university: null,
-    resources_purchase_budget: null,
-    contributors_instructional_designer: null,
-    contributors_subject_matter_experts: null,
-    contributors_editors: null,
-    contributors_support_staff: null,
-  }
-}
-
-/** Parses API workspace blob into AnalysisWorkspaceV1. */
-export function parseAnalysisWorkspaceFromApi(
-  raw: unknown | null | undefined,
-): AnalysisWorkspaceV1 {
-  if (raw == null || typeof raw !== "object") {
-    return defaultAnalysisWorkspaceV1()
-  }
-  const value = raw as { schema?: string; payload?: unknown }
-  if (
-    value.schema === ANALYSIS_WORKSPACE_SCHEMA_V1 &&
-    value.payload != null &&
-    typeof value.payload === "object"
-  ) {
-    return { ...defaultAnalysisWorkspaceV1(), ...(value.payload as AnalysisWorkspaceV1) }
-  }
-  return defaultAnalysisWorkspaceV1()
-}
-
-/** Drops `open_period_all` so it is not a registered field (derived on save). */
-export function stripOpenPeriodAll(v: AnalysisWorkspaceV1): AnalysisWorkspaceFormValues {
-  const { open_period_all: _, ...rest } = v
-  return rest
-}
-
-/** API payload includes `open_period_all`, derived from the four period flags. */
-export function withDerivedOpenPeriodAll(values: AnalysisWorkspaceFormValues): AnalysisWorkspaceV1 {
-  return {
-    ...values,
-    open_period_all: Boolean(
-      values.open_period_i &&
-      values.open_period_ii &&
-      values.open_period_iii &&
-      values.open_period_iv,
-    ),
-  }
-}
-
-/** Maps credits text input to `number | null` and validates finiteness. */
-export function buildCreditsFieldRules(t: TFunction) {
-  return {
-    setValueAs: stringToNumberOrNull,
-    validate: (v: unknown) =>
-      v == null ||
-      (typeof v === "number" && Number.isFinite(v)) ||
-      t("course-plans-analysis-error-credits-invalid"),
-  }
-}
-
-export const SECTION_NAV_KEYS = [
-  "course-plans-analysis-section-1",
-  "course-plans-analysis-section-2",
-  "course-plans-analysis-section-3",
-  "course-plans-analysis-section-4",
-  "course-plans-analysis-section-5",
-  "course-plans-analysis-section-6",
-] as const
-
-export const SECTION_HEADER_ICONS = [
-  Filter,
-  Document,
-  Users,
-  Pencil,
-  Statistics,
-  Coins,
-  AccountsGroupPeople,
-] as const
-
 export const CourseFilterIcon = Filter
-
-export const CONTENT_FORMAT_FIELDS = [
-  ["wishes_content_format_text", "course-plans-analysis-format-text"],
-  ["wishes_content_format_video", "course-plans-analysis-format-video"],
-  ["wishes_content_format_podcast", "course-plans-analysis-format-podcast"],
-  ["wishes_content_format_xr", "course-plans-analysis-format-xr"],
-] as const
-
-export const CONTRIBUTOR_ROLES = [
-  {
-    dutiesKey: "course-plans-analysis-role-instructional-designer-duties",
-    field: "contributors_instructional_designer",
-    nameKey: "course-plans-analysis-role-instructional-designer",
-  },
-  {
-    dutiesKey: "course-plans-analysis-role-sme-duties",
-    field: "contributors_subject_matter_experts",
-    nameKey: "course-plans-analysis-role-sme",
-  },
-  {
-    dutiesKey: "course-plans-analysis-role-editors-duties",
-    field: "contributors_editors",
-    nameKey: "course-plans-analysis-role-editors",
-  },
-  {
-    dutiesKey: "course-plans-analysis-role-support-duties",
-    field: "contributors_support_staff",
-    nameKey: "course-plans-analysis-role-support",
-  },
-] as const satisfies ReadonlyArray<{
-  dutiesKey: string
-  field: ContributorFieldKey
-  nameKey: string
-}>
-
-/**
- * Renders a line of localized resource text with mailto and https links activated.
- */
-export function linkifyResourceLine(line: string): ReactNode {
-  const re = /(https?:\/\/[^\s]+)|([\w.+-]+@[\w.-]+\.[a-z]{2,})/gi
-  const parts: ReactNode[] = []
-  let last = 0
-  let match: RegExpExecArray | null
-
-  while ((match = re.exec(line)) !== null) {
-    if (match.index > last) {
-      parts.push(line.slice(last, match.index))
-    }
-    const url = match[1]
-    const email = match[2]
-    const href = url ?? `${MAILTO_PREFIX}${email}`
-    const label = match[0]
-    parts.push(
-      createElement(
-        "a",
-        {
-          key: `${match.index}-${label}`,
-          href,
-          className: uhLinkStyles,
-          ...(url ? { target: EXTERNAL_LINK_TARGET, rel: EXTERNAL_LINK_REL } : {}),
-        },
-        label,
-      ),
-    )
-    last = match.index + match[0].length
-  }
-  if (last < line.length) {
-    parts.push(line.slice(last))
-  }
-  return parts.length > 0 ? parts : line
-}
 
 export const formRootStyles = css`
   display: flex;
@@ -402,7 +179,7 @@ export const sectionChevronStyles = (expanded: boolean) => css`
 export const sectionBodyStyles = css`
   display: flex;
   flex-direction: column;
-  gap: 1.125rem;
+  gap: 1rem;
 `
 
 export const sectionTitleStyles = css`

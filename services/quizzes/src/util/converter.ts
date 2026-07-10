@@ -1,4 +1,4 @@
-import {
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
   PrivateSpecQuizItemCheckbox,
@@ -12,7 +12,7 @@ import {
   PrivateSpecQuizItemTimeline,
   QuizItemOption,
 } from "../../types/quizTypes/privateSpec"
-import {
+import type {
   PublicQuizItemOption,
   PublicSpecQuiz,
   PublicSpecQuizItem,

@@ -6,10 +6,10 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SCHEDULE_STAGE_COUNT } from "../../scheduleConstants"
-import { StageCardViewModel } from "../../scheduleMappers"
+import type { StageCardViewModel } from "../../scheduleMappers"
 import StageCard from "../StageCard"
 
-import { CourseDesignerStage } from "@/generated/api/types.generated"
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import { Button } from "@/shared-module/components"
 
 const toolbarStyles = css`
@@ -41,7 +41,7 @@ const validationErrorStyles = css`
 
 interface ScheduleEditorStepProps {
   draftStageCount: number
-  stageCards: Array<StageCardViewModel>
+  stageCards: StageCardViewModel[]
   stageLabel: (stage: CourseDesignerStage) => string
   validationError: string | null
   startsOnMonth: string

@@ -29,7 +29,7 @@ interface Props {
 interface Comment {
   selectedText: string
   comment: string
-  relatedBlocks: Array<FeedbackBlock>
+  relatedBlocks: FeedbackBlock[]
 }
 
 const CLOSE_SYMBOL = "×"
@@ -38,7 +38,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
   const { t } = useTranslation()
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [selection, setSelection] = useAtom(selectionAtom)
-  const [comments, setComments] = useState<Array<Comment>>([])
+  const [comments, setComments] = useState<Comment[]>([])
   const [comment, setComment] = useState("")
   const [error, setError] = useState<string | null>(null)
 
@@ -90,7 +90,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
       return
     }
 
-    const relatedBlocks: Array<FeedbackBlock> = []
+    const relatedBlocks: FeedbackBlock[] = []
     const blocks = document.getElementsByClassName(courseMaterialBlockClass)
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i]

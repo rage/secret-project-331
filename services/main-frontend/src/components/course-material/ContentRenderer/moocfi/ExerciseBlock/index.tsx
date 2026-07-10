@@ -10,7 +10,7 @@ import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import ExerciseStatusMessage from "./ExerciseStatusMessage"
 import ExerciseTask from "./ExerciseTask"
@@ -31,7 +31,7 @@ import {
   postStartPeerOrSelfReview,
   postSubmission,
 } from "@/generated/course-material-api/sdk.generated"
-import {
+import type {
   CourseMaterialExercise,
   StudentExerciseSlideSubmission,
 } from "@/generated/course-material-api/types.generated"

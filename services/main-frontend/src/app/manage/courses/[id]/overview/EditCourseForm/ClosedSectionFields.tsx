@@ -5,7 +5,7 @@ import React from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { EditCourseFormValues } from "."
+import type { EditCourseFormValues } from "."
 
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"

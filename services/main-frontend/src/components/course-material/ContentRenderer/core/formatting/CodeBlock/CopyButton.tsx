@@ -1,11 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { createPopper, Instance as PopperInstance } from "@popperjs/core"
+import type { Instance as PopperInstance } from "@popperjs/core"
+import { createPopper } from "@popperjs/core"
 import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { animated, SpringValue, useTransition } from "react-spring"
+import type { SpringValue } from "react-spring"
+import { animated, useTransition } from "react-spring"
 
 import { useCopyHtmlContentToClipboard } from "./utils"
 

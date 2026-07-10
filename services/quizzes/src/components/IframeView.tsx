@@ -2,24 +2,22 @@ import React, { useEffect, useRef, useState } from "react"
 import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 
-import {
+import type {
   OldModelSolutionQuiz as oldModelSolutionQuiz,
   OldPublicQuiz,
   OldQuiz,
   OldQuizAnswer,
 } from "../../types/oldQuizTypes"
-import { UserAnswer } from "../../types/quizTypes/answer"
-import { ItemAnswerFeedback } from "../../types/quizTypes/grading"
-import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
-import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
-import { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
+import type { UserAnswer } from "../../types/quizTypes/answer"
+import type { ItemAnswerFeedback } from "../../types/quizTypes/grading"
+import type { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
+import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
+import type { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
 
 import Renderer from "@/components/exercise-service-views/Renderer"
 import MessagePortContext from "@/contexts/MessagePortContext"
-import {
-  forgivingIsSetStateMessage,
-  UserInformation,
-} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { forgivingIsSetStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import {
   isAnswerExerciseIframeState,
   isExerciseEditorIframeState,
@@ -34,7 +32,7 @@ import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz
 import { migratePrivateSpecQuiz } from "@/util/migration/privateSpecQuiz"
 import migratePublicSpecQuiz from "@/util/migration/publicSpecQuiz"
 import migrateQuizAnswer from "@/util/migration/userAnswerSpec"
-import { StudentExerciseTaskSubmissionResult } from "@/utils/exerciseServiceApi"
+import type { StudentExerciseTaskSubmissionResult } from "@/utils/exerciseServiceApi"
 import { setExerciseServiceReloadBridge } from "@/utils/iframeReloadBridge"
 
 export interface SubmissionData {

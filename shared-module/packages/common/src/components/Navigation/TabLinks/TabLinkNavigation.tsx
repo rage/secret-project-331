@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { theme } from "../../../styles"
 
-import { TabLinkProps } from "./TabLink"
+import type { TabLinkProps } from "./TabLink"
 
 interface TabLinkNavigationProps {
   orientation?: "horizontal" | "vertical"

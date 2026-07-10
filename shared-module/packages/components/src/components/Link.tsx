@@ -27,7 +27,7 @@ type CommonLinkExtras = PressHandlers & {
   loadingLabel?: string
 }
 
-type ButtonLikeStyling = {
+interface ButtonLikeStyling {
   variant?: ButtonVariant
   size?: ButtonSize
   icon?: React.ReactNode

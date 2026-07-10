@@ -10,7 +10,7 @@ import NewOrEditPageForm from "../NewOrEditPageForm"
 import PageAudioWidget from "./PageAudioWidget"
 
 import type { Chapter, Page } from "@/generated/api/types.generated"
-import { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
+import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"

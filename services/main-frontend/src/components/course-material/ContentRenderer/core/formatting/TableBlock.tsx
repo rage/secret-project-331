@@ -3,9 +3,9 @@
 import { css, cx } from "@emotion/css"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
-import { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
 import { stringToNumberOrPlaceholder } from "@/shared-module/common/utils/numbers"

@@ -1,6 +1,7 @@
 "use client"
 
-import React, { ReactElement, useState } from "react"
+import type { ReactElement } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import DropdownMenu from "../DropdownMenu"

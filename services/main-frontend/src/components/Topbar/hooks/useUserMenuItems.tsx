@@ -1,6 +1,7 @@
 "use client"
 
-import { ReactElement, useContext, useMemo } from "react"
+import type { ReactElement } from "react"
+import { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
@@ -20,14 +21,14 @@ export interface UserMenuItem {
 }
 
 export interface UseUserMenuItemsProps {
-  menuOptions?: Array<{
+  menuOptions?: {
     type: "link" | "action" | "separator"
     label?: string
     href?: string
     onAction?: () => void
     icon?: ReactElement
     isDestructive?: boolean
-  }>
+  }[]
   onMenuClose?: () => void
 }
 

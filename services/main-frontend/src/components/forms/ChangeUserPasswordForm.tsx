@@ -12,7 +12,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
-type ChangePasswordFormFields = {
+interface ChangePasswordFormFields {
   current_password: string
   new_password: string
   password_confirmation: string

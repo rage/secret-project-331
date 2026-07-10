@@ -14,7 +14,8 @@ import ExerciseTaskIframe from "../ExerciseTaskIframe"
 import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
 import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
 
-import { getPeerReviewBeginningScrollingId, PeerOrSelfReviewViewProps } from "."
+import type { PeerOrSelfReviewViewProps } from "."
+import { getPeerReviewBeginningScrollingId } from "."
 
 import YellowBox from "@/components/course-material/YellowBox"
 import { fetchPeerOrSelfReviewDataByExerciseIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
@@ -38,7 +39,7 @@ import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
 import { courseMaterialAtom } from "@/state/course-material"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = ({
   exerciseNumber,
@@ -297,7 +298,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
               <div key={course_material_exercise_task.id}>
                 <div data-testid="assignment">
                   <ContentRenderer
-                    data={(course_material_exercise_task.assignment as Array<Block<unknown>>) ?? []}
+                    data={(course_material_exercise_task.assignment as Block<unknown>[]) ?? []}
                     isExam={false}
                     dontAllowBlockToBeWiderThanContainerWidth={true}
                   />

@@ -11,13 +11,13 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
-type ResetPasswordFormFields = {
+interface ResetPasswordFormFields {
   token: string
   new_password: string
   password_confirmation: string
 }
 
-type ResetPasswordFormProps = {
+interface ResetPasswordFormProps {
   token: string
 }
 

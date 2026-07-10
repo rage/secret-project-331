@@ -6,7 +6,7 @@ import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
 
-import { AsideWithImageBlockAttributes } from "."
+import type { AsideWithImageBlockAttributes } from "."
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"

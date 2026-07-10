@@ -1,7 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { TabListState, useTabListState } from "@react-stately/tabs"
+import type { TabListState } from "@react-stately/tabs"
+import { useTabListState } from "@react-stately/tabs"
 import { usePathname, useRouter } from "next/navigation"
 import React, { createContext, useContext, useMemo, useRef } from "react"
 import { useTabList } from "react-aria"

@@ -1,15 +1,16 @@
 "use client"
 
-import {
+import type {
   MutationFunction,
   MutationFunctionContext,
-  useMutation,
   UseMutationOptions,
   UseMutationResult,
 } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { BellXmark } from "@vectopus/atlas-icons-react"
-import { ReactNode } from "react"
-import toast, { Toast, ToastOptions } from "react-hot-toast"
+import type { ReactNode } from "react"
+import type { Toast, ToastOptions } from "react-hot-toast"
+import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
 import ErrorNotification from "../components/Notifications/Error"

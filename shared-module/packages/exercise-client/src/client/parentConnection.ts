@@ -83,7 +83,7 @@ export function createParentConnection(options: ParentConnectionOptions): Parent
     parent.postMessage("ready", "*")
   }
 
-  const scheduleRetry = (attempt: number = 1) => {
+  const scheduleRetry = (attempt = 1) => {
     if (portReceived) {
       return
     }

@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import ContentRenderer from "@/components/course-material/ContentRenderer"
 import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 export interface ExerciseAssignmentPreviewProps {
   tasks: CourseMaterialExerciseTask[]

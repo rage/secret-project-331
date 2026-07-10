@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { parseISO } from "date-fns"
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"

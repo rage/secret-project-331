@@ -4,7 +4,8 @@ import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import { usePathname } from "next/navigation"
-import React, { ReactNode } from "react"
+import type { ReactNode } from "react"
+import React from "react"
 
 import Topbar from "./Topbar"
 
@@ -16,7 +17,7 @@ import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
 
-type LayoutProps = {
+interface LayoutProps {
   children: ReactNode
   noVisibleLayout?: boolean
 }

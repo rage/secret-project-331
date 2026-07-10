@@ -3,7 +3,7 @@
 import KaTex from "katex"
 import "katex/dist/katex.min.css"
 
-import { StringWithHTML } from "@/../types"
+import type { StringWithHTML } from "@/../types"
 import type { Term } from "@/generated/course-material-api/types.generated"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 

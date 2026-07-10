@@ -6,7 +6,7 @@ import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
 import BlockWrapper from "../BlockWrapper"
 
-import { AsideComponentProps } from "."
+import type { AsideComponentProps } from "."
 
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"

@@ -11,7 +11,7 @@ import StatsHeader from "../../StatsHeader"
 import NoDataMessage from "../NoDataMessage"
 
 import { getCoursePageVisitDatumSummaryByCountriesOptions } from "@/generated/api/@tanstack/react-query.generated"
-import countries from "@/shared-module/common/locales/en/countries.json"
+import type countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"

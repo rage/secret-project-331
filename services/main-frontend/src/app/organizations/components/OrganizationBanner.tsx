@@ -14,7 +14,7 @@ import {
   organizationFrontPageRoute,
 } from "@/shared-module/common/utils/routes"
 
-type Props = {
+interface Props {
   organization: {
     id: string
     name: string

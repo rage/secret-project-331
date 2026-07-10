@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme } from "@/shared-module/common/styles"
 
-type ResetFilterProps = {
+interface ResetFilterProps {
   threshold: number | null
   setThreshold: (val: number | null) => void
   resetAllBelowMaxPoints: boolean

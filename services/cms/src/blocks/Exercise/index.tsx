@@ -1,7 +1,8 @@
 "use client"
 
 /* oxlint-disable i18next/no-literal-string */
-import { ComponentType, useEffect } from "react"
+import type { ComponentType } from "react"
+import { useEffect } from "react"
 import { v4 } from "uuid"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"

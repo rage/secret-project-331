@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { PermissionPage } from "@/components/PermissionPage"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"

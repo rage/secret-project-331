@@ -6,7 +6,7 @@ import KaTex from "katex"
 import React from "react"
 
 import "katex/dist/katex.min.css"
-import { TextAttributes } from "."
+import type { TextAttributes } from "."
 
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 

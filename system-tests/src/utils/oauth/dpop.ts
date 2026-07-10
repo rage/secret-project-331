@@ -3,7 +3,10 @@ import { exportJWK, generateKeyPair, type JWK, SignJWT } from "jose"
 
 type KeyLike = CryptoKey | import("crypto").KeyObject
 
-export type DPoPKey = { privateKey: KeyLike; publicJwk: JWK }
+export interface DPoPKey {
+  privateKey: KeyLike
+  publicJwk: JWK
+}
 
 export async function createDPoPKey(): Promise<DPoPKey> {
   const { publicKey, privateKey } = await generateKeyPair("ES256")

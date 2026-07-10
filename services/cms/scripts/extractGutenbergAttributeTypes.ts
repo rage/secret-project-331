@@ -66,7 +66,7 @@ urlThatDoesntCrashWithPaths.prototype = URL.prototype
 global.URL = urlThatDoesntCrashWithPaths
 
 class FakeMutationObserver {
-  observe() {
+  public observe() {
     // No op
   }
 }
@@ -118,7 +118,7 @@ async function main() {
     return newName.charAt(0).toUpperCase() + newName.slice(1) + "Attributes"
   }
 
-  const blockTypes: Array<BlockType<Record<string, unknown>>> = blocks.getBlockTypes()
+  const blockTypes: BlockType<Record<string, unknown>>[] = blocks.getBlockTypes()
   const jsonSchemaTypes: JSONSchema[] = blockTypes
     .reverse()
     .map(addSupportsAttributes)
@@ -269,7 +269,7 @@ import type { StringWithHTML } from "."
 }
 
 // oxlint-disable-next-line typescript/no-explicit-any
-function fixProperties(properties: { readonly [x: string]: any }) {
+function fixProperties(properties: Readonly<Record<string, any>>) {
   const res = { ...properties }
   if (properties === null || properties === undefined) {
     return properties

@@ -73,7 +73,7 @@ const CSV_EXAMPLE = `user_id,grade,completion_date
 00000000-0000-0000-0000-000000000001,pass,2024-03-16`
 
 interface AddCompletionsFormProps {
-  courseModules: Array<CourseModule>
+  courseModules: CourseModule[]
   onSubmit: (data: TeacherManualCompletionRequest) => void
   /* Text shown in place of the submit button. */
   submitText?: string

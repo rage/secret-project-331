@@ -7,7 +7,7 @@ import React from "react"
 import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
 import BlockWrapper from "../BlockWrapper"
 
-import { TerminologyBlockAttributes } from "."
+import type { TerminologyBlockAttributes } from "."
 
 import { primaryFont } from "@/shared-module/common/styles"
 import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"

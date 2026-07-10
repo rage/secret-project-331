@@ -27,7 +27,7 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 describe("MessageChannelIFrame", () => {
-  let messageListeners: Array<(event: MessageEvent) => void>
+  let messageListeners: ((event: MessageEvent) => void)[]
   let addEventListenerSpy: jest.SpyInstance
   let removeEventListenerSpy: jest.SpyInstance
 

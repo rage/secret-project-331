@@ -1,4 +1,4 @@
-import { UserConfig } from "@hey-api/openapi-ts"
+import type { UserConfig } from "@hey-api/openapi-ts"
 import path from "path"
 import { fileURLToPath } from "url"
 

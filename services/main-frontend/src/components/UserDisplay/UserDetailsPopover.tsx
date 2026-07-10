@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useOverlayTriggerState } from "@react-stately/overlays"
+import type { useOverlayTriggerState } from "@react-stately/overlays"
 import React, { useRef } from "react"
 import { DismissButton, mergeProps, Overlay, useDialog, usePopover } from "react-aria"
 

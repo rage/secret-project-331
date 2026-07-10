@@ -4,28 +4,29 @@
 /* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { isServer, UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import { isServer } from "@tanstack/react-query"
 import { useState } from "react"
-import { UseFormReturn } from "react-hook-form"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
-import { PlaygroundSettings } from "@/app/playground-tabs/page"
-import { UseParsedPrivateSpecResult } from "@/hooks/playground/useParsedPrivateSpec"
+import type { PlaygroundSettings } from "@/app/playground-tabs/page"
+import type { UseParsedPrivateSpecResult } from "@/hooks/playground/useParsedPrivateSpec"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import {
+import type {
   CurrentStateMessage,
   IframeViewType,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
+import type { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 

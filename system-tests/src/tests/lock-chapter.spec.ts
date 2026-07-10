@@ -79,7 +79,7 @@ test.describe("Chapter locking feature", () => {
       expect(chaptersResponse.ok()).toBeTruthy()
       const chaptersData = await chaptersResponse.json()
       const chapter2 = chaptersData.modules
-        .flatMap((m: { chapters: Array<{ id: string; name: string }> }) => m.chapters)
+        .flatMap((m: { chapters: { id: string; name: string }[] }) => m.chapters)
         .find((c: { name: string }) => c.name.includes("Chapter 2"))
       const lockResponse = await studentPage.request.post(
         `http://project-331.local/api/v0/course-material/chapters/${chapter2.id}/lock`,
@@ -532,7 +532,7 @@ test.describe("Chapter locking feature", () => {
       expect(chaptersResponse.ok()).toBeTruthy()
       const chaptersData = await chaptersResponse.json()
       const chapter2 = chaptersData.modules
-        .flatMap((m: { chapters: Array<{ id: string; name: string }> }) => m.chapters)
+        .flatMap((m: { chapters: { id: string; name: string }[] }) => m.chapters)
         .find((c: { name: string }) => c.name.includes("Chapter 2"))
 
       await student4Page.getByRole("link", { name: "Lock Chapter Test Course" }).click()

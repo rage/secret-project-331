@@ -3,7 +3,7 @@ import { atomFamily } from "jotai/utils"
 
 import { addMonthToStage, removeMonthFromStage } from "./scheduleStageTransforms"
 
-import { CourseDesignerScheduleStageInput } from "@/generated/api/types.generated"
+import type { CourseDesignerScheduleStageInput } from "@/generated/api/types.generated"
 
 export const draftStagesAtomFamily = atomFamily((_planId: string) =>
   atom<CourseDesignerScheduleStageInput[]>([]),

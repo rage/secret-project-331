@@ -9,7 +9,7 @@ import { useMemo } from "react"
 import { orderedUniqueCitationKeys } from "@/components/course-material/references/citationExtraction"
 import { getCourseMaterialReferencesOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { pageContentAtom } from "@/state/course-material/selectors"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 const BIBLIOGRAPHY = "bibliography"
 const EN_US = "en-US"
@@ -36,7 +36,7 @@ const useReferences = (courseId: string) => {
   // inside collapsed expandable blocks are included and the numbering is deterministic. Numbers
   // follow first-occurrence document order (the Vancouver convention) so they match the inline
   // markers.
-  const pageRefs = useMemo<ReadonlyArray<Citations> | undefined>(() => {
+  const pageRefs = useMemo<readonly Citations[] | undefined>(() => {
     if (getCourseReferences.isError) {
       // Surface the failure to the error boundary instead of silently returning an empty list,
       // which would drop the whole references section while inline \cite markers still render.

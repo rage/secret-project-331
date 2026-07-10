@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { ChangeEvent, useEffect, useState } from "react"
+import type { ChangeEvent } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {

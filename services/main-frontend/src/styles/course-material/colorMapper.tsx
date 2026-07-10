@@ -3,7 +3,7 @@
 /* oxlint-disable i18next/no-literal-string */
 // Gutenberg specific, don't use in other contexes
 
-export const colorMap: { [colorName: string]: string | undefined } = {
+export const colorMap: Record<string, string | undefined> = {
   black: "#000000",
   "cyan-bluish-gray": "#ABB8C3",
   white: "#FFFFFF",
@@ -18,7 +18,7 @@ export const colorMap: { [colorName: string]: string | undefined } = {
   "vivid-purple": "#9B51E0",
 }
 
-const gradientColorMap: { [colorName: string]: string | undefined } = {
+const gradientColorMap: Record<string, string | undefined> = {
   "vivid-cyan-blue-to-vivid-purple": "linear-gradient(135deg, #0693e3 0%, #9b51e0 100%)",
   "light-green-cyan-to-vivid-green-cyan": "linear-gradient(135deg, #7adcb4 0%, #00d082 100%)",
   "luminous-vivid-amber-to-luminous-vivid-orange":

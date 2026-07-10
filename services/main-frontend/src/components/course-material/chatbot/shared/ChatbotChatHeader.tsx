@@ -1,15 +1,17 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage, ArrowDownToBracket } from "@vectopus/atlas-icons-react"
-import React, { DOMAttributes } from "react"
+import type { DOMAttributes } from "react"
+import React from "react"
 import { Button, Heading } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import ClarificationTooltip from "../../../ClarificationTooltip"
 
-import DropdownMenu, { DropdownMenuItem } from "@/components/DropdownMenu"
+import type { DropdownMenuItem } from "@/components/DropdownMenu"
+import DropdownMenu from "@/components/DropdownMenu"
 import type {
   ChatbotConversation,
   ChatbotConversationInfo,

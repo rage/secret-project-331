@@ -5,12 +5,12 @@ import { css } from "@emotion/css"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
-import {
+import type {
   CurrentStateMessage,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import { RepositoryExercise } from "@/utils/playgroundSchemas"
+import type { RepositoryExercise } from "@/utils/playgroundSchemas"
 
 interface PlaygroundExerciseEditorIframeProps {
   url: string
@@ -21,7 +21,7 @@ interface PlaygroundExerciseEditorIframeProps {
   showIframeBorders: boolean
   disableSandbox: boolean
   userInformation: UserInformation
-  repositoryExercises: Array<RepositoryExercise>
+  repositoryExercises: RepositoryExercise[]
 }
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"

@@ -6,7 +6,7 @@ import React from "react"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-import { FlipCardAttributes } from "."
+import type { FlipCardAttributes } from "."
 
 import FlipBoxSizeCustomizer from "@/components/blocks/FlipCardSizeCustomizer"
 import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"

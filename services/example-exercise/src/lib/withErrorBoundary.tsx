@@ -1,4 +1,5 @@
-import React, { ComponentClass, ComponentType, ErrorInfo } from "react"
+import type { ComponentClass, ComponentType, ErrorInfo } from "react"
+import React from "react"
 import { Translation } from "react-i18next"
 
 interface ErrorBoundaryState {
@@ -13,20 +14,20 @@ interface ErrorBoundaryState {
  */
 export default function withErrorBoundary<T>(Component: ComponentType<T>): ComponentClass<T> {
   class ErrorBoundary extends React.Component<T, ErrorBoundaryState> {
-    constructor(props: T) {
+    public constructor(props: T) {
       super(props)
       this.state = {}
     }
 
-    static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
+    public static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
       return { error: error instanceof Error ? error.message : String(error) }
     }
 
-    override componentDidCatch(error: Error, info: ErrorInfo) {
+    public override componentDidCatch(error: Error, info: ErrorInfo) {
       console.error("ErrorBoundary caught an error:", error, info.componentStack)
     }
 
-    override render() {
+    public override render() {
       const { error } = this.state
       if (error !== undefined) {
         return (

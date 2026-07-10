@@ -1,9 +1,10 @@
-import React, { Dispatch, SetStateAction } from "react"
+import type { Dispatch, SetStateAction } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
-import { State } from "./IframeView"
+import type { State } from "./IframeView"
 import ViewSubmission from "./ViewSubmission"
 
 import withErrorBoundary from "@/lib/withErrorBoundary"

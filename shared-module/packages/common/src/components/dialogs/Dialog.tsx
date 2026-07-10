@@ -12,7 +12,7 @@ import {
 } from "@react-aria/overlays"
 import { mergeProps } from "@react-aria/utils"
 import { useOverlayTriggerState } from "@react-stately/overlays"
-import { AriaDialogProps } from "@react-types/dialog"
+import type { AriaDialogProps } from "@react-types/dialog"
 import React, { useRef } from "react"
 
 import { typography } from "../../styles"

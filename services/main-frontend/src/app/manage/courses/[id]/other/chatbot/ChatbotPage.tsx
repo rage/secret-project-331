@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import CreateChatbotDialog from "./CreateChatbotDialog"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import {
   getCourseChatbotsOptions,
   setCourseChatbotAsDefaultMutation,

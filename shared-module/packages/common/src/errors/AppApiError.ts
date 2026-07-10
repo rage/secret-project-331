@@ -71,26 +71,26 @@ function parseIssues(value: unknown): CanonicalApiIssue[] {
 }
 
 export class AppApiError extends Error {
-  kind: AppApiErrorKind
-  status: number | null
-  requestId: string | null
-  messageKey: string | null
-  type: string | null
+  public kind: AppApiErrorKind
+  public status: number | null
+  public requestId: string | null
+  public messageKey: string | null
+  public type: string | null
   /** Optional backend machine code. Keep separate from semantic `type` and `messageKey`. */
-  code: string | null
-  userMessage: string | null
-  detail: string | null
-  issues: CanonicalApiIssue[]
-  metadata: Record<string, unknown> | null
-  extra: Record<string, unknown> | null
-  retryAfterSeconds: number | null
-  url: string | null
-  method: string | null
-  body: unknown
-  rawText: string | null
-  override cause?: unknown
+  public code: string | null
+  public userMessage: string | null
+  public detail: string | null
+  public issues: CanonicalApiIssue[]
+  public metadata: Record<string, unknown> | null
+  public extra: Record<string, unknown> | null
+  public retryAfterSeconds: number | null
+  public url: string | null
+  public method: string | null
+  public body: unknown
+  public rawText: string | null
+  public override cause?: unknown
 
-  constructor(init: AppApiErrorInit) {
+  public constructor(init: AppApiErrorInit) {
     const title = init.title?.trim() ? init.title : "Request failed"
     super(title)
     this.name = "AppApiError"

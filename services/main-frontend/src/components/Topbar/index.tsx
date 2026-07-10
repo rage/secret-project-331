@@ -3,7 +3,8 @@
 import { css } from "@emotion/css"
 import { OverlayContainer } from "@react-aria/overlays"
 import { useOverlayTriggerState } from "@react-stately/overlays"
-import React, { ReactElement, useContext } from "react"
+import type { ReactElement } from "react"
+import React, { useContext } from "react"
 import { Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -77,11 +78,11 @@ interface MenuOption {
  */
 
 interface LanguageMenuProps {
-  availableLanguages?: Array<{
+  availableLanguages?: {
     code: string
     name: string
     isDraft?: boolean
-  }>
+  }[]
   onLanguageChange?: (languageCode: string) => Promise<void>
 }
 

@@ -32,20 +32,22 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { QueryResult } from "@/shared-module/components"
-import {
+import type {
   CurrentStateMessage,
   IframeViewType,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
-import {
+import type {
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,
+  SpecRequest,
+} from "@/utils/playgroundSchemas"
+import {
   parseExerciseServiceInfoApi,
   parseExerciseTaskGradingResult,
   parsePlaygroundViewsMessage,
-  SpecRequest,
 } from "@/utils/playgroundSchemas"
 
 interface PlaygroundFields {
@@ -499,7 +501,7 @@ const IframeViewPlayground: React.FC = () => {
                   try {
                     JSON.parse(value)
                     return true
-                  } catch (_e) {
+                  } catch {
                     return false
                   }
                 },

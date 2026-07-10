@@ -6,7 +6,7 @@ interface TestResultCardProps {
   name: string
   passed: boolean
   message?: string
-  exception?: Array<string>
+  exception?: string[]
 }
 
 export const TestResultCard: React.FC<TestResultCardProps> = (p) => (

@@ -1,6 +1,7 @@
 "use client"
 
-import { ComponentType, Suspense } from "react"
+import type { ComponentType } from "react"
+import { Suspense } from "react"
 
 import Spinner from "../components/Spinner"
 

@@ -1,8 +1,9 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { forwardRef, TextareaHTMLAttributes, useEffect, useRef } from "react"
-import { FieldError } from "react-hook-form"
+import type { TextareaHTMLAttributes } from "react"
+import React, { forwardRef, useEffect, useRef } from "react"
+import type { FieldError } from "react-hook-form"
 
 export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string

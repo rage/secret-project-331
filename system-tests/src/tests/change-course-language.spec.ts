@@ -66,7 +66,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.getByTestId("select-course-instance-continue-button").click()
   try {
     await page.getByTestId("select-course-instance-continue-button").waitFor({ state: "hidden" })
-  } catch (_e) {
+  } catch {
     await page.getByTestId("select-course-instance-continue-button").click()
     await page.getByTestId("select-course-instance-continue-button").waitFor({ state: "hidden" })
   }

@@ -1,13 +1,12 @@
-import { UserAnswer, UserItemAnswer } from "../../types/quizTypes/answer"
-import {
+import type { UserAnswer, UserItemAnswer } from "../../types/quizTypes/answer"
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
   QuizItemType,
 } from "../../types/quizTypes/privateSpec"
 
+import type { CsvExportColumn, CsvScalar } from "./csvExportUtils"
 import {
-  CsvExportColumn,
-  CsvScalar,
   getItemBody,
   getMatrixCellColumns,
   getMatrixCellValue,
@@ -25,7 +24,7 @@ import { handlePrivateSpecMigration, handleUserAnswerMigration } from "@/grading
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 
 interface CsvExportResult {
-  rows: Array<Record<string, CsvScalar>>
+  rows: Record<string, CsvScalar>[]
 }
 
 interface CsvExportResponse {

@@ -1,7 +1,8 @@
 "use client"
 
 import styled from "@emotion/styled"
-import { FocusEvent, ReactNode, useId, useRef, useState } from "react"
+import type { FocusEvent, ReactNode } from "react"
+import { useId, useRef, useState } from "react"
 import { useHover } from "react-aria"
 import {
   Dialog,

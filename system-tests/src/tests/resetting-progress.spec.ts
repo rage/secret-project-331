@@ -1,4 +1,5 @@
-import { BrowserContext, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { Topbar } from "../utils/components/Topbar"

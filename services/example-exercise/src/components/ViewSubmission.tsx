@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { baseTheme } from "@/styles/theme"
-import {
+import type {
   Answer,
   ExerciseFeedback,
   ModelSolutionApi,

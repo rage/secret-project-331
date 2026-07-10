@@ -6,13 +6,12 @@ import React from "react"
 import CmsPageTitle from "../../../components/CmsPageTitle"
 import CourseContext from "../../../contexts/CourseContext"
 
-import { PartnersBlock } from "@/generated/api"
+import type { PartnersBlock } from "@/generated/api"
 import { getCmsCoursePartnersBlockOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { upsertCmsCoursePartnersBlock } from "@/generated/api/sdk.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"

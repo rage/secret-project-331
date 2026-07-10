@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test"
+import type { Page } from "@playwright/test"
 
 import { APP_DISPLAY_NAME, BASE, TEST_CLIENT_ID } from "./constants"
 

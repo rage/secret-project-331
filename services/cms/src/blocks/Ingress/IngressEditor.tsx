@@ -7,7 +7,7 @@ import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
 
-import { InstructionBoxAttributes } from "."
+import type { InstructionBoxAttributes } from "."
 
 import { headingFont, primaryFont } from "@/shared-module/common/styles"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"

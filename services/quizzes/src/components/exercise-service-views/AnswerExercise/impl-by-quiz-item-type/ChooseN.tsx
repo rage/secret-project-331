@@ -4,8 +4,8 @@ import React, { useEffect, useId, useRef, useState } from "react"
 import { ToggleButton, ToggleButtonGroup } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
 
 import {
   QUIZ_TITLE_STYLE,
@@ -13,7 +13,7 @@ import {
   TWO_DIMENSIONAL_BUTTON_STYLES,
 } from "./AnswerQuizStyles"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

@@ -1,5 +1,5 @@
 import { test } from "@playwright/test"
-import { Page } from "playwright"
+import type { Page } from "playwright"
 
 /**
  * Temporarily sets the viewport size, executes a callback, and restores the original viewport size.

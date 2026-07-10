@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test"
-import { Locator, Page } from "playwright"
+import type { Locator, Page } from "playwright"
 
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
 

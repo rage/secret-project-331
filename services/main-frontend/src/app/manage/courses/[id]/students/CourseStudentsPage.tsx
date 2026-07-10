@@ -13,7 +13,9 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
 
-type Props = { courseId?: string }
+interface Props {
+  courseId?: string
+}
 
 const tableSection = css`
   padding-left: 0;
@@ -61,7 +63,7 @@ const SLUG_TO_TAB: Record<string, (typeof TAB_LIST)[number]> = {
   certificates: TAB_CERTIFICATES,
 }
 
-const cx = (...arr: Array<string | false | undefined>) => arr.filter(Boolean).join(" ")
+const cx = (...arr: (string | false | undefined)[]) => arr.filter(Boolean).join(" ")
 
 const StudentsPage: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -102,7 +104,7 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
     router.push(manageCourseStudentsRoute(courseId, slug))
   }
 
-  const tabContentMap: { [k in (typeof TAB_LIST)[number]]: React.ReactNode } = {
+  const tabContentMap: Record<(typeof TAB_LIST)[number], React.ReactNode> = {
     [TAB_USER]: courseId ? <UserTabContent courseId={courseId} searchQuery={searchQuery} /> : null,
     [TAB_COMPLETIONS]: courseId ? (
       <CompletionsTabContent courseId={courseId} searchQuery={searchQuery} />

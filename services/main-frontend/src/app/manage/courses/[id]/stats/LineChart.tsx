@@ -10,7 +10,7 @@ import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import Echarts from "./Echarts"
 import StatsHeader from "./StatsHeader"
 
-import { CountResult } from "@/generated/api/types.generated"
+import type { CountResult } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"

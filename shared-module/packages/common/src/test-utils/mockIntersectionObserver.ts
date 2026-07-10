@@ -4,13 +4,13 @@ const instances = new Set<MockIntersectionObserver>()
 const elementToObserver = new Map<Element, MockIntersectionObserver>()
 
 export class MockIntersectionObserver implements IntersectionObserver {
-  readonly root: Element | null
-  readonly rootMargin: string
-  readonly scrollMargin: string
-  readonly thresholds: ReadonlyArray<number>
+  public readonly root: Element | null
+  public readonly rootMargin: string
+  public readonly scrollMargin: string
+  public readonly thresholds: readonly number[]
   private elements: Set<Element>
 
-  constructor(
+  public constructor(
     public callback: IntersectionObserverCallback,
     public options?: ObserverInit,
   ) {
@@ -26,23 +26,23 @@ export class MockIntersectionObserver implements IntersectionObserver {
     instances.add(this)
   }
 
-  observe = (el: Element) => {
+  public observe = (el: Element) => {
     this.elements.add(el)
     elementToObserver.set(el, this)
   }
 
-  unobserve = (el: Element) => {
+  public unobserve = (el: Element) => {
     this.elements.delete(el)
     elementToObserver.delete(el)
   }
 
-  disconnect = () => {
+  public disconnect = () => {
     this.elements.forEach((el) => elementToObserver.delete(el))
     this.elements.clear()
     instances.delete(this)
   }
 
-  takeRecords(): IntersectionObserverEntry[] {
+  public takeRecords(): IntersectionObserverEntry[] {
     return []
   }
 }

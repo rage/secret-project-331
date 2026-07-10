@@ -1,14 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { groupBy, mapValues, sortBy } from "lodash"
 import Link from "next/link"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import {
+import type {
   GlobalCourseModuleStatEntry,
   GlobalStatEntry,
   TimeGranularity,
@@ -18,13 +18,13 @@ import { courseStatsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
-type RegularStatTableProps = {
+interface RegularStatTableProps {
   query: UseQueryResult<GlobalStatEntry[]>
   moduleStats: false
   granularity: TimeGranularity
 }
 
-type ModuleStatTableProps = {
+interface ModuleStatTableProps {
   query: UseQueryResult<GlobalCourseModuleStatEntry[]>
   moduleStats: true
   granularity: TimeGranularity

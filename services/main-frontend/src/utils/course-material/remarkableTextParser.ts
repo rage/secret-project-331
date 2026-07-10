@@ -3,7 +3,7 @@
 // Skip text characters for text token, place those to pending buffer
 // and increment current pos
 
-import { InlineParsingRule } from "remarkable/lib"
+import type { InlineParsingRule } from "remarkable/lib"
 
 // Rule to skip pure text
 // '{}$%@~+=:' reserved for extentions

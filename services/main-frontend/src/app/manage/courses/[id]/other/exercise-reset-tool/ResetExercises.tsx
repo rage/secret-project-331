@@ -8,7 +8,7 @@ import ExerciseList from "./ExerciseList"
 import ResetFilter from "./ResetFilter"
 import SelectedUsers from "./SelectedUsers"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { resetExercisesForSelectedUsers } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { useUsers } from "@/hooks/useUsers"

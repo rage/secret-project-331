@@ -11,7 +11,8 @@ import BlockWrapper from "../BlockWrapper"
 
 import IFramePlaceHolder from "./IframePlaceholder"
 
-import { IFRAME_BLOCK_DEFAULT_HEIGHT_PX, IframeAttributes } from "."
+import type { IframeAttributes } from "."
+import { IFRAME_BLOCK_DEFAULT_HEIGHT_PX } from "."
 
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"

@@ -1,5 +1,6 @@
 import styled from "@emotion/styled"
-import React, { TextareaHTMLAttributes, useEffect, useRef } from "react"
+import type { TextareaHTMLAttributes } from "react"
+import React, { useEffect, useRef } from "react"
 
 import { primaryFont } from "@/shared-module/common/styles/typography"
 

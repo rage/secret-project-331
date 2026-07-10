@@ -6,7 +6,8 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CertificateForm, { CertificateFields } from "./CertificateForm"
+import type { CertificateFields } from "./CertificateForm"
+import CertificateForm from "./CertificateForm"
 import CertificateView from "./CertificateView"
 import { createCertificateConfigurationFormData } from "./certificateConfigurationFormData"
 

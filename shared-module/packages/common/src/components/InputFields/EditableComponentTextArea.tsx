@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { TextareaHTMLAttributes, useEffect, useRef } from "react"
+import type { TextareaHTMLAttributes } from "react"
+import React, { useEffect, useRef } from "react"
 
 export interface TextFieldProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string

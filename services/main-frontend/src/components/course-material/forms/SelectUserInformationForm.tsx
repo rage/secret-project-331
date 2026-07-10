@@ -15,7 +15,7 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 
-type SelectUserInfoFormFields = {
+interface SelectUserInfoFormFields {
   email: string
   first_name: string
   last_name: string
@@ -23,7 +23,7 @@ type SelectUserInfoFormFields = {
   emailCommunicationConsent: boolean
 }
 
-type SelectUserInfoFormProps = {
+interface SelectUserInfoFormProps {
   shouldAnswerMissingInfoForm: boolean
   setShouldAnswerMissingInfoForm: (shouldAnswerMissingInfoForm: boolean) => void
   email: string

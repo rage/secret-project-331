@@ -1,7 +1,7 @@
 "use client"
 
 /* oxlint-disable i18next/no-literal-string */
-const headingLevelMap: { [level: number]: string } = {
+const headingLevelMap: Record<number, string> = {
   1: "2.5rem",
   2: "2rem",
   3: "1.5rem",

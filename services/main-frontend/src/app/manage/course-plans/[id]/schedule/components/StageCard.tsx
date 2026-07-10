@@ -4,11 +4,11 @@ import { css } from "@emotion/css"
 import { AnimatePresence, motion } from "motion/react"
 import { useTranslation } from "react-i18next"
 
-import { StageMonth } from "../scheduleMappers"
+import type { StageMonth } from "../scheduleMappers"
 
 import MonthBlock from "./MonthBlock"
 
-import { CourseDesignerStage } from "@/generated/api/types.generated"
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
 
@@ -79,7 +79,7 @@ const stageCardActionsStyles = css`
 interface StageCardProps {
   stage: CourseDesignerStage
   title: string
-  months: Array<StageMonth>
+  months: StageMonth[]
   canShrink: boolean
   reduceMotion: boolean
   isPulsing: boolean

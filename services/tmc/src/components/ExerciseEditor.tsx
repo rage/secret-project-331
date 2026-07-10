@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { ExerciseEditorState, ExerciseIframeState } from "@/util/stateInterfaces"
+import type { ExerciseEditorState, ExerciseIframeState } from "@/util/stateInterfaces"
 
 interface Props {
   state: ExerciseEditorState

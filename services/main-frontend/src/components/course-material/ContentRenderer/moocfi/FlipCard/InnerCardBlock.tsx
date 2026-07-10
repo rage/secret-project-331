@@ -3,11 +3,11 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 interface FlipCardAttributes {
   href: string

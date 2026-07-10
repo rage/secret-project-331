@@ -9,6 +9,7 @@ import "@wordpress/block-library/build-style/style.css"
 import "@wordpress/block-library/build-style/theme.css"
 import "@wordpress/block-library/build-style/editor.css"
 import { css } from "@emotion/css"
+import type { EditorBlockListSettings, EditorSettings } from "@wordpress/block-editor"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
@@ -17,8 +18,6 @@ import {
   BlockList,
   BlockTools,
   ButtonBlockAppender,
-  EditorBlockListSettings,
-  EditorSettings,
   __experimentalListView as ListView,
   ObserveTyping,
   __unstableUseBlockSelectionClearer as useBlockSelectionClearer,
@@ -35,7 +34,7 @@ import toast from "react-hot-toast"
 
 import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
-import { MediaUploadProps } from "../../services/mediaUpload"
+import type { MediaUploadProps } from "../../services/mediaUpload"
 import {
   ensureStandaloneGutenbergBootstrap,
   getDefaultAllowedBlockTypes,

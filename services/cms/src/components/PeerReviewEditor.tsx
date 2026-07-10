@@ -7,9 +7,9 @@ import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import { v4 } from "uuid"
 
-import { ExerciseAttributes } from "../blocks/Exercise"
+import type { ExerciseAttributes } from "../blocks/Exercise"
 
-import {
+import type {
   CmsPeerOrSelfReviewConfig,
   CmsPeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionType,

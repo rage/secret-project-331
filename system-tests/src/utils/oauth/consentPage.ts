@@ -1,9 +1,10 @@
-import { expect, Page } from "@playwright/test"
+import type { Page } from "@playwright/test"
+import { expect } from "@playwright/test"
 
 import { ensureRedirectServer } from "./redirectServer"
 
 export class ConsentPage {
-  constructor(
+  public constructor(
     private page: Page,
     private scopes: string[],
   ) {}
@@ -24,7 +25,7 @@ export class ConsentPage {
     return this.container.locator("h2").first()
   }
 
-  async expectVisible(name: string | RegExp) {
+  public async expectVisible(name: string | RegExp) {
     await expect(this.ul).toBeVisible()
     await expect(this.title).toBeVisible()
     await expect(this.title).toContainText(name)
@@ -35,7 +36,7 @@ export class ConsentPage {
     }
   }
 
-  async approve() {
+  public async approve() {
     await ensureRedirectServer()
     const approveButton = this.page.getByTestId("oauth-consent-approve-button")
     await approveButton.click()
@@ -49,7 +50,7 @@ export class ConsentPage {
     }
   }
 
-  async expectNotPresent() {
+  public async expectNotPresent() {
     await expect(this.title).toHaveCount(0)
   }
 }

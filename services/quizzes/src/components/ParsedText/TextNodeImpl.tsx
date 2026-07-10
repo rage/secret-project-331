@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import DOMPurify from "dompurify"
 import React from "react"
 
-import { TextNodeProps } from "."
+import type { TextNodeProps } from "."
 
 const sanitizeHTML = (dirty: string) => {
   return DOMPurify.sanitize(dirty, {

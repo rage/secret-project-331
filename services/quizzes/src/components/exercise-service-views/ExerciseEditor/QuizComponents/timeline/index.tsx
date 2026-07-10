@@ -1,7 +1,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import ParsedTextField from "../common/ParsedTextField"

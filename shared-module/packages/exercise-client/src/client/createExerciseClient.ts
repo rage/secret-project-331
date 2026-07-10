@@ -5,14 +5,14 @@
 // directly — no React, emotion, or i18next required. The React adapter does not use this
 // façade; it wraps the individual engines via hooks instead.
 
-import { HeightObserver, observeHeight } from "./heightObserver"
-import { createOutputStateEngine, OutputStateEngine } from "./outputState"
+import type { HeightObserver } from "./heightObserver"
+import { observeHeight } from "./heightObserver"
+import type { OutputStateEngine } from "./outputState"
+import { createOutputStateEngine } from "./outputState"
 import { createParentConnection } from "./parentConnection"
 
-import {
-  forgivingIsSetStateMessage,
-  SetStateMessage,
-} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { SetStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { forgivingIsSetStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isSetLanguageMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 
 export interface ExerciseClient<TOutput> {

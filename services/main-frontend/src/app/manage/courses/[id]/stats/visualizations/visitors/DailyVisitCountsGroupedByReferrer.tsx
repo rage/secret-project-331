@@ -10,7 +10,7 @@ import {
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
+import type { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import Accordion from "@/shared-module/common/components/Accordion"
 import DebugModal from "@/shared-module/common/components/DebugModal"

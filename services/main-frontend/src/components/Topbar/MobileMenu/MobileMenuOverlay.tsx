@@ -8,7 +8,7 @@ import { LanguageTranslation, MagnifyingGlass } from "@vectopus/atlas-icons-reac
 import React, { useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UnifiedMenuItem } from "../hooks/types"
+import type { UnifiedMenuItem } from "../hooks/types"
 import { useLanguageMenuItems } from "../hooks/useLanguageMenuItems"
 import { useQuickActionsItems } from "../hooks/useQuickActionsItems"
 import { useUserMenuItems } from "../hooks/useUserMenuItems"

@@ -4,13 +4,13 @@ import { MinusCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { TimelineChoice, UserItemAnswerTimeline } from "../../../../../types/quizTypes/answer"
-import {
+import type { TimelineChoice, UserItemAnswerTimeline } from "../../../../../types/quizTypes/answer"
+import type {
   PublicSpecQuizItemTimeline,
   PublicSpecQuizItemTimelineItem,
 } from "../../../../../types/quizTypes/publicSpec"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

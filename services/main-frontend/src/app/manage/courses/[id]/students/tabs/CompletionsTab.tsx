@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import type { CellContext, ColumnDef } from "@tanstack/react-table"
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -16,7 +16,10 @@ import type { CompletionGridRow } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { QueryResult } from "@/shared-module/components"
 
-type Props = { courseId: string; searchQuery: string }
+interface Props {
+  courseId: string
+  searchQuery: string
+}
 type RowObject = Record<string, unknown> & { student: string }
 
 const moduleKey = (name: string | null, t: TFunction) =>

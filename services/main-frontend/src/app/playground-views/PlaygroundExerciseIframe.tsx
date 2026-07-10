@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { uploadFilesFromExerciseService } from "@/generated/api/sdk.generated"
@@ -9,7 +9,7 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
-import {
+import type {
   CurrentStateMessage,
   ExerciseIframeState,
   MessageToIframe,

@@ -40,7 +40,7 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
     const allUtmCampaignsInData = Array.from(
       new Set(query.data.map((item) => item.utm_campaign)),
     ).filter((item) => !!item)
-    const totalCountsByUTMCampaign: { [referrer: string]: number } = Array.from(
+    const totalCountsByUTMCampaign: Record<string, number> = Array.from(
       allUtmCampaignsInData,
     ).reduce((acc, utm_campaign) => {
       const totalCount = query.data

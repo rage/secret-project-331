@@ -7,11 +7,11 @@ import { diffWords } from "diff"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  type BlockProposal,
-  type BlockProposalAction,
-  type BlockProposalInfo,
-  type PageProposal,
+import type {
+  BlockProposal,
+  BlockProposalAction,
+  BlockProposalInfo,
+  PageProposal,
 } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
 import Button from "@/shared-module/common/components/Button"
@@ -84,7 +84,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
 
   const sendMutation = useToastMutation(
     () => {
-      const blockInfo: Array<BlockProposalInfo> = Array.from(blockActions).map(([id, action]) => {
+      const blockInfo: BlockProposalInfo[] = Array.from(blockActions).map(([id, action]) => {
         return { id, action }
       })
       return handleProposal(proposal.page_id, proposal.id, blockInfo)

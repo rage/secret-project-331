@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { ModuleView } from "./CourseModules"
+import type { ModuleView } from "./CourseModules"
 
 import Button from "@/shared-module/common/components/Button"
 import Checkbox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -17,7 +17,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
   module: ModuleView
-  chapters: Array<number>
+  chapters: number[]
   onSubmitForm: (id: string, fields: EditCourseModuleFormFields) => void
   onDeleteModule: (id: string) => void
 }

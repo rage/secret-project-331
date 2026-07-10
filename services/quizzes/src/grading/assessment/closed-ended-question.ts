@@ -1,6 +1,6 @@
-import { UserItemAnswerClosedEndedQuestion } from "../../../types/quizTypes/answer"
-import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
-import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/privateSpec"
+import type { UserItemAnswerClosedEndedQuestion } from "../../../types/quizTypes/answer"
+import type { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
+import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/privateSpec"
 
 import { stripNonPrintableCharacters } from "@/shared-module/common/utils/strings"
 

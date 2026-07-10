@@ -10,7 +10,7 @@ import Accordion from "@/shared-module/common/components/Accordion"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export interface FlaggedPeerReviewAccordionProps {
-  reports: Array<FlaggedAnswer>
+  reports: FlaggedAnswer[]
   title: string
 }
 

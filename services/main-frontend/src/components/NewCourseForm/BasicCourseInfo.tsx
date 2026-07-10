@@ -1,10 +1,11 @@
 "use client"
 
 import React, { useEffect } from "react"
-import { UseFormReturn } from "react-hook-form"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { FieldContainer, FormFields } from "."
+import type { FormFields } from "."
+import { FieldContainer } from "."
 
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"

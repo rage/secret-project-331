@@ -3,11 +3,11 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import type { PlaceholderValidationResult } from "../../utils/emailPlaceholders"
 import {
   getPlaceholderConfig,
   PLACEHOLDER_CODE,
   PLACEHOLDER_RESET_LINK,
-  PlaceholderValidationResult,
 } from "../../utils/emailPlaceholders"
 
 import { useTranslation } from "@/utils/useCmsTranslation"

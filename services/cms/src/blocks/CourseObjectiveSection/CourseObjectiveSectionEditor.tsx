@@ -6,7 +6,7 @@ import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
 
-import { CourseObjectiveSectionAttributes } from "."
+import type { CourseObjectiveSectionAttributes } from "."
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"

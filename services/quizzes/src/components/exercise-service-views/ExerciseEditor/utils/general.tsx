@@ -1,7 +1,7 @@
 /* oxlint-disable i18next/no-literal-string */
 import { v4 } from "uuid"
 
-import {
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,

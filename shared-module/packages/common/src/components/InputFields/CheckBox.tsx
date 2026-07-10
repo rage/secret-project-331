@@ -2,7 +2,8 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { forwardRef, InputHTMLAttributes, useEffect, useRef } from "react"
+import type { InputHTMLAttributes } from "react"
+import React, { forwardRef, useEffect, useRef } from "react"
 
 import { baseTheme, primaryFont } from "../../styles"
 

@@ -1,4 +1,4 @@
-import { FieldError } from "react-hook-form"
+import type { FieldError } from "react-hook-form"
 import { validate } from "uuid"
 
 const NON_PRINTING_CHAR_REGEX =

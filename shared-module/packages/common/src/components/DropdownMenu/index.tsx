@@ -8,7 +8,8 @@ import { usePopper } from "react-popper"
 
 import { baseTheme } from "../../styles"
 
-import DropdownMenuItem, { DropdownMenuItemType } from "./DropdownMenuItem"
+import type { DropdownMenuItemType } from "./DropdownMenuItem"
+import DropdownMenuItem from "./DropdownMenuItem"
 
 export interface DropdownMenuProps {
   items: (DropdownMenuItemType | null)[]

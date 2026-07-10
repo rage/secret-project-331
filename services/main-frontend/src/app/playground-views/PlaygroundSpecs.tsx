@@ -2,11 +2,11 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { UseQueryResult } from "@tanstack/react-query"
-import { UseFormReturn } from "react-hook-form"
+import type { UseQueryResult } from "@tanstack/react-query"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { PlaygroundSettings } from "@/app/playground-tabs/page"
+import type { PlaygroundSettings } from "@/app/playground-tabs/page"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -60,7 +60,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
               try {
                 JSON.parse(value)
                 return true
-              } catch (_e) {
+              } catch {
                 return false
               }
             },

@@ -1,6 +1,7 @@
 "use client"
 
-import { QueryClient, useQueryClient } from "@tanstack/react-query"
+import type { QueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { invalidateCourseLanguageVersions } from "./useCourseLanguageVersions"

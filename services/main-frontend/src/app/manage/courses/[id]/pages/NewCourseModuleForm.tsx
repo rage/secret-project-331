@@ -12,7 +12,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 
 interface Props {
-  chapters: Array<number>
+  chapters: number[]
   onSubmitForm: (fields: Fields) => void
 }
 

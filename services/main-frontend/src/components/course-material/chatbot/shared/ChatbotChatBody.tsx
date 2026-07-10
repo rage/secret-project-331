@@ -13,7 +13,7 @@ import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"
 import ToolCallReasoningBubble from "./ToolCallReasoningBubble"
-import { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
+import type { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
 import type {
   ChatbotConversationMessage,
@@ -41,10 +41,10 @@ const messageMapMaker = (
   ChatbotConversationMessageWithStatus | null,
   ChatbotConversationMessageWithStatus[] | null
 > => {
-  let messagesMap: Map<
+  let messagesMap = new Map<
     ChatbotConversationMessageWithStatus | null,
     ChatbotConversationMessageWithStatus[] | null
-  > = new Map()
+  >()
 
   let earliestItemIndex: number | null = null
   messages.forEach((m, idx) => {
@@ -77,7 +77,7 @@ const messageMapMaker = (
   return messagesMap
 }
 
-export type ChatbotConversationMessageWithStatus = {
+export interface ChatbotConversationMessageWithStatus {
   message: ChatbotConversationMessage
   finished: boolean
   optimistic: boolean
@@ -97,7 +97,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   const { t } = useTranslation()
 
   const citations = useMemo(() => {
-    const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
+    const citations = new Map<string, ChatbotConversationMessageCitation[]>()
 
     if (!currentConversationInfo.data?.hide_citations) {
       currentConversationInfo.data?.current_conversation_message_citations?.forEach((cit) => {

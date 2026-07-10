@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { ArrowRight } from "@vectopus/atlas-icons-react"
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 

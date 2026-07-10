@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test"
-import { Locator, Page } from "playwright"
+import type { Locator, Page } from "playwright"
 
 /** Scrolls the page to the specified y coordinate */
 export async function scrollToYCoordinate(page: Page, y: number) {

@@ -1,6 +1,6 @@
-import { OldQuiz } from "../../types/oldQuizTypes"
-import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
-import { PrivateSpecQuizItemClosedEndedQuestion } from "../../types/quizTypes/privateSpec"
+import type { OldQuiz } from "../../types/oldQuizTypes"
+import type { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
+import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../types/quizTypes/privateSpec"
 
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { isOldQuiz } from "@/util/migration/migrationSettings"

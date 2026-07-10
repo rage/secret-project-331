@@ -32,7 +32,7 @@ import { getYearPageStart } from "../DatePickerCalendar/datePickerCalendarTimeUt
 
 export type YearMonthPickerView = "month" | "year"
 
-export type YearMonthPickerProps = {
+export interface YearMonthPickerProps {
   initialView?: YearMonthPickerView
   selectedYear: number | null
   selectedMonth: number | null

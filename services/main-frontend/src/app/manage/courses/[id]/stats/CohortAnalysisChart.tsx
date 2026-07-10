@@ -12,10 +12,11 @@ import { useTranslation } from "react-i18next"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import Echarts from "./Echarts"
-import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "./LineChart"
+import type { Period } from "./LineChart"
+import { DAILY_PERIOD, MONTHLY_PERIOD } from "./LineChart"
 import StatsHeader from "./StatsHeader"
 
-import { CohortActivity } from "@/generated/api/types.generated"
+import type { CohortActivity } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"

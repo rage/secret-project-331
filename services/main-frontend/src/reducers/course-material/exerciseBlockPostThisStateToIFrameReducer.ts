@@ -1,11 +1,11 @@
-import {
+import type {
   CourseMaterialExercise,
   StudentExerciseSlideSubmissionResult,
   UserCourseExerciseServiceVariable,
 } from "@/generated/course-material-api/types.generated"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
-import {
+import type {
   ExerciseIframeState,
   UserVariablesMap,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
@@ -42,9 +42,9 @@ function userVariableListToMap(list: UserCourseExerciseServiceVariable[]): UserV
 }
 
 export default function exerciseBlockPostThisStateToIFrameReducer(
-  prev: Array<ExerciseIframeState> | null,
+  prev: ExerciseIframeState[] | null,
   action: PostThisStateToIFrameAction,
-): Array<ExerciseIframeState> | null {
+): ExerciseIframeState[] | null {
   switch (action.type) {
     case "exerciseDownloaded": {
       const exerciseTasks = action.payload.current_exercise_slide.exercise_tasks

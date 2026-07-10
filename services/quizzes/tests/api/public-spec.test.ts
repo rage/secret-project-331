@@ -1,7 +1,7 @@
 /**
  * @vitest-environment node
  */
-import {
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
@@ -15,7 +15,7 @@ import {
   PrivateSpecQuizItemTimelineItem,
   QuizItemOption,
 } from "../../types/quizTypes/privateSpec"
-import {
+import type {
   PublicSpecQuiz,
   PublicSpecQuizItemChooseN,
   PublicSpecQuizItemMultiplechoice,
@@ -45,7 +45,7 @@ import {
 } from "./utils/privateSpecGenerator"
 
 import { handlePublicSpec } from "@/server/publicSpec"
-import { SpecRequest } from "@/utils/exerciseServiceApi"
+import type { SpecRequest } from "@/utils/exerciseServiceApi"
 
 const client = testClient(handlePublicSpec)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/public-spec"

@@ -1,6 +1,6 @@
 import { spawnSync } from "child_process"
 import { readFile, writeFile } from "fs/promises"
-import { Page } from "playwright"
+import type { Page } from "playwright"
 // @ts-expect-error: no typescript definitions
 import pngMetadata from "png-metadata"
 
@@ -54,7 +54,7 @@ export async function imageSavedPageYCoordinate(pathToImage: string): Promise<nu
       }
       return yCoordinate
     }
-  } catch (_e) {
+  } catch {
     return null
   }
   return null

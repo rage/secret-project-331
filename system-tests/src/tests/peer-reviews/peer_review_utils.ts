@@ -1,4 +1,4 @@
-import { Page } from "playwright"
+import type { Page } from "playwright"
 import { expect, test } from "playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
@@ -14,7 +14,7 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 export const fillPeerReview = async (
   page: Page,
   options: string[],
-  startPeerReview: boolean = true,
+  startPeerReview = true,
   refresh = false,
 ) => {
   await test.step("Fill peer review", async () => {

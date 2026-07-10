@@ -16,7 +16,7 @@ import TableWrapper from "./TableWrapper"
 
 import { deletePageMutation as deletePageMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { Chapter, Page } from "@/generated/api/types.generated"
-import { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
+import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import Button from "@/shared-module/common/components/Button"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"

@@ -1,12 +1,14 @@
 "use client"
 
 /* oxlint-disable i18next/no-literal-string */
-import React, { ComponentType, useEffect } from "react"
+import type { ComponentType } from "react"
+import React, { useEffect } from "react"
 import { v4 } from "uuid"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
 
-import ExerciseSlideEditor, { ExerciseSlideAttributes } from "./ExerciseSlideEditor"
+import type { ExerciseSlideAttributes } from "./ExerciseSlideEditor"
+import ExerciseSlideEditor from "./ExerciseSlideEditor"
 import ExerciseSlideSave from "./ExerciseSlideSave"
 
 import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"

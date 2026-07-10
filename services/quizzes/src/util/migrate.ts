@@ -1,7 +1,7 @@
 // Allow any for this file, because we are checking for properties that no longer exist in interfaces.
 /* oxlint-disable typescript/no-explicit-any */
 
-import { OldQuiz, OldQuizItemOption, QuizItem } from "../../types/oldQuizTypes"
+import type { OldQuiz, OldQuizItemOption, QuizItem } from "../../types/oldQuizTypes"
 
 export function migrateQuiz(oldQuiz: unknown): OldQuiz {
   console.log("Old quiz:", oldQuiz)

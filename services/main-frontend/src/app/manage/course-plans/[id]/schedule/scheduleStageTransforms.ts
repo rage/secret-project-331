@@ -2,7 +2,7 @@ import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 
 import { SCHEDULE_STAGE_ORDER } from "./scheduleConstants"
 
-import {
+import type {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
@@ -11,7 +11,7 @@ const STAGE_ORDER: CourseDesignerStage[] = SCHEDULE_STAGE_ORDER
 
 type StageInput = CourseDesignerScheduleStageInput
 
-type MonthWithStage = {
+interface MonthWithStage {
   date: Date
   stage: CourseDesignerStage
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { QueryObserverResult } from "@tanstack/react-query"
+import type { QueryObserverResult } from "@tanstack/react-query"
 import {
   BellXmark,
   CheckCircle,
@@ -38,9 +38,9 @@ interface ExerciseServiceCardProps {
 }
 
 enum UpdateStatus {
-  none,
-  saved,
-  failed,
+  none = 0,
+  saved = 1,
+  failed = 2,
 }
 
 const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardProps>> = ({

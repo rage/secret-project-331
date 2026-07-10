@@ -154,7 +154,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
   const inputId = id ?? generatedInputId
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const slotsContainerRef = useRef<HTMLDivElement>(null)
-  const slotRefs = useRef<Array<HTMLInputElement | null>>([])
+  const slotRefs = useRef<(HTMLInputElement | null)[]>([])
   const hasFocusWithinRef = useRef(false)
 
   useImperativeHandle(field.ref, () => {

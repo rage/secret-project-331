@@ -2,8 +2,10 @@
 
 import React, { useMemo } from "react"
 
-import ContentRenderer, { BlockRendererProps } from ".."
-import LandingPageHeroSection, { LandingPageHeroSectionProps } from "../../LandingPageHeroSection"
+import type { BlockRendererProps } from ".."
+import ContentRenderer from ".."
+import type { LandingPageHeroSectionProps } from "../../LandingPageHeroSection"
+import LandingPageHeroSection from "../../LandingPageHeroSection"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

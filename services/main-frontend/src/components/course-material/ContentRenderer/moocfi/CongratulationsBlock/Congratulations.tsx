@@ -90,7 +90,7 @@ const ModuleWrapper = styled.div`
 `
 
 export interface CongratulationsProps {
-  modules: Array<UserModuleCompletionStatus>
+  modules: UserModuleCompletionStatus[]
 }
 
 const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> = ({ modules }) => {

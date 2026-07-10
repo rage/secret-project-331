@@ -2,10 +2,11 @@
 
 import React from "react"
 
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import Partner, { PartnerProps } from "@/shared-module/common/components/Partner"
+import type { PartnerProps } from "@/shared-module/common/components/Partner"
+import Partner from "@/shared-module/common/components/Partner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const PartnersBlock: React.FC<React.PropsWithChildren<BlockRendererProps<PartnerProps>>> = (

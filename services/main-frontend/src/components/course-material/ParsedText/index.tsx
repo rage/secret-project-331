@@ -1,7 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { JSX, memo, RefObject, useContext, useEffect, useRef, useState } from "react"
+import type { JSX, RefObject } from "react"
+import { memo, useContext, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
 import ParsedTextRenderer from "./ParsedTextRenderer"
@@ -11,11 +12,11 @@ import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 
 export type Tag = keyof JSX.IntrinsicElements
 
-export type ParsedTextPropsWithWrapperElement = {
+export interface ParsedTextPropsWithWrapperElement {
   useWrapperElement: true
 }
 
-export type ParsedTextPropsWithoutWrapperElement = {
+export interface ParsedTextPropsWithoutWrapperElement {
   useWrapperElement: false
   wrapperRef: RefObject<HTMLElement | null>
 }
@@ -47,7 +48,10 @@ const glossaryTermStyle = css`
   cursor: help;
 `
 
-type GlossaryTarget = { node: HTMLElement; glossaryId: string }
+interface GlossaryTarget {
+  node: HTMLElement
+  glossaryId: string
+}
 
 // https://github.com/facebook/react/issues/31600
 const RESCAN_DELAYS_MS = [0, 2000] as const

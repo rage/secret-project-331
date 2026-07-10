@@ -12,8 +12,8 @@ import ExerciseTaskIframe from "./ExerciseTaskIframe"
 import type { CourseMaterialExerciseTask } from "@/generated/course-material-api/types.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { ExerciseIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { Block } from "@/types/courseMaterialBlock"
+import type { ExerciseIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { Block } from "@/types/courseMaterialBlock"
 
 interface ExerciseTaskProps {
   canPostSubmission: boolean

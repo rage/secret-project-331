@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 

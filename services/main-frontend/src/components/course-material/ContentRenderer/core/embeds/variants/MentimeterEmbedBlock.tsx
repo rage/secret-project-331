@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 import { getCourseMaterialMentimeterOembed } from "@/generated/course-material-api/sdk.generated"
 import type { CourseMaterialOEmbedResponse } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

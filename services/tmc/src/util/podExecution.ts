@@ -1,12 +1,13 @@
 import * as k8s from "@kubernetes/client-node"
 import { createReadStream, createWriteStream, promises as fs } from "fs"
-import internal, { Writable } from "stream"
+import type internal from "stream"
+import { Writable } from "stream"
 import { finished } from "stream/promises"
 import { temporaryFile } from "tempy"
 import { v4 } from "uuid"
 
 import { initKube } from "@/lib"
-import { Logger } from "@/util/logger"
+import type { Logger } from "@/util/logger"
 
 const DEFAULT_TASK_TIMEOUT_MS = 60000
 const CONTAINER_NAME = "tmc-submission-execution-sandbox"
@@ -26,7 +27,7 @@ export async function execWithTimeout(
   kubeExec: k8s.Exec,
   podName: string,
   containerName: string,
-  command: Array<string>,
+  command: string[],
   stdout: internal.Writable,
   stderr: internal.Writable,
   stdin: internal.Readable | null,
@@ -38,7 +39,7 @@ export async function execWithTimeout(
 
   const extractExitCodeFromStatus = (status: unknown): number | undefined => {
     const s = status as {
-      details?: { causes?: Array<{ reason?: string; message?: string }> }
+      details?: { causes?: { reason?: string; message?: string }[] }
     } | null
     const causes = s?.details?.causes
     if (!Array.isArray(causes)) {
@@ -94,12 +95,12 @@ export async function execWithTimeout(
       .then((s) => {
         try {
           ;(s as unknown as { close?: () => void }).close?.()
-        } catch (_e2) {
+        } catch {
           // ignore
         }
         try {
           ;(s as unknown as { destroy?: () => void }).destroy?.()
-        } catch (_e2) {
+        } catch {
           // ignore
         }
       })
@@ -134,7 +135,7 @@ export async function execWithTimeout(
       // Best-effort stop the exec stream; the server-side process may still run.
       try {
         socket.close?.()
-      } catch (_e) {
+      } catch {
         // ignore
       }
       resolve({ timedOut: true })
@@ -150,7 +151,7 @@ const WAIT_FOR_POD_RUNNING_MS = 120_000
  * Create a Writable that buffers only the last `maxBytes` of input.
  * When `maxBytes === 0`, discards everything (useful as a sink).
  */
-function captureStream(maxBytes: number = 0): { stream: Writable; getBuffer: () => Buffer } {
+function captureStream(maxBytes = 0): { stream: Writable; getBuffer: () => Buffer } {
   if (maxBytes === 0) {
     return {
       stream: new Writable({
@@ -375,7 +376,7 @@ async function runTmcAndReadOutput(
     try {
       const parsed = JSON.parse(testOutputString)
       return { timedOut: false, output: testOutputString, parsed }
-    } catch (_e) {
+    } catch {
       return {
         timedOut: false,
         output: testOutputString,
@@ -432,7 +433,7 @@ export async function runInSandboxPod(
     logger.log(`deleting pod ${podName}`)
     try {
       await kubeApi.deleteNamespacedPod({ name: podName, namespace: "default", pretty: "true" })
-    } catch (_e) {
+    } catch {
       logger.error("failed to delete pod")
     }
   }

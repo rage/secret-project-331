@@ -1,12 +1,11 @@
-import {
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
   QuizItemType,
 } from "../../types/quizTypes/privateSpec"
 
+import type { CsvExportColumn, CsvScalar } from "./csvExportUtils"
 import {
-  CsvExportColumn,
-  CsvScalar,
   getAllowSelectingMultipleOptions,
   getChooseN,
   getCorrectOptionIds,
@@ -39,7 +38,7 @@ import { handlePrivateSpecMigration } from "@/grading/utils"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 
 interface CsvExportResult {
-  rows: Array<Record<string, CsvScalar>>
+  rows: Record<string, CsvScalar>[]
 }
 
 interface CsvExportResponse {

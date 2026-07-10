@@ -10,7 +10,7 @@ import CardDeadlineOverlay, { cardTopBandStyle } from "./CardDeadlineOverlay"
 import CardOpensTextOverlay from "./CardOpenTextOverlay"
 import CardOpensText from "./CardOpensText"
 
-import { CardExtraProps } from "."
+import type { CardExtraProps } from "."
 
 import PseudoContentLink from "@/components/PseudoContentLink"
 import CardSVG from "@/shared-module/common/img/cardNext.svg"

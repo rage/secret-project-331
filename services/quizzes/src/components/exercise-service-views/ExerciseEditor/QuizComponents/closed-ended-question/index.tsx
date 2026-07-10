@@ -4,7 +4,7 @@ import { PlusCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
@@ -134,7 +134,7 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
           format: formatRegExp.test(string),
         }
       })
-    } catch (_e) {
+    } catch {
       /* NOP */
       /* This occurs when there's incomplete regex */
     }

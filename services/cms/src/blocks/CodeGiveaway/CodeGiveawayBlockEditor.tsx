@@ -8,7 +8,7 @@ import React, { useContext, useMemo } from "react"
 import PageContext from "../../contexts/PageContext"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-import { ConditionAttributes } from "."
+import type { ConditionAttributes } from "."
 
 import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
 import { getCmsCodeGiveawaysByCourseOptions } from "@/generated/api/@tanstack/react-query.generated"

@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test"
+import type { Page } from "@playwright/test"
 
 /**
  * Check if path is correct by skipping specific ids. For example `await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")` would expect the path to match the given structure, but it would allow the id to be any uuid.

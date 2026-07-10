@@ -1,11 +1,11 @@
 /* oxlint-disable playwright/prefer-locator */
-import {
+import type {
   PlaywrightTestArgs,
   PlaywrightTestOptions,
   PlaywrightWorkerArgs,
   PlaywrightWorkerOptions,
-  test,
 } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { logout } from "../../utils/logout"
 

@@ -2,14 +2,14 @@ import type React from "react"
 
 type ComboBoxKey = string | number
 
-export type ComboBoxItemAccessors<T> = {
+export interface ComboBoxItemAccessors<T> {
   getItemKey: (item: T) => ComboBoxKey
   getItemTextValue: (item: T) => string
   getItemDisabled?: (item: T) => boolean
   renderItem?: (item: T) => React.ReactNode
 }
 
-export type NormalizedComboBoxItem<T> = {
+export interface NormalizedComboBoxItem<T> {
   item: T
   key: ComboBoxKey
   rendered: React.ReactNode

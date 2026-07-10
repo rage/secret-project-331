@@ -96,7 +96,7 @@ type BarColor = string
 type ButtonWidth = number
 type IsActive = boolean
 
-export type HamburgerIconProps = {
+export interface HamburgerIconProps {
   barColor?: BarColor
   buttonWidth?: ButtonWidth
   isActive?: IsActive
@@ -104,13 +104,13 @@ export type HamburgerIconProps = {
   Lines?: React.ElementType
 }
 
-export type LineProps = {
+export interface LineProps {
   barColor: BarColor
   buttonWidth: ButtonWidth
   isActive: IsActive
 }
 
-type StyledBoxProps = {
+interface StyledBoxProps {
   buttonWidth: ButtonWidth
 }
 

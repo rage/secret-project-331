@@ -1,9 +1,9 @@
 /* oxlint-disable playwright/no-conditional-in-test */
 import { AxeBuilder } from "@axe-core/playwright"
 import { test } from "@playwright/test"
-import { CheckResult } from "axe-core"
+import type { CheckResult } from "axe-core"
 import { Console } from "console"
-import { Page } from "playwright"
+import type { Page } from "playwright"
 import { Writable } from "stream"
 
 import waitForSpinnersToDisappear from "./waitForSpinnersToDisappear"
@@ -123,13 +123,13 @@ function displayChecksForNodes(nodes: CheckResult[], stdErrConsole: Console): vo
 }
 
 class StoringStream extends Writable {
-  chunks: string[]
+  public chunks: string[]
 
-  constructor() {
+  public constructor() {
     super()
     this.chunks = []
   }
-  override _write(
+  public override _write(
     // oxlint-disable-next-line typescript/no-explicit-any
     chunk: any,
     encoding: BufferEncoding,

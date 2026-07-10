@@ -101,7 +101,7 @@ export const blockTypeMapForPages = [
   ["moocfi/partners", PartnersBlock],
   // ["moocfi/logo-link", LogoLink],
   // oxlint-disable-next-line typescript/no-explicit-any
-] as Array<[string, BlockConfiguration<Record<string, any>>]>
+] as [string, BlockConfiguration<Record<string, any>>][]
 
 export const blockTypeMapForFrontPages = [
   ["moocfi/congratulations", Congratulations],
@@ -123,17 +123,15 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/expandable-content-inner-block", ExpendableContentInnerBlock],
   ["moocfi/partners", PartnersBlock],
   // oxlint-disable-next-line typescript/no-explicit-any
-] as Array<[string, BlockConfiguration<Record<string, any>>]>
+] as [string, BlockConfiguration<Record<string, any>>][]
 
 export const blockTypeMapForTopLevelPages = [
   ...blockTypeMapForFrontPages,
   ["moocfi/hero-section", HeroSection],
   // oxlint-disable-next-line typescript/no-explicit-any
-] as Array<[string, BlockConfiguration<Record<string, any>>]>
+] as [string, BlockConfiguration<Record<string, any>>][]
 
 export const blockTypeMapForResearchConsentForm = [
   ["moocfi/research-consent-question", ResearchFormQuestion],
-] as Array<
   // oxlint-disable-next-line typescript/no-explicit-any
-  [string, BlockConfiguration<Record<string, any>>]
->
+] as [string, BlockConfiguration<Record<string, any>>][]

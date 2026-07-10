@@ -2,7 +2,8 @@
 
 import { css, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { ReactPortal, useEffect, useLayoutEffect, useMemo, useState } from "react"
+import type { ReactPortal } from "react"
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 

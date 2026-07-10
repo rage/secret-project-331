@@ -40,15 +40,16 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
     const allUtmSourcesInData = Array.from(
       new Set(query.data.map((item) => item.utm_source)),
     ).filter((item) => !!item)
-    const totalCountsByUTMSource: { [referrer: string]: number } = Array.from(
-      allUtmSourcesInData,
-    ).reduce((acc, utm_source) => {
-      const totalCount = query.data
-        .filter((item) => item.utm_source === utm_source)
-        .reduce((acc, item) => acc + item.num_visitors, 0)
-      // oxlint-disable-next-line i18next/no-literal-string
-      return { ...acc, [utm_source ?? "null"]: totalCount }
-    }, {})
+    const totalCountsByUTMSource: Record<string, number> = Array.from(allUtmSourcesInData).reduce(
+      (acc, utm_source) => {
+        const totalCount = query.data
+          .filter((item) => item.utm_source === utm_source)
+          .reduce((acc, item) => acc + item.num_visitors, 0)
+        // oxlint-disable-next-line i18next/no-literal-string
+        return { ...acc, [utm_source ?? "null"]: totalCount }
+      },
+      {},
+    )
     return totalCountsByUTMSource
   }, [query.data])
 

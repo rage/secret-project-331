@@ -1,6 +1,6 @@
 /* oxlint-disable playwright/no-wait-for-timeout */
 
-import { Page } from "playwright"
+import type { Page } from "playwright"
 
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
 

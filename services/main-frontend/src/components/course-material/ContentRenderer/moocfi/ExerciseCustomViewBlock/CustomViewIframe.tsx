@@ -17,7 +17,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
-import {
+import type {
   CustomViewIframeState,
   UserVariablesMap,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"

@@ -1,7 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { ComponentClass, ComponentType, ErrorInfo } from "react"
+import type { ComponentClass, ComponentType, ErrorInfo } from "react"
+import React from "react"
 import { Translation } from "react-i18next"
 
 import { reportErrorOccurrence } from "@/shared-module/exercise-client/errors/reportErrorOccurrence"
@@ -47,17 +48,17 @@ const bannerClass = css`
  */
 export default function withErrorBoundary<T>(Component: ComponentType<T>): ComponentClass<T> {
   class ErrorBoundary extends React.Component<T, ErrorBoundaryState> {
-    constructor(props: T) {
+    public constructor(props: T) {
       super(props)
       this.state = {}
     }
 
-    static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
+    public static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
       const errorObj = error instanceof Error ? error : new Error(String(error))
       return { error: errorObj.message, trace: errorObj.stack }
     }
 
-    override componentDidCatch(error: Error, info: ErrorInfo) {
+    public override componentDidCatch(error: Error, info: ErrorInfo) {
       console.error(
         `ErrorBoundary caught an error in ${Component.displayName ?? "unknown"}`,
         error,
@@ -80,7 +81,7 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
       })
     }
 
-    override render() {
+    public override render() {
       const { error, trace } = this.state
 
       if (error) {

@@ -8,7 +8,7 @@
 
 import { produce } from "immer"
 
-import { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 export type UpdateFunction<R> = (draftState: R | null) => void
 

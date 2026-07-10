@@ -1,6 +1,7 @@
 "use client"
 
-import React, { ComponentClass, ComponentType, ErrorInfo } from "react"
+import type { ComponentClass, ComponentType, ErrorInfo } from "react"
+import React from "react"
 import { Translation } from "react-i18next"
 
 import ErrorBanner from "../components/ErrorBanner"
@@ -14,12 +15,12 @@ interface ErrorBoundaryState {
 
 export default function withErrorBoundary<T>(Component: ComponentType<T>): ComponentClass<T> {
   class ErrorBoundary extends React.Component<T, ErrorBoundaryState> {
-    constructor(props: T) {
+    public constructor(props: T) {
       super(props)
       this.state = { showTrace: false }
     }
 
-    static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
+    public static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
       const errorObj = error instanceof Error ? error : new Error(String(error))
       return {
         showTrace: false,
@@ -28,7 +29,7 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
       }
     }
 
-    override componentDidCatch(error: Error, info: ErrorInfo) {
+    public override componentDidCatch(error: Error, info: ErrorInfo) {
       console.group(
         `ErrorBoundary caught an error in ${
           Component.displayName ?? "unknown"
@@ -62,7 +63,7 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
       this.setState({ error: error.message, trace: info.componentStack ?? undefined })
     }
 
-    override render() {
+    public override render() {
       const { error, trace } = this.state
 
       if (error) {

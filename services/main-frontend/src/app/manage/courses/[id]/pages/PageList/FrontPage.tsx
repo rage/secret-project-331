@@ -8,7 +8,7 @@ import PageListItem, { MOVING_NOT_ALLOWED } from "./PageListItem"
 import TableWrapper from "./TableWrapper"
 
 import type { Chapter, Page } from "@/generated/api/types.generated"
-import { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
+import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import { baseTheme, typography } from "@/shared-module/common/styles"
 
 interface Props {

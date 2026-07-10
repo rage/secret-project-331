@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import React, { ComponentType, useContext, useEffect, useRef, useState } from "react"
+import type { ComponentType } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "../components/ErrorBanner"

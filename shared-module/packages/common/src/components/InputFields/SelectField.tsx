@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { forwardRef, InputHTMLAttributes } from "react"
+import type { InputHTMLAttributes } from "react"
+import React, { forwardRef } from "react"
 
 interface SelectOption {
   value: string

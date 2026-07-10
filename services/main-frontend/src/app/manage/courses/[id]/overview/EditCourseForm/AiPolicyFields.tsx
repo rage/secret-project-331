@@ -5,7 +5,7 @@ import React from "react"
 import { Controller, useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { EditCourseFormValues } from "."
+import type { EditCourseFormValues } from "."
 
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import { baseTheme } from "@/shared-module/common/styles"

@@ -3,11 +3,11 @@
 import { css, cx } from "@emotion/css"
 import { useContext } from "react"
 
-import { BlockRendererProps } from "../../.."
+import type { BlockRendererProps } from "../../.."
 
 import ListFontSizeContext from "./listFontSizeContext"
 
-import { ListItemAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { ListItemAttributes } from "@/../types/GutenbergBlockAttributes"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import ParsedText from "@/components/course-material/ParsedText"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"

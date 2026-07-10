@@ -59,14 +59,12 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
         }
       })
       .sort((a, b) => a.total - b.total)
-    const topPages: { [page_id: string]: number } = totalCountsByPage
-      .slice(-100)
-      .reduce((acc, curr) => {
-        return {
-          ...acc,
-          [curr.page_id]: curr.total,
-        }
-      }, {})
+    const topPages: Record<string, number> = totalCountsByPage.slice(-100).reduce((acc, curr) => {
+      return {
+        ...acc,
+        [curr.page_id]: curr.total,
+      }
+    }, {})
     return topPages
   }, [query.data])
 

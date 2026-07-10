@@ -7,7 +7,7 @@ import { useAtomValue, useSetAtom } from "jotai"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import LockAnimation from "./LockAnimation"
 import LockChapterLoadingView from "./LockChapterLoadingView"

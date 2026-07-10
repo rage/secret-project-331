@@ -18,7 +18,7 @@ import SearchableSelect from "@/shared-module/common/components/InputFields/Sear
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
-import { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
+import type { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import "@/shared-module/common/init/registerAuthApiClients"
@@ -30,7 +30,7 @@ import {
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
-type CreateUserErrorResponse = {
+interface CreateUserErrorResponse {
   message?: string
 }
 

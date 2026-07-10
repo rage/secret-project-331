@@ -37,7 +37,7 @@ import {
   wrapperIsolationCss,
 } from "./queryResultStyles"
 
-export type FallbackArgs<E> = {
+export interface FallbackArgs<E> {
   error: E
   retry: RetryFn
 }
@@ -106,7 +106,7 @@ function useBlurSettling(refreshing: boolean) {
   return { settling, onContentTransitionEnd }
 }
 
-export type AnimatedQueryFrameProps<E> = {
+export interface AnimatedQueryFrameProps<E> {
   themeMode: ThemeMode
   minHeight?: number
   loadingDelayMs?: number

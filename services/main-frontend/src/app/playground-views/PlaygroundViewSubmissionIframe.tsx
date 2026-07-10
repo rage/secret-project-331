@@ -1,19 +1,19 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
-import {
+import type {
   CurrentStateMessage,
   ExerciseIframeState,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import { ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
+import type { ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
 interface PlaygroundViewSubmissionIframeProps {
   url: string

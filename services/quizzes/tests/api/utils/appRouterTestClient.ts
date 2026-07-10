@@ -19,19 +19,19 @@ class RequestBuilder implements PromiseLike<TestResponse> {
   private hasPayload = false
   private readonly expectations: Expectation[] = []
 
-  constructor(
+  public constructor(
     private readonly handler: Handler,
     private readonly method: string,
     private readonly path: string,
   ) {}
 
-  send(body: unknown): this {
+  public send(body: unknown): this {
     this.payload = body
     this.hasPayload = true
     return this
   }
 
-  expect(statusOrHeader: number | string, matcher?: RegExp | string): this {
+  public expect(statusOrHeader: number | string, matcher?: RegExp | string): this {
     if (typeof statusOrHeader === "number") {
       const expectedStatus = statusOrHeader
       this.expectations.push((res) => {
@@ -75,7 +75,7 @@ class RequestBuilder implements PromiseLike<TestResponse> {
     return result
   }
 
-  then<TResult1 = TestResponse, TResult2 = never>(
+  public then<TResult1 = TestResponse, TResult2 = never>(
     onfulfilled?: ((value: TestResponse) => TResult1 | PromiseLike<TResult1>) | null,
     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
   ): PromiseLike<TResult1 | TResult2> {

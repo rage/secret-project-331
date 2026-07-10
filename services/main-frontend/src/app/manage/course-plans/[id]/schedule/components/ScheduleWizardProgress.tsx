@@ -5,7 +5,8 @@ import { motion, useReducedMotion } from "motion/react"
 import { useProgressBar } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { SCHEDULE_WIZARD_STEPS, ScheduleWizardStepId } from "../scheduleConstants"
+import type { ScheduleWizardStepId } from "../scheduleConstants"
+import { SCHEDULE_WIZARD_STEPS } from "../scheduleConstants"
 
 import { baseTheme } from "@/shared-module/common/styles"
 

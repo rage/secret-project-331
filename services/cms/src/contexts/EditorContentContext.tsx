@@ -3,11 +3,12 @@
 /* oxlint-disable i18next/no-literal-string */
 
 import { produce } from "immer"
-import React, { Dispatch } from "react"
+import type { Dispatch } from "react"
+import React from "react"
 import { v4 } from "uuid"
 
-import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
 
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 

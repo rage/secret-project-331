@@ -3,7 +3,7 @@
 import { produce } from "immer"
 import { v4 } from "uuid"
 
-import { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
+import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
 
 import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 import {
@@ -12,7 +12,7 @@ import {
   zChatbotConversationMessageToolCall,
 } from "@/generated/course-material-api/zod.generated"
 
-export type ChatbotState = {
+export interface ChatbotState {
   messages: ChatbotConversationMessageWithStatus[]
 }
 

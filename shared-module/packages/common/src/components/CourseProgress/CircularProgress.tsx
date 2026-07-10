@@ -10,7 +10,7 @@ import { baseTheme, headingFont, secondaryFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../utils/constants"
 
-import { CircularProgressExtraProps } from "."
+import type { CircularProgressExtraProps } from "."
 
 const StyledSVG = styled.div`
   position: relative;

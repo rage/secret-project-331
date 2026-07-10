@@ -3,7 +3,8 @@
 import { css } from "@emotion/css"
 import { Parser } from "@json2csv/plainjs"
 import { BugInsect, DownloadArrowDown as Download } from "@vectopus/atlas-icons-react"
-import { Dispatch, useCallback, useMemo, useRef, useState } from "react"
+import type { Dispatch } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../styles/theme"
@@ -79,7 +80,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
     try {
       new Parser().parse(data)
       return true
-    } catch (_error) {
+    } catch {
       return false
     }
   }, [data, size])

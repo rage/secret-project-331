@@ -1,6 +1,7 @@
 "use client"
 
-import { QueryClient, useQuery } from "@tanstack/react-query"
+import type { QueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
 import { getOrganizationCourseCountOptions } from "@/generated/api/@tanstack/react-query.generated"
 

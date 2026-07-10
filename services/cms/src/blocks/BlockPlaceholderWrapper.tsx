@@ -1,7 +1,8 @@
 "use client"
 
 import { useBlockProps } from "@wordpress/block-editor"
-import { IconType, Placeholder } from "@wordpress/components"
+import type { IconType } from "@wordpress/components"
+import { Placeholder } from "@wordpress/components"
 import React from "react"
 
 /**

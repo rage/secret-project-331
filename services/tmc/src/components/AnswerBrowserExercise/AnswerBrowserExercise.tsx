@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { ActionButtons, EditorSection, OutputPanel, ResetConfirmDialog } from "./components"
 import { useEditorState, useRunOutput, useTestRun } from "./hooks"
 import { Card } from "./styles"
-import { AnswerBrowserExerciseProps } from "./types"
+import type { AnswerBrowserExerciseProps } from "./types"
 import { isSupportedForBrowserTest } from "./utils"
 
 const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerciseProps>> = ({

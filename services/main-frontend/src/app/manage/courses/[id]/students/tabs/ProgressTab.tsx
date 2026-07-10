@@ -11,7 +11,8 @@ import { FloatingHeaderTable } from "../FloatingHeaderTable"
 import { getCourseStudentsProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { QueryResult } from "@/shared-module/components"
-import { getTeacherChapterLockLabel, TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
+import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
+import { getTeacherChapterLockLabel } from "@/utils/chapterLockingStatus"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
@@ -55,7 +56,7 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
 
     const round2 = (n: number) => Math.round(n * 100) / 100
 
-    type UserChapterLockStatusRow = {
+    interface UserChapterLockStatusRow {
       user_id: string
       chapter_id: string
       status: TeacherChapterLockStatus

@@ -19,7 +19,7 @@ import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-type SelectUserInfoFormFields = {
+interface SelectUserInfoFormFields {
   email: string
   first_name: string
   last_name: string
@@ -27,7 +27,7 @@ type SelectUserInfoFormFields = {
   emailCommunicationConsent: boolean
 }
 
-type SelectUserInfoFormProps = {
+interface SelectUserInfoFormProps {
   email: string
   firstName: string
   lastName: string

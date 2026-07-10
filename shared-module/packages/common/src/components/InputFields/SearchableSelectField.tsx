@@ -2,7 +2,8 @@
 
 import { css, cx } from "@emotion/css"
 import { CheckCircle, MovementArrowsUpDown, XmarkCircle } from "@vectopus/atlas-icons-react"
-import { forwardRef, InputHTMLAttributes, SetStateAction, useState } from "react"
+import type { InputHTMLAttributes, SetStateAction } from "react"
+import { forwardRef, useState } from "react"
 import {
   Autocomplete,
   Button,

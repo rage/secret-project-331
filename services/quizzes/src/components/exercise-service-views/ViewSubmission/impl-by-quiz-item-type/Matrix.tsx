@@ -4,10 +4,10 @@ import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
 
-import { QuizItemSubmissionComponentProps } from "."
+import type { QuizItemSubmissionComponentProps } from "."
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"

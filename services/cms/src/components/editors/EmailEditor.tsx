@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseMutationResult } from "@tanstack/react-query"
+import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react"
 
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
@@ -13,7 +13,7 @@ import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsuppor
 import { extractPlaceholders, validatePlaceholders } from "../../utils/emailPlaceholders"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
-import { EmailTemplate, EmailTemplateUpdate } from "@/generated/api"
+import type { EmailTemplate, EmailTemplateUpdate } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"

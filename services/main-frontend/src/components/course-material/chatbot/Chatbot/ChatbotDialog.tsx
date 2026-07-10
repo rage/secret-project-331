@@ -14,7 +14,7 @@ import {
 import OpenChatbotButton from "../Chatbot/OpenChatbotButton"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
 import ChatbotChatHeader from "../shared/ChatbotChatHeader"
-import { ChatbotStateAndData } from "../shared/hooks/useChatbotStateAndData"
+import type { ChatbotStateAndData } from "../shared/hooks/useChatbotStateAndData"
 
 interface ChatbotDialogProps {
   chatbotStateAndData: ChatbotStateAndData

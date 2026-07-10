@@ -2,8 +2,9 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { forwardRef, InputHTMLAttributes } from "react"
-import { FieldError } from "react-hook-form"
+import type { InputHTMLAttributes } from "react"
+import React, { forwardRef } from "react"
+import type { FieldError } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../styles"

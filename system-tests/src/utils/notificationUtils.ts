@@ -1,5 +1,5 @@
 /* oxlint-disable playwright/prefer-locator */
-import { Locator, Page } from "playwright"
+import type { Locator, Page } from "playwright"
 
 import {
   SHOW_TOASTS_INIFINITELY_IN_SYSTEM_TESTS_EVENT,

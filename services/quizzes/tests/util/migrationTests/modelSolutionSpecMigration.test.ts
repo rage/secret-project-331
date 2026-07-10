@@ -1,6 +1,6 @@
 import migrateModelSolutionSpecQuiz from "../../../src/util/migration/modelSolutionSpecQuiz"
-import { OldModelSolutionQuizItem, OldQuizItemTimelineItem } from "../../../types/oldQuizTypes"
-import {
+import type { OldModelSolutionQuizItem, OldQuizItemTimelineItem } from "../../../types/oldQuizTypes"
+import type {
   ModelSolutionQuizItemCheckbox,
   ModelSolutionQuizItemChooseN,
   ModelSolutionQuizItemClosedEndedQuestion,

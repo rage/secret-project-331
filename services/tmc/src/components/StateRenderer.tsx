@@ -6,11 +6,11 @@ import ExerciseEditor from "./ExerciseEditor"
 import ViewSubmission, { normalizeSubmission } from "./ViewSubmission"
 
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
-import { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"
 import withNoSsr from "@/shared-module/exercise-react/react/components/withNoSsr"
-import { RunResult } from "@/tmc/cli"
-import { ExerciseIframeState } from "@/util/stateInterfaces"
+import type { RunResult } from "@/tmc/cli"
+import type { ExerciseIframeState } from "@/util/stateInterfaces"
 
 interface Props {
   state: ExerciseIframeState | null

@@ -9,7 +9,7 @@ import Controls from "./Controls"
 import DisplayTrack from "./DisplayTrack"
 import ProgressBar from "./ProgressBar"
 
-import { AudioFile } from "@/components/course-material/Page"
+import type { AudioFile } from "@/components/course-material/Page"
 import CloseIcon from "@/img/course-material/close.svg"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

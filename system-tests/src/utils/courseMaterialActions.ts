@@ -1,6 +1,6 @@
 /* oxlint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
-import { Page } from "playwright"
+import type { Page } from "playwright"
 
 // The course material Page component renders a hidden sentinel carrying the result of its dialog
 // decision. `data-dialogs-ready="true"` means the frontend has finished deciding which dialog (if

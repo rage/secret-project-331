@@ -14,7 +14,7 @@ import { InstructionBox } from "../../CourseStatsPage"
 import StatsHeader from "../../StatsHeader"
 import NoDataMessage from "../NoDataMessage"
 
-import { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
+import type { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import Accordion from "@/shared-module/common/components/Accordion"
 import { baseTheme } from "@/shared-module/common/styles"

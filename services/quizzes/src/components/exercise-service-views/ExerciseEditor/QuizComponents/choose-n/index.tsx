@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
@@ -116,7 +116,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
             }
             try {
               draft.n = parseInt(value)
-            } catch (_e) {
+            } catch {
               /* NOP */
             }
           })

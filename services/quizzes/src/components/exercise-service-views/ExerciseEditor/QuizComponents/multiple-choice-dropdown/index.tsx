@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { PrivateSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"

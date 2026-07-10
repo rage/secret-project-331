@@ -360,7 +360,19 @@
         "typescript/no-wrapper-object-types": "error",
         "typescript/prefer-as-const": "error",
         "typescript/prefer-namespace-keyword": "error",
-        "typescript/triple-slash-reference": "error"
+        "typescript/triple-slash-reference": "error",
+        "typescript/consistent-type-definitions": "error",
+        "typescript/consistent-indexed-object-style": "error",
+        "typescript/consistent-type-assertions": "error",
+        "typescript/consistent-generic-constructors": "error",
+        "typescript/explicit-member-accessibility": "error",
+        "typescript/no-inferrable-types": "error",
+        "typescript/no-import-type-side-effects": "error",
+        "typescript/no-confusing-non-null-assertion": "error",
+        "typescript/no-non-null-asserted-nullish-coalescing": "error",
+        "typescript/prefer-enum-initializers": "error",
+        "typescript/prefer-literal-enum-member": "error",
+        "typescript/unified-signatures": "error"
       },
       "globals": {
         "React": "writable",

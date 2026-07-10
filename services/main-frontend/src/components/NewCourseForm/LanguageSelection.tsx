@@ -1,14 +1,14 @@
 "use client"
 
 import React, { useId, useState } from "react"
-import { UseFormReturn } from "react-hook-form"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import type { FormFields } from "."
 import {
   ENGLISH_LANGUAGE_CODE,
   FieldContainer,
   FINNISH_LANGUAGE_CODE,
-  FormFields,
   NORWEGIAN_LANGUAGE_CODE,
   SWEDISH_LANGUAGE_CODE,
 } from "."

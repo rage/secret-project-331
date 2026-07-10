@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 
-import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 
 export const SpotifyEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   const url = props.url ?? ""

@@ -1,6 +1,7 @@
-import { DialogCapableMessagePort, ParentDialogClient } from "../../src/client/parentDialog"
+import type { DialogCapableMessagePort } from "../../src/client/parentDialog"
+import { ParentDialogClient } from "../../src/client/parentDialog"
 
-import {
+import type {
   DialogResponseMessage,
   OpenDialogMessage,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"

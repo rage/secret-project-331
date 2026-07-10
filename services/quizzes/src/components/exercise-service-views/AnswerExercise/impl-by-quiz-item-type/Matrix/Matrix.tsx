@@ -1,9 +1,9 @@
 import styled from "@emotion/styled"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
-import { QuizItemComponentProps } from ".."
-import { UserItemAnswerMatrix } from "../../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMatrix } from "../../../../../../types/quizTypes/publicSpec"
+import type { QuizItemComponentProps } from ".."
+import type { UserItemAnswerMatrix } from "../../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMatrix } from "../../../../../../types/quizTypes/publicSpec"
 
 import MatrixCell from "./MatrixCell"
 

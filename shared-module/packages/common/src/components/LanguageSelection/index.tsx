@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { Placement } from "@popperjs/core"
+import type { Placement } from "@popperjs/core"
 import { LanguageTranslation } from "@vectopus/atlas-icons-react"
 import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"

@@ -9,7 +9,8 @@ import { useTranslation } from "react-i18next"
 
 import ChapterPointsDashboard from "../ChapterPointsDashboard"
 import CompletionRegistrationPreview from "../CompletionRegistrationPreview"
-import UserCompletionRow, { UserCompletionRowUser } from "../UserCompletionRow"
+import type { UserCompletionRowUser } from "../UserCompletionRow"
+import UserCompletionRow from "../UserCompletionRow"
 
 import CompletionsExportButton from "./CompletionsExportButton"
 
@@ -382,7 +383,7 @@ const CompletionsPage: React.FC = () => {
 export default withErrorBoundary(withSignedIn(CompletionsPage))
 
 function prepareUser(user: UserWithModuleCompletions): UserCompletionRowUser {
-  const moduleCompletions = new Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>()
+  const moduleCompletions = new Map<string, CourseModuleCompletionWithRegistrationInfo[]>()
   for (const completion of user.completed_modules) {
     const bucket = moduleCompletions.get(completion.course_module_id) ?? []
     bucket.push(completion)

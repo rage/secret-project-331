@@ -5,22 +5,24 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
+import type { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
 
 import type {
   GetPlaygroundViewsWebsocketData,
   ReceivePlaygroundGradingData,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
-import {
+import type {
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,
+  SpecRequest,
+} from "@/utils/playgroundSchemas"
+import {
   parseExerciseServiceInfoApi,
   parseExerciseTaskGradingResult,
   parsePlaygroundViewsMessage,
-  SpecRequest,
 } from "@/utils/playgroundSchemas"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin

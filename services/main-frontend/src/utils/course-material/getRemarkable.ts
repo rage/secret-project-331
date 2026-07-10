@@ -1,5 +1,5 @@
 import { Remarkable } from "remarkable"
-import { ContentToken, InlineParsingRule, Options, Rule } from "remarkable/lib"
+import type { ContentToken, InlineParsingRule, Options, Rule } from "remarkable/lib"
 
 import { MATCH_CITATION_TAG_REGEX } from "./chatbotCitationRegexes"
 import { textParser } from "./remarkableTextParser"

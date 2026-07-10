@@ -1,5 +1,6 @@
 import { produce, type WritableDraft } from "immer"
-import { Dictionary, groupBy, mapValues, max, orderBy } from "lodash"
+import type { Dictionary } from "lodash"
+import { groupBy, mapValues, max, orderBy } from "lodash"
 
 import type { Chapter, CourseStructure, Page } from "@/generated/api/types.generated"
 

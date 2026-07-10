@@ -4,7 +4,8 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useMemo } from "react"
 
-import { getPlaceholderConfig, PlaceholderValidationResult } from "../../utils/emailPlaceholders"
+import type { PlaceholderValidationResult } from "../../utils/emailPlaceholders"
+import { getPlaceholderConfig } from "../../utils/emailPlaceholders"
 import PlaceholderInfo from "../email/PlaceholderInfo"
 
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"

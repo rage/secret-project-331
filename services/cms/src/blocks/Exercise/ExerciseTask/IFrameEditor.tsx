@@ -19,7 +19,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
-import {
+import type {
   ExerciseIframeState,
   MessageToIframe,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"

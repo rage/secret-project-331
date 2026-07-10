@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 import CreateTermForm from "./CreateTermForm"
 import TermItem from "./TermItem"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { getCourseGlossaryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"

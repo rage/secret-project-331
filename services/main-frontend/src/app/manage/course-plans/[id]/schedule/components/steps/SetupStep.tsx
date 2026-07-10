@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { useSetupStepFields } from "../../hooks/useWizardStepFields"
 
-import { CourseDesignerCourseSize } from "@/generated/api/types.generated"
+import type { CourseDesignerCourseSize } from "@/generated/api/types.generated"
 import { Button, Select, YearMonthField } from "@/shared-module/components"
 
 const toolbarStyles = css`

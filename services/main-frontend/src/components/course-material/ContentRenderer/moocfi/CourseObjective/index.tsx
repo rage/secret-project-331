@@ -5,10 +5,10 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { HeadingAttributes, ListAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { HeadingAttributes, ListAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 interface StyledObjectiveProps {

@@ -12,7 +12,7 @@ import type {
   UserCourseSettings,
 } from "@/generated/course-material-api/types.generated"
 
-export type CourseMaterialState = {
+export interface CourseMaterialState {
   status: "loading" | "ready" | "error"
   error: unknown | null
   page: Page | null

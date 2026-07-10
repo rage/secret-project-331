@@ -13,7 +13,8 @@ import {
   releaseExamGradesMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/api/types.generated"
-import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import type { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"

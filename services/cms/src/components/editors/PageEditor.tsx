@@ -2,7 +2,8 @@
 
 /* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import { UseMutationResult, useQuery } from "@tanstack/react-query"
+import type { UseMutationResult } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { isEqual } from "lodash"
 import { useRouter } from "next/router"
 import React, { useMemo, useReducer, useState } from "react"
@@ -26,7 +27,7 @@ import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
 import HeadingHierarchyButton from "./HeadingHierarchyButton"
 
-import { CmsPageUpdate, ContentManagementPage, Page } from "@/generated/api"
+import type { CmsPageUpdate, ContentManagementPage, Page } from "@/generated/api"
 import {
   getCmsCourseOptions,
   getCmsPageNavigationOptions,

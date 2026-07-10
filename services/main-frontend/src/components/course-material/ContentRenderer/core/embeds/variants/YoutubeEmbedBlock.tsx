@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import aspectRatioFromClassName from "@/utils/course-material/aspectRatioFromClassName"
@@ -161,7 +161,7 @@ export function parseYoutubeUrl(url: string): YouTubeVideoParams {
     if (listTypeParam) {
       result.listType = listTypeParam
     }
-  } catch (_error) {
+  } catch {
     // Return default result for invalid URLs
   }
 
@@ -310,7 +310,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
             setIsPlayerReady(true)
             postMessageToYouTube({ event: YOUTUBE_EVENT_LISTENING })
           }
-        } catch (_error) {
+        } catch {
           // Ignore parsing errors from unrelated messages
         }
       },

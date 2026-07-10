@@ -2,9 +2,10 @@
 
 import { css } from "@emotion/css"
 import { useAtomValue } from "jotai"
-import { RefObject, useMemo } from "react"
+import type { RefObject } from "react"
+import { useMemo } from "react"
 
-import { AudioFile } from "@/components/course-material/Page"
+import type { AudioFile } from "@/components/course-material/Page"
 import { headingFont } from "@/shared-module/common/styles"
 import { courseMaterialAtom } from "@/state/course-material"
 

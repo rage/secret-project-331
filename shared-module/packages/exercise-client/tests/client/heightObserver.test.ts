@@ -1,8 +1,9 @@
 import { observeHeight } from "../../src/client/heightObserver"
-import { createMockMessagePort, MockMessagePort } from "../utils/iframeTestUtils"
+import type { MockMessagePort } from "../utils/iframeTestUtils"
+import { createMockMessagePort } from "../utils/iframeTestUtils"
 
 describe("observeHeight", () => {
-  let resizeCallbacks: Array<() => void>
+  let resizeCallbacks: (() => void)[]
   let originalResizeObserver: typeof ResizeObserver
 
   beforeEach(() => {
@@ -11,12 +12,12 @@ describe("observeHeight", () => {
     originalResizeObserver = (global as { ResizeObserver?: typeof ResizeObserver })
       .ResizeObserver as typeof ResizeObserver
     ;(global as { ResizeObserver: unknown }).ResizeObserver = class {
-      constructor(callback: () => void) {
+      public constructor(callback: () => void) {
         resizeCallbacks.push(callback)
       }
-      observe() {}
-      unobserve() {}
-      disconnect() {}
+      public observe() {}
+      public unobserve() {}
+      public disconnect() {}
     }
   })
 

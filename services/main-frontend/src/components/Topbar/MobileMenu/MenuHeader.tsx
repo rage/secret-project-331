@@ -6,7 +6,7 @@ import React, { useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { UnifiedMenuItem } from "../hooks/types"
+import type { UnifiedMenuItem } from "../hooks/types"
 
 interface MenuHeaderProps {
   currentSubmenu: UnifiedMenuItem | null

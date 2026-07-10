@@ -16,7 +16,7 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
 import { QueryResults } from "@/shared-module/components"
 
-type Props = {
+interface Props {
   courseId: string
   selectedExerciseIds: string[]
   setSelectedExerciseIds: React.Dispatch<React.SetStateAction<string[]>>

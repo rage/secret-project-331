@@ -134,7 +134,13 @@ export function applyLineWrapping(el: HTMLElement): void {
 }
 
 class LineHighlightPlugin {
-  "after:highlightElement"({ el }: { el: Element; result: HighlightResult; text: string }): void {
+  public "after:highlightElement"({
+    el,
+  }: {
+    el: Element
+    result: HighlightResult
+    text: string
+  }): void {
     applyLineWrapping(el as HTMLElement)
   }
 }

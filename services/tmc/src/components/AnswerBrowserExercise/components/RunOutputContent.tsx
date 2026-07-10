@@ -28,8 +28,8 @@ interface RunOutputContentProps {
 /** Merge consecutive stdout segments into one for a single pre block */
 function mergeStdoutSegments(
   segments: OutputSegment[],
-): Array<{ type: "stdout"; text: string } | OutputSegment> {
-  const result: Array<{ type: "stdout"; text: string } | OutputSegment> = []
+): ({ type: "stdout"; text: string } | OutputSegment)[] {
+  const result: ({ type: "stdout"; text: string } | OutputSegment)[] = []
   let stdoutAcc = ""
   for (const seg of segments) {
     if (seg.type === "stdout") {

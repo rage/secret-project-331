@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import { times } from "lodash"
-import React, { JSX } from "react"
+import type { JSX } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
@@ -13,13 +14,13 @@ import type {
 } from "@/generated/api/types.generated"
 
 export interface UserCompletionRowProps {
-  sortedCourseModules: Array<CourseModule>
+  sortedCourseModules: CourseModule[]
   user: UserCompletionRowUser
 }
 
 export interface UserCompletionRowUser {
   /** Maps module id to an array of all completions for that module. */
-  moduleCompletions: Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>
+  moduleCompletions: Map<string, CourseModuleCompletionWithRegistrationInfo[]>
   email: string
   firstName: string | null
   lastName: string | null

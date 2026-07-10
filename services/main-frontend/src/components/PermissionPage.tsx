@@ -3,11 +3,13 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
-import { t as globalT, TFunction } from "i18next"
+import type { TFunction } from "i18next"
+import { t as globalT } from "i18next"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { assert, Equals } from "tsafe"
+import type { Equals } from "tsafe"
+import { assert } from "tsafe"
 
 import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 

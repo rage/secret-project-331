@@ -9,7 +9,7 @@ import SelectField from "@/shared-module/common/components/InputFields/SelectFie
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
-type CreateOrganizationForm = {
+interface CreateOrganizationForm {
   name: string
   visibility: "public" | "private"
   slug: string

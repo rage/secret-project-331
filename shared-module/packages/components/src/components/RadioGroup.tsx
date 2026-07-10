@@ -18,7 +18,7 @@ import {
 } from "./primitives/fieldShellStyles"
 import type { FieldSize } from "./primitives/fieldStyles"
 
-type RadioGroupContextValue = {
+interface RadioGroupContextValue {
   fieldSize: FieldSize
   state: RadioGroupState
 }

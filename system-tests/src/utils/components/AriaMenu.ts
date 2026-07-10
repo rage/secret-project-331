@@ -1,11 +1,12 @@
-import { expect, Locator, Page } from "@playwright/test"
+import type { Locator, Page } from "@playwright/test"
+import { expect } from "@playwright/test"
 
-type AriaMenuOpts = {
+interface AriaMenuOpts {
   menuTestId: string
 }
 
 export class AriaMenu {
-  constructor(
+  public constructor(
     private readonly page: Page,
     private readonly trigger: Locator,
     private readonly opts: AriaMenuOpts,
@@ -30,7 +31,7 @@ export class AriaMenu {
     }
   }
 
-  async open() {
+  public async open() {
     // Press esc in case another menu is open
     await this.page.keyboard.press("Escape")
     await this.closeConflictingMenus()
@@ -39,7 +40,7 @@ export class AriaMenu {
     await expect(this.menu()).toBeVisible()
   }
 
-  async clickItem(label: string) {
+  public async clickItem(label: string) {
     await this.open()
     await this.menu().getByRole("menuitem", { name: label }).click()
     await expect(this.menu()).toBeHidden()

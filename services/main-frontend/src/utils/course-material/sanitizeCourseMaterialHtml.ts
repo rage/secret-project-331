@@ -1,6 +1,6 @@
 import DOMPurify, { type Config } from "dompurify"
 
-import { StringWithHTML } from "@/../types"
+import type { StringWithHTML } from "@/../types"
 
 export const sanitizeCourseMaterialHtml = (
   dirty: string | undefined | StringWithHTML,

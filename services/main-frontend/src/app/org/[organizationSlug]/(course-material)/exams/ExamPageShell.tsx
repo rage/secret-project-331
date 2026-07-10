@@ -27,7 +27,7 @@ import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
 import { refetchViewAtom } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 export type ExamPageShellMode = "exam" | "testexam"
 
@@ -155,7 +155,7 @@ export default function ExamPageShell({
           >
             <div id="maincontent">
               <ContentRenderer
-                data={(examData.instructions as Array<Block<unknown>>) ?? []}
+                data={(examData.instructions as Block<unknown>[]) ?? []}
                 isExam={false}
                 dontAllowBlockToBeWiderThanContainerWidth={false}
               />

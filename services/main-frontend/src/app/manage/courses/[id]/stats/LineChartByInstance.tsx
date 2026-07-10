@@ -8,10 +8,11 @@ import { useTranslation } from "react-i18next"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import Echarts from "./Echarts"
-import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "./LineChart"
+import type { Period } from "./LineChart"
+import { DAILY_PERIOD, MONTHLY_PERIOD } from "./LineChart"
 import StatsHeader from "./StatsHeader"
 
-import { CountResult } from "@/generated/api/types.generated"
+import type { CountResult } from "@/generated/api/types.generated"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"

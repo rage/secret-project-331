@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { t } from "i18next"
 import React from "react"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import { fontWeights } from "@/shared-module/common/styles"

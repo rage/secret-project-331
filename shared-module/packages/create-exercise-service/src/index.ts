@@ -81,7 +81,7 @@ async function readJson<T>(path: string): Promise<T> {
 }
 
 /** Apply a set of literal string replacements to a file in place. */
-async function replaceInFile(path: string, replacements: Array<[string, string]>): Promise<void> {
+async function replaceInFile(path: string, replacements: [string, string][]): Promise<void> {
   let contents = await readFile(path, "utf8")
   for (const [from, to] of replacements) {
     contents = contents.split(from).join(to)
@@ -208,7 +208,7 @@ const BINARY_EXTENSIONS = new Set([
  */
 async function replaceNameInAllFiles(
   root: string,
-  replacements: Array<[string, string]>,
+  replacements: [string, string][],
   dir: string = root,
 ): Promise<void> {
   const sharedModuleDir = join(root, "src", "shared-module")

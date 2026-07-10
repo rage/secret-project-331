@@ -19,11 +19,11 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 interface GroupedTemplates {
   templateType: EmailTemplateType
   global: EmailTemplate[]
-  courseSpecific: Array<{
+  courseSpecific: {
     courseId: string
     courseName: string
     templates: EmailTemplate[]
-  }>
+  }[]
 }
 
 const EmailTemplatesList: React.FC = () => {
@@ -144,11 +144,11 @@ const EmailTemplatesList: React.FC = () => {
   )
 
   const allTemplates = useMemo(() => {
-    const templates: Array<{
+    const templates: {
       template: EmailTemplate
       templateTypeLabel: string
       courseName: string | null
-    }> = []
+    }[] = []
 
     groupedTemplates.forEach((group) => {
       group.global.forEach((template) => {

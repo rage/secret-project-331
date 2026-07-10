@@ -2,12 +2,12 @@ import { css } from "@emotion/css"
 import React, { useCallback, useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
 import ParsedText from "../../../ParsedText"
 import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { stripNonPrintableCharacters } from "@/shared-module/common/utils/strings"

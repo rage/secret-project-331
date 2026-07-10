@@ -1,9 +1,9 @@
 import tar from "tar-stream"
 import { ZSTDDecoder } from "zstddec"
 
-import { ExerciseFile } from "./stateInterfaces"
+import type { ExerciseFile } from "./stateInterfaces"
 
-import { RepositoryExercise } from "@/util/exerciseServiceApi"
+import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 
 export const buildArchiveName = (exercise: RepositoryExercise, identifier?: string): string => {
   if (identifier) {
@@ -13,14 +13,14 @@ export const buildArchiveName = (exercise: RepositoryExercise, identifier?: stri
   }
 }
 
-export const extractTarZstd = async (tarZstdArchive: Buffer): Promise<Array<ExerciseFile>> => {
+export const extractTarZstd = async (tarZstdArchive: Buffer): Promise<ExerciseFile[]> => {
   // unpack zstd
   const zstdDecoder = new ZSTDDecoder()
   await zstdDecoder.init()
   const tarArchive = zstdDecoder.decode(tarZstdArchive, 1024 * 1024)
 
   // unpack tar
-  const files: Array<ExerciseFile> = []
+  const files: ExerciseFile[] = []
   const extract = tar.extract({})
   extract.on("entry", function (header, stream, next) {
     // strip first component...

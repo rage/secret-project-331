@@ -6,8 +6,10 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import EditCourseModuleForm, { EditCourseModuleFormFields } from "./EditCourseModuleForm"
-import NewCourseModuleForm, { Fields } from "./NewCourseModuleForm"
+import type { EditCourseModuleFormFields } from "./EditCourseModuleForm"
+import EditCourseModuleForm from "./EditCourseModuleForm"
+import type { Fields } from "./NewCourseModuleForm"
+import NewCourseModuleForm from "./NewCourseModuleForm"
 
 import BottomPanel from "@/components/BottomPanel"
 import { getCourseStructureOptions } from "@/generated/api/@tanstack/react-query.generated"
@@ -26,7 +28,7 @@ interface Props {
   courseId: string
 }
 
-export type ModuleView = {
+export interface ModuleView {
   id: string
   name: string | null
   order_number: number
@@ -43,11 +45,16 @@ export type ModuleView = {
   enable_registering_completion_to_uh_open_university: boolean
 }
 
-type ChapterView = { id: string; name: string; module: string | null; chapter_number: number }
+interface ChapterView {
+  id: string
+  name: string
+  module: string | null
+  chapter_number: number
+}
 
-type ModuleList = {
-  modules: Array<ModuleView>
-  chapters: Array<ChapterView>
+interface ModuleList {
+  modules: ModuleView[]
+  chapters: ChapterView[]
   error: string | null
 }
 
@@ -58,10 +65,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   const [moduleList, setModuleList] = useState<ModuleList | null>(null)
 
   // helper functions
-  const validateModuleList = (
-    modules: Array<ModuleView>,
-    chapters: Array<ChapterView>,
-  ): string | null => {
+  const validateModuleList = (modules: ModuleView[], chapters: ChapterView[]): string | null => {
     const seenModules = new Map<string, number>()
 
     chapters.sort((l, r) => l.chapter_number - r.chapter_number)
@@ -122,7 +126,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   }
   const firstAndLastChaptersOfModule = (
     moduleId: string,
-    chapters: Array<ChapterView>,
+    chapters: ChapterView[],
   ): [number | null, number | null] => {
     let first = null
     let last = null
@@ -140,7 +144,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
     return [first, last]
   }
-  const sortAndUpdateOrderNumbers = (modules: Array<ModuleView>): Array<ModuleView> => {
+  const sortAndUpdateOrderNumbers = (modules: ModuleView[]): ModuleView[] => {
     modules.sort((l, r) => {
       // sort default module first
       if (l.name === null) {
@@ -493,7 +497,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       })
 
       // update modules
-      const modules: Array<ModuleView> = [
+      const modules: ModuleView[] = [
         ...old.modules,
         {
           id: newModuleId,

@@ -16,10 +16,10 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { QueryResult } from "@/shared-module/components"
+import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 import {
   defaultTeacherChapterLockStatus,
   getTeacherChapterLockLabel,
-  TeacherChapterLockStatus,
   teacherChapterLockStatuses,
 } from "@/utils/chapterLockingStatus"
 

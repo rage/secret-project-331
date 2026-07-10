@@ -1,4 +1,4 @@
-import { Page } from "playwright"
+import type { Page } from "playwright"
 
 export async function goToPageIfAvailable(page: Page, pageNumber: number) {
   // Give a moment for the page to appear

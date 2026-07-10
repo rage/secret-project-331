@@ -124,11 +124,11 @@ interface LanguageMenuProps {
   // Optional props for non-course pages
   courseId?: string | null
   currentPageId?: string | null
-  availableLanguages?: Array<{
+  availableLanguages?: {
     code: string
     name: string
     isDraft?: boolean
-  }>
+  }[]
   onLanguageChange?: (languageCode: string) => Promise<void>
 }
 

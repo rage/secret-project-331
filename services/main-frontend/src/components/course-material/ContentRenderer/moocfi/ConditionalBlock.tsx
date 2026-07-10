@@ -3,7 +3,7 @@
 import { useAtomValue } from "jotai"
 import React, { useContext } from "react"
 
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 import InnerBlocks from "../util/InnerBlocks"
 
 import type { UserCourseSettings } from "@/generated/course-material-api/types.generated"

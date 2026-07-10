@@ -23,7 +23,7 @@ const STAGE_BRIEF_KEYS = {
 
 interface PlanQueryData {
   plan: { active_stage?: CourseDesignerStage | null }
-  stages: Array<{ stage: CourseDesignerStage }>
+  stages: { stage: CourseDesignerStage }[]
 }
 
 interface UseCoursePlanWorkspacePageStateOptions {

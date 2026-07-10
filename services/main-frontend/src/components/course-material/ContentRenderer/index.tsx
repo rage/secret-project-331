@@ -75,7 +75,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 import {
   COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
   courseMaterialBlockClass,
@@ -105,7 +105,7 @@ export type BlockRendererProps<T> = {
 const LatexBlock = dynamicImport(() => import("./moocfi/LatexBlock"))
 
 // oxlint-disable-next-line typescript/no-explicit-any
-export const blockToRendererMap: { [blockName: string]: any } = {
+export const blockToRendererMap: Record<string, any> = {
   "core/block": DefaultBlock,
 
   // core / common

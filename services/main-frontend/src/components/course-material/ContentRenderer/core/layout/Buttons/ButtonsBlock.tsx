@@ -2,10 +2,10 @@
 
 import { css } from "@emotion/css"
 
-import { BlockRendererProps } from "../../.."
+import type { BlockRendererProps } from "../../.."
 import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
 
-import { ButtonAttributes, ButtonsAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { ButtonAttributes, ButtonsAttributes } from "@/../types/GutenbergBlockAttributes"
 import Button from "@/shared-module/common/components/Button"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import colorMapper from "@/styles/course-material/colorMapper"

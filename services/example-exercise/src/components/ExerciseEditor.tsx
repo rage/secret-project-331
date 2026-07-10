@@ -3,10 +3,10 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import ButtonEditor from "./ButtonEditor"
-import { State } from "./IframeView"
+import type { State } from "./IframeView"
 
-import { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { Alternative } from "@/util/stateInterfaces"
+import type { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { Alternative } from "@/util/stateInterfaces"
 import { generateUuid } from "@/util/uuid"
 
 const CURRENT_STATE = "current-state"

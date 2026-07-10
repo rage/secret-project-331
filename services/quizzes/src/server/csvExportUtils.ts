@@ -1,5 +1,5 @@
-import { UserItemAnswer } from "../../types/quizTypes/answer"
-import {
+import type { UserItemAnswer } from "../../types/quizTypes/answer"
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
   PrivateSpecQuizItemTimelineItem,

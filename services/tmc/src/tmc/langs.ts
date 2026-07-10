@@ -5,12 +5,12 @@ import * as readline from "readline"
 import { temporaryDirectory, temporaryFile } from "tempy"
 import kill from "tree-kill"
 
-import { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
+import type { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
 import { isCliOutput } from "./cli.guard"
 
 const execute = async (
   cmd: string,
-  args: Array<string>,
+  args: string[],
   log: (message: string, ...optionalParams: unknown[]) => void,
 ): Promise<OutputData> => {
   const cliPath = "/app/tmc-langs-cli"
@@ -78,7 +78,7 @@ const execute = async (
           console.error("TMC-langs response didn't match expected type")
           console.error(json)
         }
-      } catch (_e) {
+      } catch {
         console.warn("Failed to parse TMC-langs output")
         console.debug(input)
       }
@@ -209,7 +209,7 @@ export const getExercisePackagingConfiguration = async (
 export const fastAvailablePoints = async (
   exercisePath: string,
   log: (message: string, ...optionalParams: unknown[]) => void,
-): Promise<Array<string>> => {
+): Promise<string[]> => {
   const config = await execute("fast-available-points", ["--exercise-path", exercisePath], log)
   if (config.data?.["output-data-kind"] === "available-points") {
     return config.data["output-data"]

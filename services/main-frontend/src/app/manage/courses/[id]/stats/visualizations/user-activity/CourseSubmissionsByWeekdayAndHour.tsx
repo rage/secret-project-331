@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { Dictionary, groupBy, max } from "lodash"
+import type { Dictionary } from "lodash"
+import { groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +12,7 @@ import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
 import { getCourseWeekdayHourSubmissionCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { ExerciseSlideSubmissionCountByWeekAndHour } from "@/generated/api/types.generated"
+import type { ExerciseSlideSubmissionCountByWeekAndHour } from "@/generated/api/types.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

@@ -1,8 +1,9 @@
-import React, { Dispatch, SetStateAction } from "react"
+import type { Dispatch, SetStateAction } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import DynamicallyLoadingComponentPlaceholder from "../ComponentPlaceholder"
-import { State } from "../IframeView"
+import type { State } from "../IframeView"
 
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
 import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"

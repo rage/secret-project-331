@@ -2,13 +2,13 @@ import { css, cx } from "@emotion/css"
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
 import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper"
 
-import { QuizItemSubmissionComponentProps } from "."
+import type { QuizItemSubmissionComponentProps } from "."
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

@@ -1,9 +1,12 @@
-import { RunResult } from "@/tmc/cli"
+import type { RunResult } from "@/tmc/cli"
 
 const TTL_MS = 10 * 60 * 1000
 const MAX_ENTRIES = 500
 
-type Entry = { result: RunResult | null; createdAt: number }
+interface Entry {
+  result: RunResult | null
+  createdAt: number
+}
 const store = new Map<string, Entry>()
 
 function evict() {

@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useContext } from "react"
 
-import { Action, Resource } from "../authApiTypes"
+import type { Action, Resource } from "../authApiTypes"
 import LoginStateContext from "../contexts/LoginStateContext"
 import { getAuthUserInfoOptions } from "../generated/auth-api/@tanstack/react-query.generated"
 import { postAuthAuthorize } from "../generated/auth-api/sdk.generated"

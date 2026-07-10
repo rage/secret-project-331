@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 import useEventCallback from "./useEventCallback"
 import useMessageChannel from "./useMessageChannel"
 
-import {
+import type {
   DialogResponseMessage,
   ExtendedIframeState,
   MessageFromIframe,

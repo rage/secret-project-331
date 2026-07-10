@@ -376,10 +376,10 @@ export interface OldUserQuizState {
 
 /** @deprecated */
 export interface OldEntities {
-  quizzes: { [quizId: string]: OldNormalizedQuiz }
-  items: { [itemId: string]: OldNormalizedQuizItem }
-  options?: { [optionId: string]: OldNormalizedQuizItemOption }
-  timelineItems?: { [timelineItemId: string]: OldNormalizedQuizItemTimelineItem }
+  quizzes: Record<string, OldNormalizedQuiz>
+  items: Record<string, OldNormalizedQuizItem>
+  options?: Record<string, OldNormalizedQuizItemOption>
+  timelineItems?: Record<string, OldNormalizedQuizItemTimelineItem>
   result: string
 }
 

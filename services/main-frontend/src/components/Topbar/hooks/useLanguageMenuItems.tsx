@@ -41,11 +41,11 @@ export interface LanguageMenuItem {
 }
 
 export interface UseLanguageMenuItemsProps {
-  availableLanguages?: Array<{
+  availableLanguages?: {
     code: string
     name: string
     isDraft?: boolean
-  }>
+  }[]
   onLanguageChange?: (languageCode: string) => Promise<void>
   renderAsSubmenu?: boolean
   onMenuClose?: () => void

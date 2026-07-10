@@ -1,6 +1,6 @@
 import type React from "react"
 
-import { RadioGroupContext } from "../RadioGroup"
+import type { RadioGroupContext } from "../RadioGroup"
 import type { FieldSize } from "../primitives/fieldStyles"
 
 export type RadioProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"> & {

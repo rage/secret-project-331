@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { RefObject, useCallback, useEffect, useRef, useState } from "react"
+import type { RefObject } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useButton, useFocusRing } from "react-aria"
 import { useTranslation } from "react-i18next"
 

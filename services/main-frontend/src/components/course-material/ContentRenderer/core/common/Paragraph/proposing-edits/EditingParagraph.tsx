@@ -12,7 +12,7 @@ import EditableParagraph from "./EditableParagraph"
 import PreviewableParagraph from "./PreviewableParagraph"
 import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
-import { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme } from "@/shared-module/common/styles"
 import {
   blockEditsAtom,

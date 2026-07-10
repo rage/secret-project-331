@@ -24,7 +24,7 @@ import { Button, QueryResult, TextField } from "@/shared-module/components"
 
 const ADD_MEMBER_FIELD = "email" as const
 
-type AddMemberFormValues = {
+interface AddMemberFormValues {
   email: string
 }
 

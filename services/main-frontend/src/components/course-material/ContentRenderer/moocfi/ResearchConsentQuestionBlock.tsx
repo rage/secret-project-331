@@ -2,7 +2,7 @@
 
 import React, { useCallback, useContext } from "react"
 
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 
 import ParsedText from "@/components/course-material/ParsedText"
 import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"

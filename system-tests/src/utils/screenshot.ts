@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 
-import { expect, Locator, Page, test, TestInfo } from "@playwright/test"
+import type { Locator, Page, TestInfo } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import accessibilityCheck from "./accessibilityCheck"
 import {
@@ -331,7 +332,7 @@ export async function takeScreenshotAndComparetoSnapshot(
       testInfo.config.updateSnapshots = "missing"
     }
     await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
-  } catch (_e: unknown) {
+  } catch {
     await page.waitForTimeout(100)
     testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
     await scrollToSavedImageCoordinate(

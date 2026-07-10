@@ -1,5 +1,5 @@
 import { extractTarZstd } from "@/util/helpers"
-import { PublicSpec, UserAnswer } from "@/util/stateInterfaces"
+import type { PublicSpec, UserAnswer } from "@/util/stateInterfaces"
 
 export async function publicSpecToIframeUserAnswer(publicSpec: PublicSpec): Promise<UserAnswer> {
   if (publicSpec.type === "browser") {

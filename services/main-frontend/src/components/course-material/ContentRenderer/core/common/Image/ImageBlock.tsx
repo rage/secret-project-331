@@ -5,12 +5,12 @@ import styled from "@emotion/styled"
 import { useRef, useState } from "react"
 import Zoom from "react-medium-image-zoom"
 
-import { BlockRendererProps } from "../../.."
+import type { BlockRendererProps } from "../../.."
 import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
 
 import { useImageInteractivity } from "./ImageInteractivityContext"
 
-import { ImageAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { ImageAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

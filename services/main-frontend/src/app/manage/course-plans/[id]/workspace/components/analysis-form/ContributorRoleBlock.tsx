@@ -3,9 +3,9 @@
 import type { TFunction } from "i18next"
 import type { Control } from "react-hook-form"
 
+import type { CONTRIBUTOR_ROLES } from "./analysisFormDomain"
 import {
   type AnalysisWorkspaceFormValues,
-  CONTRIBUTOR_ROLES,
   contributorCardLeadStyles,
   contributorCardStyles,
   contributorCardTitleStyles,

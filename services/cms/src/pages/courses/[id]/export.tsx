@@ -9,9 +9,8 @@ import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
 import { getCmsCoursePages, getCmsPage, getCmsPageInfo } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import { useTranslation } from "@/utils/useCmsTranslation"

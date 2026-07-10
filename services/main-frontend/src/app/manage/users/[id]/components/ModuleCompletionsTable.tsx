@@ -10,7 +10,7 @@ import { computeModuleTimings } from "../lib/durations"
 import Duration from "./Duration"
 
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
-import TimeComponent from "@/shared-module/common/components/TimeComponent"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { Badge, Meter } from "@/shared-module/components"
 
 export interface ModuleCompletionsTableProps {
@@ -105,9 +105,7 @@ const ModuleCompletionsTable: React.FC<ModuleCompletionsTableProps> = ({ enrollm
         {timings.map(({ completion, completedAt, sinceEnrollmentSeconds, gapSeconds }) => (
           <tr key={completion.id}>
             <td>{moduleName(completion.course_module_id)}</td>
-            <td>
-              <TimeComponent date={completedAt} boldLabel={false} />
-            </td>
+            <td>{dateToString(completedAt)}</td>
             <td>
               <Duration seconds={sinceEnrollmentSeconds} />
             </td>

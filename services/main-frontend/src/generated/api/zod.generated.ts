@@ -714,6 +714,7 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
  * without a separate course-structure fetch. Default (base) module has `name = None`.
  */
 export const zCourseModuleInfo = z.object({
+  first_submission_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   name: z.string().nullish(),
   order_number: z

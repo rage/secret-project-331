@@ -1,28 +1,18 @@
-// Shared palette + symbol constants for the user activity/completion timelines. SCREAMING_CASE keeps
-// the literal values out of the i18next literal-string lint.
+// Shared palette + constants for the user activity/completion timelines. Values are hex colors or
+// SCREAMING_CASE-keyed enum strings, both of which the i18next literal-string lint ignores.
 
-/** Distinct, legible hues; one per module (course-specific timeline) indexed by module order. */
-export const MODULE_COLORS = [
-  "#1f6964",
-  "#2563eb",
-  "#b45309",
-  "#7c3aed",
-  "#be123c",
-  "#0e7490",
-  "#4d7c0f",
-  "#9d174d",
-]
-
-/** Distinct hues; one per course (cross-course Gantt) indexed by course order. */
-export const COURSE_COLORS = [
-  "#2563eb",
-  "#1f6964",
-  "#7c3aed",
-  "#b45309",
-  "#0e7490",
-  "#be123c",
-  "#4d7c0f",
-  "#9d174d",
+// One on-system categorical palette (from baseTheme.colors), shared by the cross-course Gantt (indexed
+// by course order) and the per-course timeline (indexed by module order). Near-collision hues are
+// omitted so adjacent series stay distinct.
+export const SERIES_COLORS = [
+  "#215887", // blue.600
+  "#1F6964", // green.600
+  "#6245A9", // purple.600
+  "#822630", // crimson.600
+  "#A84835", // red.600
+  "#535A66", // gray.500
+  "#0E3657", // blue.800
+  "#154541", // green.800
 ]
 
 // Non-translatable echarts enum strings, grouped under SCREAMING_CASE keys so the i18next
@@ -30,45 +20,41 @@ export const COURSE_COLORS = [
 export const ECHARTS = {
   OVERFLOW_TRUNCATE: "truncate",
   ALIGN_LEFT: "left",
+  ALIGN_RIGHT: "right",
   VALIGN_MIDDLE: "middle",
   TRIGGER_ITEM: "item",
   FILTER_WEAK: "weakFilter",
   SYMBOL_NONE: "none",
-  SYMBOL_PIN: "pin",
   SYMBOL_CIRCLE: "circle",
-  SYMBOL_TRIANGLE: "triangle",
+  SYMBOL_EMPTY_CIRCLE: "emptyCircle",
   SYMBOL_DIAMOND: "diamond",
-  SYMBOL_RECT: "rect",
-  SYMBOL_ARROW: "arrow",
+  SYMBOL_PIN: "pin",
+  PIN_OFFSET_Y: "-90%",
+  LABEL_END: "end",
 } as const
 
-/** Scatter symbol per submission attempt ordinal (0-based); cycles for high retry counts. */
-export const ATTEMPT_SYMBOLS = [
-  ECHARTS.SYMBOL_CIRCLE,
-  ECHARTS.SYMBOL_TRIANGLE,
-  ECHARTS.SYMBOL_DIAMOND,
-  ECHARTS.SYMBOL_RECT,
-  ECHARTS.SYMBOL_PIN,
-  ECHARTS.SYMBOL_ARROW,
-]
+// echarts time-axis label templates, keyed by tick granularity. Day ticks show the month too ("Feb 5")
+// and the year boundary shows a month ("Jan 2026") so the axis never starts with a bare "2026".
+export const TIME_AXIS_LABEL = {
+  year: "{MMM} {yyyy}",
+  month: "{MMM}",
+  day: "{MMM} {d}",
+  hour: "{HH}:{mm}",
+  minute: "{HH}:{mm}",
+} as const
+
+/** Subtle alternating background bands for the time axis (splitArea): faint gray tint / transparent. */
+export const SPLIT_AREA_COLORS = ["rgba(83,90,102,0.04)", "rgba(255,255,255,0)"]
 
 /** Fallback color for marks with no module. */
-export const NEUTRAL_MARK_COLOR = "#767b85"
+export const NEUTRAL_MARK_COLOR = "#767b85" // gray.400
 
-/** Module-completion marker color, and the emphasis color for completions still needing review. */
-export const COMPLETION_COLOR = "#1f6964"
-export const NEEDS_REVIEW_COLOR = "#9e341f"
+/** Non-alarming accent for completions still awaiting review (info tone, not error red). */
+export const REVIEW_ACCENT = "#08457A" // blue.700
 
 /** Palette lookup that wraps around for indices past the palette length. */
 export function colorAt(palette: string[], index: number): string {
   return palette[((index % palette.length) + palette.length) % palette.length]
-}
-
-/** Attempt symbol for a 0-based attempt index, cycling past the list length. */
-export function attemptSymbol(index: number): string {
-  return ATTEMPT_SYMBOLS[
-    ((index % ATTEMPT_SYMBOLS.length) + ATTEMPT_SYMBOLS.length) % ATTEMPT_SYMBOLS.length
-  ]
 }
 
 // Event clusters in seed/test data can span only seconds; left to auto-scale a time axis stretches

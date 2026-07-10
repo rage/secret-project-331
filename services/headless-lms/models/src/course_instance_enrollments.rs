@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     course_instances::CourseInstance, course_module_completions::CourseModuleCompletion,
     courses::Course, prelude::*, user_course_settings::UserCourseSettings,
@@ -32,6 +34,9 @@ pub struct CourseModuleInfo {
     pub id: Uuid,
     pub name: Option<String>,
     pub order_number: i32,
+    /// Earliest exercise submission by this user in this module. No module "start" is stored, so the
+    /// frontend uses this to infer when an additional module was first worked on. `None` if untouched.
+    pub first_submission_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -250,6 +255,28 @@ ORDER BY first_enrolled_at
 
     let course_ids: Vec<Uuid> = rows.iter().map(|r| r.course_id).collect();
 
+    // Earliest submission per module for this user; module ids are globally unique, so grouping by
+    // module alone is enough. Used to infer when an additional (non-base) module was first worked on.
+    let module_first_submission_rows = sqlx::query!(
+        r#"
+SELECT c.course_module_id AS "course_module_id?",
+       MIN(ess.created_at) AS "first_submission_at!"
+FROM exercise_slide_submissions ess
+JOIN exercises e ON e.id = ess.exercise_id
+LEFT JOIN chapters c ON c.id = e.chapter_id
+WHERE ess.user_id = $1 AND ess.course_id = ANY($2) AND ess.deleted_at IS NULL
+GROUP BY c.course_module_id
+        "#,
+        user_id,
+        &course_ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let first_submission_by_module: HashMap<Uuid, DateTime<Utc>> = module_first_submission_rows
+        .into_iter()
+        .filter_map(|r| r.course_module_id.map(|id| (id, r.first_submission_at)))
+        .collect();
+
     let course_instance_enrollments = get_by_user_id(&mut *conn, user_id).await?;
     let all_course_module_completions =
         crate::course_module_completions::get_all_by_user_id(conn, user_id).await?;
@@ -293,6 +320,7 @@ ORDER BY first_enrolled_at
                 id: m.id,
                 name: m.name.clone(),
                 order_number: m.order_number,
+                first_submission_at: first_submission_by_module.get(&m.id).copied(),
             })
             .collect();
         let course_module_completions = all_course_module_completions

@@ -14,13 +14,15 @@ import {
 import Spinner from "@/shared-module/common/components/Spinner"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Disclosure } from "@/shared-module/components"
+import { computeModuleRows, formatDuration } from "@/utils/moduleTimeline"
 import {
-  attemptSymbol,
   colorAt,
   ECHARTS,
-  MODULE_COLORS,
-  NEEDS_REVIEW_COLOR,
   NEUTRAL_MARK_COLOR,
+  REVIEW_ACCENT,
+  SERIES_COLORS,
+  SPLIT_AREA_COLORS,
+  TIME_AXIS_LABEL,
   timeAxisBounds,
 } from "@/utils/timelineChart"
 
@@ -32,7 +34,12 @@ export interface CourseActivityTimelineProps {
 const LINE_BREAK = "<br />"
 const OTHER_KEY = "__other__"
 const EMPTY_CELL = "—"
+const STAR = "★"
 const SUBMISSION_CAP = 5000
+const LANE = "activity"
+const MARK_BORDER = "#ffffff"
+const SUBMISSION_SIZE = 9
+const COMPLETION_SIZE = 16
 
 const tableCss = css`
   width: 100%;
@@ -63,17 +70,18 @@ const noteCss = css`
   font-size: 0.85rem;
 `
 
-const symbolKeyCss = css`
+const legendCss = css`
   margin: 0.25rem 0 0;
   color: var(--color-gray-500, #535a66);
   font-size: 0.85rem;
 `
 
 /**
- * A user's activity within one course: module completions and every exercise submission on a shared
- * time axis. Submissions are colored by module and their symbol encodes the attempt ordinal per
- * exercise (1st, 2nd, …). Self-fetching (course enrollments + submission times) so it drops onto any
- * page with just `courseId`/`userId`; the enrollments query is shared with the user-details page cache.
+ * A user's activity within one course on a single time lane: every exercise submission as a
+ * module-colored dot (filled = first attempt on that exercise, hollow ring = a retry) and each module
+ * completion as a larger diamond milestone on the same line. Self-fetching (course enrollments +
+ * submission times) so it drops onto any page with just `courseId`/`userId`; the enrollments query is
+ * shared with the user-details page cache.
  */
 const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseId, userId }) => {
   const { t } = useTranslation()
@@ -97,23 +105,25 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
   const enrolledMs = new Date(enrollment.first_enrolled_at).getTime()
 
   const modules = [...enrollment.course_modules].sort((a, b) => a.order_number - b.order_number)
-  const colorByModuleId = new Map(modules.map((m, i) => [m.id, colorAt(MODULE_COLORS, i)]))
+  const colorByModuleId = new Map(modules.map((m, i) => [m.id, colorAt(SERIES_COLORS, i)]))
   const labelByModuleId = new Map(modules.map((m) => [m.id, m.name ?? t("default-module")]))
   const bucketKey = (moduleId: string | null | undefined): string =>
     moduleId && colorByModuleId.has(moduleId) ? moduleId : OTHER_KEY
   const bucketColor = (key: string): string => colorByModuleId.get(key) ?? NEUTRAL_MARK_COLOR
   const bucketLabel = (key: string): string => labelByModuleId.get(key) ?? t("label-other-module")
 
-  // Attempt ordinal per exercise (submissions arrive ordered by created_at).
+  // Per-module rows (start/completion/durations) for the table and completion tooltips.
+  const moduleRows = computeModuleRows(enrollment)
+  const rowByModuleId = new Map(moduleRows.map((r) => [r.moduleId, r]))
+
+  // Attempt ordinal per exercise (submissions arrive ordered by created_at); attempt 1 is filled, later
+  // attempts (retries) are hollow rings.
   const attemptCounters = new Map<string, number>()
   const enrichedSubmissions = submissions.map((s) => {
     const attempt = (attemptCounters.get(s.exercise_id) ?? 0) + 1
     attemptCounters.set(s.exercise_id, attempt)
     return { ...s, attempt, ms: new Date(s.created_at).getTime() }
   })
-
-  const laneCompletions = t("label-completions-lane")
-  const laneSubmissions = t("label-submissions-lane")
 
   // Only surface modules that actually have activity, so the legend isn't cluttered with empty modules.
   const hasData = (key: string): boolean =>
@@ -124,39 +134,54 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
   const moduleSeries = seriesKeys.map((key) => {
     const submissionData = enrichedSubmissions
       .filter((s) => bucketKey(s.course_module_id) === key)
-      .map((s) => ({
-        value: [s.ms, laneSubmissions],
-        symbol: attemptSymbol(s.attempt - 1),
-        symbolSize: 8,
-        _tip: [
-          bucketLabel(key),
-          t("attempt-number", { n: s.attempt }),
-          t("tooltip-exercise", { id: s.exercise_id.slice(0, 8) }),
-          dateToString(new Date(s.ms)),
-        ].join(LINE_BREAK),
-      }))
+      .map((s) => {
+        const first = s.attempt === 1
+        return {
+          value: [s.ms, LANE],
+          symbol: first ? ECHARTS.SYMBOL_CIRCLE : ECHARTS.SYMBOL_EMPTY_CIRCLE,
+          symbolSize: SUBMISSION_SIZE,
+          itemStyle: first ? { borderColor: MARK_BORDER, borderWidth: 1 } : { borderWidth: 1.5 },
+          _tip: [
+            bucketLabel(key),
+            t("tooltip-exercise", { id: s.exercise_id.slice(0, 8) }),
+            first ? t("label-first-attempt") : t("attempt-number", { n: s.attempt }),
+            dateToString(new Date(s.ms)),
+          ].join(LINE_BREAK),
+        }
+      })
     const completionData = completions
       .filter((c) => bucketKey(c.course_module_id) === key)
       .map((c) => {
         const when = new Date(c.completion_date)
+        const row = c.course_module_id ? rowByModuleId.get(c.course_module_id) : undefined
+        const tip = [
+          bucketLabel(key),
+          c.needs_to_be_reviewed ? t("label-review") : t("label-completed"),
+          dateToString(when),
+        ]
+        if (row?.moduleSeconds != null) {
+          tip.push(t("tooltip-time-in-module", { duration: formatDuration(row.moduleSeconds, t) }))
+        }
+        if (row?.sinceEnrollSeconds != null) {
+          tip.push(
+            t("tooltip-since-enrolled", { duration: formatDuration(row.sinceEnrollSeconds, t) }),
+          )
+        }
         return {
-          value: [when.getTime(), laneCompletions],
-          symbol: ECHARTS.SYMBOL_PIN,
-          symbolSize: 18,
+          value: [when.getTime(), LANE],
+          symbol: ECHARTS.SYMBOL_DIAMOND,
+          symbolSize: COMPLETION_SIZE,
           itemStyle: c.needs_to_be_reviewed
-            ? { borderColor: NEEDS_REVIEW_COLOR, borderWidth: 2 }
-            : {},
-          _tip: [
-            bucketLabel(key),
-            c.needs_to_be_reviewed ? t("badge-hidden-from-student") : t("label-completed"),
-            dateToString(when),
-          ].join(LINE_BREAK),
+            ? { borderColor: REVIEW_ACCENT, borderWidth: 2 }
+            : { borderColor: MARK_BORDER, borderWidth: 1 },
+          _tip: tip.join(LINE_BREAK),
         }
       })
     return {
       name: bucketLabel(key),
       type: "scatter" as const,
       itemStyle: { color: bucketColor(key) },
+      // Submissions first so completion diamonds paint on top within a module.
       data: [...submissionData, ...completionData],
     }
   })
@@ -167,7 +192,11 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
     markLine: {
       silent: true,
       symbol: ECHARTS.SYMBOL_NONE,
-      label: { formatter: t("label-first-enrolled") },
+      label: {
+        position: ECHARTS.LABEL_END,
+        formatter: t("label-first-enrolled"),
+        color: NEUTRAL_MARK_COLOR,
+      },
       lineStyle: { type: "dashed" as const, color: NEUTRAL_MARK_COLOR },
       data: [{ xAxis: enrolledMs }],
     },
@@ -179,17 +208,37 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
     ...enrichedSubmissions.map((s) => s.ms),
   ])
 
+  const moduleLabels = seriesKeys.map((key) => bucketLabel(key))
+
   const options: EChartsOption = {
     tooltip: {
       trigger: ECHARTS.TRIGGER_ITEM,
       formatter: (params) => (params as unknown as { data?: { _tip?: string } }).data?._tip ?? "",
     },
-    legend: { type: "scroll", top: 4, data: seriesKeys.map((key) => bucketLabel(key)) },
+    legend: { type: "scroll", top: 4, icon: ECHARTS.SYMBOL_CIRCLE, data: moduleLabels },
     grid: { left: 12, right: 24, top: 40, bottom: 56, containLabel: true },
-    xAxis: { type: "time", min, max },
-    yAxis: { type: "category", data: [laneCompletions, laneSubmissions], inverse: true },
+    xAxis: {
+      type: "time",
+      min,
+      max,
+      axisLabel: { formatter: TIME_AXIS_LABEL, hideOverlap: true },
+      splitArea: { show: true, areaStyle: { color: SPLIT_AREA_COLORS } },
+    },
+    yAxis: {
+      type: "category",
+      data: [LANE],
+      axisLabel: { show: false },
+      axisTick: { show: false },
+      axisLine: { show: false },
+    },
     dataZoom: [
-      { type: "slider", filterMode: ECHARTS.FILTER_WEAK, bottom: 8, height: 18 },
+      {
+        type: "slider",
+        filterMode: ECHARTS.FILTER_WEAK,
+        showDataShadow: false,
+        bottom: 8,
+        height: 18,
+      },
       { type: "inside", filterMode: ECHARTS.FILTER_WEAK },
     ],
     aria: { enabled: true },
@@ -202,8 +251,11 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
     <div>
       {hasChart ? (
         <>
-          <Echarts options={options} height={220} />
-          <p className={symbolKeyCss}>{t("submission-symbol-key")}</p>
+          <Echarts options={options} height={180} />
+          <p className={legendCss}>{t("submission-legend")}</p>
+          {submissions.length >= SUBMISSION_CAP ? (
+            <p className={noteCss}>{t("submissions-capped", { count: SUBMISSION_CAP })}</p>
+          ) : null}
         </>
       ) : null}
       <Disclosure title={t("show-underlying-data")}>
@@ -219,42 +271,50 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
           </caption>
           <thead>
             <tr>
-              <th>{t("label-event")}</th>
               <th>{t("label-module")}</th>
-              <th>{t("label-exercise")}</th>
-              <th>{t("label-when")}</th>
+              <th>{t("label-started")}</th>
+              <th>{t("label-completed")}</th>
+              <th>{t("label-time-in-module")}</th>
+              <th>{t("label-since-enrolled")}</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>{t("label-first-enrolled")}</td>
-              <td>{EMPTY_CELL}</td>
-              <td>{EMPTY_CELL}</td>
-              <td>{dateToString(new Date(enrolledMs))}</td>
-            </tr>
-            {completions.map((c) => (
-              <tr key={c.id}>
+            {moduleRows.map((row) => (
+              <tr key={row.moduleId}>
+                <td>{row.name ?? t("default-module")}</td>
                 <td>
-                  {c.needs_to_be_reviewed ? t("badge-hidden-from-student") : t("label-completed")}
+                  {row.startedAt ? (
+                    <>
+                      {row.isBase ? `${STAR} ` : ""}
+                      {dateToString(row.startedAt)}
+                    </>
+                  ) : (
+                    EMPTY_CELL
+                  )}
                 </td>
-                <td>{bucketLabel(bucketKey(c.course_module_id))}</td>
-                <td>{EMPTY_CELL}</td>
-                <td>{dateToString(new Date(c.completion_date))}</td>
-              </tr>
-            ))}
-            {enrichedSubmissions.map((s, i) => (
-              <tr key={i}>
-                <td>{t("attempt-number", { n: s.attempt })}</td>
-                <td>{bucketLabel(bucketKey(s.course_module_id))}</td>
-                <td>{s.exercise_id.slice(0, 8)}</td>
-                <td>{dateToString(new Date(s.ms))}</td>
+                <td>
+                  {row.completedAt
+                    ? row.needsReview
+                      ? t("completed-review", { date: dateToString(row.completedAt) })
+                      : dateToString(row.completedAt)
+                    : EMPTY_CELL}
+                </td>
+                <td>
+                  {row.moduleSeconds != null
+                    ? formatDuration(row.moduleSeconds, t)
+                    : row.startedAt
+                      ? t("in-progress")
+                      : EMPTY_CELL}
+                </td>
+                <td>
+                  {row.sinceEnrollSeconds != null
+                    ? formatDuration(row.sinceEnrollSeconds, t)
+                    : EMPTY_CELL}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {submissions.length >= SUBMISSION_CAP ? (
-          <p className={noteCss}>{t("submissions-capped", { count: SUBMISSION_CAP })}</p>
-        ) : null}
       </Disclosure>
     </div>
   )

@@ -3,23 +3,16 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { toHoursMinutes } from "../lib/durations"
+import { formatDuration } from "@/utils/moduleTimeline"
 
 export interface DurationProps {
   seconds: number
 }
 
-/** Renders a duration in seconds as localized "Xh Ym" (or "Ym" when under an hour). */
+/** Renders a duration in seconds as a localized, day-aware string ("Xd", "Xh Ym", "Ym"). */
 const Duration: React.FC<DurationProps> = ({ seconds }) => {
   const { t } = useTranslation()
-  const { hours, minutes } = toHoursMinutes(seconds)
-  return (
-    <span>
-      {hours > 0
-        ? t("duration-hours-minutes", { hours, minutes })
-        : t("duration-minutes", { minutes })}
-    </span>
-  )
+  return <span>{formatDuration(seconds, t)}</span>
 }
 
 export default Duration

@@ -13466,6 +13466,11 @@
         "description": "Slim module descriptor so the frontend can label per-module completions and show \"X of Y modules\"\nwithout a separate course-structure fetch. Default (base) module has `name = None`.",
         "required": ["id", "order_number"],
         "properties": {
+          "first_submission_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Earliest exercise submission by this user in this module. No module \"start\" is stored, so the\nfrontend uses this to infer when an additional module was first worked on. `None` if untouched."
+          },
           "id": {
             "type": "string",
             "format": "uuid"

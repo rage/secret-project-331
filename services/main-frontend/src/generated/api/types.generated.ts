@@ -853,6 +853,11 @@ export type CourseModuleCompletionWithRegistrationInfo = {
  * without a separate course-structure fetch. Default (base) module has `name = None`.
  */
 export type CourseModuleInfo = {
+  /**
+   * Earliest exercise submission by this user in this module. No module "start" is stored, so the
+   * frontend uses this to infer when an additional module was first worked on. `None` if untouched.
+   */
+  first_submission_at?: string | null
   id: string
   name?: string | null
   order_number: number

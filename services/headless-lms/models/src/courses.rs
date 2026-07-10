@@ -225,6 +225,9 @@ pub struct CourseToAudit {
 pub struct CourseToAuditUpdate {
     pub description: Option<String>,
     pub uh_course_code: Option<String>,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_course_successor_id: Option<Uuid>,
 }
 
 pub async fn insert(
@@ -345,10 +348,10 @@ SELECT c.id,
   c.created_at,
   c.updated_at,
   c.organization_id,
-  c.description, 
-  c.closed_at, 
-  c.closed_additional_message, 
-  c.closed_course_successor_id, 
+  c.description,
+  c.closed_at,
+  c.closed_additional_message,
+  c.closed_course_successor_id,
   cm.uh_course_code
 FROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id
 WHERE c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;
@@ -371,10 +374,10 @@ SELECT c.id,
   c.created_at,
   c.updated_at,
   c.organization_id,
-  c.description, 
-  c.closed_at, 
-  c.closed_additional_message, 
-  c.closed_course_successor_id, 
+  c.description,
+  c.closed_at,
+  c.closed_additional_message,
+  c.closed_course_successor_id,
   cm.uh_course_code
 FROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id
 WHERE c.id = $1 AND c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;
@@ -394,7 +397,7 @@ pub async fn update_course_after_auditing(
     let mut tx = conn.begin().await?;
 
     sqlx::query_as!(
-        Course,
+        CourseToAuditUpdate,
         r#"
 UPDATE courses
 SET description = $2 WHERE id = $1
@@ -406,7 +409,7 @@ SET description = $2 WHERE id = $1
     .await?;
 
     sqlx::query_as!(
-        CourseModule,
+        CourseToAuditUpdate,
         r#"
 UPDATE course_modules
 SET uh_course_code = $2 WHERE course_id = $1 AND order_number = 0

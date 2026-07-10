@@ -745,6 +745,9 @@ export const zCourseToAudit = z.object({
 })
 
 export const zCourseToAuditUpdate = z.object({
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
   description: z.string().nullish(),
   uh_course_code: z.string().nullish(),
 })

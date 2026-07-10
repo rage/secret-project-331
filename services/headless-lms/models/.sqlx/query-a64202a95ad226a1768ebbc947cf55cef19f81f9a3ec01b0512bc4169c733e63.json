@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT c.id,\n  c.name,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description, \n  c.closed_at, \n  c.closed_additional_message, \n  c.closed_course_successor_id, \n  cm.uh_course_code\nFROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id\nWHERE c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;\n",
+  "query": "\nSELECT c.id,\n  c.name,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description,\n  c.closed_at,\n  c.closed_additional_message,\n  c.closed_course_successor_id,\n  cm.uh_course_code\nFROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id\nWHERE c.id = $1 AND c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;\n",
   "describe": {
     "columns": [
       {
@@ -115,7 +115,9 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
@@ -130,5 +132,5 @@
       true
     ]
   },
-  "hash": "1b19ae5c843e2e9a93a390a68fbe0208498172d911e781790735806ffebd80a9"
+  "hash": "a64202a95ad226a1768ebbc947cf55cef19f81f9a3ec01b0512bc4169c733e63"
 }

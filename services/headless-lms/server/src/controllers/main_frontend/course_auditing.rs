@@ -27,7 +27,7 @@ async fn get_courses_for_auditing(
     let mut conn = pool.acquire().await?;
     let courses_for_auditing = models::courses::get_all_courses_for_auditing(&mut conn).await?;
 
-    let token = authorize(&mut conn, Act::Administrate, Some(user.id), Res::AnyCourse).await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?;
     token.authorized_ok(web::Json(courses_for_auditing))
 }
 
@@ -61,7 +61,7 @@ async fn update_course_after_auditing(
     let updated_course =
         models::courses::get_course_for_auditing(&mut conn, *course_to_audit_id).await?;
 
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::AnyCourse).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
 
     token.authorized_ok(web::Json(updated_course))
 }

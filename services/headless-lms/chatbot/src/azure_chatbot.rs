@@ -1477,42 +1477,43 @@ pub async fn send_chat_request_and_parse_stream(
                 }}
             }
 
-            let response_message = {
+            {
                 // update response_id once it's found.
                 let mut response_id = response_id.lock().await;
                 *response_id = received_response_id;
+            }
 
-                // create response_message once response_id is found.
-                let msg = models::chatbot_conversation_messages::insert(
-                    &mut conn,
-                    ChatbotConversationMessage {
-                        conversation_id,
-                        message: Message::Text(ChatbotConversationMessageMessage {
-                            text: "".to_string(),
-                            message_role: MessageRole::Assistant,
-                            message_is_complete: false,
-                            used_tokens: request_estimated_tokens,
-                            response_id: Some(response_id.to_owned()),
-                            ..Default::default()
-                        }),
-                        ..Default::default()
-                    },
-                ).await?;
-
-                // set the correct response_message_id
-                let mut response_message_id = response_message_id.lock().await;
-                *response_message_id = msg.id;
-
-                msg
-            };
+            // create unitialized response message in this scope
+            let response_message: ChatbotConversationMessage;
 
             let mut final_stream = match typed_response_stream {
                 ResponseStreamType::Toolcall(stream) => {
                     parse_tool(&mut conn, stream, conversation_id, &user_context).await
                 }
                 ResponseStreamType::TextResponse(stream) => {
-                    // update citation ids. then, stream the response in parse_text_response.
                     let response_id = response_id.lock().await;
+                    // create response_message once we need to start streaming to user.
+                    response_message = models::chatbot_conversation_messages::insert(
+                        &mut conn,
+                        ChatbotConversationMessage {
+                            conversation_id,
+                            message: Message::Text(ChatbotConversationMessageMessage {
+                                text: "".to_string(),
+                                message_role: MessageRole::Assistant,
+                                message_is_complete: false,
+                                used_tokens: request_estimated_tokens,
+                                response_id: Some(response_id.to_owned()),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        },
+                    ).await?;
+
+                    // set the correct response_message_id
+                    let mut response_message_id = response_message_id.lock().await;
+                    *response_message_id = response_message.id;
+
+                    // update citation ids. then, stream the response in parse_text_response.
                     models::chatbot_conversation_messages_citations::update_citation_message_ids(
                         &mut conn,
                         response_id.to_string(),

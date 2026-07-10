@@ -67,7 +67,8 @@ export type MessageToParent =
     })
 
 export type CurrentStateMessageData =
-  { private_spec: PrivateSpec | UserAnswer } | { public_spec: PublicSpec }
+  | { private_spec: PrivateSpec | UserAnswer }
+  | { public_spec: PublicSpec }
 
 export type UserAnswer = BrowserUserAnswer | EditorUserAnswer
 

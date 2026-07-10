@@ -128,12 +128,10 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
                   width: 40px;
                   height: 40px;
                   color: #000;
-                  ${
-                    leftAlignTitle &&
-                    `
-                    margin-top: -6px;
+                  ${leftAlignTitle &&
                   `
-                  }
+                    margin-top: -6px;
+                  `}
                   &:hover {
                     background-color: #f0f0f0;
                   }

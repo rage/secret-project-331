@@ -75,7 +75,7 @@ const DomainStatsPage = () => {
               `}
               // eslint-disable-next-line i18next/no-literal-string
             >
-              ← {t("back-to-all-domains")}
+              {/* eslint-disable-next-line i18next/no-literal-string */}← {t("back-to-all-domains")}
             </Button>
           )}
           {selectedDomain && <h2>{selectedDomain}</h2>}

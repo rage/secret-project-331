@@ -109,12 +109,10 @@ const MultipleChoiceSubmission: React.FC<
 
           ${respondToOrLarger.sm} {
             flex-direction: ${direction};
-            ${
-              public_quiz_item.optionDisplayDirection === "horizontal" &&
-              `
+            ${public_quiz_item.optionDisplayDirection === "horizontal" &&
+            `
                 flex-wrap: wrap;
-              `
-            }
+              `}
           }
         `}
       >
@@ -175,12 +173,10 @@ const MultipleChoiceSubmission: React.FC<
                           public_quiz_item.optionDisplayDirection,
                           "row",
                         )};
-                        ${
-                          public_quiz_item.optionDisplayDirection === "horizontal" &&
-                          `
+                        ${public_quiz_item.optionDisplayDirection === "horizontal" &&
+                        `
                             padding-left: 0.635rem;
-                          `
-                        }
+                          `}
                       `}
                     >
                       {correctAnswer == true && (
@@ -245,11 +241,9 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
         display: flex;
         color: #4c5868;
         font-size: 1.125rem;
-        border-left: ${
-          correct
-            ? `0.375rem solid ${quizTheme.gradingCorrectItemBorderColor}`
-            : `0.375rem solid #ebcbcd`
-        };
+        border-left: ${correct
+          ? `0.375rem solid ${quizTheme.gradingCorrectItemBorderColor}`
+          : `0.375rem solid #ebcbcd`};
         box-sizing: border-box;
         background: ${quizTheme.feedbackBackground};
         padding: 0.5rem 0px 0.5rem 0.5rem;

@@ -462,13 +462,11 @@ const designContent = (
           disabled={editMode}
           className={css`
             ${editMode ? disabledButton : primaryButton};
-            ${
-              editMode &&
-              `
+            ${editMode &&
+            `
               opacity: 0;
               pointer-events: none;
-            `
-            }
+            `}
           `}
         >
           {t("edit")}

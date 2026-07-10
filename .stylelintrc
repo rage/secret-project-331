@@ -11,9 +11,7 @@
     "selector-type-no-unknown": [
       true,
       {
-        "ignoreTypes": [
-          "/POSTCSS_.*/"
-        ]
+        "ignoreTypes": ["/POSTCSS_.*/"]
       }
     ],
     "selector-anb-no-unmatchable": null,
@@ -21,12 +19,7 @@
   },
   "overrides": [
     {
-      "files": [
-        "**/*.ts",
-        "**/*.tsx",
-        "**/*.js",
-        "**/*.jsx"
-      ],
+      "files": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
       "customSyntax": "postcss-styled-syntax"
     }
   ]

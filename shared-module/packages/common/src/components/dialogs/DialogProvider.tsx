@@ -109,7 +109,9 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const pushDialog = useCallback(
     (
       dialog:
-        Omit<AlertDialogType, "id"> | Omit<ConfirmDialogType, "id"> | Omit<PromptDialogType, "id">,
+        | Omit<AlertDialogType, "id">
+        | Omit<ConfirmDialogType, "id">
+        | Omit<PromptDialogType, "id">,
     ) => {
       const id = dialogCounter.current++
       dispatch({ type: "PUSH_DIALOG", dialog: { ...dialog, id } })

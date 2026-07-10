@@ -66,7 +66,6 @@ const MarkAsSpamDialog: React.FC<{
           <RadioButton
             label={t("flagging-reason-spam")}
             value={ReportReasonValues.Spam}
-
             name="reason"
             onChange={() => setSelectedReason(ReportReasonValues.Spam)}
           />
@@ -75,7 +74,6 @@ const MarkAsSpamDialog: React.FC<{
           <RadioButton
             label={t("flagging-reason-harmful-content")}
             value={ReportReasonValues.HarmfulContent}
-
             name="reason"
             onChange={() => setSelectedReason(ReportReasonValues.HarmfulContent)}
           />
@@ -84,7 +82,6 @@ const MarkAsSpamDialog: React.FC<{
           <RadioButton
             label={t("flagging-reason-ai-generated")}
             value={ReportReasonValues.AiGenerated}
-
             name="reason"
             onChange={() => setSelectedReason(ReportReasonValues.AiGenerated)}
           />

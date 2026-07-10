@@ -113,7 +113,7 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
               }}
               className={css`
                 padding-left: 4px !important;
-                color: ${baseTheme.colors.green[600]}!important;
+                color: ${baseTheme.colors.green[600]} !important;
               `}
             >
               {resendCooldown > 0 ? `${resend.label} (${resendCooldown})` : resend.label}

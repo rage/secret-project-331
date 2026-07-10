@@ -64,44 +64,6 @@ export const zChapterWithStatus = z.object({
   updated_at: z.iso.datetime(),
 })
 
-export const zChatbotChatStreamEvent = z.union([
-  z.object({
-    data: z.object({
-      message_id: z.uuid(),
-      text: z.string(),
-    }),
-    type: z.enum(["Delta"]),
-  }),
-  z.object({
-    data: z.object({
-      finished: z.boolean(),
-      reasoning_id: z.string(),
-    }),
-    type: z.enum(["Reasoning"]),
-  }),
-  z.object({
-    data: z.object({
-      arguments: z.string().nullish(),
-      finished: z.boolean(),
-      tool_call_id: z.string(),
-      tool_name: z.string().nullish(),
-    }),
-    type: z.enum(["ToolCall"]),
-  }),
-  z.object({
-    type: z.enum(["Done"]),
-  }),
-  z.object({
-    data: z.object({
-      message: z.string(),
-    }),
-    type: z.enum(["Error"]),
-  }),
-  z.object({
-    type: z.enum(["None"]),
-  }),
-])
-
 export const zChatbotConversation = z.object({
   chatbot_configuration_id: z.uuid(),
   course_id: z.uuid(),
@@ -910,6 +872,47 @@ export const zSearchRequest = z.object({
 export const zShowExerciseAnswers = z.object({
   show_exercise_answers: z.boolean(),
 })
+
+export const zStreamEventError = z.object({
+  details: z.string().nullish(),
+  message: z.string(),
+})
+
+export const zChatbotChatStreamEvent = z.union([
+  z.object({
+    data: z.object({
+      message_id: z.uuid(),
+      text: z.string(),
+    }),
+    type: z.enum(["Delta"]),
+  }),
+  z.object({
+    data: z.object({
+      finished: z.boolean(),
+      reasoning_id: z.string(),
+    }),
+    type: z.enum(["Reasoning"]),
+  }),
+  z.object({
+    data: z.object({
+      arguments: z.string().nullish(),
+      finished: z.boolean(),
+      tool_call_id: z.string(),
+      tool_name: z.string().nullish(),
+    }),
+    type: z.enum(["ToolCall"]),
+  }),
+  z.object({
+    type: z.enum(["Done"]),
+  }),
+  z.object({
+    data: zStreamEventError,
+    type: z.enum(["Error"]),
+  }),
+  z.object({
+    type: z.enum(["Invalid"]),
+  }),
+])
 
 export const zStudentCountry = z.object({
   country_code: z.string(),

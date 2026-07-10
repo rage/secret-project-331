@@ -133,8 +133,7 @@ function createLanguageVersionMode(
   if (useExistingLanguageGroup && targetCourseId) {
     // oxlint-disable-next-line i18next/no-literal-string
     return { mode: "existing_language_group", target_course_id: targetCourseId }
-  } else {
-    // oxlint-disable-next-line i18next/no-literal-string
-    return { mode: "same_language_group" }
   }
+  // oxlint-disable-next-line i18next/no-literal-string
+  return { mode: "same_language_group" }
 }

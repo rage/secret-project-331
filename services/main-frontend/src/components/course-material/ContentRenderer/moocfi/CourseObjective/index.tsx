@@ -124,7 +124,9 @@ const CourseObjective: React.FC<React.PropsWithChildren<CardProps>> = ({ title, 
                 const parser = new DOMParser()
 
                 const listItem = parser.parseFromString(values, "text/html")
-                list = [].slice.call(listItem.body.childNodes).map(({ innerHTML }) => innerHTML)
+                list = Array.prototype.slice
+                  .call(listItem.body.childNodes)
+                  .map(({ innerHTML }) => innerHTML)
               }
 
               return isList ? (

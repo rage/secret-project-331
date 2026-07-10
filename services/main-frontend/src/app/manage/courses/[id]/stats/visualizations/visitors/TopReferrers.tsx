@@ -50,7 +50,7 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
         // oxlint-disable-next-line i18next/no-literal-string
         return { referrer: referrer ?? "null", visitors: totalCount }
       })
-      .sort((a, b) => a.visitors - b.visitors)
+      .toSorted((a, b) => a.visitors - b.visitors)
     const totalCountsByReferrerObject: Record<string, number> = totalCountsByReferrer.reduce(
       (acc, d) => {
         // oxlint-disable-next-line i18next/no-literal-string
@@ -75,7 +75,7 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
+  const chartHeight = categories.length > 0 ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
 
   return (
     <>

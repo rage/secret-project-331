@@ -8,9 +8,8 @@ import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 export const buildArchiveName = (exercise: RepositoryExercise, identifier?: string): string => {
   if (identifier) {
     return exercise.part + "/" + exercise.name + "-" + identifier + ".tar.zst"
-  } else {
-    return exercise.part + "/" + exercise.name + ".tar.zst"
   }
+  return exercise.part + "/" + exercise.name + ".tar.zst"
 }
 
 export const extractTarZstd = async (tarZstdArchive: Buffer): Promise<ExerciseFile[]> => {

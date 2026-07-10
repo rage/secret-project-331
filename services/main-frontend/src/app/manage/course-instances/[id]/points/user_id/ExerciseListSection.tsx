@@ -78,7 +78,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
   return (
     <QueryResult query={courseStructure}>
       {(courseStructureData) => {
-        const sortedChapters = [...courseStructureData.chapters].sort(
+        const sortedChapters = [...courseStructureData.chapters].toSorted(
           (chapterA, chapterB) => chapterA.chapter_number - chapterB.chapter_number,
         )
         const chapterById = sortedChapters.reduce<Record<string, (typeof sortedChapters)[number]>>(
@@ -129,7 +129,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
               `}
             >
               {groupedByChapter
-                .sort(([c1Id, _list1], [c2Id, _list2]) => {
+                .toSorted(([c1Id, _list1], [c2Id, _list2]) => {
                   const chapter1 = courseStructureData.chapters.find((ch) => ch.id === c1Id)
                   const chapter2 = courseStructureData.chapters.find((ch) => ch.id === c2Id)
                   return (
@@ -142,8 +142,8 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                   const isChapterLocked = chapterLockStatus !== "unlocked"
 
                   const exerciseStatusList = exerciseStatusListUnsorted
-                    .sort((a, b) => a.exercise.order_number - b.exercise.order_number)
-                    .sort((a, b) => {
+                    .toSorted((a, b) => a.exercise.order_number - b.exercise.order_number)
+                    .toSorted((a, b) => {
                       const aPage = courseStructureData.pages.find(
                         (p) => p.id === a.exercise.page_id,
                       )

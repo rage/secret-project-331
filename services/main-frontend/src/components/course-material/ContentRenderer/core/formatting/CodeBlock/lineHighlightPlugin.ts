@@ -43,7 +43,7 @@ function splitTree(node: Node): Segment[] {
       }
       const clone = (node as Element).cloneNode(false) as Element
       for (const n of groups[i]) {
-        clone.appendChild(n)
+        clone.append(n)
       }
       result.push(clone)
     }
@@ -67,12 +67,12 @@ function groupSegmentsIntoLines(segments: Segment[]): Node[][] {
 
 function wrapSingleLine(el: HTMLElement, highlightedLines: Set<number>): void {
   const span = document.createElement("span")
-  span.setAttribute("data-line", "1")
+  span.dataset.line = "1"
   span.className = highlightedLines.has(1) ? "code-line highlighted-line" : "code-line"
   while (el.firstChild) {
-    span.appendChild(el.firstChild)
+    span.append(el.firstChild)
   }
-  el.appendChild(span)
+  el.append(span)
 }
 
 /** Called by the plugin after highlight.js runs; exported for unit tests only. */
@@ -113,23 +113,23 @@ export function applyLineWrapping(el: HTMLElement): void {
     const span = document.createElement("span")
     const isHighlighted = highlightedLines.has(lineNum)
     span.className = isHighlighted ? "code-line highlighted-line" : "code-line"
-    span.setAttribute("data-line", String(lineNum))
+    span.dataset.line = String(lineNum)
     if (isHighlighted) {
       span.setAttribute("aria-label", `Line ${lineNum}, highlighted`)
     }
     for (const node of lines[i]) {
-      span.appendChild(node)
+      span.append(node)
     }
     // Preserve visible height for blank lines in the browser.
     // Without a placeholder, empty block spans collapse to zero height.
     const hasVisibleText = lines[i].some((node) => (node.textContent ?? "").length > 0)
     if (!hasVisibleText) {
-      span.appendChild(document.createElement("br"))
+      span.append(document.createElement("br"))
     }
-    fragment.appendChild(span)
+    fragment.append(span)
   }
   el.innerHTML = ""
-  el.appendChild(fragment)
+  el.append(fragment)
   el.dataset.hljsLineWrapped = "true"
 }
 

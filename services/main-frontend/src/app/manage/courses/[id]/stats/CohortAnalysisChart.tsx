@@ -60,11 +60,11 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
     // Get unique cohort starts and day offsets
     const cohorts = Array.from(new Set(rawData.map((item) => item.cohort_start)))
       .filter((date): date is string => date !== null)
-      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime()) // Reverse sort - newest first
+      .toSorted((a, b) => new Date(b).getTime() - new Date(a).getTime()) // Reverse sort - newest first
 
     const dayOffsets = Array.from(new Set(rawData.map((item) => item.offset)))
       .filter((offset): offset is number => offset !== null)
-      .sort((a, b) => a - b)
+      .toSorted((a, b) => a - b)
 
     // Calculate initial size for each cohort (users at offset 0)
     const cohortSizes: Record<string, number> = {}
@@ -128,7 +128,7 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
       position: CHART_POSITION,
       formatter: (params: TooltipComponentFormatterCallbackParams) => {
         if (Array.isArray(params)) {
-          throw new Error("Tooltip params is an array")
+          throw new TypeError("Tooltip params is an array")
         }
         const data = params.data as [number, number, number, number]
         const cohortDate = cohorts[data[1]]

@@ -172,7 +172,7 @@ export function getSortedTimelineItems(
     return []
   }
 
-  return [...quizItem.timelineItems].sort((left, right) => {
+  return [...quizItem.timelineItems].toSorted((left, right) => {
     const leftNumber = Number(left.year)
     const rightNumber = Number(right.year)
     if (Number.isFinite(leftNumber) && Number.isFinite(rightNumber)) {

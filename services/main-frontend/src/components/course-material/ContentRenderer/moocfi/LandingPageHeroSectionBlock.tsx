@@ -35,7 +35,7 @@ const LandingPageHeroSectionBlock: React.FC<
         content = content.slice(0, 300) + "..."
       }
       // Remove all newlines
-      content = content.replace(/\n/g, " ")
+      content = content.replaceAll("\n", " ")
 
       copiedBlock.attributes = { ...copiedBlock.attributes, content }
     }

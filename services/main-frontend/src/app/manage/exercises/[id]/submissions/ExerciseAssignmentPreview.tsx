@@ -17,7 +17,7 @@ export interface ExerciseAssignmentPreviewProps {
 const ExerciseAssignmentPreview: React.FC<ExerciseAssignmentPreviewProps> = ({ tasks }) => {
   const { t } = useTranslation()
   const sortedTasks = useMemo(
-    () => [...tasks].sort((a, b) => a.order_number - b.order_number),
+    () => [...tasks].toSorted((a, b) => a.order_number - b.order_number),
     [tasks],
   )
 

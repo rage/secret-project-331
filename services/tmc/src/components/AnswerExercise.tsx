@@ -48,9 +48,8 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
         fileUploadResponse={fileUploadResponse}
       />
     )
-  } else {
-    throw new Error("Unhandled exercise type")
   }
+  throw new Error("Unhandled exercise type")
 }
 
 export default AnswerExercise

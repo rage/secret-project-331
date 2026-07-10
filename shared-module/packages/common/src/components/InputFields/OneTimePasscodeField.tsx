@@ -53,7 +53,7 @@ export function OneTimePassCodeField({ onChange }: Props) {
   const handlePaste = useCallback(
     (e: React.ClipboardEvent, idx: number) => {
       // oxlint-disable-next-line i18next/no-literal-string
-      const pasted = e.clipboardData.getData("text").replace(/\D/g, "") // digits only
+      const pasted = e.clipboardData.getData("text").replaceAll(/\D/g, "") // digits only
       if (!pasted) {
         return
       }

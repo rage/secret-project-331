@@ -37,9 +37,8 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
     }
     if (completion.prerequisite_modules_completed) {
       return <>{innerText}</>
-    } else {
-      return <i>{innerText}*</i>
     }
+    return <i>{innerText}*</i>
   }
 
   function mapGradeCell(completion: CourseModuleCompletionWithRegistrationInfo): JSX.Element {
@@ -63,9 +62,8 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
       return <>{t("yes")}</>
     } else if (completion.completion_registration_attempt_date) {
       return <i>{t("column-pending")}</i>
-    } else {
-      return <></>
     }
+    return <></>
   }
 
   let maxCompletions = 1

@@ -86,13 +86,11 @@ const customBlocks = (
       blocks = blocks.filter((v) => v[0] !== "moocfi/chatbot")
     }
     return blocks
-  } else {
-    if (urlPath === "/") {
-      return blockTypeMapForFrontPages
-    } else {
-      return blockTypeMapForTopLevelPages
-    }
   }
+  if (urlPath === "/") {
+    return blockTypeMapForFrontPages
+  }
+  return blockTypeMapForTopLevelPages
 }
 
 const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({

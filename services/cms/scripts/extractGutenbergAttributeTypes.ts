@@ -114,13 +114,13 @@ async function main() {
   })
 
   const sanitizeNames = (name: string) => {
-    const newName = name.replace("core/", "").replace(/-./g, (x) => x.toUpperCase()[1])
+    const newName = name.replace("core/", "").replaceAll(/-./g, (x) => x.toUpperCase()[1])
     return newName.charAt(0).toUpperCase() + newName.slice(1) + "Attributes"
   }
 
   const blockTypes: BlockType<Record<string, unknown>>[] = blocks.getBlockTypes()
   const jsonSchemaTypes: JSONSchema[] = blockTypes
-    .reverse()
+    .toReversed()
     .map(addSupportsAttributes)
     .map((block) => {
       // Fetch core/table head, foot, body types
@@ -218,7 +218,7 @@ async function main() {
       .filter((o) => !!o)
       .filter((schema) => !schema.deprecated)
       // sort alphabetically
-      .sort((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
+      .toSorted((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
       .map(async (schema) => {
         const jsonSchema = schema as JSONSchema
         const title = jsonSchema.title ?? "SchemaWithoutName"
@@ -233,7 +233,7 @@ async function main() {
       .flat()
       .filter((o) => !!o)
       .filter((schema) => schema.deprecated)
-      .sort((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
+      .toSorted((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
       .map(async (schema) => {
         const jsonSchema = schema as JSONSchema
         const title = jsonSchema.title ?? "SchemaWithoutName"

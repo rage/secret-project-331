@@ -49,7 +49,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
     case "exerciseDownloaded": {
       const exerciseTasks = action.payload.current_exercise_slide.exercise_tasks
       return exerciseTasks
-        .sort((a, b) => a.order_number - b.order_number)
+        .toSorted((a, b) => a.order_number - b.order_number)
         .map<ExerciseIframeState>((exerciseTask) => {
           const prevExerciseTask = prev?.find((x) => x.exercise_task_id === exerciseTask.id)
           const userVariables = userVariableListToMap(

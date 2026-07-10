@@ -9,12 +9,12 @@ const expectUrlPathWithRandomUuid = async (page: Page, path: string): Promise<vo
   // e.g. http://project-331.local
   const urlBeginning = new URL(page.url()).origin
   const items = path.startsWith("/") ? path.split("/").slice(1) : path.split("/")
-  let regexBuffer = `${urlBeginning}/`.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  let regexBuffer = `${urlBeginning}/`.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
   for (let i = 0; i < items.length; i++) {
     if (items[i] === "[id]") {
       regexBuffer += "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
     } else {
-      regexBuffer += items[i].replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      regexBuffer += items[i].replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
     }
     if (i !== items.length - 1) {
       regexBuffer += "/"

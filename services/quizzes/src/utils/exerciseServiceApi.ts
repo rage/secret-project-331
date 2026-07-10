@@ -42,7 +42,7 @@ export function isExerciseTaskGradingResult(value: unknown): value is ExerciseTa
     return false
   }
   return (
-    (value.feedback_json === null || typeof value.feedback_json !== "undefined") &&
+    (value.feedback_json === null || value.feedback_json !== undefined) &&
     (typeof value.feedback_text === "string" || value.feedback_text === null) &&
     typeof value.score_given === "number" &&
     typeof value.score_maximum === "number" &&
@@ -61,10 +61,10 @@ export function isExerciseServiceInfoApi(value: unknown): value is ExerciseServi
     typeof value.grade_endpoint_path === "string" &&
     typeof value.public_spec_endpoint_path === "string" &&
     typeof value.model_solution_spec_endpoint_path === "string" &&
-    (typeof value.csv_export_definitions_endpoint_path === "undefined" ||
+    (value.csv_export_definitions_endpoint_path === undefined ||
       typeof value.csv_export_definitions_endpoint_path === "string" ||
       value.csv_export_definitions_endpoint_path === null) &&
-    (typeof value.csv_export_answers_endpoint_path === "undefined" ||
+    (value.csv_export_answers_endpoint_path === undefined ||
       typeof value.csv_export_answers_endpoint_path === "string" ||
       value.csv_export_answers_endpoint_path === null)
   )

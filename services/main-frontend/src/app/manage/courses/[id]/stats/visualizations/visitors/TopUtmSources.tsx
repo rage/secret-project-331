@@ -66,7 +66,7 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
+  const chartHeight = categories.length > 0 ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
 
   return (
     <>

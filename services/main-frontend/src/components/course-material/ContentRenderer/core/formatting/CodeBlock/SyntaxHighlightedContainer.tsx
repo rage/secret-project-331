@@ -54,7 +54,7 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
     delete ref.current.dataset.highlighted
     if (highlightedLines && highlightedLines.size > 0) {
       ref.current.dataset.highlightLines = Array.from(highlightedLines)
-        .sort((a, b) => a - b)
+        .toSorted((a, b) => a - b)
         .join(",")
     } else {
       delete ref.current.dataset.highlightLines

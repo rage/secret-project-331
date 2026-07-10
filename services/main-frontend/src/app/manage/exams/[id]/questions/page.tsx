@@ -55,7 +55,7 @@ const GradingPage: React.FC = () => {
 
   const sorted = useMemo(
     () =>
-      [...(getExercises.data ?? [])].sort((a, b) =>
+      [...(getExercises.data ?? [])].toSorted((a, b) =>
         a.order_number > b.order_number ? 1 : b.order_number > a.order_number ? -1 : 0,
       ),
     [getExercises.data],
@@ -160,9 +160,8 @@ const GradingPage: React.FC = () => {
       const submissions = allSubmissionsList?.[id]
       if (submissions) {
         return submissions.length
-      } else {
-        return "0"
       }
+      return "0"
     },
     [allSubmissionsList],
   )
@@ -175,9 +174,8 @@ const GradingPage: React.FC = () => {
       const submissions = allSubmissionsList?.[id]
       if (submissions) {
         return submissions.filter((sub) => sub.teacher_grading_decision).length
-      } else {
-        return "0"
       }
+      return "0"
     },
     [getExam.data?.grade_manually, allSubmissionsList, totalAnswered],
   )

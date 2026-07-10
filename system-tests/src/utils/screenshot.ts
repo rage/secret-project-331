@@ -26,7 +26,7 @@ import {
 // Same regex as Playwright uses to sanitize the filenames so that we can access those same files.
 const PLAYWRIGHT_SCREENSHOT_NAME_SANITIZE_REGEX =
   // oxlint-disable-next-line no-control-regex
-  /[\x00-\x2C\x2E-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F]+/g
+  /[\u0000-\u002C\u002E-\u002F\u003A-\u0040\u005B-\u0060\u007B-\u007F]+/g
 
 const viewPorts = {
   "desktop-regular": { width: 1920, height: 1080 },

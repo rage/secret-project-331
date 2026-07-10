@@ -44,7 +44,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       <QueryResult query={glossary}>
         {(data) =>
           [...data]
-            .sort((a: GlossaryTerm, b: GlossaryTerm) => a.term.localeCompare(b.term))
+            .toSorted((a: GlossaryTerm, b: GlossaryTerm) => a.term.localeCompare(b.term))
             .map((term: GlossaryTerm) => (
               <TermItem
                 key={term.id}

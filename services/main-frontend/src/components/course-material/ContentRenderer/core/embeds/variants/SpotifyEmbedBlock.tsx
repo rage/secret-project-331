@@ -7,8 +7,8 @@ import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 export const SpotifyEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   const url = props.url ?? ""
   const content = url ? url.split("/") : []
-  const type = content.length >= 2 ? content[content.length - 2] : ""
-  const spotifyId = content.length >= 1 ? content[content.length - 1] : ""
+  const type = content.length >= 2 ? content.at(-2) : ""
+  const spotifyId = content.length > 0 ? content.at(-1) : ""
 
   return (
     <iframe

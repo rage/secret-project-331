@@ -38,7 +38,7 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
 
   const basePath = useMemo(() => {
     const segments = pathname.split("/").filter(Boolean)
-    if (segments.length >= 1) {
+    if (segments.length > 0) {
       return `/${segments[0]}`
     }
     return pathname.replace(/\/$/, "") || "/"

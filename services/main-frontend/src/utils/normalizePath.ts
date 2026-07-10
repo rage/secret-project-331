@@ -5,10 +5,10 @@
 export const normalizePath = (str: string): string => {
   return str
     .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
+    .replaceAll(/\s+/g, "-")
+    .replaceAll(/[^a-z0-9-]/g, "")
+    .replaceAll(/-+/g, "-")
+    .replaceAll(/^-|-$/g, "")
 }
 
 /**
@@ -20,7 +20,7 @@ export const normalizePath = (str: string): string => {
 export const cleanUrlPath = (path: string): string => {
   // Decode each maximal run of %XX escapes as one unit, dropping a run that isn't valid UTF-8
   // (instead of failing the whole string). Matches decode_percent_runs in pages.rs.
-  const decoded = path.replace(/(?:%[0-9A-Fa-f]{2})+/g, (run) => {
+  const decoded = path.replaceAll(/(?:%[0-9A-Fa-f]{2})+/g, (run) => {
     try {
       return decodeURIComponent(run)
     } catch {
@@ -29,13 +29,13 @@ export const cleanUrlPath = (path: string): string => {
   })
   // Strip unsafe ASCII (URL_PATH_ENCODE_SET); keep alphanumerics, '/', '-', '.', '_', '~', non-ASCII.
   // oxlint-disable-next-line no-control-regex
-  const unsafeAscii = /[\x00-\x2C\x3A-\x40\x5B-\x5E\x60\x7B-\x7D\x7F]/g
+  const unsafeAscii = /[\u0000-\u002C\u003A-\u0040\u005B-\u005E\u0060\u007B-\u007D\u007F]/g
   return decoded
-    .replace(/\s+/g, "-")
+    .replaceAll(/\s+/g, "-")
     .replace(unsafeAscii, "")
-    .replace(/-{2,}/g, "-")
-    .replace(/-+\//g, "/")
-    .replace(/\/-+/g, "/")
+    .replaceAll(/-{2,}/g, "-")
+    .replaceAll(/-+\//g, "/")
+    .replaceAll(/\/-+/g, "/")
     .replace(/^-+/, "")
     .replace(/-+$/, "")
 }

@@ -254,7 +254,7 @@ const QuizItems: React.FC = () => {
       return []
     }
     // Copy the array before sorting because sort mutates the array and the array currently may be immutable after updating it
-    return [...selected.items].sort((o1, o2) => o1.order - o2.order)
+    return [...selected.items].toSorted((o1, o2) => o1.order - o2.order)
   }, [selected])
 
   if (!selected) {
@@ -270,7 +270,7 @@ const QuizItems: React.FC = () => {
       </ItemsTitleContainer>
       <QuizItemContainer>
         {sortedItems
-          .sort((o1, o2) => o1.order - o2.order)
+          .toSorted((o1, o2) => o1.order - o2.order)
           .map((quizItem) => {
             return (
               <div key={quizItem.id}>

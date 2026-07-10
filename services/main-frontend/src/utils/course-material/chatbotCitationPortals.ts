@@ -35,7 +35,7 @@ export function planCitationPortals(
   citationNumberingMap: Map<number, number>,
 ): CitationPortalPlan[] {
   return nodes.map((node) => {
-    const rawCitN = parseInt(node.getAttribute("data-citation-n") ?? "", 10)
+    const rawCitN = parseInt((node as HTMLElement).dataset.citationN ?? "", 10)
     const citN = citationDisplayNumber(rawCitN, citationNumberingMap)
 
     if (citN === null) {
@@ -48,7 +48,7 @@ export function planCitationPortals(
     // a row.
     const prev = node.previousSibling
     if (prev && nodeIsElement(prev)) {
-      const prevRawCitN = parseInt(prev.getAttribute("data-citation-n") ?? "", 10)
+      const prevRawCitN = parseInt((prev as HTMLElement).dataset.citationN ?? "", 10)
       const prevCitN = citationDisplayNumber(prevRawCitN, citationNumberingMap)
       if (prevCitN !== null && prevCitN === citN) {
         return null

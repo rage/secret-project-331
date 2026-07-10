@@ -18,9 +18,7 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
   await test.step("Create page with an exercise block", async () => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
     await page.click(`button:text("Create")`)

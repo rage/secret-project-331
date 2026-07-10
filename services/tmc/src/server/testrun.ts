@@ -8,9 +8,8 @@ async function getImpl(req: Request): Promise<Response> {
 
   if (typeof id === "string") {
     return jsonOk(testRuns.get(id))
-  } else {
-    return badRequest("Invalid query")
   }
+  return badRequest("Invalid query")
 }
 
 export const handleTestrun = wrapRouteHandler(getImpl, {

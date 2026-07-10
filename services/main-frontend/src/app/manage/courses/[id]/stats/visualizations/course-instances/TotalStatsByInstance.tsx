@@ -97,7 +97,7 @@ const TotalStatsByInstance: React.FC<React.PropsWithChildren<TotalStatsByInstanc
       Object.keys(totalReturnedExercisesQuery.data).forEach((id) => instanceIds.add(id))
     }
     // Sort by instance name, with default instance first
-    return Array.from(instanceIds).sort((a, b) => {
+    return Array.from(instanceIds).toSorted((a, b) => {
       const instanceA = instanceMap.get(a)
       const instanceB = instanceMap.get(b)
 

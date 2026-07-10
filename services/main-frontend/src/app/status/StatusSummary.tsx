@@ -122,7 +122,7 @@ const StatusSummary: React.FC = () => {
           (isRecent(e.last_timestamp) || isRecent(e.first_timestamp)) &&
           isCriticalEvent(e),
       )
-      .sort((a, b) => {
+      .toSorted((a, b) => {
         const aTime = a.last_timestamp || a.first_timestamp || ""
         const bTime = b.last_timestamp || b.first_timestamp || ""
         return bTime.localeCompare(aTime)
@@ -136,7 +136,7 @@ const StatusSummary: React.FC = () => {
           (isRecent(e.last_timestamp) || isRecent(e.first_timestamp)) &&
           isCriticalEvent(e),
       )
-      .sort((a, b) => {
+      .toSorted((a, b) => {
         const aTime = a.last_timestamp || a.first_timestamp || ""
         const bTime = b.last_timestamp || b.first_timestamp || ""
         return bTime.localeCompare(aTime)

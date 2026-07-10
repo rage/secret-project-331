@@ -39,7 +39,7 @@ const normalizeCssSize = (value: number | string | undefined): string | undefine
 }
 
 /** Strips HTML tags from a rich-text caption to get a plain-text fallback label. */
-const stripTags = (html: string): string => html.replace(/<[^>]*>/g, "").trim()
+const stripTags = (html: string): string => html.replaceAll(/<[^>]*>/g, "").trim()
 
 const ImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>

@@ -58,7 +58,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
     if (!courseStructureQuery.data?.modules) {
       return []
     }
-    return [...courseStructureQuery.data.modules].sort(
+    return [...courseStructureQuery.data.modules].toSorted(
       (a: CourseModule, b: CourseModule) => a.order_number - b.order_number,
     )
   }, [courseStructureQuery.data?.modules])

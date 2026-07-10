@@ -70,7 +70,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
       />
       <ul>
         {[...data]
-          .sort((o1, o2) => o1.citation_key.localeCompare(o2.citation_key))
+          .toSorted((o1, o2) => o1.citation_key.localeCompare(o2.citation_key))
           .map((r, idx) => {
             try {
               const c = Cite(r.reference)

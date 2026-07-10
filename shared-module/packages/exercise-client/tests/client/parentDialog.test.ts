@@ -38,7 +38,7 @@ function createFakePort() {
 }
 
 const lastPostedOpenDialog = (posted: unknown[]): OpenDialogMessage =>
-  posted[posted.length - 1] as OpenDialogMessage
+  posted.at(-1) as OpenDialogMessage
 
 describe("ParentDialogClient", () => {
   it("posts an open-dialog message with the given options and a string requestId", () => {

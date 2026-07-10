@@ -49,34 +49,33 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
         />
       </div>
     )
-  } else {
-    return (
-      <div
-        className={css`
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          padding-left: 1rem;
-          padding-right: 1rem;
-          margin-top: 1rem !important;
-          justify-content: center;
-          align-items: center;
-          ul {
-            padding-inline-start: 1rem !important;
-          }
-          h1,
-          h2,
-          h3,
-          h4,
-          h5 {
-            margin-top: 0px;
-          }
-        `}
-      >
-        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
-      </div>
-    )
   }
+  return (
+    <div
+      className={css`
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        margin-top: 1rem !important;
+        justify-content: center;
+        align-items: center;
+        ul {
+          padding-inline-start: 1rem !important;
+        }
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+          margin-top: 0px;
+        }
+      `}
+    >
+      <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+    </div>
+  )
 }
 
 const exported = withErrorBoundary(InnerCardBlock)

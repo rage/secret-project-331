@@ -78,9 +78,8 @@ const CourseInstancePointsList: React.FC = () => {
       return second.totalPoints - first.totalPoints
     } else if (sorting == EMAIL) {
       return first.user.email.localeCompare(second.user.email)
-    } else {
-      return second.chapterPoints[sorting] - first.chapterPoints[sorting]
     }
+    return second.chapterPoints[sorting] - first.chapterPoints[sorting]
   }
 
   const getPointsList = useQuery({
@@ -183,7 +182,7 @@ const CourseInstancePointsList: React.FC = () => {
                           {t("title-chapter-only-number", { "chapter-number": c.chapter_number })}{" "}
                           <a
                             href={courseSorting}
-                            onClick={() => setSorting(courseSorting.substring(1))}
+                            onClick={() => setSorting(courseSorting.slice(1))}
                           >
                             {DOWN_ARROW}
                           </a>
@@ -213,7 +212,7 @@ const CourseInstancePointsList: React.FC = () => {
                       )
                       return { user, totalPoints, chapterPoints }
                     })
-                    .sort(sortUsers)
+                    .toSorted(sortUsers)
                     .map(({ user, totalPoints }) => {
                       return (
                         <FullWidthTableRow key={user.user_id}>

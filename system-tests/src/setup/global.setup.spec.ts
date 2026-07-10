@@ -45,7 +45,7 @@ async function createLoginStates(page: Page, context: BrowserContext) {
   const allStorageStatesRecentlyCreated = usersLoginInformationToCache.every((loginInformation) => {
     try {
       const fileStats = statSync(path.join(__dirname, `../states/${loginInformation.email}.json`))
-      if (new Date().getTime() - fileStats.mtime.getTime() < ONE_WEEK_MS) {
+      if (Date.now() - fileStats.mtime.getTime() < ONE_WEEK_MS) {
         return true
       }
       return false

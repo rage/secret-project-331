@@ -301,7 +301,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             emailCommunicationConsent={userDetailsQuery.data?.email_communication_consent ?? false}
           />
         )}
-        {getPageAudioFiles.isSuccess && tracks.length !== 0 && (
+        {getPageAudioFiles.isSuccess && tracks.length > 0 && (
           <AudioNotification>
             <p>{t("audio-notification-description")}</p>
             <button
@@ -354,7 +354,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         {courseMaterialState.page?.course_id && (
           <ReferenceList courseId={courseMaterialState.page.course_id} />
         )}
-        {getPageAudioFiles.isSuccess && isVisible && tracks.length !== 0 && (
+        {getPageAudioFiles.isSuccess && isVisible && tracks.length > 0 && (
           <AudioPlayer
             tracks={tracks}
             isVisible={isVisible}

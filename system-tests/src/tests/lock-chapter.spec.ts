@@ -234,9 +234,7 @@ test.describe("Chapter locking feature", () => {
         .first()
       await completedRow.waitFor()
       await expect(completedRow).toHaveAttribute("data-testid", /teacher-chapter-lock-status-.+/)
-      const completedRowTestId = await completedRow.evaluate(
-        (el) => el.getAttribute("data-testid") ?? "",
-      )
+      const completedRowTestId = await completedRow.evaluate((el) => el.dataset.testid ?? "")
       const chapterId = completedRowTestId.replace("teacher-chapter-lock-status-", "")
 
       await teacherPage.getByTestId(`teacher-edit-chapter-status-${chapterId}`).click()

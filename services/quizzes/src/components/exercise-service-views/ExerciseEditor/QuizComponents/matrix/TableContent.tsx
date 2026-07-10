@@ -79,9 +79,8 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
       return rowArray.map((cell, columnIndex) => {
         if (column === columnIndex && row === rowIndex) {
           return text
-        } else {
-          return cell
         }
+        return cell
       })
     })
     setMatrixVariable(newMatrix)

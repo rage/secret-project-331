@@ -25,7 +25,7 @@ const chatbotCitationParser: InlineParsingRule = (state, checkMode) => {
       return false
     }
     let char = state.src.charAt(newPos)
-    if (!char.match(digitRegex)) {
+    if (!digitRegex.test(char)) {
       if (i === 0) {
         // there needs to be at least one digit
         return false
@@ -45,7 +45,7 @@ const chatbotCitationParser: InlineParsingRule = (state, checkMode) => {
       return false
     }
     let char = state.src.charAt(newPos)
-    if (!char.match(digitRegex)) {
+    if (!digitRegex.test(char)) {
       if (i === 0) {
         // there needs to be at least one digit
         return false
@@ -89,7 +89,7 @@ const chatbotCitationParser: InlineParsingRule = (state, checkMode) => {
   let marker = state.src.slice(state.pos, newPos)
 
   // double check if the current pos starts a string that matches our tag
-  if (!marker.match(MATCH_CITATION_TAG_REGEX)) {
+  if (!MATCH_CITATION_TAG_REGEX.test(marker)) {
     console.warn(
       `Markdown parser caught an incorrect chatbotCitation marker in the double check. Marker: ${marker}. There's a bug in the parser.`,
     )

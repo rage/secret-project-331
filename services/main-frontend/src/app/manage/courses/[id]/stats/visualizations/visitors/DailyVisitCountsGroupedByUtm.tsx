@@ -91,7 +91,7 @@ const DailyVisitCountsGroupedByUtm: React.FC<
       {} as Record<string, PageVisitDatumSummaryByCourse>,
     )
 
-    const sorted = Object.values(aggregated).sort((a, b) => {
+    const sorted = Object.values(aggregated).toSorted((a, b) => {
       if (a.visit_date < b.visit_date) {
         return -1
       }

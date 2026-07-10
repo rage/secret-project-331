@@ -46,7 +46,7 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
 
   const focusDialog = useCallback(() => {
     if (type === "proposed-edits") {
-      const dialogElement = document.getElementById(FEEDBACK_DIALOG_CONTENT_ID)
+      const dialogElement = document.querySelector<HTMLElement>(`#${FEEDBACK_DIALOG_CONTENT_ID}`)
       if (dialogElement) {
         dialogElement.focus()
       }

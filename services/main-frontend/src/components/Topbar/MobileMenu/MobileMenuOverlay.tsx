@@ -79,7 +79,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
         label: t("button-label-search-for-pages"),
         icon: <MagnifyingGlass />,
         onAction: () => {
-          const searchButton = document.getElementById("search-for-pages-button")
+          const searchButton = document.querySelector<HTMLElement>("#search-for-pages-button")
           if (searchButton) {
             searchButton.click()
           }

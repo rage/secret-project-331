@@ -110,7 +110,7 @@ export function useRunOutput() {
         }
         runOutputBufferRef.current = ""
         setSegments((prev) => {
-          const last = prev[prev.length - 1]
+          const last = prev.at(-1)
           if (last?.type === "stdout") {
             return [...prev.slice(0, -1), { type: "stdout", text: last.text + pending }]
           }

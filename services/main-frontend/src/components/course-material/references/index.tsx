@@ -141,7 +141,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
   // and prenote/postnote edits also re-trigger the scan, while the DOM changes caused by rendering
   // the portals themselves don't.
   useEffect(() => {
-    const container = document.getElementById("content")
+    const container = document.querySelector("#content")
     if (!container) {
       return
     }

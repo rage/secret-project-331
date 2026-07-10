@@ -370,7 +370,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
             return prq
           }
         })
-        .sort((o1, o2) => o1.order_number - o2.order_number)
+        .toSorted((o1, o2) => o1.order_number - o2.order_number)
 
     commitPeerReview(peerOrSelfReviewConfigRef.current, peerOrSelfReviewQuestions)
   }
@@ -602,7 +602,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   <h2>{t("configure-review-answers-option")}</h2>
                   {parsedPeerOrSelfReviewQuestionConfig &&
                     parsedPeerOrSelfReviewQuestionConfig
-                      .sort((o1, o2) => o1.order_number - o2.order_number)
+                      .toSorted((o1, o2) => o1.order_number - o2.order_number)
                       .map(({ id, question, question_type, answer_required, weight }) => (
                         <List key={id} id={id}>
                           <StyledQuestion>

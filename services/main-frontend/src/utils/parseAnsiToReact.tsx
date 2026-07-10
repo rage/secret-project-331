@@ -4,7 +4,7 @@ import React from "react"
 
 export const parseAnsiToReact = (text: string): React.ReactNode[] => {
   // oxlint-disable-next-line no-control-regex
-  const ansiRegex = /\x1b\[([0-9;]*)m/g
+  const ansiRegex = /\u001B\[([0-9;]*)m/g
   const parts: React.ReactNode[] = []
   let lastIndex = 0
   let match

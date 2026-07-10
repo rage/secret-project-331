@@ -40,7 +40,7 @@ const useReferences = (courseId: string) => {
     if (getCourseReferences.isError) {
       // Surface the failure to the error boundary instead of silently returning an empty list,
       // which would drop the whole references section while inline \cite markers still render.
-      throw new Error("Error while loading course references")
+      throw new TypeError("Error while loading course references")
     }
     if (!getCourseReferences.data) {
       return undefined

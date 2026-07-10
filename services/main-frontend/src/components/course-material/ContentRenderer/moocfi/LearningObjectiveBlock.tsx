@@ -132,7 +132,7 @@ function parseListBlock({ attributes, innerBlocks }: Block<unknown>): string[] {
   const parser = new DOMParser()
   // oxlint-disable-next-line i18next/no-literal-string
   const listItem = parser.parseFromString(values, "text/html")
-  const children: string[] = [].slice
+  const children: string[] = Array.prototype.slice
     .call(listItem.body.childNodes)
     .map(({ innerHTML }) => innerHTML)
   return children

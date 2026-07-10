@@ -146,7 +146,7 @@ const Timeline: React.FunctionComponent<
   return (
     <TimelineWrapper>
       {quizItem.timelineItems
-        .sort((a, b) => Number(a.year) - Number(b.year))
+        .toSorted((a, b) => Number(a.year) - Number(b.year))
         .map((timelineItem, n) => {
           const selectedTimelineItem = quizItemAnswerState?.timelineChoices?.find(
             (tc) => tc.timelineItemId === timelineItem.itemId,

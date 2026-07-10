@@ -156,9 +156,8 @@ const SubmissionFeedback: React.FC<{
         return t("your-answer-was-not-correct")
       } else if (score < 1) {
         return t("your-answer-was-partially-correct")
-      } else {
-        return t("your-answer-was-correct")
       }
+      return t("your-answer-was-correct")
     },
     [t],
   )
@@ -282,7 +281,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   }, [user_answer?.itemAnswers, publicAlternatives?.items])
 
   const orderedItems = useMemo(() => {
-    return [...publicAlternatives.items].sort((i1, i2) => i1.order - i2.order)
+    return [...publicAlternatives.items].toSorted((i1, i2) => i1.order - i2.order)
   }, [publicAlternatives.items])
 
   const lastFeedbackItemId = useMemo(() => {

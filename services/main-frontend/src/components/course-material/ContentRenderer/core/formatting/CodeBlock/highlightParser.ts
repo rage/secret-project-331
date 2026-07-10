@@ -49,11 +49,7 @@ function stripHighlightLineMarker(
   const trimmed = line.trimEnd()
   if (trimmed.endsWith(markerLine)) {
     const before = trimmed.slice(0, trimmed.length - markerLine.length)
-    if (
-      before.length > 0 &&
-      before[before.length - 1] !== " " &&
-      before[before.length - 1] !== "\t"
-    ) {
+    if (before.length > 0 && before.at(-1) !== " " && before.at(-1) !== "\t") {
       return { cleaned: line, hadMarker: false }
     }
     return { cleaned: before.trimEnd(), hadMarker: true }

@@ -268,9 +268,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
                     color: ${baseTheme.colors.red[600]};
                   }
                 `}
-                onClick={() =>
-                  setComments((cs) => [...cs.slice(0, i), ...cs.slice(i + 1, cs.length)])
-                }
+                onClick={() => setComments((cs) => [...cs.slice(0, i), ...cs.slice(i + 1)])}
               >
                 {t("delete")}
               </button>

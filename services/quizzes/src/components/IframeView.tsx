@@ -136,37 +136,36 @@ const IframeView: React.FC = () => {
               userInformation: messageData.user_information,
             })
             return
-          } else {
-            let converted: unknown = privateSpec
-
-            // oxlint-disable-next-line typescript/no-explicit-any
-            if (isOldQuiz(converted as any)) {
-              converted = migrateQuiz(converted)
-              converted = migratePrivateSpecQuiz(converted as OldQuiz)
-            }
-
-            if (converted === null || converted === undefined) {
-              // The quiz was just created, intialize it with empty values
-              converted = {
-                version: "2",
-                title: null,
-                body: null,
-                awardPointsEvenIfWrong: false,
-                // oxlint-disable-next-line i18next/no-literal-string
-                grantPointsPolicy: "grant_whenever_possible",
-                submitMessage: null,
-                // oxlint-disable-next-line i18next/no-literal-string
-                quizItemDisplayDirection: "vertical",
-                items: [],
-              } satisfies PrivateSpecQuiz
-            }
-
-            setState({
-              viewType: messageData.view_type,
-              privateSpec: converted as PrivateSpecQuiz,
-              userInformation: messageData.user_information,
-            })
           }
+          let converted: unknown = privateSpec
+
+          // oxlint-disable-next-line typescript/no-explicit-any
+          if (isOldQuiz(converted as any)) {
+            converted = migrateQuiz(converted)
+            converted = migratePrivateSpecQuiz(converted as OldQuiz)
+          }
+
+          if (converted === null || converted === undefined) {
+            // The quiz was just created, intialize it with empty values
+            converted = {
+              version: "2",
+              title: null,
+              body: null,
+              awardPointsEvenIfWrong: false,
+              // oxlint-disable-next-line i18next/no-literal-string
+              grantPointsPolicy: "grant_whenever_possible",
+              submitMessage: null,
+              // oxlint-disable-next-line i18next/no-literal-string
+              quizItemDisplayDirection: "vertical",
+              items: [],
+            } satisfies PrivateSpecQuiz
+          }
+
+          setState({
+            viewType: messageData.view_type,
+            privateSpec: converted as PrivateSpecQuiz,
+            userInformation: messageData.user_information,
+          })
         } else if (messageData.view_type === "view-submission") {
           if (!isViewSubmissionIframeState(messageData)) {
             throw new Error(

@@ -181,7 +181,7 @@ const CertificationsPage: React.FC = () => {
             `}
           >
             {getCourse.data.modules
-              .sort((l, r) => l.order_number - r.order_number)
+              .toSorted((l, r) => l.order_number - r.order_number)
               .map((m) => {
                 return {
                   module: m,

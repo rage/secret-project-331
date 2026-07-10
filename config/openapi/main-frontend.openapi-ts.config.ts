@@ -8,7 +8,7 @@ if (process.env.GENERATE_BINDINGS_RUN !== "1") {
   )
 }
 
-const configDir = path.dirname(fileURLToPath(import.meta.url))
+const configDir = import.meta.dirname
 const resolveFromConfig = (relativePath: string) => path.resolve(configDir, relativePath)
 
 const createConfig = (input: string, path: string) =>

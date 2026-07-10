@@ -83,7 +83,7 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
       }
     }
 
-    const sortedChapters = [...chapters].sort(
+    const sortedChapters = [...chapters].toSorted(
       (a, b) => (a.chapter_number ?? 0) - (b.chapter_number ?? 0),
     )
 

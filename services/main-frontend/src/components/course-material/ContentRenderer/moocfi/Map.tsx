@@ -178,7 +178,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     getMap()
 
     const eventHandler = (evt: Event) => {
-      const formattedIdentifier = countryCodeCount.map((obj) => obj.code.substring(1))
+      const formattedIdentifier = countryCodeCount.map((obj) => obj.code.slice(1))
 
       if (!(evt.target instanceof Element)) {
         return
@@ -258,11 +258,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     activeStudentCountry = getCountry.data.country_code
   }
 
-  if (
-    getCountries.isSuccess &&
-    Object.keys(getCountries.data).length !== 0 &&
-    activeStudentCountry
-  ) {
+  if (getCountries.isSuccess && Object.keys(getCountries.data).length > 0 && activeStudentCountry) {
     const storedCountryCodes = Object.entries(getCountries.data).map(([key, value]) => ({
       code: `.${key}`,
       count: value,
@@ -275,7 +271,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
 
     // Logic for generating Popular Countries table
     // Sort table based on countries count (ascending)
-    countryTableData = [...countryCodeCount].sort((a, b) => b.count - a.count).slice(0, 6)
+    countryTableData = [...countryCodeCount].toSorted((a, b) => b.count - a.count).slice(0, 6)
 
     // Check if active user country is in the sorted TableData and if not add it.
     const userCountryCodeCount = countryCodeCount.find(
@@ -393,7 +389,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
             <th>{t("number-of-student")}</th>
           </tr>
           {countryTableData?.map(({ code, count }) => {
-            const formattedCode = code.replace(/\./g, "").toUpperCase()
+            const formattedCode = code.replaceAll(".", "").toUpperCase()
             const country = countryList.find((c) => c.value === formattedCode)?.label
             return (
               <tr key={code}>

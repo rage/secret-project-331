@@ -52,9 +52,8 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, set
         <ExerciseEditor state={state.private_spec} port={port} setState={setState} />
       </div>
     )
-  } else {
-    return <>{t("waiting-for-content")}</>
   }
+  return <>{t("waiting-for-content")}</>
 }
 
 export default withErrorBoundary(withNoSsr(Renderer))

@@ -204,7 +204,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         },
         isValid: true,
         innerBlocks: tasks
-          .sort((a, b) => a.order_number - b.order_number)
+          .toSorted((a, b) => a.order_number - b.order_number)
           .map((task) => {
             const denormalizedTask: BlockInstance<ExerciseTaskAttributes> = {
               // Using task id in tests ensures that this operation is reversible

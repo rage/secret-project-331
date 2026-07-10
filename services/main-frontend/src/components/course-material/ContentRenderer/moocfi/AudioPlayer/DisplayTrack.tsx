@@ -30,7 +30,7 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: Display
 
   const sortedTracks = useMemo(() => {
     // Sorts mp3 files last, as they're the fallback format
-    return tracks.sort((a, b) => {
+    return tracks.toSorted((a, b) => {
       if (a.mime === "audio/mpeg") {
         return 1
       } else if (b.mime === "audio/mpeg") {

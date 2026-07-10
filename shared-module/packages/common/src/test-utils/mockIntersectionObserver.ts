@@ -21,7 +21,7 @@ export class MockIntersectionObserver implements IntersectionObserver {
     this.scrollMargin = (options as any)?.scrollMargin ?? "0px 0px 0px 0px"
     this.thresholds = Array.isArray(options?.threshold)
       ? // oxlint-disable-next-line typescript/no-non-null-assertion -- Array.isArray(options?.threshold) is true here, so options and options.threshold are defined
-        options!.threshold!.slice().sort((a, b) => a - b)
+        options!.threshold!.slice().toSorted((a, b) => a - b)
       : [options?.threshold ?? 0]
 
     this.elements = new Set<Element>()

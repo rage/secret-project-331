@@ -18,7 +18,7 @@ function base64EncodeUtf8(str) {
   var bytes = new TextEncoder().encode(str)
   var binary = ""
   for (const byte of bytes) {
-    binary += String.fromCharCode(byte)
+    binary += String.fromCodePoint(byte)
   }
   return btoa(binary)
 }
@@ -85,7 +85,7 @@ self.onmessage = function (e) {
   if (data.type === "stdin_line") {
     if (pendingStdinResolve) {
       var line = data.line != null ? String(data.line) : ""
-      if (line.length > 0 && line.charAt(line.length - 1) !== "\n") {
+      if (line.length > 0 && line.at(-1) !== "\n") {
         line += "\n"
       }
       pendingStdinResolve(line)

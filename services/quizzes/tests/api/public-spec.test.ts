@@ -59,7 +59,7 @@ function expectPropertiesHaveBeenRemoved<T>(object: unknown, notAllowedPropertie
     if (typeof notAllowedProperty === "string") {
       expect(object).not.toHaveProperty(notAllowedProperty)
     } else {
-      throw new Error("notAllowedProperty must be a string")
+      throw new TypeError("notAllowedProperty must be a string")
     }
   }
 }

@@ -277,7 +277,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
   return (
     <FlexWrapper wideScreenDirection={direction}>
       {publicSpec.items
-        .sort((i1, i2) => i1.order - i2.order)
+        .toSorted((i1, i2) => i1.order - i2.order)
         .map((quizItem, idx) => {
           // Quiz item answer state'
           let quizItemAnswerState: UserItemAnswer | null = null

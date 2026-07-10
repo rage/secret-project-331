@@ -6,7 +6,7 @@ import { promisify } from "util"
 
 const exec = promisify(execOriginal)
 
-const currentDir = path.dirname(fileURLToPath(import.meta.url))
+const currentDir = import.meta.dirname
 const projectRoot = path.resolve(currentDir, "..")
 const savedCommitHashesPath = `${projectRoot}/.husky/_/saved-hashes`
 

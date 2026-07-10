@@ -22,7 +22,7 @@ const TERM_REGEX_CACHE = new Map<string, RegExp>()
 const TERM_REGEX_CACHE_MAX_SIZE = 100
 
 /** Escapes regex metacharacters in a string so it can be used literally in a RegExp. */
-const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+const escapeRegex = (value: string): string => value.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
 
 const getTermRegex = (term: string): RegExp => {
   let regex = TERM_REGEX_CACHE.get(term)
@@ -53,7 +53,7 @@ const getDomParser = (): DOMParser => {
     return domParser
   }
   if (typeof DOMParser === "undefined") {
-    throw new Error("DOMParser is not available in this environment.")
+    throw new TypeError("DOMParser is not available in this environment.")
   }
   domParser = new DOMParser()
   return domParser
@@ -109,18 +109,18 @@ export const replaceTextNodeWithGlossarySpans = (
 
   for (const m of matches) {
     if (m.index > lastIndex) {
-      fragment.appendChild(doc.createTextNode(text.substring(lastIndex, m.index)))
+      fragment.append(doc.createTextNode(text.substring(lastIndex, m.index)))
     }
     // Empty span is a mounting point for the glossary tooltip portal; the user-visible
     // text is rendered later by the React tooltip component rather than being kept here.
     const span = doc.createElement(SPAN_TAG)
     span.setAttribute(DATA_GLOSSARY_ID_ATTR, glossaryId)
-    fragment.appendChild(span)
+    fragment.append(span)
     lastIndex = m.index + m.length
   }
 
   if (lastIndex < text.length) {
-    fragment.appendChild(doc.createTextNode(text.substring(lastIndex)))
+    fragment.append(doc.createTextNode(text.substring(lastIndex)))
   }
 
   parent.replaceChild(fragment, textNode)

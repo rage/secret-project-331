@@ -134,7 +134,7 @@ export function parseYoutubeUrl(url: string): YouTubeVideoParams {
         result.listType = YOUTUBE_PLAYLIST_TYPE
       }
     } else if (parsedUrl.hostname === "youtu.be") {
-      const pathId = parsedUrl.pathname.substring(1)
+      const pathId = parsedUrl.pathname.slice(1)
       result.videoId = pathId !== "" ? pathId : null
     }
 
@@ -226,13 +226,14 @@ export function buildYoutubeEmbedUrl(params: YouTubeVideoParams): string {
   }
 
   if (isPlaylistEmbed) {
-    queryParams.push(`${YOUTUBE_PARAM_LIST_TYPE}=${listType}`)
-    queryParams.push(`${YOUTUBE_PARAM_LIST}=${list}`)
+    queryParams.push(`${YOUTUBE_PARAM_LIST_TYPE}=${listType}`, `${YOUTUBE_PARAM_LIST}=${list}`)
   }
 
-  queryParams.push(`${YOUTUBE_PARAM_REL}=0`)
-  queryParams.push(`${YOUTUBE_PARAM_MODESTBRANDING}=1`)
-  queryParams.push(`${YOUTUBE_PARAM_ENABLEJSAPI}=1`)
+  queryParams.push(
+    `${YOUTUBE_PARAM_REL}=0`,
+    `${YOUTUBE_PARAM_MODESTBRANDING}=1`,
+    `${YOUTUBE_PARAM_ENABLEJSAPI}=1`,
+  )
 
   Object.entries(embedOptions).forEach(([key, value]) => {
     queryParams.push(`${key}=${value}`)

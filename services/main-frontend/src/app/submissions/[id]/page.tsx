@@ -82,7 +82,7 @@ const Submission: React.FC = () => {
     }
     const currentSubmissionId = getSubmissionInfo.data.exercise_slide_submission.id
     // Sort submissions by created_at DESC to get the latest one
-    const sortedSubmissions = [...exerciseSubmissions.data].sort(
+    const sortedSubmissions = [...exerciseSubmissions.data].toSorted(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     )
     const latestSubmission = sortedSubmissions[0]

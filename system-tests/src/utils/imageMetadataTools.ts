@@ -28,8 +28,7 @@ async function markImageAsOptimized(pathToImage: string): Promise<void> {
   // oxlint-disable-next-line typescript/no-explicit-any
   const listOfPngMetadataChunks: any[] = pngMetadata.splitChunk(contents)
   const iend = listOfPngMetadataChunks.pop()
-  listOfPngMetadataChunks.push(pngMetadata.createChunk("aaaa", "moocfi-optimized"))
-  listOfPngMetadataChunks.push(iend)
+  listOfPngMetadataChunks.push(pngMetadata.createChunk("aaaa", "moocfi-optimized"), iend)
   const newContents = pngMetadata.joinChunk(listOfPngMetadataChunks)
   await writeFile(pathToImage, newContents, "binary")
 }
@@ -82,8 +81,10 @@ export async function savePageYCoordinateToImage(
   listOfPngMetadataChunks = listOfPngMetadataChunks.filter(
     (chunk) => !(chunk.data as string).startsWith("moocfi-page-y-"),
   )
-  listOfPngMetadataChunks.push(pngMetadata.createChunk("aaab", `moocfi-page-y-${yCoordinate}`))
-  listOfPngMetadataChunks.push(iend)
+  listOfPngMetadataChunks.push(
+    pngMetadata.createChunk("aaab", `moocfi-page-y-${yCoordinate}`),
+    iend,
+  )
   const newContents = pngMetadata.joinChunk(listOfPngMetadataChunks)
   await writeFile(pathToImage, newContents, "binary")
 }
@@ -111,9 +112,8 @@ export async function observeYCoordinate(
 
     if (previousYCoordinate === yCoordinate) {
       return yCoordinate
-    } else {
-      previousYCoordinate = yCoordinate
     }
+    previousYCoordinate = yCoordinate
 
     if (tries > 100) {
       throw new Error(`Could not stabilize y-coordinate after ${tries} tries.`)

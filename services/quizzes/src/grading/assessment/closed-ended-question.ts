@@ -12,7 +12,7 @@ const assessClosedEndedQuestion = (
     throw new Error("No answer provided")
   }
 
-  const textData = stripNonPrintableCharacters(quizItemAnswer.textData).replace(/\0/g, "").trim()
+  const textData = stripNonPrintableCharacters(quizItemAnswer.textData).replaceAll("\0", "").trim()
   let correct = true
   if (quizItem.validityRegex) {
     const validityRegex = new RegExp(quizItem.validityRegex.trim())

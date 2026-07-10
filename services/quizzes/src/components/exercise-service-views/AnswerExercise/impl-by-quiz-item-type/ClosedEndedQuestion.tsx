@@ -24,9 +24,8 @@ const ClosedEndedQuestion: React.FC<
     (answer: string) => {
       if (quizItem.formatRegex) {
         return answer.length > 0 && answerFormatIsValidAgainstRegex(answer, quizItem.formatRegex)
-      } else {
-        return answer.length > 0
       }
+      return answer.length > 0
     },
     [quizItem.formatRegex],
   )

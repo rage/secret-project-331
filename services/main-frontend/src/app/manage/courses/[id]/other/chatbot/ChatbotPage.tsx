@@ -36,7 +36,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   )
 
   const sortedChatbotsList = useMemo(() => {
-    return [...(getChatbotsList.data ?? [])].sort((a, b) => {
+    return [...(getChatbotsList.data ?? [])].toSorted((a, b) => {
       if (a.default_chatbot) {
         return -1
       }

@@ -58,7 +58,7 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
           total: pageData.reduce((acc, curr) => acc + curr.num_visitors, 0),
         }
       })
-      .sort((a, b) => a.total - b.total)
+      .toSorted((a, b) => a.total - b.total)
     const topPages: Record<string, number> = totalCountsByPage.slice(-100).reduce((acc, curr) => {
       return {
         ...acc,
@@ -83,7 +83,7 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
+  const chartHeight = categories.length > 0 ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
 
   return (
     <>

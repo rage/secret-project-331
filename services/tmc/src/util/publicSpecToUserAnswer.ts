@@ -12,12 +12,11 @@ export async function publicSpecToIframeUserAnswer(publicSpec: PublicSpec): Prom
         const i = order.indexOf(path)
         return i === -1 ? 1e9 : i
       }
-      files = [...files].sort((a, b) => indexOf(a.filepath) - indexOf(b.filepath))
+      files = [...files].toSorted((a, b) => indexOf(a.filepath) - indexOf(b.filepath))
     }
     return { type: "browser", files }
   } else if (publicSpec.type === "editor") {
     return { type: "editor", archive_download_url: publicSpec.stub_download_url }
-  } else {
-    throw new Error("unreachable")
   }
+  throw new Error("unreachable")
 }

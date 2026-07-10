@@ -80,7 +80,7 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
           `}
         >
           {submissionData.tasks
-            .sort((a, b) => a.order_number - b.order_number)
+            .toSorted((a, b) => a.order_number - b.order_number)
             .map((task) => (
               <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
             ))}

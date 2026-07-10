@@ -147,7 +147,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
               grading: grading,
             }
           })
-          .sort(
+          .toSorted(
             (a, b) =>
               a.task_id.localeCompare(b.task_id) ||
               parseISO(b.grading.created_at).getTime() - parseISO(a.grading.created_at).getTime(),

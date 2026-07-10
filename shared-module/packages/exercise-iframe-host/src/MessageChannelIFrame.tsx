@@ -396,11 +396,10 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
           readyMessageQueueRef.current.push(e)
           recreateMessageChannel()
           return
-        } else {
-          console.error(
-            `[MessageChannelIFrame] Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Giving up.`,
-          )
         }
+        console.error(
+          `[MessageChannelIFrame] Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Giving up.`,
+        )
       }
       return
     }

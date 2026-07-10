@@ -95,10 +95,9 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
       .filter((cit) => {
         if (citationFilteringSet.has(cit.document_url)) {
           return false
-        } else {
-          citationFilteringSet.add(cit.document_url)
-          return true
         }
+        citationFilteringSet.add(cit.document_url)
+        return true
       })
       .map((cit) => cit.id)
   }, [citations])

@@ -42,7 +42,7 @@ function isTerminatorChar(ch: number) {
 export const textParser: InlineParsingRule = (state, silent) => {
   var pos = state.pos
 
-  while (pos < state.posMax && !isTerminatorChar(state.src.charCodeAt(pos))) {
+  while (pos < state.posMax && !isTerminatorChar(state.src.codePointAt(pos) ?? 0)) {
     pos++
   }
 

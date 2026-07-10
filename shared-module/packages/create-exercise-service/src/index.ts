@@ -2,7 +2,7 @@ import { cp, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promise
 import { dirname, extname, join, relative, resolve, sep } from "node:path"
 import { fileURLToPath } from "node:url"
 
-const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
+const SCRIPT_DIR = import.meta.dirname
 // src -> create-exercise-service -> packages -> shared-module -> repository root
 const REPO_ROOT = resolve(SCRIPT_DIR, "../../../..")
 const TEMPLATE_DIR = join(REPO_ROOT, "services", "example-exercise")
@@ -148,7 +148,7 @@ async function buildPackageJson(
   pkg.name = projectName
   pkg.version = "0.1.0"
   pkg.dependencies = Object.fromEntries(
-    Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)),
+    Object.entries(merged).toSorted(([a], [b]) => a.localeCompare(b)),
   )
   // The template pins an exact node version for the monorepo; a standalone project shouldn't carry
   // it.
@@ -231,7 +231,7 @@ async function replaceNameInAllFiles(
 /** Replace the service name and other template-specific values throughout the generated project. */
 async function parameterize(projectPath: string, projectName: string): Promise<void> {
   // Display name (e.g. "my-exercise" -> "My exercise") for service_name and the document <title>.
-  const displayName = projectName.replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
+  const displayName = projectName.replaceAll(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
 
   // Display literal first, then the slug: they don't overlap ("Example exercise" vs
   // "example-exercise"), so one pass covers every occurrence.
@@ -378,7 +378,7 @@ create-exercise-service (or copy the packages over manually) to update it.
 }
 
 // Only run the interactive CLI when executed directly, not when imported (e.g. by tests).
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {
   main().catch((error) => {
     // @inquirer/prompts rejects with ExitPromptError when the user aborts a prompt with Ctrl+C;
     // exit quietly instead of printing an unhandled-rejection stack trace.

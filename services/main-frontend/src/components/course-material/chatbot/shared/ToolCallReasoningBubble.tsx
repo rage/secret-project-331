@@ -86,84 +86,83 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
         {summaryText} {<ThinkingIndicator />}
       </span>
     )
-  } else {
-    summaryText = ""
-    let expandableText: string[] = []
-    messages.forEach((m, idx) => {
-      let res1 = zChatbotConversationMessageReasoning.safeParse(m.message.message)
-      if (res1.success) {
-        expandableText.push(t("chatbot-status-thinking-finished"))
+  }
+  summaryText = ""
+  let expandableText: string[] = []
+  messages.forEach((m, idx) => {
+    let res1 = zChatbotConversationMessageReasoning.safeParse(m.message.message)
+    if (res1.success) {
+      expandableText.push(t("chatbot-status-thinking-finished"))
+      if (idx === 0) {
+        summaryText += t("chatbot-status-thinking-finished")
+      }
+      if (idx === 1) {
+        summaryText += `, ${t("chatbot-status-thinking-finished")}`
+      }
+    }
+    let res2 = zChatbotConversationMessageToolCall.safeParse(m.message.message)
+    if (res2.success) {
+      const toolArguments =
+        res2.data.tool_arguments.replaceAll(/[{}]/g, "").length === 0
+          ? ""
+          : res2.data.tool_arguments
+      if (res2.data.tool_name === "azure_ai_search") {
+        collapsible = true
+        // in azure ai search, the arguments are this shape
+        let query = `""`
+        if (toolArguments.length > 0) {
+          let obj: { query: string } = JSON.parse(toolArguments)
+          query = `"${obj.query}"`
+        }
+
+        expandableText.push(t("chatbot-status-course-material-search-finished", { query }))
         if (idx === 0) {
-          summaryText += t("chatbot-status-thinking-finished")
+          summaryText += t("chatbot-status-course-material-search")
         }
         if (idx === 1) {
-          summaryText += `, ${t("chatbot-status-thinking-finished")}`
+          summaryText += `, ${t("chatbot-status-course-material-search")}`
+        }
+      } else {
+        expandableText.push(
+          `${t("chatbot-status-using-tool-finished")} "${res2.data.tool_name.replaceAll("_", " ")}" ${toolArguments}`,
+        )
+        if (idx === 0) {
+          summaryText += t("chatbot-status-used-tools")
+        }
+        if (idx === 1) {
+          summaryText += `, ${t("chatbot-status-used-tools")}`
         }
       }
-      let res2 = zChatbotConversationMessageToolCall.safeParse(m.message.message)
-      if (res2.success) {
-        const toolArguments =
-          res2.data.tool_arguments.replaceAll(/[{}]/g, "").length === 0
-            ? ""
-            : res2.data.tool_arguments
-        if (res2.data.tool_name === "azure_ai_search") {
-          collapsible = true
-          // in azure ai search, the arguments are this shape
-          let query = `""`
-          if (toolArguments.length > 0) {
-            let obj: { query: string } = JSON.parse(toolArguments)
-            query = `"${obj.query}"`
-          }
-
-          expandableText.push(t("chatbot-status-course-material-search-finished", { query }))
-          if (idx === 0) {
-            summaryText += t("chatbot-status-course-material-search")
-          }
-          if (idx === 1) {
-            summaryText += `, ${t("chatbot-status-course-material-search")}`
-          }
-        } else {
-          expandableText.push(
-            `${t("chatbot-status-using-tool-finished")} "${res2.data.tool_name.replaceAll("_", " ")}" ${toolArguments}`,
-          )
-          if (idx === 0) {
-            summaryText += t("chatbot-status-used-tools")
-          }
-          if (idx === 1) {
-            summaryText += `, ${t("chatbot-status-used-tools")}`
-          }
-        }
-      }
-    })
-
-    if (!collapsible) {
-      return (
-        <div className={detailsStyle}>
-          <div className={textStyle}>{expandableText.join(", ")}</div>
-        </div>
-      )
     }
+  })
+
+  if (!collapsible) {
     return (
       <div className={detailsStyle}>
-        <details open={isOpen} onToggle={() => setIsOpen(!isOpen)}>
-          <summary>
-            <span className={textStyle}>{summaryText}</span>
-            {collapsible && <DownIcon className={iconStyle(isOpen)} />}
-          </summary>
-          <ul
-            className={css`
-              margin: 0.6rem;
-              padding-left: 1.5rem;
-            `}
-          >
-            {expandableText.map((item, idx) => (
-              <li key={idx}>{item}</li>
-            ))}
-          </ul>
-        </details>
+        <div className={textStyle}>{expandableText.join(", ")}</div>
       </div>
     )
   }
+  return (
+    <div className={detailsStyle}>
+      <details open={isOpen} onToggle={() => setIsOpen(!isOpen)}>
+        <summary>
+          <span className={textStyle}>{summaryText}</span>
+          {collapsible && <DownIcon className={iconStyle(isOpen)} />}
+        </summary>
+        <ul
+          className={css`
+            margin: 0.6rem;
+            padding-left: 1.5rem;
+          `}
+        >
+          {expandableText.map((item, idx) => (
+            <li key={idx}>{item}</li>
+          ))}
+        </ul>
+      </details>
+    </div>
+  )
 }
 
 export default ToolCallReasoningBubble

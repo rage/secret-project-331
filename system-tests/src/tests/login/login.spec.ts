@@ -70,9 +70,7 @@ test.describe("Login return_to", () => {
   )
 
   test("works after succesful login", async ({ page }) => {
-    await Promise.all([
-      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.waitForURL(/http:\/\/project-331\.local\/org\/.*/)
     const currentUrl = page.url()
 

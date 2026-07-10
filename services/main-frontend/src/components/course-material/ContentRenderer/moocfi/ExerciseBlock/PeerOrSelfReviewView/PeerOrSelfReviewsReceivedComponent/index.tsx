@@ -128,7 +128,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
 
   const data = useMemo(() => {
     const ordered =
-      peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_question_submissions.sort(
+      peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_question_submissions.toSorted(
         (a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime(),
       )
 
@@ -138,7 +138,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
     )
 
     let res = Object.values(groupByPeerOrSelfReviewSubmissionId)
-    res = res.sort((a, b) => {
+    res = res.toSorted((a, b) => {
       if (a.length === 0) {
         return 1
       }

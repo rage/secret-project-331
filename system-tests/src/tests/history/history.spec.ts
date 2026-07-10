@@ -19,9 +19,7 @@ test.use({
 test("history test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.getByText("Introduction to history").click()
@@ -47,9 +45,7 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click()

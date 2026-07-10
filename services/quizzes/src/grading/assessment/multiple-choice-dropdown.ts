@@ -13,7 +13,7 @@ const assessMultipleChoiceDropdown = (
   }
 
   // No option was selected
-  if (quizItemAnswer.selectedOptionIds.length == 0) {
+  if (quizItemAnswer.selectedOptionIds.length === 0) {
     return {
       quizItemId: quizItem.id,
       correctnessCoefficient: 0,

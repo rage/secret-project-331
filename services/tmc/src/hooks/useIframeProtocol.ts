@@ -158,9 +158,8 @@ export function useIframeProtocol() {
                   archive_download_url: archiveDownloadUrl ?? "",
                 },
               }
-            } else {
-              return old
             }
+            return old
           })
         } else {
           logError("Failed to upload:", messageData.error)
@@ -170,9 +169,8 @@ export function useIframeProtocol() {
           if (oldState && oldState.view_type === "exercise-editor") {
             const sorted = orderBy(messageData.repository_exercises, (re) => re.part + re.name)
             return { ...oldState, repository_exercises: sorted }
-          } else {
-            return oldState
           }
+          return oldState
         })
       } else if (messageData.message === "test-results") {
         setTestRequestResponse(messageData.test_result as RunResult)

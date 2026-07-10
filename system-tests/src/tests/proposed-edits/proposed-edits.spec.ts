@@ -24,7 +24,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.getByText("The Basics").click()
 
-  await Promise.all([page.getByRole("link", { name: "1 Page One" }).click()])
+  await page.getByRole("link", { name: "1 Page One" }).click()
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
 
@@ -110,9 +110,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.locator("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg").click()
 

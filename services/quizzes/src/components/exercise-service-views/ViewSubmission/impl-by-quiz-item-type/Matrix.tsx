@@ -212,16 +212,15 @@ const MatrixSubmission: React.FC<
         )}
       </div>
     )
-  } else {
-    return (
-      <MatrixTable
-        aria-label={t("matrix-fully-correct")}
-        rowsCountArray={rowsCountArray}
-        columnsCountArray={columnsCountArray}
-        findOptionText={findOptionText}
-      ></MatrixTable>
-    )
   }
+  return (
+    <MatrixTable
+      aria-label={t("matrix-fully-correct")}
+      rowsCountArray={rowsCountArray}
+      columnsCountArray={columnsCountArray}
+      findOptionText={findOptionText}
+    ></MatrixTable>
+  )
 }
 
 interface MatrixTableProps {

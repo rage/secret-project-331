@@ -86,7 +86,7 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
   }, [waitingForInput])
 
   const blocks = mergeStdoutSegments(segments)
-  const lastSegment = segments[segments.length - 1]
+  const lastSegment = segments.at(-1)
   const lastIsInputWaiting =
     lastSegment?.type === "input" && lastSegment.line === "" && waitingForInput
 

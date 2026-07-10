@@ -38,7 +38,7 @@ import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languag
 const decodeNonAsciiPercentEscapes = (segment: string): string =>
   // A run of %XX escapes whose lead nibble is 8-F encodes bytes >= 0x80, i.e. a non-ASCII
   // UTF-8 sequence; decode the whole run at once so multibyte characters round-trip.
-  segment.replace(/(?:%[89A-Fa-f][0-9A-Fa-f])+/g, (run) => {
+  segment.replaceAll(/(?:%[89A-Fa-f][0-9A-Fa-f])+/g, (run) => {
     try {
       return decodeURIComponent(run)
     } catch {

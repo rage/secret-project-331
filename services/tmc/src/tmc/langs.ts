@@ -201,9 +201,8 @@ export const getExercisePackagingConfiguration = async (
   )
   if (config.data?.["output-data-kind"] === "exercise-packaging-configuration") {
     return config.data["output-data"]
-  } else {
-    throw new Error("Unexpected data")
   }
+  throw new Error("Unexpected data")
 }
 
 export const fastAvailablePoints = async (
@@ -213,9 +212,8 @@ export const fastAvailablePoints = async (
   const config = await execute("fast-available-points", ["--exercise-path", exercisePath], log)
   if (config.data?.["output-data-kind"] === "available-points") {
     return config.data["output-data"]
-  } else {
-    throw new Error("Unexpected data")
   }
+  throw new Error("Unexpected data")
 }
 
 export const runBrowserTest = async (

@@ -301,7 +301,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
               </tr>
             </thead>
             <tbody>
-              {roleData.sort(sortRoles).map((ur) => (
+              {roleData.toSorted(sortRoles).map((ur) => (
                 <tr
                   className={css`
                     background: #ffffff;

@@ -44,7 +44,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
     defaultValues: {
       name: "",
       starts: chapters.length > 0 ? chapters[0] : 1,
-      ends: chapters.length > 0 ? chapters[chapters.length - 1] : 1,
+      ends: chapters.length > 0 ? chapters.at(-1) : 1,
       ects_credits: null,
       automatic_completion: false,
       uh_course_code: "",

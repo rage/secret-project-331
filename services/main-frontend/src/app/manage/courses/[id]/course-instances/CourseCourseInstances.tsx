@@ -120,7 +120,9 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
         {(data) => (
           <div className={cardContainerStyles}>
             {data
-              .sort((a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime())
+              .toSorted(
+                (a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime(),
+              )
               .map((instance) => {
                 const name = instance.name ?? t("default-course-instance-name")
                 return (

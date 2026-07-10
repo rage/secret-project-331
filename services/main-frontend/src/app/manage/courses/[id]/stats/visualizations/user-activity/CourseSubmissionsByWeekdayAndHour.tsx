@@ -86,7 +86,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
           return <div>{t("no-data")}</div>
         }
 
-        const dataByWeekDayOrdered = Object.entries(data.dataByWeekDay).sort(
+        const dataByWeekDayOrdered = Object.entries(data.dataByWeekDay).toSorted(
           ([num, _a], [num2, _a2]) => Number(num) - Number(num2),
         )
 

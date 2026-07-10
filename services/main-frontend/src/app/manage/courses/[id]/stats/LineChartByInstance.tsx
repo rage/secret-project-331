@@ -175,7 +175,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
       })
     })
 
-    const sortedDates = Array.from(allDates).sort()
+    const sortedDates = Array.from(allDates).toSorted()
 
     // Create series for each instance with their data
     const seriesWithData = Object.entries(data).map(([instanceId, instanceData]) => {
@@ -217,7 +217,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
 
     // Sort series by sortValue in descending order, then alphabetically by name
     const series = seriesWithData
-      .sort((a, b) => {
+      .toSorted((a, b) => {
         // First compare by sortValue
         if (b.sortValue !== a.sortValue) {
           return (b.sortValue ?? -1) - (a.sortValue ?? -1)
@@ -283,7 +283,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         trigger: AXIS,
         formatter: (params: TooltipComponentFormatterCallbackParams) => {
           if (!Array.isArray(params)) {
-            throw new Error("Tooltip params is not an array")
+            throw new TypeError("Tooltip params is not an array")
           }
           const date = params[0].name
           const rows = params

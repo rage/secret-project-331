@@ -119,7 +119,7 @@ const EmailTemplatesList: React.FC = () => {
             templates,
           }
         })
-        .sort((a, b) => a.courseName.localeCompare(b.courseName))
+        .toSorted((a, b) => a.courseName.localeCompare(b.courseName))
 
       return {
         templateType,

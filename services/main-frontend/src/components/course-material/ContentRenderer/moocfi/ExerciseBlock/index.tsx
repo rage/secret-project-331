@@ -658,7 +658,7 @@ const ExerciseBlock: React.FC<
                 {reviewingStage !== "PeerReview" &&
                   reviewingStage !== "SelfReview" &&
                   courseMaterialExercise.current_exercise_slide.exercise_tasks
-                    .sort((a, b) => a.order_number - b.order_number)
+                    .toSorted((a, b) => a.order_number - b.order_number)
                     .map((task) => (
                       <ExerciseTask
                         key={task.id}

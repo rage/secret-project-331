@@ -120,9 +120,8 @@ const ModuleCertificate: React.FC = () => {
     const moduleData = userGrade.data?.module
     if (moduleData.grade !== null) {
       return String(moduleData.grade)
-    } else {
-      return String(moduleData.passed)
     }
+    return String(moduleData.passed)
   }, [userGrade.data?.module])
 
   const generateCertificateMutation = useToastMutationOptions(

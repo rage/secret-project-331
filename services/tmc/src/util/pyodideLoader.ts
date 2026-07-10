@@ -55,7 +55,7 @@ function loadScript(src: string): Promise<void> {
       script.remove()
       reject(new Error(`Failed to load script: ${src}`))
     }
-    document.head.appendChild(script)
+    document.head.append(script)
   })
 }
 

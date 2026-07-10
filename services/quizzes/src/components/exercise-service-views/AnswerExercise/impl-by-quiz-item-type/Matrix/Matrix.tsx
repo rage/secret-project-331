@@ -86,9 +86,8 @@ const Matrix: React.FunctionComponent<
       return rowArray.map((cell, columnIndex) => {
         if (column === columnIndex && row === rowIndex) {
           return text
-        } else {
-          return cell
         }
+        return cell
       })
     })
     const tempMatrixActiveSize = handleSizeChange(newMatrix)

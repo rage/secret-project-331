@@ -111,7 +111,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
       const link = document.createElement("a")
       link.href = url
       link.setAttribute("download", "data.csv")
-      document.body.appendChild(link)
+      document.body.append(link)
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)

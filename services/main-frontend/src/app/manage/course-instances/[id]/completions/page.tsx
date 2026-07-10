@@ -87,7 +87,7 @@ const CompletionsPage: React.FC = () => {
       },
     }),
     select: (completions) => {
-      const sortedCourseModules = completions.course_modules.sort(
+      const sortedCourseModules = completions.course_modules.toSorted(
         (a, b) => a.order_number - b.order_number,
       )
       return {
@@ -130,12 +130,11 @@ const CompletionsPage: React.FC = () => {
       )
     } else if (sorting.type === EMAIL) {
       return first.email.localeCompare(second.email)
-    } else {
-      return (
-        (maxBy(second.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0) -
-        (maxBy(first.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0)
-      )
     }
+    return (
+      (maxBy(second.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0) -
+      (maxBy(first.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0)
+    )
   }
 
   const handlePostCompletionsPreview = async (
@@ -327,7 +326,7 @@ const CompletionsPage: React.FC = () => {
                     </a>
                   </th>
                   {data.sortedCourseModules
-                    .sort((a, b) => a.order_number - b.order_number)
+                    .toSorted((a, b) => a.order_number - b.order_number)
                     .map((module) => {
                       // oxlint-disable-next-line i18next/no-literal-string
                       const moduleSorting = `#mod${module.order_number}`
@@ -363,7 +362,7 @@ const CompletionsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.users.sort(sortUsers).map((user) => (
+                {data.users.toSorted(sortUsers).map((user) => (
                   <UserCompletionRow
                     key={user.userId}
                     sortedCourseModules={data.sortedCourseModules}

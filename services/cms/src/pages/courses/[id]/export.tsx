@@ -152,7 +152,7 @@ function save(filename: string, data: Uint8Array) {
   const elem = window.document.createElement("a")
   elem.href = window.URL.createObjectURL(blob)
   elem.download = filename
-  document.body.appendChild(elem)
+  document.body.append(elem)
   elem.click()
   document.body.removeChild(elem)
 }

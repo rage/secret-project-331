@@ -50,9 +50,8 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
                           repository_exercise: re,
                         },
                       }
-                    } else {
-                      return null
                     }
+                    return null
                   })
                 }
               >
@@ -63,77 +62,73 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
         </ul>
       </>
     )
-  } else {
-    // exercise selected
-    const repositoryExercise = state.private_spec.repository_exercise
-    return (
-      <div>
-        {t("selected-repository-exercise")}
-        <br />
-        {repositoryExercise.part} / {repositoryExercise.name}
-        <br />
-        {repositoryExercise.repository_url}
-        <br />
-        {repositoryExercise.download_url}
-        <br />
-        {state.private_spec?.type}
-        <br />
-        <CheckBox
-          label={t("solve-in-editor-label")}
-          checked={state.private_spec?.type === "editor"}
-          onChange={() =>
-            setState((old) => {
-              if (old) {
-                return {
-                  ...old,
-                  private_spec: {
-                    type: "editor",
-                    repository_exercise: repositoryExercise,
-                  },
-                }
-              } else {
-                return null
-              }
-            })
-          }
-        />
-        <CheckBox
-          label={t("solve-in-browser")}
-          checked={state.private_spec?.type === "browser"}
-          onChange={() =>
-            setState((old) => {
-              if (old) {
-                return {
-                  ...old,
-                  private_spec: {
-                    type: "browser",
-                    repository_exercise: repositoryExercise,
-                  },
-                }
-              } else {
-                return null
-              }
-            })
-          }
-        />
-        <Button
-          variant="primary"
-          size="medium"
-          onClick={() =>
-            setState((old) => {
-              if (old) {
-                return { ...old, private_spec: null }
-              } else {
-                return null
-              }
-            })
-          }
-        >
-          {t("select-another-repository-exercise")}
-        </Button>
-      </div>
-    )
   }
+  // exercise selected
+  const repositoryExercise = state.private_spec.repository_exercise
+  return (
+    <div>
+      {t("selected-repository-exercise")}
+      <br />
+      {repositoryExercise.part} / {repositoryExercise.name}
+      <br />
+      {repositoryExercise.repository_url}
+      <br />
+      {repositoryExercise.download_url}
+      <br />
+      {state.private_spec?.type}
+      <br />
+      <CheckBox
+        label={t("solve-in-editor-label")}
+        checked={state.private_spec?.type === "editor"}
+        onChange={() =>
+          setState((old) => {
+            if (old) {
+              return {
+                ...old,
+                private_spec: {
+                  type: "editor",
+                  repository_exercise: repositoryExercise,
+                },
+              }
+            }
+            return null
+          })
+        }
+      />
+      <CheckBox
+        label={t("solve-in-browser")}
+        checked={state.private_spec?.type === "browser"}
+        onChange={() =>
+          setState((old) => {
+            if (old) {
+              return {
+                ...old,
+                private_spec: {
+                  type: "browser",
+                  repository_exercise: repositoryExercise,
+                },
+              }
+            }
+            return null
+          })
+        }
+      />
+      <Button
+        variant="primary"
+        size="medium"
+        onClick={() =>
+          setState((old) => {
+            if (old) {
+              return { ...old, private_spec: null }
+            }
+            return null
+          })
+        }
+      >
+        {t("select-another-repository-exercise")}
+      </Button>
+    </div>
+  )
 }
 
 export default ExerciseEditor

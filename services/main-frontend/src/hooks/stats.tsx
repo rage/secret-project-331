@@ -45,7 +45,7 @@ import type {
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 const disabledQueryKey = (id: string, extras?: Record<string, unknown>) =>
-  [{ _id: id, ...(extras ?? {}) }] as const
+  [{ _id: id, ...extras }] as const
 
 type BuiltQueryOptions<TData> = UseQueryOptions<TData, Error, TData>
 

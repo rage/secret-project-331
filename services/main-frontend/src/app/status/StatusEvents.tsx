@@ -42,7 +42,7 @@ const StatusEvents: React.FC = () => {
     }
 
     // Sort by last timestamp (most recent first)
-    return filtered.sort((a, b) => {
+    return filtered.toSorted((a, b) => {
       const aTime = a.last_timestamp || a.first_timestamp || ""
       const bTime = b.last_timestamp || b.first_timestamp || ""
       return bTime.localeCompare(aTime)

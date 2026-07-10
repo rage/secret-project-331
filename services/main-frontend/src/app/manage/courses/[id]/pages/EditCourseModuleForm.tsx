@@ -41,7 +41,7 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseMo
   return {
     name: module.name,
     starts: module.firstChapter ?? (chapters.length > 0 ? chapters[0] : 1),
-    ends: module.lastChapter ?? (chapters.length > 0 ? chapters[chapters.length - 1] : 1),
+    ends: module.lastChapter ?? chapters.at(-1) ?? 1,
     ects_credits: Number(module.ects_credits) || 0,
     uh_course_code: module.uh_course_code ?? "",
     automatic_completion: module.automatic_completion ?? false,

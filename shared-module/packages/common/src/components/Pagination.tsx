@@ -179,8 +179,6 @@ const generateComponents = (
       <SelectedCircle key={t("current-page-x")} aria-label={t("current-page-x", { number: 1 })}>
         <CircleText>1</CircleText>
       </SelectedCircle>,
-    )
-    components.push(
       <RightButton
         tabIndex={0}
         role="button"
@@ -273,13 +271,11 @@ const generateComponents = (
       </Circle>,
     )
   } else if (CAPACITY <= page && page <= totalPages - CAPACITY + 1) {
-    components.push(<Circle onClick={handleChangeEvent(1)}> 1 </Circle>)
     components.push(
+      <Circle onClick={handleChangeEvent(1)}> 1 </Circle>,
       <HorizontalDots>
         <DotsHorizontal size={18} weight="bold" />
       </HorizontalDots>,
-    )
-    components.push(
       <Circle
         tabIndex={0}
         role="button"
@@ -289,13 +285,9 @@ const generateComponents = (
       >
         <CircleText>{page - 1}</CircleText>
       </Circle>,
-    )
-    components.push(
       <SelectedCircle key={t("current-page-x")} aria-label={t("current-page-x", { number: page })}>
         <CircleText>{page}</CircleText>
       </SelectedCircle>,
-    )
-    components.push(
       <Circle
         tabIndex={0}
         role="button"
@@ -305,13 +297,9 @@ const generateComponents = (
       >
         <CircleText>{page + 1}</CircleText>
       </Circle>,
-    )
-    components.push(
       <HorizontalDots>
         <DotsHorizontal size={18} weight="bold" />
       </HorizontalDots>,
-    )
-    components.push(
       <Circle
         tabIndex={0}
         role="button"
@@ -333,8 +321,6 @@ const generateComponents = (
       >
         <CircleText>1</CircleText>
       </Circle>,
-    )
-    components.push(
       <HorizontalDots>
         <DotsHorizontal size={18} weight="bold" />
       </HorizontalDots>,

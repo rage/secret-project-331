@@ -328,7 +328,7 @@ export function FloatingHeaderTable<T extends object>({
         }
 
         // mount clone + freeze table width
-        dstTable.appendChild(clonedHead)
+        dstTable.append(clonedHead)
         const tableW = srcTable.getBoundingClientRect().width
         dstTable.style.width = `${tableW}px`
 

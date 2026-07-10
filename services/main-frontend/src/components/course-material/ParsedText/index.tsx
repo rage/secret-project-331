@@ -63,7 +63,7 @@ const scanGlossaryTargets = (container: HTMLElement | null): GlossaryTarget[] =>
   const glossaryNodes = Array.from(container.querySelectorAll<HTMLElement>("[data-glossary-id]"))
 
   return glossaryNodes.flatMap((node) => {
-    const glossaryId = node.getAttribute("data-glossary-id")
+    const glossaryId = node.dataset.glossaryId
     return glossaryId ? [{ node, glossaryId }] : []
   })
 }

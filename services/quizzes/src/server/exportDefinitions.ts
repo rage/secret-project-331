@@ -113,7 +113,7 @@ function parseRequest(body: unknown): CsvExportDefinitionsRequest {
     throw new Error("Invalid request body")
   }
   if (!Array.isArray((body as Record<string, unknown>).items)) {
-    throw new Error("Invalid request body: items must be an array")
+    throw new TypeError("Invalid request body: items must be an array")
   }
   return body as CsvExportDefinitionsRequest
 }

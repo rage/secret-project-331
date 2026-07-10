@@ -153,7 +153,7 @@ const ExerciseList: React.FC<Props> = ({
         </div>
         <div>
           {Object.entries(groupedExercises)
-            .sort(([aId], [bId]) => {
+            .toSorted(([aId], [bId]) => {
               const chapterA = aId !== t("label-no-chapter") ? chapterMap.get(aId) : null
               const chapterB = bId !== t("label-no-chapter") ? chapterMap.get(bId) : null
 
@@ -225,7 +225,7 @@ const ExerciseList: React.FC<Props> = ({
                       </thead>
                       <tbody>
                         {Object.entries(pagesExercises)
-                          .sort(([pageAId], [pageBId]) => {
+                          .toSorted(([pageAId], [pageBId]) => {
                             const pageA = pageMap.get(pageAId)
                             const pageB = pageMap.get(pageBId)
                             const orderA = pageA ? pageA.order_number : Number.MAX_VALUE
@@ -235,7 +235,7 @@ const ExerciseList: React.FC<Props> = ({
                           .map(([pageId, exercises]) => {
                             return exercises
                               .slice()
-                              .sort((a, b) => a.order_number - b.order_number)
+                              .toSorted((a, b) => a.order_number - b.order_number)
                               .map((exercise) => (
                                 <tr key={exercise.id}>
                                   <td>

@@ -98,7 +98,7 @@ export const addMonthToStage = (stages: StageInput[], stageIndex: number): Stage
     return null
   }
 
-  const lastDate = months[months.length - 1]?.date
+  const lastDate = months.at(-1)?.date
   if (!lastDate) {
     return null
   }

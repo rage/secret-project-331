@@ -53,9 +53,8 @@ async function postImpl(request: Request): Promise<Response> {
         },
         { status: 500 },
       )
-    } else {
-      return Response.json({ error_message: e }, { status: 500 })
     }
+    return Response.json({ error_message: e }, { status: 500 })
   }
 }
 

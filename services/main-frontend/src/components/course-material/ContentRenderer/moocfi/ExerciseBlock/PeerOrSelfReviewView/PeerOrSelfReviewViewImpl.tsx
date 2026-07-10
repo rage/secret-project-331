@@ -292,7 +292,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
 
       <div>
         {peerOrSelfReviewData.answer_to_review.course_material_exercise_tasks
-          .sort((a, b) => a.order_number - b.order_number)
+          .toSorted((a, b) => a.order_number - b.order_number)
           .map((course_material_exercise_task) => {
             return (
               <div key={course_material_exercise_task.id}>
@@ -356,7 +356,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       />
 
       {peerOrSelfReviewData.peer_or_self_review_questions
-        .sort((a, b) => a.order_number - b.order_number)
+        .toSorted((a, b) => a.order_number - b.order_number)
         .map((peerOrSelfReviewQuestion) => (
           <PeerOrSelfReviewQuestionComponent
             key={peerOrSelfReviewQuestion.id}

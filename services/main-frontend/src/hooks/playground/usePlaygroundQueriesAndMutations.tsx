@@ -218,9 +218,8 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
         return parseExerciseTaskGradingResult(gradingJson)
       } else if (param.type === "fromWebsocket") {
         return param.data
-      } else {
-        throw new Error("unreachable")
       }
+      throw new Error("unreachable")
     },
     { notify: true, method: "POST" },
   )

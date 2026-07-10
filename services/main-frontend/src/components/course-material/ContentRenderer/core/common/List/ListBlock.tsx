@@ -69,21 +69,19 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
           useWrapperElement={true}
         />
       )
-    } else {
-      return (
-        <ParsedText
-          text={values}
-          tag="ul"
-          tagProps={{
-            className: listItemClass,
-          }}
-          useWrapperElement={true}
-        />
-      )
     }
-  } else {
-    children = <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+    return (
+      <ParsedText
+        text={values}
+        tag="ul"
+        tagProps={{
+          className: listItemClass,
+        }}
+        useWrapperElement={true}
+      />
+    )
   }
+  children = <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
 
   if (ordered) {
     return (
@@ -93,13 +91,12 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
         </ol>
       </ListFontSizeContext.Provider>
     )
-  } else {
-    return (
-      <ListFontSizeContext.Provider value={fontSize ?? parentFontSize}>
-        <ul className={listItemClass}>{children}</ul>
-      </ListFontSizeContext.Provider>
-    )
   }
+  return (
+    <ListFontSizeContext.Provider value={fontSize ?? parentFontSize}>
+      <ul className={listItemClass}>{children}</ul>
+    </ListFontSizeContext.Provider>
+  )
 }
 
 const exported = withErrorBoundary(ListBlock)

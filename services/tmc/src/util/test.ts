@@ -95,9 +95,8 @@ export const runTests = async (
 
     if (isRunResult(outcome.parsed)) {
       return outcome.parsed
-    } else {
-      throw new Error("Unexpected results")
     }
+    throw new Error("Unexpected results")
   } finally {
     await Promise.allSettled(tempPaths.map((p) => fs.rm(p, { recursive: true, force: true })))
   }

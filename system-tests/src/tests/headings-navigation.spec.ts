@@ -12,9 +12,7 @@ test.use({
 test("headings navigation works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.getByText("Introduction to Course Material").first().click()
 

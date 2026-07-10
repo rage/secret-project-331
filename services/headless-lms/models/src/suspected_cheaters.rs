@@ -51,6 +51,9 @@ pub struct SuspectedCheaters {
     pub id: Uuid,
     pub user_id: Uuid,
     pub course_id: Uuid,
+    /// The module completion that triggered the flag. `None` only for legacy rows the backfill
+    /// couldn't map to a default module.
+    pub course_module_id: Option<Uuid>,
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
@@ -69,7 +72,7 @@ pub struct UserSuspectedCheaterInfo {
     pub total_points: i32,
     /// When first flagged in this course (record `created_at`, unchanged on re-flag).
     pub first_flagged_at: DateTime<Utc>,
-    /// Duration threshold (seconds) for this course; student was flagged for completing faster.
+    /// Threshold (seconds) of the module that triggered the flag; the student completed faster.
     pub threshold_seconds: i32,
 }
 
@@ -117,6 +120,7 @@ pub async fn insert(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
+    course_module_id: Uuid,
     total_duration_seconds: Option<i32>,
     total_points: i32,
 ) -> ModelResult<bool> {
@@ -126,19 +130,22 @@ pub async fn insert(
       user_id,
       total_duration_seconds,
       total_points,
-      course_id
+      course_id,
+      course_module_id
     )
-    VALUES ($1, $2, $3, $4)
+    VALUES ($1, $2, $3, $4, $5)
     ON CONFLICT (user_id, course_id) WHERE deleted_at IS NULL
     DO UPDATE SET
       total_duration_seconds = EXCLUDED.total_duration_seconds,
-      total_points = EXCLUDED.total_points
+      total_points = EXCLUDED.total_points,
+      course_module_id = EXCLUDED.course_module_id
     RETURNING *
       ",
         user_id,
         total_duration_seconds,
         total_points,
-        course_id
+        course_id,
+        course_module_id
     )
     .fetch_one(&mut *conn)
     .await?;
@@ -310,13 +317,10 @@ WHERE user_id = $1
     Ok(cheaters)
 }
 
-/// Duration threshold (seconds) shown for a course in the review UI: the DEFAULT module's configured
-/// threshold, or [`DEFAULT_CHEATER_THRESHOLD_SECONDS`] if unset.
-///
-/// Known limitation: flagging (`library/progressing.rs`) uses the *completed* module's threshold, so
-/// for a non-default module with its own threshold this can differ from the value that triggered the
-/// flag. The `suspected_cheaters` row doesn't record which module triggered it, so this is a
-/// best-effort display figure.
+/// Fallback duration threshold (seconds) for a course: the DEFAULT module's configured threshold, or
+/// [`DEFAULT_CHEATER_THRESHOLD_SECONDS`] if unset. Only used for legacy flag rows without a recorded
+/// triggering module; otherwise the threshold is resolved from that module (see
+/// [`get_suspected_cheater_info_for_user`]).
 pub async fn get_applicable_threshold_seconds(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -329,7 +333,9 @@ pub async fn get_applicable_threshold_seconds(
     Ok(threshold)
 }
 
-/// Each course where the user has a non-deleted suspected-cheater record, paired with its duration threshold.
+/// Each course where the user has a non-deleted suspected-cheater record, paired with the threshold
+/// that flagged them. The threshold is resolved from the triggering module (matching the flagging
+/// logic in `library/progressing.rs`), falling back to the default-module threshold for legacy rows.
 pub async fn get_suspected_cheater_info_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -337,7 +343,13 @@ pub async fn get_suspected_cheater_info_for_user(
     let rows = get_all_by_user_id(conn, user_id).await?;
     let mut info = Vec::with_capacity(rows.len());
     for row in rows {
-        let threshold_seconds = get_applicable_threshold_seconds(conn, row.course_id).await?;
+        let threshold_seconds = match row.course_module_id {
+            Some(course_module_id) => get_thresholds_by_module_id(conn, course_module_id)
+                .await?
+                .map(|t| t.duration_seconds)
+                .unwrap_or(DEFAULT_CHEATER_THRESHOLD_SECONDS),
+            None => get_applicable_threshold_seconds(conn, row.course_id).await?,
+        };
         info.push(UserSuspectedCheaterInfo {
             course_id: row.course_id,
             status: row.status,

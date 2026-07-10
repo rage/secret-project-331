@@ -687,8 +687,7 @@ export type CourseEnrollmentInfo = {
   course_module_completions: Array<CourseModuleCompletion>
   course_module_completions_needing_review: number
   /**
-   * All non-deleted modules of the course, so per-module completions can be named and the total
-   * module count is known. Ordered by `order_number`.
+   * All non-deleted modules of the course, ordered by `order_number`.
    */
   course_modules: Array<CourseModuleInfo>
   first_enrolled_at: string
@@ -850,9 +849,8 @@ export type CourseModuleCompletionWithRegistrationInfo = {
 }
 
 /**
- * Slim course-module descriptor used to give the frontend a module's name and ordering so it can
- * label per-module completions and show "X of Y modules" without a separate course-structure fetch.
- * A default (base) module has `name = None`.
+ * Slim module descriptor so the frontend can label per-module completions and show "X of Y modules"
+ * without a separate course-structure fetch. Default (base) module has `name = None`.
  */
 export type CourseModuleInfo = {
   id: string
@@ -2124,6 +2122,11 @@ export type SuspectedCheaterStatus = "Flagged" | "ConfirmedCheating" | "Dismisse
 
 export type SuspectedCheaters = {
   course_id: string
+  /**
+   * The module completion that triggered the flag. `None` only for legacy rows the backfill
+   * couldn't map to a default module.
+   */
+  course_module_id?: string | null
   created_at: string
   deleted_at?: string | null
   id: string
@@ -2326,20 +2329,18 @@ export type UserRole =
   | "StatsViewer"
 
 /**
- * A user's suspected-cheater record in one course, paired with that course's applicable duration
- * threshold, for the cross-course "Completion review" list on the user-details page. Read-only.
+ * A user's suspected-cheater record in one course, paired with that course's duration threshold.
+ * Read-only, for the cross-course "Completion review" list on the user-details page.
  */
 export type UserSuspectedCheaterInfo = {
   course_id: string
   /**
-   * When the student was first flagged in this course (the record's `created_at`; unchanged on
-   * re-flag). Not a review timestamp.
+   * When first flagged in this course (record `created_at`, unchanged on re-flag).
    */
   first_flagged_at: string
   status: SuspectedCheaterStatus
   /**
-   * The duration threshold (seconds) that applies to this course; the student was flagged for
-   * completing faster than this.
+   * Threshold (seconds) of the module that triggered the flag; the student completed faster.
    */
   threshold_seconds: number
   total_duration_seconds?: number | null

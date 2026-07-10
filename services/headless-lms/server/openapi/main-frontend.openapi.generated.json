@@ -12988,7 +12988,7 @@
             "items": {
               "$ref": "#/components/schemas/CourseModuleInfo"
             },
-            "description": "All non-deleted modules of the course, so per-module completions can be named and the total\nmodule count is known. Ordered by `order_number`."
+            "description": "All non-deleted modules of the course, ordered by `order_number`."
           },
           "first_enrolled_at": {
             "type": "string",
@@ -13419,7 +13419,7 @@
       },
       "CourseModuleInfo": {
         "type": "object",
-        "description": "Slim course-module descriptor used to give the frontend a module's name and ordering so it can\nlabel per-module completions and show \"X of Y modules\" without a separate course-structure fetch.\nA default (base) module has `name = None`.",
+        "description": "Slim module descriptor so the frontend can label per-module completions and show \"X of Y modules\"\nwithout a separate course-structure fetch. Default (base) module has `name = None`.",
         "required": ["id", "order_number"],
         "properties": {
           "id": {
@@ -17569,6 +17569,11 @@
             "type": "string",
             "format": "uuid"
           },
+          "course_module_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The module completion that triggered the flag. `None` only for legacy rows the backfill\ncouldn't map to a default module."
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -18216,7 +18221,7 @@
       },
       "UserSuspectedCheaterInfo": {
         "type": "object",
-        "description": "A user's suspected-cheater record in one course, paired with that course's applicable duration\nthreshold, for the cross-course \"Completion review\" list on the user-details page. Read-only.",
+        "description": "A user's suspected-cheater record in one course, paired with that course's duration threshold.\nRead-only, for the cross-course \"Completion review\" list on the user-details page.",
         "required": [
           "course_id",
           "status",
@@ -18232,7 +18237,7 @@
           "first_flagged_at": {
             "type": "string",
             "format": "date-time",
-            "description": "When the student was first flagged in this course (the record's `created_at`; unchanged on\nre-flag). Not a review timestamp."
+            "description": "When first flagged in this course (record `created_at`, unchanged on re-flag)."
           },
           "status": {
             "$ref": "#/components/schemas/SuspectedCheaterStatus"
@@ -18240,7 +18245,7 @@
           "threshold_seconds": {
             "type": "integer",
             "format": "int32",
-            "description": "The duration threshold (seconds) that applies to this course; the student was flagged for\ncompleting faster than this."
+            "description": "Threshold (seconds) of the module that triggered the flag; the student completed faster."
           },
           "total_duration_seconds": {
             "type": ["integer", "null"],

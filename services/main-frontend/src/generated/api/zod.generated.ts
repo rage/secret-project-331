@@ -710,9 +710,8 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
 })
 
 /**
- * Slim course-module descriptor used to give the frontend a module's name and ordering so it can
- * label per-module completions and show "X of Y modules" without a separate course-structure fetch.
- * A default (base) module has `name = None`.
+ * Slim module descriptor so the frontend can label per-module completions and show "X of Y modules"
+ * without a separate course-structure fetch. Default (base) module has `name = None`.
  */
 export const zCourseModuleInfo = z.object({
   id: z.uuid(),
@@ -2321,6 +2320,7 @@ export const zSuspectedCheaterStatus = z.enum(["Flagged", "ConfirmedCheating", "
 
 export const zSuspectedCheaters = z.object({
   course_id: z.uuid(),
+  course_module_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
@@ -2748,8 +2748,8 @@ export const zRoleUser = z.object({
 })
 
 /**
- * A user's suspected-cheater record in one course, paired with that course's applicable duration
- * threshold, for the cross-course "Completion review" list on the user-details page. Read-only.
+ * A user's suspected-cheater record in one course, paired with that course's duration threshold.
+ * Read-only, for the cross-course "Completion review" list on the user-details page.
  */
 export const zUserSuspectedCheaterInfo = z.object({
   course_id: z.uuid(),

@@ -2543,6 +2543,16 @@ export const zCourseEnrollmentsInfo = z.object({
   course_enrollments: z.array(zCourseEnrollmentInfo),
 })
 
+/**
+ * A single submission's time, its exercise, and the module that exercise sits in (via its chapter).
+ * Used to plot a user's submission activity within a course.
+ */
+export const zUserCourseSubmissionTime = z.object({
+  course_module_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  exercise_id: z.uuid(),
+})
+
 export const zUserDetail = z.object({
   country: z.string().nullish(),
   created_at: z.iso.datetime(),
@@ -5660,6 +5670,16 @@ export const zGetUserCourseEnrollmentsPath = z.object({
  * User course enrollments
  */
 export const zGetUserCourseEnrollmentsResponse = zCourseEnrollmentsInfo
+
+export const zGetUserCourseSubmissionTimesPath = z.object({
+  user_id: z.uuid(),
+  course_id: z.uuid(),
+})
+
+/**
+ * User course submission times
+ */
+export const zGetUserCourseSubmissionTimesResponse = z.array(zUserCourseSubmissionTime)
 
 export const zGetUserRolesPath = z.object({
   user_id: z.uuid(),

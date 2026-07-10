@@ -7,6 +7,8 @@ import { groupBy } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { sectionHeadingCss } from "../lib/sectionHeading"
+
 import { getUserResetExerciseLogsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
@@ -18,12 +20,6 @@ export interface ExerciseResetLogSectionProps {
 
 // date-fns day pattern for grouping resets (SCREAMING_CASE = not a translatable string).
 const DAY_FORMAT = "yyyy-MM-dd"
-
-const headingCss = css`
-  font-size: ${baseTheme.fontSizes[3]}px;
-  font-weight: ${fontWeights.medium};
-  margin-bottom: 0.5rem;
-`
 
 const groupCss = css`
   border: 1px solid #ced1d7;
@@ -76,7 +72,7 @@ const ExerciseResetLogSection: React.FC<ExerciseResetLogSectionProps> = ({ userI
 
   return (
     <section>
-      <h2 className={headingCss}>{t("label-exercise-reset-log")}</h2>
+      <h2 className={sectionHeadingCss}>{t("label-exercise-reset-log")}</h2>
       <QueryResult query={query} treatEmptyAsData>
         {(data) => {
           if (data.length === 0) {

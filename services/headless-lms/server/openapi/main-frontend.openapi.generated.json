@@ -10661,6 +10661,50 @@
         }
       }
     },
+    "/api/v0/main-frontend/users/{user_id}/courses/{course_id}/submission-times": {
+      "get": {
+        "tags": ["users"],
+        "summary": "\nGET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise\nsubmission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.",
+        "operationId": "getUserCourseSubmissionTimes",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User course submission times",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserCourseSubmissionTime"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/users/{user_id}/roles": {
       "get": {
         "tags": ["users"],
@@ -18030,6 +18074,26 @@
             "format": "date-time"
           },
           "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UserCourseSubmissionTime": {
+        "type": "object",
+        "description": "A single submission's time, its exercise, and the module that exercise sits in (via its chapter).\nUsed to plot a user's submission activity within a course.",
+        "required": ["created_at", "exercise_id"],
+        "properties": {
+          "course_module_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Module the exercise's chapter belongs to; `None` for exercises not placed in a chapter."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise_id": {
             "type": "string",
             "format": "uuid"
           }

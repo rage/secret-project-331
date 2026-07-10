@@ -3,7 +3,8 @@ use anyhow::anyhow;
 use headless_lms_utils::services::tmc::TmcClient;
 use models::{
     course_instance_enrollments::CourseEnrollmentsInfo, courses::Course,
-    exercise_reset_logs::ExerciseResetLog, research_forms::ResearchFormQuestionAnswer, roles::Role,
+    exercise_reset_logs::ExerciseResetLog, exercise_slide_submissions::UserCourseSubmissionTime,
+    research_forms::ResearchFormQuestionAnswer, roles::Role,
     suspected_cheaters::UserSuspectedCheaterInfo, user_research_consents::UserResearchConsent,
     users::User,
 };
@@ -21,6 +22,7 @@ use utoipa::{OpenApi, ToSchema};
     get_all_research_form_answers_with_user_id,
     get_my_courses,
     get_user_reset_exercise_logs,
+    get_user_course_submission_times,
     send_reset_password_email,
     reset_password_token_status,
     reset_user_password,
@@ -260,6 +262,46 @@ pub async fn get_user_reset_exercise_logs(
     .await?;
     let res =
         models::exercise_reset_logs::get_exercise_reset_logs_for_user(&mut conn, *user_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise
+submission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{user_id}/courses/{course_id}/submission-times",
+    operation_id = "getUserCourseSubmissionTimes",
+    tag = "users",
+    params(
+        ("user_id" = Uuid, Path, description = "User id"),
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "User course submission times", body = [UserCourseSubmissionTime])
+    )
+)]
+pub async fn get_user_course_submission_times(
+    path: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    auth_user: AuthUser,
+) -> ControllerResult<web::Json<Vec<UserCourseSubmissionTime>>> {
+    let (user_id, course_id) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(auth_user.id),
+        Res::GlobalPermissions,
+    )
+    .await?;
+    let res = models::exercise_slide_submissions::get_user_course_submission_times(
+        &mut conn, user_id, course_id,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -558,6 +600,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{user_id}/user-reset-exercise-logs",
         web::get().to(get_user_reset_exercise_logs),
+    )
+    .route(
+        "/{user_id}/courses/{course_id}/submission-times",
+        web::get().to(get_user_course_submission_times),
     )
     .route(
         "/{user_id}/suspected-cheaters",

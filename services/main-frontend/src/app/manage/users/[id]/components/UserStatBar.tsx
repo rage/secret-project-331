@@ -28,14 +28,12 @@ const UserStatBar: React.FC<UserStatBarProps> = ({ enrollments, reviewTargetId }
   const { t } = useTranslation()
 
   const enrolled = enrollments.length
-  const active = enrollments.filter((e) => e.is_current).length
   const completions = enrollments.reduce((sum, e) => sum + completedModuleCount(e), 0)
   const awaitingReview = awaitingReviewCount(enrollments)
 
   return (
     <div className={rowCss}>
       <StatTile label={t("stat-enrolled-courses")} value={enrolled} />
-      <StatTile label={t("stat-currently-active")} value={active} />
       <StatTile label={t("stat-completions")} value={completions} />
       <StatTile
         label={t("stat-awaiting-review")}

@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ELLIPSIS, TONE } from "../lib/displayConstants"
+import { TONE } from "../lib/displayConstants"
 
 import DeletedUserNotice from "@/components/DeletedUserNotice"
 import {
@@ -13,7 +13,6 @@ import {
   getUserRolesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
-import { dateToString } from "@/shared-module/common/utils/time"
 import { Avatar, Badge, CopyButton, DescriptionList } from "@/shared-module/components"
 
 export interface UserIdentityHeaderProps {
@@ -52,6 +51,8 @@ const idValueCss = css`
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
 `
 
@@ -85,13 +86,7 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
   const items = [
     {
       label: t("label-user-id"),
-      value: (
-        <CopyableValue
-          display={`${userId.slice(0, 8)}${ELLIPSIS}`}
-          value={userId}
-          copyLabel={t("copy-user-id")}
-        />
-      ),
+      value: <CopyableValue display={userId} value={userId} copyLabel={t("copy-user-id")} />,
     },
   ]
   if (!userDetailsNotFound && userDetails?.email) {
@@ -122,11 +117,6 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
                 {role}
               </Badge>
             ))}
-            {userDetails?.created_at ? (
-              <Badge tone={TONE.NEUTRAL}>
-                {t("account-created-on", { date: dateToString(new Date(userDetails.created_at)) })}
-              </Badge>
-            ) : null}
             {tmcId !== null ? (
               <Badge tone={TONE.NEUTRAL}>{t("tmc-id", { id: tmcId })}</Badge>
             ) : null}

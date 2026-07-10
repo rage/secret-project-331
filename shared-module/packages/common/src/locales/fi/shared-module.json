@@ -20,6 +20,7 @@
   "closed": "Suljettu",
   "comboBox.toggleOptions": "Näytä vaihtoehdot",
   "copy-button.copied": "Kopioitu",
+  "copy-button.failed": "Kopiointi epäonnistui",
   "could-not-find-requested-resource": "Pyydettyä resurssia ei löydetty",
   "courses": "Kurssit",
   "create-new-account": "Luo uusi käyttäjätunnus",

@@ -13,6 +13,3 @@ export const TONE = {
 
 /** Separator between inline meta values. */
 export const MIDDLE_DOT = " · "
-
-/** Ellipsis for truncated ids. */
-export const ELLIPSIS = "…"

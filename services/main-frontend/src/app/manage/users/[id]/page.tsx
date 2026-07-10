@@ -13,6 +13,7 @@ import CourseEnrollmentsSection from "./components/CourseEnrollmentsSection"
 import ExerciseResetLogSection from "./components/ExerciseResetLogSection"
 import UserIdentityHeader from "./components/UserIdentityHeader"
 import UserStatBar from "./components/UserStatBar"
+import { sectionHeadingCss } from "./lib/sectionHeading"
 
 import { getUserCourseEnrollmentsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
@@ -26,7 +27,7 @@ import { QueryResults } from "@/shared-module/components"
 const COMPLETION_REVIEW_ID = "completion-review"
 
 const Area = styled.div`
-  margin: 2rem 0;
+  margin: 1.25rem 0;
 `
 
 const UserPage: React.FC = () => {
@@ -72,7 +73,7 @@ const UserPage: React.FC = () => {
             <UserStatBar enrollments={enrollments} reviewTargetId={COMPLETION_REVIEW_ID} />
             {enrollments.length > 0 ? (
               <Area>
-                <h2>{t("user-activity")}</h2>
+                <h2 className={sectionHeadingCss}>{t("user-activity")}</h2>
                 <ActivityTimeline enrollments={enrollments} />
               </Area>
             ) : null}
@@ -82,7 +83,7 @@ const UserPage: React.FC = () => {
               id={COMPLETION_REVIEW_ID}
             />
             <Area>
-              <h2>{t("header-course-enrollments")}</h2>
+              <h2 className={sectionHeadingCss}>{t("header-course-enrollments")}</h2>
               <CourseEnrollmentsSection enrollments={enrollments} userId={id} />
             </Area>
             <OnlyRenderIfPermissions

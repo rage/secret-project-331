@@ -2265,6 +2265,19 @@ export type UserCourseSettings = {
   user_id: string
 }
 
+/**
+ * A single submission's time, its exercise, and the module that exercise sits in (via its chapter).
+ * Used to plot a user's submission activity within a course.
+ */
+export type UserCourseSubmissionTime = {
+  /**
+   * Module the exercise's chapter belongs to; `None` for exercises not placed in a chapter.
+   */
+  course_module_id?: string | null
+  created_at: string
+  exercise_id: string
+}
+
 export type UserDetail = {
   country?: string | null
   created_at: string
@@ -8989,6 +9002,32 @@ export type GetUserCourseEnrollmentsResponses = {
 
 export type GetUserCourseEnrollmentsResponse =
   GetUserCourseEnrollmentsResponses[keyof GetUserCourseEnrollmentsResponses]
+
+export type GetUserCourseSubmissionTimesData = {
+  body?: never
+  path: {
+    /**
+     * User id
+     */
+    user_id: string
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/{user_id}/courses/{course_id}/submission-times"
+}
+
+export type GetUserCourseSubmissionTimesResponses = {
+  /**
+   * User course submission times
+   */
+  200: Array<UserCourseSubmissionTime>
+}
+
+export type GetUserCourseSubmissionTimesResponse =
+  GetUserCourseSubmissionTimesResponses[keyof GetUserCourseSubmissionTimesResponses]
 
 export type GetUserRolesData = {
   body?: never

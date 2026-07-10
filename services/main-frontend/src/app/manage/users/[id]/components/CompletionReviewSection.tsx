@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import { MIDDLE_DOT } from "../lib/displayConstants"
 import { ratioPercent, toHours } from "../lib/durations"
+import { sectionHeadingCss } from "../lib/sectionHeading"
 
 import { getUserSuspectedCheatersOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
@@ -99,7 +100,7 @@ const CompletionReviewSection: React.FC<CompletionReviewSectionProps> = ({
         }
         return (
           <section id={id}>
-            <h2>{t("completion-review")}</h2>
+            <h2 className={sectionHeadingCss}>{t("completion-review")}</h2>
             <p className={metaCss}>{t("completion-review-explanation")}</p>
             {records.map((record) => {
               const durationSeconds = record.total_duration_seconds ?? 0

@@ -247,6 +247,7 @@ import {
   getUniqueUsersStartingHistoryCustomTimePeriod,
   getUser,
   getUserCourseEnrollments,
+  getUserCourseSubmissionTimes,
   getUserDetailsByCourseAndUserId,
   getUserDetailsByCourses,
   getUserDetailsForAuthenticatedUser,
@@ -749,6 +750,8 @@ import type {
   GetUniqueUsersStartingHistoryResponse,
   GetUserCourseEnrollmentsData,
   GetUserCourseEnrollmentsResponse,
+  GetUserCourseSubmissionTimesData,
+  GetUserCourseSubmissionTimesResponse,
   GetUserData,
   GetUserDetailsByCourseAndUserIdData,
   GetUserDetailsByCourseAndUserIdResponse,
@@ -9301,6 +9304,34 @@ export const getUserCourseEnrollmentsOptions = (options: Options<GetUserCourseEn
         throwOnError: true,
       }),
     queryKey: getUserCourseEnrollmentsQueryKey(options),
+  })
+
+export const getUserCourseSubmissionTimesQueryKey = (
+  options: Options<GetUserCourseSubmissionTimesData>,
+) => createQueryKey("getUserCourseSubmissionTimes", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise
+ * submission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.
+ */
+export const getUserCourseSubmissionTimesOptions = (
+  options: Options<GetUserCourseSubmissionTimesData>,
+) =>
+  queryOptions<
+    GetUserCourseSubmissionTimesResponse,
+    DefaultError,
+    GetUserCourseSubmissionTimesResponse,
+    ReturnType<typeof getUserCourseSubmissionTimesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getUserCourseSubmissionTimes({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getUserCourseSubmissionTimesQueryKey(options),
   })
 
 export const getUserRolesQueryKey = (options: Options<GetUserRolesData>) =>

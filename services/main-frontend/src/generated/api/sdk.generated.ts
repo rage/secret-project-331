@@ -482,6 +482,8 @@ import type {
   GetUniqueUsersStartingHistoryResponses,
   GetUserCourseEnrollmentsData,
   GetUserCourseEnrollmentsResponses,
+  GetUserCourseSubmissionTimesData,
+  GetUserCourseSubmissionTimesResponses,
   GetUserData,
   GetUserDetailsByCourseAndUserIdData,
   GetUserDetailsByCourseAndUserIdResponses,
@@ -822,6 +824,7 @@ import {
   zGetUniqueUsersStartingHistoryCustomTimePeriodResponse,
   zGetUniqueUsersStartingHistoryResponse,
   zGetUserCourseEnrollmentsResponse,
+  zGetUserCourseSubmissionTimesResponse,
   zGetUserDetailsByCourseAndUserIdResponse,
   zGetUserDetailsByCoursesResponse,
   zGetUserDetailsForAuthenticatedUserResponse,
@@ -6770,6 +6773,26 @@ export const getUserCourseEnrollments = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetUserCourseEnrollmentsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/{user_id}/course-enrollments",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise
+ * submission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.
+ */
+export const getUserCourseSubmissionTimes = <ThrowOnError extends boolean = true>(
+  options: Options<GetUserCourseSubmissionTimesData, ThrowOnError>,
+): RequestResult<GetUserCourseSubmissionTimesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetUserCourseSubmissionTimesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetUserCourseSubmissionTimesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/{user_id}/courses/{course_id}/submission-times",
     ...options,
   })
 

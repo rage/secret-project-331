@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ess.created_at,\n  ess.exercise_id,\n  c.course_module_id AS \"course_module_id?\"\nFROM exercise_slide_submissions ess\n  JOIN exercises e ON e.id = ess.exercise_id\n  LEFT JOIN chapters c ON c.id = e.chapter_id\nWHERE ess.user_id = $1\n  AND ess.course_id = $2\n  AND ess.deleted_at IS NULL\nORDER BY ess.created_at\nLIMIT 5000\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_module_id?",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "course_module_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "212ebdffa3cd8ad997601a805fa058cfcea140efcc47d0c88178d19f604e49c0"
+}

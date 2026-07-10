@@ -13,6 +13,7 @@ import CourseInstanceProgressSection from "@/app/manage/course-instances/[id]/po
 import CourseInstanceUserInfoBox from "@/app/manage/course-instances/[id]/points/user_id/CourseInstanceUserInfoBox"
 import CourseModuleCompletionsSection from "@/app/manage/course-instances/[id]/points/user_id/CourseModuleCompletionsSection"
 import ExerciseListSection from "@/app/manage/course-instances/[id]/points/user_id/ExerciseListSection"
+import CourseActivityTimeline from "@/components/CourseActivityTimeline"
 import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
 import {
   getCourseStudentChapterLockingStatusesOptions,
@@ -104,6 +105,14 @@ const CourseExerciseStatusList: React.FC = () => {
               {t("course-status-summary")}
             </h1>
             <CourseInstanceUserInfoBox courseId={id} userId={user_id} />
+            <h2
+              className={css`
+                margin: 1.5rem 0 0.75rem;
+              `}
+            >
+              {t("user-activity")}
+            </h2>
+            <CourseActivityTimeline courseId={id} userId={user_id} />
             <AnswersInManualReviewSection exerciseStatusSummaries={exerciseStatusSummaries} />
             <CourseModuleCompletionsSection userId={user_id} courseId={id} />
             <CourseInstanceProgressSection userId={user_id} courseId={id} />

@@ -22,8 +22,8 @@ type RowObject = Record<string, unknown> & { student: string }
 const moduleKey = (name: string | null, t: TFunction) =>
   (name && name.trim().length > 0 ? name : t("default-module"))
     .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/[^a-z0-9_]/g, "_")
+    .replaceAll(/\s+/g, "_")
+    .replaceAll(/[^a-z0-9_]/g, "_")
 
 const pivotCompletions = (rows: CompletionGridRow[], t: TFunction) => {
   const modulesInOrder: string[] = []
@@ -40,7 +40,7 @@ const pivotCompletions = (rows: CompletionGridRow[], t: TFunction) => {
     const key = r.student
     const modLabel = r.module ?? t("default-module")
     const mKey = moduleKey(modLabel, t)
-    const existing = byStudent.get(key) ?? { student: key }
+    const existing: RowObject = byStudent.get(key) ?? { student: key }
     // eslint-disable-next-line i18next/no-literal-string
     existing[`${mKey}__grade`] = r.grade ?? "-"
     // eslint-disable-next-line i18next/no-literal-string

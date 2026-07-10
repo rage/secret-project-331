@@ -177,7 +177,6 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             <RadioButton
               value="accept"
               label={t("button-text-accept")}
-              // eslint-disable-next-line i18next/no-literal-string
               name="accept-or-reject-proposal"
               onChange={() => {
                 setEditingBlocks((eb) => {
@@ -198,7 +197,6 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             <RadioButton
               value="edit"
               label={t("edit-and-accept")}
-              // eslint-disable-next-line i18next/no-literal-string
               name="accept-or-reject-proposal"
               onChange={() => {
                 setEditingBlocks((eb) => {
@@ -218,7 +216,6 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
           <RadioButton
             value="reject"
             label={t("button-text-reject")}
-            // eslint-disable-next-line i18next/no-literal-string
             name="accept-or-reject-proposal"
             onChange={() => {
               setEditingBlocks((eb) => {

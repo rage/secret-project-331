@@ -104,9 +104,9 @@ const StatusDeployments: React.FC = () => {
                             className={css`
                               height: 100%;
                               width: ${readinessPercent}%;
-                              background-color: ${isHealthy
-                                ? baseTheme.colors.green[600]
-                                : baseTheme.colors.red[600]};
+                              background-color: ${
+                                isHealthy ? baseTheme.colors.green[600] : baseTheme.colors.red[600]
+                              };
                               transition: width 0.3s ease;
                             `}
                           />

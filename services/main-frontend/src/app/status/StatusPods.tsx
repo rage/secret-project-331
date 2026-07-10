@@ -79,7 +79,7 @@ const StatusPods: React.FC = () => {
                       className={css`
                         ${isFailed ? `background-color: ${baseTheme.colors.red[100]};` : ""}
                         ${isPending ? `background-color: ${baseTheme.colors.yellow[100]};` : ""}
-                    ${isSucceeded ? `background-color: ${baseTheme.colors.clear[200]};` : ""}
+                        ${isSucceeded ? `background-color: ${baseTheme.colors.clear[200]};` : ""}
                       `}
                     >
                       <td>{pod.name}</td>

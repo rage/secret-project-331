@@ -8,17 +8,17 @@ minimumReleaseAge: 10080
 minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
 
-nodeVersion: 24.16.0
+nodeVersion: 24.18.0
 
 overrides:
-  brace-expansion@<1.1.13: '>=1.1.13 <2'
-  brace-expansion@>=2.0.0 <2.0.3: '>=2.0.3 <3'
-  lodash@>=4.0.0 <=4.17.22: '>=4.17.23'
-  minimatch@<3.1.3: '>=3.1.4 <4'
-  minimatch@<3.1.4: '>=3.1.4 <4'
-  minimatch@>=9.0.0 <9.0.6: '>=9.0.7 <10'
-  minimatch@>=9.0.0 <9.0.7: '>=9.0.7 <10'
-  picomatch@<2.3.2: '>=2.3.2'
+  brace-expansion@<1.1.13: ">=1.1.13 <2"
+  brace-expansion@>=2.0.0 <2.0.3: ">=2.0.3 <3"
+  lodash@>=4.0.0 <=4.17.22: ">=4.17.23"
+  minimatch@<3.1.3: ">=3.1.4 <4"
+  minimatch@<3.1.4: ">=3.1.4 <4"
+  minimatch@>=9.0.0 <9.0.6: ">=9.0.7 <10"
+  minimatch@>=9.0.0 <9.0.7: ">=9.0.7 <10"
+  picomatch@<2.3.2: ">=2.3.2"
 
 preferFrozenLockfile: true
 
@@ -46,3 +46,10 @@ confirmModulesPurge: false
 updateNotifier: false
 
 verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  # TypeScript 7.0 GA + the v6 API compat package, published at GA and newer than the 7-day gate.
+  # typescript@7 lists all 20 platform binary packages as deps, so exempt them all.
+  - "typescript@7.0.2"
+  - "@typescript/typescript-*"
+  - "@typescript/typescript6@6.0.2"

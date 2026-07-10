@@ -220,8 +220,11 @@ pub async fn signup(
             Ok(user) => user,
             Err(error) => match error.error_type() {
                 ModelErrorType::DatabaseConstraint { constraint, .. }
-                    if constraint == "users_email" =>
+                    if constraint == "users_email"
+                        || constraint == "users_upstream_id_active_uniq_idx" =>
                 {
+                    // Either the email or the upstream_id already belongs to an existing account,
+                    // so the caller already has a courses.mooc.fi user.
                     let token = skip_authorize();
                     return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
                 }

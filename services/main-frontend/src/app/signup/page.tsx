@@ -352,7 +352,6 @@ const CreateAccountForm: React.FC = () => {
           />
 
           <Controller
-            // eslint-disable-next-line i18next/no-literal-string
             name="country"
             control={control}
             rules={{ required: t("required-field") }}

@@ -160,8 +160,10 @@ pub struct IncompleteReason {
 /// Streamed token of the response text
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ResponseOutput {
+    // Optional so a streamed `data:` line that omits `type` still deserializes and is ignored,
+    // rather than aborting the whole chat stream.
     #[serde(rename = "type")]
-    pub response_type: String,
+    pub response_type: Option<String>,
     pub delta: Option<String>,
     pub item: Option<OutputItem>,
     pub response: Option<Response>,
@@ -625,7 +627,22 @@ where
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let this = self.project();
-        this.stream.poll_next(cx)
+        let polled = this.stream.poll_next(cx);
+        // Log stream errors here in the clean format; actix's dispatcher otherwise only
+        // surfaces them as a terse Display line once the error is in the response body.
+        if let Poll::Ready(Some(Err(error))) = &polled {
+            log_stream_error(error);
+        }
+        polled
+    }
+}
+
+/// Log a chatbot stream error in the clean format, using the wrapped [`ChatbotError`]'s
+/// `Debug` when present, else the anyhow chain.
+fn log_stream_error(error: &anyhow::Error) {
+    match error.downcast_ref::<ChatbotError>() {
+        Some(chatbot_error) => error!("Chatbot response stream error:\n{chatbot_error:?}"),
+        None => error!("Chatbot response stream error: {error:?}"),
     }
 }
 
@@ -908,7 +925,7 @@ async fn parse_tool<'a>(
                     "Error: unexpected message item !!!".to_string()
                 ))?,
                 _ => {
-                    let finished = response_output.response_type.as_str() == "response.output_item.done";
+                    let finished = response_output.response_type.as_deref() == Some("response.output_item.done");
                     yield StreamEvent::Item(StreamItem { item: item.to_owned(), finished});
 
                     // add this output item to the messages to be included in the next
@@ -1129,7 +1146,7 @@ async fn parse_text_response<'a>(
                     OutputItem::Message { .. } => continue,
                     OutputItem::FunctionCall { .. } => Err(chatbot_err!(StreamingError, "Error: unexpected function call after / during a text response.".to_string()))?,
                     _ => {
-                        let finished = &response_output.response_type == "response.output_item.done";
+                        let finished = response_output.response_type.as_deref() == Some("response.output_item.done");
                         yield StreamEvent::Item(StreamItem { item: item.to_owned(), finished });
                         continue;
                     },
@@ -1261,8 +1278,8 @@ pub async fn send_chat_request_and_parse_stream(
                     Ok(StreamEvent::Item(item)) => {
                         if item.finished {
                             // save it to db and put it in the LLM Request input
-                            // in case another request will be made
-                            let mut conn = pool.acquire().await?;
+                            // in case another request will be made. Reuse the iteration's `conn`
+                            // (still free here) instead of acquiring a second pool connection.
                             let message = process_output_item(&mut conn, item.item.to_owned(), conversation_id, &app_config).await?;
                             let input_message = APIInputMessage::try_from(message)?;
                             chat_request.input.push(input_message);

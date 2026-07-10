@@ -1,5 +1,3 @@
-"use client"
-
 import { css } from "@emotion/css"
 
 import { baseTheme } from "@/styles/theme"

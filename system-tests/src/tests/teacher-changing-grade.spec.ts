@@ -55,7 +55,9 @@ test.describe("test teacher changing grade behavior", () => {
         .filter({ has: teacherPage.getByRole("heading", { name: "Default", exact: true }) })
         .getByRole("link", { name: "View points" })
         .click()
-      await teacherPage.getByRole("link", { name: "02364d40-2aac-4763-8a06-2381fd298d79	" }).click()
+      await teacherPage
+        .getByRole("link", { name: "02364d40-2aac-4763-8a06-2381fd298d79	" })
+        .click()
 
       const exerciseDetailsComponent = teacherPage
         .getByTestId("exercise-status")

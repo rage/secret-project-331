@@ -79,7 +79,6 @@ export default function SetupStep({
         <div className={fieldStyles}>
           <Select
             id="course-size"
-            // eslint-disable-next-line i18next/no-literal-string
             name="courseSize"
             control={control}
             label={t("course-plans-course-size-label")}
@@ -90,7 +89,6 @@ export default function SetupStep({
         <div className={fieldStyles}>
           <YearMonthField
             id="starts-on-month"
-            // eslint-disable-next-line i18next/no-literal-string
             name="startsOnMonth"
             control={control}
             label={t("course-plans-wizard-starts-on-month-label")}

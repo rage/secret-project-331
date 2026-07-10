@@ -2,44 +2,55 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+# Default to a reproducible install. Pass args (e.g. --no-frozen-lockfile) to
+# override -- update-dependencies-part-1 uses that to sync lockfiles after a
+# manifest bump. Callers with no args keep the strict frozen install.
+INSTALL_ARGS=("--frozen-lockfile")
+if [ "$#" -gt 0 ]; then
+  INSTALL_ARGS=("$@")
+fi
+
 echo "Installing dependencies for cms..."
-run_command bash -c 'cd services/cms/ && pnpm install --frozen-lockfile'
+run_command bash -c "cd services/cms/ && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for main-frontend..."
-run_command bash -c 'cd services/main-frontend && pnpm install --frozen-lockfile'
+run_command bash -c "cd services/main-frontend && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for example-exercise..."
-run_command bash -c 'cd services/example-exercise && pnpm install --frozen-lockfile'
+run_command bash -c "cd services/example-exercise && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for shared-module..."
-run_command bash -c 'cd shared-module && pnpm install --frozen-lockfile'
+run_command bash -c "cd shared-module && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for quizzes..."
-run_command bash -c 'cd services/quizzes/ && pnpm install --frozen-lockfile'
+run_command bash -c "cd services/quizzes/ && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for tmc..."
-run_command bash -c 'cd services/tmc/ && pnpm install --frozen-lockfile'
+run_command bash -c "cd services/tmc/ && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for system-tests..."
-run_command bash -c 'cd system-tests && pnpm install --frozen-lockfile'
+run_command bash -c "cd system-tests && pnpm install ${INSTALL_ARGS[*]}"
+
+echo "Installing dependencies for storybook..."
+run_command bash -c "cd storybook && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for shared-module-common..."
-run_command bash -c 'cd shared-module/packages/common && pnpm install --frozen-lockfile'
+run_command bash -c "cd shared-module/packages/common && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for shared-module-components..."
-run_command bash -c 'cd shared-module/packages/components && pnpm install --frozen-lockfile'
+run_command bash -c "cd shared-module/packages/components && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for shared-module-exercise-protocol..."
-run_command bash -c 'cd shared-module/packages/exercise-protocol && pnpm install --frozen-lockfile'
+run_command bash -c "cd shared-module/packages/exercise-protocol && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for shared-module-exercise-client..."
-run_command bash -c 'cd shared-module/packages/exercise-client && pnpm install --frozen-lockfile'
+run_command bash -c "cd shared-module/packages/exercise-client && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for shared-module-exercise-react..."
-run_command bash -c 'cd shared-module/packages/exercise-react && pnpm install --frozen-lockfile'
+run_command bash -c "cd shared-module/packages/exercise-react && pnpm install ${INSTALL_ARGS[*]}"
 
 echo "Installing dependencies for shared-module-create-exercise-service..."
-run_command bash -c 'cd shared-module/packages/create-exercise-service && pnpm install --frozen-lockfile'
+run_command bash -c "cd shared-module/packages/create-exercise-service && pnpm install ${INSTALL_ARGS[*]}"
 
 
 echo "finished"

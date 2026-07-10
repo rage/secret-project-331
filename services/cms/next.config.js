@@ -8,6 +8,11 @@ const normalResponseHeaders = generateNormalResponseHeaders()
  * @type {import('next').NextConfig}
  */
 const config = {
+  // Type errors are gated by the separate fast tsc check (bin/tsc-check-all + the CI
+  // "Typecheck" step), so skip Next's slower in-build type-check.
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   output: "standalone",
   outputFileTracingRoot: __dirname,
   async headers() {

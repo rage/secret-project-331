@@ -20,17 +20,17 @@ tokio-stream.workspace = true
 # An implementation of future and streams featuring zero allocations, composability, and itera…
 futures = "0.3.32"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.23.2", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.23.4", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
 # Date and time library for Rust
-chrono = { version = "0.4.44", features = ["serde"] }
+chrono = { version = "0.4.45", features = ["serde"] }
 # A JSON serialization file format
 serde_json = "1.0.150"
 # Rust client library for Google Cloud Storage.
-google-cloud-storage = "1.12.0"
+google-cloud-storage = "1.15.0"
 # Authentication and signing helpers for Google Cloud Rust client libraries.
-google-cloud-auth = "1.10.0"
+google-cloud-auth = "1.13.0"
 # A library for managing temporary files and directories.
 tempfile = "3.27.0"
 # Type erasure for async trait methods
@@ -38,9 +38,9 @@ async-trait = "0.1.89"
 # Asynchronous streams using async & await notation
 async-stream = "0.3.6"
 # Types and traits for working with bytes
-bytes = "1.11.1"
+bytes = "1.12.0"
 # Random number generators and other randomness functionality.
-rand = "0.10.1"
+rand = "0.10.2"
 # the BLAKE3 hash function
 blake3 = "1.8.5"
 # Recursively walk a directory.
@@ -61,7 +61,7 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f
   "uuid-impl",
 ], optional = true }
 # An implementation of regular expressions for Rust.
-regex = "1.12.3"
+regex = "1.12.4"
 # Single assignment cells and lazy values.
 once_cell = "1.21.4"
 # An LCS based slice and string diffing implementation.
@@ -73,24 +73,13 @@ percent-encoding = "2.3.2"
 # Provides types and useful methods for working with IPv4 and IPv6 network addresses.
 ipnet = "2.12.0"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.102"
+anyhow = "1.0.103"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
 flate2 = "1.1.9"
 # higher level HTTP client library
-reqwest = { version = "0.13.4", features = [
-  "brotli",
-  "gzip",
-  "json",
-  "http2",
-  "rustls",
-  "stream",
-] }
+reqwest = { version = "0.13.4", features = ["brotli", "gzip", "json", "http2", "rustls", "stream"] }
 # Redis driver for Rust.
-redis = { version = "1.2.2", features = [
-  "aio",
-  "tokio-comp",
-  "connection-manager",
-] }
+redis = { version = "1.3.0", features = ["aio", "tokio-comp", "connection-manager"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory
 secrecy.workspace = true
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.

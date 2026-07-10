@@ -28,7 +28,8 @@ import "@fontsource-variable/inter/wght.css"
 const globalCss = css`
   ${cssReset}
 
-  html, body {
+  html,
+  body {
     font-family: ${primaryFont};
     font-weight: 400;
     font-size: ${defaultFontSizePx}px;

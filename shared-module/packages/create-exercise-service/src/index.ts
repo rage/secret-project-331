@@ -1,5 +1,5 @@
 import { cp, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises"
-import { dirname, join, relative, resolve, sep } from "node:path"
+import { dirname, extname, join, relative, resolve, sep } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
@@ -12,29 +12,28 @@ const SHARED_PACKAGES_DIR = join(REPO_ROOT, "shared-module", "packages")
 const TEMPLATE_SERVICE_NAME = "example-exercise"
 
 /**
- * Shared-module packages vendored into the generated project's `src/shared-module/`. The layout
- * mirrors `shared-module/sync.ts` so the template's `@/shared-module/<pkg>/...` imports resolve.
- * The exercise-service code is a self-contained layered set — `exercise-protocol` (zero-dep
- * contract) ← `exercise-client` (framework-agnostic engines, dep: immer) ← `exercise-react` (React
- * adapter + host) — and the template imports nothing from `common`/`components`, so only these
- * three are vendored. (A future non-React template would vendor only protocol + client.)
+ * Shared-module packages vendored into the generated project's `src/shared-module/`, mirroring
+ * `shared-module/sync.ts` so the template's `@/shared-module/<pkg>/...` imports resolve. The
+ * exercise-service code is a layered set — exercise-protocol ← exercise-client ← exercise-react
+ * (the iframe child's React adapter) — and the template imports nothing from common/components or
+ * the host-side exercise-iframe-host, so only these three are vendored.
  */
 const VENDORED_PACKAGES = ["exercise-protocol", "exercise-client", "exercise-react"]
 
 /** Top-level entries in the template that must never be copied into a generated project. */
 const COPY_EXCLUDES = new Set([
   "node_modules",
-  ".next",
-  "out",
+  "dist",
   "build",
   "coverage",
   ".turbo",
+  ".tanstack",
   "pnpm-lock.yaml",
   "pnpm-workspace.yaml",
   "tsconfig.tsbuildinfo",
   ".vscode",
-  // moocfi-internal deployment files (reference private GCR base images + pnpm workspace); useless
-  // and broken in a standalone project, so they are not generated.
+  // moocfi-internal deployment files (private GCR base images + pnpm workspace); broken in a
+  // standalone project, so not generated.
   "Dockerfile",
   "Dockerfile.production.slim.dockerfile",
   ".dockerignore",
@@ -51,13 +50,11 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 `
 
-// pnpm does not run dependencies' build scripts unless they are allow-listed. The generated
-// Next.js project needs esbuild and sharp built; without this, `pnpm install` warns and exits
-// non-zero. The monorepo configures this in its own pnpm-workspace.yaml (excluded from the copy),
-// so we write a minimal standalone one. npm and yarn ignore this file.
+// pnpm skips a dep's build script unless allow-listed. esbuild (via vitest) is the only
+// build-scripted dep in the standalone tree, and the monorepo's pnpm-workspace.yaml isn't copied,
+// so write a minimal one.
 const STANDALONE_PNPM_WORKSPACE = `allowBuilds:
   esbuild: true
-  sharp: true
 `
 
 interface PackageJson {
@@ -93,8 +90,8 @@ async function replaceInFile(path: string, replacements: Array<[string, string]>
 }
 
 /**
- * Copy the template directory tree, skipping excluded top-level entries, the synced shared-module
- * directory (re-vendored fresh), and any symlinks (e.g. the monorepo `.vscode` link).
+ * Copy the template tree, skipping COPY_EXCLUDES entries and the synced shared-module (re-vendored
+ * fresh).
  */
 async function copyTemplate(src: string, dest: string): Promise<void> {
   const sharedModuleDir = join(src, "src", "shared-module")
@@ -130,9 +127,8 @@ async function vendorSharedModules(projectPath: string): Promise<void> {
 }
 
 /**
- * Build the generated package.json. The vendored shared code pulls in dependencies the lean
- * template does not declare itself, so we merge the shared packages' dependency sets in. The
- * template's own pins win on conflict (they are the proven, lean versions).
+ * Build the generated package.json. The vendored shared code needs deps the lean template doesn't
+ * declare, so merge in the shared packages' dep sets; the template's own pins win on conflict.
  */
 async function buildPackageJson(
   projectPath: string,
@@ -154,13 +150,12 @@ async function buildPackageJson(
   pkg.dependencies = Object.fromEntries(
     Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)),
   )
-  // The template pins an exact node version for the monorepo's controlled environment; a generated
-  // standalone project should not carry that constraint.
+  // The template pins an exact node version for the monorepo; a standalone project shouldn't carry
+  // it.
   delete pkg.devEngines
 
-  // Stylelint + its postcss-styled syntax exist only for the monorepo's root CSS lint job. A
-  // generated standalone project ships no stylelint config and no lint:css script, so these are
-  // dead weight there — drop them to keep the scaffolded project minimal.
+  // Stylelint + postcss-styled-syntax exist only for the monorepo's root CSS lint job; a standalone
+  // project has no stylelint config or lint:css script, so drop them.
   for (const lintOnlyDevDep of [
     "stylelint",
     "stylelint-config-recommended",
@@ -189,23 +184,60 @@ async function renameLocales(projectPath: string, projectName: string): Promise<
   }
 }
 
+/** Binary file extensions that must not be read/written as UTF-8 during name replacement. */
+const BINARY_EXTENSIONS = new Set([
+  ".woff",
+  ".woff2",
+  ".ttf",
+  ".otf",
+  ".eot",
+  ".ico",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".gif",
+  ".avif",
+  ".pdf",
+])
+
+/**
+ * Apply literal replacements to every text file in the generated project, skipping the vendored
+ * shared-module, VCS/build/dependency dirs and binary assets. A whole-tree sweep (not a fixed file
+ * list) keeps the generator correct as the template evolves.
+ */
+async function replaceNameInAllFiles(
+  root: string,
+  replacements: Array<[string, string]>,
+  dir: string = root,
+): Promise<void> {
+  const sharedModuleDir = join(root, "src", "shared-module")
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      if (
+        ["node_modules", ".git", "dist", ".turbo"].includes(entry.name) ||
+        full === sharedModuleDir
+      ) {
+        continue
+      }
+      await replaceNameInAllFiles(root, replacements, full)
+    } else if (entry.isFile() && !BINARY_EXTENSIONS.has(extname(entry.name).toLowerCase())) {
+      await replaceInFile(full, replacements)
+    }
+  }
+}
+
 /** Replace the service name and other template-specific values throughout the generated project. */
 async function parameterize(projectPath: string, projectName: string): Promise<void> {
-  const nameReplacement: Array<[string, string]> = [[TEMPLATE_SERVICE_NAME, projectName]]
-
-  // SERVICE_NAME constant (drives the i18next namespace; lives only in ClientLayoutWrapper).
-  await replaceInFile(join(projectPath, "src/components/layout/ClientLayoutWrapper.tsx"), [
-    [`const SERVICE_NAME = "${TEMPLATE_SERVICE_NAME}"`, `const SERVICE_NAME = "${projectName}"`],
-  ])
-
-  // i18next type augmentation: import path, defaultNS and the resources key all use the namespace.
-  await replaceInFile(join(projectPath, "types/i18next.d.ts"), nameReplacement)
-
-  // Human-readable display name reported by the service-info endpoint (e.g. "my-exercise" -> "My
-  // exercise"). Derived from the project name; the author can refine it afterwards.
+  // Display name (e.g. "my-exercise" -> "My exercise") for service_name and the document <title>.
   const displayName = projectName.replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
-  await replaceInFile(join(projectPath, "src/app/api/service-info/route.ts"), [
-    [`service_name: "Example exercise"`, `service_name: "${displayName}"`],
+
+  // Display literal first, then the slug: they don't overlap ("Example exercise" vs
+  // "example-exercise"), so one pass covers every occurrence.
+  await replaceNameInAllFiles(projectPath, [
+    ["Example exercise", displayName],
+    [TEMPLATE_SERVICE_NAME, projectName],
   ])
 
   await renameLocales(projectPath, projectName)
@@ -224,14 +256,6 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
     .replace(/^# Shared module that has been copied to this project\n/m, "")
     .replace(/^shared-module\n?/m, "")
   await writeFile(gitignorePath, gitignore)
-
-  // Drop the monorepo-relative typeRoot; keep the local one + node_modules.
-  await replaceInFile(join(projectPath, "tsconfig.json"), [
-    [
-      `"typeRoots": ["types", "./shared-module/types", "./node_modules/@types"]`,
-      `"typeRoots": ["types", "./node_modules/@types"]`,
-    ],
-  ])
 }
 
 export interface ScaffoldOptions {
@@ -283,7 +307,7 @@ async function main() {
         name: "React",
         value: "react",
         description:
-          "An exercise service built with React using the Next.js framework and using Typescript..",
+          "An exercise service built with React using TanStack Start (rsbuild bundler), rendered entirely client-side, using TypeScript.",
       },
       {
         name: "Svelte",

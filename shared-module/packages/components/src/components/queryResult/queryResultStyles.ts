@@ -180,6 +180,14 @@ export const animatedContentRefreshingCss = css`
   transform: scale(var(--query-refresh-content-scale));
 `
 
+/**
+ * Blocks clicks while the refresh blur is animating in, held, or animating out. Playwright's
+ * actionability checks make `.click()` wait for this to clear.
+ */
+export const animatedContentNonInteractiveCss = css`
+  pointer-events: none;
+`
+
 export const errorTextCss = css`
   margin: 0 0 var(--space-3);
 `

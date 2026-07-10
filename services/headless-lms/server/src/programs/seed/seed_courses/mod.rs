@@ -451,6 +451,7 @@ pub async fn seed_sample_course(
 
                 paragraph("In recent years, digital adaptations of the abacus have also emerged, blending traditional methods with modern interfaces. These tools not only preserve the historical legacy of the abacus but also make it more accessible to new generations of learners. Whether used physically or virtually, the abacus continues to bridge the gap between tactile learning and abstract thinking.", block_id_9),
             ],
+            hidden: false,
         },
 
     )
@@ -547,6 +548,7 @@ pub async fn seed_sample_course(
                 exercise_block_3,
                 exercise_block_4,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1021,6 +1023,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_1,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1044,6 +1047,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_2,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1067,6 +1071,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_3,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1090,6 +1095,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_4,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1113,6 +1119,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_5,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1136,6 +1143,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_7,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1159,6 +1167,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_6,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1182,6 +1191,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_8,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1289,6 +1299,7 @@ pub async fn seed_sample_course(
                 ),
                 multi_exercise_block_1,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1329,6 +1340,7 @@ pub async fn seed_sample_course(
             exercise_slides: vec![exercise_slide_5],
             exercise_tasks: vec![exercise_task_5],
             content: vec![exercise_block_5],
+            hidden: false,
         },
     )
     .await?;
@@ -1599,6 +1611,7 @@ pub async fn seed_sample_course(
                 ),
                 multi_exercise_block_2,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1674,7 +1687,8 @@ pub async fn seed_sample_course(
                         },
                     ],
                 }]
-            }]
+            }],
+            hidden: false,
         },
 
     )
@@ -1699,6 +1713,7 @@ pub async fn seed_sample_course(
                 attributes: attributes! {},
                 inner_blocks: vec![],
             }],
+            hidden: false,
         },
     )
     .await?;
@@ -2351,6 +2366,7 @@ pub async fn seed_cs_course_material(
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
+                hidden: false,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -2414,6 +2430,7 @@ pub async fn seed_cs_course_material(
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
+                hidden: false,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -2479,6 +2496,7 @@ pub async fn seed_cs_course_material(
             )
             .with_id(Uuid::parse_str("0d47c02a-194e-42a4-927e-fb29a4fda39c")?),
         ],
+        hidden: false,
     };
     create_page(
         &mut conn,
@@ -2525,6 +2543,7 @@ pub async fn seed_cs_course_material(
             )
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ],
+        hidden: false,
     };
     create_page(
         &mut conn,
@@ -2580,6 +2599,7 @@ pub async fn seed_cs_course_material(
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
+                hidden: false,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -2625,6 +2645,7 @@ pub async fn seed_cs_course_material(
         exercise_tasks: vec![],
         url_path: "/chapter-2/user-research".to_string(),
         title: "User research".to_string(),
+        hidden: false,
     };
     create_page(
         &mut conn,
@@ -2635,24 +2656,93 @@ pub async fn seed_cs_course_material(
     )
     .await?;
 
-    let page_content = include_str!("../../../assets/example-page.json");
-    let parse_page_content = serde_json::from_str(page_content)?;
-    create_page(
-        &mut conn,
-        course.id,
-        teacher_user_id,
-        Some(chapter_2.id),
-        CmsPageUpdate {
-            content: parse_page_content,
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
-            url_path: "/chapter-2/content-rendering".to_string(),
-            title: "Content rendering".to_string(),
-            chapter_id: Some(chapter_2.id),
-        },
-    )
-    .await?;
+    let content_rendering_pages: [(&str, &str, &str); 13] = [
+        (
+            "/chapter-2/content-rendering-paragraphs",
+            "Content rendering: Paragraphs",
+            include_str!("../../../assets/content-rendering/paragraphs.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-headings",
+            "Content rendering: Headings",
+            include_str!("../../../assets/content-rendering/headings.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-lists",
+            "Content rendering: Lists",
+            include_str!("../../../assets/content-rendering/lists.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-quotes",
+            "Content rendering: Quotes",
+            include_str!("../../../assets/content-rendering/quotes.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-images",
+            "Content rendering: Images",
+            include_str!("../../../assets/content-rendering/images.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-code",
+            "Content rendering: Code and preformatted",
+            include_str!("../../../assets/content-rendering/code.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-pullquotes",
+            "Content rendering: Pullquotes",
+            include_str!("../../../assets/content-rendering/pullquotes.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-callouts",
+            "Content rendering: Info boxes",
+            include_str!("../../../assets/content-rendering/callouts.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-tables",
+            "Content rendering: Tables",
+            include_str!("../../../assets/content-rendering/tables.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-verse",
+            "Content rendering: Verse",
+            include_str!("../../../assets/content-rendering/verse.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-buttons",
+            "Content rendering: Buttons",
+            include_str!("../../../assets/content-rendering/buttons.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-separators",
+            "Content rendering: Separators",
+            include_str!("../../../assets/content-rendering/separators.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-columns",
+            "Content rendering: Columns",
+            include_str!("../../../assets/content-rendering/columns.json"),
+        ),
+    ];
+    for (url_path, title, page_content) in content_rendering_pages {
+        let parsed_page_content = serde_json::from_str(page_content)?;
+        create_page(
+            &mut conn,
+            course.id,
+            teacher_user_id,
+            Some(chapter_2.id),
+            CmsPageUpdate {
+                content: parsed_page_content,
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                url_path: url_path.to_string(),
+                title: title.to_string(),
+                chapter_id: Some(chapter_2.id),
+                hidden: false,
+            },
+        )
+        .await?;
+    }
 
     // Multiple choice
 
@@ -2675,6 +2765,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_5,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2698,6 +2789,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_6,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2722,6 +2814,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_7,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2745,6 +2838,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_8,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2923,6 +3017,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_1],
+            hidden: false,
         },
     )
     .await?;
@@ -2979,6 +3074,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_2],
+            hidden: false,
         },
     )
     .await?;
@@ -3035,6 +3131,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_3],
+            hidden: false,
         },
     )
     .await?;
@@ -3091,6 +3188,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_1],
+            hidden: false,
         },
     )
     .await?;
@@ -3147,6 +3245,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_1],
+            hidden: false,
         },
     )
     .await?;

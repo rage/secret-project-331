@@ -1,5 +1,3 @@
-"use client"
-
 import { OverlayProvider } from "@react-aria/overlays"
 import React, { useEffect } from "react"
 

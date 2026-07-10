@@ -151,7 +151,7 @@ pub struct Response {
 
 /// Error object returned by the LLM API on a failed response. Fields are optional so any
 /// error shape deserializes rather than crashing the stream parser.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ResponseError {
     pub code: Option<String>,
     pub message: Option<String>,
@@ -1339,7 +1339,7 @@ fn error_event_string_from_message(
 }
 
 fn check_error_should_terminate_stream(err: &ChatbotErrorType) -> bool {
-    vec![
+    [
         ChatbotErrorType::SerdeJson,
         ChatbotErrorType::DeserializationError,
         ChatbotErrorType::SqlxError,

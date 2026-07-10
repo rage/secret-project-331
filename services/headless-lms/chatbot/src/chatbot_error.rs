@@ -3,6 +3,7 @@ Contains error and result types for all the chatbot functions.
 */
 
 use std::fmt::Display;
+use std::ops::Deref;
 use std::panic::Location;
 
 use backtrace::Backtrace;
@@ -105,7 +106,7 @@ pub struct ChatbotError {
     backtrace: Box<Backtrace>,
     /// Source location where the error was raised.
     location: Option<&'static Location<'static>>,
-    azure_source: Option<AzureResponseError>,
+    azure_source: Option<Box<AzureResponseError>>,
 }
 
 impl std::error::Error for ChatbotError {
@@ -173,12 +174,12 @@ impl BackendError for ChatbotError {
 }
 
 impl ChatbotError {
-    pub fn azure_source(&self) -> &Option<AzureResponseError> {
-        &self.azure_source
+    pub fn azure_source(&self) -> Option<AzureResponseError> {
+        self.azure_source.as_deref().cloned()
     }
 
-    pub fn add_azure_source(&mut self, err: AzureResponseError) -> () {
-        self.azure_source = Some(err);
+    pub fn add_azure_source(&mut self, err: AzureResponseError) {
+        self.azure_source = Some(Box::new(err));
     }
 }
 

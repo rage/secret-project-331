@@ -21,11 +21,29 @@ export interface UserIdentityHeaderProps {
   userDetailsNotFound: boolean
 }
 
+// The student's TMC (mooc.fi) participant page; the account's upstream_id is the participant id.
+const TMC_PARTICIPANT_URL = "https://tmc.mooc.fi/participants/"
+
 const headerCss = css`
   display: flex;
   align-items: flex-start;
   gap: 1rem;
   margin: 1rem 0 0.5rem;
+`
+
+const tmcLinkCss = css`
+  display: inline-flex;
+  text-decoration: none;
+  border-radius: 999px;
+
+  &:hover {
+    filter: brightness(0.96);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue-400, #60a5fa);
+    outline-offset: 1px;
+  }
 `
 
 const bodyCss = css`
@@ -118,7 +136,14 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
               </Badge>
             ))}
             {tmcId !== null ? (
-              <Badge tone={TONE.NEUTRAL}>{t("tmc-id", { id: tmcId })}</Badge>
+              <a
+                className={tmcLinkCss}
+                href={`${TMC_PARTICIPANT_URL}${tmcId}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Badge tone={TONE.NEUTRAL}>{t("tmc-id", { id: tmcId })}</Badge>
+              </a>
             ) : null}
           </div>
           <DescriptionList items={items} />

@@ -23,7 +23,6 @@ import { computeModuleRows, durationSeconds, formatDuration } from "@/utils/modu
 import {
   colorAt,
   ECHARTS,
-  REVIEW_ACCENT,
   SERIES_COLORS,
   SPLIT_AREA_COLORS,
   TIME_AXIS_LABEL,
@@ -38,21 +37,44 @@ export interface ActivityTimelineProps {
 const LINE_BREAK = "<br />"
 const EMPTY_CELL = "—"
 const STAR = "★"
-const BAR_LABEL_FILL = "#1a2333" // gray.700 — label sits on the faint track, not a solid bar
-const OUTSIDE_LABEL_FILL = "#1a2333" // gray.700
 const DOT_FILL = "#ffffff"
 const DOT_BORDER = "#1a2333" // gray.700
 const MARK_BORDER = "#ffffff"
-const MIN_INSIDE_LABEL_WIDTH = 56
-const OUTSIDE_LABEL_WIDTH = 160
-// Translucent pill behind the in-lane label so it stays legible over a colored violin.
-const LABEL_BG = "rgba(255,255,255,0.82)"
-// Fractions of a lane's pixel band: the faint span track, the violin (full height), the diamond.
-const TRACK_FRACTION = 0.34
-const BAND_FRACTION = 0.82
+// A completion awaiting cheating review is drawn as a red dot (white ring) instead of the default white.
+const REVIEW_DOT_FILL = "#c4281b" // red
+const REVIEW_DOT_BORDER = "#ffffff"
+// Vertical pixels per lane row; the chart height scales with the lane count.
+const LANE_ROW_PX = 90
+// A lane is only reused for a later course once the previous one ended at least this fraction of the
+// timeline span earlier, so back-to-back courses get their own lane instead of crowding one.
+const LANE_GAP_FRACTION = 0.04
+// Layout within a lane band: the violin rises from a baseline this far down the band (0 = top, 1 =
+// bottom), capped at VIOLIN_MAX_FRACTION of the band so it never touches the top; the course name is
+// written below the baseline. TRACK_PX is the thickness of the faint span line at the baseline.
+const BASELINE_FROM_TOP = 0.58
+const VIOLIN_MAX_FRACTION = 0.5
+const TRACK_PX = 5
+const LABEL_GAP = 3
+const LABEL_FILL = "#535a66" // gray.500 — course name under the baseline
+const NO_ACTIVITY_LABEL_WIDTH = 140
+// Completion dots / per-day hit-targets sit at the lane centre; nudge them down onto the baseline.
+const BASELINE_OFFSET_PX = (BASELINE_FROM_TOP - 0.5) * LANE_ROW_PX
 const DIAMOND_FRACTION = 0.55
+// Cap the no-activity diamond's half-diagonal (px) so tall lanes don't blow it up into a huge square.
+const MAX_DIAMOND_HALF = 9
 const VIOLIN_SMOOTH = 0.3
 const DAY_TOOLTIP_SIZE = 12
+const DOT_SIZE = 9
+const CLUSTER_DOT_SIZE = 16
+// Count-badge label style (SCREAMING_CASE so the i18next literal-string lint ignores the enum values).
+const BADGE_LABEL_POSITION = "inside" as const
+const BADGE_LABEL_WEIGHT = "bold" as const
+// Completions closer than this fraction of the timeline span (min 1 h) collapse into one counted
+// marker, since dots that overlap in pixels can only surface one tooltip on their own.
+const COMPLETION_CLUSTER_FRACTION = 0.012
+const MIN_CLUSTER_MS = 60 * 60 * 1000
+// Separator between the stacked completions listed in a merged tooltip.
+const TOOLTIP_DIVIDER = '<div style="border-top:1px solid rgba(0,0,0,0.15);margin:5px 0"></div>'
 
 interface CourseBar {
   courseId: string
@@ -97,13 +119,15 @@ const legendCss = css`
 
 /**
  * Cross-course engagement as a lane-packed timeline. Each course is a lane spanning enrollment → last
- * activity, greedily packed so the lane count equals peak concurrency (non-overlapping courses share a
- * lane). On top of a faint span track, the user's exercise submissions are drawn as a symmetric,
- * module-stacked violin over time: busy days bulge, pauses pinch to a flat centerline, and the height
- * (submissions per exercise, shared scale) is comparable across courses. A course with no submissions or
- * completions shows a single diamond at its enrollment. Module completions are overlaid as dots; courses
- * awaiting review carry an info-blue flag (not an alarm border). The chart carries an aria description and
- * the same data is available in the expandable table below.
+ * activity, greedily packed so overlapping courses always get separate lanes; a lane is only reused for a
+ * later course once there is a clear time gap after the previous one, so back-to-back courses are spread
+ * apart instead of crowding one lane. Above a faint span track the user's exercise submissions are drawn as a one-sided, module-stacked
+ * density that rises from the lane's baseline: busy days bulge upward, pauses flatten to the baseline, and
+ * the height (submissions per exercise, shared scale) is comparable across courses. The course name is
+ * written just below the baseline. A course with no submissions or completions shows a single diamond at
+ * its enrollment. Module completions are overlaid as dots (red when awaiting review); completions that
+ * overlap in time merge into one dot with a count badge. The chart carries an aria description and the same
+ * data is available in the expandable table below.
  */
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   const { t } = useTranslation()
@@ -126,8 +150,13 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     }
   })
 
+  // Total time the chart spans; drives the min lane gap and the completion-cluster threshold.
+  const spanMs =
+    Math.max(...bars.map((b) => b.lastActivityMs)) - Math.min(...bars.map((b) => b.enrolledMs))
+
   const { packed, laneCount } = packLanes(
     bars.map((bar) => ({ start: bar.enrolledMs, end: bar.lastActivityMs, item: bar })),
+    spanMs * LANE_GAP_FRACTION,
   )
   const laneByCourseId = new Map(packed.map((p) => [p.item.courseId, p.lane]))
 
@@ -175,9 +204,16 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
 
   const barData = packed.map((p) => ({ value: [p.lane, p.start, p.end], _tip: barTip(p.item) }))
 
-  const completionData = enrollments.flatMap((enrollment) => {
+  // One completion tooltip per completion, grouped by lane, so nearby ones can be merged below.
+  interface CompletionPoint {
+    ms: number
+    tip: string
+    needsReview: boolean
+  }
+  const completionsByLane = new Map<number, CompletionPoint[]>()
+  for (const enrollment of enrollments) {
     const lane = laneByCourseId.get(enrollment.course_id) ?? 0
-    return enrollment.course_module_completions.map((c) => {
+    for (const c of enrollment.course_module_completions) {
       const when = new Date(c.completion_date)
       const row = rowByModuleId.get(c.course_module_id)
       const tip = [
@@ -192,26 +228,79 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
           t("tooltip-since-enrolled", { duration: formatDuration(row.sinceEnrollSeconds, t) }),
         )
       }
-      return {
-        value: [when.getTime(), lane],
-        _tip: tip.join(LINE_BREAK),
+      if (c.needs_to_be_reviewed) {
+        tip.push(t("awaiting-review"))
       }
-    })
-  })
+      const list = completionsByLane.get(lane) ?? []
+      list.push({
+        ms: when.getTime(),
+        tip: tip.join(LINE_BREAK),
+        needsReview: c.needs_to_be_reviewed,
+      })
+      completionsByLane.set(lane, list)
+    }
+  }
 
-  // Courses awaiting review get an info-blue flag above the bar start — a status marker, not an error.
-  const reviewData = enrollments
-    .filter((enrollment) => enrollment.course_module_completions_needing_review > 0)
-    .map((enrollment) => ({
-      value: [
-        new Date(enrollment.first_enrolled_at).getTime(),
-        laneByCourseId.get(enrollment.course_id) ?? 0,
-      ],
-      _tip: [
-        enrollment.course.name,
-        t("awaiting-review-count", { count: enrollment.course_module_completions_needing_review }),
-      ].join(LINE_BREAK),
-    }))
+  // Merge completions that land within `clusterMs` on the same lane into a single marker: overlapping
+  // dots would otherwise hide each other's tooltip. The merged tooltip lists each completion and, when
+  // more than one is stacked, a count badge on a slightly larger dot flags the overlap.
+  const clusterMs = Math.max(spanMs * COMPLETION_CLUSTER_FRACTION, MIN_CLUSTER_MS)
+  interface CompletionMarker {
+    value: number[]
+    symbolSize: number
+    itemStyle?: { color: string; borderColor: string }
+    label?: {
+      show: boolean
+      formatter: string
+      position: typeof BADGE_LABEL_POSITION
+      fontSize: number
+      fontWeight: typeof BADGE_LABEL_WEIGHT
+      color: string
+    }
+    _tip: string
+  }
+  const completionData: CompletionMarker[] = []
+  for (const [lane, points] of completionsByLane) {
+    const sorted = [...points].sort((a, b) => a.ms - b.ms)
+    let cluster: CompletionPoint[] = []
+    const flush = () => {
+      if (cluster.length === 0) {
+        return
+      }
+      const count = cluster.length
+      // A cluster is drawn red if any completion in it is awaiting review.
+      const needsReview = cluster.some((p) => p.needsReview)
+      const meanMs = Math.round(cluster.reduce((sum, p) => sum + p.ms, 0) / count)
+      const body = cluster.map((p) => p.tip).join(TOOLTIP_DIVIDER)
+      completionData.push({
+        value: [meanMs, lane],
+        symbolSize: count > 1 ? CLUSTER_DOT_SIZE : DOT_SIZE,
+        itemStyle: needsReview
+          ? { color: REVIEW_DOT_FILL, borderColor: REVIEW_DOT_BORDER }
+          : undefined,
+        label:
+          count > 1
+            ? {
+                show: true,
+                formatter: String(count),
+                position: BADGE_LABEL_POSITION,
+                fontSize: 10,
+                fontWeight: BADGE_LABEL_WEIGHT,
+                color: needsReview ? REVIEW_DOT_BORDER : DOT_BORDER,
+              }
+            : undefined,
+        _tip: count > 1 ? `${t("completions-at-point", { n: count })}${LINE_BREAK}${body}` : body,
+      })
+      cluster = []
+    }
+    for (const point of sorted) {
+      if (cluster.length > 0 && point.ms - cluster[cluster.length - 1].ms > clusterMs) {
+        flush()
+      }
+      cluster.push(point)
+    }
+    flush()
+  }
 
   // One (transparent) point per active day per course, purely for a per-day submissions tooltip. The
   // course-level summary stays on the violin body (custom series); these sit under the marker series so
@@ -238,21 +327,6 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     })
   })
 
-  const outsideLabel = (x: number, y: number, text: string) => ({
-    type: "text" as const,
-    style: {
-      text,
-      x,
-      y,
-      fill: OUTSIDE_LABEL_FILL,
-      fontSize: 12,
-      verticalAlign: ECHARTS.VALIGN_MIDDLE,
-      align: ECHARTS.ALIGN_LEFT,
-      width: OUTSIDE_LABEL_WIDTH,
-      overflow: ECHARTS.OVERFLOW_TRUNCATE,
-    },
-  })
-
   const renderItem = (
     params: CustomSeriesRenderItemParams,
     api: CustomSeriesRenderItemAPI,
@@ -271,14 +345,32 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
       height: number
     }
     const bar = packed[params.dataIndex].item
+    const baselineY = cy - laneHeight / 2 + laneHeight * BASELINE_FROM_TOP
+    const maxViolinPx = laneHeight * VIOLIN_MAX_FRACTION
 
-    // No activity yet: a single diamond at the enrollment instant, labelled to its right.
+    // Course name written just below the baseline (the violin rises above it, leaving the underside free).
+    const underLabel = (x: number, width: number) => ({
+      type: "text" as const,
+      style: {
+        text: bar.name,
+        x,
+        y: baselineY + LABEL_GAP,
+        fill: LABEL_FILL,
+        fontSize: 12,
+        verticalAlign: ECHARTS.VALIGN_TOP,
+        align: ECHARTS.ALIGN_LEFT,
+        width,
+        overflow: ECHARTS.OVERFLOW_TRUNCATE,
+      },
+    })
+
+    // No activity yet: a single diamond on the baseline at the enrollment instant, name beneath it.
     if (!bar.hasActivity) {
       const cx = start[0]
       if (cx < coordSys.x || cx > coordSys.x + coordSys.width) {
         return { type: "group", children: [] }
       }
-      const h = (laneHeight * DIAMOND_FRACTION) / 2
+      const h = Math.min((laneHeight * DIAMOND_FRACTION) / 2, MAX_DIAMOND_HALF)
       return {
         type: "group",
         children: [
@@ -286,10 +378,10 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
             type: "polygon",
             shape: {
               points: [
-                [cx, cy - h],
-                [cx + h, cy],
-                [cx, cy + h],
-                [cx - h, cy],
+                [cx, baselineY - h],
+                [cx + h, baselineY],
+                [cx, baselineY + h],
+                [cx - h, baselineY],
               ],
             },
             style: {
@@ -298,74 +390,54 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
               lineWidth: 1,
             },
           },
-          outsideLabel(cx + h + 4, cy, bar.name),
+          underLabel(cx - h, NO_ACTIVITY_LABEL_WIDTH),
         ],
       }
     }
 
-    // Faint span track (enrollment → last activity) behind the density.
-    const trackHeight = laneHeight * TRACK_FRACTION
+    // Faint span track (enrollment → last activity) along the baseline the density rises from.
     const width = Math.max(end[0] - start[0], 3)
     const rect = clipRect(
-      { x: start[0], y: cy - trackHeight / 2, width, height: trackHeight },
+      { x: start[0], y: baselineY - TRACK_PX / 2, width, height: TRACK_PX },
       { x: coordSys.x, y: coordSys.y, width: coordSys.width, height: coordSys.height },
     )
     if (!rect) {
       return { type: "group", children: [] }
     }
 
-    // Symmetric, module-stacked density violin. Layers are drawn outermost-first so lower modules paint
-    // on top; each is mirrored around the lane centerline. A shared scale keeps lanes comparable.
+    // One-sided, module-stacked density rising from the baseline. Layers are drawn outermost-first so
+    // lower modules paint on top; a shared scale keeps lane heights comparable.
     const violins: NonNullable<CustomSeriesRenderItemReturn>[] = []
     const density = densityByCourse.get(bar.courseId)
     if (density && density.layers.length > 0 && globalMaxDensity > 0) {
-      const bandHalf = (laneHeight * BAND_FRACTION) / 2
-      const scale = bandHalf / globalMaxDensity
+      const scale = maxViolinPx / globalMaxDensity
       const xs = density.days.map((d) => api.coord([d, lane])[0])
+      const firstX = xs[0]
+      const lastX = xs[xs.length - 1]
       for (let li = density.layers.length - 1; li >= 0; li--) {
         const { cumulative, colorIndex } = density.layers[li]
-        const upper = xs.map((x, i) => [x, cy - Math.min(cumulative[i] * scale, bandHalf)])
-        const lower = xs
-          .map((x, i) => [x, cy + Math.min(cumulative[i] * scale, bandHalf)])
-          .reverse()
+        const top = xs.map((x, i) => [x, baselineY - Math.min(cumulative[i] * scale, maxViolinPx)])
         violins.push({
           type: "polygon",
-          shape: { points: [...upper, ...lower], smooth: VIOLIN_SMOOTH },
+          shape: {
+            points: [...top, [lastX, baselineY], [firstX, baselineY]],
+            smooth: VIOLIN_SMOOTH,
+          },
           style: { fill: colorAt(SERIES_COLORS, colorIndex) },
         } as unknown as NonNullable<CustomSeriesRenderItemReturn>)
       }
     }
 
-    const label =
-      rect.width >= MIN_INSIDE_LABEL_WIDTH
-        ? {
-            type: "text" as const,
-            style: {
-              text: bar.name,
-              x: rect.x + 6,
-              y: cy,
-              fill: BAR_LABEL_FILL,
-              fontSize: 12,
-              verticalAlign: ECHARTS.VALIGN_MIDDLE,
-              align: ECHARTS.ALIGN_LEFT,
-              width: rect.width - 12,
-              overflow: ECHARTS.OVERFLOW_TRUNCATE,
-              backgroundColor: LABEL_BG,
-              padding: [1, 3],
-              borderRadius: 2,
-            },
-          }
-        : outsideLabel(rect.x + rect.width + 4, cy, bar.name)
     return {
       type: "group",
       children: [
         {
           type: "rect",
-          shape: { x: rect.x, y: rect.y, width: rect.width, height: rect.height, r: 3 },
+          shape: { x: rect.x, y: rect.y, width: rect.width, height: rect.height, r: TRACK_PX / 2 },
           style: { fill: TRACK_FILL },
         },
         ...violins,
-        label,
+        underLabel(rect.x + 2, Math.max(rect.width - 4, 20)),
       ],
     }
   }
@@ -414,32 +486,26 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
       {
         type: "scatter",
         symbolSize: DAY_TOOLTIP_SIZE,
+        symbolOffset: [0, BASELINE_OFFSET_PX],
         z: 1,
         itemStyle: { opacity: 0 },
         data: dailyData,
       },
       {
+        // symbolSize + itemStyle are per-item (larger for merged clusters, red when awaiting review);
+        // see completionData above. symbolOffset drops the dots from the lane centre onto the baseline.
         type: "scatter",
-        symbolSize: 9,
+        symbolOffset: [0, BASELINE_OFFSET_PX],
         z: 3,
         itemStyle: { color: DOT_FILL, borderColor: DOT_BORDER, borderWidth: 1.5 },
         data: completionData,
-      },
-      {
-        type: "scatter",
-        symbol: ECHARTS.SYMBOL_PIN,
-        symbolSize: 16,
-        symbolOffset: [0, ECHARTS.PIN_OFFSET_Y],
-        z: 4,
-        itemStyle: { color: REVIEW_ACCENT },
-        data: reviewData,
       },
     ],
   }
 
   return (
     <div>
-      <Echarts options={options} height={Math.max(160, laneCount * 60 + 70)} />
+      <Echarts options={options} height={Math.max(160, laneCount * LANE_ROW_PX + 70)} />
       <p className={legendCss}>{t("density-legend")}</p>
       <Disclosure title={t("show-underlying-data")}>
         <table className={tableCss}>

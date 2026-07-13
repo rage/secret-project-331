@@ -27,7 +27,7 @@ import { QueryResults } from "@/shared-module/components"
 const COMPLETION_REVIEW_ID = "completion-review"
 
 const Area = styled.div`
-  margin: 1.25rem 0;
+  margin: 3rem 0;
 `
 
 const UserPage: React.FC = () => {

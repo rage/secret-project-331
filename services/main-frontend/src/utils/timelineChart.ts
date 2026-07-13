@@ -22,6 +22,7 @@ export const ECHARTS = {
   ALIGN_LEFT: "left",
   ALIGN_RIGHT: "right",
   VALIGN_MIDDLE: "middle",
+  VALIGN_TOP: "top",
   TRIGGER_ITEM: "item",
   FILTER_WEAK: "weakFilter",
   SYMBOL_NONE: "none",

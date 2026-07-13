@@ -23,6 +23,25 @@ pub struct CourseMaterialDocument {
     pub filepath: String,
 }
 
+pub struct DocumentProperties {
+    pub page_id: Uuid,
+}
+
+/// Parse the filepath of a document from the Azure search index and return the page_id of
+/// the document. The page id is the same as the id of the pagek in our DB.
+pub fn parse_document_filepath(filepath: &str) -> ChatbotResult<DocumentProperties> {
+    let mut page_path = PathBuf::from(filepath);
+    page_path.set_extension("");
+    let page_id_str = page_path.file_name().ok_or(chatbot_err!(
+        ToolUseError,
+        "Failed to parse document filepath"
+    ))?;
+    let page_id = Uuid::parse_str(page_id_str.to_string_lossy().as_ref())
+        .map_err(|_| chatbot_err!(ToolUseError, "Failed to parse document page id"))?;
+
+    Ok(DocumentProperties { page_id })
+}
+
 impl CourseMaterialDocument {
     /// Converts the document to citation. Returns also the page_id of the cited document
     /// so we can get the correct chapter_number later.
@@ -46,12 +65,7 @@ impl CourseMaterialDocument {
         let decoded_url = url_decode(&self.url)?;
 
         // Get the page id
-        let mut page_path = PathBuf::from(&self.filepath);
-        page_path.set_extension("");
-        let page_id_str = page_path.file_name();
-        let page_id =
-            page_id_str.and_then(|id_str| Uuid::parse_str(id_str.to_string_lossy().as_ref()).ok());
-
+        let page_id = Some(parse_document_filepath(&self.filepath)?.page_id);
         Ok((
             ChatbotConversationMessageCitation {
                 conversation_message_id,

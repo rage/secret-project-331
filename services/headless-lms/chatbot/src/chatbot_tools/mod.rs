@@ -134,9 +134,10 @@ pub enum LLMToolType {
 
 /// Get a vec of AzureLLMToolDefinitions for all available chatbot tools
 pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
-    vec![AzureLLMToolDefinition::Function(
-        CourseProgressTool::get_tool_definition(),
-    )]
+    vec![
+        AzureLLMToolDefinition::Function(CourseProgressTool::get_tool_definition()),
+        AzureLLMToolDefinition::Function(DocumentLookupTool::get_tool_definition()),
+    ]
 }
 
 pub struct ChatbotToolCallResult {

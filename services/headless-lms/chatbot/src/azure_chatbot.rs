@@ -20,7 +20,6 @@ use headless_lms_models::chatbot_conversation_messages::{
 };
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use sqlx::PgPool;
 use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_stream::wrappers::LinesStream;
@@ -32,8 +31,7 @@ use utoipa::ToSchema;
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::provider_tools::azure_ai_search::get_azure_ai_search_tool_definition;
 use crate::chatbot_tools::{
-    AzureLLMToolDefinition, ChatbotTool, ToolProperties, call_chatbot_tool,
-    get_chatbot_tool_definitions,
+    AzureLLMToolDefinition, call_chatbot_tool, get_chatbot_tool_definitions,
 };
 use crate::citations::chatbot_cited_documents_to_citations;
 use crate::llm_utils::{

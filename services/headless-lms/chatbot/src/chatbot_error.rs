@@ -26,6 +26,7 @@ pub enum ChatbotErrorType {
     InvalidMessageShape,
     InvalidToolName,
     InvalidToolArguments,
+    ToolUseError,
     ChatbotModelError,
     ChatbotMessageSuggestError,
     UrlParse,

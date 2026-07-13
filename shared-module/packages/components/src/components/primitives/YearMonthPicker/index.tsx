@@ -102,10 +102,10 @@ export function YearMonthPicker({
       if (year < resolvedMinYear || year > resolvedMaxYear) {
         return true
       }
-      if (minYear != null && minMonth != null && year === minYear && month < minMonth) {
+      if (minYear !== undefined && minMonth !== undefined && year === minYear && month < minMonth) {
         return true
       }
-      if (maxYear != null && maxMonth != null && year === maxYear && month > maxMonth) {
+      if (maxYear !== undefined && maxMonth !== undefined && year === maxYear && month > maxMonth) {
         return true
       }
       return false

@@ -124,7 +124,7 @@ function buildCourseOnlyQueryOptions<TData>(
   courseId: string | null | undefined,
   getGeneratedOptions: (args: ReturnType<typeof withCourseId>) => GeneratedOptionsWithKey,
 ): BuiltQueryOptions<TData> {
-  if (courseId != null) {
+  if (courseId !== null && courseId !== undefined) {
     return getGeneratedOptions(withCourseId(courseId)) as BuiltQueryOptions<TData>
   }
 
@@ -146,7 +146,7 @@ function buildGranularityAndWindowQueryOptions<TData>(
     args: ReturnType<typeof withGranularityAndWindow>,
   ) => GeneratedOptionsWithKey,
 ): BuiltQueryOptions<TData> {
-  if (courseId != null) {
+  if (courseId !== null && courseId !== undefined) {
     return getGeneratedOptions(
       withGranularityAndWindow(courseId, granularity, timeWindow),
     ) as BuiltQueryOptions<TData>
@@ -173,7 +173,7 @@ function buildHistoryAndTrackingWindowQueryOptions<TData>(
     args: ReturnType<typeof withHistoryAndTrackingWindow>,
   ) => GeneratedOptionsWithKey,
 ): BuiltQueryOptions<TData> {
-  if (courseId != null) {
+  if (courseId !== null && courseId !== undefined) {
     return getGeneratedOptions(
       withHistoryAndTrackingWindow(courseId, granularity, historyWindow, trackingWindow),
     ) as BuiltQueryOptions<TData>
@@ -199,7 +199,7 @@ function buildCountryQueryOptions<TData>(
   country: string | null | undefined,
   getGeneratedOptions: (args: ReturnType<typeof withCountry>) => GeneratedOptionsWithKey,
 ): BuiltQueryOptions<TData> {
-  if (courseId != null && country != null) {
+  if (courseId !== null && courseId !== undefined && country !== null && country !== undefined) {
     return getGeneratedOptions(
       withCountry(courseId, granularity, timeWindow, country),
     ) as BuiltQueryOptions<TData>
@@ -224,7 +224,7 @@ function buildCustomTimePeriodQueryOptions<TData>(
   endDate: string,
   getGeneratedOptions: (args: ReturnType<typeof withCustomTimePeriod>) => GeneratedOptionsWithKey,
 ): BuiltQueryOptions<TData> {
-  if (courseId != null) {
+  if (courseId !== null && courseId !== undefined) {
     return getGeneratedOptions(
       withCustomTimePeriod(courseId, startDate, endDate),
     ) as BuiltQueryOptions<TData>

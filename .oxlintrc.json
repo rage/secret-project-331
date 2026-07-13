@@ -186,7 +186,7 @@
     "unicorn/no-negated-condition": "off",
     "import/no-unassigned-import": "off",
     "eslint/no-shadow": "warn",
-    "eslint/eqeqeq": ["warn", "always", { "null": "ignore" }],
+    "eslint/eqeqeq": ["warn", "always"],
     "unicorn/no-array-sort": "warn",
     "unicorn/consistent-function-scoping": "warn",
     "unicorn/prefer-add-event-listener": "warn",

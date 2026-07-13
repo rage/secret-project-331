@@ -11,7 +11,7 @@ export function isSupportedForBrowserTest(
   runtime: BrowserTestSpec["runtime"],
 ): boolean {
   const lang = extensionToLanguage(filepath)
-  if (lang == null) {
+  if (lang === undefined) {
     return false
   }
   switch (runtime) {

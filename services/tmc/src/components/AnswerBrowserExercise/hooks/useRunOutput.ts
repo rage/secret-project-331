@@ -54,7 +54,7 @@ export function useRunOutput() {
     if (!worker) {
       return
     }
-    if (flushTimerRef.current != null) {
+    if (flushTimerRef.current !== null) {
       clearInterval(flushTimerRef.current)
       flushTimerRef.current = null
     }
@@ -140,7 +140,7 @@ export function useRunOutput() {
             setWaitingForInput(true)
             break
           case "run_done":
-            if (flushTimerRef.current != null) {
+            if (flushTimerRef.current !== null) {
               clearInterval(flushTimerRef.current)
               flushTimerRef.current = null
             }
@@ -152,7 +152,7 @@ export function useRunOutput() {
             finish(data.output ?? runOutputBufferRef.current, null)
             break
           case "run_error":
-            if (flushTimerRef.current != null) {
+            if (flushTimerRef.current !== null) {
               clearInterval(flushTimerRef.current)
               flushTimerRef.current = null
             }
@@ -169,7 +169,7 @@ export function useRunOutput() {
       }
 
       const handleError = () => {
-        if (flushTimerRef.current != null) {
+        if (flushTimerRef.current !== null) {
           clearInterval(flushTimerRef.current)
           flushTimerRef.current = null
         }
@@ -181,7 +181,7 @@ export function useRunOutput() {
         finish(runOutputBufferRef.current, "Worker error")
       }
 
-      if (flushTimerRef.current != null) {
+      if (flushTimerRef.current !== null) {
         clearInterval(flushTimerRef.current)
         flushTimerRef.current = null
       }

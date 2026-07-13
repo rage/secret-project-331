@@ -57,7 +57,7 @@ function getPyodide() {
 self.inputPromise = function (prompt) {
   self.postMessage({
     type: "stdin_request",
-    prompt: prompt != null ? String(prompt) : "",
+    prompt: prompt !== null && prompt !== undefined ? String(prompt) : "",
     // oxlint-disable-next-line unicorn/require-post-message-target-origin -- Worker/MessagePort postMessage has no targetOrigin parameter
   })
   return new Promise(function (resolve) {
@@ -88,7 +88,7 @@ self.onmessage = function (e) {
 
   if (data.type === "stdin_line") {
     if (pendingStdinResolve) {
-      var line = data.line != null ? String(data.line) : ""
+      var line = data.line !== null && data.line !== undefined ? String(data.line) : ""
       if (line.length > 0 && line.at(-1) !== "\n") {
         line += "\n"
       }

@@ -42,7 +42,7 @@ export default function ExamLayout({ children }: { children: React.ReactNode }) 
           organization_id: assertNotNullOrUndefined(organizationId),
         },
       }),
-    enabled: organizationId != null,
+    enabled: organizationId !== undefined,
   })
 
   usePageTitle(examQuery.data?.name ?? null)

@@ -30,7 +30,7 @@ export function useTestRun(publicSpec: PublicSpec) {
         return
       }
       const adapter =
-        browserTest?.runtime != null ? getBrowserTestAdapter(browserTest.runtime) : null
+        browserTest?.runtime !== undefined ? getBrowserTestAdapter(browserTest.runtime) : null
       if (!adapter) {
         setTestResults(runResultFromError("Tests are not available for this exercise."))
         return
@@ -83,7 +83,7 @@ export function useTestRun(publicSpec: PublicSpec) {
               workerRef.current = null
             }
             const message =
-              ev?.message != null && String(ev.message).trim() !== ""
+              ev?.message !== undefined && String(ev.message).trim() !== ""
                 ? String(ev.message)
                 : "Worker error"
             reject(new Error(message))

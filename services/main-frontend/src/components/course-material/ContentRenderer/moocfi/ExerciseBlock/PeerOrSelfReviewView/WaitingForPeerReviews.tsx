@@ -48,9 +48,12 @@ const WaitingForPeerReviews: React.FC<React.PropsWithChildren<{ exerciseId: stri
           const oldData: CourseMaterialExercise | undefined = queryClient.getQueryData(queryKey)
           if (
             oldData === undefined ||
-            oldData.exercise_status == null ||
-            oldData.exercise_status.activity_progress == null ||
-            oldData.exercise_status.grading_progress == null
+            oldData.exercise_status === null ||
+            oldData.exercise_status === undefined ||
+            oldData.exercise_status.activity_progress === null ||
+            oldData.exercise_status.activity_progress === undefined ||
+            oldData.exercise_status.grading_progress === null ||
+            oldData.exercise_status.grading_progress === undefined
           ) {
             throw new Error(
               `Cannot find required data to start giving extra peer review. ${JSON.stringify(

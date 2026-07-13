@@ -168,7 +168,7 @@ export default function useAnalysisWorkspaceFormController(props: {
     const ids = [1, 2, 3, 4, 5, 6]
     const elements = ids
       .map((id) => document.querySelector(`#${SECTION_DOM_PREFIX}${id}`))
-      .filter((el): el is HTMLElement => el != null)
+      .filter((el): el is HTMLElement => el !== null)
     if (elements.length === 0) {
       return
     }

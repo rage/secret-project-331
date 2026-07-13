@@ -18,7 +18,7 @@ export interface NormalizedComboBoxItem<T> {
 }
 
 function getImplicitItemKey<T>(item: T, index: number): ComboBoxKey {
-  if (item == null) {
+  if (item === null || item === undefined) {
     return index
   }
 
@@ -27,15 +27,15 @@ function getImplicitItemKey<T>(item: T, index: number): ComboBoxKey {
   }
 
   if (typeof item === "object") {
-    if ("key" in item && item.key != null) {
+    if ("key" in item && item.key !== null && item.key !== undefined) {
       return item.key as ComboBoxKey
     }
 
-    if ("id" in item && item.id != null) {
+    if ("id" in item && item.id !== null && item.id !== undefined) {
       return item.id as ComboBoxKey
     }
 
-    if ("value" in item && item.value != null) {
+    if ("value" in item && item.value !== null && item.value !== undefined) {
       return item.value as ComboBoxKey
     }
   }
@@ -44,7 +44,7 @@ function getImplicitItemKey<T>(item: T, index: number): ComboBoxKey {
 }
 
 function getImplicitTextValue<T>(item: T): string {
-  if (item == null) {
+  if (item === null || item === undefined) {
     return ""
   }
 
@@ -69,7 +69,7 @@ function getImplicitTextValue<T>(item: T): string {
       return item.title
     }
 
-    if ("value" in item && item.value != null) {
+    if ("value" in item && item.value !== null && item.value !== undefined) {
       return String(item.value)
     }
   }
@@ -93,7 +93,7 @@ export function normalizeComboBoxItems<T>(
       textValue,
       isDisabled:
         accessors.getItemDisabled?.(item) ??
-        (typeof item === "object" && item != null && "disabled" in item
+        (typeof item === "object" && item !== null && item !== undefined && "disabled" in item
           ? Boolean(item.disabled)
           : false),
     }
@@ -107,7 +107,7 @@ export function resolveComboBoxHasValue({
   selectedItem: unknown
   inputValue: string | undefined
 }): boolean {
-  if (selectedItem != null) {
+  if (selectedItem !== null && selectedItem !== undefined) {
     return true
   }
 

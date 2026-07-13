@@ -116,7 +116,7 @@ export function FloatingHeaderTable<T extends object>({
 
   const scheduleApplySticky = useCallback(
     (x: number) => {
-      if (rafRef.current != null) {
+      if (rafRef.current !== null) {
         return
       }
       rafRef.current = requestAnimationFrame(() => {
@@ -270,7 +270,7 @@ export function FloatingHeaderTable<T extends object>({
     return () => {
       wrap.removeEventListener("scroll", onWrapScroll)
       trailer?.removeEventListener("scroll", onTrailerScroll)
-      if (rafRef.current != null) {
+      if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current)
       }
     }

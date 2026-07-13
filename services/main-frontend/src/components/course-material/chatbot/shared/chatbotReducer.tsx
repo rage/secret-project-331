@@ -141,7 +141,7 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
           return
         }
         // update arguments for the tool call
-        if (action.payload.arguments != null) {
+        if (action.payload.arguments !== null && action.payload.arguments !== undefined) {
           res.data.tool_arguments = action.payload.arguments
         }
         draftState.messages[toolCallMessageIdx].message.message = res.data

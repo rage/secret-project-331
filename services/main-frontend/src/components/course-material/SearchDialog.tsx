@@ -410,18 +410,20 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                       __html: sanitizeCourseMaterialHtml(result.title_headline ?? ""),
                     }}
                   />
-                  {result.chapter_name != null && result.chapter_name !== "" && (
-                    <div
-                      className={css`
-                        font-size: 0.75rem;
-                        color: ${baseTheme.colors.gray[500]};
-                        margin: 0 0 0.25rem;
-                        line-height: 1.4;
-                      `}
-                    >
-                      {result.chapter_name}
-                    </div>
-                  )}
+                  {result.chapter_name !== null &&
+                    result.chapter_name !== undefined &&
+                    result.chapter_name !== "" && (
+                      <div
+                        className={css`
+                          font-size: 0.75rem;
+                          color: ${baseTheme.colors.gray[500]};
+                          margin: 0 0 0.25rem;
+                          line-height: 1.4;
+                        `}
+                      >
+                        {result.chapter_name}
+                      </div>
+                    )}
                   {result.content_headline && (
                     <p
                       className={css`

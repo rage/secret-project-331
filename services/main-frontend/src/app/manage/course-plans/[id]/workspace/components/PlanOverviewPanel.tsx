@@ -396,11 +396,11 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   const formatMonthYear = (isoDate: string): string => formatMonthYearFromDate(new Date(isoDate))
 
   const activeStageData =
-    activeStage != null ? (stages.find((stage) => stage.stage === activeStage) ?? null) : null
+    activeStage !== null ? (stages.find((stage) => stage.stage === activeStage) ?? null) : null
 
   const currentPhaseEndLabel =
     currentPhaseEndDateFormatted ??
-    (activeStageData != null ? formatMonthYear(activeStageData.planned_ends_on) : null)
+    (activeStageData !== null ? formatMonthYear(activeStageData.planned_ends_on) : null)
 
   const latestStageEndIso =
     stages.length > 0
@@ -411,21 +411,21 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
         )
       : null
 
-  const currentPlanEndLabel = latestStageEndIso != null ? formatMonthYear(latestStageEndIso) : null
+  const currentPlanEndLabel = latestStageEndIso !== null ? formatMonthYear(latestStageEndIso) : null
 
   const newPhaseEndLabel =
-    activeStageData != null && extendMonths > 0
+    activeStageData !== null && extendMonths > 0
       ? formatMonthYearFromDate(addMonths(new Date(activeStageData.planned_ends_on), extendMonths))
       : null
 
   const newPlanEndLabel =
-    latestStageEndIso != null && extendMonths > 0
+    latestStageEndIso !== null && extendMonths > 0
       ? formatMonthYearFromDate(addMonths(new Date(latestStageEndIso), extendMonths))
       : null
 
-  const canAdjustSchedule = activeStage != null && activeStageData != null
+  const canAdjustSchedule = activeStage !== null && activeStageData !== null
 
-  const showTaskProgressInSummary = activeStage != null && activeStageTaskTotal > 0
+  const showTaskProgressInSummary = activeStage !== null && activeStageTaskTotal > 0
   const taskProgressPercent = showTaskProgressInSummary
     ? (activeStageTaskCompleted / activeStageTaskTotal) * 100
     : 0

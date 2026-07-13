@@ -421,12 +421,14 @@ const ExerciseBlock: React.FC<
           ] ?? 0
 
         const maxTries = courseMaterialExercise.exercise.max_tries_per_slide
-        const triesRemaining = maxTries == null ? null : maxTries - spentTries
+        const triesRemaining =
+          maxTries === null || maxTries === undefined ? null : maxTries - spentTries
 
         const limit_number_of_tries = courseMaterialExercise.exercise.limit_number_of_tries
         const ranOutOfTries =
           limit_number_of_tries &&
-          maxTries != null &&
+          maxTries !== null &&
+          maxTries !== undefined &&
           triesRemaining !== null &&
           triesRemaining <= 0
 
@@ -504,9 +506,12 @@ const ExerciseBlock: React.FC<
                     }
                   `}
                 >
-                  {limit_number_of_tries && maxTries != null && triesRemaining !== null && (
-                    <ExerciseCardTriesBadge triesRemaining={triesRemaining} />
-                  )}
+                  {limit_number_of_tries &&
+                    maxTries !== null &&
+                    maxTries !== undefined &&
+                    triesRemaining !== null && (
+                      <ExerciseCardTriesBadge triesRemaining={triesRemaining} />
+                    )}
                   {isExam && points === null ? (
                     <div
                       className={cx(

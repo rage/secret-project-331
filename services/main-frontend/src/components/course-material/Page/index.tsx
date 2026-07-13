@@ -370,7 +370,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             <FeedbackHandler
               courseId={courseId}
               courseName={courseName}
-              courseHasChatbot={chatbotConfiguration.data != null}
+              courseHasChatbot={
+                chatbotConfiguration.data !== null && chatbotConfiguration.data !== undefined
+              }
               pageId={pageId}
               pageTitle={pageTitle}
             />

@@ -103,7 +103,7 @@ export function Switch<T extends FieldValues, N extends Path<T> = Path<T>>(
   })
 
   const inputValue =
-    switchValue == null
+    switchValue === undefined
       ? undefined
       : Array.isArray(switchValue)
         ? switchValue.join(",")

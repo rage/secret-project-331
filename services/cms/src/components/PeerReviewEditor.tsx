@@ -198,7 +198,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   useEffect(() => {
     if (
       !exerciseAttributes.use_course_default_peer_review &&
-      (exerciseAttributes.peer_or_self_review_config == null ||
+      (exerciseAttributes.peer_or_self_review_config === null ||
+        exerciseAttributes.peer_or_self_review_config === undefined ||
         exerciseAttributes.peer_or_self_review_config === "null")
     ) {
       setExerciseAttributes({

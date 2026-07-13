@@ -26,9 +26,9 @@ const extractExitCodeFromStatus = (status: unknown): number | undefined => {
     return undefined
   }
   const exitCause =
-    causes.find((c) => c?.reason === "ExitCode") ?? causes.find((c) => c?.message != null)
+    causes.find((c) => c?.reason === "ExitCode") ?? causes.find((c) => c?.message !== undefined)
   const msg = exitCause?.message
-  if (msg == null) {
+  if (msg === undefined) {
     return undefined
   }
   // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
@@ -117,7 +117,7 @@ export async function execWithTimeout(
       clearTimeout(connectTimer)
     }
   }
-  if (execSocket == null) {
+  if (execSocket === undefined) {
     throw new Error("exec socket not available")
   }
   // Const so TS narrows inside Promise executors (closures don't see `let` narrowing).

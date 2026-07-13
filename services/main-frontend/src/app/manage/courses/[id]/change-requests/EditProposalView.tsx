@@ -157,7 +157,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             defaultValue={block.accept_preview ?? undefined}
             onChangeByValue={(newValue) =>
               setBlockActions((ba) => {
-                if (block.accept_preview != null) {
+                if (block.accept_preview !== null && block.accept_preview !== undefined) {
                   // oxlint-disable-next-line i18next/no-literal-string
                   ba.set(block.id, { tag: "Accept", data: newValue })
                 }
@@ -184,7 +184,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                   return new Set(eb)
                 })
                 setBlockActions((ba) => {
-                  if (block.accept_preview != null) {
+                  if (block.accept_preview !== null && block.accept_preview !== undefined) {
                     // oxlint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                   }
@@ -204,7 +204,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                   return new Set(eb)
                 })
                 setBlockActions((ba) => {
-                  if (block.accept_preview != null) {
+                  if (block.accept_preview !== null && block.accept_preview !== undefined) {
                     // oxlint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                   }

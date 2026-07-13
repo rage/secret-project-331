@@ -18,6 +18,7 @@ const gradeAnswers = (assessedAnswer: QuizItemAnswerGrading[], quiz: PrivateSpec
       }
       const correctnessCoefficient = answer.correctnessCoefficient
       // Handle null, undefined, or invalid values
+      // oxlint-disable-next-line eslint/eqeqeq -- correctnessCoefficient is typed number but grading data may be null/undefined at runtime; == null guards both
       if (correctnessCoefficient == null || !isValidNumber(correctnessCoefficient)) {
         return 0
       }

@@ -369,7 +369,9 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                 const nextAnswers = new Map(prev)
                 if (
                   newAnswer.number_data === null &&
-                  (newAnswer.text_data == null || newAnswer.text_data.trim() === "")
+                  (newAnswer.text_data === null ||
+                    newAnswer.text_data === undefined ||
+                    newAnswer.text_data.trim() === "")
                 ) {
                   // If everything in the answer is null, transform the answer to not answered
                   nextAnswers.delete(peerOrSelfReviewQuestion.id)

@@ -71,7 +71,7 @@ export function DateLikePickerInner({
   const state = useDateFieldState(dateFieldProps)
   const dateFieldAria = useDateField(dateFieldProps, state, base.fieldRef)
   const canClear =
-    currentValue != null || pickerState.dateValue != null || pickerState.timeValue != null
+    currentValue !== null || pickerState.dateValue !== null || pickerState.timeValue !== null
 
   return (
     <PickerSegmentedField

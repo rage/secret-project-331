@@ -125,7 +125,7 @@ export function PickerSegmentedField({
   const hideRestSegmentPlaceholders = shouldHideRestSegmentPlaceholders(
     layout,
     isFocused,
-    state.value != null,
+    state.value !== null,
     pickerState.isOpen,
   )
 
@@ -152,7 +152,7 @@ export function PickerSegmentedField({
       layout={layout}
       fieldSize={fieldSize}
       isFloatingRaised={
-        layout === "floating" ? isFocused || state.value != null || pickerState.isOpen : true
+        layout === "floating" ? isFocused || state.value !== null || pickerState.isOpen : true
       }
       isFloatingFocused={layout === "floating" ? isFocused || pickerState.isOpen : false}
       isInvalid={pickerState.isInvalid}

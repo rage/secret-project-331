@@ -40,7 +40,7 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
     )
   }
 
-  const isLink = !isCurrent && crumb.href != null
+  const isLink = !isCurrent && crumb.href !== undefined
 
   return (
     <li className={breadcrumbItem}>

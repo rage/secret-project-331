@@ -279,7 +279,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
       </VisuallyHidden>
-      {error != null ? <ErrorDisplay error={error} /> : null}
+      {error !== null && error !== undefined ? <ErrorDisplay error={error} /> : null}
       <div
         className={css`
           display: flex;

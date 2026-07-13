@@ -28,7 +28,7 @@ const IframeView: React.FC<IframeViewProps> = ({ maxWidth }) => {
       <div
         className={css`
           width: 100%;
-          ${contentMaxWidth != null ? `max-width: ${contentMaxWidth}px;` : ""}
+          ${contentMaxWidth !== undefined ? `max-width: ${contentMaxWidth}px;` : ""}
           margin: 0 auto;
         `}
       >

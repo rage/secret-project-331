@@ -177,7 +177,7 @@ export function useCoursePlanWorkspacePageState({
     const nextActiveStage = planData.plan.active_stage ?? null
     const firstAvailableStage = planData.stages[0]?.stage ?? null
     const hasViewedStage =
-      viewedStage != null && planData.stages.some((stage) => stage.stage === viewedStage)
+      viewedStage !== null && planData.stages.some((stage) => stage.stage === viewedStage)
 
     if (!hasViewedStage) {
       setViewedStage(nextActiveStage ?? firstAvailableStage)

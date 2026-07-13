@@ -75,7 +75,7 @@ function stripHighlightLineMarker(
  * @returns Object with cleanCode (markers removed) and highlightedLines (1-indexed Set)
  */
 export function parseHighlightedCode(content: string | null | undefined): ProcessedCodeData {
-  if (content == null || content === "") {
+  if (content === null || content === undefined || content === "") {
     return { cleanCode: content ?? "", highlightedLines: new Set() }
   }
 

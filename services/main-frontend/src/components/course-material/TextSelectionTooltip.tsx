@@ -211,7 +211,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
           {courseName && pageTitle && courseHasChatbot && (
             <>
               <Button
-                isDisabled={chatbotCommunicationChannel == null}
+                isDisabled={chatbotCommunicationChannel === null}
                 onClick={() => {
                   chatbotCommunicationChannel?.sendNewMessage(
                     t("text-selection-summarize-with-ai", {
@@ -226,7 +226,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
                 <AIChat className={svgCss} />
               </Button>
               <Button
-                isDisabled={chatbotCommunicationChannel == null}
+                isDisabled={chatbotCommunicationChannel === null}
                 onClick={() => {
                   chatbotCommunicationChannel?.sendNewMessage(
                     t("text-selection-explain-with-ai", {

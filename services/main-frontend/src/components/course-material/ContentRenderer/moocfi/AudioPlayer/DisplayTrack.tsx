@@ -41,44 +41,42 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: Display
   }, [tracks])
 
   return (
-    <>
-      <div>
-        {/* oxlint-disable-next-line jsx-a11y/media-has-caption */}
-        <audio ref={audioRef} onLoadedMetadata={onLoadedMetadata}>
-          {sortedTracks.map(({ path, mime }: AudioFile) => (
-            <source key={path} src={path} type={mime} />
-          ))}
-        </audio>
-        <div
-          className={css`
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            text-align: center;
-          `}
-        >
-          <div>
-            <p
-              className={css`
-                color: #24053b;
-                font-size: 18px;
-                margin-bottom: 0;
-                padding: 2px;
-                font-family: ${headingFont};
-                line-height: 1.2;
-                font-weight: 500;
-                width: 300px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-              `}
-            >
-              {courseMaterialState.page?.title}
-            </p>
-          </div>
+    <div>
+      {/* oxlint-disable-next-line jsx-a11y/media-has-caption */}
+      <audio ref={audioRef} onLoadedMetadata={onLoadedMetadata}>
+        {sortedTracks.map(({ path, mime }: AudioFile) => (
+          <source key={path} src={path} type={mime} />
+        ))}
+      </audio>
+      <div
+        className={css`
+          display: flex;
+          gap: 20px;
+          justify-content: center;
+          text-align: center;
+        `}
+      >
+        <div>
+          <p
+            className={css`
+              color: #24053b;
+              font-size: 18px;
+              margin-bottom: 0;
+              padding: 2px;
+              font-family: ${headingFont};
+              line-height: 1.2;
+              font-weight: 500;
+              width: 300px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            `}
+          >
+            {courseMaterialState.page?.title}
+          </p>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 export default DisplayTrack

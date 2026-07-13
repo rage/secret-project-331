@@ -248,6 +248,7 @@ const generateComponents = (
       } else {
         components.push(
           <Circle
+            tabIndex={0}
             role="button"
             key={t("go-to-page-x")}
             aria-label={t("go-to-page-x", { number: idx })}

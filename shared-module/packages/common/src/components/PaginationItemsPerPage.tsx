@@ -24,7 +24,7 @@ const PaginationItemsPerPage: React.FC<PaginationItemsPerPageProps> = ({
     const base = itemsPerPageOptions ?? DEFAULT_ITEMS_PER_PAGE_OPTIONS
     const options = base.map((n) => ({ value: n.toString(), label: n.toString() }))
     const currentLimit = paginationInfo.limit.toString()
-    if (options.find((o) => o.value === currentLimit) === undefined) {
+    if (!options.some((o) => o.value === currentLimit)) {
       // Someone edited a custom limit by changing the url. Let's support this use case by including this new option in the dropdown.
       options.push({ value: currentLimit, label: currentLimit })
       options.sort((o1, o2) => Number(o1.value) - Number(o2.value))

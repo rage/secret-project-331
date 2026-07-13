@@ -131,35 +131,33 @@ const Matrix: React.FunctionComponent<
 
   const tempArray = [0, 1, 2, 3, 4, 5]
   return (
-    <>
-      <MatrixTableContainer>
-        <tbody>
-          <>
-            {tempArray.map((rowIndex) => {
-              return (
-                <tr key={`row${rowIndex}`}>
-                  {tempArray.map((columnIndex) => {
-                    const cellText = findOptionText(columnIndex, rowIndex)
-                    if (cellText !== null) {
-                      return (
-                        <MatrixCell
-                          key={`${columnIndex} ${rowIndex}`}
-                          column={columnIndex}
-                          row={rowIndex}
-                          cellText={cellText}
-                          handleOptionSelect={handleOptionSelect}
-                          matrixSize={matrixActiveSize}
-                        ></MatrixCell>
-                      )
-                    }
-                  })}
-                </tr>
-              )
-            })}
-          </>
-        </tbody>
-      </MatrixTableContainer>
-    </>
+    <MatrixTableContainer>
+      <tbody>
+        <>
+          {tempArray.map((rowIndex) => {
+            return (
+              <tr key={`row${rowIndex}`}>
+                {tempArray.map((columnIndex) => {
+                  const cellText = findOptionText(columnIndex, rowIndex)
+                  if (cellText !== null) {
+                    return (
+                      <MatrixCell
+                        key={`${columnIndex} ${rowIndex}`}
+                        column={columnIndex}
+                        row={rowIndex}
+                        cellText={cellText}
+                        handleOptionSelect={handleOptionSelect}
+                        matrixSize={matrixActiveSize}
+                      ></MatrixCell>
+                    )
+                  }
+                })}
+              </tr>
+            )
+          })}
+        </>
+      </tbody>
+    </MatrixTableContainer>
   )
 }
 

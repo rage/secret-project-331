@@ -35,54 +35,52 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
   })
 
   return (
-    <>
-      <div>
-        <div
-          data-testid="pages-in-chapter-container"
-          className={css`
-            margin: 2.5em 0;
-          `}
-        >
-          <h2
-            className={cx(
-              INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
-              css`
-                font-size: 1.5rem;
-                font-weight: 500;
-                text-align: center;
-                color: #1a2333;
-                margin-bottom: 1.6rem;
+    <div>
+      <div
+        data-testid="pages-in-chapter-container"
+        className={css`
+          margin: 2.5em 0;
+        `}
+      >
+        <h2
+          className={cx(
+            INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
+            css`
+              font-size: 1.5rem;
+              font-weight: 500;
+              text-align: center;
+              color: #1a2333;
+              margin-bottom: 1.6rem;
 
-                ${respondToOrLarger.md} {
-                  font-size: 1.875rem;
-                }
-              `,
-            )}
-          >
-            {t("table-of-contents")}
-          </h2>
-          <QueryResult query={getPagesInChapterExcludeFrontpage}>
-            {(data) => (
-              <>
-                {[...data]
-                  .toSorted((a, b) => a.order_number - b.order_number)
-                  .map((page) => (
-                    <PagesInChapterBox
-                      variant="text"
-                      chapterIndex={page.order_number}
-                      chapterTitle={page.title}
-                      selected={false}
-                      key={page.id}
-                      id={page.id}
-                      url={coursePageRoute(organizationSlug, courseSlug, page.url_path)}
-                    />
-                  ))}
-              </>
-            )}
-          </QueryResult>
-        </div>
+              ${respondToOrLarger.md} {
+                font-size: 1.875rem;
+              }
+            `,
+          )}
+        >
+          {t("table-of-contents")}
+        </h2>
+        <QueryResult query={getPagesInChapterExcludeFrontpage}>
+          {(data) => (
+            <>
+              {[...data]
+                .toSorted((a, b) => a.order_number - b.order_number)
+                .map((page) => (
+                  <PagesInChapterBox
+                    variant="text"
+                    chapterIndex={page.order_number}
+                    chapterTitle={page.title}
+                    selected={false}
+                    key={page.id}
+                    id={page.id}
+                    url={coursePageRoute(organizationSlug, courseSlug, page.url_path)}
+                  />
+                ))}
+            </>
+          )}
+        </QueryResult>
       </div>
-    </>
+    </div>
   )
 }
 export default PagesInChapter

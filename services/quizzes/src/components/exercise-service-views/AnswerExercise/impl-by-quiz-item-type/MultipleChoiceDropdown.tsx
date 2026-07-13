@@ -69,19 +69,17 @@ const MultipleChoiceDropdown: React.FunctionComponent<
           `}
         >
           {quizItem.title ? (
-            <>
-              <h2
-                className={css`
-                  font-size: ${quizTheme.quizTitleFontSize} !important;
-                  font-weight: 500;
-                  color: #4c5868;
-                  font-family: ${primaryFont};
-                  margin-bottom: 1rem;
-                `}
-              >
-                {quizItem.title}
-              </h2>
-            </>
+            <h2
+              className={css`
+                font-size: ${quizTheme.quizTitleFontSize} !important;
+                font-weight: 500;
+                color: #4c5868;
+                font-family: ${primaryFont};
+                margin-bottom: 1rem;
+              `}
+            >
+              {quizItem.title}
+            </h2>
           ) : null}
         </div>
         {quizItem.body && (
@@ -91,15 +89,13 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             `}
           >
             {quizItem.body ? (
-              <>
-                <h3
-                  className={css`
-                    font-size: 1.25rem !important;
-                  `}
-                >
-                  {quizItem.body}
-                </h3>
-              </>
+              <h3
+                className={css`
+                  font-size: 1.25rem !important;
+                `}
+              >
+                {quizItem.body}
+              </h3>
             ) : null}
           </div>
         )}

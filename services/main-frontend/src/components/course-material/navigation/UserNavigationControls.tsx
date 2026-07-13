@@ -136,36 +136,34 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
       </Menu>
     </>
   ) : (
-    <>
-      <Menu>
-        <li className={cx(styles)}>
-          <a href={signUpPathWithReturnTo}>
-            <Button
-              className={css`
-                color: ${baseTheme.colors.green[600]} !important;
-              `}
-              size="medium"
-              variant="primary"
-            >
-              {t("create-new-account")}
-            </Button>
-          </a>
-        </li>
-        <li className={cx(styles)}>
-          <a href={loginPathWithReturnTo}>
-            <Button
-              className={css`
-                color: ${baseTheme.colors.green[600]} !important;
-              `}
-              size="medium"
-              variant="primary"
-            >
-              {t("log-in")}
-            </Button>
-          </a>
-        </li>
-      </Menu>
-    </>
+    <Menu>
+      <li className={cx(styles)}>
+        <a href={signUpPathWithReturnTo}>
+          <Button
+            className={css`
+              color: ${baseTheme.colors.green[600]} !important;
+            `}
+            size="medium"
+            variant="primary"
+          >
+            {t("create-new-account")}
+          </Button>
+        </a>
+      </li>
+      <li className={cx(styles)}>
+        <a href={loginPathWithReturnTo}>
+          <Button
+            className={css`
+              color: ${baseTheme.colors.green[600]} !important;
+            `}
+            size="medium"
+            variant="primary"
+          >
+            {t("log-in")}
+          </Button>
+        </a>
+      </li>
+    </Menu>
   )
 }
 

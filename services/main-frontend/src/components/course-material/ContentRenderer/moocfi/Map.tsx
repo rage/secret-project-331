@@ -290,72 +290,68 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     <Fragment>
       <Wrapper>
         {getCountry.isSuccess && studentCountryAdded && (
-          <>
-            <Fragment>
-              <h3>{t("student-in-this-region")}</h3>
-              <StyledMap codes={formattedCountryCodes} className="world-map" />
-            </Fragment>
-          </>
+          <Fragment>
+            <h3>{t("student-in-this-region")}</h3>
+            <StyledMap codes={formattedCountryCodes} className="world-map" />
+          </Fragment>
         )}
         {!studentCountryAdded && (
-          <>
-            <CotentWrapper>
-              <h3>{t("add-country-to-map")}</h3>
-              <span
-                className={css`
-                  display: inline-block;
-                  color: ${baseTheme.colors.gray[600]};
-                  width: 40rem;
-                  font-size: 18px;
-                  line-height: 120%;
-                  padding: 0.5rem 0 1rem 0;
-                  line-height: 130%;
-                  opacity: 0.8;
-                `}
-              >
-                {t("map-instruction")}
-              </span>
-              <StyledForm
-                onSubmit={handleCountryChange}
-                className={css`
-                  input[type="submit"] {
-                    border: none;
-                    color: #fff;
-                    cursor: pointer;
-                    width: 100px;
-                    font-size: 17px;
-                    padding: 8px 10px 10px 10px;
-                    transition: background 0.2s ease-in-out;
-                    background: ${baseTheme.colors.gray[600]};
-                    margin: auto 0 1rem 15px;
-                    border: 1px solid #374461;
-                  }
-                `}
-              >
-                <SelectField
-                  id={`country`}
-                  label={t("label-country")}
-                  onChange={() => null}
-                  options={countryList}
-                  defaultValue={countryList[90].label}
-                />
-                <input type="submit" value={t("submit")} />
-              </StyledForm>
-              <span
-                className={css`
-                  display: inline-block;
-                  color: ${baseTheme.colors.gray[400]};
-                  width: 30rem;
-                  font-size: 15px;
-                  line-height: 120%;
-                  padding-bottom: 2.4rem;
-                  padding-left: 2px;
-                `}
-              >
-                {t("map-disclaimer")}
-              </span>
-            </CotentWrapper>
-          </>
+          <CotentWrapper>
+            <h3>{t("add-country-to-map")}</h3>
+            <span
+              className={css`
+                display: inline-block;
+                color: ${baseTheme.colors.gray[600]};
+                width: 40rem;
+                font-size: 18px;
+                line-height: 120%;
+                padding: 0.5rem 0 1rem 0;
+                line-height: 130%;
+                opacity: 0.8;
+              `}
+            >
+              {t("map-instruction")}
+            </span>
+            <StyledForm
+              onSubmit={handleCountryChange}
+              className={css`
+                input[type="submit"] {
+                  border: none;
+                  color: #fff;
+                  cursor: pointer;
+                  width: 100px;
+                  font-size: 17px;
+                  padding: 8px 10px 10px 10px;
+                  transition: background 0.2s ease-in-out;
+                  background: ${baseTheme.colors.gray[600]};
+                  margin: auto 0 1rem 15px;
+                  border: 1px solid #374461;
+                }
+              `}
+            >
+              <SelectField
+                id={`country`}
+                label={t("label-country")}
+                onChange={() => null}
+                options={countryList}
+                defaultValue={countryList[90].label}
+              />
+              <input type="submit" value={t("submit")} />
+            </StyledForm>
+            <span
+              className={css`
+                display: inline-block;
+                color: ${baseTheme.colors.gray[400]};
+                width: 30rem;
+                font-size: 15px;
+                line-height: 120%;
+                padding-bottom: 2.4rem;
+                padding-left: 2px;
+              `}
+            >
+              {t("map-disclaimer")}
+            </span>
+          </CotentWrapper>
         )}
       </Wrapper>
       {studentCountryAdded && (

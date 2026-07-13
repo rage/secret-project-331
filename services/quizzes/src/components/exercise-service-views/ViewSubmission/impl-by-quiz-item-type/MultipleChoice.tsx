@@ -143,82 +143,80 @@ const MultipleChoiceSubmission: React.FC<
             }
           }
           return (
-            <>
-              <div>
+            <div>
+              <div
+                key={qo.id}
+                className={cx(
+                  gradingOption,
+                  answerSelectedThisOption && gradingOptionSelected,
+                  answerSelectedThisOption &&
+                    correctAnswer === false &&
+                    gradingOptionWrongAndSelected,
+                  answerSelectedThisOption &&
+                    correctAnswer === true &&
+                    gradingOptionCorrectAndSelected,
+                )}
+              >
                 <div
-                  key={qo.id}
-                  className={cx(
-                    gradingOption,
-                    answerSelectedThisOption && gradingOptionSelected,
-                    answerSelectedThisOption &&
-                      correctAnswer === false &&
-                      gradingOptionWrongAndSelected,
-                    answerSelectedThisOption &&
-                      correctAnswer === true &&
-                      gradingOptionCorrectAndSelected,
-                  )}
+                  className={css`
+                    padding: 0.8rem 0;
+                    max-width: 50ch;
+                  `}
                 >
+                  <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
+                </div>
+                <div>
                   <div
                     className={css`
-                      padding: 0.8rem 0;
-                      max-width: 50ch;
-                    `}
-                  >
-                    <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
-                  </div>
-                  <div>
-                    <div
-                      className={css`
-                        display: flex;
-                        flex-direction: ${sanitizeFlexDirection(
-                          public_quiz_item.optionDisplayDirection,
-                          "row",
-                        )};
-                        ${public_quiz_item.optionDisplayDirection === "horizontal" &&
-                        `
+                      display: flex;
+                      flex-direction: ${sanitizeFlexDirection(
+                        public_quiz_item.optionDisplayDirection,
+                        "row",
+                      )};
+                      ${public_quiz_item.optionDisplayDirection === "horizontal" &&
+                      `
                             padding-left: 0.635rem;
                           `}
-                      `}
-                    >
-                      {correctAnswer == true && (
-                        <div
-                          className={css`
-                            background: #9dc7b1;
-                            font-size: 0.625rem;
-                            text-transform: uppercase;
-                            font-weight: bold;
-                            padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
-                            border-radius: 0.125rem;
-                            color: #14261c;
-                          `}
-                        >
-                          {t("correct-option")}
-                        </div>
-                      )}
-                      {correctAnswer == false && (
-                        <div
-                          className={css`
-                            background: #eedbdd;
-                            font-size: 0.625rem;
-                            text-transform: uppercase;
-                            font-weight: bold;
-                            padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
-                            border-radius: 0.125rem;
-                            color: #b12632;
-                          `}
-                        >
-                          {t("incorrect-option")}
-                        </div>
-                      )}
-                    </div>
+                    `}
+                  >
+                    {correctAnswer == true && (
+                      <div
+                        className={css`
+                          background: #9dc7b1;
+                          font-size: 0.625rem;
+                          text-transform: uppercase;
+                          font-weight: bold;
+                          padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
+                          border-radius: 0.125rem;
+                          color: #14261c;
+                        `}
+                      >
+                        {t("correct-option")}
+                      </div>
+                    )}
+                    {correctAnswer == false && (
+                      <div
+                        className={css`
+                          background: #eedbdd;
+                          font-size: 0.625rem;
+                          text-transform: uppercase;
+                          font-weight: bold;
+                          padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
+                          border-radius: 0.125rem;
+                          color: #b12632;
+                        `}
+                      >
+                        {t("incorrect-option")}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <RowSubmissionFeedback
-                  correct={correctAnswer ?? false}
-                  feedback={feedBackForOption}
-                />
               </div>
-            </>
+              <RowSubmissionFeedback
+                correct={correctAnswer ?? false}
+                feedback={feedBackForOption}
+              />
+            </div>
           )
         })}
       </div>

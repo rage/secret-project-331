@@ -38,20 +38,18 @@ const StudentsByCountry: React.FC<Props> = ({ courseId, selectedCountry }) => {
   )
 
   return (
-    <>
-      <LineChart
-        data={data}
-        isLoading={isLoading}
-        error={error}
-        period={period}
-        setPeriod={setPeriod}
-        yAxisName={t("users")}
-        tooltipValueLabel={t("users")}
-        dateFormat={period === MONTHLY_PERIOD ? MONTHLY_DATE_FORMAT : DAILY_DATE_FORMAT}
-        statHeading={t("student-enrollments-by-country")}
-        instructionText={t("stats-instruction-enrollments-by-country")}
-      />
-    </>
+    <LineChart
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      period={period}
+      setPeriod={setPeriod}
+      yAxisName={t("users")}
+      tooltipValueLabel={t("users")}
+      dateFormat={period === MONTHLY_PERIOD ? MONTHLY_DATE_FORMAT : DAILY_DATE_FORMAT}
+      statHeading={t("student-enrollments-by-country")}
+      instructionText={t("stats-instruction-enrollments-by-country")}
+    />
   )
 }
 

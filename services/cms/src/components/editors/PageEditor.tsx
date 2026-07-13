@@ -170,7 +170,9 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   } else if (data.exam_id) {
     mediaUpload = mediaUploadBuilder({ examId: data.exam_id })
   } else {
-    throw "The backend should ensure that a page is associated with either a course or an exam"
+    throw new Error(
+      "The backend should ensure that a page is associated with either a course or an exam",
+    )
   }
 
   const getNextPageRoutingData = useQuery(

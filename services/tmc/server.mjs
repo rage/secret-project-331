@@ -14,7 +14,6 @@ import { stat } from "node:fs/promises"
 import { createServer } from "node:http"
 import { extname, join, normalize } from "node:path"
 import { Readable } from "node:stream"
-import { fileURLToPath } from "node:url"
 
 // Built server-entry: { fetch(request) => Response }.
 import serverEntry from "./dist/server/index.js"

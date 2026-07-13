@@ -382,18 +382,16 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
         </div>
       )}
       {proposal.pending && (
-        <>
-          <Button
-            variant={"primary"}
-            size={"medium"}
-            onClick={() => {
-              sendMutation.mutate()
-            }}
-            disabled={blockActions.size < proposal.block_proposals.length}
-          >
-            {t("button-text-send")}
-          </Button>
-        </>
+        <Button
+          variant={"primary"}
+          size={"medium"}
+          onClick={() => {
+            sendMutation.mutate()
+          }}
+          disabled={blockActions.size < proposal.block_proposals.length}
+        >
+          {t("button-text-send")}
+        </Button>
       )}
     </div>
   )

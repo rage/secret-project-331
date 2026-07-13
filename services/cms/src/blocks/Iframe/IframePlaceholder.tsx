@@ -73,7 +73,7 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
             }
           }
           if (url !== null) {
-            if (URLS_BETTER_HANDLED_BY_THE_EMBED_BLOCK.find((u) => url?.includes(u))) {
+            if (URLS_BETTER_HANDLED_BY_THE_EMBED_BLOCK.some((u) => url?.includes(u))) {
               setError("Please use the embed block instead.")
               return
             }

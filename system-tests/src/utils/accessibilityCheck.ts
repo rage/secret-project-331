@@ -53,7 +53,7 @@ export default async function accessibilityCheck(
         ) {
           return
         }
-        if (axeSkip && axeSkip.find((skippable) => skippable === violation.id)) {
+        if (axeSkip && axeSkip.some((skippable) => skippable === violation.id)) {
           return
         }
         return violation

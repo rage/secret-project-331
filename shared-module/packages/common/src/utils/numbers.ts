@@ -6,7 +6,7 @@
 export function roundDown(n: number, maxDecimals?: number): string {
   const actualMaxDecimals = maxDecimals || 0
   if (actualMaxDecimals > 20) {
-    throw "maxDecimals cannot be higher than 20"
+    throw new Error("maxDecimals cannot be higher than 20")
   }
   const fixed = n.toFixed(20).toString()
 

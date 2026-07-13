@@ -1,6 +1,5 @@
 import { cp, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises"
 import { dirname, extname, join, relative, resolve, sep } from "node:path"
-import { fileURLToPath } from "node:url"
 
 const SCRIPT_DIR = import.meta.dirname
 // src -> create-exercise-service -> packages -> shared-module -> repository root

@@ -217,7 +217,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
     const pages = [...phraseSearchResults]
     // After the phrase search results, we add the word search results if the page is not already in the result set
     wordSearchResults.forEach((pageWithWords) => {
-      if (pages.find((p) => p.id === pageWithWords.id)) {
+      if (pages.some((p) => p.id === pageWithWords.id)) {
         return
       }
       pages.push(pageWithWords)

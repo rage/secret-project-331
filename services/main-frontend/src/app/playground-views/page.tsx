@@ -882,11 +882,9 @@ const IframeViewPlayground: React.FC = () => {
         {currentStateReceivedFromIframe === null ? (
           <>{t("message-no-current-state-message-received-from-the-iframe-yet")}</>
         ) : (
-          <>
-            <StyledPre fullWidth>
-              {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
-            </StyledPre>
-          </>
+          <StyledPre fullWidth>
+            {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
+          </StyledPre>
         )}
       </Area>
 

@@ -243,65 +243,63 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
         <div className="top-right"></div>
         <div className="bottom-left"></div>
         <div className="bottom-right"></div>
-        <>
-          {rowsCountArray.map((row) => {
-            return (
-              <tr key={`row${row}`}>
-                {columnsCountArray.map((column) => {
-                  const cell = findOptionText(column, row, isStudentsAnswer)
-                  if (cell !== null) {
-                    return (
-                      <td
-                        key={`cell ${row} ${column}`}
+        {rowsCountArray.map((row) => {
+          return (
+            <tr key={`row${row}`}>
+              {columnsCountArray.map((column) => {
+                const cell = findOptionText(column, row, isStudentsAnswer)
+                if (cell !== null) {
+                  return (
+                    <td
+                      key={`cell ${row} ${column}`}
+                      className={css`
+                        padding: 0;
+                        font-size: 2.8vw;
+                        font-size: 1.375rem;
+                        font-family: ${primaryFont};
+                      `}
+                    >
+                      <div
                         className={css`
-                          padding: 0;
-                          font-size: 2.8vw;
-                          font-size: 1.375rem;
-                          font-family: ${primaryFont};
-                        `}
-                      >
-                        <div
-                          className={css`
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            width: 3.125rem;
-                            height: 3.125rem;
-                            border: 0;
-                            outline: none;
-                            text-align: center;
-                            resize: none;
-                            ${cell.text.length === 0 &&
-                            `
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          width: 3.125rem;
+                          height: 3.125rem;
+                          border: 0;
+                          outline: none;
+                          text-align: center;
+                          resize: none;
+                          ${cell.text.length === 0 &&
+                          `
                               background-color: #f5f6f7;
                             `}
-                            ${cell.text !== "" &&
-                            `
+                          ${cell.text !== "" &&
+                          `
                                 background-color: #f9f9f9;
                                 color: #4C5868;
                                 `}
-                            ${cell.correct === false &&
-                            `background-color: #bfbec6;
+                          ${cell.correct === false &&
+                          `background-color: #bfbec6;
                                 `}
+                        `}
+                      >
+                        <p
+                          className={css`
+                            position: relative;
+                            bottom: -0.188rem;
                           `}
                         >
-                          <p
-                            className={css`
-                              position: relative;
-                              bottom: -0.188rem;
-                            `}
-                          >
-                            {cell.text}
-                          </p>
-                        </div>
-                      </td>
-                    )
-                  }
-                })}
-              </tr>
-            )
-          })}
-        </>
+                          {cell.text}
+                        </p>
+                      </div>
+                    </td>
+                  )
+                }
+              })}
+            </tr>
+          )
+        })}
       </tbody>
     </MatrixTableContainer>
   )

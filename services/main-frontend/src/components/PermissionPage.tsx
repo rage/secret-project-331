@@ -127,7 +127,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     query = { exam_id: domain.id }
   } else {
     // oxlint-disable-next-line i18next/no-literal-string
-    throw "Unknown domain type"
+    throw new Error("Unknown domain type")
   }
 
   const [newEmail, setNewEmail] = useState("")

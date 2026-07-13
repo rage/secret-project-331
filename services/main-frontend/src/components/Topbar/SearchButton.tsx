@@ -208,7 +208,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
     }
     const pages = [...phraseSearchResults]
     wordSearchResults.forEach((pageWithWords) => {
-      if (pages.find((p) => p.id === pageWithWords.id)) {
+      if (pages.some((p) => p.id === pageWithWords.id)) {
         return
       }
       pages.push(pageWithWords)

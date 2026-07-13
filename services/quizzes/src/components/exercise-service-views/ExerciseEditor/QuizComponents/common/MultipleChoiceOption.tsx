@@ -177,9 +177,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
             </CheckboxContainer>
           </CenteredContainer>
         ) : (
-          <>
-            <ChoiceTitle>{option.title}</ChoiceTitle>
-          </>
+          <ChoiceTitle>{option.title}</ChoiceTitle>
         )}
         <OptionButtonGroup>
           {option.correct && !editMode && <CorrectTag> {t("label-correct")} </CorrectTag>}

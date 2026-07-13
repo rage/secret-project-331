@@ -77,19 +77,17 @@ const MultipleChoiceDropdownFeedback: React.FC<
             `}
           >
             {public_quiz_item.title ? (
-              <>
-                <h2
-                  className={css`
-                    font-size: ${quizTheme.quizTitleFontSize} !important;
-                    font-weight: 500;
-                    color: #4c5868;
-                    font-family: ${primaryFont};
-                    margin-bottom: 1rem;
-                  `}
-                >
-                  {public_quiz_item.title}
-                </h2>
-              </>
+              <h2
+                className={css`
+                  font-size: ${quizTheme.quizTitleFontSize} !important;
+                  font-weight: 500;
+                  color: #4c5868;
+                  font-family: ${primaryFont};
+                  margin-bottom: 1rem;
+                `}
+              >
+                {public_quiz_item.title}
+              </h2>
             ) : null}
           </div>
           {public_quiz_item.body && (
@@ -99,15 +97,13 @@ const MultipleChoiceDropdownFeedback: React.FC<
               `}
             >
               {public_quiz_item.body ? (
-                <>
-                  <h3
-                    className={css`
-                      font-size: 1.25rem !important;
-                    `}
-                  >
-                    {public_quiz_item.body}
-                  </h3>
-                </>
+                <h3
+                  className={css`
+                    font-size: 1.25rem !important;
+                  `}
+                >
+                  {public_quiz_item.body}
+                </h3>
               ) : null}
             </div>
           )}

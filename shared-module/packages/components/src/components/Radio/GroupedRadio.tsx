@@ -20,7 +20,7 @@ import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
 
 import type { RadioContextValue, RadioInnerProps } from "./radioTypes"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const defaultFieldSize = "md" as const
 
 /** Renders a radio option when nested inside `RadioGroup`. */

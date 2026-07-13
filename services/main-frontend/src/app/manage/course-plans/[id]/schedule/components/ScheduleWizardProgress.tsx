@@ -5,7 +5,8 @@ import { motion, useReducedMotion } from "motion/react"
 import { useProgressBar } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { SCHEDULE_WIZARD_STEPS, ScheduleWizardStepId } from "../scheduleConstants"
+import type { ScheduleWizardStepId } from "../scheduleConstants"
+import { SCHEDULE_WIZARD_STEPS } from "../scheduleConstants"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -132,7 +133,7 @@ export default function ScheduleWizardProgress({ step }: ScheduleWizardProgressP
     value: currentStepIndex + 1,
     minValue: 1,
     maxValue: SCHEDULE_WIZARD_STEPS.length,
-    // eslint-disable-next-line i18next/no-literal-string -- step counter, not user-facing copy
+    // oxlint-disable-next-line i18next/no-literal-string -- step counter, not user-facing copy
     valueLabel: `Step ${currentStepIndex + 1} of ${SCHEDULE_WIZARD_STEPS.length}`,
   })
 
@@ -155,7 +156,7 @@ export default function ScheduleWizardProgress({ step }: ScheduleWizardProgressP
               : {
                   type: "tween",
                   duration: 0.35,
-                  // eslint-disable-next-line i18next/no-literal-string -- Motion ease value
+                  // oxlint-disable-next-line i18next/no-literal-string -- Motion ease value
                   ease: "easeOut",
                 }
           }
@@ -176,7 +177,7 @@ export default function ScheduleWizardProgress({ step }: ScheduleWizardProgressP
               label = t("course-plans-wizard-step-schedule")
               break
           }
-          // eslint-disable-next-line i18next/no-literal-string -- step circle shows checkmark/step number
+          // oxlint-disable-next-line i18next/no-literal-string -- step circle shows checkmark/step number
           const stepMarker = isCompleted ? "✓" : String(index + 1)
           return (
             <div key={stepId} className={wizardStepPillStyles(isActive, isCompleted)}>
@@ -198,7 +199,7 @@ export default function ScheduleWizardProgress({ step }: ScheduleWizardProgressP
                     : {
                         type: "tween",
                         duration: 0.25,
-                        // eslint-disable-next-line i18next/no-literal-string -- Motion ease value
+                        // oxlint-disable-next-line i18next/no-literal-string -- Motion ease value
                         ease: "easeOut",
                       }
                 }

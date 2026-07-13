@@ -1,6 +1,6 @@
 import migratePublicSpecQuiz from "../../../src/util/migration/publicSpecQuiz"
-import { OldPublicQuizItem, OldPublicTimelineItem } from "../../../types/oldQuizTypes"
-import {
+import type { OldPublicQuizItem, OldPublicTimelineItem } from "../../../types/oldQuizTypes"
+import type {
   PublicSpecQuizItemCheckbox,
   PublicSpecQuizItemChooseN,
   PublicSpecQuizItemClosedEndedQuestion,

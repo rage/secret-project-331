@@ -14,7 +14,7 @@ import { InstructionBox } from "../../CourseStatsPage"
 import StatsHeader from "../../StatsHeader"
 import NoDataMessage from "../NoDataMessage"
 
-import { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
+import type { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import Accordion from "@/shared-module/common/components/Accordion"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -91,7 +91,7 @@ const DailyVisitCountsGroupedByUtm: React.FC<
       {} as Record<string, PageVisitDatumSummaryByCourse>,
     )
 
-    const sorted = Object.values(aggregated).sort((a, b) => {
+    const sorted = Object.values(aggregated).toSorted((a, b) => {
       if (a.visit_date < b.visit_date) {
         return -1
       }

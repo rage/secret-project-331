@@ -67,7 +67,7 @@ const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
       className={`${getParagraphStyles(textColor, backgroundColor, fontSize, true, false, align)} ${getEditableHoverStyles(false)}`}
       onClick={handleSelectForEditing}
       onKeyDown={handleKeyDown}
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
+      // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
       role="button"
       tabIndex={0}
     >

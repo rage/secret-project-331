@@ -140,7 +140,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
 
             {answerRequiringAttention.tasks
               .slice()
-              .sort((a, b) => a.order_number - b.order_number)
+              .toSorted((a, b) => a.order_number - b.order_number)
               .map((task) => (
                 <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} throttled />
               ))}

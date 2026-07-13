@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { RefObject, useCallback, useEffect, useRef, useState } from "react"
+import type { RefObject } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useButton, useFocusRing } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -114,7 +115,7 @@ const Controls = ({
       const currentTime = audioRef.current.currentTime
       progressBarRef.current.value = String(currentTime)
       progressBarRef.current.style.setProperty(
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "--range-progress",
         `${(Number(progressBarRef.current.value) / duration) * 100}%`,
       )

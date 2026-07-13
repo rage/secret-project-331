@@ -10,11 +10,11 @@ import Accordion from "@/shared-module/common/components/Accordion"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export interface FlaggedPeerReviewAccordionProps {
-  reports: Array<FlaggedAnswer>
+  reports: FlaggedAnswer[]
   title: string
 }
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const Title = styled.h5`
   border-top: 1px solid ${baseTheme.colors.clear[600]};
   border-bottom: 1px solid ${baseTheme.colors.clear[600]};

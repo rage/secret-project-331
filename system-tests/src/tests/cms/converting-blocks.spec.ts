@@ -41,7 +41,7 @@ test("Can convert blocks", async ({ page }) => {
   await page.getByRole("button", { name: "Heading 2" }).click()
   await page.getByRole("menuitem", { name: "Heading 3" }).click()
   // There once was a regression where the page crashed here if we waited for a moment
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
   await page.getByLabel("Block: Paragraph").first().waitFor()
 })

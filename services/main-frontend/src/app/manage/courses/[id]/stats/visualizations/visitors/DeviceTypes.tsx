@@ -62,7 +62,7 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
     const aggregatedData: Record<string, number> = {}
     allDeviceTypesInData.forEach((deviceType) => {
       const deviceTypeData = query.data.filter((d) => d.device_type === deviceType)
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       aggregatedData[deviceType ?? "null"] = deviceTypeData.reduce(
         (acc, curr) => acc + curr.num_visitors,
         0,
@@ -79,7 +79,7 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
     const aggregatedData: Record<string, number> = {}
     allOperatingSystemsInData.forEach((operatingSystem) => {
       const operatingSystemData = query.data.filter((d) => d.operating_system === operatingSystem)
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       aggregatedData[operatingSystem ?? "null"] = operatingSystemData.reduce(
         (acc, curr) => acc + curr.num_visitors,
         0,
@@ -96,7 +96,7 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
     const aggregatedData: Record<string, number> = {}
     allBrowsersInData.forEach((browser) => {
       const browserData = query.data.filter((d) => d.browser === browser)
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       aggregatedData[browser ?? "null"] = browserData.reduce(
         (acc, curr) => acc + curr.num_visitors,
         0,
@@ -126,14 +126,14 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
                     height={DEFAULT_CHART_HEIGHT}
                     options={{
                       tooltip: {
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         trigger: "item",
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         formatter: "{b}: {c} ({d}%)",
                       },
                       title: {
                         text: t("title-device-type"),
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         left: "center",
                       },
                       series: [
@@ -164,14 +164,14 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
                     height={DEFAULT_CHART_HEIGHT}
                     options={{
                       tooltip: {
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         trigger: "item",
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         formatter: "{b}: {c} ({d}%)",
                       },
                       title: {
                         text: t("title-operating-system"),
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         left: "center",
                       },
                       series: [
@@ -202,14 +202,14 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
                     height={DEFAULT_CHART_HEIGHT}
                     options={{
                       tooltip: {
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         trigger: "item",
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         formatter: "{b}: {c} ({d}%)",
                       },
                       title: {
                         text: t("title-browser"),
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         left: "center",
                       },
                       series: [

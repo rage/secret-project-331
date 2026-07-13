@@ -11,7 +11,7 @@ import {
   getNumberOfPeopleRegisteredCompletionToStudyRegistryOptions,
   getNumberOfPeopleStartedCourseOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import { TimeGranularity } from "@/generated/api/types.generated"
+import type { TimeGranularity } from "@/generated/api/types.generated"
 
 export const useNumberOfPeopleCompletedACourseQuery = (granularity: TimeGranularity) => {
   return useQuery({

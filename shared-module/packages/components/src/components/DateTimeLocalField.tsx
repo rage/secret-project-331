@@ -8,9 +8,9 @@ import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
 import type { FieldSize } from "./primitives/fieldStyles"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const floatingLayout = "floating" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const dateTimeFieldKind = "datetime" as const
 
 /**

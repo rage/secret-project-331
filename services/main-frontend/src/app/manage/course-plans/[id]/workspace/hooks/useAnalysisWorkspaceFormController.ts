@@ -195,7 +195,7 @@ export default function useAnalysisWorkspaceFormController(props: {
 
   const scrollToSection = (id: string) => (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
-    document.getElementById(id)?.scrollIntoView({
+    document.querySelector(`#${id}`)?.scrollIntoView({
       behavior: SCROLL_BEHAVIOR,
       block: SCROLL_BLOCK,
     })
@@ -209,7 +209,7 @@ export default function useAnalysisWorkspaceFormController(props: {
   const uhLines = uhBody.split("\n").filter((line) => line.trim() !== "")
 
   const showUhResources =
-    typeof process.env.NEXT_PUBLIC_SHOW_UH_ANALYSIS_RESOURCES === "undefined" ||
+    process.env.NEXT_PUBLIC_SHOW_UH_ANALYSIS_RESOURCES === undefined ||
     process.env.NEXT_PUBLIC_SHOW_UH_ANALYSIS_RESOURCES !== "false"
 
   return {

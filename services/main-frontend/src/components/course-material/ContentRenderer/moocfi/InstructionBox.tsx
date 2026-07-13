@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 
 import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"

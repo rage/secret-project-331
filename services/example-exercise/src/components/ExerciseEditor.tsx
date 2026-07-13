@@ -3,10 +3,10 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import ButtonEditor from "./ButtonEditor"
-import { State } from "./IframeView"
+import type { State } from "./IframeView"
 
-import { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { Alternative } from "@/util/stateInterfaces"
+import type { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { Alternative } from "@/util/stateInterfaces"
 import { generateUuid } from "@/util/uuid"
 
 const CURRENT_STATE = "current-state"
@@ -58,7 +58,7 @@ const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, por
           item={o}
           onDelete={() => {
             const newState = state.filter((e) => e.id !== o.id)
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             setState({ view_type: "exercise-editor", private_spec: newState })
           }}
           onChange={(task) => {
@@ -68,7 +68,7 @@ const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, por
               }
               return task
             })
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             setState({ view_type: "exercise-editor", private_spec: newState })
           }}
         />
@@ -77,7 +77,7 @@ const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, por
         onClick={() => {
           const newState = [...state]
           newState.push({ name: "", correct: false, id: generateUuid() })
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           setState({ view_type: "exercise-editor", private_spec: newState })
         }}
       >

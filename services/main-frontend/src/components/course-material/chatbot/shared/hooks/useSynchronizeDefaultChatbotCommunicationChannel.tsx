@@ -1,12 +1,12 @@
 "use client"
 
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { useSetAtom } from "jotai"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import ChatbotDisclaimer from "../ChatbotDisclaimer"
-import { ChatbotAction } from "../chatbotReducer"
+import type { ChatbotAction } from "../chatbotReducer"
 
 import type {
   ChatbotConversation,

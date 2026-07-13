@@ -21,7 +21,7 @@ import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
 
 import type { RadioInnerProps } from "./radioTypes"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const defaultFieldSize = "md" as const
 
 /** Renders a standalone radio input outside of `RadioGroup`. */

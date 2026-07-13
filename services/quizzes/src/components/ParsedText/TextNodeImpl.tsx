@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import DOMPurify from "dompurify"
 import React from "react"
 
-import { TextNodeProps } from "."
+import type { TextNodeProps } from "."
 
 const sanitizeHTML = (dirty: string) => {
   return DOMPurify.sanitize(dirty, {
@@ -55,7 +55,7 @@ const parsedContentStyles = css`
 `
 
 const TextNodeImpl: React.FC<React.PropsWithChildren<TextNodeProps>> = ({ text, inline }) => {
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const Tag = inline ? "span" : "div"
   return (
     <Tag

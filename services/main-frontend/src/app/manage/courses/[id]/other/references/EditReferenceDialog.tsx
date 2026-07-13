@@ -1,6 +1,6 @@
 "use client"
 
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import EditReferenceForm from "@/components/forms/EditReferenceForm"

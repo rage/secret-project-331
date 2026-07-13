@@ -2,7 +2,7 @@ import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 
 import { SCHEDULE_STAGE_ORDER } from "./scheduleConstants"
 
-import {
+import type {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
@@ -11,7 +11,7 @@ const STAGE_ORDER: CourseDesignerStage[] = SCHEDULE_STAGE_ORDER
 
 type StageInput = CourseDesignerScheduleStageInput
 
-type MonthWithStage = {
+interface MonthWithStage {
   date: Date
   stage: CourseDesignerStage
 }
@@ -34,8 +34,10 @@ export const buildMonthTimeline = (stages: StageInput[]): MonthWithStage[] | nul
   }
 
   const starts = STAGE_ORDER.map((stage) =>
+    // oxlint-disable-next-line typescript/no-non-null-assertion -- has-check loop above guarantees every STAGE_ORDER entry is present in byStage
     startOfMonth(parseISO(byStage.get(stage)!.planned_starts_on)),
   )
+  // oxlint-disable-next-line typescript/no-non-null-assertion -- has-check loop above guarantees every STAGE_ORDER entry is present in byStage
   const ends = STAGE_ORDER.map((stage) => endOfMonth(parseISO(byStage.get(stage)!.planned_ends_on)))
 
   const planStart = starts.reduce((a, b) => (a < b ? a : b))
@@ -96,7 +98,7 @@ export const addMonthToStage = (stages: StageInput[], stageIndex: number): Stage
     return null
   }
 
-  const lastDate = months[months.length - 1]?.date
+  const lastDate = months.at(-1)?.date
   if (!lastDate) {
     return null
   }

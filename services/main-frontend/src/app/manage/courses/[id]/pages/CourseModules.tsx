@@ -6,8 +6,10 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import EditCourseModuleForm, { EditCourseModuleFormFields } from "./EditCourseModuleForm"
-import NewCourseModuleForm, { Fields } from "./NewCourseModuleForm"
+import type { EditCourseModuleFormFields } from "./EditCourseModuleForm"
+import EditCourseModuleForm from "./EditCourseModuleForm"
+import type { Fields } from "./NewCourseModuleForm"
+import NewCourseModuleForm from "./NewCourseModuleForm"
 
 import BottomPanel from "@/components/BottomPanel"
 import { getCourseStructureOptions } from "@/generated/api/@tanstack/react-query.generated"
@@ -26,7 +28,7 @@ interface Props {
   courseId: string
 }
 
-export type ModuleView = {
+export interface ModuleView {
   id: string
   name: string | null
   order_number: number
@@ -43,11 +45,16 @@ export type ModuleView = {
   enable_registering_completion_to_uh_open_university: boolean
 }
 
-type ChapterView = { id: string; name: string; module: string | null; chapter_number: number }
+interface ChapterView {
+  id: string
+  name: string
+  module: string | null
+  chapter_number: number
+}
 
-type ModuleList = {
-  modules: Array<ModuleView>
-  chapters: Array<ChapterView>
+interface ModuleList {
+  modules: ModuleView[]
+  chapters: ChapterView[]
   error: string | null
 }
 
@@ -58,10 +65,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   const [moduleList, setModuleList] = useState<ModuleList | null>(null)
 
   // helper functions
-  const validateModuleList = (
-    modules: Array<ModuleView>,
-    chapters: Array<ChapterView>,
-  ): string | null => {
+  const validateModuleList = (modules: ModuleView[], chapters: ChapterView[]): string | null => {
     const seenModules = new Map<string, number>()
 
     chapters.sort((l, r) => l.chapter_number - r.chapter_number)
@@ -92,13 +96,12 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 prevChapter,
                 currChapter: chapter.chapter_number,
               })
-            } else {
-              return t("error-modules-noncontinuous-chapters", {
-                moduleName: erroringModule?.name ?? "",
-                prevChapter,
-                currChapter: chapter.chapter_number,
-              })
             }
+            return t("error-modules-noncontinuous-chapters", {
+              moduleName: erroringModule?.name ?? "",
+              prevChapter,
+              currChapter: chapter.chapter_number,
+            })
           }
         }
         seenModules.set(chapter.module, chapter.chapter_number)
@@ -122,7 +125,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   }
   const firstAndLastChaptersOfModule = (
     moduleId: string,
-    chapters: Array<ChapterView>,
+    chapters: ChapterView[],
   ): [number | null, number | null] => {
     let first = null
     let last = null
@@ -140,7 +143,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
     return [first, last]
   }
-  const sortAndUpdateOrderNumbers = (modules: Array<ModuleView>): Array<ModuleView> => {
+  const sortAndUpdateOrderNumbers = (modules: ModuleView[]): ModuleView[] => {
     modules.sort((l, r) => {
       // sort default module first
       if (l.name === null) {
@@ -170,12 +173,12 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     }),
     select: (courseStructure) => {
       const chapterNumbers = courseStructure.chapters
-        .sort((l, r) => l.chapter_number - r.chapter_number)
+        .toSorted((l, r) => l.chapter_number - r.chapter_number)
         .map((c) => c.chapter_number)
 
       const makeModuleList = () => {
         const chapters = courseStructure.chapters
-          .sort((l, r) => l.chapter_number - r.chapter_number)
+          .toSorted((l, r) => l.chapter_number - r.chapter_number)
           .map((c) => {
             return {
               id: c.id,
@@ -207,25 +210,23 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               enable_registering_completion_to_uh_open_university:
                 m.enable_registering_completion_to_uh_open_university,
             }
-          } else {
-            return {
-              id: m.id,
-              name: m.name ?? null,
-              order_number: m.order_number,
-              firstChapter,
-              lastChapter,
-              isNew: false,
-              uh_course_code: m.uh_course_code ?? null,
-              ects_credits: m.ects_credits ?? null,
-              automatic_completion: false,
-              automatic_completion_number_of_points_treshold: null,
-              automatic_completion_number_of_exercises_attempted_treshold: null,
-              automatic_completion_requires_exam: false,
-              completion_registration_link_override:
-                m.completion_registration_link_override ?? null,
-              enable_registering_completion_to_uh_open_university:
-                m.enable_registering_completion_to_uh_open_university,
-            }
+          }
+          return {
+            id: m.id,
+            name: m.name ?? null,
+            order_number: m.order_number,
+            firstChapter,
+            lastChapter,
+            isNew: false,
+            uh_course_code: m.uh_course_code ?? null,
+            ects_credits: m.ects_credits ?? null,
+            automatic_completion: false,
+            automatic_completion_number_of_points_treshold: null,
+            automatic_completion_number_of_exercises_attempted_treshold: null,
+            automatic_completion_requires_exam: false,
+            completion_registration_link_override: m.completion_registration_link_override ?? null,
+            enable_registering_completion_to_uh_open_university:
+              m.enable_registering_completion_to_uh_open_university,
           }
         })
         const error = validateModuleList(modules, chapters)
@@ -398,34 +399,32 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           return { ...c, module: id }
         } else if (c.module === id) {
           return { ...c, module: null }
-        } else {
-          return c
         }
+        return c
       })
       const modules = old.modules.map((m) => {
         if (m.id !== id) {
           return m
-        } else {
-          const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
-          return {
-            id,
-            name,
-            order_number: m.order_number,
-            ects_credits,
-            uh_course_code: nullIfEmptyString(uh_course_code),
-            automatic_completion,
-            automatic_completion_number_of_points_treshold,
-            automatic_completion_number_of_exercises_attempted_treshold,
-            automatic_completion_requires_exam,
-            completion_registration_link_override: override_completion_link
-              ? completion_registration_link_override
-              : null,
-            firstChapter,
-            lastChapter,
-            isNew: m.isNew,
-            enable_registering_completion_to_uh_open_university,
-          } satisfies ModuleView
         }
+        const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
+        return {
+          id,
+          name,
+          order_number: m.order_number,
+          ects_credits,
+          uh_course_code: nullIfEmptyString(uh_course_code),
+          automatic_completion,
+          automatic_completion_number_of_points_treshold,
+          automatic_completion_number_of_exercises_attempted_treshold,
+          automatic_completion_requires_exam,
+          completion_registration_link_override: override_completion_link
+            ? completion_registration_link_override
+            : null,
+          firstChapter,
+          lastChapter,
+          isNew: m.isNew,
+          enable_registering_completion_to_uh_open_university,
+        } satisfies ModuleView
       })
       return {
         modules: sortAndUpdateOrderNumbers(modules),
@@ -493,7 +492,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       })
 
       // update modules
-      const modules: Array<ModuleView> = [
+      const modules: ModuleView[] = [
         ...old.modules,
         {
           id: newModuleId,
@@ -560,7 +559,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               {t("modules")}
             </h1>
             {moduleList?.modules
-              .sort((l, r) => {
+              .toSorted((l, r) => {
                 return l.order_number - r.order_number
               })
               .map((module) => (
@@ -645,7 +644,6 @@ function mapFieldsToCompletionPolicy(fields: ModuleView): CompletionPolicy {
       number_of_points_treshold: fields.automatic_completion_number_of_points_treshold,
       requires_exam: fields.automatic_completion_requires_exam,
     }
-  } else {
-    return { policy: MANUAL }
   }
+  return { policy: MANUAL }
 }

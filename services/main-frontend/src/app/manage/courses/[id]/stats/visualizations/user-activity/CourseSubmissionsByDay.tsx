@@ -71,7 +71,7 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
                 height={200 * Object.keys(processedData.eChartsData).length}
                 options={{
                   tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     position: "top",
                     formatter: (a) => {
                       return t("daily-submissions-visualization-tooltip", {
@@ -91,7 +91,7 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
                     ([year, _submissionCounts], i) => {
                       return {
                         range: year,
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         cellSize: ["auto", 20],
                         dayLabel: {
                           firstDay: 1,
@@ -104,9 +104,9 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
                     ([_year, submissionCounts], i) => {
                       return {
                         type: "heatmap",
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         coordinateSystem: "calendar",
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        // oxlint-disable-next-line typescript/no-explicit-any
                         data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
                         calendarIndex: i,
                       }

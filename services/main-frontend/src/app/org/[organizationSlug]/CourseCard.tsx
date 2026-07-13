@@ -128,7 +128,7 @@ const capitalizeFirstLetter: (language: string) => string = (language) => {
   if (!language) {
     return language
   }
-  return language.charAt(0).toUpperCase() + language.substring(1).toLowerCase()
+  return language.charAt(0).toUpperCase() + language.slice(1).toLowerCase()
 }
 
 const CourseCard: React.FC<React.PropsWithChildren<CourseCardProps>> = ({

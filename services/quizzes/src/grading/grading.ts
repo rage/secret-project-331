@@ -1,5 +1,5 @@
-import { QuizItemAnswerGrading } from "../../types/quizTypes/grading"
-import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
+import type { QuizItemAnswerGrading } from "../../types/quizTypes/grading"
+import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 
 import { isValidNumber } from "./utils/math"
 

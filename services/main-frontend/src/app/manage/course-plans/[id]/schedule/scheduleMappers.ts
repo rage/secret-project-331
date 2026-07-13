@@ -2,7 +2,7 @@ import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 
 import { SCHEDULE_STAGE_COUNT, SCHEDULE_STAGE_ORDER } from "./scheduleConstants"
 
-import {
+import type {
   CourseDesignerPlanStage,
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
@@ -13,21 +13,19 @@ type StageRangeLike = Pick<
   "stage" | "planned_starts_on" | "planned_ends_on"
 >
 
-export type StageMonth = {
+export interface StageMonth {
   id: string
   date: Date
   label: string
 }
 
-export type StageCardViewModel = {
+export interface StageCardViewModel {
   stage: CourseDesignerStage
   months: StageMonth[]
   canShrink: boolean
 }
 
-export function toDraftStages(
-  stages: Array<StageRangeLike>,
-): Array<CourseDesignerScheduleStageInput> {
+export function toDraftStages(stages: StageRangeLike[]): CourseDesignerScheduleStageInput[] {
   return stages.map((stage) => ({
     stage: stage.stage,
     planned_starts_on: stage.planned_starts_on,
@@ -36,7 +34,7 @@ export function toDraftStages(
 }
 
 export function getStartsOnMonthFromStages(
-  stages: Array<Pick<CourseDesignerScheduleStageInput, "planned_starts_on">>,
+  stages: Pick<CourseDesignerScheduleStageInput, "planned_starts_on">[],
 ): string | null {
   return stages[0]?.planned_starts_on?.slice(0, 7) ?? null
 }
@@ -60,8 +58,8 @@ export function getStageMonths(stage: CourseDesignerScheduleStageInput): StageMo
 }
 
 export function buildStageCardViewModels(
-  stages: Array<CourseDesignerScheduleStageInput>,
-): Array<StageCardViewModel> {
+  stages: CourseDesignerScheduleStageInput[],
+): StageCardViewModel[] {
   if (stages.length !== SCHEDULE_STAGE_COUNT) {
     return []
   }

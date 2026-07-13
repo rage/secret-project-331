@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { InspectorControls, RichText } from "@wordpress/block-editor"
 import React, { useContext, useEffect } from "react"
@@ -9,7 +9,7 @@ import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndC
 import PageContext from "../../contexts/PageContext"
 import BlockWrapper from "../BlockWrapper"
 
-import { HeroSectionAttributes } from "."
+import type { HeroSectionAttributes } from "."
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"

@@ -4,7 +4,7 @@ import { BullhornMegaphone, InfoCircle } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
+import type {
   UserAnswer,
   UserItemAnswerCheckbox,
   UserItemAnswerChooseN,
@@ -16,13 +16,13 @@ import {
   UserItemAnswerScale,
   UserItemAnswerTimeline,
 } from "../../../../types/quizTypes/answer"
-import { ItemAnswerFeedback } from "../../../../types/quizTypes/grading"
-import {
+import type { ItemAnswerFeedback } from "../../../../types/quizTypes/grading"
+import type {
   ModelSolutionQuiz,
   ModelSolutionQuizItem,
 } from "../../../../types/quizTypes/modelSolutionSpec"
-import { QuizItemType } from "../../../../types/quizTypes/privateSpec"
-import {
+import type { QuizItemType } from "../../../../types/quizTypes/privateSpec"
+import type {
   PublicSpecQuiz,
   PublicSpecQuizItemCheckbox,
   PublicSpecQuizItemChooseN,
@@ -46,13 +46,14 @@ import MultipleChoiceSubmission from "./impl-by-quiz-item-type/MultipleChoice"
 import MultipleChoiceDropdownFeedback from "./impl-by-quiz-item-type/MultipleChoiceDropdown"
 import ScaleSubmissionViewComponent from "./impl-by-quiz-item-type/Scale"
 import Timeline from "./impl-by-quiz-item-type/Timeline"
-import Unsupported from "./impl-by-quiz-item-type/Unsupported"
+import type Unsupported from "./impl-by-quiz-item-type/Unsupported"
 
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { baseTheme } from "@/shared-module/exercise-react/styles"
 import { COLUMN } from "@/util/constants"
-import { FlexDirection, sanitizeFlexDirection } from "@/util/css-sanitization"
+import type { FlexDirection } from "@/util/css-sanitization"
+import { sanitizeFlexDirection } from "@/util/css-sanitization"
 
 interface SubmissionProps {
   user_answer: UserAnswer
@@ -77,7 +78,7 @@ interface QuizItemSubmissionComponentDescriptor {
   shouldDisplayCorrectnessMessageAfterAnswer: boolean
 }
 
-const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor } = {
+const mapTypeToComponent: Record<string, QuizItemSubmissionComponentDescriptor> = {
   essay: { component: EssayFeedback, shouldDisplayCorrectnessMessageAfterAnswer: false },
   "multiple-choice": {
     component: MultipleChoiceSubmission,
@@ -155,9 +156,8 @@ const SubmissionFeedback: React.FC<{
         return t("your-answer-was-not-correct")
       } else if (score < 1) {
         return t("your-answer-was-partially-correct")
-      } else {
-        return t("your-answer-was-correct")
       }
+      return t("your-answer-was-correct")
     },
     [t],
   )
@@ -281,7 +281,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   }, [user_answer?.itemAnswers, publicAlternatives?.items])
 
   const orderedItems = useMemo(() => {
-    return [...publicAlternatives.items].sort((i1, i2) => i1.order - i2.order)
+    return [...publicAlternatives.items].toSorted((i1, i2) => i1.order - i2.order)
   }, [publicAlternatives.items])
 
   const lastFeedbackItemId = useMemo(() => {

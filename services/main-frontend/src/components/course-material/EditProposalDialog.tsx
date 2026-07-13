@@ -37,7 +37,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
 
   const { landmarkProps } = useLandmark(
     {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       role: "region",
       "aria-label": t("improve-content-dialog"),
     },
@@ -45,7 +45,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
   )
 
   const modifierKey = getModifierKey()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const dialogShortcut = formatKeyboardShortcut([modifierKey, "Shift", "I"])
 
   const mutation = useToastMutation(

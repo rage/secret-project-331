@@ -3,7 +3,7 @@
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
-import { i18n, TFunction } from "i18next"
+import type { i18n, TFunction } from "i18next"
 import { useAtomValue } from "jotai"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -17,9 +17,8 @@ import type {
   UserCourseInstanceChapterProgress,
 } from "@/generated/course-material-api/types.generated"
 import useTime from "@/hooks/course-material/useTime"
-import NextSectionLink, {
-  NextSectionLinkProps,
-} from "@/shared-module/common/components/NextSectionLink"
+import type { NextSectionLinkProps } from "@/shared-module/common/components/NextSectionLink"
+import NextSectionLink from "@/shared-module/common/components/NextSectionLink"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"

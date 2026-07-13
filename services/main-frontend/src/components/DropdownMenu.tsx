@@ -1,7 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { ReactElement, ReactNode, useState } from "react"
+import type { ReactElement, ReactNode } from "react"
+import { useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 

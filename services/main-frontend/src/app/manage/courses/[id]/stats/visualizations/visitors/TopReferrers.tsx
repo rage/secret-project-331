@@ -47,19 +47,18 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
         const totalCount = query.data
           .filter((item) => item.referrer === referrer)
           .reduce((acc, item) => acc + item.num_visitors, 0)
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         return { referrer: referrer ?? "null", visitors: totalCount }
       })
-      .sort((a, b) => a.visitors - b.visitors)
-    const totalCountsByReferrerObject: { [referrer: string]: number } =
-      totalCountsByReferrer.reduce(
-        (acc, d) => {
-          // eslint-disable-next-line i18next/no-literal-string
-          acc[d.referrer ?? "null"] = d.visitors
-          return acc
-        },
-        {} as Record<string, number>,
-      )
+      .toSorted((a, b) => a.visitors - b.visitors)
+    const totalCountsByReferrerObject: Record<string, number> = totalCountsByReferrer.reduce(
+      (acc, d) => {
+        // oxlint-disable-next-line i18next/no-literal-string
+        acc[d.referrer ?? "null"] = d.visitors
+        return acc
+      },
+      {} as Record<string, number>,
+    )
     return totalCountsByReferrerObject
   }, [query.data])
 
@@ -76,7 +75,7 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
+  const chartHeight = categories.length > 0 ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
 
   return (
     <>
@@ -114,9 +113,9 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
                       },
                     ],
                     tooltip: {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       trigger: "item",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       formatter: "{b}: {c}",
                     },
                   }}

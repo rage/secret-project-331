@@ -5,7 +5,7 @@ jest.mock("next/dynamic", () => ({
     const dynamicActualComp = dynamicModule.default
     const RequiredComponent = dynamicActualComp(props[0])
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    // oxlint-disable-next-line typescript/no-unused-expressions
     RequiredComponent.preload ? RequiredComponent.preload() : RequiredComponent.render.preload()
     return RequiredComponent
   },

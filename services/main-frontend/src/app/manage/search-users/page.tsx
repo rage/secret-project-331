@@ -28,7 +28,7 @@ const SearchUsersPage: React.FC = () => {
     queryValue: searchQuery,
     runImmediate,
   } = useUrlSyncedDebouncedQuery({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     paramName: "search",
     delayMs: 250,
   })

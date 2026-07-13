@@ -7,11 +7,11 @@ import { diffWords } from "diff"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  type BlockProposal,
-  type BlockProposalAction,
-  type BlockProposalInfo,
-  type PageProposal,
+import type {
+  BlockProposal,
+  BlockProposalAction,
+  BlockProposalInfo,
+  PageProposal,
 } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
 import Button from "@/shared-module/common/components/Button"
@@ -84,7 +84,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
 
   const sendMutation = useToastMutation(
     () => {
-      const blockInfo: Array<BlockProposalInfo> = Array.from(blockActions).map(([id, action]) => {
+      const blockInfo: BlockProposalInfo[] = Array.from(blockActions).map(([id, action]) => {
         return { id, action }
       })
       return handleProposal(proposal.page_id, proposal.id, blockInfo)
@@ -158,7 +158,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             onChangeByValue={(newValue) =>
               setBlockActions((ba) => {
                 if (block.accept_preview != null) {
-                  // eslint-disable-next-line i18next/no-literal-string
+                  // oxlint-disable-next-line i18next/no-literal-string
                   ba.set(block.id, { tag: "Accept", data: newValue })
                 }
                 return new Map(ba)
@@ -185,7 +185,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                 })
                 setBlockActions((ba) => {
                   if (block.accept_preview != null) {
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                   }
                   return new Map(ba)
@@ -205,7 +205,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                 })
                 setBlockActions((ba) => {
                   if (block.accept_preview != null) {
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                   }
                   return new Map(ba)
@@ -223,7 +223,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                 return new Set(eb)
               })
               setBlockActions((ba) => {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 ba.set(block.id, { tag: "Reject" })
                 return new Map(ba)
               })

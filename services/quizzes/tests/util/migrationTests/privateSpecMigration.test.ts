@@ -1,7 +1,7 @@
 import { isOldQuiz } from "../../../src/util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
-import { OldQuiz, OldQuizItemTimelineItem, QuizItem } from "../../../types/oldQuizTypes"
-import {
+import type { OldQuiz, OldQuizItemTimelineItem, QuizItem } from "../../../types/oldQuizTypes"
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,

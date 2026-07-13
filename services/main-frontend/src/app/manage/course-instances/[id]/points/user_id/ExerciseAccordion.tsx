@@ -52,7 +52,7 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
         body: {
           user_exercise_state_id: userExerciseState.id,
           exercise_id: exerciseStatus.exercise.id,
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           action: "CustomPoints",
           manual_points: points,
           justification: null,
@@ -204,9 +204,9 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                 transition: transform 0.2s ease;
                 transform: ${isExpanded ? "rotate(180deg)" : "rotate(0)"};
               `}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
-              {/* eslint-disable-next-line i18next/no-literal-string */}▼
+              {/* oxlint-disable-next-line i18next/no-literal-string */}▼
             </span>
           </button>
           <div

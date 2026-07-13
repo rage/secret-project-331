@@ -12,7 +12,7 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const MentiMeterEmbed = (props: any) => {
     const { t } = useTranslation()
     if (props.attributes.providerNameSlug !== "mentimeter") {
@@ -43,7 +43,7 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
                 })
                 if (url) {
                   props.setAttributes({
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     url: updateQueryStringParameter(url, "title", value),
                   })
                 }
@@ -60,7 +60,7 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
                 })
                 if (url) {
                   props.setAttributes({
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     url: updateQueryStringParameter(url, "height", value),
                   })
                 }
@@ -75,7 +75,7 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
 
   MentiMeterEmbed.displayName = "MentimeterComponent"
   return MentiMeterEmbed
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withMentimeterInspector")
 
 export default withMentimeterInspector

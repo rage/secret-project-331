@@ -1,7 +1,11 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
+import type {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+} from "@tanstack/react-query"
 import { BlockProhibited } from "@vectopus/atlas-icons-react"
 import { max } from "lodash"
 import React, { useEffect, useReducer, useState } from "react"
@@ -169,7 +173,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         {pageOrderState.chapters &&
           pageOrderState.chapters
             .filter((chapter) => !chapter.deleted_at)
-            .sort((a, b) => a.chapter_number - b.chapter_number)
+            .toSorted((a, b) => a.chapter_number - b.chapter_number)
             .map((chapter, n) => {
               let moving = MOVING_ALLOWED
               if (n === 0) {

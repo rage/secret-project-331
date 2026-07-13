@@ -220,7 +220,7 @@ export function DatePickerCalendar({
 
         {pickerView !== pickerViewCalendar ? (
           <YearMonthPicker
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             initialView={pickerView === pickerViewYear ? "year" : "month"}
             selectedYear={state.visibleRange.start.year}
             selectedMonth={state.visibleRange.start.month}

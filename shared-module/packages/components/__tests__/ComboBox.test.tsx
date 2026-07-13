@@ -6,7 +6,7 @@ import { ComboBox } from "../src/components/ComboBox"
 
 import { FormHarness, pressArrowDown, pressEnter, pressTab, renderWithForm } from "./testUtils"
 
-type Item = {
+interface Item {
   id: string
   label: string
   disabled?: boolean

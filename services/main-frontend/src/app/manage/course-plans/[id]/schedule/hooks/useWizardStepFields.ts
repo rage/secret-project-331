@@ -29,7 +29,7 @@ export function useWizardTextField(
 
 import type { CourseDesignerCourseSize } from "@/generated/api/types.generated"
 
-type SetupStepFormValues = {
+interface SetupStepFormValues {
   courseSize: CourseDesignerCourseSize
   startsOnMonth: string
 }

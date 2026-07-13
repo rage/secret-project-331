@@ -1,10 +1,10 @@
 "use client"
 
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import { DomainCompletionStats } from "@/generated/api/types.generated"
+import type { DomainCompletionStats } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"

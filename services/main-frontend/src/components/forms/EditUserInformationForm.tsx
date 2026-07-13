@@ -19,7 +19,7 @@ import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-type SelectUserInfoFormFields = {
+interface SelectUserInfoFormFields {
   email: string
   first_name: string
   last_name: string
@@ -27,7 +27,7 @@ type SelectUserInfoFormFields = {
   emailCommunicationConsent: boolean
 }
 
-type SelectUserInfoFormProps = {
+interface SelectUserInfoFormProps {
   email: string
   firstName: string
   lastName: string
@@ -54,7 +54,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     register,
     reset,
   } = useForm<SelectUserInfoFormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       email,

@@ -96,7 +96,7 @@ const CodeGiveawayPage = () => {
         {t("button-text-import")}
       </Button>
       <ImportCodesForm
-        codeGiveawayId={id!.toString()}
+        codeGiveawayId={id.toString()}
         dialogOpen={importDialogOpen}
         setDialogOpen={setImportDialogOpen}
         onCreated={() => {

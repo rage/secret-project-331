@@ -92,7 +92,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
           {(data) => (
             <>
               {[...data.modules]
-                .sort((a, b) => a.order_number - b.order_number)
+                .toSorted((a, b) => a.order_number - b.order_number)
                 .map((module) => {
                   const randomNumber = stringToRandomNumber(module.id) % COLORS_ARRAY.length
                   const randomizedColor = COLORS_ARRAY[randomNumber]

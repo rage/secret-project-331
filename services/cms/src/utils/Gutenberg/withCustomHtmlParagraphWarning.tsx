@@ -53,7 +53,7 @@ const withCustomHtmlParagraphWarning = createHigherOrderComponent((BlockEdit) =>
 
   CustomHtmlWithParagraphWarning.displayName = "CustomHtmlParagraphWarning"
   return CustomHtmlWithParagraphWarning
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withCustomHtmlParagraphWarning")
 
 export default withCustomHtmlParagraphWarning

@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { baseTheme } from "@/styles/theme"
-import {
+import type {
   Answer,
   ExerciseFeedback,
   ModelSolutionApi,
@@ -45,7 +45,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           color = optionIsCorrect ? GREEN : RED
         }
 
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         const border = optionIsCorrect !== undefined ? `4px solid ${color}` : "none"
         return (
           <button

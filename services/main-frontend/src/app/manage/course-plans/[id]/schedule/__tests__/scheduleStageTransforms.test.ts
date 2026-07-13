@@ -4,7 +4,7 @@ import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 
 import { addMonthToStage, removeMonthFromStage } from "../scheduleStageTransforms"
 
-import {
+import type {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"

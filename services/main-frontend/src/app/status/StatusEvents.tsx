@@ -13,7 +13,7 @@ const StatusEvents: React.FC = () => {
   const { t } = useTranslation()
   const eventsQuery = useStatusEvents()
   const events = eventsQuery.data
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [filterType, setFilterType] = useState<"all" | "warning" | "error" | "normal">("all")
 
   // Filter and sort events - must be called before early returns
@@ -26,7 +26,7 @@ const StatusEvents: React.FC = () => {
 
     if (filterType !== "all") {
       filtered = filtered.filter((e) => {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         const type = e.type_ || "Normal"
         if (filterType === "warning") {
           return type === "Warning"
@@ -42,7 +42,7 @@ const StatusEvents: React.FC = () => {
     }
 
     // Sort by last timestamp (most recent first)
-    return filtered.sort((a, b) => {
+    return filtered.toSorted((a, b) => {
       const aTime = a.last_timestamp || a.first_timestamp || ""
       const bTime = b.last_timestamp || b.first_timestamp || ""
       return bTime.localeCompare(aTime)

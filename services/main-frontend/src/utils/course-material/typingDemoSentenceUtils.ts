@@ -111,7 +111,7 @@ export const parseSentenceDifference = (
  */
 function findDifference(incorrectSentence: string, correctSentence: string): SentenceDifference {
   // Find common prefix
-  let prefixEnd: number = 0
+  let prefixEnd = 0
   const minLength: number = Math.min(incorrectSentence.length, correctSentence.length)
 
   while (prefixEnd < minLength && incorrectSentence[prefixEnd] === correctSentence[prefixEnd]) {
@@ -119,7 +119,7 @@ function findDifference(incorrectSentence: string, correctSentence: string): Sen
   }
 
   // Find common suffix (working backwards)
-  let suffixStart: number = 0
+  let suffixStart = 0
   while (
     suffixStart < minLength - prefixEnd &&
     incorrectSentence[incorrectSentence.length - 1 - suffixStart] ===

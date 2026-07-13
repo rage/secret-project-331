@@ -1,7 +1,7 @@
 import { HtmlRenderer, Parser } from "commonmark"
 import React from "react"
 
-import { MarkDownTextProps } from "."
+import type { MarkDownTextProps } from "."
 
 const MarkdownTextImpl: React.FC<React.PropsWithChildren<MarkDownTextProps>> = ({ text }) => {
   const reader = new Parser()

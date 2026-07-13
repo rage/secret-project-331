@@ -3,7 +3,7 @@ import type { EChartsOption, TooltipComponentFormatterCallbackParams } from "ech
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CountResult } from "@/generated/api/types.generated"
+import type { CountResult } from "@/generated/api/types.generated"
 
 type DateFormatType = "yyyy-MM-dd" | "yyyy-MM"
 

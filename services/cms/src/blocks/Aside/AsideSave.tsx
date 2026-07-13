@@ -2,7 +2,7 @@
 
 import { InnerBlocks } from "@wordpress/block-editor"
 
-import { AsideComponentProps } from "."
+import type { AsideComponentProps } from "."
 
 import type { BlockSaveProps } from "@/utils/Gutenberg/types"
 

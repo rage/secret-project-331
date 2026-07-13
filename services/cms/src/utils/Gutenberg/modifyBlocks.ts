@@ -19,7 +19,7 @@ export const modifyBlocks = (
       }
     }
 
-    if (!innerBlocks.length) {
+    if (innerBlocks.length === 0) {
       return block
     }
 

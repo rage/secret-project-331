@@ -2,10 +2,10 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
 
-import { QuizItemSubmissionComponentProps } from "."
+import type { QuizItemSubmissionComponentProps } from "."
 
 import { wordCount } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

@@ -32,12 +32,12 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
     const allDates = new Set(query.data.map((o) => o.visit_date))
 
     // Total by date
-    const totalByDate: { [date: string]: number } = Array.from(allDates).reduce((acc, date) => {
+    const totalByDate: Record<string, number> = Array.from(allDates).reduce((acc, date) => {
       const count = query.data.filter((o) => o.visit_date === date).length
       return { ...acc, [date]: count }
     }, {})
     // group totalByDate by year
-    const totalByYear: { [year: string]: { date: string; count: number }[] } = Object.entries(
+    const totalByYear: Record<string, { date: string; count: number }[]> = Object.entries(
       totalByDate,
     ).reduce((acc, [date, count]) => {
       const year = new Date(date).getFullYear()
@@ -83,9 +83,9 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
                 height={200 * Object.keys(data).length}
                 options={{
                   tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     trigger: "item",
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     formatter: "{b}: {c}",
                   },
                   visualMap: {
@@ -96,7 +96,7 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
                   calendar: Object.entries(data).map(([year, _visitCounts], i) => {
                     return {
                       range: year,
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       cellSize: ["auto", 20],
                       dayLabel: {
                         firstDay: 1,
@@ -107,9 +107,9 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
                   series: Object.entries(data).map(([_year, visitCounts], i) => {
                     return {
                       type: "heatmap",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       coordinateSystem: "calendar",
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      // oxlint-disable-next-line typescript/no-explicit-any
                       data: (visitCounts as any[]).map((o) => [o.date, o.count]),
                       calendarIndex: i,
                     }

@@ -108,7 +108,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   const CENTER = "center"
   const LEFT = "left"
   const direction = alignCenter ? CENTER : LEFT
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
   const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
 

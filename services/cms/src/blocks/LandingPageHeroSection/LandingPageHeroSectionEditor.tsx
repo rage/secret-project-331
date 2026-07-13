@@ -7,7 +7,7 @@ import React from "react"
 import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
 import BlockWrapper from "../BlockWrapper"
 
-import { LandingPageHeroSectionAttributes } from "."
+import type { LandingPageHeroSectionAttributes } from "."
 
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"

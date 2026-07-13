@@ -1,4 +1,5 @@
-import { useIntersectionObserver, UseIntersectionObserverOptions } from "./useIntersectionObserver"
+import type { UseIntersectionObserverOptions } from "./useIntersectionObserver"
+import { useIntersectionObserver } from "./useIntersectionObserver"
 
 /**
  * Returns tuple [ref, inView, entry] for tracking element visibility.

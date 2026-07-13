@@ -21,7 +21,8 @@ import AiUsageNoticeDialog from "../modals/AiUsageNoticeDialog"
 import CourseSettingsModal from "../modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "../notifications/UserOnWrongCourseNotification"
 
-import { GlossaryContext, GlossaryState } from "@/contexts/course-material/GlossaryContext"
+import type { GlossaryState } from "@/contexts/course-material/GlossaryContext"
+import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import useAiUsageNoticeAcknowledgement from "@/hooks/course-material/useAiUsageNoticeAcknowledgement"
 import useDefaultChatbotConfiguration from "@/hooks/course-material/useDefaultChatbotConfiguration"
 import useDialogStep, { DialogStep } from "@/hooks/course-material/useDialogStep"
@@ -45,7 +46,7 @@ import {
   viewIsFetchingAtom,
 } from "@/state/course-material/selectors"
 import { inlineColorStyles } from "@/styles/course-material/inlineColorStyles"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 interface Props {
   onRefresh: () => void
@@ -276,6 +277,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             editForm={showResearchConsentFormBecauseOfUrl}
             shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
             usersInitialAnswers={researchConsentFormAnswerQuery.data}
+            // oxlint-disable-next-line typescript/no-non-null-assertion -- activeStep is only ResearchConsent when researchFormIsLoadedAndExists, so data is non-null
             researchForm={researchConsentFormQuery.data!}
             onClose={() => {
               setShowResearchConsentFormBecauseOfUrl(false)
@@ -299,7 +301,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             emailCommunicationConsent={userDetailsQuery.data?.email_communication_consent ?? false}
           />
         )}
-        {getPageAudioFiles.isSuccess && tracks.length !== 0 && (
+        {getPageAudioFiles.isSuccess && tracks.length > 0 && (
           <AudioNotification>
             <p>{t("audio-notification-description")}</p>
             <button
@@ -342,7 +344,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           {/* TODO: Better type for Page.content in bindings. */}
           <div id="content" className={inlineColorStyles}>
             <ContentRenderer
-              data={(courseMaterialState.page?.content as Array<Block<unknown>>) ?? []}
+              data={(courseMaterialState.page?.content as Block<unknown>[]) ?? []}
               isExam={courseMaterialState.examData !== null}
               dontAllowBlockToBeWiderThanContainerWidth={false}
             />
@@ -352,7 +354,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         {courseMaterialState.page?.course_id && (
           <ReferenceList courseId={courseMaterialState.page.course_id} />
         )}
-        {getPageAudioFiles.isSuccess && isVisible && tracks.length !== 0 && (
+        {getPageAudioFiles.isSuccess && isVisible && tracks.length > 0 && (
           <AudioPlayer
             tracks={tracks}
             isVisible={isVisible}

@@ -379,9 +379,9 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   /** Formats a Date as localized month and year. */
   const formatMonthYearFromDate = (date: Date): string =>
     date.toLocaleDateString(i18n.language, {
-      // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
+      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
       month: "long",
-      // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
+      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
       year: "numeric",
     })
 
@@ -406,6 +406,7 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
     stages.length > 0
       ? stages.reduce(
           (latest, stage) => (stage.planned_ends_on > latest ? stage.planned_ends_on : latest),
+          // oxlint-disable-next-line typescript/no-non-null-assertion -- stages.length > 0 in this ternary branch guarantees stages[0] exists
           stages[0]!.planned_ends_on,
         )
       : null

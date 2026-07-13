@@ -3,10 +3,10 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 import { paragraphDefaultBlockStyles } from "../common/Paragraph/styles"
 
-import { HtmlAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { HtmlAttributes } from "@/../types/GutenbergBlockAttributes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 

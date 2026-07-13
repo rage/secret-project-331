@@ -68,9 +68,8 @@ const DiffFormatter: React.FC<React.PropsWithChildren<DiffFormatterProps>> = ({
               {change.value}
             </mark>
           )
-        } else {
-          return <span key={id + JSON.stringify(change) + n}>{change.value}</span>
         }
+        return <span key={id + JSON.stringify(change) + n}>{change.value}</span>
       })}
     </>
   )

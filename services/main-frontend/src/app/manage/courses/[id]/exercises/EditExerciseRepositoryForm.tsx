@@ -35,7 +35,7 @@ const EditExerciseRepositoryForm: React.FC<Props> = ({
     formState: { errors, isValid, isSubmitting },
     reset,
   } = useForm<Fields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: { gitUrl: exerciseRepository.url },
   })

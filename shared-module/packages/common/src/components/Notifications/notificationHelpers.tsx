@@ -1,6 +1,7 @@
 "use client"
 
-import toast, { Toast } from "react-hot-toast"
+import type { Toast } from "react-hot-toast"
+import toast from "react-hot-toast"
 
 import ErrorNotification from "./Error"
 import LoadingNotification from "./Loading"

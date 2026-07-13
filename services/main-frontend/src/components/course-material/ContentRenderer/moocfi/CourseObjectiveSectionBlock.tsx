@@ -2,10 +2,12 @@
 
 import React from "react"
 
-import { BlockRendererProps, blockToRendererMap } from ".."
+import type { BlockRendererProps } from ".."
+import { blockToRendererMap } from ".."
 import DefaultBlock from "../DefaultBlock"
 
-import CourseObjectiveSection, { CourseObjectiveSectionProps } from "./CourseObjective/index"
+import type { CourseObjectiveSectionProps } from "./CourseObjective/index"
+import CourseObjectiveSection from "./CourseObjective/index"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

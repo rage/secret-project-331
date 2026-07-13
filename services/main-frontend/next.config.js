@@ -1,4 +1,4 @@
-/* eslint-disable import/order */
+/* oxlint-disable import/order */
 const generateNormalResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").generateNormalResponseHeaders
 const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")

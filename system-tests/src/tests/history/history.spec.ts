@@ -1,4 +1,4 @@
-/* eslint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
+/* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
 import { saveCMSPage } from "../../utils/cmsUtils"
@@ -19,9 +19,7 @@ test.use({
 test("history test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.getByText("Introduction to history").click()
@@ -31,7 +29,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.click('a:has-text("The Basics")')
 
   await page.getByText("1Page One").click()
-  // eslint-disable-next-line playwright/no-networkidle
+  // oxlint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
@@ -47,9 +45,7 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click()
@@ -212,7 +208,7 @@ screenshotTarget: page,
 
   await page.getByText("1Page One").click()
 
-  // eslint-disable-next-line playwright/no-networkidle
+  // oxlint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

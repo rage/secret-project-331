@@ -4,11 +4,11 @@ import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerTimeline } from "../../../../../types/quizTypes/answer"
-import { ModelSolutionQuizItemTimeline } from "../../../../../types/quizTypes/modelSolutionSpec"
-import { PublicSpecQuizItemTimeline } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerTimeline } from "../../../../../types/quizTypes/answer"
+import type { ModelSolutionQuizItemTimeline } from "../../../../../types/quizTypes/modelSolutionSpec"
+import type { PublicSpecQuizItemTimeline } from "../../../../../types/quizTypes/publicSpec"
 
-import { QuizItemSubmissionComponentProps } from "."
+import type { QuizItemSubmissionComponentProps } from "."
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { baseTheme, headingFont } from "@/shared-module/exercise-react/styles"
@@ -132,7 +132,7 @@ const Timeline: React.FunctionComponent<
   return (
     <TimelineWrapper>
       {public_quiz_item.timelineItems
-        .sort((a, b) => Number(a.year) - Number(b.year))
+        .toSorted((a, b) => Number(a.year) - Number(b.year))
         .map((timelineItem, n) => {
           const selectedTimelineItem = user_quiz_item_answer?.timelineChoices?.find(
             (tc) => tc.timelineItemId === timelineItem.itemId,

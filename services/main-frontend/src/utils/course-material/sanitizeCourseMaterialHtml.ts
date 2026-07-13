@@ -1,6 +1,6 @@
 import DOMPurify, { type Config } from "dompurify"
 
-import { StringWithHTML } from "@/../types"
+import type { StringWithHTML } from "@/../types"
 
 export const sanitizeCourseMaterialHtml = (
   dirty: string | undefined | StringWithHTML,
@@ -67,15 +67,14 @@ export const escapeUrlForCss = (url: string | undefined): string => {
         const resolved = new URL(trimmedUrl, base).toString()
         console.warn(`Resolved relative URL in CSS: ${trimmedUrl} -> ${resolved}`)
         return resolved
-      } else {
-        console.warn(`Using relative URL in server context: ${trimmedUrl}`)
-        return encodeURI(trimmedUrl)
-          .replace(/'/g, "%27")
-          .replace(/"/g, "%22")
-          .replace(/\\/g, "%5C")
-          .replace(/\(/g, "%28")
-          .replace(/\)/g, "%29")
       }
+      console.warn(`Using relative URL in server context: ${trimmedUrl}`)
+      return encodeURI(trimmedUrl)
+        .replaceAll("'", "%27")
+        .replaceAll('"', "%22")
+        .replaceAll("\\", "%5C")
+        .replaceAll("(", "%28")
+        .replaceAll(")", "%29")
     }
 
     console.warn(`Rejecting unrecognized URL pattern in CSS: ${trimmedUrl}`)

@@ -20,7 +20,7 @@ import { fileURLToPath } from "node:url"
 import serverEntry from "./dist/server/index.js"
 import { IFRAME_HEADERS } from "./iframe-headers.mjs"
 
-const ROOT = fileURLToPath(new URL(".", import.meta.url))
+const ROOT = import.meta.dirname
 const CLIENT_DIR = join(ROOT, "dist", "client")
 const SHELL = join(CLIENT_DIR, "_shell.html")
 const PORT = Number(process.env.PORT) || 3005

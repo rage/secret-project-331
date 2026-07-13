@@ -5,7 +5,7 @@ import { formatLogsForDisplay } from "../utils"
 
 import { TestResultCard } from "./TestResultCard"
 
-import { RunResult } from "@/tmc/cli"
+import type { RunResult } from "@/tmc/cli"
 
 interface TestResultsContentProps {
   testResults: RunResult

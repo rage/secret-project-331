@@ -6,7 +6,7 @@ import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
 
-import { CourseObjectiveSectionAttributes } from "."
+import type { CourseObjectiveSectionAttributes } from "."
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -86,7 +86,7 @@ const CourseObjectiveSectionEditor: React.FC<
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}
             placeholder={
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               "In this course you'll..."
             }
           />

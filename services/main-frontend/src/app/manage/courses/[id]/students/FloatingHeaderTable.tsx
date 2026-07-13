@@ -39,7 +39,7 @@ import {
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-type ColMeta = {
+interface ColMeta {
   width?: number
   minWidth?: number
   padLeft?: number
@@ -53,7 +53,7 @@ function getMeta<T extends object>(colDef: ColumnDef<T, unknown> | undefined): C
 const chapterHeaderStart = 2 // upper headers (groups) start index
 const subHeaderStart = 3 // lower headers (points/attempts) start index
 
-type FloatingHeaderTableProps<T extends object> = {
+interface FloatingHeaderTableProps<T extends object> {
   columns: ColumnDef<T, unknown>[]
   data: T[]
   colorHeaders?: boolean
@@ -70,7 +70,9 @@ export function FloatingHeaderTable<T extends object>({
   colorHeaderUnderline = false,
   progressMode = false,
 }: FloatingHeaderTableProps<T>) {
-  type HeaderBgArg = { colSpan: number }
+  interface HeaderBgArg {
+    colSpan: number
+  }
 
   // Refs
   const tableRef = useRef<HTMLTableElement | null>(null)
@@ -169,7 +171,7 @@ export function FloatingHeaderTable<T extends object>({
     // sync top trailer
     const trailer = trailerRef.current
     if (trailer && syncingRef.current !== "top") {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       syncingRef.current = "wrap"
       trailer.scrollLeft = wrap.scrollLeft
       syncingRef.current = null
@@ -186,7 +188,7 @@ export function FloatingHeaderTable<T extends object>({
       return
     }
     if (syncingRef.current !== "wrap") {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       syncingRef.current = "top"
       wrap.scrollLeft = trailer.scrollLeft
       syncingRef.current = null
@@ -326,7 +328,7 @@ export function FloatingHeaderTable<T extends object>({
         }
 
         // mount clone + freeze table width
-        dstTable.appendChild(clonedHead)
+        dstTable.append(clonedHead)
         const tableW = srcTable.getBoundingClientRect().width
         dstTable.style.width = `${tableW}px`
 

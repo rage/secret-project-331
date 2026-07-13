@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import { MentimeterEmbedBlock } from "./variants/MentimeterEmbedBlock"
 import { SpotifyEmbedBlock } from "./variants/SpotifyEmbedBlock"
@@ -11,7 +11,7 @@ import { TwitterEmbedBlock } from "./variants/TwitterEmbedBlock"
 import { VimeoEmbedBlock } from "./variants/VimeoEmbedBlock"
 import { YoutubeEmbedBlock } from "./variants/YoutubeEmbedBlock"
 
-import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const EmbedBlock: React.FC<React.PropsWithChildren<BlockRendererProps<EmbedAttributes>>> = (

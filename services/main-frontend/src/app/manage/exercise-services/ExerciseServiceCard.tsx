@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { QueryObserverResult } from "@tanstack/react-query"
+import type { QueryObserverResult } from "@tanstack/react-query"
 import {
   BellXmark,
   CheckCircle,
@@ -34,13 +34,13 @@ import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBacke
 interface ExerciseServiceCardProps {
   id: string
   exerciseService: ExerciseService
-  refetch(): Promise<QueryObserverResult<ExerciseService[], unknown>>
+  refetch: () => Promise<QueryObserverResult<ExerciseService[], unknown>>
 }
 
 enum UpdateStatus {
-  none,
-  saved,
-  failed,
+  none = 0,
+  saved = 1,
+  failed = 2,
 }
 
 const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardProps>> = ({
@@ -262,7 +262,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
                 title={t("text-field-label-or-header-slug-or-short-name")}
                 text={service.slug}
                 editing={editing}
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 onChange={onChange("slug")}
                 type={"text"}
               />
@@ -272,7 +272,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             title={t("title-public-url")}
             text={service.public_url}
             editing={editing}
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("public_url")}
             type={"text"}
             error={!validURL(service.public_url) ? t("error-title") : undefined}
@@ -281,7 +281,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             title={t("title-internal-url")}
             text={service.internal_url ?? null}
             editing={editing}
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("internal_url")}
             type={"text"}
             error={!validURL(service.internal_url ?? "") ? t("error-title") : undefined}
@@ -290,7 +290,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             title={t("title-reprocessing-submissions")}
             text={service.max_reprocessing_submissions_at_once}
             editing={editing}
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
             error={service.max_reprocessing_submissions_at_once < 0 ? t("error-title") : undefined}

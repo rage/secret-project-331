@@ -5,22 +5,24 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
+import type { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
 
 import type {
   GetPlaygroundViewsWebsocketData,
   ReceivePlaygroundGradingData,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
-import {
+import type {
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,
+  SpecRequest,
+} from "@/utils/playgroundSchemas"
+import {
   parseExerciseServiceInfoApi,
   parseExerciseTaskGradingResult,
   parsePlaygroundViewsMessage,
-  SpecRequest,
 } from "@/utils/playgroundSchemas"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
@@ -191,7 +193,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
           throw new Error(t("playground.websocketNotRegistered"))
         }
         const gradingRequest: GradingRequest = {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           grading_update_url: `${buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
             websocket_id: websocketId,
           })}?playground-grading-callback-claim=${encodeURIComponent(
@@ -216,9 +218,8 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
         return parseExerciseTaskGradingResult(gradingJson)
       } else if (param.type === "fromWebsocket") {
         return param.data
-      } else {
-        throw new Error("unreachable")
       }
+      throw new Error("unreachable")
     },
     { notify: true, method: "POST" },
   )

@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { UseMutationResult } from "@tanstack/react-query"
+import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -86,7 +86,7 @@ const SelectCourseInstanceForm: React.FC<
         )
         let initialValue = prevAnswer?.answer_value ?? savedAnswer?.answer_value ?? null
         if (question.question_type === "Checkbox" && initialValue === null) {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           initialValue = "f"
         }
         newState.push({
@@ -148,7 +148,7 @@ const SelectCourseInstanceForm: React.FC<
                 `}
                 key={courseInstance.id}
                 {...(courseInstance.name === null
-                  ? // eslint-disable-next-line i18next/no-literal-string
+                  ? // oxlint-disable-next-line i18next/no-literal-string
                     { "data-testid": "default-course-instance-radiobutton" }
                   : undefined)}
                 label={courseInstance.name || t("default-course-instance-name")}
@@ -198,7 +198,7 @@ const SelectCourseInstanceForm: React.FC<
                           label={additionalQuestion.question_text}
                           checked={answer?.answer_value === "t"}
                           onChange={(event) => {
-                            // eslint-disable-next-line i18next/no-literal-string
+                            // oxlint-disable-next-line i18next/no-literal-string
                             const valueAsString = event.target.value ? "t" : "f"
                             setAdditionalQuestionAnswers((prev) => {
                               const newArray = prev.filter(

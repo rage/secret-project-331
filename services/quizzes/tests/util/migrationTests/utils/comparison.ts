@@ -1,20 +1,21 @@
-import { FlexDirection, sanitizeQuizDirection } from "../../../../src/util/css-sanitization"
-import {
-  OldModelSolutionQuiz as OldModelSolutionQuiz,
-  OldModelSolutionQuizItem as OldModelSolutionQuizItem,
+import type { FlexDirection } from "../../../../src/util/css-sanitization"
+import { sanitizeQuizDirection } from "../../../../src/util/css-sanitization"
+import type {
+  OldModelSolutionQuiz,
+  OldModelSolutionQuizItem,
   OldPublicQuiz,
   OldPublicQuizItem,
   OldQuiz,
   OldQuizItemAnswer,
   QuizItem,
 } from "../../../../types/oldQuizTypes"
-import { UserItemAnswer } from "../../../../types/quizTypes/answer"
-import {
+import type { UserItemAnswer } from "../../../../types/quizTypes/answer"
+import type {
   ModelSolutionQuiz,
   ModelSolutionQuizItem,
 } from "../../../../types/quizTypes/modelSolutionSpec"
-import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../types/quizTypes/privateSpec"
-import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../../types/quizTypes/publicSpec"
+import type { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../types/quizTypes/privateSpec"
+import type { PublicSpecQuiz, PublicSpecQuizItem } from "../../../../types/quizTypes/publicSpec"
 
 const QUIZ_VERSION = "2"
 
@@ -81,7 +82,7 @@ const expectModelSolutionSpecMetadataToMatch = (
  * @param oldObject Old object, e.g. older quiz item
  */
 const compareFields = <T extends object, S extends object>(
-  fields: { [key: string]: string },
+  fields: Record<string, string>,
   newQuizItem: T,
   oldQuizItem: S,
 ) => {

@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 import useEventCallback from "./useEventCallback"
 import useMessageChannel from "./useMessageChannel"
 
-import {
+import type {
   DialogResponseMessage,
   ExtendedIframeState,
   MessageFromIframe,
@@ -89,7 +89,7 @@ const useIframeSandboxingAttribute = (disableSandbox: boolean) => {
   if (disableSandbox) {
     return undefined
   }
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   return "allow-scripts allow-forms allow-downloads allow-same-origin"
 }
 
@@ -147,7 +147,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       hasSignaledReadyRef.current = false
       readyMessageQueueRef.current = []
       if (iframeRef.current) {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         iframeRef.current.dataset.stateSent = "false"
         iframeRef.current.dataset.iframeHeight = "0"
       }
@@ -225,7 +225,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       return
     }
 
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const recoveryMessage = isRecovery ? " (recovery attempt)" : ""
     console.info(`[MessageChannelIFrame] Parent posting message port to iframe${recoveryMessage}`)
     try {
@@ -257,7 +257,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
           return
         }
         console.info("Updating height")
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         iframeRef.current.height = Number(data.data).toString() + "px"
         iframeRef.current.dataset.iframeHeight = Number(data.data).toString()
       } else if (isOpenLinkMessage(data)) {
@@ -271,7 +271,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         const { requestId, dialogType, title, body, confirmButtonLabel, cancelButtonLabel } = data
         const respond = (confirmed: boolean) => {
           const response: DialogResponseMessage = {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             message: "dialog-response",
             requestId,
             confirmed,
@@ -396,11 +396,10 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
           readyMessageQueueRef.current.push(e)
           recreateMessageChannel()
           return
-        } else {
-          console.error(
-            `[MessageChannelIFrame] Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Giving up.`,
-          )
         }
+        console.error(
+          `[MessageChannelIFrame] Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Giving up.`,
+        )
       }
       return
     }
@@ -457,7 +456,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     console.groupEnd()
     messageChannel.port1.postMessage(postData)
     if (iframeRef.current) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       iframeRef.current.dataset.stateSent = "true"
     }
     lastThingPostedRef.current = postThisStateToIFrame

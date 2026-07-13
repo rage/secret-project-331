@@ -1,15 +1,15 @@
-import {
+import type {
   UserAnswer,
   UserItemAnswerMultiplechoice,
   UserItemAnswerTimeline,
 } from "../../types/quizTypes/answer"
-import {
+import type {
   ItemAnswerFeedback,
   OptionAnswerFeedback,
   QuizItemAnswerGrading,
   TimelineItemFeedback,
 } from "../../types/quizTypes/grading"
-import {
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemMultiplechoice,
   PrivateSpecQuizItemTimeline,

@@ -1,5 +1,6 @@
 import { BadRequestError } from "@/lib/apiRoutes"
-import { Alternative, isAlternative } from "@/util/stateInterfaces"
+import type { Alternative } from "@/util/stateInterfaces"
+import { isAlternative } from "@/util/stateInterfaces"
 
 export type CsvScalar = string | number | boolean | null
 
@@ -9,7 +10,7 @@ export interface CsvExportColumn {
 }
 
 export interface CsvExportResult {
-  rows: Array<Record<string, CsvScalar>>
+  rows: Record<string, CsvScalar>[]
 }
 
 export interface CsvExportResponse {

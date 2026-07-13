@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import { RefObject, SetStateAction, useEffect, useMemo, useRef, useState } from "react"
+import type { RefObject, SetStateAction } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 import { OverlayTriggerStateContext } from "react-aria-components"
 import { useTranslation } from "react-i18next"
@@ -118,7 +119,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
           setTriggerElementId("")
         }}
         popoverLabel={t("citation-n", { n: citationNumber })}
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         dataTestId="chatbot-citation-popover"
         {...hoverPopoverProps}
       >

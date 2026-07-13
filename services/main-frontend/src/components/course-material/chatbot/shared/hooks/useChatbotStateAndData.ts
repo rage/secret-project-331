@@ -98,7 +98,6 @@ const useChatbotStateAndData = (
             }
             try {
               const parsedValue: ChatbotChatStreamEvent = JSON.parse(line)
-              console.log(parsedValue)
               if (parsedValue.type === "Delta") {
                 dispatch({
                   type: "RECEIVED_TEXT_DELTA",
@@ -125,6 +124,8 @@ const useChatbotStateAndData = (
                 } else {
                   dispatch({ type: "TOOL_CALL_IN_PROGRESS", payload: { ...parsedValue.data } })
                 }
+              } else if (parsedValue.type === "Error") {
+                setError(parsedValue.data)
               }
             } catch (e) {
               console.error(e)
@@ -139,7 +140,6 @@ const useChatbotStateAndData = (
       onSuccess: async () => {
         await currentConversationInfo.refetch()
         dispatch({ type: "RESPONSE_COMPLETED" })
-        setError(null)
         setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
       },
       onError: async (error) => {

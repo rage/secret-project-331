@@ -6,10 +6,12 @@ import type { TFunction } from "i18next"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { zStreamEventError } from "@/generated/course-material-api/zod.generated"
 import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 
 interface ErrorDisplayProps {
+  /// An unknown error type, can also be StreamEventError
   error: unknown
 }
 
@@ -69,7 +71,16 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
   const { t } = useTranslation()
   const [showDetails, setShowDetails] = useState(false)
 
-  const formattedError = formatErrorMessage(error, t)
+  const parsed = zStreamEventError.safeParse(error)
+
+  const formattedError = parsed.success
+    ? {
+        boldPart: t("failed-to-send-message"),
+        normalPart: parsed.data.message,
+        details: parsed.data.details ? [parsed.data.message] : [],
+        originalMessage: parsed.data.details ?? "",
+      }
+    : formatErrorMessage(error, t)
   const hasDetails = formattedError.details.length > 0
 
   return (
@@ -84,7 +95,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
           box-shadow:
             0 2px 8px ${baseTheme.colors.red[200]}60,
             0 1px 3px ${baseTheme.colors.red[300]}40;
-          overflow: hidden;
+          overflow: auto;
           backdrop-filter: blur(4px);
         `}
       >
@@ -101,6 +112,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
           <span
             className={css`
               font-weight: bold;
+              margin-right: 0.5rem;
             `}
           >
             {formattedError.boldPart}

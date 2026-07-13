@@ -255,22 +255,23 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             margin-left: 2rem;
           `}
         >
-          {currentConversationInfo.data.suggested_messages?.map((m) => (
-            <SuggestedMessageChip
-              key={m.id}
-              isLoading={
-                newMessageMutation.isPending ||
-                currentConversationInfo.isLoading ||
-                currentConversationInfo.isRefetching
-              }
-              message={m.message}
-              handleClick={() => {
-                if (!newMessageMutation.isPending) {
-                  newMessageMutation.mutate(m.message)
+          {!newMessageMutation.isPending &&
+            currentConversationInfo.data.suggested_messages?.map((m) => (
+              <SuggestedMessageChip
+                key={m.id}
+                isLoading={
+                  newMessageMutation.isPending ||
+                  currentConversationInfo.isLoading ||
+                  currentConversationInfo.isRefetching
                 }
-              }}
-            />
-          ))}
+                message={m.message}
+                handleClick={() => {
+                  if (!newMessageMutation.isPending) {
+                    newMessageMutation.mutate(m.message)
+                  }
+                }}
+              />
+            ))}
         </div>
       </div>
       <VisuallyHidden aria-live="polite" role="status">

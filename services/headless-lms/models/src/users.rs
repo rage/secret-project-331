@@ -128,7 +128,7 @@ pub async fn find_by_upstream_id(
 ) -> ModelResult<Option<User>> {
     let user = sqlx::query_as!(
         User,
-        "SELECT * FROM users WHERE upstream_id = $1",
+        "SELECT * FROM users WHERE upstream_id = $1 AND deleted_at IS NULL",
         upstream_id
     )
     .fetch_optional(conn)
@@ -209,7 +209,7 @@ pub async fn update_email_for_user(
 
     let user = sqlx::query_as!(
         User,
-        "SELECT * FROM users WHERE upstream_id = $1",
+        "SELECT * FROM users WHERE upstream_id = $1 AND deleted_at IS NULL",
         upstream_id
     )
     .fetch_one(&mut *tx)

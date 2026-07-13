@@ -44,7 +44,7 @@ const iconStyle = (open: boolean) => css`
   transform: scale(0.8) ${open ? " rotate(180deg)" : ""};
   transition: transform 0.2s ease;
   flex: 1;
-  margin: 0 1rem 0 1.5rem;
+  margin: 0 0.5rem 0 1.5rem;
 `
 
 interface ToolCallReasoningBubbleProps {
@@ -147,8 +147,10 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
     <div className={detailsStyle}>
       <details open={isOpen} onToggle={() => setIsOpen(!isOpen)}>
         <summary>
-          <span className={textStyle}>{summaryText}</span>
-          {collapsible && <DownIcon className={iconStyle(isOpen)} />}
+          <span className={textStyle}>
+            {summaryText}
+            {collapsible && <DownIcon className={iconStyle(isOpen)} />}
+          </span>
         </summary>
         <ul
           className={css`

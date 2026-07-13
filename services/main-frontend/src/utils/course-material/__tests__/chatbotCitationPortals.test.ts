@@ -29,12 +29,12 @@ describe("chatbotCitationPortals", () => {
       const container = document.createElement("div")
       rawCitNs.forEach((n, i) => {
         if (i > 0 && !adjacent) {
-          container.appendChild(document.createTextNode(" some text "))
+          container.append(document.createTextNode(" some text "))
         }
         const span = document.createElement("span")
-        span.setAttribute("data-chatbot-citation", "true")
-        span.setAttribute("data-citation-n", String(n))
-        container.appendChild(span)
+        span.dataset.chatbotCitation = "true"
+        span.dataset.citationN = String(n)
+        container.append(span)
       })
       return Array.from(container.querySelectorAll<Element>("[data-chatbot-citation='true']"))
     }

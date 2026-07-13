@@ -19,11 +19,11 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 interface GroupedTemplates {
   templateType: EmailTemplateType
   global: EmailTemplate[]
-  courseSpecific: Array<{
+  courseSpecific: {
     courseId: string
     courseName: string
     templates: EmailTemplate[]
-  }>
+  }[]
 }
 
 const EmailTemplatesList: React.FC = () => {
@@ -81,13 +81,13 @@ const EmailTemplatesList: React.FC = () => {
     const courseMap = coursesQueries.data || new Map<string, Course>()
 
     const templateTypes: EmailTemplateType[] = [
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "reset_password_email",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "delete_user_email",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "confirm_email_code",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "generic",
     ]
 
@@ -101,10 +101,12 @@ const EmailTemplatesList: React.FC = () => {
 
       const courseGroups = new Map<string, EmailTemplate[]>()
       courseSpecific.forEach((template) => {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- courseSpecific was filtered above to items whose course_id is non-null/undefined
         const courseId = template.course_id!
         if (!courseGroups.has(courseId)) {
           courseGroups.set(courseId, [])
         }
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- courseId key was just inserted above when absent
         courseGroups.get(courseId)!.push(template)
       })
 
@@ -117,7 +119,7 @@ const EmailTemplatesList: React.FC = () => {
             templates,
           }
         })
-        .sort((a, b) => a.courseName.localeCompare(b.courseName))
+        .toSorted((a, b) => a.courseName.localeCompare(b.courseName))
 
       return {
         templateType,
@@ -144,11 +146,11 @@ const EmailTemplatesList: React.FC = () => {
   )
 
   const allTemplates = useMemo(() => {
-    const templates: Array<{
+    const templates: {
       template: EmailTemplate
       templateTypeLabel: string
       courseName: string | null
-    }> = []
+    }[] = []
 
     groupedTemplates.forEach((group) => {
       group.global.forEach((template) => {

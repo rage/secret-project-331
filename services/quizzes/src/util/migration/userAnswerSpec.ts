@@ -1,5 +1,5 @@
-import { OldQuizAnswer, OldQuizItemAnswer } from "../../../types/oldQuizTypes"
-import {
+import type { OldQuizAnswer, OldQuizItemAnswer } from "../../../types/oldQuizTypes"
+import type {
   UserAnswer,
   UserItemAnswer,
   UserItemAnswerCheckbox,
@@ -12,8 +12,8 @@ import {
   UserItemAnswerScale,
   UserItemAnswerTimeline,
 } from "../../../types/quizTypes/answer"
-import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTypes/privateSpec"
-import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
+import type { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTypes/privateSpec"
+import type { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
 
 const convertIntDataForScale = (quizItemAnswer: OldQuizItemAnswer) => {
   if (!quizItemAnswer.intData) {
@@ -120,7 +120,7 @@ const migrateQuizAnswer = (
     version: "2",
   }
 
-  const privateSpecQuizItems: { [id: string]: PrivateSpecQuizItem | PublicSpecQuizItem } = {}
+  const privateSpecQuizItems: Record<string, PrivateSpecQuizItem | PublicSpecQuizItem> = {}
   privateSpecQuiz.items.forEach((item) => {
     privateSpecQuizItems[item.id] = item as unknown as PublicSpecQuizItem
   })

@@ -14,7 +14,7 @@ declare global {
   ) => void
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 const triggerIntersection = (global as any).triggerIntersection as (
   el: Element,
   opts?: Partial<IntersectionObserverEntry> & {
@@ -73,9 +73,9 @@ test("freezeOnceVisible prevents further updates after first visible hit", () =>
 })
 
 test("SSR/legacy: no window.IntersectionObserver -> stays inert with initialInView", async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const realIO = (global as any).IntersectionObserver
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   delete (global as any).IntersectionObserver
 
   function SSRDemo() {
@@ -89,6 +89,6 @@ test("SSR/legacy: no window.IntersectionObserver -> stays inert with initialInVi
   const { unmount } = render(<SSRDemo />)
   expect(screen.getByTestId("state").textContent).toBe("true")
   unmount()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   ;(global as any).IntersectionObserver = realIO
 })

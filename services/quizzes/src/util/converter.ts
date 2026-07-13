@@ -1,4 +1,4 @@
-import {
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
   PrivateSpecQuizItemCheckbox,
@@ -12,7 +12,7 @@ import {
   PrivateSpecQuizItemTimeline,
   QuizItemOption,
 } from "../../types/quizTypes/privateSpec"
-import {
+import type {
   PublicQuizItemOption,
   PublicSpecQuiz,
   PublicSpecQuizItem,
@@ -162,7 +162,7 @@ export const convertPublicSpecItemFromPrivateSpecItem = (
                 name: item.correctEventName,
               }) as PublicTimelineEvent,
           )
-          .sort((i1, i2) => i1.name.localeCompare(i2.name)) ?? [],
+          .toSorted((i1, i2) => i1.name.localeCompare(i2.name)) ?? [],
       order: timeLineItem.order,
       timelineItems:
         timeLineItem.timelineItems
@@ -173,7 +173,7 @@ export const convertPublicSpecItemFromPrivateSpecItem = (
                 year: item.year,
               }) as PublicSpecQuizItemTimelineItem,
           )
-          .sort((i1, i2) => i1.year.localeCompare(i2.year)) ?? [],
+          .toSorted((i1, i2) => i1.year.localeCompare(i2.year)) ?? [],
     } satisfies PublicSpecQuizItemTimeline
   }
   return null

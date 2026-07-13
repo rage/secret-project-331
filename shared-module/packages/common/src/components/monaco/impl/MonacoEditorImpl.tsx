@@ -1,6 +1,7 @@
 "use client"
 
-import { Editor, EditorProps } from "@monaco-editor/react"
+import type { EditorProps } from "@monaco-editor/react"
+import { Editor } from "@monaco-editor/react"
 import React from "react"
 import "./loader"
 

@@ -2,8 +2,8 @@ import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
-import { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { PublicSpec } from "@/util/stateInterfaces"
+import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { PublicSpec } from "@/util/stateInterfaces"
 
 interface Props {
   publicSpec: PublicSpec
@@ -55,7 +55,7 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
           disabled={fileToUpload === null}
           onClick={() => {
             if (fileToUpload) {
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               sendFileUploadMessage(`submission-${publicSpec.archive_name}`, fileToUpload)
             }
           }}

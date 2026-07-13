@@ -1,4 +1,4 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
@@ -24,13 +24,13 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.getByText("The Basics").click()
 
-  await Promise.all([page.getByRole("link", { name: "1 Page One" }).click()])
+  await page.getByRole("link", { name: "1 Page One" }).click()
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
 
   await frame.getByText("b").waitFor()
 
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
 
   await page.getByText("Give feedback").click()
@@ -70,11 +70,11 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   )
 
   await page.getByText("Like this.").click()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.fill("text=Like this.", "Like this!")
   await page.click("text=The abacus is one of the oldest known calculating tools")
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.fill(
     "text=The abacus is one of the oldest known calculating tools",
@@ -86,7 +86,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.click('button:has-text("Preview")')
 
   // Wait for the preview to load
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
 
   await expectScreenshotsToMatchSnapshots({
@@ -110,9 +110,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.locator("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg").click()
 

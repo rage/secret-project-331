@@ -5,13 +5,13 @@ import { useRef, useState } from "react"
 import ReactDOM from "react-dom"
 import { v4 } from "uuid"
 
-import { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageToIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "@/shared-module/exercise-react/react/hooks/useExerciseServiceParentConnection"
-import { RunResult } from "@/tmc/cli"
-import { ExerciseTaskSubmission } from "@/util/exerciseServiceApi"
+import type { RunResult } from "@/tmc/cli"
+import type { ExerciseTaskSubmission } from "@/util/exerciseServiceApi"
 import { publicSpecToIframeUserAnswer } from "@/util/publicSpecToUserAnswer"
-import {
+import type {
   CurrentStateMessageData,
   ExerciseIframeState,
   MessageToParent,
@@ -158,9 +158,8 @@ export function useIframeProtocol() {
                   archive_download_url: archiveDownloadUrl ?? "",
                 },
               }
-            } else {
-              return old
             }
+            return old
           })
         } else {
           logError("Failed to upload:", messageData.error)
@@ -170,9 +169,8 @@ export function useIframeProtocol() {
           if (oldState && oldState.view_type === "exercise-editor") {
             const sorted = orderBy(messageData.repository_exercises, (re) => re.part + re.name)
             return { ...oldState, repository_exercises: sorted }
-          } else {
-            return oldState
           }
+          return oldState
         })
       } else if (messageData.message === "test-results") {
         setTestRequestResponse(messageData.test_result as RunResult)

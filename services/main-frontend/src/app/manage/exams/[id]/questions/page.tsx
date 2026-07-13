@@ -13,7 +13,8 @@ import {
   releaseExamGradesMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/api/types.generated"
-import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import type { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
@@ -54,7 +55,7 @@ const GradingPage: React.FC = () => {
 
   const sorted = useMemo(
     () =>
-      [...(getExercises.data ?? [])].sort((a, b) =>
+      [...(getExercises.data ?? [])].toSorted((a, b) =>
         a.order_number > b.order_number ? 1 : b.order_number > a.order_number ? -1 : 0,
       ),
     [getExercises.data],
@@ -159,9 +160,8 @@ const GradingPage: React.FC = () => {
       const submissions = allSubmissionsList?.[id]
       if (submissions) {
         return submissions.length
-      } else {
-        return "0"
       }
+      return "0"
     },
     [allSubmissionsList],
   )
@@ -174,9 +174,8 @@ const GradingPage: React.FC = () => {
       const submissions = allSubmissionsList?.[id]
       if (submissions) {
         return submissions.filter((sub) => sub.teacher_grading_decision).length
-      } else {
-        return "0"
       }
+      return "0"
     },
     [getExam.data?.grade_manually, allSubmissionsList, totalAnswered],
   )
@@ -202,9 +201,9 @@ const GradingPage: React.FC = () => {
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
     const pieces = [
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("link-manage"), url: `/manage/exams/${id}` },
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("questions"), url: `/manage/exams/${id}/questions` },
     ]
     return pieces

@@ -5,7 +5,8 @@ import React, { useEffect, useRef, useState } from "react"
 import { useHover, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import ContentRenderer, { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
+import ContentRenderer from "../.."
 import { ImageInteractivityContext } from "../../core/common/Image/ImageInteractivityContext"
 
 import FlipButton from "./FlipButton"
@@ -13,7 +14,7 @@ import FlipButton from "./FlipButton"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 interface FlipCardAttributes {
   backgroundColor: string

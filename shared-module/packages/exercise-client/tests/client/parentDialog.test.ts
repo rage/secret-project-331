@@ -1,6 +1,7 @@
-import { DialogCapableMessagePort, ParentDialogClient } from "../../src/client/parentDialog"
+import type { DialogCapableMessagePort } from "../../src/client/parentDialog"
+import { ParentDialogClient } from "../../src/client/parentDialog"
 
-import {
+import type {
   DialogResponseMessage,
   OpenDialogMessage,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
@@ -37,7 +38,7 @@ function createFakePort() {
 }
 
 const lastPostedOpenDialog = (posted: unknown[]): OpenDialogMessage =>
-  posted[posted.length - 1] as OpenDialogMessage
+  posted.at(-1) as OpenDialogMessage
 
 describe("ParentDialogClient", () => {
   it("posts an open-dialog message with the given options and a string requestId", () => {

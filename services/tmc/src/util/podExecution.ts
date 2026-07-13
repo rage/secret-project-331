@@ -1,12 +1,13 @@
 import * as k8s from "@kubernetes/client-node"
 import { createReadStream, createWriteStream, promises as fs } from "fs"
-import internal, { Writable } from "stream"
+import type internal from "stream"
+import { Writable } from "stream"
 import { finished } from "stream/promises"
 import { temporaryFile } from "tempy"
 import { v4 } from "uuid"
 
 import { initKube } from "@/lib"
-import { Logger } from "@/util/logger"
+import type { Logger } from "@/util/logger"
 
 const DEFAULT_TASK_TIMEOUT_MS = 60000
 const CONTAINER_NAME = "tmc-submission-execution-sandbox"
@@ -26,7 +27,7 @@ export async function execWithTimeout(
   kubeExec: k8s.Exec,
   podName: string,
   containerName: string,
-  command: Array<string>,
+  command: string[],
   stdout: internal.Writable,
   stderr: internal.Writable,
   stdin: internal.Readable | null,
@@ -38,7 +39,7 @@ export async function execWithTimeout(
 
   const extractExitCodeFromStatus = (status: unknown): number | undefined => {
     const s = status as {
-      details?: { causes?: Array<{ reason?: string; message?: string }> }
+      details?: { causes?: { reason?: string; message?: string }[] }
     } | null
     const causes = s?.details?.causes
     if (!Array.isArray(causes)) {
@@ -150,7 +151,7 @@ const WAIT_FOR_POD_RUNNING_MS = 120_000
  * Create a Writable that buffers only the last `maxBytes` of input.
  * When `maxBytes === 0`, discards everything (useful as a sink).
  */
-function captureStream(maxBytes: number = 0): { stream: Writable; getBuffer: () => Buffer } {
+function captureStream(maxBytes = 0): { stream: Writable; getBuffer: () => Buffer } {
   if (maxBytes === 0) {
     return {
       stream: new Writable({
@@ -167,6 +168,7 @@ function captureStream(maxBytes: number = 0): { stream: Writable; getBuffer: () 
 
   const trimToMax = () => {
     while (totalBytes > maxBytes && chunks.length > 0) {
+      // oxlint-disable-next-line typescript/no-non-null-assertion -- while condition chunks.length > 0 guarantees chunks[0] exists
       const first = chunks[0]!
       const overflow = totalBytes - maxBytes
       if (overflow >= first.length) {

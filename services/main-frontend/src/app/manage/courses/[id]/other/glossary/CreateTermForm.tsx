@@ -27,7 +27,7 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
     handleSubmit,
     formState: { errors, isValid },
     reset,
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
   } = useForm<NewTermForm>({ mode: "onChange" })
 
   const createMutation = useToastMutationOptions(

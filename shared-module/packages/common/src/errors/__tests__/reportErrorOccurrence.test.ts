@@ -37,7 +37,7 @@ describe("reportErrorOccurrence", () => {
 
   const readPendingReports = () => {
     const raw = window.localStorage.getItem(pendingErrorReportsStorageKey)
-    return raw ? (JSON.parse(raw) as Array<{ body: string }>) : []
+    return raw ? (JSON.parse(raw) as { body: string }[]) : []
   }
 
   const createDeferredResponse = () => {

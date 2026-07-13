@@ -10,7 +10,7 @@ import type { UserDetail } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 
-type Props = {
+interface Props {
   selectedUsers: UserDetail[]
   removeUser: (userId: string) => void
   users?: UserDetail[]

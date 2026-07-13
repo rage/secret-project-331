@@ -32,7 +32,7 @@ import withParagraphAiToolbarAction from "../../utils/Gutenberg/withParagraphAiT
 
 import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]
 
 interface StandaloneGutenbergBootstrapOptions {

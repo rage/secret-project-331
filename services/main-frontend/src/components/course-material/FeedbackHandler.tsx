@@ -40,13 +40,13 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   const feedbackButtonRef = useRef<HTMLButtonElement>(null)
 
   const handleGiveFeedbackClick = () => {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     setCurrentlyOpenFeedbackDialog("select-type")
   }
 
   const focusDialog = useCallback(() => {
     if (type === "proposed-edits") {
-      const dialogElement = document.getElementById(FEEDBACK_DIALOG_CONTENT_ID)
+      const dialogElement = document.querySelector<HTMLElement>(`#${FEEDBACK_DIALOG_CONTENT_ID}`)
       if (dialogElement) {
         dialogElement.focus()
       }

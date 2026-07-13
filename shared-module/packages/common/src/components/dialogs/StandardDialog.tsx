@@ -5,7 +5,8 @@ import React, { useEffect, useId, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { typography } from "../../styles"
-import Button, { ButtonProps } from "../Button"
+import type { ButtonProps } from "../Button"
+import Button from "../Button"
 
 import Dialog from "./Dialog"
 

@@ -3,7 +3,7 @@
 import { produce } from "immer"
 import { v4 } from "uuid"
 
-import { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
+import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
 
 import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 import {
@@ -12,7 +12,7 @@ import {
   zChatbotConversationMessageToolCall,
 } from "@/generated/course-material-api/zod.generated"
 
-export type ChatbotState = {
+export interface ChatbotState {
   messages: ChatbotConversationMessageWithStatus[]
 }
 
@@ -60,7 +60,7 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
           message: {
             id: v4(),
             text: action.payload,
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             message_role: "user",
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
@@ -107,7 +107,7 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
             message: {
               id: v4(),
               text: action.payload.text,
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               message_role: "assistant",
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
@@ -161,7 +161,7 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
               response_id: "",
               tool_arguments: action.payload.arguments ?? "",
               tool_call_id: action.payload.tool_call_id,
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               tool_kind: "function",
               tool_name: action.payload.tool_name ?? "",
             },

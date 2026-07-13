@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import { PrivateSpecQuiz, QuizItemType } from "../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuiz, QuizItemType } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import { createEmptyQuizItem } from "../utils/general"
 

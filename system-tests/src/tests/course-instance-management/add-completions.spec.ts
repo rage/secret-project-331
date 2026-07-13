@@ -11,9 +11,7 @@ test.use({
 test("Manually adding completions works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.locator("[aria-label=\"Manage course \\'Manual Completions\\'\"] path").click()
@@ -48,7 +46,7 @@ test("Manually adding completions works", async ({ page }) => {
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (3)")')
     .click()
 
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
 
   await page.locator('button:has-text("Submit")').click()

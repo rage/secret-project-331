@@ -4,11 +4,11 @@ import { css } from "@emotion/css"
 import { AnimatePresence, motion } from "motion/react"
 import { useTranslation } from "react-i18next"
 
-import { StageMonth } from "../scheduleMappers"
+import type { StageMonth } from "../scheduleMappers"
 
 import MonthBlock from "./MonthBlock"
 
-import { CourseDesignerStage } from "@/generated/api/types.generated"
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
 
@@ -79,7 +79,7 @@ const stageCardActionsStyles = css`
 interface StageCardProps {
   stage: CourseDesignerStage
   title: string
-  months: Array<StageMonth>
+  months: StageMonth[]
   canShrink: boolean
   reduceMotion: boolean
   isPulsing: boolean
@@ -155,7 +155,7 @@ export default function StageCard({
               : {
                   type: "tween",
                   duration: 0.18,
-                  // eslint-disable-next-line i18next/no-literal-string -- Motion ease value
+                  // oxlint-disable-next-line i18next/no-literal-string -- Motion ease value
                   ease: "easeOut",
                 }
             : reduceMotion
@@ -169,10 +169,10 @@ export default function StageCard({
         }}
       >
         <div className={stageMonthBlocksStyles}>
-          {/* eslint-disable-next-line i18next/no-literal-string -- Motion mode name */}
+          {/* oxlint-disable-next-line i18next/no-literal-string -- Motion mode name */}
           <AnimatePresence initial={false} mode="popLayout">
             {months.map((month) => {
-              // eslint-disable-next-line i18next/no-literal-string -- stable layout animation id prefix
+              // oxlint-disable-next-line i18next/no-literal-string -- stable layout animation id prefix
               const monthLayoutId = `month-${month.id}`
               return (
                 <MonthBlock

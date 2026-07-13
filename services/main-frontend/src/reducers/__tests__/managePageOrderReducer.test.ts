@@ -1,9 +1,7 @@
 /// <reference types="jest" />
 
-import managePageOrderReducer, {
-  managePageOrderInitialState,
-  ManagePageOrderState,
-} from "../managePageOrderReducer"
+import type { ManagePageOrderState } from "../managePageOrderReducer"
+import managePageOrderReducer, { managePageOrderInitialState } from "../managePageOrderReducer"
 
 import type { Chapter, Course, CourseStructure, Page } from "@/generated/api/types.generated"
 

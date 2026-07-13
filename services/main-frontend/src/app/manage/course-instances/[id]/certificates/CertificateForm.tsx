@@ -72,7 +72,7 @@ const CertificateForm: React.FC<Props> = ({
 }) => {
   const configuration = configurationAndRequirements?.certificate_configuration
   const { t } = useTranslation()
-  /* eslint-disable i18next/no-literal-string */
+  /* oxlint-disable i18next/no-literal-string */
   const {
     register,
     handleSubmit,
@@ -108,7 +108,7 @@ const CertificateForm: React.FC<Props> = ({
       gradeTextAnchor: configuration?.certificate_grade_text_anchor ?? null,
     },
   })
-  /* eslint-enable i18next/no-literal-string */
+  /* oxlint-enable i18next/no-literal-string */
   const onSubmitWrapper = handleSubmit((data) => {
     onClickSave(data)
   })
@@ -153,7 +153,7 @@ const CertificateForm: React.FC<Props> = ({
             )}
             // required for new configurations
             required={configuration === null}
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             accept={".svg"}
           />
           <FileField
@@ -167,7 +167,7 @@ const CertificateForm: React.FC<Props> = ({
                 : t("label-overlay-svg")
             }
             {...register("overlaySvg")}
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             accept={".svg"}
           />
         </SetHeightInSystemTests>

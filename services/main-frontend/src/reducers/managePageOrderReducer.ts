@@ -1,5 +1,6 @@
 import { produce, type WritableDraft } from "immer"
-import { Dictionary, groupBy, mapValues, max, orderBy } from "lodash"
+import type { Dictionary } from "lodash"
+import { groupBy, mapValues, max, orderBy } from "lodash"
 
 import type { Chapter, CourseStructure, Page } from "@/generated/api/types.generated"
 
@@ -200,7 +201,7 @@ export default function managePageOrderReducer(
     if (draftState.chapters) {
       const chapters = draftState.chapters
       chapters
-        .sort((c1, c2) => c1.chapter_number - c2.chapter_number)
+        .toSorted((c1, c2) => c1.chapter_number - c2.chapter_number)
         .forEach((chapter, index) => {
           const expectedChapterNumber = index + 1
           if (chapter.chapter_number !== expectedChapterNumber) {

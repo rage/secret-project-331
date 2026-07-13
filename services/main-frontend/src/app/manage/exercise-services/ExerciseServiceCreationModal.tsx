@@ -15,8 +15,8 @@ interface ExerciseServiceCreationModelProps {
   onChange: (key: string) => (value: string) => void
   onChangeName: (value: string) => void
   exercise_service: ExerciseServiceNewOrUpdate
-  handleSubmit(): Promise<void>
-  handleClose(): void
+  handleSubmit: () => Promise<void>
+  handleClose: () => void
   open: boolean
 }
 

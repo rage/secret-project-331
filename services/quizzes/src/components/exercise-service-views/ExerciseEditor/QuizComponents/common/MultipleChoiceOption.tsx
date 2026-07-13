@@ -4,7 +4,7 @@ import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
+import type { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
 
 import ParsedTextField from "./ParsedTextField"
 

@@ -6,7 +6,8 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CertificateForm, { CertificateFields } from "./CertificateForm"
+import type { CertificateFields } from "./CertificateForm"
+import CertificateForm from "./CertificateForm"
 import CertificateView from "./CertificateView"
 import { createCertificateConfigurationFormData } from "./certificateConfigurationFormData"
 
@@ -180,7 +181,7 @@ const CertificationsPage: React.FC = () => {
             `}
           >
             {getCourse.data.modules
-              .sort((l, r) => l.order_number - r.order_number)
+              .toSorted((l, r) => l.order_number - r.order_number)
               .map((m) => {
                 return {
                   module: m,

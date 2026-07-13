@@ -1,10 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { UrlObject } from "node:url"
+import type { UrlObject } from "node:url"
 import React from "react"
 
 import { baseTheme, theme } from "../../../styles"

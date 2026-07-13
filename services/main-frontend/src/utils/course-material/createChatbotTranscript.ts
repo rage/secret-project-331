@@ -59,7 +59,7 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
         )
         anyCitationsUsed = filteredCitations.length > 0 || anyCitationsUsed
         filteredCitations
-          .sort((a, b) =>
+          .toSorted((a, b) =>
             assertNotNullOrUndefined(citationNumberingMap.get(a.citation_number)) <
             assertNotNullOrUndefined(citationNumberingMap.get(b.citation_number))
               ? -1

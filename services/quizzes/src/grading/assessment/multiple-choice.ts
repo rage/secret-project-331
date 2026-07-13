@@ -1,6 +1,6 @@
-import { UserItemAnswerMultiplechoice } from "../../../types/quizTypes/answer"
-import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
-import { PrivateSpecQuizItemMultiplechoice } from "../../../types/quizTypes/privateSpec"
+import type { UserItemAnswerMultiplechoice } from "../../../types/quizTypes/answer"
+import type { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
+import type { PrivateSpecQuizItemMultiplechoice } from "../../../types/quizTypes/privateSpec"
 import { clamp01, isValidNumber, safeDivide } from "../utils/math"
 
 const getMultipleChoicePointsByGradingPolicy = (

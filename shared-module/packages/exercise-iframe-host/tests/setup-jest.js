@@ -6,6 +6,7 @@ import "@testing-library/jest-dom"
 
 global.TextEncoder = TextEncoder
 global.Response = ServerResponse
+// oxlint-disable-next-line typescript/no-extraneous-class -- Web API polyfill; must be a class for new/instanceof
 global.Request = class Request {
   constructor(input, init = {}) {
     this.url = input
@@ -14,6 +15,7 @@ global.Request = class Request {
   }
 }
 
+// oxlint-disable-next-line typescript/no-extraneous-class -- Web API polyfill; must be a class for new/instanceof
 global.TransformStream = class TransformStream {
   constructor() {
     this.readable = {}
@@ -57,7 +59,7 @@ class MockIntersectionObserver {
     this.rootMargin = options?.rootMargin ?? "0px 0px 0px 0px"
     this.scrollMargin = options?.scrollMargin ?? "0px 0px 0px 0px"
     this.thresholds = Array.isArray(options?.threshold)
-      ? options.threshold.slice().sort((a, b) => a - b)
+      ? options.threshold.slice().toSorted((a, b) => a - b)
       : [options?.threshold ?? 0]
     this.elements = new Set()
     instances.add(this)

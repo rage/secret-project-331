@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
-import { ReactNode } from "react"
+import type { ReactNode } from "react"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 

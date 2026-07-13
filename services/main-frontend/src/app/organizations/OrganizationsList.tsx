@@ -133,7 +133,7 @@ const OrganizationsList: React.FC = () => {
           createOrganizationMutation.mutate({
             body: {
               name,
-              slug: slug.trim().toLowerCase().replace(/\s+/g, "-"),
+              slug: slug.trim().toLowerCase().replaceAll(/\s+/g, "-"),
               hidden: visibility === "private",
             },
           })

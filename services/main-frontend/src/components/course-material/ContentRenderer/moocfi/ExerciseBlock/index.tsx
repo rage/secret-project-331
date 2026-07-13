@@ -10,7 +10,7 @@ import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import ExerciseStatusMessage from "./ExerciseStatusMessage"
 import ExerciseTask from "./ExerciseTask"
@@ -31,7 +31,7 @@ import {
   postStartPeerOrSelfReview,
   postSubmission,
 } from "@/generated/course-material-api/sdk.generated"
-import {
+import type {
   CourseMaterialExercise,
   StudentExerciseSlideSubmission,
 } from "@/generated/course-material-api/types.generated"
@@ -461,7 +461,7 @@ const ExerciseBlock: React.FC<
             end = end.padEnd(2, "0")
           }
 
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           const timezoneOffset = `(UTC${sign}${start}:${end})`
           deadlineAsString = deadlineAsString + ` ${timezoneOffset}`
         }
@@ -658,7 +658,7 @@ const ExerciseBlock: React.FC<
                 {reviewingStage !== "PeerReview" &&
                   reviewingStage !== "SelfReview" &&
                   courseMaterialExercise.current_exercise_slide.exercise_tasks
-                    .sort((a, b) => a.order_number - b.order_number)
+                    .toSorted((a, b) => a.order_number - b.order_number)
                     .map((task) => (
                       <ExerciseTask
                         key={task.id}

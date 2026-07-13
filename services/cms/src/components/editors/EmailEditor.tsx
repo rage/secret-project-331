@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseMutationResult } from "@tanstack/react-query"
+import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react"
 
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
@@ -13,7 +13,7 @@ import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsuppor
 import { extractPlaceholders, validatePlaceholders } from "../../utils/emailPlaceholders"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
-import { EmailTemplate, EmailTemplateUpdate } from "@/generated/api"
+import type { EmailTemplate, EmailTemplateUpdate } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
@@ -59,7 +59,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     return initialContent
   })
   const [templateType, setTemplateType] = useState<unknown>(
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     (data as { template_type?: unknown }).template_type ?? "generic",
   )
   const [subject, setSubject] = useState(data.subject ?? "")
@@ -88,7 +88,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
 
   const dataContentString = useMemo(() => JSON.stringify(data.content), [data.content])
   const dataTemplateType = useMemo(
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     () => (data as { template_type?: unknown }).template_type ?? "generic",
     [data],
   )
@@ -118,7 +118,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       setContent((saveMutation.data.content ?? []) as BlockInstance[])
 
       setTemplateType(
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         (saveMutation.data as { template_type?: unknown }).template_type ?? "generic",
       )
       setSubject(saveMutation.data.subject ?? "")
@@ -141,7 +141,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       {
         onSuccess: (res) => {
           setContent((res.content ?? []) as BlockInstance[])
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           setTemplateType((res as { template_type?: unknown }).template_type ?? "generic")
           setSubject(res.subject ?? "")
         },
@@ -203,7 +203,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
           courseId
             ? mediaUploadBuilder({ courseId: courseId })
             : async (props: MediaUploadProps) => {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 const errorMessage = "Media uploads are not available for global email templates"
                 console.warn(errorMessage)
                 props.onError(errorMessage)

@@ -12,7 +12,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 
 interface Props {
-  chapters: Array<number>
+  chapters: number[]
   onSubmitForm: (fields: Fields) => void
 }
 
@@ -39,12 +39,12 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
     reset,
     watch,
   } = useForm<Fields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       name: "",
       starts: chapters.length > 0 ? chapters[0] : 1,
-      ends: chapters.length > 0 ? chapters[chapters.length - 1] : 1,
+      ends: chapters.length > 0 ? chapters.at(-1) : 1,
       ects_credits: null,
       automatic_completion: false,
       uh_course_code: "",

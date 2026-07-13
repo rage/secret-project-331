@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuizItemEssay } from "../../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuizItemEssay } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
@@ -28,7 +28,7 @@ const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
 
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemEssay>(
     (quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemEssay>(quiz, quizItemId, "essay")
     },
   )

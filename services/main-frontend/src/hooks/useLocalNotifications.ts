@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 export type NotificationPermission = "default" | "granted" | "denied" | null
 
-type NotificationOptions = {
+interface NotificationOptions {
   body?: string
   icon?: string
   tag?: string

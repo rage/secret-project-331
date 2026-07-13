@@ -7,7 +7,7 @@ import { AnimatedQueryFrame, type AnimatedQueryFrameProps } from "./AnimatedQuer
 import { getSingleQueryState, isQueryResultEmpty } from "./queryResultState"
 import type { ThemeMode } from "./queryResultStyles"
 
-export type QueryResultProps<T, E = unknown> = {
+export interface QueryResultProps<T, E = unknown> {
   query: UseQueryResult<T, E>
   themeMode?: ThemeMode
   children: (data: T) => React.ReactNode

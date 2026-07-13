@@ -78,9 +78,9 @@ const otpSlotLgCss = css`
   font-size: 1.4rem;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const slotInputSelector = "input"
 
 function resolveOtpSlotSizeCss(fieldSize: FieldSize) {
@@ -154,7 +154,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
   const inputId = id ?? generatedInputId
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const slotsContainerRef = useRef<HTMLDivElement>(null)
-  const slotRefs = useRef<Array<HTMLInputElement | null>>([])
+  const slotRefs = useRef<(HTMLInputElement | null)[]>([])
   const hasFocusWithinRef = useRef(false)
 
   useImperativeHandle(field.ref, () => {

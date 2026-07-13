@@ -11,7 +11,7 @@ import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 
 export const formatLanguageVersionsQueryKey = (courseId: string): string => {
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   return `course-${courseId}-language-versions`
 }
 

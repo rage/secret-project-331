@@ -9,9 +9,8 @@ import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
 import { getCmsCoursePages, getCmsPage, getCmsPageInfo } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -64,11 +63,11 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
           }).content
           let filename = page.url_path
           if (filename === "/") {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             filename = "/index"
           }
           tarBuilder.add_file(
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             `pages${filename}.json`,
             textEncoder.encode(JSON.stringify(denormalizedContent, undefined, 2)),
           )
@@ -95,7 +94,7 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
               }
               const body = await response.arrayBuffer()
               const bodyAsUint8Array = new Uint8Array(body)
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               const path = `files${parsedUrl.pathname}`
               console.info(`Saving ${path}`)
               tarBuilder.add_file(path, bodyAsUint8Array)
@@ -112,7 +111,7 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
         })
         const tarData = tarBuilder.finish()
         save(
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           `Page export ${pageInfo.course_slug} ${dateToString(new Date()).replaceAll(
             ":",
             ".",
@@ -153,7 +152,7 @@ function save(filename: string, data: Uint8Array) {
   const elem = window.document.createElement("a")
   elem.href = window.URL.createObjectURL(blob)
   elem.download = filename
-  document.body.appendChild(elem)
+  document.body.append(elem)
   elem.click()
   document.body.removeChild(elem)
 }

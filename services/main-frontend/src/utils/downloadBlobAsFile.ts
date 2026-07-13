@@ -6,7 +6,7 @@ export const downloadBlobAsFile = (blob: Blob, fileName: string) => {
   link.setAttribute("download", fileName)
 
   try {
-    document.body.appendChild(link)
+    document.body.append(link)
     link.click()
     link.parentNode?.removeChild(link)
   } finally {

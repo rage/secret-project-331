@@ -1,8 +1,9 @@
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import chatbotReducer, { ChatbotAction, ChatbotState } from "../chatbotReducer"
+import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
+import chatbotReducer from "../chatbotReducer"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
@@ -97,7 +98,6 @@ const useChatbotStateAndData = (
             }
             try {
               const parsedValue: ChatbotChatStreamEvent = JSON.parse(line)
-              console.log(parsedValue)
               if (parsedValue.type === "Delta") {
                 dispatch({
                   type: "RECEIVED_TEXT_DELTA",
@@ -124,6 +124,8 @@ const useChatbotStateAndData = (
                 } else {
                   dispatch({ type: "TOOL_CALL_IN_PROGRESS", payload: { ...parsedValue.data } })
                 }
+              } else if (parsedValue.type === "Error") {
+                setError(parsedValue.data)
               }
             } catch (e) {
               console.error(e)
@@ -138,7 +140,6 @@ const useChatbotStateAndData = (
       onSuccess: async () => {
         await currentConversationInfo.refetch()
         dispatch({ type: "RESPONSE_COMPLETED" })
-        setError(null)
         setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
       },
       onError: async (error) => {

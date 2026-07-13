@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PaginationInfo } from "../hooks/usePaginationInfo"
+import type { PaginationInfo } from "../hooks/usePaginationInfo"
 
 import SelectField from "./InputFields/SelectField"
 

@@ -1,4 +1,5 @@
-import { devices, LaunchOptions, PlaywrightTestConfig, ReporterDescription } from "@playwright/test"
+import type { LaunchOptions, PlaywrightTestConfig, ReporterDescription } from "@playwright/test"
+import { devices } from "@playwright/test"
 import { freemem } from "os"
 
 function envToNumber(env: string, defaultNumber: number) {

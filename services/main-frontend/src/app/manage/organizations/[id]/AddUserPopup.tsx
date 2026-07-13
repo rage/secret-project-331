@@ -13,7 +13,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 type RoleValue = (typeof USER_ROLES)[number]["value"]
 
-type AddUserForm = {
+interface AddUserForm {
   email: string
   role: RoleValue
 }

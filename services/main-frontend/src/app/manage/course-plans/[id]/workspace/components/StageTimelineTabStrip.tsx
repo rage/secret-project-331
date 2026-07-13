@@ -13,9 +13,9 @@ import StageTimelineTab from "./StageTimelineTab"
 import type { StageTimelineTabItem } from "./stageTimelineShared"
 
 import { getStageMonths } from "@/app/manage/course-plans/[id]/schedule/scheduleMappers"
-import {
-  type CourseDesignerPlanStageWithTasks,
-  type CourseDesignerStage,
+import type {
+  CourseDesignerPlanStageWithTasks,
+  CourseDesignerStage,
 } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -133,7 +133,7 @@ const todayLineStyles = css`
 `
 
 interface StageTimelineTabStripProps {
-  stages: Array<CourseDesignerPlanStageWithTasks>
+  stages: CourseDesignerPlanStageWithTasks[]
   activeStage: CourseDesignerStage | null
   selectedStage: CourseDesignerStage | null
   onSelectedStageChange: (stage: CourseDesignerStage) => void

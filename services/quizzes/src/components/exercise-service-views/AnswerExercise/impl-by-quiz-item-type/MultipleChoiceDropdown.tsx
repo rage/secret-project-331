@@ -2,11 +2,11 @@ import { css } from "@emotion/css"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

@@ -2,7 +2,7 @@ import type React from "react"
 
 import { joinAriaDescribedBy } from "./aria"
 
-type ResolveFieldStateInput = {
+interface ResolveFieldStateInput {
   disabled?: boolean
   readOnly?: boolean
   required?: boolean
@@ -14,7 +14,7 @@ type ResolveFieldStateInput = {
   errorMessage?: React.ReactNode
 }
 
-type ResolveDescribedByInput = {
+interface ResolveDescribedByInput {
   ariaDescribedBy?: string
   descriptionId?: string
   noticeId?: string

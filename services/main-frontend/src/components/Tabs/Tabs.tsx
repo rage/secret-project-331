@@ -1,7 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { TabListState, useTabListState } from "@react-stately/tabs"
+import type { TabListState } from "@react-stately/tabs"
+import { useTabListState } from "@react-stately/tabs"
 import { usePathname, useRouter } from "next/navigation"
 import React, { createContext, useContext, useMemo, useRef } from "react"
 import { useTabList } from "react-aria"
@@ -37,7 +38,7 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
 
   const basePath = useMemo(() => {
     const segments = pathname.split("/").filter(Boolean)
-    if (segments.length >= 1) {
+    if (segments.length > 0) {
       return `/${segments[0]}`
     }
     return pathname.replace(/\/$/, "") || "/"

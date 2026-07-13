@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { baseTheme, headingFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
-import { ProgressBarExtraProps } from "."
+import type { ProgressBarExtraProps } from "."
 
 const LinearProgress = styled.div<LinearProgressProps>`
   display: flex;

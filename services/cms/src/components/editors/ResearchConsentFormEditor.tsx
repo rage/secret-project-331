@@ -12,7 +12,7 @@ import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 
-import { NewResearchForm, ResearchForm } from "@/generated/api"
+import type { NewResearchForm, ResearchForm } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
@@ -41,7 +41,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [content, setContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "moocfi/research-consent-question",
     ]) as BlockInstance[],
   )
@@ -50,7 +50,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [currentContent, setCurrentContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "moocfi/research-consent-question",
     ]) as BlockInstance[],
   )

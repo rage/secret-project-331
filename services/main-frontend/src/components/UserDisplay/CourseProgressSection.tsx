@@ -69,7 +69,7 @@ export function CourseProgressSection({ courseId, userId }: { courseId: string; 
                     : `${mod.score_given} ${t("label-points")}`}
                   {mod.total_exercises != null && mod.attempted_exercises != null && (
                     <>
-                      {/* eslint-disable-next-line i18next/no-literal-string -- typographic separator */}
+                      {/* oxlint-disable-next-line i18next/no-literal-string -- typographic separator */}
                       {" · "}
                       {mod.attempted_exercises} / {mod.total_exercises} {t("label-exercises")}
                     </>

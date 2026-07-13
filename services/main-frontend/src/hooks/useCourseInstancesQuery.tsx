@@ -1,8 +1,9 @@
 "use client"
 
-import { useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-import { HookQueryOptions } from "."
+import type { HookQueryOptions } from "."
 
 import {
   getCourseInstancesOptions,

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import PageContext from "../../contexts/PageContext"
 import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
 
-import { CmsPageUpdate, Page } from "@/generated/api"
+import type { CmsPageUpdate, Page } from "@/generated/api"
 import {
   getCmsCourseOptions,
   getCmsPageOptions,
@@ -14,9 +14,8 @@ import {
 import { updateCmsPage } from "@/generated/api/sdk.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
@@ -101,7 +100,7 @@ const Pages = ({ query }: PagesProps) => {
     {
       onSuccess: (newData) => {
         // Refetch, setQueryData or invalidateQueries?
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         queryClient.setQueryData([`page-${id}`], newData)
       },
     },

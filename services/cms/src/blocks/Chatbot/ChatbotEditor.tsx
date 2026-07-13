@@ -8,7 +8,7 @@ import React, { useContext } from "react"
 import PageContext from "../../contexts/PageContext"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-import { ChatbotBlockAttributes } from "."
+import type { ChatbotBlockAttributes } from "."
 
 import { getCmsCourseNondefaultChatbotConfigurationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"

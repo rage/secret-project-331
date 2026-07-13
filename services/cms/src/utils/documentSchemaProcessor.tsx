@@ -1,16 +1,16 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
 import { v4, v5 } from "uuid"
 
-import { ExerciseAttributes } from "../blocks/Exercise"
-import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+import type { ExerciseAttributes } from "../blocks/Exercise"
+import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
 
 import { isGutenbergBlockArray } from "./Gutenberg/gutenbergBlocks"
 
-import {
+import type {
   CmsPageExercise,
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
@@ -204,7 +204,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         },
         isValid: true,
         innerBlocks: tasks
-          .sort((a, b) => a.order_number - b.order_number)
+          .toSorted((a, b) => a.order_number - b.order_number)
           .map((task) => {
             const denormalizedTask: BlockInstance<ExerciseTaskAttributes> = {
               // Using task id in tests ensures that this operation is reversible

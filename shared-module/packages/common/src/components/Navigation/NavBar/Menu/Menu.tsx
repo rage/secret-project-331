@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { ReactNode, useState } from "react"
+import type { ReactNode } from "react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../../styles"

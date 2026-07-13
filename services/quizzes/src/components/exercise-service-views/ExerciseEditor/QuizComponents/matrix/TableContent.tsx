@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
 
-import { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 
@@ -35,7 +35,7 @@ interface TableContentProps {
 const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ quizItemId }) => {
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMatrix>(
     (quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemMatrix>(quiz, quizItemId, "matrix")
     },
   )
@@ -79,9 +79,8 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
       return rowArray.map((cell, columnIndex) => {
         if (column === columnIndex && row === rowIndex) {
           return text
-        } else {
-          return cell
         }
+        return cell
       })
     })
     setMatrixVariable(newMatrix)

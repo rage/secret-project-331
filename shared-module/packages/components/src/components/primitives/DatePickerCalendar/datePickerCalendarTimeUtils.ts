@@ -122,7 +122,7 @@ function normalizeDigits(raw: string, locale: string) {
 
 function normalizeTimeInput(raw: string, locale: string) {
   return normalizeDigits(raw.normalize("NFKC"), locale)
-    .replace(/[\u200e\u200f\u061c]/g, "")
+    .replaceAll(/[\u200E\u200F\u061C]/g, "")
     .trim()
 }
 

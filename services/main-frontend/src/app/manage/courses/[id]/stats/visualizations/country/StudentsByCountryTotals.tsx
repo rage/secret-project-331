@@ -36,13 +36,13 @@ const StudentsByCountryTotals: React.FC<Props> = ({ courseId }) => {
           count: countryData.reduce((acc, d) => acc + d.count, 0),
         }
       })
-      .sort((a, b) => a.count - b.count)
+      .toSorted((a, b) => a.count - b.count)
     if (totalCountsByCountry.length > 15) {
       totalCountsByCountry = totalCountsByCountry.filter((d) => d.count >= 10)
     }
     const totalCountsByCountryObject = totalCountsByCountry.reduce(
       (acc, d) => {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         acc[d.country ?? "null"] = d.count
         return acc
       },
@@ -64,7 +64,7 @@ const StudentsByCountryTotals: React.FC<Props> = ({ courseId }) => {
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  const chartHeight = categories.length ? 200 + categories.length * 25 : 300
+  const chartHeight = categories.length > 0 ? 200 + categories.length * 25 : 300
   return (
     <>
       <StatsHeader heading={t("students-by-chosen-country")} debugData={aggregatedData} />
@@ -104,9 +104,9 @@ const StudentsByCountryTotals: React.FC<Props> = ({ courseId }) => {
                     },
                   ],
                   tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     trigger: "item",
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     formatter: "{b}: {c}",
                   },
                 }}

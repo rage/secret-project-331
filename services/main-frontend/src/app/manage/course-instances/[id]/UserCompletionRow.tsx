@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import { times } from "lodash"
-import React, { JSX } from "react"
+import type { JSX } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
@@ -13,13 +14,13 @@ import type {
 } from "@/generated/api/types.generated"
 
 export interface UserCompletionRowProps {
-  sortedCourseModules: Array<CourseModule>
+  sortedCourseModules: CourseModule[]
   user: UserCompletionRowUser
 }
 
 export interface UserCompletionRowUser {
   /** Maps module id to an array of all completions for that module. */
-  moduleCompletions: Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>
+  moduleCompletions: Map<string, CourseModuleCompletionWithRegistrationInfo[]>
   email: string
   firstName: string | null
   lastName: string | null
@@ -36,9 +37,8 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
     }
     if (completion.prerequisite_modules_completed) {
       return <>{innerText}</>
-    } else {
-      return <i>{innerText}*</i>
     }
+    return <i>{innerText}*</i>
   }
 
   function mapGradeCell(completion: CourseModuleCompletionWithRegistrationInfo): JSX.Element {
@@ -62,9 +62,8 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
       return <>{t("yes")}</>
     } else if (completion.completion_registration_attempt_date) {
       return <i>{t("column-pending")}</i>
-    } else {
-      return <></>
     }
+    return <></>
   }
 
   let maxCompletions = 1

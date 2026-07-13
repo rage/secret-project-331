@@ -24,7 +24,7 @@ import { Button, QueryResult, TextField } from "@/shared-module/components"
 
 const ADD_MEMBER_FIELD = "email" as const
 
-type AddMemberFormValues = {
+interface AddMemberFormValues {
   email: string
 }
 
@@ -33,7 +33,7 @@ function formatPlanMemberDisplayName(
   member: Pick<PlanMemberWithDetails, "first_name" | "last_name">,
 ) {
   if (!member.first_name && !member.last_name) {
-    // eslint-disable-next-line i18next/no-literal-string -- empty name placeholder
+    // oxlint-disable-next-line i18next/no-literal-string -- empty name placeholder
     return "—"
   }
 

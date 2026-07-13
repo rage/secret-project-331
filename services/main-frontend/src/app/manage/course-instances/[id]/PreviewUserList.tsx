@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,7 +9,7 @@ import type { ManualCompletionPreviewUser } from "@/generated/api/types.generate
 import { baseTheme } from "@/shared-module/common/styles"
 
 export interface PreviewUserListProps {
-  users: Array<ManualCompletionPreviewUser>
+  users: ManualCompletionPreviewUser[]
 }
 
 const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {

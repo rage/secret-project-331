@@ -1,12 +1,12 @@
 import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
 import migrateQuizAnswer from "../../../src/util/migration/userAnswerSpec"
-import { QuizItem } from "../../../types/oldQuizTypes"
-import {
+import type { QuizItem } from "../../../types/oldQuizTypes"
+import type {
   UserItemAnswer,
   UserItemAnswerCheckbox,
   UserItemAnswerScale,
 } from "../../../types/quizTypes/answer"
-import {
+import type {
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
   PrivateSpecQuizItemClosedEndedQuestion,

@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import CreateChatbotDialog from "./CreateChatbotDialog"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import {
   getCourseChatbotsOptions,
   setCourseChatbotAsDefaultMutation,
@@ -36,7 +36,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   )
 
   const sortedChatbotsList = useMemo(() => {
-    return [...(getChatbotsList.data ?? [])].sort((a, b) => {
+    return [...(getChatbotsList.data ?? [])].toSorted((a, b) => {
       if (a.default_chatbot) {
         return -1
       }

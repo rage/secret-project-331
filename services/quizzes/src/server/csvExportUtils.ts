@@ -1,5 +1,5 @@
-import { UserItemAnswer } from "../../types/quizTypes/answer"
-import {
+import type { UserItemAnswer } from "../../types/quizTypes/answer"
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
   PrivateSpecQuizItemTimelineItem,
@@ -172,7 +172,7 @@ export function getSortedTimelineItems(
     return []
   }
 
-  return [...quizItem.timelineItems].sort((left, right) => {
+  return [...quizItem.timelineItems].toSorted((left, right) => {
     const leftNumber = Number(left.year)
     const rightNumber = Number(right.year)
     if (Number.isFinite(leftNumber) && Number.isFinite(rightNumber)) {

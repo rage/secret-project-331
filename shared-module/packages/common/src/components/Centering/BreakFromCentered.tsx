@@ -73,22 +73,21 @@ const BreakFromCentered: React.FC<React.PropsWithChildren<BreakFromCenteredProps
           {props.children}
         </div>
       )
-    } else {
-      return (
-        <div
-          className={css`
-            position: relative;
-            left: 50%;
-            right: 50%;
-            margin-left: calc(-50vw + ${props.sidebarWidth} / 2);
-            margin-right: calc(-50vw + ${props.sidebarWidth} / 2);
-            width: calc(100vw - ${props.sidebarWidth} - ${scrollbarWidth}px);
-          `}
-        >
-          {props.children}
-        </div>
-      )
     }
+    return (
+      <div
+        className={css`
+          position: relative;
+          left: 50%;
+          right: 50%;
+          margin-left: calc(-50vw + ${props.sidebarWidth} / 2);
+          margin-right: calc(-50vw + ${props.sidebarWidth} / 2);
+          width: calc(100vw - ${props.sidebarWidth} - ${scrollbarWidth}px);
+        `}
+      >
+        {props.children}
+      </div>
+    )
   }
   return (
     <div

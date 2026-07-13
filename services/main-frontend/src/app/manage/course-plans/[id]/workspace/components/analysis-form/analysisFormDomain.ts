@@ -207,11 +207,11 @@ export const CONTRIBUTOR_ROLES = [
     field: "contributors_support_staff",
     nameKey: "course-plans-analysis-role-support",
   },
-] as const satisfies ReadonlyArray<{
+] as const satisfies readonly {
   dutiesKey: string
   field: ContributorFieldKey
   nameKey: string
-}>
+}[]
 
 /**
  * Renders a line of localized resource text with mailto and https links activated.

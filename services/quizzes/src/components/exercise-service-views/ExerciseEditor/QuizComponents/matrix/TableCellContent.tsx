@@ -29,7 +29,7 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     ${
       cellText === "" &&
       (column > matrixSize[1] || row > matrixSize[0]) &&
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       `background-color: ${baseTheme.colors.clear[100]};
 `
     }
@@ -37,7 +37,7 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
       cellText === "" &&
       isActive &&
       (column > matrixSize[1] || row > matrixSize[0]) &&
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       `background-color: ${baseTheme.colors.clear[300]};`
     }
   `

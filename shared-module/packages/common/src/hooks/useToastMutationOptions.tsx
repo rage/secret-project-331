@@ -1,6 +1,6 @@
 "use client"
 
-import { UseMutationOptions, UseMutationResult } from "@tanstack/react-query"
+import type { UseMutationOptions, UseMutationResult } from "@tanstack/react-query"
 
 import useToastMutation from "./useToastMutation"
 

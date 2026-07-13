@@ -2,7 +2,8 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { forwardRef, InputHTMLAttributes, useEffect, useRef } from "react"
+import type { InputHTMLAttributes } from "react"
+import React, { forwardRef, useEffect, useRef } from "react"
 
 import { baseTheme, primaryFont } from "../../styles"
 
@@ -13,7 +14,7 @@ interface LabelExtraProps {
   error?: boolean
 }
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const Label = styled.label<LabelExtraProps>`
   font-family: ${primaryFont};
   font-size: 1.1rem;
@@ -152,7 +153,7 @@ const CheckBox = forwardRef<HTMLInputElement, CheckboxProps>(
               }
               labelSpanRef.current = node
             }}
-            // eslint-disable-next-line react/no-children-prop
+            // oxlint-disable-next-line react/no-children-prop
             children={labelIsRawHtml ? undefined : rest.label}
           />
         </Label>

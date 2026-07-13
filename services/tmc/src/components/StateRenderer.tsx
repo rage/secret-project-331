@@ -6,11 +6,11 @@ import ExerciseEditor from "./ExerciseEditor"
 import ViewSubmission, { normalizeSubmission } from "./ViewSubmission"
 
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
-import { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"
 import withNoSsr from "@/shared-module/exercise-react/react/components/withNoSsr"
-import { RunResult } from "@/tmc/cli"
-import { ExerciseIframeState } from "@/util/stateInterfaces"
+import type { RunResult } from "@/tmc/cli"
+import type { ExerciseIframeState } from "@/util/stateInterfaces"
 
 interface Props {
   state: ExerciseIframeState | null
@@ -67,7 +67,7 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
             return updater(prev)
           }
           const fakePrev: ExerciseIframeState = {
-            // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
+            // oxlint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
             view_type: "answer-exercise",
             public_spec: prev.public_spec,
             user_answer: prev.submission,

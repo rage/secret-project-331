@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { ChangeEvent, useEffect, useState } from "react"
+import type { ChangeEvent } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -303,7 +304,7 @@ const Home: React.FC = () => {
             key={combinedUrl + exampleData}
             url={combinedUrl}
             postThisStateToIFrame={{
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               view_type: "answer-exercise",
               exercise_task_id: EXAMPLE_UUID,
               user_information: {

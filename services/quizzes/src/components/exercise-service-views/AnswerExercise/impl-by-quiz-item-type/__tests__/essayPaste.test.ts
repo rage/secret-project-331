@@ -116,6 +116,16 @@ describe("isLargePaste", () => {
     expect(isLargePaste(code)).toBe(true)
   })
 
+  it("does not count whitespace between citations toward the character fallback", () => {
+    const list = Array.from({ length: 100 }, (_, i) => `https://example.com/s-${i}`).join("\n    ")
+    expect(isLargePaste(`Sources:\n    ${list}\nDone`)).toBe(false)
+  })
+
+  it("counts whitespace bridged by operator tokens, so code with operators still warns", () => {
+    const code = "        result = value + other\n".repeat(16)
+    expect(isLargePaste(code)).toBe(true)
+  })
+
   it("still counts an unbroken block that contains an embedded email or URL", () => {
     const half = "宇".repeat(LARGE_PASTE_CHAR_THRESHOLD / 2)
     expect(isLargePaste(`${half}a@b.fi${half}`)).toBe(true)

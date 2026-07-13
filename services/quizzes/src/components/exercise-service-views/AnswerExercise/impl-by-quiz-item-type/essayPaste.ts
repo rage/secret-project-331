@@ -29,9 +29,9 @@ const CITATION_MARKERS = /\[\d{1,3}\]/g
 
 /**
  * Whole-token matchers for citation-like content excluded from the paste size: URLs (plain or
- * markdown-wrapped), DOIs, emails, bare domains with a path, and punctuation-only leftovers.
- * Kept anchored and unambiguous so they run in linear time. Leading wrappers like `("<` are
- * allowed in-pattern; trailing punctuation is peeled off by isCitationToken.
+ * markdown-wrapped), DOIs, emails, and bare domains with a path. Kept anchored and unambiguous so
+ * they run in linear time. Leading wrappers like `("<` are allowed in-pattern; trailing
+ * punctuation is peeled off by classifyToken.
  */
 const CITATION_TOKEN_PATTERNS: RegExp[] = [
   /^[<(["']*(?:https?:\/\/|www\.)\S+$/i,
@@ -40,35 +40,45 @@ const CITATION_TOKEN_PATTERNS: RegExp[] = [
   /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i,
   /^[<(["']*(?:[\w-]+\.)+[a-z]{2,}\/\S*$/i,
   /^\[[^\]]*\]\(\S+\)$/,
-  /^[^\p{L}\p{N}]+$/u,
 ]
+
+/** Punctuation-only leftovers, e.g. residue of citation-marker removal or standalone operators. */
+const PUNCTUATION_ONLY = /^[^\p{L}\p{N}]+$/u
 
 const TRAILING_AFFIX = /[>)\]"'.,;:]$/
 
 /** Bounds the trailing-punctuation peeling so retesting stays constant per token. */
 const MAX_AFFIX_PEEL = 4
 
-const isCitationToken = (token: string): boolean => {
+type TokenKind = "citation" | "punctuation" | "prose"
+
+/**
+ * Citation and punctuation tokens are both excluded from the counts, but they differ in how the
+ * whitespace around them is treated: only citations swallow it (see isLargePaste).
+ */
+const classifyToken = (token: string): TokenKind => {
   if (token.length > MAX_CITATION_TOKEN_LENGTH) {
-    return false
+    return "prose"
   }
   for (let end = token.length; end > 0 && end >= token.length - MAX_AFFIX_PEEL; end--) {
     const core = token.slice(0, end)
     if (CITATION_TOKEN_PATTERNS.some((pattern) => pattern.test(core))) {
-      return true
+      return "citation"
+    }
+    if (PUNCTUATION_ONLY.test(core)) {
+      return "punctuation"
     }
     if (!TRAILING_AFFIX.test(core)) {
-      return false
+      return "prose"
     }
   }
-  return false
+  return "prose"
 }
 
 /**
  * Whether a pasted chunk of text is large enough to warrant the academic-integrity warning.
  * Citation-like content (links, DOIs, emails, citation markers) is excluded from the measurement,
- * so that pasting citations doesn't trigger the warning. The character count includes whitespace
- * between prose tokens so that indented code and line-broken blocks are measured at full size.
+ * so that pasting citations doesn't trigger the warning.
  * Scans incrementally and returns as soon as a threshold is reached, keeping huge pastes cheap.
  */
 export function isLargePaste(pastedText: string): boolean {
@@ -84,7 +94,11 @@ export function isLargePaste(pastedText: string): boolean {
   for (let match = tokens.exec(text); match !== null; match = tokens.exec(text)) {
     pendingWhitespace += match.index - previousEnd
     previousEnd = tokens.lastIndex
-    if (isCitationToken(match[0])) {
+    const kind = classifyToken(match[0])
+    if (kind !== "prose") {
+      if (kind === "citation") {
+        pendingWhitespace = 0
+      }
       continue
     }
     if (proseChars > 0) {

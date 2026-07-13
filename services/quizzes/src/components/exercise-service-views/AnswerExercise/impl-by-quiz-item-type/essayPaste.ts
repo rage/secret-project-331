@@ -1,6 +1,5 @@
 import { TFunction } from "i18next"
 
-import { wordCount } from "@/shared-module/common/utils/strings"
 import { OpenDialogOptions } from "@/shared-module/exercise-client/client/parentDialog"
 
 /**
@@ -17,35 +16,41 @@ export const LARGE_PASTE_WORD_THRESHOLD = 50
 export const LARGE_PASTE_CHAR_THRESHOLD = 400
 
 /**
- * Citation-like content that should not count toward the paste size: URLs, DOIs, email addresses,
- * bare domains with a path, and numbered citation markers like [1].
+ * Tokens longer than this are never citations: real URLs/DOIs fit well under it, and it keeps a
+ * huge unbroken block (e.g. CJK text or code) counted as content.
  */
-const CITATION_PATTERNS: RegExp[] = [
-  /(?:https?:\/\/|www\.)\S+/gi,
-  /\bdoi:\s?\S+/gi,
-  /\b10\.\d{4,9}\/\S+/g,
-  /\S+@\S+\.\S+/g,
-  /(?:[\w-]+\.)+[a-z]{2,}\/\S*/gi,
-  /\[\d{1,3}\]/g,
+const MAX_CITATION_TOKEN_LENGTH = 512
+
+/**
+ * Whole-token matchers for citation-like content excluded from the paste size: URLs, DOIs, emails,
+ * bare domains with a path, and numbered markers like [1]. Kept anchored and unambiguous so they
+ * run in linear time.
+ */
+const CITATION_TOKEN_PATTERNS: RegExp[] = [
+  /^[([]?(?:https?:\/\/|www\.)\S+$/i,
+  /^[([]?(?:doi:)?10\.\d{4,9}\/\S+$/i,
+  /^[^\s@]+@[^\s@]+\.[a-z]{2,}[.,;:)]?$/i,
+  /^(?:[\w-]+\.)+[a-z]{2,}\/\S*$/i,
+  /^\[\d{1,3}\][.,;:)]?$/,
 ]
+
+const isCitationToken = (token: string): boolean =>
+  token.length <= MAX_CITATION_TOKEN_LENGTH &&
+  CITATION_TOKEN_PATTERNS.some((pattern) => pattern.test(token))
 
 /**
  * Whether a pasted chunk of text is large enough to warrant the academic-integrity warning.
- * Citation-like content (links, DOIs, emails, citation markers) is excluded from the measurement
- * so that pasting citations doesn't trigger the warning. Pure so it can be unit tested
- * independently of the essay component.
+ * Discard citation-like tokens (links, DOIs, emails, citation markers), so that pasting citations
+ * doesn't trigger the warning.
  */
 export function isLargePaste(pastedText: string): boolean {
   if (!pastedText) {
     return false
   }
-  const withoutCitations = CITATION_PATTERNS.reduce(
-    (text, pattern) => text.replace(pattern, " "),
-    pastedText,
-  )
+  const proseTokens = pastedText.split(/\s+/).filter((token) => token && !isCitationToken(token))
   return (
-    wordCount(withoutCitations) >= LARGE_PASTE_WORD_THRESHOLD ||
-    withoutCitations.trim().length >= LARGE_PASTE_CHAR_THRESHOLD
+    proseTokens.length >= LARGE_PASTE_WORD_THRESHOLD ||
+    proseTokens.join(" ").length >= LARGE_PASTE_CHAR_THRESHOLD
   )
 }
 

@@ -55,15 +55,12 @@ describe("isLargePaste", () => {
     expect(isLargePaste(`${words(LARGE_PASTE_WORD_THRESHOLD - 1)} ${links}`)).toBe(false)
   })
 
-  it("does not count links toward the character fallback", () => {
-    const longUrl = `https://example.com/${"a".repeat(LARGE_PASTE_CHAR_THRESHOLD)}`
-    expect(isLargePaste(`see ${longUrl}`)).toBe(false)
-  })
-
-  it("excludes www-prefixed links without a scheme", () => {
-    const longUrl = `www.example.com/${"a".repeat(LARGE_PASTE_CHAR_THRESHOLD)}`
-    expect(isLargePaste(`see ${longUrl}`)).toBe(false)
-  })
+  it.each(["https://example.com/", "www.example.com/", "example.com/"])(
+    "does not count %s-style links toward the character fallback",
+    (prefix) => {
+      expect(isLargePaste(`see ${prefix}${"a".repeat(LARGE_PASTE_CHAR_THRESHOLD)}`)).toBe(false)
+    },
+  )
 
   it("still warns when the non-link content alone is large", () => {
     expect(isLargePaste(`${words(LARGE_PASTE_WORD_THRESHOLD)} https://example.com`)).toBe(true)
@@ -79,17 +76,36 @@ describe("isLargePaste", () => {
     expect(isLargePaste(`${words(LARGE_PASTE_WORD_THRESHOLD - 1)} ${emails}`)).toBe(false)
   })
 
-  it("does not count bare domains with a path", () => {
-    const bareUrl = `example.com/${"a".repeat(LARGE_PASTE_CHAR_THRESHOLD)}`
-    expect(isLargePaste(`see ${bareUrl}`)).toBe(false)
-  })
-
   it("does not count numeric citation markers toward the word threshold", () => {
     const wordsWithMarkers = Array.from(
       { length: LARGE_PASTE_WORD_THRESHOLD - 1 },
       (_, i) => `w${i} [${i % 100}]`,
     ).join(" ")
     expect(isLargePaste(wordsWithMarkers)).toBe(false)
+  })
+
+  it("excludes links wrapped in parentheses and markers with trailing punctuation", () => {
+    const links = Array.from({ length: 10 }, (_, i) => `(https://example.com/s-${i})`).join(" ")
+    expect(isLargePaste(`${words(LARGE_PASTE_WORD_THRESHOLD - 1)} ${links}`)).toBe(false)
+    const markers = Array.from({ length: 10 }, (_, i) => `[${i}].`).join(" ")
+    expect(isLargePaste(`${words(LARGE_PASTE_WORD_THRESHOLD - 1)} ${markers}`)).toBe(false)
+  })
+
+  it("does not split words when a citation marker is glued to them", () => {
+    const glued = Array.from({ length: LARGE_PASTE_WORD_THRESHOLD - 1 }, (_, i) => `w${i}[1].`)
+    expect(isLargePaste(glued.join(" "))).toBe(false)
+  })
+
+  it("still counts an unbroken block that contains an embedded email or URL", () => {
+    const half = "宇".repeat(LARGE_PASTE_CHAR_THRESHOLD / 2)
+    expect(isLargePaste(`${half}a@b.fi${half}`)).toBe(true)
+    expect(isLargePaste(`www.${"宇".repeat(LARGE_PASTE_CHAR_THRESHOLD * 2)}`)).toBe(true)
+  })
+
+  it("handles pathological inputs quickly (regression: catastrophic backtracking)", () => {
+    expect(isLargePaste("a@".repeat(20000))).toBe(true)
+    expect(isLargePaste("a.".repeat(20000))).toBe(true)
+    expect(isLargePaste("a".repeat(100000))).toBe(true)
   })
 })
 

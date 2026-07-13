@@ -63,6 +63,7 @@ export async function setupRedirectServer(): Promise<void> {
   await _setupPromise
 }
 
+// oxlint-disable-next-line require-await -- kept async for Promise<void> public API contract; callers await it
 export async function teardownRedirectServer(): Promise<void> {
   _setupCount--
   if (_setupCount <= 0) {

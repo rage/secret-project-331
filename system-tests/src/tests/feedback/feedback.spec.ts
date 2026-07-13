@@ -110,6 +110,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "feedback-empty",
     waitForTheseToBeVisibleAndStable: [page.locator(`text=No feedback`)],
+    // oxlint-disable-next-line require-await -- kept async to satisfy beforeScreenshot: () => Promise<void> contract
     beforeScreenshot: async () => {
       page.evaluate(() => {
         window.scrollTo({ top: 0, left: 0 })

@@ -153,6 +153,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         // Validate the grade field.
         let validatedGrade = null
         if (grade) {
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number()/Math.trunc would change behavior
           const numericGrade = parseInt(grade, 10)
           if (!isNaN(numericGrade)) {
             if (numericGrade < 0 || numericGrade > 5) {

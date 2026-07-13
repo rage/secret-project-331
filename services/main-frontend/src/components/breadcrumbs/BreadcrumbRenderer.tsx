@@ -27,6 +27,7 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
         <span
           className={cx(breadcrumbText, skeletonLoader)}
           data-testid={LOADING_SPINNER_TEST_ID}
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status on styled span is intentional; an <output> tag would change styling/semantics
           role="status"
           aria-label={t("loading")}
         />

@@ -81,6 +81,9 @@ interface isCellCorrectObject {
   correct: boolean | null
 }
 
+const containsNonEmptyString = (arr: string[]): boolean =>
+  arr.some((item) => typeof item === "string" && item.trim() !== "")
+
 const MatrixSubmission: React.FC<
   QuizItemSubmissionComponentProps<PublicSpecQuizItemMatrix, UserItemAnswerMatrix>
 > = ({ quiz_item_model_solution, user_quiz_item_answer, quiz_item_answer_feedback }) => {
@@ -128,9 +131,6 @@ const MatrixSubmission: React.FC<
 
   const modelSolutionRowsCountArray: number[] = []
   const modelSolutionColumnsCountArray: number[] = []
-
-  const containsNonEmptyString = (arr: string[]): boolean =>
-    arr.some((item) => typeof item === "string" && item.trim() !== "")
 
   const modelSolutionMatrix = modelSolution?.optionCells
 
@@ -250,6 +250,7 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                 const cell = findOptionText(column, row, isStudentsAnswer)
                 if (cell !== null) {
                   return (
+                    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- table data cell renders dynamic text, not an interactive form control
                     <td
                       key={`cell ${row} ${column}`}
                       className={css`
@@ -296,6 +297,7 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                     </td>
                   )
                 }
+                return null
               })}
             </tr>
           )

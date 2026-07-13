@@ -12,6 +12,30 @@ import type { Logger } from "@/util/logger"
 const DEFAULT_TASK_TIMEOUT_MS = 60000
 const CONTAINER_NAME = "tmc-submission-execution-sandbox"
 
+const delay = (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+
+const extractExitCodeFromStatus = (status: unknown): number | undefined => {
+  const s = status as {
+    details?: { causes?: { reason?: string; message?: string }[] }
+  } | null
+  const causes = s?.details?.causes
+  if (!Array.isArray(causes)) {
+    return undefined
+  }
+  const exitCause =
+    causes.find((c) => c?.reason === "ExitCode") ?? causes.find((c) => c?.message != null)
+  const msg = exitCause?.message
+  if (msg == null) {
+    return undefined
+  }
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+  const parsed = Number.parseInt(msg, 10)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
+
 /**
  * Execute a command in a pod with a maximum wall-clock wait of `timeoutMs`.
  *
@@ -36,24 +60,6 @@ export async function execWithTimeout(
   let observedStatusExitCode: number | undefined
   let observedStatus = false
   let resolved = false
-
-  const extractExitCodeFromStatus = (status: unknown): number | undefined => {
-    const s = status as {
-      details?: { causes?: { reason?: string; message?: string }[] }
-    } | null
-    const causes = s?.details?.causes
-    if (!Array.isArray(causes)) {
-      return undefined
-    }
-    const exitCause =
-      causes.find((c) => c?.reason === "ExitCode") ?? causes.find((c) => c?.message != null)
-    const msg = exitCause?.message
-    if (msg == null) {
-      return undefined
-    }
-    const parsed = Number.parseInt(msg, 10)
-    return Number.isFinite(parsed) ? parsed : undefined
-  }
 
   /** Socket returned by kubeExec.exec(); has onclose and optional close/destroy. */
   let execSocket:
@@ -124,6 +130,7 @@ export async function execWithTimeout(
       resolved = true
       resolve(result)
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
     socket.onclose = () => {
       // Prefer the Kubernetes status channel's exit code when available.
       const exitCode = observedStatus ? observedStatusExitCode : undefined
@@ -221,7 +228,6 @@ async function waitForPodRunning(
         `waitForPodRunning timed out for pod ${podName}, last phase: ${podPhase ?? "unknown"}`,
       )
     }
-    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
     await delay(500)
 
     const remainingMs = Math.max(0, deadline - Date.now())

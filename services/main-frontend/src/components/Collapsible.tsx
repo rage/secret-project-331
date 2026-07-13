@@ -24,6 +24,7 @@ const Collapsible: React.FC<React.PropsWithChildren<CollapsibleProps>> = ({ chil
       `}
     >
       <div
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- custom-styled div button; native <button> would change styling and keyboard handling
         role="button"
         tabIndex={0}
         onClick={() => setVisible(!visible)}

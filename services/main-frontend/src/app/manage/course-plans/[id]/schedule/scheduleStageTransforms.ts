@@ -47,6 +47,7 @@ export const buildMonthTimeline = (stages: StageInput[]): MonthWithStage[] | nul
   let current = planStart
 
   while (current <= planEnd) {
+    // oxlint-disable-next-line eslint/no-loop-func -- find callback runs synchronously each iteration; current is a block-scoped let with no deferred-closure hazard
     const owningStage = STAGE_ORDER.find((stage) => {
       const input = byStage.get(stage)
       if (!input) {

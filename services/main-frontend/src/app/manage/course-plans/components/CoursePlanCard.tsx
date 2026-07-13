@@ -73,6 +73,7 @@ export default function CoursePlanCard({ plan }: CoursePlanCardProps) {
   })()
 
   return (
+    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- the button's accessible label comes from its nested dynamic text content (plan name / status)
     <button
       type="button"
       className={cardStyles}

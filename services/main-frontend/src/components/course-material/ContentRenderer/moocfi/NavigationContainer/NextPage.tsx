@@ -93,6 +93,13 @@ const ChapterProgress = styled.div`
 const NUMERIC = "numeric"
 const LONG = "long"
 
+function calculatePercentage(attempted: number, total: number): string {
+  if (total === 0) {
+    return "0%"
+  }
+  return Math.round((attempted / total) * 100) + "%"
+}
+
 const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   chapterId,
   currentPageId,
@@ -136,6 +143,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
     getUserChapterProgress.isSuccess && getUserChapterProgress.data
       ? {
           maxScore: getUserChapterProgress.data.score_maximum ?? 0,
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat parsing is intentional; Number() would change behavior
           givenScore: parseFloat((getUserChapterProgress.data.score_given ?? 0).toFixed(2)),
           attemptedExercises: getUserChapterProgress.data.attempted_exercises ?? 0,
           totalExercises: getUserChapterProgress.data.total_exercises ?? 0,
@@ -166,13 +174,6 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
     organizationSlug,
     t,
   ])
-
-  function calculatePercentage(attempted: number, total: number): string {
-    if (total === 0) {
-      return "0%"
-    }
-    return Math.round((attempted / total) * 100) + "%"
-  }
 
   return (
     <QueryResult query={getPageRoutingData}>

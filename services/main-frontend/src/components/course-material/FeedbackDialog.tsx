@@ -43,8 +43,8 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
   const [error, setError] = useState<string | null>(null)
 
   const mutation = useToastMutation(
-    (comments: Comment[]) => {
-      const feedback = comments.map((c) => {
+    (commentsToSubmit: Comment[]) => {
+      const feedback = commentsToSubmit.map((c) => {
         return {
           feedback_given: c.comment,
           selected_text: c.selectedText.length > 0 ? c.selectedText : null,
@@ -79,7 +79,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
     setCurrentlyOpenFeedbackDialog(null)
   }
 
-  async function addComment() {
+  function addComment() {
     setError("")
     if (comment.length === 0) {
       setError(t("error-comment-cannot-be-empty"))
@@ -91,7 +91,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
     }
 
     const relatedBlocks: FeedbackBlock[] = []
-    const blocks = document.getElementsByClassName(courseMaterialBlockClass)
+    const blocks = document.querySelectorAll(`.${courseMaterialBlockClass}`)
     for (const block of blocks) {
       const rect = block.getBoundingClientRect()
       const topBelowScreen = rect.top > window.innerHeight

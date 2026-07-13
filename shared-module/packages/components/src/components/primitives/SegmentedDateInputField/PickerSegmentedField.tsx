@@ -1,8 +1,7 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import type { DateFieldState } from "@react-stately/datepicker"
-import type { useDatePickerState } from "@react-stately/datepicker"
+import type { DateFieldState, useDatePickerState } from "@react-stately/datepicker"
 import type React from "react"
 import type { DateFieldAria, DatePickerAria, DateValue, TimeValue } from "react-aria"
 
@@ -242,9 +241,7 @@ export function PickerSegmentedField({
         type="hidden"
         aria-describedby={describedBy}
         value={hiddenInputValue}
-        onChange={() => {
-          return
-        }}
+        onChange={() => {}}
       />
       {pickerState.isOpen ? (
         <Popover

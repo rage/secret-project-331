@@ -149,8 +149,8 @@ const Forum = () => {
           const comment = target.comment.value
           const visible = target.visibility.value
 
-          setState((state) => [
-            ...state,
+          setState((prevState) => [
+            ...prevState,
             {
               id: String(current.toLocaleTimeString()),
               text: comment,

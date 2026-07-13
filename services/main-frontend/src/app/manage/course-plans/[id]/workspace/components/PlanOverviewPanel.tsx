@@ -352,6 +352,13 @@ export interface PlanOverviewPanelProps {
   nextStageLabel?: string | null
 }
 
+/** Adds a month offset to a Date while preserving other fields. */
+const addMonths = (date: Date, months: number): Date => {
+  const result = new Date(date)
+  result.setMonth(result.getMonth() + months)
+  return result
+}
+
 const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   isOpen,
   onClose,
@@ -387,13 +394,6 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
 
   /** Formats an ISO date string as localized month and year. */
   const formatMonthYear = (isoDate: string): string => formatMonthYearFromDate(new Date(isoDate))
-
-  /** Adds a month offset to a Date while preserving other fields. */
-  const addMonths = (date: Date, months: number): Date => {
-    const result = new Date(date)
-    result.setMonth(result.getMonth() + months)
-    return result
-  }
 
   const activeStageData =
     activeStage != null ? (stages.find((stage) => stage.stage === activeStage) ?? null) : null
@@ -504,6 +504,7 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
               </span>
               <span
                 className={summaryProgressTrackStyles}
+                // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled progress indicator; native <progress> would change layout/semantics
                 role="progressbar"
                 aria-valuenow={activeStageTaskCompleted}
                 aria-valuemin={0}

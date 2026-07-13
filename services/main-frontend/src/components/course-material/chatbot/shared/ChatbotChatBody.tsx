@@ -97,22 +97,22 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   const { t } = useTranslation()
 
   const citations = useMemo(() => {
-    const citations = new Map<string, ChatbotConversationMessageCitation[]>()
+    const citationsMap = new Map<string, ChatbotConversationMessageCitation[]>()
 
     if (!currentConversationInfo.data?.hide_citations) {
       currentConversationInfo.data?.current_conversation_message_citations?.forEach((cit) => {
         const id = cit.conversation_message_id
-        if (!citations.has(id)) {
-          citations.set(id, [cit])
+        if (!citationsMap.has(id)) {
+          citationsMap.set(id, [cit])
         } else {
           // id is definitely in hashmap because of the condition branch we're in
           // oxlint-disable-next-line typescript/no-non-null-assertion -- else branch means citations.has(id) is true, so get(id) is defined
-          citations.set(id, citations.get(id)!.concat(cit))
+          citationsMap.set(id, citationsMap.get(id)!.concat(cit))
         }
       })
     }
 
-    return citations
+    return citationsMap
   }, [
     currentConversationInfo.data?.current_conversation_message_citations,
     currentConversationInfo.data?.hide_citations,
@@ -137,9 +137,9 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     ]
 
     // map is ordered in the insertion order
-    let messagesMap = messageMapMaker(messages)
+    const orderedMessagesMap = messageMapMaker(messages)
 
-    return messagesMap
+    return orderedMessagesMap
   }, [currentConversationInfo.data?.current_conversation_messages])
 
   const messagesMap2 = useMemo(() => {
@@ -230,7 +230,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             return <ToolCallReasoningBubble key={key} messages={items} />
           }
           if (message === null) {
-            return
+            return null
           }
           let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
           if (m.success) {
@@ -246,6 +246,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
               </Fragment>
             )
           }
+          return null
         })}
         <div
           className={css`
@@ -274,6 +275,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             ))}
         </div>
       </div>
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- VisuallyHidden wrapper with role=status is intentional; <output> would drop the visually-hidden styling */}
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
       </VisuallyHidden>

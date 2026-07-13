@@ -22,6 +22,7 @@ function getPyodide() {
   return pyodidePromise
 }
 
+// oxlint-disable-next-line unicorn/prefer-add-event-listener -- Worker onmessage property-handler pattern is intentional
 self.onmessage = function (e) {
   var script = e.data.script
   getPyodide()
@@ -47,11 +48,13 @@ self.onmessage = function (e) {
         if (stderrBuffer.length > 0) {
           runResult.stderr = stderrBuffer.join("\n")
         }
+        // oxlint-disable-next-line unicorn/require-post-message-target-origin -- Worker postMessage has no targetOrigin parameter
         self.postMessage({ runResult: runResult })
       })
     })
     .catch(function (err) {
       var message = err && err.message ? err.message : String(err)
+      // oxlint-disable-next-line unicorn/require-post-message-target-origin -- Worker postMessage has no targetOrigin parameter
       self.postMessage({ error: message })
     })
 }

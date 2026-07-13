@@ -59,11 +59,13 @@ export const useLocalNotifications = (): UseLocalNotificationsReturn => {
       }
 
       if (notificationPermission === "granted") {
+        // oxlint-disable-next-line no-new -- Notification constructor is invoked for its side effect (showing the notification)
         new Notification(title, options)
       } else if (notificationPermission !== "denied") {
         Notification.requestPermission().then((permission) => {
           setNotificationPermission(permission)
           if (permission === "granted") {
+            // oxlint-disable-next-line no-new -- Notification constructor is invoked for its side effect (showing the notification)
             new Notification(title, options)
           }
         })

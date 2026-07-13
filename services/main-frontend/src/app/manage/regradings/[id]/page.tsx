@@ -27,8 +27,8 @@ const ViewRegradingPage: React.FC = () => {
         regrading_id: id,
       },
     }),
-    refetchInterval: (query) => {
-      const data = query.state.data
+    refetchInterval: (latestQuery) => {
+      const data = latestQuery.state.data
       if (!data || data.regrading.total_grading_progress === "FullyGraded") {
         return false
       }

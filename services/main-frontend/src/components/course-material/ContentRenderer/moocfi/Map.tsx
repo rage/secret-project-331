@@ -74,6 +74,23 @@ export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 const STUDENT_COUNTRIES_QUERY_KEY = "courseMaterialStudentCountries"
 const STUDENT_COUNTRY_QUERY_KEY = "courseMaterialStudentCountry"
 
+const getElementBySelectorAsync = (selector: string): Promise<SVGLineElement> =>
+  new Promise((resolve) => {
+    const getElement = () => {
+      const element: SVGLineElement | null = document.querySelector(selector)
+      if (element) {
+        resolve(element)
+      } else {
+        requestAnimationFrame(getElement)
+      }
+    }
+    getElement()
+  })
+
+const isPath = (child: RouteElement): child is SVGLineElement => {
+  return child.tagName === "g" || child.tagName === "path"
+}
+
 const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
   let countryCodeCount: CountryCountPair[] = useMemo(() => [], [])
 
@@ -116,19 +133,6 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     enabled: Boolean(courseInstanceId),
   })
 
-  const getElementBySelectorAsync = (selector: string): Promise<SVGLineElement> =>
-    new Promise((resolve) => {
-      const getElement = () => {
-        const element: SVGLineElement | null = document.querySelector(selector)
-        if (element) {
-          resolve(element)
-        } else {
-          requestAnimationFrame(getElement)
-        }
-      }
-      getElement()
-    })
-
   const uploadStudentCountry = useToastMutation(
     (country: string) => {
       if (!country) {
@@ -163,10 +167,6 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
       },
     },
   )
-
-  const isPath = (child: RouteElement): child is SVGLineElement => {
-    return child.tagName === "g" || child.tagName === "path"
-  }
 
   useEffect(() => {
     const getMap = async () => {

@@ -103,7 +103,7 @@ const CompletionsPage: React.FC = () => {
     useState<TeacherManualCompletionRequest | null>(null)
   const [previewData, setPreviewData] = useState<ManualCompletionPreview | null>(null)
   const mutation = useToastMutation(
-    async (data: TeacherManualCompletionRequest) =>
+    (data: TeacherManualCompletionRequest) =>
       createCourseInstanceCompletions({
         body: data,
         path: {

@@ -75,12 +75,12 @@ const CertificationsPage: React.FC = () => {
     }),
   })
   const updateConfigurationMutation = useToastMutation(
-    ({ courseModuleId, courseInstanceId, fields }: UpdateMutationArgs) => {
+    ({ courseModuleId, courseInstanceId: instanceId, fields }: UpdateMutationArgs) => {
       const backgroundSvg = fields.backgroundSvg.item(0)
       const overlaySvg = fields.overlaySvg.item(0)
       const metadata: UpdateCertificateConfigurationData["body"]["metadata"] = {
         course_module_id: courseModuleId,
-        course_instance_id: courseInstanceId,
+        course_instance_id: instanceId,
         certificate_owner_name_y_pos: fields.ownerNamePosY,
         certificate_owner_name_x_pos: fields.ownerNamePosX,
         certificate_owner_name_font_size: fields.ownerNameFontSize,

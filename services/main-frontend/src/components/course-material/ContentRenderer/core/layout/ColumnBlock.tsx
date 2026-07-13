@@ -10,6 +10,19 @@ import DefaultBlock from "@/components/course-material/ContentRenderer/DefaultBl
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
+const getAlignSelf = (verticalAlignment: string) => {
+  const ALIGN_SELF_FLEX_END = "align-self: flex-end;"
+  const ALIGN_SELF_CENTER = "align-self: center;"
+  const ALIGN_SELF_FLEX_START = "align-celf: flex-start;"
+  if (verticalAlignment === "bottom") {
+    return ALIGN_SELF_FLEX_END
+  } else if (verticalAlignment === "center") {
+    return ALIGN_SELF_CENTER
+  } else if (verticalAlignment === "top") {
+    return ALIGN_SELF_FLEX_START
+  }
+}
+
 const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAttributes>>> = ({
   data,
 }) => {
@@ -20,19 +33,6 @@ const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAtt
     verticalAlignment,
     width,
   } = data.attributes
-
-  const getAlignSelf = (verticalAlignment: string) => {
-    const ALIGN_SELF_FLEX_END = "align-self: flex-end;"
-    const ALIGN_SELF_CENTER = "align-self: center;"
-    const ALIGN_SELF_FLEX_START = "align-celf: flex-start;"
-    if (verticalAlignment === "bottom") {
-      return ALIGN_SELF_FLEX_END
-    } else if (verticalAlignment === "center") {
-      return ALIGN_SELF_CENTER
-    } else if (verticalAlignment === "top") {
-      return ALIGN_SELF_FLEX_START
-    }
-  }
 
   return (
     <div

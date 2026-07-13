@@ -8,7 +8,7 @@ import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment, useEffect, useState } from "@wordpress/element"
 import { chevronRight } from "@wordpress/icons"
 import { useContext } from "react"
-import toast from "react-hot-toast"
+import { toast } from "react-hot-toast"
 
 import PageContext from "../../contexts/PageContext"
 import { createParagraphAiSource, extractPlainTextFromHtml } from "../Gutenberg/paragraphAiSource"

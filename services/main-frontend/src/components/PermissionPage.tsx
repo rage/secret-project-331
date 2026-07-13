@@ -157,12 +157,20 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     },
   )
   const editMutation = useToastMutation(
-    ({ email, oldRole, newRole }: { email: string; oldRole: UserRole; newRole: UserRole }) =>
+    ({
+      email,
+      oldRole,
+      newRole: nextRole,
+    }: {
+      email: string
+      oldRole: UserRole
+      newRole: UserRole
+    }) =>
       removeRoleFromApi({
         body: { email, role: oldRole, domain },
       }).then(() =>
         addRoleFromApi({
-          body: { email, role: newRole, domain },
+          body: { email, role: nextRole, domain },
         }),
       ),
     { notify: true, method: "POST" },

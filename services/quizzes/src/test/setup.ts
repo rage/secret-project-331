@@ -15,6 +15,7 @@ if (!("ResizeObserver" in globalThis)) {
 }
 
 // The parent connection uses MessageChannel, which jsdom lacks. Tests only need inert ports.
+// oxlint-disable-next-line max-classes-per-file -- colocated test stub classes
 class StubMessageChannel {
   public port1 = { postMessage: () => {} }
   public port2 = { postMessage: () => {} }

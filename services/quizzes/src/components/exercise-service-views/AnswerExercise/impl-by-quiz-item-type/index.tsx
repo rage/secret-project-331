@@ -85,14 +85,14 @@ const GetComponent: React.FC<{
         }
         // Update existing answer
         const item = userAnswer.itemAnswers.filter(
-          (item) => item.quizItemId === newQuizItemAnswer.quizItemId,
+          (itemAnswer) => itemAnswer.quizItemId === newQuizItemAnswer.quizItemId,
         )
         if (!item) {
           userAnswer.itemAnswers = [...userAnswer.itemAnswers, newQuizItemAnswer]
         } else {
           userAnswer.itemAnswers = [
             ...userAnswer.itemAnswers.filter(
-              (item) => item.quizItemId !== newQuizItemAnswer.quizItemId,
+              (itemAnswer) => itemAnswer.quizItemId !== newQuizItemAnswer.quizItemId,
             ),
             newQuizItemAnswer,
           ]

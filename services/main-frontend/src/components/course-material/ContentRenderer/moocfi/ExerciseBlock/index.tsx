@@ -260,12 +260,12 @@ const ExerciseBlock: React.FC<
     if (getCourseMaterialExercise.data.exercise_status?.score_given !== undefined) {
       setPoints(getCourseMaterialExercise.data.exercise_status?.score_given ?? null)
     }
-    const chapterId = getCourseMaterialExercise.data.exercise.chapter_id
-    const chapterStatus = chapterId
-      ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+    const exerciseChapterId = getCourseMaterialExercise.data.exercise.chapter_id
+    const chapterStatus = exerciseChapterId
+      ? getUserLocks.data?.find((status) => status.chapter_id === exerciseChapterId)
       : null
     const isChapterLocked =
-      chapterId &&
+      exerciseChapterId &&
       (chapterStatus?.status === "completed_and_locked" ||
         chapterStatus?.status === "not_unlocked_yet")
     dispatch({
@@ -275,7 +275,7 @@ const ExerciseBlock: React.FC<
       isChapterLocked: Boolean(isChapterLocked),
     })
     const a = new Map()
-    getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
+    getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
       if (et.previous_submission) {
         a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
       }
@@ -316,12 +316,12 @@ const ExerciseBlock: React.FC<
       if (!data) {
         throw new Error("No data for the try again view")
       }
-      const chapterId = data.exercise.chapter_id
-      const chapterStatus = chapterId
-        ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+      const exerciseChapterId = data.exercise.chapter_id
+      const chapterStatus = exerciseChapterId
+        ? getUserLocks.data?.find((status) => status.chapter_id === exerciseChapterId)
         : null
       const isChapterLocked =
-        chapterId &&
+        exerciseChapterId &&
         chapterLockingEnabled &&
         (chapterStatus?.status === "completed_and_locked" ||
           chapterStatus?.status === "not_unlocked_yet")
@@ -340,7 +340,7 @@ const ExerciseBlock: React.FC<
       if (answers.size === 0 && courseMaterialState.settings?.user_id) {
         await getCourseMaterialExercise.refetch()
         const a = new Map()
-        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
+        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
           if (et.previous_submission) {
             a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
           }
@@ -660,11 +660,7 @@ const ExerciseBlock: React.FC<
                       exerciseTask={task}
                       isExam={isExam}
                       setAnswer={(answer) =>
-                        setAnswers((prev) => {
-                          const answers = new Map(prev)
-                          answers.set(task.id, answer)
-                          return answers
-                        })
+                        setAnswers((prev) => new Map([...prev, [task.id, answer]]))
                       }
                       postThisStateToIFrame={postThisStateToIFrame?.find(
                         (x) => x.exercise_task_id === task.id,

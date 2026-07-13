@@ -156,15 +156,15 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
         <RegexTableHeaderCell> {t("format")} </RegexTableHeaderCell>
         <RegexTableHeaderCell> {t("validation")} </RegexTableHeaderCell>
       </tr>
-      {result.map((result, idx) => (
+      {result.map((row, idx) => (
         <tr key={`test-table-row-${idx}`}>
-          <RegexTableStringCell> {result.string} </RegexTableStringCell>
-          {result.format ? (
+          <RegexTableStringCell> {row.string} </RegexTableStringCell>
+          {row.format ? (
             <RegexTableCorrectCell> {t("passed")} </RegexTableCorrectCell>
           ) : (
             <RegexTableFailedCell> {t("failed")} </RegexTableFailedCell>
           )}
-          {result.validation ? (
+          {row.validation ? (
             <RegexTableCorrectCell> {t("passed")} </RegexTableCorrectCell>
           ) : (
             <RegexTableFailedCell> {t("failed")} </RegexTableFailedCell>

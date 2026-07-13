@@ -68,6 +68,9 @@ const AudioNotification = styled.div`
   }
 `
 
+const querySettled = (query: { isSuccess: boolean; isError: boolean }) =>
+  query.isSuccess || query.isError
+
 const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizationSlug }) => {
   const [isVisible, setIsVisible] = useState(false)
 
@@ -161,8 +164,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   // as settled.
   const signedIn = loginState.signedIn === true
   const courseScopedQueriesShouldRun = signedIn && Boolean(courseId)
-  const querySettled = (query: { isSuccess: boolean; isError: boolean }) =>
-    query.isSuccess || query.isError
   const decisionReady =
     courseMaterialState.status !== "loading" &&
     !viewIsFetching &&

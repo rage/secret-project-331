@@ -66,10 +66,13 @@ export function useCoursePlanWorkspacePageState({
 
   const handleSelectedStageChange = useCallback(
     (stage: CourseDesignerStage) => {
-      if (analysisWorkspaceDirty && viewedStage === "Analysis" && stage !== viewedStage) {
-        if (!window.confirm(t("course-plans-analysis-unsaved-confirm"))) {
-          return
-        }
+      if (
+        analysisWorkspaceDirty &&
+        viewedStage === "Analysis" &&
+        stage !== viewedStage &&
+        !window.confirm(t("course-plans-analysis-unsaved-confirm"))
+      ) {
+        return
       }
       setViewedStage(stage)
     },

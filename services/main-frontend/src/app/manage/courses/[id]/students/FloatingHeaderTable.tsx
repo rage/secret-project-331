@@ -285,7 +285,7 @@ export function FloatingHeaderTable<T extends object>({
       if (srcThead) {
         // clear previous
         if (dstTable.tHead) {
-          dstTable.removeChild(dstTable.tHead)
+          dstTable.tHead.remove()
         }
 
         // clone

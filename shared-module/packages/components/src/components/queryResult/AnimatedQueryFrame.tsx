@@ -141,6 +141,7 @@ export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
   const { t } = useTranslation()
   return (
     <div className={errorStackCss}>
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status on styled div is intentional; an <output> tag would change layout/styling */}
       <div className={staleStatusCss} role="status">
         {getErrorMessage(error)}
       </div>
@@ -185,6 +186,7 @@ export function AnimatedQueryFrame<E>({
     return (
       <section
         className={cx(wrapperCss, wrapperIsolationCss)}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status on <section> is intentional; an <output> tag would change semantics/styling
         role="status"
         aria-live="polite"
         aria-busy="true"
@@ -240,6 +242,7 @@ export function AnimatedQueryFrame<E>({
     >
       {refreshing ? (
         <div
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status on styled div is intentional; an <output> tag would change layout/styling
           role="status"
           aria-live="polite"
           aria-label={t("queryResult.refreshing")}

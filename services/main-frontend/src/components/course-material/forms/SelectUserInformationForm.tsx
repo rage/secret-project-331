@@ -86,12 +86,18 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   }, [country, preFillCountry.data, reset])
   const postUserCountryMutation = useToastMutation<unknown, unknown, SelectUserInfoFormFields>(
     async (data) => {
-      const { email, first_name, last_name, country, emailCommunicationConsent } = data
+      const {
+        email: submittedEmail,
+        first_name,
+        last_name,
+        country: submittedCountry,
+        emailCommunicationConsent: submittedEmailConsent,
+      } = data
       await updateCourseMaterialUserInfo({
         body: {
-          country,
-          email,
-          email_communication_consent: emailCommunicationConsent,
+          country: submittedCountry,
+          email: submittedEmail,
+          email_communication_consent: submittedEmailConsent,
           first_name,
           last_name,
         },

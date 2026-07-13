@@ -47,7 +47,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
     try {
       const rawCite = new Cite(data.references)
       const cite = new Cite(rawCite.get({ type: "string", style: "bibtex", lang: "en-US" }))
-      const references = cite.data.map((c: { id: string; "citation-key": string }) => {
+      const parsedReferences = cite.data.map((c: { id: string; "citation-key": string }) => {
         const ci = new Cite(c)
 
         return {
@@ -55,7 +55,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
           reference: ci.get({ type: "string", style: "bibtex", lang: "en-US" }),
         }
       })
-      onCreateNewReference(references)
+      onCreateNewReference(parsedReferences)
     } catch (error: unknown) {
       console.error(error)
       setErrorMessage(t("reference-parsing-error"))

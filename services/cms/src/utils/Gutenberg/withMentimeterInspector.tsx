@@ -12,7 +12,7 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
-  // oxlint-disable-next-line typescript/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any, unicorn/consistent-function-scoping -- props is an untyped WP BlockEdit; component captures BlockEdit from the enclosing HOC scope
   const MentiMeterEmbed = (props: any) => {
     const { t } = useTranslation()
     if (props.attributes.providerNameSlug !== "mentimeter") {

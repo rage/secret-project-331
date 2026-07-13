@@ -41,7 +41,7 @@ function getNodeTextValue(node: React.ReactNode): string {
   }
 
   if (Array.isArray(node)) {
-    return node.map(getNodeTextValue).join("")
+    return node.map((child) => getNodeTextValue(child)).join("")
   }
 
   if (React.isValidElement<{ children?: React.ReactNode }>(node)) {

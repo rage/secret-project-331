@@ -451,6 +451,7 @@ describe("MessageChannelIFrame", () => {
         })
       }
 
+      // oxlint-disable-next-line unicorn/consistent-function-scoping -- references enclosing-scope mockChannels via typeof in its type annotation; cannot hoist
       const sendCurrentState = (channel: (typeof mockChannels)[number]) => {
         act(() => {
           channel.port1.onmessage?.({
@@ -568,6 +569,7 @@ describe("MessageChannelIFrame", () => {
         })
       })
 
+      // oxlint-disable-next-line unicorn/consistent-function-scoping -- references enclosing-scope mockChannels via typeof in its type annotation; cannot hoist
       const triggerReloadRequest = (channel: (typeof mockChannels)[number], delay?: number) => {
         act(() => {
           channel.port1.onmessage?.({
@@ -983,7 +985,7 @@ describe("MessageChannelIFrame", () => {
       })
     })
 
-    it("ignores null port messages without crashing", async () => {
+    it("ignores null port messages without crashing", () => {
       const mockChannel = createMockMessageChannel()
       const onMessageFromIframe = jest.fn()
 
@@ -1291,6 +1293,7 @@ describe("MessageChannelIFrame", () => {
           origin: "null",
         })
 
+        // oxlint-disable-next-line no-loop-func -- closes only over block-scoped `event` (fresh const per iteration) and outer `messageListeners`; no stale-binding hazard
         act(() => {
           messageListeners.forEach((listener) => listener(event))
         })

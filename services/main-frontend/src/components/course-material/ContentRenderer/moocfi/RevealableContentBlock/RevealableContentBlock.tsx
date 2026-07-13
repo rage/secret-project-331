@@ -23,7 +23,7 @@ const RevealableContentBlock: React.FC<
 
   const reveleadContent: Block<RevealableContentProps>[] = []
   const hiddenContent: Block<RevealableContentProps>[] = []
-  props.data.innerBlocks.map((content) => {
+  props.data.innerBlocks.forEach((content) => {
     if (content.name === "moocfi/revealable-hidden-content") {
       hiddenContent.push(content as Block<RevealableContentProps>)
     } else {

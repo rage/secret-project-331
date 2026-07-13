@@ -36,6 +36,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   }
 
   const consentQuery = useToastMutation<UserResearchConsent, unknown, void>(
+    // oxlint-disable-next-line require-await -- kept async for Promise-returning mutation contract
     async () =>
       createUserResearchConsent({
         body: {
@@ -141,6 +142,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             `}
           >
             {t("research-consent-responsible")}
+            {/* oxlint-disable-next-line next/no-html-link-for-pages -- external email address, not an internal route */}
             <a
               className={css`
                 color: ${baseTheme.colors.blue[700]} !important;

@@ -137,7 +137,7 @@ export default function managePageOrderReducer(
             // moving a page to a different chapter, the new location will be the last page of the new chapter
             const oldChapterPageList = draftState.chapterIdToPages?.[currentPageChapterId ?? "null"]
             const newChapterPageList = draftState.chapterIdToPages?.[chapterId ?? "null"]
-            const page = oldChapterPageList?.find((page) => page.id === pageId)
+            const page = oldChapterPageList?.find((p) => p.id === pageId)
 
             if (!page) {
               break

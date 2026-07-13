@@ -23,7 +23,7 @@ export const extractTarZstd = async (tarZstdArchive: Buffer): Promise<ExerciseFi
   const extract = tar.extract({})
   extract.on("entry", function (header, stream, next) {
     // strip first component...
-    const filepath = header.name.substring(header.name.indexOf("/") + 1)
+    const filepath = header.name.slice(header.name.indexOf("/") + 1)
     const chunks: Uint8Array[] = []
     stream.on("data", (chunk) => {
       chunks.push(new Uint8Array(chunk))

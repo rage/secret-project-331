@@ -42,9 +42,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
   const [openDialog, setOpenDialog] = useState(false)
 
   const sendEmailCodeMutation = useToastMutation(
-    async (password: string) => {
+    async (passwordInput: string) => {
       const result = await postAuthSendEmailCode({
-        body: { email, password, language: i18n.language },
+        body: { email, password: passwordInput, language: i18n.language },
       })
       setCredentialsError(!result)
       return result
@@ -112,9 +112,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
         {step === "password" && (
           <VerifyPasswordForm
-            onSubmit={(password) => {
-              setPassword(password)
-              sendEmailCodeMutation.mutateAsync(password)
+            onSubmit={(passwordValue) => {
+              setPassword(passwordValue)
+              sendEmailCodeMutation.mutateAsync(passwordValue)
             }}
             isPending={sendEmailCodeMutation.isPending}
             credentialsError={credentialsError}

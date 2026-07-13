@@ -40,7 +40,9 @@ function loadScript(src: string): Promise<void> {
         resolve()
         return
       }
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
       existing.onload = () => resolve()
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
       existing.onerror = () => {
         existing.remove()
         reject(new Error(`Failed to load script: ${src}`))
@@ -50,7 +52,9 @@ function loadScript(src: string): Promise<void> {
     const script = document.createElement("script")
     script.src = src
     script.async = true
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
     script.onload = () => resolve()
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
     script.onerror = () => {
       script.remove()
       reject(new Error(`Failed to load script: ${src}`))
@@ -59,6 +63,7 @@ function loadScript(src: string): Promise<void> {
   })
 }
 
+// oxlint-disable-next-line require-await -- kept async for the Promise-returning public contract
 export async function getPyodide(): Promise<PyodideInterface> {
   if (pyodidePromise !== null) {
     return pyodidePromise

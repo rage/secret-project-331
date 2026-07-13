@@ -27,11 +27,12 @@ export default async function accessibilityCheck(
     if (!axeSkip) {
       axeSkip = []
     }
-    // Getting false positives on this one
-    axeSkip.push("scrollable-region-focusable")
-
-    // TODO: remove this
-    axeSkip.push("document-title")
+    axeSkip.push(
+      // Getting false positives on this one
+      "scrollable-region-focusable",
+      // TODO: remove this
+      "document-title",
+    )
 
     if (axeSkip && Array.isArray(axeSkip)) {
       resultsFiltered = results.violations.filter((violation) => {
@@ -40,7 +41,7 @@ export default async function accessibilityCheck(
           violation.nodes.some((node) => node.html.includes("data-overlay-container")) &&
           violation.id === "region"
         ) {
-          return
+          return false
         }
         // Screen reader announcement elements are intentionally positioned off-screen and don't need to be in landmarks
         if (
@@ -51,10 +52,10 @@ export default async function accessibilityCheck(
           ) &&
           violation.id === "region"
         ) {
-          return
+          return false
         }
         if (axeSkip && axeSkip.some((skippable) => skippable === violation.id)) {
-          return
+          return false
         }
         return violation
       })
@@ -77,8 +78,8 @@ export default async function accessibilityCheck(
       customConsole.group("Affected DOM nodes:")
       violation.nodes // nodes is an array of all elements the rule tested
         .filter((o) => o.impact !== null) // the check passed for this element if impact is null
-        .forEach((node, n) => {
-          customConsole.group(`Affected DOM node ${n + 1}`)
+        .forEach((node, nodeIndex) => {
+          customConsole.group(`Affected DOM node ${nodeIndex + 1}`)
           customConsole.error(`Impact: ${node.impact}`)
           customConsole.error(`Node HTML: ${node.html}`)
           customConsole.error(`Target: ${node.target}`)

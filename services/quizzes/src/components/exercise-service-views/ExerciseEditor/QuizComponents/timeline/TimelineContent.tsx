@@ -176,7 +176,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
     })
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (
@@ -185,7 +185,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
         selected.timelineItems &&
         selected.timelineItems.map((timelineItem) => {
           if (!timelineItem) {
-            return <></>
+            return null
           }
           return (
             <List key={timelineItem.id} id={timelineItem.id}>
@@ -197,6 +197,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
                     if (!draft || !draft.timelineItems) {
                       return
                     }
+                    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
                     const parsedYear = parseInt(value, 10)
                     draft.timelineItems = draft.timelineItems.map((item) => {
                       if (item.id === timelineItem.id) {
@@ -264,20 +265,23 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
         {t("add-new-event")}
       </h2>
       <StyledForm
-        onSubmit={handleSubmit(async (data) => {
-          updateState((draft) => {
-            if (!draft || !draft.timelineItems) {
-              return
-            }
-            draft.timelineItems.push({
-              id: v4(),
-              correctEventId: v4(),
-              year: data.year,
-              correctEventName: data.event,
-            } as OldNormalizedQuizItemTimelineItem)
-          })
-          reset()
-        })}
+        onSubmit={handleSubmit(
+          // oxlint-disable-next-line eslint/require-await -- kept async for react-hook-form's Promise-returning submit contract (isSubmitting)
+          async (data) => {
+            updateState((draft) => {
+              if (!draft || !draft.timelineItems) {
+                return
+              }
+              draft.timelineItems.push({
+                id: v4(),
+                correctEventId: v4(),
+                year: data.year,
+                correctEventName: data.event,
+              } as OldNormalizedQuizItemTimelineItem)
+            })
+            reset()
+          },
+        )}
       >
         <TextField
           className={cx(yearTextFieldStyles)}

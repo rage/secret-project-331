@@ -55,6 +55,7 @@ const StatusPodLogs: React.FC = () => {
             id="tail-select"
             label={t("status-tail-lines")}
             value={tail.toString()}
+            // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
             onChange={(e) => setTail(parseInt(e.currentTarget.value, 10))}
             options={[
               { value: "50", label: "50" },
@@ -84,7 +85,7 @@ const StatusPodLogs: React.FC = () => {
           `}
         >
           <QueryResult query={logsQuery} themeMode="dark">
-            {(logs) => <>{logs && <div>{logs}</div>}</>}
+            {(logs) => logs && <div>{logs}</div>}
           </QueryResult>
         </div>
       )}

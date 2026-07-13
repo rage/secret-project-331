@@ -7,6 +7,10 @@ import { TextArea } from "../src/components/TextArea"
 import type { StringFieldForm } from "./testUtils"
 import { FormHarness, renderStringField } from "./testUtils"
 
+function mockScrollHeight(el: Element, value: number) {
+  Object.defineProperty(el, "scrollHeight", { value, configurable: true, writable: true })
+}
+
 describe("TextArea - accessibility wiring", () => {
   test("label is associated with the textarea", () => {
     renderStringField((control) => <TextArea name="f" control={control} label="Bio" />)
@@ -244,10 +248,6 @@ describe("TextArea - size variants", () => {
 })
 
 describe("TextArea - auto-resize", () => {
-  function mockScrollHeight(el: Element, value: number) {
-    Object.defineProperty(el, "scrollHeight", { value, configurable: true, writable: true })
-  }
-
   test("autoResize sets height on initial render via useEffect (value-triggered)", () => {
     const { formRef } = renderStringField((control) => (
       <TextArea name="f" control={control} label="Bio" autoResize />

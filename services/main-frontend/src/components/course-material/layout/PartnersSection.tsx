@@ -97,6 +97,7 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
                 </figure>
               )
             }
+            return null
           })}
         </div>
       )}

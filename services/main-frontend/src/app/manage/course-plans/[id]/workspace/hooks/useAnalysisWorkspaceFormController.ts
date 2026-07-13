@@ -33,6 +33,14 @@ import type { AnalysisWorkspaceV1 } from "@/generated/api/types.generated"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
+const scrollToSection = (id: string) => (e: MouseEvent<HTMLAnchorElement>) => {
+  e.preventDefault()
+  document.querySelector(`#${id}`)?.scrollIntoView({
+    behavior: SCROLL_BEHAVIOR,
+    block: SCROLL_BLOCK,
+  })
+}
+
 /**
  * Owns form state, autosave, dirty tracking, section nav, and workspace mutations for the Analysis form.
  */
@@ -159,7 +167,7 @@ export default function useAnalysisWorkspaceFormController(props: {
   useEffect(() => {
     const ids = [1, 2, 3, 4, 5, 6]
     const elements = ids
-      .map((id) => document.getElementById(`${SECTION_DOM_PREFIX}${id}`))
+      .map((id) => document.querySelector(`#${SECTION_DOM_PREFIX}${id}`))
       .filter((el): el is HTMLElement => el != null)
     if (elements.length === 0) {
       return
@@ -172,6 +180,7 @@ export default function useAnalysisWorkspaceFormController(props: {
         }
         intersecting.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
         const id = intersecting[0].target.id
+        // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat parsing is intentional; Number() would change behavior
         const n = Number.parseInt(id.replace(SECTION_DOM_PREFIX, ""), 10)
         if (!Number.isNaN(n)) {
           setActiveSection(n)
@@ -192,14 +201,6 @@ export default function useAnalysisWorkspaceFormController(props: {
   }
 
   const saving = autosaveMutation.isPending || manualSaveMutation.isPending
-
-  const scrollToSection = (id: string) => (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    document.querySelector(`#${id}`)?.scrollIntoView({
-      behavior: SCROLL_BEHAVIOR,
-      block: SCROLL_BLOCK,
-    })
-  }
 
   const toggleSection = (n: number) => {
     setExpandedSections((prev) => ({ ...prev, [n]: !prev[n] }))

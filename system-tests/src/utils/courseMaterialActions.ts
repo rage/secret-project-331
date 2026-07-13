@@ -113,7 +113,7 @@ export async function navigateToNextPageInMaterial(page: Page) {
       while (!urlChanged && attempts < maxAttempts) {
         try {
           await page.waitForFunction(
-            (originalUrl) => window.location.href !== originalUrl,
+            (previousUrl) => window.location.href !== previousUrl,
             originalUrl,
             { timeout: 3000 },
           )

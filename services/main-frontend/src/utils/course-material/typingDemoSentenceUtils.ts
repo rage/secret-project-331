@@ -129,16 +129,16 @@ function findDifference(incorrectSentence: string, correctSentence: string): Sen
   }
 
   // Extract parts
-  const prefix: string = incorrectSentence.substring(0, prefixEnd)
+  const prefix: string = incorrectSentence.slice(0, prefixEnd)
   const suffix: string =
-    suffixStart > 0 ? incorrectSentence.substring(incorrectSentence.length - suffixStart) : ""
+    suffixStart > 0 ? incorrectSentence.slice(incorrectSentence.length - suffixStart) : ""
 
-  const incorrectPart: string = incorrectSentence.substring(
+  const incorrectPart: string = incorrectSentence.slice(
     prefixEnd,
     incorrectSentence.length - (suffix ? suffix.length : 0),
   )
 
-  const correctPart: string = correctSentence.substring(
+  const correctPart: string = correctSentence.slice(
     prefixEnd,
     correctSentence.length - (suffix ? suffix.length : 0),
   )

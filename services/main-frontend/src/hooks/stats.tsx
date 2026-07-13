@@ -113,6 +113,7 @@ const buildDisabledQueryOptions = <TData,>(
 ): BuiltQueryOptions<TData> =>
   queryOptions<TData, Error>({
     queryKey: [...queryKey, ...requiredValues],
+    // oxlint-disable-next-line require-await -- queryFn must reject as a Promise, not throw synchronously
     queryFn: async () => {
       requiredValues.forEach((value) => assertNotNullOrUndefined(value))
       throw new Error("Disabled query executed unexpectedly")

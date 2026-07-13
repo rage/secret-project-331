@@ -24,11 +24,11 @@ const useCourseLanguageVersions = (courseId: string | null) => {
   const query = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
         getCourseLanguageVersionsOptions({
           path: {
-            course_id: courseId,
+            course_id: value,
           },
         }),
     }),

@@ -184,43 +184,41 @@ const SelectCourseInstanceForm: React.FC<
               margin-bottom: 1rem;
             `}
           >
-            <>
-              <h2>{t("title-additional-questions")}</h2>
-              {additionalQuestions.map((additionalQuestion) => {
-                if (additionalQuestion.question_type === "Checkbox") {
-                  const answer = additionalQuestionAnswers.find(
-                    (a) => a.course_background_question_id === additionalQuestion.id,
-                  )
-                  return (
-                    <AdditionalQuestionWrapper key={additionalQuestion.id}>
-                      <CheckBox
-                        label={additionalQuestion.question_text}
-                        checked={answer?.answer_value === "t"}
-                        onChange={(event) => {
-                          // oxlint-disable-next-line i18next/no-literal-string
-                          const valueAsString = event.target.value ? "t" : "f"
-                          setAdditionalQuestionAnswers((prev) => {
-                            const newArray = prev.filter(
-                              (a) => a.course_background_question_id !== additionalQuestion.id,
-                            )
-                            newArray.push({
-                              answer_value: valueAsString,
-                              course_background_question_id: additionalQuestion.id,
-                            })
-                            return newArray
-                          })
-                        }}
-                      />
-                    </AdditionalQuestionWrapper>
-                  )
-                }
+            <h2>{t("title-additional-questions")}</h2>
+            {additionalQuestions.map((additionalQuestion) => {
+              if (additionalQuestion.question_type === "Checkbox") {
+                const answer = additionalQuestionAnswers.find(
+                  (a) => a.course_background_question_id === additionalQuestion.id,
+                )
                 return (
                   <AdditionalQuestionWrapper key={additionalQuestion.id}>
-                    {t("unsupported-question-type")}
+                    <CheckBox
+                      label={additionalQuestion.question_text}
+                      checked={answer?.answer_value === "t"}
+                      onChange={(event) => {
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        const valueAsString = event.target.value ? "t" : "f"
+                        setAdditionalQuestionAnswers((prev) => {
+                          const newArray = prev.filter(
+                            (a) => a.course_background_question_id !== additionalQuestion.id,
+                          )
+                          newArray.push({
+                            answer_value: valueAsString,
+                            course_background_question_id: additionalQuestion.id,
+                          })
+                          return newArray
+                        })
+                      }}
+                    />
                   </AdditionalQuestionWrapper>
                 )
-              })}
-            </>
+              }
+              return (
+                <AdditionalQuestionWrapper key={additionalQuestion.id}>
+                  {t("unsupported-question-type")}
+                </AdditionalQuestionWrapper>
+              )
+            })}
           </div>
         )}
       {additionalQuestionsQuery.error && (

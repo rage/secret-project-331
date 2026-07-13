@@ -3,7 +3,7 @@ export function extensionToLanguage(path: string): string | undefined {
   if (separator === -1) {
     return undefined
   }
-  const extension = path.substring(separator + 1)
+  const extension = path.slice(separator + 1)
   switch (extension) {
     case "js":
       return "javascript"

@@ -73,11 +73,11 @@ const Pages = ({ query }: PagesProps) => {
   const course = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (resolvedCourseId): resolvedCourseId is string => Boolean(resolvedCourseId),
+      build: (resolvedCourseId) =>
         getCmsCourseOptions({
           path: {
-            course_id: courseId,
+            course_id: resolvedCourseId,
           },
         }),
     }),

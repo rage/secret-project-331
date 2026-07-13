@@ -47,7 +47,7 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
 
   return (
     <form
-      onSubmit={handleSubmit(({ code }) => onSubmit(code))}
+      onSubmit={handleSubmit((values) => onSubmit(values.code))}
       aria-describedby={hasError ? "code-error" : undefined}
     >
       <div

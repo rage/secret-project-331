@@ -71,4 +71,4 @@ async function getLatestCommitHash(relativePath: string): Promise<string> {
   return res.stdout.trim()
 }
 
-main()
+await main()

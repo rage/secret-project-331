@@ -476,7 +476,7 @@ async function scrollToFrame(page: Page, locator: Locator) {
     throw new Error("Frame had no bounding box")
   }
   const y = boundingBox.y
-  await page.evaluate((y) => {
-    window.scrollTo(0, window.scrollY + y)
+  await page.evaluate((offsetY) => {
+    window.scrollTo(0, window.scrollY + offsetY)
   }, y)
 }

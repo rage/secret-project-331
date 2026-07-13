@@ -6,8 +6,10 @@ import dynamicWithIframeReload, {
   requestIframeReloadFromParent,
 } from "../../src/utils/dynamicWithIframeReload"
 
+const noop = () => {}
+const dynamicFn = (loaderArg: unknown) => loaderArg
+
 describe("dynamicWithIframeReload", () => {
-  const noop = () => {}
   let realConsole: Pick<typeof console, "info" | "error" | "warn">
 
   beforeEach(() => {
@@ -76,7 +78,6 @@ describe("dynamicWithIframeReload", () => {
     const loader = vi.fn<() => Promise<{ default: () => null }>>().mockResolvedValue({
       default: () => null,
     })
-    const dynamicFn = (loaderArg: unknown) => loaderArg
     const wrappedLoader = dynamicWithIframeReload(
       loader as unknown as () => Promise<{ default: () => null }>,
       undefined,
@@ -102,7 +103,6 @@ describe("dynamicWithIframeReload", () => {
       .fn<() => Promise<unknown>>()
       .mockRejectedValueOnce(new Error("dynamic load failed 1"))
       .mockResolvedValueOnce({ default: () => null })
-    const dynamicFn = (loaderArg: unknown) => loaderArg
     const wrappedLoaderPromise = (
       dynamicWithIframeReload(
         loader as unknown as () => Promise<{ default: () => null }>,
@@ -134,7 +134,6 @@ describe("dynamicWithIframeReload", () => {
       .mockRejectedValueOnce(new Error("dynamic load failed 1"))
       .mockRejectedValueOnce(new Error("dynamic load failed 2"))
       .mockResolvedValueOnce({ default: () => null })
-    const dynamicFn = (loaderArg: unknown) => loaderArg
     const wrappedLoaderPromise = (
       dynamicWithIframeReload(
         loader as unknown as () => Promise<{ default: () => null }>,
@@ -164,8 +163,8 @@ describe("dynamicWithIframeReload", () => {
     anyWindow.__exerciseServiceRequestReload = () => {
       reloadCalls += 1
     }
-    const dynamicFn = (loader: unknown) => loader
     const wrappedLoader = dynamicWithIframeReload(
+      // oxlint-disable-next-line require-await -- throwing loader must reject as a Promise; passed where () => Promise is expected
       async () => {
         throw new Error("dynamic load failed")
       },
@@ -192,8 +191,8 @@ describe("dynamicWithIframeReload", () => {
     anyWindow.__exerciseServiceRequestReload = () => {
       throw new Error("reload bridge failed")
     }
-    const dynamicFn = (loader: unknown) => loader
     const wrappedLoader = dynamicWithIframeReload(
+      // oxlint-disable-next-line require-await -- throwing loader must reject as a Promise; passed where () => Promise is expected
       async () => {
         throw new Error("dynamic load failed")
       },

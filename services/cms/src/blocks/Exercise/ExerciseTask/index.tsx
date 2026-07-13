@@ -55,6 +55,7 @@ function enforceExerciseTaskIdDefined(
 ): ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>> {
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || DEFAULT_DISPLAY_NAME
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures WrappedComponent from enclosing scope (used as JSX element)
   const InnerComponent = (props: BlockEditProps<ExerciseTaskAttributes>) => {
     const { attributes, setAttributes } = props
 

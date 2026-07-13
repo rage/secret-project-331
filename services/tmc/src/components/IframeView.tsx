@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+// oxlint-disable-next-line import/no-named-as-default -- default export is the HOC-wrapped StateRenderer; same-name default import is intentional
 import StateRenderer from "@/components/StateRenderer"
 import { useIframeProtocol } from "@/hooks/useIframeProtocol"
 import HeightTrackingContainer from "@/shared-module/exercise-react/react/components/HeightTrackingContainer"

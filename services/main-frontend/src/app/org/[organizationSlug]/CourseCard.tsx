@@ -188,6 +188,7 @@ const CourseCard: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
           <CourseDescription>{description}</CourseDescription>
         </CourseContent>
         <CourseLanguageContent>
+          {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- span wraps an SVG icon and uses role=img with aria-label; cannot use an <img> tag */}
           <span role="img" aria-label={t("language-icon")}>
             <LanguageTranslation
               className={css`

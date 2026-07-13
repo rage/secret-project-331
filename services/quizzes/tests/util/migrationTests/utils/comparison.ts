@@ -99,7 +99,6 @@ const compareFields = <T extends object, S extends object>(
     }
     if (key === "options") {
       // Fields has been changed in the options of multiple-choice exercises
-      return
     } else if (key === "optionDisplayDirection") {
       // direction is changed to optionDisplayDirection with different values.
       const direction = sanitizeQuizDirection(oldQuizItem[fields[key] as keyof S] as FlexDirection)

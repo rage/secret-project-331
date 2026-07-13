@@ -185,16 +185,19 @@ export function parseTimeParameter(time: string): number {
 
   const hoursMatch = time.match(/(\d+)h/)
   if (hoursMatch) {
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
     seconds += parseInt(hoursMatch[1], 10) * 3600
   }
 
   const minutesMatch = time.match(/(\d+)m/)
   if (minutesMatch) {
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
     seconds += parseInt(minutesMatch[1], 10) * 60
   }
 
   const secondsMatch = time.match(/(\d+)s/)
   if (secondsMatch) {
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
     seconds += parseInt(secondsMatch[1], 10)
   }
 
@@ -326,6 +329,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
     }
 
     if (iframeRef.current) {
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
       iframeRef.current.onload = initializePlayer
 
       if (iframeRef.current.contentDocument?.readyState === "complete") {

@@ -356,6 +356,7 @@ const IframeViewPlayground: React.FC = () => {
       return
     }
     const ws = websocket
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket single-handler property pattern is intentional
     ws.onmessage = (ev) => {
       const msg = parsePlaygroundViewsMessage(JSON.parse(ev.data))
       if (msg.tag === "TimedOut") {
@@ -370,9 +371,11 @@ const IframeViewPlayground: React.FC = () => {
         throw new Error(`Unexpected websocket message: ${ev}`)
       }
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket single-handler property pattern is intentional
     ws.onclose = (ev) => {
       console.error("websocket closed unexpectedly", ev)
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket single-handler property pattern is intentional
     ws.onerror = (err) => {
       console.error("websocket error", err)
     }
@@ -941,6 +944,7 @@ const IframeViewPlayground: React.FC = () => {
               `}
               title={t("title-scroll-to-a-heading-in-this-page")}
               onChange={(event) => {
+                // oxlint-disable-next-line unicorn/prefer-query-selector -- id is dynamic; querySelector("#id") would need CSS.escape and can throw on non-identifier ids
                 const element = document.getElementById(event.target.value)
                 if (!element) {
                   console.error("Element to scroll to not found", event.target.value)

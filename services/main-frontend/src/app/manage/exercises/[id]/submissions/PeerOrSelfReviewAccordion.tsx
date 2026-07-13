@@ -164,10 +164,10 @@ const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
                 {t("peer-review-n", { n: i + 1 })}
                 <UserDisplay userId={peerReview.peer_review_giver_user_id} courseId={courseId} />
               </Title>
-              {peerReview.questions_and_answers.map((x, i) => (
+              {peerReview.questions_and_answers.map((x, questionIndex) => (
                 <QuestionWrapper key={x.peer_or_self_review_question_id}>
                   {mapToAnswer(
-                    `${t("question-n", { n: i + 1 })}: ${x.question}${
+                    `${t("question-n", { n: questionIndex + 1 })}: ${x.question}${
                       x.answer_required ? " *" : ""
                     }`,
                     x.answer,

@@ -15,7 +15,7 @@ global.Request = class Request {
   }
 }
 
-// oxlint-disable-next-line typescript/no-extraneous-class -- Web API polyfill; must be a class for new/instanceof
+// oxlint-disable-next-line typescript/no-extraneous-class, max-classes-per-file -- colocated Web API / test-mock polyfills in one setup file; must be classes for new/instanceof
 global.TransformStream = class TransformStream {
   constructor() {
     this.readable = {}
@@ -89,6 +89,7 @@ class MockIntersectionObserver {
 global.IntersectionObserver = MockIntersectionObserver
 global.window.IntersectionObserver = MockIntersectionObserver
 
+// oxlint-disable-next-line unicorn/no-object-as-default-parameter -- default applies only when opts is fully omitted; no partial-merge confusion here
 global.triggerIntersection = (el, opts = { isIntersecting: true, intersectionRatio: 1 }) => {
   const inst = elementToObserver.get(el)
   if (!inst) {

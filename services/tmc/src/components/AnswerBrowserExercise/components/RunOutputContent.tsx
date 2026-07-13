@@ -119,6 +119,7 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
                 )}
                 {isLastWaiting && submitStdinLine != null ? (
                   <>
+                    {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- StdinWaitingBanner is a styled component; role=status is intentional and converting to <output> would change the element and styling */}
                     <StdinWaitingBanner role="status">{t("waiting-for-input")}</StdinWaitingBanner>
                     <StdinHint>{t("enter-input-press-enter")}</StdinHint>
                     <StdinInput
@@ -139,6 +140,7 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
       {/* Show current waiting UI when no segment is last-waiting (e.g. very first stdin_request before any stdout) */}
       {waitingForInput && submitStdinLine != null && !lastIsInputWaiting && (
         <>
+          {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- StdinWaitingBanner is a styled component; role=status is intentional and converting to <output> would change the element and styling */}
           <StdinWaitingBanner role="status">{t("waiting-for-input")}</StdinWaitingBanner>
           {stdinPrompt && <StdinPromptLine>{stdinPrompt}</StdinPromptLine>}
           <StdinHint>{t("enter-input-press-enter")}</StdinHint>

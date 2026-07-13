@@ -123,7 +123,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
     })
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (
@@ -157,7 +157,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               title,
               messageAfterSubmissionWhenThisOptionSelected,
               messageOnModelSolutionWhenThisOptionSelected,
-              correct,
+              isCorrect,
             ) => {
               updateState((draft) => {
                 if (!draft) {
@@ -166,7 +166,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 draft.options = draft.options.map((opt) => {
                   if (opt.id === option.id) {
                     opt.title = title
-                    opt.correct = correct
+                    opt.correct = isCorrect
                     opt.messageAfterSubmissionWhenSelected =
                       messageAfterSubmissionWhenThisOptionSelected
                     opt.additionalCorrectnessExplanationOnModelSolution =

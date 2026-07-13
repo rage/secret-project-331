@@ -181,9 +181,7 @@ export function NonPickerSegmentedField({
         type="hidden"
         aria-describedby={describedBy}
         value={hiddenInputValue}
-        onChange={() => {
-          return
-        }}
+        onChange={() => {}}
       />
       {iconEnd ? <span className={inlineAffixCss}>{iconEnd}</span> : null}
     </FieldShell>

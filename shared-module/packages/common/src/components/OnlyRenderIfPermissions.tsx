@@ -41,11 +41,11 @@ const OnlyRenderIfPermissions: React.FC<React.PropsWithChildren<ComponentProps>>
 
   if (loginState.signedIn !== true || data.isLoading || data.isError || !data.data) {
     if (elseRender) {
-      return <>{elseRender}</>
+      return elseRender
     }
     return null
   }
-  return <>{children}</>
+  return children
 }
 
 export default OnlyRenderIfPermissions

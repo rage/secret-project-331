@@ -5,6 +5,10 @@ type Corner = "TL" | "TR" | "BR" | "BL"
 
 const FLIP_ANIMATION_MS = 1800
 
+const clamp = (value: number, min: number, max: number): number => {
+  return Math.max(min, Math.min(max, value))
+}
+
 // Ten distinct flip animations to choose from at runtime
 const flipAnimationClasses = [
   // A: Y-axis flip with depth
@@ -221,10 +225,6 @@ export const useCornerTapFlip = (): CornerTapFlipReturn => {
       }
     }
   }, [])
-
-  const clamp = (value: number, min: number, max: number): number => {
-    return Math.max(min, Math.min(max, value))
-  }
 
   const handleDown = (clientX: number, clientY: number) => {
     if (!containerRef.current) {

@@ -26,13 +26,13 @@ const config: StorybookConfig = {
     reactDocgen: "react-docgen-typescript",
   },
 
-  viteFinal: async (config) => {
-    config.resolve = config.resolve ?? {}
-    config.resolve.alias = {
-      ...config.resolve.alias,
+  viteFinal: (viteConfig) => {
+    viteConfig.resolve = viteConfig.resolve ?? {}
+    viteConfig.resolve.alias = {
+      ...viteConfig.resolve.alias,
       "next/link": resolve(__dirname, "../src/mocks/next-link.tsx"),
     }
-    return config
+    return viteConfig
   },
 }
 export default config

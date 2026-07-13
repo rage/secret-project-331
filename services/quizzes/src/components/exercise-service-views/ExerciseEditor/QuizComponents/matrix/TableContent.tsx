@@ -96,29 +96,23 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
   return (
     <MatrixTableContainer>
       <tbody>
-        <>
-          {tempArray.map((rowIndex) => (
-            <tr key={`row ${rowIndex}`}>
-              {tempArray.map((columnIndex) => {
-                const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
-                return (
-                  <>
-                    {checkNeighbour !== null ? (
-                      <TableCellContent
-                        key={`row ${rowIndex} column: ${columnIndex}`}
-                        matrixSize={matrixActiveSize}
-                        cellText={checkNeighbour}
-                        columnLoop={columnIndex}
-                        rowLoop={rowIndex}
-                        handleTextarea={handleTextarea}
-                      />
-                    ) : null}
-                  </>
-                )
-              })}
-            </tr>
-          ))}
-        </>
+        {tempArray.map((rowIndex) => (
+          <tr key={`row ${rowIndex}`}>
+            {tempArray.map((columnIndex) => {
+              const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
+              return checkNeighbour !== null ? (
+                <TableCellContent
+                  key={`row ${rowIndex} column: ${columnIndex}`}
+                  matrixSize={matrixActiveSize}
+                  cellText={checkNeighbour}
+                  columnLoop={columnIndex}
+                  rowLoop={rowIndex}
+                  handleTextarea={handleTextarea}
+                />
+              ) : null
+            })}
+          </tr>
+        ))}
       </tbody>
     </MatrixTableContainer>
   )

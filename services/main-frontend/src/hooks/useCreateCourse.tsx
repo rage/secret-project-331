@@ -32,6 +32,7 @@ export const useCreateCourse = () => {
   const { t } = useTranslation()
 
   return useToastMutation<Course, unknown, CreateCourseParams>(
+    // oxlint-disable-next-line eslint/require-await -- kept async for the mutationFn Promise<Course> contract
     async (params) => {
       const {
         organizationId,
@@ -105,6 +106,7 @@ export const useCreateCourse = () => {
       errorMessage: t("error-creating-course"),
     },
     {
+      // oxlint-disable-next-line eslint/require-await -- kept async; react-query awaits the onSuccess callback's promise
       onSuccess: async (newCourse, params) => {
         invalidateCourseQueries(queryClient, newCourse.id, params.organizationId)
         if (params.onSuccess) {

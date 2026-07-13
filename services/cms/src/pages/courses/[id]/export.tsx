@@ -41,7 +41,9 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
         for (const page of pages) {
           setCurrentStep((old) => old + 1)
           // Wait for a bit to avoid hitting rate limits
-          await new Promise((r) => setTimeout(r, 100))
+          await new Promise((r) => {
+            setTimeout(r, 100)
+          })
           const data = await getCmsPage({
             path: {
               page_id: page.id,
@@ -74,31 +76,32 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
           // download all linked files
           const contentAsString = JSON.stringify(denormalizedContent)
           const allUrls = contentAsString.match(/https?:\/\/[^"]+/g)
-          if (allUrls) {
-            for (const url of allUrls) {
-              const parsedUrl = new URL(url)
-              if (alreadyAddedFiles.has(url.toString())) {
-                continue
-              }
-              alreadyAddedFiles.add(url.toString())
-              if (parsedUrl.hostname !== window.location.hostname) {
-                console.info(
-                  `Skipping ${url} because it's not coming from ${window.location.hostname}}`,
-                )
-                continue
-              }
-              console.info(`Downloading ${url}`)
-              const response = await fetch(url)
-              if (!response.ok) {
-                throw new Error(`Failed to download ${url}`)
-              }
-              const body = await response.arrayBuffer()
-              const bodyAsUint8Array = new Uint8Array(body)
-              // oxlint-disable-next-line i18next/no-literal-string
-              const path = `files${parsedUrl.pathname}`
-              console.info(`Saving ${path}`)
-              tarBuilder.add_file(path, bodyAsUint8Array)
+          if (!allUrls) {
+            continue
+          }
+          for (const url of allUrls) {
+            const parsedUrl = new URL(url)
+            if (alreadyAddedFiles.has(url.toString())) {
+              continue
             }
+            alreadyAddedFiles.add(url.toString())
+            if (parsedUrl.hostname !== window.location.hostname) {
+              console.info(
+                `Skipping ${url} because it's not coming from ${window.location.hostname}}`,
+              )
+              continue
+            }
+            console.info(`Downloading ${url}`)
+            const response = await fetch(url)
+            if (!response.ok) {
+              throw new Error(`Failed to download ${url}`)
+            }
+            const body = await response.arrayBuffer()
+            const bodyAsUint8Array = new Uint8Array(body)
+            // oxlint-disable-next-line i18next/no-literal-string
+            const path = `files${parsedUrl.pathname}`
+            console.info(`Saving ${path}`)
+            tarBuilder.add_file(path, bodyAsUint8Array)
           }
         }
         if (pages.length === 0) {
@@ -154,7 +157,7 @@ function save(filename: string, data: Uint8Array) {
   elem.download = filename
   document.body.append(elem)
   elem.click()
-  document.body.removeChild(elem)
+  elem.remove()
 }
 
 const exported = dontRenderUntilQueryParametersReady(ExportPage)

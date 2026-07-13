@@ -69,6 +69,7 @@ export const parseAnsiToReact = (text: string): React.ReactNode[] => {
     if (codes.length === 0) {
       currentStyles = {}
     } else {
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
       codes.forEach((code) => applyAnsiCode(parseInt(code, 10)))
     }
 

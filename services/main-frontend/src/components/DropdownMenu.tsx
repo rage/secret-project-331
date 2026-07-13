@@ -110,7 +110,7 @@ const DropdownMenu: React.FC<MenuProps> = ({
 
   const nav = navLabel
     ? (z: ReactNode) => <nav aria-label={navLabel}>{z}</nav>
-    : (z: ReactNode) => <>{z}</>
+    : (z: ReactNode) => z
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>

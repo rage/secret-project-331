@@ -148,8 +148,8 @@ async function runSync(restarted: boolean) {
               events.map((event) => {
                 const relativePath = path.relative(__dirname, event.path)
                 const syncFolder =
-                  SYNC_TARGETS.find((target) =>
-                    relativePath.startsWith(`packages` + path.sep + target.source),
+                  SYNC_TARGETS.find((syncTarget) =>
+                    relativePath.startsWith(`packages` + path.sep + syncTarget.source),
                   ) ?? null
                 return {
                   path: relativePath,
@@ -163,12 +163,12 @@ async function runSync(restarted: boolean) {
               console.log("Changes:", JSON.stringify(changes, null, 2))
             }
 
-            for (const [syncFolder, events] of Object.entries(changes)) {
-              const targets = SYNC_TARGETS.find((target) => target.source === syncFolder)
+            for (const [syncFolder, folderEvents] of Object.entries(changes)) {
+              const targets = SYNC_TARGETS.find((syncTarget) => syncTarget.source === syncFolder)
 
               // Syncing is done with rsync, but we'll want to minimize the number of files rsync has to go through
               // Therefore we'll find the common root of all changed files and sync from there
-              const commonRoot = getCommonRootOfChanges(events)
+              const commonRoot = getCommonRootOfChanges(folderEvents)
               console.info(
                 `Syncing changes in "${commonRoot}" to ${targets?.destinations.length} destinations.`,
               )
@@ -189,10 +189,14 @@ async function runSync(restarted: boolean) {
   console.log("Watching...")
 
   while (true) {
-    await new Promise((resolve) => setTimeout(resolve, 300_000))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 300_000)
+    })
     if (shouldRestart) {
       console.log("Error detected, restarting in 15 seconds...")
-      await new Promise((resolve) => setTimeout(resolve, 15_000))
+      await new Promise((resolve) => {
+        setTimeout(resolve, 15_000)
+      })
       break
     }
     if (Date.now() - startTime > 3_600_000) {
@@ -316,4 +320,5 @@ async function cleanUpFolders() {
   }
 }
 
+// oxlint-disable-next-line unicorn/prefer-top-level-await -- fire-and-forget entrypoint; top-level await would change module semantics
 main()

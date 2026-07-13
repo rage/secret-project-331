@@ -32,7 +32,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
   )
 
   if (selected === null) {
-    return <></>
+    return null
   }
   return (
     <EditorCard quizItemId={quizItemId} title={t("quiz-scale-name")}>
@@ -61,6 +61,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
                 if (!draft) {
                   return
                 }
+                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
                 draft.minValue = parseInt(minimum, 10)
               })
             }}
@@ -77,6 +78,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
                 if (!draft) {
                   return
                 }
+                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
                 draft.maxValue = parseInt(maximum, 10)
               })
             }}

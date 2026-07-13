@@ -138,21 +138,22 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
       // oxlint-disable-next-line i18next/no-literal-string
       const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
 
-      items.push({
-        // oxlint-disable-next-line i18next/no-literal-string
-        id: "mobile-signup",
-        type: "link",
-        label: t("create-new-account"),
-        href: signUpPathWithReturnTo,
-      })
-
-      items.push({
-        // oxlint-disable-next-line i18next/no-literal-string
-        id: "mobile-login",
-        type: "link",
-        label: t("log-in"),
-        href: loginPathWithReturnTo,
-      })
+      items.push(
+        {
+          // oxlint-disable-next-line i18next/no-literal-string
+          id: "mobile-signup",
+          type: "link",
+          label: t("create-new-account"),
+          href: signUpPathWithReturnTo,
+        },
+        {
+          // oxlint-disable-next-line i18next/no-literal-string
+          id: "mobile-login",
+          type: "link",
+          label: t("log-in"),
+          href: loginPathWithReturnTo,
+        },
+      )
     }
 
     return items

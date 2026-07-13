@@ -127,11 +127,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   const courseQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (courseIdValue): courseIdValue is string => Boolean(courseIdValue),
+      build: (courseIdValue) =>
         getCmsCourseOptions({
           path: {
-            course_id: courseId,
+            course_id: courseIdValue,
           },
         }),
     }),
@@ -172,11 +172,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   const defaultCmsPeerOrSelfReviewConfig = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (courseIdValue): courseIdValue is string => Boolean(courseIdValue),
+      build: (courseIdValue) =>
         getCmsCourseDefaultPeerReviewOptions({
           path: {
-            course_id: courseId,
+            course_id: courseIdValue,
           },
         }),
     }),
@@ -340,14 +340,14 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   }
 
   const handlePeerOrSelfReviewQuestionValueChange = (
-    id: string,
+    questionId: string,
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>,
     field: keyof CmsPeerOrSelfReviewQuestion,
   ) => {
     const peerOrSelfReviewQuestions: CmsPeerOrSelfReviewQuestion[] =
       peerOrSelfReviewQuestionsRef.current
         .map((prq) => {
-          if (prq.id === id) {
+          if (prq.id === questionId) {
             switch (field) {
               case "question":
                 return { ...prq, question: event.target.value }
@@ -603,91 +603,106 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   {parsedPeerOrSelfReviewQuestionConfig &&
                     parsedPeerOrSelfReviewQuestionConfig
                       .toSorted((o1, o2) => o1.order_number - o2.order_number)
-                      .map(({ id, question, question_type, answer_required, weight }) => (
-                        <List key={id} id={id}>
-                          <StyledQuestion>
-                            <StyledSelectField
-                              label={t("peer-review-question-type")}
-                              onChange={(e) => {
-                                // oxlint-disable-next-line i18next/no-literal-string
-                                handlePeerOrSelfReviewQuestionValueChange(id, e, "question_type")
-                              }}
-                              defaultValue={question_type}
-                              options={peerOrSelfReviewQuestionTypeoptions}
-                              id={`peer-review-question-${id}`}
-                              onBlur={() => null}
-                            />
-                            {question_type === "Scale" &&
-                              parsedPeerOrSelfReviewConfig?.points_are_all_or_nothing === false && (
-                                <TextField
-                                  label={t("label-weight")}
-                                  type="number"
-                                  min={0}
-                                  max={1}
-                                  step={0.01}
-                                  value={weight}
-                                  onChange={(e) => {
-                                    // oxlint-disable-next-line i18next/no-literal-string
-                                    handlePeerOrSelfReviewQuestionValueChange(id, e, "weight")
-                                  }}
-                                  className={css`
-                                    margin-bottom: 0;
-                                  `}
-                                />
-                              )}
-                          </StyledQuestion>
-                          <StyledQuestionType>
-                            <TextAreaField
-                              label={t("peer-review-question")}
-                              onChange={(event) => {
-                                // oxlint-disable-next-line i18next/no-literal-string
-                                handlePeerOrSelfReviewQuestionValueChange(id, event, "question")
-                              }}
-                              defaultValue={question}
-                              autoResize={true}
-                            />
-                          </StyledQuestionType>
-                          <StyledQuestion>
-                            {question_type !== "Scale" ? (
-                              <CheckBox
-                                label={t("answer-required")}
-                                checked={answer_required}
-                                className={css`
-                                  margin-top: 0.5rem;
-                                `}
-                                onChange={(e) =>
+                      .map(
+                        ({ id: questionId, question, question_type, answer_required, weight }) => (
+                          <List key={questionId} id={questionId}>
+                            <StyledQuestion>
+                              <StyledSelectField
+                                label={t("peer-review-question-type")}
+                                onChange={(e) => {
                                   handlePeerOrSelfReviewQuestionValueChange(
-                                    id,
+                                    questionId,
                                     e,
                                     // oxlint-disable-next-line i18next/no-literal-string
-                                    "answer_required",
+                                    "question_type",
                                   )
-                                }
+                                }}
+                                defaultValue={question_type}
+                                options={peerOrSelfReviewQuestionTypeoptions}
+                                id={`peer-review-question-${questionId}`}
+                                onBlur={() => null}
                               />
-                            ) : (
-                              <div
-                                className={css`
-                                  min-width: 93px;
-                                `}
-                              >
-                                {/* oxlint-disable-next-line i18next/no-literal-string */}
-                                &nbsp;
-                              </div>
-                            )}
-                          </StyledQuestion>
-                          <DeleteBtn
-                            aria-label={t("delete")}
-                            onClick={() => deletePeerOrSelfReviewQuestion(id)}
-                            className={css`
-                              display: flex;
-                              justify-content: center;
-                              align-items: center;
-                            `}
-                          >
-                            <XmarkCircle />
-                          </DeleteBtn>
-                        </List>
-                      ))}
+                              {question_type === "Scale" &&
+                                parsedPeerOrSelfReviewConfig?.points_are_all_or_nothing ===
+                                  false && (
+                                  <TextField
+                                    label={t("label-weight")}
+                                    type="number"
+                                    min={0}
+                                    max={1}
+                                    step={0.01}
+                                    value={weight}
+                                    onChange={(e) => {
+                                      handlePeerOrSelfReviewQuestionValueChange(
+                                        questionId,
+                                        e,
+                                        // oxlint-disable-next-line i18next/no-literal-string
+                                        "weight",
+                                      )
+                                    }}
+                                    className={css`
+                                      margin-bottom: 0;
+                                    `}
+                                  />
+                                )}
+                            </StyledQuestion>
+                            <StyledQuestionType>
+                              <TextAreaField
+                                label={t("peer-review-question")}
+                                onChange={(event) => {
+                                  handlePeerOrSelfReviewQuestionValueChange(
+                                    questionId,
+                                    event,
+                                    // oxlint-disable-next-line i18next/no-literal-string
+                                    "question",
+                                  )
+                                }}
+                                defaultValue={question}
+                                autoResize={true}
+                              />
+                            </StyledQuestionType>
+                            <StyledQuestion>
+                              {question_type !== "Scale" ? (
+                                <CheckBox
+                                  label={t("answer-required")}
+                                  checked={answer_required}
+                                  className={css`
+                                    margin-top: 0.5rem;
+                                  `}
+                                  onChange={(e) =>
+                                    handlePeerOrSelfReviewQuestionValueChange(
+                                      questionId,
+                                      e,
+                                      // oxlint-disable-next-line i18next/no-literal-string
+                                      "answer_required",
+                                    )
+                                  }
+                                />
+                              ) : (
+                                <div
+                                  className={css`
+                                    min-width: 93px;
+                                  `}
+                                >
+                                  {/* oxlint-disable-next-line i18next/no-literal-string */}
+                                  &nbsp;
+                                </div>
+                              )}
+                            </StyledQuestion>
+                            <DeleteBtn
+                              aria-label={t("delete")}
+                              onClick={() => deletePeerOrSelfReviewQuestion(questionId)}
+                              className={css`
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                              `}
+                            >
+                              <XmarkCircle />
+                            </DeleteBtn>
+                          </List>
+                        ),
+                      )}
                   <Button
                     variant="primary"
                     size="medium"

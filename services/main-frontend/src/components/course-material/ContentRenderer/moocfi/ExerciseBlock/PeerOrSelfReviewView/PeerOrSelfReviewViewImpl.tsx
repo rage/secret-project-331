@@ -140,6 +140,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           // Will scroll after once the refetch is complete because the refetch might change the heights of some elements and that would invalidate our current scrolling position
           setTimeout(() => {
             document
+              // oxlint-disable-next-line unicorn/prefer-query-selector -- id is a raw UUID that may start with a digit; querySelector("#"+id) would throw, getElementById handles any id
               .getElementById(getExerciseBlockBeginningScrollingId(exerciseId))
               ?.scrollIntoView({ behavior: "smooth" })
           }, 100)
@@ -152,6 +153,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           // Will scroll after once the refetch is complete because the refetch might change the heights of some elements and that would invalidate our current scrolling position
           setTimeout(() => {
             document
+              // oxlint-disable-next-line unicorn/prefer-query-selector -- keep getElementById for consistency; the id embeds a raw UUID that would need CSS-escaping in a "#"+id selector
               .getElementById(getPeerReviewBeginningScrollingId(exerciseId))
 
               ?.scrollIntoView({ behavior: "smooth" })
@@ -364,21 +366,21 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
             peerOrSelfReviewQuestionAnswer={answers.get(peerOrSelfReviewQuestion.id) ?? null}
             setPeerOrSelfReviewQuestionAnswer={(newAnswer) => {
               setAnswers((prev) => {
-                const answers = new Map(prev)
+                const nextAnswers = new Map(prev)
                 if (
                   newAnswer.number_data === null &&
                   (newAnswer.text_data == null || newAnswer.text_data.trim() === "")
                 ) {
                   // If everything in the answer is null, transform the answer to not answered
-                  answers.delete(peerOrSelfReviewQuestion.id)
+                  nextAnswers.delete(peerOrSelfReviewQuestion.id)
                 } else {
-                  answers.set(peerOrSelfReviewQuestion.id, {
+                  nextAnswers.set(peerOrSelfReviewQuestion.id, {
                     ...newAnswer,
                     peer_or_self_review_question_id: peerOrSelfReviewQuestion.id,
                   })
                 }
 
-                return answers
+                return nextAnswers
               })
             }}
           />

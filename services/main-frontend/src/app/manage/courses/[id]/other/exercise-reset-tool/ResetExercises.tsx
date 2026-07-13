@@ -55,7 +55,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   }
 
   const resetMutation = useToastMutation(
-    async () =>
+    () =>
       resetExercisesForSelectedUsers({
         body: {
           user_ids: selectedUsers.map((u) => u.user_id),

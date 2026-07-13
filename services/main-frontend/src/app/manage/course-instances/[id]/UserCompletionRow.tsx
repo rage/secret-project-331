@@ -30,13 +30,13 @@ export interface UserCompletionRowUser {
 const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseModules, user }) => {
   const { t } = useTranslation()
 
-  function mapGradeToText(completion: CourseModuleCompletionWithRegistrationInfo): JSX.Element {
+  function mapGradeToText(completion: CourseModuleCompletionWithRegistrationInfo): React.ReactNode {
     let innerText = completion.grade?.toString()
     if (innerText === undefined) {
       innerText = completion.passed ? t("column-passed") : t("column-failed")
     }
     if (completion.prerequisite_modules_completed) {
-      return <>{innerText}</>
+      return innerText
     }
     return <i>{innerText}*</i>
   }
@@ -57,13 +57,15 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
     )
   }
 
-  function mapRegistration(completion: CourseModuleCompletionWithRegistrationInfo): JSX.Element {
+  function mapRegistration(
+    completion: CourseModuleCompletionWithRegistrationInfo,
+  ): React.ReactNode {
     if (completion.registered) {
       return <>{t("yes")}</>
     } else if (completion.completion_registration_attempt_date) {
       return <i>{t("column-pending")}</i>
     }
-    return <></>
+    return null
   }
 
   let maxCompletions = 1

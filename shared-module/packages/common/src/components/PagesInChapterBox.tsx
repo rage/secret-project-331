@@ -94,40 +94,38 @@ export type PagesInChapterBoxProps = React.HTMLAttributes<HTMLDivElement> &
 const PagesInChapterBox: React.FC<React.PropsWithChildren<PagesInChapterBoxProps>> = (props) => {
   return (
     <Wrapper>
-      <>
-        <Link
-          href={props.url}
-          data-testid={`page-in-chapter-link-${props.chapterIndex}`}
-          className={css`
-            color: #1c3b40;
-            box-shadow: none;
-            text-decoration: none;
-            &:focus-visible {
-              outline: 2px solid ${baseTheme.colors.green[500]};
-              outline-offset: 2px;
-            }
+      <Link
+        href={props.url}
+        data-testid={`page-in-chapter-link-${props.chapterIndex}`}
+        className={css`
+          color: #1c3b40;
+          box-shadow: none;
+          text-decoration: none;
+          &:focus-visible {
+            outline: 2px solid ${baseTheme.colors.green[500]};
+            outline-offset: 2px;
+          }
 
-            &:focus-visible .chapter-parts {
-              background-color: rgb(235, 239, 242);
-              box-shadow: 0 0 0 2px ${baseTheme.colors.green[500]};
-            }
+          &:focus-visible .chapter-parts {
+            background-color: rgb(235, 239, 242);
+            box-shadow: 0 0 0 2px ${baseTheme.colors.green[500]};
+          }
 
-            :hover {
-              .chapter-part-arrow {
-                visibility: visible;
-              }
+          :hover {
+            .chapter-part-arrow {
+              visibility: visible;
             }
-          `}
-        >
-          <ChapterParts {...props} className="chapter-parts">
-            <PageNumberBox>
-              <span>{props.chapterIndex}</span>
-            </PageNumberBox>
-            <span>{props.chapterTitle}</span>
-            <ArrowSVGIcon className="page-link-arrow" role="presentation" alt="" width="15" />
-          </ChapterParts>
-        </Link>
-      </>
+          }
+        `}
+      >
+        <ChapterParts {...props} className="chapter-parts">
+          <PageNumberBox>
+            <span>{props.chapterIndex}</span>
+          </PageNumberBox>
+          <span>{props.chapterTitle}</span>
+          <ArrowSVGIcon className="page-link-arrow" role="presentation" alt="" width="15" />
+        </ChapterParts>
+      </Link>
     </Wrapper>
   )
 }

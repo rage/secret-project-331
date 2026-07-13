@@ -38,6 +38,7 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
 
   return (
     <div
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=group on a styled flex div; a fieldset would alter layout
       role="group"
       aria-labelledby={radioLabelId}
       className={css`
@@ -133,6 +134,7 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
                   checked={
                     quizItemAnswerState !== null && quizItemAnswerState.intData === Number(value)
                   }
+                  readOnly
                   onClick={(e) => handleOptionSelect(e.currentTarget.value)}
                 />
                 <span>{value}</span>

@@ -1,6 +1,6 @@
 "use client"
 
-import KaTex from "katex"
+import { renderToString } from "katex"
 import "katex/dist/katex.min.css"
 
 import type { StringWithHTML } from "@/../types"
@@ -109,7 +109,7 @@ export const replaceTextNodeWithGlossarySpans = (
 
   for (const m of matches) {
     if (m.index > lastIndex) {
-      fragment.append(doc.createTextNode(text.substring(lastIndex, m.index)))
+      fragment.append(doc.createTextNode(text.slice(lastIndex, m.index)))
     }
     // Empty span is a mounting point for the glossary tooltip portal; the user-visible
     // text is rendered later by the React tooltip component rather than being kept here.
@@ -120,7 +120,7 @@ export const replaceTextNodeWithGlossarySpans = (
   }
 
   if (lastIndex < text.length) {
-    fragment.append(doc.createTextNode(text.substring(lastIndex)))
+    fragment.append(doc.createTextNode(text.slice(lastIndex)))
   }
 
   parent.replaceChild(fragment, textNode)
@@ -137,7 +137,7 @@ const convertToLatex = (data: string) => {
     // Convert ampersand back to special symbol. This is needed e.g. in matrices
     const processed = latex.replaceAll(HTML_ESCAPED_AMPERSAND, AMPERSAND_CHAR)
     count++
-    return KaTex.renderToString(processed, {
+    return renderToString(processed, {
       throwOnError: false,
       output: KATEX_OUTPUT_FORMAT,
     })
@@ -224,10 +224,13 @@ const MAX_UNICODE_CODE_POINT = 0x10ffff
 const decodeHtmlEntities = (value: string): string =>
   value.replace(HTML_ENTITY_REGEX, (whole, body: string) => {
     if (body[0] === "#") {
-      const codePoint =
-        body[1] === "x" || body[1] === "X"
-          ? parseInt(body.slice(2), 16)
-          : parseInt(body.slice(1), 10)
+      let codePoint: number
+      if (body[1] === "x" || body[1] === "X") {
+        codePoint = parseInt(body.slice(2), 16)
+      } else {
+        // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+        codePoint = parseInt(body.slice(1), 10)
+      }
       if (Number.isNaN(codePoint) || codePoint < 0 || codePoint > MAX_UNICODE_CODE_POINT) {
         return whole
       }
@@ -292,7 +295,7 @@ const parseCitation = (data: string) => {
 const parseText = (
   content: string | undefined | StringWithHTML,
   terms: Term[],
-  options: { glossary: boolean } = { glossary: true },
+  { glossary = true }: { glossary?: boolean } = {},
 ) => {
   const { count, converted: parsedLatex } = convertToLatex(content ?? "")
   const parsedCitation = parseCitation(parsedLatex)
@@ -300,7 +303,7 @@ const parseText = (
   let parsedText = parsedCitation
   let glossaryEntries: Term[] = []
 
-  if (options.glossary) {
+  if (glossary) {
     const { parsedText: glossaryParsedText, terms: usedGlossary } = parseGlossary(
       parsedCitation,
       terms ?? [],

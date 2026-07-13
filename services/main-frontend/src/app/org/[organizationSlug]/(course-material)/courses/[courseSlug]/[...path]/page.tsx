@@ -59,7 +59,9 @@ const PagePage: React.FC = () => {
   // non-ASCII escapes per segment so the path matches the backend's canonical form while
   // reserved ASCII escapes (e.g. %2F) stay encoded and structure is preserved.
   const path = useMemo(() => {
-    const decoded = (params.path ?? []).map(decodeNonAsciiPercentEscapes).join("/")
+    const decoded = (params.path ?? [])
+      .map((segment) => decodeNonAsciiPercentEscapes(segment))
+      .join("/")
     return `/${decoded}`
   }, [params.path])
 
@@ -121,7 +123,7 @@ const PagePage: React.FC = () => {
     if (!languageOptions?.setOnLanguageChange) {
       return
     }
-    const handler = async (languageCode: string) => {
+    const handler = (languageCode: string) => {
       changeLanguageRef.current(languageCode)
       // Don't call redirectToLanguage - let useCourseMaterialLanguageRedirection handle it
     }
@@ -159,6 +161,7 @@ const PagePage: React.FC = () => {
     // want to fix the url without creating a history entry
     const currentPathName = document.location.pathname
     const courseSlugEndLocation = currentPathName.indexOf(courseSlug) + courseSlug.length
+    // oxlint-disable-next-line unicorn/prefer-string-slice -- second arg is a computed index that could be negative; substring and slice differ on negatives
     const beginningOfNewPath = currentPathName.substring(0, courseSlugEndLocation)
     const newPath = `${beginningOfNewPath}${courseMaterialState.page.url_path}`
 

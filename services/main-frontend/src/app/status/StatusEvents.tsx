@@ -51,7 +51,7 @@ const StatusEvents: React.FC = () => {
 
   return (
     <QueryResult query={eventsQuery} emptyFallback={<p>{t("status-no-events-found")}</p>}>
-      {(events) => (
+      {(loadedEvents) => (
         <div>
           <div
             className={css`
@@ -92,7 +92,7 @@ const StatusEvents: React.FC = () => {
             >
               {t("status-showing-events", {
                 count: filteredAndSortedEvents.length,
-                total: events.length,
+                total: loadedEvents.length,
               })}
             </span>
           </div>

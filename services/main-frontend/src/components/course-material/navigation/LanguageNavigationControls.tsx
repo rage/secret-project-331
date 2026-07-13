@@ -45,7 +45,7 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
   }))
 
   const handleLanguageChange = useCallback(
-    async (newLanguageCode: string) => {
+    (newLanguageCode: string) => {
       try {
         // Update state - the redirect will be handled by useCourseMaterialLanguageRedirection hook
         changeCourseMaterialLanguage(newLanguageCode)

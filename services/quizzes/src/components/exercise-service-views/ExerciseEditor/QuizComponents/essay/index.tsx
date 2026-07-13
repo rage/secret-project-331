@@ -43,7 +43,7 @@ const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
     (totalNumberOfQuizItems && totalNumberOfQuizItems > 1) || !!selected?.title
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (

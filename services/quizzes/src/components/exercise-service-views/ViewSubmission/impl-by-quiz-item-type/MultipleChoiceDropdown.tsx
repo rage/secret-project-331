@@ -221,12 +221,14 @@ const SubmissionFeedbackMessage: React.FC<
     const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
       (feedback) => feedback.option_id === option.id,
     )
-    if (feedbackForThisOption && feedbackForThisOption.this_option_was_correct !== null) {
+    if (
+      feedbackForThisOption &&
+      feedbackForThisOption.this_option_was_correct !== null &&
+      !correctAnswer
+    ) {
       // if we have received feedback for this option, use that
       // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
-      if (!correctAnswer) {
-        correctAnswer = feedbackForThisOption.this_option_was_correct
-      }
+      correctAnswer = feedbackForThisOption.this_option_was_correct
     }
     let feedBackForOption: string | null = null
     if (answerSelectedThisOption) {

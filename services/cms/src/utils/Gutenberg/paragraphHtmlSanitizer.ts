@@ -172,10 +172,10 @@ export const sanitizeParagraphHtml = (
 
 const normalizeBreaks = (container: HTMLElement): void => {
   while (container.firstChild && isTrimmableBreak(container.firstChild)) {
-    container.removeChild(container.firstChild)
+    container.firstChild.remove()
   }
   while (container.lastChild && isTrimmableBreak(container.lastChild)) {
-    container.removeChild(container.lastChild)
+    container.lastChild.remove()
   }
 }
 

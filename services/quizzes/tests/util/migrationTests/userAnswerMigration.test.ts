@@ -147,6 +147,7 @@ describe("User answer", () => {
       expect(scaleAnswer.intData).toEqual((migratedUserAnswer as UserItemAnswerScale).intData)
     } else {
       if (scaleAnswer.optionAnswers) {
+        // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
         expect(Number.parseInt(scaleAnswer.optionAnswers[0], 10)).toEqual(
           (migratedUserAnswer as UserItemAnswerScale).intData,
         )

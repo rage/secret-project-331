@@ -126,13 +126,13 @@ const chatbotCitationRenderer: Rule = (
   return htmlString
 }
 
-let chatbotCitation: Remarkable.Plugin = (md) => {
-  md.inline.ruler.push("chatbotCitation", chatbotCitationParser, {})
-  md.renderer.rules.chatbotCitation = chatbotCitationRenderer
+let chatbotCitation: Remarkable.Plugin = (mdInstance) => {
+  mdInstance.inline.ruler.push("chatbotCitation", chatbotCitationParser, {})
+  mdInstance.renderer.rules.chatbotCitation = chatbotCitationRenderer
 }
 
-let textPlugin: Remarkable.Plugin = (md) => {
-  md.inline.ruler.at("text", textParser, {})
+let textPlugin: Remarkable.Plugin = (mdInstance) => {
+  mdInstance.inline.ruler.at("text", textParser, {})
 }
 
 export const getRemarkable = () => {

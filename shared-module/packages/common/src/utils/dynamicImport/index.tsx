@@ -115,7 +115,7 @@ const dynamicImport = <P extends object = Record<string, never>>(
     log(id, "dynamic-import-started", { online })
 
     try {
-      const module = await importWithRetry(
+      const importedModule = await importWithRetry(
         () =>
           withTimeout(
             importFn(),
@@ -144,7 +144,7 @@ const dynamicImport = <P extends object = Record<string, never>>(
         sleep,
       )
 
-      if (!module || !("default" in module)) {
+      if (!importedModule || !("default" in importedModule)) {
         setDynamicImportStatus(id, {
           state: DYNAMIC_IMPORT_STATE_INVALID_EXPORT,
           startedAt,
@@ -157,7 +157,7 @@ const dynamicImport = <P extends object = Record<string, never>>(
         throw new Error(DYNAMIC_IMPORT_MISSING_DEFAULT_EXPORT_ERROR)
       }
 
-      if (!isProbablyReactComponent(module.default)) {
+      if (!isProbablyReactComponent(importedModule.default)) {
         setDynamicImportStatus(id, {
           state: DYNAMIC_IMPORT_STATE_INVALID_EXPORT,
           startedAt,
@@ -191,7 +191,7 @@ const dynamicImport = <P extends object = Record<string, never>>(
         }
       }, 5_000)
 
-      const Original = module.default
+      const Original = importedModule.default
       const OriginalComponent = Original as ComponentType<Record<string, unknown>>
 
       const WrappedComponent = (props: P) => {

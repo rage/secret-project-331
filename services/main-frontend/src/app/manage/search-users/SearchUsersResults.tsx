@@ -45,7 +45,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
 
   const [data, userIdsFromFuzzyMatch] = useMemo(() => {
     let res: UserDetail[] = []
-    let userIdsFromFuzzyMatch: string[] = []
+    let fuzzyMatchUserIds: string[] = []
     if (searchByEmailQuery.data) {
       res = res.concat(searchByEmailQuery.data)
     }
@@ -55,11 +55,11 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
     }
     if (searchFuzzyMatchQuery.data) {
       const newSearchResults = differenceBy(searchFuzzyMatchQuery.data, res, "user_id")
-      userIdsFromFuzzyMatch = newSearchResults.map((user_details) => user_details.user_id)
+      fuzzyMatchUserIds = newSearchResults.map((user_details) => user_details.user_id)
       res = res.concat(newSearchResults)
     }
 
-    return [res, new Set(userIdsFromFuzzyMatch)]
+    return [res, new Set(fuzzyMatchUserIds)]
   }, [searchByEmailQuery.data, searchByOtherDetailsQuery.data, searchFuzzyMatchQuery.data])
 
   const columnHelper = createColumnHelper<UserDetail>()

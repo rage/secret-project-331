@@ -32,7 +32,7 @@ export const escapeUrlForCss = (url: string | undefined): string => {
     const colonIndex = trimmedUrl.indexOf(":")
     const slashIndex = trimmedUrl.indexOf("/")
     if (colonIndex !== -1 && (slashIndex === -1 || colonIndex < slashIndex)) {
-      const scheme = trimmedUrl.substring(0, colonIndex + 1).toLowerCase()
+      const scheme = trimmedUrl.slice(0, colonIndex + 1).toLowerCase()
       // Only allow safe schemes
       if (!["http:", "https:"].includes(scheme)) {
         console.error(`Blocked dangerous URL scheme in CSS: ${scheme} from URL: ${trimmedUrl}`)
@@ -43,6 +43,7 @@ export const escapeUrlForCss = (url: string | undefined): string => {
     // Handle protocol-relative URLs (//example.com)
     if (trimmedUrl.startsWith("//")) {
       // Validate the URL structure by parsing with https, but return as protocol-relative
+      // oxlint-disable-next-line no-new -- constructed only to validate; the URL throws if invalid
       new URL("https:" + trimmedUrl) // This will throw if invalid
       console.warn(`Using protocol-relative URL in CSS: ${trimmedUrl}`)
       return trimmedUrl

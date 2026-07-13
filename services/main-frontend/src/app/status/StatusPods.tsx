@@ -201,6 +201,7 @@ const StatusPods: React.FC = () => {
               <select
                 id="tail-lines-select"
                 value={tail}
+                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat parsing is intentional; Number() would change behavior
                 onChange={(e) => setTail(parseInt(e.currentTarget.value, 10))}
                 className={css`
                   padding: 0.5rem;
@@ -233,7 +234,7 @@ const StatusPods: React.FC = () => {
               `}
             >
               <QueryResult query={logsQuery} themeMode="dark">
-                {(logs) => <>{logs && <div>{parseAnsiToReact(logs)}</div>}</>}
+                {(logs) => logs && <div>{parseAnsiToReact(logs)}</div>}
               </QueryResult>
             </div>
           </div>

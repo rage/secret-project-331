@@ -218,9 +218,8 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
   )
 }
 
-export const AddQuizItem: React.FC<AddQuizItemProps> = ({ quiz }) => (
-  <>{quiz.items.length > 0 ? <QuizDuplicationMenu quiz={quiz} /> : <QuizItemSelection />}</>
-)
+export const AddQuizItem: React.FC<AddQuizItemProps> = ({ quiz }) =>
+  quiz.items.length > 0 ? <QuizDuplicationMenu quiz={quiz} /> : <QuizItemSelection />
 
 const ItemsTitleContainer = styled.div`
   display: flex;

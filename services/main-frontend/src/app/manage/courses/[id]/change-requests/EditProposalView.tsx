@@ -239,63 +239,59 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
     if (block.type === "edited-block-still-exists") {
       diffChanges = diffWords(block.original_text, block.changed_text ?? "")
     }
-    return (
-      <>
-        {isEditedBlockStillExistsData(block) && diffChanges !== null ? (
+    return isEditedBlockStillExistsData(block) && diffChanges !== null ? (
+      <div>
+        {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
+        <div>
+          <HideTextInSystemTests
+            text={t("block-id", { id: block.block_id })}
+            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
+          />
+        </div>
+        <div>
+          {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
+        </div>
+        <div>
+          {t("label-original-text")}
+          <ImportantText>
+            <DiffFormatter dontShowAdded changes={diffChanges} />
+          </ImportantText>
+        </div>
+        {!isProposedTextRedundant(block) && (
           <div>
-            {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
+            <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
             <div>
-              <HideTextInSystemTests
-                text={t("block-id", { id: block.block_id })}
-                testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
-              />
-            </div>
-            <div>
-              {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
-            </div>
-            <div>
-              {t("label-original-text")}
+              {t("label-proposed-text")}
               <ImportantText>
-                <DiffFormatter dontShowAdded changes={diffChanges} />
+                <DiffFormatter dontShowRemoved changes={diffChanges} />
               </ImportantText>
             </div>
-            {!isProposedTextRedundant(block) && (
-              <div>
-                <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
-                <div>
-                  {t("label-proposed-text")}
-                  <ImportantText>
-                    <DiffFormatter dontShowRemoved changes={diffChanges} />
-                  </ImportantText>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div>
-            {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
-            <div>
-              <HideTextInSystemTests
-                text={t("block-id", { id: block.block_id })}
-                testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
-              />
-            </div>
-            <div>
-              {t("label-original-text")}
-              <ImportantText>{block.original_text}</ImportantText>
-            </div>
-            {!isProposedTextRedundant(block) && (
-              <div>
-                <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
-                <div>
-                  {t("label-proposed-text")}
-                  <ImportantText>{block.changed_text} </ImportantText>
-                </div>
-              </div>
-            )}
           </div>
         )}
-      </>
+      </div>
+    ) : (
+      <div>
+        {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
+        <div>
+          <HideTextInSystemTests
+            text={t("block-id", { id: block.block_id })}
+            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
+          />
+        </div>
+        <div>
+          {t("label-original-text")}
+          <ImportantText>{block.original_text}</ImportantText>
+        </div>
+        {!isProposedTextRedundant(block) && (
+          <div>
+            <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
+            <div>
+              {t("label-proposed-text")}
+              <ImportantText>{block.changed_text} </ImportantText>
+            </div>
+          </div>
+        )}
+      </div>
     )
   }
 

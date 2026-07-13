@@ -40,7 +40,7 @@ export function parseItemsRequest<T>(body: unknown): CsvExportRequest<T> {
  * endpoints reject malformed specs, while the iframe view tolerates them.
  */
 export function parsePrivateSpecStrict(value: unknown): Alternative[] {
-  if (!Array.isArray(value) || !value.every(isAlternative)) {
+  if (!Array.isArray(value) || !value.every((alternative) => isAlternative(alternative))) {
     throw new BadRequestError("Invalid private_spec: expected an array of alternatives")
   }
   return value

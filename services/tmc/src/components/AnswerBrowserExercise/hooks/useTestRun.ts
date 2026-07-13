@@ -51,7 +51,9 @@ export function useTestRun(publicSpec: PublicSpec) {
           workerRef.current = worker
 
           const timeout = setTimeout(() => {
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
             worker.onmessage = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
             worker.onerror = null
             worker.terminate()
             if (workerRef.current === worker) {
@@ -60,15 +62,21 @@ export function useTestRun(publicSpec: PublicSpec) {
             reject(new Error("Test run timed out"))
           }, TEST_TIMEOUT_MS)
 
+          // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
           worker.onmessage = (e: MessageEvent<TestWorkerResponse>) => {
             clearTimeout(timeout)
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
             worker.onmessage = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
             worker.onerror = null
             resolve(e.data)
           }
+          // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
           worker.onerror = (ev: ErrorEvent) => {
             clearTimeout(timeout)
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
             worker.onmessage = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
             worker.onerror = null
             worker.terminate()
             if (workerRef.current === worker) {
@@ -80,6 +88,7 @@ export function useTestRun(publicSpec: PublicSpec) {
                 : "Worker error"
             reject(new Error(message))
           }
+          // oxlint-disable-next-line unicorn/require-post-message-target-origin -- Worker/MessagePort postMessage has no targetOrigin parameter
           worker.postMessage({ script: fullScript })
         })
 

@@ -60,7 +60,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
     },
   )
   if (!selected) {
-    return <></>
+    return null
   }
 
   return (

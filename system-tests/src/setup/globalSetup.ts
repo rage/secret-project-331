@@ -14,17 +14,18 @@ async function globalSetup(config: FullConfig): Promise<void> {
   // After this global.setup.spec.ts is ran
 }
 
-async function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {
-  if (config.updateSnapshots === "all" || !process.env.CI) {
-    if (which.sync("oxipng", { nothrow: true }) === null) {
-      throw new Error(
-        "oxipng is not installed or is not in the $PATH. Please install it (see https://github.com/shssoichiro/oxipng).",
-      )
-    }
+function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {
+  if (
+    (config.updateSnapshots === "all" || !process.env.CI) &&
+    which.sync("oxipng", { nothrow: true }) === null
+  ) {
+    throw new Error(
+      "oxipng is not installed or is not in the $PATH. Please install it (see https://github.com/shssoichiro/oxipng).",
+    )
   }
 }
 
-async function makeSurePnpmInstallHasBeenRan() {
+function makeSurePnpmInstallHasBeenRan() {
   // Ensure pnpm install has been run after Playwright version changes.
   const pnpmLockPath = path.join(__dirname, "../../pnpm-lock.yaml")
   const pnpmLockContent = fs.readFileSync(pnpmLockPath, "utf8")
@@ -67,7 +68,7 @@ async function makeSurePnpmInstallHasBeenRan() {
 }
 
 // Download the langs CLI binary for the TMC exercise service to work.
-async function downloadTmcLangsCli() {
+function downloadTmcLangsCli() {
   try {
     console.time("tmc-langs-setup")
     const downloadTmcLangsPath = path.join(__dirname, "../../../bin/tmc-langs-setup")
@@ -88,7 +89,7 @@ async function downloadTmcLangsCli() {
 }
 
 // The setup system test db called by playwright to make the playwright vscode extension to work.
-async function setupSystemTestDb() {
+function setupSystemTestDb() {
   try {
     console.time("system-test-db-setup")
     const setupSystemTestDbScriptPath = path.join(__dirname, "../../../bin/setup-system-test-db")

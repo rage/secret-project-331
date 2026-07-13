@@ -89,7 +89,6 @@ function resolveOtpSlotSizeCss(fieldSize: FieldSize) {
       return otpSlotSmCss
     case "lg":
       return otpSlotLgCss
-    case "md":
     default:
       return otpSlotMdCss
   }
@@ -251,9 +250,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
           tabIndex={-1}
           autoComplete={autoComplete ?? "one-time-code"}
           aria-describedby={describedBy}
-          onChange={() => {
-            return
-          }}
+          onChange={() => {}}
         />
       </VisuallyHidden>
 
@@ -261,6 +258,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
         {...groupFieldProps}
         ref={slotsContainerRef}
         className={otpSlotsCss}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- container is a styled div whose ref is typed HTMLDivElement; a native grouping tag would change the element and behavior
         role="group"
         aria-labelledby={groupAriaLabelledBy || undefined}
         aria-disabled={isDisabled ? "true" : undefined}

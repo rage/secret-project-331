@@ -5,8 +5,11 @@ import type { UpdateCertificateConfigurationData } from "@/generated/api/types.g
 const readBlobAsText = async (blob: Blob): Promise<string> =>
   await new Promise((resolve, reject) => {
     const reader = new FileReader()
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
     reader.onload = () => resolve(String(reader.result))
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
     reader.onerror = () => reject(reader.error)
+    // oxlint-disable-next-line unicorn/prefer-blob-reading-methods -- FileReader-based blob reading is intentional in this test
     reader.readAsText(blob)
   })
 

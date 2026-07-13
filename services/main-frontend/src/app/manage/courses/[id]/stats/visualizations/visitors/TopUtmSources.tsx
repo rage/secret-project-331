@@ -44,7 +44,7 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
       (acc, utm_source) => {
         const totalCount = query.data
           .filter((item) => item.utm_source === utm_source)
-          .reduce((acc, item) => acc + item.num_visitors, 0)
+          .reduce((sum, item) => sum + item.num_visitors, 0)
         // oxlint-disable-next-line i18next/no-literal-string
         return { ...acc, [utm_source ?? "null"]: totalCount }
       },

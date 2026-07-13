@@ -37,9 +37,9 @@ const DateTimeLocal = forwardRef<HTMLInputElement, TimePickerProps>(
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (onChangeByValue) {
         const {
-          target: { value },
+          target: { value: targetValue },
         } = event
-        onChangeByValue(value)
+        onChangeByValue(targetValue)
       }
       if (onChange) {
         onChange(event)

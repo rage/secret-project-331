@@ -127,12 +127,14 @@ const MultipleChoiceSubmission: React.FC<
           const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
             (f) => f.option_id === qo.id,
           )
-          if (feedbackForThisOption && feedbackForThisOption.this_option_was_correct !== null) {
-            // if we have received feedback for this option, use that
-            // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
-            if (!correctAnswer) {
-              correctAnswer = feedbackForThisOption.this_option_was_correct
-            }
+          // if we have received feedback for this option, use that
+          // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
+          if (
+            feedbackForThisOption &&
+            feedbackForThisOption.this_option_was_correct !== null &&
+            !correctAnswer
+          ) {
+            correctAnswer = feedbackForThisOption.this_option_was_correct
           }
           let feedBackForOption: string | null = null
           if (answerSelectedThisOption) {
@@ -143,9 +145,8 @@ const MultipleChoiceSubmission: React.FC<
             }
           }
           return (
-            <div>
+            <div key={qo.id}>
               <div
-                key={qo.id}
                 className={cx(
                   gradingOption,
                   answerSelectedThisOption && gradingOptionSelected,

@@ -16,13 +16,16 @@ import type { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTy
 import type { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
 
 const convertIntDataForScale = (quizItemAnswer: OldQuizItemAnswer) => {
-  if (!quizItemAnswer.intData) {
-    if (quizItemAnswer.optionAnswers && quizItemAnswer.optionAnswers.length > 0) {
-      try {
-        return Number.parseInt(quizItemAnswer.optionAnswers[0], 10)
-      } catch {
-        console.error("Scale does not have int data: ", quizItemAnswer)
-      }
+  if (
+    !quizItemAnswer.intData &&
+    quizItemAnswer.optionAnswers &&
+    quizItemAnswer.optionAnswers.length > 0
+  ) {
+    try {
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+      return Number.parseInt(quizItemAnswer.optionAnswers[0], 10)
+    } catch {
+      console.error("Scale does not have int data: ", quizItemAnswer)
     }
   }
   return quizItemAnswer.intData

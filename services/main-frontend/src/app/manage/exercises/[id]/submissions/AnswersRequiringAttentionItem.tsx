@@ -59,7 +59,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
     },
   )
   const handleGradingDecisionSubmit = useCallback(
-    async (decision: NewTeacherGradingDecision) => {
+    (decision: NewTeacherGradingDecision) => {
       submitMutation.mutate({
         body: decision,
       })

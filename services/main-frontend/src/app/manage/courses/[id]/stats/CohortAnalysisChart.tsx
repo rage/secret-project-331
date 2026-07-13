@@ -130,11 +130,11 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
         if (Array.isArray(params)) {
           throw new TypeError("Tooltip params is an array")
         }
-        const data = params.data as [number, number, number, number]
-        const cohortDate = cohorts[data[1]]
-        const offset = data[0]
-        const percentRetention = data[2].toFixed(1)
-        const activeUsers = data[3]
+        const tooltipData = params.data as [number, number, number, number]
+        const cohortDate = cohorts[tooltipData[1]]
+        const offset = tooltipData[0]
+        const percentRetention = tooltipData[2].toFixed(1)
+        const activeUsers = tooltipData[3]
         const formattedDate = format(
           new Date(cohortDate),
           period === MONTHLY_PERIOD ? MONTHLY_DATE_FORMAT : DAILY_DATE_FORMAT,

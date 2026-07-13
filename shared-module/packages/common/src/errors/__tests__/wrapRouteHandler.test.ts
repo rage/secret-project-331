@@ -32,6 +32,7 @@ describe("wrapRouteHandler", () => {
     const fetchMock = jest.fn(() => Promise.resolve({ ok: true } as Response))
     const error = new Error("route exploded")
     const handler = wrapRouteHandler(
+      // oxlint-disable-next-line require-await -- async so the handler rejects rather than throws synchronously
       async (_request: { method: string; url: string }) => {
         throw error
       },
@@ -52,7 +53,7 @@ describe("wrapRouteHandler", () => {
     ).rejects.toBe(error)
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit | undefined]
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit | undefined]
     expect(url).toBe("/api/v0/errors")
     expect(init?.method).toBe("POST")
     expect(init?.headers).toEqual({

@@ -48,6 +48,7 @@ const LanguageDisplay: React.FC<{ langCode: string }> = ({ langCode }) => {
         margin-top: 3px;
       `}
     >
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=img labels the wrapped SVG; <img> is void and cannot contain children */}
       <span role="img" aria-label={t("language-icon")}>
         <LanguageTranslation size={18} aria-hidden="true" />
       </span>

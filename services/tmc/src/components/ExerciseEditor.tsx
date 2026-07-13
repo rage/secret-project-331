@@ -41,10 +41,10 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
                 variant="primary"
                 size="medium"
                 onClick={() =>
-                  setState((state) => {
-                    if (state?.view_type === "exercise-editor") {
+                  setState((prev) => {
+                    if (prev?.view_type === "exercise-editor") {
                       return {
-                        ...state,
+                        ...prev,
                         private_spec: {
                           type: "editor",
                           repository_exercise: re,

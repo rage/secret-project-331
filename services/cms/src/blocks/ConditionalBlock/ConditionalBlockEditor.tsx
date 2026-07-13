@@ -82,11 +82,11 @@ const ConditionalBlockEditor: React.FC<
   const courseModules = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
         getCmsCourseModulesOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
           },
         }),
     }),
@@ -95,11 +95,11 @@ const ConditionalBlockEditor: React.FC<
   const courseInstances = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
         getCmsCourseInstancesOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
           },
         }),
     }),

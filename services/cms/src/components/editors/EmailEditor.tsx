@@ -202,7 +202,8 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
         mediaUpload={
           courseId
             ? mediaUploadBuilder({ courseId: courseId })
-            : async (props: MediaUploadProps) => {
+            : // oxlint-disable-next-line eslint/require-await -- kept async to match the mediaUpload prop's Promise-returning type
+              async (props: MediaUploadProps) => {
                 // oxlint-disable-next-line i18next/no-literal-string
                 const errorMessage = "Media uploads are not available for global email templates"
                 console.warn(errorMessage)

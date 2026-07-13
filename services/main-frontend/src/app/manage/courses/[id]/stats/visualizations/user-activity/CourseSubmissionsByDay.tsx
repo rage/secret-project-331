@@ -39,6 +39,7 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
 
     const eChartsData = groupBy(query.data, (o) => {
       const dateString = o.date as string | null
+      // oxlint-disable-next-line unicorn/prefer-string-slice -- substring clamps a negative indexOf(-1) end to 0; slice would keep all-but-last char instead
       const year = dateString?.substring(0, dateString.indexOf("-"))
       return year
     })

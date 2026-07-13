@@ -94,6 +94,7 @@ const Menu: React.FC<React.PropsWithChildren<MenuProps>> = ({ children, variant 
         className={cx(MenuIcon)}
         onClick={onClickHandler}
         onKeyDown={(e) => runCallbackIfEnterPressed(e, onClickHandler)}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div toggle; a <button> would change default styling and layout
         role="button"
         aria-label={t("open-menu")}
         tabIndex={0}

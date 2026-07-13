@@ -61,6 +61,7 @@ export function triggerIntersection(
   opts: Partial<IntersectionObserverEntry> & {
     isIntersecting: boolean
     intersectionRatio?: number
+    // oxlint-disable-next-line unicorn/no-object-as-default-parameter -- default applies only when opts is fully omitted; type requires isIntersecting so partial-merge confusion cannot arise
   } = {
     isIntersecting: true,
     intersectionRatio: 1,

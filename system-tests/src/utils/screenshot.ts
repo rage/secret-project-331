@@ -260,13 +260,13 @@ async function snapshotWithViewPort({
 
   if (scrollToYCoordinate !== undefined) {
     if (typeof scrollToYCoordinate === "number") {
-      await page.evaluate(async (coord) => {
+      await page.evaluate((coord) => {
         window.scrollTo(0, coord)
       }, scrollToYCoordinate)
       // 100ms was not enough at the time of writing this
       await page.waitForTimeout(200)
     } else {
-      await page.evaluate(async (coord) => {
+      await page.evaluate((coord) => {
         window.scrollTo(0, coord)
       }, scrollToYCoordinate[viewPortName])
       // 100ms was not enough at the time of writing this
@@ -374,8 +374,8 @@ export async function waitToBeStable(waitForThisToBeStable: Locator[]): Promise<
   }
 }
 
-async function waitToBeGone(waitToBeGone: Locator[]): Promise<void> {
-  for (const locator of waitToBeGone) {
+async function waitToBeGone(locators: Locator[]): Promise<void> {
+  for (const locator of locators) {
     await expect(locator).toHaveCount(0)
   }
 }
@@ -419,6 +419,7 @@ async function scrollToSavedImageCoordinate(
             return document.documentElement.scrollHeight - window.innerHeight
           })
           console.info(`Maximum possible y coordinate is ${maximumPossibleCoordinate}`)
+          // oxlint-disable-next-line max-depth -- deeply nested retry branch; flattening would risk changing scroll-retry behavior
           if (savedYCoordinate > maximumPossibleCoordinate) {
             console.error(
               `Saved y coordinate ${savedYCoordinate} is greater than the maximum possible y coordinate ${maximumPossibleCoordinate}`,

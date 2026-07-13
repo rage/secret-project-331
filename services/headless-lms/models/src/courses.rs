@@ -389,6 +389,7 @@ WHERE c.id = $1 AND c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_num
     Ok(course)
 }
 
+// Add returning?
 pub async fn update_course_after_auditing(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -400,10 +401,17 @@ pub async fn update_course_after_auditing(
         CourseToAuditUpdate,
         r#"
 UPDATE courses
-SET description = $2 WHERE id = $1
+SET description = $2,
+  closed_at = $3,
+  closed_additional_message = $4,
+  closed_course_successor_id = $5
+WHERE id = $1
   AND deleted_at IS NULL"#,
         course_id,
         course_update.description,
+        course_update.closed_at,
+        course_update.closed_additional_message,
+        course_update.closed_course_successor_id
     )
     .execute(&mut *tx)
     .await?;

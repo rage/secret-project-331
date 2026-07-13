@@ -1,106 +1,13 @@
 import { css } from "@emotion/css"
 import { Filter } from "@vectopus/atlas-icons-react"
 
-import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-export const STAGE_ANALYSIS: CourseDesignerStage = "Analysis"
-export const FIELD_CREDITS = "credits"
-export const FIELD_LANGUAGE = "language"
-export const FIELD_COURSE_TYPE = "course_type"
-export const INPUT_MODE_DECIMAL = "decimal"
-export const MAILTO_PREFIX = "mailto:"
-export const EXTERNAL_LINK_TARGET = "_blank"
-export const EXTERNAL_LINK_REL = "noopener noreferrer"
-export const OPEN_PERIOD_I = "open_period_i"
-export const OPEN_PERIOD_II = "open_period_ii"
-export const OPEN_PERIOD_III = "open_period_iii"
-export const OPEN_PERIOD_IV = "open_period_iv"
-export const FIELD_MODE_SYNCHRONOUS = "mode_synchronous"
-export const FIELD_MODE_ASYNCHRONOUS = "mode_asynchronous"
-export const INTERSECTION_ROOT_MARGIN = "-40% 0px -45% 0px"
-export const SCROLL_BEHAVIOR = "smooth"
-export const SCROLL_BLOCK = "start"
-export const AUTOSAVE_DEBOUNCE_MS = 1500
-export const ROWS_STANDARD = 3
-export const ROWS_LONG = 5
-export const ROWS_SHORT = 2
 export const ICON_SIZE_SECTION = 14
 export const ICON_SIZE_SECTION_BADGE = 18
 
 export const CourseFilterIcon = Filter
-
-export const formRootStyles = css`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`
-
-export const stickyToolbarStyles = css`
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  padding: 0.9rem 1rem 1rem;
-  margin: 0 0 0.5rem 0;
-  background: ${baseTheme.colors.clear[100]};
-  border-bottom: 1px solid ${baseTheme.colors.gray[100]};
-
-  ${respondToOrLarger.md} {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-
-  ${respondToOrLarger.lg} {
-    padding-left: 1.75rem;
-    padding-right: 1.75rem;
-  }
-`
-
-export const toolbarRowStyles = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem 2rem;
-  width: 100%;
-`
-
-export const stickyNavStyles = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1.1rem;
-  flex: 1 1 auto;
-  min-width: 0;
-`
-
-export const sectionNavLinkStyles = css`
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: ${baseTheme.colors.gray[700]};
-  text-decoration: none;
-  padding: 0.35rem 0.1rem;
-  border-bottom: 2px solid transparent;
-
-  &:hover {
-    color: ${baseTheme.colors.gray[900]};
-    border-bottom-color: ${baseTheme.colors.gray[300]};
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${baseTheme.colors.green[500]};
-    outline-offset: 2px;
-    border-radius: 0.2rem;
-  }
-`
-
-export const sectionNavLinkActiveStyles = css`
-  font-weight: 600;
-  color: ${baseTheme.colors.gray[900]};
-  border-bottom-color: ${baseTheme.colors.green[600]};
-`
 
 export const sectionCardStyles = css`
   display: flex;
@@ -111,27 +18,6 @@ export const sectionCardStyles = css`
   border: 1px solid ${baseTheme.colors.gray[200]};
   background: ${baseTheme.colors.gray[50]};
 `
-
-export const sectionAccentByIndex = [
-  css`
-    border-left: 4px solid ${baseTheme.colors.green[600]};
-  `,
-  css`
-    border-left: 4px solid ${baseTheme.colors.green[500]};
-  `,
-  css`
-    border-left: 4px solid ${baseTheme.colors.blue[600]};
-  `,
-  css`
-    border-left: 4px solid ${baseTheme.colors.blue[500]};
-  `,
-  css`
-    border-left: 4px solid ${baseTheme.colors.purple[600]};
-  `,
-  css`
-    border-left: 4px solid ${baseTheme.colors.green[800]};
-  `,
-]
 
 export const sectionHeaderRowStyles = css`
   display: flex;
@@ -208,98 +94,6 @@ export const subsectionTitleStyles = css`
   margin: 0.25rem 0 0 0;
   padding-bottom: 0.35rem;
   border-bottom: 1px solid ${baseTheme.colors.gray[200]};
-`
-
-export const staticTextStyles = css`
-  font-size: 0.9rem;
-  color: ${baseTheme.colors.gray[600]};
-  line-height: 1.55;
-  margin: 0;
-  white-space: pre-line;
-`
-
-export const checkboxGroupStyles = css`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2, 0.5rem);
-`
-
-export const checkboxRowStyles = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4, 1rem);
-  margin-top: 1rem;
-`
-
-export const openPeriodAllRowStyles = css`
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2, 0.5rem);
-  cursor: pointer;
-`
-
-export const contributorsListStyles = css`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`
-
-export const contributorCardStyles = css`
-  border-radius: 0.5rem;
-  border: 1px solid ${baseTheme.colors.gray[200]};
-  background: ${baseTheme.colors.clear[50]};
-  padding: 1rem 1rem 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-`
-
-export const contributorCardLeadStyles = css`
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  min-width: 0;
-`
-
-export const contributorCardTitleStyles = css`
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: ${baseTheme.colors.gray[900]};
-  margin: 0 0 0.35rem 0;
-  line-height: 1.35;
-`
-
-export const contributorDutiesStyles = css`
-  font-size: 0.85rem;
-  color: ${baseTheme.colors.gray[600]};
-  margin: 0;
-  line-height: 1.5;
-`
-
-export const roleBlockStyles = css`
-  margin: 0;
-  padding: 0;
-  border: 0;
-`
-
-export const twoColGridStyles = css`
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: 1fr;
-
-  ${respondToOrLarger.md} {
-    grid-template-columns: 1fr 1fr;
-  }
-`
-
-export const modeAndPeriodsRowStyles = css`
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: 1fr;
-
-  ${respondToOrLarger.lg} {
-    grid-template-columns: 1fr 1fr;
-  }
 `
 
 export const uhCalloutStyles = css`

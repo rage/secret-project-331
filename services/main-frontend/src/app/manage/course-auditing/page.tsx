@@ -7,7 +7,6 @@ import { parseISO } from "date-fns"
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-
 import CourseAuditingCard from "./CourseAuditingCard"
 import {
   CourseFilterIcon,
@@ -52,36 +51,35 @@ const CourseAuditing = () => {
 
   const [expanded, setExpanded] = useState<boolean>(false)
 
-  const filterProps = watch()
+  const [searchCourse, emptyUhCourseCode, closed] = watch([
+    "search_course",
+    "empty_uh_course_code",
+    "closed",
+  ])
 
   const filteredCourses = useMemo(
     () =>
       [...(courseData ?? [])]
         .filter((course: CourseToAudit) => {
           if (
-            !course.name
-              .toLocaleLowerCase()
-              .includes(filterProps.search_course?.toLocaleLowerCase()) &&
-            !course.description
-              ?.toLocaleLowerCase()
-              .includes(filterProps.search_course?.toLocaleLowerCase())
+            !course.name.toLocaleLowerCase().includes(searchCourse?.toLocaleLowerCase()) &&
+            !course.description?.toLocaleLowerCase().includes(searchCourse?.toLocaleLowerCase())
           ) {
             return false
           }
-          if (filterProps.empty_uh_course_code && course.uh_course_code !== null) {
+          if (emptyUhCourseCode && course.uh_course_code !== null) {
             return false
           }
           if (
-            filterProps.closed && course.closed_at != null
-              ? parseISO(course.closed_at).getTime() < Date.now()
-              : false
+            closed &&
+            !(course.closed_at != null ? parseISO(course.closed_at).getTime() < Date.now() : false)
           ) {
             return false
           }
           return true
         })
         .sort((a, b) => a.name.localeCompare(b.name)),
-    [courseData, filterProps],
+    [courseData, searchCourse, emptyUhCourseCode, closed],
   )
 
   return (

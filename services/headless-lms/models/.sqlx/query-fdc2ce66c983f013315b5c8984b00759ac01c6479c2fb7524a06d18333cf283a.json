@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE courses\nSET description = $2,\n  closed_at = $3,\n  closed_additional_message = $4,\n  closed_course_successor_id = $5\nWHERE id = $1\n  AND deleted_at IS NULL",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fdc2ce66c983f013315b5c8984b00759ac01c6479c2fb7524a06d18333cf283a"
+}

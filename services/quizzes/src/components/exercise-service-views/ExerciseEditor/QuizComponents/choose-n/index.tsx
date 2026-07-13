@@ -115,8 +115,8 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               return
             }
             try {
-              draft.n = parseInt(value)
-            } catch (_e) {
+              draft.n = parseInt(value, 10)
+            } catch {
               /* NOP */
             }
           })
@@ -147,7 +147,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                   return
                 }
                 draft.options = draft.options.map((opt) => {
-                  if (opt.id == option.id) {
+                  if (opt.id === option.id) {
                     opt.title = title
                     opt.correct = correct
                     opt.messageAfterSubmissionWhenSelected =

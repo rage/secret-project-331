@@ -238,13 +238,13 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
     const ws = websocket
     ws.onmessage = (ev) => {
       const msg = parsePlaygroundViewsMessage(JSON.parse(ev.data))
-      if (msg.tag == "TimedOut") {
+      if (msg.tag === "TimedOut") {
         console.error("websocket timed out")
-      } else if (msg.tag == "Registered") {
+      } else if (msg.tag === "Registered") {
         console.info("Registered websocket", msg.data)
         setWebsocketId(msg.data.websocket_id)
         setPlaygroundGradingCallbackClaim(msg.data.playground_grading_callback_claim)
-      } else if (msg.tag == "ExerciseTaskGradingResult") {
+      } else if (msg.tag === "ExerciseTaskGradingResult") {
         submitAnswerMutation.mutate({ type: "fromWebsocket", data: msg.data })
       } else {
         throw new Error(`Unexpected websocket message: ${ev}`)

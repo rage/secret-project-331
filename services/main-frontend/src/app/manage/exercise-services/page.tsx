@@ -89,7 +89,7 @@ const ExerciseServicePage: React.FC = () => {
           ...exerciseService,
           [key]: Number(value),
         })
-      } catch (_e) {
+      } catch {
         // NOP
       }
     } else {

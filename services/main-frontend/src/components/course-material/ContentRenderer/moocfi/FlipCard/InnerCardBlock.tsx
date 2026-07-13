@@ -29,7 +29,7 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
   props,
 ) => {
   // Checks if the inner card block is an image to render it correctly
-  if (isBlockImage(props.data) && props.data.innerBlocks.length == 1) {
+  if (isBlockImage(props.data) && props.data.innerBlocks.length === 1) {
     const imageBlock = props.data.innerBlocks[0] as Block<FlipCardAttributes>
     const imageLink = imageBlock.attributes.href
     const altText = imageBlock.attributes.isDecorative ? "" : imageBlock.attributes.alt

@@ -174,7 +174,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                   return
                 }
                 draft.options = draft.options.map((opt) => {
-                  if (opt.id == option.id) {
+                  if (opt.id === option.id) {
                     opt.title = title
                     opt.correct = correct
                     opt.messageAfterSubmissionWhenSelected =
@@ -264,7 +264,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                     draft.optionDisplayDirection = "vertical"
                   })
                 }}
-                checked={selected.optionDisplayDirection == "vertical"}
+                checked={selected.optionDisplayDirection === "vertical"}
                 label={t("vertical")}
               />
               <RadioButton
@@ -277,7 +277,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                     draft.optionDisplayDirection = "horizontal"
                   })
                 }}
-                checked={selected.optionDisplayDirection == "horizontal"}
+                checked={selected.optionDisplayDirection === "horizontal"}
                 label={t("horizontal")}
               />
             </MultipleChoiceLayoutChoiceContainer>
@@ -373,15 +373,15 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 ${!selected.allowSelectingMultipleOptions && "opacity: 0.5;"}
               `}
             >
-              {selected.multipleChoiceMultipleOptionsGradingPolicy == "default" &&
+              {selected.multipleChoiceMultipleOptionsGradingPolicy === "default" &&
                 t("multiple-choice-grading-default-description")}
-              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ===
                 "points-off-incorrect-options" &&
                 t("multiple-choice-grading-points-off-incorrect-options-description")}
-              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ===
                 "points-off-unselected-options" &&
                 t("multiple-choice-grading-points-off-unselected-options-description")}
-              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ===
                 "some-correct-none-incorrect" &&
                 t("multiple-choice-grading-some-correct-none-incorrect-description")}
 

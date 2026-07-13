@@ -186,11 +186,11 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
 }
 
 function sizeStringToSizepx(block: Block<FlipCardAttributes>) {
-  if (block.attributes.size == "xl") {
+  if (block.attributes.size === "xl") {
     return 500
-  } else if (block.attributes.size == "m") {
+  } else if (block.attributes.size === "m") {
     return 400
-  } else if (block.attributes.size == "s") {
+  } else if (block.attributes.size === "s") {
     return 300
   }
   return 400

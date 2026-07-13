@@ -85,11 +85,11 @@ const BackgroundAndColorCustomizer: React.FC<
   React.PropsWithChildren<BackgroundAndColorCustomizerProps>
 > = ({ attributes, setAttributes, noAlign }) => {
   const { t } = useTranslation()
-  const alignCenter = attributes.alignCenter == undefined || attributes.alignCenter
+  const alignCenter = attributes.alignCenter === undefined || attributes.alignCenter
   const useDefaultTextForLabel =
-    attributes.useDefaultTextForLabel == undefined || attributes.useDefaultTextForLabel
+    attributes.useDefaultTextForLabel === undefined || attributes.useDefaultTextForLabel
   const partiallyTransparent =
-    attributes.partiallyTransparent == undefined || attributes.partiallyTransparent
+    attributes.partiallyTransparent === undefined || attributes.partiallyTransparent
 
   // Check if mobile background image is missing but other background images are set
   const hasOtherBackgroundImages =

@@ -5,7 +5,7 @@ const validURL = (text: string | null): boolean => {
   try {
     new URL(text)
     return true
-  } catch (_e) {
+  } catch {
     return false
   }
 }
@@ -15,9 +15,9 @@ const validNumber = (text: string | number): boolean => {
     return true
   }
   try {
-    parseInt(text)
+    parseInt(text, 10)
     return true
-  } catch (_e) {
+  } catch {
     return false
   }
 }

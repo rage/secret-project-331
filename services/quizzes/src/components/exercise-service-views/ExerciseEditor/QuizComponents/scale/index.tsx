@@ -61,7 +61,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
                 if (!draft) {
                   return
                 }
-                draft.minValue = parseInt(minimum)
+                draft.minValue = parseInt(minimum, 10)
               })
             }}
           />
@@ -77,7 +77,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
                 if (!draft) {
                   return
                 }
-                draft.maxValue = parseInt(maximum)
+                draft.maxValue = parseInt(maximum, 10)
               })
             }}
           />

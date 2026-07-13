@@ -44,7 +44,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
     () =>
       currentExerciseTaskAssignment?.every(
         (paragraph) =>
-          paragraph.name === "core/paragraph" && paragraph.attributes?.content.trim() == "",
+          paragraph.name === "core/paragraph" && paragraph.attributes?.content.trim() === "",
       ),
     [currentExerciseTaskAssignment],
   )

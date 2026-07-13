@@ -198,7 +198,7 @@ const generateComponents = (
 
   if (totalPages <= CAPACITY + 2) {
     for (let idx = 1; idx <= totalPages; idx++) {
-      if (idx == page) {
+      if (idx === page) {
         components.push(
           <SelectedCircle key={idx} aria-label={t("current-page-x", { number: idx })}>
             <CircleText>{idx}</CircleText>
@@ -239,7 +239,7 @@ const generateComponents = (
 
   if (page < CAPACITY) {
     for (let idx = 1; idx <= CAPACITY; idx++) {
-      if (idx == page) {
+      if (idx === page) {
         components.push(
           <SelectedCircle key={idx} aria-label={t("current-page-x", { number: idx })}>
             <CircleText>{idx}</CircleText>
@@ -327,7 +327,7 @@ const generateComponents = (
       </HorizontalDots>,
     )
     for (let idx = totalPages - CAPACITY + 1; idx <= totalPages; idx++) {
-      if (idx == page) {
+      if (idx === page) {
         components.push(
           <SelectedCircle key={idx} aria-label={t("current-page-x", { number: idx })}>
             <CircleText>{idx}</CircleText>

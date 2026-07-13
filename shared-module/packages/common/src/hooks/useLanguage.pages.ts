@@ -13,7 +13,7 @@ const CAN_ACCESS_COOKIES = detectAccessToCookies()
 export function getDir(language: string) {
   try {
     return dir(language)
-  } catch (_e) {
+  } catch {
     return "ltr"
   }
 }
@@ -97,7 +97,7 @@ function detectAccessToCookies() {
   try {
     const cookie = document.cookie
     return cookie !== "wat"
-  } catch (_e) {
+  } catch {
     return false
   }
 }

@@ -158,7 +158,7 @@ export function areCitationsValid(references: string): boolean {
     const cite = new Cite(references)
     cite.get({ type: "string", style: "bibtex", lang: "en-US" })
     return true
-  } catch (_error: unknown) {
+  } catch {
     return false
   }
 }

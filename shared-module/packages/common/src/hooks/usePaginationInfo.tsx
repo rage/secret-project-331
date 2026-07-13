@@ -24,7 +24,7 @@ function usePaginationInfo(defaultLimit: number = DEFAULT_LIMIT): PaginationInfo
     let initialPage: number
     const pageParam = searchParams?.get("page")
     if (pageParam) {
-      initialPage = parseInt(pageParam)
+      initialPage = parseInt(pageParam, 10)
     } else {
       initialPage = DEFAULT_PAGE
     }
@@ -37,7 +37,7 @@ function usePaginationInfo(defaultLimit: number = DEFAULT_LIMIT): PaginationInfo
     let initialLimit: number
     const limitParam = searchParams?.get("limit")
     if (limitParam) {
-      initialLimit = parseInt(limitParam)
+      initialLimit = parseInt(limitParam, 10)
     } else {
       initialLimit = defaultLimit
     }

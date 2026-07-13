@@ -98,7 +98,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
                   i++
                 }
                 draft.items = draft.items.map((item) => {
-                  if (item.order == currentOrder) {
+                  if (item.order === currentOrder) {
                     return {
                       ...item,
                       order: nextOrder,
@@ -163,7 +163,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
                   i++
                 }
                 draft.items = draft.items.map((item) => {
-                  if (item.order == currentOrder) {
+                  if (item.order === currentOrder) {
                     return {
                       ...item,
                       order: nextOrder,

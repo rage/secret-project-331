@@ -93,7 +93,7 @@ const MatrixSubmission: React.FC<
     throw new Error("No student answers")
   }
 
-  const isIncorrect = quiz_item_answer_feedback?.correctnessCoefficient != 1
+  const isIncorrect = quiz_item_answer_feedback?.correctnessCoefficient !== 1
 
   const findOptionText = (
     column: number,

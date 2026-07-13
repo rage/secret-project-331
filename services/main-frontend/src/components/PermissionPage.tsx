@@ -115,15 +115,15 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
   }
 
   let query: RoleQuery
-  if (domain.tag == "Global") {
+  if (domain.tag === "Global") {
     query = { global: true }
-  } else if (domain.tag == "Organization") {
+  } else if (domain.tag === "Organization") {
     query = { organization_id: domain.id }
-  } else if (domain.tag == "Course") {
+  } else if (domain.tag === "Course") {
     query = { course_id: domain.id }
-  } else if (domain.tag == "CourseInstance") {
+  } else if (domain.tag === "CourseInstance") {
     query = { course_instance_id: domain.id }
-  } else if (domain.tag == "Exam") {
+  } else if (domain.tag === "Exam") {
     query = { exam_id: domain.id }
   } else {
     // oxlint-disable-next-line i18next/no-literal-string

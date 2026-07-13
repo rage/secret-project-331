@@ -49,7 +49,7 @@ async function createLoginStates(page: Page, context: BrowserContext) {
         return true
       }
       return false
-    } catch (_e) {
+    } catch {
       return false
     }
   })

@@ -36,12 +36,12 @@ const ConditionalBlock: React.FC<
     completionsRequired.length === 0 ||
     (getModuleCompletions.isSuccess &&
       getModuleCompletions.data.some(
-        (x) => x.completed && completionsRequired.some((id) => id == x.module_id),
+        (x) => x.completed && completionsRequired.some((id) => id === x.module_id),
       ))
   const enrollmentMet =
     enrollmentsRequired.length === 0 ||
     (userSettings?.current_course_instance_id &&
-      enrollmentsRequired.some((x) => x == userSettings.current_course_instance_id))
+      enrollmentsRequired.some((x) => x === userSettings.current_course_instance_id))
 
   return (
     <>

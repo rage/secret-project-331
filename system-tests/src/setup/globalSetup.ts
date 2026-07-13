@@ -73,7 +73,7 @@ async function downloadTmcLangsCli() {
     const downloadTmcLangsPath = path.join(__dirname, "../../../bin/tmc-langs-setup")
     console.log("Downloading langs CLI.")
     const res = spawnSync(downloadTmcLangsPath, { stdio: "inherit" })
-    if (res.status != 0) {
+    if (res.status !== 0) {
       console.error("Error: Could not download langs CLI.")
       if (res.error) {
         throw res.error
@@ -96,7 +96,7 @@ async function setupSystemTestDb() {
     // spawnSync is the easiest way to wait for the script to finish while inheriting stdio.
     // Using a sync method hare shoud not be a problem since this is a setup script
     const res = spawnSync(setupSystemTestDbScriptPath, { stdio: "inherit" })
-    if (res.status != 0) {
+    if (res.status !== 0) {
       console.error("Error: Could not setup system test db.")
       if (res.error) {
         throw res.error

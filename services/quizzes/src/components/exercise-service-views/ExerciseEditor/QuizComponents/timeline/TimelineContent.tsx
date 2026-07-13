@@ -197,7 +197,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
                     if (!draft || !draft.timelineItems) {
                       return
                     }
-                    const parsedYear = parseInt(value)
+                    const parsedYear = parseInt(value, 10)
                     draft.timelineItems = draft.timelineItems.map((item) => {
                       if (item.id === timelineItem.id) {
                         return {

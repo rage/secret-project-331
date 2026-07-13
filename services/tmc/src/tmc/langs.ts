@@ -78,7 +78,7 @@ const execute = async (
           console.error("TMC-langs response didn't match expected type")
           console.error(json)
         }
-      } catch (_e) {
+      } catch {
         console.warn("Failed to parse TMC-langs output")
         console.debug(input)
       }
@@ -132,7 +132,7 @@ export const compressProject = async (
     ],
     log,
   )
-  if (output.data !== null && output.data["output-data-kind"] == "compressed-project-hash") {
+  if (output.data !== null && output.data["output-data-kind"] === "compressed-project-hash") {
     return output.data["output-data"]
   }
   throw new Error("Unexpected output data")
@@ -184,7 +184,7 @@ export const prepareSubmission = async (
     ],
     log,
   )
-  if (output.data !== null && output.data["output-data-kind"] == "submission-sandbox") {
+  if (output.data !== null && output.data["output-data-kind"] === "submission-sandbox") {
     return output.data["output-data"]
   }
   throw new Error("Unexpected output data")

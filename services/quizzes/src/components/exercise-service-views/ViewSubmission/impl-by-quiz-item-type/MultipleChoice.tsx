@@ -179,7 +179,7 @@ const MultipleChoiceSubmission: React.FC<
                           `}
                     `}
                   >
-                    {correctAnswer == true && (
+                    {correctAnswer === true && (
                       <div
                         className={css`
                           background: #9dc7b1;
@@ -194,7 +194,7 @@ const MultipleChoiceSubmission: React.FC<
                         {t("correct-option")}
                       </div>
                     )}
-                    {correctAnswer == false && (
+                    {correctAnswer === false && (
                       <div
                         className={css`
                           background: #eedbdd;

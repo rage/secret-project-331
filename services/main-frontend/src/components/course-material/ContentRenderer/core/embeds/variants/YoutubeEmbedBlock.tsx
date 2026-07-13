@@ -162,7 +162,7 @@ export function parseYoutubeUrl(url: string): YouTubeVideoParams {
     if (listTypeParam) {
       result.listType = listTypeParam
     }
-  } catch (_error) {
+  } catch {
     // Return default result for invalid URLs
   }
 
@@ -312,7 +312,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
             setIsPlayerReady(true)
             postMessageToYouTube({ event: YOUTUBE_EVENT_LISTENING })
           }
-        } catch (_error) {
+        } catch {
           // Ignore parsing errors from unrelated messages
         }
       },

@@ -303,7 +303,7 @@ const GradingPage: React.FC = () => {
             margin-top: 1.5rem;
           `}
         >
-          {checkPublishable() != 0 && (
+          {checkPublishable() !== 0 && (
             <GenericInfobox>
               {t("unpublishable-grading-results", { amount: checkPublishable() })}
             </GenericInfobox>

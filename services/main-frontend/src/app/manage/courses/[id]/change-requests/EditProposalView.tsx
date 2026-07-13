@@ -236,7 +236,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
 
   const acceptedBlock = (block: BlockProposal) => {
     let diffChanges = null
-    if (block.type == "edited-block-still-exists") {
+    if (block.type === "edited-block-still-exists") {
       diffChanges = diffWords(block.original_text, block.changed_text ?? "")
     }
     return (

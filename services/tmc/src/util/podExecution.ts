@@ -95,12 +95,12 @@ export async function execWithTimeout(
       .then((s) => {
         try {
           ;(s as unknown as { close?: () => void }).close?.()
-        } catch (_e2) {
+        } catch {
           // ignore
         }
         try {
           ;(s as unknown as { destroy?: () => void }).destroy?.()
-        } catch (_e2) {
+        } catch {
           // ignore
         }
       })
@@ -135,7 +135,7 @@ export async function execWithTimeout(
       // Best-effort stop the exec stream; the server-side process may still run.
       try {
         socket.close?.()
-      } catch (_e) {
+      } catch {
         // ignore
       }
       resolve({ timedOut: true })
@@ -377,7 +377,7 @@ async function runTmcAndReadOutput(
     try {
       const parsed = JSON.parse(testOutputString)
       return { timedOut: false, output: testOutputString, parsed }
-    } catch (_e) {
+    } catch {
       return {
         timedOut: false,
         output: testOutputString,
@@ -434,7 +434,7 @@ export async function runInSandboxPod(
     logger.log(`deleting pod ${podName}`)
     try {
       await kubeApi.deleteNamespacedPod({ name: podName, namespace: "default", pretty: "true" })
-    } catch (_e) {
+    } catch {
       logger.error("failed to delete pod")
     }
   }

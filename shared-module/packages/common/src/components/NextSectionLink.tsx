@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import Link from "next/link"
-import React, { Fragment } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import ArrowSVGIcon from "../img/arrow.svg"

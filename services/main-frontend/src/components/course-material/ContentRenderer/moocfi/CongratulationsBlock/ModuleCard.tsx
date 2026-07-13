@@ -106,7 +106,9 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
         >
           <Badge />
           <span className="grade">{t("grade")}</span>
-          <div className="points">{numericGrade == undefined ? passOrFAilGrade : numericGrade}</div>
+          <div className="points">
+            {numericGrade === undefined ? passOrFAilGrade : numericGrade}
+          </div>
         </BadgeWrapper>
       )}
       <h2

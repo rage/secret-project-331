@@ -132,7 +132,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
         exercise_id: exer.id,
         exercise_name: exer.name,
         exercise_tasks: submission_data.exercise_tasks.task_gradings
-          .filter((grading) => grading.exercise_id == exer.id)
+          .filter((grading) => grading.exercise_id === exer.id)
           .map((grading) => {
             const answer = submission_data.exercise_tasks.task_submissions.find(
               (sub) => sub.exercise_task_grading_id === grading.id,

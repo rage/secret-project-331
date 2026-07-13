@@ -134,7 +134,7 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
           format: formatRegExp.test(string),
         }
       })
-    } catch (_e) {
+    } catch {
       /* NOP */
       /* This occurs when there's incomplete regex */
     }
@@ -206,7 +206,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
   const handleTestStringChange = (updatedIdx: number) => (value: string) => {
     setTestStrings(
       testStrings.map((content, idx) => {
-        if (idx == updatedIdx) {
+        if (idx === updatedIdx) {
           return value
         }
         return content
@@ -237,18 +237,18 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
       <OptionTitle> {t("grading-strategy")} </OptionTitle>
       <RadioButtonContainer>
         <RadioButton
-          checked={method == 0}
+          checked={method === 0}
           onClick={() => setMethod(0)}
           label={t("exact-string")}
         ></RadioButton>
         <RadioButton
-          checked={method == 1}
+          checked={method === 1}
           onClick={() => setMethod(1)}
           label={t("regex")}
         ></RadioButton>
       </RadioButtonContainer>
 
-      {method == 0 && (
+      {method === 0 && (
         <>
           <SelectField
             id="regex-pattern-select"
@@ -278,7 +278,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
           />
         </>
       )}
-      {method == 1 && (
+      {method === 1 && (
         <>
           <TextField
             value={convertToString(selected.validityRegex)}

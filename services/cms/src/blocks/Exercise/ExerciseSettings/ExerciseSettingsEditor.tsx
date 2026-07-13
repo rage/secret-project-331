@@ -68,7 +68,7 @@ const ExerciseSettingsEditor = () => {
         value={attributes.score_maximum?.toString() ?? ""}
         type="number"
         onChangeByValue={(value) => {
-          const parsed = parseInt(value)
+          const parsed = parseInt(value, 10)
           if (isNaN(parsed)) {
             // empty
             setAttributes({ score_maximum: undefined })
@@ -109,7 +109,7 @@ const ExerciseSettingsEditor = () => {
           disabled={!attributes.limit_number_of_tries}
           type="number"
           onChangeByValue={(value) => {
-            const parsed = parseInt(value)
+            const parsed = parseInt(value, 10)
             if (isNaN(parsed)) {
               // empty
               setAttributes({ max_tries_per_slide: undefined })

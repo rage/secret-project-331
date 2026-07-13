@@ -15,13 +15,13 @@ export function roundDown(n: number, maxDecimals?: number): string {
   // calculate how many unnecessary zeros need to be cut off
   let cutOff = 0
   for (let i = decimal + actualMaxDecimals; i > 1; i--) {
-    if (fixed.charAt(i) == "0") {
+    if (fixed.charAt(i) === "0") {
       cutOff += 1
     } else {
       break
     }
   }
-  if (cutOff == actualMaxDecimals) {
+  if (cutOff === actualMaxDecimals) {
     // all decimals cut off, cut off the decimal point as well
     cutOff += 1
   }
@@ -55,7 +55,7 @@ export function stringToNumberOrPlaceholder<T>(
   let res: number
   try {
     res = Number(s)
-  } catch (_e) {
+  } catch {
     return missingNumberSubstitute
   }
   if (isNaN(res)) {
@@ -80,7 +80,7 @@ export function stringToNumberOrPlaceholder<T>(
 export function formatNumber(num: number, locale?: string): string {
   try {
     return new Intl.NumberFormat(locale).format(num)
-  } catch (_error) {
+  } catch {
     // If the locale is invalid or causes an error, fall back to English
     return new Intl.NumberFormat("en").format(num)
   }

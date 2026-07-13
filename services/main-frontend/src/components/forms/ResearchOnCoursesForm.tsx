@@ -61,7 +61,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   const handleOnSubmit = () => {
     setResearchConsentFormOpen(false)
     consentQuery.mutate()
-    if (afterSubmit != undefined) {
+    if (afterSubmit !== undefined) {
       afterSubmit()
     }
   }

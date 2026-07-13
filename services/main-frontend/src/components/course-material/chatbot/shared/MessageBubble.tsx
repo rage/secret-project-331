@@ -31,7 +31,9 @@ export const renumberFilterCitations = (
     return { filteredCitations: [], citedDocs: [], citationNumberingMap: new Map() }
   }
 
-  let citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
+  let citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
+    parseInt(arr[1], 10),
+  )
 
   // there might be hallucinated citations in the message :(
   // remove the hallucinated citations

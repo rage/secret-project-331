@@ -125,15 +125,15 @@ const ConditionalBlockEditor: React.FC<
                   label={mod.name ?? t("label-default")}
                   value={mod.id}
                   onChange={() => {
-                    const previuoslyChecked = requiredModules.some((modId) => modId == mod.id)
-                    const newRequiredModules = requiredModules.filter((i) => i != mod.id)
+                    const previuoslyChecked = requiredModules.some((modId) => modId === mod.id)
+                    const newRequiredModules = requiredModules.filter((i) => i !== mod.id)
                     if (!previuoslyChecked) {
                       newRequiredModules.push(mod.id)
                     }
                     setAttributes({ module_completion: newRequiredModules })
                     setRequiredModules(newRequiredModules)
                   }}
-                  checked={requiredModules.some((modId) => modId == mod.id)}
+                  checked={requiredModules.some((modId) => modId === mod.id)}
                 ></CheckBox>
               )
             })}
@@ -150,10 +150,10 @@ const ConditionalBlockEditor: React.FC<
                   value={inst.id}
                   onChange={() => {
                     const previuoslyChecked = requiredInstanceEnrollment.some(
-                      (instId) => instId == inst.id,
+                      (instId) => instId === inst.id,
                     )
                     const newRequiredInstEnrl = requiredInstanceEnrollment.filter(
-                      (i) => i != inst.id,
+                      (i) => i !== inst.id,
                     )
                     if (!previuoslyChecked) {
                       newRequiredInstEnrl.push(inst.id)
@@ -161,7 +161,7 @@ const ConditionalBlockEditor: React.FC<
                     setAttributes({ instance_enrollment: newRequiredInstEnrl })
                     setRequiredInstanceEnrollment(newRequiredInstEnrl)
                   }}
-                  checked={requiredInstanceEnrollment.some((instId) => instId == inst.id)}
+                  checked={requiredInstanceEnrollment.some((instId) => instId === inst.id)}
                 ></CheckBox>
               )
             })}

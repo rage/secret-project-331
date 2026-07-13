@@ -103,7 +103,7 @@ const addNewQuiz = async (page: Page) => {
       await page.waitForTimeout(100)
       // Sometimes the add task button doesn't respond due to lag
       // oxlint-disable-next-line playwright/no-conditional-in-test
-    } while ((await page.locator('[aria-label="Edit"]').count()) == 0 && steps < 10)
+    } while ((await page.locator('[aria-label="Edit"]').count()) === 0 && steps < 10)
 
     await page.locator('[aria-label="Edit"]').nth(0).click()
     await page.getByText("Quizzes").click()

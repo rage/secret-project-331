@@ -68,15 +68,15 @@ const CourseInstancePointsList: React.FC = () => {
   })
 
   function sortUsers(first: ProcessedUser, second: ProcessedUser): number {
-    if (sorting == NAME) {
+    if (sorting === NAME) {
       return `${first.user.last_name} ${first.user.first_name}`.localeCompare(
         `${second.user.last_name} ${second.user.first_name}`,
       )
-    } else if (sorting == NUMBER) {
+    } else if (sorting === NUMBER) {
       return first.user.user_id.localeCompare(second.user.user_id)
-    } else if (sorting == SCORE) {
+    } else if (sorting === SCORE) {
       return second.totalPoints - first.totalPoints
-    } else if (sorting == EMAIL) {
+    } else if (sorting === EMAIL) {
       return first.user.email.localeCompare(second.user.email)
     }
     return second.chapterPoints[sorting] - first.chapterPoints[sorting]

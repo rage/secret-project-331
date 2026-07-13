@@ -138,10 +138,10 @@ const SubmissionFeedback: React.FC<{
 
   const userScore = showScore ? (itemFeedback?.correctnessCoefficient ?? itemFeedback?.score) : null
   if (showScore) {
-    if (userScore == 1) {
+    if (userScore === 1) {
       backgroundColor = "#e8f5e8"
       textColor = "#292929"
-    } else if (userScore == 0) {
+    } else if (userScore === 0) {
       backgroundColor = "#fdeaea"
       textColor = "#292929"
     } else if (userScore !== null && userScore !== undefined) {
@@ -264,7 +264,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   // in quiz items
   let direction: FlexDirection = COLUMN
   publicAlternatives.items.every((item) => {
-    if (item.type == "multiple-choice") {
+    if (item.type === "multiple-choice") {
       direction = sanitizeFlexDirection(item.optionDisplayDirection, COLUMN)
       return
     }

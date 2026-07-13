@@ -262,8 +262,8 @@ function moveChapterWithinChapterList(
     return
   }
 
-  const currentIndex = chapters.findIndex((c) => c.chapter_number == currentChapterNumber)
-  const targetIndex = chapters.findIndex((c) => c.chapter_number == targetChapterNumber)
+  const currentIndex = chapters.findIndex((c) => c.chapter_number === currentChapterNumber)
+  const targetIndex = chapters.findIndex((c) => c.chapter_number === targetChapterNumber)
 
   const temp = currentChapterNumber
   chapters[currentIndex].chapter_number = targetChapterNumber

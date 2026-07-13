@@ -1,6 +1,6 @@
 import type { TFunction } from "i18next"
 
-import { OpenDialogOptions } from "@/shared-module/exercise-client/client/parentDialog"
+import type { OpenDialogOptions } from "@/shared-module/exercise-client/client/parentDialog"
 
 /**
  * A single paste of at least this many words is treated as "large" and triggers the

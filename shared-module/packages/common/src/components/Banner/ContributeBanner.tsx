@@ -61,7 +61,7 @@ const Text = styled.div`
     opacity: 0.8;
   }
 `
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const StyledLink = styled.a`
   font-family: ${headingFont};
   font-size: 20px;

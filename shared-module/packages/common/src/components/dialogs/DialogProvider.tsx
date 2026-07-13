@@ -1,21 +1,14 @@
 "use client"
 
-import React, {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-  useReducer,
-  useRef,
-} from "react"
+import type { ReactNode } from "react"
+import React, { createContext, useCallback, useContext, useMemo, useReducer, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import AlertDialog from "./AlertDialog"
 import ConfirmDialog from "./ConfirmDialog"
 import PromptDialog from "./PromptDialog"
 
-type DialogBase = {
+interface DialogBase {
   id: number
   title?: string
   message: React.ReactNode
@@ -65,17 +58,17 @@ const dialogReducer = (state: DialogType[], action: DialogAction): DialogType[] 
   }
 }
 
-type ConfirmDialogOptions = {
+interface ConfirmDialogOptions {
   confirmDisabled?: boolean
   yesButtonLabel?: string
   noButtonLabel?: string
 }
 
-type AlertDialogOptions = {
+interface AlertDialogOptions {
   okButtonLabel?: string
 }
 
-type ConfirmDialogControls = {
+interface ConfirmDialogControls {
   setConfirmDisabled: (disabled: boolean) => void
 }
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -97,7 +97,7 @@ const TotalStatsByInstance: React.FC<React.PropsWithChildren<TotalStatsByInstanc
       Object.keys(totalReturnedExercisesQuery.data).forEach((id) => instanceIds.add(id))
     }
     // Sort by instance name, with default instance first
-    return Array.from(instanceIds).sort((a, b) => {
+    return Array.from(instanceIds).toSorted((a, b) => {
       const instanceA = instanceMap.get(a)
       const instanceB = instanceMap.get(b)
 

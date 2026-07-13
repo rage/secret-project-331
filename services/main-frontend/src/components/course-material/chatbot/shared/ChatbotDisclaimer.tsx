@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { ReactNode } from "react"
+import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
 interface ChatbotAgreeProps {

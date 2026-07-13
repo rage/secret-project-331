@@ -159,7 +159,7 @@ export default function CourseManagementLayout({ children }: { children: React.R
         key: KEY_OTHER,
         title: t("title-other"),
         href: manageCourseOtherReferencesRoute(courseId),
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         pathPrefix: `/manage/courses/${courseId}/other`,
         countHook: flaggedCheaterCountHook,
       },

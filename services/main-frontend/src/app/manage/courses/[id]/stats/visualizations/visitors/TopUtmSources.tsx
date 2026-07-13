@@ -40,15 +40,16 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
     const allUtmSourcesInData = Array.from(
       new Set(query.data.map((item) => item.utm_source)),
     ).filter((item) => !!item)
-    const totalCountsByUTMSource: { [referrer: string]: number } = Array.from(
-      allUtmSourcesInData,
-    ).reduce((acc, utm_source) => {
-      const totalCount = query.data
-        .filter((item) => item.utm_source === utm_source)
-        .reduce((acc, item) => acc + item.num_visitors, 0)
-      // eslint-disable-next-line i18next/no-literal-string
-      return { ...acc, [utm_source ?? "null"]: totalCount }
-    }, {})
+    const totalCountsByUTMSource: Record<string, number> = Array.from(allUtmSourcesInData).reduce(
+      (acc, utm_source) => {
+        const totalCount = query.data
+          .filter((item) => item.utm_source === utm_source)
+          .reduce((acc, item) => acc + item.num_visitors, 0)
+        // oxlint-disable-next-line i18next/no-literal-string
+        return { ...acc, [utm_source ?? "null"]: totalCount }
+      },
+      {},
+    )
     return totalCountsByUTMSource
   }, [query.data])
 
@@ -65,7 +66,7 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
+  const chartHeight = categories.length > 0 ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
 
   return (
     <>
@@ -103,9 +104,9 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
                       },
                     ],
                     tooltip: {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       trigger: "item",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       formatter: "{b}: {c}",
                     },
                   }}

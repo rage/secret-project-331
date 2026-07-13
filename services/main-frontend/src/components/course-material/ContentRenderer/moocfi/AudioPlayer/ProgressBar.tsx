@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { RefObject } from "react"
+import type { RefObject } from "react"
 import { useTranslation } from "react-i18next"
 
 import { styledRangeInput } from "./RangeComponentStyle"

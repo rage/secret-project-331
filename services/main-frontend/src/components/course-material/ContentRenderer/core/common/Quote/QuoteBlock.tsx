@@ -2,9 +2,9 @@
 
 import { css } from "@emotion/css"
 
-import { BlockRendererProps } from "../../.."
+import type { BlockRendererProps } from "../../.."
 
-import { QuoteAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { QuoteAttributes } from "@/../types/GutenbergBlockAttributes"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import ParsedText from "@/components/course-material/ParsedText"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

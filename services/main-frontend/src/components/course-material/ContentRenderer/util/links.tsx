@@ -13,7 +13,7 @@ export const relForLinkTarget = (
   if (!linkTarget?.includes("_blank")) {
     return rel || undefined
   }
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const tokens = new Set([...(rel?.split(/\s+/).filter(Boolean) ?? []), "noopener", "noreferrer"])
   return Array.from(tokens).join(" ")
 }

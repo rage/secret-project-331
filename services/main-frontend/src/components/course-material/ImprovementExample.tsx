@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -141,12 +141,11 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
           updateState({ displayWord: state.displayWord.slice(0, -1) })
         }, 100)
         return () => clearInterval(interval)
-      } else {
-        const timeout = setTimeout(() => {
-          updateState({ phase: "typing" })
-        }, 400)
-        return () => clearTimeout(timeout)
       }
+      const timeout = setTimeout(() => {
+        updateState({ phase: "typing" })
+      }, 400)
+      return () => clearTimeout(timeout)
     }
   }, [state.phase, state.displayWord, updateState])
 
@@ -158,12 +157,11 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
           updateState({ displayWord: correctPart.slice(0, state.displayWord.length + 1) })
         }, 100)
         return () => clearInterval(interval)
-      } else {
-        const timeout = setTimeout(() => {
-          resetAnimation()
-        }, 2000)
-        return () => clearTimeout(timeout)
       }
+      const timeout = setTimeout(() => {
+        resetAnimation()
+      }, 2000)
+      return () => clearTimeout(timeout)
     }
   }, [state.phase, state.displayWord, correctPart, resetAnimation, updateState])
 

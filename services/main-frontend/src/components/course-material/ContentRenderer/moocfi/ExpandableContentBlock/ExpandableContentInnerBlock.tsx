@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { MinusCircle, PlusCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"

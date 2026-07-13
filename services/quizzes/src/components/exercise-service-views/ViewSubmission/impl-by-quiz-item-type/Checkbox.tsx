@@ -2,11 +2,11 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { UserItemAnswerCheckbox } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemCheckbox } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerCheckbox } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemCheckbox } from "../../../../../types/quizTypes/publicSpec"
 import ParsedText from "../../../ParsedText"
 
-import { QuizItemSubmissionComponentProps } from "."
+import type { QuizItemSubmissionComponentProps } from "."
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { baseTheme } from "@/shared-module/exercise-react/styles"

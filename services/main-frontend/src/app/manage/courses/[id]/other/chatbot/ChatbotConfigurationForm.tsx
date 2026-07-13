@@ -110,7 +110,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   const [showChatbotPreview, setChatbotPreview] = useState(false)
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const { fields, append, remove } = useFieldArray({ control, name: "suggested_messages" })
 
   const getChatbotModelsList = useQuery({

@@ -32,7 +32,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
     formState: { errors, isValid, isSubmitting },
     reset,
   } = useForm<Fields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: { gitUrl: "" },
   })
@@ -74,7 +74,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
       <TextAreaField
         label={t("public-key")}
         placeholder={
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           "ssh-ed25519 ..."
         }
         {...register("publicKey")}
@@ -83,7 +83,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
       <TextAreaField
         label={t("exercise-repositories-deploy-key")}
         placeholder={
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           "-----BEGIN OPENSSH PRIVATE KEY----- ..."
         }
         {...register("deployKey")}

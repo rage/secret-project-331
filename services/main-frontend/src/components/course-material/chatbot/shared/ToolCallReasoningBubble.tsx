@@ -47,7 +47,7 @@ const iconStyle = (open: boolean) => css`
   margin: 0 0.5rem 0 1.5rem;
 `
 
-type ToolCallReasoningBubbleProps = {
+interface ToolCallReasoningBubbleProps {
   messages: ChatbotConversationMessageWithStatus[]
 }
 

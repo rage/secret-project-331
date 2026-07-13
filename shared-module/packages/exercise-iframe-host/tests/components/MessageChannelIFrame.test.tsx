@@ -27,7 +27,7 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 describe("MessageChannelIFrame", () => {
-  let messageListeners: Array<(event: MessageEvent) => void>
+  let messageListeners: ((event: MessageEvent) => void)[]
   let addEventListenerSpy: jest.SpyInstance
   let removeEventListenerSpy: jest.SpyInstance
 
@@ -87,8 +87,8 @@ describe("MessageChannelIFrame", () => {
       'iframe[data-testid="message-channel-iframe"]',
     )
     expect(iframe?.src).toBe("http://example.com/example-iframe-page")
-    expect(iframe?.getAttribute("data-state-sent")).toBe("true")
-    expect(iframe?.getAttribute("data-iframe-height")).toBe("0")
+    expect(iframe?.dataset.stateSent).toBe("true")
+    expect(iframe?.dataset.iframeHeight).toBe("0")
   })
 
   describe("basic connection flow", () => {
@@ -883,7 +883,7 @@ describe("MessageChannelIFrame", () => {
         }
       })
 
-      expect(iframe?.getAttribute("data-iframe-height")).toBe("500")
+      expect(iframe?.dataset.iframeHeight).toBe("500")
 
       rerender(
         <I18nextProvider i18n={i18nTest}>
@@ -907,8 +907,8 @@ describe("MessageChannelIFrame", () => {
       })
 
       expect(mockContentWindow.postMessage).toHaveBeenCalledTimes(2)
-      expect(iframe?.getAttribute("data-state-sent")).toBe("false")
-      expect(iframe?.getAttribute("data-iframe-height")).toBe("0")
+      expect(iframe?.dataset.stateSent).toBe("false")
+      expect(iframe?.dataset.iframeHeight).toBe("0")
     })
   })
 
@@ -1047,7 +1047,7 @@ describe("MessageChannelIFrame", () => {
 
       await waitFor(() => {
         const iframe = container.querySelector("iframe")
-        expect(iframe?.getAttribute("data-state-sent")).toBe("true")
+        expect(iframe?.dataset.stateSent).toBe("true")
       })
     })
 

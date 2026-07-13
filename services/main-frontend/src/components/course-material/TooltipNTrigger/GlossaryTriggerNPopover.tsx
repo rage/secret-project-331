@@ -1,7 +1,8 @@
 "use client"
 
 import styled from "@emotion/styled"
-import { FocusEvent, ReactNode, useId, useRef, useState } from "react"
+import type { FocusEvent, ReactNode } from "react"
+import { useId, useRef, useState } from "react"
 import { useHover } from "react-aria"
 import {
   Dialog,
@@ -17,7 +18,7 @@ import { TooltipBox } from "./TooltipBox"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const StyledButton = styled(ReactAriaButton)`
   text-decoration: underline;
   border: none;

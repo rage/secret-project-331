@@ -1,14 +1,14 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { HeadingAttributes, ListAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { HeadingAttributes, ListAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 interface StyledObjectiveProps {
@@ -124,7 +124,9 @@ const CourseObjective: React.FC<React.PropsWithChildren<CardProps>> = ({ title, 
                 const parser = new DOMParser()
 
                 const listItem = parser.parseFromString(values, "text/html")
-                list = [].slice.call(listItem.body.childNodes).map(({ innerHTML }) => innerHTML)
+                list = Array.prototype.slice
+                  .call(listItem.body.childNodes)
+                  .map(({ innerHTML }) => innerHTML)
               }
 
               return isList ? (

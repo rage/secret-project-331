@@ -1,8 +1,9 @@
 "use client"
 
-import { queryOptions, useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
+import { queryOptions, useQuery } from "@tanstack/react-query"
 
-import { HookQueryOptions } from "."
+import type { HookQueryOptions } from "."
 
 import {
   getAvgTimeToFirstSubmissionHistoryOptions as getAvgTimeToFirstSubmissionHistoryGeneratedOptions,
@@ -34,7 +35,7 @@ import {
   getUsersReturningExercisesHistoryByInstanceOptions as getUsersReturningExercisesHistoryByInstanceGeneratedOptions,
   getUsersReturningExercisesHistoryOptions as getUsersReturningExercisesHistoryGeneratedOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import {
+import type {
   AverageMetric,
   CohortActivity,
   CountResult,
@@ -44,7 +45,7 @@ import {
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 const disabledQueryKey = (id: string, extras?: Record<string, unknown>) =>
-  [{ _id: id, ...(extras ?? {}) }] as const
+  [{ _id: id, ...extras }] as const
 
 type BuiltQueryOptions<TData> = UseQueryOptions<TData, Error, TData>
 
@@ -102,7 +103,7 @@ const withCustomTimePeriod = (courseId: string, startDate: string, endDate: stri
   },
 })
 
-type GeneratedOptionsWithKey = {
+interface GeneratedOptionsWithKey {
   queryKey: readonly unknown[]
 }
 

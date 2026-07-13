@@ -100,6 +100,8 @@ export function useRunOutput() {
           return
         }
       }
+      // `worker` is non-null past the guard above; capture it so the closures below don't need `!`.
+      const activeWorker = worker
 
       const flushStdout = () => {
         const pending = runOutputBufferRef.current
@@ -108,7 +110,7 @@ export function useRunOutput() {
         }
         runOutputBufferRef.current = ""
         setSegments((prev) => {
-          const last = prev[prev.length - 1]
+          const last = prev.at(-1)
           if (last?.type === "stdout") {
             return [...prev.slice(0, -1), { type: "stdout", text: last.text + pending }]
           }
@@ -140,8 +142,8 @@ export function useRunOutput() {
               flushTimerRef.current = null
             }
             flushStdout()
-            worker!.onmessage = null
-            worker!.onerror = null
+            activeWorker.onmessage = null
+            activeWorker.onerror = null
             finish(data.output ?? runOutputBufferRef.current, null)
             break
           case "run_error":
@@ -150,8 +152,8 @@ export function useRunOutput() {
               flushTimerRef.current = null
             }
             flushStdout()
-            worker!.onmessage = null
-            worker!.onerror = null
+            activeWorker.onmessage = null
+            activeWorker.onerror = null
             finish(data.output ?? runOutputBufferRef.current, data.message ?? "Unknown error")
             break
           default:
@@ -165,8 +167,8 @@ export function useRunOutput() {
           flushTimerRef.current = null
         }
         flushStdout()
-        worker!.onmessage = null
-        worker!.onerror = null
+        activeWorker.onmessage = null
+        activeWorker.onerror = null
         finish(runOutputBufferRef.current, "Worker error")
       }
 

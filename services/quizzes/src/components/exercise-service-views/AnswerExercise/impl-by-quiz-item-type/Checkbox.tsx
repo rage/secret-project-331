@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { UserItemAnswerCheckbox } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemCheckbox } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerCheckbox } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemCheckbox } from "../../../../../types/quizTypes/publicSpec"
 import ParsedText from "../../../ParsedText"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

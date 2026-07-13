@@ -39,7 +39,7 @@ const MyCourses: React.FC = () => {
                 languageCode={course.language_code}
                 manageHref={manageCourseByIdRoute(course.id)}
                 navigateToCourseHref={navigateToCourseRoute(
-                  // eslint-disable-next-line i18next/no-literal-string
+                  // oxlint-disable-next-line i18next/no-literal-string
                   organization?.slug || "undefined",
                   course.slug,
                 )}

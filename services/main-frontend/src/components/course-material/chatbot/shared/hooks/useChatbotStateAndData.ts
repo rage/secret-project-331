@@ -1,8 +1,9 @@
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import chatbotReducer, { ChatbotAction, ChatbotState } from "../chatbotReducer"
+import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
+import chatbotReducer from "../chatbotReducer"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {

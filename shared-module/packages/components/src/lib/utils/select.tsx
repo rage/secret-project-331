@@ -3,19 +3,19 @@
 import { Item, Section } from "@react-stately/collections"
 import React from "react"
 
-export type SelectOption = {
+export interface SelectOption {
   value: string
   label: React.ReactNode
   textValue?: string
   isDisabled?: boolean
 }
 
-export type SelectOptionGroup = {
+export interface SelectOptionGroup {
   label: React.ReactNode
   options: readonly SelectOption[]
 }
 
-export type NormalizedSelectOption = {
+export interface NormalizedSelectOption {
   key: string
   value: string
   label: React.ReactNode
@@ -25,7 +25,7 @@ export type NormalizedSelectOption = {
   groupLabel?: React.ReactNode
 }
 
-export type NormalizedSelectCollection = {
+export interface NormalizedSelectCollection {
   options: readonly NormalizedSelectOption[]
   disabledKeys: readonly string[]
   valueToKey: Map<string, string>
@@ -99,7 +99,7 @@ export function normalizeSelectOptions(
 
   entries.forEach((entry, index) => {
     if (isSelectOptionGroup(entry)) {
-      // eslint-disable-next-line i18next/no-literal-string -- internal collection key
+      // oxlint-disable-next-line i18next/no-literal-string -- internal collection key
       const groupKey = `group-${index}`
       entry.options.forEach((option) => {
         pushOption(option, {
@@ -129,7 +129,7 @@ function buildItem(option: NormalizedSelectOption): React.ReactElement {
 }
 
 export function buildSelectCollectionNodes(collection: NormalizedSelectCollection) {
-  const orderedNodes: Array<React.ReactElement | { groupKey: string }> = []
+  const orderedNodes: (React.ReactElement | { groupKey: string })[] = []
   const sectionMap = new Map<string, { label: React.ReactNode; items: React.ReactElement[] }>()
 
   collection.options.forEach((option) => {

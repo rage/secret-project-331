@@ -3,7 +3,8 @@
 import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
-import React, { ReactNode, Suspense, useEffect, useMemo, useState } from "react"
+import type { ReactNode } from "react"
+import React, { Suspense, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import SearchDialog from "../SearchDialog"

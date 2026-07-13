@@ -1,6 +1,6 @@
-import { OldPublicQuiz, OldPublicQuizItem } from "../../../types/oldQuizTypes"
-import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
-import {
+import type { OldPublicQuiz, OldPublicQuizItem } from "../../../types/oldQuizTypes"
+import type { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
+import type {
   PublicQuizItemOption,
   PublicSpecQuiz,
   PublicSpecQuizItem,

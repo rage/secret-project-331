@@ -18,7 +18,7 @@ import {
 } from "./primitives/fieldShellStyles"
 import type { FieldSize } from "./primitives/fieldStyles"
 
-type RadioGroupContextValue = {
+interface RadioGroupContextValue {
   fieldSize: FieldSize
   state: RadioGroupState
 }
@@ -42,7 +42,7 @@ const radioListHorizontalCss = css`
   gap: var(--space-4);
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const radioInputSelector = 'input[type="radio"]'
 
 /**

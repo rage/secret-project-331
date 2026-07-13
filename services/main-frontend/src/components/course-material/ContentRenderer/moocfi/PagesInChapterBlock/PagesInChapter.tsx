@@ -65,7 +65,7 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
             {(data) => (
               <>
                 {[...data]
-                  .sort((a, b) => a.order_number - b.order_number)
+                  .toSorted((a, b) => a.order_number - b.order_number)
                   .map((page) => (
                     <PagesInChapterBox
                       variant="text"

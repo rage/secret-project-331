@@ -9,7 +9,7 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 
-type NewCodeGiveawayFormProps = {
+interface NewCodeGiveawayFormProps {
   courseId: string
   dialogOpen: boolean
   setDialogOpen: (dialogOpen: boolean) => void

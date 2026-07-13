@@ -128,7 +128,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
 
   const data = useMemo(() => {
     const ordered =
-      peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_question_submissions.sort(
+      peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_question_submissions.toSorted(
         (a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime(),
       )
 
@@ -138,7 +138,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
     )
 
     let res = Object.values(groupByPeerOrSelfReviewSubmissionId)
-    res = res.sort((a, b) => {
+    res = res.toSorted((a, b) => {
       if (a.length === 0) {
         return 1
       }
@@ -151,7 +151,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
     // group by whether the review is self review or peer review
     const res2 = groupBy(res, (questionSubmisssions) => {
       if (questionSubmisssions.length === 0) {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         return "peer"
       }
       const peerOrSelfReviewSubmission =
@@ -162,10 +162,10 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
         peerOrSelfReviewSubmission &&
         peerOrSelfReviewSubmission.user_id === userInfo.data?.user_id
       ) {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         return "self"
       }
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return "peer"
     })
     return res2

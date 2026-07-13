@@ -12,11 +12,11 @@ const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
 export const ReportReasonValues = {
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   Spam: "Spam",
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   HarmfulContent: "HarmfulContent",
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   AiGenerated: "AiGenerated",
 } as const
 

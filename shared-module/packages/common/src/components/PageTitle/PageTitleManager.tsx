@@ -83,7 +83,7 @@ const PageTitleManager: React.FC<PageTitleManagerProps> = ({ siteName = DEFAULT_
     if (isSettlingNavigationRef.current || !titleChanged || !resolvedTitle) {
       return
     }
-    // eslint-disable-next-line i18next/no-literal-string -- ARIA assertiveness level, not user copy
+    // oxlint-disable-next-line i18next/no-literal-string -- ARIA assertiveness level, not user copy
     announce(resolvedTitle, "polite")
   }, [resolvedTitle, pathname])
 

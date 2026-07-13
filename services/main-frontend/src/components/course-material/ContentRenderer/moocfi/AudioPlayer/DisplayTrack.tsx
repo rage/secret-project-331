@@ -2,9 +2,10 @@
 
 import { css } from "@emotion/css"
 import { useAtomValue } from "jotai"
-import { RefObject, useMemo } from "react"
+import type { RefObject } from "react"
+import { useMemo } from "react"
 
-import { AudioFile } from "@/components/course-material/Page"
+import type { AudioFile } from "@/components/course-material/Page"
 import { headingFont } from "@/shared-module/common/styles"
 import { courseMaterialAtom } from "@/state/course-material"
 
@@ -29,7 +30,7 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: Display
 
   const sortedTracks = useMemo(() => {
     // Sorts mp3 files last, as they're the fallback format
-    return tracks.sort((a, b) => {
+    return tracks.toSorted((a, b) => {
       if (a.mime === "audio/mpeg") {
         return 1
       } else if (b.mime === "audio/mpeg") {
@@ -42,7 +43,7 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: Display
   return (
     <>
       <div>
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+        {/* oxlint-disable-next-line jsx-a11y/media-has-caption */}
         <audio ref={audioRef} onLoadedMetadata={onLoadedMetadata}>
           {sortedTracks.map(({ path, mime }: AudioFile) => (
             <source key={path} src={path} type={mime} />

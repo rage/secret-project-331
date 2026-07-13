@@ -1,4 +1,5 @@
-import { BrowserContext, expect, Page, test } from "@playwright/test"
+import type { BrowserContext, Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 

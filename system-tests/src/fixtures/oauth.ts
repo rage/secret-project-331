@@ -10,7 +10,7 @@ import { setupRedirectServer, teardownRedirectServer } from "../utils/oauth/redi
  * See: https://playwright.dev/docs/test-fixtures#worker-scoped-fixtures
  */
 // Empty object type required by Playwright's extend() for "no extra test fixtures"
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// oxlint-disable-next-line typescript/no-empty-object-type
 export const test = base.extend<{}, { oauthCallbackServer: void }>({
   oauthCallbackServer: [
     async ({}, use) => {

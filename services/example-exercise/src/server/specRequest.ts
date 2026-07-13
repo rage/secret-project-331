@@ -1,6 +1,6 @@
 import { BadRequestError, readJsonBody } from "@/lib/apiRoutes"
 import { isSpecRequest } from "@/util/exerciseServiceApi"
-import { Alternative } from "@/util/stateInterfaces"
+import type { Alternative } from "@/util/stateInterfaces"
 
 /**
  * Reads a spec request from the incoming request and returns its private spec as an

@@ -126,8 +126,8 @@ export const sanitizeParagraphHtml = (
     return ""
   }
 
-  if (typeof window === "undefined" || typeof window.DOMParser === "undefined") {
-    throw new Error("sanitizeParagraphHtml requires a browser environment with DOMParser")
+  if (typeof window === "undefined" || window.DOMParser === undefined) {
+    throw new TypeError("sanitizeParagraphHtml requires a browser environment with DOMParser")
   }
 
   const allowedTagNames = normalizeAllowedTagNames(options.allowedTagNames)
@@ -142,7 +142,10 @@ export const sanitizeParagraphHtml = (
     const only = body.firstElementChild as HTMLElement
     if (only.tagName === "P") {
       root = only
-    } else if ((only.tagName === "DIV" || only.tagName === "SPAN") && !only.attributes.length) {
+    } else if (
+      (only.tagName === "DIV" || only.tagName === "SPAN") &&
+      only.attributes.length === 0
+    ) {
       root = only
     }
   }
@@ -151,11 +154,11 @@ export const sanitizeParagraphHtml = (
 
   if (root) {
     while (root.firstChild) {
-      fragmentContainer.appendChild(root.firstChild)
+      fragmentContainer.append(root.firstChild)
     }
   } else {
     while (body.firstChild) {
-      fragmentContainer.appendChild(body.firstChild)
+      fragmentContainer.append(body.firstChild)
     }
   }
 
@@ -192,7 +195,7 @@ const appendSanitizedNodes = (target: HTMLElement, nodes: Node[]): void => {
     const node = nodes[index]
 
     if (node.nodeType === Node.TEXT_NODE) {
-      target.appendChild(target.ownerDocument.createTextNode(node.textContent ?? ""))
+      target.append(target.ownerDocument.createTextNode(node.textContent ?? ""))
       continue
     }
 
@@ -207,7 +210,7 @@ const appendSanitizedNodes = (target: HTMLElement, nodes: Node[]): void => {
     if (INLINE_TAGS.has(tagName)) {
       const clone = cloneAllowedInlineElement(target.ownerDocument, element)
       appendSanitizedNodes(clone, Array.from(element.childNodes))
-      target.appendChild(clone)
+      target.append(clone)
       continue
     }
 
@@ -251,7 +254,7 @@ const appendListItem = (
   ensureLeadingBreaks(target, 1)
 
   const marker = orderedIndex === null ? "- " : `${orderedIndex}. `
-  target.appendChild(target.ownerDocument.createTextNode(marker))
+  target.append(target.ownerDocument.createTextNode(marker))
   appendSanitizedNodes(target, Array.from(listItemElement.childNodes))
 }
 
@@ -347,7 +350,7 @@ const isSafeInlineStyleValue = (property: string, value: string): boolean => {
     case "font-size":
       return isSafeFontSizeValue(value)
     case "text-decoration":
-      return value.trim().replace(/\s+/g, " ").toLowerCase() === "underline"
+      return value.trim().replaceAll(/\s+/g, " ").toLowerCase() === "underline"
     default:
       return false
   }
@@ -384,7 +387,7 @@ const ensureLeadingBreaks = (target: HTMLElement, requiredBreaks: number): void 
 
   const trailingBreakCount = countTrailingBreaks(target)
   for (let index = trailingBreakCount; index < requiredBreaks; index += 1) {
-    target.appendChild(target.ownerDocument.createElement("br"))
+    target.append(target.ownerDocument.createElement("br"))
   }
 }
 
@@ -597,7 +600,7 @@ const isStartOfTrimmedContent = (html: string, tokenIndex: number): boolean =>
   html.slice(0, tokenIndex).trim().length === 0
 
 const hasNonWhitespaceCharacterAfterToken = (html: string, nextIndex: number): boolean =>
-  Boolean(html.slice(nextIndex).match(/\S/))
+  Boolean(/\S/.test(html.slice(nextIndex)))
 
 const shouldPreserveStandaloneBreakTag = (
   html: string,

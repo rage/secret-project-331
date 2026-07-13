@@ -119,9 +119,9 @@ const SubmissionsPage: React.FC = () => {
 
   const exportHref =
     exportMode === "definitions"
-      ? // eslint-disable-next-line i18next/no-literal-string
+      ? // oxlint-disable-next-line i18next/no-literal-string
         `/api/v0/main-frontend/exercises/${id}/export-definitions-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}`
-      : // eslint-disable-next-line i18next/no-literal-string
+      : // oxlint-disable-next-line i18next/no-literal-string
         `/api/v0/main-frontend/exercises/${id}/export-answers-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}${onlyLatestPerUser ? "&only_latest_per_user=true" : ""}`
 
   return (
@@ -164,7 +164,7 @@ const SubmissionsPage: React.FC = () => {
         <Button
           variant="secondary"
           size="small"
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           onClick={() => openExportDialog("definitions")}
           disabled={
             csvExportTaskOptionsQuery.isLoading ||
@@ -177,7 +177,7 @@ const SubmissionsPage: React.FC = () => {
         <Button
           variant="secondary"
           size="small"
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           onClick={() => openExportDialog("answers")}
           disabled={
             csvExportTaskOptionsQuery.isLoading ||

@@ -9,7 +9,7 @@ import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import ExerciseBlockContext from "../../contexts/ExerciseBlockContext"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
-import { ExerciseAttributes } from "."
+import type { ExerciseAttributes } from "."
 
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"

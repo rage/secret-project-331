@@ -13,7 +13,7 @@ import LoginControls from "../../LoginControls"
 
 import Hamburger from "./Menu/Hamburger/Hamburger"
 
-import { NavigationProps } from "."
+import type { NavigationProps } from "."
 
 const swingHorizontal = keyframes`
 15% {

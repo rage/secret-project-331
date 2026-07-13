@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css, cx } from "@emotion/css"
 import DOMPurify from "dompurify"
 import { useSearchParams } from "next/navigation"
@@ -75,7 +75,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 import {
   COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
   courseMaterialBlockClass,
@@ -104,8 +104,8 @@ export type BlockRendererProps<T> = {
 
 const LatexBlock = dynamicImport(() => import("./moocfi/LatexBlock"))
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const blockToRendererMap: { [blockName: string]: any } = {
+// oxlint-disable-next-line typescript/no-explicit-any
+export const blockToRendererMap: Record<string, any> = {
   "core/block": DefaultBlock,
 
   // core / common

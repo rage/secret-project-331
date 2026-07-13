@@ -1,6 +1,7 @@
 "use client"
 
-import { QueryClient, useQueryClient } from "@tanstack/react-query"
+import type { QueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { invalidateCourseLanguageVersions } from "./useCourseLanguageVersions"
@@ -84,7 +85,7 @@ export const useCreateCourse = () => {
         return createCourseCopy({
           body: {
             ...newCourse,
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             mode: { mode: "duplicate" },
           },
           path: {
@@ -130,10 +131,9 @@ function createLanguageVersionMode(
   targetCourseId?: string,
 ): CopyCourseMode {
   if (useExistingLanguageGroup && targetCourseId) {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     return { mode: "existing_language_group", target_course_id: targetCourseId }
-  } else {
-    // eslint-disable-next-line i18next/no-literal-string
-    return { mode: "same_language_group" }
   }
+  // oxlint-disable-next-line i18next/no-literal-string
+  return { mode: "same_language_group" }
 }

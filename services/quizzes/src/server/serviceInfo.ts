@@ -1,6 +1,6 @@
 import basePath from "@/lib/basePath"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { ExerciseServiceInfoApi } from "@/utils/exerciseServiceApi"
+import type { ExerciseServiceInfoApi } from "@/utils/exerciseServiceApi"
 
 const SERVICE = "quizzes"
 

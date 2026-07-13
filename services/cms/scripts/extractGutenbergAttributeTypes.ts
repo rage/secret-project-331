@@ -1,5 +1,5 @@
 // Require imports needs to happen in a specific order.
-/* eslint-disable import/order */
+/* oxlint-disable import/order */
 
 import * as jsdom from "jsdom"
 import type { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
@@ -53,7 +53,7 @@ Object.defineProperty(global, "navigator", {
 
 const OriginalURL = global.URL
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 const urlThatDoesntCrashWithPaths = function (...args: any[]) {
   if (typeof args[0] === "string" && args[0].startsWith("/")) {
     return new OriginalURL(`https://example.com${args[0]}`)
@@ -66,7 +66,7 @@ urlThatDoesntCrashWithPaths.prototype = URL.prototype
 global.URL = urlThatDoesntCrashWithPaths
 
 class FakeMutationObserver {
-  observe() {
+  public observe() {
     // No op
   }
 }
@@ -114,13 +114,13 @@ async function main() {
   })
 
   const sanitizeNames = (name: string) => {
-    const newName = name.replace("core/", "").replace(/-./g, (x) => x.toUpperCase()[1])
+    const newName = name.replace("core/", "").replaceAll(/-./g, (x) => x.toUpperCase()[1])
     return newName.charAt(0).toUpperCase() + newName.slice(1) + "Attributes"
   }
 
-  const blockTypes: Array<BlockType<Record<string, unknown>>> = blocks.getBlockTypes()
+  const blockTypes: BlockType<Record<string, unknown>>[] = blocks.getBlockTypes()
   const jsonSchemaTypes: JSONSchema[] = blockTypes
-    .reverse()
+    .toReversed()
     .map(addSupportsAttributes)
     .map((block) => {
       // Fetch core/table head, foot, body types
@@ -218,7 +218,7 @@ async function main() {
       .filter((o) => !!o)
       .filter((schema) => !schema.deprecated)
       // sort alphabetically
-      .sort((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
+      .toSorted((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
       .map(async (schema) => {
         const jsonSchema = schema as JSONSchema
         const title = jsonSchema.title ?? "SchemaWithoutName"
@@ -233,7 +233,7 @@ async function main() {
       .flat()
       .filter((o) => !!o)
       .filter((schema) => schema.deprecated)
-      .sort((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
+      .toSorted((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
       .map(async (schema) => {
         const jsonSchema = schema as JSONSchema
         const title = jsonSchema.title ?? "SchemaWithoutName"
@@ -268,8 +268,8 @@ import type { StringWithHTML } from "."
   process.exit(0)
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function fixProperties(properties: { readonly [x: string]: any }) {
+// oxlint-disable-next-line typescript/no-explicit-any
+function fixProperties(properties: Readonly<Record<string, any>>) {
   const res = { ...properties }
   if (properties === null || properties === undefined) {
     return properties
@@ -291,7 +291,7 @@ function addSupportsAttributes(block: BlockType): BlockType {
   }
 
   if (supports.typography?.fontSize) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // oxlint-disable-next-line typescript/ban-ts-comment
     // @ts-ignore: adding a new attribute
     attributes["fontSize"] = {
       type: "string",

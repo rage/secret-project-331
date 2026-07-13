@@ -11,7 +11,7 @@ import StatsHeader from "../../StatsHeader"
 import NoDataMessage from "../NoDataMessage"
 
 import { getCoursePageVisitDatumSummaryByCountriesOptions } from "@/generated/api/@tanstack/react-query.generated"
-import countries from "@/shared-module/common/locales/en/countries.json"
+import type countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -53,7 +53,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
           num_visitors: countryData.reduce((acc, d) => acc + d.num_visitors, 0),
         }
       })
-      .sort((a, b) => a.num_visitors - b.num_visitors)
+      .toSorted((a, b) => a.num_visitors - b.num_visitors)
     if (totalCountsByCountry.length > 15) {
       totalCountsByCountry = totalCountsByCountry.filter((d) => d.num_visitors >= 10)
     }
@@ -82,7 +82,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  const chartHeight = categories.length ? 200 + categories.length * 25 : 300
+  const chartHeight = categories.length > 0 ? 200 + categories.length * 25 : 300
 
   return (
     <>
@@ -125,9 +125,9 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
                     },
                   ],
                   tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     trigger: "item",
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     formatter: "{b}: {c}",
                   },
                 }}

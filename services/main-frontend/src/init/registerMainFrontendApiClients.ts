@@ -1,7 +1,7 @@
 import { client as mainApiClient } from "@/generated/api/client.generated"
 import { client as courseMaterialApiClient } from "@/generated/course-material-api/client.generated"
+import type { AppApiError } from "@/shared-module/common/errors/AppApiError"
 import {
-  AppApiError,
   appApiErrorFromHttpFailure,
   appApiErrorFromTransportFailure,
   isAppApiError,

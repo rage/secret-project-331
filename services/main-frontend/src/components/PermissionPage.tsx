@@ -3,11 +3,13 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
-import { t as globalT, TFunction } from "i18next"
+import type { TFunction } from "i18next"
+import { t as globalT } from "i18next"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { assert, Equals } from "tsafe"
+import type { Equals } from "tsafe"
+import { assert } from "tsafe"
 
 import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 
@@ -124,12 +126,12 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
   } else if (domain.tag == "Exam") {
     query = { exam_id: domain.id }
   } else {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     throw "Unknown domain type"
   }
 
   const [newEmail, setNewEmail] = useState("")
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [newRole, setNewRole] = useState<UserRole>("Assistant")
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)
@@ -299,7 +301,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
               </tr>
             </thead>
             <tbody>
-              {roleData.sort(sortRoles).map((ur) => (
+              {roleData.toSorted(sortRoles).map((ur) => (
                 <tr
                   className={css`
                     background: #ffffff;

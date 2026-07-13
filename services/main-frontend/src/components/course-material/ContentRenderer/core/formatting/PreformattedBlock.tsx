@@ -2,9 +2,9 @@
 
 import { css } from "@emotion/css"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
-import { PreformattedAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { PreformattedAttributes } from "@/../types/GutenbergBlockAttributes"
 import { monospaceFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"

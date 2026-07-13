@@ -95,10 +95,9 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
       .filter((cit) => {
         if (citationFilteringSet.has(cit.document_url)) {
           return false
-        } else {
-          citationFilteringSet.add(cit.document_url)
-          return true
         }
+        citationFilteringSet.add(cit.document_url)
+        return true
       })
       .map((cit) => cit.id)
   }, [citations])
@@ -171,7 +170,7 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                         <b>{citationNumber}</b>{" "}
                         {cit.title.length <= citationTitleLen
                           ? citationTitle
-                          : // eslint-disable-next-line i18next/no-literal-string
+                          : // oxlint-disable-next-line i18next/no-literal-string
                             citationTitle.slice(0, citationTitleLen - 3).concat("\u2026")}
                       </>
                     )}

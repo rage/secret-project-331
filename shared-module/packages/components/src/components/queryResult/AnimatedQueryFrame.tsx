@@ -37,7 +37,7 @@ import {
   wrapperIsolationCss,
 } from "./queryResultStyles"
 
-export type FallbackArgs<E> = {
+export interface FallbackArgs<E> {
   error: E
   retry: RetryFn
 }
@@ -106,7 +106,7 @@ function useBlurSettling(refreshing: boolean) {
   return { settling, onContentTransitionEnd }
 }
 
-export type AnimatedQueryFrameProps<E> = {
+export interface AnimatedQueryFrameProps<E> {
   themeMode: ThemeMode
   minHeight?: number
   loadingDelayMs?: number
@@ -235,7 +235,7 @@ export function AnimatedQueryFrame<E>({
     <section
       className={cx(wrapperCss, refreshing ? wrapperIsolationCss : undefined)}
       aria-busy={refreshing || blurSettling ? "true" : undefined}
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       {...((refreshing || blurSettling) && { "data-testid": "query-refreshing" })}
     >
       {refreshing ? (

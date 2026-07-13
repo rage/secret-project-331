@@ -79,15 +79,15 @@ const StatusSummary: React.FC = () => {
       // Ignore common informational events
 
       const ignoredReasons = [
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "scheduled",
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "pulled",
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "created",
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "started",
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "killing",
       ]
 
@@ -98,17 +98,17 @@ const StatusSummary: React.FC = () => {
       // Critical reasons
 
       const criticalReasons = [
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "failed",
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "backoff",
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "crashloop",
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "imagepullbackoff",
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "errimagepull",
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "invalid",
       ]
 
@@ -122,7 +122,7 @@ const StatusSummary: React.FC = () => {
           (isRecent(e.last_timestamp) || isRecent(e.first_timestamp)) &&
           isCriticalEvent(e),
       )
-      .sort((a, b) => {
+      .toSorted((a, b) => {
         const aTime = a.last_timestamp || a.first_timestamp || ""
         const bTime = b.last_timestamp || b.first_timestamp || ""
         return bTime.localeCompare(aTime)
@@ -136,14 +136,14 @@ const StatusSummary: React.FC = () => {
           (isRecent(e.last_timestamp) || isRecent(e.first_timestamp)) &&
           isCriticalEvent(e),
       )
-      .sort((a, b) => {
+      .toSorted((a, b) => {
         const aTime = a.last_timestamp || a.first_timestamp || ""
         const bTime = b.last_timestamp || b.first_timestamp || ""
         return bTime.localeCompare(aTime)
       })
       .slice(0, 5)
 
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const defaultHealth: "healthy" | "warning" | "error" = "healthy"
     const overallHealth = (systemHealthDetailed?.status || defaultHealth) as
       | "healthy"

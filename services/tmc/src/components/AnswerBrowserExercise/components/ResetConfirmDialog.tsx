@@ -21,7 +21,7 @@ export const ResetConfirmDialog: React.FC<ResetConfirmDialogProps> = (p) => {
     return null
   }
   return (
-    /* eslint-disable-next-line i18next/no-literal-string -- aria attribute */
+    /* oxlint-disable-next-line i18next/no-literal-string -- aria attribute */
     <ConfirmOverlay onClick={p.onCancel} role="dialog" aria-modal="true">
       <ConfirmDialog onClick={(e) => e.stopPropagation()}>
         <ConfirmMessage>{t("are-you-sure")}</ConfirmMessage>

@@ -1,8 +1,8 @@
 import React from "react"
 
 export interface ContextProps {
-  questionIdsAndAnswers: { [key: string]: boolean } | undefined
-  setQuestionIdsAndAnswers: (questionIdsAndAnswers: { [key: string]: boolean }) => void
+  questionIdsAndAnswers: Record<string, boolean> | undefined
+  setQuestionIdsAndAnswers: (questionIdsAndAnswers: Record<string, boolean>) => void
 }
 
 export const CheckboxContext = React.createContext<ContextProps>({

@@ -6,15 +6,14 @@ import React, { useEffect, useState } from "react"
 import CmsPageTitle from "../../../components/CmsPageTitle"
 import CourseContext from "../../../contexts/CourseContext"
 
-import { EmailTemplateUpdate } from "@/generated/api"
+import type { EmailTemplateUpdate } from "@/generated/api"
 import { getCmsEmailTemplateOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCmsEmailTemplate } from "@/generated/api/sdk.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

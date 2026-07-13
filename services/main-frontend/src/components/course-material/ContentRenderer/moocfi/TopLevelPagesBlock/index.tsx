@@ -3,7 +3,7 @@
 import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import TopLevelPages from "./TopLevelPage"
 

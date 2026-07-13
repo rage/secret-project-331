@@ -3,11 +3,12 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { DotsHorizontal } from "@vectopus/atlas-icons-react"
-import { TFunction } from "i18next"
-import React, { JSX, useCallback, useMemo } from "react"
+import type { TFunction } from "i18next"
+import type { JSX } from "react"
+import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PaginationInfo } from "../hooks/usePaginationInfo"
+import type { PaginationInfo } from "../hooks/usePaginationInfo"
 import ArrowLeft from "../img/caret-arrow-left.svg"
 import ArrowRight from "../img/caret-arrow-right.svg"
 import { headingFont } from "../styles"
@@ -124,7 +125,7 @@ const Pagination: React.FC<React.PropsWithChildren<PaginationProps>> = ({
     [handleChangeEvent, page, t, totalPages],
   )
   // have to have a custom key on the parent of generatedComponents, otherwise react canot update the list of components correctly
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const componentsKey = `pagination-${page}-${totalPages}`
 
   return (
@@ -178,8 +179,6 @@ const generateComponents = (
       <SelectedCircle key={t("current-page-x")} aria-label={t("current-page-x", { number: 1 })}>
         <CircleText>1</CircleText>
       </SelectedCircle>,
-    )
-    components.push(
       <RightButton
         tabIndex={0}
         role="button"
@@ -272,13 +271,11 @@ const generateComponents = (
       </Circle>,
     )
   } else if (CAPACITY <= page && page <= totalPages - CAPACITY + 1) {
-    components.push(<Circle onClick={handleChangeEvent(1)}> 1 </Circle>)
     components.push(
+      <Circle onClick={handleChangeEvent(1)}> 1 </Circle>,
       <HorizontalDots>
         <DotsHorizontal size={18} weight="bold" />
       </HorizontalDots>,
-    )
-    components.push(
       <Circle
         tabIndex={0}
         role="button"
@@ -288,13 +285,9 @@ const generateComponents = (
       >
         <CircleText>{page - 1}</CircleText>
       </Circle>,
-    )
-    components.push(
       <SelectedCircle key={t("current-page-x")} aria-label={t("current-page-x", { number: page })}>
         <CircleText>{page}</CircleText>
       </SelectedCircle>,
-    )
-    components.push(
       <Circle
         tabIndex={0}
         role="button"
@@ -304,13 +297,9 @@ const generateComponents = (
       >
         <CircleText>{page + 1}</CircleText>
       </Circle>,
-    )
-    components.push(
       <HorizontalDots>
         <DotsHorizontal size={18} weight="bold" />
       </HorizontalDots>,
-    )
-    components.push(
       <Circle
         tabIndex={0}
         role="button"
@@ -332,8 +321,6 @@ const generateComponents = (
       >
         <CircleText>1</CircleText>
       </Circle>,
-    )
-    components.push(
       <HorizontalDots>
         <DotsHorizontal size={18} weight="bold" />
       </HorizontalDots>,

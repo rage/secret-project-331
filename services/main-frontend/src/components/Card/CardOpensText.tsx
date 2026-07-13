@@ -40,9 +40,8 @@ const CardOpensText: React.FC<React.PropsWithChildren<CardOpensTextProps>> = ({
     )
   } else if (open) {
     return <span className={cx(styledspan)}>{t("opens-now")}</span>
-  } else {
-    return <span>{t("closed")}</span>
   }
+  return <span>{t("closed")}</span>
 }
 
 export default CardOpensText

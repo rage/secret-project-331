@@ -23,7 +23,7 @@ const STAGE_BRIEF_KEYS = {
 
 interface PlanQueryData {
   plan: { active_stage?: CourseDesignerStage | null }
-  stages: Array<{ stage: CourseDesignerStage }>
+  stages: { stage: CourseDesignerStage }[]
 }
 
 interface UseCoursePlanWorkspacePageStateOptions {
@@ -88,7 +88,7 @@ export function useCoursePlanWorkspacePageState({
     setIsOverviewOpen(false)
 
     const nextStage = result.plan.active_stage ?? null
-    // eslint-disable-next-line i18next/no-literal-string -- internal sentinel value, not user-facing copy
+    // oxlint-disable-next-line i18next/no-literal-string -- internal sentinel value, not user-facing copy
     const transitionKey = nextStage ?? "completed"
     if (welcomedStageRef.current === transitionKey) {
       return

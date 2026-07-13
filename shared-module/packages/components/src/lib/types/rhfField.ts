@@ -3,7 +3,7 @@ import type { Control, FieldValues, Path, RegisterOptions } from "react-hook-for
 import { useController } from "react-hook-form"
 
 /** Shared react-hook-form wiring for public field components. */
-export type RhfFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = {
+export interface RhfFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> {
   name: N
   control: Control<T>
   rules?: RegisterOptions<T, N>

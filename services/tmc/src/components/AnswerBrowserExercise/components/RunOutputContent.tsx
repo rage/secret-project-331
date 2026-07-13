@@ -28,8 +28,8 @@ interface RunOutputContentProps {
 /** Merge consecutive stdout segments into one for a single pre block */
 function mergeStdoutSegments(
   segments: OutputSegment[],
-): Array<{ type: "stdout"; text: string } | OutputSegment> {
-  const result: Array<{ type: "stdout"; text: string } | OutputSegment> = []
+): ({ type: "stdout"; text: string } | OutputSegment)[] {
+  const result: ({ type: "stdout"; text: string } | OutputSegment)[] = []
   let stdoutAcc = ""
   for (const seg of segments) {
     if (seg.type === "stdout") {
@@ -80,13 +80,13 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
   useEffect(() => {
     if (waitingForInput && inputRef.current) {
       /* scrollIntoView options: ScrollBehavior and ScrollLogicalPosition (not user-facing) */
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       inputRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" })
     }
   }, [waitingForInput])
 
   const blocks = mergeStdoutSegments(segments)
-  const lastSegment = segments[segments.length - 1]
+  const lastSegment = segments.at(-1)
   const lastIsInputWaiting =
     lastSegment?.type === "input" && lastSegment.line === "" && waitingForInput
 

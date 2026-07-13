@@ -3,11 +3,11 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
-import { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
+import type { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
 import CmsPageTitle from "../../../components/CmsPageTitle"
 import CourseContext from "../../../contexts/CourseContext"
 
-import { NewResearchForm, NewResearchFormQuestion, ResearchForm } from "@/generated/api"
+import type { NewResearchForm, NewResearchFormQuestion, ResearchForm } from "@/generated/api"
 import { getCmsCourseResearchFormOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
   upsertCmsCourseResearchForm,
@@ -16,9 +16,8 @@ import {
 import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

@@ -12,7 +12,7 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 
-type Props = {
+interface Props {
   users?: UserDetail[]
   isLoading: boolean
   addUser: (user: UserDetail) => void

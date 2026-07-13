@@ -99,9 +99,9 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
               isUnlisted={course.is_unlisted}
               description={course.description ?? t("no-description-available")}
               languageCode={course.language_code}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               manageHref={`/manage/courses/${course.id}`}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               navigateToCourseHref={`/org/${organizationSlug}/courses/${course.slug}`}
               id={course.id}
               showManageButton={canMangeCourse.data?.[n] === true}

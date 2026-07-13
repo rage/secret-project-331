@@ -4,7 +4,8 @@ import { act, fireEvent, render, screen } from "@testing-library/react"
 
 import { TextArea } from "../src/components/TextArea"
 
-import { FormHarness, renderStringField, StringFieldForm } from "./testUtils"
+import type { StringFieldForm } from "./testUtils"
+import { FormHarness, renderStringField } from "./testUtils"
 
 describe("TextArea - accessibility wiring", () => {
   test("label is associated with the textarea", () => {

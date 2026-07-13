@@ -22,7 +22,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { currentCourseIdAtom, materialCourseAtom } from "@/state/course-material/selectors"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 interface ResearchConsentFormProps {
   onClose: () => void
@@ -32,7 +32,7 @@ interface ResearchConsentFormProps {
   researchForm: ResearchForm
 }
 
-type UserAnswer = {
+interface UserAnswer {
   questionId: string
   answer: boolean
 }
@@ -49,7 +49,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
   const courseId = useAtomValue(currentCourseIdAtom)
   const courseName = useAtomValue(materialCourseAtom)?.name
 
-  const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<{ [key: string]: boolean }>()
+  const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<Record<string, boolean>>()
   const getResearchFormQuestions = useQuery({
     queryKey: ["course-material-research-consent-form-questions", courseId],
     queryFn: async (): Promise<ResearchFormQuestion[]> =>
@@ -130,10 +130,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
       ]}
     >
       <CheckboxContext.Provider value={{ questionIdsAndAnswers, setQuestionIdsAndAnswers }}>
-        <ContentRenderer
-          data={(researchForm.content as Array<Block<unknown>>) ?? []}
-          isExam={false}
-        />
+        <ContentRenderer data={(researchForm.content as Block<unknown>[]) ?? []} isExam={false} />
       </CheckboxContext.Provider>
     </StandardDialog>
   )

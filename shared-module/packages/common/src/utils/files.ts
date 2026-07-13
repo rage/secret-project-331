@@ -82,7 +82,7 @@ export function fileMatchesType(file: File, typesAndExtensions: string[] | undef
   })
 }
 
-export function fileMatchAudio(file: File): { [key: string]: string | undefined } | undefined {
+export function fileMatchAudio(file: File): Record<string, string | undefined> | undefined {
   if (!file) {
     return
   }

@@ -6,7 +6,8 @@ import type React from "react"
 import type { DateFieldAria } from "react-aria"
 
 import { composeRefs } from "../../../lib/utils/compositeField"
-import { joinAriaDescribedBy, resolveFieldState } from "../../../lib/utils/field"
+import type { resolveFieldState } from "../../../lib/utils/field"
+import { joinAriaDescribedBy } from "../../../lib/utils/field"
 import { FieldShell } from "../FieldShell"
 import {
   type FieldSize,
@@ -31,7 +32,7 @@ import {
   shouldHideRestSegmentPlaceholders,
 } from "./segmentedDateInputFieldUtils"
 
-export type NonPickerSegmentedFieldProps = {
+export interface NonPickerSegmentedFieldProps {
   aria: DateFieldAria
   className?: string
   description?: React.ReactNode

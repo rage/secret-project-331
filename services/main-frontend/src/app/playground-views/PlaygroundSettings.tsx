@@ -1,13 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { BellXmark, CheckCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
-import { UseFormReturn } from "react-hook-form"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { PlaygroundSettings } from "@/app/playground-tabs/page"
+import type { PlaygroundSettings } from "@/app/playground-tabs/page"
 import { DEFAULT_SERVICE_INFO_URL } from "@/constants/playground"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -15,7 +15,7 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { ExerciseServiceInfoApi } from "@/utils/playgroundSchemas"
+import type { ExerciseServiceInfoApi } from "@/utils/playgroundSchemas"
 
 interface PlayGroundSettingsProps {
   settingsForm: UseFormReturn<PlaygroundSettings>

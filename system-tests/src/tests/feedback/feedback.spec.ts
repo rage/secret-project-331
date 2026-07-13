@@ -1,4 +1,4 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
@@ -79,7 +79,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   await page.locator("[aria-label=\"Manage course 'Introduction to feedback'\"] svg").click()
 
-  await Promise.all([page.getByRole("tab", { name: "Feedback 4" }).click()])
+  await page.getByRole("tab", { name: "Feedback 4" }).click()
 
   // Makes sure the components have rendered so that the next waitForTheseToBeVisibleAndStable always works with the placeholder
   await page.getByText(`Page: Page One`).waitFor()

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { ActionButtons, EditorSection, OutputPanel, ResetConfirmDialog } from "./components"
 import { useEditorState, useRunOutput, useTestRun } from "./hooks"
 import { Card } from "./styles"
-import { AnswerBrowserExerciseProps } from "./types"
+import type { AnswerBrowserExerciseProps } from "./types"
 import { isSupportedForBrowserTest } from "./utils"
 
 const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerciseProps>> = ({
@@ -39,7 +39,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
     submitStdinLine,
   } = useRunOutput()
   const { testResults, testInProgress, runTests } = useTestRun(publicSpec)
-  // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
+  // oxlint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
   const [lastOutputKind, setLastOutputKind] = useState<"run" | "test">("run")
 
   if (editorFiles.length === 0) {
@@ -67,12 +67,12 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
       testInProgress ||
       testResults != null)
   const outputMode: "run" | "test-running" | "test-results" = testInProgress
-    ? // eslint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
+    ? // oxlint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
       "test-running"
     : lastOutputKind === "test" && testResults != null
-      ? // eslint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
+      ? // oxlint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
         "test-results"
-      : // eslint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
+      : // oxlint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
         "run"
 
   return (
@@ -125,13 +125,13 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
           showRun={showRun}
           contents={contents}
           onRun={(code) => {
-            // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant
+            // oxlint-disable-next-line i18next/no-literal-string -- internal state discriminant
             setLastOutputKind("run")
             runPython(code)
           }}
           onStop={stopRun}
           onTest={async () => {
-            // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant
+            // oxlint-disable-next-line i18next/no-literal-string -- internal state discriminant
             setLastOutputKind("test")
             await runTests(filepath, contents)
           }}

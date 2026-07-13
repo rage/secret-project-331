@@ -19,7 +19,7 @@ import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/red
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
-type SubmitEmailFormFields = {
+interface SubmitEmailFormFields {
   email: string
 }
 const ResetPassword: React.FC = () => {

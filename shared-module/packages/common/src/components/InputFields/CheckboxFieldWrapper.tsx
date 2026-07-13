@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { InputHTMLAttributes, useState } from "react"
+import type { InputHTMLAttributes } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import CheckBox from "./CheckBox"

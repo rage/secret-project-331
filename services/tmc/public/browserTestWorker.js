@@ -42,7 +42,7 @@ self.onmessage = function (e) {
         var lines = stdout.split("\n").filter(function (s) {
           return s.trim().length > 0
         })
-        var lastLine = lines.length > 0 ? lines[lines.length - 1] : ""
+        var lastLine = lines.length > 0 ? lines.at(-1) : ""
         var runResult = JSON.parse(lastLine)
         if (stderrBuffer.length > 0) {
           runResult.stderr = stderrBuffer.join("\n")

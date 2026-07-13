@@ -74,7 +74,7 @@ export default function BreadcrumbRenderer() {
   const items = useAtomValue(breadcrumbCrumbsAtom)
   const { navProps } = useBreadcrumbs({ "aria-label": t("aria-label-breadcrumb") })
 
-  if (!items.length) {
+  if (items.length === 0) {
     return null
   }
 

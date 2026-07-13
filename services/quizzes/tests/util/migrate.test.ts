@@ -40,9 +40,9 @@ describe("private spec migration", () => {
     const migrated = migrateQuiz(quiz)
     expect(migrated.items[0].options.length).toBe(2)
     migrated.items[0].options.forEach((x) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       expect((x as any).successMessage).toBeUndefined()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       expect((x as any).failureMessage).toBeUndefined()
     })
   })

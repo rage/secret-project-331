@@ -5,12 +5,12 @@ import * as readline from "readline"
 import { temporaryDirectory, temporaryFile } from "tempy"
 import kill from "tree-kill"
 
-import { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
+import type { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
 import { isCliOutput } from "./cli.guard"
 
 const execute = async (
   cmd: string,
-  args: Array<string>,
+  args: string[],
   log: (message: string, ...optionalParams: unknown[]) => void,
 ): Promise<OutputData> => {
   const cliPath = "/app/tmc-langs-cli"
@@ -201,21 +201,19 @@ export const getExercisePackagingConfiguration = async (
   )
   if (config.data?.["output-data-kind"] === "exercise-packaging-configuration") {
     return config.data["output-data"]
-  } else {
-    throw new Error("Unexpected data")
   }
+  throw new Error("Unexpected data")
 }
 
 export const fastAvailablePoints = async (
   exercisePath: string,
   log: (message: string, ...optionalParams: unknown[]) => void,
-): Promise<Array<string>> => {
+): Promise<string[]> => {
   const config = await execute("fast-available-points", ["--exercise-path", exercisePath], log)
   if (config.data?.["output-data-kind"] === "available-points") {
     return config.data["output-data"]
-  } else {
-    throw new Error("Unexpected data")
   }
+  throw new Error("Unexpected data")
 }
 
 export const runBrowserTest = async (

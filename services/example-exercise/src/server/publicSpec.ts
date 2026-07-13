@@ -1,6 +1,6 @@
 import { jsonRoute } from "@/lib/apiRoutes"
 import { readSpecRequestAlternatives } from "@/server/specRequest"
-import { PublicAlternative } from "@/util/stateInterfaces"
+import type { PublicAlternative } from "@/util/stateInterfaces"
 
 // The public spec is what the student's browser is allowed to see. We derive it from the private
 // spec by dropping the `correct` flag so the answers don't leak to the client.

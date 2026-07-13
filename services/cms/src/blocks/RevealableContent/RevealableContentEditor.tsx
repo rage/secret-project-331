@@ -5,7 +5,7 @@ import React from "react"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-import { ConditionAttributes } from "."
+import type { ConditionAttributes } from "."
 
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"

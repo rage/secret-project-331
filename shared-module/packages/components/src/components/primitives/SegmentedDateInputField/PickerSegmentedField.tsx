@@ -2,12 +2,13 @@
 
 import { cx } from "@emotion/css"
 import type { DateFieldState } from "@react-stately/datepicker"
-import { useDatePickerState } from "@react-stately/datepicker"
+import type { useDatePickerState } from "@react-stately/datepicker"
 import type React from "react"
 import type { DateFieldAria, DatePickerAria, DateValue, TimeValue } from "react-aria"
 
 import { composeRefs } from "../../../lib/utils/compositeField"
-import { joinAriaDescribedBy, resolveFieldState } from "../../../lib/utils/field"
+import type { resolveFieldState } from "../../../lib/utils/field"
+import { joinAriaDescribedBy } from "../../../lib/utils/field"
 import { DatePickerCalendar } from "../DatePickerCalendar"
 import { FieldShell } from "../FieldShell"
 import {
@@ -37,7 +38,7 @@ import {
   shouldHideRestSegmentPlaceholders,
 } from "./segmentedDateInputFieldUtils"
 
-export type PickerSegmentedFieldProps = {
+export interface PickerSegmentedFieldProps {
   canClear: boolean
   className?: string
   dateFieldAria: DateFieldAria

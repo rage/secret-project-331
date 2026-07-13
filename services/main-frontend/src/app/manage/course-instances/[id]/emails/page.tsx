@@ -35,7 +35,7 @@ const CourseInstanceEmailTemplates: React.FC = () => {
   const handleCreateEmailTemplate = async (emailTitle: string) => {
     const result = await createCourseInstanceEmailTemplate({
       body: {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         template_type: "generic",
         language: null,
         content: undefined,

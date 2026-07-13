@@ -132,7 +132,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
     let renderOption = !isFromChatbot
       ? MessageRenderType.User
-      : !citationsOpen || filteredCitations.length == 0
+      : !citationsOpen || filteredCitations.length === 0
         ? MessageRenderType.ChatbotNoCitations
         : MessageRenderType.ChatbotWithCitations
 

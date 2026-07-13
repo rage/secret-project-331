@@ -3,7 +3,7 @@
 import KaTex from "katex"
 
 import "katex/dist/katex.min.css"
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

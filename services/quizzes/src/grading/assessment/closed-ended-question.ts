@@ -1,6 +1,6 @@
-import { UserItemAnswerClosedEndedQuestion } from "../../../types/quizTypes/answer"
-import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
-import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/privateSpec"
+import type { UserItemAnswerClosedEndedQuestion } from "../../../types/quizTypes/answer"
+import type { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
+import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/privateSpec"
 
 import { stripNonPrintableCharacters } from "@/shared-module/common/utils/strings"
 
@@ -12,7 +12,7 @@ const assessClosedEndedQuestion = (
     throw new Error("No answer provided")
   }
 
-  const textData = stripNonPrintableCharacters(quizItemAnswer.textData).replace(/\0/g, "").trim()
+  const textData = stripNonPrintableCharacters(quizItemAnswer.textData).replaceAll("\0", "").trim()
   let correct = true
   if (quizItem.validityRegex) {
     const validityRegex = new RegExp(quizItem.validityRegex.trim())

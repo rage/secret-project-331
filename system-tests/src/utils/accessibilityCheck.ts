@@ -1,9 +1,9 @@
-/* eslint-disable playwright/no-conditional-in-test */
+/* oxlint-disable playwright/no-conditional-in-test */
 import { AxeBuilder } from "@axe-core/playwright"
 import { test } from "@playwright/test"
-import { CheckResult } from "axe-core"
+import type { CheckResult } from "axe-core"
 import { Console } from "console"
-import { Page } from "playwright"
+import type { Page } from "playwright"
 import { Writable } from "stream"
 
 import waitForSpinnersToDisappear from "./waitForSpinnersToDisappear"
@@ -55,9 +55,8 @@ export default async function accessibilityCheck(
         }
         if (axeSkip && axeSkip.find((skippable) => skippable === violation.id)) {
           return
-        } else {
-          return violation
         }
+        return violation
       })
     } else {
       resultsFiltered = results.violations
@@ -123,14 +122,14 @@ function displayChecksForNodes(nodes: CheckResult[], stdErrConsole: Console): vo
 }
 
 class StoringStream extends Writable {
-  chunks: string[]
+  public chunks: string[]
 
-  constructor() {
+  public constructor() {
     super()
     this.chunks = []
   }
-  _write(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public override _write(
+    // oxlint-disable-next-line typescript/no-explicit-any
     chunk: any,
     encoding: BufferEncoding,
     callback: (error?: Error | null | undefined) => void,

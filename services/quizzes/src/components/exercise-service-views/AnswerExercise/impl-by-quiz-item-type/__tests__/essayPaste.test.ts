@@ -69,6 +69,7 @@ describe("isLargePaste", () => {
   it("does not count DOIs", () => {
     expect(isLargePaste(`see doi:10.1000/${"x".repeat(LARGE_PASTE_CHAR_THRESHOLD)}`)).toBe(false)
     expect(isLargePaste(`see 10.1000/${"x".repeat(LARGE_PASTE_CHAR_THRESHOLD)}`)).toBe(false)
+    expect(isLargePaste(`${words(LARGE_PASTE_WORD_THRESHOLD - 1)} doi: 10.1000/xyz`)).toBe(false)
   })
 
   it("does not count email addresses toward the word threshold", () => {
@@ -91,9 +92,28 @@ describe("isLargePaste", () => {
     expect(isLargePaste(`${words(LARGE_PASTE_WORD_THRESHOLD - 1)} ${markers}`)).toBe(false)
   })
 
+  it.each([
+    ["markdown links", (i: number) => `[source-${i}](https://example.com/paper-${i})`],
+    ["angle-bracket links", (i: number) => `<https://example.com/article-${i}>`],
+    ["quoted links", (i: number) => `"https://example.com/ref-${i}",`],
+    ["bracketed emails", (i: number) => `[author-${i}@university.fi]`],
+  ])("excludes %s", (_name, cite) => {
+    const citations = Array.from({ length: 10 }, (_, i) => cite(i)).join(" ")
+    expect(isLargePaste(`${words(LARGE_PASTE_WORD_THRESHOLD - 1)} ${citations}`)).toBe(false)
+  })
+
   it("does not split words when a citation marker is glued to them", () => {
     const glued = Array.from({ length: LARGE_PASTE_WORD_THRESHOLD - 1 }, (_, i) => `w${i}[1].`)
     expect(isLargePaste(glued.join(" "))).toBe(false)
+  })
+
+  it("excludes marker runs glued to sentence ends toward the character fallback", () => {
+    expect(isLargePaste("lorem.[1][2][3] ".repeat(40))).toBe(false)
+  })
+
+  it("counts whitespace toward the character fallback, so indented code still warns", () => {
+    const code = "                indented_value\n".repeat(14)
+    expect(isLargePaste(code)).toBe(true)
   })
 
   it("still counts an unbroken block that contains an embedded email or URL", () => {
@@ -106,6 +126,10 @@ describe("isLargePaste", () => {
     expect(isLargePaste("a@".repeat(20000))).toBe(true)
     expect(isLargePaste("a.".repeat(20000))).toBe(true)
     expect(isLargePaste("a".repeat(100000))).toBe(true)
+    // Tokens under the citation length cap so every pattern actually executes.
+    expect(isLargePaste(`a@${"a.".repeat(240)}fi `.repeat(4000))).toBe(false)
+    expect(isLargePaste(`www.example.com/${"a".repeat(490)} `.repeat(4000))).toBe(false)
+    expect(isLargePaste(`${"a.".repeat(250)}a `.repeat(4000))).toBe(true)
   })
 })
 

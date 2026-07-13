@@ -1,0 +1,14 @@
+#!/bin/bash
+# Applies oxlint's safe autofixes to the files passed as arguments and ALWAYS exits 0.
+#
+# Used by the pre-commit hook (.husky/lint-staged.precommit.config.js): a commit should get its
+# autofixable lint issues cleaned up automatically, but must NEVER be blocked by a remaining
+# (non-autofixable) warning or error -- committing work-in-progress has to stay friction-free.
+# The failing lint gate lives in bin/git-run-branch-ready-checks and in CI
+# (.github/workflows/code-style.yml), both of which run `oxlint --max-warnings=0`.
+#
+# Only the safe `--fix` level is used (never --fix-suggestions / --fix-dangerously), so the
+# autofixes should not change behavior.
+set -u
+pnpm exec oxlint --fix "$@" || true
+exit 0

@@ -10,10 +10,6 @@ import InnerBlocks from "../util/InnerBlocks"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface AuthorBlockAttributes {
-  backgroundColor: string
-}
-
 const Wrapper = styled.div`
   background: #f7f8f9;
   padding: 1.25rem 1.4rem 0.4rem 1.4rem;
@@ -65,7 +61,7 @@ const Wrapper = styled.div`
   }
 `
 
-const AuthorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<AuthorBlockAttributes>>> = (
+const AuthorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Record<string, never>>>> = (
   props,
 ) => {
   return (

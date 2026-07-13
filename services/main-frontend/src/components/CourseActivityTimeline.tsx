@@ -8,6 +8,12 @@ import { useTranslation } from "react-i18next"
 
 import Echarts from "@/app/manage/courses/[id]/stats/Echarts"
 import {
+  moduleTimingCaptionCss,
+  ModuleTimingCells,
+  moduleTimingLegendCss,
+  moduleTimingTableCss,
+} from "@/components/ModuleTimingTable"
+import {
   getUserCourseEnrollmentsOptions,
   getUserCourseSubmissionTimesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
@@ -18,6 +24,8 @@ import { computeModuleRows, formatDuration } from "@/utils/moduleTimeline"
 import {
   colorAt,
   ECHARTS,
+  escapeHtml,
+  LINE_BREAK,
   NEUTRAL_MARK_COLOR,
   REVIEW_ACCENT,
   SERIES_COLORS,
@@ -31,47 +39,15 @@ export interface CourseActivityTimelineProps {
   userId: string
 }
 
-const LINE_BREAK = "<br />"
 const OTHER_KEY = "__other__"
-const EMPTY_CELL = "—"
-const STAR = "★"
 const SUBMISSION_CAP = 5000
 const LANE = "activity"
 const MARK_BORDER = "#ffffff"
 const SUBMISSION_SIZE = 9
 const COMPLETION_SIZE = 16
 
-const tableCss = css`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 15px;
-
-  th,
-  td {
-    text-align: left;
-    padding: 0.4rem 0.6rem;
-    border-bottom: 1px solid var(--color-clear-300, #e2e4e6);
-  }
-
-  th {
-    color: var(--color-gray-500, #535a66);
-    font-weight: 600;
-  }
-
-  td {
-    color: var(--color-gray-700, #1a2333);
-    font-variant-numeric: tabular-nums;
-  }
-`
-
 const noteCss = css`
   margin-top: 0.5rem;
-  color: var(--color-gray-500, #535a66);
-  font-size: 0.85rem;
-`
-
-const legendCss = css`
-  margin: 0.25rem 0 0;
   color: var(--color-gray-500, #535a66);
   font-size: 0.85rem;
 `
@@ -100,7 +76,14 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
     return null
   }
 
-  const submissions = submissionsQuery.data ?? []
+  // The backend fetches one past the cap (LIMIT SUBMISSION_CAP + 1) so a genuine overflow is
+  // distinguishable from an exact-cap result; only then is the "capped" note truthful. Plot at most the
+  // cap so the count matches the note.
+  const allSubmissions = submissionsQuery.data ?? []
+  const submissionsTruncated = allSubmissions.length > SUBMISSION_CAP
+  const submissions = submissionsTruncated
+    ? allSubmissions.slice(0, SUBMISSION_CAP)
+    : allSubmissions
   const completions = enrollment.course_module_completions
   const enrolledMs = new Date(enrollment.first_enrolled_at).getTime()
 
@@ -142,7 +125,7 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
           symbolSize: SUBMISSION_SIZE,
           itemStyle: first ? { borderColor: MARK_BORDER, borderWidth: 1 } : { borderWidth: 1.5 },
           _tip: [
-            bucketLabel(key),
+            escapeHtml(bucketLabel(key)),
             t("tooltip-exercise", { id: s.exercise_id.slice(0, 8) }),
             first ? t("label-first-attempt") : t("attempt-number", { n: s.attempt }),
             dateToString(new Date(s.ms)),
@@ -155,7 +138,7 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
         const when = new Date(c.completion_date)
         const row = c.course_module_id ? rowByModuleId.get(c.course_module_id) : undefined
         const tip = [
-          bucketLabel(key),
+          escapeHtml(bucketLabel(key)),
           c.needs_to_be_reviewed ? t("label-review") : t("label-completed"),
           dateToString(when),
         ]
@@ -252,23 +235,15 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
       {hasChart ? (
         <>
           <Echarts options={options} height={180} />
-          <p className={legendCss}>{t("submission-legend")}</p>
-          {submissions.length >= SUBMISSION_CAP ? (
+          <p className={moduleTimingLegendCss}>{t("submission-legend")}</p>
+          {submissionsTruncated ? (
             <p className={noteCss}>{t("submissions-capped", { count: SUBMISSION_CAP })}</p>
           ) : null}
         </>
       ) : null}
       <Disclosure title={t("show-underlying-data")}>
-        <table className={tableCss}>
-          <caption
-            className={css`
-              text-align: left;
-              color: var(--color-gray-500, #535a66);
-              padding: 0.25rem 0;
-            `}
-          >
-            {t("completion-timeline-caption")}
-          </caption>
+        <table className={moduleTimingTableCss}>
+          <caption className={moduleTimingCaptionCss}>{t("completion-timeline-caption")}</caption>
           <thead>
             <tr>
               <th>{t("label-module")}</th>
@@ -281,36 +256,7 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
           <tbody>
             {moduleRows.map((row) => (
               <tr key={row.moduleId}>
-                <td>{row.name ?? t("default-module")}</td>
-                <td>
-                  {row.startedAt ? (
-                    <>
-                      {row.isBase ? `${STAR} ` : ""}
-                      {dateToString(row.startedAt)}
-                    </>
-                  ) : (
-                    EMPTY_CELL
-                  )}
-                </td>
-                <td>
-                  {row.completedAt
-                    ? row.needsReview
-                      ? t("completed-review", { date: dateToString(row.completedAt) })
-                      : dateToString(row.completedAt)
-                    : EMPTY_CELL}
-                </td>
-                <td>
-                  {row.moduleSeconds != null
-                    ? formatDuration(row.moduleSeconds, t)
-                    : row.startedAt
-                      ? t("in-progress")
-                      : EMPTY_CELL}
-                </td>
-                <td>
-                  {row.sinceEnrollSeconds != null
-                    ? formatDuration(row.sinceEnrollSeconds, t)
-                    : EMPTY_CELL}
-                </td>
+                <ModuleTimingCells row={row} />
               </tr>
             ))}
           </tbody>

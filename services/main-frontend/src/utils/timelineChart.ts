@@ -47,6 +47,22 @@ export const TIME_AXIS_LABEL = {
 /** Subtle alternating background bands for the time axis (splitArea): faint gray tint / transparent. */
 export const SPLIT_AREA_COLORS = ["rgba(83,90,102,0.04)", "rgba(255,255,255,0)"]
 
+/** Line break for the (raw-HTML) echarts tooltip strings both timelines build. */
+export const LINE_BREAK = "<br />"
+
+/**
+ * Escape a string for safe interpolation into an echarts tooltip. Tooltip `formatter` return values are
+ * inserted as raw HTML, so teacher-authored course/module names must be escaped to avoid stored XSS.
+ */
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+}
+
 /** Faint neutral fill for the enrolled→last-activity span track behind the density violins. */
 export const TRACK_FILL = "rgba(83,90,102,0.10)"
 

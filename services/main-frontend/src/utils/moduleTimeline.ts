@@ -50,7 +50,12 @@ export function computeModuleRows(enrollment: CourseEnrollmentInfo): ModuleRow[]
   const modules = [...enrollment.course_modules].sort((a, b) => a.order_number - b.order_number)
   return modules.map((m) => {
     const isBase = isBaseModule(m)
-    const completion = enrollment.course_module_completions.find((c) => c.course_module_id === m.id)
+    // A module can be completed more than once and the API list has no guaranteed order; pick the latest
+    // completion deterministically so the row's date, needs-review flag and durations are stable.
+    const moduleCompletions = enrollment.course_module_completions
+      .filter((c) => c.course_module_id === m.id)
+      .sort((a, b) => new Date(a.completion_date).getTime() - new Date(b.completion_date).getTime())
+    const completion = moduleCompletions[moduleCompletions.length - 1]
     const startedAt = isBase
       ? enrolledAt
       : m.first_submission_at

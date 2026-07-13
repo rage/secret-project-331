@@ -127,67 +127,73 @@ const CompletionReviewSection: React.FC<CompletionReviewSectionProps> = ({
   })
 
   const courseName = (courseId: string): string =>
-    enrollments.find((e) => e.course_id === courseId)?.course.name ?? courseId
+    enrollments.find((e) => e.course_id === courseId)?.course.name ?? t("unknown-course")
 
   return (
-    <QueryResult query={query} treatEmptyAsData>
-      {(records: UserSuspectedCheaterInfo[]) => {
-        if (records.length === 0) {
-          return null
-        }
-        return (
-          <section id={id} className={sectionCss}>
-            <h2 className={sectionHeadingCss}>{t("completion-review")}</h2>
-            <p className={explanationCss}>{t("completion-review-explanation")}</p>
-            {records.map((record) => {
-              const durationSeconds = record.total_duration_seconds ?? 0
-              const percent = ratioPercent(durationSeconds, record.threshold_seconds)
-              const valueLabel = t("duration-of-threshold", {
-                hours: toHours(durationSeconds),
-                threshold: toHours(record.threshold_seconds),
-                percent,
-              })
-              return (
-                <div className={rowCss} key={record.course_id}>
-                  <div className={courseCss}>
-                    <div className={courseHeadCss}>
-                      <Link
-                        className={courseLinkCss}
-                        href={manageCourseOtherCheatersSuspectedRoute(record.course_id)}
-                      >
-                        {courseName(record.course_id)}
-                      </Link>
-                      <Badge tone={STATUS_TONE[record.status]}>{statusLabel(record.status)}</Badge>
+    // The anchor is rendered unconditionally so the banner/stat-tile links to `#id` scroll here even
+    // before this section's own query resolves (or when there are no records to show).
+    <section id={id}>
+      <QueryResult query={query} treatEmptyAsData>
+        {(records: UserSuspectedCheaterInfo[]) => {
+          if (records.length === 0) {
+            return null
+          }
+          return (
+            <div className={sectionCss}>
+              <h2 className={sectionHeadingCss}>{t("completion-review")}</h2>
+              <p className={explanationCss}>{t("completion-review-explanation")}</p>
+              {records.map((record) => {
+                const durationSeconds = record.total_duration_seconds ?? 0
+                const percent = ratioPercent(durationSeconds, record.threshold_seconds)
+                const valueLabel = t("duration-of-threshold", {
+                  hours: toHours(durationSeconds),
+                  threshold: toHours(record.threshold_seconds),
+                  percent,
+                })
+                return (
+                  <div className={rowCss} key={record.course_id}>
+                    <div className={courseCss}>
+                      <div className={courseHeadCss}>
+                        <Link
+                          className={courseLinkCss}
+                          href={manageCourseOtherCheatersSuspectedRoute(record.course_id)}
+                        >
+                          {courseName(record.course_id)}
+                        </Link>
+                        <Badge tone={STATUS_TONE[record.status]}>
+                          {statusLabel(record.status)}
+                        </Badge>
+                      </div>
+                      <span className={metaCss}>
+                        {t("points-value", { points: record.total_points })}
+                        {MIDDLE_DOT}
+                        {t("first-flagged-on", {
+                          date: dateToString(new Date(record.first_flagged_at)),
+                        })}
+                      </span>
                     </div>
-                    <span className={metaCss}>
-                      {t("points-value", { points: record.total_points })}
-                      {MIDDLE_DOT}
-                      {t("first-flagged-on", {
-                        date: dateToString(new Date(record.first_flagged_at)),
-                      })}
-                    </span>
+                    <div className={meterWrapCss}>
+                      <span className={meterValueCss}>{valueLabel}</span>
+                      <Meter
+                        label={t("duration-vs-threshold-label", {
+                          course: courseName(record.course_id),
+                        })}
+                        value={durationSeconds}
+                        maxValue={record.threshold_seconds}
+                        threshold={record.threshold_seconds}
+                        tone={STATUS_TONE[record.status]}
+                        valueLabel={valueLabel}
+                        showLabel={false}
+                      />
+                    </div>
                   </div>
-                  <div className={meterWrapCss}>
-                    <span className={meterValueCss}>{valueLabel}</span>
-                    <Meter
-                      label={t("duration-vs-threshold-label", {
-                        course: courseName(record.course_id),
-                      })}
-                      value={durationSeconds}
-                      maxValue={record.threshold_seconds}
-                      threshold={record.threshold_seconds}
-                      tone={STATUS_TONE[record.status]}
-                      valueLabel={valueLabel}
-                      showLabel={false}
-                    />
-                  </div>
-                </div>
-              )
-            })}
-          </section>
-        )
-      }}
-    </QueryResult>
+                )
+              })}
+            </div>
+          )
+        }}
+      </QueryResult>
+    </section>
   )
 }
 

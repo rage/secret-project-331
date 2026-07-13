@@ -25,6 +25,12 @@ const cardCss = css`
   margin-bottom: 0.75rem;
 `
 
+// A superseded enrollment (the student's active version is a different one) is dimmed; the badge in the
+// header row names the state explicitly.
+const notCurrentCss = css`
+  opacity: 0.7;
+`
+
 const summaryCss = css`
   display: flex;
   flex-wrap: wrap;
@@ -129,6 +135,9 @@ const CourseEnrollmentCard: React.FC<CourseEnrollmentCardProps> = ({ enrollment,
       {reviewCount > 0 ? (
         <Badge tone={TONE.WARNING}>{t("awaiting-review-count", { count: reviewCount })}</Badge>
       ) : null}
+      {enrollment.is_current ? null : (
+        <Badge tone={TONE.NEUTRAL}>{t("badge-not-current-version")}</Badge>
+      )}
       <span className={spacerCss} />
       <span className={metaCss}>
         {ietfLanguageTagToHumanReadableName(enrollment.course.language_code, i18n.language)}
@@ -137,7 +146,10 @@ const CourseEnrollmentCard: React.FC<CourseEnrollmentCardProps> = ({ enrollment,
   )
 
   return (
-    <div className={cardCss} data-testid="course-status-card">
+    <div
+      className={cx(cardCss, enrollment.is_current ? undefined : notCurrentCss)}
+      data-testid="course-status-card"
+    >
       <Disclosure title={title} aria-label={enrollment.course.name}>
         <ModuleCompletionsTable enrollment={enrollment} />
         <CourseActivityTimeline courseId={enrollment.course_id} userId={userId} />

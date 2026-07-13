@@ -20,6 +20,7 @@ const SUCCESS_GLYPH = "✓"
 const ERROR_GLYPH = "✕"
 const FALLBACK_POSITION = "fixed"
 const EXEC_COMMAND_COPY = "copy"
+const COPY_FAILED_MESSAGE = "Copy command was unsuccessful"
 const RESET_DELAY_MS = 2000
 
 // SCREAMING_CASE keys keep the string values out of the i18next literal-string lint.
@@ -114,20 +115,30 @@ const tooltipCss = css`
   }
 `
 
+// Standalone copy helper: the components package can't depend on common's useCopyToClipboard, so this
+// mirrors that hook's behaviour. Try the async Clipboard API first, and on its absence OR failure
+// (permission denied, document not focused, non-secure context) fall back to execCommand — throwing only
+// if the fallback itself reports failure, so the caller can surface an accurate error state.
 async function writeToClipboard(value: string): Promise<void> {
   if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(value)
-    return
+    try {
+      await navigator.clipboard.writeText(value)
+      return
+    } catch {
+      // Fall through to the legacy execCommand path below.
+    }
   }
-  // Fallback for browsers/contexts without the async clipboard API.
   const textarea = document.createElement("textarea")
   textarea.value = value
   textarea.style.position = FALLBACK_POSITION
   textarea.style.opacity = "0"
   document.body.appendChild(textarea)
   textarea.select()
-  document.execCommand(EXEC_COMMAND_COPY)
+  const succeeded = document.execCommand(EXEC_COMMAND_COPY)
   document.body.removeChild(textarea)
+  if (!succeeded) {
+    throw new Error(COPY_FAILED_MESSAGE)
+  }
 }
 
 /** Icon button that copies `value`, swaps to a check/cross with a tooltip, and announces the result. */

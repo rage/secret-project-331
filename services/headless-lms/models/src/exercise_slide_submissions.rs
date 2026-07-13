@@ -351,7 +351,8 @@ pub struct UserCourseSubmissionTime {
 }
 
 /// All of a user's submission times in a course, each tagged with its exercise and module, ordered
-/// chronologically and capped to a safe maximum.
+/// chronologically. Capped to a safe maximum, fetching one past the cap (5001) so the caller can tell a
+/// genuine overflow from an exact-cap result.
 pub async fn get_user_course_submission_times(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -370,7 +371,7 @@ WHERE ess.user_id = $1
   AND ess.course_id = $2
   AND ess.deleted_at IS NULL
 ORDER BY ess.created_at
-LIMIT 5000
+LIMIT 5001
         "#,
         user_id,
         course_id,

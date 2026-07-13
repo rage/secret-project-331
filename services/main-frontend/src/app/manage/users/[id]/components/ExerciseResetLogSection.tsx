@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { format } from "date-fns"
 import { groupBy } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -18,8 +17,8 @@ export interface ExerciseResetLogSectionProps {
   userId: string
 }
 
-// date-fns day pattern for grouping resets (SCREAMING_CASE = not a translatable string).
-const DAY_FORMAT = "yyyy-MM-dd"
+/** UTC calendar day (YYYY-MM-DD) of an instant; used to group resets identically for every viewer. */
+const utcDay = (iso: string): string => new Date(iso).toISOString().slice(0, 10)
 
 const groupCss = css`
   border: 1px solid #ced1d7;
@@ -78,12 +77,9 @@ const ExerciseResetLogSection: React.FC<ExerciseResetLogSectionProps> = ({ userI
           if (data.length === 0) {
             return <p className={emptyCss}>{t("no-exercise-resets")}</p>
           }
-          // Group by day and resetter so same-day resets aggregate, but different people or days stay
-          // separate and attributed.
-          const grouped = groupBy(
-            data,
-            (log) => `${format(new Date(log.created_at), DAY_FORMAT)}::${log.reset_by ?? ""}`,
-          )
+          // Group by UTC day and resetter so same-day resets aggregate, but different people or days
+          // stay separate and attributed. UTC (not local time) keeps the grouping stable across viewers.
+          const grouped = groupBy(data, (log) => `${utcDay(log.created_at)}::${log.reset_by ?? ""}`)
           return (
             <div>
               {Object.entries(grouped).map(([groupKey, logs]) => {

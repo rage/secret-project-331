@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT ess.created_at,\n  ess.exercise_id,\n  c.course_module_id AS \"course_module_id?\"\nFROM exercise_slide_submissions ess\n  JOIN exercises e ON e.id = ess.exercise_id\n  LEFT JOIN chapters c ON c.id = e.chapter_id\nWHERE ess.user_id = $1\n  AND ess.course_id = $2\n  AND ess.deleted_at IS NULL\nORDER BY ess.created_at\nLIMIT 5000\n        ",
+  "query": "\nSELECT ess.created_at,\n  ess.exercise_id,\n  c.course_module_id AS \"course_module_id?\"\nFROM exercise_slide_submissions ess\n  JOIN exercises e ON e.id = ess.exercise_id\n  LEFT JOIN chapters c ON c.id = e.chapter_id\nWHERE ess.user_id = $1\n  AND ess.course_id = $2\n  AND ess.deleted_at IS NULL\nORDER BY ess.created_at\nLIMIT 5001\n        ",
   "describe": {
     "columns": [
       {
@@ -49,5 +49,5 @@
       false
     ]
   },
-  "hash": "212ebdffa3cd8ad997601a805fa058cfcea140efcc47d0c88178d19f604e49c0"
+  "hash": "01ec00c65a20c4bc2fd143892cc033aed8059ca8519fff41854f19c867caf7fc"
 }

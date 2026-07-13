@@ -311,18 +311,20 @@ GROUP BY c.course_module_id
         .map(|r| (r.course_module_id, r.count))
         .collect();
 
-    // This user's submissions per module bucketed by UTC day, for the activity-density violins. Same
-    // join path as the first-submission query; submissions to exercises with no chapter are excluded.
+    // This user's submissions per module bucketed by UTC day, for the activity-density violins. Restricts
+    // to the same non-deleted exercises/chapters as the exercise-count query above so the density
+    // numerator and denominator agree; DATE_TRUNC is anchored to UTC (not the session timezone) so the
+    // buckets line up with the frontend's fixed 24h grid.
     let module_daily_submission_rows = sqlx::query!(
         r#"
 SELECT c.course_module_id AS "course_module_id!",
-       DATE_TRUNC('day', ess.created_at) AS "day!",
+       DATE_TRUNC('day', ess.created_at AT TIME ZONE 'UTC') AT TIME ZONE 'UTC' AS "day!",
        COUNT(*) AS "count!"
 FROM exercise_slide_submissions ess
-JOIN exercises e ON e.id = ess.exercise_id
-JOIN chapters c ON c.id = e.chapter_id
+JOIN exercises e ON e.id = ess.exercise_id AND e.deleted_at IS NULL
+JOIN chapters c ON c.id = e.chapter_id AND c.deleted_at IS NULL
 WHERE ess.user_id = $1 AND ess.course_id = ANY($2) AND ess.deleted_at IS NULL
-GROUP BY c.course_module_id, DATE_TRUNC('day', ess.created_at)
+GROUP BY c.course_module_id, DATE_TRUNC('day', ess.created_at AT TIME ZONE 'UTC')
 ORDER BY c.course_module_id, "day!"
         "#,
         user_id,

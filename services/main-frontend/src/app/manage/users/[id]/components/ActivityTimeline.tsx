@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import type {
   CustomSeriesRenderItemAPI,
   CustomSeriesRenderItemParams,
@@ -16,6 +15,12 @@ import { packLanes } from "../lib/lanePacking"
 import { buildCourseDensity, courseSpan, maxStackedPerExercise } from "../lib/violinDensity"
 
 import Echarts from "@/app/manage/courses/[id]/stats/Echarts"
+import {
+  moduleTimingCaptionCss,
+  ModuleTimingCells,
+  moduleTimingLegendCss,
+  moduleTimingTableCss,
+} from "@/components/ModuleTimingTable"
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Disclosure } from "@/shared-module/components"
@@ -23,6 +28,8 @@ import { computeModuleRows, durationSeconds, formatDuration } from "@/utils/modu
 import {
   colorAt,
   ECHARTS,
+  escapeHtml,
+  LINE_BREAK,
   SERIES_COLORS,
   SPLIT_AREA_COLORS,
   TIME_AXIS_LABEL,
@@ -34,9 +41,6 @@ export interface ActivityTimelineProps {
   enrollments: CourseEnrollmentInfo[]
 }
 
-const LINE_BREAK = "<br />"
-const EMPTY_CELL = "—"
-const STAR = "★"
 const DOT_FILL = "#ffffff"
 const DOT_BORDER = "#1a2333" // gray.700
 const MARK_BORDER = "#ffffff"
@@ -87,35 +91,6 @@ interface CourseBar {
   totalModules: number
   reviewCount: number
 }
-
-const tableCss = css`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 15px;
-
-  th,
-  td {
-    text-align: left;
-    padding: 0.4rem 0.6rem;
-    border-bottom: 1px solid var(--color-clear-300, #e2e4e6);
-  }
-
-  th {
-    color: var(--color-gray-500, #535a66);
-    font-weight: 600;
-  }
-
-  td {
-    color: var(--color-gray-700, #1a2333);
-    font-variant-numeric: tabular-nums;
-  }
-`
-
-const legendCss = css`
-  margin: 0.25rem 0 0;
-  color: var(--color-gray-500, #535a66);
-  font-size: 0.85rem;
-`
 
 /**
  * Cross-course engagement as a lane-packed timeline. Each course is a lane spanning enrollment → last
@@ -177,7 +152,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
 
   const barTip = (bar: CourseBar): string => {
     const lines = [
-      bar.name,
+      escapeHtml(bar.name),
       t("tooltip-enrolled", { date: dateToString(new Date(bar.enrolledMs)) }),
     ]
     if (bar.hasActivity) {
@@ -204,20 +179,22 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
 
   const barData = packed.map((p) => ({ value: [p.lane, p.start, p.end], _tip: barTip(p.item) }))
 
-  // One completion tooltip per completion, grouped by lane, so nearby ones can be merged below.
+  // One completion tooltip per completion, grouped by course so nearby ones can be merged below. Keyed
+  // by course (not lane): back-to-back courses can share a lane, and completions from different courses
+  // must never merge into one marker just because they landed on the same lane.
   interface CompletionPoint {
     ms: number
     tip: string
     needsReview: boolean
   }
-  const completionsByLane = new Map<number, CompletionPoint[]>()
+  const completionsByCourse = new Map<string, { lane: number; points: CompletionPoint[] }>()
   for (const enrollment of enrollments) {
     const lane = laneByCourseId.get(enrollment.course_id) ?? 0
     for (const c of enrollment.course_module_completions) {
       const when = new Date(c.completion_date)
       const row = rowByModuleId.get(c.course_module_id)
       const tip = [
-        moduleName(enrollment, c.course_module_id),
+        escapeHtml(moduleName(enrollment, c.course_module_id)),
         t("tooltip-completed", { date: dateToString(when) }),
       ]
       if (row?.moduleSeconds != null) {
@@ -231,19 +208,19 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
       if (c.needs_to_be_reviewed) {
         tip.push(t("awaiting-review"))
       }
-      const list = completionsByLane.get(lane) ?? []
-      list.push({
+      const entry = completionsByCourse.get(enrollment.course_id) ?? { lane, points: [] }
+      entry.points.push({
         ms: when.getTime(),
         tip: tip.join(LINE_BREAK),
         needsReview: c.needs_to_be_reviewed,
       })
-      completionsByLane.set(lane, list)
+      completionsByCourse.set(enrollment.course_id, entry)
     }
   }
 
-  // Merge completions that land within `clusterMs` on the same lane into a single marker: overlapping
-  // dots would otherwise hide each other's tooltip. The merged tooltip lists each completion and, when
-  // more than one is stacked, a count badge on a slightly larger dot flags the overlap.
+  // Merge same-course completions that land within `clusterMs` into a single marker: overlapping dots
+  // would otherwise hide each other's tooltip. The merged tooltip lists each completion and, when more
+  // than one is stacked, a count badge on a slightly larger dot flags the overlap.
   const clusterMs = Math.max(spanMs * COMPLETION_CLUSTER_FRACTION, MIN_CLUSTER_MS)
   interface CompletionMarker {
     value: number[]
@@ -260,7 +237,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     _tip: string
   }
   const completionData: CompletionMarker[] = []
-  for (const [lane, points] of completionsByLane) {
+  for (const { lane, points } of completionsByCourse.values()) {
     const sorted = [...points].sort((a, b) => a.ms - b.ms)
     let cluster: CompletionPoint[] = []
     const flush = () => {
@@ -317,7 +294,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
         for (const b of day.breakdown) {
           tip.push(
             t("tooltip-submissions-in-module", {
-              module: b.name ?? t("default-module"),
+              module: escapeHtml(b.name ?? t("default-module")),
               count: b.count,
             }),
           )
@@ -506,18 +483,10 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   return (
     <div>
       <Echarts options={options} height={Math.max(160, laneCount * LANE_ROW_PX + 70)} />
-      <p className={legendCss}>{t("density-legend")}</p>
+      <p className={moduleTimingLegendCss}>{t("density-legend")}</p>
       <Disclosure title={t("show-underlying-data")}>
-        <table className={tableCss}>
-          <caption
-            className={css`
-              text-align: left;
-              color: var(--color-gray-500, #535a66);
-              padding: 0.25rem 0;
-            `}
-          >
-            {t("gantt-timeline-caption")}
-          </caption>
+        <table className={moduleTimingTableCss}>
+          <caption className={moduleTimingCaptionCss}>{t("gantt-timeline-caption")}</caption>
           <thead>
             <tr>
               <th>{t("course")}</th>
@@ -533,36 +502,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
               course.rows.map((row, i) => (
                 <tr key={row.moduleId}>
                   {i === 0 ? <td rowSpan={course.rows.length}>{course.name}</td> : null}
-                  <td>{row.name ?? t("default-module")}</td>
-                  <td>
-                    {row.startedAt ? (
-                      <>
-                        {row.isBase ? `${STAR} ` : ""}
-                        {dateToString(row.startedAt)}
-                      </>
-                    ) : (
-                      EMPTY_CELL
-                    )}
-                  </td>
-                  <td>
-                    {row.completedAt
-                      ? row.needsReview
-                        ? t("completed-review", { date: dateToString(row.completedAt) })
-                        : dateToString(row.completedAt)
-                      : EMPTY_CELL}
-                  </td>
-                  <td>
-                    {row.moduleSeconds != null
-                      ? formatDuration(row.moduleSeconds, t)
-                      : row.startedAt
-                        ? t("in-progress")
-                        : EMPTY_CELL}
-                  </td>
-                  <td>
-                    {row.sinceEnrollSeconds != null
-                      ? formatDuration(row.sinceEnrollSeconds, t)
-                      : EMPTY_CELL}
-                  </td>
+                  <ModuleTimingCells row={row} />
                 </tr>
               )),
             )}

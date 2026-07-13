@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { QueryObserverResult } from "@tanstack/react-query"
+import type { QueryObserverResult } from "@tanstack/react-query"
 import {
   BellXmark,
   CheckCircle,

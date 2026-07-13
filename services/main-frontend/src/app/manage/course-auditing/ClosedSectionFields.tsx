@@ -10,7 +10,7 @@ import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTim
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import { validateUUID } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import { EditCourseToAudit } from "./CourseAuditingCard"
+import type { EditCourseToAudit } from "./CourseAuditingCard"
 import { DateTimeLocalField, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
 
 const FieldContainer = styled.div`

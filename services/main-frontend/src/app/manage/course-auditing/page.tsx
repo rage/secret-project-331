@@ -22,13 +22,13 @@ import {
 } from "./courseAuditingStyles"
 
 import { getCoursesForAuditingOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { CourseToAudit } from "@/generated/api/types.generated"
+import type { CourseToAudit } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { Button, Checkbox, nullIfEmpty, QueryResult, TextField } from "@/shared-module/components"
 
-export type CourseFilter = {
+export interface CourseFilter {
   search_course: string
   empty_uh_course_code: boolean
   closed: boolean

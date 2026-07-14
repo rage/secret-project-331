@@ -78,10 +78,10 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled: open,
-      build: (courseId) =>
+      build: (id) =>
         getCoursePrerequisitesOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
           },
         }),
     }),
@@ -91,10 +91,10 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled: open,
-      build: (courseId) =>
+      build: (id) =>
         getCourseAudiencesOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
           },
         }),
     }),
@@ -104,24 +104,6 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
 
   const hasPrerequisites =
     prerequisitesQuery.data !== undefined && prerequisitesQuery.data?.length > 0
-
-  useEffect(() => {
-    if (sisuQuery.data) {
-      setValue("course_description", sisuQuery.data.course_description)
-      setValue(
-        "course_audiences",
-        sisuQuery.data.audience.map((audience) => ({
-          audience,
-        })),
-      )
-      setValue(
-        "course_prerequisites",
-        sisuQuery.data.modules[0].prerequisites.map((prerequisite) => ({
-          prerequisite,
-        })),
-      )
-    }
-  }, [sisuQuery.data])
 
   const methods = useForm<
     CourseMetadataUpdate & {
@@ -140,7 +122,25 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     },
   })
 
-  const { control, handleSubmit, setValue, watch } = methods
+  const { control, handleSubmit, setValue } = methods
+
+  useEffect(() => {
+    if (sisuQuery.data) {
+      setValue("course_description", sisuQuery.data.course_description)
+      setValue(
+        "course_audiences",
+        sisuQuery.data.audience.map((audience) => ({
+          audience,
+        })),
+      )
+      setValue(
+        "course_prerequisites",
+        sisuQuery.data.modules[0].prerequisites.map((prerequisite) => ({
+          prerequisite,
+        })),
+      )
+    }
+  }, [sisuQuery.data, setValue])
 
   //const course_preqs = watch("course_prerequisites")
 

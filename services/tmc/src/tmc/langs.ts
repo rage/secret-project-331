@@ -8,7 +8,7 @@ import kill from "tree-kill"
 import type { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
 import { isCliOutput } from "./cli.guard"
 
-// oxlint-disable-next-line eslint/require-await -- kept async so synchronous throws (e.g. spawn errors) surface as promise rejections
+// oxlint-disable-next-line eslint/require-await -- async so sync throws surface as promise rejections
 const execute = async (
   cmd: string,
   args: string[],

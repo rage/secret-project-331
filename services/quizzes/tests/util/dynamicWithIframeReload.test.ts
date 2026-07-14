@@ -164,7 +164,7 @@ describe("dynamicWithIframeReload", () => {
       reloadCalls += 1
     }
     const wrappedLoader = dynamicWithIframeReload(
-      // oxlint-disable-next-line require-await -- throwing loader must reject as a Promise; passed where () => Promise is expected
+      // oxlint-disable-next-line require-await -- must reject as a Promise (expects () => Promise)
       async () => {
         throw new Error("dynamic load failed")
       },
@@ -192,7 +192,7 @@ describe("dynamicWithIframeReload", () => {
       throw new Error("reload bridge failed")
     }
     const wrappedLoader = dynamicWithIframeReload(
-      // oxlint-disable-next-line require-await -- throwing loader must reject as a Promise; passed where () => Promise is expected
+      // oxlint-disable-next-line require-await -- must reject as a Promise (expects () => Promise)
       async () => {
         throw new Error("dynamic load failed")
       },

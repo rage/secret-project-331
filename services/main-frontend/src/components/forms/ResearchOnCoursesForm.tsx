@@ -36,7 +36,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   }
 
   const consentQuery = useToastMutation<UserResearchConsent, unknown, void>(
-    // oxlint-disable-next-line require-await -- kept async for Promise-returning mutation contract
+    // oxlint-disable-next-line require-await -- async for the mutation Promise contract
     async () =>
       createUserResearchConsent({
         body: {

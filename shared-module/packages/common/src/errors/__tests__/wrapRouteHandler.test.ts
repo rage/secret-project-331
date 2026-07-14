@@ -32,7 +32,7 @@ describe("wrapRouteHandler", () => {
     const fetchMock = jest.fn(() => Promise.resolve({ ok: true } as Response))
     const error = new Error("route exploded")
     const handler = wrapRouteHandler(
-      // oxlint-disable-next-line require-await -- async so the handler rejects rather than throws synchronously
+      // oxlint-disable-next-line require-await -- async so the handler rejects, not throws
       async (_request: { method: string; url: string }) => {
         throw error
       },

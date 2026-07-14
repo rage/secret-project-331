@@ -143,7 +143,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
     getUserChapterProgress.isSuccess && getUserChapterProgress.data
       ? {
           maxScore: getUserChapterProgress.data.score_maximum ?? 0,
-          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat parsing is intentional; Number() would change behavior
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat intended; Number() differs
           givenScore: parseFloat((getUserChapterProgress.data.score_given ?? 0).toFixed(2)),
           attemptedExercises: getUserChapterProgress.data.attempted_exercises ?? 0,
           totalExercises: getUserChapterProgress.data.total_exercises ?? 0,

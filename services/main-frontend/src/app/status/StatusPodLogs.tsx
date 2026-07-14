@@ -55,7 +55,7 @@ const StatusPodLogs: React.FC = () => {
             id="tail-select"
             label={t("status-tail-lines")}
             value={tail.toString()}
-            // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+            // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
             onChange={(e) => setTail(parseInt(e.currentTarget.value, 10))}
             options={[
               { value: "50", label: "50" },

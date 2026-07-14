@@ -40,9 +40,9 @@ function loadScript(src: string): Promise<void> {
         resolve()
         return
       }
-      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       existing.onload = () => resolve()
-      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       existing.onerror = () => {
         existing.remove()
         reject(new Error(`Failed to load script: ${src}`))
@@ -52,9 +52,9 @@ function loadScript(src: string): Promise<void> {
     const script = document.createElement("script")
     script.src = src
     script.async = true
-    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     script.onload = () => resolve()
-    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     script.onerror = () => {
       script.remove()
       reject(new Error(`Failed to load script: ${src}`))

@@ -224,7 +224,7 @@ const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = () => {
   return (
     <nav role="navigation" className={cx(navbarItems)}>
       <div className={cx(navbarLogo)}>
-        {/* oxlint-disable-next-line next/no-html-link-for-pages -- intentional plain anchor in shared app-router component; not tied to a Next pages route */}
+        {/* oxlint-disable-next-line next/no-html-link-for-pages -- intentional plain anchor; not a Next pages route */}
         <a href="/" aria-label={t("home-page")}>
           <MOOCfi />
         </a>
@@ -234,7 +234,7 @@ const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = () => {
         onClick={callback}
         onKeyDown={(e) => runCallbackIfEnterPressed(e, callback)}
         tabIndex={0}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div toggle; a <button> would change default styling and layout
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled toggle div; native button changes styling/layout
         role="button"
         aria-label={t("open-menu")}
       >

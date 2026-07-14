@@ -31,7 +31,7 @@ const extractExitCodeFromStatus = (status: unknown): number | undefined => {
   if (msg === undefined) {
     return undefined
   }
-  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
   const parsed = Number.parseInt(msg, 10)
   return Number.isFinite(parsed) ? parsed : undefined
 }
@@ -130,7 +130,7 @@ export async function execWithTimeout(
       resolved = true
       resolve(result)
     }
-    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     socket.onclose = () => {
       // Prefer the Kubernetes status channel's exit code when available.
       const exitCode = observedStatus ? observedStatusExitCode : undefined

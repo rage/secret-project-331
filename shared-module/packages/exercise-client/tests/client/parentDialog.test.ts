@@ -115,7 +115,7 @@ describe("ParentDialogClient", () => {
 
   it("ignores non-dialog-response messages without throwing", () => {
     const fake = createFakePort()
-    // oxlint-disable-next-line no-new -- constructor registers port listeners for side effects; instance intentionally unused
+    // oxlint-disable-next-line no-new -- constructor registers port listeners; instance unused
     new ParentDialogClient(fake.port)
 
     expect(() => {

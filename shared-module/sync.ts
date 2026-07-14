@@ -320,5 +320,5 @@ async function cleanUpFolders() {
   }
 }
 
-// oxlint-disable-next-line unicorn/prefer-top-level-await -- fire-and-forget entrypoint; top-level await would change module semantics
+// oxlint-disable-next-line unicorn/prefer-top-level-await -- fire-and-forget entrypoint; avoid top-level await
 main()

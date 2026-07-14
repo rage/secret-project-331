@@ -75,7 +75,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   )
 
   const postUserCountryMutation = useToastMutation<UserDetail, unknown, SelectUserInfoFormFields>(
-    // oxlint-disable-next-line require-await -- kept async for Promise-returning mutation contract
+    // oxlint-disable-next-line require-await -- async for the mutation Promise contract
     async (data) => {
       const {
         email: submittedEmail,

@@ -67,7 +67,7 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
     setSelectedRevision(JSON.stringify(ph.content, null, 2))
   }
 
-  // oxlint-disable-next-line require-await -- kept async to satisfy HistoryList onRestore: (ph) => Promise<void> contract
+  // oxlint-disable-next-line require-await -- async for onRestore: (ph) => Promise<void> contract
   async function onRestore(ph: PageHistory) {
     setCurrentTitle(ph.title)
     setCurrentRevision(JSON.stringify(ph.content, null, 2))

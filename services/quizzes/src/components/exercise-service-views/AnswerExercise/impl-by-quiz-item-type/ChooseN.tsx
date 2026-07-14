@@ -206,7 +206,7 @@ const ChooseN: React.FunctionComponent<
         {/* Persistent live region for invalid action feedback */}
         <div
           id={liveId}
-          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div live region; <output> would change element display and break layout/styles
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div live region; <output> would change display and layout
           role="status"
           aria-live="polite"
           aria-atomic="true"

@@ -258,7 +258,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
         {...groupFieldProps}
         ref={slotsContainerRef}
         className={otpSlotsCss}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- container is a styled div whose ref is typed HTMLDivElement; a native grouping tag would change the element and behavior
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div typed HTMLDivElement; a native tag changes behavior
         role="group"
         aria-labelledby={groupAriaLabelledBy || undefined}
         aria-disabled={isDisabled ? "true" : undefined}

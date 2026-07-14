@@ -132,7 +132,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           // should be unseen module
           const prevChapter = seenModules.get(chapter.module)
           if (prevChapter !== undefined) {
-            // oxlint-disable-next-line no-loop-func -- find runs synchronously within this iteration; currentModule is read immediately
+            // oxlint-disable-next-line no-loop-func -- find runs synchronously; currentModule read immediately
             const erroringModule = modules.find((m) => m.id === currentModule)
             return erroringModule?.name === null
               ? t("error-modules-default-noncontinuous-chapters", {

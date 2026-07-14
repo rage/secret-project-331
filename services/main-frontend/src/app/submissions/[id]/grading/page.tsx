@@ -56,7 +56,7 @@ const Submission: React.FC = () => {
 
   const getExam = useQuery({
     queryKey: ["getExam", examId],
-    // oxlint-disable-next-line eslint/require-await -- kept async so the queryFn returns a normalized Promise for react-query
+    // oxlint-disable-next-line eslint/require-await -- async so the queryFn returns a normalized Promise
     queryFn: async () =>
       getExamFromApi({
         path: {

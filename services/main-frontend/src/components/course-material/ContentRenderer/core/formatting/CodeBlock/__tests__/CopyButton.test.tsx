@@ -63,7 +63,7 @@ describe("CopyButton", () => {
     renderCopyButton(mockContent)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -83,7 +83,7 @@ describe("CopyButton", () => {
     renderCopyButton(mockContent)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -97,7 +97,7 @@ describe("CopyButton", () => {
       const button = screen.getByRole("button")
 
       // Click the copy button
-      // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+      // oxlint-disable-next-line require-await -- async selects act()'s async flush path
       await act(async () => {
         fireEvent.click(button)
       })
@@ -127,7 +127,7 @@ describe("CopyButton", () => {
       renderCopyButton(mockContent)
       const button = screen.getByRole("button")
 
-      // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+      // oxlint-disable-next-line require-await -- async selects act()'s async flush path
       await act(async () => {
         fireEvent.click(button)
       })
@@ -156,7 +156,7 @@ describe("CopyButton", () => {
       renderCopyButton(mockContent)
       const button = screen.getByRole("button")
 
-      // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+      // oxlint-disable-next-line require-await -- async selects act()'s async flush path
       await act(async () => {
         fireEvent.click(button)
       })
@@ -178,7 +178,7 @@ describe("CopyButton", () => {
       renderCopyButton(mockContent)
       const button = screen.getByRole("button")
 
-      // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+      // oxlint-disable-next-line require-await -- async selects act()'s async flush path
       await act(async () => {
         fireEvent.click(button)
       })
@@ -199,7 +199,7 @@ describe("CopyButton", () => {
     renderCopyButton(contentWithBr)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -217,7 +217,7 @@ describe("CopyButton", () => {
     renderCopyButton(encodedContent)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -238,7 +238,7 @@ describe("CopyButton", () => {
     renderCopyButton(encodedCommand)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -259,7 +259,7 @@ describe("CopyButton", () => {
     renderCopyButton(contentWithBrAttrs)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -278,7 +278,7 @@ describe("CopyButton", () => {
     renderCopyButton(mixedContent)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -294,7 +294,7 @@ describe("CopyButton", () => {
     renderCopyButton(nestedContent)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -308,7 +308,7 @@ describe("CopyButton", () => {
     renderCopyButton(codeContent)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -324,7 +324,7 @@ describe("CopyButton", () => {
     renderCopyButton(mixedLineEndings)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -338,7 +338,7 @@ describe("CopyButton", () => {
     renderCopyButton(content)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -352,7 +352,7 @@ describe("CopyButton", () => {
     renderCopyButton(mixedContent)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })
@@ -368,7 +368,7 @@ describe("CopyButton", () => {
     renderCopyButton(complexContent)
     const button = screen.getByRole("button")
 
-    // oxlint-disable-next-line require-await -- async callback selects act()'s async flush path; removing async changes behavior
+    // oxlint-disable-next-line require-await -- async selects act()'s async flush path
     await act(async () => {
       fireEvent.click(button)
     })

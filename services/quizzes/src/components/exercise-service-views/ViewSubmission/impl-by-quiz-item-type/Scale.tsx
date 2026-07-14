@@ -21,7 +21,7 @@ const Scale: React.FC<
 
   return (
     <div
-      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- div+role="group" keeps the emotion flex layout; fieldset would add UA styling
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- div+role=group keeps emotion flex layout; fieldset adds UA styling
       role="group"
       aria-labelledby={radioLabelId}
       className={css`

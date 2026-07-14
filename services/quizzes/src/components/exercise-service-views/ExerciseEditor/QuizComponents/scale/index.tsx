@@ -61,7 +61,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
                 if (!draft) {
                   return
                 }
-                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
                 draft.minValue = parseInt(minimum, 10)
               })
             }}
@@ -78,7 +78,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
                 if (!draft) {
                   return
                 }
-                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
                 draft.maxValue = parseInt(maximum, 10)
               })
             }}

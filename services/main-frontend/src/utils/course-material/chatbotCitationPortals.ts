@@ -35,7 +35,7 @@ export function planCitationPortals(
   citationNumberingMap: Map<number, number>,
 ): CitationPortalPlan[] {
   return nodes.map((node) => {
-    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat parsing is intentional; Number() would change behavior
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
     const rawCitN = parseInt((node as HTMLElement).dataset.citationN ?? "", 10)
     const citN = citationDisplayNumber(rawCitN, citationNumberingMap)
 
@@ -49,7 +49,7 @@ export function planCitationPortals(
     // a row.
     const prev = node.previousSibling
     if (prev && nodeIsElement(prev)) {
-      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat parsing is intentional; Number() would change behavior
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
       const prevRawCitN = parseInt((prev as HTMLElement).dataset.citationN ?? "", 10)
       const prevCitN = citationDisplayNumber(prevRawCitN, citationNumberingMap)
       if (prevCitN !== null && prevCitN === citN) {

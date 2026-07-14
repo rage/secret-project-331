@@ -283,7 +283,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
             requestId,
             confirmed,
           }
-          // oxlint-disable-next-line unicorn/require-post-message-target-origin -- MessagePort postMessage has no targetOrigin parameter
+          // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
           responsePort.postMessage(response)
         }
         const dialogBody = (
@@ -346,7 +346,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       return
     }
     // We use port 1 for communication, defining a event handler
-    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- MessagePort single-handler property pattern is intentional
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
       handlePortMessage(message, messageChannel)
     }
@@ -362,7 +362,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     }
 
     return () => {
-      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- MessagePort handler cleanup; no addEventListener equivalent for `= null`
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
       messageChannel.port1.onmessage = null
     }
   }, [handlePortMessage, messageChannel, sendPortToIframe])

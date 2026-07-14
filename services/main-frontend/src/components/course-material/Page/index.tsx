@@ -278,7 +278,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             editForm={showResearchConsentFormBecauseOfUrl}
             shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
             usersInitialAnswers={researchConsentFormAnswerQuery.data}
-            // oxlint-disable-next-line typescript/no-non-null-assertion -- activeStep is only ResearchConsent when researchFormIsLoadedAndExists, so data is non-null
+            // oxlint-disable-next-line typescript/no-non-null-assertion -- researchFormIsLoadedAndExists guarantees data is non-null
             researchForm={researchConsentFormQuery.data!}
             onClose={() => {
               setShowResearchConsentFormBecauseOfUrl(false)

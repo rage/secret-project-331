@@ -451,7 +451,7 @@ describe("MessageChannelIFrame", () => {
         })
       }
 
-      // oxlint-disable-next-line unicorn/consistent-function-scoping -- references enclosing-scope mockChannels via typeof in its type annotation; cannot hoist
+      // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures mockChannels via typeof; cannot hoist
       const sendCurrentState = (channel: (typeof mockChannels)[number]) => {
         act(() => {
           channel.port1.onmessage?.({
@@ -569,7 +569,7 @@ describe("MessageChannelIFrame", () => {
         })
       })
 
-      // oxlint-disable-next-line unicorn/consistent-function-scoping -- references enclosing-scope mockChannels via typeof in its type annotation; cannot hoist
+      // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures mockChannels via typeof; cannot hoist
       const triggerReloadRequest = (channel: (typeof mockChannels)[number], delay?: number) => {
         act(() => {
           channel.port1.onmessage?.({
@@ -1293,7 +1293,7 @@ describe("MessageChannelIFrame", () => {
           origin: "null",
         })
 
-        // oxlint-disable-next-line no-loop-func -- closes only over block-scoped `event` (fresh const per iteration) and outer `messageListeners`; no stale-binding hazard
+        // oxlint-disable-next-line no-loop-func -- closes over fresh per-iteration `event`; no stale binding
         act(() => {
           messageListeners.forEach((listener) => listener(event))
         })

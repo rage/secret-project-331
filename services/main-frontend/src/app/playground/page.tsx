@@ -200,10 +200,10 @@ const Home: React.FC = () => {
                   name="playground-examples"
                   aria-label={t("playground-examples")}
                 >
-                  {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- option uses the HTML label attribute as its accessible name */}
+                  {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label attr is the accessible name */}
                   <option selected disabled label={t("label-examples")} />
                   {data.map((example) => (
-                    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- option uses the HTML label attribute as its accessible name
+                    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label attr is the accessible name
                     <option
                       key={JSON.stringify(example)}
                       value={JSON.stringify(example)}

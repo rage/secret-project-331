@@ -106,7 +106,7 @@ const EmailTemplatesList: React.FC = () => {
 
       const courseGroups = new Map<string, EmailTemplate[]>()
       courseSpecific.forEach((template) => {
-        // oxlint-disable-next-line typescript/no-non-null-assertion -- courseSpecific was filtered above to items whose course_id is non-null/undefined
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- filtered above to items with non-null course_id
         const courseId = template.course_id!
         if (!courseGroups.has(courseId)) {
           courseGroups.set(courseId, [])
@@ -254,7 +254,7 @@ const EmailTemplatesList: React.FC = () => {
               <th>{t("label-language")}</th>
               <th>{t("label-course") as string}</th>
               <th>{t("email-template-last-updated")}</th>
-              {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- intentionally empty header cell above the actions/edit-link column */}
+              {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- intentionally empty header cell above the actions column */}
               <th></th>
             </tr>
           </thead>

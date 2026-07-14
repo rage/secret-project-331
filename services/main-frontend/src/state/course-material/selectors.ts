@@ -15,7 +15,7 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 
 /** Refetches the current view's data (material or exam). */
-// oxlint-disable-next-line require-await -- kept async to preserve the Promise-returning atom write contract
+// oxlint-disable-next-line require-await -- async for the Promise-returning atom write contract
 export const refetchViewAtom = atom(null, async (get, _set) => {
   const viewParams = get(viewParamsAtom)
   if (viewParams?.type === "material") {

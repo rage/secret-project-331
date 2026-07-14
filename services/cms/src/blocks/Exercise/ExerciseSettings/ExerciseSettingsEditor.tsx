@@ -68,7 +68,7 @@ const ExerciseSettingsEditor = () => {
         value={attributes.score_maximum?.toString() ?? ""}
         type="number"
         onChangeByValue={(value) => {
-          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
           const parsed = parseInt(value, 10)
           if (isNaN(parsed)) {
             // empty
@@ -110,7 +110,7 @@ const ExerciseSettingsEditor = () => {
           disabled={!attributes.limit_number_of_tries}
           type="number"
           onChangeByValue={(value) => {
-            // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+            // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
             const parsed = parseInt(value, 10)
             if (isNaN(parsed)) {
               // empty

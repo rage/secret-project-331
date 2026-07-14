@@ -48,7 +48,7 @@ export function CalendarGrid({
                   state={state}
                 />
               ) : (
-                // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- empty decorative calendar spacer cell, no control or content to label
+                // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- decorative spacer cell; no control or content to label
                 <td key={`empty-${weekIndex}-${dayIndex}`} className={calendarEmptyCellCss} />
               ),
             )}

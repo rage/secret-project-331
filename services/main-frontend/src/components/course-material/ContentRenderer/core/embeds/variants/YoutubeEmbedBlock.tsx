@@ -117,7 +117,7 @@ export function parseYoutubeUrl(url: string): YouTubeVideoParams {
     COMMON_OPTIONS.forEach((option) => {
       const value = parsedUrl.searchParams.get(option)
       if (value !== null) {
-        // oxlint-disable-next-line typescript/no-non-null-assertion -- result.embedOptions is initialized to {} on the result object above and never cleared
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- embedOptions initialized to {} above and never cleared
         result.embedOptions![option] = value
       }
     })
@@ -185,19 +185,19 @@ export function parseTimeParameter(time: string): number {
 
   const hoursMatch = time.match(/(\d+)h/)
   if (hoursMatch) {
-    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
     seconds += parseInt(hoursMatch[1], 10) * 3600
   }
 
   const minutesMatch = time.match(/(\d+)m/)
   if (minutesMatch) {
-    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
     seconds += parseInt(minutesMatch[1], 10) * 60
   }
 
   const secondsMatch = time.match(/(\d+)s/)
   if (secondsMatch) {
-    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
     seconds += parseInt(secondsMatch[1], 10)
   }
 
@@ -329,7 +329,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
     }
 
     if (iframeRef.current) {
-      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       iframeRef.current.onload = initializePlayer
 
       if (iframeRef.current.contentDocument?.readyState === "complete") {

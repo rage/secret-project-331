@@ -60,7 +60,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
   return (
     <div
       ref={cardRef}
-      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled flip-card container; semantic group elements would change layout
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled flip-card container; semantic elements change layout
       role="group"
       aria-roledescription={t("flip-card-roledescription")}
       className={css`

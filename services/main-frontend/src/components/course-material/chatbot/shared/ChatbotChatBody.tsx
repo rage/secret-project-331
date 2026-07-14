@@ -106,7 +106,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           citationsMap.set(id, [cit])
         } else {
           // id is definitely in hashmap because of the condition branch we're in
-          // oxlint-disable-next-line typescript/no-non-null-assertion -- else branch means citations.has(id) is true, so get(id) is defined
+          // oxlint-disable-next-line typescript/no-non-null-assertion -- else branch has citations.has(id), so get(id) is defined
           citationsMap.set(id, citationsMap.get(id)!.concat(cit))
         }
       })
@@ -275,7 +275,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             ))}
         </div>
       </div>
-      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- VisuallyHidden wrapper with role=status is intentional; <output> would drop the visually-hidden styling */}
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- VisuallyHidden wrapper with role=status; <output> drops the styling */}
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
       </VisuallyHidden>

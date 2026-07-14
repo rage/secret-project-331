@@ -55,7 +55,7 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
           const input = value.trim()
           let url: string | null = null
           try {
-            // oxlint-disable-next-line no-new -- new URL() is used only to validate input; it throws on invalid URLs and is caught below
+            // oxlint-disable-next-line no-new -- validates input; throws on invalid URLs, caught below
             new URL(input)
             url = input
           } catch (_e) {
@@ -66,7 +66,7 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
             const iframe = htmlDoc.querySelector("iframe")
             if (iframe) {
               try {
-                // oxlint-disable-next-line no-new -- new URL() is used only to validate iframe.src; it throws on invalid URLs and is caught below
+                // oxlint-disable-next-line no-new -- validates iframe.src; throws on invalid URLs, caught below
                 new URL(iframe.src)
                 url = iframe.src
               } catch (_e2) {

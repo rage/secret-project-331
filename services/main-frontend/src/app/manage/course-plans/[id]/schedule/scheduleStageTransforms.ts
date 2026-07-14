@@ -34,10 +34,10 @@ export const buildMonthTimeline = (stages: StageInput[]): MonthWithStage[] | nul
   }
 
   const starts = STAGE_ORDER.map((stage) =>
-    // oxlint-disable-next-line typescript/no-non-null-assertion -- has-check loop above guarantees every STAGE_ORDER entry is present in byStage
+    // oxlint-disable-next-line typescript/no-non-null-assertion -- loop above guarantees every STAGE_ORDER entry is in byStage
     startOfMonth(parseISO(byStage.get(stage)!.planned_starts_on)),
   )
-  // oxlint-disable-next-line typescript/no-non-null-assertion -- has-check loop above guarantees every STAGE_ORDER entry is present in byStage
+  // oxlint-disable-next-line typescript/no-non-null-assertion -- loop above guarantees every STAGE_ORDER entry is in byStage
   const ends = STAGE_ORDER.map((stage) => endOfMonth(parseISO(byStage.get(stage)!.planned_ends_on)))
 
   const planStart = starts.reduce((a, b) => (a < b ? a : b))
@@ -47,7 +47,7 @@ export const buildMonthTimeline = (stages: StageInput[]): MonthWithStage[] | nul
   let current = planStart
 
   while (current <= planEnd) {
-    // oxlint-disable-next-line eslint/no-loop-func -- find callback runs synchronously each iteration; current is a block-scoped let with no deferred-closure hazard
+    // oxlint-disable-next-line eslint/no-loop-func -- find callback runs synchronously; no deferred-closure hazard
     const owningStage = STAGE_ORDER.find((stage) => {
       const input = byStage.get(stage)
       if (!input) {

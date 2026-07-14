@@ -3,7 +3,7 @@ const validURL = (text: string | null): boolean => {
     return false
   }
   try {
-    // oxlint-disable-next-line no-new -- URL constructor throws on invalid input; intentional validation side-effect
+    // oxlint-disable-next-line no-new -- validates input; URL() throws on invalid input
     new URL(text)
     return true
   } catch (_e) {
@@ -16,7 +16,7 @@ const validNumber = (text: string | number): boolean => {
     return true
   }
   try {
-    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
     parseInt(text, 10)
     return true
   } catch (_e) {

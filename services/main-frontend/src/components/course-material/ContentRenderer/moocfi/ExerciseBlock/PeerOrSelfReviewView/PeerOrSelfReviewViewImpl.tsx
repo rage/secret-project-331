@@ -140,7 +140,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           // Will scroll after once the refetch is complete because the refetch might change the heights of some elements and that would invalidate our current scrolling position
           setTimeout(() => {
             document
-              // oxlint-disable-next-line unicorn/prefer-query-selector -- id is a raw UUID that may start with a digit; querySelector("#"+id) would throw, getElementById handles any id
+              // oxlint-disable-next-line unicorn/prefer-query-selector -- id is a raw UUID; querySelector("#"+id) may throw, getElementById is safe
               .getElementById(getExerciseBlockBeginningScrollingId(exerciseId))
               ?.scrollIntoView({ behavior: "smooth" })
           }, 100)
@@ -153,7 +153,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           // Will scroll after once the refetch is complete because the refetch might change the heights of some elements and that would invalidate our current scrolling position
           setTimeout(() => {
             document
-              // oxlint-disable-next-line unicorn/prefer-query-selector -- keep getElementById for consistency; the id embeds a raw UUID that would need CSS-escaping in a "#"+id selector
+              // oxlint-disable-next-line unicorn/prefer-query-selector -- id embeds a raw UUID; "#"+id would need CSS-escaping
               .getElementById(getPeerReviewBeginningScrollingId(exerciseId))
 
               ?.scrollIntoView({ behavior: "smooth" })

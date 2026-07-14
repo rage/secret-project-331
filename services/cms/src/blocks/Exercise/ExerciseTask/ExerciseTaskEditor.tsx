@@ -154,7 +154,7 @@ const ExerciseTaskEditor: React.FC<
               className={cx(svgSquare, gray500WithHover)}
               onKeyDown={(e) => runCallbackIfEnterPressed(e, toggleEditor)}
               onClick={toggleEditor}
-              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- custom-styled div button; native <button> would change styling and keyboard handling
+              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div button; native button changes styling/keyboard
               role="button"
               tabIndex={0}
               aria-label={attributes.show_editor ? t("close") : t("edit")}
@@ -181,7 +181,7 @@ const ExerciseTaskEditor: React.FC<
               className={cx(svgSquare, gray400WithHover)}
               onKeyDown={(e) => runCallbackIfEnterPressed(e, handleDeleteTask)}
               onClick={handleDeleteTask}
-              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- custom-styled div button; native <button> would change styling and keyboard handling
+              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div button; native button changes styling/keyboard
               role="button"
               tabIndex={0}
               aria-label={t("delete")}

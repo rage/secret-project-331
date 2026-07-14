@@ -259,7 +259,7 @@ describe("useExerciseServiceParentConnection", () => {
       const mockChannel = createMockMessageChannel()
       let handlerSetBeforeStateUpdate = false
 
-      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       mockChannel.port2.onmessage = null
       const originalSetOnmessage = Object.getOwnPropertyDescriptor(mockChannel.port2, "onmessage")
 

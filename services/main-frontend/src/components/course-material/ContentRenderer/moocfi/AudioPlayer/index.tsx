@@ -71,7 +71,7 @@ const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
     >
       <div
         ref={dialogRef}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- custom dialog uses a div with role; native <dialog> has different semantics and the ref is typed HTMLDivElement
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- div+role dialog; native <dialog> differs and ref is HTMLDivElement
         role="dialog"
         aria-label={t("audio-player-dialog-label")}
         tabIndex={-1}

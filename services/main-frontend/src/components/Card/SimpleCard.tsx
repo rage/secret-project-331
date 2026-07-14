@@ -194,7 +194,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
         </div>
         {showLock && (
           <div
-            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- decorative lock overlay div with aria-label; <img> element would require a src
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- decorative lock overlay div with aria-label; <img> needs a src
             role="img"
             aria-label={t("chapter-locked-message")}
             className={css`

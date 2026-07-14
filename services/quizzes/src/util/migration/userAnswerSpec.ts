@@ -22,7 +22,7 @@ const convertIntDataForScale = (quizItemAnswer: OldQuizItemAnswer) => {
     quizItemAnswer.optionAnswers.length > 0
   ) {
     try {
-      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
       return Number.parseInt(quizItemAnswer.optionAnswers[0], 10)
     } catch (_e) {
       console.error("Scale does not have int data: ", quizItemAnswer)

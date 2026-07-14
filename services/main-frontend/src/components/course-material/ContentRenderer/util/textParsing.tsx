@@ -102,7 +102,7 @@ export const replaceTextNodeWithGlossarySpans = (
   glossaryId: string,
 ): void => {
   const text = textNode.textContent ?? ""
-  // oxlint-disable-next-line typescript/no-non-null-assertion -- the text node being split is mounted in the DOM, so it always has a parent node
+  // oxlint-disable-next-line typescript/no-non-null-assertion -- split text node is mounted, so it always has a parent
   const parent = textNode.parentNode!
   const fragment = doc.createDocumentFragment()
   let lastIndex = 0
@@ -228,7 +228,7 @@ const decodeHtmlEntities = (value: string): string =>
       if (body[1] === "x" || body[1] === "X") {
         codePoint = parseInt(body.slice(2), 16)
       } else {
-        // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+        // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
         codePoint = parseInt(body.slice(1), 10)
       }
       if (Number.isNaN(codePoint) || codePoint < 0 || codePoint > MAX_UNICODE_CODE_POINT) {

@@ -19,7 +19,7 @@ const getHeadings = (headingElements: HTMLHeadingElement[]) => {
     try {
       const { innerText: title, tagName, dataset } = heading
       const headingsNavigationIndex = dataset.headingsNavigationIndex
-      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
       const level = parseInt(tagName.replaceAll(/[^0-6]+/g, ""), 10)
 
       headings.push({

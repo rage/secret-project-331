@@ -266,7 +266,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
             >
               {t("in-this-page")}
             </h3>
-            {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- StyledTopics is styled.div; changing the element type risks layout/semantics */}
+            {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- StyledTopics is styled.div; changing element type risks layout */}
             <StyledTopics role="navigation">
               <div>
                 {headings &&

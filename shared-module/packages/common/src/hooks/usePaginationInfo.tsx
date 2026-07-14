@@ -24,7 +24,7 @@ function usePaginationInfo(defaultLimit: number = DEFAULT_LIMIT): PaginationInfo
     let parsedPage: number
     const pageParam = searchParams?.get("page")
     if (pageParam) {
-      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
       parsedPage = parseInt(pageParam, 10)
     } else {
       parsedPage = DEFAULT_PAGE
@@ -38,7 +38,7 @@ function usePaginationInfo(defaultLimit: number = DEFAULT_LIMIT): PaginationInfo
     let parsedLimit: number
     const limitParam = searchParams?.get("limit")
     if (limitParam) {
-      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
       parsedLimit = parseInt(limitParam, 10)
     } else {
       parsedLimit = defaultLimit

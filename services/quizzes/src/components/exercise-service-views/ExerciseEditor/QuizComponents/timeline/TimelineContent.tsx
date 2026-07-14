@@ -197,7 +197,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
                     if (!draft || !draft.timelineItems) {
                       return
                     }
-                    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
+                    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
                     const parsedYear = parseInt(value, 10)
                     draft.timelineItems = draft.timelineItems.map((item) => {
                       if (item.id === timelineItem.id) {
@@ -266,7 +266,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
       </h2>
       <StyledForm
         onSubmit={handleSubmit(
-          // oxlint-disable-next-line eslint/require-await -- kept async for react-hook-form's Promise-returning submit contract (isSubmitting)
+          // oxlint-disable-next-line eslint/require-await -- async for react-hook-form's Promise submit contract
           async (data) => {
             updateState((draft) => {
               if (!draft || !draft.timelineItems) {

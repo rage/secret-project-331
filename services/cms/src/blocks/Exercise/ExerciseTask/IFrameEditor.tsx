@@ -98,7 +98,7 @@ const ExerciseTaskIFrameEditor: React.FC<
                 message: "repository-exercises",
                 repository_exercises: repositoryExercises,
               }
-              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- MessagePort.postMessage has no targetOrigin parameter (2nd arg is a transferables list)
+              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
               responsePort.postMessage(message)
             } else {
               console.warn("Missing page context")
@@ -108,7 +108,7 @@ const ExerciseTaskIFrameEditor: React.FC<
                 message: "repository-exercises",
                 repository_exercises: [],
               }
-              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- MessagePort.postMessage has no targetOrigin parameter (2nd arg is a transferables list)
+              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
               responsePort.postMessage(message)
             }
           }

@@ -35,7 +35,7 @@ const GradingPage: React.FC = () => {
   const examId = getSubmissions.data?.data[0]?.exercise.exam_id
   const getExam = useQuery({
     queryKey: ["getExam", examId],
-    // oxlint-disable-next-line require-await -- kept async so the throwing assertion rejects the query promise rather than throwing synchronously
+    // oxlint-disable-next-line require-await -- async so the throw rejects the query promise
     queryFn: async () =>
       getExamFromApi({
         path: {

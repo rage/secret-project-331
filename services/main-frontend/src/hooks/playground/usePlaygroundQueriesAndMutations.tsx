@@ -236,7 +236,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
       return
     }
     const ws = websocket
-    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket property-handler pattern is intentional
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket intentional property-handler
     ws.onmessage = (ev) => {
       const msg = parsePlaygroundViewsMessage(JSON.parse(ev.data))
       if (msg.tag === "TimedOut") {
@@ -251,11 +251,11 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
         throw new Error(`Unexpected websocket message: ${ev}`)
       }
     }
-    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket property-handler pattern is intentional
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket intentional property-handler
     ws.onclose = (ev) => {
       console.error("websocket closed unexpectedly", ev)
     }
-    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket property-handler pattern is intentional
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket intentional property-handler
     ws.onerror = (err) => {
       console.error("websocket error", err)
     }

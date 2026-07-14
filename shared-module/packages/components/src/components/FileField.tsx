@@ -194,7 +194,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
             </>
           </VisuallyHidden>
         ) : null}
-        {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- div with role=status preserves block layout; <output> is inline and would change styling */}
+        {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> is inline, changes styling */}
         <div aria-live="polite" className={fileSummaryCss} role="status">
           {fileSummary}
         </div>

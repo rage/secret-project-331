@@ -419,7 +419,7 @@ async function scrollToSavedImageCoordinate(
             return document.documentElement.scrollHeight - window.innerHeight
           })
           console.info(`Maximum possible y coordinate is ${maximumPossibleCoordinate}`)
-          // oxlint-disable-next-line max-depth -- deeply nested retry branch; flattening would risk changing scroll-retry behavior
+          // oxlint-disable-next-line max-depth -- nested retry branch; flattening risks changing scroll-retry behavior
           if (savedYCoordinate > maximumPossibleCoordinate) {
             console.error(
               `Saved y coordinate ${savedYCoordinate} is greater than the maximum possible y coordinate ${maximumPossibleCoordinate}`,

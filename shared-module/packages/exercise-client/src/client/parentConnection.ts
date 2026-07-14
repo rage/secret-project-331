@@ -52,7 +52,7 @@ export function createParentConnection(options: ParentConnectionOptions): Parent
         retryTimeout = null
       }
 
-      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- property-handler pattern is intentional
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       receivedPort.onmessage = (portMessage: MessageEvent) => {
         if (portMessage.data.message) {
           console.groupCollapsed(`Frame received a ${portMessage.data.message} message from port`)

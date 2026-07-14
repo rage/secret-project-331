@@ -106,7 +106,7 @@ export const useCreateCourse = () => {
       errorMessage: t("error-creating-course"),
     },
     {
-      // oxlint-disable-next-line eslint/require-await -- kept async; react-query awaits the onSuccess callback's promise
+      // oxlint-disable-next-line eslint/require-await -- async; react-query awaits the onSuccess promise
       onSuccess: async (newCourse, params) => {
         invalidateCourseQueries(queryClient, newCourse.id, params.organizationId)
         if (params.onSuccess) {

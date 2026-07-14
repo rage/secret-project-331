@@ -27,7 +27,7 @@ const ChapterImageWidget: React.FC<React.PropsWithChildren<ChapterImageControlsP
   const [chapterImageUrl, setChapterImageUrl] = useState(chapter.chapter_image_url)
 
   const uploadImageMutation = useToastMutation(
-    // oxlint-disable-next-line require-await -- kept async so a synchronous validateFile throw surfaces as a rejected mutation
+    // oxlint-disable-next-line require-await -- async so a validateFile throw surfaces as a rejected mutation
     async (imageFile: File) => {
       validateFile(imageFile, ACCEPTED_IMAGE_FILE_TYPES)
 

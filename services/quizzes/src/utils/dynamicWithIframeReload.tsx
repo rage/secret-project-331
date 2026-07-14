@@ -101,7 +101,7 @@ function dynamicWithIframeReload<Props extends object = Record<string, never>>(
       "[dynamicWithIframeReload] rethrowing loader error after requesting iframe reload",
       lastError,
     )
-    // oxlint-disable-next-line no-throw-literal -- rethrowing the original caught loader error; wrapping it would lose the original
+    // oxlint-disable-next-line no-throw-literal -- rethrowing the original loader error; wrapping would lose it
     throw lastError
   }
 

@@ -67,7 +67,7 @@ const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
       className={`${getParagraphStyles(textColor, backgroundColor, fontSize, true, false, align)} ${getEditableHoverStyles(false)}`}
       onClick={handleSelectForEditing}
       onKeyDown={handleKeyDown}
-      // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role, jsx-a11y/prefer-tag-over-role -- intentional interactive paragraph; button element would change layout/semantics
+      // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role, jsx-a11y/prefer-tag-over-role -- intentional interactive paragraph; <button> would change layout
       role="button"
       tabIndex={0}
     >

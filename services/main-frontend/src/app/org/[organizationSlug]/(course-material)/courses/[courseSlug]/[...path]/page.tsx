@@ -161,7 +161,7 @@ const PagePage: React.FC = () => {
     // want to fix the url without creating a history entry
     const currentPathName = document.location.pathname
     const courseSlugEndLocation = currentPathName.indexOf(courseSlug) + courseSlug.length
-    // oxlint-disable-next-line unicorn/prefer-string-slice -- second arg is a computed index that could be negative; substring and slice differ on negatives
+    // oxlint-disable-next-line unicorn/prefer-string-slice -- index may be negative; substring and slice differ there
     const beginningOfNewPath = currentPathName.substring(0, courseSlugEndLocation)
     const newPath = `${beginningOfNewPath}${courseMaterialState.page.url_path}`
 

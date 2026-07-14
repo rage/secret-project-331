@@ -99,7 +99,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { currentConversationInfo, newConversationMutation, isCourseMaterialBlock } = props
 
   const createTranscript = useToastMutation(
-    // oxlint-disable-next-line require-await -- kept async for Promise-returning mutation contract
+    // oxlint-disable-next-line require-await -- async for the mutation Promise contract
     async () => {
       let info = currentConversationInfo.data
       if (info === undefined) {

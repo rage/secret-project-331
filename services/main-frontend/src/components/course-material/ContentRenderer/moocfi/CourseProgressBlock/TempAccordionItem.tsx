@@ -26,7 +26,7 @@ const TempAccordion: React.FC<
       <div
         onClick={onClick}
         onKeyDown={(e) => runCallbackIfEnterPressed(e, onClick)}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled clickable div; a real button would change default styling/behavior
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled clickable div; native button changes styling
         role="button"
         tabIndex={0}
         className={css`

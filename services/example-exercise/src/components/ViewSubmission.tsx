@@ -49,7 +49,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
         const border = optionIsCorrect !== undefined ? `4px solid ${color}` : "none"
         return (
           <button
-            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled button acting as a checkbox; an <input> cannot contain child content
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled button as checkbox; an <input> can't hold child content
             role="checkbox"
             className={css`
               padding: 1rem 2rem;

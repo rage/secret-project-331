@@ -159,7 +159,7 @@ const generateComponents = (
   const components: JSX.Element[] = [
     <LeftButton
       tabIndex={0}
-      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled.div with role=button; converting to a semantic <button> would change the rendered DOM and styling
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
       role="button"
       key={t("go-to-previous-page")}
       aria-label={t("go-to-previous-page")}
@@ -181,7 +181,7 @@ const generateComponents = (
       </SelectedCircle>,
       <RightButton
         tabIndex={0}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled.div with role=button; converting to a semantic <button> would change the rendered DOM and styling
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-next-page")}
         aria-label={t("go-to-next-page")}
@@ -209,7 +209,7 @@ const generateComponents = (
         components.push(
           <Circle
             tabIndex={0}
-            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled.div with role=button; converting to a semantic <button> would change the rendered DOM and styling
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
             role="button"
             key={t("go-to-page-x")}
             aria-label={t("go-to-page-x", { number: idx })}
@@ -224,7 +224,7 @@ const generateComponents = (
     components.push(
       <RightButton
         tabIndex={0}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled.div with role=button; converting to a semantic <button> would change the rendered DOM and styling
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-next-page")}
         aria-label={t("go-to-next-page")}
@@ -252,7 +252,7 @@ const generateComponents = (
         components.push(
           <Circle
             tabIndex={0}
-            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled.div with role=button; converting to a semantic <button> would change the rendered DOM and styling
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
             role="button"
             key={t("go-to-page-x")}
             aria-label={t("go-to-page-x", { number: idx })}
@@ -283,7 +283,7 @@ const generateComponents = (
       </HorizontalDots>,
       <Circle
         tabIndex={0}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled.div with role=button; converting to a semantic <button> would change the rendered DOM and styling
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-page-x")}
         aria-label={t("go-to-page-x", { number: page - 1 })}
@@ -296,7 +296,7 @@ const generateComponents = (
       </SelectedCircle>,
       <Circle
         tabIndex={0}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled.div with role=button; converting to a semantic <button> would change the rendered DOM and styling
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-page-x")}
         aria-label={t("go-to-page-x", { number: page + 1 })}
@@ -309,7 +309,7 @@ const generateComponents = (
       </HorizontalDots>,
       <Circle
         tabIndex={0}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled.div with role=button; converting to a semantic <button> would change the rendered DOM and styling
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-page-x")}
         aria-label={t("go-to-page-x", { number: totalPages })}
@@ -322,7 +322,7 @@ const generateComponents = (
     components.push(
       <Circle
         tabIndex={0}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled.div with role=button; converting to a semantic <button> would change the rendered DOM and styling
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-page-x")}
         aria-label={t("go-to-page-x", { number: 1 })}
@@ -345,7 +345,7 @@ const generateComponents = (
         components.push(
           <Circle
             tabIndex={0}
-            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled.div with role=button; converting to a semantic <button> would change the rendered DOM and styling
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
             role="button"
             key={t("go-to-page-x")}
             aria-label={t("go-to-page-x", { number: idx })}

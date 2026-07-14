@@ -201,7 +201,7 @@ const StatusPods: React.FC = () => {
               <select
                 id="tail-lines-select"
                 value={tail}
-                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat parsing is intentional; Number() would change behavior
+                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
                 onChange={(e) => setTail(parseInt(e.currentTarget.value, 10))}
                 className={css`
                   padding: 0.5rem;

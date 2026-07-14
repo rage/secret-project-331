@@ -52,7 +52,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
   const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<Record<string, boolean>>()
   const getResearchFormQuestions = useQuery({
     queryKey: ["course-material-research-consent-form-questions", courseId],
-    // oxlint-disable-next-line eslint/require-await -- kept async for the Promise<ResearchFormQuestion[]> return contract
+    // oxlint-disable-next-line eslint/require-await -- async for the Promise<ResearchFormQuestion[]> contract
     queryFn: async (): Promise<ResearchFormQuestion[]> =>
       getCourseMaterialResearchConsentFormQuestions({
         path: {

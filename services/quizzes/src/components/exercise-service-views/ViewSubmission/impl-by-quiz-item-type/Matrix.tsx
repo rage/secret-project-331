@@ -250,7 +250,7 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                 const cell = findOptionText(column, row, isStudentsAnswer)
                 if (cell !== null) {
                   return (
-                    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- table data cell renders dynamic text, not an interactive form control
+                    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- table cell renders dynamic text, not an interactive control
                     <td
                       key={`cell ${row} ${column}`}
                       className={css`

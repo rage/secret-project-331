@@ -2,10 +2,18 @@
 
 import { css, cx } from "@emotion/css"
 import { useSelectState } from "@react-stately/select"
-import React, { useId, useMemo, useRef } from "react"
-import { mergeProps, useButton, useSelect } from "react-aria"
+import { useSearchFieldState } from "@react-stately/searchfield"
+import { useAutocompleteState } from "@react-stately/autocomplete"
+import React, { useId, useMemo, useRef, useState } from "react"
+import {
+  mergeProps,
+  useButton,
+  useSelect,
+  useSearchField,
+  useFilter,
+  useAutocomplete,
+} from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
-
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { toInputValue } from "../lib/utils/field"
@@ -104,15 +112,28 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     onKeyUp,
   } = props
 
+  const [filterValue, setFilterValue] = useState("")
+
+  let { contains } = useFilter({
+    sensitivity: "base",
+  })
+
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
 
   const generatedInputId = useId()
   const triggerId = id ?? generatedInputId
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
+  const collectionRefContainer = useRef<HTMLDivElement>(null)
   const hasFocusWithinRef = useRef(false)
 
+  // const filteredOptions = options.map((group) =>
+  //   group.options.filter((option) => contains(option.label, filterValue)),
+  // )
+
   const normalizedCollection = useMemo(() => normalizeSelectOptions(options), [options])
+
   const collectionChildren = useMemo(
     () => buildSelectCollectionNodes(normalizedCollection),
     [normalizedCollection],
@@ -142,8 +163,30 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     errorMessage: resolvedError,
   })
 
+  const searchFieldState = useSearchFieldState({
+    value: filterValue,
+    onChange: setFilterValue,
+  })
+
+  const autoCompleteState = useAutocompleteState({
+    inputValue: filterValue,
+    onInputChange: setFilterValue,
+  })
+
   const {
-    labelProps,
+    inputProps: autoCompleteInputProps,
+    collectionProps,
+    collectionRef: _mergedCollectionRef,
+    filter,
+  } = useAutocomplete(
+    {
+      inputRef: searchRef,
+      collectionRef: collectionRefContainer,
+    },
+    autoCompleteState,
+  )
+
+  const {
     triggerProps,
     valueProps,
     menuProps,
@@ -164,12 +207,18 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       errorMessage: resolvedError,
       name: field.name,
       autoComplete,
+      ...collectionProps,
     },
     state,
     buttonRef,
   )
 
   const { buttonProps } = useButton(triggerProps, buttonRef)
+  const { labelProps, inputProps } = useSearchField(
+    autoCompleteInputProps,
+    searchFieldState,
+    searchRef,
+  )
 
   const emitCompositeBlur = (relatedTarget: EventTarget | null) => {
     const nextFocusedNode = relatedTarget as Node | null
@@ -217,7 +266,6 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     state.selectedKey != null ? optionsByKey.get(String(state.selectedKey)) : undefined
   const isPlaceholderState = selectedOption == null
   const isFloated = state.isOpen || selectedOption != null
-
   return (
     <div className={cx(fieldRootCss, className)}>
       <div
@@ -267,7 +315,11 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
               },
             }}
           >
-            <ListBox {...menuProps} state={state} />
+            <div ref={collectionRefContainer}>
+              <label {...labelProps}>{"search"}</label>
+              <input {...inputProps} ref={searchRef} />
+              <ListBox {...menuProps} state={state} />
+            </div>
           </Popover>
         ) : null}
       </div>

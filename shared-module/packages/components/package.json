@@ -12,6 +12,7 @@
   "dependencies": {
     "@emotion/css": "^11.13.5",
     "@internationalized/date": "^3.12.2",
+    "@react-stately/autocomplete": "3.0.0-beta.6",
     "@react-stately/calendar": "^3.10.1",
     "@react-stately/collections": "^3.13.1",
     "@react-stately/combobox": "^3.14.1",
@@ -19,6 +20,7 @@
     "@react-stately/list": "^3.14.1",
     "@react-stately/overlays": "^3.7.1",
     "@react-stately/radio": "^3.12.1",
+    "@react-stately/searchfield": "^3.6.1",
     "@react-stately/select": "^3.10.1",
     "@react-stately/toggle": "^3.10.1",
     "@react-types/shared": "^3.36.0",

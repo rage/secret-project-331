@@ -19,6 +19,9 @@ importers:
       '@internationalized/date':
         specifier: ^3.12.2
         version: 3.12.2
+      '@react-stately/autocomplete':
+        specifier: 3.0.0-beta.6
+        version: 3.0.0-beta.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@react-stately/calendar':
         specifier: ^3.10.1
         version: 3.10.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -40,6 +43,9 @@ importers:
       '@react-stately/radio':
         specifier: ^3.12.1
         version: 3.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@react-stately/searchfield':
+        specifier: ^3.6.1
+        version: 3.6.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@react-stately/select':
         specifier: ^3.10.1
         version: 3.10.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -814,6 +820,12 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
+  '@react-stately/autocomplete@3.0.0-beta.6':
+    resolution: {integrity: sha512-LJFvrVT4aTfEBiqngfDIU3BGAZ/Cr0MAUoVaHXeBfhmz7p+NUCILniRnm7veIATdkdq9OPK6bpGt8cVdfuhGwg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
   '@react-stately/calendar@3.10.1':
     resolution: {integrity: sha512-nKluH+UT9xJlAimOW6ZrXgQNDiFUfbdtQwQ6rmq5mXs7yD8hGpOOLxJ0ZtT+cyWkbOAYR19j/6xyRPzGQxRL9g==}
     peerDependencies:
@@ -852,6 +864,12 @@ packages:
 
   '@react-stately/radio@3.12.1':
     resolution: {integrity: sha512-sx83ffwQMRhUuMbbRIS4O/FMDyp9DfY1P3bbcSdSgOfglCb6aILJj3ExRJcXSUZdzm79g7cKADNtqzIlW5n6pg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  '@react-stately/searchfield@3.6.1':
+    resolution: {integrity: sha512-5POKE91Tc5E2nCL9CP8+cVFb1xxHI6M7RkMTbJ0kahQuBlF8EQVN9gjCH7CwnCey5T73TLouS+pdZ3OlkrlqtA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
@@ -3462,6 +3480,13 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
+  '@react-stately/autocomplete@3.0.0-beta.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@swc/helpers': 0.5.23
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+      react-stately: 3.48.0(react@19.2.7)
+
   '@react-stately/calendar@3.10.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@swc/helpers': 0.5.23
@@ -3505,6 +3530,13 @@ snapshots:
       react-stately: 3.48.0(react@19.2.7)
 
   '@react-stately/radio@3.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@swc/helpers': 0.5.23
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+      react-stately: 3.48.0(react@19.2.7)
+
+  '@react-stately/searchfield@3.6.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@swc/helpers': 0.5.23
       react: 19.2.7
@@ -5266,6 +5298,7 @@ snapshots:
 time:
   '@emotion/css@11.13.5': '2024-11-20T07:58:27.802Z'
   '@internationalized/date@3.12.2': '2026-05-28T17:28:31.256Z'
+  '@react-stately/autocomplete@3.0.0-beta.6': '2026-05-28T17:28:34.678Z'
   '@react-stately/calendar@3.10.1': '2026-05-28T17:28:34.723Z'
   '@react-stately/collections@3.13.1': '2026-05-28T17:28:34.530Z'
   '@react-stately/combobox@3.14.1': '2026-05-28T17:28:34.384Z'
@@ -5273,6 +5306,7 @@ time:
   '@react-stately/list@3.14.1': '2026-05-28T17:28:34.351Z'
   '@react-stately/overlays@3.7.1': '2026-05-28T17:28:35.658Z'
   '@react-stately/radio@3.12.1': '2026-05-28T17:28:35.669Z'
+  '@react-stately/searchfield@3.6.1': '2026-05-28T17:28:35.996Z'
   '@react-stately/select@3.10.1': '2026-05-28T17:28:35.917Z'
   '@react-stately/toggle@3.10.1': '2026-05-28T17:28:36.333Z'
   '@react-types/shared@3.36.0': '2026-06-18T15:48:08.299Z'

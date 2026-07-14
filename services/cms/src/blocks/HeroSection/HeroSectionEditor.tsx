@@ -120,7 +120,7 @@ const HeroSectionEditor: React.FC<
             `}
             tagName="h2"
             value={title}
-            onChange={(value) => {
+            onChange={(value: string) => {
               setAttributes({ title: value })
             }}
             placeholder={"Hero section title..."}

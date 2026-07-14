@@ -9,7 +9,6 @@ import "@wordpress/block-library/build-style/style.css"
 import "@wordpress/block-library/build-style/theme.css"
 import "@wordpress/block-library/build-style/editor.css"
 import { css } from "@emotion/css"
-import type { EditorBlockListSettings, EditorSettings } from "@wordpress/block-editor"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
@@ -134,9 +133,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   }, [allowedBlocks, customBlocks, isGutenbergBootstrapped])
 
   const editorSettings = useMemo<
-    Partial<
-      EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
-    >
+    Partial<{ mediaUpload: (props: MediaUploadProps) => void; [key: string]: unknown }>
   >(
     () => ({
       disableCustomColors: false,

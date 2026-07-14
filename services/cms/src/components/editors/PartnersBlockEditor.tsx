@@ -62,6 +62,7 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
       const timeout = setTimeout(() => setSuccessMessage(null), 1000)
       return () => clearTimeout(timeout) // Clear timeout if component unmounts
     }
+    return undefined
   }, [successMessage])
 
   return (

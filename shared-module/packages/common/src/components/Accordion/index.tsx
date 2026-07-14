@@ -130,6 +130,7 @@ const Accordion: React.FC<React.PropsWithChildren<AccordionProps>> = ({ classNam
         }
       }
     }
+    return undefined
   }, [context])
 
   return (

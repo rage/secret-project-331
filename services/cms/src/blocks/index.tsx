@@ -134,4 +134,4 @@ export const blockTypeMapForTopLevelPages = [
 export const blockTypeMapForResearchConsentForm = [
   ["moocfi/research-consent-question", ResearchFormQuestion],
   // oxlint-disable-next-line typescript/no-explicit-any
-] as [string, BlockConfiguration<Record<string, any>>][]
+] as unknown as [string, BlockConfiguration<Record<string, any>>][]

@@ -4,7 +4,7 @@
 import * as jsdom from "jsdom"
 import type { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
 import type { JSONSchema } from "json-schema-to-typescript"
-import type { BlockType } from "@/utils/Gutenberg/types"
+import type { BlockType } from "@wordpress/blocks"
 import fs from "fs"
 import path from "path"
 import { createRequire } from "module"

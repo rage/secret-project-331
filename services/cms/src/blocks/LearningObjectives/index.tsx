@@ -8,7 +8,7 @@ import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCateg
 import LearningObjectiveSectionEditor from "./LearningObjectiveSectionEditor"
 import LearningObjectiveSectionSave from "./LearningObjectiveSectionSave"
 
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
 
 const LearningObjectiveSectionConfiguration: BlockConfiguration = {
   title: "Learning Objective Section",
@@ -35,9 +35,8 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
       {
         type: "block",
         blocks: ["core/list"],
-        // oxlint-disable-next-line typescript/no-explicit-any
-        transform(_attributes: any, innerBlocks: any[]) {
-          return innerBlocks[0]
+        transform(_attributes: unknown, innerBlocks: unknown) {
+          return (innerBlocks as BlockInstance[])[0]
         },
       },
     ],

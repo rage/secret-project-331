@@ -8,8 +8,8 @@
   ],
   "categories": {
     "correctness": "error",
-    "suspicious": "warn",
-    "pedantic": "warn"
+    "suspicious": "error",
+    "pedantic": "error"
   },
   "env": {
     "builtin": true,

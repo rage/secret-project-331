@@ -109,6 +109,7 @@ const ButtonsBlock: React.FC<
         href={url}
         target={linkTarget}
       >
+        {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label set via dangerouslySetInnerHTML */}
         <Button
           className={css`
             ${backgroundColor && `background: ${colorMapper(backgroundColor)} !important;`}

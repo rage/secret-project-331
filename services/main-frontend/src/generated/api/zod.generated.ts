@@ -740,6 +740,7 @@ export const zCourseToAudit = z.object({
   id: z.uuid(),
   name: z.string(),
   organization_id: z.uuid(),
+  slug: z.string(),
   uh_course_code: z.string().nullish(),
   updated_at: z.iso.datetime(),
 })

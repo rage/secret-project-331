@@ -5,13 +5,17 @@ import React from "react"
 import { useWatch, useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import { validateUUID } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 import type { EditCourseToAudit } from "./CourseAuditingCard"
-import { DateTimeLocalField, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
+import {
+  Checkbox,
+  DateTimeLocalField,
+  nullIfEmpty,
+  TextArea,
+  TextField,
+} from "@/shared-module/components"
+import { sectionHeaderRowStyles } from "./courseAuditingStyles"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -33,7 +37,8 @@ const ClosedSectionFields = (): React.ReactElement => {
   return (
     <>
       <FieldContainer>
-        <CheckBox
+        <Checkbox
+          control={control}
           label={t("set-course-closed-at")}
           {...register("set_course_closed_at", {
             // We purposefully do NOT clear related values when unchecked.
@@ -43,7 +48,6 @@ const ClosedSectionFields = (): React.ReactElement => {
               const checked = (e.target as HTMLInputElement).checked
               if (checked) {
                 const currentClosedAt = getValues("closed_at")
-                console.log(currentClosedAt)
                 if (!currentClosedAt) {
                   setValue("closed_at", formatDateForDateTimeLocalInputs(new Date()) ?? null)
                 }
@@ -54,24 +58,16 @@ const ClosedSectionFields = (): React.ReactElement => {
       </FieldContainer>
       {isClosed && (
         <>
-          <FieldContainer>
+          <div className={sectionHeaderRowStyles}>
             <DateTimeLocalField
               control={control}
               label={t("closed-at")}
               name={"closed_at"}
               rules={nullIfEmpty}
+              hourCycle={24}
+              // oxlint-disable-next-line i18next/no-literal-string
+              fieldSize={"md"}
             />
-          </FieldContainer>
-          <FieldContainer>
-            <TextArea
-              control={control}
-              label={t("closed-additional-message")}
-              autoResize={true}
-              name={"closed_additional_message"}
-              rules={nullIfEmpty}
-            />
-          </FieldContainer>
-          <FieldContainer>
             <TextField
               control={control}
               label={t("closed-course-successor-id")}
@@ -87,7 +83,14 @@ const ClosedSectionFields = (): React.ReactElement => {
                 },
               }}
             />
-          </FieldContainer>
+          </div>
+          <TextArea
+            control={control}
+            label={t("closed-additional-message")}
+            name={"closed_additional_message"}
+            autoResize={true}
+            rules={nullIfEmpty}
+          />
         </>
       )}
     </>

@@ -315,6 +315,8 @@
   "country": "Country",
   "country-added-successfully": "Country addedd successfully",
   "course": "Course",
+  "course-auditing-card-open-course-front-page": "Open course front page",
+  "course-auditing-card-open-course-overview": "Open course overview",
   "course-auditing-collapse-filter": "Collapse filter",
   "course-auditing-expand-filter": "Expand filter",
   "course-auditing-filter-closed": "Closed",

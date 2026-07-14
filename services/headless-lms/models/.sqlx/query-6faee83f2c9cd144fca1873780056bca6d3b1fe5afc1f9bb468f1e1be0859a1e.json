@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT c.id,\n  c.name,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description,\n  c.closed_at,\n  c.closed_additional_message,\n  c.closed_course_successor_id,\n  cm.uh_course_code\nFROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id\nWHERE c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;\n",
+  "query": "\nSELECT c.id,\n  c.name,\n  c.slug,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description,\n  c.closed_at,\n  c.closed_additional_message,\n  c.closed_course_successor_id,\n  cm.uh_course_code\nFROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id\nWHERE c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;\n",
   "describe": {
     "columns": [
       {
@@ -27,6 +27,17 @@
       },
       {
         "ordinal": 2,
+        "name": "slug",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "slug"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
         "name": "created_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -37,7 +48,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 4,
         "name": "updated_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -48,7 +59,7 @@
         }
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "organization_id",
         "type_info": "Uuid",
         "origin": {
@@ -59,7 +70,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "description",
         "type_info": "Text",
         "origin": {
@@ -70,7 +81,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "closed_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -81,7 +92,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "closed_additional_message",
         "type_info": "Text",
         "origin": {
@@ -92,7 +103,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 9,
         "name": "closed_course_successor_id",
         "type_info": "Uuid",
         "origin": {
@@ -103,7 +114,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 10,
         "name": "uh_course_code",
         "type_info": "Varchar",
         "origin": {
@@ -123,6 +134,7 @@
       false,
       false,
       false,
+      false,
       true,
       true,
       true,
@@ -130,5 +142,5 @@
       true
     ]
   },
-  "hash": "b6906ed9343ac8762a7c9ac3f8da6e5dc0ad106e01bf9590021f47718e4162e4"
+  "hash": "6faee83f2c9cd144fca1873780056bca6d3b1fe5afc1f9bb468f1e1be0859a1e"
 }

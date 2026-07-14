@@ -42,11 +42,13 @@ import {
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import ClosedSectionFields from "./ClosedSectionFields"
+import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 
 interface CourseAuditingCardProps {
   id: string
   courseToAudit: CourseToAudit
-  refetch(): Promise<QueryObserverResult<CourseToAudit[], unknown>>
+  refetch: () => Promise<QueryObserverResult<CourseToAudit[], unknown>>
 }
 
 enum UpdateStatus {
@@ -67,6 +69,8 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
   const [editing, setEditing] = useState<boolean>(false)
   const [course, setCourse] = useState<CourseToAudit>(courseToAudit)
   const [status, setStatus] = useState<UpdateStatus>(UpdateStatus.none)
+  const courseBreadcrumbInfoQuery = useCourseBreadcrumbInfoQuery(course.id)
+  const organizationSlug = courseBreadcrumbInfoQuery.data?.organization_slug
 
   const toggleEdit = () => {
     setEditing(!editing)
@@ -84,6 +88,14 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
 
   const { control, handleSubmit } = methods
 
+  const metaStyles = css`
+    color: ${baseTheme.colors.gray[600]};
+    font-size: 0.95rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  `
   const onSubmit = handleSubmit((data) => {
     updateMutation.mutateAsync({
       body: {
@@ -154,6 +166,9 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               >
                 {course.name}
               </h1>
+              <div className={metaStyles}>
+                <span>{courseBreadcrumbInfoQuery.data?.organization_name}</span>
+              </div>
             </div>
 
             {editing ? (
@@ -211,9 +226,9 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               <TextArea
                 control={control}
                 label={t("text-field-label-description")}
-                autoResize={true}
                 name={"description"}
                 rules={nullIfEmpty}
+                autoResize={true}
               />
               <TextField
                 control={control}
@@ -235,14 +250,13 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
                 <p className={uhCalloutTitleStyles}>{t("text-field-label-description")}</p>
                 <p className={uhLineStyles}>{course.description}</p>
               </div>
-
+              <div className={uhCalloutStyles}>
+                <p className={uhCalloutTitleStyles}>{t("title-default-module-uh-course-code")}</p>
+                <p className={uhLineStyles}>{course.uh_course_code}</p>
+              </div>
               <div className={sectionHeaderRowStyles}>
                 <div className={uhCalloutStyles}>
-                  <p className={uhCalloutTitleStyles}>{t("title-default-module-uh-course-code")}</p>
-                  <p className={uhLineStyles}>{course.uh_course_code}</p>
-                </div>
-                <div className={uhCalloutStyles}>
-                  <p className={uhCalloutTitleStyles}>{t("course-auditing-closed-at")}</p>
+                  <p className={uhCalloutTitleStyles}>{t("closed-at")}</p>
                   {courseToAudit.closed_at && (
                     <TimeComponent date={parseISO(courseToAudit.closed_at)} />
                   )}
@@ -278,11 +292,16 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               date={parseISO(courseToAudit.updated_at)}
               right={true}
             />
+            {organizationSlug && (
+              <Link
+                className={uhLinkStyles}
+                href={courseMaterialFrontPageHref(organizationSlug, course.slug)}
+              >
+                {t("course-auditing-card-open-course-front-page")}
+              </Link>
+            )}
             <Link className={uhLinkStyles} href={`courses/${courseToAudit.id}`}>
-              {t("button-text-open-course-front-page")}
-            </Link>
-            <Link className={uhLinkStyles} href={`courses/${courseToAudit.id}`}>
-              {t("course-overview")}
+              {t("course-auditing-card-open-course-overview")}
             </Link>
           </div>
         </div>

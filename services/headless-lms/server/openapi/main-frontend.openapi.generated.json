@@ -13457,7 +13457,7 @@
       },
       "CourseToAudit": {
         "type": "object",
-        "required": ["id", "organization_id", "created_at", "updated_at", "name"],
+        "required": ["id", "slug", "organization_id", "created_at", "updated_at", "name"],
         "properties": {
           "closed_additional_message": {
             "type": ["string", "null"]
@@ -13487,6 +13487,9 @@
           "organization_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "slug": {
+            "type": "string"
           },
           "uh_course_code": {
             "type": ["string", "null"]

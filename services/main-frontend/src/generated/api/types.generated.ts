@@ -891,6 +891,7 @@ export type CourseToAudit = {
   id: string
   name: string
   organization_id: string
+  slug: string
   uh_course_code?: string | null
   updated_at: string
 }

@@ -209,6 +209,7 @@ pub struct NewCourse {
 
 pub struct CourseToAudit {
     pub id: Uuid,
+    pub slug: String,
     pub organization_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -345,6 +346,7 @@ pub async fn get_all_courses_for_auditing(
         r#"
 SELECT c.id,
   c.name,
+  c.slug,
   c.created_at,
   c.updated_at,
   c.organization_id,
@@ -371,6 +373,7 @@ pub async fn get_course_for_auditing(
         r#"
 SELECT c.id,
   c.name,
+  c.slug,
   c.created_at,
   c.updated_at,
   c.organization_id,

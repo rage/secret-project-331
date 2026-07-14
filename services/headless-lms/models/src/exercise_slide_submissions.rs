@@ -351,8 +351,9 @@ pub struct UserCourseSubmissionTime {
 }
 
 /// All of a user's submission times in a course, each tagged with its exercise and module, ordered
-/// chronologically. Capped to a safe maximum, fetching one past the cap (5001) so the caller can tell a
-/// genuine overflow from an exact-cap result.
+/// chronologically. Excludes submissions to soft-deleted exercises/chapters so this per-course timeline
+/// agrees with the cross-course density view. Capped to a safe maximum, fetching one past the cap (5001)
+/// so the caller can tell a genuine overflow from an exact-cap result.
 pub async fn get_user_course_submission_times(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -365,8 +366,8 @@ SELECT ess.created_at,
   ess.exercise_id,
   c.course_module_id AS "course_module_id?"
 FROM exercise_slide_submissions ess
-  JOIN exercises e ON e.id = ess.exercise_id
-  LEFT JOIN chapters c ON c.id = e.chapter_id
+  JOIN exercises e ON e.id = ess.exercise_id AND e.deleted_at IS NULL
+  LEFT JOIN chapters c ON c.id = e.chapter_id AND c.deleted_at IS NULL
 WHERE ess.user_id = $1
   AND ess.course_id = $2
   AND ess.deleted_at IS NULL

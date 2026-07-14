@@ -1,6 +1,8 @@
 // Shared palette + constants for the user activity/completion timelines. Values are hex colors or
 // SCREAMING_CASE-keyed enum strings, both of which the i18next literal-string lint ignores.
 
+import { escape } from "lodash"
+
 // One on-system categorical palette (from baseTheme.colors), shared by the cross-course Gantt (indexed
 // by course order) and the per-course timeline (indexed by module order). Near-collision hues are
 // omitted so adjacent series stay distinct.
@@ -53,15 +55,9 @@ export const LINE_BREAK = "<br />"
 /**
  * Escape a string for safe interpolation into an echarts tooltip. Tooltip `formatter` return values are
  * inserted as raw HTML, so teacher-authored course/module names must be escaped to avoid stored XSS.
+ * Delegates to lodash's `escape` (same five entities) to keep a single HTML escaper in the codebase.
  */
-export function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;")
-}
+export const escapeHtml = escape
 
 /** Faint neutral fill for the enrolled→last-activity span track behind the density violins. */
 export const TRACK_FILL = "rgba(83,90,102,0.10)"

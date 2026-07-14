@@ -17,8 +17,13 @@ export interface ExerciseResetLogSectionProps {
   userId: string
 }
 
-/** UTC calendar day (YYYY-MM-DD) of an instant; used to group resets identically for every viewer. */
-const utcDay = (iso: string): string => new Date(iso).toISOString().slice(0, 10)
+// Local calendar day of an instant, used to group resets. Grouping is local (not UTC) so it matches the
+// locally-displayed timestamps in each row (rendered by TimeComponent in the viewer's zone); a UTC key
+// would split same-local-day resets across cards, or merge rows showing two different local dates.
+const localDay = (iso: string): string => {
+  const d = new Date(iso)
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
+}
 
 const groupCss = css`
   border: 1px solid #ced1d7;
@@ -77,9 +82,12 @@ const ExerciseResetLogSection: React.FC<ExerciseResetLogSectionProps> = ({ userI
           if (data.length === 0) {
             return <p className={emptyCss}>{t("no-exercise-resets")}</p>
           }
-          // Group by UTC day and resetter so same-day resets aggregate, but different people or days
-          // stay separate and attributed. UTC (not local time) keeps the grouping stable across viewers.
-          const grouped = groupBy(data, (log) => `${utcDay(log.created_at)}::${log.reset_by ?? ""}`)
+          // Group by local day and resetter so same-day resets aggregate, but different people or days
+          // stay separate and attributed.
+          const grouped = groupBy(
+            data,
+            (log) => `${localDay(log.created_at)}::${log.reset_by ?? ""}`,
+          )
           return (
             <div>
               {Object.entries(grouped).map(([groupKey, logs]) => {

@@ -43,13 +43,18 @@ impl ChatbotTool for DocumentLookupTool {
         let course_id = user_context.course_id;
         let page_title = url_decode(&arguments.title)?;
 
-        let page = headless_lms_models::pages::get_page(conn, page_id).await?;
+        let page = headless_lms_models::chatbot_page_sync_statuses::get_latest_synced_page_content_by_page_id(conn, page_id).await?;
 
         let document =
             // Check if the titles match and the page is part of the same course as
             // the one the user is on.
-            if page.title == page_title && page.course_id.is_some_and(|id| id == course_id) {
-                Some(serde_json::to_string(&page.content)?)
+            if page.title == page_title && page.course_id == course_id {
+                // use markdown content if there is any. else use json as string
+                if let Some(content) = page.markdown_content {
+                    Some(content)
+                } else if let Some(json) = page.json_content {
+                    Some(serde_json::to_string(&json)?)
+                } else { None }
             } else {
                 None
             };

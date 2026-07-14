@@ -915,7 +915,7 @@ WHERE chapter_id = $1
 }
 
 pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
-    let pages = sqlx::query_as!(
+    let page = sqlx::query_as!(
         Page,
         "
 SELECT id,
@@ -939,7 +939,7 @@ WHERE id = $1;
     )
     .fetch_one(conn)
     .await?;
-    Ok(pages)
+    Ok(page)
 }
 
 pub async fn get_front_page_by_chapter_id(

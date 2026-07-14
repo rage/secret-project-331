@@ -101,6 +101,17 @@
             "name": "consecutive_failures"
           }
         }
+      },
+      {
+        "ordinal": 9,
+        "name": "converted_markdown_content",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "chatbot_page_sync_statuses",
+            "name": "converted_markdown_content"
+          }
+        }
       }
     ],
     "parameters": {
@@ -117,7 +128,8 @@
       false,
       true,
       true,
-      false
+      false,
+      true
     ]
   },
   "hash": "6fe90c05cb67fdfd061c784095ec304b1a1a0af2b763d1e7b81018acd093cade"

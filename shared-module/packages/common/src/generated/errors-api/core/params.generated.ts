@@ -91,16 +91,15 @@ function buildKeyMap(fields: FieldsConfig, map?: KeyMap): KeyMap {
 }
 
 interface Params {
-  body: unknown
+  body?: unknown
   headers: Record<string, unknown>
   path: Record<string, unknown>
   query: Record<string, unknown>
 }
 
-type ParamsSlotMap = Record<Slot, unknown>
-
-function stripEmptySlots(params: ParamsSlotMap): void {
+function stripEmptySlots(params: Params): void {
   for (const [slot, value] of Object.entries(params)) {
+    if (slot === "body") continue
     if (value && typeof value === "object" && !Array.isArray(value) && !Object.keys(value).length) {
       delete params[slot as Slot]
     }
@@ -108,14 +107,22 @@ function stripEmptySlots(params: ParamsSlotMap): void {
 }
 
 export function buildClientParams(args: ReadonlyArray<unknown>, fields: FieldsConfig): Params {
-  const params: ParamsSlotMap = {
-    body: Object.create(null),
+  const params: Params = {
     headers: Object.create(null),
     path: Object.create(null),
     query: Object.create(null),
   }
 
   const map = buildKeyMap(fields)
+
+  function writeSlot(slot: Slot, key: string, value: unknown): void {
+    let record = params[slot] as Record<string, unknown> | undefined
+    if (record === undefined) {
+      record = Object.create(null) as Record<string, unknown>
+      params[slot] = record
+    }
+    record[key] = value
+  }
 
   let config: FieldsConfig[number] | undefined
 
@@ -133,7 +140,7 @@ export function buildClientParams(args: ReadonlyArray<unknown>, fields: FieldsCo
         const field = map.get(config.key)!
         const name = field.map || config.key
         if (field.in) {
-          ;(params[field.in] as Record<string, unknown>)[name] = arg
+          writeSlot(field.in, name, arg)
         }
       } else {
         params.body = arg
@@ -145,7 +152,7 @@ export function buildClientParams(args: ReadonlyArray<unknown>, fields: FieldsCo
         if (field) {
           if (field.in) {
             const name = field.map || key
-            ;(params[field.in] as Record<string, unknown>)[name] = value
+            writeSlot(field.in, name, value)
           } else {
             params[field.map] = value
           }
@@ -154,11 +161,11 @@ export function buildClientParams(args: ReadonlyArray<unknown>, fields: FieldsCo
 
           if (extra) {
             const [prefix, slot] = extra
-            ;(params[slot] as Record<string, unknown>)[key.slice(prefix.length)] = value
+            writeSlot(slot, key.slice(prefix.length), value)
           } else if ("allowExtra" in config && config.allowExtra) {
             for (const [slot, allowed] of Object.entries(config.allowExtra)) {
               if (allowed) {
-                ;(params[slot as Slot] as Record<string, unknown>)[key] = value
+                writeSlot(slot as Slot, key, value)
                 break
               }
             }
@@ -170,5 +177,5 @@ export function buildClientParams(args: ReadonlyArray<unknown>, fields: FieldsCo
 
   stripEmptySlots(params)
 
-  return params as Params
+  return params
 }

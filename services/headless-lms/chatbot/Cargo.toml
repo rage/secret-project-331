@@ -69,6 +69,7 @@ backtrace = "0.3.76"
 rand = "0.10.2"
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
 utoipa.workspace = true
+jsonschema = { version = "0.47.0", default-features = false }
 
 [lints.clippy]
 unwrap_used = "deny"

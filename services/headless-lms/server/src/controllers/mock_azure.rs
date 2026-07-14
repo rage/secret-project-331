@@ -1,5 +1,7 @@
 use headless_lms_chatbot::{
-    azure_chatbot::InputItem, cms_ai_suggestion::USER_PROMPT_PREFIX,
+    azure_chatbot::InputItem,
+    chart_spec_generation::USER_PROMPT_PREFIX as CHART_SPEC_PROMPT_PREFIX,
+    cms_ai_suggestion::USER_PROMPT_PREFIX,
     course_description_summary::USER_PROMPT as DESCRIPTION_USER_PROMPT,
     llm_utils::AzureCompletionRequest, message_suggestion::USER_PROMPT,
 };
@@ -111,6 +113,50 @@ const CMS_SUGGESTION: &str = r#"{"metadata": {},"top_logprobs": 0,"temperature":
 
 const DESCRIPTION_SUGGESTION: &str = r#"{"metadata": {},"top_logprobs": 0,"temperature": 1,"top_p": 0.98,"service_tier": "default","model": "mock-gpt","reasoning": {"effort": "medium","summary": "detailed"},"background": false,"text": {"format": {"type": "text"},"verbosity": "medium"},"tools": [],"tool_choice": "auto","truncation": "disabled","id": "resp_0","object": "response","status": "completed","created_at": 1776144780,"completed_at": 1776144781,"error": null,"incomplete_details": null,"output": [{"type": "message","id": "msg_0","response_id": "resp_0","phase": "final_answer","role": "assistant","content": [{ "text": "{\"modules\":[{\"description\":\"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly. No hard prerequisites; Linux operating systems and web development experience are useful.\",\"course_code\":\"TKT21036\"}],\"course_description\":\"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly. No hard prerequisites; Linux operating systems and web development experience are useful.\"}"}],"annotations": [],"logprobs": []}],"instructions": null,"usage": {"input_tokens": 30,"input_tokens_details": {"cached_tokens": 0},"output_tokens": 15,"output_tokens_details": {"reasoning_tokens": 0},"total_tokens": 45},"parallel_tool_calls": true,"agent_reference": null}"#;
 
+/// The spec is nested as a JSON string inside a JSON string, so build it with serde_json
+/// instead of hand-escaping a constant.
+fn chart_spec_response() -> String {
+    let spec = serde_json::json!({
+        "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+        "description": "Mock AI generated bar chart",
+        "data": {"url": "/chart-block-example-data.json", "format": {"type": "json"}},
+        "mark": "bar",
+        "encoding": {
+            "x": {"field": "category", "type": "nominal"},
+            "y": {"field": "value", "type": "quantitative"}
+        }
+    });
+    let text = serde_json::json!({ "spec": spec.to_string() }).to_string();
+    serde_json::json!({
+        "metadata": {},
+        "model": "mock-gpt",
+        "id": "resp_0",
+        "object": "response",
+        "status": "completed",
+        "created_at": 1776144780i64,
+        "completed_at": 1776144781i64,
+        "error": null,
+        "incomplete_details": null,
+        "output": [{
+            "type": "message",
+            "id": "msg_0",
+            "response_id": "resp_0",
+            "phase": "final_answer",
+            "role": "assistant",
+            "content": [{"type": "output_text", "text": text, "annotations": [], "logprobs": []}],
+            "status": "completed"
+        }],
+        "usage": {
+            "input_tokens": 30,
+            "input_tokens_details": {"cached_tokens": 0},
+            "output_tokens": 15,
+            "output_tokens_details": {"reasoning_tokens": 0},
+            "total_tokens": 45
+        }
+    })
+    .to_string()
+}
+
 // GET /api/v0/mock_azure/test/v1/responses
 // POST /api/v0/mock_azure/test/v1/responses
 async fn mock_azure_chat_responses(
@@ -146,11 +192,14 @@ async fn mock_azure_chat_responses(
         .matches(message_suggestion_user_prompt)
         .collect::<Vec<&str>>();
     let cms_suggest_match = message.contains(USER_PROMPT_PREFIX);
+    let chart_spec_match = message.contains(CHART_SPEC_PROMPT_PREFIX);
     let description_suggestion_match = message.contains(DESCRIPTION_USER_PROMPT);
     let res = if !suggest_prompt_match.is_empty() {
         SUGGESTION.to_string()
     } else if cms_suggest_match {
         CMS_SUGGESTION.to_string()
+    } else if chart_spec_match {
+        chart_spec_response()
     } else if description_suggestion_match {
         DESCRIPTION_SUGGESTION.to_string()
     } else {

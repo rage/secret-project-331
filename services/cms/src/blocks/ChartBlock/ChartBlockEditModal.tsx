@@ -1,20 +1,24 @@
 "use client"
 
 import { css } from "@emotion/css"
+import type { Monaco } from "@monaco-editor/react"
 import { BlockIcon, MediaPlaceholder } from "@wordpress/block-editor"
 import { Modal, Placeholder } from "@wordpress/components"
 import { image as icon } from "@wordpress/icons"
 import React, { useContext, useEffect, useRef, useState } from "react"
 
 import ChartPreview from "./ChartPreview"
-import { dataUrlFromSpec, extractInlineData, specWithDataUrl } from "./chartSpec"
+import { dataFormatForUrl, dataUrlFromSpec, extractInlineData, specWithDataUrl } from "./chartSpec"
 
 import { ChartBlockAttributes, DEFAULT_VEGA_LITE_SPEC } from "."
 
 import CourseContext from "@/contexts/CourseContext"
+import PageContext from "@/contexts/PageContext"
+import { requestChartSpecGeneration } from "@/generated/api/sdk.generated"
 import { uploadFileFromPage } from "@/services/mediaUpload"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import MonacoEditor from "@/shared-module/common/components/monaco/MonacoEditor"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
@@ -29,6 +33,19 @@ const ALLOWED_DATA_FILE_MIMETYPES = ["text/csv", "application/json"]
 
 // Wait for a paste/edit to settle before extracting, so we upload once rather than per keystroke.
 const DATA_EXTRACTION_DEBOUNCE_MS = 800
+
+// Let Monaco fetch the schema named in the spec's $schema field (the Vega-Lite schema),
+// enabling validation and autocompletion in the JSON editor.
+const enableJsonSchemaSupport = (monaco: Monaco) => {
+  monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+    validate: true,
+    enableSchemaRequest: true,
+  })
+}
+
+const AI_PANEL_ID = "chart-block-ai-generate-panel"
+// Enough of the data file for the model to see field names and value shapes.
+const DATA_SAMPLE_MAX_CHARS = 4000
 
 // Scale the dialog with the viewport; the doubled selector beats the WP Modal's own sizing.
 const modalStyles = css`
@@ -72,10 +89,15 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
 }) => {
   const { t } = useTranslation()
   const courseId = useContext(CourseContext)?.courseId
+  const pageId = useContext(PageContext)?.page.id
   const { spec, caption, height } = attributes
   const [dataFileError, setDataFileError] = useState<string | undefined>(undefined)
   const [extractedDataUrl, setExtractedDataUrl] = useState<string | undefined>(undefined)
   const [isExtractingData, setIsExtractingData] = useState(false)
+  const [showAiPanel, setShowAiPanel] = useState(false)
+  const [aiPrompt, setAiPrompt] = useState("")
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [aiError, setAiError] = useState<unknown>(undefined)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   // Latest spec, so an in-flight upload can bail if the teacher kept editing.
@@ -153,6 +175,51 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     debounceRef.current = setTimeout(() => {
       void extractAndUploadInlineData(next)
     }, DATA_EXTRACTION_DEBOUNCE_MS)
+  }
+
+  // Ask the AI to write or edit the spec; the result flows through handleSpecChange so the
+  // caption sync and inline-data extraction behave the same as for a hand-written spec.
+  const handleAiGenerate = async () => {
+    const prompt = aiPrompt.trim()
+    if (!prompt || isGenerating) {
+      return
+    }
+    setIsGenerating(true)
+    setAiError(undefined)
+    try {
+      // The untouched example spec is a placeholder, not something the teacher wants edited.
+      const currentSpec = latestSpecRef.current
+      const isPristineExample = currentSpec === DEFAULT_VEGA_LITE_SPEC
+      const dataUrl = isPristineExample ? undefined : dataUrlFromSpec(currentSpec)
+      let dataSample: string | undefined
+      if (dataUrl) {
+        try {
+          const res = await fetch(dataUrl)
+          if (res.ok) {
+            dataSample = (await res.text()).slice(0, DATA_SAMPLE_MAX_CHARS)
+          }
+        } catch {
+          // The sample is optional context; generate without it.
+        }
+      }
+      const response = await requestChartSpecGeneration({
+        body: {
+          prompt,
+          current_spec: isPristineExample || !currentSpec.trim() ? null : currentSpec,
+          data_url: dataUrl ?? null,
+          data_format: dataUrl ? (dataFormatForUrl(dataUrl)?.type ?? null) : null,
+          data_sample: dataSample ?? null,
+          page_id: pageId ?? null,
+        },
+      })
+      // Keep the teacher's data file bound even if the model changed or dropped the URL.
+      const rebound = dataUrl ? specWithDataUrl(response.spec, dataUrl) : null
+      handleSpecChange(rebound ? JSON.stringify(rebound, null, 2) : response.spec)
+    } catch (error) {
+      setAiError(error)
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   const handleCaptionChange = (value: string) => {
@@ -279,12 +346,87 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
               <Button
                 variant="secondary"
                 size="small"
+                onClick={() => setShowAiPanel((open) => !open)}
+                aria-expanded={showAiPanel}
+                aria-controls={AI_PANEL_ID}
+              >
+                {t("ai-generate-chart")}
+              </Button>
+              <Button
+                variant="secondary"
+                size="small"
                 onClick={() => updateSpec(DEFAULT_VEGA_LITE_SPEC)}
               >
                 {t("reset-to-example")}
               </Button>
             </div>
           </div>
+          {showAiPanel && (
+            <div
+              id={AI_PANEL_ID}
+              className={css`
+                flex-shrink: 0;
+                margin-bottom: 0.75rem;
+              `}
+            >
+              <TextAreaField
+                label={t("ai-chart-prompt-label")}
+                value={aiPrompt}
+                onChangeByValue={setAiPrompt}
+                placeholder={t("ai-chart-prompt-placeholder")}
+                rows={3}
+                disabled={isGenerating}
+                className={css`
+                  /* Same focus treatment as the shared TextField; TextAreaField has none,
+                     which lets the browser's default focus ring show through. */
+                  textarea:focus {
+                    outline: none;
+                    border-color: #55b3f5;
+                  }
+                `}
+              />
+              <div
+                className={css`
+                  display: flex;
+                  align-items: center;
+                  gap: 0.75rem;
+                  margin-top: 0.5rem;
+                `}
+              >
+                <Button
+                  variant="primary"
+                  size="small"
+                  onClick={() => void handleAiGenerate()}
+                  disabled={isGenerating || !aiPrompt.trim()}
+                >
+                  {t("generate")}
+                </Button>
+                {/* The live region must exist before content changes for screen readers to announce it. */}
+                <div aria-live="polite">
+                  {isGenerating && (
+                    <span
+                      className={css`
+                        font-family: ${primaryFont};
+                        font-size: 0.8125rem;
+                        color: ${baseTheme.colors.gray[600]};
+                      `}
+                    >
+                      {t("ai-generating-chart")}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {aiError !== undefined && (
+                <div
+                  className={css`
+                    margin-top: 0.5rem;
+                  `}
+                >
+                  <ErrorBanner error={aiError} />
+                </div>
+              )}
+            </div>
+          )}
           <div
             className={css`
               /* Fills the leftover column height; the sections below keep their size. */
@@ -305,6 +447,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
               height="100%"
               language={MONACO_LANGUAGE}
               value={spec}
+              beforeMount={enableJsonSchemaSupport}
               onChange={handleSpecChange}
               options={{
                 minimap: { enabled: false },

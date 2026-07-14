@@ -20,6 +20,19 @@ export const zAutomaticCompletionRequirements = z.object({
   requires_exam: z.boolean(),
 })
 
+export const zChartSpecGenerationRequest = z.object({
+  current_spec: z.string().nullish(),
+  data_format: z.string().nullish(),
+  data_sample: z.string().nullish(),
+  data_url: z.string().nullish(),
+  page_id: z.uuid().nullish(),
+  prompt: z.string(),
+})
+
+export const zChartSpecGenerationResponse = z.object({
+  spec: z.string(),
+})
+
 export const zCmsPageExerciseSlide = z.object({
   exercise_id: z.uuid(),
   id: z.uuid(),
@@ -557,6 +570,13 @@ export const zChatbotConfiguration = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
+
+export const zRequestChartSpecGenerationBody = zChartSpecGenerationRequest
+
+/**
+ * Generated Vega-Lite chart specification
+ */
+export const zRequestChartSpecGenerationResponse = zChartSpecGenerationResponse
 
 export const zRequestParagraphSuggestionsBody = zParagraphSuggestionRequest
 

@@ -1,4 +1,3 @@
-import { waitToBeVisible } from "@/utils/screenshot"
 import { test, expect } from "@playwright/test"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 

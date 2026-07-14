@@ -140,9 +140,9 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     },
   })
 
-  const { control, register, handleSubmit, setValue, watch } = methods
+  const { control, handleSubmit, setValue, watch } = methods
 
-  const course_preqs = watch("course_prerequisites")
+  //const course_preqs = watch("course_prerequisites")
 
   const {
     fields: prereqField,

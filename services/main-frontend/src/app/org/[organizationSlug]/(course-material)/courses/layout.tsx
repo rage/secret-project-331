@@ -5,10 +5,8 @@ import { useAtomValue } from "jotai"
 import React from "react"
 import DOMPurify from "dompurify"
 import { getCourseMetadataOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
-import { metadata } from "motion/react-client"
 
 function CourseMaterialLayout({
   children,

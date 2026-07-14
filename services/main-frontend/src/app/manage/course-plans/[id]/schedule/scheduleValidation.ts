@@ -1,9 +1,9 @@
-import { SCHEDULE_STAGE_COUNT } from "./scheduleConstants"
-
 import type {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
+
+import { SCHEDULE_STAGE_COUNT } from "./scheduleConstants"
 
 export type ScheduleValidationIssue =
   | {

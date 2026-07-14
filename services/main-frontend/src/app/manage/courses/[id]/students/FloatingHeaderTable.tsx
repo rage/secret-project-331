@@ -5,6 +5,8 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import type { ColumnDef } from "@tanstack/react-table"
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
 import { colorPairs } from "./studentsTableColors"
 import {
   dockedTrailerCss,
@@ -36,8 +38,6 @@ import {
   wrapAutoX,
   wrapHiddenX,
 } from "./studentsTableStyles"
-
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface ColMeta {
   width?: number

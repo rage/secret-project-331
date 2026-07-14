@@ -5,10 +5,6 @@ import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { useContext } from "react"
 
-import PeerReviewEditor from "../../../components/PeerReviewEditor"
-import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
-import PageContext from "../../../contexts/PageContext"
-
 import { getCmsCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -17,6 +13,10 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import PeerReviewEditor from "../../../components/PeerReviewEditor"
+import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
+import PageContext from "../../../contexts/PageContext"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 

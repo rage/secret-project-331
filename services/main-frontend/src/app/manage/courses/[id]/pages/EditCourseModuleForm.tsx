@@ -6,14 +6,14 @@ import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import type { ModuleView } from "./CourseModules"
-
 import Button from "@/shared-module/common/components/Button"
 import Checkbox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import type { ModuleView } from "./CourseModules"
 
 interface Props {
   module: ModuleView

@@ -7,11 +7,11 @@ import React, { useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import TopBarMenuButton from "./TopBarMenuButton"
-import { useLanguageMenuItems } from "./hooks/useLanguageMenuItems"
-
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import { useLanguageMenuItems } from "./hooks/useLanguageMenuItems"
+import TopBarMenuButton from "./TopBarMenuButton"
 
 const triggerBtn = css`
   /* Keep DOM stable; structure changes via CSS only */

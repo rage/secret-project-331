@@ -8,14 +8,6 @@ import { useParams } from "next/navigation"
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import { SCHEDULE_STAGE_ORDER } from "../schedule/scheduleConstants"
-
-import AnalysisWorkspaceForm from "./components/AnalysisWorkspaceForm"
-import PlanOverviewPanel from "./components/PlanOverviewPanel"
-import StageTimelineTabStrip from "./components/StageTimelineTabStrip"
-import WorkspaceStageSection from "./components/WorkspaceStageSection"
-import { useCoursePlanWorkspacePageState } from "./hooks/useCoursePlanWorkspacePageState"
-
 import {
   advanceCourseDesignerStageMutation,
   extendCourseDesignerStageMutation,
@@ -32,6 +24,13 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCoursePlanPermissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import { SCHEDULE_STAGE_ORDER } from "../schedule/scheduleConstants"
+import AnalysisWorkspaceForm from "./components/AnalysisWorkspaceForm"
+import PlanOverviewPanel from "./components/PlanOverviewPanel"
+import StageTimelineTabStrip from "./components/StageTimelineTabStrip"
+import WorkspaceStageSection from "./components/WorkspaceStageSection"
+import { useCoursePlanWorkspacePageState } from "./hooks/useCoursePlanWorkspacePageState"
 
 const pageRootStyles = css`
   padding: 0 0 3rem 0;

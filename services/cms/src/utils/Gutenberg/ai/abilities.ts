@@ -1,13 +1,13 @@
-import { AI_ACTIONS, AI_TONE_SUBMENU, AI_TRANSLATE_SUBMENU } from "./menu"
-import { registerAbility } from "./registry"
-import type { AbilityDefinition } from "./types"
-
 import type {
   ParagraphSuggestionAction,
   ParagraphSuggestionContext,
   ParagraphSuggestionRequest,
 } from "@/generated/api"
 import { requestParagraphSuggestions } from "@/generated/api/sdk.generated"
+
+import { AI_ACTIONS, AI_TONE_SUBMENU, AI_TRANSLATE_SUBMENU } from "./menu"
+import { registerAbility } from "./registry"
+import type { AbilityDefinition } from "./types"
 
 export interface ParagraphAbilityInputMeta {
   tone?: string

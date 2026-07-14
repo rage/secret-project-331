@@ -2,12 +2,12 @@
 
 import React, { useCallback, useContext } from "react"
 
-import type { BlockRendererProps } from ".."
-
 import ParsedText from "@/components/course-material/ParsedText"
 import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
 
 interface CheckBoxAttributes {
   content: string

@@ -3,9 +3,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 
-import PageContext from "../../contexts/PageContext"
-import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
-
 import type { CmsPageUpdate, Page } from "@/generated/api"
 import {
   getCmsCourseOptions,
@@ -21,6 +18,9 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+
+import PageContext from "../../contexts/PageContext"
+import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
 
 interface PagesProps {
   query: SimplifiedUrlQuery<"id">

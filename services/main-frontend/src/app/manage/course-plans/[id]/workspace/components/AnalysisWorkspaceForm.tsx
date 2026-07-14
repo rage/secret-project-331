@@ -3,13 +3,17 @@
 import { cx } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import useAnalysisWorkspaceFormController from "../hooks/useAnalysisWorkspaceFormController"
+import type { AnalysisCourseType } from "@/generated/api/types.generated"
+import {
+  Button,
+  ComboBox,
+  nullIfEmpty,
+  Select,
+  TextArea,
+  TextField,
+} from "@/shared-module/components"
 
-import ContentFormatCheckboxes from "./analysis-form/ContentFormatCheckboxes"
-import ContributorRoleBlock from "./analysis-form/ContributorRoleBlock"
-import ModeCheckboxRow from "./analysis-form/ModeCheckboxRow"
-import OpenPeriodCheckboxes from "./analysis-form/OpenPeriodCheckboxes"
-import SectionCollapsibleHeader from "./analysis-form/SectionCollapsibleHeader"
+import useAnalysisWorkspaceFormController from "../hooks/useAnalysisWorkspaceFormController"
 import {
   analysisSectionBodyId,
   analysisSectionHeadingId,
@@ -42,16 +46,11 @@ import {
   uhCalloutTitleStyles,
   uhLineStyles,
 } from "./analysis-form/analysisFormDomain"
-
-import type { AnalysisCourseType } from "@/generated/api/types.generated"
-import {
-  Button,
-  ComboBox,
-  nullIfEmpty,
-  Select,
-  TextArea,
-  TextField,
-} from "@/shared-module/components"
+import ContentFormatCheckboxes from "./analysis-form/ContentFormatCheckboxes"
+import ContributorRoleBlock from "./analysis-form/ContributorRoleBlock"
+import ModeCheckboxRow from "./analysis-form/ModeCheckboxRow"
+import OpenPeriodCheckboxes from "./analysis-form/OpenPeriodCheckboxes"
+import SectionCollapsibleHeader from "./analysis-form/SectionCollapsibleHeader"
 
 export default function AnalysisWorkspaceForm(props: {
   onDirtyChange?: (dirty: boolean) => void

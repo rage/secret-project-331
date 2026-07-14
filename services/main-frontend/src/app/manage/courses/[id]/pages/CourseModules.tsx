@@ -6,11 +6,6 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import type { EditCourseModuleFormFields } from "./EditCourseModuleForm"
-import EditCourseModuleForm from "./EditCourseModuleForm"
-import type { Fields } from "./NewCourseModuleForm"
-import NewCourseModuleForm from "./NewCourseModuleForm"
-
 import BottomPanel from "@/components/BottomPanel"
 import { getCourseStructureOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCourseModules } from "@/generated/api/sdk.generated"
@@ -20,6 +15,11 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { QueryResult } from "@/shared-module/components"
+
+import type { EditCourseModuleFormFields } from "./EditCourseModuleForm"
+import EditCourseModuleForm from "./EditCourseModuleForm"
+import type { Fields } from "./NewCourseModuleForm"
+import NewCourseModuleForm from "./NewCourseModuleForm"
 
 const AUTOMATIC = "automatic"
 const MANUAL = "manual"

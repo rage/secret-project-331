@@ -2,10 +2,10 @@ import { Editor } from "@monaco-editor/react"
 import _ from "lodash"
 import React from "react"
 
+import type { ExerciseFile } from "@/util/stateInterfaces"
+
 import { EditorSection as EditorSectionStyled, EditorWrapper } from "../styles"
 import { extensionToLanguage } from "../utils"
-
-import type { ExerciseFile } from "@/util/stateInterfaces"
 
 interface EditorSectionProps {
   filepath: string

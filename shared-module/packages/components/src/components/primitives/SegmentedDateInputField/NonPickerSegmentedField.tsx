@@ -15,7 +15,6 @@ import {
   resolveControlSurfaceCss,
   resolveSegmentedFloatingShellCss,
 } from "../fieldStyles"
-
 import { DateSegment } from "./DateSegment"
 import { dataStateFalse, dataStateTrue } from "./segmentedDateInputFieldConstants"
 import {

@@ -17,7 +17,6 @@ import {
   resolveSegmentedFloatingShellCss,
 } from "../fieldStyles"
 import { Popover } from "../popover"
-
 import { DatePickerTriggerButton } from "./DatePickerTriggerButton"
 import { DateSegment } from "./DateSegment"
 import { dataStateFalse, dataStateTrue } from "./segmentedDateInputFieldConstants"

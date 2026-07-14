@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises"
+
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { handleExtractStub } from "./extractStub"

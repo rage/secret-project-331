@@ -4,14 +4,11 @@ import React, { useContext } from "react"
 import { useMemoOne } from "use-memo-one"
 import { v5 } from "uuid"
 
-import { SIDEBAR_WIDTH_PX } from "../../../components/Layout"
-import CourseContext from "../../../contexts/CourseContext"
-
 import PageContext from "@/contexts/PageContext"
 import { getCmsRepositoryExercisesForCourse } from "@/generated/api/sdk.generated"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useMedia from "@/shared-module/common/hooks/useMedia"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
@@ -25,6 +22,9 @@ import type {
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { SIDEBAR_WIDTH_PX } from "../../../components/Layout"
+import CourseContext from "../../../contexts/CourseContext"
 
 const VIEW_TYPE = "exercise-editor"
 const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."

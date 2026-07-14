@@ -5,12 +5,12 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
+import Progress from "@/shared-module/common/components/CourseProgress"
+
 import ColorsIdentifier from "./ColorsIdentifier"
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 import TempAccordionItem from "./TempAccordionItem"
-
-import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
-import Progress from "@/shared-module/common/components/CourseProgress"
 
 export interface CourseProgressProps {
   userCourseProgress: UserCourseProgress[]

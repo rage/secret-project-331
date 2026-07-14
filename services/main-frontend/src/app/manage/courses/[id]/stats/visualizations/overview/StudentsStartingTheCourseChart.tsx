@@ -3,6 +3,13 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { TimeGranularity } from "@/generated/api/types.generated"
+import {
+  useUniqueUsersStartingHistoryQuery,
+  useUniqueUsersStartingHistoryQueryCustomTimePeriod,
+} from "@/hooks/stats"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
 import type { Period } from "../../LineChart"
 import LineChart, {
   CUSTOM_PERIOD,
@@ -11,13 +18,6 @@ import LineChart, {
   MONTHLY_DATE_FORMAT,
   MONTHLY_PERIOD,
 } from "../../LineChart"
-
-import type { TimeGranularity } from "@/generated/api/types.generated"
-import {
-  useUniqueUsersStartingHistoryQuery,
-  useUniqueUsersStartingHistoryQueryCustomTimePeriod,
-} from "@/hooks/stats"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface StudentsStartingTheCourseChartProps {
   courseId: string

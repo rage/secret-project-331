@@ -5,11 +5,11 @@ import { LanguageTranslation } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Close from "../imgs/close.svg"
-import Tick from "../imgs/tick-03.svg"
-
 import { headingFont } from "@/shared-module/common/styles"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
+
+import Close from "../imgs/close.svg"
+import Tick from "../imgs/tick-03.svg"
 
 const SelectorWrapper = styled.div`
   background: #e7e7e7;

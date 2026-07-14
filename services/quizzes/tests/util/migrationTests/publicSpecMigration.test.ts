@@ -9,7 +9,6 @@ import type {
   PublicSpecQuizItemScale,
   PublicSpecQuizItemTimeline,
 } from "../../../types/quizTypes/publicSpec"
-
 import { comparePublicSpecQuizItem, expectPublicSpecMetadataToMatch } from "./utils/comparison"
 import {
   generateCheckboxForOlderPublicSpecQuiz,

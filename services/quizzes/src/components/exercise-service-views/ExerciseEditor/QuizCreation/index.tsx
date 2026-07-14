@@ -4,15 +4,14 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import Button from "@/shared-module/common/components/Button"
+
 import type { PrivateSpecQuiz } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import QuizEditor from "../QuizComponents/QuizEditor"
 import { createEmptyQuizItem } from "../utils/general"
-
 import type { QuizOption } from "./QuizOption"
 import QuizItemOption from "./QuizOption"
-
-import Button from "@/shared-module/common/components/Button"
 
 type QuizOptionProps = Record<string, QuizOption>
 

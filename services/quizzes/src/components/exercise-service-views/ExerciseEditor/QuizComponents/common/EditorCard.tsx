@@ -3,13 +3,13 @@ import styled from "@emotion/styled"
 import { ArrowDownCircle, ArrowUpCircle, Trash } from "@vectopus/atlas-icons-react"
 import React from "react"
 
+import Button from "@/shared-module/common/components/Button"
+
 import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
 } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-
-import Button from "@/shared-module/common/components/Button"
 
 interface EditorCardProps {
   title: string

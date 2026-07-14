@@ -8,6 +8,14 @@ import { useTranslation } from "react-i18next"
 import { useDebouncedCallback } from "use-debounce"
 
 import {
+  getCourseDesignerPlanQueryKey,
+  updateCourseDesignerStageWorkspaceMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { AnalysisWorkspaceV1 } from "@/generated/api/types.generated"
+import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+
+import {
   ANALYSIS_WORKSPACE_SCHEMA_V1,
   type AnalysisWorkspaceFormValues,
   AUTOSAVE_DEBOUNCE_MS,
@@ -24,14 +32,6 @@ import {
   stripOpenPeriodAll,
   withDerivedOpenPeriodAll,
 } from "../components/analysis-form/analysisFormDomain"
-
-import {
-  getCourseDesignerPlanQueryKey,
-  updateCourseDesignerStageWorkspaceMutation,
-} from "@/generated/api/@tanstack/react-query.generated"
-import type { AnalysisWorkspaceV1 } from "@/generated/api/types.generated"
-import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
-import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 const scrollToSection = (id: string) => (e: MouseEvent<HTMLAnchorElement>) => {
   e.preventDefault()

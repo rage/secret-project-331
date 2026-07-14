@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 
 import RadioButton from "../InputFields/RadioButton"
 import TextAreaField from "../InputFields/TextAreaField"
-
 import ThreadComponent from "./Thread"
 
 const placeholder = `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has

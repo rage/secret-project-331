@@ -2,12 +2,12 @@
 
 import { css } from "@emotion/css"
 
-import ChapterGridCard from "./ChapterGridCard"
-
 import type { ChapterWithStatus } from "@/generated/course-material-api/types.generated"
 import { cardMaxWidth } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { stringToRandomNumber } from "@/shared-module/common/utils/strings"
+
+import ChapterGridCard from "./ChapterGridCard"
 
 const COLORS_ARRAY = [
   "#215887",

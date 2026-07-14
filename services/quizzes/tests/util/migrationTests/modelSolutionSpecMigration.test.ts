@@ -9,7 +9,6 @@ import type {
   ModelSolutionQuizItemScale,
   ModelSolutionQuizItemTimeline,
 } from "../../../types/quizTypes/modelSolutionSpec"
-
 import {
   compareModelSolutionSpecQuizItem,
   expectModelSolutionSpecMetadataToMatch,

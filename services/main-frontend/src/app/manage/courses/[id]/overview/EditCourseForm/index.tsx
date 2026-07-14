@@ -6,18 +6,18 @@ import React from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import AiPolicyFields from "./AiPolicyFields"
-import ClosedSectionFields from "./ClosedSectionFields"
-
 import { updateCourse } from "@/generated/api/sdk.generated"
 import type { Course, UpdateCourseData } from "@/generated/api/types.generated"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+
+import AiPolicyFields from "./AiPolicyFields"
+import ClosedSectionFields from "./ClosedSectionFields"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

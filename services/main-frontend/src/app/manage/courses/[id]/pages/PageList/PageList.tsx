@@ -4,16 +4,6 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewOrEditPageForm from "../NewOrEditPageForm"
-
-import PageListItem, {
-  MOVING_ALLOWED,
-  MOVING_ALLOWED_ONLY_DOWN,
-  MOVING_ALLOWED_ONLY_UP,
-  MOVING_NOT_ALLOWED,
-} from "./PageListItem"
-import TableWrapper from "./TableWrapper"
-
 import { deletePageMutation as deletePageMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { Chapter, Page } from "@/generated/api/types.generated"
 import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
@@ -21,6 +11,15 @@ import Button from "@/shared-module/common/components/Button"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, typography } from "@/shared-module/common/styles"
+
+import NewOrEditPageForm from "../NewOrEditPageForm"
+import PageListItem, {
+  MOVING_ALLOWED,
+  MOVING_ALLOWED_ONLY_DOWN,
+  MOVING_ALLOWED_ONLY_UP,
+  MOVING_NOT_ALLOWED,
+} from "./PageListItem"
+import TableWrapper from "./TableWrapper"
 
 interface Props {
   data: Page[]

@@ -6,7 +6,6 @@ import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { theme } from "../../../styles"
-
 import type { TabLinkProps } from "./TabLink"
 
 interface TabLinkNavigationProps {

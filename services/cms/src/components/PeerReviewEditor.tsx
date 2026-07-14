@@ -7,8 +7,6 @@ import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import { v4 } from "uuid"
 
-import type { ExerciseAttributes } from "../blocks/Exercise"
-
 import type {
   CmsPeerOrSelfReviewConfig,
   CmsPeerOrSelfReviewQuestion,
@@ -29,6 +27,8 @@ import { editCourseDefaultPeerOrSelfReviewConfigRoute } from "@/shared-module/co
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ExerciseAttributes } from "../blocks/Exercise"
 
 const Wrapper = styled.div`
   margin: 0 auto;

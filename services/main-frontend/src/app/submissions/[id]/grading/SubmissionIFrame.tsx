@@ -5,11 +5,11 @@ import { useTranslation } from "react-i18next"
 
 import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
 import type { StudentExerciseTaskSubmissionResult } from "@/generated/course-material-api/types.generated"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import ThrottledChildRenderer, {
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"

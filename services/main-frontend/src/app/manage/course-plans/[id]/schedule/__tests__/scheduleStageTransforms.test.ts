@@ -2,12 +2,12 @@
 
 import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 
-import { addMonthToStage, removeMonthFromStage } from "../scheduleStageTransforms"
-
 import type {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
+
+import { addMonthToStage, removeMonthFromStage } from "../scheduleStageTransforms"
 
 const STAGE_ORDER: CourseDesignerStage[] = [
   "Analysis",

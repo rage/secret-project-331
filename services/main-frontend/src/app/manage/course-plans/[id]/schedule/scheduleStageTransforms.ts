@@ -1,11 +1,11 @@
 import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 
-import { SCHEDULE_STAGE_ORDER } from "./scheduleConstants"
-
 import type {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
+
+import { SCHEDULE_STAGE_ORDER } from "./scheduleConstants"
 
 const STAGE_ORDER: CourseDesignerStage[] = SCHEDULE_STAGE_ORDER
 

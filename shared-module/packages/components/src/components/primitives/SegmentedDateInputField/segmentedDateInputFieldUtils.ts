@@ -13,7 +13,6 @@ import {
   serializeTimeValue,
   shouldHideRestSegmentPlaceholders,
 } from "../../../lib/utils/segmentedField"
-
 import type { SegmentedDateInputFieldProps } from "./segmentTypes"
 
 export {

@@ -6,10 +6,10 @@ import { useRef } from "react"
 import { useBreadcrumbItem, useBreadcrumbs } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { breadcrumbCrumbsAtom, type Crumb } from "./breadcrumbAtoms"
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
+
+import { breadcrumbCrumbsAtom, type Crumb } from "./breadcrumbAtoms"
 
 const MARKER = "›"
 const ARIA_CURRENT_PAGE = "page"

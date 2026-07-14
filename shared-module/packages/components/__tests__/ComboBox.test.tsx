@@ -3,7 +3,6 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 
 import { ComboBox } from "../src/components/ComboBox"
-
 import { FormHarness, pressArrowDown, pressEnter, pressTab, renderWithForm } from "./testUtils"
 
 interface Item {

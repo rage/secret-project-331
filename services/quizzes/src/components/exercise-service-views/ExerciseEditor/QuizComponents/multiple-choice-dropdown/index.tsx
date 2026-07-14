@@ -4,6 +4,13 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import Accordion from "@/shared-module/common/components/Accordion"
+import Button from "@/shared-module/common/components/Button"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
 import type { PrivateSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
@@ -11,13 +18,6 @@ import EditorCard from "../common/EditorCard"
 import MultipleChoiceOption from "../common/MultipleChoiceOption"
 import ParsedTextField from "../common/ParsedTextField"
 import ToggleCard from "../common/ToggleCard"
-
-import Accordion from "@/shared-module/common/components/Accordion"
-import Button from "@/shared-module/common/components/Button"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string

@@ -3,14 +3,14 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import { useTranslation } from "@/utils/useCmsTranslation"
+
 import type { PlaceholderValidationResult } from "../../utils/emailPlaceholders"
 import {
   getPlaceholderConfig,
   PLACEHOLDER_CODE,
   PLACEHOLDER_RESET_LINK,
 } from "../../utils/emailPlaceholders"
-
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface PlaceholderInfoProps {
   templateType: unknown

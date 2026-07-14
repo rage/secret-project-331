@@ -4,11 +4,11 @@ import styled from "@emotion/styled"
 import { t } from "i18next"
 import React from "react"
 
-import type { BlockRendererProps } from ".."
-import InnerBlocks from "../util/InnerBlocks"
-
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
+import InnerBlocks from "../util/InnerBlocks"
 
 interface AuthorBlockAttributes {
   backgroundColor: string

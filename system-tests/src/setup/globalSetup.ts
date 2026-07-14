@@ -1,8 +1,9 @@
-import type { FullConfig } from "@playwright/test"
 import { spawnSync } from "child_process"
 import fs from "fs"
-import { load as yamlLoad } from "js-yaml"
 import path from "path"
+
+import type { FullConfig } from "@playwright/test"
+import { load as yamlLoad } from "js-yaml"
 import playWrightPackageJson from "playwright/package.json"
 import which from "which"
 

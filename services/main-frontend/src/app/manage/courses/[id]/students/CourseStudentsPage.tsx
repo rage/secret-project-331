@@ -5,13 +5,13 @@ import { usePathname, useRouter } from "next/navigation"
 import React, { useEffect, useMemo, useState, useTransition } from "react"
 import { useTranslation } from "react-i18next"
 
-import * as styles from "./StudentsPageStyles"
-import { CertificatesTabContent, CompletionsTabContent, UserTabContent } from "./StudentsTableTabs"
-import { ProgressTabContent } from "./tabs/ProgressTab"
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
+
+import * as styles from "./StudentsPageStyles"
+import { CertificatesTabContent, CompletionsTabContent, UserTabContent } from "./StudentsTableTabs"
+import { ProgressTabContent } from "./tabs/ProgressTab"
 
 interface Props {
   courseId?: string

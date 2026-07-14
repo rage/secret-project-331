@@ -5,15 +5,14 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewOrEditPageForm from "../NewOrEditPageForm"
-
-import PageAudioWidget from "./PageAudioWidget"
-
 import type { Chapter, Page } from "@/generated/api/types.generated"
 import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+
+import NewOrEditPageForm from "../NewOrEditPageForm"
+import PageAudioWidget from "./PageAudioWidget"
 
 export const MOVING_ALLOWED: MovePolicy = "allowed"
 export const MOVING_NOT_ALLOWED: MovePolicy = "not-allowed"

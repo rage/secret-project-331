@@ -2,6 +2,8 @@
  * @vitest-environment node
  */
 
+import { handleExportAnswers } from "@/server/exportAnswers"
+
 import testClient from "./utils/appRouterTestClient"
 import {
   generateEmptyPrivateSpecQuiz,
@@ -11,8 +13,6 @@ import {
   generatePrivateSpecWithOneMultipleChoiceQuizItem,
   generatePrivateSpecWithOneTimelineQuizItem,
 } from "./utils/privateSpecGenerator"
-
-import { handleExportAnswers } from "@/server/exportAnswers"
 
 describe("export-answers", () => {
   it("exports multiple-choice answers with the reduced answer columns", async () => {

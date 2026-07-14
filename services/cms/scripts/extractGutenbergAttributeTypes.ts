@@ -1,14 +1,15 @@
 // Require imports needs to happen in a specific order.
 /* oxlint-disable import/order */
 
-import * as jsdom from "jsdom"
-import type { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
-import type { JSONSchema } from "json-schema-to-typescript"
-import type { BlockType } from "@wordpress/blocks"
 import fs from "fs"
-import path from "path"
 import { createRequire } from "module"
+import path from "path"
+
+import type { BlockType } from "@wordpress/blocks"
+import * as jsdom from "jsdom"
+import type { JSONSchema } from "json-schema-to-typescript"
 import { compile } from "json-schema-to-typescript"
+import type { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
 
 const require = createRequire(import.meta.url)
 

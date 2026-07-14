@@ -6,11 +6,10 @@ import { useLayoutEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useSpring } from "react-spring"
 
+import type { CircularProgressExtraProps } from "."
 import { baseTheme, headingFont, secondaryFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../utils/constants"
-
-import type { CircularProgressExtraProps } from "."
 
 const StyledSVG = styled.div`
   position: relative;

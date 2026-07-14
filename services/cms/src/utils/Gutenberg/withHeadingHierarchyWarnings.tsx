@@ -6,11 +6,11 @@ import { createHigherOrderComponent } from "@wordpress/compose"
 import { useSelect } from "@wordpress/data"
 import { Fragment } from "@wordpress/element"
 
-import type { HeadingHierarchyIssue } from "./headingHierarchy"
-import { getHeadingHierarchyIssuesForBlock } from "./headingHierarchy"
-
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { HeadingHierarchyIssue } from "./headingHierarchy"
+import { getHeadingHierarchyIssuesForBlock } from "./headingHierarchy"
 
 interface BlockEditWithClientIdProps {
   clientId: string

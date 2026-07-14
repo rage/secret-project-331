@@ -1,8 +1,9 @@
-import * as k8s from "@kubernetes/client-node"
 import { createReadStream, createWriteStream, promises as fs } from "fs"
 import type internal from "stream"
 import { Writable } from "stream"
 import { finished } from "stream/promises"
+
+import * as k8s from "@kubernetes/client-node"
 import { temporaryFile } from "tempy"
 import { v4 } from "uuid"
 

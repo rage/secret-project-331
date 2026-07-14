@@ -6,10 +6,10 @@ import Link from "next/link"
 import React, { useRef } from "react"
 import { useFocusRing, useHover, useTab } from "react-aria"
 
-import { useTabsContext } from "./Tabs"
-
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import { useTabsContext } from "./Tabs"
 
 interface TabProps {
   tabName: string

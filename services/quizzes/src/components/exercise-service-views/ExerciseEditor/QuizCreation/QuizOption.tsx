@@ -2,11 +2,11 @@ import styled from "@emotion/styled"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
+import { headingFont } from "@/shared-module/exercise-react/styles"
+
 import type { PrivateSpecQuiz, QuizItemType } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import { createEmptyQuizItem } from "../utils/general"
-
-import { headingFont } from "@/shared-module/exercise-react/styles"
 
 export interface QuizOption {
   type: QuizItemType

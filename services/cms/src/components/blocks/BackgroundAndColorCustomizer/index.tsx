@@ -6,11 +6,11 @@ import { ColorPalette, Notice, PanelBody, Placeholder } from "@wordpress/compone
 import { cover as icon } from "@wordpress/icons"
 import React from "react"
 
-import BackgroundImageSection from "./BackgroundImageSection"
-
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme } from "@/shared-module/common/styles"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import BackgroundImageSection from "./BackgroundImageSection"
 
 const placeHolderFixHeightStyles = css`
   min-height: unset !important;

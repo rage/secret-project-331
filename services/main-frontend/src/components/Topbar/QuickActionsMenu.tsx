@@ -4,11 +4,10 @@ import type { ReactElement } from "react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import DropdownMenu from "../DropdownMenu"
-
-import { useQuickActionsItems } from "./hooks/useQuickActionsItems"
-
 import CourseSettingsModal from "@/components/course-material/modals/CourseSettingsModal"
+
+import DropdownMenu from "../DropdownMenu"
+import { useQuickActionsItems } from "./hooks/useQuickActionsItems"
 
 interface MenuOption {
   type: "link" | "action" | "separator"

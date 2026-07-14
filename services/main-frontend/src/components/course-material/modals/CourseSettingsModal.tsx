@@ -6,11 +6,6 @@ import { useAtomValue } from "jotai"
 import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import SelectCourseLanguage from "../SelectCourseLanguage"
-import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
-
-import { getLanguageName } from "./ChooseCourseLanguage"
-
 import { saveCourseMaterialCourseSettings } from "@/generated/course-material-api/sdk.generated"
 import type { NewCourseBackgroundQuestionAnswer } from "@/generated/course-material-api/types.generated"
 import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
@@ -18,8 +13,8 @@ import useCourse from "@/hooks/course-material/useCourse"
 import useCourseInstances from "@/hooks/course-material/useCourseInstances"
 import { refetchUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import useUserMarketingConsent from "@/hooks/course-material/useUserMarketingConsent"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
@@ -34,6 +29,10 @@ import {
   viewStatusAtom,
 } from "@/state/course-material/selectors"
 import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languageHelpers"
+
+import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
+import SelectCourseLanguage from "../SelectCourseLanguage"
+import { getLanguageName } from "./ChooseCourseLanguage"
 
 export interface CourseSettingsModalProps {
   onClose: () => void

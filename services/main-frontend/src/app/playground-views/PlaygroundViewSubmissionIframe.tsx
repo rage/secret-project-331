@@ -12,8 +12,8 @@ import type {
   ExerciseIframeState,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import type { ExerciseTaskGradingResult as ProtocolExerciseTaskGradingResult } from "@/shared-module/exercise-protocol/core/exerciseServiceTypes"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import type { ExerciseTaskGradingResult as ProtocolExerciseTaskGradingResult } from "@/shared-module/exercise-protocol/core/exerciseServiceTypes"
 import type { ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
 interface PlaygroundViewSubmissionIframeProps {

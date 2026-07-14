@@ -4,10 +4,6 @@ import { css } from "@emotion/css"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseCompletionStatsTable from "./CourseCompletionStatsTable"
-import DomainCompletionStatsTable from "./DomainCompletionStatsTable"
-import YearFilter from "./YearFilter"
-
 import {
   useCompletionStatsByEmailDomainQuery,
   useCourseCompletionStatsForEmailDomainQuery,
@@ -16,6 +12,10 @@ import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import CourseCompletionStatsTable from "./CourseCompletionStatsTable"
+import DomainCompletionStatsTable from "./DomainCompletionStatsTable"
+import YearFilter from "./YearFilter"
 
 const SelectedDomainCourseStatsTable = ({
   selectedDomain,

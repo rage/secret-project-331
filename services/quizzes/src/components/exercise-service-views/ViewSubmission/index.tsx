@@ -4,6 +4,13 @@ import { BullhornMegaphone, InfoCircle } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
+import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { baseTheme } from "@/shared-module/exercise-react/styles"
+import { COLUMN } from "@/util/constants"
+import type { FlexDirection } from "@/util/css-sanitization"
+import { sanitizeFlexDirection } from "@/util/css-sanitization"
+
 import type {
   UserAnswer,
   UserItemAnswerCheckbox,
@@ -36,7 +43,6 @@ import type {
 } from "../../../../types/quizTypes/publicSpec"
 import FlexWrapper from "../../FlexWrapper"
 import ParsedText from "../../ParsedText"
-
 import CheckBoxFeedback from "./impl-by-quiz-item-type/Checkbox"
 import ChooseN from "./impl-by-quiz-item-type/ChooseN"
 import ClosedEndedQuestionFeedback from "./impl-by-quiz-item-type/Closed-ended-question"
@@ -47,13 +53,6 @@ import MultipleChoiceDropdownFeedback from "./impl-by-quiz-item-type/MultipleCho
 import ScaleSubmissionViewComponent from "./impl-by-quiz-item-type/Scale"
 import Timeline from "./impl-by-quiz-item-type/Timeline"
 import type Unsupported from "./impl-by-quiz-item-type/Unsupported"
-
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { baseTheme } from "@/shared-module/exercise-react/styles"
-import { COLUMN } from "@/util/constants"
-import type { FlexDirection } from "@/util/css-sanitization"
-import { sanitizeFlexDirection } from "@/util/css-sanitization"
 
 interface SubmissionProps {
   user_answer: UserAnswer

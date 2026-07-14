@@ -1,10 +1,5 @@
 import { atom } from "jotai"
 
-import { viewParamsAtom } from "./params"
-import { examQueryAtom, materialQueryAtom } from "./queries"
-
-import { courseMaterialAtom } from "./index"
-
 import type {
   CourseInstance,
   CourseMaterialCourse,
@@ -13,6 +8,10 @@ import type {
   Page,
   UserCourseSettings,
 } from "@/generated/course-material-api/types.generated"
+
+import { courseMaterialAtom } from "./index"
+import { viewParamsAtom } from "./params"
+import { examQueryAtom, materialQueryAtom } from "./queries"
 
 /** Refetches the current view's data (material or exam). */
 // oxlint-disable-next-line require-await -- async for the Promise-returning atom write contract

@@ -7,10 +7,10 @@ import type { Dispatch } from "react"
 import React from "react"
 import { v4 } from "uuid"
 
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+
 import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
 import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
-
-import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 // Context
 

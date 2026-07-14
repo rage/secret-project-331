@@ -6,9 +6,9 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { USER_ROLES } from "@/constants/roles"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 type RoleValue = (typeof USER_ROLES)[number]["value"]

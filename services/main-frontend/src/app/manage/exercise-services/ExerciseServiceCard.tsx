@@ -14,22 +14,22 @@ import { parseISO } from "date-fns"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ContentArea from "./ContentArea"
-
 import {
   deleteExerciseServiceMutation as deleteExerciseServiceMutationOptions,
   updateExerciseServiceMutation as updateExerciseServiceMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseService, ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { validURL } from "@/shared-module/common/utils/validation"
 import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
 import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
+
+import ContentArea from "./ContentArea"
 
 interface ExerciseServiceCardProps {
   id: string

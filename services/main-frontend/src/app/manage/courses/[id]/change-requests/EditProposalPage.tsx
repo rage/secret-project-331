@@ -4,8 +4,6 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import EditProposalView from "./EditProposalView"
-
 import {
   getEditProposalsOptions,
   processEditProposalMutation as processProposalMutationOptions,
@@ -14,6 +12,8 @@ import type { BlockProposalInfo } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { fontWeights, typography } from "@/shared-module/common/styles/typography"
 import { QueryResult } from "@/shared-module/components"
+
+import EditProposalView from "./EditProposalView"
 
 interface Props {
   courseId: string

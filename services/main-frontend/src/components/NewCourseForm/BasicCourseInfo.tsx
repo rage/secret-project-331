@@ -4,12 +4,12 @@ import React, { useEffect } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import type { FormFields } from "."
-import { FieldContainer } from "."
-
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { normalizePath } from "@/utils/normalizePath"
+
+import type { FormFields } from "."
+import { FieldContainer } from "."
 
 interface BasicCourseInfoProps {
   form: UseFormReturn<FormFields>

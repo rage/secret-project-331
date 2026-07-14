@@ -5,9 +5,9 @@ import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface CreateOrganizationForm {
   name: string

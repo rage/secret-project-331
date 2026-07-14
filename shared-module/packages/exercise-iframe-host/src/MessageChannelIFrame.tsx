@@ -5,9 +5,6 @@ import { isEqual } from "lodash"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import useEventCallback from "./useEventCallback"
-import useMessageChannel from "./useMessageChannel"
-
 import type {
   DialogResponseMessage,
   ExtendedIframeState,
@@ -22,6 +19,9 @@ import {
   isOpenLinkMessage,
   isRequestIframeReloadMessage,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+
+import useEventCallback from "./useEventCallback"
+import useMessageChannel from "./useMessageChannel"
 
 // Inlined from shared-module's BreakFromCentered component: only this prop type is needed
 // here, and we don't want this package to depend on a generic layout component.

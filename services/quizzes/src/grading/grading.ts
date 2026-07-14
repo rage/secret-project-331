@@ -1,6 +1,5 @@
 import type { QuizItemAnswerGrading } from "../../types/quizTypes/grading"
 import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
-
 import { isValidNumber } from "./utils/math"
 
 const gradeAnswers = (assessedAnswer: QuizItemAnswerGrading[], quiz: PrivateSpecQuiz): number => {

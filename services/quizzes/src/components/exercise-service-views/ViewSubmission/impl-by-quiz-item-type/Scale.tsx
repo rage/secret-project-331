@@ -1,15 +1,14 @@
 import { css } from "@emotion/css"
 import React, { useId } from "react"
 
-import type { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
-import type { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
-import ParsedText from "../../../ParsedText"
-
-import type { QuizItemSubmissionComponentProps } from "."
-
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemSubmissionComponentProps } from "."
+import type { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
+import ParsedText from "../../../ParsedText"
 
 const Scale: React.FC<
   QuizItemSubmissionComponentProps<PublicSpecQuizItemScale, UserItemAnswerScale>

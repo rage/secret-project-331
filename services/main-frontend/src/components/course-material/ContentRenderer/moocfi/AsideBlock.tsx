@@ -3,11 +3,11 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import type { BlockRendererProps } from ".."
-import InnerBlocks from "../util/InnerBlocks"
-
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
+import InnerBlocks from "../util/InnerBlocks"
 
 interface AsideBlockProps {
   backgroundColor: string

@@ -5,10 +5,10 @@ import { Padlock } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+
 import type { BlockRendererProps } from "../.."
 import InnerBlocks from "../../util/InnerBlocks"
-
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 interface LockChapterLockedViewProps {
   blockProps: BlockRendererProps<unknown>

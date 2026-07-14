@@ -10,10 +10,6 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
-import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
-import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
-
 import type {
   GetPlaygroundViewsWebsocketData,
   ReceivePlaygroundGradingData,
@@ -49,6 +45,10 @@ import {
   parseExerciseTaskGradingResult,
   parsePlaygroundViewsMessage,
 } from "@/utils/playgroundSchemas"
+
+import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
+import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
+import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
 interface PlaygroundFields {
   url: string

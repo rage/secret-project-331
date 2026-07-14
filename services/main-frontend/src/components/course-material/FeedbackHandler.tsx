@@ -6,18 +6,18 @@ import React, { useCallback, useEffect, useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import EditProposalDialog from "./EditProposalDialog"
-import FeedbackDialog from "./FeedbackDialog"
-import FeedbackTypeDialog from "./FeedbackTypeDialog"
-import SelectionListener, { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
-import TextSelectionTooltip from "./TextSelectionTooltip"
-
 import Button from "@/shared-module/common/components/Button"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
 } from "@/stores/course-material/materialFeedbackStore"
 import { getModifierKey } from "@/utils/course-material/platformDetection"
+
+import EditProposalDialog from "./EditProposalDialog"
+import FeedbackDialog from "./FeedbackDialog"
+import FeedbackTypeDialog from "./FeedbackTypeDialog"
+import SelectionListener, { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
+import TextSelectionTooltip from "./TextSelectionTooltip"
 
 interface Props {
   courseId: string

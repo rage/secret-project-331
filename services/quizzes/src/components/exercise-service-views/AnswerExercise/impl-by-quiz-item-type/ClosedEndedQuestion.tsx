@@ -2,17 +2,16 @@ import { css } from "@emotion/css"
 import React, { useCallback, useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
-import type { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
-import ParsedText from "../../../ParsedText"
-import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper"
-
-import type { QuizItemComponentProps } from "."
-
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { stripNonPrintableCharacters } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemComponentProps } from "."
+import type { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
+import ParsedText from "../../../ParsedText"
+import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper"
 
 const ClosedEndedQuestion: React.FC<
   QuizItemComponentProps<PublicSpecQuizItemClosedEndedQuestion, UserItemAnswerClosedEndedQuestion>

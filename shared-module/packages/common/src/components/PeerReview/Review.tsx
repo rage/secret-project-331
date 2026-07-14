@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next"
 
 import { primaryFont } from "../../styles/typography"
 import TextArea from "../InputFields/TextAreaField"
-
 import LikertScale from "./LikertScale"
 
 const Wrapper = styled.div`

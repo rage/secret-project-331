@@ -9,8 +9,6 @@ import type { FieldValues, Path } from "react-hook-form"
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { resolveFieldDescribedBy } from "../lib/utils/field"
-
-import { FieldShell } from "./primitives/FieldShell"
 import {
   checkableContentCss,
   checkableInputCss,
@@ -22,6 +20,7 @@ import {
   switchThumbCss,
   switchTrackCss,
 } from "./primitives/checkableStyles"
+import { FieldShell } from "./primitives/FieldShell"
 import type { FieldSize } from "./primitives/fieldStyles"
 
 // oxlint-disable-next-line i18next/no-literal-string

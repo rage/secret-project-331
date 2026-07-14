@@ -7,15 +7,15 @@ import React, { useRef } from "react"
 import { mergeProps, useButton, useOverlayTrigger } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { CourseProgressSection } from "./CourseProgressSection"
-import { UserDetailsContent } from "./UserDetailsContent"
-import { UserDetailsPopover } from "./UserDetailsPopover"
-
 import { extractUserDetail, useUserDetails } from "@/hooks/useUserDetails"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import { QueryResult } from "@/shared-module/components"
+
+import { CourseProgressSection } from "./CourseProgressSection"
+import { UserDetailsContent } from "./UserDetailsContent"
+import { UserDetailsPopover } from "./UserDetailsPopover"
 
 function hasName(value: string | null | undefined): boolean {
   return !!value && value.trim().length > 0

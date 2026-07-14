@@ -3,11 +3,11 @@
 import { usePathname } from "next/navigation"
 import type React from "react"
 
-import type { RouteTabDefinition } from "./RouteTab"
-import { resolveActiveTab } from "./resolveActiveTab"
-
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+
+import { resolveActiveTab } from "./resolveActiveTab"
+import type { RouteTabDefinition } from "./RouteTab"
 
 interface RouteTabPageTitleProps {
   tabs: RouteTabDefinition[]

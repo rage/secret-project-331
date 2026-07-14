@@ -1,3 +1,5 @@
+import type { NonGenericGradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+
 import { COLUMN } from "../../../src/util/constants"
 import type {
   oldMultipleChoiceMultipleOptionsGradingPolicy,
@@ -7,8 +9,6 @@ import type {
   OldQuizItemOption,
   QuizItem,
 } from "../../../types/oldQuizTypes"
-
-import type { NonGenericGradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 const oldEmptyQuizAnswer = (): OldQuizAnswer => ({
   createdAt: "",

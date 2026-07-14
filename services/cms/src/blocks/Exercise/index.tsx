@@ -5,12 +5,11 @@ import type { ComponentType } from "react"
 import { useEffect } from "react"
 import { v4 } from "uuid"
 
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import ExerciseEditor from "./ExerciseEditor"
 import ExerciseSave from "./ExerciseSave"
-
-import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
 
 export interface ExerciseAttributes {
   id: string

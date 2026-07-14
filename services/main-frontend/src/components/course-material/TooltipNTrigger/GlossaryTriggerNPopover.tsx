@@ -14,9 +14,9 @@ import {
 } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import { TooltipBox } from "./TooltipBox"
-
 import { baseTheme } from "@/shared-module/common/styles"
+
+import { TooltipBox } from "./TooltipBox"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const StyledButton = styled(ReactAriaButton)`

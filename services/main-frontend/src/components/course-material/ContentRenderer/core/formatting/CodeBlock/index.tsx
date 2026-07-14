@@ -5,17 +5,16 @@ import { useMemo } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import type { BlockRendererProps } from "../../.."
-
-import { CopyButton } from "./CopyButton"
-import { parseHighlightedCode } from "./highlightParser"
-import { formatHighlightedLinesRanges, replaceBrTagsWithNewlines } from "./utils"
-
 import type { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { monospaceFont } from "@/shared-module/common/styles"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../../.."
+import { CopyButton } from "./CopyButton"
+import { parseHighlightedCode } from "./highlightParser"
+import { formatHighlightedLinesRanges, replaceBrTagsWithNewlines } from "./utils"
 
 const SyntaxHighlightedContainer = dynamicImport(() => import("./SyntaxHighlightedContainer"))
 

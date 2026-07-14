@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test"
 
-import { ChapterSelector } from "../utils/components/ChapterSelector"
-import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
+import { ChapterSelector } from "../utils/components/ChapterSelector"
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })

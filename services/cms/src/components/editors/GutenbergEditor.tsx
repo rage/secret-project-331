@@ -31,6 +31,13 @@ import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "react-hot-toast"
 
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { primaryFont } from "@/shared-module/common/styles"
+import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
 import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
 import type { MediaUploadProps } from "../../services/mediaUpload"
@@ -55,13 +62,6 @@ import withImageFocalPointReset from "../../utils/Gutenberg/withImageFocalPointR
 import withImageWarnings from "../../utils/Gutenberg/withImageWarnings"
 import withParagraphWarnings from "../../utils/Gutenberg/withParagraphWarnings"
 import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
-
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
-import Spinner from "@/shared-module/common/components/Spinner"
-import { primaryFont } from "@/shared-module/common/styles"
-import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 // oxlint-disable-next-line typescript/no-explicit-any
 type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]

@@ -7,7 +7,6 @@ import type { AriaButtonOptions } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
-
 import {
   type ButtonSize,
   type ButtonVariant,

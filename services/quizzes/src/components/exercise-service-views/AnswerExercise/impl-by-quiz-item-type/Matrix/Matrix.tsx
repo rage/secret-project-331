@@ -1,13 +1,12 @@
 import styled from "@emotion/styled"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
 import type { QuizItemComponentProps } from ".."
 import type { UserItemAnswerMatrix } from "../../../../../../types/quizTypes/answer"
 import type { PublicSpecQuizItemMatrix } from "../../../../../../types/quizTypes/publicSpec"
-
 import MatrixCell from "./MatrixCell"
-
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const MatrixTableContainer = styled.table`
   margin: auto;

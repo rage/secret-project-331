@@ -5,8 +5,6 @@ import { useAtomValue } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import type { BlockRendererProps } from ".."
-
 import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterFrontPage"
 import Check from "@/img/course-material/checkmark.svg"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -15,6 +13,8 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 import type { Block } from "@/types/courseMaterialBlock"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+
+import type { BlockRendererProps } from ".."
 
 // Restricts the width even further than the centered. Centered still used to get some padding on left and right on mobile screens.
 const Wrapper = styled.div`

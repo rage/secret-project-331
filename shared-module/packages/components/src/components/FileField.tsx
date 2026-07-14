@@ -11,7 +11,6 @@ import { composeRefs } from "../lib/utils/compositeField"
 import { joinAriaDescribedBy } from "../lib/utils/field"
 import { summarizeFiles } from "../lib/utils/files"
 import { fileListToArray } from "../lib/utils/rhfAdapters"
-
 import { FieldShell } from "./primitives/FieldShell"
 import type { FieldSize } from "./primitives/fieldStyles"
 import { fileButtonCss, fileTriggerRowCss } from "./primitives/selectStyles"

@@ -6,7 +6,6 @@ import type { TimeValue } from "react-aria"
 import { useTimeField } from "react-aria"
 
 import { NonPickerSegmentedField } from "./NonPickerSegmentedField"
-import type { TimeOnlyFieldProps } from "./segmentTypes"
 import { minuteGranularity } from "./segmentedDateInputFieldConstants"
 import {
   emitSyntheticChange,
@@ -14,6 +13,7 @@ import {
   serializeTimeValue,
   useSegmentedFieldBase,
 } from "./segmentedDateInputFieldUtils"
+import type { TimeOnlyFieldProps } from "./segmentTypes"
 
 /** Segmented control for `time` inputs (no calendar). */
 export function TimeSegmentedInputField(

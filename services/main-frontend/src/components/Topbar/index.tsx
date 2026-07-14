@@ -8,6 +8,11 @@ import React, { useContext } from "react"
 import { Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
+
 import Brand from "./Brand"
 import LanguageMenu from "./LanguageMenu"
 import { MobileMenuButton } from "./MobileMenu/MobileMenuButton"
@@ -15,11 +20,6 @@ import { MobileMenuOverlay } from "./MobileMenu/MobileMenuOverlay"
 import QuickActionsMenu from "./QuickActionsMenu"
 import SearchButton from "./SearchButton"
 import UserMenu from "./UserMenu"
-
-import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
-import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
 
 interface MenuOption {
   type: "link" | "action" | "separator"

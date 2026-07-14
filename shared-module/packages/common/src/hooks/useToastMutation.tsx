@@ -20,7 +20,6 @@ import { isAppApiError } from "../errors/AppApiError"
 import { normalizeErrorForDisplay } from "../errors/normalizeErrorForDisplay"
 import { resolveErrorDisplayCopy } from "../errors/resolveErrorDisplayCopy"
 import { baseTheme } from "../styles"
-
 import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfinitely"
 
 interface EnableNotifications {

@@ -5,13 +5,13 @@ import * as React from "react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import Essay from "./Essay"
-import Likert from "./Likert"
-
 import type {
   PeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionSubmission,
 } from "@/generated/course-material-api/types.generated"
+
+import Essay from "./Essay"
+import Likert from "./Likert"
 interface ReviewProps {
   orderNumber: number
   reviews: PeerOrSelfReviewQuestionSubmission[]

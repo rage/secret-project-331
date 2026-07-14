@@ -1,12 +1,12 @@
 import type { BrowserContext } from "@playwright/test"
 import { test } from "@playwright/test"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-
-import { respondToConfirmDialog } from "@/utils/dialogs"
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })

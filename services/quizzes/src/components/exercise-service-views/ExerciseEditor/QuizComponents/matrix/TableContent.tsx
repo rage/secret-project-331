@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react"
 import type { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
-
 import TableCellContent from "./TableCellContent"
 
 const MatrixTableContainer = styled.table`

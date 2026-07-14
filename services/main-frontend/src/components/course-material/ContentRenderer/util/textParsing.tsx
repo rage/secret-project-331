@@ -1,6 +1,7 @@
 "use client"
 
 import { renderToString } from "katex"
+
 import "katex/dist/katex.min.css"
 
 import type { StringWithHTML } from "@/../types"

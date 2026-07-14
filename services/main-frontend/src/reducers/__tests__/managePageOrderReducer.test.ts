@@ -1,9 +1,9 @@
 /// <reference types="jest" />
 
+import type { Chapter, Course, CourseStructure, Page } from "@/generated/api/types.generated"
+
 import type { ManagePageOrderState } from "../managePageOrderReducer"
 import managePageOrderReducer, { managePageOrderInitialState } from "../managePageOrderReducer"
-
-import type { Chapter, Course, CourseStructure, Page } from "@/generated/api/types.generated"
 
 const createPage = (overrides: Partial<Page>): Page => ({
   id: "default-page-id",

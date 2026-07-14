@@ -4,12 +4,12 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ContentArea from "./ContentArea"
-
 import type { ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { validURL } from "@/shared-module/common/utils/validation"
+
+import ContentArea from "./ContentArea"
 
 interface ExerciseServiceCreationModelProps {
   onChange: (key: string) => (value: string) => void

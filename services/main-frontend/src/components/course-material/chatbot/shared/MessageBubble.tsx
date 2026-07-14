@@ -4,15 +4,15 @@ import { css } from "@emotion/css"
 import React, { useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 
-import ChatbotReferenceList from "./ChatbotReferenceList"
-import CitationPopovers from "./CitationPopovers"
-import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
-import ThinkingIndicator from "./ThinkingIndicator"
-import { LIGHT_GREEN } from "./styles"
-
 import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { MATCH_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
+
+import ChatbotReferenceList from "./ChatbotReferenceList"
+import CitationPopovers from "./CitationPopovers"
+import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
+import { LIGHT_GREEN } from "./styles"
+import ThinkingIndicator from "./ThinkingIndicator"
 
 export const renumberFilterCitations = (
   message: string,

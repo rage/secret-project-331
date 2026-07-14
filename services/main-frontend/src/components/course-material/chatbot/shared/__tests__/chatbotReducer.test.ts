@@ -1,10 +1,10 @@
 import { merge } from "lodash"
 import { v4 } from "uuid"
 
+import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
+
 import type { ChatbotState } from "../chatbotReducer"
 import chatbotReducer from "../chatbotReducer"
-
-import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 
 describe("chatbotReducer", () => {
   it("works with RECEIVED_CONVERSATION_MESSAGES", () => {

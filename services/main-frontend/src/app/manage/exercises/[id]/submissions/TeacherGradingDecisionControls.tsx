@@ -5,14 +5,14 @@ import styled from "@emotion/styled"
 import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import CustomPointsPopup from "./CustomPointsPopup"
-
 import type {
   NewTeacherGradingDecision,
   TeacherDecisionType,
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { primaryFont } from "@/shared-module/common/styles"
+
+import CustomPointsPopup from "./CustomPointsPopup"
 
 interface TeacherGradingDecisionControlsProps {
   userExerciseStateId: string

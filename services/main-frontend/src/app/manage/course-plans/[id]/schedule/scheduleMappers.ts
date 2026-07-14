@@ -1,12 +1,12 @@
 import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 
-import { SCHEDULE_STAGE_COUNT, SCHEDULE_STAGE_ORDER } from "./scheduleConstants"
-
 import type {
   CourseDesignerPlanStage,
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
+
+import { SCHEDULE_STAGE_COUNT, SCHEDULE_STAGE_ORDER } from "./scheduleConstants"
 
 type StageRangeLike = Pick<
   CourseDesignerPlanStage,

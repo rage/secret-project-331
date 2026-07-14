@@ -8,10 +8,10 @@ import { useTranslation } from "react-i18next"
 
 import { getCourseMaterialCountryFromIpOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { updateCourseMaterialUserInfo } from "@/generated/course-material-api/sdk.generated"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 

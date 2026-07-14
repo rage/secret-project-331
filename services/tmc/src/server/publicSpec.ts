@@ -1,10 +1,8 @@
-import FormData from "form-data"
 import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
-import { temporaryDirectory, temporaryFile } from "tempy"
 
-import type { ParsedSpecRequest } from "./requestSchemas"
-import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
+import FormData from "form-data"
+import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
@@ -22,6 +20,9 @@ import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 import { createScopedLogger } from "@/util/logger"
 import type { PublicSpec } from "@/util/stateInterfaces"
+
+import type { ParsedSpecRequest } from "./requestSchemas"
+import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown

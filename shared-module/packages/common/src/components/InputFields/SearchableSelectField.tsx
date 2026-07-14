@@ -19,10 +19,10 @@ import {
 } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import SearchIcon from "@/shared-module/common/img/search-icon.svg"
+
 import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
-
-import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 
 interface SelectOption {
   value: string

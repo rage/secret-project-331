@@ -3,6 +3,8 @@
 import type { TFunction } from "i18next"
 import type { Control } from "react-hook-form"
 
+import { nullIfEmpty, TextField } from "@/shared-module/components"
+
 import {
   type AnalysisWorkspaceFormValues,
   contributorCardLeadStyles,
@@ -12,8 +14,6 @@ import {
   type ContributorFieldKey,
   type CONTRIBUTOR_ROLES,
 } from "./analysisFormDomain"
-
-import { nullIfEmpty, TextField } from "@/shared-module/components"
 
 /**
  * One key contributor role: title, duties, then full-width assignees field.

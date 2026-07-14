@@ -10,9 +10,7 @@ import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { parseYearMonth, serializeYearMonth } from "../lib/utils/yearMonth"
-
 import { FieldShell } from "./primitives/FieldShell"
-import { YearMonthPicker } from "./primitives/YearMonthPicker"
 import type { FieldSize } from "./primitives/fieldStyles"
 import {
   resolveSelectLabelCss,
@@ -21,6 +19,7 @@ import {
 } from "./primitives/fieldStyles"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss } from "./primitives/selectStyles"
+import { YearMonthPicker } from "./primitives/YearMonthPicker"
 
 export type YearMonthFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
   T,

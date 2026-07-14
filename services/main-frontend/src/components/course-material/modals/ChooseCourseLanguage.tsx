@@ -5,10 +5,10 @@ import { LanguageTranslation } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import languageCodesToNamesList from "../modals/LanguageCodesToNames.json"
-
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
+
+import languageCodesToNamesList from "../modals/LanguageCodesToNames.json"
 
 export const formatLanguageVersionsQueryKey = (courseId: string): string => {
   // oxlint-disable-next-line i18next/no-literal-string

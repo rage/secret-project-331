@@ -2,12 +2,12 @@
 
 import { css } from "@emotion/css"
 
-import type { BlockRendererProps } from "../../.."
-
 import type { QuoteAttributes } from "@/../types/GutenbergBlockAttributes"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import ParsedText from "@/components/course-material/ParsedText"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../../.."
 
 interface ExtraAttributes {
   align?: string

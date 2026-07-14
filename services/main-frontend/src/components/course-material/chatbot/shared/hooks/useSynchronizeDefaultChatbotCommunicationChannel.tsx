@@ -5,9 +5,6 @@ import { useSetAtom } from "jotai"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChatbotDisclaimer from "../ChatbotDisclaimer"
-import type { ChatbotAction } from "../chatbotReducer"
-
 import type {
   ChatbotConversation,
   ChatbotConversationInfo,
@@ -15,6 +12,9 @@ import type {
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { waitForNextTick } from "@/shared-module/common/utils/async"
 import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"
+
+import ChatbotDisclaimer from "../ChatbotDisclaimer"
+import type { ChatbotAction } from "../chatbotReducer"
 
 /// Sets a communication channel so that components outside ChatbotDialog can send
 /// messages to the default chatbot of the course.

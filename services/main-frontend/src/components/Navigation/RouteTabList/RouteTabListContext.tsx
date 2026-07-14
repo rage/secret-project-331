@@ -4,8 +4,8 @@ import { type TabListState, useTabListState } from "@react-stately/tabs"
 import { usePathname } from "next/navigation"
 import React, { createContext, useContext, useMemo } from "react"
 
-import type { RouteTabDefinition } from "./RouteTab"
 import { resolveActiveTab } from "./resolveActiveTab"
+import type { RouteTabDefinition } from "./RouteTab"
 
 interface RouteTabListContextValue {
   state: TabListState<object>

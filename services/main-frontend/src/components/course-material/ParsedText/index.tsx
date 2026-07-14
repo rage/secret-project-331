@@ -5,10 +5,10 @@ import type { JSX, RefObject } from "react"
 import { memo, useContext, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
-import ParsedTextRenderer from "./ParsedTextRenderer"
-
 import TooltipNTrigger from "@/components/course-material/TooltipNTrigger"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
+
+import ParsedTextRenderer from "./ParsedTextRenderer"
 
 export type Tag = keyof JSX.IntrinsicElements
 

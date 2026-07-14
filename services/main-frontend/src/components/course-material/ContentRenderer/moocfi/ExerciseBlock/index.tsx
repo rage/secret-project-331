@@ -10,16 +10,8 @@ import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { BlockRendererProps } from "../.."
-
-import ExerciseStatusMessage from "./ExerciseStatusMessage"
-import ExerciseTask from "./ExerciseTask"
-import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
-import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
-import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
-
-import YellowBox from "@/components/course-material/YellowBox"
 import UserOnWrongCourseNotification from "@/components/course-material/notifications/UserOnWrongCourseNotification"
+import YellowBox from "@/components/course-material/YellowBox"
 import {
   ExerciseCardHeader,
   ExerciseCardPointsBadge,
@@ -54,6 +46,13 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
+
+import type { BlockRendererProps } from "../.."
+import ExerciseStatusMessage from "./ExerciseStatusMessage"
+import ExerciseTask from "./ExerciseTask"
+import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
+import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
+import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
 
 interface ExerciseBlockAttributes {
   id: string

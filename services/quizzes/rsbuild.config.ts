@@ -1,8 +1,9 @@
+import { fileURLToPath } from "node:url"
+
 import { defineConfig } from "@rsbuild/core"
 import { pluginReact } from "@rsbuild/plugin-react"
 import { pluginSvgr } from "@rsbuild/plugin-svgr"
 import { tanstackStart } from "@tanstack/react-start/plugin/rsbuild"
-import { fileURLToPath } from "node:url"
 
 import { IFRAME_HEADERS } from "./iframe-headers.mjs"
 

@@ -15,7 +15,6 @@ import type {
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
-
 import { compareUserItemAnswer } from "./utils/comparison"
 import {
   generateCheckboxForOlderPrivateSpecQuiz,

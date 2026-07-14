@@ -5,11 +5,10 @@ import { css } from "@emotion/css"
 import { RichText } from "@wordpress/block-editor"
 import React from "react"
 
-import BlockWrapper from "../BlockWrapper"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 import type { InstructionBoxAttributes } from "."
-
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import BlockWrapper from "../BlockWrapper"
 
 const InstructionBoxEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<InstructionBoxAttributes>>

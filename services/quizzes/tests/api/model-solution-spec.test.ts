@@ -1,3 +1,6 @@
+import { handleModelSolution } from "@/server/modelSolution"
+import type { SpecRequest } from "@/utils/exerciseServiceApi"
+
 /**
  * @vitest-environment node
  */
@@ -5,12 +8,8 @@ import type {
   ModelSolutionQuiz,
   ModelSolutionQuizItemClosedEndedQuestion,
 } from "../../types/quizTypes/modelSolutionSpec"
-
 import testClient from "./utils/appRouterTestClient"
 import { generatePrivateSpecWithOneClosedEndedQuestionQuizItem } from "./utils/privateSpecGenerator"
-
-import { handleModelSolution } from "@/server/modelSolution"
-import type { SpecRequest } from "@/utils/exerciseServiceApi"
 
 const client = testClient(handleModelSolution)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/model-solution"

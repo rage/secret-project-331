@@ -3,10 +3,10 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ChapterImageWidget from "./ChapterImageWidget"
-
 import type { Chapter } from "@/generated/api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+
+import ChapterImageWidget from "./ChapterImageWidget"
 
 export interface ChapterImageDialogProps {
   open: boolean

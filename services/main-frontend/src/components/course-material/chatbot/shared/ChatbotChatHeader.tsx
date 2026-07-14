@@ -8,8 +8,6 @@ import React from "react"
 import { Button, Heading } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import ClarificationTooltip from "../../../ClarificationTooltip"
-
 import type { DropdownMenuItem } from "@/components/DropdownMenu"
 import DropdownMenu from "@/components/DropdownMenu"
 import type {
@@ -23,6 +21,8 @@ import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { createChatbotTranscript } from "@/utils/course-material/createChatbotTranscript"
 import { downloadStringAsFile } from "@/utils/course-material/downloadStringAsFile"
+
+import ClarificationTooltip from "../../../ClarificationTooltip"
 
 interface ChatbotDialogHeaderProps {
   isCourseMaterialBlock: false

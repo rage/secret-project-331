@@ -11,7 +11,6 @@ import BackArrowIcon from "../img/backarrow.svg"
 import TopArrowSVGIcon from "../img/up-arrow.svg"
 import { baseTheme, headingFont, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
-
 import LinkOrNoLink from "./LinkOrNoLink"
 import HideTextInSystemTests from "./system-tests/HideTextInSystemTests"
 

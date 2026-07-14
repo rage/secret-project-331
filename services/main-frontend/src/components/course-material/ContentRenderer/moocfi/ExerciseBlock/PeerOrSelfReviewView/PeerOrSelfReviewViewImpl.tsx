@@ -7,16 +7,6 @@ import { useAtomValue } from "jotai"
 import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { exerciseButtonStyles, getExerciseBlockBeginningScrollingId } from ".."
-import ContentRenderer from "../../.."
-import ExerciseTaskIframe from "../ExerciseTaskIframe"
-
-import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
-import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
-
-import type { PeerOrSelfReviewViewProps } from "."
-import { getPeerReviewBeginningScrollingId } from "."
-
 import YellowBox from "@/components/course-material/YellowBox"
 import { fetchPeerOrSelfReviewDataByExerciseIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import {
@@ -40,6 +30,14 @@ import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPse
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
 import { courseMaterialAtom } from "@/state/course-material"
 import type { Block } from "@/types/courseMaterialBlock"
+
+import type { PeerOrSelfReviewViewProps } from "."
+import { getPeerReviewBeginningScrollingId } from "."
+import { exerciseButtonStyles, getExerciseBlockBeginningScrollingId } from ".."
+import ContentRenderer from "../../.."
+import ExerciseTaskIframe from "../ExerciseTaskIframe"
+import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
+import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
 
 const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = ({
   exerciseNumber,

@@ -11,17 +11,6 @@ import { max } from "lodash"
 import React, { useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChapterFormDialog from "./ChapterFormDialog"
-import ChapterImageDialog from "./ChapterImageDialog"
-import FrontPage from "./PageList/FrontPage"
-import PageList from "./PageList/PageList"
-import {
-  MOVING_ALLOWED,
-  MOVING_ALLOWED_ONLY_DOWN,
-  MOVING_ALLOWED_ONLY_UP,
-  MOVING_NOT_ALLOWED,
-} from "./PageList/PageListItem"
-
 import BottomPanel from "@/components/BottomPanel"
 import { deleteChapterMutation as deleteChapterMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
@@ -36,11 +25,22 @@ import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+
+import ChapterFormDialog from "./ChapterFormDialog"
+import ChapterImageDialog from "./ChapterImageDialog"
+import FrontPage from "./PageList/FrontPage"
+import PageList from "./PageList/PageList"
+import {
+  MOVING_ALLOWED,
+  MOVING_ALLOWED_ONLY_DOWN,
+  MOVING_ALLOWED_ONLY_UP,
+  MOVING_NOT_ALLOWED,
+} from "./PageList/PageListItem"
 
 const headingDropdown = css`
   float: right;

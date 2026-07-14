@@ -5,12 +5,12 @@ import type { ReactElement } from "react"
 import { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { DropdownMenuItem } from "../../DropdownMenu"
-
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import { editPageRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
 import { currentCourseIdAtom, currentPageIdAtom } from "@/state/course-material/selectors"
+
+import type { DropdownMenuItem } from "../../DropdownMenu"
 
 export interface UseQuickActionsItemsProps {
   menuOptions?:

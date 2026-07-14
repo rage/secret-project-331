@@ -7,10 +7,8 @@ import React from "react"
 import { useCalendar, useDateFormatter, useDialog, useLocale } from "react-aria"
 
 import { YearMonthPicker } from "../YearMonthPicker"
-
 import { CalendarGrid } from "./CalendarGrid"
 import { CalendarNavButton } from "./CalendarNavButton"
-import { HybridTimeSelector } from "./HybridTimeSelector"
 import {
   chooseMonthYearLabel,
   clearLabel,
@@ -42,6 +40,7 @@ import {
   quickActionsCss,
 } from "./datePickerCalendarStyles"
 import type { CalendarPickerView, DatePickerCalendarProps } from "./datePickerCalendarTypes"
+import { HybridTimeSelector } from "./HybridTimeSelector"
 
 export type { DatePickerCalendarProps } from "./datePickerCalendarTypes"
 

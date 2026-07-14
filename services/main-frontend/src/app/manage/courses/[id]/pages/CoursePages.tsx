@@ -2,11 +2,11 @@
 
 import React from "react"
 
-import ManageCourseStructure from "./ManageCourseStructure"
-
 import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { QueryResult } from "@/shared-module/components"
+
+import ManageCourseStructure from "./ManageCourseStructure"
 
 const CoursePages: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,

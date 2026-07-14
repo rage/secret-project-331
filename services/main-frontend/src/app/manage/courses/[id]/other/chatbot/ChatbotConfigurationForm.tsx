@@ -7,8 +7,6 @@ import React, { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import ChatbotPreviewModal from "./ChatbotPreviewModal"
-
 import {
   configureChatbotMutation as configureChatbotMutationOptions,
   deleteChatbotConfigurationMutation as deleteChatbotMutationOptions,
@@ -16,8 +14,8 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChatbotConfiguration, NewChatbotConf } from "@/generated/api/types.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isHtmlButtonElement } from "@/shared-module/common/utils/dom"
@@ -32,6 +30,8 @@ import {
   TextArea,
   TextField,
 } from "@/shared-module/components"
+
+import ChatbotPreviewModal from "./ChatbotPreviewModal"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration

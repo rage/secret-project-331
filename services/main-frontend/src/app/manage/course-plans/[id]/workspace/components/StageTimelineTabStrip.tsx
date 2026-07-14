@@ -6,18 +6,17 @@ import { type Key, type ReactNode, useMemo, useRef } from "react"
 import { useTabList, useTabPanel } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
-import { useStageTimelineMeasurements } from "../hooks/useStageTimelineMeasurements"
-
-import StageTimelineTab from "./StageTimelineTab"
-import type { StageTimelineTabItem } from "./stageTimelineShared"
-
 import { getStageMonths } from "@/app/manage/course-plans/[id]/schedule/scheduleMappers"
 import type {
   CourseDesignerPlanStageWithTasks,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
+import { useStageTimelineMeasurements } from "../hooks/useStageTimelineMeasurements"
+import type { StageTimelineTabItem } from "./stageTimelineShared"
+import StageTimelineTab from "./StageTimelineTab"
 
 const timelineShellStyles = css`
   position: relative;

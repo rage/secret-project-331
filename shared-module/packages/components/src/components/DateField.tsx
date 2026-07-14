@@ -4,9 +4,8 @@ import React from "react"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
-
-import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
 import type { FieldSize } from "./primitives/fieldStyles"
+import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const floatingLayout = "floating" as const

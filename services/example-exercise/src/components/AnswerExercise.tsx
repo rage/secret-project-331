@@ -1,9 +1,9 @@
 import { useState } from "react"
 
-import ExerciseBase from "./ExerciseBase"
-
 import type { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import type { Answer, PublicAlternative } from "@/util/stateInterfaces"
+
+import ExerciseBase from "./ExerciseBase"
 
 interface Props {
   state: PublicAlternative[]

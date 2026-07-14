@@ -12,8 +12,6 @@ import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { normalizeComboBoxItems, resolveComboBoxHasValue } from "../lib/utils/combobox"
 import type { ComboBoxItemAccessors } from "../lib/utils/combobox"
 import { composeRefs } from "../lib/utils/compositeField"
-
-import { ListBox } from "./primitives/ListBox"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -22,6 +20,7 @@ import {
   resolveFieldLabelCss,
   resolveMessageCss,
 } from "./primitives/fieldStyles"
+import { ListBox } from "./primitives/ListBox"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss, comboTriggerButtonCss } from "./primitives/selectStyles"
 

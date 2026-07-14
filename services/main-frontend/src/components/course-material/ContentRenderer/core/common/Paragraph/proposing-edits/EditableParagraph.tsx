@@ -6,13 +6,12 @@ import React, { memo, useEffect, useRef } from "react"
 import { useFocusRing, useFocusWithin } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { getEditableHoverStyles, getEditingStyles } from "../styles"
-
-import { useParagraphEditing } from "./hooks/useParagraphEditing"
-
 import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { selectedBlockIdAtom } from "@/stores/course-material/materialFeedbackStore"
+
+import { getEditableHoverStyles, getEditingStyles } from "../styles"
+import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
 interface EditableParagraphProps {
   id: string

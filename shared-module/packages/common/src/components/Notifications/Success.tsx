@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next"
 import CloseIcon from "../../img/close.svg"
 import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
-
 import { NotificationWrapper } from "./Base"
 
 interface SuccessNotificationProps {

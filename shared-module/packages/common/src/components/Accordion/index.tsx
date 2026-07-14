@@ -6,7 +6,6 @@ import React, { useContext } from "react"
 
 import { baseTheme, secondaryFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
-
 import { AccordionContext } from "./accordionContext"
 
 const openAnimation = keyframes`

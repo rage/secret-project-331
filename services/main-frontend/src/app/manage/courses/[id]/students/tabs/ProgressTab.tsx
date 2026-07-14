@@ -6,13 +6,13 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FloatingHeaderTable } from "../FloatingHeaderTable"
-
 import { getCourseStudentsProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { QueryResult } from "@/shared-module/components"
 import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 import { getTeacherChapterLockLabel } from "@/utils/chapterLockingStatus"
+
+import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 

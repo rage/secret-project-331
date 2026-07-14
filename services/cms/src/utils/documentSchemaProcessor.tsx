@@ -4,12 +4,6 @@
 
 import { v4, v5 } from "uuid"
 
-import type { ExerciseAttributes } from "../blocks/Exercise"
-import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
-import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
-
-import { isGutenbergBlockArray } from "./Gutenberg/gutenbergBlocks"
-
 import type {
   CmsPageExercise,
   CmsPageExerciseSlide,
@@ -18,6 +12,11 @@ import type {
   CmsPeerOrSelfReviewConfig,
 } from "@/generated/api"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
+
+import type { ExerciseAttributes } from "../blocks/Exercise"
+import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+import { isGutenbergBlockArray } from "./Gutenberg/gutenbergBlocks"
 
 /**
  * Only id is allowed in normalized exercises. This is because:

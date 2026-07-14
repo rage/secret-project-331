@@ -5,12 +5,12 @@ import { css } from "@emotion/css"
 import React, { useContext, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 
-import TopBarMenuButton from "./TopBarMenuButton"
-import { useUserMenuItems } from "./hooks/useUserMenuItems"
-
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import { useUserMenuItems } from "./hooks/useUserMenuItems"
+import TopBarMenuButton from "./TopBarMenuButton"
 
 const itemRow = css`
   /* consistent row look */

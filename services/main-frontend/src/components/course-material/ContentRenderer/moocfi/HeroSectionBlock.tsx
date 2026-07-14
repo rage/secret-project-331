@@ -3,13 +3,13 @@
 import { useAtomValue } from "jotai"
 import React from "react"
 
-import type { BlockRendererProps } from ".."
-import type { HeroSectionProps } from "../../HeroSection"
-import HeroSection from "../../HeroSection"
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
+
+import type { BlockRendererProps } from ".."
+import type { HeroSectionProps } from "../../HeroSection"
+import HeroSection from "../../HeroSection"
 const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeroSectionProps>>> = (
   props,
 ) => {

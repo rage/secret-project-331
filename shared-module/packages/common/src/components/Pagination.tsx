@@ -12,7 +12,6 @@ import type { PaginationInfo } from "../hooks/usePaginationInfo"
 import ArrowLeft from "../img/caret-arrow-left.svg"
 import ArrowRight from "../img/caret-arrow-right.svg"
 import { headingFont } from "../styles"
-
 import PaginationItemsPerPage from "./PaginationItemsPerPage"
 
 interface PaginationProps {

@@ -4,10 +4,6 @@ import { css } from "@emotion/css"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ExerciseList from "./ExerciseList"
-import ResetFilter from "./ResetFilter"
-import SelectedUsers from "./SelectedUsers"
-
 import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { resetExercisesForSelectedUsers } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
@@ -16,6 +12,10 @@ import Button from "@/shared-module/common/components/Button"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
+
+import ExerciseList from "./ExerciseList"
+import ResetFilter from "./ResetFilter"
+import SelectedUsers from "./SelectedUsers"
 
 const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()

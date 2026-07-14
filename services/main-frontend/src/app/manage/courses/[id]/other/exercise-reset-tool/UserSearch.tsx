@@ -6,9 +6,9 @@ import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import TextFieldWithIcon from "@/shared-module/common/components/InputFields/TextFieldWithIcon"
 import Spinner from "@/shared-module/common/components/Spinner"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 

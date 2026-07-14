@@ -7,8 +7,6 @@ import { useParams } from "next/navigation"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChapterPointsDashboard from "../ChapterPointsDashboard"
-
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
@@ -25,6 +23,8 @@ import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import ChapterPointsDashboard from "../ChapterPointsDashboard"
 
 interface ProcessedUser {
   user: UserDetail

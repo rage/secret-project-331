@@ -4,11 +4,11 @@ import { css } from "@emotion/css"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"
 
-import UserSearch from "./UserSearch"
-
 import type { UserDetail } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
+
+import UserSearch from "./UserSearch"
 
 interface Props {
   selectedUsers: UserDetail[]

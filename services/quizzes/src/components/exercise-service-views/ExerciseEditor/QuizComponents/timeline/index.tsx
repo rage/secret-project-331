@@ -1,14 +1,13 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServiceOutputState"
+
 import type { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import ParsedTextField from "../common/ParsedTextField"
-
 import TimelineContent from "./TimelineContent"
-
-import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServiceOutputState"
 
 interface TimelineEditorProps {
   quizItemId: string

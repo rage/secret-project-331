@@ -19,7 +19,6 @@ import {
   resolveOtpSlotAriaLabel,
   splitOtpValue,
 } from "../lib/utils/otp"
-
 import { FieldShell } from "./primitives/FieldShell"
 import type { FieldSize } from "./primitives/fieldStyles"
 

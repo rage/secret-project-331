@@ -6,7 +6,6 @@ import type { ComponentType } from "react"
 import CommitMarker from "./CommitMarker"
 import DynamicImportErrorBoundary from "./DynamicImportErrorBoundary"
 import { createDynamicImportFallbackModule } from "./DynamicImportFallback"
-import LoadingState from "./LoadingState"
 import {
   DYNAMIC_IMPORT_MAX_ATTEMPTS,
   DYNAMIC_IMPORT_STATE_COMMITTED,
@@ -25,6 +24,7 @@ import {
   isProbablyReactComponent,
   withTimeout,
 } from "./dynamicImportUtils"
+import LoadingState from "./LoadingState"
 
 const DYNAMIC_IMPORT_ID_PREFIX = "dyn_"
 

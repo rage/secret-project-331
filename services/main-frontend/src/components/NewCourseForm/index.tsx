@@ -6,15 +6,15 @@ import React, { useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import BasicCourseInfo from "./BasicCourseInfo"
-import DuplicateOptions from "./DuplicateOptions"
-import LanguageSelection from "./LanguageSelection"
-
 import type { NewCourse } from "@/generated/api/types.generated"
 import { useCreateCourse } from "@/hooks/useCreateCourse"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+
+import BasicCourseInfo from "./BasicCourseInfo"
+import DuplicateOptions from "./DuplicateOptions"
+import LanguageSelection from "./LanguageSelection"
 
 export interface NewCourseFormProps {
   organizationId: string

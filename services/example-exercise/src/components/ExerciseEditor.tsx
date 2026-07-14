@@ -2,12 +2,12 @@ import styled from "@emotion/styled"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
-import ButtonEditor from "./ButtonEditor"
-import type { State } from "./IframeView"
-
 import type { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import type { Alternative } from "@/util/stateInterfaces"
 import { generateUuid } from "@/util/uuid"
+
+import ButtonEditor from "./ButtonEditor"
+import type { State } from "./IframeView"
 
 const CURRENT_STATE = "current-state"
 interface Props {

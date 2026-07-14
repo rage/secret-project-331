@@ -3,10 +3,10 @@
 import { css } from "@emotion/css"
 import { format } from "date-fns"
 
-import type { StageMonth } from "../../schedule/scheduleMappers"
-
 import { COURSE_PLAN_MONTH_ICONS } from "@/app/manage/course-plans/monthIcons"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import type { StageMonth } from "../../schedule/scheduleMappers"
 
 const timelineMonthBlockStyles = css`
   min-width: 84px;

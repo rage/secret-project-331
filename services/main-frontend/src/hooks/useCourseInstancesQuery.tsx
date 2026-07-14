@@ -3,8 +3,6 @@
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
 import { useQuery } from "@tanstack/react-query"
 
-import type { HookQueryOptions } from "."
-
 import {
   getCourseInstancesOptions,
   getCourseInstancesQueryKey,
@@ -12,6 +10,8 @@ import {
 import type { CourseInstance } from "@/generated/api/types.generated"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+
+import type { HookQueryOptions } from "."
 
 export const invalidateCourseInstances = (courseId: string) => {
   queryClient.invalidateQueries({

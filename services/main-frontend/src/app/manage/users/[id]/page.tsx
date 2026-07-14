@@ -7,9 +7,6 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseEnrollmentsList from "./CourseEnrollmentsList"
-import ExerciseResetLogList from "./ExerciseResetLogList"
-
 import DeletedUserNotice from "@/components/DeletedUserNotice"
 import { getUserCourseEnrollmentsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
@@ -20,6 +17,9 @@ import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResults } from "@/shared-module/components"
+
+import CourseEnrollmentsList from "./CourseEnrollmentsList"
+import ExerciseResetLogList from "./ExerciseResetLogList"
 
 const Area = styled.div`
   margin: 2rem 0;

@@ -1,6 +1,6 @@
-import { createCertificateConfigurationFormData } from "../certificateConfigurationFormData"
-
 import type { UpdateCertificateConfigurationData } from "@/generated/api/types.generated"
+
+import { createCertificateConfigurationFormData } from "../certificateConfigurationFormData"
 
 const readBlobAsText = async (blob: Blob): Promise<string> =>
   await new Promise((resolve, reject) => {

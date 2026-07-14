@@ -4,7 +4,6 @@ import { cx } from "@emotion/css"
 import React, { useEffect, useId, useState } from "react"
 
 import { resolveFieldDescribedBy, resolveFieldState, toInputValue } from "../../lib/utils/field"
-
 import { FieldShell } from "./FieldShell"
 import {
   type FieldSize,

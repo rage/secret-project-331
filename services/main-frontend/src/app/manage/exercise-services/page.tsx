@@ -4,9 +4,6 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ExerciseServiceContainer from "./ExerciseServiceContainer"
-import ExerciseServiceCreationModal from "./ExerciseServiceCreationModal"
-
 import {
   createExerciseServiceMutation as createExerciseServiceMutationOptions,
   getExerciseServicesOptions,
@@ -23,6 +20,9 @@ import { QueryResult } from "@/shared-module/components"
 import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
 import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
+
+import ExerciseServiceContainer from "./ExerciseServiceContainer"
+import ExerciseServiceCreationModal from "./ExerciseServiceCreationModal"
 
 const ExerciseServicePage: React.FC = () => {
   const { t } = useTranslation()

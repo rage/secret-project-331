@@ -6,12 +6,6 @@ import React, { useEffect, useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { getEditableHoverStyles, getParagraphStyles } from "../styles"
-
-import EditableParagraph from "./EditableParagraph"
-import PreviewableParagraph from "./PreviewableParagraph"
-import { useParagraphEditing } from "./hooks/useParagraphEditing"
-
 import type { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme } from "@/shared-module/common/styles"
 import {
@@ -19,6 +13,11 @@ import {
   currentlyOpenFeedbackDialogAtom,
   selectedBlockIdAtom,
 } from "@/stores/course-material/materialFeedbackStore"
+
+import { getEditableHoverStyles, getParagraphStyles } from "../styles"
+import EditableParagraph from "./EditableParagraph"
+import { useParagraphEditing } from "./hooks/useParagraphEditing"
+import PreviewableParagraph from "./PreviewableParagraph"
 
 const editButtonStyles = css`
   display: inline-block;

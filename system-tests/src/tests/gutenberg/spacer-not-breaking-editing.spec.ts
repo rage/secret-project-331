@@ -1,10 +1,10 @@
 /* oxlint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
 
-import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
-
 import { selectOrganization } from "@/utils/organizationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
+import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

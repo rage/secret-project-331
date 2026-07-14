@@ -9,8 +9,6 @@ import * as React from "react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
-
 import { fetchPeerReviewDataReceivedByExerciseIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import type { PeerOrSelfReviewsReceived as PeerOrSelfReviewsReceivedData } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
@@ -18,6 +16,8 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { QueryResult } from "@/shared-module/components"
+
+import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
 
 const openAnimation = keyframes`
   0% { opacity: 0; }

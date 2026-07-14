@@ -17,8 +17,6 @@ import {
   type SelectOption,
   type SelectOptionGroup,
 } from "../lib/utils/select"
-
-import { ListBox } from "./primitives/ListBox"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -28,6 +26,7 @@ import {
   resolveSelectTriggerCss,
   selectTriggerValuePlaceholderCss,
 } from "./primitives/fieldStyles"
+import { ListBox } from "./primitives/ListBox"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss } from "./primitives/selectStyles"
 

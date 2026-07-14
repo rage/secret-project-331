@@ -13,7 +13,6 @@ import type {
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
 import { oldGenerateQuiz } from "../../api/utils/oldQuizGenerator"
-
 import { comparePrivateSpecQuizItem, expectPrivateSpecMetadataToMatch } from "./utils/comparison"
 import {
   generateCheckboxForOlderPrivateSpecQuiz,

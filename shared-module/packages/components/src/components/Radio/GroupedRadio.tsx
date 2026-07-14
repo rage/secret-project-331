@@ -17,7 +17,6 @@ import {
   resolveChoiceIndicatorCss,
 } from "../primitives/checkableStyles"
 import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
-
 import type { RadioContextValue, RadioInnerProps } from "./radioTypes"
 
 // oxlint-disable-next-line i18next/no-literal-string

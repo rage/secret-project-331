@@ -10,6 +10,8 @@ import {
 } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"
 
+import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types"
+
 import {
   blockTypeMapForFrontPages,
   blockTypeMapForPages,
@@ -29,8 +31,6 @@ import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVari
 import withCodeLanguageControls from "../../utils/Gutenberg/withCodeLanguageControls"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 import withParagraphAiToolbarAction from "../../utils/Gutenberg/withParagraphAiToolbarAction"
-
-import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types"
 
 // oxlint-disable-next-line typescript/no-explicit-any
 type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]

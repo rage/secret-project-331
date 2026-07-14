@@ -35,12 +35,13 @@ const ResearchFormCheckBoxBlock: React.FC<
       count: number
       hasCitationsOrGlossary: boolean
     }) => {
+      const checkedValue = questionIdsAndAnswers?.[props.data.clientId]
       return (
         <CheckBox
           label=""
           labelIsRawHtml
           labelRef={ref}
-          checked={questionIdsAndAnswers?.[props.data.clientId]}
+          {...(checkedValue !== undefined ? { checked: checkedValue } : {})}
           onChange={() => handleChange(!questionIdsAndAnswers?.[props.data.clientId])}
         />
       )

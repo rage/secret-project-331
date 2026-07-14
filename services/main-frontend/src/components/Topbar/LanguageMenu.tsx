@@ -122,14 +122,16 @@ const footerMessage = css`
 interface LanguageMenuProps {
   placement?: "bottom-end" | "bottom-start"
   // Optional props for non-course pages
-  courseId?: string | null
-  currentPageId?: string | null
-  availableLanguages?: {
-    code: string
-    name: string
-    isDraft?: boolean
-  }[]
-  onLanguageChange?: (languageCode: string) => Promise<void>
+  courseId?: string | null | undefined
+  currentPageId?: string | null | undefined
+  availableLanguages?:
+    | {
+        code: string
+        name: string
+        isDraft?: boolean
+      }[]
+    | undefined
+  onLanguageChange?: ((languageCode: string) => Promise<void>) | undefined
 }
 
 // Helper component that handles the hook availability

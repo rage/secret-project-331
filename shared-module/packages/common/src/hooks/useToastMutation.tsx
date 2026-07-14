@@ -42,11 +42,11 @@ interface DisableNotifications {
 type NotificationOptions = EnableNotifications | DisableNotifications
 
 interface SuccessNotificationDisplayOptions {
-  header?: string
-  message?: string
+  header?: string | undefined
+  message?: string | undefined
   icon?: ReactNode
-  closeHoverBackgroundColor?: string
-  deleteVariant?: boolean
+  closeHoverBackgroundColor?: string | undefined
+  deleteVariant?: boolean | undefined
 }
 
 export default function useToastMutation<
@@ -71,20 +71,27 @@ export default function useToastMutation<
       (toastInstance: Toast) => {
         return (
           <SuccessNotification
-            header={options.header}
-            message={options.message}
+            {...(options.header !== undefined ? { header: options.header } : {})}
+            {...(options.message !== undefined ? { message: options.message } : {})}
             {...(enabledNotificationOptions.dismissable ? { toastId: toastInstance.id } : {})}
             icon={options.icon}
-            closeHoverBackgroundColor={options.closeHoverBackgroundColor}
-            deleteVariant={options.deleteVariant}
+            {...(options.closeHoverBackgroundColor !== undefined
+              ? { closeHoverBackgroundColor: options.closeHoverBackgroundColor }
+              : {})}
+            {...(options.deleteVariant !== undefined
+              ? { deleteVariant: options.deleteVariant }
+              : {})}
           />
         )
       },
       {
         ...enabledNotificationOptions.toastOptions,
-        duration: showToastInfinitely
-          ? Infinity
-          : enabledNotificationOptions.toastOptions?.duration,
+        ...(() => {
+          const resolvedDuration = showToastInfinitely
+            ? Infinity
+            : enabledNotificationOptions.toastOptions?.duration
+          return resolvedDuration !== undefined ? { duration: resolvedDuration } : {}
+        })(),
         id: toastId,
       },
     )
@@ -98,9 +105,16 @@ export default function useToastMutation<
         // Remove old toasts
         toast.remove()
         // Set toastId that is updated once operation is successful or erronous.
-        toastId = toast.custom(<LoadingNotification message={notificationOptions.loadingText} />, {
-          ...notificationOptions.toastOptions,
-        })
+        toastId = toast.custom(
+          <LoadingNotification
+            {...(notificationOptions.loadingText !== undefined
+              ? { message: notificationOptions.loadingText }
+              : {})}
+          />,
+          {
+            ...notificationOptions.toastOptions,
+          },
+        )
       }
       if (mutationOptions?.onMutate) {
         return mutationOptions.onMutate(variables, context)
@@ -168,7 +182,9 @@ export default function useToastMutation<
           (toastInstance: Toast) => {
             return (
               <ErrorNotification
-                header={notificationOptions.errorHeader}
+                {...(notificationOptions.errorHeader !== undefined
+                  ? { header: notificationOptions.errorHeader }
+                  : {})}
                 message={errorMessage}
                 {...(notificationOptions.dismissable ? { toastId: toastInstance.id } : {})}
               />
@@ -177,7 +193,12 @@ export default function useToastMutation<
           {
             ...notificationOptions.toastOptions,
             id: toastId,
-            duration: showToastInfinitely ? Infinity : notificationOptions.toastOptions?.duration,
+            ...(() => {
+              const resolvedDuration = showToastInfinitely
+                ? Infinity
+                : notificationOptions.toastOptions?.duration
+              return resolvedDuration !== undefined ? { duration: resolvedDuration } : {}
+            })(),
           },
         )
       }

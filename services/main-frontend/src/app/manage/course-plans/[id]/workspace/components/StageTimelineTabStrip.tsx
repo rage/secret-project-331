@@ -188,12 +188,13 @@ export default function StageTimelineTabStrip({
       activeStage,
       selectedStage,
       stagesDependency: stages,
-      currentStageLabel,
+      ...(currentStageLabel !== undefined ? { currentStageLabel } : {}),
     })
 
+  const firstItemKey = items[0]?.key
   const state = useTabListState({
-    selectedKey: selectedStage ?? undefined,
-    defaultSelectedKey: items[0]?.key,
+    ...(selectedStage !== null ? { selectedKey: selectedStage } : {}),
+    ...(firstItemKey !== undefined ? { defaultSelectedKey: firstItemKey } : {}),
     items: items.map((item) => ({
       key: item.key,
       id: item.key,

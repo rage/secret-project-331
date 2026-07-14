@@ -85,7 +85,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
         <TextField
           {...register("name", { required: true })}
           label={t("label-organization-name")}
-          error={errors.name ? t("validation-required") : undefined}
+          {...(errors.name ? { error: t("validation-required") } : {})}
         />
 
         <SelectField
@@ -103,7 +103,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
         <TextField
           {...register("slug", { required: true })}
           label={t("label-slug")}
-          error={errors.slug ? t("validation-required") : undefined}
+          {...(errors.slug ? { error: t("validation-required") } : {})}
         />
       </form>
     </StandardDialog>

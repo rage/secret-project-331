@@ -101,10 +101,17 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       hide_citations: oldChatbotConf.hide_citations,
       use_semantic_reranking: oldChatbotConf.use_semantic_reranking,
       suggest_next_messages: oldChatbotConf.suggest_next_messages,
-      initial_suggested_messages: oldChatbotConf.initial_suggested_messages,
-      suggested_messages: oldChatbotConf.initial_suggested_messages?.map((v) => ({
-        message: v,
-      })),
+      ...(oldChatbotConf.initial_suggested_messages !== undefined
+        ? { initial_suggested_messages: oldChatbotConf.initial_suggested_messages }
+        : {}),
+      ...(oldChatbotConf.initial_suggested_messages !== null &&
+      oldChatbotConf.initial_suggested_messages !== undefined
+        ? {
+            suggested_messages: oldChatbotConf.initial_suggested_messages.map((v) => ({
+              message: v,
+            })),
+          }
+        : {}),
     },
   })
 

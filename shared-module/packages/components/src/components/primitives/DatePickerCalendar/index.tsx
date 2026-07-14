@@ -224,12 +224,18 @@ export function DatePickerCalendar({
             initialView={pickerView === pickerViewYear ? "year" : "month"}
             selectedYear={state.visibleRange.start.year}
             selectedMonth={state.visibleRange.start.month}
-            minYear={calendarProps.minValue?.year}
-            minMonth={calendarProps.minValue?.month}
-            maxYear={calendarProps.maxValue?.year}
-            maxMonth={calendarProps.maxValue?.month}
-            isDisabled={calendarProps.isDisabled}
-            isReadOnly={calendarProps.isReadOnly}
+            {...(calendarProps.minValue
+              ? { minYear: calendarProps.minValue.year, minMonth: calendarProps.minValue.month }
+              : {})}
+            {...(calendarProps.maxValue
+              ? { maxYear: calendarProps.maxValue.year, maxMonth: calendarProps.maxValue.month }
+              : {})}
+            {...(calendarProps.isDisabled !== undefined
+              ? { isDisabled: calendarProps.isDisabled }
+              : {})}
+            {...(calendarProps.isReadOnly !== undefined
+              ? { isReadOnly: calendarProps.isReadOnly }
+              : {})}
             locale={locale}
             onSelect={(year, month) => {
               const nextDate = state.focusedDate.set({ year, month, day: 1 })

@@ -7,9 +7,10 @@ import React from "react"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const ReactECharts = dynamicImport<{ option: EChartsOption; style?: React.CSSProperties }>(
-  () => import("echarts-for-react"),
-)
+const ReactECharts = dynamicImport<{
+  option: EChartsOption
+  style?: React.CSSProperties | undefined
+}>(() => import("echarts-for-react"))
 
 export interface EchartsProps {
   options: EChartsOption

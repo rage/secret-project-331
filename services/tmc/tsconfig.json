@@ -13,6 +13,7 @@
     "allowJs": true,
     "noEmit": true,
     "strict": true,
+    "exactOptionalPropertyTypes": true,
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,

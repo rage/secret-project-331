@@ -58,8 +58,8 @@ const SearchableSelectField = forwardRef<HTMLDivElement, SearchableSelectProps>(
     return (
       <Select
         ref={ref}
-        placeholder={placeholder}
-        selectedKey={value}
+        {...(placeholder !== undefined ? { placeholder } : {})}
+        {...(value !== undefined ? { selectedKey: value } : {})}
         onSelectionChange={(selected) => {
           const newValue = String(selected)
           onChangeByValue?.(newValue)

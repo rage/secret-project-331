@@ -77,7 +77,10 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                 <Progress
                   variant={"circle"}
                   max={courseModuleProgress.score_maximum ?? null}
-                  required={courseModuleProgress.score_required ?? undefined}
+                  {...(courseModuleProgress.score_required !== null &&
+                  courseModuleProgress.score_required !== undefined
+                    ? { required: courseModuleProgress.score_required }
+                    : {})}
                   given={courseModuleProgress.score_given ?? null}
                   label={t("total-points")}
                 />
@@ -86,7 +89,10 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                   showAsPercentage={false}
                   exercisesAttempted={courseModuleProgress.attempted_exercises ?? null}
                   exercisesTotal={courseModuleProgress.total_exercises ?? null}
-                  required={courseModuleProgress.attempted_exercises_required ?? undefined}
+                  {...(courseModuleProgress.attempted_exercises_required !== null &&
+                  courseModuleProgress.attempted_exercises_required !== undefined
+                    ? { required: courseModuleProgress.attempted_exercises_required }
+                    : {})}
                   label={t("exercises-attempted")}
                 />
                 <ColorsIdentifier />

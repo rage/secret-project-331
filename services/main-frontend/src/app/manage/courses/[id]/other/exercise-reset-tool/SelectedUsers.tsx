@@ -47,11 +47,11 @@ const SelectedUsers: React.FC<Props> = ({
           {t("label-selected-users")}
         </p>
         <UserSearch
-          users={users}
           isLoading={isLoading}
           addUser={addUser}
           removeUser={removeUser}
           selectedUsers={selectedUsers}
+          {...(users !== undefined ? { users } : {})}
         />
       </div>
       <div

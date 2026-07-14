@@ -10,7 +10,7 @@ export class MockIntersectionObserver implements IntersectionObserver {
   public readonly thresholds: readonly number[]
   private elements: Set<Element>
   public callback: IntersectionObserverCallback
-  public options?: ObserverInit
+  public options?: ObserverInit | undefined
 
   public constructor(callback: IntersectionObserverCallback, options?: ObserverInit) {
     this.callback = callback

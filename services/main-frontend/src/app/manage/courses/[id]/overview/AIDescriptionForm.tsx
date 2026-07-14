@@ -22,6 +22,18 @@ const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
 
+// Build defaults from the course, omitting flagged_answers_threshold when null so the numeric
+// field starts empty (react-hook-form treats an absent key the same as undefined).
+const buildDefaultFormValues = (source: Course) => {
+  const { flagged_answers_threshold: flaggedAnswersThreshold, ...courseRest } = source
+  return {
+    ...courseRest,
+    ...(flaggedAnswersThreshold !== null && flaggedAnswersThreshold !== undefined
+      ? { flagged_answers_threshold: flaggedAnswersThreshold }
+      : {}),
+  }
+}
+
 interface EditCourseFormProps {
   course: Course
   onSubmitForm: () => void
@@ -52,19 +64,13 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
   )
 
   const methods = useForm<CourseUpdate>({
-    defaultValues: {
-      ...course,
-      flagged_answers_threshold: course.flagged_answers_threshold ?? undefined,
-    },
+    defaultValues: buildDefaultFormValues(course),
   })
 
   const { control, register, handleSubmit, setValue, reset } = methods
 
   useEffect(() => {
-    reset({
-      ...course,
-      flagged_answers_threshold: course.flagged_answers_threshold ?? undefined,
-    })
+    reset(buildDefaultFormValues(course))
   }, [course, reset])
 
   // Populate the field once the Sisu-generated description loads. Keyed on the fetched data so it

@@ -110,7 +110,11 @@ const dynamicImport = <P extends object = Record<string, never>>(
   const runImport = async (): Promise<{ default: ComponentType<P> }> => {
     const startedAt = now()
     const online = getOnline()
-    setDynamicImportStatus(id, { state: DYNAMIC_IMPORT_STATE_LOADING, startedAt, online })
+    setDynamicImportStatus(id, {
+      state: DYNAMIC_IMPORT_STATE_LOADING,
+      startedAt,
+      ...(online !== undefined ? { online } : {}),
+    })
 
     log(id, "dynamic-import-started", { online })
 

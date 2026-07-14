@@ -35,7 +35,7 @@ const ContentArea: React.FC<React.PropsWithChildren<ContentAreaProps>> = ({
       {editing && type === "text" && (
         <TextField
           label=""
-          error={error}
+          {...(error !== undefined ? { error } : {})}
           onChangeByValue={(value) => onChange(value)}
           value={String(text)}
           placeholder={`${title}...`}
@@ -44,7 +44,7 @@ const ContentArea: React.FC<React.PropsWithChildren<ContentAreaProps>> = ({
       {editing && type === "number" && (
         <TextField
           label=""
-          error={error}
+          {...(error !== undefined ? { error } : {})}
           onChangeByValue={(value) => onChange(value)}
           type={"number"}
           value={String(text)}

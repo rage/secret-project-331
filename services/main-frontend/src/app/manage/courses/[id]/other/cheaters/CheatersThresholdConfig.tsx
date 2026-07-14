@@ -331,7 +331,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                         type="number"
                         min={minHours}
                         step={0.01}
-                        error={errorMessage}
+                        {...(errorMessage !== undefined ? { error: errorMessage } : {})}
                         aria-labelledby={`duration-header ${labelId}`}
                         value={displayedValue}
                         onChangeByValue={(value: string) => {

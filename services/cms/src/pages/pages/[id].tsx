@@ -57,7 +57,7 @@ const Pages = ({ query }: PagesProps) => {
           exercise_tasks: data.exercise_tasks,
           url_path: data.page.url_path,
           title: data.page.title,
-          chapter_id: data.page.chapter_id,
+          ...(data.page.chapter_id !== undefined ? { chapter_id: data.page.chapter_id } : {}),
           hidden: data.page.hidden,
         }).content,
       }

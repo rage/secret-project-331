@@ -116,17 +116,17 @@ const ExerciseTaskIFrameEditor: React.FC<
           console.error(UNEXPECTED_MESSAGE_ERROR)
         }
       }}
-      breakFromCenteredProps={
-        largeScreen
-          ? {
+      {...(largeScreen
+        ? {
+            breakFromCenteredProps: {
               sidebar: true,
               // oxlint-disable-next-line i18next/no-literal-string
               sidebarWidth: `${SIDEBAR_WIDTH_PX}px`,
               // oxlint-disable-next-line i18next/no-literal-string
               sidebarPosition: "right",
-            }
-          : undefined
-      }
+            },
+          }
+        : {})}
       title={IFRAME_EDITOR}
     />
   )

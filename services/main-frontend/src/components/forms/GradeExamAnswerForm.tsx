@@ -124,7 +124,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
   ) => {
     const newGrading: NewTeacherGradingDecision = {
       user_exercise_state_id: assertNotNullOrUndefined(getCurrentGradingInfo.data?.id),
-      justification: data.justification,
+      ...(data.justification !== undefined ? { justification: data.justification } : {}),
       hidden: true,
       exercise_id: submissionInfo.exercise.id,
       // oxlint-disable-next-line i18next/no-literal-string

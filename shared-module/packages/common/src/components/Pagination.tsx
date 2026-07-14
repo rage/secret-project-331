@@ -139,7 +139,7 @@ const Pagination: React.FC<React.PropsWithChildren<PaginationProps>> = ({
       {!disableItemsPerPage && (
         <PaginationItemsPerPage
           paginationInfo={paginationInfo}
-          itemsPerPageOptions={itemsPerPageOptions}
+          {...(itemsPerPageOptions !== undefined ? { itemsPerPageOptions } : {})}
         />
       )}
     </div>

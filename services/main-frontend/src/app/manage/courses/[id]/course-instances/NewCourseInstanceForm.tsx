@@ -54,7 +54,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <TextField
         label={t("text-field-label-name")}
         id={"name"}
-        error={errors["name"]}
+        {...(errors["name"] ? { error: errors["name"] } : {})}
         defaultValue={initialData?.name || ""}
         placeholder={t("text-field-label-name")}
         {...register("name")}
@@ -62,7 +62,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <TextField
         label={t("text-field-label-description")}
         id={"description"}
-        error={errors["description"]}
+        {...(errors["description"] ? { error: errors["description"] } : {})}
         defaultValue={initialData?.description || ""}
         placeholder={t("text-field-label-description")}
         {...register("description")}
@@ -70,7 +70,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <TextField
         label={t("support-email")}
         id={"supportEmail"}
-        error={errors["supportEmail"]}
+        {...(errors["supportEmail"] ? { error: errors["supportEmail"] } : {})}
         defaultValue={initialData?.support_email || ""}
         placeholder={t("support-email")}
         {...register("supportEmail")}
@@ -78,7 +78,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <TextField
         label={t("teacher-in-charge-name")}
         id={"teacherName"}
-        error={errors["teacherName"]}
+        {...(errors["teacherName"] ? { error: errors["teacherName"] } : {})}
         defaultValue={initialData?.teacher_in_charge_name}
         placeholder={t("teacher-in-charge-name")}
         {...register("teacherName")}
@@ -86,7 +86,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <TextField
         label={t("teacher-in-charge-email")}
         id={"teacherEmail"}
-        error={errors["teacherEmail"]}
+        {...(errors["teacherEmail"] ? { error: errors["teacherEmail"] } : {})}
         defaultValue={initialData?.teacher_in_charge_email}
         placeholder={t("teacher-in-charge-email")}
         {...register("teacherEmail")}

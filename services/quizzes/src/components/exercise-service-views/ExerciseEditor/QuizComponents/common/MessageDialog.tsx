@@ -12,7 +12,7 @@ interface MessageDialogProps {
 
 const MessageDialog: React.FC<MessageDialogProps> = ({ title, description, open, onClose }) => {
   return (
-    <StandardDialog open={open} onClose={onClose} title={title}>
+    <StandardDialog open={open} {...(onClose ? { onClose } : {})} title={title}>
       <div
         className={css`
           color: #535a66;

@@ -46,10 +46,18 @@ const LandingPageHeroSectionBlock: React.FC<
     <BreakFromCentered sidebar={false}>
       <LandingPageHeroSection
         title={props.data.attributes.title}
-        backgroundImage={props.data.attributes.backgroundImage}
-        backgroundColor={props.data.attributes.backgroundColor}
-        fontColor={props.data.attributes.fontColor}
-        backgroundRepeatX={props.data.attributes.backgroundRepeatX}
+        {...(props.data.attributes.backgroundImage !== undefined
+          ? { backgroundImage: props.data.attributes.backgroundImage }
+          : {})}
+        {...(props.data.attributes.backgroundColor !== undefined
+          ? { backgroundColor: props.data.attributes.backgroundColor }
+          : {})}
+        {...(props.data.attributes.fontColor !== undefined
+          ? { fontColor: props.data.attributes.fontColor }
+          : {})}
+        {...(props.data.attributes.backgroundRepeatX !== undefined
+          ? { backgroundRepeatX: props.data.attributes.backgroundRepeatX }
+          : {})}
       >
         <ContentRenderer data={filteredInnerBlocks} isExam={false} />
       </LandingPageHeroSection>

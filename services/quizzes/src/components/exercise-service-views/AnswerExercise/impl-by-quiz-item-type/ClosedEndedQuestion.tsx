@@ -83,11 +83,9 @@ const ClosedEndedQuestion: React.FC<
           `}
           value={quizItemAnswerState?.textData ?? ""}
           onChangeByValue={(e) => handleChange(e)}
-          error={
-            formatErrorVisible
-              ? t("error-answer-does-not-match-the-specified-answer-format")
-              : undefined
-          }
+          {...(formatErrorVisible
+            ? { error: t("error-answer-does-not-match-the-specified-answer-format") }
+            : {})}
         />
       </div>
     </CloseEndedQuestionWrapper>

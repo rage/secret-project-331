@@ -184,6 +184,10 @@ export const selectionAtom = atom(
       // Clearing the selection is done by setting the text to null.
       return
     }
-    set(selectionPrimitiveAtom, { text: text ?? "", position, element })
+    set(selectionPrimitiveAtom, {
+      text: text ?? "",
+      ...(position !== undefined ? { position } : {}),
+      ...(element !== undefined ? { element } : {}),
+    })
   },
 )

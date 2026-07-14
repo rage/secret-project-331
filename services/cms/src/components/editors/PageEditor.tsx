@@ -152,7 +152,9 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             exercise_tasks: saveResult.exercise_tasks,
             url_path: saveResult.page.url_path,
             title: saveResult.page.title,
-            chapter_id: saveResult.page.chapter_id,
+            ...(saveResult.page.chapter_id !== undefined
+              ? { chapter_id: saveResult.page.chapter_id }
+              : {}),
             hidden: saveResult.page.hidden,
           }).content,
         })

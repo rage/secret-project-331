@@ -70,25 +70,25 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
     const errorMessageId = useId()
 
     const state = resolveFieldState({
-      disabled,
-      readOnly,
-      required,
-      isDisabled,
-      isReadOnly,
-      isRequired,
-      isInvalid,
-      ariaInvalid,
       errorMessage,
+      ...(disabled !== undefined ? { disabled } : {}),
+      ...(readOnly !== undefined ? { readOnly } : {}),
+      ...(required !== undefined ? { required } : {}),
+      ...(isDisabled !== undefined ? { isDisabled } : {}),
+      ...(isReadOnly !== undefined ? { isReadOnly } : {}),
+      ...(isRequired !== undefined ? { isRequired } : {}),
+      ...(isInvalid !== undefined ? { isInvalid } : {}),
+      ...(ariaInvalid !== undefined ? { ariaInvalid } : {}),
     })
 
     const describedBy = resolveFieldDescribedBy({
-      ariaDescribedBy,
       descriptionId,
       noticeId,
       errorMessageId,
       hasDescription: Boolean(description),
       hasNotice: Boolean(notice),
       hasErrorMessage: Boolean(errorMessage),
+      ...(ariaDescribedBy !== undefined ? { ariaDescribedBy } : {}),
     })
 
     const [isFocused, setIsFocused] = useState(false)
@@ -102,7 +102,6 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
 
     return (
       <FieldShell
-        className={className}
         controlClassName={cx(resolveControlSurfaceCss(fieldSize, layout === "floating"))}
         controlProps={{
           "data-has-icon-start": iconStart ? dataAttrTrue : undefined,
@@ -111,11 +110,12 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
         label={label}
         inputId={inputId}
         description={description}
-        descriptionId={description ? descriptionId : undefined}
         errorMessage={errorMessage}
-        errorMessageId={errorMessage ? errorMessageId : undefined}
         notice={notice}
-        noticeId={notice ? noticeId : undefined}
+        {...(className !== undefined ? { className } : {})}
+        {...(description ? { descriptionId } : {})}
+        {...(errorMessage ? { errorMessageId } : {})}
+        {...(notice ? { noticeId } : {})}
         isDisabled={state.isDisabled}
         isRequired={state.isRequired}
         layout={layout}

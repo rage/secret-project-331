@@ -18,7 +18,13 @@ export const showSuccessNotification = ({
   duration = 5000,
 }: NotificationOptions) => {
   return toast.custom(
-    (t: Toast) => <SuccessNotification header={header} message={message} toastId={t.id} />,
+    (t: Toast) => (
+      <SuccessNotification
+        {...(header !== undefined ? { header } : {})}
+        {...(message !== undefined ? { message } : {})}
+        toastId={t.id}
+      />
+    ),
     { duration },
   )
 }
@@ -29,7 +35,13 @@ export const showErrorNotification = ({
   duration = 5000,
 }: NotificationOptions) => {
   return toast.custom(
-    (t: Toast) => <ErrorNotification header={header} message={message} toastId={t.id} />,
+    (t: Toast) => (
+      <ErrorNotification
+        {...(header !== undefined ? { header } : {})}
+        {...(message !== undefined ? { message } : {})}
+        toastId={t.id}
+      />
+    ),
     { duration },
   )
 }
@@ -38,9 +50,12 @@ export const showLoadingNotification = ({
   message,
   duration = 5000,
 }: Omit<NotificationOptions, "header">) => {
-  return toast.custom((_t: Toast) => <LoadingNotification message={message} />, {
-    duration,
-  })
+  return toast.custom(
+    (_t: Toast) => <LoadingNotification {...(message !== undefined ? { message } : {})} />,
+    {
+      duration,
+    },
+  )
 }
 
 // Helper to remove a specific toast

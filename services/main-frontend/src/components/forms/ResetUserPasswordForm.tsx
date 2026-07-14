@@ -80,7 +80,9 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
               message: t("password-must-have-at-least-8-characters"),
             },
           })}
-          error={errors.new_password?.message}
+          {...(errors.new_password?.message !== undefined
+            ? { error: errors.new_password.message }
+            : {})}
           required
         />
 
@@ -92,7 +94,9 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
             required: t("required-field"),
             validate: (value) => value === newPassword || t("passwords-dont-match"),
           })}
-          error={errors.password_confirmation?.message}
+          {...(errors.password_confirmation?.message !== undefined
+            ? { error: errors.password_confirmation.message }
+            : {})}
           required
         />
 

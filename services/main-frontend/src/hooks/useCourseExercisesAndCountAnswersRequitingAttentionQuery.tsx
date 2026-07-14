@@ -28,7 +28,7 @@ const useCourseExercisesAndCountAnswersRequitingAttentionQuery = (
   })
 
   return useQuery({
-    ...(generatedOptions as UseQueryOptions<
+    ...(generatedOptions as unknown as UseQueryOptions<
       ExerciseAnswersInCourseRequiringAttentionCount[],
       Error,
       ExerciseAnswersInCourseRequiringAttentionCount[]

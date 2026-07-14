@@ -101,7 +101,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
             {...register("email", { required: true })}
             id="add-user-email"
             label={t("label-email")}
-            error={errors.email ? t("validation-required") : undefined}
+            {...(errors.email ? { error: t("validation-required") } : {})}
           />
         </div>
 

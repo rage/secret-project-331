@@ -74,6 +74,8 @@ const ChooseN: React.FunctionComponent<
   // oxlint-disable-next-line i18next/no-literal-string
   const liveId = `${groupId}-live`
 
+  const groupAriaLabel = quizItem.title || quizItem.body
+
   return (
     <div
       className={css`
@@ -100,7 +102,7 @@ const ChooseN: React.FunctionComponent<
           selectionMode="multiple"
           selectedKeys={new Set(selectedIds)}
           onSelectionChange={handleSelectionChange}
-          aria-label={quizItem.title || quizItem.body || undefined}
+          {...(groupAriaLabel ? { "aria-label": groupAriaLabel } : {})}
           aria-describedby={`${statusId} ${hintId} ${liveId}`}
           className={css`
             display: flex;

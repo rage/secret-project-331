@@ -116,15 +116,15 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     errorMessage: resolvedError,
     id: inputId,
     value: stringValue,
-    autoComplete,
     name: field.name,
-    maxLength,
-    minLength,
-    isDisabled,
-    isReadOnly,
-    isRequired,
     isInvalid,
     inputElementType: textareaInputType,
+    ...(autoComplete !== undefined ? { autoComplete } : {}),
+    ...(maxLength !== undefined ? { maxLength } : {}),
+    ...(minLength !== undefined ? { minLength } : {}),
+    ...(isDisabled !== undefined ? { isDisabled } : {}),
+    ...(isReadOnly !== undefined ? { isReadOnly } : {}),
+    ...(isRequired !== undefined ? { isRequired } : {}),
   }
 
   const {

@@ -11,8 +11,8 @@ import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface LandingPageHeroSectionAttributes {
   title: string
-  backgroundColor: string
-  fontColor: string
+  backgroundColor: string | undefined
+  fontColor: string | undefined
   backgroundImage: string | undefined
   backgroundImageMedium: string | undefined
   backgroundImageLarge: string | undefined

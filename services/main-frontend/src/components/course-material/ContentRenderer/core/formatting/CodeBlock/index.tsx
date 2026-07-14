@@ -91,7 +91,7 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
           <SyntaxHighlightedContainer
             content={cleanCode}
             highlightedLines={highlightedLines}
-            language={language}
+            {...(language !== undefined ? { language } : {})}
           />
         </pre>
       </div>

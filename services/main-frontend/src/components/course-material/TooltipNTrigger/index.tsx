@@ -49,7 +49,7 @@ const TooltipNTrigger: React.FC<TooltipNTriggerProps> = (props) => {
 
   return (
     <GlossaryTriggerNPopover
-      className={props.className}
+      {...(props.className !== undefined ? { className: props.className } : {})}
       tooltipContent={tooltipContent}
       dialogAriaLabel={t("definition")}
     >

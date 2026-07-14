@@ -51,7 +51,7 @@ interface MenuOption {
 }
 
 export interface UserMenuProps {
-  menuOptions?: MenuOption[]
+  menuOptions?: MenuOption[] | undefined
 }
 
 const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOptions }) => {
@@ -199,7 +199,11 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
 
             if (item.type === "link") {
               return (
-                <MenuItem key={item.id} href={item.href} className={itemRow}>
+                <MenuItem
+                  key={item.id}
+                  {...(item.href !== undefined ? { href: item.href } : {})}
+                  className={itemRow}
+                >
                   <span>{item.label}</span>
                 </MenuItem>
               )
@@ -208,7 +212,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
             return (
               <MenuItem
                 key={item.id}
-                onAction={item.onAction}
+                {...(item.onAction !== undefined ? { onAction: item.onAction } : {})}
                 className={css`
                   ${itemRow};
                   ${item.isDestructive ? "color: #dc2626; font-weight: 600;" : ""};

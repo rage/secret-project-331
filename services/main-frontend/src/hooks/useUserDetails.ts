@@ -115,9 +115,11 @@ export const useUserDetails = (
       build: ({ courseIds: readyCourseIds, userId: readyUserId }) =>
         getUserDetailsQueryOptions(readyCourseIds, readyUserId),
     }),
-    staleTime: options?.staleTime,
-    gcTime: options?.gcTime,
-    refetchOnWindowFocus: options?.refetchOnWindowFocus,
+    ...(options?.staleTime !== undefined ? { staleTime: options.staleTime } : {}),
+    ...(options?.gcTime !== undefined ? { gcTime: options.gcTime } : {}),
+    ...(options?.refetchOnWindowFocus !== undefined
+      ? { refetchOnWindowFocus: options.refetchOnWindowFocus }
+      : {}),
   })
 }
 

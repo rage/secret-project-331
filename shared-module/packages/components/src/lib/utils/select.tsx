@@ -84,8 +84,8 @@ export function normalizeSelectOptions(
       label: option.label,
       textValue: option.textValue ?? getNodeTextValue(option.label),
       isDisabled: Boolean(option.isDisabled),
-      groupKey,
-      groupLabel,
+      ...(groupKey !== undefined ? { groupKey } : {}),
+      ...(groupLabel !== undefined ? { groupLabel } : {}),
     }
 
     valueToKey.set(normalizedOption.value, normalizedOption.key)

@@ -96,7 +96,11 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
       ) {
         // if the currently streamed response already has a message in the state
         textMessageParseResult.data.text += action.payload.text
-        streamingMessageWithStatus.message.message = textMessageParseResult.data
+        streamingMessageWithStatus.message.message = {
+          ...textMessageParseResult.data,
+          deleted_at: textMessageParseResult.data.deleted_at ?? null,
+          response_id: textMessageParseResult.data.response_id ?? null,
+        }
       } else {
         // create a new message for the currently streamed response
         const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
@@ -145,7 +149,10 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         if (action.payload.arguments !== null && action.payload.arguments !== undefined) {
           res.data.tool_arguments = action.payload.arguments
         }
-        toolCallMessage.message.message = res.data
+        toolCallMessage.message.message = {
+          ...res.data,
+          deleted_at: res.data.deleted_at ?? null,
+        }
       } else {
         // create new message
         const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)

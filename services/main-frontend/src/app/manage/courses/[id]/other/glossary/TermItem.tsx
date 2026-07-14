@@ -100,7 +100,7 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
                 message: t("required"),
               },
             })}
-            error={errors.updatedTerm && t("required")}
+            {...(errors.updatedTerm ? { error: t("required") } : {})}
           />
           <TextAreaField
             label={t("updated-definition")}
@@ -112,7 +112,7 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
                 message: t("required"),
               },
             })}
-            error={errors.updatedDefinition && t("required")}
+            {...(errors.updatedDefinition ? { error: t("required") } : {})}
             disabled={false}
           />
           <Button variant="primary" size="medium" type="submit" disabled={!isValid}>

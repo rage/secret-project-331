@@ -59,12 +59,12 @@ const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
   return (
     <ClarificationTooltip text={tooltipText}>
       <AriaButton
-        id={id}
-        data-testid={dataTestId}
+        {...(id !== undefined ? { id } : {})}
+        {...(dataTestId !== undefined ? { "data-testid": dataTestId } : {})}
         aria-label={ariaLabel}
         aria-expanded={isOpen}
-        lang={lang}
-        dir={dir}
+        {...(lang !== undefined ? { lang } : {})}
+        {...(dir !== undefined ? { dir } : {})}
         className={css`
           display: inline-flex;
           align-items: center;
@@ -98,7 +98,7 @@ const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
 
           ${className}
         `}
-        onClick={onClick}
+        {...(onClick !== undefined ? { onClick } : {})}
       >
         {children}
         {showChevron && <Chevron open={isOpen} />}

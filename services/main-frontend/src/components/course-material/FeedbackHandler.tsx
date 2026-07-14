@@ -103,8 +103,8 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
       {type === "proposed-edits" && <EditProposalDialog courseId={courseId} pageId={pageId} />}
       {type === null && selection.text && (
         <TextSelectionTooltip
-          courseName={courseName}
-          pageTitle={pageTitle}
+          {...(courseName !== undefined ? { courseName } : {})}
+          {...(pageTitle !== undefined ? { pageTitle } : {})}
           courseHasChatbot={courseHasChatbot}
         />
       )}

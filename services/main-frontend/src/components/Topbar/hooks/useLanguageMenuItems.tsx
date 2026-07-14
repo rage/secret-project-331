@@ -41,12 +41,14 @@ export interface LanguageMenuItem {
 }
 
 export interface UseLanguageMenuItemsProps {
-  availableLanguages?: {
-    code: string
-    name: string
-    isDraft?: boolean
-  }[]
-  onLanguageChange?: (languageCode: string) => Promise<void>
+  availableLanguages?:
+    | {
+        code: string
+        name: string
+        isDraft?: boolean
+      }[]
+    | undefined
+  onLanguageChange?: ((languageCode: string) => Promise<void>) | undefined
   renderAsSubmenu?: boolean
   onMenuClose?: () => void
 }
@@ -148,7 +150,7 @@ export function useLanguageMenuItems({
         localizedLabel: localized,
         englishLabel: english,
         isSelected: selected,
-        isDraft: "isDraft" in lang ? lang.isDraft : undefined,
+        ...("isDraft" in lang && lang.isDraft !== undefined ? { isDraft: lang.isDraft } : {}),
         lang: code,
         dir: getDir(code),
         onSelect: () => handleLanguageChange(code),

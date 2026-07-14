@@ -80,20 +80,20 @@ export function TimeField<T extends FieldValues, N extends Path<T> = Path<T>>(
       description={description}
       errorMessage={resolvedError}
       notice={notice}
-      fieldSize={fieldSize}
+      {...(fieldSize !== undefined ? { fieldSize } : {})}
       iconStart={iconStart}
       iconEnd={iconEnd}
-      isDisabled={isDisabled}
-      isReadOnly={isReadOnly}
-      isRequired={isRequired}
+      {...(isDisabled !== undefined ? { isDisabled } : {})}
+      {...(isReadOnly !== undefined ? { isReadOnly } : {})}
+      {...(isRequired !== undefined ? { isRequired } : {})}
       isInvalid={isInvalid}
-      id={id}
-      className={className}
-      min={min}
-      max={max}
-      step={step}
-      hourCycle={hourCycle}
-      inputRef={inputRef}
+      {...(id !== undefined ? { id } : {})}
+      {...(className !== undefined ? { className } : {})}
+      {...(min !== undefined ? { min } : {})}
+      {...(max !== undefined ? { max } : {})}
+      {...(step !== undefined ? { step } : {})}
+      {...(hourCycle !== undefined ? { hourCycle } : {})}
+      {...(inputRef !== undefined ? { inputRef } : {})}
       value={value}
       onChange={(e) => {
         field.onChange(e.target.value)

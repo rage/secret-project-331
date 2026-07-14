@@ -29,15 +29,23 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
   return (
     <BreakFromCentered sidebar={false}>
       <HeroSection
-        label={chapterNumber}
+        {...(chapterNumber !== undefined ? { label: chapterNumber } : {})}
         title={props.data.attributes.title}
         subtitle={props.data.attributes.subtitle}
-        backgroundImage={props.data.attributes.backgroundImage}
+        {...(props.data.attributes.backgroundImage !== undefined
+          ? { backgroundImage: props.data.attributes.backgroundImage }
+          : {})}
         partiallyTransparent={partiallyTransparent}
-        fontColor={props.data.attributes.fontColor}
+        {...(props.data.attributes.fontColor !== undefined
+          ? { fontColor: props.data.attributes.fontColor }
+          : {})}
         alignCenter={props.data.attributes.alignCenter ?? DEFAULT}
-        backgroundColor={props.data.attributes.backgroundColor}
-        backgroundRepeatX={props.data.attributes.backgroundRepeatX}
+        {...(props.data.attributes.backgroundColor !== undefined
+          ? { backgroundColor: props.data.attributes.backgroundColor }
+          : {})}
+        {...(props.data.attributes.backgroundRepeatX !== undefined
+          ? { backgroundRepeatX: props.data.attributes.backgroundRepeatX }
+          : {})}
         alignBottom={props.data.attributes.alignBottom}
       />
     </BreakFromCentered>

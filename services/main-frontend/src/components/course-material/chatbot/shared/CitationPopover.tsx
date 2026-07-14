@@ -42,7 +42,12 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
   const { t } = useTranslation()
   const popoverRef = useRef<HTMLElement>(null)
   let [isPopoverOpen, setIsPopoverOpen] = useState(false)
-  let { hoverProps: hoverPopoverProps, isHovered: isPopoverHovered } = useHover({})
+  let { hoverProps: rawHoverPopoverProps, isHovered: isPopoverHovered } = useHover({})
+  // useHover types its props with `| undefined` on optional keys, which clashes with
+  // SpeechBalloonPopover's exactOptional props. Strip the `undefined` without changing runtime.
+  const hoverPopoverProps = rawHoverPopoverProps as {
+    [K in keyof typeof rawHoverPopoverProps]: Exclude<(typeof rawHoverPopoverProps)[K], undefined>
+  }
 
   useEffect(() => {
     let open = isCitationHovered || isPopoverHovered || citationButtonClicked

@@ -160,14 +160,12 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         refetch={refetch}
         data={pageOrderState.chapterIdToFrontPage?.["null"]}
         pageOrderDispatch={pageOrderDispatch}
-        chapter={undefined}
       />
       <PageList
         data={pageOrderState.chapterIdToPages?.["null"] ?? []}
         pageOrderDispatch={pageOrderDispatch}
         refetch={refetch}
         courseId={courseStructure.course.id}
-        chapter={undefined}
       />
       <div>
         {pageOrderState.chapters &&

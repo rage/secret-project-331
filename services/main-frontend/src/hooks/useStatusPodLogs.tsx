@@ -16,8 +16,8 @@ export const useStatusPodLogs = (
         pod_name: podName!,
       },
       query: {
-        container,
-        tail,
+        ...(container !== undefined ? { container } : {}),
+        ...(tail !== undefined ? { tail } : {}),
       },
     }),
     enabled: !!podName,

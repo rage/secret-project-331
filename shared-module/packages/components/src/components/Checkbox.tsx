@@ -80,7 +80,12 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     "aria-label": ariaLabel,
   } = props
 
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...(rules !== undefined ? { rules } : {}),
+    errorMessage,
+  })
   const selected = Boolean(field.value)
 
   const generatedInputId = useId()
@@ -88,7 +93,6 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
   const descriptionId = useId()
   const errorMessageId = useId()
   const describedBy = resolveFieldDescribedBy({
-    ariaDescribedBy: undefined,
     descriptionId,
     errorMessageId,
     hasDescription: Boolean(description),
@@ -117,14 +121,14 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
       children: label,
       id: inputId,
       name: field.name,
-      value: inputValue,
       isDisabled,
       isReadOnly,
       isRequired,
       isInvalid,
       isIndeterminate,
-      "aria-label": ariaLabel,
-      "aria-describedby": describedBy,
+      ...(inputValue !== undefined ? { value: inputValue } : {}),
+      ...(ariaLabel !== undefined ? { "aria-label": ariaLabel } : {}),
+      ...(describedBy !== undefined ? { "aria-describedby": describedBy } : {}),
     },
     toggleState,
     inputRef,
@@ -151,9 +155,9 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     <FieldShell
       className={cx(checkableRootCss, className)}
       description={description}
-      descriptionId={description ? descriptionId : undefined}
+      {...(description ? { descriptionId } : {})}
       errorMessage={resolvedError}
-      errorMessageId={resolvedError ? errorMessageId : undefined}
+      {...(resolvedError ? { errorMessageId } : {})}
       layout={stackedLayout}
     >
       <label

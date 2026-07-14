@@ -64,7 +64,12 @@ export function DateField<T extends FieldValues, N extends Path<T> = Path<T>>(
     max,
     inputRef,
   } = props
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...(rules !== undefined ? { rules } : {}),
+    errorMessage,
+  })
   const value = (field.value as string | undefined) ?? ""
 
   return (
@@ -76,18 +81,18 @@ export function DateField<T extends FieldValues, N extends Path<T> = Path<T>>(
       description={description}
       errorMessage={resolvedError}
       notice={notice}
-      fieldSize={fieldSize}
       iconStart={iconStart}
       iconEnd={iconEnd}
-      isDisabled={isDisabled}
-      isReadOnly={isReadOnly}
-      isRequired={isRequired}
       isInvalid={isInvalid}
-      id={id}
-      className={className}
-      min={min}
-      max={max}
-      inputRef={inputRef}
+      {...(fieldSize !== undefined ? { fieldSize } : {})}
+      {...(isDisabled !== undefined ? { isDisabled } : {})}
+      {...(isReadOnly !== undefined ? { isReadOnly } : {})}
+      {...(isRequired !== undefined ? { isRequired } : {})}
+      {...(id !== undefined ? { id } : {})}
+      {...(className !== undefined ? { className } : {})}
+      {...(min !== undefined ? { min } : {})}
+      {...(max !== undefined ? { max } : {})}
+      {...(inputRef !== undefined ? { inputRef } : {})}
       value={value}
       onChange={(e) => {
         field.onChange(e.target.value)

@@ -56,7 +56,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
       language_code: DEFAULT_LANGUAGE_CODE,
       copy_user_permissions: false,
       createDuplicate: false,
-      courseId: courseId,
+      ...(courseId !== undefined ? { courseId } : {}),
       is_draft: true,
       is_test_mode: false,
       is_unlisted: false,
@@ -94,7 +94,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
             ...data,
           },
           language_code: data.language_code,
-          onSuccess,
+          ...(onSuccess !== undefined ? { onSuccess } : {}),
         })
       })}
     >

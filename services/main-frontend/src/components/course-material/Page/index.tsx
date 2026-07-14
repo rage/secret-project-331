@@ -277,7 +277,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           <SelectResearchConsentForm
             editForm={showResearchConsentFormBecauseOfUrl}
             shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
-            usersInitialAnswers={researchConsentFormAnswerQuery.data}
+            {...(researchConsentFormAnswerQuery.data !== undefined
+              ? { usersInitialAnswers: researchConsentFormAnswerQuery.data }
+              : {})}
             // oxlint-disable-next-line typescript/no-non-null-assertion -- researchFormIsLoadedAndExists guarantees data is non-null
             researchForm={researchConsentFormQuery.data!}
             onClose={() => {
@@ -369,12 +371,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             )}
             <FeedbackHandler
               courseId={courseId}
-              courseName={courseName}
+              {...(courseName !== undefined ? { courseName } : {})}
               courseHasChatbot={
                 chatbotConfiguration.data !== null && chatbotConfiguration.data !== undefined
               }
               pageId={pageId}
-              pageTitle={pageTitle}
+              {...(pageTitle !== undefined ? { pageTitle } : {})}
             />
           </>
         )}

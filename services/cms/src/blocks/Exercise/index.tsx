@@ -16,7 +16,7 @@ export interface ExerciseAttributes {
   id: string
   name: string
   score_maximum: number
-  max_tries_per_slide?: number
+  max_tries_per_slide?: number | undefined
   limit_number_of_tries: boolean
   needs_peer_review: boolean
   needs_self_review: boolean

@@ -71,7 +71,11 @@ export default function AnalysisWorkspaceForm(props: {
     uhLines,
     showUhResources,
     sectionNavKeys,
-  } = useAnalysisWorkspaceFormController({ onDirtyChange, planId, workspaceData })
+  } = useAnalysisWorkspaceFormController({
+    planId,
+    workspaceData,
+    ...(onDirtyChange !== undefined ? { onDirtyChange } : {}),
+  })
 
   return (
     <form className={formRootStyles} onSubmit={handleSubmit(onSubmit)} noValidate>

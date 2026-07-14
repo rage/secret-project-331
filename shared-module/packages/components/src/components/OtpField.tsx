@@ -146,7 +146,12 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
     autoComplete,
   } = props
 
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...(rules !== undefined ? { rules } : {}),
+    errorMessage,
+  })
 
   const { t } = useTranslation("shared-module")
   const generatedInputId = useId()
@@ -204,7 +209,6 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
   }, [otpValue])
 
   const describedBy = resolveFieldDescribedBy({
-    ariaDescribedBy: undefined,
     descriptionId,
     errorMessageId,
     hasDescription: Boolean(description),
@@ -225,7 +229,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      className={className}
+      {...(className !== undefined ? { className } : {})}
       label={label}
       labelProps={mergedLabelProps as React.HTMLAttributes<HTMLElement>}
       description={description}

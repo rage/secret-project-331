@@ -20,8 +20,8 @@ interface MenuOption {
 }
 
 interface QuickActionsMenuProps {
-  menuOptions?: MenuOption[]
-  courseId?: string | null
+  menuOptions?: MenuOption[] | undefined
+  courseId?: string | null | undefined
 }
 
 const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, courseId }) => {

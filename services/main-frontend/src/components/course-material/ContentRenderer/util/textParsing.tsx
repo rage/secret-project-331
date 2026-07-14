@@ -261,8 +261,8 @@ export const extractCitationsFromText = (text: string | null | undefined): Citat
     const notes = normalizeCitationNotes(prenote, postnote)
     matches.push({
       citationKey: decodeHtmlEntities(citationId ?? ""),
-      prenote: notes.prenote,
-      postnote: notes.postnote,
+      ...(notes.prenote !== undefined ? { prenote: notes.prenote } : {}),
+      ...(notes.postnote !== undefined ? { postnote: notes.postnote } : {}),
     })
   }
   return matches

@@ -66,7 +66,9 @@ const ClosedSectionFields = (): React.ReactElement => {
           <FieldContainer>
             <TextField
               label={t("closed-course-successor-id")}
-              error={errors.closed_course_successor_id?.message}
+              {...(errors.closed_course_successor_id?.message
+                ? { error: errors.closed_course_successor_id.message }
+                : {})}
               {...register("closed_course_successor_id", {
                 validate: (value) => {
                   if (!value) {

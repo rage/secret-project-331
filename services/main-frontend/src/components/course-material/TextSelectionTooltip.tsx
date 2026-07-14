@@ -198,7 +198,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
       data-testid={textSelectionTooltipTestId}
     >
       <SpeechBalloon
-        placement={state?.placement}
+        {...(state?.placement !== undefined ? { placement: state.placement } : {})}
         // oxlint-disable-next-line i18next/no-literal-string
         paddingValue="0.2rem"
       >

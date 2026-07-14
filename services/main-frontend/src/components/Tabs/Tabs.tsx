@@ -95,8 +95,8 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
   )
 
   const state = useTabListState({
-    selectedKey: selectedKey ?? undefined,
-    defaultSelectedKey: tabNames[0] ?? undefined,
+    ...(selectedKey !== null ? { selectedKey } : {}),
+    ...(tabNames[0] !== undefined ? { defaultSelectedKey: tabNames[0] } : {}),
     items,
     onSelectionChange: (key) => {
       router.replace(`${basePath}/${String(key)}`)

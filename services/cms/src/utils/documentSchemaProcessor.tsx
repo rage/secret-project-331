@@ -253,7 +253,9 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         id: normalizedBlock.attributes.id,
         name: exercise.name,
         score_maximum: exercise.score_maximum,
-        max_tries_per_slide: exercise.max_tries_per_slide ?? undefined,
+        ...(exercise.max_tries_per_slide !== null && exercise.max_tries_per_slide !== undefined
+          ? { max_tries_per_slide: exercise.max_tries_per_slide }
+          : {}),
         limit_number_of_tries: exercise.limit_number_of_tries,
         needs_peer_review: exercise.needs_peer_review,
         needs_self_review: exercise.needs_self_review,

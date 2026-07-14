@@ -149,7 +149,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             required: t("required-field"),
           })}
           required={true}
-          error={errors.first_name}
+          {...(errors.first_name !== undefined ? { error: errors.first_name } : {})}
         />
 
         <TextField
@@ -160,7 +160,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             required: t("required-field"),
           })}
           required={true}
-          error={errors.last_name}
+          {...(errors.last_name !== undefined ? { error: errors.last_name } : {})}
         />
 
         <Controller
@@ -173,7 +173,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               options={countriesOptions}
               onChangeByValue={field.onChange}
               value={field.value}
-              error={errors.country?.message}
+              {...(errors.country?.message !== undefined ? { error: errors.country.message } : {})}
               required={true}
               placeholder={selectedCountry ?? t("select-a-country")}
             />

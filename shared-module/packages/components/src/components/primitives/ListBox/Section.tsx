@@ -35,9 +35,10 @@ export function Section<T extends object>({
   section: ListBoxNode<T>
   state: ListState<T>
 }) {
+  const ariaLabel = section["aria-label"]
   const { itemProps, headingProps, groupProps } = useListBoxSection({
     heading: section.rendered,
-    "aria-label": section["aria-label"],
+    ...(ariaLabel !== undefined ? { "aria-label": ariaLabel } : {}),
   })
 
   return (

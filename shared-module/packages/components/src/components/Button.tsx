@@ -129,15 +129,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const ref = useObjectRef(forwardedRef)
 
     const ariaOptions: AriaButtonOptions<"button"> = {
-      onPress,
-      onPressStart,
-      onPressEnd,
-      onPressChange,
-      onPressUp,
       isDisabled,
-      "aria-label": userAriaLabel,
-      "aria-describedby": describedBy,
-      "aria-labelledby": labelledBy,
+      ...(onPress !== undefined ? { onPress } : {}),
+      ...(onPressStart !== undefined ? { onPressStart } : {}),
+      ...(onPressEnd !== undefined ? { onPressEnd } : {}),
+      ...(onPressChange !== undefined ? { onPressChange } : {}),
+      ...(onPressUp !== undefined ? { onPressUp } : {}),
+      ...(userAriaLabel !== undefined ? { "aria-label": userAriaLabel } : {}),
+      ...(describedBy !== undefined ? { "aria-describedby": describedBy } : {}),
+      ...(labelledBy !== undefined ? { "aria-labelledby": labelledBy } : {}),
     }
 
     const { buttonProps, isPressed } = useButton(ariaOptions, ref)

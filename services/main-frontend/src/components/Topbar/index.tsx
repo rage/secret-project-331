@@ -191,7 +191,10 @@ const Topbar: React.FC<TopbarProps> = ({
               `}
             >
               {enableSearch && (
-                <SearchButton courseId={courseId} organizationSlug={organizationSlug} />
+                <SearchButton
+                  {...(courseId !== undefined ? { courseId } : {})}
+                  {...(organizationSlug !== undefined ? { organizationSlug } : {})}
+                />
               )}
 
               {enableSearch && enableLanguageMenu && (
@@ -363,15 +366,15 @@ const Topbar: React.FC<TopbarProps> = ({
             state={menuState}
             primaryNavChildren={children}
             onClose={menuState.close}
-            courseId={courseId}
-            currentPagePath={currentPagePath}
             enableSearch={enableSearch}
             enableLanguageMenu={enableLanguageMenu}
             enableUserMenu={enableUserMenu}
             enableQuickActions={enableQuickActions}
-            userMenuOptions={userMenuOptions}
-            quickActionsOptions={quickActionsOptions}
-            languageMenuProps={languageMenuProps}
+            {...(courseId !== undefined ? { courseId } : {})}
+            {...(currentPagePath !== undefined ? { currentPagePath } : {})}
+            {...(userMenuOptions !== undefined ? { userMenuOptions } : {})}
+            {...(quickActionsOptions !== undefined ? { quickActionsOptions } : {})}
+            {...(languageMenuProps !== undefined ? { languageMenuProps } : {})}
           />
         </OverlayContainer>
       )}

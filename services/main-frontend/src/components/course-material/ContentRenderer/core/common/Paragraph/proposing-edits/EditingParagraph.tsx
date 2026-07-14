@@ -142,10 +142,12 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
         <PreviewableParagraph
           id={id}
           content={content ?? null}
-          textColor={textColor ?? undefined}
-          backgroundColor={backgroundColor ?? undefined}
-          fontSize={fontSize ?? undefined}
-          align={align ?? undefined}
+          {...(textColor !== null && textColor !== undefined ? { textColor } : {})}
+          {...(backgroundColor !== null && backgroundColor !== undefined
+            ? { backgroundColor }
+            : {})}
+          {...(fontSize !== null && fontSize !== undefined ? { fontSize } : {})}
+          {...(align !== null && align !== undefined ? { align } : {})}
           setEdits={setEdits}
           editedContent={editedContent}
         />

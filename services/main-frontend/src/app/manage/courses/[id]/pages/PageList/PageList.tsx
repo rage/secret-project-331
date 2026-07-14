@@ -114,11 +114,13 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
       </Button>
 
       <NewOrEditPageForm
-        chapterId={chapter?.id}
+        {...(chapter?.id !== undefined ? { chapterId: chapter.id } : {})}
         courseId={courseId}
         onSubmitForm={handleCreateTopLevelPage}
-        // oxlint-disable-next-line i18next/no-literal-string
-        prefix={chapter && `/chapter-${chapter.chapter_number}/`}
+        {...(chapter
+          ? // oxlint-disable-next-line i18next/no-literal-string
+            { prefix: `/chapter-${chapter.chapter_number}/` }
+          : {})}
         isUpdate={false}
         open={showNewOrEditPageForm}
         onClose={() => setShowNewOrEditPageForm(false)}

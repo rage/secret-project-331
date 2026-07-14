@@ -120,7 +120,7 @@ const CourseExerciseStatusList: React.FC = () => {
               chapterLockingEnabled={courseQuery.data?.chapter_locking_enabled === true}
               chapterLockStatusesByChapterId={chapterLockStatuses}
               onUpdateChapterLockStatus={updateChapterLockStatus}
-              lockActionPendingChapterId={lockActionPendingChapterId}
+              {...(lockActionPendingChapterId !== undefined ? { lockActionPendingChapterId } : {})}
             />
             <Link href={courseExerciseResetToolRoute(id, user_id)}>
               {t("title-reset-exercises")}

@@ -108,15 +108,15 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
 
     const { linkProps, isPressed } = useLink(
       {
-        onPress,
-        onPressStart,
-        onPressEnd,
-        onPressChange,
-        onPressUp,
         isDisabled: isInteractivelyDisabled,
-        "aria-label": userAriaLabel,
-        "aria-describedby": describedBy,
-        "aria-labelledby": labelledBy,
+        ...(onPress !== undefined ? { onPress } : {}),
+        ...(onPressStart !== undefined ? { onPressStart } : {}),
+        ...(onPressEnd !== undefined ? { onPressEnd } : {}),
+        ...(onPressChange !== undefined ? { onPressChange } : {}),
+        ...(onPressUp !== undefined ? { onPressUp } : {}),
+        ...(userAriaLabel !== undefined ? { "aria-label": userAriaLabel } : {}),
+        ...(describedBy !== undefined ? { "aria-describedby": describedBy } : {}),
+        ...(labelledBy !== undefined ? { "aria-labelledby": labelledBy } : {}),
       },
       ref,
     )
@@ -160,7 +160,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
 
     return (
       <NextLink
-        {...mergedLinkProps}
+        {...(mergedLinkProps as Partial<NextProps>)}
         {...rest}
         ref={ref}
         className={rootClassName}

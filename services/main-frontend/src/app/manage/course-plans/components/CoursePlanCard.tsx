@@ -66,8 +66,7 @@ export default function CoursePlanCard({ plan }: CoursePlanCardProps) {
         return t("course-plans-stage-implementation")
       case "Evaluation":
         return t("course-plans-stage-evaluation")
-      case null:
-      case undefined:
+      default:
         return t("course-plans-none")
     }
   })()

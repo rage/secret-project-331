@@ -112,7 +112,12 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
     [TAB_PROGRESS]: courseId ? (
       <ProgressTabContent courseId={courseId} searchQuery={searchQuery} />
     ) : null,
-    [TAB_CERTIFICATES]: <CertificatesTabContent courseId={courseId} searchQuery={searchQuery} />,
+    [TAB_CERTIFICATES]: (
+      <CertificatesTabContent
+        {...(courseId !== undefined ? { courseId } : {})}
+        searchQuery={searchQuery}
+      />
+    ),
   }
 
   return (

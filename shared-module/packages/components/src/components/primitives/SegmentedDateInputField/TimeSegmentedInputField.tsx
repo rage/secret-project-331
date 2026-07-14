@@ -34,14 +34,14 @@ export function TimeSegmentedInputField(
     errorMessage: base.errorMessage,
     locale: base.locale,
     granularity,
-    hourCycle: base.hourCycle,
     value: parsedValue ?? null,
-    minValue: parsedMinValue,
-    maxValue: parsedMaxValue,
     isDisabled: base.resolvedState.isDisabled,
     isReadOnly: base.resolvedState.isReadOnly,
     isRequired: base.resolvedState.isRequired,
     isInvalid: base.resolvedState.isInvalid,
+    ...(base.hourCycle !== undefined ? { hourCycle: base.hourCycle } : {}),
+    ...(parsedMinValue !== undefined ? { minValue: parsedMinValue } : {}),
+    ...(parsedMaxValue !== undefined ? { maxValue: parsedMaxValue } : {}),
     onChange: (nextValue: TimeValue | null) => {
       const serializedValue = serializeTimeValue(nextValue, granularity)
       base.onValueChange?.(serializedValue)

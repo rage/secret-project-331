@@ -128,7 +128,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               `}
               placeholder={t("name-of-module")}
               {...register("name", { required: true })}
-              error={errors["name"]?.message}
+              {...(errors["name"]?.message ? { error: errors["name"].message } : {})}
             />
           ) : (
             `${module.order_number}. ${module.name}`
@@ -187,7 +187,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                     return { value: c.toString(), label: c.toString() }
                   })}
                   {...register("starts", { required: true, valueAsNumber: true })}
-                  error={errors["starts"]?.message}
+                  {...(errors["starts"]?.message ? { error: errors["starts"].message } : {})}
                 />
                 <SelectField
                   className={css`
@@ -204,7 +204,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                     return { value: cn.toString(), label: cn.toString() }
                   })}
                   {...register("ends", { required: true, valueAsNumber: true })}
-                  error={errors["ends"]?.message}
+                  {...(errors["ends"]?.message ? { error: errors["ends"].message } : {})}
                 />
               </div>
             </div>
@@ -233,7 +233,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   valueAsNumber: true,
                   disabled: !isChecked,
                 })}
-                error={errors["name"]?.message}
+                {...(errors["name"]?.message ? { error: errors["name"].message } : {})}
               />
               <TextField
                 className={css`
@@ -247,7 +247,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   valueAsNumber: true,
                   disabled: !isChecked,
                 })}
-                error={errors["name"]?.message}
+                {...(errors["name"]?.message ? { error: errors["name"].message } : {})}
               />
               {/* Only for default module */}
               {!module.name && (
@@ -290,7 +290,9 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   disabled: !overrideLink,
                   minLength: 10,
                 })}
-                error={errors["completion_registration_link_override"]?.message}
+                {...(errors["completion_registration_link_override"]?.message
+                  ? { error: errors["completion_registration_link_override"].message }
+                  : {})}
               />
             </div>
             <Checkbox
@@ -320,7 +322,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 label={t("uh-course-code")}
                 placeholder={t("uh-course-code")}
                 {...register("uh_course_code")}
-                error={errors["name"]?.message}
+                {...(errors["name"]?.message ? { error: errors["name"].message } : {})}
               />
               <TextField
                 className={css`

@@ -68,7 +68,12 @@ export function DateTimeLocalField<T extends FieldValues, N extends Path<T> = Pa
     hourCycle,
     inputRef,
   } = props
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...(rules !== undefined ? { rules } : {}),
+    errorMessage,
+  })
   const value = (field.value as string | undefined) ?? ""
 
   return (
@@ -80,20 +85,20 @@ export function DateTimeLocalField<T extends FieldValues, N extends Path<T> = Pa
       description={description}
       errorMessage={resolvedError}
       notice={notice}
-      fieldSize={fieldSize}
       iconStart={iconStart}
       iconEnd={iconEnd}
-      isDisabled={isDisabled}
-      isReadOnly={isReadOnly}
-      isRequired={isRequired}
       isInvalid={isInvalid}
-      id={id}
-      className={className}
-      min={min}
-      max={max}
-      step={step}
-      hourCycle={hourCycle}
-      inputRef={inputRef}
+      {...(fieldSize !== undefined ? { fieldSize } : {})}
+      {...(isDisabled !== undefined ? { isDisabled } : {})}
+      {...(isReadOnly !== undefined ? { isReadOnly } : {})}
+      {...(isRequired !== undefined ? { isRequired } : {})}
+      {...(id !== undefined ? { id } : {})}
+      {...(className !== undefined ? { className } : {})}
+      {...(min !== undefined ? { min } : {})}
+      {...(max !== undefined ? { max } : {})}
+      {...(step !== undefined ? { step } : {})}
+      {...(hourCycle !== undefined ? { hourCycle } : {})}
+      {...(inputRef !== undefined ? { inputRef } : {})}
       value={value}
       onChange={(e) => {
         field.onChange(e.target.value)

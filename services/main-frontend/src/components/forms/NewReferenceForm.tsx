@@ -101,7 +101,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
       <TextAreaField
         label={REFERENCE}
         id={"references"}
-        error={errors["references"]}
+        {...(errors["references"] !== undefined ? { error: errors["references"] } : {})}
         placeholder={REFERENCE}
         {...register("references", { required: t("required-field") })}
         rows={5}

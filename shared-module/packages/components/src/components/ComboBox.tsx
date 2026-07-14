@@ -125,7 +125,12 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     "aria-label": ariaLabel,
   } = props
 
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...(rules !== undefined ? { rules } : {}),
+    errorMessage,
+  })
 
   const { t } = useTranslation("shared-module")
   const toggleOptionsLabel = t("comboBox.toggleOptions")
@@ -139,10 +144,10 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
   const inputId = id ?? generatedInputId
   const accessors = useMemo<ComboBoxItemAccessors<TItem>>(
     () => ({
-      getItemDisabled,
       getItemKey,
       getItemTextValue,
-      renderItem: children,
+      ...(getItemDisabled !== undefined ? { getItemDisabled } : {}),
+      ...(children !== undefined ? { renderItem: children } : {}),
     }),
     [children, getItemDisabled, getItemKey, getItemTextValue],
   )
@@ -172,8 +177,6 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     onSelectionChange: (key) => {
       field.onChange(key)
     },
-    inputValue: inputValueProp,
-    onInputChange: onInputChangeProp,
     allowsCustomValue,
     isDisabled,
     isReadOnly,
@@ -183,6 +186,8 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     description,
     errorMessage: resolvedError,
     placeholder: placeholder ?? " ",
+    ...(inputValueProp !== undefined ? { inputValue: inputValueProp } : {}),
+    ...(onInputChangeProp !== undefined ? { onInputChange: onInputChangeProp } : {}),
   })
 
   const {
@@ -204,8 +209,6 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
       listBoxRef,
       popoverRef,
       selectedKey,
-      inputValue: inputValueProp,
-      onInputChange: onInputChangeProp,
       allowsCustomValue,
       isDisabled,
       isReadOnly,
@@ -215,9 +218,10 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
       description,
       errorMessage: resolvedError,
       placeholder: placeholder ?? " ",
-      "aria-describedby": undefined,
-      "aria-label": ariaLabel,
       name: field.name,
+      ...(inputValueProp !== undefined ? { inputValue: inputValueProp } : {}),
+      ...(onInputChangeProp !== undefined ? { onInputChange: onInputChangeProp } : {}),
+      ...(ariaLabel !== undefined ? { "aria-label": ariaLabel } : {}),
     },
     state,
   )

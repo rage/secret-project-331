@@ -33,7 +33,9 @@ const ModuleCertificateVerification: React.FC = () => {
       },
       query: {
         debug: !!debug,
-        test_certificate_configuration_id: testCourseModuleId ?? undefined,
+        ...(testCourseModuleId !== null
+          ? { test_certificate_configuration_id: testCourseModuleId }
+          : {}),
       },
     }),
     // This is expensive, so it doesn't make sense to retry

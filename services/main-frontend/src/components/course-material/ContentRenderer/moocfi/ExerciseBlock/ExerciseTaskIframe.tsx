@@ -57,7 +57,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       return (
         <MessageChannelIFrame
           dialog={dialog}
-          headingBeforeIframe={headingBeforeIframe}
+          {...(headingBeforeIframe !== undefined ? { headingBeforeIframe } : {})}
           url={url}
           postThisStateToIFrame={postThisStateToIFrame}
           onMessageFromIframe={handleMessageFromIframe}

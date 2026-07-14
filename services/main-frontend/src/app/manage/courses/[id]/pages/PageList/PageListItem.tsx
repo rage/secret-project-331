@@ -75,8 +75,10 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
         }}
         isUpdate={true}
         savedPage={page}
-        // oxlint-disable-next-line i18next/no-literal-string
-        prefix={chapter && `/chapter-${chapter.chapter_number}/`}
+        {...(chapter
+          ? // oxlint-disable-next-line i18next/no-literal-string
+            { prefix: `/chapter-${chapter.chapter_number}/` }
+          : {})}
         open={showEditPageDetailsForm}
         onClose={() => setShowEditDetailsPageForm(false)}
       />

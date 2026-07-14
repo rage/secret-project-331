@@ -40,7 +40,11 @@ export function useIntersectionObserver(
   const frozenRef = useRef<boolean>(false)
 
   const opts = useMemo(() => {
-    const out: ExtendedIntersectionObserverInit = { root, rootMargin, threshold }
+    const out: ExtendedIntersectionObserverInit = {
+      root,
+      ...(rootMargin !== undefined ? { rootMargin } : {}),
+      ...(threshold !== undefined ? { threshold } : {}),
+    }
     if (typeof scrollMargin === "string") {
       out.scrollMargin = scrollMargin
     }

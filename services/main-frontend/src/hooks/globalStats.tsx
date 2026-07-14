@@ -71,7 +71,7 @@ export const useCourseCompletionStatsForEmailDomainQuery = (
     ...getCourseCompletionStatsForEmailDomainOptions({
       query: {
         email_domain: emailDomain,
-        year,
+        ...(year !== undefined ? { year } : {}),
       },
     }),
   })

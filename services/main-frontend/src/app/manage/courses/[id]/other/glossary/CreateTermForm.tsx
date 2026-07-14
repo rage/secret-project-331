@@ -68,7 +68,7 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
             message: t("required"),
           },
         })}
-        error={errors.newTerm && t("required")}
+        {...(errors.newTerm ? { error: t("required") } : {})}
       />
       <TextAreaField
         placeholder={t("new-definition")}
@@ -80,7 +80,7 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
             message: t("required"),
           },
         })}
-        error={errors.newDefinition && t("required")}
+        {...(errors.newDefinition ? { error: t("required") } : {})}
       />
       <Button variant="primary" size="medium" type="submit" disabled={!isValid}>
         {t("button-text-save")}

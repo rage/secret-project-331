@@ -46,8 +46,8 @@ export function RouteTabListProvider({
   )
 
   const state = useTabListState({
-    selectedKey,
-    defaultSelectedKey: tabs[0]?.key,
+    ...(selectedKey !== undefined ? { selectedKey } : {}),
+    ...(tabs[0]?.key !== undefined ? { defaultSelectedKey: tabs[0].key } : {}),
     items,
   })
 

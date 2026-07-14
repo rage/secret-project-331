@@ -23,7 +23,8 @@ test.describe("Flip card accessibility", () => {
 
     const getFlipButton = (isFlipped: boolean) => {
       const buttonLabels = ["Flip to back side of card", "Flip to front side of card"]
-      return page.getByRole("button", { name: buttonLabels[Number(isFlipped)] })
+      const name = buttonLabels[Number(isFlipped)]
+      return page.getByRole("button", name !== undefined ? { name } : {})
     }
 
     await test.step("Card content is accessible to screen readers", async () => {

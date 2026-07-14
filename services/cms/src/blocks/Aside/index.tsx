@@ -9,7 +9,7 @@ import { Deprecated1 } from "./deprecated"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface AsideComponentProps {
-  backgroundColor: string
+  backgroundColor: string | undefined
   separatorColor: string
 }
 

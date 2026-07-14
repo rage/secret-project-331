@@ -397,7 +397,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               },
             })}
             required
-            error={errors.email}
+            {...(errors.email !== undefined ? { error: errors.email } : {})}
           />
 
           <div></div>
@@ -409,7 +409,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               required: t("required-field"),
             })}
             required
-            error={errors.first_name}
+            {...(errors.first_name !== undefined ? { error: errors.first_name } : {})}
           />
 
           <TextField
@@ -419,7 +419,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               required: t("required-field"),
             })}
             required
-            error={errors.last_name}
+            {...(errors.last_name !== undefined ? { error: errors.last_name } : {})}
           />
 
           <Controller
@@ -433,7 +433,9 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
                 onChangeByValue={field.onChange}
                 value={field.value}
                 required={true}
-                error={errors.country?.message}
+                {...(errors.country?.message !== undefined
+                  ? { error: errors.country.message }
+                  : {})}
                 placeholder={t("label-select-country")}
               />
             )}

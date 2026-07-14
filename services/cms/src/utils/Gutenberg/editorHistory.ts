@@ -23,7 +23,7 @@ export const createEditorHistoryEntry = (
   selection?: GutenbergEditorSelection,
 ): GutenbergEditorHistoryEntry => ({
   content,
-  selection,
+  ...(selection !== undefined ? { selection } : {}),
 })
 
 export const initializeEditorHistory = (

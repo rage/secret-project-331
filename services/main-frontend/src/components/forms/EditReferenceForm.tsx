@@ -105,7 +105,7 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
       <TextAreaField
         label={REFERENCE}
         id={"reference"}
-        error={errors["reference"]}
+        {...(errors["reference"] !== undefined ? { error: errors["reference"] } : {})}
         placeholder={REFERENCE}
         {...register("reference", { required: true })}
         rows={5}

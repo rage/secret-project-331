@@ -19,7 +19,10 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
   const ref = useRef<HTMLAnchorElement>(null)
   const label = crumb.isLoading ? "" : crumb.label
   const href = crumb.isLoading ? undefined : (crumb.href ?? undefined)
-  const { itemProps } = useBreadcrumbItem({ children: label, isCurrent, href }, ref)
+  const { itemProps } = useBreadcrumbItem(
+    { children: label, isCurrent, ...(href !== undefined ? { href } : {}) },
+    ref,
+  )
 
   if (crumb.isLoading) {
     return (

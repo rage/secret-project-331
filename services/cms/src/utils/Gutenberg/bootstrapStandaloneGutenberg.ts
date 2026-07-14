@@ -36,8 +36,8 @@ import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types
 type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]
 
 interface StandaloneGutenbergBootstrapOptions {
-  customBlocks?: CustomBlockDefinition[]
-  allowedBlockVariations?: Record<string, string[]>
+  customBlocks?: CustomBlockDefinition[] | undefined
+  allowedBlockVariations?: Record<string, string[]> | undefined
 }
 
 const customBlockRegistry = new Map<string, CustomBlockDefinition[1]>(

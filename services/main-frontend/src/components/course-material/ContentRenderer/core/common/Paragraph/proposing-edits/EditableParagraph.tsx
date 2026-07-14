@@ -17,9 +17,9 @@ import { selectedBlockIdAtom } from "@/stores/course-material/materialFeedbackSt
 interface EditableParagraphProps {
   id: string
   content: string | null
-  textColor?: string
-  backgroundColor?: string
-  fontSize?: string
+  textColor?: string | undefined
+  backgroundColor?: string | undefined
+  fontSize?: string | undefined
   setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
 }
 
@@ -34,9 +34,9 @@ const EditableParagraphContent = memo(
     initialContent,
     ariaLabel,
   }: {
-    textColor?: string
-    backgroundColor?: string
-    fontSize?: string
+    textColor?: string | undefined
+    backgroundColor?: string | undefined
+    fontSize?: string | undefined
     contentEditableRef: React.RefObject<HTMLParagraphElement>
     handleInput: (e: React.FormEvent<HTMLParagraphElement>) => void
     initialContent: string | null

@@ -614,7 +614,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           </div>
           <BottomPanel
             title={t("title-dialog-module-save")}
-            error={moduleList?.error}
+            {...(moduleList?.error !== undefined ? { error: moduleList.error } : {})}
             show={edited}
             leftButtonText={t("save-changes")}
             leftButtonDisabled={

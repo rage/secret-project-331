@@ -136,7 +136,8 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       })
 
       if (parsed.errors.length > 0) {
-        setError(COMPLETIONS, { message: parsed.errors[0]?.message })
+        const parseErrorMessage = parsed.errors[0]?.message
+        setError(COMPLETIONS, parseErrorMessage !== undefined ? { message: parseErrorMessage } : {})
         return
       }
 

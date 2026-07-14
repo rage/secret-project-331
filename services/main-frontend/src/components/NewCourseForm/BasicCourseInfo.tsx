@@ -37,7 +37,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
         <TextField
           required
           label={t("text-field-label-name")}
-          error={errors.name?.message}
+          {...(errors.name?.message !== undefined ? { error: errors.name.message } : {})}
           {...register("name", {
             required: t("required-field"),
             minLength: {
@@ -51,7 +51,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
         <TextField
           required
           label={t("text-field-label-or-header-slug-or-short-name")}
-          error={errors.slug?.message}
+          {...(errors.slug?.message !== undefined ? { error: errors.slug.message } : {})}
           {...register("slug", {
             required: t("required-field"),
             pattern: {
@@ -72,7 +72,9 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
         <TextField
           required
           label={t("teacher-in-charge-name")}
-          error={errors.teacher_in_charge_name?.message}
+          {...(errors.teacher_in_charge_name?.message !== undefined
+            ? { error: errors.teacher_in_charge_name.message }
+            : {})}
           {...register("teacher_in_charge_name", {
             required: t("required-field"),
             minLength: {
@@ -87,7 +89,9 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
           required
           label={t("teacher-in-charge-email")}
           type="email"
-          error={errors.teacher_in_charge_email?.message}
+          {...(errors.teacher_in_charge_email?.message !== undefined
+            ? { error: errors.teacher_in_charge_email.message }
+            : {})}
           {...register("teacher_in_charge_email", {
             required: t("required-field"),
             pattern: {

@@ -12,6 +12,7 @@ import type {
   ExerciseIframeState,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { ExerciseTaskGradingResult as ProtocolExerciseTaskGradingResult } from "@/shared-module/exercise-protocol/core/exerciseServiceTypes"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import type { ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
@@ -60,13 +61,21 @@ const PlaygroundViewSubmissionIframe: React.FC<
   if (gradingQuery.isPending || gradingQuery.isError) {
     return <>{t("error-no-grading")}</>
   }
+  let grading: ProtocolExerciseTaskGradingResult | null = null
+  if (gradingQuery.data) {
+    const { set_user_variables, ...rest } = gradingQuery.data
+    grading = {
+      ...rest,
+      ...(set_user_variables !== undefined ? { set_user_variables } : {}),
+    }
+  }
   const iframeState: ExerciseIframeState = {
     // oxlint-disable-next-line i18next/no-literal-string
     view_type: "view-submission",
     exercise_task_id: EXAMPLE_UUID,
     user_information: userInformation,
     data: {
-      grading: gradingQuery.data ?? null,
+      grading,
       user_answer: userAnswer,
       public_spec: publicSpecQuery.data,
       model_solution_spec: sendModelsolutionSpec ? modelSolutionSpecQuery.data : null,

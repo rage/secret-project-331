@@ -66,7 +66,9 @@ const StyledCard: React.FC<React.PropsWithChildren<StyledCardProps>> = ({
       `}
     >
       <ChapterGridCard
-        backgroundImage={chapter.chapter_image_url}
+        {...(chapter.chapter_image_url !== undefined
+          ? { backgroundImage: chapter.chapter_image_url }
+          : {})}
         bg={randomizedColor}
         now={now}
         chapter={chapter}

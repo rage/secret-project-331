@@ -124,6 +124,10 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
               }
             : undefined
 
+        const cardBg = chapter.color !== null ? chapter.color : bg
+        const cardBackgroundImage = backgroundImage
+          ? backgroundImage
+          : arr[chapter.chapter_number - 1]
         const showLock = !open && !previewable
         const hasExerciseDeadlineOverrides = chapter.exercise_deadline_override_count > 0
         const exerciseDeadlinesMultiple = chapter.exercise_deadline_override_distinct_count > 1
@@ -135,17 +139,19 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
             chapterNumber={chapter.chapter_number}
             key={chapter.id}
             open={open}
-            date={date}
-            time={time}
-            url={url}
-            bg={chapter.color !== null ? chapter.color : bg}
-            backgroundImage={backgroundImage ? backgroundImage : arr[chapter.chapter_number - 1]}
-            points={pointsData}
+            {...(date !== undefined ? { date } : {})}
+            {...(time !== undefined ? { time } : {})}
+            {...(url !== undefined ? { url } : {})}
+            {...(cardBg !== undefined ? { bg: cardBg } : {})}
+            {...(cardBackgroundImage !== undefined ? { backgroundImage: cardBackgroundImage } : {})}
+            {...(pointsData !== undefined ? { points: pointsData } : {})}
             showLock={showLock}
             isLocked={isLocked}
-            deadline={chapter.deadline}
+            deadline={chapter.deadline ?? null}
             exerciseDeadline={
-              hasExerciseDeadlineOverrides ? chapter.earliest_exercise_deadline_override : null
+              hasExerciseDeadlineOverrides
+                ? (chapter.earliest_exercise_deadline_override ?? null)
+                : null
             }
             exerciseDeadlinesMultiple={hasExerciseDeadlineOverrides && exerciseDeadlinesMultiple}
           />

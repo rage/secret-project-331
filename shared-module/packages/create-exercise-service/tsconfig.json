@@ -6,6 +6,7 @@
     "lib": ["esnext"],
     "types": ["node"],
     "strict": true,
+    "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,

@@ -154,7 +154,9 @@ const BackgroundAndColorCustomizer: React.FC<
       <PanelBody title={t("background-layout")} initialOpen={false}>
         <CheckBox
           label={t("label-repeat-background-x")}
-          checked={attributes.backgroundRepeatX}
+          {...(attributes.backgroundRepeatX !== undefined
+            ? { checked: attributes.backgroundRepeatX }
+            : {})}
           onChange={() => setAttributes({ backgroundRepeatX: !attributes.backgroundRepeatX })}
         />
         {!noAlign && (
@@ -166,7 +168,7 @@ const BackgroundAndColorCustomizer: React.FC<
             />
             <CheckBox
               label={t("label-align-bottom")}
-              checked={attributes.alignBottom}
+              {...(attributes.alignBottom !== undefined ? { checked: attributes.alignBottom } : {})}
               onChange={() => setAttributes({ alignBottom: !attributes.alignBottom })}
             />
           </>

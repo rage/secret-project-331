@@ -39,6 +39,9 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
 }) => {
   const { t } = useTranslation()
 
+  const initialStartsAt = formatDateForDateTimeLocalInputs(initialData.starts_at)
+  const initialEndsAt = formatDateForDateTimeLocalInputs(initialData.ends_at)
+
   const {
     register,
     handleSubmit,
@@ -49,8 +52,8 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
     mode: "onChange",
     defaultValues: {
       name: initialData.name,
-      startsAt: formatDateForDateTimeLocalInputs(initialData.starts_at),
-      endsAt: formatDateForDateTimeLocalInputs(initialData.ends_at),
+      ...(initialStartsAt !== undefined ? { startsAt: initialStartsAt } : {}),
+      ...(initialEndsAt !== undefined ? { endsAt: initialEndsAt } : {}),
       timeMinutes: initialData.time_minutes,
       automaticCompletionEnabled: initialData.minimum_points_treshold !== 0,
       minimumPointsTreshold: initialData.minimum_points_treshold,
@@ -87,23 +90,25 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
         >
           <TextField
             id={"name"}
-            error={errors.name?.message}
+            {...(errors.name?.message !== undefined ? { error: errors.name.message } : {})}
             label={t("label-name")}
             {...register("name", { required: t("required-field") })}
           />
           <DateTimeLocal
-            error={errors.startsAt?.message}
+            {...(errors.startsAt?.message !== undefined ? { error: errors.startsAt.message } : {})}
             label={t("label-starts-at")}
             {...register("startsAt", { required: t("required-field") })}
           />
           <DateTimeLocal
-            error={errors.endsAt?.message}
+            {...(errors.endsAt?.message !== undefined ? { error: errors.endsAt.message } : {})}
             label={t("label-ends-at")}
             {...register("endsAt", { required: t("required-field"), validate: validateDates })}
           />
           <TextField
             id={"timeMinutes"}
-            error={errors.timeMinutes?.message}
+            {...(errors.timeMinutes?.message !== undefined
+              ? { error: errors.timeMinutes.message }
+              : {})}
             label={t("label-time-minutes")}
             {...register("timeMinutes", { required: t("required-field") })}
           />
@@ -115,7 +120,9 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
           {automaticEnabled && (
             <TextField
               id={"minimumPointsTreshold"}
-              error={errors.minimumPointsTreshold?.message}
+              {...(errors.minimumPointsTreshold?.message !== undefined
+                ? { error: errors.minimumPointsTreshold.message }
+                : {})}
               label={t("label-exam-minimum-points")}
               {...register("minimumPointsTreshold", { required: t("required-field") })}
             />

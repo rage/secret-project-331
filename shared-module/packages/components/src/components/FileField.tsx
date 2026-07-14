@@ -99,7 +99,12 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
     multiple,
   } = props
 
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...(rules !== undefined ? { rules } : {}),
+    errorMessage,
+  })
 
   const { t } = useTranslation("shared-module")
   const fileSummaryLabels = useMemo(
@@ -137,7 +142,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      className={className}
+      {...(className !== undefined ? { className } : {})}
       label={label}
       labelProps={labelProps as React.HTMLAttributes<HTMLElement>}
       description={description}

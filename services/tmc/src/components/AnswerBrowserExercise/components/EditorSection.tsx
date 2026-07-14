@@ -18,6 +18,7 @@ interface EditorSectionProps {
 
 export const EditorSection: React.FC<EditorSectionProps> = (props) => {
   const { filepath, contents, editorKey, editorFiles, setEditorState, readOnly = false } = props
+  const language = extensionToLanguage(filepath)
   const onChange = (newContents: string | undefined) => {
     if (readOnly || newContents === undefined) {
       return
@@ -36,7 +37,7 @@ export const EditorSection: React.FC<EditorSectionProps> = (props) => {
           key={editorKey}
           height="100%"
           width="100%"
-          language={extensionToLanguage(filepath)}
+          {...(language !== undefined ? { language } : {})}
           value={contents}
           onChange={onChange}
           options={{ readOnly }}

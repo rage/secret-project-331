@@ -118,13 +118,13 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
       `}
     >
       <TextField
-        error={errors["name"]?.message}
+        {...(errors["name"]?.message ? { error: errors["name"].message } : {})}
         placeholder={t("text-field-label-name")}
         label={t("text-field-label-name")}
         {...register("name", { required: "required-field" })}
       />
       <TextField
-        error={errors["chapter_number"]?.message}
+        {...(errors["chapter_number"]?.message ? { error: errors["chapter_number"].message } : {})}
         placeholder={t("text-field-label-chapter-number")}
         label={t("text-field-label-chapter-number")}
         type="number"
@@ -144,7 +144,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
             height: 45px;
             padding: 0px 0px 0px 0px !important;
           `}
-          error={errors["color"]?.message}
+          {...(errors["color"]?.message ? { error: errors["color"].message } : {})}
           placeholder={t("input-field-chapter-color")}
           label={t("input-field-chapter-color")}
           {...register("color", { required: false })}
@@ -157,7 +157,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         onUncheck={() => setValue("opens_at", null)}
       >
         <DateTimeLocal
-          error={errors["opens_at"]?.message}
+          {...(errors["opens_at"]?.message ? { error: errors["opens_at"].message } : {})}
           defaultValue={
             initialData?.opens_at ? dateToDateTimeLocalString(initialData?.opens_at) : undefined
           }
@@ -172,7 +172,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         onUncheck={() => setValue("deadline", null)}
       >
         <DateTimeLocal
-          error={errors["deadline"]?.message}
+          {...(errors["deadline"]?.message ? { error: errors["deadline"].message } : {})}
           defaultValue={
             initialData?.deadline ? dateToDateTimeLocalString(initialData?.deadline) : undefined
           }

@@ -9,7 +9,7 @@ import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface ChatbotBlockAttributes {
   chatbotConfigurationId: string | undefined
-  courseId: string
+  courseId: string | undefined
 }
 
 const ChatbotBlockConfiguration: BlockConfiguration<ChatbotBlockAttributes> = {

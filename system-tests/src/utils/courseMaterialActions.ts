@@ -12,7 +12,7 @@ const DIALOG_STATE_SELECTOR = `[data-testid="dialog-decision-state"]`
 async function waitForDialogDecision(page: Page, timeout?: number) {
   await page
     .locator(`${DIALOG_STATE_SELECTOR}[data-dialogs-ready="true"]`)
-    .waitFor({ state: "attached", timeout })
+    .waitFor({ state: "attached", ...(timeout !== undefined ? { timeout } : {}) })
 }
 
 /** The dialog the frontend has currently decided to show, e.g. "choose-instance", "ai-usage-notice"

@@ -13,15 +13,17 @@ import { editPageRoute, manageCourseRoute } from "@/shared-module/common/utils/r
 import { currentCourseIdAtom, currentPageIdAtom } from "@/state/course-material/selectors"
 
 export interface UseQuickActionsItemsProps {
-  menuOptions?: {
-    type: "link" | "action" | "separator"
-    label?: string
-    href?: string
-    onAction?: () => void
-    icon?: ReactElement
-    isDestructive?: boolean
-  }[]
-  courseId?: string | null
+  menuOptions?:
+    | {
+        type: "link" | "action" | "separator"
+        label?: string
+        href?: string
+        onAction?: () => void
+        icon?: ReactElement
+        isDestructive?: boolean
+      }[]
+    | undefined
+  courseId?: string | null | undefined
   onMenuClose?: () => void
   onCourseSettingsOpen?: () => void
 }
@@ -139,16 +141,18 @@ export function useQuickActionsItems({
         // oxlint-disable-next-line i18next/no-literal-string
         id: `quick-${item.href || item.label || idx}`,
         type: item.type,
-        label: item.label,
-        href: item.href,
-        onAction: item.onAction
-          ? () => {
-              item.onAction?.()
-              onMenuClose?.()
+        ...(item.label !== undefined ? { label: item.label } : {}),
+        ...(item.href !== undefined ? { href: item.href } : {}),
+        ...(item.onAction
+          ? {
+              onAction: () => {
+                item.onAction?.()
+                onMenuClose?.()
+              },
             }
-          : undefined,
-        icon: item.icon,
-        isDestructive: item.isDestructive,
+          : {}),
+        ...(item.icon !== undefined ? { icon: item.icon } : {}),
+        ...(item.isDestructive !== undefined ? { isDestructive: item.isDestructive } : {}),
       }
     })
   }, [quickActions, onMenuClose])

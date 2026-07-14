@@ -70,7 +70,7 @@ const EditExerciseRepositoryForm: React.FC<Props> = ({
         label={t("exercise-repositories-git-url")}
         placeholder={t("exercise-repositories-git-url-placeholder")}
         {...register("gitUrl", { required: t("required-field") })}
-        error={errors["gitUrl"]?.message}
+        {...(errors["gitUrl"]?.message !== undefined ? { error: errors["gitUrl"]?.message } : {})}
       />
       <Button
         type="submit"

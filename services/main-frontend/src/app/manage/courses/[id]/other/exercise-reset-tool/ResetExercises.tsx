@@ -103,9 +103,9 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         <SelectedUsers
           selectedUsers={selectedUsers}
           removeUser={removeUser}
-          users={users}
           isLoading={isLoading}
           addUser={addUser}
+          {...(users !== undefined ? { users } : {})}
         />
       </div>
 

@@ -119,12 +119,12 @@ const DropdownMenu: React.FC<MenuProps> = ({
         ariaLabel={controlButtonAriaLabel}
         tooltipText={controlButtonTooltipText}
         showChevron={false}
-        className={controlButtonClassName}
+        {...(controlButtonClassName !== undefined ? { className: controlButtonClassName } : {})}
       >
         <Hamburger
           isActive={isOpen}
           buttonWidth={controlButtonIconWidth}
-          barColor={controlButtonIconColor}
+          {...(controlButtonIconColor !== undefined ? { barColor: controlButtonIconColor } : {})}
         />
       </TopBarMenuButton>
       <Popover placement="bottom end" offset={8} className={popoverStyle}>
@@ -161,7 +161,11 @@ const DropdownMenu: React.FC<MenuProps> = ({
 
               if (item.type === "link") {
                 return (
-                  <MenuItem key={item.id} href={item.href} className={itemRow}>
+                  <MenuItem
+                    key={item.id}
+                    {...(item.href !== undefined ? { href: item.href } : {})}
+                    className={itemRow}
+                  >
                     {icon}
                     <span>{item.label}</span>
                   </MenuItem>
@@ -171,8 +175,8 @@ const DropdownMenu: React.FC<MenuProps> = ({
               return (
                 <MenuItem
                   key={item.id}
-                  onAction={item.onAction}
-                  isDisabled={item.disabled}
+                  {...(item.onAction !== undefined ? { onAction: item.onAction } : {})}
+                  {...(item.disabled !== undefined ? { isDisabled: item.disabled } : {})}
                   className={css`
                     ${itemRow};
                     ${item.isDestructive ? "color: #dc2626; font-weight: 600;" : ""};

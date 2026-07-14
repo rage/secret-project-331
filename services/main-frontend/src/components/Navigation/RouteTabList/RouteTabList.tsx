@@ -55,14 +55,14 @@ function RouteTabListStandalone({
   )
 
   const state = useTabListState({
-    selectedKey,
-    defaultSelectedKey: tabs[0]?.key,
+    ...(selectedKey !== undefined ? { selectedKey } : {}),
+    ...(tabs[0]?.key !== undefined ? { defaultSelectedKey: tabs[0].key } : {}),
     items,
   })
 
   const { tabListProps } = useTabList(
     {
-      orientation,
+      ...(orientation !== undefined ? { orientation } : {}),
       "aria-label": t("tab-aria-label-default"),
     },
     state,

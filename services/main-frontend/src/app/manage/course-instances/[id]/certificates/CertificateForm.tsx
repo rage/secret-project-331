@@ -97,8 +97,6 @@ const CertificateForm: React.FC<Props> = ({
       dateTextAnchor: configuration?.certificate_date_text_anchor ?? "start",
       locale: configuration?.certificate_locale ?? "en",
       paperSize: configuration?.paper_size ?? "horizontal-a4",
-      backgroundSvg: undefined,
-      overlaySvg: undefined,
       clearCurrentOverlaySvg: false,
       renderGrade: configuration?.render_certificate_grade ?? false,
       gradePosX: configuration?.certificate_grade_x_pos ?? null,
@@ -126,7 +124,7 @@ const CertificateForm: React.FC<Props> = ({
     >
       <TextField
         id={"locale"}
-        error={errors.locale}
+        {...(errors.locale ? { error: errors.locale } : {})}
         label={t("label-locale")}
         {...register("locale", { required: t("required-field") })}
       />
@@ -140,7 +138,7 @@ const CertificateForm: React.FC<Props> = ({
         <SetHeightInSystemTests heightPx={100}>
           <FileField
             id={"backgroundSvg"}
-            error={errors.backgroundSvg}
+            {...(errors.backgroundSvg ? { error: errors.backgroundSvg } : {})}
             label={
               configuration
                 ? t("label-background-svg-current", { path: configuration.background_svg_path })
@@ -158,7 +156,7 @@ const CertificateForm: React.FC<Props> = ({
           />
           <FileField
             id={"overlaySvg"}
-            error={errors.overlaySvg}
+            {...(errors.overlaySvg ? { error: errors.overlaySvg } : {})}
             label={
               configuration
                 ? configuration.overlay_svg_path
@@ -184,25 +182,25 @@ const CertificateForm: React.FC<Props> = ({
         <h3>{t("certificate-owner-name")}</h3>
         <TextField
           id={"ownerNamePosX"}
-          error={errors.ownerNamePosX}
+          {...(errors.ownerNamePosX ? { error: errors.ownerNamePosX } : {})}
           label={t("label-position-x")}
           {...register("ownerNamePosX", { required: t("required-field") })}
         />
         <TextField
           id={"ownerNamePosY"}
-          error={errors.ownerNamePosY}
+          {...(errors.ownerNamePosY ? { error: errors.ownerNamePosY } : {})}
           label={t("label-position-y")}
           {...register("ownerNamePosY", { required: t("required-field") })}
         />
         <TextField
           id={"ownerNameFontSize"}
-          error={errors.ownerNameFontSize}
+          {...(errors.ownerNameFontSize ? { error: errors.ownerNameFontSize } : {})}
           label={t("label-font-size")}
           {...register("ownerNameFontSize", { required: t("required-field") })}
         />
         <TextField
           id={"ownerNameTextColor"}
-          error={errors.ownerNameTextColor}
+          {...(errors.ownerNameTextColor ? { error: errors.ownerNameTextColor } : {})}
           label={t("label-text-color")}
           {...register("ownerNameTextColor", { required: t("required-field") })}
         />
@@ -218,25 +216,25 @@ const CertificateForm: React.FC<Props> = ({
         <h3>{t("certificate-validation-url")}</h3>
         <TextField
           id={"validateUrlPosX"}
-          error={errors.validateUrlPosX}
+          {...(errors.validateUrlPosX ? { error: errors.validateUrlPosX } : {})}
           label={t("label-position-x")}
           {...register("validateUrlPosX", { required: t("required-field") })}
         />
         <TextField
           id={"validateUrlPosY"}
-          error={errors.validateUrlPosY}
+          {...(errors.validateUrlPosY ? { error: errors.validateUrlPosY } : {})}
           label={t("label-position-y")}
           {...register("validateUrlPosY", { required: t("required-field") })}
         />
         <TextField
           id={"validateUrlFontSize"}
-          error={errors.validateUrlFontSize}
+          {...(errors.validateUrlFontSize ? { error: errors.validateUrlFontSize } : {})}
           label={t("label-font-size")}
           {...register("validateUrlFontSize", { required: t("required-field") })}
         />
         <TextField
           id={"validateUrlTextColor"}
-          error={errors.validateUrlTextColor}
+          {...(errors.validateUrlTextColor ? { error: errors.validateUrlTextColor } : {})}
           label={t("label-text-color")}
           {...register("validateUrlTextColor", { required: t("required-field") })}
         />
@@ -252,25 +250,25 @@ const CertificateForm: React.FC<Props> = ({
         <h3>{t("date")}</h3>
         <TextField
           id={"datePosX"}
-          error={errors.datePosX}
+          {...(errors.datePosX ? { error: errors.datePosX } : {})}
           label={t("label-position-x")}
           {...register("datePosX", { required: t("required-field") })}
         />
         <TextField
           id={"datePosY"}
-          error={errors.datePosY}
+          {...(errors.datePosY ? { error: errors.datePosY } : {})}
           label={t("label-position-y")}
           {...register("datePosY", { required: t("required-field") })}
         />
         <TextField
           id={"dateFontSize"}
-          error={errors.dateFontSize}
+          {...(errors.dateFontSize ? { error: errors.dateFontSize } : {})}
           label={t("label-font-size")}
           {...register("dateFontSize", { required: t("required-field") })}
         />
         <TextField
           id={"dateTextColor"}
-          error={errors.dateTextColor}
+          {...(errors.dateTextColor ? { error: errors.dateTextColor } : {})}
           label={t("label-text-color")}
           {...register("dateTextColor", { required: t("required-field") })}
         />
@@ -303,35 +301,33 @@ const CertificateForm: React.FC<Props> = ({
             <h3>{t("grade")}</h3>
             <TextField
               id={"gradePosX"}
-              error={errors.gradePosX}
+              {...(errors.gradePosX ? { error: errors.gradePosX } : {})}
               label={t("label-position-x")}
-              {...register("gradePosX", {
-                required: showGradeFields ? t("required-field") : undefined,
-              })}
+              {...register("gradePosX", showGradeFields ? { required: t("required-field") } : {})}
             />
             <TextField
               id={"gradePosY"}
-              error={errors.gradePosY}
+              {...(errors.gradePosY ? { error: errors.gradePosY } : {})}
               label={t("label-position-y")}
-              {...register("gradePosY", {
-                required: showGradeFields ? t("required-field") : undefined,
-              })}
+              {...register("gradePosY", showGradeFields ? { required: t("required-field") } : {})}
             />
             <TextField
               id={"gradeFontSize"}
-              error={errors.gradeFontSize}
+              {...(errors.gradeFontSize ? { error: errors.gradeFontSize } : {})}
               label={t("label-font-size")}
-              {...register("gradeFontSize", {
-                required: showGradeFields ? t("required-field") : undefined,
-              })}
+              {...register(
+                "gradeFontSize",
+                showGradeFields ? { required: t("required-field") } : {},
+              )}
             />
             <TextField
               id={"gradeTextColor"}
-              error={errors.gradeTextColor}
+              {...(errors.gradeTextColor ? { error: errors.gradeTextColor } : {})}
               label={t("label-text-color")}
-              {...register("gradeTextColor", {
-                required: showGradeFields ? t("required-field") : undefined,
-              })}
+              {...register(
+                "gradeTextColor",
+                showGradeFields ? { required: t("required-field") } : {},
+              )}
             />
             <SelectField
               id={"gradeTextAnchor"}

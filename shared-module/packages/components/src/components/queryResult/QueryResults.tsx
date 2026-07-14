@@ -82,16 +82,16 @@ export function QueryResults<E, TQueries extends QueryTuple<E>>({
   return (
     <AnimatedQueryFrame
       themeMode={themeMode}
-      minHeight={minHeight}
-      loadingDelayMs={loadingDelayMs}
       initialLoading={state.initialLoading}
       refreshing={state.refreshing}
       blockingError={state.blockingError}
       staleError={state.staleError}
-      error={state.error}
       retry={retry}
-      renderBlockingError={renderBlockingError}
-      renderStaleError={renderStaleError}
+      {...(minHeight !== undefined ? { minHeight } : {})}
+      {...(loadingDelayMs !== undefined ? { loadingDelayMs } : {})}
+      {...(state.error !== undefined ? { error: state.error } : {})}
+      {...(renderBlockingError !== undefined ? { renderBlockingError } : {})}
+      {...(renderStaleError !== undefined ? { renderStaleError } : {})}
     >
       {body}
     </AnimatedQueryFrame>

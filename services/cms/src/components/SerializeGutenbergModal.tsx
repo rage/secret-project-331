@@ -30,7 +30,7 @@ const SerializeGutenbergModal: React.FC<React.PropsWithChildren<SerializeGutenbe
           height="90vh"
           width="80vw"
           defaultLanguage="html"
-          defaultValue={serialized ?? undefined}
+          {...(serialized !== null ? { defaultValue: serialized } : {})}
         />
       </Dialog>
     </div>

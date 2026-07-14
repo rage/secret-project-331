@@ -275,7 +275,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("public_url")}
             type={"text"}
-            error={!validURL(service.public_url) ? t("error-title") : undefined}
+            {...(!validURL(service.public_url) ? { error: t("error-title") } : {})}
           />
           <ContentArea
             title={t("title-internal-url")}
@@ -284,7 +284,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("internal_url")}
             type={"text"}
-            error={!validURL(service.internal_url ?? "") ? t("error-title") : undefined}
+            {...(!validURL(service.internal_url ?? "") ? { error: t("error-title") } : {})}
           />
           <ContentArea
             title={t("title-reprocessing-submissions")}
@@ -293,7 +293,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
-            error={service.max_reprocessing_submissions_at_once < 0 ? t("error-title") : undefined}
+            {...(service.max_reprocessing_submissions_at_once < 0
+              ? { error: t("error-title") }
+              : {})}
           />
         </div>
         <div

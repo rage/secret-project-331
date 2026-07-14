@@ -40,7 +40,7 @@ const BASE_OUTPUT_SCHEMA = {
 
 const buildParagraphSuggestionMeta = (
   meta?: ParagraphAbilityInputMeta,
-): ParagraphSuggestionRequest["meta"] => {
+): Exclude<ParagraphSuggestionRequest["meta"], undefined> => {
   if (!meta) {
     return null
   }

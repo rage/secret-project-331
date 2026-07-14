@@ -163,7 +163,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       description,
       errorMessage: resolvedError,
       name: field.name,
-      autoComplete,
+      ...(autoComplete !== undefined ? { autoComplete } : {}),
     },
     state,
     buttonRef,

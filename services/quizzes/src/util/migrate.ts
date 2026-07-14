@@ -43,6 +43,8 @@ function migrateQuizItemOption(oldQuizItemOption: unknown): OldQuizItemOption {
     order: (oldQuizItemOption as OldQuizItemOption).order,
     title: (oldQuizItemOption as OldQuizItemOption).title,
     updatedAt: (oldQuizItemOption as OldQuizItemOption).updatedAt,
-    quizItemId: (oldQuizItemOption as OldQuizItemOption).quizItemId,
+    ...((oldQuizItemOption as OldQuizItemOption).quizItemId !== undefined
+      ? { quizItemId: (oldQuizItemOption as OldQuizItemOption).quizItemId }
+      : {}),
   }
 }

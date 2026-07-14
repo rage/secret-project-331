@@ -155,7 +155,7 @@ const uploadPublicSpec = async (
   const res = await fetch(uploadUrl, {
     method: "POST",
     headers: { ...headers, ...form.getHeaders() },
-    body: form as unknown as RequestInit["body"],
+    body: form as unknown as Exclude<RequestInit["body"], undefined>,
   })
   if (!res.ok) {
     throw new Error(`Upload failed: ${res.status} ${res.statusText}`)

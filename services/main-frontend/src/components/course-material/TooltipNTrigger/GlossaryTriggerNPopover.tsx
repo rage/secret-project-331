@@ -116,7 +116,7 @@ export const GlossaryTriggerNPopover = ({
         <span {...hoverProps}>
           <StyledButton
             ref={buttonRef}
-            className={className}
+            {...(className !== undefined ? { className } : {})}
             data-popover-open={popoverOpen}
             // Open the popover on press start so it appears immediately
             // when TooltipTrigger hides the tooltip on pointer/key down.

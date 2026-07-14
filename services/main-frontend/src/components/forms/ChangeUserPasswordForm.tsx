@@ -100,7 +100,9 @@ const ChangeUserPasswordForm: React.FC = () => {
         type="password"
         placeholder={t("enter-your-current-password")}
         {...register("current_password", { required: t("required-field") })}
-        error={errors.current_password?.message}
+        {...(errors.current_password?.message !== undefined
+          ? { error: errors.current_password.message }
+          : {})}
         required
       />
 
@@ -112,7 +114,9 @@ const ChangeUserPasswordForm: React.FC = () => {
           required: t("required-field"),
           minLength: { value: 8, message: t("password-must-have-at-least-8-characters") },
         })}
-        error={errors.new_password?.message}
+        {...(errors.new_password?.message !== undefined
+          ? { error: errors.new_password.message }
+          : {})}
         required
       />
 
@@ -124,7 +128,9 @@ const ChangeUserPasswordForm: React.FC = () => {
           required: t("required-field"),
           validate: (value) => value === newPassword || t("passwords-dont-match"),
         })}
-        error={errors.password_confirmation?.message}
+        {...(errors.password_confirmation?.message !== undefined
+          ? { error: errors.password_confirmation.message }
+          : {})}
         required
       />
 

@@ -464,7 +464,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 <CheckBox
                   label={t("use-course-default-peer-review-config")}
                   onChangeByValue={(checked) => toggleUseDefaultPeerOrSelfReviewConfig(checked)}
-                  checked={exerciseAttributes.use_course_default_peer_review}
+                  {...(exerciseAttributes.use_course_default_peer_review !== undefined
+                    ? { checked: exerciseAttributes.use_course_default_peer_review }
+                    : {})}
                 />
               )}
               {exerciseAttributes.use_course_default_peer_review && (

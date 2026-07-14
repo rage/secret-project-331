@@ -64,7 +64,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
       public_spec: coursematerialExerciseTask.public_spec,
       submission_result: {
         submission: previousSubmission,
-        grading: coursematerialExerciseTask.previous_submission_grading,
+        grading: coursematerialExerciseTask.previous_submission_grading ?? null,
         model_solution_spec: coursematerialExerciseTask.model_solution_spec,
         exercise_task_exercise_service_slug: coursematerialExerciseTask.exercise_service_slug,
       },

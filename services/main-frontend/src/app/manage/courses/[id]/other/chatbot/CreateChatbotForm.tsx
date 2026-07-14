@@ -60,7 +60,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
         })}
       >
         <TextField
-          error={errors.name?.message}
+          {...(errors.name?.message !== undefined ? { error: errors.name?.message } : {})}
           label={t("label-name")}
           {...register("name", {
             required: t("required-field"),

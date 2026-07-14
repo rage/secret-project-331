@@ -134,7 +134,7 @@ export async function execWithTimeout(
     socket.onclose = () => {
       // Prefer the Kubernetes status channel's exit code when available.
       const exitCode = observedStatus ? observedStatusExitCode : undefined
-      resolveOnce({ timedOut: false, exitCode })
+      resolveOnce({ timedOut: false, ...(exitCode !== undefined ? { exitCode } : {}) })
     }
   })
   const timeoutPromise = new Promise<{ timedOut: boolean; exitCode?: number }>((resolve) => {

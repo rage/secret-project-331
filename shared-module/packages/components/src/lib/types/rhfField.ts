@@ -6,11 +6,11 @@ import { useController } from "react-hook-form"
 export interface RhfFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> {
   name: N
   control: Control<T>
-  rules?: RegisterOptions<T, N>
+  rules?: RegisterOptions<T, N> | undefined
 }
 
 type UseRhfFieldArgs<T extends FieldValues, N extends Path<T>> = RhfFieldProps<T, N> & {
-  errorMessage?: ReactNode
+  errorMessage?: ReactNode | undefined
 }
 
 /** Wires react-hook-form controller and resolves error/invalid state for field UI. */
@@ -18,7 +18,11 @@ export function useRhfField<T extends FieldValues, N extends Path<T> = Path<T>>(
   props: UseRhfFieldArgs<T, N>,
 ) {
   const { name, control, rules, errorMessage } = props
-  const { field, fieldState } = useController({ name, control, rules })
+  const { field, fieldState } = useController({
+    name,
+    control,
+    ...(rules !== undefined ? { rules } : {}),
+  })
   const resolvedError = errorMessage ?? fieldState.error?.message
   const isInvalid = fieldState.invalid || Boolean(resolvedError)
   return { field, fieldState, resolvedError, isInvalid }

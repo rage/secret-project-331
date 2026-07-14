@@ -339,7 +339,7 @@ const CreateAccountForm: React.FC = () => {
               required: t("required-field"),
             })}
             required={true}
-            error={errors.first_name}
+            {...(errors.first_name ? { error: errors.first_name } : {})}
           />
 
           <TextField
@@ -349,7 +349,7 @@ const CreateAccountForm: React.FC = () => {
               required: t("required-field"),
             })}
             required={true}
-            error={errors.last_name}
+            {...(errors.last_name ? { error: errors.last_name } : {})}
           />
 
           <Controller
@@ -365,7 +365,7 @@ const CreateAccountForm: React.FC = () => {
                 options={countriesNames}
                 onChangeByValue={(value) => field.onChange(value)}
                 value={field.value}
-                error={errors.country?.message}
+                {...(errors.country?.message ? { error: errors.country.message } : {})}
               />
             )}
           />
@@ -382,7 +382,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.email}
+            {...(errors.email ? { error: errors.email } : {})}
           />
           <TextField
             label={t("password")}
@@ -396,7 +396,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.password}
+            {...(errors.password ? { error: errors.password } : {})}
           />
 
           <TextField
@@ -414,7 +414,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.password_confirmation}
+            {...(errors.password_confirmation ? { error: errors.password_confirmation } : {})}
           />
 
           <CheckBox

@@ -34,16 +34,16 @@ import {
 
 export interface NonPickerSegmentedFieldProps {
   aria: DateFieldAria
-  className?: string
+  className?: string | undefined
   description?: React.ReactNode
   errorMessage?: React.ReactNode
-  externalOnBlur?: React.FocusEventHandler<HTMLElement>
-  externalOnFocus?: React.FocusEventHandler<HTMLElement>
+  externalOnBlur?: React.FocusEventHandler<HTMLElement> | undefined
+  externalOnFocus?: React.FocusEventHandler<HTMLElement> | undefined
   fieldRef: React.RefObject<HTMLDivElement | null>
   fieldSize: FieldSize
   hiddenInputRef: React.RefObject<HTMLInputElement | null>
   hiddenInputValue: string
-  inputRef?: React.Ref<HTMLInputElement>
+  inputRef?: React.Ref<HTMLInputElement> | undefined
   iconEnd?: React.ReactNode
   iconStart?: React.ReactNode
   isFocused: boolean
@@ -95,7 +95,6 @@ export function NonPickerSegmentedField({
 
   return (
     <FieldShell
-      className={className}
       controlClassName={cx(resolveControlSurfaceCss(fieldSize, layout === "floating"))}
       controlProps={{
         "data-disabled": resolvedState.isDisabled ? dataStateTrue : dataStateFalse,
@@ -104,13 +103,14 @@ export function NonPickerSegmentedField({
         "data-has-icon-start": iconStart ? dataStateTrue : undefined,
       }}
       label={label}
-      labelProps={label ? (aria.labelProps as React.HTMLAttributes<HTMLElement>) : undefined}
       description={description}
       descriptionProps={aria.descriptionProps as React.HTMLAttributes<HTMLElement>}
       errorMessage={errorMessage}
       errorMessageProps={aria.errorMessageProps as React.HTMLAttributes<HTMLElement>}
       notice={notice}
-      noticeId={notice ? noticeId : undefined}
+      {...(className !== undefined ? { className } : {})}
+      {...(label ? { labelProps: aria.labelProps as React.HTMLAttributes<HTMLElement> } : {})}
+      {...(notice ? { noticeId } : {})}
       isDisabled={resolvedState.isDisabled}
       isRequired={resolvedState.isRequired}
       layout={layout}

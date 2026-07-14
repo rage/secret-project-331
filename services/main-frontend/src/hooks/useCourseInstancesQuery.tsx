@@ -39,7 +39,7 @@ const useCourseInstancesQuery = (
   })
 
   return useQuery({
-    ...(generatedOptions as UseQueryOptions<CourseInstance[], Error, CourseInstance[]>),
+    ...(generatedOptions as unknown as UseQueryOptions<CourseInstance[], Error, CourseInstance[]>),
     ...options,
   })
 }

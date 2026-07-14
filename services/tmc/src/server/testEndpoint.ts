@@ -37,7 +37,7 @@ function reportBackgroundFailure(err: unknown, request: Request): void {
       service: "tmc",
       error_source: "backend",
       message,
-      stack_trace: stack,
+      stack_trace: stack ?? null,
       path,
       details: {
         kind: "tmc-background-test-run",

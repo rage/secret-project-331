@@ -94,7 +94,7 @@ const ResetPassword: React.FC = () => {
             },
           })}
           required
-          error={errors.email}
+          {...(errors.email ? { error: errors.email } : {})}
         />
         <Button
           variant="primary"

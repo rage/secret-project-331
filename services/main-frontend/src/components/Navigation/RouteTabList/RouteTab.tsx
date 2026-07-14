@@ -32,7 +32,7 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
   const { tabProps, isSelected, isDisabled } = useTab(
     {
       key: item.key,
-      isDisabled: item.disabled,
+      ...(item.disabled !== undefined ? { isDisabled: item.disabled } : {}),
     },
     state,
     ref,
@@ -48,10 +48,21 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
   }
 
   const { "aria-controls": _ariaControls, ...restTabProps } = tabProps
+  // next/link declares onMouseEnter/onClick/onTouchStart as optional but without `undefined`, so
+  // under exactOptionalPropertyTypes they cannot receive the possibly-undefined handlers that
+  // mergeProps produces. Pull them out and only spread them back when actually defined.
+  const { onMouseEnter, onClick, onTouchStart, ...linkProps } = mergeProps(
+    restTabProps,
+    focusProps,
+    hoverProps,
+  )
 
   return (
     <Link
-      {...mergeProps(restTabProps, focusProps, hoverProps)}
+      {...linkProps}
+      {...(onMouseEnter ? { onMouseEnter } : {})}
+      {...(onClick ? { onClick } : {})}
+      {...(onTouchStart ? { onTouchStart } : {})}
       ref={ref}
       href={item.href}
       replace

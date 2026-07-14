@@ -47,16 +47,16 @@ type ViewPortDict = { [Property in keyof typeof viewPorts]: number }
 interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   headless: boolean | undefined
   snapshotName: string
-  useCoordinatesFromTheBottomForSavingYCoordinates?: boolean
-  waitForTheseToBeVisibleAndStable?: Locator[]
-  waitForTheseToBeGone?: Locator[]
+  useCoordinatesFromTheBottomForSavingYCoordinates?: boolean | undefined
+  waitForTheseToBeVisibleAndStable?: Locator[] | undefined
+  waitForTheseToBeGone?: Locator[] | undefined
   clearNotifications?: boolean
   dontWaitForSpinnersToDisappear?: boolean
-  beforeScreenshot?: () => Promise<void>
-  axeSkip?: string[]
+  beforeScreenshot?: (() => Promise<void>) | undefined
+  axeSkip?: string[] | undefined
   skipMobile?: boolean
   /** If defined, the page will scroll to this y coordinate before taking the screenshot */
-  scrollToYCoordinate?: number | ViewPortDict
+  scrollToYCoordinate?: number | ViewPortDict | undefined
   /** True by default. See the react component HideTextInSystemTests and the hook useShouldHideStuffFromSystemTestScreenshots on how to use this. */
   replaceSomePartsWithPlaceholders?: boolean
   /** True by default. Waits until MessageChannelIFrame instances have received state and set a reasonable height. */

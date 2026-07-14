@@ -172,7 +172,7 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
 
   return (
     <FieldShell
-      className={className}
+      {...(className !== undefined ? { className } : {})}
       controlClassName={rootControlCss}
       controlProps={{
         "data-field-control": "true",
@@ -233,10 +233,10 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
           <YearMonthPicker
             selectedYear={selectedValue?.year ?? null}
             selectedMonth={selectedValue?.month ?? null}
-            minYear={minValue?.year}
-            minMonth={minValue?.month}
-            maxYear={maxValue?.year}
-            maxMonth={maxValue?.month}
+            {...(minValue?.year !== undefined ? { minYear: minValue.year } : {})}
+            {...(minValue?.month !== undefined ? { minMonth: minValue.month } : {})}
+            {...(maxValue?.year !== undefined ? { maxYear: maxValue.year } : {})}
+            {...(maxValue?.month !== undefined ? { maxMonth: maxValue.month } : {})}
             isDisabled={isDisabled}
             isReadOnly={isReadOnly}
             onSelect={(year, month) => {

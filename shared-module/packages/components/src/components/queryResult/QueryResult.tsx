@@ -61,16 +61,16 @@ export function QueryResult<T, E = unknown>({
   return (
     <AnimatedQueryFrame
       themeMode={themeMode}
-      minHeight={minHeight}
-      loadingDelayMs={loadingDelayMs}
+      {...(minHeight !== undefined ? { minHeight } : {})}
+      {...(loadingDelayMs !== undefined ? { loadingDelayMs } : {})}
       initialLoading={state.initialLoading}
       refreshing={state.refreshing}
       blockingError={state.blockingError}
       staleError={state.staleError}
-      error={state.error}
+      {...(state.error !== undefined ? { error: state.error } : {})}
       retry={retry}
-      renderBlockingError={renderBlockingError}
-      renderStaleError={renderStaleError}
+      {...(renderBlockingError !== undefined ? { renderBlockingError } : {})}
+      {...(renderStaleError !== undefined ? { renderStaleError } : {})}
     >
       {body}
     </AnimatedQueryFrame>

@@ -21,14 +21,16 @@ export interface UserMenuItem {
 }
 
 export interface UseUserMenuItemsProps {
-  menuOptions?: {
-    type: "link" | "action" | "separator"
-    label?: string
-    href?: string
-    onAction?: () => void
-    icon?: ReactElement
-    isDestructive?: boolean
-  }[]
+  menuOptions?:
+    | {
+        type: "link" | "action" | "separator"
+        label?: string
+        href?: string
+        onAction?: () => void
+        icon?: ReactElement
+        isDestructive?: boolean
+      }[]
+    | undefined
   onMenuClose?: () => void
 }
 
@@ -127,17 +129,20 @@ export function useUserMenuItems({
         // oxlint-disable-next-line i18next/no-literal-string
         id: `user-${"href" in item ? item.href : "label" in item ? item.label : i}`,
         type: item.type,
-        label: "label" in item ? item.label : undefined,
-        href: "href" in item ? item.href : undefined,
-        onAction:
-          "onAction" in item && item.onAction
-            ? () => {
+        ...("label" in item && item.label !== undefined ? { label: item.label } : {}),
+        ...("href" in item && item.href !== undefined ? { href: item.href } : {}),
+        ...("onAction" in item && item.onAction
+          ? {
+              onAction: () => {
                 item.onAction?.()
                 onMenuClose?.()
-              }
-            : undefined,
-        icon: "icon" in item ? item.icon : undefined,
-        isDestructive: "isDestructive" in item ? item.isDestructive : undefined,
+              },
+            }
+          : {}),
+        ...("icon" in item && item.icon !== undefined ? { icon: item.icon } : {}),
+        ...("isDestructive" in item && item.isDestructive !== undefined
+          ? { isDestructive: item.isDestructive }
+          : {}),
       }
     })
   }, [userMenuItems, onMenuClose])

@@ -73,7 +73,7 @@ const ExerciseServiceCreationModal: React.FC<
             editing={true}
             onChange={onChange(SERVICE_PUBLIC_URL)}
             type={"text"}
-            error={!validURL(exercise_service.public_url) ? t("error-title") : undefined}
+            {...(!validURL(exercise_service.public_url) ? { error: t("error-title") } : {})}
           />
           <ContentArea
             title={t("title-internal-url")}
@@ -88,11 +88,9 @@ const ExerciseServiceCreationModal: React.FC<
             editing={true}
             onChange={onChange(MAX_REPROCESSING_SUBMISSION_AT_ONCE)}
             type={"number"}
-            error={
-              exercise_service.max_reprocessing_submissions_at_once < 0
-                ? t("error-title")
-                : undefined
-            }
+            {...(exercise_service.max_reprocessing_submissions_at_once < 0
+              ? { error: t("error-title") }
+              : {})}
           />
         </div>
 

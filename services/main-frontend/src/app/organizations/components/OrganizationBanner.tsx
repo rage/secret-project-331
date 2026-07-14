@@ -66,7 +66,10 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
         `}
       >
         <OrganizationIcon />
-        <OrganizationText name={organization.name} hidden={organization.hidden} />
+        <OrganizationText
+          name={organization.name}
+          {...(organization.hidden !== undefined ? { hidden: organization.hidden } : {})}
+        />
         <div
           className={css`
             display: flex;

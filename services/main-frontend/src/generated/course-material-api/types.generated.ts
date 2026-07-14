@@ -1024,7 +1024,11 @@ export type StudentExerciseTaskSubmissionResult = {
 }
 
 export type TeacherDecisionType =
-  "FullPoints" | "ZeroPoints" | "CustomPoints" | "SuspectedPlagiarism" | "RejectAndReset"
+  | "FullPoints"
+  | "ZeroPoints"
+  | "CustomPoints"
+  | "SuspectedPlagiarism"
+  | "RejectAndReset"
 
 export type Term = {
   course_id: string
@@ -1161,7 +1165,8 @@ export type UserModuleCompletionStatus = {
 }
 
 export type UserPointsUpdateStrategy =
-  "CanAddPointsButCannotRemovePoints" | "CanAddPointsAndCanRemovePoints"
+  | "CanAddPointsButCannotRemovePoints"
+  | "CanAddPointsAndCanRemovePoints"
 
 export type DeleteCourseMaterialGlossaryTermData = {
   body?: never

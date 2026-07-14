@@ -31,7 +31,12 @@ function StatesStory() {
 
   return (
     <div className={stackCss}>
-      <RadioGroup name="delivery" control={control} label="Delivery speed" errorMessage="Choose one">
+      <RadioGroup
+        name="delivery"
+        control={control}
+        label="Delivery speed"
+        errorMessage="Choose one"
+      >
         <Radio label="Standard" value="standard" />
         <Radio label="Express" value="express" />
       </RadioGroup>

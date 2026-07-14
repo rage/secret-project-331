@@ -30,7 +30,12 @@ function StatesStory() {
   return (
     <div className={stackCss}>
       <OtpField name="code" control={control} label="Default" />
-      <OtpField name="code" control={invalidControl} label="Invalid" errorMessage="Code is required" />
+      <OtpField
+        name="code"
+        control={invalidControl}
+        label="Invalid"
+        errorMessage="Code is required"
+      />
       <OtpField name="code" control={disabledControl} label="Disabled" isDisabled />
     </div>
   )

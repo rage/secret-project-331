@@ -32,7 +32,12 @@ function StatesStory() {
       <Switch name="default" control={control} label="Default" />
       <Switch name="checked" control={control} label="Checked" />
       <Switch name="disabled" control={control} label="Disabled" isDisabled />
-      <Switch name="invalid" control={control} label="Invalid" errorMessage="This setting is required" />
+      <Switch
+        name="invalid"
+        control={control}
+        label="Invalid"
+        errorMessage="This setting is required"
+      />
     </div>
   )
 }
@@ -42,11 +47,7 @@ function ControlledSwitchStory() {
   const enabled = useWatch({ control, name: "enabled" })
 
   return (
-    <Switch
-      name="enabled"
-      control={control}
-      label={`Controlled (${enabled ? "on" : "off"})`}
-    />
+    <Switch name="enabled" control={control} label={`Controlled (${enabled ? "on" : "off"})`} />
   )
 }
 

@@ -22,7 +22,7 @@ export function packLanes<T>(
   packed: PackedPeriod<T>[]
   laneCount: number
 } {
-  const sorted = [...periods].sort((a, b) => a.start - b.start || a.end - b.end)
+  const sorted = periods.toSorted((a, b) => a.start - b.start || a.end - b.end)
   const laneEnds: number[] = [] // last end-time per open lane
   const packed = sorted.map((period) => {
     let lane = laneEnds.findIndex((end) => end + minGap <= period.start)

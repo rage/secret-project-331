@@ -85,8 +85,8 @@ const ModuleCompletionsTable: React.FC<ModuleCompletionsTableProps> = ({ enrollm
   }
 
   const moduleName = (courseModuleId: string): string => {
-    const module = enrollment.course_modules.find((m) => m.id === courseModuleId)
-    return module?.name ?? t("default-module")
+    const courseModule = enrollment.course_modules.find((m) => m.id === courseModuleId)
+    return courseModule?.name ?? t("default-module")
   }
 
   const maxGap = Math.max(1, ...timings.map((row) => row.gapSeconds ?? 0))

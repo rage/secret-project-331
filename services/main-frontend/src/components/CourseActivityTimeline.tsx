@@ -95,7 +95,7 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
   const completions = enrollment.course_module_completions
   const enrolledMs = new Date(enrollment.first_enrolled_at).getTime()
 
-  const modules = [...enrollment.course_modules].sort((a, b) => a.order_number - b.order_number)
+  const modules = enrollment.course_modules.toSorted((a, b) => a.order_number - b.order_number)
   const colorByModuleId = new Map(modules.map((m, i) => [m.id, colorAt(SERIES_COLORS, i)]))
   const labelByModuleId = new Map(modules.map((m) => [m.id, m.name ?? t("default-module")]))
   const bucketKey = (moduleId: string | null | undefined): string =>
@@ -120,7 +120,7 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
   const hasData = (key: string): boolean =>
     enrichedSubmissions.some((s) => bucketKey(s.course_module_id) === key) ||
     completions.some((c) => bucketKey(c.course_module_id) === key)
-  const seriesKeys = [...modules.map((m) => m.id), OTHER_KEY].filter(hasData)
+  const seriesKeys = [...modules.map((m) => m.id), OTHER_KEY].filter((key) => hasData(key))
 
   const moduleSeries = seriesKeys.map((key) => {
     const submissionData = enrichedSubmissions
@@ -150,10 +150,10 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
           c.needs_to_be_reviewed ? t("label-review") : t("label-completed"),
           dateToString(when),
         ]
-        if (row?.moduleSeconds != null) {
+        if (row && row.moduleSeconds !== null) {
           tip.push(t("tooltip-time-in-module", { duration: formatDuration(row.moduleSeconds, t) }))
         }
-        if (row?.sinceEnrollSeconds != null) {
+        if (row && row.sinceEnrollSeconds !== null) {
           tip.push(
             t("tooltip-since-enrolled", { duration: formatDuration(row.sinceEnrollSeconds, t) }),
           )

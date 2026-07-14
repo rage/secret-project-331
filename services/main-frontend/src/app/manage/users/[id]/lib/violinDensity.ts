@@ -59,7 +59,7 @@ export interface CourseDensity {
  * the course has no submissions (the caller keeps the solid track / no-activity diamond instead).
  */
 export function buildCourseDensity(enrollment: CourseEnrollmentInfo): CourseDensity | null {
-  const modules = [...enrollment.course_modules].sort((a, b) => a.order_number - b.order_number)
+  const modules = enrollment.course_modules.toSorted((a, b) => a.order_number - b.order_number)
   const bucketMsList = modules.flatMap((m) => m.daily_submissions.map((d) => Date.parse(d.day)))
   if (bucketMsList.length === 0) {
     return null
@@ -86,8 +86,8 @@ export function buildCourseDensity(enrollment: CourseEnrollmentInfo): CourseDens
   const binOf = (ms: number): number => Math.floor((alignFloor(ms) - startMs) / step)
 
   const days = Array.from({ length: nBins }, (_, i) => startMs + i * step)
-  const cumulative = new Array<number>(nBins).fill(0)
-  const totals = new Array<number>(nBins).fill(0)
+  const cumulative = Array.from({ length: nBins }, () => 0)
+  const totals = Array.from({ length: nBins }, () => 0)
   const breakdowns: { name: string | null; count: number }[][] = Array.from(
     { length: nBins },
     () => [],
@@ -95,7 +95,7 @@ export function buildCourseDensity(enrollment: CourseEnrollmentInfo): CourseDens
   const layers: DensityLayer[] = []
 
   modules.forEach((m, i) => {
-    const perBin = new Array<number>(nBins).fill(0)
+    const perBin = Array.from({ length: nBins }, () => 0)
     let hasAny = false
     for (const d of m.daily_submissions) {
       const b = binOf(Date.parse(d.day))

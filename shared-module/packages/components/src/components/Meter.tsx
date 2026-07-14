@@ -120,7 +120,7 @@ export const Meter: React.FC<MeterProps> = ({
   })
 
   const fillPct = clampPct(value, minValue, maxValue)
-  const thresholdPct = threshold != null ? clampPct(threshold, minValue, maxValue) : null
+  const thresholdPct = threshold !== undefined ? clampPct(threshold, minValue, maxValue) : null
 
   return (
     <div {...meterProps} className={cx(rootCss, className)}>
@@ -130,7 +130,7 @@ export const Meter: React.FC<MeterProps> = ({
           {valueLabel ? <span className={valueTextCss}>{valueLabel}</span> : null}
         </div>
       ) : null}
-      <div className={cx(trackCss, thresholdPct != null && trackWithTickCss)} aria-hidden="true">
+      <div className={cx(trackCss, thresholdPct !== null && trackWithTickCss)} aria-hidden="true">
         <div
           className={cx(
             fillCss,
@@ -140,7 +140,7 @@ export const Meter: React.FC<MeterProps> = ({
             `,
           )}
         />
-        {thresholdPct != null ? (
+        {thresholdPct !== null ? (
           <span
             className={cx(
               tickCss,

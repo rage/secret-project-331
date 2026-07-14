@@ -74,14 +74,14 @@ export const ModuleTimingCells: React.FC<{ row: ModuleRow }> = ({ row }) => {
           : EMPTY_CELL}
       </td>
       <td>
-        {row.moduleSeconds != null
+        {row.moduleSeconds !== null
           ? formatDuration(row.moduleSeconds, t)
           : row.startedAt
             ? t("in-progress")
             : EMPTY_CELL}
       </td>
       <td>
-        {row.sinceEnrollSeconds != null ? formatDuration(row.sinceEnrollSeconds, t) : EMPTY_CELL}
+        {row.sinceEnrollSeconds !== null ? formatDuration(row.sinceEnrollSeconds, t) : EMPTY_CELL}
       </td>
     </>
   )

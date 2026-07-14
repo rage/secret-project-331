@@ -80,7 +80,7 @@ export const Disclosure: React.FC<DisclosureProps> = ({
   className,
 }) => {
   const [internalExpanded, setInternalExpanded] = React.useState(defaultExpanded)
-  const isControlled = expandedProp != null
+  const isControlled = expandedProp !== undefined
   const expanded = isControlled ? expandedProp : internalExpanded
 
   const triggerRef = React.useRef<HTMLButtonElement>(null)
@@ -113,15 +113,9 @@ export const Disclosure: React.FC<DisclosureProps> = ({
         </span>
         <span className={titleWrapCss}>{title}</span>
       </button>
-      <div
-        id={panelId}
-        role="region"
-        aria-labelledby={triggerId}
-        hidden={!expanded}
-        className={panelCss}
-      >
+      <section id={panelId} aria-labelledby={triggerId} hidden={!expanded} className={panelCss}>
         {expanded ? children : null}
-      </div>
+      </section>
     </div>
   )
 }

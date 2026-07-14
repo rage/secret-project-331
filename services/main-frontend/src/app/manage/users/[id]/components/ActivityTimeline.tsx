@@ -194,10 +194,10 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
         escapeHtml(moduleName(enrollment, c.course_module_id)),
         t("tooltip-completed", { date: dateToString(when) }),
       ]
-      if (row?.moduleSeconds != null) {
+      if (row && row.moduleSeconds !== null) {
         tip.push(t("tooltip-time-in-module", { duration: formatDuration(row.moduleSeconds, t) }))
       }
-      if (row?.sinceEnrollSeconds != null) {
+      if (row && row.sinceEnrollSeconds !== null) {
         tip.push(
           t("tooltip-since-enrolled", { duration: formatDuration(row.sinceEnrollSeconds, t) }),
         )
@@ -235,7 +235,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   }
   const completionData: CompletionMarker[] = []
   for (const { lane, points } of completionsByCourse.values()) {
-    const sorted = [...points].sort((a, b) => a.ms - b.ms)
+    const sorted = points.toSorted((a, b) => a.ms - b.ms)
     let cluster: CompletionPoint[] = []
     const flush = () => {
       if (cluster.length === 0) {

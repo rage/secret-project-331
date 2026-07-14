@@ -37,7 +37,7 @@ const CourseEnrollmentsSection: React.FC<CourseEnrollmentsSectionProps> = ({
     return <p className={emptyCss}>{t("no-course-enrollments")}</p>
   }
 
-  const sorted = [...enrollments].sort(byMostRecentlyEnrolled)
+  const sorted = enrollments.toSorted(byMostRecentlyEnrolled)
 
   return (
     <div className={listCss}>

@@ -132,10 +132,10 @@ async function writeToClipboard(value: string): Promise<void> {
   textarea.value = value
   textarea.style.position = FALLBACK_POSITION
   textarea.style.opacity = "0"
-  document.body.appendChild(textarea)
+  document.body.append(textarea)
   textarea.select()
   const succeeded = document.execCommand(EXEC_COMMAND_COPY)
-  document.body.removeChild(textarea)
+  textarea.remove()
   if (!succeeded) {
     throw new Error(COPY_FAILED_MESSAGE)
   }

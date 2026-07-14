@@ -45,7 +45,7 @@ export function computeModuleTimings<T>(
   getCompletedAt: (completion: T) => Date,
   enrolledAt: Date,
 ): ModuleTiming<T>[] {
-  const sorted = [...completions].sort(
+  const sorted = completions.toSorted(
     (a, b) => getCompletedAt(a).getTime() - getCompletedAt(b).getTime(),
   )
   return sorted.map((completion, index) => {

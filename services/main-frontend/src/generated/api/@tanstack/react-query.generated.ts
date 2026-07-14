@@ -247,16 +247,19 @@ import {
   getUniqueUsersStartingHistoryCustomTimePeriod,
   getUser,
   getUserCourseEnrollments,
+  getUserCourseSubmissionTimes,
   getUserDetailsByCourseAndUserId,
   getUserDetailsByCourses,
   getUserDetailsForAuthenticatedUser,
   getUserResearchConsent,
   getUserResearchFormQuestionAnswers,
   getUserResetExerciseLogs,
+  getUserRoles,
   getUsersByCourseIdForUserDetails,
   getUsersIpCountry,
   getUsersReturningExercisesHistory,
   getUsersReturningExercisesHistoryByInstance,
+  getUserSuspectedCheaters,
   introspectOauthToken,
   joinCourseWithJoinCode,
   markFeedbackAsRead,
@@ -747,6 +750,8 @@ import type {
   GetUniqueUsersStartingHistoryResponse,
   GetUserCourseEnrollmentsData,
   GetUserCourseEnrollmentsResponse,
+  GetUserCourseSubmissionTimesData,
+  GetUserCourseSubmissionTimesResponse,
   GetUserData,
   GetUserDetailsByCourseAndUserIdData,
   GetUserDetailsByCourseAndUserIdResponse,
@@ -760,6 +765,9 @@ import type {
   GetUserResearchFormQuestionAnswersResponse,
   GetUserResetExerciseLogsData,
   GetUserResetExerciseLogsResponse,
+  GetUserResponse,
+  GetUserRolesData,
+  GetUserRolesResponse,
   GetUsersByCourseIdForUserDetailsData,
   GetUsersByCourseIdForUserDetailsResponse,
   GetUsersIpCountryData,
@@ -768,6 +776,8 @@ import type {
   GetUsersReturningExercisesHistoryByInstanceResponse,
   GetUsersReturningExercisesHistoryData,
   GetUsersReturningExercisesHistoryResponse,
+  GetUserSuspectedCheatersData,
+  GetUserSuspectedCheatersResponse,
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
@@ -9261,7 +9271,7 @@ export const getUserQueryKey = (options: Options<GetUserData>) => createQueryKey
  * GET `/api/v0/main-frontend/users/:id`
  */
 export const getUserOptions = (options: Options<GetUserData>) =>
-  queryOptions<unknown, DefaultError, unknown, ReturnType<typeof getUserQueryKey>>({
+  queryOptions<GetUserResponse, DefaultError, GetUserResponse, ReturnType<typeof getUserQueryKey>>({
     queryFn: async ({ queryKey, signal }) =>
       await getUser({
         ...options,
@@ -9294,6 +9304,85 @@ export const getUserCourseEnrollmentsOptions = (options: Options<GetUserCourseEn
         throwOnError: true,
       }),
     queryKey: getUserCourseEnrollmentsQueryKey(options),
+  })
+
+export const getUserCourseSubmissionTimesQueryKey = (
+  options: Options<GetUserCourseSubmissionTimesData>,
+) => createQueryKey("getUserCourseSubmissionTimes", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise
+ * submission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.
+ */
+export const getUserCourseSubmissionTimesOptions = (
+  options: Options<GetUserCourseSubmissionTimesData>,
+) =>
+  queryOptions<
+    GetUserCourseSubmissionTimesResponse,
+    DefaultError,
+    GetUserCourseSubmissionTimesResponse,
+    ReturnType<typeof getUserCourseSubmissionTimesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getUserCourseSubmissionTimes({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getUserCourseSubmissionTimesQueryKey(options),
+  })
+
+export const getUserRolesQueryKey = (options: Options<GetUserRolesData>) =>
+  createQueryKey("getUserRoles", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/roles` - All roles held by a user, across scopes. Teacher/admin
+ * (global) view; used to label the account (e.g. staff/teacher) on the user-details page.
+ */
+export const getUserRolesOptions = (options: Options<GetUserRolesData>) =>
+  queryOptions<
+    GetUserRolesResponse,
+    DefaultError,
+    GetUserRolesResponse,
+    ReturnType<typeof getUserRolesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getUserRoles({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getUserRolesQueryKey(options),
+  })
+
+export const getUserSuspectedCheatersQueryKey = (options: Options<GetUserSuspectedCheatersData>) =>
+  createQueryKey("getUserSuspectedCheaters", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/suspected-cheaters` - Cross-course suspected-cheater records for
+ * a user, each paired with the course's applicable duration threshold. Teacher/admin (global) view;
+ * read-only (confirm/dismiss happen on the per-course cheaters page).
+ */
+export const getUserSuspectedCheatersOptions = (options: Options<GetUserSuspectedCheatersData>) =>
+  queryOptions<
+    GetUserSuspectedCheatersResponse,
+    DefaultError,
+    GetUserSuspectedCheatersResponse,
+    ReturnType<typeof getUserSuspectedCheatersQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getUserSuspectedCheaters({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getUserSuspectedCheatersQueryKey(options),
   })
 
 export const getUserResetExerciseLogsQueryKey = (options: Options<GetUserResetExerciseLogsData>) =>

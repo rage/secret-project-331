@@ -13,6 +13,7 @@ import CourseInstanceProgressSection from "@/app/manage/course-instances/[id]/po
 import CourseInstanceUserInfoBox from "@/app/manage/course-instances/[id]/points/user_id/CourseInstanceUserInfoBox"
 import CourseModuleCompletionsSection from "@/app/manage/course-instances/[id]/points/user_id/CourseModuleCompletionsSection"
 import ExerciseListSection from "@/app/manage/course-instances/[id]/points/user_id/ExerciseListSection"
+import CourseActivityTimeline from "@/components/CourseActivityTimeline"
 import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
 import {
   getCourseStudentChapterLockingStatusesOptions,
@@ -20,6 +21,7 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import { useExerciseStatusSummaries } from "@/hooks/useExerciseStatusSummaries"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { courseExerciseResetToolRoute } from "@/shared-module/common/utils/routes"
@@ -104,6 +106,22 @@ const CourseExerciseStatusList: React.FC = () => {
               {t("course-status-summary")}
             </h1>
             <CourseInstanceUserInfoBox courseId={id} userId={user_id} />
+            {/* The activity timeline self-fetches global-permission-only endpoints, so only render it
+                (and its heading) for viewers who can actually load that data; course-scoped teachers
+                would otherwise get an empty section under an orphaned heading. */}
+            <OnlyRenderIfPermissions
+              action={{ type: "view_user_progress_or_details" }}
+              resource={{ type: "global_permissions" }}
+            >
+              <h2
+                className={css`
+                  margin: 1.5rem 0 0.75rem;
+                `}
+              >
+                {t("user-activity")}
+              </h2>
+              <CourseActivityTimeline courseId={id} userId={user_id} />
+            </OnlyRenderIfPermissions>
             <AnswersInManualReviewSection exerciseStatusSummaries={exerciseStatusSummaries} />
             <CourseModuleCompletionsSection userId={user_id} courseId={id} />
             <CourseInstanceProgressSection userId={user_id} courseId={id} />

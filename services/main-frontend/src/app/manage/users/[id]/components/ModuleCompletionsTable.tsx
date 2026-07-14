@@ -10,6 +10,7 @@ import { computeModuleTimings } from "../lib/durations"
 import Duration from "./Duration"
 
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Badge, Meter } from "@/shared-module/components"
 
@@ -26,17 +27,17 @@ const tableCss = css`
   td {
     text-align: left;
     padding: 0.5rem 0.6rem;
-    border-bottom: 1px solid var(--color-clear-300, #e2e4e6);
+    border-bottom: 1px solid ${baseTheme.colors.clear[300]};
     vertical-align: top;
   }
 
   th {
-    color: var(--color-gray-500, #535a66);
+    color: ${baseTheme.colors.gray[500]};
     font-weight: 600;
   }
 
   td {
-    color: var(--color-gray-700, #1a2333);
+    color: ${baseTheme.colors.gray[700]};
     font-variant-numeric: tabular-nums;
   }
 `
@@ -56,7 +57,7 @@ const badgeRowCss = css`
 `
 
 const emptyCss = css`
-  color: var(--color-gray-500, #535a66);
+  color: ${baseTheme.colors.gray[500]};
   font-style: italic;
   padding: 0.5rem 0;
 `

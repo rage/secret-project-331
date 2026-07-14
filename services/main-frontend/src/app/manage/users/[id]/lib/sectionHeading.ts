@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 /** Shared style for the page's section headings — Inter (not the legacy Raleway), tighter scale. */
 export const sectionHeadingCss = css`
@@ -8,5 +8,5 @@ export const sectionHeadingCss = css`
   font-family: ${primaryFont};
   font-size: 1.3rem;
   font-weight: 600;
-  color: var(--color-gray-700, #1a2333);
+  color: ${baseTheme.colors.gray[700]};
 `

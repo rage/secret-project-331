@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { awaitingReviewCount } from "../lib/completions"
 
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
 
 export interface CompletionReviewBannerProps {
   enrollments: CourseEnrollmentInfo[]
@@ -23,13 +24,13 @@ const bannerCss = css`
   padding: 0.9rem 1.2rem;
   border-radius: 6px;
   text-decoration: none;
-  background: var(--color-red-100, #f0e1dd);
-  border: 1px solid var(--color-red-300, #d3a49a);
-  color: var(--color-red-800, #823425);
+  background: ${baseTheme.colors.red[100]};
+  border: 1px solid ${baseTheme.colors.red[300]};
+  color: ${baseTheme.colors.red[800]};
   font-weight: 500;
 
   &:hover {
-    background: var(--color-red-200, #e2c2bc);
+    background: ${baseTheme.colors.red[200]};
   }
 `
 

@@ -17,7 +17,9 @@ import {
   getUserCourseEnrollmentsOptions,
   getUserCourseSubmissionTimesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Disclosure } from "@/shared-module/components"
 import { computeModuleRows, formatDuration } from "@/utils/moduleTimeline"
@@ -48,7 +50,7 @@ const COMPLETION_SIZE = 16
 
 const noteCss = css`
   margin-top: 0.5rem;
-  color: var(--color-gray-500, #535a66);
+  color: ${baseTheme.colors.gray[500]};
   font-size: 0.85rem;
 `
 
@@ -69,6 +71,12 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
 
   if (enrollmentsQuery.isPending || submissionsQuery.isPending) {
     return <Spinner variant="medium" />
+  }
+
+  if (enrollmentsQuery.isError || submissionsQuery.isError) {
+    return (
+      <ErrorBanner variant="readOnly" error={enrollmentsQuery.error ?? submissionsQuery.error} />
+    )
   }
 
   const enrollment = enrollmentsQuery.data?.course_enrollments.find((e) => e.course_id === courseId)

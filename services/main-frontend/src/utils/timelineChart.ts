@@ -1,20 +1,22 @@
-// Shared palette + constants for the user activity/completion timelines. Values are hex colors or
-// SCREAMING_CASE-keyed enum strings, both of which the i18next literal-string lint ignores.
+// Shared palette + constants for the user activity/completion timelines. Colors use baseTheme tokens
+// where one matches; the rgba fills and SCREAMING_CASE echarts enum strings stay literal (both ignored
+// by the i18next literal-string lint).
 
 import { escape } from "lodash"
 
-// One on-system categorical palette (from baseTheme.colors), shared by the cross-course Gantt (indexed
-// by course order) and the per-course timeline (indexed by module order). Near-collision hues are
-// omitted so adjacent series stay distinct.
+import { baseTheme } from "@/shared-module/common/styles"
+
+// One categorical palette, shared by the cross-course Gantt (indexed by course order) and the per-course
+// timeline (indexed by module order). Near-collision hues are omitted so adjacent series stay distinct.
 export const SERIES_COLORS = [
-  "#215887", // blue.600
-  "#1F6964", // green.600
-  "#6245A9", // purple.600
-  "#822630", // crimson.600
-  "#A84835", // red.600
-  "#535A66", // gray.500
-  "#0E3657", // blue.800
-  "#154541", // green.800
+  baseTheme.colors.blue[600],
+  baseTheme.colors.green[600],
+  baseTheme.colors.purple[600],
+  baseTheme.colors.crimson[600],
+  baseTheme.colors.red[600],
+  baseTheme.colors.gray[500],
+  baseTheme.colors.blue[800],
+  baseTheme.colors.green[800],
 ]
 
 // Non-translatable echarts enum strings, grouped under SCREAMING_CASE keys so the i18next
@@ -63,10 +65,10 @@ export const escapeHtml = escape
 export const TRACK_FILL = "rgba(83,90,102,0.10)"
 
 /** Fallback color for marks with no module. */
-export const NEUTRAL_MARK_COLOR = "#767b85" // gray.400
+export const NEUTRAL_MARK_COLOR = baseTheme.colors.gray[400]
 
 /** Non-alarming accent for completions still awaiting review (info tone, not error red). */
-export const REVIEW_ACCENT = "#08457A" // blue.700
+export const REVIEW_ACCENT = baseTheme.colors.blue[700]
 
 /** Palette lookup that wraps around for indices past the palette length. */
 export function colorAt(palette: string[], index: number): string {

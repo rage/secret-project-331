@@ -12,6 +12,7 @@ import ModuleCompletionsTable from "./ModuleCompletionsTable"
 
 import CourseActivityTimeline from "@/components/CourseActivityTimeline"
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import { Badge, Disclosure } from "@/shared-module/components"
@@ -41,17 +42,17 @@ const summaryCss = css`
 const courseNameCss = css`
   font-weight: 600;
   font-size: 1.05rem;
-  color: var(--color-gray-700, #1a2333);
+  color: ${baseTheme.colors.gray[700]};
 `
 
 const slugCss = css`
-  color: var(--color-gray-400, #767b85);
+  color: ${baseTheme.colors.gray[400]};
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
 `
 
 const metaCss = css`
-  color: var(--color-gray-500, #535a66);
+  color: ${baseTheme.colors.gray[500]};
   font-size: 0.9rem;
 `
 
@@ -67,7 +68,7 @@ const progressTrackCss = css`
   width: 56px;
   height: 6px;
   border-radius: 999px;
-  background: var(--color-gray-200, #e2e4e6);
+  background: ${baseTheme.colors.gray[200]};
   overflow: hidden;
 `
 
@@ -75,10 +76,10 @@ const progressFillCss = css`
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--color-gray-400, #767b85);
+  background: ${baseTheme.colors.gray[400]};
 
   &[data-complete="true"] {
-    background: var(--color-green-600, #388a2e);
+    background: ${baseTheme.colors.green[600]};
   }
 `
 
@@ -92,7 +93,7 @@ const linkRowCss = css`
 
 const statusLinkCss = css`
   font-size: 0.9rem;
-  color: var(--color-blue-600, #2563eb);
+  color: ${baseTheme.colors.blue[600]};
   text-decoration: none;
 
   &:hover {
@@ -150,7 +151,7 @@ const CourseEnrollmentCard: React.FC<CourseEnrollmentCardProps> = ({ enrollment,
       className={cx(cardCss, enrollment.is_current ? undefined : notCurrentCss)}
       data-testid="course-status-card"
     >
-      <Disclosure title={title} aria-label={enrollment.course.name}>
+      <Disclosure title={title}>
         <ModuleCompletionsTable enrollment={enrollment} />
         <CourseActivityTimeline courseId={enrollment.course_id} userId={userId} />
         <div className={linkRowCss}>

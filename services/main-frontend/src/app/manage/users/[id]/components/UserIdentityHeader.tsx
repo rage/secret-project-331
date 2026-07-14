@@ -8,12 +8,21 @@ import { useTranslation } from "react-i18next"
 import { TONE } from "../lib/displayConstants"
 
 import DeletedUserNotice from "@/components/DeletedUserNotice"
+import { USER_ROLES } from "@/constants/roles"
 import {
   getUserOptions,
   getUserRolesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import type { UserDetail } from "@/generated/api/types.generated"
-import { Avatar, Badge, CopyButton, DescriptionList } from "@/shared-module/components"
+import type { UserDetail, UserRole } from "@/generated/api/types.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
+import { baseTheme } from "@/shared-module/common/styles"
+import {
+  Avatar,
+  Badge,
+  CopyButton,
+  DescriptionList,
+  QueryResults,
+} from "@/shared-module/components"
 
 export interface UserIdentityHeaderProps {
   userId: string
@@ -41,7 +50,7 @@ const tmcLinkCss = css`
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue-400, #60a5fa);
+    outline: 2px solid ${baseTheme.colors.blue[400]};
     outline-offset: 1px;
   }
 `
@@ -55,7 +64,7 @@ const nameCss = css`
   margin: 0 0 0.4rem;
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--color-gray-700, #1a2333);
+  color: ${baseTheme.colors.gray[700]};
 `
 
 const chipsCss = css`
@@ -63,6 +72,14 @@ const chipsCss = css`
   flex-wrap: wrap;
   gap: 0.4rem;
   margin: 0.6rem 0;
+`
+
+// Role/TMC chips share the chips row's flex layout, but sit inside the query frame that gates them.
+const chipGroupCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
 `
 
 const idValueCss = css`
@@ -95,11 +112,13 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
   const rolesQuery = useQuery({ ...getUserRolesOptions({ path: { user_id: userId } }) })
   const userQuery = useQuery({ ...getUserOptions({ path: { user_id: userId } }) })
 
-  const name = `${userDetails?.first_name ?? ""} ${userDetails?.last_name ?? ""}`.trim()
-  const displayName = name || userDetails?.email || t("header-user-details")
+  const displayName = formatUserName(userDetails) || userDetails?.email || t("header-user-details")
 
-  const distinctRoles = Array.from(new Set((rolesQuery.data ?? []).map((r) => r.role)))
-  const tmcId = userQuery.data?.upstream_id ?? null
+  // Enum role → its localized label; the raw enum value is never shown.
+  const roleLabel = (role: UserRole): string => {
+    const match = USER_ROLES.find((r) => r.value === role)
+    return match ? t(match.translationKey) : role
+  }
 
   const items = [
     {
@@ -130,21 +149,35 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
             {userDetailsNotFound ? (
               <Badge tone={TONE.DANGER}>{t("badge-deleted-user")}</Badge>
             ) : null}
-            {distinctRoles.map((role) => (
-              <Badge key={role} tone={TONE.INFO}>
-                {role}
-              </Badge>
-            ))}
-            {tmcId !== null ? (
-              <a
-                className={tmcLinkCss}
-                href={`${TMC_PARTICIPANT_URL}${tmcId}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Badge tone={TONE.NEUTRAL}>{t("tmc-id", { id: tmcId })}</Badge>
-              </a>
-            ) : null}
+            {/* Roles and TMC id are separate fetches: show their load/error state instead of silently
+                deriving from empty defaults. The identity above stays visible regardless. */}
+            <QueryResults
+              queries={[rolesQuery, userQuery] as const}
+              treatEmptyAsData
+              renderData={([roles, user]) => {
+                const distinctRoles = Array.from(new Set(roles.map((r) => r.role)))
+                const tmcId = user.upstream_id ?? null
+                return (
+                  <div className={chipGroupCss}>
+                    {distinctRoles.map((role) => (
+                      <Badge key={role} tone={TONE.INFO}>
+                        {roleLabel(role)}
+                      </Badge>
+                    ))}
+                    {tmcId !== null ? (
+                      <a
+                        className={tmcLinkCss}
+                        href={`${TMC_PARTICIPANT_URL}${tmcId}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Badge tone={TONE.NEUTRAL}>{t("tmc-id", { id: tmcId })}</Badge>
+                      </a>
+                    ) : null}
+                  </div>
+                )
+              }}
+            />
           </div>
           <DescriptionList items={items} />
         </div>

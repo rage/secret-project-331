@@ -22,6 +22,7 @@ import {
   moduleTimingTableCss,
 } from "@/components/ModuleTimingTable"
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Disclosure } from "@/shared-module/components"
 import { computeModuleRows, durationSeconds, formatDuration } from "@/utils/moduleTimeline"
@@ -42,10 +43,10 @@ export interface ActivityTimelineProps {
 }
 
 const DOT_FILL = "#ffffff"
-const DOT_BORDER = "#1a2333" // gray.700
+const DOT_BORDER = baseTheme.colors.gray[700]
 const MARK_BORDER = "#ffffff"
 // A completion awaiting cheating review is drawn as a red dot (white ring) instead of the default white.
-const REVIEW_DOT_FILL = "#c4281b" // red
+const REVIEW_DOT_FILL = "#c4281b" // off-palette review red; no baseTheme token matches
 const REVIEW_DOT_BORDER = "#ffffff"
 // Vertical pixels per lane row; the chart height scales with the lane count.
 const LANE_ROW_PX = 90
@@ -59,7 +60,7 @@ const BASELINE_FROM_TOP = 0.58
 const VIOLIN_MAX_FRACTION = 0.5
 const TRACK_PX = 5
 const LABEL_GAP = 3
-const LABEL_FILL = "#535a66" // gray.500 — course name under the baseline
+const LABEL_FILL = baseTheme.colors.gray[500] // course name under the baseline
 const NO_ACTIVITY_LABEL_WIDTH = 140
 // Completion dots / per-day hit-targets sit at the lane centre; nudge them down onto the baseline.
 const BASELINE_OFFSET_PX = (BASELINE_FROM_TOP - 0.5) * LANE_ROW_PX
@@ -94,15 +95,11 @@ interface CourseBar {
 
 /**
  * Cross-course engagement as a lane-packed timeline. Each course is a lane spanning enrollment → last
- * activity, greedily packed so overlapping courses always get separate lanes; a lane is only reused for a
- * later course once there is a clear time gap after the previous one, so back-to-back courses are spread
- * apart instead of crowding one lane. Above a faint span track the user's exercise submissions are drawn as a one-sided, module-stacked
- * density that rises from the lane's baseline: busy days bulge upward, pauses flatten to the baseline, and
- * the height (submissions per exercise, shared scale) is comparable across courses. The course name is
- * written just below the baseline. A course with no submissions or completions shows a single diamond at
- * its enrollment. Module completions are overlaid as dots (red when awaiting review); completions that
- * overlap in time merge into one dot with a count badge. The chart carries an aria description and the same
- * data is available in the expandable table below.
+ * activity (overlapping courses get separate lanes; a lane is reused only after a clear gap). Above a
+ * faint span track, submissions rise from the baseline as a one-sided, module-stacked density on a shared
+ * per-exercise scale, so lane heights are comparable; the course name sits just below the baseline. A
+ * course with no activity shows a single diamond at enrollment. Module completions overlay as dots (red
+ * when awaiting review), merging into one count-badged dot when they overlap. Same data in the table below.
  */
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   const { t } = useTranslation()

@@ -270,13 +270,15 @@ ORDER BY first_enrolled_at
 
     // Earliest submission per module for this user; module ids are globally unique, so grouping by
     // module alone is enough. Used to infer when an additional (non-base) module was first worked on.
+    // Restricts to non-deleted exercises/chapters like the exercise-count and daily-submission queries
+    // below, so all three agree on which content is in scope (soft-deleted content stays hidden).
     let module_first_submission_rows = sqlx::query!(
         r#"
-SELECT c.course_module_id AS "course_module_id?",
+SELECT c.course_module_id AS "course_module_id!",
        MIN(ess.created_at) AS "first_submission_at!"
 FROM exercise_slide_submissions ess
-JOIN exercises e ON e.id = ess.exercise_id
-LEFT JOIN chapters c ON c.id = e.chapter_id
+JOIN exercises e ON e.id = ess.exercise_id AND e.deleted_at IS NULL
+JOIN chapters c ON c.id = e.chapter_id AND c.deleted_at IS NULL
 WHERE ess.user_id = $1 AND ess.course_id = ANY($2) AND ess.deleted_at IS NULL
 GROUP BY c.course_module_id
         "#,
@@ -287,7 +289,7 @@ GROUP BY c.course_module_id
     .await?;
     let first_submission_by_module: HashMap<Uuid, DateTime<Utc>> = module_first_submission_rows
         .into_iter()
-        .filter_map(|r| r.course_module_id.map(|id| (id, r.first_submission_at)))
+        .map(|r| (r.course_module_id, r.first_submission_at))
         .collect();
 
     // Exercise count per module, to normalize submission density (submissions per exercise) so courses

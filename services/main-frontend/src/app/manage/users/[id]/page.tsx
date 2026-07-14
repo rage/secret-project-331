@@ -16,7 +16,12 @@ import UserStatBar from "./components/UserStatBar"
 import { sectionHeadingCss } from "./lib/sectionHeading"
 
 import { getUserCourseEnrollmentsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
+import {
+  extractUserDetail,
+  formatUserName,
+  isUserDetailsNotFound,
+  useUserDetails,
+} from "@/hooks/useUserDetails"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -44,7 +49,7 @@ const UserPage: React.FC = () => {
   const userDetail = userDetailsQuery.data ? extractUserDetail(userDetailsQuery.data) : null
   // Use the user's name (not their email) as the title so no PII lands in document.title or the
   // screen-reader route announcement; fall back to a generic label while details load / are absent.
-  const userDisplayName = `${userDetail?.first_name ?? ""} ${userDetail?.last_name ?? ""}`.trim()
+  const userDisplayName = formatUserName(userDetail)
   usePageTitle(userDisplayName || t("header-user-details"))
 
   return (

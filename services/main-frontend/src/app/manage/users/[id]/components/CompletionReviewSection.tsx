@@ -16,6 +16,7 @@ import type {
   SuspectedCheaterStatus,
   UserSuspectedCheaterInfo,
 } from "@/generated/api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
 import { manageCourseOtherCheatersSuspectedRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Badge, Meter, QueryResult } from "@/shared-module/components"
@@ -33,7 +34,7 @@ const rowCss = css`
   gap: 0.35rem 1.5rem;
   align-items: center;
   padding: 0.85rem 0;
-  border-bottom: 1px solid var(--color-clear-300, #e2e4e6);
+  border-bottom: 1px solid ${baseTheme.colors.clear[300]};
 `
 
 const courseCss = css`
@@ -51,7 +52,7 @@ const courseHeadCss = css`
 
 const courseLinkCss = css`
   font-weight: 600;
-  color: var(--color-blue-600, #2563eb);
+  color: ${baseTheme.colors.blue[600]};
   text-decoration: none;
 
   &:hover {
@@ -67,7 +68,7 @@ const meterWrapCss = css`
 
 const meterValueCss = css`
   align-self: flex-end;
-  color: var(--color-gray-700, #1a2333);
+  color: ${baseTheme.colors.gray[700]};
   font-weight: 600;
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
@@ -78,13 +79,13 @@ const sectionCss = css`
 `
 
 const explanationCss = css`
-  color: var(--color-gray-500, #535a66);
+  color: ${baseTheme.colors.gray[500]};
   font-size: 0.85rem;
   margin: 0 0 0.75rem;
 `
 
 const metaCss = css`
-  color: var(--color-gray-500, #535a66);
+  color: ${baseTheme.colors.gray[500]};
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
 `

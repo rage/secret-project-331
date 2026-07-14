@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import CourseEnrollmentCard from "./CourseEnrollmentCard"
 
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
 
 export interface CourseEnrollmentsSectionProps {
   enrollments: CourseEnrollmentInfo[]
@@ -19,7 +20,7 @@ const listCss = css`
 `
 
 const emptyCss = css`
-  color: var(--color-gray-500, #535a66);
+  color: ${baseTheme.colors.gray[500]};
 `
 
 const byMostRecentlyEnrolled = (a: CourseEnrollmentInfo, b: CourseEnrollmentInfo) =>

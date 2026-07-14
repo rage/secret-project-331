@@ -33,7 +33,7 @@ const meta = {
 
 export default meta
 
-type StoryType = StoryObj<typeof meta>
+type StoryType = StoryObj<typeof TextArea>
 
 export const Playground = {
   render: () => {

@@ -50,7 +50,7 @@ const meta = {
 
 export default meta
 
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof TimeField>
 
 export const Playground = {} satisfies Story
 

@@ -1562,15 +1562,16 @@ pub async fn get_metadata(
         crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
     let audiences: Vec<CourseAudience> =
         crate::course_audiences::get_by_course_id(conn, course_id).await?;
-    let course = get_course(conn, course_id).await?;
+    let course_data = get_course(conn, course_id).await?;
     let instances =
         crate::course_instances::get_course_instances_for_course(conn, course_id).await?;
     let module = crate::course_modules::get_default_by_course_id(conn, course_id).await?;
 
-    let organization = crate::organizations::get_organization(conn, course.organization_id).await?;
+    let organization =
+        crate::organizations::get_organization(conn, course_data.organization_id).await?;
 
     let metadata = CompleteCourseMetadata {
-        course: course,
+        course: course_data,
         course_instances: instances,
         default_module: module,
         course_prerequisites: prerequisites,

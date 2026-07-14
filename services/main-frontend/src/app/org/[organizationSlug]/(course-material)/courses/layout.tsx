@@ -15,7 +15,7 @@ function CourseMaterialLayout({
   params,
 }: {
   children: React.ReactNode
-  params: Promise<{ [key: string]: string | string[] | undefined }>
+  params: Promise<Record<string, string | string[] | undefined>>
 }) {
   // Suppress unused params warning
   void params

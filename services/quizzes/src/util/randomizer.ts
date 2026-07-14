@@ -31,10 +31,7 @@ const createDeterministicRandom = (seed: number) => {
  * @returns Random ordering
  */
 const generateRandomOrder = (n: number, seed: number) => {
-  const array = Array(n)
-  for (let i = 0; i < n; i++) {
-    array[i] = i
-  }
+  const array = Array.from({ length: n }, (_, i) => i)
 
   const rng = createDeterministicRandom(seed)
   for (let i = n - 1; i > 0; i--) {

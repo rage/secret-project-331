@@ -177,9 +177,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
             </CheckboxContainer>
           </CenteredContainer>
         ) : (
-          <>
-            <ChoiceTitle>{option.title}</ChoiceTitle>
-          </>
+          <ChoiceTitle>{option.title}</ChoiceTitle>
         )}
         <OptionButtonGroup>
           {option.correct && !editMode && <CorrectTag> {t("label-correct")} </CorrectTag>}
@@ -280,59 +278,54 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
           </Button>
         </OptionButtonGroup>
       </OptionCard>
-      {!visible && (
-        <>
-          {!editMode ? (
-            <MultipleChoiceMessageDialogContainer>
-              <MessageDialogContainer>
-                <MessageDialogTitle>
-                  {t("message-after-submission-when-this-option-selected")}
-                </MessageDialogTitle>
-                <MessageDialogDescription
-                  isNull={option.messageAfterSubmissionWhenSelected === null}
-                >
-                  {option.messageAfterSubmissionWhenSelected ?? `(${t("label-null")})`}
-                </MessageDialogDescription>
-              </MessageDialogContainer>
-              <MessageDialogContainer>
-                <MessageDialogTitle>
-                  {t("message-on-model-solution-when-this-option-selected")}
-                </MessageDialogTitle>
-                <MessageDialogDescription
-                  isNull={option.additionalCorrectnessExplanationOnModelSolution === null}
-                >
-                  {option.additionalCorrectnessExplanationOnModelSolution ?? `(${t("label-null")})`}
-                </MessageDialogDescription>
-              </MessageDialogContainer>
-            </MultipleChoiceMessageDialogContainer>
-          ) : (
-            <MultipleChoiceMessageDialogContainer>
-              <MessageDialogContainer>
-                <MessageDialogTextFieldContainer>
-                  <ParsedTextField
-                    label={t("message-after-submission-when-this-option-selected")}
-                    value={messageAfterSubmissionWhenThisOptionSelected ?? ""}
-                    onChange={(value) =>
-                      setMessageAfterSubmissionWhenThisOptionSelected(nullIfEmptyString(value))
-                    }
-                  />
-                </MessageDialogTextFieldContainer>
-              </MessageDialogContainer>
-              <MessageDialogContainer>
-                <MessageDialogTextFieldContainer>
-                  <ParsedTextField
-                    label={t("message-on-model-solution-when-this-option-selected")}
-                    value={messageOnModelSolutionWhenThisOptionSelected ?? ""}
-                    onChange={(value) =>
-                      setMessageOnModelSolutionWhenThisOptionSelected(nullIfEmptyString(value))
-                    }
-                  />
-                </MessageDialogTextFieldContainer>
-              </MessageDialogContainer>
-            </MultipleChoiceMessageDialogContainer>
-          )}
-        </>
-      )}
+      {!visible &&
+        (!editMode ? (
+          <MultipleChoiceMessageDialogContainer>
+            <MessageDialogContainer>
+              <MessageDialogTitle>
+                {t("message-after-submission-when-this-option-selected")}
+              </MessageDialogTitle>
+              <MessageDialogDescription isNull={option.messageAfterSubmissionWhenSelected === null}>
+                {option.messageAfterSubmissionWhenSelected ?? `(${t("label-null")})`}
+              </MessageDialogDescription>
+            </MessageDialogContainer>
+            <MessageDialogContainer>
+              <MessageDialogTitle>
+                {t("message-on-model-solution-when-this-option-selected")}
+              </MessageDialogTitle>
+              <MessageDialogDescription
+                isNull={option.additionalCorrectnessExplanationOnModelSolution === null}
+              >
+                {option.additionalCorrectnessExplanationOnModelSolution ?? `(${t("label-null")})`}
+              </MessageDialogDescription>
+            </MessageDialogContainer>
+          </MultipleChoiceMessageDialogContainer>
+        ) : (
+          <MultipleChoiceMessageDialogContainer>
+            <MessageDialogContainer>
+              <MessageDialogTextFieldContainer>
+                <ParsedTextField
+                  label={t("message-after-submission-when-this-option-selected")}
+                  value={messageAfterSubmissionWhenThisOptionSelected ?? ""}
+                  onChange={(value) =>
+                    setMessageAfterSubmissionWhenThisOptionSelected(nullIfEmptyString(value))
+                  }
+                />
+              </MessageDialogTextFieldContainer>
+            </MessageDialogContainer>
+            <MessageDialogContainer>
+              <MessageDialogTextFieldContainer>
+                <ParsedTextField
+                  label={t("message-on-model-solution-when-this-option-selected")}
+                  value={messageOnModelSolutionWhenThisOptionSelected ?? ""}
+                  onChange={(value) =>
+                    setMessageOnModelSolutionWhenThisOptionSelected(nullIfEmptyString(value))
+                  }
+                />
+              </MessageDialogTextFieldContainer>
+            </MessageDialogContainer>
+          </MultipleChoiceMessageDialogContainer>
+        ))}
     </>
   )
 }

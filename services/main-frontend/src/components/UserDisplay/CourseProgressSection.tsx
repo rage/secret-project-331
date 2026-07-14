@@ -64,16 +64,19 @@ export function CourseProgressSection({ courseId, userId }: { courseId: string; 
                     color: ${baseTheme.colors.gray[600]};
                   `}
                 >
-                  {mod.score_maximum != null
+                  {mod.score_maximum !== null && mod.score_maximum !== undefined
                     ? `${mod.score_given} / ${mod.score_maximum} ${t("label-points")}`
                     : `${mod.score_given} ${t("label-points")}`}
-                  {mod.total_exercises != null && mod.attempted_exercises != null && (
-                    <>
-                      {/* oxlint-disable-next-line i18next/no-literal-string -- typographic separator */}
-                      {" · "}
-                      {mod.attempted_exercises} / {mod.total_exercises} {t("label-exercises")}
-                    </>
-                  )}
+                  {mod.total_exercises !== null &&
+                    mod.total_exercises !== undefined &&
+                    mod.attempted_exercises !== null &&
+                    mod.attempted_exercises !== undefined && (
+                      <>
+                        {/* oxlint-disable-next-line i18next/no-literal-string -- typographic separator */}
+                        {" · "}
+                        {mod.attempted_exercises} / {mod.total_exercises} {t("label-exercises")}
+                      </>
+                    )}
                 </div>
               </div>
             ))}

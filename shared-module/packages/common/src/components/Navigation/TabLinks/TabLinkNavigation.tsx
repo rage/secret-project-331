@@ -43,10 +43,8 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
 
   useEffect(() => {
     const childElementUrlProps = React.Children.map(children, (child) => {
-      if (React.isValidElement<TabLinkProps>(child)) {
-        if (typeof child.props.url === "string") {
-          return child.props.url
-        }
+      if (React.isValidElement<TabLinkProps>(child) && typeof child.props.url === "string") {
+        return child.props.url
       }
     })
     // Ensure we redirect to the first tab URL if on root or unknown path and routing enabled
@@ -75,22 +73,18 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
       event.preventDefault()
       if (document.activeElement?.previousElementSibling instanceof HTMLAnchorElement) {
         document.activeElement.previousElementSibling.focus()
-      } else {
+      } else if (event.currentTarget.lastElementChild instanceof HTMLAnchorElement) {
         // We at the start of tab nav, go to last
-        if (event.currentTarget.lastElementChild instanceof HTMLAnchorElement) {
-          event.currentTarget.lastElementChild.focus()
-        }
+        event.currentTarget.lastElementChild.focus()
       }
     }
     if (event.key === nextSiblingKey) {
       event.preventDefault()
       if (document.activeElement?.nextElementSibling instanceof HTMLAnchorElement) {
         document.activeElement.nextElementSibling.focus()
-      } else {
+      } else if (event.currentTarget.firstElementChild instanceof HTMLAnchorElement) {
         // We at the end of tab nav, go to first
-        if (event.currentTarget.firstElementChild instanceof HTMLAnchorElement) {
-          event.currentTarget.firstElementChild.focus()
-        }
+        event.currentTarget.firstElementChild.focus()
       }
     }
     if (event.key === "Home") {

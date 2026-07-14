@@ -105,7 +105,9 @@ const ImageBlock: React.FC<
   // fixed px height that would distort on narrow screens. Cropped images (object-fit via `scale`)
   // pin the crop-box ratio (Gutenberg's aspectRatio, else author's width:height); uncropped keep
   // their intrinsic ratio with height: auto.
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat intended; Number() differs
   const widthNumber = typeof width === "number" ? width : parseFloat(width ?? "")
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat intended; Number() differs
   const heightNumber = typeof height === "number" ? height : parseFloat(height ?? "")
   const gutenbergAspectRatio = aspectRatio && aspectRatio !== "auto" ? aspectRatio : undefined
   const cropAspectRatio =

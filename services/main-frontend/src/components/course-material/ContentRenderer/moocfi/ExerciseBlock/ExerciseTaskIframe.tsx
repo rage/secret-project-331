@@ -37,7 +37,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
   const dialog = useDialog()
 
   const handleMessageFromIframe = useCallback(
-    async (messageContainer: unknown, _responsePort: MessagePort) => {
+    (messageContainer: unknown, _responsePort: MessagePort) => {
       if (!isMessageFromIframe(messageContainer)) {
         return
       }

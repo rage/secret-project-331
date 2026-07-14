@@ -26,6 +26,11 @@ interface GroupedTemplates {
   }[]
 }
 
+const formatDate = (date: Date | string): string => {
+  const d = typeof date === "string" ? new Date(date) : date
+  return d.toLocaleDateString()
+}
+
 const EmailTemplatesList: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("email-templates-title"))
@@ -92,16 +97,16 @@ const EmailTemplatesList: React.FC = () => {
     ]
 
     return templateTypes.map((templateType) => {
-      const typeTemplates = templates.filter((t) => t.template_type === templateType)
+      const typeTemplates = templates.filter((template) => template.template_type === templateType)
 
-      const global = typeTemplates.filter((t) => !t.course_id)
+      const global = typeTemplates.filter((template) => !template.course_id)
       const courseSpecific = typeTemplates.filter(
-        (t) => t.course_id !== null && t.course_id !== undefined,
+        (template) => template.course_id !== null && template.course_id !== undefined,
       )
 
       const courseGroups = new Map<string, EmailTemplate[]>()
       courseSpecific.forEach((template) => {
-        // oxlint-disable-next-line typescript/no-non-null-assertion -- courseSpecific was filtered above to items whose course_id is non-null/undefined
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- filtered above to items with non-null course_id
         const courseId = template.course_id!
         if (!courseGroups.has(courseId)) {
           courseGroups.set(courseId, [])
@@ -111,12 +116,12 @@ const EmailTemplatesList: React.FC = () => {
       })
 
       const courseSpecificGrouped = Array.from(courseGroups.entries())
-        .map(([courseId, templates]) => {
+        .map(([courseId, courseTemplates]) => {
           const course = courseMap.get(courseId)
           return {
             courseId,
             courseName: course?.name || courseId,
-            templates,
+            templates: courseTemplates,
           }
         })
         .toSorted((a, b) => a.courseName.localeCompare(b.courseName))
@@ -173,11 +178,6 @@ const EmailTemplatesList: React.FC = () => {
 
     return templates
   }, [groupedTemplates, getTemplateTypeLabel])
-
-  const formatDate = (date: Date | string): string => {
-    const d = typeof date === "string" ? new Date(date) : date
-    return d.toLocaleDateString()
-  }
 
   if (templatesQuery.isError) {
     return <ErrorBanner variant={"readOnly"} error={templatesQuery.error} />
@@ -254,6 +254,7 @@ const EmailTemplatesList: React.FC = () => {
               <th>{t("label-language")}</th>
               <th>{t("label-course") as string}</th>
               <th>{t("email-template-last-updated")}</th>
+              {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- intentionally empty header cell above the actions column */}
               <th></th>
             </tr>
           </thead>

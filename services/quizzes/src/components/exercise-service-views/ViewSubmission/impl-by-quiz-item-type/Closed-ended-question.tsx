@@ -40,7 +40,7 @@ const ClosedEndedQuestionFeedback: React.FC<
   >
 > = ({ public_quiz_item, quiz_direction, quiz_item_answer_feedback, user_quiz_item_answer }) => {
   const { t } = useTranslation()
-  const correct = quiz_item_answer_feedback?.correctnessCoefficient == 1
+  const correct = quiz_item_answer_feedback?.correctnessCoefficient === 1
   const fieldId = useId()
   const item_feedback = quiz_item_answer_feedback?.quiz_item_feedback
   return (

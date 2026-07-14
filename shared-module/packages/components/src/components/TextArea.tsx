@@ -102,7 +102,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
   const generatedInputId = useId()
   const inputId = id ?? generatedInputId
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const stringValue = field.value == null ? "" : String(field.value)
+  const stringValue = field.value === null || field.value === undefined ? "" : String(field.value)
 
   const floatingState = useFloatingFieldState({
     defaultValue: undefined,
@@ -141,7 +141,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
       return
     }
     const nextHeight = applyAutoResize(textareaRef.current, autoResizeMaxHeightPx)
-    if (nextHeight != null) {
+    if (nextHeight !== null) {
       onAutoResized?.(nextHeight)
     }
   }, [stringValue, autoResize, autoResizeMaxHeightPx, onAutoResized])
@@ -150,7 +150,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     field.onChange(e.target.value)
     if (autoResize && textareaRef.current) {
       const nextHeight = applyAutoResize(textareaRef.current, autoResizeMaxHeightPx)
-      if (nextHeight != null) {
+      if (nextHeight !== null) {
         onAutoResized?.(nextHeight)
       }
     }

@@ -222,7 +222,7 @@ const RegradingsPage: React.FC = () => {
           variant="primary"
           size="medium"
           disabled={!isValid || newRegradingMutation.isPending}
-          onClick={handleSubmit(async (data) => {
+          onClick={handleSubmit((data) => {
             const lines = data.ids
               .trim()
               .split("\n")

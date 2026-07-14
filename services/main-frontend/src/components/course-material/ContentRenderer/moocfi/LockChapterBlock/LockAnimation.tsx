@@ -143,7 +143,7 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
       const x1 = Math.cos(a) * speed
       const y1 = Math.sin(a) * speed - up
 
-      const spin = (Math.random() * 420 - 210) | 0
+      const spin = Math.trunc(Math.random() * 420 - 210)
       const s1 = 0.45 + Math.random() * 1.15
       const delay = Math.random() * 80
 

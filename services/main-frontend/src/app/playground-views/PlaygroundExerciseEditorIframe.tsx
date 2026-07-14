@@ -61,11 +61,9 @@ const PlaygroundExerciseEditorIframe: React.FC<
           user_information: userInformation,
           repository_exercises: repositoryExercises,
         }}
-        onMessageFromIframe={async (msg, _responsePort) => {
-          if (isMessageFromIframe(msg)) {
-            if (msg.message === "current-state") {
-              setCurrentStateReceivedFromIframe(msg)
-            }
+        onMessageFromIframe={(msg, _responsePort) => {
+          if (isMessageFromIframe(msg) && msg.message === "current-state") {
+            setCurrentStateReceivedFromIframe(msg)
           }
         }}
         title={TITLE}

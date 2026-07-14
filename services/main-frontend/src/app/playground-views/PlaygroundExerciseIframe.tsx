@@ -121,6 +121,7 @@ const PlaygroundExerciseIframe: React.FC<
                   error: JSON.stringify(e, null, 2),
                 }
               }
+              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
               responsePort.postMessage(response)
             }
           }

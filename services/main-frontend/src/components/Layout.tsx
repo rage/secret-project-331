@@ -56,7 +56,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
       : []
 
   const visibleLayout = noVisibleLayout ? (
-    <>{children}</>
+    children
   ) : (
     <>
       <div

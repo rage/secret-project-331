@@ -29,7 +29,7 @@ export const Deprecated1: BlockDeprecation<Deprecated1AsideComponentProps> = {
     },
   },
   save() {
-    return <></>
+    return null
   },
   isEligible: (attributes) => Boolean(attributes.title || attributes.bodyText),
   // @ts-expect-error: wat

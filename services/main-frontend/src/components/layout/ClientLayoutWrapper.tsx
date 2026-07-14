@@ -36,20 +36,20 @@ function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
-      jssStyles.parentElement?.removeChild(jssStyles)
+      jssStyles.remove()
     }
   }, [])
 
   useEffect(() => {
-    i18n.on("languageChanged", (language) => {
-      console.info(`i18n language changed to: ${language}`)
+    i18n.on("languageChanged", (changedLanguage) => {
+      console.info(`i18n language changed to: ${changedLanguage}`)
       const htmlElement = document.querySelector("html")
       if (!htmlElement) {
         return
       }
-      htmlElement.setAttribute("lang", language)
-      htmlElement.setAttribute("dir", getDir(language))
-      setLanguage(language)
+      htmlElement.setAttribute("lang", changedLanguage)
+      htmlElement.setAttribute("dir", getDir(changedLanguage))
+      setLanguage(changedLanguage)
     })
     i18n.on("loaded", () => {
       // Updating the counter forces the  whole app to re-render

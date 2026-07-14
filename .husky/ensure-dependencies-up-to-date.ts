@@ -1,7 +1,6 @@
 import { exec as execOriginal, spawn } from "child_process"
 import { mkdir, readFile, writeFile } from "fs/promises"
 import path from "path"
-import { fileURLToPath } from "url"
 import { promisify } from "util"
 
 const exec = promisify(execOriginal)
@@ -72,4 +71,4 @@ async function getLatestCommitHash(relativePath: string): Promise<string> {
   return res.stdout.trim()
 }
 
-main()
+await main()

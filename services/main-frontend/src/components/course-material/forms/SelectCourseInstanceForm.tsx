@@ -99,7 +99,7 @@ const SelectCourseInstanceForm: React.FC<
   }, [additionalQuestionsQuery.data])
 
   useEffect(() => {
-    if (courseInstances.find((x) => x.id === selectedInstanceId)) {
+    if (courseInstances.some((x) => x.id === selectedInstanceId)) {
       // Selected course instance is an allowed option
       return
     }
@@ -132,127 +132,123 @@ const SelectCourseInstanceForm: React.FC<
 
   return (
     <div>
-      <>
-        <h2 data-testid="select-course-instance-heading">
-          {t("title-select-course-instance")}
-          <GreenText>*</GreenText>
-        </h2>
-        <FieldContainer role="radiogroup" aria-label={t("label-course-instance")} aria-required>
-          {courseInstances.map((courseInstance) => (
-            <div key={courseInstance.id}>
-              <RadioButton
-                className={css`
-                  span {
-                    font-weight: 500;
-                  }
-                `}
-                key={courseInstance.id}
-                {...(courseInstance.name === null
-                  ? // oxlint-disable-next-line i18next/no-literal-string
-                    { "data-testid": "default-course-instance-radiobutton" }
-                  : undefined)}
-                label={courseInstance.name || t("default-course-instance-name")}
-                onChange={(_event) => setSelectedInstanceId(courseInstance.id)}
-                checked={selectedInstanceId === courseInstance.id}
-                name="select-course-instance"
-              />
-              <span
-                className={css`
-                  font-size: 15px;
-                  display: flex;
-                  margin-top: -0.4rem;
-                `}
-              >
-                {courseInstance.description}
-              </span>
-            </div>
-          ))}
-        </FieldContainer>
-        <div
-          className={css`
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-            color: ${baseTheme.colors.gray[600]};
-          `}
-        >
-          <GreenText>*</GreenText> {t("select-course-instance-explanation")}
-        </div>
-        {selectedInstanceId !== undefined &&
-          additionalQuestions &&
-          additionalQuestions.length > 0 && (
-            <div
+      <h2 data-testid="select-course-instance-heading">
+        {t("title-select-course-instance")}
+        <GreenText>*</GreenText>
+      </h2>
+      <FieldContainer role="radiogroup" aria-label={t("label-course-instance")} aria-required>
+        {courseInstances.map((courseInstance) => (
+          <div key={courseInstance.id}>
+            <RadioButton
               className={css`
-                margin-bottom: 1rem;
+                span {
+                  font-weight: 500;
+                }
+              `}
+              key={courseInstance.id}
+              {...(courseInstance.name === null
+                ? // oxlint-disable-next-line i18next/no-literal-string
+                  { "data-testid": "default-course-instance-radiobutton" }
+                : undefined)}
+              label={courseInstance.name || t("default-course-instance-name")}
+              onChange={(_event) => setSelectedInstanceId(courseInstance.id)}
+              checked={selectedInstanceId === courseInstance.id}
+              name="select-course-instance"
+            />
+            <span
+              className={css`
+                font-size: 15px;
+                display: flex;
+                margin-top: -0.4rem;
               `}
             >
-              <>
-                <h2>{t("title-additional-questions")}</h2>
-                {additionalQuestions.map((additionalQuestion) => {
-                  if (additionalQuestion.question_type === "Checkbox") {
-                    const answer = additionalQuestionAnswers.find(
-                      (a) => a.course_background_question_id === additionalQuestion.id,
-                    )
-                    return (
-                      <AdditionalQuestionWrapper key={additionalQuestion.id}>
-                        <CheckBox
-                          label={additionalQuestion.question_text}
-                          checked={answer?.answer_value === "t"}
-                          onChange={(event) => {
-                            // oxlint-disable-next-line i18next/no-literal-string
-                            const valueAsString = event.target.value ? "t" : "f"
-                            setAdditionalQuestionAnswers((prev) => {
-                              const newArray = prev.filter(
-                                (a) => a.course_background_question_id !== additionalQuestion.id,
-                              )
-                              newArray.push({
-                                answer_value: valueAsString,
-                                course_background_question_id: additionalQuestion.id,
-                              })
-                              return newArray
-                            })
-                          }}
-                        />
-                      </AdditionalQuestionWrapper>
-                    )
-                  }
-                  return (
-                    <AdditionalQuestionWrapper key={additionalQuestion.id}>
-                      {t("unsupported-question-type")}
-                    </AdditionalQuestionWrapper>
-                  )
-                })}
-              </>
-            </div>
-          )}
-        {additionalQuestionsQuery.error && (
-          <ErrorBanner variant="readOnly" error={additionalQuestionsQuery.error} />
-        )}
-        {getCourse.data?.ask_marketing_consent && (
-          <div>
-            <SelectMarketingConsentForm
-              courseId={selectedLangCourseId}
-              dialogLanguage={dialogLanguage}
-              onEmailSubscriptionConsentChange={setIsEmailSubscriptionConsentChecked}
-              onMarketingConsentChange={setIsMarketingConsentChecked}
-            />
+              {courseInstance.description}
+            </span>
+          </div>
+        ))}
+      </FieldContainer>
+      <div
+        className={css`
+          margin-top: 1rem;
+          margin-bottom: 1rem;
+          color: ${baseTheme.colors.gray[600]};
+        `}
+      >
+        <GreenText>*</GreenText> {t("select-course-instance-explanation")}
+      </div>
+      {selectedInstanceId !== undefined &&
+        additionalQuestions &&
+        additionalQuestions.length > 0 && (
+          <div
+            className={css`
+              margin-bottom: 1rem;
+            `}
+          >
+            <h2>{t("title-additional-questions")}</h2>
+            {additionalQuestions.map((additionalQuestion) => {
+              if (additionalQuestion.question_type === "Checkbox") {
+                const answer = additionalQuestionAnswers.find(
+                  (a) => a.course_background_question_id === additionalQuestion.id,
+                )
+                return (
+                  <AdditionalQuestionWrapper key={additionalQuestion.id}>
+                    <CheckBox
+                      label={additionalQuestion.question_text}
+                      checked={answer?.answer_value === "t"}
+                      onChange={(event) => {
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        const valueAsString = event.target.value ? "t" : "f"
+                        setAdditionalQuestionAnswers((prev) => {
+                          const newArray = prev.filter(
+                            (a) => a.course_background_question_id !== additionalQuestion.id,
+                          )
+                          newArray.push({
+                            answer_value: valueAsString,
+                            course_background_question_id: additionalQuestion.id,
+                          })
+                          return newArray
+                        })
+                      }}
+                    />
+                  </AdditionalQuestionWrapper>
+                )
+              }
+              return (
+                <AdditionalQuestionWrapper key={additionalQuestion.id}>
+                  {t("unsupported-question-type")}
+                </AdditionalQuestionWrapper>
+              )
+            })}
           </div>
         )}
+      {additionalQuestionsQuery.error && (
+        <ErrorBanner variant="readOnly" error={additionalQuestionsQuery.error} />
+      )}
+      {getCourse.data?.ask_marketing_consent && (
         <div>
-          <Button
-            size="medium"
-            variant="primary"
-            onClick={enrollOnCourse}
-            disabled={
-              !selectedInstanceId ||
-              additionalQuestionsQuery.isLoading ||
-              (getCourse.data?.ask_marketing_consent && !isEmailSubscriptionConsentChecked)
-            }
-            data-testid="select-course-instance-continue-button"
-          >
-            {t("continue")}
-          </Button>
+          <SelectMarketingConsentForm
+            courseId={selectedLangCourseId}
+            dialogLanguage={dialogLanguage}
+            onEmailSubscriptionConsentChange={setIsEmailSubscriptionConsentChecked}
+            onMarketingConsentChange={setIsMarketingConsentChecked}
+          />
         </div>
-      </>
+      )}
+      <div>
+        <Button
+          size="medium"
+          variant="primary"
+          onClick={enrollOnCourse}
+          disabled={
+            !selectedInstanceId ||
+            additionalQuestionsQuery.isLoading ||
+            (getCourse.data?.ask_marketing_consent && !isEmailSubscriptionConsentChecked)
+          }
+          data-testid="select-course-instance-continue-button"
+        >
+          {t("continue")}
+        </Button>
+      </div>
     </div>
   )
 }
@@ -261,7 +257,7 @@ function figureOutInitialValue(
   instances: CourseInstance[],
   initialSelectedInstanceId: string | undefined,
 ): string | undefined {
-  if (initialSelectedInstanceId && instances.find((x) => x.id === initialSelectedInstanceId)) {
+  if (initialSelectedInstanceId && instances.some((x) => x.id === initialSelectedInstanceId)) {
     return initialSelectedInstanceId
   }
   if (instances.length === 1) {

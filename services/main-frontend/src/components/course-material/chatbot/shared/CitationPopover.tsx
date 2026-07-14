@@ -162,6 +162,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
             gap: 10px;
           `}
         >
+          {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- link label comes from dynamic child text (citation title) */}
           <a
             href={citation.document_url}
             className={css`

@@ -115,9 +115,9 @@ const CheckBox = forwardRef<HTMLInputElement, CheckboxProps>(
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (onChangeByValue) {
         const {
-          target: { checked },
+          target: { checked: nextChecked },
         } = event
-        onChangeByValue(checked)
+        onChangeByValue(nextChecked)
       }
       if (onChange) {
         onChange(event)

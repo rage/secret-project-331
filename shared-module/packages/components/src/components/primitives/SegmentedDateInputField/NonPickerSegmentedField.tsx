@@ -90,7 +90,7 @@ export function NonPickerSegmentedField({
   const hideRestSegmentPlaceholders = shouldHideRestSegmentPlaceholders(
     layout,
     isFocused,
-    state.value != null,
+    state.value !== null,
   )
 
   return (
@@ -115,7 +115,7 @@ export function NonPickerSegmentedField({
       isRequired={resolvedState.isRequired}
       layout={layout}
       fieldSize={fieldSize}
-      isFloatingRaised={layout === "floating" ? isFocused || state.value != null : true}
+      isFloatingRaised={layout === "floating" ? isFocused || state.value !== null : true}
       isFloatingFocused={layout === "floating" ? isFocused : false}
       isInvalid={state.isInvalid}
     >
@@ -181,9 +181,7 @@ export function NonPickerSegmentedField({
         type="hidden"
         aria-describedby={describedBy}
         value={hiddenInputValue}
-        onChange={() => {
-          return
-        }}
+        onChange={() => {}}
       />
       {iconEnd ? <span className={inlineAffixCss}>{iconEnd}</span> : null}
     </FieldShell>

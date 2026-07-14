@@ -106,7 +106,7 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
   })
 
   const inputValue =
-    checkboxValue == null
+    checkboxValue === undefined
       ? undefined
       : Array.isArray(checkboxValue)
         ? checkboxValue.join(",")

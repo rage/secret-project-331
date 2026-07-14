@@ -210,9 +210,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
                 variant={"icon"}
                 size={"small"}
               >
-                {status == UpdateStatus.none ? (
+                {status === UpdateStatus.none ? (
                   <FloppyDiskSave size={20} />
-                ) : status == UpdateStatus.saved ? (
+                ) : status === UpdateStatus.saved ? (
                   <CheckCircle size={20} />
                 ) : (
                   <BellXmark size={20} />

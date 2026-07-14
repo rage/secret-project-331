@@ -82,6 +82,7 @@ const QuizItemOption: React.FC<QuizOptionProps> = ({ quizOption }) => {
     <QuizCard
       disabled={disabled}
       onClick={createQuizItem}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- QuizCard is a styled component with role=button; no native button
       role="button"
       id={`quiz-option-card-${type}`}
     >

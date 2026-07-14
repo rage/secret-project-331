@@ -168,23 +168,24 @@ const CreateAccountForm: React.FC = () => {
   }, [email, trigger])
 
   const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(
+    // oxlint-disable-next-line eslint/require-await -- kept async for the mutationFn Promise<SignupResponse> contract
     async (data) => {
       const {
         first_name,
         last_name,
-        email,
-        password,
+        email: emailValue,
+        password: passwordValue,
         password_confirmation,
         country,
         email_communication_consent,
       } = data
       return postAuthSignup({
         body: {
-          email: email,
+          email: emailValue,
           first_name: first_name,
           last_name: last_name,
           language: i18n.language,
-          password: password,
+          password: passwordValue,
           password_confirmation: password_confirmation,
           country: country,
           email_communication_consent: Boolean(email_communication_consent),

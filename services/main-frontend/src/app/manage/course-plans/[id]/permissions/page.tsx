@@ -172,7 +172,9 @@ const CoursePlanPermissionsPage: React.FC = () => {
     <div className={pageStyles}>
       <h1 className={titleStyles}>{t("course-plan-permissions-title")}</h1>
 
-      {mutationError != null && <ErrorBanner variant="readOnly" error={normalizedMutationError} />}
+      {mutationError !== null && mutationError !== undefined && (
+        <ErrorBanner variant="readOnly" error={normalizedMutationError} />
+      )}
 
       <form className={addFormStyles} onSubmit={handleAddMember}>
         <TextField

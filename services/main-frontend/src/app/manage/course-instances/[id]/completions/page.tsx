@@ -103,7 +103,7 @@ const CompletionsPage: React.FC = () => {
     useState<TeacherManualCompletionRequest | null>(null)
   const [previewData, setPreviewData] = useState<ManualCompletionPreview | null>(null)
   const mutation = useToastMutation(
-    async (data: TeacherManualCompletionRequest) =>
+    (data: TeacherManualCompletionRequest) =>
       createCourseInstanceCompletions({
         body: data,
         path: {
@@ -160,7 +160,7 @@ const CompletionsPage: React.FC = () => {
           ? completions.reduce((max, curr) => {
               let gradeValue: number
 
-              if (curr.grade != null) {
+              if (curr.grade !== null && curr.grade !== undefined) {
                 gradeValue = curr.grade
               } else if (curr.passed) {
                 gradeValue = 0.5 // "pass"

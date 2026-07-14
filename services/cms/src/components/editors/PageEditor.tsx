@@ -120,7 +120,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   )
   const currentContentStateSaved = isEqual(savedContent, content) && savedTitle === title
   const [currentlySaving, setCurrentlySaving] = useState(false)
-  const handleOnSave = async () => {
+  const handleOnSave = () => {
     setCurrentlySaving(true)
     const dataToSave = normalizeDocument({
       chapterId: data.chapter_id ?? null,
@@ -139,21 +139,21 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       }
     }
     saveMutation.mutate(dataToSave, {
-      onSuccess: (data) => {
-        if (!isGutenbergBlockArray(data.page.content)) {
+      onSuccess: (saveResult) => {
+        if (!isGutenbergBlockArray(saveResult.page.content)) {
           throw new Error("Content is not a GutenbergBlock array")
         }
         contentDispatch({
           type: "setContent",
           payload: denormalizeDocument({
-            content: data.page.content,
-            exercises: data.exercises,
-            exercise_slides: data.exercise_slides,
-            exercise_tasks: data.exercise_tasks,
-            url_path: data.page.url_path,
-            title: data.page.title,
-            chapter_id: data.page.chapter_id,
-            hidden: data.page.hidden,
+            content: saveResult.page.content,
+            exercises: saveResult.exercises,
+            exercise_slides: saveResult.exercise_slides,
+            exercise_tasks: saveResult.exercise_tasks,
+            url_path: saveResult.page.url_path,
+            title: saveResult.page.title,
+            chapter_id: saveResult.page.chapter_id,
+            hidden: saveResult.page.hidden,
           }).content,
         })
         setNeedToRunMigrationsAndValidations(true)
@@ -170,7 +170,9 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   } else if (data.exam_id) {
     mediaUpload = mediaUploadBuilder({ examId: data.exam_id })
   } else {
-    throw "The backend should ensure that a page is associated with either a course or an exam"
+    throw new Error(
+      "The backend should ensure that a page is associated with either a course or an exam",
+    )
   }
 
   const getNextPageRoutingData = useQuery(
@@ -333,7 +335,9 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
           <DebugModal
             data={content}
             readOnly={false}
-            updateDataOnClose={(data) => contentDispatch({ type: "setContent", payload: data })}
+            updateDataOnClose={(updatedContent) =>
+              contentDispatch({ type: "setContent", payload: updatedContent })
+            }
           />
         </div>
       </div>

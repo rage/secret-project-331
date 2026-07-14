@@ -41,11 +41,11 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
 
   const postPasswordChangeMutation = useToastMutation<boolean, unknown, ResetPasswordFormFields>(
     async (data) => {
-      const { token, new_password } = data
+      const { token: formToken, new_password } = data
       return validateGeneratedData(
         await resetUserPassword({
           body: {
-            token,
+            token: formToken,
             new_password,
           },
         }),

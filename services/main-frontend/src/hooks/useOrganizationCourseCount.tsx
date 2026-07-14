@@ -22,7 +22,7 @@ export const useOrganizationCourseCount = (organizationId: string | null) => {
   const getOrgCourseCount = useQuery({
     ...getOrganizationCourseCountOptions({
       path: {
-        // oxlint-disable-next-line typescript/no-non-null-assertion -- enabled: !!organizationId guards this query, so organizationId is set when it runs
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- enabled guard ensures organizationId is set when it runs
         organization_id: organizationId!,
       },
     }),

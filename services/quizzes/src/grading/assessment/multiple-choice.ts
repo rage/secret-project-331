@@ -43,11 +43,11 @@ const getMultipleChoicePointsByGradingPolicy = (
       break
     case "some-correct-none-incorrect":
       totalScore =
-        countOfCorrectAnswers !== 0 && countOfIncorrectAnswers == 0 ? totalCorrectAnswers : 0
+        countOfCorrectAnswers !== 0 && countOfIncorrectAnswers === 0 ? totalCorrectAnswers : 0
       break
     default:
       totalScore =
-        countOfCorrectAnswers == totalCorrectAnswers && countOfIncorrectAnswers == 0
+        countOfCorrectAnswers === totalCorrectAnswers && countOfIncorrectAnswers === 0
           ? totalCorrectAnswers
           : 0
       break

@@ -54,11 +54,13 @@ export function useRunOutput() {
     if (!worker) {
       return
     }
-    if (flushTimerRef.current != null) {
+    if (flushTimerRef.current !== null) {
       clearInterval(flushTimerRef.current)
       flushTimerRef.current = null
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
     worker.onmessage = null
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
     worker.onerror = null
     setPyodideLoading(false)
     setRunExecuting(false)
@@ -69,6 +71,7 @@ export function useRunOutput() {
   }, [])
 
   const runPython = useCallback(
+    // oxlint-disable-next-line eslint/require-await -- kept async; runPython is a public hook API callers may await
     async (contents: string) => {
       if (runExecuting) {
         stopRun()
@@ -137,22 +140,26 @@ export function useRunOutput() {
             setWaitingForInput(true)
             break
           case "run_done":
-            if (flushTimerRef.current != null) {
+            if (flushTimerRef.current !== null) {
               clearInterval(flushTimerRef.current)
               flushTimerRef.current = null
             }
             flushStdout()
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
             activeWorker.onmessage = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
             activeWorker.onerror = null
             finish(data.output ?? runOutputBufferRef.current, null)
             break
           case "run_error":
-            if (flushTimerRef.current != null) {
+            if (flushTimerRef.current !== null) {
               clearInterval(flushTimerRef.current)
               flushTimerRef.current = null
             }
             flushStdout()
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
             activeWorker.onmessage = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
             activeWorker.onerror = null
             finish(data.output ?? runOutputBufferRef.current, data.message ?? "Unknown error")
             break
@@ -162,24 +169,29 @@ export function useRunOutput() {
       }
 
       const handleError = () => {
-        if (flushTimerRef.current != null) {
+        if (flushTimerRef.current !== null) {
           clearInterval(flushTimerRef.current)
           flushTimerRef.current = null
         }
         flushStdout()
+        // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
         activeWorker.onmessage = null
+        // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
         activeWorker.onerror = null
         finish(runOutputBufferRef.current, "Worker error")
       }
 
-      if (flushTimerRef.current != null) {
+      if (flushTimerRef.current !== null) {
         clearInterval(flushTimerRef.current)
         flushTimerRef.current = null
       }
       flushTimerRef.current = setInterval(flushStdout, 50)
 
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       worker.onmessage = handleMessage
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       worker.onerror = handleError
+      // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
       worker.postMessage({ type: "run", script: contents })
     },
     [runExecuting, stopRun],

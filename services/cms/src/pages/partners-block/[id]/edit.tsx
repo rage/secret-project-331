@@ -33,11 +33,11 @@ const PartnersBlockEdit: React.FC<React.PropsWithChildren<PartnersBlockProps>> =
   const blockQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (resolvedCourseId): resolvedCourseId is string => Boolean(resolvedCourseId),
+      build: (resolvedCourseId) =>
         getCmsCoursePartnersBlockOptions({
           path: {
-            course_id: courseId,
+            course_id: resolvedCourseId,
           },
         }),
     }),

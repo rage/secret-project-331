@@ -47,6 +47,7 @@ const CheckBoxFeedback: React.FC<
               <input
                 type="checkbox"
                 checked={checked}
+                readOnly
                 aria-label={public_quiz_item.title ?? undefined}
               />
             </div>
@@ -72,6 +73,7 @@ const CheckBoxFeedback: React.FC<
               <input
                 type="checkbox"
                 checked={checked}
+                readOnly
                 aria-label={public_quiz_item.title ?? undefined}
               />
             </div>

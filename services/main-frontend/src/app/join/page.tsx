@@ -79,13 +79,13 @@ const JoinCoursePage: React.FC = () => {
   ])
 
   const handleRedirectMutation = useToastMutation(
-    async (courseId: string) => {
+    async (targetCourseId: string) => {
       await joinCourseWithJoinCode({
         body: {
           join_code: joinCode ?? "",
         },
         path: {
-          course_id: courseId,
+          course_id: targetCourseId,
         },
       })
     },

@@ -74,6 +74,11 @@ class FakeMutationObserver {
 // @ts-expect-error: Just to prevent a crash, not used
 global.MutationObserver = FakeMutationObserver
 
+const sanitizeNames = (name: string) => {
+  const newName = name.replace("core/", "").replaceAll(/-./g, (x) => x.toUpperCase()[1])
+  return newName.charAt(0).toUpperCase() + newName.slice(1) + "Attributes"
+}
+
 //** Extract Gutenberg block attribute types */
 async function main() {
   const elementDir = path.dirname(require.resolve("@wordpress/element/package.json"))
@@ -113,15 +118,10 @@ async function main() {
     }
   })
 
-  const sanitizeNames = (name: string) => {
-    const newName = name.replace("core/", "").replaceAll(/-./g, (x) => x.toUpperCase()[1])
-    return newName.charAt(0).toUpperCase() + newName.slice(1) + "Attributes"
-  }
-
   const blockTypes: BlockType<Record<string, unknown>>[] = blocks.getBlockTypes()
   const jsonSchemaTypes: JSONSchema[] = blockTypes
     .toReversed()
-    .map(addSupportsAttributes)
+    .map((block) => addSupportsAttributes(block))
     .map((block) => {
       // Fetch core/table head, foot, body types
       if (block.name === "core/table") {
@@ -301,4 +301,4 @@ function addSupportsAttributes(block: BlockType): BlockType {
   return { ...block, attributes: attributes }
 }
 
-main()
+await main()

@@ -196,7 +196,6 @@ const LoadingState = ({ debugId }: { debugId: string }) => {
             "Import resolved; waiting for first React commit (mount).",
           ),
         }
-      case DYNAMIC_IMPORT_STATE_COMMITTED:
       default:
         return null
     }

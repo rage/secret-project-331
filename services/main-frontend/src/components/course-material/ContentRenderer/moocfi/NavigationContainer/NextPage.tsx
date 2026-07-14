@@ -93,6 +93,13 @@ const ChapterProgress = styled.div`
 const NUMERIC = "numeric"
 const LONG = "long"
 
+function calculatePercentage(attempted: number, total: number): string {
+  if (total === 0) {
+    return "0%"
+  }
+  return Math.round((attempted / total) * 100) + "%"
+}
+
 const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   chapterId,
   currentPageId,
@@ -136,6 +143,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
     getUserChapterProgress.isSuccess && getUserChapterProgress.data
       ? {
           maxScore: getUserChapterProgress.data.score_maximum ?? 0,
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat intended; Number() differs
           givenScore: parseFloat((getUserChapterProgress.data.score_given ?? 0).toFixed(2)),
           attemptedExercises: getUserChapterProgress.data.attempted_exercises ?? 0,
           totalExercises: getUserChapterProgress.data.total_exercises ?? 0,
@@ -166,13 +174,6 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
     organizationSlug,
     t,
   ])
-
-  function calculatePercentage(attempted: number, total: number): string {
-    if (total === 0) {
-      return "0%"
-    }
-    return Math.round((attempted / total) * 100) + "%"
-  }
 
   return (
     <QueryResult query={getPageRoutingData}>
@@ -234,23 +235,23 @@ function deriveNextpageProps(
     ),
   }
 
-  const endOfCourse = info.next_page == null
+  const endOfCourse = info.next_page === null || info.next_page === undefined
   const endOfChapter = info.next_page?.chapter_id !== chapterId
   const currentPageIsChapterFrontPage = Boolean(
     info.chapter_front_page && info.chapter_front_page.chapter_front_page_id === currentPageId,
   )
   let nextPageIsNotOpen = false
-  if (info.next_page?.chapter_opens_at != null) {
+  if (info.next_page?.chapter_opens_at !== null && info.next_page?.chapter_opens_at !== undefined) {
     const diffSeconds = differenceInSeconds(parseISO(info.next_page.chapter_opens_at), now)
     if (diffSeconds > 0) {
       nextPageIsNotOpen = true
     }
   }
 
-  if (info.previous_page != null) {
+  if (info.previous_page !== null && info.previous_page !== undefined) {
     res.previous = coursePageRoute(organizationSlug, courseSlug, info.previous_page.url_path)
   }
-  if (info.next_page != null) {
+  if (info.next_page !== null && info.next_page !== undefined) {
     res.nextTitle = info.next_page.title
     res.url = coursePageRoute(organizationSlug, courseSlug, info.next_page.url_path)
   }
@@ -276,7 +277,10 @@ function deriveNextpageProps(
   if (nextPageIsNotOpen) {
     res.nextTitle = t("closed")
     res.url = undefined
-    if (info.next_page?.chapter_opens_at != null) {
+    if (
+      info.next_page?.chapter_opens_at !== null &&
+      info.next_page?.chapter_opens_at !== undefined
+    ) {
       const diffSeconds = differenceInSeconds(parseISO(info.next_page.chapter_opens_at), now)
       if (diffSeconds <= 0) {
         res.nextTitle = t("opens-now")

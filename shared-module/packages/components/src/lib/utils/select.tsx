@@ -32,7 +32,7 @@ export interface NormalizedSelectCollection {
 }
 
 function getNodeTextValue(node: React.ReactNode): string {
-  if (node == null || typeof node === "boolean") {
+  if (node === null || node === undefined || typeof node === "boolean") {
     return ""
   }
 
@@ -41,7 +41,7 @@ function getNodeTextValue(node: React.ReactNode): string {
   }
 
   if (Array.isArray(node)) {
-    return node.map(getNodeTextValue).join("")
+    return node.map((child) => getNodeTextValue(child)).join("")
   }
 
   if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
@@ -153,7 +153,7 @@ export function buildSelectCollectionNodes(collection: NormalizedSelectCollectio
 
   return orderedNodes
     .map((node) => {
-      if (node == null || !("groupKey" in node)) {
+      if (node === null || node === undefined || !("groupKey" in node)) {
         return node
       }
 
@@ -172,7 +172,7 @@ export function buildSelectCollectionNodes(collection: NormalizedSelectCollectio
         </Section>
       )
     })
-    .filter((node): node is React.ReactElement => node != null)
+    .filter((node): node is React.ReactElement => node !== null)
 }
 
 export function findSelectOptionByValue(

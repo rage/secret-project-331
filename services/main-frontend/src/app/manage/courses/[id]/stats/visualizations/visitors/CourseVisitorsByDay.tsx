@@ -55,7 +55,7 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
     if (!data) {
       return 0
     }
-    return max(Object.values(data).map((o) => max(o.map((o) => o.count)))) ?? 0
+    return max(Object.values(data).map((o) => max(o.map((visit) => visit.count)))) ?? 0
   }, [data])
 
   return (

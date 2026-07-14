@@ -57,7 +57,7 @@ const QuizCommonInfo: React.FC = () => {
   )
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (

@@ -31,7 +31,10 @@ export const renumberFilterCitations = (
     return { filteredCitations: [], citedDocs: [], citationNumberingMap: new Map() }
   }
 
-  let citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
+  let citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
+    parseInt(arr[1], 10),
+  )
 
   // there might be hallucinated citations in the message :(
   // remove the hallucinated citations
@@ -128,7 +131,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   }, [message, citations, isFromChatbot])
 
   const [processedMessage, processedCitations, citationNumberingMap] = useMemo(() => {
-    const { filteredCitations, citationNumberingMap } = renumberFilterCitationsResult
+    const { filteredCitations, citationNumberingMap: numberingMap } = renumberFilterCitationsResult
 
     let renderOption = !isFromChatbot
       ? MessageRenderType.User
@@ -142,7 +145,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         citationButtonClicked={citationButtonClicked}
         currentTriggerId={triggerElementId}
         message={message}
-        citationNumberingMap={citationNumberingMap}
+        citationNumberingMap={numberingMap}
         handleClick={(e) => {
           setCitationButtonClicked(true)
           triggerElement.current = e.currentTarget
@@ -152,7 +155,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       />
     )
 
-    return [renderedMessage, filteredCitations, citationNumberingMap]
+    return [renderedMessage, filteredCitations, numberingMap]
   }, [
     message,
     isFromChatbot,

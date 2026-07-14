@@ -19,7 +19,7 @@ const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesP
   return (
     <div>
       <QueryResult query={course}>
-        {(course) => (
+        {(courseData) => (
           <>
             <h1
               className={css`
@@ -29,13 +29,13 @@ const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesP
                 font-weight: bold;
               `}
             >
-              {t("roles-for-course")} {course.name}
+              {t("roles-for-course")} {courseData.name}
             </h1>
             <PermissionPage
               domain={{
                 // oxlint-disable-next-line i18next/no-literal-string
                 tag: "Course",
-                id: course.id,
+                id: courseData.id,
               }}
             />
           </>

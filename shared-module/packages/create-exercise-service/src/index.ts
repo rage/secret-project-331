@@ -1,6 +1,5 @@
 import { cp, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises"
 import { dirname, extname, join, relative, resolve, sep } from "node:path"
-import { fileURLToPath } from "node:url"
 
 const SCRIPT_DIR = import.meta.dirname
 // src -> create-exercise-service -> packages -> shared-module -> repository root
@@ -379,14 +378,16 @@ create-exercise-service (or copy the packages over manually) to update it.
 
 // Only run the interactive CLI when executed directly, not when imported (e.g. by tests).
 if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {
-  main().catch((error) => {
+  try {
+    await main()
+  } catch (error) {
     // @inquirer/prompts rejects with ExitPromptError when the user aborts a prompt with Ctrl+C;
     // exit quietly instead of printing an unhandled-rejection stack trace.
     if (error instanceof Error && error.name === "ExitPromptError") {
       process.exitCode = 130
-      return
+    } else {
+      console.error(error instanceof Error ? error.message : error)
+      process.exitCode = 1
     }
-    console.error(error instanceof Error ? error.message : error)
-    process.exitCode = 1
-  })
+  }
 }

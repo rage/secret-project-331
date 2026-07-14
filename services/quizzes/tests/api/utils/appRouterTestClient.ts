@@ -79,6 +79,7 @@ class RequestBuilder implements PromiseLike<TestResponse> {
     return result
   }
 
+  // oxlint-disable-next-line unicorn/no-thenable -- intentional thenable implementing PromiseLike so builder can be awaited
   public then<TResult1 = TestResponse, TResult2 = never>(
     onfulfilled?: ((value: TestResponse) => TResult1 | PromiseLike<TResult1>) | null,
     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,

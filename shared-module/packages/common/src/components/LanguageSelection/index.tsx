@@ -66,82 +66,80 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   useClickOutside(outSideClickRef, () => setVisible(false), visible)
 
   return (
-    <>
-      <div ref={outSideClickRef}>
-        <button
-          type="button"
-          className={css`
-            background: none;
-            border: none;
-            padding: 0.6rem 1rem;
-            margin-bottom: 2px;
-            :hover {
-              cursor: pointer;
-            }
+    <div ref={outSideClickRef}>
+      <button
+        type="button"
+        className={css`
+          background: none;
+          border: none;
+          padding: 0.6rem 1rem;
+          margin-bottom: 2px;
+          :hover {
+            cursor: pointer;
+          }
 
-            ${noLanguagesToChange && `cursor: not-allowed !important;`}
-          `}
-          ref={setReferenceElement}
-          onClick={(e) => {
-            e.preventDefault()
-            setVisible(!visible)
-          }}
-        >
-          <LanguageTranslation
-            size={18}
-            className={css`
-              margin-right: 0.6rem;
-            `}
-          />
-          {t("language")}
-        </button>
-        <div
+          ${noLanguagesToChange && `cursor: not-allowed !important;`}
+        `}
+        ref={setReferenceElement}
+        onClick={(e) => {
+          e.preventDefault()
+          setVisible(!visible)
+        }}
+      >
+        <LanguageTranslation
+          size={18}
           className={css`
-            z-index: 800;
+            margin-right: 0.6rem;
           `}
-          ref={setPopperElement}
-          // oxlint-disable-next-line react/forbid-dom-props
-          style={styles.popper}
-          {...attributes.popper}
-        >
-          <LanguageMenu visible={visible}>
-            <ul
-              className={css`
-                padding: 0;
-              `}
-            >
-              {(languages ?? DEFAULT_LANGUAGES).map((x) => {
-                // Check if this language is currently active
-                // i18n.language can be in format "en-US" or just "en", so we need to handle both
-                const currentLang = i18n.language
-                const currentLangParts = currentLang ? currentLang.split("-") : []
-                const tagParts = x.tag ? x.tag.split("-") : []
-                const isActive = Boolean(
-                  currentLang === x.tag ||
-                  (currentLangParts[0] && tagParts[0] && currentLangParts[0] === tagParts[0]),
-                )
-                return (
-                  <LanguageOptionComponent
-                    key={x.tag}
-                    label={x.name}
-                    isActive={isActive}
-                    onClick={() => {
-                      if (handleLanguageChange) {
-                        handleLanguageChange(x.tag)
-                      } else {
-                        defaultHandleLanguageChange(x.tag)
-                      }
-                    }}
-                  />
-                )
-              })}
-            </ul>
-          </LanguageMenu>
-          {/* oxlint-disable-next-line react/forbid-dom-props */}
-          <div ref={setArrowElement} style={styles.arrow} />
-        </div>
+        />
+        {t("language")}
+      </button>
+      <div
+        className={css`
+          z-index: 800;
+        `}
+        ref={setPopperElement}
+        // oxlint-disable-next-line react/forbid-dom-props
+        style={styles.popper}
+        {...attributes.popper}
+      >
+        <LanguageMenu visible={visible}>
+          <ul
+            className={css`
+              padding: 0;
+            `}
+          >
+            {(languages ?? DEFAULT_LANGUAGES).map((x) => {
+              // Check if this language is currently active
+              // i18n.language can be in format "en-US" or just "en", so we need to handle both
+              const currentLang = i18n.language
+              const currentLangParts = currentLang ? currentLang.split("-") : []
+              const tagParts = x.tag ? x.tag.split("-") : []
+              const isActive = Boolean(
+                currentLang === x.tag ||
+                (currentLangParts[0] && tagParts[0] && currentLangParts[0] === tagParts[0]),
+              )
+              return (
+                <LanguageOptionComponent
+                  key={x.tag}
+                  label={x.name}
+                  isActive={isActive}
+                  onClick={() => {
+                    if (handleLanguageChange) {
+                      handleLanguageChange(x.tag)
+                    } else {
+                      defaultHandleLanguageChange(x.tag)
+                    }
+                  }}
+                />
+              )
+            })}
+          </ul>
+        </LanguageMenu>
+        {/* oxlint-disable-next-line react/forbid-dom-props */}
+        <div ref={setArrowElement} style={styles.arrow} />
       </div>
-    </>
+    </div>
   )
 }
 

@@ -132,7 +132,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   const [readyForPortal, setReadyForPortal] = useState(false)
 
   useLayoutEffect(() => {
-    if (renderOption == MessageRenderType.ChatbotWithCitations) {
+    if (renderOption === MessageRenderType.ChatbotWithCitations) {
       setReadyForPortal(true)
     } else {
       setReadyForPortal(false)

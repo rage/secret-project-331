@@ -11,7 +11,7 @@ function copyWithFallback(text: string): void {
   textArea.select()
 
   const successful = document.execCommand("copy")
-  document.body.removeChild(textArea)
+  textArea.remove()
   if (!successful) {
     throw new Error("Copy failed")
   }

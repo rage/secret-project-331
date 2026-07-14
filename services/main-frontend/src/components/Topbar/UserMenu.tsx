@@ -73,156 +73,154 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
   }
 
   return (
-    <>
-      <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
-        <TopBarMenuButton
-          id="topbar-user-menu"
-          ariaLabel="Open account menu"
-          tooltipText="Account menu"
-        >
-          <div
-            aria-hidden
-            className={css`
-              width: 28px;
-              height: 28px;
-              display: grid;
-              place-items: center;
-              border-radius: 50%;
-              background: #e5e7eb;
-              color: #374151;
-              font-weight: 600;
-              font-size: 12px;
-              user-select: none;
-              border: 1px solid #d1d5db;
-            `}
-          >
-            {displayInitial}
-          </div>
-
-          <span
-            className={css`
-              display: inline-flex;
-              align-items: center;
-              gap: 6px;
-              max-width: 40vw;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-              color: #111827;
-              font-weight: 600;
-              font-size: 14px;
-              ${respondToOrLarger.md} {
-                max-width: none;
-              }
-            `}
-          >
-            {displayName}
-          </span>
-        </TopBarMenuButton>
-
-        <Popover
-          placement="bottom end"
-          offset={8}
+    <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
+      <TopBarMenuButton
+        id="topbar-user-menu"
+        ariaLabel="Open account menu"
+        tooltipText="Account menu"
+      >
+        <div
+          aria-hidden
           className={css`
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 6px;
-            min-width: 260px;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-            z-index: 999;
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #374151;
+            font-weight: 600;
+            font-size: 12px;
+            user-select: none;
+            border: 1px solid #d1d5db;
+          `}
+        >
+          {displayInitial}
+        </div>
 
-            &[data-entering] {
-              animation: user-menu-enter 120ms ease-out;
-            }
-            @keyframes user-menu-enter {
-              from {
-                opacity: 0;
-                transform: scale(0.98);
-              }
-              to {
-                opacity: 1;
-                transform: scale(1);
-              }
+        <span
+          className={css`
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 40vw;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #111827;
+            font-weight: 600;
+            font-size: 14px;
+            ${respondToOrLarger.md} {
+              max-width: none;
             }
           `}
         >
-          {/* header: name + email; optional, no "signed in as" */}
+          {displayName}
+        </span>
+      </TopBarMenuButton>
+
+      <Popover
+        placement="bottom end"
+        offset={8}
+        className={css`
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          padding: 6px;
+          min-width: 260px;
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+          z-index: 999;
+
+          &[data-entering] {
+            animation: user-menu-enter 120ms ease-out;
+          }
+          @keyframes user-menu-enter {
+            from {
+              opacity: 0;
+              transform: scale(0.98);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+        `}
+      >
+        {/* header: name + email; optional, no "signed in as" */}
+        <div
+          className={css`
+            padding: 8px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 4px;
+          `}
+        >
           <div
             className={css`
-              padding: 8px 12px;
-              border-bottom: 1px solid #e5e7eb;
-              margin-bottom: 4px;
+              font-size: 14px;
+              font-weight: 600;
+              color: #111827;
             `}
           >
-            <div
-              className={css`
-                font-size: 14px;
-                font-weight: 600;
-                color: #111827;
-              `}
-            >
-              {fullDisplayName}
-            </div>
-            <div
-              className={css`
-                font-size: 13px;
-                color: #6b7280;
-                margin-top: 2px;
-              `}
-            >
-              {displayEmail}
-            </div>
+            {fullDisplayName}
           </div>
-
-          <Menu
-            data-testid="topbar-user-menu-popover"
-            aria-label="Account actions"
+          <div
             className={css`
-              display: grid;
-              gap: 2px;
-              outline: none;
+              font-size: 13px;
+              color: #6b7280;
+              margin-top: 2px;
             `}
           >
-            {items.map((item) => {
-              if (item.type === "separator") {
-                return (
-                  <Separator
-                    key={item.id}
-                    className={css`
-                      height: 1px;
-                      background: #e5e7eb;
-                      margin: 4px 0;
-                    `}
-                  />
-                )
-              }
+            {displayEmail}
+          </div>
+        </div>
 
-              if (item.type === "link") {
-                return (
-                  <MenuItem key={item.id} href={item.href} className={itemRow}>
-                    <span>{item.label}</span>
-                  </MenuItem>
-                )
-              }
-
+        <Menu
+          data-testid="topbar-user-menu-popover"
+          aria-label="Account actions"
+          className={css`
+            display: grid;
+            gap: 2px;
+            outline: none;
+          `}
+        >
+          {items.map((item) => {
+            if (item.type === "separator") {
               return (
-                <MenuItem
+                <Separator
                   key={item.id}
-                  onAction={item.onAction}
                   className={css`
-                    ${itemRow};
-                    ${item.isDestructive ? "color: #dc2626; font-weight: 600;" : ""};
+                    height: 1px;
+                    background: #e5e7eb;
+                    margin: 4px 0;
                   `}
-                >
+                />
+              )
+            }
+
+            if (item.type === "link") {
+              return (
+                <MenuItem key={item.id} href={item.href} className={itemRow}>
                   <span>{item.label}</span>
                 </MenuItem>
               )
-            })}
-          </Menu>
-        </Popover>
-      </MenuTrigger>
-    </>
+            }
+
+            return (
+              <MenuItem
+                key={item.id}
+                onAction={item.onAction}
+                className={css`
+                  ${itemRow};
+                  ${item.isDestructive ? "color: #dc2626; font-weight: 600;" : ""};
+                `}
+              >
+                <span>{item.label}</span>
+              </MenuItem>
+            )
+          })}
+        </Menu>
+      </Popover>
+    </MenuTrigger>
   )
 }
 

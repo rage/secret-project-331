@@ -85,11 +85,9 @@ const PlaygroundViewSubmissionIframe: React.FC<
         key={iframeKey}
         url={url}
         postThisStateToIFrame={iframeState}
-        onMessageFromIframe={async (msg) => {
-          if (isMessageFromIframe(msg)) {
-            if (msg.message === "current-state") {
-              setCurrentStateReceivedFromIframe(msg)
-            }
+        onMessageFromIframe={(msg) => {
+          if (isMessageFromIframe(msg) && msg.message === "current-state") {
+            setCurrentStateReceivedFromIframe(msg)
           }
         }}
         title={TITLE}

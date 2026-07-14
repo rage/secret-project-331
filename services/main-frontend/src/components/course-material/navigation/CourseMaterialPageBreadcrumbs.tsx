@@ -27,6 +27,7 @@ const CourseMaterialPageBreadcrumbs: React.FC<
   const { t } = useTranslation()
   const pageChapterAndCourseInformationQuery = useQuery({
     queryKey: [`page-chapter-and-course-${page?.id}`, page, page?.id],
+    // oxlint-disable-next-line require-await -- react-query queryFn is annotated to return a Promise
     queryFn: async (): Promise<PageChapterAndCourseInformation | null> => {
       if (!page) {
         return null

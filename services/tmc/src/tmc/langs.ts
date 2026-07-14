@@ -8,6 +8,7 @@ import kill from "tree-kill"
 import type { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
 import { isCliOutput } from "./cli.guard"
 
+// oxlint-disable-next-line eslint/require-await -- async so sync throws surface as promise rejections
 const execute = async (
   cmd: string,
   args: string[],
@@ -132,7 +133,7 @@ export const compressProject = async (
     ],
     log,
   )
-  if (output.data !== null && output.data["output-data-kind"] == "compressed-project-hash") {
+  if (output.data !== null && output.data["output-data-kind"] === "compressed-project-hash") {
     return output.data["output-data"]
   }
   throw new Error("Unexpected output data")
@@ -184,7 +185,7 @@ export const prepareSubmission = async (
     ],
     log,
   )
-  if (output.data !== null && output.data["output-data-kind"] == "submission-sandbox") {
+  if (output.data !== null && output.data["output-data-kind"] === "submission-sandbox") {
     return output.data["output-data"]
   }
   throw new Error("Unexpected output data")

@@ -21,30 +21,32 @@ function usePaginationInfo(defaultLimit: number = DEFAULT_LIMIT): PaginationInfo
   const searchParams = useSearchParams()
 
   const initialPage = useMemo(() => {
-    let initialPage: number
+    let parsedPage: number
     const pageParam = searchParams?.get("page")
     if (pageParam) {
-      initialPage = parseInt(pageParam)
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+      parsedPage = parseInt(pageParam, 10)
     } else {
-      initialPage = DEFAULT_PAGE
+      parsedPage = DEFAULT_PAGE
     }
-    if (isNaN(initialPage)) {
+    if (isNaN(parsedPage)) {
       return DEFAULT_PAGE
     }
-    return initialPage
+    return parsedPage
   }, [searchParams])
   const initialLimit = useMemo(() => {
-    let initialLimit: number
+    let parsedLimit: number
     const limitParam = searchParams?.get("limit")
     if (limitParam) {
-      initialLimit = parseInt(limitParam)
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+      parsedLimit = parseInt(limitParam, 10)
     } else {
-      initialLimit = defaultLimit
+      parsedLimit = defaultLimit
     }
-    if (isNaN(initialLimit)) {
+    if (isNaN(parsedLimit)) {
       return defaultLimit
     }
-    return initialLimit
+    return parsedLimit
   }, [searchParams, defaultLimit])
 
   const [page, setPage] = useState(initialPage)

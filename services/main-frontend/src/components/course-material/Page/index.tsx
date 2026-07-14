@@ -68,6 +68,9 @@ const AudioNotification = styled.div`
   }
 `
 
+const querySettled = (query: { isSuccess: boolean; isError: boolean }) =>
+  query.isSuccess || query.isError
+
 const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizationSlug }) => {
   const [isVisible, setIsVisible] = useState(false)
 
@@ -161,8 +164,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   // as settled.
   const signedIn = loginState.signedIn === true
   const courseScopedQueriesShouldRun = signedIn && Boolean(courseId)
-  const querySettled = (query: { isSuccess: boolean; isError: boolean }) =>
-    query.isSuccess || query.isError
   const decisionReady =
     courseMaterialState.status !== "loading" &&
     !viewIsFetching &&
@@ -277,7 +278,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             editForm={showResearchConsentFormBecauseOfUrl}
             shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
             usersInitialAnswers={researchConsentFormAnswerQuery.data}
-            // oxlint-disable-next-line typescript/no-non-null-assertion -- activeStep is only ResearchConsent when researchFormIsLoadedAndExists, so data is non-null
+            // oxlint-disable-next-line typescript/no-non-null-assertion -- researchFormIsLoadedAndExists guarantees data is non-null
             researchForm={researchConsentFormQuery.data!}
             onClose={() => {
               setShowResearchConsentFormBecauseOfUrl(false)
@@ -369,7 +370,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             <FeedbackHandler
               courseId={courseId}
               courseName={courseName}
-              courseHasChatbot={chatbotConfiguration.data != null}
+              courseHasChatbot={
+                chatbotConfiguration.data !== null && chatbotConfiguration.data !== undefined
+              }
               pageId={pageId}
               pageTitle={pageTitle}
             />

@@ -101,7 +101,7 @@ const GradingPage: React.FC = () => {
   }, [getAllSubmissions.data])
 
   const gradedCheck = useCallback(
-    (id: string) => {
+    (exerciseId: string) => {
       if (!getExam.data?.grade_manually) {
         return (
           <div
@@ -114,7 +114,7 @@ const GradingPage: React.FC = () => {
         )
       }
 
-      const submissions = allSubmissionsList?.[id]
+      const submissions = allSubmissionsList?.[exerciseId]
       if (submissions) {
         const countGraded = submissions.filter((sub) => sub.teacher_grading_decision).length
         if (submissions.length === countGraded) {
@@ -156,8 +156,8 @@ const GradingPage: React.FC = () => {
   )
 
   const totalAnswered = useCallback(
-    (id: string) => {
-      const submissions = allSubmissionsList?.[id]
+    (exerciseId: string) => {
+      const submissions = allSubmissionsList?.[exerciseId]
       if (submissions) {
         return submissions.length
       }
@@ -167,11 +167,11 @@ const GradingPage: React.FC = () => {
   )
 
   const totalGraded = useCallback(
-    (id: string) => {
+    (exerciseId: string) => {
       if (!getExam.data?.grade_manually) {
-        return <div>{totalAnswered(id)}</div>
+        return <div>{totalAnswered(exerciseId)}</div>
       }
-      const submissions = allSubmissionsList?.[id]
+      const submissions = allSubmissionsList?.[exerciseId]
       if (submissions) {
         return submissions.filter((sub) => sub.teacher_grading_decision).length
       }
@@ -181,14 +181,14 @@ const GradingPage: React.FC = () => {
   )
 
   const totalPublished = useCallback(
-    (id: string) => {
+    (exerciseId: string) => {
       if (!getExam.data?.grade_manually) {
         return <div>0</div>
       }
-      const submissions = allSubmissionsList?.[id]
+      const submissions = allSubmissionsList?.[exerciseId]
       let count = 0
       if (submissions) {
-        submissions.map((sub) => {
+        submissions.forEach((sub) => {
           if (sub.teacher_grading_decision?.hidden === true) {
             count = count + 1
           }
@@ -200,13 +200,13 @@ const GradingPage: React.FC = () => {
   )
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
-    const pieces = [
+    const breadcrumbPieces = [
       // oxlint-disable-next-line i18next/no-literal-string
       { text: t("link-manage"), url: `/manage/exams/${id}` },
       // oxlint-disable-next-line i18next/no-literal-string
       { text: t("questions"), url: `/manage/exams/${id}/questions` },
     ]
-    return pieces
+    return breadcrumbPieces
   }, [id, t])
 
   const questionsContent = (
@@ -303,7 +303,7 @@ const GradingPage: React.FC = () => {
             margin-top: 1.5rem;
           `}
         >
-          {checkPublishable() != 0 && (
+          {checkPublishable() !== 0 && (
             <GenericInfobox>
               {t("unpublishable-grading-results", { amount: checkPublishable() })}
             </GenericInfobox>

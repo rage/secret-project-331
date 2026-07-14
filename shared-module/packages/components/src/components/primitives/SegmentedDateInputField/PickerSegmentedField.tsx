@@ -1,8 +1,7 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import type { DateFieldState } from "@react-stately/datepicker"
-import type { useDatePickerState } from "@react-stately/datepicker"
+import type { DateFieldState, useDatePickerState } from "@react-stately/datepicker"
 import type React from "react"
 import type { DateFieldAria, DatePickerAria, DateValue, TimeValue } from "react-aria"
 
@@ -126,7 +125,7 @@ export function PickerSegmentedField({
   const hideRestSegmentPlaceholders = shouldHideRestSegmentPlaceholders(
     layout,
     isFocused,
-    state.value != null,
+    state.value !== null,
     pickerState.isOpen,
   )
 
@@ -153,7 +152,7 @@ export function PickerSegmentedField({
       layout={layout}
       fieldSize={fieldSize}
       isFloatingRaised={
-        layout === "floating" ? isFocused || state.value != null || pickerState.isOpen : true
+        layout === "floating" ? isFocused || state.value !== null || pickerState.isOpen : true
       }
       isFloatingFocused={layout === "floating" ? isFocused || pickerState.isOpen : false}
       isInvalid={pickerState.isInvalid}
@@ -242,9 +241,7 @@ export function PickerSegmentedField({
         type="hidden"
         aria-describedby={describedBy}
         value={hiddenInputValue}
-        onChange={() => {
-          return
-        }}
+        onChange={() => {}}
       />
       {pickerState.isOpen ? (
         <Popover

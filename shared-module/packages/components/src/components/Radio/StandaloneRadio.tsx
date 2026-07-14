@@ -48,7 +48,7 @@ export function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
   const descriptionId = useId()
   const errorMessageId = useId()
   const resolvedFieldSize = fieldSize ?? defaultFieldSize
-  const radioValue = value == null ? undefined : String(value)
+  const radioValue = value === undefined ? undefined : String(value)
   const isControlled = checked !== undefined
   const standaloneState = resolveFieldState({
     isDisabled: Boolean(isDisabled || disabled),

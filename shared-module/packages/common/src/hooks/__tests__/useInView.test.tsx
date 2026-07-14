@@ -34,6 +34,15 @@ function Demo({ freezeOnceVisible = false }: { freezeOnceVisible?: boolean }) {
   )
 }
 
+function SSRDemo() {
+  const [ref, inView] = useInView({ initialInView: true })
+  return (
+    <div data-testid="state" ref={ref}>
+      {String(inView)}
+    </div>
+  )
+}
+
 test("reports inView true on intersection", () => {
   render(<Demo />)
   const el = screen.getByTestId("target")
@@ -72,20 +81,12 @@ test("freezeOnceVisible prevents further updates after first visible hit", () =>
   expect(screen.getByTestId("state").textContent).toBe("true")
 })
 
-test("SSR/legacy: no window.IntersectionObserver -> stays inert with initialInView", async () => {
+test("SSR/legacy: no window.IntersectionObserver -> stays inert with initialInView", () => {
   // oxlint-disable-next-line typescript/no-explicit-any
   const realIO = (global as any).IntersectionObserver
   // oxlint-disable-next-line typescript/no-explicit-any
   delete (global as any).IntersectionObserver
 
-  function SSRDemo() {
-    const [ref, inView] = useInView({ initialInView: true })
-    return (
-      <div data-testid="state" ref={ref}>
-        {String(inView)}
-      </div>
-    )
-  }
   const { unmount } = render(<SSRDemo />)
   expect(screen.getByTestId("state").textContent).toBe("true")
   unmount()

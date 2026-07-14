@@ -52,7 +52,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
     coursematerialExerciseTask.exercise_iframe_url.trim() === ""
   const missingGrading = !coursematerialExerciseTask.previous_submission_grading
   const previousSubmission = coursematerialExerciseTask.previous_submission
-  const missingSubmission = previousSubmission == null
+  const missingSubmission = previousSubmission === null || previousSubmission === undefined
 
   const readyForIframe = !missingUrl && !missingGrading && !missingSubmission
 

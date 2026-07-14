@@ -250,12 +250,12 @@ const exampleUnnormalizedDocument: UnnormalizedDocument = {
   hidden: false,
 }
 
-test("We get the original document if we first denormalize and then normalize", async () => {
+test("We get the original document if we first denormalize and then normalize", () => {
   const res = normalizeDocument(denormalizeDocument(exampleCMSPageUpdate))
   deepStrictEqual(res, exampleCMSPageUpdate)
 })
 
-test("We get the original document if we first normalize and then denormalize", async () => {
+test("We get the original document if we first normalize and then denormalize", () => {
   const res = denormalizeDocument(normalizeDocument(exampleUnnormalizedDocument))
   deepStrictEqual(res, exampleUnnormalizedDocument)
 })

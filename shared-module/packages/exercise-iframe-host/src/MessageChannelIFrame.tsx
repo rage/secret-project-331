@@ -211,7 +211,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     }, delay)
   }, [resetIframeConnectionState])
 
-  const sendPortToIframe = useCallback((messageChannel: MessageChannel, isRecovery = false) => {
+  const sendPortToIframe = useCallback((channel: MessageChannel, isRecovery = false) => {
     if (portSentRef.current && !isRecovery) {
       return
     }
@@ -230,7 +230,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     console.info(`[MessageChannelIFrame] Parent posting message port to iframe${recoveryMessage}`)
     try {
       // The iframe will use port 2 for communication
-      contentWindow.postMessage("communication-port", "*", [messageChannel.port2])
+      contentWindow.postMessage("communication-port", "*", [channel.port2])
       portSentRef.current = true
       portSentTimestampRef.current = Date.now()
     } catch (e) {
@@ -268,7 +268,14 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         scheduleIframeReload()
       } else if (isOpenDialogMessage(data)) {
         const responsePort = currentMessageChannel.port1
-        const { requestId, dialogType, title, body, confirmButtonLabel, cancelButtonLabel } = data
+        const {
+          requestId,
+          dialogType,
+          title: dialogTitle,
+          body,
+          confirmButtonLabel,
+          cancelButtonLabel,
+        } = data
         const respond = (confirmed: boolean) => {
           const response: DialogResponseMessage = {
             // oxlint-disable-next-line i18next/no-literal-string
@@ -276,6 +283,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
             requestId,
             confirmed,
           }
+          // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
           responsePort.postMessage(response)
         }
         const dialogBody = (
@@ -301,14 +309,14 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         )
         if (dialogType === "confirm") {
           void dialog
-            .confirm(dialogBody, title, {
+            .confirm(dialogBody, dialogTitle, {
               yesButtonLabel: confirmButtonLabel ?? undefined,
               noButtonLabel: cancelButtonLabel ?? undefined,
             })
             .then(respond)
         } else {
           void dialog
-            .alert(dialogBody, title, { okButtonLabel: confirmButtonLabel ?? undefined })
+            .alert(dialogBody, dialogTitle, { okButtonLabel: confirmButtonLabel ?? undefined })
             .then(() => respond(true))
         }
       } else if (isMessageFromIframe(data)) {
@@ -338,6 +346,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       return
     }
     // We use port 1 for communication, defining a event handler
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
       handlePortMessage(message, messageChannel)
     }
@@ -353,6 +362,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     }
 
     return () => {
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
       messageChannel.port1.onmessage = null
     }
   }, [handlePortMessage, messageChannel, sendPortToIframe])

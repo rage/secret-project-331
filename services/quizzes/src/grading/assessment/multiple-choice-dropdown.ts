@@ -21,7 +21,7 @@ const assessMultipleChoiceDropdown = (
   }
 
   const selectedOption = quizItemAnswer.selectedOptionIds[0]
-  const answer = quizItem.options.find((item) => item.id == selectedOption)
+  const answer = quizItem.options.find((item) => item.id === selectedOption)
 
   // Answer does not exist in quiz item
   if (!answer) {

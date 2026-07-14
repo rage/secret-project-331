@@ -43,6 +43,15 @@ const leftShadowStyles = css`
   background: linear-gradient(to left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.16));
 `
 
+const fetchAlignment = (align: string | undefined) => {
+  if (align) {
+    return css`
+      text-align: ${align};
+    `
+  }
+  return undefined
+}
+
 const TableBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<TableAttributes & ExtraAttributes>>
 > = ({ data, dontAllowBlockToBeWiderThanContainerWidth }) => {
@@ -63,7 +72,7 @@ const TableBlock: React.FC<
     if (!refsMap.has(key)) {
       refsMap.set(key, React.createRef<HTMLElement>())
     }
-    // oxlint-disable-next-line typescript/no-non-null-assertion -- key was just inserted above when absent, so get(key) is defined
+    // oxlint-disable-next-line typescript/no-non-null-assertion -- key was just inserted above, so get(key) is defined
     return refsMap.get(key)!
   }
 
@@ -105,15 +114,6 @@ const TableBlock: React.FC<
     resizeObserver.observe(el)
     return () => resizeObserver.disconnect()
   }, [updateScrollState])
-
-  const fetchAlignment = (align: string | undefined) => {
-    if (align) {
-      return css`
-        text-align: ${align};
-      `
-    }
-    return undefined
-  }
 
   return (
     <div className={scrollWrapperStyles}>

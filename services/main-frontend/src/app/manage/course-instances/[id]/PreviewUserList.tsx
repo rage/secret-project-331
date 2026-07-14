@@ -16,7 +16,7 @@ const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {
   const { t } = useTranslation()
 
   const mapGradeToText = (grade: number | null | undefined, passed: boolean): string => {
-    if (grade != null) {
+    if (grade !== null && grade !== undefined) {
       return grade.toString()
     }
     return passed ? t("column-passed") : t("column-failed")
@@ -134,7 +134,7 @@ const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {
 export default PreviewUserList
 
 function formatGrade(grade: number | null | undefined, t: TFunction): string {
-  if (grade == null) {
+  if (grade === null || grade === undefined) {
     return "-"
   }
   if (grade === -1) {

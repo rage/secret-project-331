@@ -40,6 +40,10 @@ export interface ExerciseClientOptions<TOutput> {
   initialState?: TOutput | null
 }
 
+const noopResolveReady: (port: MessagePort) => void = () => {
+  /* replaced synchronously below */
+}
+
 /**
  * Create an exercise client and begin the parent handshake immediately.
  */
@@ -57,9 +61,7 @@ export function createExerciseClient<TOutput>(
     initialState: options.initialState ?? null,
   })
 
-  let resolveReady: (port: MessagePort) => void = () => {
-    /* replaced synchronously below */
-  }
+  let resolveReady: (port: MessagePort) => void = noopResolveReady
   const ready = new Promise<MessagePort>((resolve) => {
     resolveReady = resolve
   })

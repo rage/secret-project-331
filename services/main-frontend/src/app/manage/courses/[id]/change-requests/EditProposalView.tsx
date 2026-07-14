@@ -157,7 +157,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             defaultValue={block.accept_preview ?? undefined}
             onChangeByValue={(newValue) =>
               setBlockActions((ba) => {
-                if (block.accept_preview != null) {
+                if (block.accept_preview !== null && block.accept_preview !== undefined) {
                   // oxlint-disable-next-line i18next/no-literal-string
                   ba.set(block.id, { tag: "Accept", data: newValue })
                 }
@@ -184,7 +184,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                   return new Set(eb)
                 })
                 setBlockActions((ba) => {
-                  if (block.accept_preview != null) {
+                  if (block.accept_preview !== null && block.accept_preview !== undefined) {
                     // oxlint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                   }
@@ -204,7 +204,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                   return new Set(eb)
                 })
                 setBlockActions((ba) => {
-                  if (block.accept_preview != null) {
+                  if (block.accept_preview !== null && block.accept_preview !== undefined) {
                     // oxlint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                   }
@@ -236,66 +236,62 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
 
   const acceptedBlock = (block: BlockProposal) => {
     let diffChanges = null
-    if (block.type == "edited-block-still-exists") {
+    if (block.type === "edited-block-still-exists") {
       diffChanges = diffWords(block.original_text, block.changed_text ?? "")
     }
-    return (
-      <>
-        {isEditedBlockStillExistsData(block) && diffChanges !== null ? (
+    return isEditedBlockStillExistsData(block) && diffChanges !== null ? (
+      <div>
+        {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
+        <div>
+          <HideTextInSystemTests
+            text={t("block-id", { id: block.block_id })}
+            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
+          />
+        </div>
+        <div>
+          {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
+        </div>
+        <div>
+          {t("label-original-text")}
+          <ImportantText>
+            <DiffFormatter dontShowAdded changes={diffChanges} />
+          </ImportantText>
+        </div>
+        {!isProposedTextRedundant(block) && (
           <div>
-            {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
+            <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
             <div>
-              <HideTextInSystemTests
-                text={t("block-id", { id: block.block_id })}
-                testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
-              />
-            </div>
-            <div>
-              {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
-            </div>
-            <div>
-              {t("label-original-text")}
+              {t("label-proposed-text")}
               <ImportantText>
-                <DiffFormatter dontShowAdded changes={diffChanges} />
+                <DiffFormatter dontShowRemoved changes={diffChanges} />
               </ImportantText>
             </div>
-            {!isProposedTextRedundant(block) && (
-              <div>
-                <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
-                <div>
-                  {t("label-proposed-text")}
-                  <ImportantText>
-                    <DiffFormatter dontShowRemoved changes={diffChanges} />
-                  </ImportantText>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div>
-            {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
-            <div>
-              <HideTextInSystemTests
-                text={t("block-id", { id: block.block_id })}
-                testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
-              />
-            </div>
-            <div>
-              {t("label-original-text")}
-              <ImportantText>{block.original_text}</ImportantText>
-            </div>
-            {!isProposedTextRedundant(block) && (
-              <div>
-                <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
-                <div>
-                  {t("label-proposed-text")}
-                  <ImportantText>{block.changed_text} </ImportantText>
-                </div>
-              </div>
-            )}
           </div>
         )}
-      </>
+      </div>
+    ) : (
+      <div>
+        {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
+        <div>
+          <HideTextInSystemTests
+            text={t("block-id", { id: block.block_id })}
+            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
+          />
+        </div>
+        <div>
+          {t("label-original-text")}
+          <ImportantText>{block.original_text}</ImportantText>
+        </div>
+        {!isProposedTextRedundant(block) && (
+          <div>
+            <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
+            <div>
+              {t("label-proposed-text")}
+              <ImportantText>{block.changed_text} </ImportantText>
+            </div>
+          </div>
+        )}
+      </div>
     )
   }
 
@@ -382,18 +378,16 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
         </div>
       )}
       {proposal.pending && (
-        <>
-          <Button
-            variant={"primary"}
-            size={"medium"}
-            onClick={() => {
-              sendMutation.mutate()
-            }}
-            disabled={blockActions.size < proposal.block_proposals.length}
-          >
-            {t("button-text-send")}
-          </Button>
-        </>
+        <Button
+          variant={"primary"}
+          size={"medium"}
+          onClick={() => {
+            sendMutation.mutate()
+          }}
+          disabled={blockActions.size < proposal.block_proposals.length}
+        >
+          {t("button-text-send")}
+        </Button>
       )}
     </div>
   )

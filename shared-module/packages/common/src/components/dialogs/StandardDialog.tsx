@@ -73,6 +73,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
       width={width}
       noPadding={true}
       className={className}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Dialog is a custom component, not a raw HTML element
       role="dialog"
       aria-labelledby={titleId}
       disableContentScroll={disableContentScroll}

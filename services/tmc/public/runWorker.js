@@ -57,7 +57,8 @@ function getPyodide() {
 self.inputPromise = function (prompt) {
   self.postMessage({
     type: "stdin_request",
-    prompt: prompt != null ? String(prompt) : "",
+    prompt: prompt !== null && prompt !== undefined ? String(prompt) : "",
+    // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
   })
   return new Promise(function (resolve) {
     pendingStdinResolve = resolve
@@ -66,6 +67,7 @@ self.inputPromise = function (prompt) {
 
 self.printError = function (message, kind, line, _tb) {
   var msg = kind + " on line " + line + ": " + message
+  // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
   self.postMessage({ type: "run_error", message: msg, output: stdout })
   runHadError = true
 }
@@ -75,16 +77,18 @@ var stdout = ""
 
 self.exit = function () {
   if (!runHadError) {
+    // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
     self.postMessage({ type: "run_done", output: stdout })
   }
 }
 
+// oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
 self.onmessage = function (e) {
   var data = e.data
 
   if (data.type === "stdin_line") {
     if (pendingStdinResolve) {
-      var line = data.line != null ? String(data.line) : ""
+      var line = data.line !== null && data.line !== undefined ? String(data.line) : ""
       if (line.length > 0 && line.at(-1) !== "\n") {
         line += "\n"
       }
@@ -112,6 +116,7 @@ self.onmessage = function (e) {
           var chunk = stdoutDecoder.decode(new Uint8Array([byte]), { stream: true })
           if (chunk.length > 0) {
             stdout += chunk
+            // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
             self.postMessage({ type: "stdout", chunk: chunk })
           }
         },
@@ -120,6 +125,7 @@ self.onmessage = function (e) {
         raw: function (byte) {
           var chunk = stderrDecoder.decode(new Uint8Array([byte]), { stream: true })
           if (chunk.length > 0) {
+            // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
             self.postMessage({ type: "stderr", chunk: chunk })
           }
         },
@@ -135,9 +141,11 @@ self.onmessage = function (e) {
           var flushErr = stderrDecoder.decode(new Uint8Array(0), { stream: false })
           if (flushOut.length > 0) {
             stdout += flushOut
+            // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
             self.postMessage({ type: "stdout", chunk: flushOut })
           }
           if (flushErr.length > 0) {
+            // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
             self.postMessage({ type: "stderr", chunk: flushErr })
           }
         })
@@ -147,6 +155,7 @@ self.onmessage = function (e) {
     })
     .catch(function (err) {
       var message = err && err.message ? err.message : String(err)
+      // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
       self.postMessage({ type: "run_error", message: message })
     })
 }

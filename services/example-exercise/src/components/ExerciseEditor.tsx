@@ -75,8 +75,7 @@ const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, por
       ))}
       <NewButton
         onClick={() => {
-          const newState = [...state]
-          newState.push({ name: "", correct: false, id: generateUuid() })
+          const newState = [...state, { name: "", correct: false, id: generateUuid() }]
           // oxlint-disable-next-line i18next/no-literal-string
           setState({ view_type: "exercise-editor", private_spec: newState })
         }}

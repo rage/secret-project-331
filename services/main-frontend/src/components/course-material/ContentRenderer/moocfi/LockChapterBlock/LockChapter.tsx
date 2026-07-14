@@ -178,7 +178,9 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
     // oxlint-disable-next-line i18next/no-literal-string
     setLockState("locked")
     await triggerRefetch()
-    await new Promise((resolve) => setTimeout(resolve, 200))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 200)
+    })
     setShowAnimation(false)
   }
 

@@ -98,15 +98,15 @@ const LineChart: React.FC<LineChartProps> = ({
           return ""
         }
         const dataIndex = params[0].dataIndex as number
-        const period = data?.[dataIndex].period
+        const dataPeriod = data?.[dataIndex].period
         const value = data?.[dataIndex].count
         try {
-          const formattedDate = format(new Date(period || ""), dateFormat)
+          const formattedDate = format(new Date(dataPeriod || ""), dateFormat)
           // oxlint-disable-next-line i18next/no-literal-string
           return `${formattedDate}<br/>${tooltipValueLabel}: ${value}`
         } catch {
           // oxlint-disable-next-line i18next/no-literal-string
-          return `${period}<br/>${tooltipValueLabel}: ${value}`
+          return `${dataPeriod}<br/>${tooltipValueLabel}: ${value}`
         }
       },
     },

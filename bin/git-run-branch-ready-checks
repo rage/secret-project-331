@@ -17,10 +17,8 @@ MERGE_BASE=$(git merge-base origin/master "$CURRENT_BRANCH_NAME")
 
 run_command env SQLX_OFFLINE=1 pnpm exec lint-staged -c ./.husky/lint-staged.branch-ready.config.js --diff "$MERGE_BASE" "$@"
 
-# Gate on oxlint across the whole repo. The lint-staged pass above only applies oxlint's autofixes
-# to changed files, and plain `oxlint` exits 0 even when warnings remain -- so a non-autofixable
-# warning would otherwise slip through. --max-warnings=0 turns any remaining warning (or error) into
-# a hard failure, keeping the repo at zero oxlint warnings before you push.
+# Fail on any oxlint warning repo-wide. lint-staged only autofixes changed files and plain oxlint
+# exits 0 on warnings, so --max-warnings=0 is what actually gates.
 run_command pnpm exec oxlint --max-warnings=0
 
 echo -e "${GREEN}✅ All precommit checks passed.${RESET_EVERYTHING}"

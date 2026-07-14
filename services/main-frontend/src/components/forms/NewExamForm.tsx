@@ -203,7 +203,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
     if (!duplicateExam) {
       // Switching to duplicate mode
       setDuplicateExam(true)
-      if (exams.length > 0) {
+      if (exams[0]) {
         handleSetExamToDuplicate(exams[0].id)
       }
     } else {
@@ -291,7 +291,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
                 label: e.name,
                 value: e.id,
               }))}
-              defaultValue={exams[0].id}
+              defaultValue={exams[0]?.id}
             />
           )}
         </div>

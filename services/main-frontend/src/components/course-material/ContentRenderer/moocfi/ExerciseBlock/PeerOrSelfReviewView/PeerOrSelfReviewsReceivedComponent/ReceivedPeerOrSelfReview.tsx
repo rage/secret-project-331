@@ -67,7 +67,12 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<ReviewProps> = ({
           if (questionIndex === -1) {
             return null
           }
-          const question = questions[questionIndex].question
+          // questionIndex was found via findIndex and checked !== -1, so this is always defined.
+          const foundQuestion = questions[questionIndex]
+          if (foundQuestion === undefined) {
+            return null
+          }
+          const question = foundQuestion.question
           return (
             <>
               {text_data && (

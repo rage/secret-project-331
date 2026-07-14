@@ -75,7 +75,7 @@ class FakeMutationObserver {
 global.MutationObserver = FakeMutationObserver
 
 const sanitizeNames = (name: string) => {
-  const newName = name.replace("core/", "").replaceAll(/-./g, (x) => x.toUpperCase()[1])
+  const newName = name.replace("core/", "").replaceAll(/-./g, (x) => x.toUpperCase()[1] ?? "")
   return newName.charAt(0).toUpperCase() + newName.slice(1) + "Attributes"
 }
 

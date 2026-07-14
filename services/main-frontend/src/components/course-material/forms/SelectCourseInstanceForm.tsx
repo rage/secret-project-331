@@ -261,8 +261,9 @@ function figureOutInitialValue(
     return initialSelectedInstanceId
   }
   if (instances.length === 1) {
-    return instances[0].id
+    return instances[0]?.id
   }
+  return undefined
 }
 
 export default SelectCourseInstanceForm

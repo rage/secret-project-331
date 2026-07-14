@@ -14,7 +14,8 @@ const expectUrlPathWithRandomUuid = async (page: Page, path: string): Promise<vo
     if (items[i] === "[id]") {
       regexBuffer += "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
     } else {
-      regexBuffer += items[i].replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      // safe: i is a valid index into items (0 <= i < items.length)
+      regexBuffer += items[i]!.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
     }
     if (i !== items.length - 1) {
       regexBuffer += "/"

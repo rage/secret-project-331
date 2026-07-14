@@ -79,7 +79,7 @@ const CourseInstancePointsList: React.FC = () => {
     } else if (sorting === EMAIL) {
       return first.user.email.localeCompare(second.user.email)
     }
-    return second.chapterPoints[sorting] - first.chapterPoints[sorting]
+    return (second.chapterPoints[sorting] ?? 0) - (first.chapterPoints[sorting] ?? 0)
   }
 
   const getPointsList = useQuery({
@@ -122,7 +122,7 @@ const CourseInstancePointsList: React.FC = () => {
 
           const courseId =
             courseInstanceQuery.data?.course_id ??
-            (data.chapter_points.length > 0 ? data.chapter_points[0].course_id : undefined)
+            (data.chapter_points.length > 0 ? data.chapter_points[0]?.course_id : undefined)
 
           return (
             <>

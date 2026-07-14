@@ -261,7 +261,11 @@ function buildAnswerRow(
       const row: Record<string, CsvScalar> = { ...baseRow }
 
       for (let index = 0; index < sortedTimelineItems.length; index += 1) {
+        // index is bounded by sortedTimelineItems.length
         const timelineItem = sortedTimelineItems[index]
+        if (timelineItem === undefined) {
+          continue
+        }
         const timelineChoice = timelineChoiceByItemId.get(timelineItem.id)
         const selectedEventName = timelineChoice
           ? (eventNameById.get(timelineChoice.chosenEventId) ?? timelineChoice.chosenEventId)

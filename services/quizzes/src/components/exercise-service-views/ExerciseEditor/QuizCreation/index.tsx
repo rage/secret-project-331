@@ -176,10 +176,13 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
                 if (!quiz) {
                   return null
                 }
-                quiz.items = [
-                  ...quiz.items,
-                  createEmptyQuizItem(quiz.items[quiz.items.length - 1].type),
-                ]
+                // safe: this menu only renders when quiz.items is non-empty
+                const lastItem = quiz.items[quiz.items.length - 1]
+                if (lastItem === undefined) {
+                  return undefined
+                }
+                quiz.items = [...quiz.items, createEmptyQuizItem(lastItem.type)]
+                return undefined
               })
             }}
             size={"medium"}
@@ -206,7 +209,13 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
                   return null
                 }
                 // Same values except id
-                quiz.items = [...quiz.items, { ...quiz.items[quiz.items.length - 1], id: v4() }]
+                // safe: this menu only renders when quiz.items is non-empty
+                const lastItem = quiz.items[quiz.items.length - 1]
+                if (lastItem === undefined) {
+                  return undefined
+                }
+                quiz.items = [...quiz.items, { ...lastItem, id: v4() }]
+                return undefined
               })
             }}
           >

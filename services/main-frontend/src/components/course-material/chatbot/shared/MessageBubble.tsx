@@ -33,7 +33,7 @@ export const renumberFilterCitations = (
 
   let citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
     // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
-    parseInt(arr[1], 10),
+    parseInt(arr[1] ?? "", 10),
   )
 
   // there might be hallucinated citations in the message :(

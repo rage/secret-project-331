@@ -8,5 +8,5 @@ export function getValueFromCookieString(cookieString: string, key: string): str
   if (parts.length < 2) {
     return null
   }
-  return parts[1]
+  return parts[1] ?? null // safe: length check above guarantees index 1 exists
 }

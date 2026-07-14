@@ -126,7 +126,7 @@ export function useLanguageMenuItems({
 
   // Hide menu if only one language is available and we're already on it
   const shouldShow = !(
-    availableLanguages.length === 1 && availableLanguages[0].code === currentLanguage
+    availableLanguages.length === 1 && availableLanguages[0]?.code === currentLanguage
   )
 
   const items: LanguageMenuItem[] = useMemo(() => {

@@ -80,6 +80,9 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
     >
       {(data) => {
         const pageHistory = data[0]
+        if (pageHistory === undefined) {
+          return null
+        }
         return (
           <div>
             <p

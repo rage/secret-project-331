@@ -23,7 +23,7 @@ interface FlipCardAttributes {
 
 function isBlockImage(block: Block<unknown>): block is Block<FlipCardAttributes> {
   if (block.innerBlocks.length > 0) {
-    return block.innerBlocks[0].name === "core/image"
+    return block.innerBlocks[0]?.name === "core/image"
   }
   return false
 }

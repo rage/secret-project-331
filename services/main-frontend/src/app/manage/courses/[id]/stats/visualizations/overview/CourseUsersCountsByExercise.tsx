@@ -95,7 +95,7 @@ const CourseUsersCountsByExercise: React.FC<
                         color: ${baseTheme.colors.gray[400]};
                         font-size: 1.3rem;
                       `}
-                    >{`${t("chapter")} ${chapterData[0].chapter_number}`}</h3>
+                    >{`${t("chapter")} ${chapterData[0]?.chapter_number}`}</h3>
                   </div>
                   <Echarts
                     height={Math.max(

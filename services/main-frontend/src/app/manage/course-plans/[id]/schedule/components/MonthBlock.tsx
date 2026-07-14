@@ -54,7 +54,7 @@ const MonthBlock = forwardRef<HTMLDivElement, MonthBlockProps>(function MonthBlo
   { month, reduceMotion, layoutId },
   ref,
 ) {
-  const MonthIcon = COURSE_PLAN_MONTH_ICONS[month.date.getMonth()]
+  const MonthIcon = COURSE_PLAN_MONTH_ICONS[month.date.getMonth()] ?? COURSE_PLAN_MONTH_ICONS[0]
 
   return (
     <motion.div

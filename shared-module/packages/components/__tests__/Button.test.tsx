@@ -180,8 +180,8 @@ describe("Button variants and sizes", () => {
     const startIcon = screen.getByTestId("icon-start")
     const endIcon = screen.getByTestId("icon-end")
 
-    expect(buttons[0].firstChild).toContainElement(startIcon)
-    expect(buttons[1].firstChild).toContainElement(endIcon)
+    expect(buttons[0]?.firstChild).toContainElement(startIcon)
+    expect(buttons[1]?.firstChild).toContainElement(endIcon)
   })
 
   test("icon variant supports icon-only button with aria-label", () => {

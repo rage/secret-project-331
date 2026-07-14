@@ -37,12 +37,16 @@ export function validateScheduleStages(
 
   for (let i = 0; i < stages.length; i += 1) {
     const stage = stages[i]
+    if (stage === undefined) {
+      continue
+    }
     if (stage.planned_starts_on > stage.planned_ends_on) {
       return { code: "invalid_range", stage: stage.stage }
     }
 
-    if (i > 0) {
-      const expectedStart = addOneDayIsoDate(stages[i - 1].planned_ends_on)
+    const previous = stages[i - 1]
+    if (i > 0 && previous !== undefined) {
+      const expectedStart = addOneDayIsoDate(previous.planned_ends_on)
       if (stage.planned_starts_on !== expectedStart) {
         return {
           code: "non_contiguous",

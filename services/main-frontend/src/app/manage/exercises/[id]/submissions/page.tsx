@@ -106,11 +106,12 @@ const SubmissionsPage: React.FC = () => {
 
   const openExportDialog = (mode: ExportMode) => {
     const options = mode === "definitions" ? definitionTaskOptions : answerTaskOptions
-    if (options.length === 0) {
+    const firstOption = options[0]
+    if (firstOption === undefined) {
       return
     }
     setExportMode(mode)
-    setSelectedTaskId(options[0].exercise_task_id)
+    setSelectedTaskId(firstOption.exercise_task_id)
     setIsExportDialogOpen(true)
   }
 

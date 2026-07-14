@@ -104,12 +104,13 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
             tarBuilder.add_file(path, bodyAsUint8Array)
           }
         }
-        if (pages.length === 0) {
+        const firstPage = pages[0]
+        if (firstPage === undefined) {
           throw new Error("Course has no pages")
         }
         const pageInfo = await getCmsPageInfo({
           path: {
-            page_id: pages[0].id,
+            page_id: firstPage.id,
           },
         })
         const tarData = tarBuilder.finish()

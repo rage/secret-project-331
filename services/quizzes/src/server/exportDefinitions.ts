@@ -280,7 +280,11 @@ function buildDefinitionRow(
       }
 
       for (let index = 0; index < sortedTimelineItems.length; index += 1) {
+        // index is bounded by sortedTimelineItems.length
         const timelineItem = sortedTimelineItems[index]
+        if (timelineItem === undefined) {
+          continue
+        }
         row[`timeline_item_${index + 1}_year`] = timelineItem.year
         row[`timeline_item_${index + 1}_correct_event`] = timelineItem.correctEventName
       }

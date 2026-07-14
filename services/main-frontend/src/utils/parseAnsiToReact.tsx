@@ -65,7 +65,7 @@ export const parseAnsiToReact = (text: string): React.ReactNode[] => {
       }
     }
 
-    const codes = match[1].split(";").filter((c) => c !== "")
+    const codes = (match[1] ?? "").split(";").filter((c) => c !== "")
     if (codes.length === 0) {
       currentStyles = {}
     } else {

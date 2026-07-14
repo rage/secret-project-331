@@ -14,8 +14,8 @@ const EditorBreadcrumbs: React.FC = () => {
   const router = useRouter()
 
   const pathParts = router.asPath ? router.asPath.split("/") : []
-  const pageId = pathParts.length > 2 ? pathParts[2] : ""
-  const prefix = pathParts.length > 1 ? pathParts[1] : ""
+  const pageId = pathParts.length > 2 ? (pathParts[2] ?? "") : ""
+  const prefix = pathParts.length > 1 ? (pathParts[1] ?? "") : ""
 
   const pageInfoQuery = usePageInfo(pageId, prefix)
 

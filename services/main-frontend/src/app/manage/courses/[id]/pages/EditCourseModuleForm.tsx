@@ -40,7 +40,7 @@ export interface EditCourseModuleFormFields {
 const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseModuleFormFields => {
   return {
     name: module.name,
-    starts: module.firstChapter ?? (chapters.length > 0 ? chapters[0] : 1),
+    starts: module.firstChapter ?? (chapters.length > 0 ? (chapters[0] ?? 1) : 1),
     ends: module.lastChapter ?? chapters.at(-1) ?? 1,
     ects_credits: Number(module.ects_credits) || 0,
     uh_course_code: module.uh_course_code ?? "",

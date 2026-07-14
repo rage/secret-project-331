@@ -95,7 +95,7 @@ const LearningObjectiveSectionBlock: React.FC<
   //It is assumed that LearningBlock accepts only list - it can be updated to accept paragraph
   const data = props.data.innerBlocks[0]
 
-  const childHtmls = parseListBlock(data)
+  const childHtmls = data ? parseListBlock(data) : []
 
   return (
     <Wrapper>

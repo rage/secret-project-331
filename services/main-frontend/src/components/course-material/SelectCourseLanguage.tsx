@@ -77,7 +77,11 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     if (i === -1) {
       return courseLanguageVersionsQuery.data.slice()
     }
+    // i !== -1 was handled above, so index i exists.
     const item = courseLanguageVersionsQuery.data[i]
+    if (item === undefined) {
+      return courseLanguageVersionsQuery.data.slice()
+    }
     const reordered = [
       item,
       ...courseLanguageVersionsQuery.data.slice(0, i),

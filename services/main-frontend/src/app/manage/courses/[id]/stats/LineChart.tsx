@@ -98,8 +98,8 @@ const LineChart: React.FC<LineChartProps> = ({
           return ""
         }
         const dataIndex = params[0].dataIndex as number
-        const dataPeriod = data?.[dataIndex].period
-        const value = data?.[dataIndex].count
+        const dataPeriod = data?.[dataIndex]?.period
+        const value = data?.[dataIndex]?.count
         try {
           const formattedDate = format(new Date(dataPeriod || ""), dateFormat)
           // oxlint-disable-next-line i18next/no-literal-string

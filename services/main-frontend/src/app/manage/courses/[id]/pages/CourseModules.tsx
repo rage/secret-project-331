@@ -113,8 +113,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     chapters.sort((l, r) => l.chapter_number - r.chapter_number)
 
     // check that the first chapter is in the default module
-    if (chapters.length > 0) {
-      const firstChapter = chapters[0]
+    const firstChapter = chapters[0]
+    if (firstChapter !== undefined) {
       const firstModule = modules.find((m) => m.id === firstChapter.module)
       if (firstModule !== undefined && firstModule.name !== null) {
         return t("error-modules-first-chapter-not-in-default-module")

@@ -134,11 +134,12 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
             : email || userId
 
         const initial = hasName(firstName)
-          ? firstName[0].toUpperCase()
+          ? // safe: hasName ensures non-empty string
+            (firstName[0]?.toUpperCase() ?? "?")
           : hasName(lastName)
-            ? lastName[0].toUpperCase()
+            ? (lastName[0]?.toUpperCase() ?? "?")
             : email
-              ? email[0].toUpperCase()
+              ? (email[0]?.toUpperCase() ?? "?")
               : "?"
 
         const badgeContent = (

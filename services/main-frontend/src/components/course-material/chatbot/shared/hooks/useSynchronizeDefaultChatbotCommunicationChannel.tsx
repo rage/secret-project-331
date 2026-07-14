@@ -56,6 +56,7 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
       })
       return () => setDefaultChatbotCommunicationChannel(null)
     }
+    return undefined
   }, [
     isCourseMaterialBlock,
     currentConversationInfo,

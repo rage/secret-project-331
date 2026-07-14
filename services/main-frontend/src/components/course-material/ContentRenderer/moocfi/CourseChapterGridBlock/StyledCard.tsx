@@ -21,7 +21,7 @@ const COLORS_ARRAY = [
   "#1A2333",
   "#065853",
   "#08457A",
-]
+] as const
 
 export interface StyledCardProps {
   chapter: ChapterWithStatus
@@ -45,7 +45,9 @@ const StyledCard: React.FC<React.PropsWithChildren<StyledCardProps>> = ({
   isLocked,
 }) => {
   const randomNumber = stringToRandomNumber(chapter.id) % COLORS_ARRAY.length
-  const randomizedColor = COLORS_ARRAY[randomNumber]
+  // randomNumber is a modulo of COLORS_ARRAY.length, so the index is always in range;
+  // the fallback keeps the type non-undefined without changing behavior.
+  const randomizedColor = COLORS_ARRAY[randomNumber] ?? COLORS_ARRAY[0]
   return (
     <div
       className={css`

@@ -106,20 +106,20 @@ const MatrixSubmission: React.FC<
     if (!correctAnswers) {
       if (!isStudentsAnswer && modelSolution?.optionCells) {
         return {
-          text: modelSolution.optionCells[row][column],
+          text: modelSolution.optionCells[row]?.[column] ?? "",
           correct: null,
         }
       }
       return {
-        text: studentAnswers[row][column],
+        text: studentAnswers[row]?.[column] ?? "",
         correct: null,
       }
     }
-    let correct = studentAnswers[row][column] === correctAnswers[row][column]
-    let text = studentAnswers[row][column]
+    let correct = studentAnswers[row]?.[column] === correctAnswers[row]?.[column]
+    let text = studentAnswers[row]?.[column] ?? ""
     if (!isStudentsAnswer) {
       correct = true
-      text = correctAnswers[row][column]
+      text = correctAnswers[row]?.[column] ?? ""
     }
     return {
       text: text,

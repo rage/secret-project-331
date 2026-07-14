@@ -34,7 +34,7 @@ describe("Model solution spec generation", () => {
     expect(closedEndedQuestionQuizItemModelSolution.validityRegex).toBeUndefined()
     // Should contain the message on model solution
     expect(closedEndedQuestionQuizItemModelSolution.messageOnModelSolution).toEqual(
-      privateSpec.items[0].messageOnModelSolution,
+      privateSpec.items[0]?.messageOnModelSolution,
     )
   })
 })

@@ -36,7 +36,8 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
         type: "block",
         blocks: ["core/list"],
         transform(_attributes: unknown, innerBlocks: unknown) {
-          return (innerBlocks as BlockInstance[])[0]
+          // safe: transform is only invoked when the list block has at least one inner block
+          return (innerBlocks as BlockInstance[])[0] as BlockInstance
         },
       },
     ],

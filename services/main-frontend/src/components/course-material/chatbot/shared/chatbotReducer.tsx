@@ -96,7 +96,7 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
       ) {
         // if the currently streamed response already has a message in the state
         textMessageParseResult.data.text += action.payload.text
-        draftState.messages[streamingMessageIdx].message.message = textMessageParseResult.data
+        streamingMessageWithStatus.message.message = textMessageParseResult.data
       } else {
         // create a new message for the currently streamed response
         const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
@@ -133,9 +133,10 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         let res = zChatbotConversationMessageToolCall.safeParse(m.message.message)
         return res.success && res.data.tool_call_id === action.payload.tool_call_id && !m.finished
       })
-      if (toolCallMessageIdx !== -1) {
+      const toolCallMessage = draftState.messages[toolCallMessageIdx]
+      if (toolCallMessage !== undefined) {
         // tool call found
-        let toolCall = draftState.messages[toolCallMessageIdx].message.message
+        let toolCall = toolCallMessage.message.message
         let res = zChatbotConversationMessageToolCall.safeParse(toolCall)
         if (!res.success) {
           return
@@ -144,7 +145,7 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         if (action.payload.arguments !== null && action.payload.arguments !== undefined) {
           res.data.tool_arguments = action.payload.arguments
         }
-        draftState.messages[toolCallMessageIdx].message.message = res.data
+        toolCallMessage.message.message = res.data
       } else {
         // create new message
         const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
@@ -181,10 +182,11 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         let res = zChatbotConversationMessageToolCall.safeParse(m.message.message)
         return res.success && res.data.tool_call_id === action.payload.tool_call_id && !m.finished
       })
-      if (toolCallMessageIdx !== -1) {
+      const toolCallMessage = draftState.messages[toolCallMessageIdx]
+      if (toolCallMessage !== undefined) {
         // tool call found
         // set the tool call as finished
-        draftState.messages[toolCallMessageIdx].finished = true
+        toolCallMessage.finished = true
       } else {
         console.warn("Received a tool call finished event but in progress tool call was not found")
         return
@@ -220,9 +222,10 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         let res = zChatbotConversationMessageReasoning.safeParse(m.message.message)
         return res.success && res.data.reasoning_id === action.payload.reasoning_id && !m.finished
       })
-      if (reasoningMessageIdx !== -1) {
+      const reasoningMessage = draftState.messages[reasoningMessageIdx]
+      if (reasoningMessage !== undefined) {
         // found
-        draftState.messages[reasoningMessageIdx].finished = true
+        reasoningMessage.finished = true
       } else {
         console.warn(
           "Received a reasoning finished event but in progress reasoning item was not found",

@@ -118,6 +118,7 @@ const EditableParagraph: React.FC<EditableParagraphProps> = ({
         editableElement.removeEventListener("keydown", handleKeyDown)
       }
     }
+    return undefined
   }, [setSelectedBlockId, contentEditableRef])
 
   return (

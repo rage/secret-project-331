@@ -21,8 +21,8 @@ describe("lineHighlightPlugin", () => {
       applyLineWrapping(el)
       const highlighted = el.querySelectorAll(".highlighted-line")
       expect(highlighted.length).toBe(2)
-      expect(highlighted[0].textContent).toBe("a")
-      expect(highlighted[1].textContent).toBe("c")
+      expect(highlighted[0]!.textContent).toBe("a")
+      expect(highlighted[1]!.textContent).toBe("c")
     })
 
     it("does nothing when no data-highlight-lines attribute", () => {
@@ -41,10 +41,10 @@ describe("lineHighlightPlugin", () => {
 
       const lines = el.querySelectorAll(".code-line")
       expect(lines.length).toBe(2)
-      expect(lines[0].querySelector(".hljs-comment")).not.toBeNull()
-      expect(lines[0].querySelector(".hljs-doctag")).not.toBeNull()
-      expect(lines[1].querySelector(".hljs-comment")).not.toBeNull()
-      expect(lines[1].classList.contains("highlighted-line")).toBe(true)
+      expect(lines[0]!.querySelector(".hljs-comment")).not.toBeNull()
+      expect(lines[0]!.querySelector(".hljs-doctag")).not.toBeNull()
+      expect(lines[1]!.querySelector(".hljs-comment")).not.toBeNull()
+      expect(lines[1]!.classList.contains("highlighted-line")).toBe(true)
     })
 
     it("handles three levels of nesting with newline at deepest level", () => {
@@ -55,8 +55,8 @@ describe("lineHighlightPlugin", () => {
 
       const lines = el.querySelectorAll(".code-line")
       expect(lines.length).toBe(2)
-      expect(lines[0].querySelector(".a .b .c")).not.toBeNull()
-      expect(lines[1].querySelector(".a .b .c")).not.toBeNull()
+      expect(lines[0]!.querySelector(".a .b .c")).not.toBeNull()
+      expect(lines[1]!.querySelector(".a .b .c")).not.toBeNull()
     })
 
     it("skips if hljsLineWrapped is already set", () => {
@@ -88,8 +88,8 @@ describe("lineHighlightPlugin", () => {
       applyLineWrapping(el)
       const highlighted = el.querySelectorAll<HTMLElement>(".highlighted-line")
       expect(highlighted.length).toBe(2)
-      expect(highlighted[0].dataset.line).toBe("1")
-      expect(highlighted[1].dataset.line).toBe("3")
+      expect(highlighted[0]!.dataset.line).toBe("1")
+      expect(highlighted[1]!.dataset.line).toBe("3")
     })
 
     it("handles empty lines between spans", () => {
@@ -97,9 +97,9 @@ describe("lineHighlightPlugin", () => {
       applyLineWrapping(el)
       const lines = el.querySelectorAll(".code-line")
       expect(lines.length).toBe(3)
-      expect(lines[1].textContent).toBe("")
-      expect(lines[1].querySelector("br")).not.toBeNull()
-      expect(lines[2].classList.contains("highlighted-line")).toBe(true)
+      expect(lines[1]!.textContent).toBe("")
+      expect(lines[1]!.querySelector("br")).not.toBeNull()
+      expect(lines[2]!.classList.contains("highlighted-line")).toBe(true)
     })
 
     it("handles single line with no newlines", () => {
@@ -107,7 +107,7 @@ describe("lineHighlightPlugin", () => {
       applyLineWrapping(el)
       const lines = el.querySelectorAll(".code-line")
       expect(lines.length).toBe(1)
-      expect(lines[0].classList.contains("highlighted-line")).toBe(true)
+      expect(lines[0]!.classList.contains("highlighted-line")).toBe(true)
     })
 
     it("handles multi-line template literal span", () => {
@@ -127,9 +127,9 @@ describe("lineHighlightPlugin", () => {
       applyLineWrapping(el)
       const lines = el.querySelectorAll(".code-line")
       expect(lines.length).toBe(2)
-      expect(lines[0].textContent).toBe("a")
-      expect(lines[1].textContent).toBe("")
-      expect(lines[1].querySelector("br")).not.toBeNull()
+      expect(lines[0]!.textContent).toBe("a")
+      expect(lines[1]!.textContent).toBe("")
+      expect(lines[1]!.querySelector("br")).not.toBeNull()
     })
 
     it("has no extra text nodes between code-line spans", () => {

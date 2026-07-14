@@ -68,11 +68,11 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
     <QueryResult query={getEditProposalList} emptyFallback={<div>{t("nothing-here")}</div>}>
       {(data) => {
         const proposalsForDeletedBlocks = data.filter(
-          (p) => p.block_proposals[0].type === "edited-block-no-longer-exists",
+          (p) => p.block_proposals[0]?.type === "edited-block-no-longer-exists",
         )
 
         const editProposalList = data.filter(
-          (p) => p.block_proposals[0].type === "edited-block-still-exists",
+          (p) => p.block_proposals[0]?.type === "edited-block-still-exists",
         )
 
         return (

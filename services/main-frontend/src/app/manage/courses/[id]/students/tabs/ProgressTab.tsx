@@ -140,10 +140,8 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
     }
     const lockStatusByUserChapter: Record<string, Record<string, TeacherChapterLockStatus>> = {}
     for (const lockStatus of chapterLockStatuses) {
-      if (!lockStatusByUserChapter[lockStatus.user_id]) {
-        lockStatusByUserChapter[lockStatus.user_id] = {}
-      }
-      lockStatusByUserChapter[lockStatus.user_id][lockStatus.chapter_id] = lockStatus.status
+      const userMap = (lockStatusByUserChapter[lockStatus.user_id] ??= {})
+      userMap[lockStatus.chapter_id] = lockStatus.status
     }
 
     // --- totals from same source

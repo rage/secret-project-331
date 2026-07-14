@@ -179,7 +179,11 @@ export default function useAnalysisWorkspaceFormController(props: {
           return
         }
         intersecting.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-        const id = intersecting[0].target.id
+        const firstIntersecting = intersecting[0]
+        if (firstIntersecting === undefined) {
+          return
+        }
+        const id = firstIntersecting.target.id
         // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
         const n = Number.parseInt(id.replace(SECTION_DOM_PREFIX, ""), 10)
         if (!Number.isNaN(n)) {

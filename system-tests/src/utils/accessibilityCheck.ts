@@ -132,7 +132,7 @@ class StoringStream extends Writable {
   public override _write(
     // oxlint-disable-next-line typescript/no-explicit-any
     chunk: any,
-    encoding: BufferEncoding,
+    _encoding: BufferEncoding,
     callback: (error?: Error | null | undefined) => void,
   ): void {
     this.chunks.push(chunk.toString())

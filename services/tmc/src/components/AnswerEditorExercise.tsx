@@ -43,7 +43,7 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
             ref={inputRef}
             onChange={(ev) => {
               if (ev.target && ev.target.files && ev.target.files.length > 0) {
-                setFileToUpload(ev.target.files[0])
+                setFileToUpload(ev.target.files[0] ?? null)
               }
             }}
           />

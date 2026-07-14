@@ -30,12 +30,12 @@ const ControlPanel = styled.div`
   justify-content: center;
 `
 
-const DECISIONS: Record<string, TeacherDecisionType> = {
+const DECISIONS = {
   ZeroPoints: "ZeroPoints",
   FullPoints: "FullPoints",
   CustomPoints: "CustomPoints",
   RejectAndReset: "RejectAndReset",
-}
+} as const satisfies Record<string, TeacherDecisionType>
 
 const TeacherGradingDecisionControls: React.FC<TeacherGradingDecisionControlsProps> = ({
   userExerciseStateId,

@@ -158,7 +158,7 @@ describe("reportErrorOccurrence", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(readPendingReports()).toHaveLength(1)
-    expect(JSON.parse(readPendingReports()[0].body)).toEqual(secondPayload)
+    expect(JSON.parse(readPendingReports()[0]!.body)).toEqual(secondPayload)
   })
 
   test("does not resend the same buffered report during overlapping flushes", async () => {

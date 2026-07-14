@@ -331,10 +331,13 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           return <div key={item.id}>{t("quiz-type-not-supported")}</div>
         }
         const itemAnswerFeedback = feedback_json
-          ? feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0]
+          ? (feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0] ??
+            null)
           : null
         const itemModelSolution = modelSolutions
-          ? modelSolutions.items.filter((modelSolutionItem) => modelSolutionItem.id === item.id)[0]
+          ? (modelSolutions.items.filter(
+              (modelSolutionItem) => modelSolutionItem.id === item.id,
+            )[0] ?? null)
           : null
         const quizItemAnswer = user_answer.itemAnswers.filter((ia) => ia.quizItemId === item.id)[0]
         const feedback = itemAnswerFeedback &&

@@ -21,6 +21,7 @@ const getAlignSelf = (verticalAlignment: string) => {
   } else if (verticalAlignment === "top") {
     return ALIGN_SELF_FLEX_START
   }
+  return undefined
 }
 
 const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAttributes>>> = ({

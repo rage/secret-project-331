@@ -48,7 +48,7 @@ interface TimelineMonthBlockProps {
 }
 
 export default function TimelineMonthBlock({ month }: TimelineMonthBlockProps) {
-  const MonthIcon = COURSE_PLAN_MONTH_ICONS[month.date.getMonth()]
+  const MonthIcon = COURSE_PLAN_MONTH_ICONS[month.date.getMonth()] ?? COURSE_PLAN_MONTH_ICONS[0]
 
   return (
     <div className={timelineMonthBlockStyles} title={month.label}>

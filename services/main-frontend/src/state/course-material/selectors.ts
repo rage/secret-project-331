@@ -24,6 +24,7 @@ export const refetchViewAtom = atom(null, async (get, _set) => {
   if (viewParams?.type === "exam") {
     return get(examQueryAtom).refetch()
   }
+  return undefined
 })
 
 /** Current loading status of the course material view. */

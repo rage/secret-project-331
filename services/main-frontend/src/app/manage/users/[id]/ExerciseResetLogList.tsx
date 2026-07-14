@@ -71,7 +71,7 @@ const ExerciseResetLogList: React.FC<ExerciseResetLogListProps> = ({ userId }) =
                     `}
                   >
                     {/* oxlint-disable-next-line i18next/no-literal-string */}
-                    {logs[0].reset_by_first_name} {logs[0].reset_by_last_name} ∙{" "}
+                    {logs[0]?.reset_by_first_name} {logs[0]?.reset_by_last_name} ∙{" "}
                     {relativeTimeFromTimestamp(date)}
                   </p>
                 </div>

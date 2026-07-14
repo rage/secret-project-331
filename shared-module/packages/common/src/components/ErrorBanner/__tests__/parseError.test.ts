@@ -128,8 +128,8 @@ describe("parseError", () => {
     const result = parseError(zodError, defaultTitle, t)
     expect(result.messageKey).toBe("response_validation_error")
     expect(result.type).toBe("response_validation_error")
-    expect(result.issues?.[0].path).toBe("user_id")
-    expect(result.issues?.[0].message).toBe("Expected uuid")
+    expect(result.issues?.[0]?.path).toBe("user_id")
+    expect(result.issues?.[0]?.message).toBe("Expected uuid")
     expect(result.technicalDetails?.raw).toEqual(zodError?.issues)
   })
 

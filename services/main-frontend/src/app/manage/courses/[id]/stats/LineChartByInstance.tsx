@@ -195,7 +195,8 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
       // Find the last date with actual data (not a filled-in zero)
       let lastDataIndex = -1
       for (let i = 0; i < sortedDates.length; i++) {
-        if (countByDate.has(sortedDates[i])) {
+        const sortedDate = sortedDates[i]
+        if (sortedDate !== undefined && countByDate.has(sortedDate)) {
           lastDataIndex = i
         }
       }
@@ -285,7 +286,11 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
           if (!Array.isArray(params)) {
             throw new TypeError("Tooltip params is not an array")
           }
-          const date = params[0].name
+          const firstParam = params[0]
+          if (firstParam === undefined) {
+            throw new TypeError("Tooltip params is empty")
+          }
+          const date = firstParam.name
           const rows = params
             .map((p) => {
               const value = Math.round(Number(p.value ?? 0)).toLocaleString()

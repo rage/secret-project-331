@@ -159,14 +159,14 @@ const MultipleChoiceDropdownFeedback: React.FC<
                 : quizTheme.gradingWrongItemBackground};
             `}
           >
-            <option disabled selected={selectedOption.id === null} value="">
+            <option disabled selected={selectedOption?.id === null} value="">
               {t("answer")}
             </option>
             {public_quiz_item.options.map((o) => (
               <option
                 key={o.id}
                 value={o.id}
-                selected={selectedOption.id === o.id}
+                selected={selectedOption?.id === o.id}
                 className={css`
                   display: flex;
                 `}

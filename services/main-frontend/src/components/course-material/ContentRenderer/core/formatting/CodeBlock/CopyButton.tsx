@@ -167,6 +167,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
       }, 2000)
       return () => clearTimeout(timer)
     }
+    return undefined
   }, [copyStatus])
 
   const handleCopy = useCallback(async () => {

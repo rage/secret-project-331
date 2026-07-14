@@ -59,10 +59,11 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
     const sizeOfTheMatrix = [0, 0]
     for (let i = 0; i < 6; i++) {
       for (let j = 0; j < 6; j++) {
-        if (matrixVariable[i][j] !== "" && sizeOfTheMatrix[0] < i) {
+        // safe: matrixVariable is a fixed 6x6 grid, so indices 0..5 are always present
+        if (matrixVariable[i]?.[j] !== "" && (sizeOfTheMatrix[0] ?? Number.NaN) < i) {
           sizeOfTheMatrix[0] = i
         }
-        if (matrixVariable[i][j] !== "" && sizeOfTheMatrix[1] < j) {
+        if (matrixVariable[i]?.[j] !== "" && (sizeOfTheMatrix[1] ?? Number.NaN) < j) {
           sizeOfTheMatrix[1] = j
         }
       }
@@ -71,7 +72,7 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
   }, [matrixVariable])
 
   const checkNeighbourCells = (column: number, row: number) => {
-    return matrixVariable[row][column]
+    return matrixVariable[row]?.[column] ?? ""
   }
 
   const handleTextarea = (text: string, column: number, row: number) => {

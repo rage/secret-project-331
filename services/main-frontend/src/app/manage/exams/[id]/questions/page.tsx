@@ -151,6 +151,7 @@ const GradingPage: React.FC = () => {
       } else {
         return " "
       }
+      return undefined
     },
     [getExam.data, allSubmissionsList, t],
   )

@@ -73,7 +73,13 @@ const sameTargets = (a: GlossaryTarget[], b: GlossaryTarget[]) => {
     return false
   }
   for (let i = 0; i < a.length; i++) {
-    if (a[i].node !== b[i].node || a[i].glossaryId !== b[i].glossaryId) {
+    // i is bounded by a.length and a.length === b.length (checked above), so both are defined.
+    const aItem = a[i]
+    const bItem = b[i]
+    if (aItem === undefined || bItem === undefined) {
+      continue
+    }
+    if (aItem.node !== bItem.node || aItem.glossaryId !== bItem.glossaryId) {
       return false
     }
   }

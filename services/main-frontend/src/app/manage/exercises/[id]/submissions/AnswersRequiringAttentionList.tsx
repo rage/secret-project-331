@@ -32,7 +32,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
   return (
     <>
       <Centered variant="narrow">
-        {answersRequiringAttention.length > 0 && (
+        {answersRequiringAttention[0] && (
           <ExerciseAssignmentPreview tasks={answersRequiringAttention[0].tasks} />
         )}
         <div

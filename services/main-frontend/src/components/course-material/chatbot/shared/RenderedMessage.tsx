@@ -154,7 +154,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     const plans = planCitationPortals(nodes, citationNumberingMap)
     return nodes.map((node, idx) => {
       const plan = plans[idx]
-      if (plan === null) {
+      if (plan === null || plan === undefined) {
         return createPortal(null, node, idx)
       }
       return createPortal(

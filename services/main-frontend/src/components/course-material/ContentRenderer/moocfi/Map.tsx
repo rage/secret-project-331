@@ -231,6 +231,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
             child.removeEventListener("mouseout", eventHandler)
           }
         }
+        return undefined
       })
     }
   }, [countryCodeCount, map, t])
@@ -334,7 +335,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
                 label={t("label-country")}
                 onChange={() => null}
                 options={countryList}
-                defaultValue={countryList[90].label}
+                defaultValue={countryList[90]?.label}
               />
               <input type="submit" value={t("submit")} />
             </StyledForm>

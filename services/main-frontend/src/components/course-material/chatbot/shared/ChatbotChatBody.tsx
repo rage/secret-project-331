@@ -102,12 +102,11 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     if (!currentConversationInfo.data?.hide_citations) {
       currentConversationInfo.data?.current_conversation_message_citations?.forEach((cit) => {
         const id = cit.conversation_message_id
-        if (!citationsMap.has(id)) {
+        const existing = citationsMap.get(id)
+        if (existing === undefined) {
           citationsMap.set(id, [cit])
         } else {
-          // id is definitely in hashmap because of the condition branch we're in
-          // oxlint-disable-next-line typescript/no-non-null-assertion -- else branch has citations.has(id), so get(id) is defined
-          citationsMap.set(id, citationsMap.get(id)!.concat(cit))
+          citationsMap.set(id, existing.concat(cit))
         }
       })
     }
@@ -225,7 +224,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         ref={scrollContainerRef}
       >
         {[...messagesMap.entries(), ...messagesMap2.entries()].map(([message, items]) => {
-          if (message === null && items !== null && items.length > 0) {
+          if (message === null && items !== null && items[0] !== undefined) {
             const key = items[0].message.id
             return <ToolCallReasoningBubble key={key} messages={items} />
           }

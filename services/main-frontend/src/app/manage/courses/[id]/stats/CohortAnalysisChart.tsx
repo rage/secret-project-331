@@ -88,8 +88,12 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
     const chartData: [number, number, number, number][] = []
 
     for (let cohortIndex = 0; cohortIndex < cohorts.length; cohortIndex++) {
-      const cohortDate = new Date(cohorts[cohortIndex])
-      const initialSize = cohortSizes[cohorts[cohortIndex]] || 1
+      const cohortKey = cohorts[cohortIndex]
+      if (cohortKey === undefined) {
+        continue
+      }
+      const cohortDate = new Date(cohortKey)
+      const initialSize = cohortSizes[cohortKey] || 1
 
       for (const offset of dayOffsets) {
         // Calculate if this point would be in the future
@@ -132,6 +136,9 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
         }
         const tooltipData = params.data as [number, number, number, number]
         const cohortDate = cohorts[tooltipData[1]]
+        if (cohortDate === undefined) {
+          throw new TypeError("Cohort index out of range")
+        }
         const offset = tooltipData[0]
         const percentRetention = tooltipData[2].toFixed(1)
         const activeUsers = tooltipData[3]

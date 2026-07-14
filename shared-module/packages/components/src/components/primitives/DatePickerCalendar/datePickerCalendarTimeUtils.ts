@@ -185,7 +185,12 @@ export function parseTimeInputFromUser(
   }
 
   const [hourPart, minutePart, secondPart] = segments
-  if (minutePart.length !== 2 || (secondPart && secondPart.length !== 2)) {
+  if (
+    !hourPart ||
+    !minutePart ||
+    minutePart.length !== 2 ||
+    (secondPart && secondPart.length !== 2)
+  ) {
     return null
   }
 

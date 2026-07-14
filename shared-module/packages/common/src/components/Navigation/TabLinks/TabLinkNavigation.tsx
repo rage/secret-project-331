@@ -46,6 +46,7 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
       if (React.isValidElement<TabLinkProps>(child) && typeof child.props.url === "string") {
         return child.props.url
       }
+      return undefined
     })
     // Ensure we redirect to the first tab URL if on root or unknown path and routing enabled
     if (

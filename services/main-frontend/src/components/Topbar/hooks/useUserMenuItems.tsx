@@ -77,7 +77,8 @@ export function useUserMenuItems({
 
   const displayInitial = useMemo(() => {
     if (displayName.length > 0) {
-      return displayName[0].toUpperCase()
+      // safe: length > 0 checked above
+      return displayName[0]?.toUpperCase() ?? "?"
     }
     return "?"
   }, [displayName])

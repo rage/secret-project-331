@@ -211,10 +211,10 @@ describe("managePageOrderReducer", () => {
 
         expect(nextState.unsavedChanges).toBe(true)
         const pages = nextState.chapterIdToPages?.["chapter1"] || []
-        expect(pages[0].id).toBe("page2")
-        expect(pages[1].id).toBe("page1")
-        expect(pages[0].order_number).toBe(1)
-        expect(pages[1].order_number).toBe(2)
+        expect(pages[0]?.id).toBe("page2")
+        expect(pages[1]?.id).toBe("page1")
+        expect(pages[0]?.order_number).toBe(1)
+        expect(pages[1]?.order_number).toBe(2)
       })
 
       it("should move a page down within a chapter", () => {
@@ -231,8 +231,8 @@ describe("managePageOrderReducer", () => {
 
         expect(nextState.unsavedChanges).toBe(true)
         const pages = nextState.chapterIdToPages?.["chapter1"] || []
-        expect(pages[0].id).toBe("page2")
-        expect(pages[1].id).toBe("page1")
+        expect(pages[0]?.id).toBe("page2")
+        expect(pages[1]?.id).toBe("page1")
       })
     })
 
@@ -252,9 +252,9 @@ describe("managePageOrderReducer", () => {
         expect(nextState.unsavedChanges).toBe(true)
         expect(nextState.chapterIdToPages?.["chapter1"]?.length).toBe(1)
         expect(nextState.chapterIdToPages?.["chapter2"]?.length).toBe(2)
-        expect(nextState.chapterIdToPages?.["chapter2"]?.[1].id).toBe("page1")
-        expect(nextState.chapterIdToPages?.["chapter2"]?.[1].chapter_id).toBe("chapter2")
-        expect(nextState.chapterIdToPages?.["chapter2"]?.[1].order_number).toBe(2)
+        expect(nextState.chapterIdToPages?.["chapter2"]?.[1]?.id).toBe("page1")
+        expect(nextState.chapterIdToPages?.["chapter2"]?.[1]?.chapter_id).toBe("chapter2")
+        expect(nextState.chapterIdToPages?.["chapter2"]?.[1]?.order_number).toBe(2)
       })
     })
 
@@ -319,8 +319,8 @@ describe("managePageOrderReducer", () => {
 
         expect(nextState.unsavedChanges).toBe(true)
         const pages = nextState.chapterIdToPages?.["chapter1"] || []
-        expect(pages[0].order_number).toBe(1)
-        expect(pages[1].order_number).toBe(2)
+        expect(pages[0]?.order_number).toBe(1)
+        expect(pages[1]?.order_number).toBe(2)
       })
 
       it("should fix gaps in chapter numbers", () => {
@@ -345,8 +345,8 @@ describe("managePageOrderReducer", () => {
 
         expect(nextState.unsavedChapterChanges).toBe(true)
         const chapters = nextState.chapters || []
-        expect(chapters[0].chapter_number).toBe(1)
-        expect(chapters[1].chapter_number).toBe(2)
+        expect(chapters[0]?.chapter_number).toBe(1)
+        expect(chapters[1]?.chapter_number).toBe(2)
       })
 
       // Regression test for a CI flake in manage-course-structure.spec.ts: in production the
@@ -379,8 +379,8 @@ describe("managePageOrderReducer", () => {
 
         expect(nextState.unsavedChanges).toBe(true)
         const pages = nextState.chapterIdToPages?.["chapter1"] || []
-        expect(pages[0].order_number).toBe(1)
-        expect(pages[1].order_number).toBe(2)
+        expect(pages[0]?.order_number).toBe(1)
+        expect(pages[1]?.order_number).toBe(2)
       })
 
       it("should fix gaps in chapter numbers even when the input chapters are frozen", () => {
@@ -404,8 +404,8 @@ describe("managePageOrderReducer", () => {
 
         expect(nextState.unsavedChapterChanges).toBe(true)
         const chapters = nextState.chapters || []
-        expect(chapters[0].chapter_number).toBe(1)
-        expect(chapters[1].chapter_number).toBe(2)
+        expect(chapters[0]?.chapter_number).toBe(1)
+        expect(chapters[1]?.chapter_number).toBe(2)
       })
     })
   })

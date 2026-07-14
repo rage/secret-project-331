@@ -455,7 +455,8 @@ const ExerciseBlock: React.FC<
           const timezoneOffsetParts = (-exerciseDeadline.getTimezoneOffset() / 60)
             .toString()
             .split(".")
-          const start = timezoneOffsetParts[0].padStart(2, "0")
+          // split always yields at least one element, so the fallback never applies.
+          const start = (timezoneOffsetParts[0] ?? "").padStart(2, "0")
           let end = ""
           if (timezoneOffsetParts[1]) {
             end = timezoneOffsetParts[1].padEnd(2, "0")

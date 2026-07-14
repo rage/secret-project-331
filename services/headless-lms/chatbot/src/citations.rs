@@ -94,7 +94,7 @@ pub async fn chatbot_cited_documents_to_citations(
     let mut documents: Vec<(CourseMaterialDocument, i32)> = vec![];
     for (idx, url) in document_urls.iter_mut().enumerate() {
         let document = get_course_material_document(url, api_key).await?;
-        let citation_number = (idx + 1) as i32;
+        let citation_number = idx as i32;
         documents.push((document, citation_number));
     }
     let res = save_documents(

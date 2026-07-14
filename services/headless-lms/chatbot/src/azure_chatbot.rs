@@ -1536,6 +1536,19 @@ pub async fn send_chat_request_and_parse_stream(
                     Ok(val) => val,
                     Err(e) => {
                         error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.to_string(), e);
+                        let full_response_as_string = full_response_text.lock().await.join("");
+                        if !full_response_as_string.is_empty() {
+                            // save the incomplete response received
+                            let mut conn = pool.acquire().await?;
+                            let estimated_cost = estimate_tokens(&full_response_as_string);
+                            models::chatbot_conversation_messages::update(
+                                &mut conn,
+                                message_id,
+                                &full_response_as_string,
+                                true,
+                                request_estimated_tokens + estimated_cost,
+                            ).await?;
+                        };
                         if check_error_should_terminate_stream(e.error_type()) {
                             return Err(e)?;
                         };
@@ -1548,9 +1561,9 @@ pub async fn send_chat_request_and_parse_stream(
                 };
                 match val {
                     StreamEvent::Delta(text) | StreamEvent::Refusal(text) => {
-                        let response = ChatbotChatStreamEvent::Delta { text, message_id };
-                        let response_as_string = serde_json::to_string(&response)?;
-                        yield Bytes::from(response_as_string);
+                        let delta = ChatbotChatStreamEvent::Delta { text, message_id };
+                        let delta_as_string = serde_json::to_string(&delta)?;
+                        yield Bytes::from(delta_as_string);
                         yield Bytes::from("\n");
                     },
                     StreamEvent::Item(stream_item) => {

@@ -18,6 +18,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "jsxImportSource": "@emotion/react"
   },
   "exclude": ["node_modules", "src/shared-module"],

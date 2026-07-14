@@ -21,6 +21,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "incremental": true
   },
   "exclude": ["node_modules", "src/shared-module"],

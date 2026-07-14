@@ -2,7 +2,7 @@
  * Generated type guards for "DeprecatedGutenbergBlockAttributes.ts".
  * WARNING: Do not manually change this file.
  */
-import {
+import type {
   AudioDeprecated1Attributes,
   BlockDeprecated1Attributes,
   BlockDeprecated2Attributes,

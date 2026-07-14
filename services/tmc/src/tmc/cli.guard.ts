@@ -5,7 +5,7 @@
  * Generated type guards for "cli.d.ts".
  * WARNING: Do not manually change this file.
  */
-import { CliOutput, RunResult } from "./cli"
+import type { CliOutput, RunResult } from "./cli"
 
 export function isCliOutput(obj: unknown): obj is CliOutput {
   const typedObj = obj as CliOutput

@@ -42,6 +42,9 @@ run_command pnpm exec oxfmt "$BINDINGS_DOWNLOAD_TARGET"
 # from both oxlint and oxfmt, so no lint-disable prepend or formatting pass is needed here (an
 # oxfmt run would also abort, since every matched file is ignored).
 run_command pnpm exec ts-auto-guard --paths "$BINDINGS_DOWNLOAD_TARGET" --project ./tsconfig.json
+# ts-auto-guard 5.x cannot emit `import type`; its leading import references only types, so under
+# verbatimModuleSyntax rewrite the `import {` to `import type {` (a no-op at runtime).
+run_command sed -i -E 's/^import \{/import type {/' "$BINDINGS_GUARD"
 
 echo "Removing old langs binary"
 run_command find ./bin/ -name "${LANGS_FILENAME_ROOT}*" -delete

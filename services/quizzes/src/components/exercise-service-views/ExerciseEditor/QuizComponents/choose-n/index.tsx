@@ -117,7 +117,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
             try {
               // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
               draft.n = parseInt(value, 10)
-            } catch {
+            } catch (_e) {
               /* NOP */
             }
           })

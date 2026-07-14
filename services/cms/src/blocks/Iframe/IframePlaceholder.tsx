@@ -58,7 +58,7 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
             // oxlint-disable-next-line no-new -- new URL() is used only to validate input; it throws on invalid URLs and is caught below
             new URL(input)
             url = input
-          } catch {
+          } catch (_e) {
             const parser = new DOMParser()
 
             const htmlDoc = parser.parseFromString(input, "text/html")
@@ -69,7 +69,7 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
                 // oxlint-disable-next-line no-new -- new URL() is used only to validate iframe.src; it throws on invalid URLs and is caught below
                 new URL(iframe.src)
                 url = iframe.src
-              } catch {
+              } catch (_e2) {
                 // NOP
               }
             }

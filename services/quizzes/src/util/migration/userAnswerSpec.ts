@@ -24,7 +24,7 @@ const convertIntDataForScale = (quizItemAnswer: OldQuizItemAnswer) => {
     try {
       // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt parsing is intentional; Number() would change behavior
       return Number.parseInt(quizItemAnswer.optionAnswers[0], 10)
-    } catch {
+    } catch (_e) {
       console.error("Scale does not have int data: ", quizItemAnswer)
     }
   }

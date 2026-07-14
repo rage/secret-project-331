@@ -53,7 +53,7 @@ export async function imageSavedPageYCoordinate(pathToImage: string): Promise<nu
       }
       return yCoordinate
     }
-  } catch {
+  } catch (_e) {
     return null
   }
   return null

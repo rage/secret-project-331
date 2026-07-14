@@ -485,6 +485,8 @@ pub struct LLMRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<LLMToolChoice>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub parallel_tool_calls: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_output_tokens: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<RequestTextOptions>,
@@ -600,6 +602,7 @@ impl LLMRequest {
                 max_output_tokens: Some(configuration.max_output_tokens),
                 tools,
                 tool_choice,
+                parallel_tool_calls: Some(true),
                 text: Some(RequestTextOptions {
                     verbosity: Some(configuration.verbosity),
                     format: None,

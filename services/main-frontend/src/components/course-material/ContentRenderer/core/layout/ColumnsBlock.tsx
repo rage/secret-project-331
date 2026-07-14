@@ -2,14 +2,14 @@
 
 import { css } from "@emotion/css"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import ColumnBlock from "./ColumnBlock"
 
-import { ColumnAttributes, ColumnsAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { ColumnAttributes, ColumnsAttributes } from "@/../types/GutenbergBlockAttributes"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsAttributes>>> = ({
   data,
@@ -43,15 +43,11 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
         display: flex;
         flex-wrap: wrap;
 
-        ${
-          isStackedOnMobile &&
-          respondToOrLarger.md &&
-          "> div { width: 100%; }" /* Ensure width 100% for child divs */
-        }
-        ${
-          !isStackedOnMobile &&
-          "div:not(:first-child) { margin-left: 2rem; }" /* Ensure that margin-left for div #2> is on mobile if not stacked enabled */
-        }
+        ${isStackedOnMobile &&
+        respondToOrLarger.md &&
+        "> div { width: 100%; }" /* Ensure width 100% for child divs */}
+        ${!isStackedOnMobile &&
+        "div:not(:first-child) { margin-left: 2rem; }" /* Ensure that margin-left for div #2> is on mobile if not stacked enabled */}
       `}
     >
       {innerBlocks.map((block) => {

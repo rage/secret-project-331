@@ -2,10 +2,10 @@
 
 import { css } from "@emotion/css"
 
-import { BlockRendererProps } from "../../.."
+import type { BlockRendererProps } from "../../.."
 import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
 
-import { FileAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { FileAttributes } from "@/../types/GutenbergBlockAttributes"
 import Button from "@/shared-module/common/components/Button"
 import ExternalLinkSVG from "@/shared-module/common/img/external-link.svg"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

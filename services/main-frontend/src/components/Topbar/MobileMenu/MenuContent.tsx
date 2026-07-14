@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UnifiedMenuItem } from "../hooks/types"
+import type { UnifiedMenuItem } from "../hooks/types"
 
 import { MenuItem } from "./MenuItem"
 

@@ -57,10 +57,10 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
     return <Spinner variant="large" />
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
 
   return loginStateContext.signedIn ? (
@@ -81,7 +81,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
               <a href={manageCourseRoute(courseId)}>
                 <Button
                   className={css`
-                    color: ${baseTheme.colors.green[600]}!important;
+                    color: ${baseTheme.colors.green[600]} !important;
                   `}
                   variant="primary"
                   size="medium"
@@ -94,7 +94,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           <li>
             <Button
               className={css`
-                color: ${baseTheme.colors.green[600]}!important;
+                color: ${baseTheme.colors.green[600]} !important;
               `}
               size="medium"
               variant="primary"
@@ -110,7 +110,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
             <a href={"/user-settings"}>
               <Button
                 className={css`
-                  color: ${baseTheme.colors.green[600]}!important;
+                  color: ${baseTheme.colors.green[600]} !important;
                 `}
                 size="medium"
                 variant="primary"
@@ -123,7 +123,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           <li className={cx(styles)}>
             <Button
               className={css`
-                color: ${baseTheme.colors.green[600]}!important;
+                color: ${baseTheme.colors.green[600]} !important;
               `}
               size="medium"
               variant="primary"
@@ -136,36 +136,34 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
       </Menu>
     </>
   ) : (
-    <>
-      <Menu>
-        <li className={cx(styles)}>
-          <a href={signUpPathWithReturnTo}>
-            <Button
-              className={css`
-                color: ${baseTheme.colors.green[600]}!important;
-              `}
-              size="medium"
-              variant="primary"
-            >
-              {t("create-new-account")}
-            </Button>
-          </a>
-        </li>
-        <li className={cx(styles)}>
-          <a href={loginPathWithReturnTo}>
-            <Button
-              className={css`
-                color: ${baseTheme.colors.green[600]}!important;
-              `}
-              size="medium"
-              variant="primary"
-            >
-              {t("log-in")}
-            </Button>
-          </a>
-        </li>
-      </Menu>
-    </>
+    <Menu>
+      <li className={cx(styles)}>
+        <a href={signUpPathWithReturnTo}>
+          <Button
+            className={css`
+              color: ${baseTheme.colors.green[600]} !important;
+            `}
+            size="medium"
+            variant="primary"
+          >
+            {t("create-new-account")}
+          </Button>
+        </a>
+      </li>
+      <li className={cx(styles)}>
+        <a href={loginPathWithReturnTo}>
+          <Button
+            className={css`
+              color: ${baseTheme.colors.green[600]} !important;
+            `}
+            size="medium"
+            variant="primary"
+          >
+            {t("log-in")}
+          </Button>
+        </a>
+      </li>
+    </Menu>
   )
 }
 

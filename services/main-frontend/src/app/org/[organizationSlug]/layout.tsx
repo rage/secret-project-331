@@ -42,7 +42,7 @@ function OrgLayoutContent({
     disabled: isCourseMaterial,
   })
 
-  return <>{children}</>
+  return children
 }
 
 export default function OrgLayout({ children }: { children: React.ReactNode }) {

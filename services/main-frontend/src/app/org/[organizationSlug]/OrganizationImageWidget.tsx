@@ -25,14 +25,14 @@ const OrganizationImageWidget: React.FC<
 
   const uploadImageMutation = useToastMutation(
     async (imageFile: File) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       validateFile(imageFile, ["image"])
 
       return await updateOrganizationImage({
         body: { file: imageFile },
         bodySerializer: () => {
           const formData = new FormData()
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           formData.append("file", imageFile)
           return formData
         },

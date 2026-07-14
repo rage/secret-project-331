@@ -31,10 +31,7 @@ const createDeterministicRandom = (seed: number) => {
  * @returns Random ordering
  */
 const generateRandomOrder = (n: number, seed: number) => {
-  const array = Array(n)
-  for (let i = 0; i < n; i++) {
-    array[i] = i
-  }
+  const array = Array.from({ length: n }, (_, i) => i)
 
   const rng = createDeterministicRandom(seed)
   for (let i = n - 1; i > 0; i--) {
@@ -71,7 +68,7 @@ const orderArrayWithId = <T>(array: T[], pseudonymId: string): T[] => {
   const seed = pseudonymId
     .split("")
     .map((chr, idx) => {
-      let val = Math.pow(chr.charCodeAt(0) * 31, pseudonymId.length - idx)
+      let val = Math.pow((chr.codePointAt(0) ?? 0) * 31, pseudonymId.length - idx)
       val &= val
       return val
     })

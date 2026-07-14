@@ -1,4 +1,5 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { answerExercise } from "./peer-reviews/peer_review_utils"
 

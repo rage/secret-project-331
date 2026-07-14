@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,7 +18,7 @@ export interface PeerOrSelfReviewViewProps {
 }
 
 export const getPeerReviewBeginningScrollingId = (exerciseId: string) =>
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   `start-of-peer-review-${exerciseId}`
 
 const PeerOrSelfReviewView: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = (

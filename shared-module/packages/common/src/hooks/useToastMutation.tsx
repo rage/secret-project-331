@@ -1,15 +1,16 @@
 "use client"
 
-import {
+import type {
   MutationFunction,
   MutationFunctionContext,
-  useMutation,
   UseMutationOptions,
   UseMutationResult,
 } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { BellXmark } from "@vectopus/atlas-icons-react"
-import { ReactNode } from "react"
-import toast, { Toast, ToastOptions } from "react-hot-toast"
+import type { ReactNode } from "react"
+import type { Toast, ToastOptions } from "react-hot-toast"
+import { toast } from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
 import ErrorNotification from "../components/Notifications/Error"
@@ -63,16 +64,16 @@ export default function useToastMutation<
   let toastId = ""
   /** Shows a success toast with method-specific defaults and optional visual overrides. */
   const displaySuccessNotification = (
-    notificationOptions: EnableNotifications,
+    enabledNotificationOptions: EnableNotifications,
     options: SuccessNotificationDisplayOptions,
   ) => {
     toast.custom(
-      (toast: Toast) => {
+      (toastInstance: Toast) => {
         return (
           <SuccessNotification
             header={options.header}
             message={options.message}
-            {...(notificationOptions.dismissable ? { toastId: toast.id } : {})}
+            {...(enabledNotificationOptions.dismissable ? { toastId: toastInstance.id } : {})}
             icon={options.icon}
             closeHoverBackgroundColor={options.closeHoverBackgroundColor}
             deleteVariant={options.deleteVariant}
@@ -80,8 +81,10 @@ export default function useToastMutation<
         )
       },
       {
-        ...notificationOptions.toastOptions,
-        duration: showToastInfinitely ? Infinity : notificationOptions.toastOptions?.duration,
+        ...enabledNotificationOptions.toastOptions,
+        duration: showToastInfinitely
+          ? Infinity
+          : enabledNotificationOptions.toastOptions?.duration,
         id: toastId,
       },
     )
@@ -162,12 +165,12 @@ export default function useToastMutation<
           errorMessage = (error as Error).message
         }
         toast.custom(
-          (toast: Toast) => {
+          (toastInstance: Toast) => {
             return (
               <ErrorNotification
                 header={notificationOptions.errorHeader}
                 message={errorMessage}
-                {...(notificationOptions.dismissable ? { toastId: toast.id } : {})}
+                {...(notificationOptions.dismissable ? { toastId: toastInstance.id } : {})}
               />
             )
           },

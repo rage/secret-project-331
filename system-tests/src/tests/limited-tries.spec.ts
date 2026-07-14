@@ -12,9 +12,7 @@ test.use({
 test("Limited tries work", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.locator("[aria-label=\"Manage\\ course\\ \\'Limited\\ tries\\'\"] svg").click()
 
@@ -45,9 +43,7 @@ test("Limited tries work", async ({ page }) => {
 
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.getByText("Limited tries").click()
 

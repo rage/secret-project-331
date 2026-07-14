@@ -39,20 +39,19 @@ export function CalendarGrid({
       <tbody>
         {Array.from({ length: weeksInMonth }, (_, weekIndex) => (
           <tr key={weekIndex}>
-            {state
-              .getDatesInWeek(weekIndex)
-              .map((date, dayIndex) =>
-                date ? (
-                  <CalendarCell
-                    key={date.toString()}
-                    date={date}
-                    monthStart={monthStart}
-                    state={state}
-                  />
-                ) : (
-                  <td key={`empty-${weekIndex}-${dayIndex}`} className={calendarEmptyCellCss} />
-                ),
-              )}
+            {state.getDatesInWeek(weekIndex).map((date, dayIndex) =>
+              date ? (
+                <CalendarCell
+                  key={date.toString()}
+                  date={date}
+                  monthStart={monthStart}
+                  state={state}
+                />
+              ) : (
+                // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- decorative spacer cell; no control or content to label
+                <td key={`empty-${weekIndex}-${dayIndex}`} className={calendarEmptyCellCss} />
+              ),
+            )}
           </tr>
         ))}
       </tbody>

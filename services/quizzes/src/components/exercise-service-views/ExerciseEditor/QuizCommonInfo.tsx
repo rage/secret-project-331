@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../hooks/useQuizzesExerciseServiceOutputState"
 
 import ParsedTextField from "./QuizComponents/common/ParsedTextField"
@@ -57,7 +57,7 @@ const QuizCommonInfo: React.FC = () => {
   )
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (

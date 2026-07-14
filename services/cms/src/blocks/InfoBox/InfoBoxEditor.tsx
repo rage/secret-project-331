@@ -8,7 +8,7 @@ import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCu
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 import BlockWrapper from "../BlockWrapper"
 
-import { InfoBoxComponentProps } from "."
+import type { InfoBoxComponentProps } from "."
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"

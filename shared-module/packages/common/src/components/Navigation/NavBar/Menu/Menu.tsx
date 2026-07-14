@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { ReactNode, useState } from "react"
+import type { ReactNode } from "react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../../styles"
@@ -93,6 +94,7 @@ const Menu: React.FC<React.PropsWithChildren<MenuProps>> = ({ children, variant 
         className={cx(MenuIcon)}
         onClick={onClickHandler}
         onKeyDown={(e) => runCallbackIfEnterPressed(e, onClickHandler)}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled toggle div; native button changes styling/layout
         role="button"
         aria-label={t("open-menu")}
         tabIndex={0}

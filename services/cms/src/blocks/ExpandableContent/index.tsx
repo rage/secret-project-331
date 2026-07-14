@@ -7,7 +7,7 @@ import ExpandableContentSave from "./ExpandableContentSave"
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const ExpandableContent = "ExpandableContent"
 
 const ExpandableContentConfiguration: BlockConfiguration = {

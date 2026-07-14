@@ -22,19 +22,19 @@ import {
 } from "./primitives/fieldStyles"
 import { useFloatingFieldState } from "./primitives/useFloatingFieldState"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const textareaInputType = "textarea" as const
 
 /** Adjusts the element height to fit its scrollable content. Returns the new height when it changed. */
 function applyAutoResize(el: HTMLTextAreaElement, maxHeightPx: number | undefined): number | null {
   const prevHeight = el.style.height
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   el.style.height = "auto"
   const scrollH = el.scrollHeight
   const clampedH = maxHeightPx ? Math.min(scrollH, maxHeightPx) : scrollH
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   el.style.height = `${clampedH}px`
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   el.style.overflowY = maxHeightPx && scrollH > maxHeightPx ? "auto" : "hidden"
   return prevHeight !== el.style.height ? clampedH : null
 }
@@ -102,7 +102,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
   const generatedInputId = useId()
   const inputId = id ?? generatedInputId
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const stringValue = field.value == null ? "" : String(field.value)
+  const stringValue = field.value === null || field.value === undefined ? "" : String(field.value)
 
   const floatingState = useFloatingFieldState({
     defaultValue: undefined,
@@ -141,7 +141,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
       return
     }
     const nextHeight = applyAutoResize(textareaRef.current, autoResizeMaxHeightPx)
-    if (nextHeight != null) {
+    if (nextHeight !== null) {
       onAutoResized?.(nextHeight)
     }
   }, [stringValue, autoResize, autoResizeMaxHeightPx, onAutoResized])
@@ -150,7 +150,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     field.onChange(e.target.value)
     if (autoResize && textareaRef.current) {
       const nextHeight = applyAutoResize(textareaRef.current, autoResizeMaxHeightPx)
-      if (nextHeight != null) {
+      if (nextHeight !== null) {
         onAutoResized?.(nextHeight)
       }
     }

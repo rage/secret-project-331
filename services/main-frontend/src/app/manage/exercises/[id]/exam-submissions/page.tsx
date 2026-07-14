@@ -9,7 +9,8 @@ import { useTranslation } from "react-i18next"
 
 import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
 import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
-import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import type { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Pagination from "@/shared-module/common/components/Pagination"
@@ -34,6 +35,7 @@ const GradingPage: React.FC = () => {
   const examId = getSubmissions.data?.data[0]?.exercise.exam_id
   const getExam = useQuery({
     queryKey: ["getExam", examId],
+    // oxlint-disable-next-line require-await -- async so the throw rejects the query promise
     queryFn: async () =>
       getExamFromApi({
         path: {
@@ -46,14 +48,14 @@ const GradingPage: React.FC = () => {
   usePageTitle(joinTitleSegments([t("header-submissions"), getExam.data?.name]), { order: 10 })
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
-    const pieces = [
-      // eslint-disable-next-line i18next/no-literal-string
+    const breadcrumbPieces = [
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("link-manage"), url: `/manage/exams/${examId}` },
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("questions"), url: `/manage/exams/${examId}/questions` },
       { text: t("header-submissions"), url: "" },
     ]
-    return pieces
+    return breadcrumbPieces
   }, [examId, t])
 
   return (

@@ -3,7 +3,7 @@
 import { useAtomValue } from "jotai"
 import React, { useContext } from "react"
 
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 import InnerBlocks from "../util/InnerBlocks"
 
 import type { UserCourseSettings } from "@/generated/course-material-api/types.generated"
@@ -33,26 +33,19 @@ const ConditionalBlock: React.FC<
   }
 
   const completionMet =
-    !completionsRequired.length ||
+    completionsRequired.length === 0 ||
     (getModuleCompletions.isSuccess &&
       getModuleCompletions.data.some(
-        (x) => x.completed && completionsRequired.some((id) => id == x.module_id),
+        (x) => x.completed && completionsRequired.some((id) => id === x.module_id),
       ))
   const enrollmentMet =
-    !enrollmentsRequired.length ||
+    enrollmentsRequired.length === 0 ||
     (userSettings?.current_course_instance_id &&
-      enrollmentsRequired.some((x) => x == userSettings.current_course_instance_id))
+      enrollmentsRequired.some((x) => x === userSettings.current_course_instance_id))
 
-  return (
-    <>
-      {completionMet && enrollmentMet && (
-        <InnerBlocks
-          parentBlockProps={props}
-          dontAllowInnerBlocksToBeWiderThanParentBlock={false}
-        />
-      )}
-    </>
-  )
+  return completionMet && enrollmentMet ? (
+    <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock={false} />
+  ) : null
 }
 
 export default ConditionalBlock

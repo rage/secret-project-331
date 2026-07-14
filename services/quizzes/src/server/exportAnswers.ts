@@ -1,13 +1,12 @@
-import { UserAnswer, UserItemAnswer } from "../../types/quizTypes/answer"
-import {
+import type { UserAnswer, UserItemAnswer } from "../../types/quizTypes/answer"
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
   QuizItemType,
 } from "../../types/quizTypes/privateSpec"
 
+import type { CsvExportColumn, CsvScalar } from "./csvExportUtils"
 import {
-  CsvExportColumn,
-  CsvScalar,
   getItemBody,
   getMatrixCellColumns,
   getMatrixCellValue,
@@ -25,7 +24,7 @@ import { handlePrivateSpecMigration, handleUserAnswerMigration } from "@/grading
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 
 interface CsvExportResult {
-  rows: Array<Record<string, CsvScalar>>
+  rows: Record<string, CsvScalar>[]
 }
 
 interface CsvExportResponse {
@@ -76,7 +75,7 @@ function parseRequest(body: unknown): CsvExportAnswersRequest {
     throw new Error("Invalid request body")
   }
   if (!Array.isArray((body as Record<string, unknown>).items)) {
-    throw new Error("Invalid request body: items must be an array")
+    throw new TypeError("Invalid request body: items must be an array")
   }
   return body as CsvExportAnswersRequest
 }
@@ -154,13 +153,13 @@ function getAnswerColumns(
 }
 
 function getUserAnswer(privateSpecQuiz: PrivateSpecQuiz, answer: unknown): UserAnswer {
-  if (answer === null || typeof answer === "undefined") {
+  if (answer === null || answer === undefined) {
     return { version: "2", itemAnswers: [] }
   }
 
   const userAnswer = handleUserAnswerMigration(privateSpecQuiz, answer as UserAnswer)
   if (!Array.isArray(userAnswer.itemAnswers)) {
-    throw new Error("Invalid answer payload")
+    throw new TypeError("Invalid answer payload")
   }
 
   return userAnswer

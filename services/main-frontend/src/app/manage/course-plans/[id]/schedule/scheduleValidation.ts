@@ -1,6 +1,6 @@
 import { SCHEDULE_STAGE_COUNT } from "./scheduleConstants"
 
-import {
+import type {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
@@ -29,7 +29,7 @@ function addOneDayIsoDate(dateOnly: string): string {
 }
 
 export function validateScheduleStages(
-  stages: Array<CourseDesignerScheduleStageInput>,
+  stages: CourseDesignerScheduleStageInput[],
 ): ScheduleValidationIssue | null {
   if (stages.length !== SCHEDULE_STAGE_COUNT) {
     return { code: "stage_count", actualCount: stages.length }

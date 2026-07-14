@@ -3,8 +3,9 @@
 import { useAtomValue } from "jotai"
 import React from "react"
 
-import { BlockRendererProps } from ".."
-import HeroSection, { HeroSectionProps } from "../../HeroSection"
+import type { BlockRendererProps } from ".."
+import type { HeroSectionProps } from "../../HeroSection"
+import HeroSection from "../../HeroSection"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

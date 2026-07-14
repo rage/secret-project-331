@@ -1,6 +1,6 @@
+import type { DynamicImportStatus } from "../dynamicImportStore"
 import {
   DYNAMIC_IMPORT_STATE_LOADING,
-  DynamicImportStatus,
   getDynamicImportStatus,
   setDynamicImportStatus,
 } from "../dynamicImportStore"

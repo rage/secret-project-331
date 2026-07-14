@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 
@@ -40,6 +40,8 @@ export const IframeBlock: React.FC<BlockRendererProps<IframeAttributes>> = (prop
           src={props.data.attributes.url}
           allow="fullscreen"
           title={IFRAME}
+          // Embeds arbitrary third-party course content; both flags are required and the frame runs under the embedded origin.
+          // oxlint-disable-next-line react/iframe-missing-sandbox
           sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation allow-popups allow-popups-to-escape-sandbox"
         ></iframe>
       </figure>

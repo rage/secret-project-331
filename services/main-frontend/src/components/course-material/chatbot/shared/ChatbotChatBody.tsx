@@ -13,7 +13,7 @@ import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"
 import ToolCallReasoningBubble from "./ToolCallReasoningBubble"
-import { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
+import type { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
 import type {
   ChatbotConversationMessage,
@@ -41,10 +41,10 @@ const messageMapMaker = (
   ChatbotConversationMessageWithStatus | null,
   ChatbotConversationMessageWithStatus[] | null
 > => {
-  let messagesMap: Map<
+  let messagesMap = new Map<
     ChatbotConversationMessageWithStatus | null,
     ChatbotConversationMessageWithStatus[] | null
-  > = new Map()
+  >()
 
   let earliestItemIndex: number | null = null
   messages.forEach((m, idx) => {
@@ -77,7 +77,7 @@ const messageMapMaker = (
   return messagesMap
 }
 
-export type ChatbotConversationMessageWithStatus = {
+export interface ChatbotConversationMessageWithStatus {
   message: ChatbotConversationMessage
   finished: boolean
   optimistic: boolean
@@ -97,21 +97,22 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   const { t } = useTranslation()
 
   const citations = useMemo(() => {
-    const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
+    const citationsMap = new Map<string, ChatbotConversationMessageCitation[]>()
 
     if (!currentConversationInfo.data?.hide_citations) {
       currentConversationInfo.data?.current_conversation_message_citations?.forEach((cit) => {
         const id = cit.conversation_message_id
-        if (!citations.has(id)) {
-          citations.set(id, [cit])
+        if (!citationsMap.has(id)) {
+          citationsMap.set(id, [cit])
         } else {
           // id is definitely in hashmap because of the condition branch we're in
-          citations.set(id, citations.get(id)!.concat(cit))
+          // oxlint-disable-next-line typescript/no-non-null-assertion -- else branch has citations.has(id), so get(id) is defined
+          citationsMap.set(id, citationsMap.get(id)!.concat(cit))
         }
       })
     }
 
-    return citations
+    return citationsMap
   }, [
     currentConversationInfo.data?.current_conversation_message_citations,
     currentConversationInfo.data?.hide_citations,
@@ -136,9 +137,9 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     ]
 
     // map is ordered in the insertion order
-    let messagesMap = messageMapMaker(messages)
+    const orderedMessagesMap = messageMapMaker(messages)
 
-    return messagesMap
+    return orderedMessagesMap
   }, [currentConversationInfo.data?.current_conversation_messages])
 
   const messagesMap2 = useMemo(() => {
@@ -229,7 +230,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             return <ToolCallReasoningBubble key={key} messages={items} />
           }
           if (message === null) {
-            return
+            return null
           }
           let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
           if (m.success) {
@@ -245,6 +246,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
               </Fragment>
             )
           }
+          return null
         })}
         <div
           className={css`
@@ -254,28 +256,30 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             margin-left: 2rem;
           `}
         >
-          {currentConversationInfo.data.suggested_messages?.map((m) => (
-            <SuggestedMessageChip
-              key={m.id}
-              isLoading={
-                newMessageMutation.isPending ||
-                currentConversationInfo.isLoading ||
-                currentConversationInfo.isRefetching
-              }
-              message={m.message}
-              handleClick={() => {
-                if (!newMessageMutation.isPending) {
-                  newMessageMutation.mutate(m.message)
+          {!newMessageMutation.isPending &&
+            currentConversationInfo.data.suggested_messages?.map((m) => (
+              <SuggestedMessageChip
+                key={m.id}
+                isLoading={
+                  newMessageMutation.isPending ||
+                  currentConversationInfo.isLoading ||
+                  currentConversationInfo.isRefetching
                 }
-              }}
-            />
-          ))}
+                message={m.message}
+                handleClick={() => {
+                  if (!newMessageMutation.isPending) {
+                    newMessageMutation.mutate(m.message)
+                  }
+                }}
+              />
+            ))}
         </div>
       </div>
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- VisuallyHidden wrapper with role=status; <output> drops the styling */}
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
       </VisuallyHidden>
-      {error != null ? <ErrorDisplay error={error} /> : null}
+      {error !== null && error !== undefined ? <ErrorDisplay error={error} /> : null}
       <div
         className={css`
           display: flex;
@@ -309,7 +313,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
                 }
               }
             }}
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             resize={"none"}
             autoResize={true}
             onAutoResized={scrollToBottom}

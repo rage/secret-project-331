@@ -60,10 +60,9 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
         setVerificationToken(response.email_verification_token)
         setStep({ step: "verification", token: response.email_verification_token })
         return false
-      } else {
-        setCredentialsError(true)
-        return false
       }
+      setCredentialsError(true)
+      return false
     },
     { notify: false },
   )
@@ -84,10 +83,9 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
         await loginStateContext.refresh()
         setStep({ step: "awaiting_consent_check" })
         return true
-      } else {
-        setVerificationError(t("verification-failed"))
-        return false
       }
+      setVerificationError(t("verification-failed"))
+      return false
     },
     { notify: false },
   )

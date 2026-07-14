@@ -1,6 +1,6 @@
-import { OldQuiz, OldQuizAnswer } from "../../types/oldQuizTypes"
-import { UserAnswer } from "../../types/quizTypes/answer"
-import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
+import type { OldQuiz, OldQuizAnswer } from "../../types/oldQuizTypes"
+import type { UserAnswer } from "../../types/quizTypes/answer"
+import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 
 import { isOldQuiz, isOldUserAnswer } from "@/util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "@/util/migration/privateSpecQuiz"

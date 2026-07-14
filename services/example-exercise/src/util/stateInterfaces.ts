@@ -50,10 +50,12 @@ export function isExerciseFeedback(value: unknown): value is ExerciseFeedback {
 // field should not crash the view.
 
 export function parsePublicSpec(value: unknown): PublicAlternative[] {
+  // oxlint-disable-next-line unicorn/no-array-callback-reference -- type guard; wrapping drops the `value is` narrowing
   return Array.isArray(value) ? value.filter(isPublicAlternative) : []
 }
 
 export function parsePrivateSpec(value: unknown): Alternative[] {
+  // oxlint-disable-next-line unicorn/no-array-callback-reference -- type guard; wrapping drops the `value is` narrowing
   return Array.isArray(value) ? value.filter(isAlternative) : []
 }
 

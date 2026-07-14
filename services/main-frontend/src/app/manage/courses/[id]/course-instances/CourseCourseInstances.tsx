@@ -10,7 +10,7 @@ import ModuleCompletionReprocessButton from "./ModuleCompletionReprocessButton"
 import NewCourseInstanceDialog from "./NewCourseInstanceDialog"
 import PointExportButton from "./PointExportButton"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import useCourseInstancesQuery, { invalidateCourseInstances } from "@/hooks/useCourseInstancesQuery"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -99,6 +99,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
   const [showDialog, setShowDialog] = useState(false)
   const getCourseInstances = useCourseInstancesQuery(courseId)
 
+  // oxlint-disable-next-line require-await -- onSubmit prop is typed () => Promise<void>
   const handleCreateNewCourseInstance = async () => {
     setShowDialog(false)
     invalidateCourseInstances(courseId)
@@ -120,7 +121,9 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
         {(data) => (
           <div className={cardContainerStyles}>
             {data
-              .sort((a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime())
+              .toSorted(
+                (a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime(),
+              )
               .map((instance) => {
                 const name = instance.name ?? t("default-course-instance-name")
                 return (

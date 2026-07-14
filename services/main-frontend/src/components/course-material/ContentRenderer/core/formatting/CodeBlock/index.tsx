@@ -5,13 +5,13 @@ import { useMemo } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../../.."
+import type { BlockRendererProps } from "../../.."
 
 import { CopyButton } from "./CopyButton"
 import { parseHighlightedCode } from "./highlightParser"
 import { formatHighlightedLinesRanges, replaceBrTagsWithNewlines } from "./utils"
 
-import { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { monospaceFont } from "@/shared-module/common/styles"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
@@ -33,13 +33,11 @@ const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
   white-space: pre-wrap;
   overflow-wrap: break-word;
   padding: 16px;
-  ${
-    allowFullWidth &&
-    `
+  ${allowFullWidth &&
+  `
     margin-top: -1.5rem;
     margin-bottom: -1.5rem;
-  `
-  }
+  `}
 `
 
 /**

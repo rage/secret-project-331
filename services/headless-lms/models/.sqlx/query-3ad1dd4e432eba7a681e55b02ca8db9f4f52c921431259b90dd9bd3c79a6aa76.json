@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM users WHERE upstream_id = $1",
+  "query": "SELECT * FROM users WHERE upstream_id = $1 AND deleted_at IS NULL",
   "describe": {
     "columns": [
       {
@@ -84,5 +84,5 @@
       true
     ]
   },
-  "hash": "375b467ba026680d07ba6fa844de91afd942e86b2715431e41b6788df0d2b3c0"
+  "hash": "3ad1dd4e432eba7a681e55b02ca8db9f4f52c921431259b90dd9bd3c79a6aa76"
 }

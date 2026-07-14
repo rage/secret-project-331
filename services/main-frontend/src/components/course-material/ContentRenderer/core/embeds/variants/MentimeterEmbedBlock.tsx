@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 import { getCourseMaterialMentimeterOembed } from "@/generated/course-material-api/sdk.generated"
 import type { CourseMaterialOEmbedResponse } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -52,6 +52,7 @@ export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribu
               border-top: 2px solid white;
             `}
           >
+            {/* oxlint-disable-next-line i18next/no-literal-string */}
             &nbsp;
           </span>
           <div

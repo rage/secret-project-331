@@ -1,30 +1,29 @@
 import tar from "tar-stream"
 import { ZSTDDecoder } from "zstddec"
 
-import { ExerciseFile } from "./stateInterfaces"
+import type { ExerciseFile } from "./stateInterfaces"
 
-import { RepositoryExercise } from "@/util/exerciseServiceApi"
+import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 
 export const buildArchiveName = (exercise: RepositoryExercise, identifier?: string): string => {
   if (identifier) {
     return exercise.part + "/" + exercise.name + "-" + identifier + ".tar.zst"
-  } else {
-    return exercise.part + "/" + exercise.name + ".tar.zst"
   }
+  return exercise.part + "/" + exercise.name + ".tar.zst"
 }
 
-export const extractTarZstd = async (tarZstdArchive: Buffer): Promise<Array<ExerciseFile>> => {
+export const extractTarZstd = async (tarZstdArchive: Buffer): Promise<ExerciseFile[]> => {
   // unpack zstd
   const zstdDecoder = new ZSTDDecoder()
   await zstdDecoder.init()
   const tarArchive = zstdDecoder.decode(tarZstdArchive, 1024 * 1024)
 
   // unpack tar
-  const files: Array<ExerciseFile> = []
+  const files: ExerciseFile[] = []
   const extract = tar.extract({})
   extract.on("entry", function (header, stream, next) {
     // strip first component...
-    const filepath = header.name.substring(header.name.indexOf("/") + 1)
+    const filepath = header.name.slice(header.name.indexOf("/") + 1)
     const chunks: Uint8Array[] = []
     stream.on("data", (chunk) => {
       chunks.push(new Uint8Array(chunk))

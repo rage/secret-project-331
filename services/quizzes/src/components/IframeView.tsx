@@ -2,24 +2,22 @@ import React, { useEffect, useRef, useState } from "react"
 import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 
-import {
+import type {
   OldModelSolutionQuiz as oldModelSolutionQuiz,
   OldPublicQuiz,
   OldQuiz,
   OldQuizAnswer,
 } from "../../types/oldQuizTypes"
-import { UserAnswer } from "../../types/quizTypes/answer"
-import { ItemAnswerFeedback } from "../../types/quizTypes/grading"
-import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
-import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
-import { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
+import type { UserAnswer } from "../../types/quizTypes/answer"
+import type { ItemAnswerFeedback } from "../../types/quizTypes/grading"
+import type { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
+import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
+import type { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
 
 import Renderer from "@/components/exercise-service-views/Renderer"
 import MessagePortContext from "@/contexts/MessagePortContext"
-import {
-  forgivingIsSetStateMessage,
-  UserInformation,
-} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { forgivingIsSetStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import {
   isAnswerExerciseIframeState,
   isExerciseEditorIframeState,
@@ -34,7 +32,7 @@ import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz
 import { migratePrivateSpecQuiz } from "@/util/migration/privateSpecQuiz"
 import migratePublicSpecQuiz from "@/util/migration/publicSpecQuiz"
 import migrateQuizAnswer from "@/util/migration/userAnswerSpec"
-import { StudentExerciseTaskSubmissionResult } from "@/utils/exerciseServiceApi"
+import type { StudentExerciseTaskSubmissionResult } from "@/utils/exerciseServiceApi"
 import { setExerciseServiceReloadBridge } from "@/utils/iframeReloadBridge"
 
 export interface SubmissionData {
@@ -86,7 +84,7 @@ const IframeView: React.FC = () => {
 
           if (isOldQuiz(messageData.data.previous_submission as OldQuizAnswer)) {
             quiz_answer = migrateQuizAnswer(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              // oxlint-disable-next-line typescript/no-explicit-any
               (messageData.data.previous_submission as any)?.private_spec as OldQuizAnswer,
               publicSpec as PublicSpecQuiz,
             )
@@ -128,9 +126,9 @@ const IframeView: React.FC = () => {
                 title: null,
                 body: null,
                 awardPointsEvenIfWrong: false,
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 grantPointsPolicy: "grant_whenever_possible",
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 quizItemDisplayDirection: "vertical",
                 submitMessage: null,
                 items: [],
@@ -138,37 +136,36 @@ const IframeView: React.FC = () => {
               userInformation: messageData.user_information,
             })
             return
-          } else {
-            let converted: unknown = privateSpec
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (isOldQuiz(converted as any)) {
-              converted = migrateQuiz(converted)
-              converted = migratePrivateSpecQuiz(converted as OldQuiz)
-            }
-
-            if (converted === null || converted === undefined) {
-              // The quiz was just created, intialize it with empty values
-              converted = {
-                version: "2",
-                title: null,
-                body: null,
-                awardPointsEvenIfWrong: false,
-                // eslint-disable-next-line i18next/no-literal-string
-                grantPointsPolicy: "grant_whenever_possible",
-                submitMessage: null,
-                // eslint-disable-next-line i18next/no-literal-string
-                quizItemDisplayDirection: "vertical",
-                items: [],
-              } satisfies PrivateSpecQuiz
-            }
-
-            setState({
-              viewType: messageData.view_type,
-              privateSpec: converted as PrivateSpecQuiz,
-              userInformation: messageData.user_information,
-            })
           }
+          let converted: unknown = privateSpec
+
+          // oxlint-disable-next-line typescript/no-explicit-any
+          if (isOldQuiz(converted as any)) {
+            converted = migrateQuiz(converted)
+            converted = migratePrivateSpecQuiz(converted as OldQuiz)
+          }
+
+          if (converted === null || converted === undefined) {
+            // The quiz was just created, intialize it with empty values
+            converted = {
+              version: "2",
+              title: null,
+              body: null,
+              awardPointsEvenIfWrong: false,
+              // oxlint-disable-next-line i18next/no-literal-string
+              grantPointsPolicy: "grant_whenever_possible",
+              submitMessage: null,
+              // oxlint-disable-next-line i18next/no-literal-string
+              quizItemDisplayDirection: "vertical",
+              items: [],
+            } satisfies PrivateSpecQuiz
+          }
+
+          setState({
+            viewType: messageData.view_type,
+            privateSpec: converted as PrivateSpecQuiz,
+            userInformation: messageData.user_information,
+          })
         } else if (messageData.view_type === "view-submission") {
           if (!isViewSubmissionIframeState(messageData)) {
             throw new Error(
@@ -188,7 +185,7 @@ const IframeView: React.FC = () => {
           }
           if (isOldQuiz(messageData.data.user_answer as OldQuizAnswer)) {
             quiz_answer = migrateQuizAnswer(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              // oxlint-disable-next-line typescript/no-explicit-any
               messageData.data.user_answer as any as OldQuizAnswer,
               public_spec as PublicSpecQuiz,
             )
@@ -200,7 +197,8 @@ const IframeView: React.FC = () => {
             userAnswer: quiz_answer as UserAnswer,
             userInformation: messageData.user_information,
             gradingFeedbackJson: messageData.data.grading?.feedback_json as
-              ItemAnswerFeedback[] | null,
+              | ItemAnswerFeedback[]
+              | null,
           })
         } else {
           console.error("Unknown view type received from parent")

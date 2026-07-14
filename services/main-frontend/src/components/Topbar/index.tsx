@@ -3,7 +3,8 @@
 import { css } from "@emotion/css"
 import { OverlayContainer } from "@react-aria/overlays"
 import { useOverlayTriggerState } from "@react-stately/overlays"
-import React, { ReactElement, useContext } from "react"
+import type { ReactElement } from "react"
+import React, { useContext } from "react"
 import { Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -77,11 +78,11 @@ interface MenuOption {
  */
 
 interface LanguageMenuProps {
-  availableLanguages?: Array<{
+  availableLanguages?: {
     code: string
     name: string
     isDraft?: boolean
-  }>
+  }[]
   onLanguageChange?: (languageCode: string) => Promise<void>
 }
 
@@ -195,7 +196,7 @@ const Topbar: React.FC<TopbarProps> = ({
 
               {enableSearch && enableLanguageMenu && (
                 <Separator
-                  // eslint-disable-next-line i18next/no-literal-string
+                  // oxlint-disable-next-line i18next/no-literal-string
                   orientation="vertical"
                   className={css`
                     height: 24px;
@@ -220,7 +221,7 @@ const Topbar: React.FC<TopbarProps> = ({
 
               {enableLanguageMenu && loginStateContext.signedIn && enableUserMenu && (
                 <Separator
-                  // eslint-disable-next-line i18next/no-literal-string
+                  // oxlint-disable-next-line i18next/no-literal-string
                   orientation="vertical"
                   className={css`
                     height: 24px;
@@ -240,7 +241,7 @@ const Topbar: React.FC<TopbarProps> = ({
 
                   {enableUserMenu && enableQuickActions && (
                     <Separator
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       orientation="vertical"
                       className={css`
                         height: 24px;

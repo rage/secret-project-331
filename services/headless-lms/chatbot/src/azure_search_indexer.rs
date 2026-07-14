@@ -41,13 +41,19 @@ struct IndexerWarning {
 pub async fn does_search_indexer_exist(
     indexer_name: &str,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<bool> {
+) -> ChatbotResult<bool> {
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure configuration is missing from the application configuration"
+        )
     })?;
 
     let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure search configuration is missing from the Azure configuration"
+        )
     })?;
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("indexers('{}')", indexer_name));
@@ -67,10 +73,12 @@ pub async fn does_search_indexer_exist(
     } else {
         let status = response.status();
         let error_text = response.text().await?;
-        Err(anyhow::anyhow!(
-            "Error checking if index exists. Status: {}. Error: {}",
-            status,
-            error_text
+        Err(chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Error checking if index exists. Status: {}. Error: {}",
+                status, error_text
+            )
         ))
     }
 }
@@ -81,13 +89,19 @@ pub async fn create_search_indexer(
     skillset_name: &str,
     target_index_name: &str,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<()> {
+) -> ChatbotResult<()> {
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure configuration is missing from the application configuration"
+        )
     })?;
 
     let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure search configuration is missing from the Azure configuration"
+        )
     })?;
 
     let mut url = search_config.search_endpoint.clone();
@@ -137,10 +151,12 @@ pub async fn create_search_indexer(
     } else {
         let status = response.status();
         let error_text = response.text().await?;
-        Err(anyhow::anyhow!(
-            "Error creating search indexer. Status: {}. Error: {}",
-            status,
-            error_text
+        Err(chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Error creating search indexer. Status: {}. Error: {}",
+                status, error_text
+            )
         ))
     }
 }
@@ -148,13 +164,19 @@ pub async fn create_search_indexer(
 pub async fn run_search_indexer_now(
     indexer_name: &str,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<()> {
+) -> ChatbotResult<()> {
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure configuration is missing from the application configuration"
+        )
     })?;
 
     let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure search configuration is missing from the Azure configuration"
+        )
     })?;
 
     let mut url = search_config.search_endpoint.clone();
@@ -173,10 +195,12 @@ pub async fn run_search_indexer_now(
     } else {
         let status = response.status();
         let error_text = response.text().await?;
-        Err(anyhow::anyhow!(
-            "Error triggering search indexer. Status: {}. Error: {}",
-            status,
-            error_text
+        Err(chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Error triggering search indexer. Status: {}. Error: {}",
+                status, error_text
+            )
         ))
     }
 }
@@ -197,13 +221,19 @@ pub async fn run_search_indexer_now(
 pub async fn check_search_indexer_status(
     indexer_name: &str,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<bool> {
+) -> ChatbotResult<bool> {
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure configuration is missing from the application configuration"
+        )
     })?;
 
     let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure search configuration is missing from the Azure configuration"
+        )
     })?;
 
     let mut url = search_config.search_endpoint.clone();
@@ -228,8 +258,9 @@ pub async fn check_search_indexer_status(
                     serde_json::to_string_pretty(&response_text)
                         .unwrap_or_else(|_| "Invalid JSON".to_string())
                 );
-                return Err(anyhow::anyhow!(
-                    "Failed to parse indexer status JSON: {}",
+                return Err(chatbot_err!(
+                    SerdeJson,
+                    "Failed to parse indexer status JSON.",
                     e
                 ));
             }
@@ -309,10 +340,12 @@ pub async fn check_search_indexer_status(
             "Error fetching indexer status. Status: {}. Error: {}",
             status, error_text
         );
-        Err(anyhow::anyhow!(
-            "Error fetching indexer status. Status: {}. Error: {}",
-            status,
-            error_text
+        Err(chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Error fetching indexer status. Status: {}. Error: {}",
+                status, error_text
+            )
         ))
     }
 }

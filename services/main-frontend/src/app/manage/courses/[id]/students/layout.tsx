@@ -104,6 +104,7 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
                 value={inputValue}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <span className={styles.searchIcon}>🔍</span>
             </div>
 

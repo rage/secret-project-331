@@ -426,17 +426,23 @@ pub async fn send_reset_password_email(
             // If the user does not exist in the courses.mooc.fi database,
             // check TMC for the user and create a new user in courses.mooc.fi if found.
             if let Ok(tmc_user) = tmc_client.get_user_from_tmc_with_email(email.clone()).await {
-                Some(
-                    models::users::insert_with_upstream_id_and_moocfi_id(
-                        &mut conn,
-                        &tmc_user.email,
-                        tmc_user.first_name.as_deref(),
-                        tmc_user.last_name.as_deref(),
-                        tmc_user.upstream_id,
-                        tmc_user.id,
-                    )
-                    .await?,
-                )
+                // The account may already exist under a different email but the same upstream_id
+                // (e.g. the user changed their email in TMC). Reuse that row instead of inserting,
+                // which would violate the users_upstream_id_active_uniq_idx unique index.
+                match models::users::find_by_upstream_id(&mut conn, tmc_user.upstream_id).await? {
+                    Some(existing_user) => Some(existing_user),
+                    None => Some(
+                        models::users::insert_with_upstream_id_and_moocfi_id(
+                            &mut conn,
+                            &tmc_user.email,
+                            tmc_user.first_name.as_deref(),
+                            tmc_user.last_name.as_deref(),
+                            tmc_user.upstream_id,
+                            tmc_user.id,
+                        )
+                        .await?,
+                    ),
+                }
             } else {
                 None
             }

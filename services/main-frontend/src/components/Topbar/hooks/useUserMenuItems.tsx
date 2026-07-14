@@ -1,6 +1,7 @@
 "use client"
 
-import { ReactElement, useContext, useMemo } from "react"
+import type { ReactElement } from "react"
+import { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
@@ -20,14 +21,14 @@ export interface UserMenuItem {
 }
 
 export interface UseUserMenuItemsProps {
-  menuOptions?: Array<{
+  menuOptions?: {
     type: "link" | "action" | "separator"
     label?: string
     href?: string
     onAction?: () => void
     icon?: ReactElement
     isDestructive?: boolean
-  }>
+  }[]
   onMenuClose?: () => void
 }
 
@@ -115,14 +116,14 @@ export function useUserMenuItems({
     return userMenuItems.map((item, i) => {
       if (item.type === "separator") {
         return {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           id: `user-sep-${i}`,
           type: "separator" as const,
         }
       }
 
       return {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         id: `user-${"href" in item ? item.href : "label" in item ? item.label : i}`,
         type: item.type,
         label: "label" in item ? item.label : undefined,

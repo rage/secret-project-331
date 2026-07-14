@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
 import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
 

@@ -30,7 +30,7 @@ const i18n = initI18n(SERVICE_NAME)
 
 const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pageProps }) => {
   const initialLanguage = useLanguage()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [language, setLanguage] = useState(initialLanguage ?? "en")
   const [translationResourcesLoadedCounter, setTranslationResourcesLoadedCounter] = useState(0)
 
@@ -43,20 +43,20 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
 
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
-      jssStyles.parentElement?.removeChild(jssStyles)
+      jssStyles.remove()
     }
   }, [])
 
   useEffect(() => {
-    i18n.on("languageChanged", (language) => {
-      console.info(`i18n language changed to: ${language}`)
+    i18n.on("languageChanged", (changedLanguage) => {
+      console.info(`i18n language changed to: ${changedLanguage}`)
       const htmlElement = document.querySelector("html")
       if (!htmlElement) {
         return
       }
-      htmlElement.setAttribute("lang", language)
-      htmlElement.setAttribute("dir", getDir(language))
-      setLanguage(language)
+      htmlElement.setAttribute("lang", changedLanguage)
+      htmlElement.setAttribute("dir", getDir(changedLanguage))
+      setLanguage(changedLanguage)
     })
     i18n.on("loaded", () => {
       // Updating the counter forces the  whole app to re-render

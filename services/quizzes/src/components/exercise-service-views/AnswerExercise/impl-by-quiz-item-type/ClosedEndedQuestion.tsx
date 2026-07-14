@@ -2,12 +2,12 @@ import { css } from "@emotion/css"
 import React, { useCallback, useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
 import ParsedText from "../../../ParsedText"
 import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { stripNonPrintableCharacters } from "@/shared-module/common/utils/strings"
@@ -24,9 +24,8 @@ const ClosedEndedQuestion: React.FC<
     (answer: string) => {
       if (quizItem.formatRegex) {
         return answer.length > 0 && answerFormatIsValidAgainstRegex(answer, quizItem.formatRegex)
-      } else {
-        return answer.length > 0
       }
+      return answer.length > 0
     },
     [quizItem.formatRegex],
   )
@@ -99,7 +98,7 @@ const answerFormatIsValidAgainstRegex = (
   answer: string | undefined,
   validatorRegex: string | undefined,
 ): boolean => {
-  if (answer?.length == 0) {
+  if (answer?.length === 0) {
     return true
   }
   if (!answer || !validatorRegex) {

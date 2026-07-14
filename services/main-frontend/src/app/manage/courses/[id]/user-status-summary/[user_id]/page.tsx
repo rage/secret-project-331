@@ -27,7 +27,7 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { courseExerciseResetToolRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResults } from "@/shared-module/components"
-import { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
+import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 
 const CourseExerciseStatusList: React.FC = () => {
   const { t } = useTranslation()

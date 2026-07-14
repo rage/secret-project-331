@@ -79,7 +79,7 @@ const StatusPods: React.FC = () => {
                       className={css`
                         ${isFailed ? `background-color: ${baseTheme.colors.red[100]};` : ""}
                         ${isPending ? `background-color: ${baseTheme.colors.yellow[100]};` : ""}
-                    ${isSucceeded ? `background-color: ${baseTheme.colors.clear[200]};` : ""}
+                        ${isSucceeded ? `background-color: ${baseTheme.colors.clear[200]};` : ""}
                       `}
                     >
                       <td>{pod.name}</td>
@@ -108,28 +108,24 @@ const StatusPods: React.FC = () => {
                               border-radius: 4px;
                               font-size: 0.85rem;
                               font-weight: 600;
-                              background-color: ${
-                                isHealthy
-                                  ? baseTheme.colors.green[100]
-                                  : isFailed
-                                    ? baseTheme.colors.red[100]
-                                    : isPending
-                                      ? baseTheme.colors.yellow[100]
-                                      : isSucceeded
-                                        ? baseTheme.colors.green[100]
-                                        : baseTheme.colors.clear[300]
-                              };
-                              color: ${
-                                isHealthy
-                                  ? baseTheme.colors.green[700]
-                                  : isFailed
-                                    ? baseTheme.colors.red[700]
-                                    : isPending
-                                      ? baseTheme.colors.yellow[700]
-                                      : isSucceeded
-                                        ? baseTheme.colors.green[700]
-                                        : baseTheme.colors.gray[600]
-                              };
+                              background-color: ${isHealthy
+                                ? baseTheme.colors.green[100]
+                                : isFailed
+                                  ? baseTheme.colors.red[100]
+                                  : isPending
+                                    ? baseTheme.colors.yellow[100]
+                                    : isSucceeded
+                                      ? baseTheme.colors.green[100]
+                                      : baseTheme.colors.clear[300]};
+                              color: ${isHealthy
+                                ? baseTheme.colors.green[700]
+                                : isFailed
+                                  ? baseTheme.colors.red[700]
+                                  : isPending
+                                    ? baseTheme.colors.yellow[700]
+                                    : isSucceeded
+                                      ? baseTheme.colors.green[700]
+                                      : baseTheme.colors.gray[600]};
                             `}
                           >
                             {pod.phase}
@@ -205,6 +201,7 @@ const StatusPods: React.FC = () => {
               <select
                 id="tail-lines-select"
                 value={tail}
+                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
                 onChange={(e) => setTail(parseInt(e.currentTarget.value, 10))}
                 className={css`
                   padding: 0.5rem;
@@ -237,7 +234,7 @@ const StatusPods: React.FC = () => {
               `}
             >
               <QueryResult query={logsQuery} themeMode="dark">
-                {(logs) => <>{logs && <div>{parseAnsiToReact(logs)}</div>}</>}
+                {(logs) => logs && <div>{parseAnsiToReact(logs)}</div>}
               </QueryResult>
             </div>
           </div>

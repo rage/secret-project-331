@@ -1,5 +1,5 @@
-import { UserItemAnswer } from "../../types/quizTypes/answer"
-import {
+import type { UserItemAnswer } from "../../types/quizTypes/answer"
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
   PrivateSpecQuizItemTimelineItem,
@@ -172,7 +172,7 @@ export function getSortedTimelineItems(
     return []
   }
 
-  return [...quizItem.timelineItems].sort((left, right) => {
+  return [...quizItem.timelineItems].toSorted((left, right) => {
     const leftNumber = Number(left.year)
     const rightNumber = Number(right.year)
     if (Number.isFinite(leftNumber) && Number.isFinite(rightNumber)) {
@@ -220,7 +220,7 @@ export function getOptionIds(item: PrivateSpecQuizItem): string | null {
 
 /** Returns option titles/labels joined with " | " or null if no options. */
 export function getOptionTitles(item: PrivateSpecQuizItem): string | null {
-  return joinValues((getOptions(item) ?? []).map(getOptionLabel))
+  return joinValues((getOptions(item) ?? []).map((option) => getOptionLabel(option)))
 }
 
 /** Returns correct option ids joined with " | " or null if no options. */

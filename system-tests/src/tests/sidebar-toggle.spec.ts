@@ -9,12 +9,7 @@ test.use({
 test("Changing view in the cms sidebar works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(
-      page,
-      "University of Helsinki, Department of Mathematics and Statistics",
-    ),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
   await page
     .locator("[aria-label=\"Manage\\ course\\ \\'Introduction\\ to\\ Statistics\\'\"] svg")

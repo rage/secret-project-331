@@ -69,12 +69,12 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
               const { url, alt, href, linkDestination } = block.attributes
 
               // Ensure that the link is always a full URL (https://)
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               const formattedLink = href && !/^https?:\/\//i.test(href) ? `https://${href}` : href
               const isSvgUrl = url.endsWith(".svg")
 
               // Conditionally return image wrapped in a link or just the image based on whether 'link' is available
-              return linkDestination == "custom" ? (
+              return linkDestination === "custom" ? (
                 <a
                   key={block.clientId}
                   href={formattedLink}
@@ -92,11 +92,12 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
               ) : isSvgUrl ? (
                 <DynamicSvg src={url} key={`partner-svg-${block.clientId}-${url}`} />
               ) : (
-                <figure>
-                  <img src={url} alt={alt} key={`partner-img-${block.clientId}-${url}`} />
+                <figure key={`partner-img-${block.clientId}-${url}`}>
+                  <img src={url} alt={alt} />
                 </figure>
               )
             }
+            return null
           })}
         </div>
       )}

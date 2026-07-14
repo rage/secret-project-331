@@ -1,10 +1,6 @@
 import { jsonRoute, readJsonBody } from "@/lib/apiRoutes"
-import {
-  CsvExportColumn,
-  CsvExportResponse,
-  parseItemsRequest,
-  parsePrivateSpecStrict,
-} from "@/server/csvExportUtils"
+import type { CsvExportColumn, CsvExportResponse } from "@/server/csvExportUtils"
+import { parseItemsRequest, parsePrivateSpecStrict } from "@/server/csvExportUtils"
 
 interface CsvExportDefinitionsRequestItem {
   private_spec: unknown

@@ -12,7 +12,9 @@ const stackCss = css`
   max-width: 320px;
 `
 
-type Form = { d: string }
+interface Form {
+  d: string
+}
 
 function PlaygroundInner() {
   const { control } = useForm<Form>({ defaultValues: { d: "2026-03-11" } })

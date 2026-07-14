@@ -3,7 +3,8 @@ import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
-import { ParsedSpecRequest, privateSpecSchema, specRequestSchema } from "./requestSchemas"
+import type { ParsedSpecRequest } from "./requestSchemas"
+import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
@@ -11,9 +12,9 @@ import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { compressProject, extractProject, prepareSolution } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
-import { RepositoryExercise } from "@/util/exerciseServiceApi"
+import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 import { createScopedLogger } from "@/util/logger"
-import { ModelSolutionSpec } from "@/util/stateInterfaces"
+import type { ModelSolutionSpec } from "@/util/stateInterfaces"
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown

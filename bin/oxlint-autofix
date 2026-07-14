@@ -1,0 +1,7 @@
+#!/bin/bash
+# Apply oxlint's safe autofixes to the given files and always exit 0, so the pre-commit hook
+# fixes what it can without ever blocking a commit. The failing gate (oxlint --max-warnings=0)
+# lives in bin/git-run-branch-ready-checks and CI. Safe --fix only.
+set -u
+pnpm exec oxlint --fix "$@" || true
+exit 0

@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import { IGNORE_BLOCK_FEEDBACK_CLASS } from "@/components/course-material/SelectionListener"
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
@@ -33,10 +33,10 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
             },
           })
       : skipToken,
-    enabled: courseId != null,
+    enabled: courseId !== null && courseId !== undefined,
   })
 
-  if (courseId == null) {
+  if (courseId === null || courseId === undefined) {
     return (
       <div className={IGNORE_BLOCK_FEEDBACK_CLASS}>
         <div

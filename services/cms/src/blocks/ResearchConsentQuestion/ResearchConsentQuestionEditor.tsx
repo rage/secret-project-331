@@ -6,7 +6,7 @@ import React from "react"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-import { ResearchConsentQuestionAttributes } from "."
+import type { ResearchConsentQuestionAttributes } from "."
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"

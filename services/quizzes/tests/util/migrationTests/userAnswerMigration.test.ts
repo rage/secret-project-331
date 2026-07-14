@@ -1,12 +1,12 @@
 import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
 import migrateQuizAnswer from "../../../src/util/migration/userAnswerSpec"
-import { QuizItem } from "../../../types/oldQuizTypes"
-import {
+import type { QuizItem } from "../../../types/oldQuizTypes"
+import type {
   UserItemAnswer,
   UserItemAnswerCheckbox,
   UserItemAnswerScale,
 } from "../../../types/quizTypes/answer"
-import {
+import type {
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
   PrivateSpecQuizItemClosedEndedQuestion,
@@ -77,9 +77,9 @@ describe("User answer", () => {
     expect(migratedUserAnswer.type).toBe("checkbox")
     // Checked field is boolean where as intData is a number.
     // The field tested manually here
-    if (migratedUserAnswer.type == "checkbox") {
+    if (migratedUserAnswer.type === "checkbox") {
       const migratedCheckboxAnswer = migratedUserAnswer as UserItemAnswerCheckbox
-      expect(migratedCheckboxAnswer.checked).toBe(checkboxAnswer.intData === 1 ? true : false)
+      expect(migratedCheckboxAnswer.checked).toBe(checkboxAnswer.intData === 1)
     }
     compareUserItemAnswer(checkboxAnswer, migratedUserAnswer)
   })
@@ -147,7 +147,8 @@ describe("User answer", () => {
       expect(scaleAnswer.intData).toEqual((migratedUserAnswer as UserItemAnswerScale).intData)
     } else {
       if (scaleAnswer.optionAnswers) {
-        expect(Number.parseInt(scaleAnswer.optionAnswers[0])).toEqual(
+        // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+        expect(Number.parseInt(scaleAnswer.optionAnswers[0], 10)).toEqual(
           (migratedUserAnswer as UserItemAnswerScale).intData,
         )
       }

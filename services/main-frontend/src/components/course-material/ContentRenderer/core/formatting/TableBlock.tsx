@@ -3,9 +3,9 @@
 import { css, cx } from "@emotion/css"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
-import { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
 import { stringToNumberOrPlaceholder } from "@/shared-module/common/utils/numbers"
@@ -43,6 +43,15 @@ const leftShadowStyles = css`
   background: linear-gradient(to left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.16));
 `
 
+const fetchAlignment = (align: string | undefined) => {
+  if (align) {
+    return css`
+      text-align: ${align};
+    `
+  }
+  return undefined
+}
+
 const TableBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<TableAttributes & ExtraAttributes>>
 > = ({ data, dontAllowBlockToBeWiderThanContainerWidth }) => {
@@ -63,6 +72,7 @@ const TableBlock: React.FC<
     if (!refsMap.has(key)) {
       refsMap.set(key, React.createRef<HTMLElement>())
     }
+    // oxlint-disable-next-line typescript/no-non-null-assertion -- key was just inserted above, so get(key) is defined
     return refsMap.get(key)!
   }
 
@@ -105,15 +115,6 @@ const TableBlock: React.FC<
     return () => resizeObserver.disconnect()
   }, [updateScrollState])
 
-  const fetchAlignment = (align: string | undefined) => {
-    if (align) {
-      return css`
-        text-align: ${align};
-      `
-    }
-    return undefined
-  }
-
   return (
     <div className={scrollWrapperStyles}>
       <div ref={scrollRef} onScroll={updateScrollState} className={scrollContainerStyles}>
@@ -150,7 +151,7 @@ const TableBlock: React.FC<
                     cellRows.cells.map((cell: CellAttributes, i) => (
                       <ParsedText
                         key={i}
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
                         tag="th"
                         tagProps={{
@@ -159,7 +160,7 @@ const TableBlock: React.FC<
                           rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                         }}
                         useWrapperElement={false}
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         wrapperRef={getRef(`head-${j}-${i}`)}
                       />
                     ))}
@@ -174,7 +175,7 @@ const TableBlock: React.FC<
                   cellRows.cells.map((cell: CellAttributes, i: number) => (
                     <ParsedText
                       key={i}
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
                       tag="td"
                       tagProps={{
@@ -183,7 +184,7 @@ const TableBlock: React.FC<
                         rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                       }}
                       useWrapperElement={false}
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       wrapperRef={getRef(`body-${j}-${i}`)}
                     />
                   ))}
@@ -198,7 +199,7 @@ const TableBlock: React.FC<
                     cellRows.cells.map((cell: CellAttributes, i: number) => (
                       <ParsedText
                         key={i}
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
                         tag="td"
                         tagProps={{
@@ -207,7 +208,7 @@ const TableBlock: React.FC<
                           rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                         }}
                         useWrapperElement={false}
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         wrapperRef={getRef(`foot-${j}-${i}`)}
                       />
                     ))}

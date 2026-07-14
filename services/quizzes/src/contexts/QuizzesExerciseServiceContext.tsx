@@ -1,4 +1,4 @@
-import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 
 import { createExerciseServiceContext } from "@/shared-module/exercise-react/react/contexts/ExerciseServiceContext"
 

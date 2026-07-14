@@ -3,7 +3,7 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 import InnerBlocks from "../util/InnerBlocks"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"

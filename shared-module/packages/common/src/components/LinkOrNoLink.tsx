@@ -8,7 +8,7 @@ const LinkOrNoLink: React.FC<
   >
 > = ({ url, children, linkClassName }) => {
   if (!url) {
-    return <>{children}</>
+    return children
   }
   return (
     <Link href={url} className={linkClassName}>

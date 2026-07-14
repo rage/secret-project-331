@@ -69,12 +69,10 @@ const FlipButton: React.FC<FlipButtonProps> = ({ onPress, ariaLabel, ref }) => {
           outline-offset: 2px;
         }
 
-        ${
-          isPressed &&
-          `
-          transform: scale(0.98);
+        ${isPressed &&
         `
-        }
+          transform: scale(0.98);
+        `}
       `}
       aria-label={ariaLabel}
     >

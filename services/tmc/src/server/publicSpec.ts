@@ -3,7 +3,8 @@ import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
-import { ParsedSpecRequest, privateSpecSchema, specRequestSchema } from "./requestSchemas"
+import type { ParsedSpecRequest } from "./requestSchemas"
+import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
@@ -17,10 +18,10 @@ import {
   prepareStub,
 } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
-import { RepositoryExercise } from "@/util/exerciseServiceApi"
+import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 import { createScopedLogger } from "@/util/logger"
-import { PublicSpec } from "@/util/stateInterfaces"
+import type { PublicSpec } from "@/util/stateInterfaces"
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown

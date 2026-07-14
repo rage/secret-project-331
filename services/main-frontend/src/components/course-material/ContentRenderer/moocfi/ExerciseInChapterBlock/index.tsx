@@ -4,7 +4,7 @@ import styled from "@emotion/styled"
 import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import ExercisesInChapter from "./ExercisesInChapter"
 

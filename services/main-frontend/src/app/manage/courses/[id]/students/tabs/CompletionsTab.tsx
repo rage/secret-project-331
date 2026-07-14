@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import type { CellContext, ColumnDef } from "@tanstack/react-table"
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -16,14 +16,17 @@ import type { CompletionGridRow } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { QueryResult } from "@/shared-module/components"
 
-type Props = { courseId: string; searchQuery: string }
+interface Props {
+  courseId: string
+  searchQuery: string
+}
 type RowObject = Record<string, unknown> & { student: string }
 
 const moduleKey = (name: string | null, t: TFunction) =>
   (name && name.trim().length > 0 ? name : t("default-module"))
     .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/[^a-z0-9_]/g, "_")
+    .replaceAll(/\s+/g, "_")
+    .replaceAll(/[^a-z0-9_]/g, "_")
 
 const pivotCompletions = (rows: CompletionGridRow[], t: TFunction) => {
   const modulesInOrder: string[] = []
@@ -40,12 +43,12 @@ const pivotCompletions = (rows: CompletionGridRow[], t: TFunction) => {
     const key = r.student
     const modLabel = r.module ?? t("default-module")
     const mKey = moduleKey(modLabel, t)
-    const existing = byStudent.get(key) ?? { student: key }
-    // eslint-disable-next-line i18next/no-literal-string
+    const existing: RowObject = byStudent.get(key) ?? { student: key }
+    // oxlint-disable-next-line i18next/no-literal-string
     existing[`${mKey}__grade`] = r.grade ?? "-"
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     existing[`${mKey}__status`] = r.status ?? "-"
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     existing[`${mKey}__needsReview`] = r.needs_to_be_reviewed
     byStudent.set(key, existing)
   }
@@ -90,11 +93,11 @@ const CompletionStatusCell: React.FC<StatusCellProps> = ({ getValue, row, needsR
 const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObject, unknown>[] => {
   const columns: ColumnDef<RowObject, unknown>[] = [
     {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       id: "student",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       header: "Student",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       accessorKey: "student",
       meta: {
         sticky: true,
@@ -108,21 +111,21 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
 
   modulesInOrder.forEach((label, groupIdx) => {
     const mKey = moduleKey(label, t)
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const needsReviewKey = `${mKey}__needsReview`
     const colorPairIndex = groupIdx
     columns.push({
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       id: `${mKey}__group`,
       header: label || "",
       meta: { colorPairIndex },
       columns: [
         {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           id: `${mKey}__grade`,
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           header: "Grade",
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           accessorKey: `${mKey}__grade`,
           meta: {
             minWidth: COMPLETIONS_LEAF_MIN_WIDTH,
@@ -133,11 +136,11 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
           },
         },
         {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           id: `${mKey}__status`,
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           header: "Status",
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           accessorKey: `${mKey}__status`,
           cell: (props) => <CompletionStatusCell {...props} needsReviewKey={needsReviewKey} />,
           meta: {

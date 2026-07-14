@@ -9,7 +9,7 @@ import { atom } from "jotai"
  * once per registration and kept stable across updates. `owner` is the id of the hook instance
  * that registered the entry, so an unmounting instance only deletes a slot it still owns.
  */
-export type PageTitleEntry = {
+export interface PageTitleEntry {
   key: string
   order: number
   title: string

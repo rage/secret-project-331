@@ -24,9 +24,9 @@ import {
 } from "./primitives/checkableStyles"
 import type { FieldSize } from "./primitives/fieldStyles"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const dataStateTrue = "true"
 
 /**
@@ -103,7 +103,7 @@ export function Switch<T extends FieldValues, N extends Path<T> = Path<T>>(
   })
 
   const inputValue =
-    switchValue == null
+    switchValue === undefined
       ? undefined
       : Array.isArray(switchValue)
         ? switchValue.join(",")

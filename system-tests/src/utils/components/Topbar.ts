@@ -1,18 +1,21 @@
-import { expect, Locator, Page } from "@playwright/test"
+import type { Locator, Page } from "@playwright/test"
+import { expect } from "@playwright/test"
 
 import { AriaMenu } from "./AriaMenu"
 
 export class Topbar {
-  readonly userMenuTrigger: Locator
-  readonly quickActionsTrigger: Locator
-  readonly searchButton: Locator
-  readonly loginLink: Locator
+  public readonly userMenuTrigger: Locator
+  public readonly quickActionsTrigger: Locator
+  public readonly searchButton: Locator
+  public readonly loginLink: Locator
 
-  readonly userMenu: AriaMenu
-  readonly quickActions: AriaMenu
-  readonly languageMenu: AriaMenu
+  public readonly userMenu: AriaMenu
+  public readonly quickActions: AriaMenu
+  public readonly languageMenu: AriaMenu
+  private readonly page: Page
 
-  constructor(private readonly page: Page) {
+  public constructor(page: Page) {
+    this.page = page
     this.userMenuTrigger = page.locator("#topbar-user-menu")
     this.quickActionsTrigger = page.getByTestId("topbar-quick-actions")
     this.searchButton = page.locator("#search-for-pages-button")
@@ -31,12 +34,12 @@ export class Topbar {
     })
   }
 
-  async expectDesktopVisible() {
+  public async expectDesktopVisible() {
     await expect(this.userMenuTrigger).toBeVisible()
   }
 
   /** Clicks whichever login control appears, preferring quick actions when visible. */
-  async clickLogin() {
+  public async clickLogin() {
     if (await this.quickActionsTrigger.isVisible()) {
       await this.quickActions.clickItem("Log in")
       return
@@ -46,7 +49,7 @@ export class Topbar {
   }
 
   /** Logs out via the user menu. */
-  async logout() {
+  public async logout() {
     await this.userMenu.clickItem("Log out")
     await this.loginLink.waitFor()
   }

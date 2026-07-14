@@ -1,6 +1,6 @@
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 
-import { ErrorViewModel } from "./normalizeErrorForDisplay"
+import type { ErrorViewModel } from "./normalizeErrorForDisplay"
 
 export interface ResolvedErrorDisplayCopy {
   title: string

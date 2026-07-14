@@ -1,6 +1,6 @@
 "use client"
 
-import { EditorProps } from "@monaco-editor/react"
+import type { EditorProps } from "@monaco-editor/react"
 import React from "react"
 
 import dynamicImport from "../../utils/dynamicImport"

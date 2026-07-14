@@ -4,8 +4,8 @@ import _ from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
 
@@ -15,7 +15,7 @@ import {
   TWO_DIMENSIONAL_BUTTON_STYLES,
 } from "./AnswerQuizStyles"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -117,12 +117,10 @@ const MultipleChoice: React.FunctionComponent<
 
           ${respondToOrLarger.sm} {
             flex-direction: ${direction};
-            ${
-              direction === ROW &&
-              `
-              column-gap: 0.625rem;
+            ${direction === ROW &&
             `
-            }
+              column-gap: 0.625rem;
+            `}
           }
         `}
       >

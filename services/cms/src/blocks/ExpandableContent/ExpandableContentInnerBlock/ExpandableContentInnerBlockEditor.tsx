@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 import React from "react"
 
-import { ExpandableContentConfigurationProps } from "."
+import type { ExpandableContentConfigurationProps } from "."
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme, fontWeights, headingFont, primaryFont } from "@/shared-module/common/styles"
@@ -22,7 +22,7 @@ const ExpandableContentInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExpandableContentConfigurationProps>>
 > = ({ clientId, attributes, setAttributes }) => {
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const blockProps = useBlockProps({ className: "moocfi-expandable-content-inner-block" })
 
   return (

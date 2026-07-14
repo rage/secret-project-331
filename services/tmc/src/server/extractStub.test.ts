@@ -45,7 +45,7 @@ describe("POST /api/extract-stub", () => {
       post(JSON.stringify({ stub_download_url: "http://stub.example/stub.tar.zst" })),
     )
     expect(res.status).toBe(200)
-    const body = (await res.json()) as { files: Array<{ filepath: string; contents: string }> }
+    const body = (await res.json()) as { files: { filepath: string; contents: string }[] }
     expect(body.files).toHaveLength(1)
     expect(body.files[0].contents).toBe("hello!\n")
   })

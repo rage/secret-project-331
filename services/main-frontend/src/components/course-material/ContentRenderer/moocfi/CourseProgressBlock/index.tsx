@@ -5,7 +5,7 @@ import { useAtomValue } from "jotai"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import CourseProgress from "./CourseProgress"
 
@@ -26,7 +26,7 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   const loginStateContext = useContext(LoginStateContext)
   const getUserCourseProgress = useQuery({
     queryKey: [`course-instance-${courseInstanceId}-progress`],
-    queryFn: (): Promise<Array<UserCourseProgress>> =>
+    queryFn: (): Promise<UserCourseProgress[]> =>
       getCourseMaterialUserCourseProgress({
         path: {
           course_instance_id: assertNotNullOrUndefined(courseInstanceId),

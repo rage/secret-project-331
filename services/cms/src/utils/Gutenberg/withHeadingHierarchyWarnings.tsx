@@ -6,7 +6,8 @@ import { createHigherOrderComponent } from "@wordpress/compose"
 import { useSelect } from "@wordpress/data"
 import { Fragment } from "@wordpress/element"
 
-import { getHeadingHierarchyIssuesForBlock, HeadingHierarchyIssue } from "./headingHierarchy"
+import type { HeadingHierarchyIssue } from "./headingHierarchy"
+import { getHeadingHierarchyIssuesForBlock } from "./headingHierarchy"
 
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -16,7 +17,7 @@ interface BlockEditWithClientIdProps {
   [key: string]: unknown
 }
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const W3C_HEADINGS_GUIDANCE_URL = "https://www.w3.org/WAI/test-evaluate/easy-checks/headings/"
 const BLOCK_EDITOR_STORE = "core/block-editor"
 const WARNING_NOTICE_STATUS = "warning"
@@ -97,7 +98,7 @@ const withHeadingHierarchyWarnings = createHigherOrderComponent((BlockEdit) => {
 
   BlockEditWithHeadingWarnings.displayName = "HeadingHierarchyWarnings"
   return BlockEditWithHeadingWarnings
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withHeadingHierarchyWarnings")
 
 export default withHeadingHierarchyWarnings

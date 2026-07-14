@@ -6,6 +6,7 @@ use crate::{
     course_prerequisites::{
         CoursePrerequisite, NewCoursePrerequisite, insert_course_prerequisites,
     },
+    organizations::DatabaseOrganization,
     pages::{Page, PageVisibility, get_all_by_course_id_and_visibility},
     prelude::*,
 };
@@ -1528,7 +1529,7 @@ UPDATE courses
 SET description = $1
 WHERE id = $2
   AND deleted_at IS NULL
-RETURNING id, description
+    RETURNING id, description
     "#,
         course_metadata.course_description,
         course_id
@@ -1550,6 +1551,7 @@ pub struct CompleteCourseMetadata {
     default_module: CourseModule,
     course_prerequisites: Vec<CoursePrerequisite>,
     course_audiences: Vec<CourseAudience>,
+    course_organization: DatabaseOrganization,
 }
 
 pub async fn get_metadata(
@@ -1565,12 +1567,15 @@ pub async fn get_metadata(
         crate::course_instances::get_course_instances_for_course(conn, course_id).await?;
     let module = crate::course_modules::get_default_by_course_id(conn, course_id).await?;
 
+    let organization = crate::organizations::get_organization(conn, course.organization_id).await?;
+
     let metadata = CompleteCourseMetadata {
         course: course,
         course_instances: instances,
         default_module: module,
         course_prerequisites: prerequisites,
         course_audiences: audiences,
+        course_organization: organization,
     };
     Ok(metadata)
 }

@@ -3434,47 +3434,6 @@
         }
       }
     },
-    "/api/v0/main-frontend/courses/{course_id}/metadata": {
-      "post": {
-        "tags": ["courses"],
-        "summary": "\nPOST `/api/v0/main-frontend/courses/:course_id/metadata` - Update metadata.",
-        "operationId": "updateMetadata",
-        "parameters": [
-          {
-            "name": "course_id",
-            "in": "path",
-            "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CourseMetadataUpdate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Updated metadata",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CourseMetadata"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v0/main-frontend/courses/{course_id}/new-chapter-ordering": {
       "post": {
         "tags": ["courses"],
@@ -6183,6 +6142,47 @@
                   "items": {
                     "$ref": "#/components/schemas/CourseModuleThresholdInfo"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/update-metadata": {
+      "post": {
+        "tags": ["courses"],
+        "summary": "\nPOST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.",
+        "operationId": "updateMetadata",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseMetadataUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseMetadata"
                 }
               }
             }
@@ -12237,7 +12237,8 @@
           "course_instances",
           "default_module",
           "course_prerequisites",
-          "course_audiences"
+          "course_audiences",
+          "course_organization"
         ],
         "properties": {
           "course": {
@@ -12254,6 +12255,9 @@
             "items": {
               "$ref": "#/components/schemas/CourseInstance"
             }
+          },
+          "course_organization": {
+            "$ref": "#/components/schemas/DatabaseOrganization"
           },
           "course_prerequisites": {
             "type": "array",
@@ -13854,6 +13858,43 @@
           "opens_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DatabaseOrganization": {
+        "type": "object",
+        "required": ["id", "slug", "created_at", "updated_at", "name", "hidden"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_image_path": {
+            "type": ["string", "null"]
+          },
+          "slug": {
+            "type": "string"
           },
           "updated_at": {
             "type": "string",

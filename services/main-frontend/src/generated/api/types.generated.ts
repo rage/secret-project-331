@@ -437,6 +437,7 @@ export type CompleteCourseMetadata = {
   course: Course
   course_audiences: Array<CourseAudience>
   course_instances: Array<CourseInstance>
+  course_organization: DatabaseOrganization
   course_prerequisites: Array<CoursePrerequisite>
   default_module: CourseModule
 }
@@ -976,6 +977,18 @@ export type DatabaseChapter = {
   id: string
   name: string
   opens_at?: string | null
+  updated_at: string
+}
+
+export type DatabaseOrganization = {
+  created_at: string
+  deleted_at?: string | null
+  description?: string | null
+  hidden: boolean
+  id: string
+  name: string
+  organization_image_path?: string | null
+  slug: string
   updated_at: string
 }
 
@@ -4520,27 +4533,6 @@ export type GetCourseLanguageVersionsResponses = {
 export type GetCourseLanguageVersionsResponse =
   GetCourseLanguageVersionsResponses[keyof GetCourseLanguageVersionsResponses]
 
-export type UpdateMetadataData = {
-  body: CourseMetadataUpdate
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/metadata"
-}
-
-export type UpdateMetadataResponses = {
-  /**
-   * Updated metadata
-   */
-  200: CourseMetadata
-}
-
-export type UpdateMetadataResponse = UpdateMetadataResponses[keyof UpdateMetadataResponses]
-
 export type UpdateCourseChapterOrderingData = {
   body: Array<Chapter>
   path: {
@@ -6160,6 +6152,27 @@ export type GetCourseThresholdsResponses = {
 
 export type GetCourseThresholdsResponse =
   GetCourseThresholdsResponses[keyof GetCourseThresholdsResponses]
+
+export type UpdateMetadataData = {
+  body: CourseMetadataUpdate
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/update-metadata"
+}
+
+export type UpdateMetadataResponses = {
+  /**
+   * Updated metadata
+   */
+  200: CourseMetadata
+}
+
+export type UpdateMetadataResponse = UpdateMetadataResponses[keyof UpdateMetadataResponses]
 
 export type UpdateCoursePeerReviewQueueReviewsReceivedData = {
   body?: never

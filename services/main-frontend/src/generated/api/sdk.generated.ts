@@ -2727,24 +2727,6 @@ export const getCourseLanguageVersions = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * POST `/api/v0/main-frontend/courses/:course_id/metadata` - Update metadata.
- */
-export const updateMetadata = <ThrowOnError extends boolean = true>(
-  options: Options<UpdateMetadataData, ThrowOnError>,
-): RequestResult<UpdateMetadataResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<UpdateMetadataResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zUpdateMetadataResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/courses/{course_id}/metadata",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-/**
- *
  * POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapters based on modified chapter number.#
  *
  * Creates redirects if url_path changes.
@@ -4076,6 +4058,24 @@ export const getCourseThresholds = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/thresholds",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
+ */
+export const updateMetadata = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateMetadataData, ThrowOnError>,
+): RequestResult<UpdateMetadataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<UpdateMetadataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateMetadataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/update-metadata",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

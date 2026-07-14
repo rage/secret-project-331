@@ -2692,17 +2692,16 @@ async fn get_sisu_course_llm_descriptions(
         parsed_course_info,
     )
     .await?;
-    dbg!(&llm_descriptions);
     token.authorized_ok(web::Json(llm_descriptions))
 }
 
 /**
-POST `/api/v0/main-frontend/courses/:course_id/metadata` - Update metadata.
+POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
 
 */
 #[utoipa::path(
     post,
-    path = "/{course_id}/metadata",
+    path = "/{course_id}/update-metadata",
     operation_id = "updateMetadata",
     tag = "courses",
     params(
@@ -3036,7 +3035,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/sisu-course-llm-descriptions",
             web::get().to(get_sisu_course_llm_descriptions),
         )
-        .route("/{course_id}/metadata", web::post().to(update_metadata))
+        .route(
+            "/{course_id}/update-metadata",
+            web::post().to(update_metadata),
+        )
         .route(
             "/{course_id}/get-course-prerequisites",
             web::get().to(get_course_prerequisites),

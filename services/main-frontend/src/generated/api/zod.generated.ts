@@ -749,14 +749,6 @@ export const zCoursePrerequisite = z.object({
   updated_at: z.iso.datetime(),
 })
 
-export const zCompleteCourseMetadata = z.object({
-  course: zCourse,
-  course_audiences: z.array(zCourseAudience),
-  course_instances: z.array(zCourseInstance),
-  course_prerequisites: z.array(zCoursePrerequisite),
-  default_module: zCourseModule,
-})
-
 export const zCourseMetadata = z.object({
   course_audiences: z.array(zCourseAudience),
   course_description: z.string().nullish(),
@@ -837,6 +829,27 @@ export const zChapterScore = zDatabaseChapter.and(
       .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   }),
 )
+
+export const zDatabaseOrganization = z.object({
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  description: z.string().nullish(),
+  hidden: z.boolean(),
+  id: z.uuid(),
+  name: z.string(),
+  organization_image_path: z.string().nullish(),
+  slug: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCompleteCourseMetadata = z.object({
+  course: zCourse,
+  course_audiences: z.array(zCourseAudience),
+  course_instances: z.array(zCourseInstance),
+  course_organization: zDatabaseOrganization,
+  course_prerequisites: z.array(zCoursePrerequisite),
+  default_module: zCourseModule,
+})
 
 export const zDeploymentInfo = z.object({
   name: z.string(),
@@ -3758,17 +3771,6 @@ export const zGetCourseLanguageVersionsPath = z.object({
  */
 export const zGetCourseLanguageVersionsResponse = z.array(zCourse)
 
-export const zUpdateMetadataBody = zCourseMetadataUpdate
-
-export const zUpdateMetadataPath = z.object({
-  course_id: z.uuid(),
-})
-
-/**
- * Updated metadata
- */
-export const zUpdateMetadataResponse = zCourseMetadata
-
 export const zUpdateCourseChapterOrderingBody = z.array(zChapter)
 
 export const zUpdateCourseChapterOrderingPath = z.object({
@@ -4439,6 +4441,17 @@ export const zGetCourseThresholdsPath = z.object({
  * Course thresholds
  */
 export const zGetCourseThresholdsResponse = z.array(zCourseModuleThresholdInfo)
+
+export const zUpdateMetadataBody = zCourseMetadataUpdate
+
+export const zUpdateMetadataPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Updated metadata
+ */
+export const zUpdateMetadataResponse = zCourseMetadata
 
 export const zUpdateCoursePeerReviewQueueReviewsReceivedPath = z.object({
   course_id: z.uuid(),

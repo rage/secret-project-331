@@ -199,7 +199,6 @@ pub async fn generate_description(
     let completion = make_blocking_llm_request(chat_request, app_config).await?;
 
     let completion_content: &String = &parse_text_completion(completion)?;
-    dbg!(&completion_content);
 
     let descriptions: SisuDescriptionResponse =
         serde_json::from_str(completion_content).map_err(|_| {

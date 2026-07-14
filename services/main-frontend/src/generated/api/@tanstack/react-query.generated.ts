@@ -3502,28 +3502,6 @@ export const getCourseLanguageVersionsOptions = (options: Options<GetCourseLangu
 
 /**
  *
- * POST `/api/v0/main-frontend/courses/:course_id/metadata` - Update metadata.
- */
-export const updateMetadataMutation = (
-  options?: Partial<Options<UpdateMetadataData>>,
-): UseMutationOptions<UpdateMetadataResponse, DefaultError, Options<UpdateMetadataData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateMetadataResponse,
-    DefaultError,
-    Options<UpdateMetadataData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await updateMetadata({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- *
  * POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapters based on modified chapter number.#
  *
  * Creates redirects if url_path changes.
@@ -5235,6 +5213,28 @@ export const getCourseThresholdsOptions = (options: Options<GetCourseThresholdsD
       }),
     queryKey: getCourseThresholdsQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
+ */
+export const updateMetadataMutation = (
+  options?: Partial<Options<UpdateMetadataData>>,
+): UseMutationOptions<UpdateMetadataResponse, DefaultError, Options<UpdateMetadataData>> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateMetadataResponse,
+    DefaultError,
+    Options<UpdateMetadataData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateMetadata({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

@@ -11,7 +11,7 @@ import {
 } from "./queryResultState"
 import type { ThemeMode } from "./queryResultStyles"
 
-export type QueryResultsProps<E, TQueries extends QueryTuple<E>> = {
+export interface QueryResultsProps<E, TQueries extends QueryTuple<E>> {
   queries: TQueries
   themeMode?: ThemeMode
   renderData: (

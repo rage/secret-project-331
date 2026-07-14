@@ -4,7 +4,8 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useMemo } from "react"
 
-import { getPlaceholderConfig, PlaceholderValidationResult } from "../../utils/emailPlaceholders"
+import type { PlaceholderValidationResult } from "../../utils/emailPlaceholders"
+import { getPlaceholderConfig } from "../../utils/emailPlaceholders"
 import PlaceholderInfo from "../email/PlaceholderInfo"
 
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -68,22 +69,22 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
             }}
             options={[
               {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 value: "reset_password_email",
                 label: t("email-template-type-reset-password-email"),
               },
               {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 value: "delete_user_email",
                 label: t("email-template-type-delete-user-email"),
               },
               {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 value: "generic",
                 label: t("email-template-type-generic"),
               },
               {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 value: "confirm_email_code",
                 label: t("email-template-type-confirm-email-code"),
               },

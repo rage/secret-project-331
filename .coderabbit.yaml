@@ -39,7 +39,7 @@ reviews:
       instructions: >
         Translate all user-facing text (button and link labels, headings, paragraphs, placeholders, aria-labels, tooltips, error and success messages) with the `useTranslation` hook and its `t` function. Never hardcode user-visible strings.
 
-        For false positives on non-UI strings (CSS-in-JS, magic values, technical constants), prefer moving the value to a SCREAMING_CASE constant; otherwise use a single-line `// eslint-disable-next-line i18next/no-literal-string`. Never use `eslint-disable` / `eslint-enable` block pairs.
+        For false positives on non-UI strings (CSS-in-JS, magic values, technical constants), prefer moving the value to a SCREAMING_CASE constant; otherwise use a single-line `// oxlint-disable-next-line i18next/no-literal-string`. Never use `oxlint-disable` / `oxlint-enable` block pairs.
 
         If a component uses colors, use colors from the theme if possible. Example: import { baseTheme } from "@/shared-module/common/styles" ... background: ${baseTheme.colors.clear[100]};
 

@@ -60,7 +60,7 @@ const withParagraphWarnings = createHigherOrderComponent((BlockEdit) => {
 
   ParagraphWithWarnings.displayName = "ParagraphWarnings"
   return ParagraphWithWarnings
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withParagraphWarnings")
 
 export default withParagraphWarnings

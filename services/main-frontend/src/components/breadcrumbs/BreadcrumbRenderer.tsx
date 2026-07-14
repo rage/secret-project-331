@@ -27,6 +27,7 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
         <span
           className={cx(breadcrumbText, skeletonLoader)}
           data-testid={LOADING_SPINNER_TEST_ID}
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status on styled span; <output> would change styling
           role="status"
           aria-label={t("loading")}
         />
@@ -39,7 +40,7 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
     )
   }
 
-  const isLink = !isCurrent && crumb.href != null
+  const isLink = !isCurrent && crumb.href !== undefined
 
   return (
     <li className={breadcrumbItem}>
@@ -74,7 +75,7 @@ export default function BreadcrumbRenderer() {
   const items = useAtomValue(breadcrumbCrumbsAtom)
   const { navProps } = useBreadcrumbs({ "aria-label": t("aria-label-breadcrumb") })
 
-  if (!items.length) {
+  if (items.length === 0) {
     return null
   }
 

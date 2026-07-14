@@ -21,12 +21,13 @@ export const useChapterProgress = (courseInstanceId: string | undefined, chapter
     optionalGeneratedQueryOptions({
       value: courseInstanceId,
       enabled: loginStateContext.signedIn === true,
-      isReady: (courseInstanceId): courseInstanceId is string => Boolean(courseInstanceId),
-      build: (courseInstanceId) =>
+      isReady: (resolvedCourseInstanceId): resolvedCourseInstanceId is string =>
+        Boolean(resolvedCourseInstanceId),
+      build: (resolvedCourseInstanceId) =>
         getCourseMaterialChapterProgressOptions({
           path: {
             chapter_id: chapterId,
-            course_instance_id: courseInstanceId,
+            course_instance_id: resolvedCourseInstanceId,
           },
         }),
     }),

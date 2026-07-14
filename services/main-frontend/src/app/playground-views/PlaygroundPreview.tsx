@@ -1,31 +1,32 @@
 "use client"
 
 // This page is not translated because this page is a development tool and using different languages here would just create confusing terminology and weird language.
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { isServer, UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import { isServer } from "@tanstack/react-query"
 import { useState } from "react"
-import { UseFormReturn } from "react-hook-form"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
-import { PlaygroundSettings } from "@/app/playground-tabs/page"
-import { UseParsedPrivateSpecResult } from "@/hooks/playground/useParsedPrivateSpec"
+import type { PlaygroundSettings } from "@/app/playground-tabs/page"
+import type { UseParsedPrivateSpecResult } from "@/hooks/playground/useParsedPrivateSpec"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import {
+import type {
   CurrentStateMessage,
   IframeViewType,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
+import type { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 
@@ -39,7 +40,7 @@ interface PlaygroundPreviewProps {
   userAnswer: unknown
   setUserAnswer: (answer: unknown) => void
   // Caused weird type errors when the parameter generic was set to unknown
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   submitAnswerMutation: UseMutationResult<ExerciseTaskGradingResult, unknown, any, unknown>
   settingsForm: UseFormReturn<PlaygroundSettings>
 }
@@ -353,7 +354,7 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                   settingsForm.setValue(
                     "private_spec",
                     JSON.stringify(
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      // oxlint-disable-next-line typescript/no-explicit-any
                       (currentStateReceivedFromIframe?.data as any)?.private_spec,
                       undefined,
                       2,
@@ -370,11 +371,9 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
           {currentStateReceivedFromIframe === null ? (
             <>{t("message-no-current-state-message-received-from-the-iframe-yet")}</>
           ) : (
-            <>
-              <StyledPre fullWidth>
-                {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
-              </StyledPre>
-            </>
+            <StyledPre fullWidth>
+              {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
+            </StyledPre>
           )}
         </div>
       </div>

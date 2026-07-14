@@ -23,7 +23,7 @@ const Content = styled.div`
   margin: 2rem 0;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const CodeGiveawayCard = styled.a`
   padding: 1rem;
   border: 1px solid ${baseTheme.colors.gray[300]};

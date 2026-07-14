@@ -14,7 +14,7 @@ declare global {
   ) => void
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 const triggerIntersection = (global as any).triggerIntersection as (
   el: Element,
   opts?: Partial<IntersectionObserverEntry> & {
@@ -27,7 +27,7 @@ function Demo({ rootMargin = "0px" }: { rootMargin?: string }) {
   const { ref, inView, refresh } = useIntersectionObserver({ rootMargin })
   return (
     <>
-      <button data-testid="refresh" onClick={refresh} />
+      <button data-testid="refresh" aria-label="refresh" onClick={refresh} />
       <div data-testid="target" ref={ref} />
       <div data-testid="state">{String(inView)}</div>
     </>

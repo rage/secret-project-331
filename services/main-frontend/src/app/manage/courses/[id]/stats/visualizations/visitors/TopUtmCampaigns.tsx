@@ -40,13 +40,13 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
     const allUtmCampaignsInData = Array.from(
       new Set(query.data.map((item) => item.utm_campaign)),
     ).filter((item) => !!item)
-    const totalCountsByUTMCampaign: { [referrer: string]: number } = Array.from(
+    const totalCountsByUTMCampaign: Record<string, number> = Array.from(
       allUtmCampaignsInData,
     ).reduce((acc, utm_campaign) => {
       const totalCount = query.data
         .filter((item) => item.utm_campaign === utm_campaign)
-        .reduce((acc, item) => acc + item.num_visitors, 0)
-      // eslint-disable-next-line i18next/no-literal-string
+        .reduce((sum, item) => sum + item.num_visitors, 0)
+      // oxlint-disable-next-line i18next/no-literal-string
       return { ...acc, [utm_campaign ?? "null"]: totalCount }
     }, {})
     return totalCountsByUTMCampaign
@@ -65,7 +65,7 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
+  const chartHeight = categories.length > 0 ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
 
   return (
     <>
@@ -103,9 +103,9 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
                       },
                     ],
                     tooltip: {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       trigger: "item",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       formatter: "{b}: {c}",
                     },
                   }}

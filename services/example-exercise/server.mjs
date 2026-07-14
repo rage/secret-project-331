@@ -14,13 +14,12 @@ import { stat } from "node:fs/promises"
 import { createServer } from "node:http"
 import { extname, join, normalize } from "node:path"
 import { Readable } from "node:stream"
-import { fileURLToPath } from "node:url"
 
 // Built server-entry: { fetch(request) => Response }.
 import serverEntry from "./dist/server/index.js"
 import { IFRAME_HEADERS } from "./iframe-headers.mjs"
 
-const ROOT = fileURLToPath(new URL(".", import.meta.url))
+const ROOT = import.meta.dirname
 const CLIENT_DIR = join(ROOT, "dist", "client")
 const SHELL = join(CLIENT_DIR, "_shell.html")
 const PORT = Number(process.env.PORT) || 3002

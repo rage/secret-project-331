@@ -34,7 +34,7 @@ const EditExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
       method: "POST",
     },
     {
-      onSuccess: async () => {
+      onSuccess: () => {
         close()
       },
     },

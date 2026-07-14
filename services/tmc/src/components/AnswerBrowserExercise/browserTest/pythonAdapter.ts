@@ -12,7 +12,7 @@ function getTestWorkerUrl(): string {
  */
 function buildScript(specScript: string, userCode: string): string {
   const base64Code = btoa(unescape(encodeURIComponent(userCode)))
-  const safeBase64 = base64Code.replace(/\\/g, "\\\\").replace(/"/g, '\\"')
+  const safeBase64 = base64Code.replaceAll("\\", "\\\\").replaceAll('"', '\\"')
   return `__webeditor_user_code_b64 = "${safeBase64}"\n${specScript}`
 }
 

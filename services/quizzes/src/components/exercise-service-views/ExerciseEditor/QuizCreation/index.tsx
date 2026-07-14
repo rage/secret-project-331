@@ -4,18 +4,17 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { PrivateSpecQuiz } from "../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuiz } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import QuizEditor from "../QuizComponents/QuizEditor"
 import { createEmptyQuizItem } from "../utils/general"
 
-import QuizItemOption, { QuizOption } from "./QuizOption"
+import type { QuizOption } from "./QuizOption"
+import QuizItemOption from "./QuizOption"
 
 import Button from "@/shared-module/common/components/Button"
 
-interface QuizOptionProps {
-  [key: string]: QuizOption
-}
+type QuizOptionProps = Record<string, QuizOption>
 
 const QUIZ_COMPONENTS: QuizOptionProps = {
   essay: {
@@ -219,9 +218,8 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
   )
 }
 
-export const AddQuizItem: React.FC<AddQuizItemProps> = ({ quiz }) => (
-  <>{quiz.items.length > 0 ? <QuizDuplicationMenu quiz={quiz} /> : <QuizItemSelection />}</>
-)
+export const AddQuizItem: React.FC<AddQuizItemProps> = ({ quiz }) =>
+  quiz.items.length > 0 ? <QuizDuplicationMenu quiz={quiz} /> : <QuizItemSelection />
 
 const ItemsTitleContainer = styled.div`
   display: flex;
@@ -255,7 +253,7 @@ const QuizItems: React.FC = () => {
       return []
     }
     // Copy the array before sorting because sort mutates the array and the array currently may be immutable after updating it
-    return [...selected.items].sort((o1, o2) => o1.order - o2.order)
+    return [...selected.items].toSorted((o1, o2) => o1.order - o2.order)
   }, [selected])
 
   if (!selected) {
@@ -271,7 +269,7 @@ const QuizItems: React.FC = () => {
       </ItemsTitleContainer>
       <QuizItemContainer>
         {sortedItems
-          .sort((o1, o2) => o1.order - o2.order)
+          .toSorted((o1, o2) => o1.order - o2.order)
           .map((quizItem) => {
             return (
               <div key={quizItem.id}>

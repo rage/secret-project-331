@@ -16,7 +16,7 @@
     "codegen:openapi-ts": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI TS clients is to run the bin/generate-bindings command.\"; exit 1'",
     "create-exercise-service": "bin/create-exercise-service",
     "lint": "oxlint --fix",
-    "lint:ci": "oxlint",
+    "lint:ci": "oxlint --max-warnings=0",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "format:bindings": "oxfmt shared-module/packages/common/src/bindings.ts",

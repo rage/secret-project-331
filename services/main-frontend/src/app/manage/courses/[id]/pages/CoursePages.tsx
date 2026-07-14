@@ -4,7 +4,7 @@ import React from "react"
 
 import ManageCourseStructure from "./ManageCourseStructure"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { QueryResult } from "@/shared-module/components"
 

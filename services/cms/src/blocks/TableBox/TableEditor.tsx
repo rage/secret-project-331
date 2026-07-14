@@ -7,7 +7,7 @@ import React from "react"
 import TableBoxWidthCustomizer from "../../components/blocks/TableBoxWidthCustomizer"
 import BlockWrapper from "../BlockWrapper"
 
-import { TableBoxAttributes } from "."
+import type { TableBoxAttributes } from "."
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"

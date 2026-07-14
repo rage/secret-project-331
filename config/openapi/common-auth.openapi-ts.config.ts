@@ -1,6 +1,5 @@
-import { UserConfig } from "@hey-api/openapi-ts"
+import type { UserConfig } from "@hey-api/openapi-ts"
 import path from "path"
-import { fileURLToPath } from "url"
 
 if (process.env.GENERATE_BINDINGS_RUN !== "1") {
   throw new Error(
@@ -8,7 +7,7 @@ if (process.env.GENERATE_BINDINGS_RUN !== "1") {
   )
 }
 
-const configDir = path.dirname(fileURLToPath(import.meta.url))
+const configDir = import.meta.dirname
 const resolveFromConfig = (relativePath: string) => path.resolve(configDir, relativePath)
 
 export default {

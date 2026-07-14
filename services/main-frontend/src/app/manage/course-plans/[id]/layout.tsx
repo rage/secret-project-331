@@ -60,5 +60,5 @@ export default function CoursePlanLayout({ children }: { children: React.ReactNo
     disabled: planId === "",
   })
 
-  return <>{children}</>
+  return children
 }

@@ -1,4 +1,4 @@
-import { UserAnswer } from "../../types/quizTypes/answer"
+import type { UserAnswer } from "../../types/quizTypes/answer"
 import QuizzesUserItemAnswerContext from "../contexts/QuizzesUserItemAnswerContext"
 
 import useExerciseServiceOutputState from "@/shared-module/exercise-react/react/hooks/useExerciseServiceOutputState"

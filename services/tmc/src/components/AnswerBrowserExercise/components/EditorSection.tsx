@@ -5,14 +5,14 @@ import React from "react"
 import { EditorSection as EditorSectionStyled, EditorWrapper } from "../styles"
 import { extensionToLanguage } from "../utils"
 
-import { ExerciseFile } from "@/util/stateInterfaces"
+import type { ExerciseFile } from "@/util/stateInterfaces"
 
 interface EditorSectionProps {
   filepath: string
   contents: string
   editorKey: number
-  editorFiles: Array<ExerciseFile>
-  setEditorState: (files: Array<ExerciseFile>) => void
+  editorFiles: ExerciseFile[]
+  setEditorState: (files: ExerciseFile[]) => void
   readOnly?: boolean
 }
 

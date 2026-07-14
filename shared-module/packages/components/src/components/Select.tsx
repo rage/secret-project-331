@@ -130,7 +130,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     disabledKeys: normalizedCollection.disabledKeys,
     value: selectedKey,
     onSelectionChange: (key) => {
-      const selectedOption = key != null ? optionsByKey.get(String(key)) : undefined
+      const selectedOption = key !== null ? optionsByKey.get(String(key)) : undefined
       const nextValue = selectedOption?.value ?? ""
       field.onChange(nextValue)
     },
@@ -214,9 +214,9 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     validationErrors,
   )
   const selectedOption =
-    state.selectedKey != null ? optionsByKey.get(String(state.selectedKey)) : undefined
-  const isPlaceholderState = selectedOption == null
-  const isFloated = state.isOpen || selectedOption != null
+    state.selectedKey !== null ? optionsByKey.get(String(state.selectedKey)) : undefined
+  const isPlaceholderState = selectedOption === undefined
+  const isFloated = state.isOpen || selectedOption !== undefined
 
   return (
     <div className={cx(fieldRootCss, className)}>

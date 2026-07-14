@@ -36,7 +36,7 @@ const EditorBreadcrumbs: React.FC = () => {
         if (!courseId || !courseName) {
           return null
         }
-        /* eslint-disable i18next/no-literal-string */
+        /* oxlint-disable i18next/no-literal-string */
         const pieces = [
           {
             text: courseName,

@@ -8,6 +8,7 @@ const useOrganizationBySlug = (organizationSlug: string | null) => {
   return useQuery({
     ...getOrganizationBySlugOptions({
       path: {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- enabled guard ensures organizationSlug is set when it runs
         organization_slug: organizationSlug!,
       },
     }),

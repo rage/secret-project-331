@@ -2,9 +2,9 @@
 
 import { css } from "@emotion/css"
 
-import { BlockRendererProps } from "../../.."
+import type { BlockRendererProps } from "../../.."
 
-import { QuoteAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { QuoteAttributes } from "@/../types/GutenbergBlockAttributes"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import ParsedText from "@/components/course-material/ParsedText"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -36,33 +36,31 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>
   `
 
   return (
-    <>
-      <blockquote
-        className={css`
-          ${((align && align === "left") || !align) && styleLeftDefault}
-          ${align && align === "right" && styleRightDefault}
-          ${align && align === "center" && styleCenterDefault}
-          margin-bottom: 1.75rem;
-        `}
-        cite={citation}
-      >
-        <div>
-          {value && (!props.data.innerBlocks || props.data.innerBlocks.length === 0) && value}
-          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
-        </div>
-        <ParsedText
-          text={citation}
-          tag="cite"
-          tagProps={{
-            className: css`
-              font-style: normal;
-              font-size: 0.8125rem;
-            `,
-          }}
-          useWrapperElement={true}
-        />
-      </blockquote>
-    </>
+    <blockquote
+      className={css`
+        ${((align && align === "left") || !align) && styleLeftDefault}
+        ${align && align === "right" && styleRightDefault}
+        ${align && align === "center" && styleCenterDefault}
+        margin-bottom: 1.75rem;
+      `}
+      cite={citation}
+    >
+      <div>
+        {value && (!props.data.innerBlocks || props.data.innerBlocks.length === 0) && value}
+        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+      </div>
+      <ParsedText
+        text={citation}
+        tag="cite"
+        tagProps={{
+          className: css`
+            font-style: normal;
+            font-size: 0.8125rem;
+          `,
+        }}
+        useWrapperElement={true}
+      />
+    </blockquote>
   )
 }
 

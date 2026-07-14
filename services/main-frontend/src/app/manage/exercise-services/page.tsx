@@ -39,7 +39,7 @@ const ExerciseServicePage: React.FC = () => {
   const getExerciseServices = useQuery(getExerciseServicesOptions())
 
   const sortedExerciseServices = useMemo(
-    () => [...(getExerciseServices.data ?? [])].sort((a, b) => a.name.localeCompare(b.name)),
+    () => [...(getExerciseServices.data ?? [])].toSorted((a, b) => a.name.localeCompare(b.name)),
     [getExerciseServices.data],
   )
 

@@ -3,12 +3,8 @@
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import LineChart, {
-  DAILY_DATE_FORMAT,
-  MONTHLY_DATE_FORMAT,
-  MONTHLY_PERIOD,
-  Period,
-} from "../../LineChart"
+import type { Period } from "../../LineChart"
+import LineChart, { DAILY_DATE_FORMAT, MONTHLY_DATE_FORMAT, MONTHLY_PERIOD } from "../../LineChart"
 
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -31,7 +27,7 @@ const CourseVisitorsLineChart: React.FC<React.PropsWithChildren<CourseVisitorsLi
       return []
     }
 
-    const visitorsByDate = query.data.reduce<{ [date: string]: number }>((acc, item) => {
+    const visitorsByDate = query.data.reduce<Record<string, number>>((acc, item) => {
       acc[item.visit_date] = (acc[item.visit_date] || 0) + item.num_visitors
       return acc
     }, {})
@@ -44,7 +40,7 @@ const CourseVisitorsLineChart: React.FC<React.PropsWithChildren<CourseVisitorsLi
     dateEntries.sort((a, b) => new Date(a.period).getTime() - new Date(b.period).getTime())
 
     if (period === MONTHLY_PERIOD) {
-      const monthlyData: { [month: string]: number } = {}
+      const monthlyData: Record<string, number> = {}
 
       dateEntries.forEach((entry) => {
         const date = new Date(entry.period)

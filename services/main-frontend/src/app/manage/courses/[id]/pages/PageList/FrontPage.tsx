@@ -8,12 +8,12 @@ import PageListItem, { MOVING_NOT_ALLOWED } from "./PageListItem"
 import TableWrapper from "./TableWrapper"
 
 import type { Chapter, Page } from "@/generated/api/types.generated"
-import { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
+import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import { baseTheme, typography } from "@/shared-module/common/styles"
 
 interface Props {
   data: Page | null | undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   refetch: () => any
   chapter?: Chapter
   pageOrderDispatch: React.Dispatch<ManagePageOrderAction>

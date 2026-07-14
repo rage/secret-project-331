@@ -1,6 +1,6 @@
-/* eslint-disable playwright/no-wait-for-timeout */
+/* oxlint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
-import { Page } from "playwright"
+import type { Page } from "playwright"
 
 // The course material Page component renders a hidden sentinel carrying the result of its dialog
 // decision. `data-dialogs-ready="true"` means the frontend has finished deciding which dialog (if
@@ -113,7 +113,7 @@ export async function navigateToNextPageInMaterial(page: Page) {
       while (!urlChanged && attempts < maxAttempts) {
         try {
           await page.waitForFunction(
-            (originalUrl) => window.location.href !== originalUrl,
+            (previousUrl) => window.location.href !== previousUrl,
             originalUrl,
             { timeout: 3000 },
           )

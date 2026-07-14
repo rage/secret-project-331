@@ -114,7 +114,7 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
   const [verificationId, setVerificationId] = useState<string | null>(null)
   const [imageLoaded, setImageLoaded] = useState(false)
   const verificationUrl = verificationId
-    ? // eslint-disable-next-line i18next/no-literal-string
+    ? // oxlint-disable-next-line i18next/no-literal-string
       `${window.location.origin}/certificates/validate/${verificationId}`
     : ""
   const copyToClipboard = useCopyToClipboard(verificationUrl)
@@ -127,28 +127,28 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
   }
 
   const columns: ColumnDef<CertificateGridRow, unknown>[] = [
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     { header: t("label-student"), accessorKey: "student" },
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     { header: t("certificate"), accessorKey: "certificate" },
     {
       header: t("name-on-certificate"),
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       accessorKey: "name_on_certificate",
       cell: ({ getValue }) => {
         const value = getValue<string | null>()
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         return value ?? "—"
       },
     },
     {
       header: t("date-issued"),
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       accessorKey: "date_issued",
       cell: ({ getValue }) => {
         const value = getValue<string | null>()
         if (!value) {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           return "—"
         }
         const d = new Date(value)
@@ -157,7 +157,7 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
     },
     {
       header: t("actions"),
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       id: "actions",
       size: 80,
       meta: { style: { paddingLeft: "4px", paddingRight: "4px" } },

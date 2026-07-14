@@ -7,7 +7,7 @@ interface TestResponse {
   status: number
   text: string
   // Parsed JSON response body. Typed loosely so tests can read response shapes without casts.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   body: any
   headers: Headers
 }
@@ -19,19 +19,23 @@ class RequestBuilder implements PromiseLike<TestResponse> {
   private hasPayload = false
   private readonly expectations: Expectation[] = []
 
-  constructor(
-    private readonly handler: Handler,
-    private readonly method: string,
-    private readonly path: string,
-  ) {}
+  private readonly handler: Handler
+  private readonly method: string
+  private readonly path: string
 
-  send(body: unknown): this {
+  public constructor(handler: Handler, method: string, path: string) {
+    this.handler = handler
+    this.method = method
+    this.path = path
+  }
+
+  public send(body: unknown): this {
     this.payload = body
     this.hasPayload = true
     return this
   }
 
-  expect(statusOrHeader: number | string, matcher?: RegExp | string): this {
+  public expect(statusOrHeader: number | string, matcher?: RegExp | string): this {
     if (typeof statusOrHeader === "number") {
       const expectedStatus = statusOrHeader
       this.expectations.push((res) => {
@@ -75,7 +79,8 @@ class RequestBuilder implements PromiseLike<TestResponse> {
     return result
   }
 
-  then<TResult1 = TestResponse, TResult2 = never>(
+  // oxlint-disable-next-line unicorn/no-thenable -- intentional thenable implementing PromiseLike so builder can be awaited
+  public then<TResult1 = TestResponse, TResult2 = never>(
     onfulfilled?: ((value: TestResponse) => TResult1 | PromiseLike<TResult1>) | null,
     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
   ): PromiseLike<TResult1 | TResult2> {

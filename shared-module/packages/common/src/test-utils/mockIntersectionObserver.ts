@@ -4,53 +4,55 @@ const instances = new Set<MockIntersectionObserver>()
 const elementToObserver = new Map<Element, MockIntersectionObserver>()
 
 export class MockIntersectionObserver implements IntersectionObserver {
-  readonly root: Element | null
-  readonly rootMargin: string
-  readonly scrollMargin: string
-  readonly thresholds: ReadonlyArray<number>
+  public readonly root: Element | null
+  public readonly rootMargin: string
+  public readonly scrollMargin: string
+  public readonly thresholds: readonly number[]
   private elements: Set<Element>
+  public callback: IntersectionObserverCallback
+  public options?: ObserverInit
 
-  constructor(
-    public callback: IntersectionObserverCallback,
-    public options?: ObserverInit,
-  ) {
+  public constructor(callback: IntersectionObserverCallback, options?: ObserverInit) {
+    this.callback = callback
+    this.options = options
     this.root = options?.root instanceof Element ? options.root : null
     this.rootMargin = options?.rootMargin ?? "0px 0px 0px 0px"
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     this.scrollMargin = (options as any)?.scrollMargin ?? "0px 0px 0px 0px"
     this.thresholds = Array.isArray(options?.threshold)
-      ? options!.threshold!.slice().sort((a, b) => a - b)
+      ? // oxlint-disable-next-line typescript/no-non-null-assertion -- Array.isArray guard above ensures both are defined
+        options!.threshold!.slice().toSorted((a, b) => a - b)
       : [options?.threshold ?? 0]
 
     this.elements = new Set<Element>()
     instances.add(this)
   }
 
-  observe = (el: Element) => {
+  public observe = (el: Element) => {
     this.elements.add(el)
     elementToObserver.set(el, this)
   }
 
-  unobserve = (el: Element) => {
+  public unobserve = (el: Element) => {
     this.elements.delete(el)
     elementToObserver.delete(el)
   }
 
-  disconnect = () => {
+  public disconnect = () => {
     this.elements.forEach((el) => elementToObserver.delete(el))
     this.elements.clear()
     instances.delete(this)
   }
 
-  takeRecords(): IntersectionObserverEntry[] {
+  public takeRecords(): IntersectionObserverEntry[] {
     return []
   }
 }
 
 export function setupIntersectionObserverMock() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   ;(global as any).IntersectionObserver = MockIntersectionObserver
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   ;(window as any).IntersectionObserver = MockIntersectionObserver
 }
 
@@ -59,6 +61,7 @@ export function triggerIntersection(
   opts: Partial<IntersectionObserverEntry> & {
     isIntersecting: boolean
     intersectionRatio?: number
+    // oxlint-disable-next-line unicorn/no-object-as-default-parameter -- default applies only when opts is fully omitted
   } = {
     isIntersecting: true,
     intersectionRatio: 1,
@@ -74,10 +77,10 @@ export function triggerIntersection(
     target: el,
     isIntersecting: opts.isIntersecting,
     intersectionRatio: opts.intersectionRatio ?? (opts.isIntersecting ? 1 : 0),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     boundingClientRect: opts.boundingClientRect ?? el.getBoundingClientRect?.() ?? ({} as any),
     rootBounds: opts.rootBounds ?? null,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     intersectionRect: opts.intersectionRect ?? ({} as any),
   }
 

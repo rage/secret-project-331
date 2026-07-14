@@ -1,6 +1,6 @@
 "use client"
 
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 
 import { newChatbotConversation } from "@/generated/course-material-api/sdk.generated"
 import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"

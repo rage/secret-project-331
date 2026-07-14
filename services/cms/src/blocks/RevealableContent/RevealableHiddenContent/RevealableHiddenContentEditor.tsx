@@ -1,12 +1,12 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
 import BlockPlaceholderWrapper from "../../BlockPlaceholderWrapper"
 
-import { ConditionAttributes } from "."
+import type { ConditionAttributes } from "."
 
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 

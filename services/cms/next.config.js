@@ -15,6 +15,7 @@ const config = {
   },
   output: "standalone",
   outputFileTracingRoot: __dirname,
+  // oxlint-disable-next-line require-await -- Next.js config headers() type expects a Promise-returning function
   async headers() {
     return [
       {
@@ -23,8 +24,8 @@ const config = {
       },
     ]
   },
-  webpack(config) {
-    config.module.rules.push({
+  webpack(webpackConfig) {
+    webpackConfig.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
       loader: "@svgr/webpack",
@@ -35,10 +36,10 @@ const config = {
     })
 
     // Support webassembly
-    config.output.webassemblyModuleFilename = "static/wasm/[modulehash].wasm"
-    config.experiments = { asyncWebAssembly: true, layers: true }
+    webpackConfig.output.webassemblyModuleFilename = "static/wasm/[modulehash].wasm"
+    webpackConfig.experiments = { asyncWebAssembly: true, layers: true }
 
-    return config
+    return webpackConfig
   },
   turbopack: {
     rules: {

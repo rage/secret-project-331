@@ -69,6 +69,7 @@ const CourseUsersWithSubmissionsByDay: React.FC<
           {(data) => {
             const eChartsData = groupBy(data, (o) => {
               const dateString = o.date as string | null
+              // oxlint-disable-next-line unicorn/prefer-string-slice -- indexOf may return -1; substring clamps negatives, slice differs
               const year = dateString?.substring(0, dateString.indexOf("-"))
               return year
             })
@@ -83,7 +84,7 @@ const CourseUsersWithSubmissionsByDay: React.FC<
                   height={200 * Object.keys(eChartsData).length}
                   options={{
                     tooltip: {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       position: "top",
                       formatter: (a) => {
                         return t("daily-users-with-submissions-visualization-tooltip", {
@@ -102,7 +103,7 @@ const CourseUsersWithSubmissionsByDay: React.FC<
                     calendar: Object.entries(eChartsData).map(([year, _submissionCounts], i) => {
                       return {
                         range: year,
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         cellSize: ["auto", 20],
                         dayLabel: {
                           firstDay: 1,
@@ -113,9 +114,9 @@ const CourseUsersWithSubmissionsByDay: React.FC<
                     series: Object.entries(eChartsData).map(([_year, submissionCounts], i) => {
                       return {
                         type: "heatmap",
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         coordinateSystem: "calendar",
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        // oxlint-disable-next-line typescript/no-explicit-any
                         data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
                         calendarIndex: i,
                       }

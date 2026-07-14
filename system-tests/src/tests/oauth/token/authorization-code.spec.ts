@@ -1,4 +1,5 @@
-import { expect, Page, test } from "../../../fixtures/oauth"
+import type { Page } from "../../../fixtures/oauth"
+import { expect, test } from "../../../fixtures/oauth"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {

@@ -11,13 +11,13 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
-type ResetPasswordFormFields = {
+interface ResetPasswordFormFields {
   token: string
   new_password: string
   password_confirmation: string
 }
 
-type ResetPasswordFormProps = {
+interface ResetPasswordFormProps {
   token: string
 }
 
@@ -29,7 +29,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
     watch,
     formState: { errors },
   } = useForm<ResetPasswordFormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       token,
@@ -41,11 +41,11 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
 
   const postPasswordChangeMutation = useToastMutation<boolean, unknown, ResetPasswordFormFields>(
     async (data) => {
-      const { token, new_password } = data
+      const { token: formToken, new_password } = data
       return validateGeneratedData(
         await resetUserPassword({
           body: {
-            token,
+            token: formToken,
             new_password,
           },
         }),
@@ -58,7 +58,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
     },
     {
       onSuccess: () => {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         router.push("/login?return_to=%2F")
       },
     },

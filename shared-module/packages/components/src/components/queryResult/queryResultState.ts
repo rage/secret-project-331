@@ -6,7 +6,7 @@ export type AnyQuery<E = unknown> = UseQueryResult<unknown, E>
 export type QueryTuple<E = unknown> = readonly AnyQuery<E>[]
 export type SuccessData<Q> = Q extends UseQueryResult<infer T, unknown> ? T : never
 
-export type SingleQueryState<T, E> = {
+export interface SingleQueryState<T, E> {
   hasData: boolean
   data?: T
   initialLoading: boolean
@@ -16,7 +16,7 @@ export type SingleQueryState<T, E> = {
   error?: E
 }
 
-export type MultiQueryState<E, TQueries extends QueryTuple<E>> = {
+export interface MultiQueryState<E, TQueries extends QueryTuple<E>> {
   allHaveData: boolean
   dataTuple?: { [K in keyof TQueries]: SuccessData<TQueries[K]> }
   initialLoading: boolean

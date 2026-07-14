@@ -16,11 +16,11 @@ const useCourse = (courseId: string | undefined | null, options: UseCourseOption
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
         getCourseMaterialCourseOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
           },
         }),
     }),

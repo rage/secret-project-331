@@ -17,6 +17,20 @@ const TestWrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
   </I18nextProvider>
 )
 
+const AsyncConfirmContent: React.FC = () => {
+  const confirmDialogControls = useConfirmDialogControls()
+
+  return (
+    <button
+      onClick={() => {
+        confirmDialogControls?.setConfirmDisabled(false)
+      }}
+    >
+      Enable Confirm
+    </button>
+  )
+}
+
 describe("useDialog hook", () => {
   it("should throw an error if used outside of DialogProvider", () => {
     expect(() => {
@@ -106,20 +120,6 @@ describe("useDialog hook", () => {
 
     it("keeps confirm disabled until dialog content enables it", async () => {
       let confirmResult = false
-
-      const AsyncConfirmContent: React.FC = () => {
-        const confirmDialogControls = useConfirmDialogControls()
-
-        return (
-          <button
-            onClick={() => {
-              confirmDialogControls?.setConfirmDisabled(false)
-            }}
-          >
-            Enable Confirm
-          </button>
-        )
-      }
 
       const ConfirmOpener: React.FC = () => {
         const { confirm } = useDialog()

@@ -93,8 +93,10 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
   const { grade, passed, prerequisite_modules_completed } = module
   const numericGrade = grade?.toString()
   const passOrFAilGrade = passed ? (
+    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- SVG icon with aria-label; not an <img>
     <PassedIcon role="img" aria-label={t("passed")} />
   ) : (
+    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- SVG icon with aria-label; not an <img>
     <StyledFailedIcon role="img" aria-label={t("failed")} />
   )
 
@@ -106,7 +108,9 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
         >
           <Badge />
           <span className="grade">{t("grade")}</span>
-          <div className="points">{numericGrade == undefined ? passOrFAilGrade : numericGrade}</div>
+          <div className="points">
+            {numericGrade === undefined ? passOrFAilGrade : numericGrade}
+          </div>
         </BadgeWrapper>
       )}
       <h2

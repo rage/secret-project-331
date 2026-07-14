@@ -22,7 +22,7 @@ interface DotProps {
   delaySeconds: number
 }
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const Dot = styled.span<DotProps>`
   display: inline-block;
   width: 3px;

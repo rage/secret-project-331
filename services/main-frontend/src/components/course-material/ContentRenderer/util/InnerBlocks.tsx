@@ -2,7 +2,8 @@
 
 import React from "react"
 
-import ContentRenderer, { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
+import ContentRenderer from ".."
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

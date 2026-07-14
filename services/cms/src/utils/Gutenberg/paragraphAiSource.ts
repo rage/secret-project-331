@@ -19,7 +19,7 @@ export const extractPlainTextFromHtml = (html: string): string => {
     return element.textContent || element.innerText || ""
   }
 
-  return html.replace(/<[^>]+>/g, "")
+  return html.replaceAll(/<[^>]+>/g, "")
 }
 
 /**

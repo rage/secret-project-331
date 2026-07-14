@@ -3,11 +3,11 @@
 import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 
-import {
-  analyzeHeadingHierarchy,
+import type {
   HeadingHierarchyEntry,
   HeadingHierarchyIssue,
 } from "../../utils/Gutenberg/headingHierarchy"
+import { analyzeHeadingHierarchy } from "../../utils/Gutenberg/headingHierarchy"
 
 import Button from "@/shared-module/common/components/Button"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"

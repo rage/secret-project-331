@@ -26,7 +26,7 @@ import {
 } from "./primitives/checkableStyles"
 import type { FieldSize } from "./primitives/fieldStyles"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
 
 /**
@@ -106,7 +106,7 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
   })
 
   const inputValue =
-    checkboxValue == null
+    checkboxValue === undefined
       ? undefined
       : Array.isArray(checkboxValue)
         ? checkboxValue.join(",")

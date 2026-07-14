@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+// oxlint-disable-next-line import/no-named-as-default -- default is the HOC-wrapped StateRenderer; same-name import intended
 import StateRenderer from "@/components/StateRenderer"
 import { useIframeProtocol } from "@/hooks/useIframeProtocol"
 import HeightTrackingContainer from "@/shared-module/exercise-react/react/components/HeightTrackingContainer"
@@ -27,7 +28,7 @@ const IframeView: React.FC<IframeViewProps> = ({ maxWidth }) => {
       <div
         className={css`
           width: 100%;
-          ${contentMaxWidth != null ? `max-width: ${contentMaxWidth}px;` : ""}
+          ${contentMaxWidth !== undefined ? `max-width: ${contentMaxWidth}px;` : ""}
           margin: 0 auto;
         `}
       >

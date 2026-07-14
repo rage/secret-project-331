@@ -7,7 +7,7 @@ import React from "react"
 import FeedbackView from "./FeedbackView"
 
 import { getCourseFeedbackOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { PaginationInfo } from "@/shared-module/common/hooks/usePaginationInfo"
+import type { PaginationInfo } from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
 
 interface Props {

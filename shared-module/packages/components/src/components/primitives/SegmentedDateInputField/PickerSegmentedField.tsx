@@ -1,13 +1,13 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import type { DateFieldState } from "@react-stately/datepicker"
-import { useDatePickerState } from "@react-stately/datepicker"
+import type { DateFieldState, useDatePickerState } from "@react-stately/datepicker"
 import type React from "react"
 import type { DateFieldAria, DatePickerAria, DateValue, TimeValue } from "react-aria"
 
 import { composeRefs } from "../../../lib/utils/compositeField"
-import { joinAriaDescribedBy, resolveFieldState } from "../../../lib/utils/field"
+import type { resolveFieldState } from "../../../lib/utils/field"
+import { joinAriaDescribedBy } from "../../../lib/utils/field"
 import { DatePickerCalendar } from "../DatePickerCalendar"
 import { FieldShell } from "../FieldShell"
 import {
@@ -37,7 +37,7 @@ import {
   shouldHideRestSegmentPlaceholders,
 } from "./segmentedDateInputFieldUtils"
 
-export type PickerSegmentedFieldProps = {
+export interface PickerSegmentedFieldProps {
   canClear: boolean
   className?: string
   dateFieldAria: DateFieldAria
@@ -125,7 +125,7 @@ export function PickerSegmentedField({
   const hideRestSegmentPlaceholders = shouldHideRestSegmentPlaceholders(
     layout,
     isFocused,
-    state.value != null,
+    state.value !== null,
     pickerState.isOpen,
   )
 
@@ -152,7 +152,7 @@ export function PickerSegmentedField({
       layout={layout}
       fieldSize={fieldSize}
       isFloatingRaised={
-        layout === "floating" ? isFocused || state.value != null || pickerState.isOpen : true
+        layout === "floating" ? isFocused || state.value !== null || pickerState.isOpen : true
       }
       isFloatingFocused={layout === "floating" ? isFocused || pickerState.isOpen : false}
       isInvalid={pickerState.isInvalid}
@@ -241,9 +241,7 @@ export function PickerSegmentedField({
         type="hidden"
         aria-describedby={describedBy}
         value={hiddenInputValue}
-        onChange={() => {
-          return
-        }}
+        onChange={() => {}}
       />
       {pickerState.isOpen ? (
         <Popover

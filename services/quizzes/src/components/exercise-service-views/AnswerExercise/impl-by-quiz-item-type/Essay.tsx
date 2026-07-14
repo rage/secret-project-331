@@ -2,13 +2,13 @@ import { css } from "@emotion/css"
 import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
 import QuizzesUserItemAnswerContext from "../../../../contexts/QuizzesUserItemAnswerContext"
 
 import { getEssayPasteWarning } from "./essayPaste"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import TextArea from "@/shared-module/common/components/InputFields/TextAreaField"
 import { wordCount } from "@/shared-module/common/utils/strings"
@@ -87,7 +87,7 @@ const Essay: React.FunctionComponent<
           onPaste={(e) => {
             // Warn, but do not block: pasting your own draft is legitimate, so we never discard the
             // student's text. The warning dialog is shown by the parent over the iframe protocol.
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             const warning = getEssayPasteWarning(e.clipboardData.getData("text"), t)
             if (warning) {
               void openDialog(warning)

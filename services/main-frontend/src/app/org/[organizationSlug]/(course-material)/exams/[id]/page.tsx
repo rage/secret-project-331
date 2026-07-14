@@ -18,7 +18,7 @@ const Exam: React.FC = () => {
 
   return (
     <ExamPageShell
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       mode="exam"
       examId={examId}
       organizationSlug={organizationSlug}

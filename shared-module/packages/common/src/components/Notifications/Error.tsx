@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled"
 import { BellXmark } from "@vectopus/atlas-icons-react"
-import toast from "react-hot-toast"
+import { toast } from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
 import CloseIcon from "../../img/close.svg"

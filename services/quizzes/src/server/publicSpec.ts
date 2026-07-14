@@ -1,5 +1,5 @@
-import { OldQuiz } from "../../types/oldQuizTypes"
-import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
+import type { OldQuiz } from "../../types/oldQuizTypes"
+import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { convertPublicSpecFromPrivateSpec } from "@/util/converter"

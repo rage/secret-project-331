@@ -12,10 +12,11 @@ import { useTranslation } from "react-i18next"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import Echarts from "./Echarts"
-import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "./LineChart"
+import type { Period } from "./LineChart"
+import { DAILY_PERIOD, MONTHLY_PERIOD } from "./LineChart"
 import StatsHeader from "./StatsHeader"
 
-import { CohortActivity } from "@/generated/api/types.generated"
+import type { CohortActivity } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -59,11 +60,11 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
     // Get unique cohort starts and day offsets
     const cohorts = Array.from(new Set(rawData.map((item) => item.cohort_start)))
       .filter((date): date is string => date !== null)
-      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime()) // Reverse sort - newest first
+      .toSorted((a, b) => new Date(b).getTime() - new Date(a).getTime()) // Reverse sort - newest first
 
     const dayOffsets = Array.from(new Set(rawData.map((item) => item.offset)))
       .filter((offset): offset is number => offset !== null)
-      .sort((a, b) => a - b)
+      .toSorted((a, b) => a - b)
 
     // Calculate initial size for each cohort (users at offset 0)
     const cohortSizes: Record<string, number> = {}
@@ -127,13 +128,13 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
       position: CHART_POSITION,
       formatter: (params: TooltipComponentFormatterCallbackParams) => {
         if (Array.isArray(params)) {
-          throw new Error("Tooltip params is an array")
+          throw new TypeError("Tooltip params is an array")
         }
-        const data = params.data as [number, number, number, number]
-        const cohortDate = cohorts[data[1]]
-        const offset = data[0]
-        const percentRetention = data[2].toFixed(1)
-        const activeUsers = data[3]
+        const tooltipData = params.data as [number, number, number, number]
+        const cohortDate = cohorts[tooltipData[1]]
+        const offset = tooltipData[0]
+        const percentRetention = tooltipData[2].toFixed(1)
+        const activeUsers = tooltipData[3]
         const formattedDate = format(
           new Date(cohortDate),
           period === MONTHLY_PERIOD ? MONTHLY_DATE_FORMAT : DAILY_DATE_FORMAT,

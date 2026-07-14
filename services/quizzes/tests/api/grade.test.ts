@@ -12,7 +12,8 @@ import {
 } from "./utils/privateSpecGenerator"
 
 import { handleGrade } from "@/server/grade"
-import { ExerciseTaskGradingResult, isExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
+import type { ExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
+import { isExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
 
 const client = testClient(handleGrade)
 

@@ -1,13 +1,13 @@
 import { css } from "@emotion/css"
 import React, { useId } from "react"
 
-import { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
 import ParsedText from "../../../ParsedText"
 
 import { QUIZ_TITLE_STYLE } from "./AnswerQuizStyles"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -38,6 +38,7 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
 
   return (
     <div
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=group on a styled flex div; fieldset alters layout
       role="group"
       aria-labelledby={radioLabelId}
       className={css`
@@ -133,6 +134,7 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
                   checked={
                     quizItemAnswerState !== null && quizItemAnswerState.intData === Number(value)
                   }
+                  readOnly
                   onClick={(e) => handleOptionSelect(e.currentTarget.value)}
                 />
                 <span>{value}</span>

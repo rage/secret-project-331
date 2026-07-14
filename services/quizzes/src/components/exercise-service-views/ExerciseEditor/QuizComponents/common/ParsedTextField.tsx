@@ -11,7 +11,7 @@ import { containsMarkdownTag, containsRenderableTag } from "./tagBlocks"
 
 import MessagePortContext from "@/contexts/MessagePortContext"
 import Button from "@/shared-module/common/components/Button"
-import { OpenLinkMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { OpenLinkMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -119,7 +119,7 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
             <AutoExpandingTextField
               allowNewlines={allowNewlines}
               value={value ?? ""}
-              onChangeByValue={(value) => handleOnChange(value)}
+              onChangeByValue={(newValue) => handleOnChange(newValue)}
               label={label}
             />
           )}

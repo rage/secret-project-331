@@ -5,7 +5,7 @@ import { Padlock } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 import InnerBlocks from "../../util/InnerBlocks"
 
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"

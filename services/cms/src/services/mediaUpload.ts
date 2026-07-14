@@ -96,7 +96,7 @@ const uploadMedia = async ({
   }))
   onFileChange(initialItems)
 
-  const mediaItems = initialItems as Array<(typeof initialItems)[0] | null>
+  const mediaItems = initialItems as ((typeof initialItems)[0] | null)[]
 
   await Promise.all(
     validFiles.map(async (file, i) => {

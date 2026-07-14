@@ -88,7 +88,7 @@ function determineLanguageFromQueryValue(value: string | string[] | undefined): 
 
   // In case of `example.com?lng=en&lng=fi`, we will return `fi`
   if (Array.isArray(value)) {
-    return value[value.length - 1]
+    return value.at(-1) ?? null
   }
   return value
 }

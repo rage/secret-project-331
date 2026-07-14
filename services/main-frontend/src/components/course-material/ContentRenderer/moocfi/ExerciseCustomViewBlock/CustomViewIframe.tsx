@@ -17,7 +17,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
-import {
+import type {
   CustomViewIframeState,
   UserVariablesMap,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
@@ -132,7 +132,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
         exercise_id: exer.id,
         exercise_name: exer.name,
         exercise_tasks: submission_data.exercise_tasks.task_gradings
-          .filter((grading) => grading.exercise_id == exer.id)
+          .filter((grading) => grading.exercise_id === exer.id)
           .map((grading) => {
             const answer = submission_data.exercise_tasks.task_submissions.find(
               (sub) => sub.exercise_task_grading_id === grading.id,
@@ -147,7 +147,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
               grading: grading,
             }
           })
-          .sort(
+          .toSorted(
             (a, b) =>
               a.task_id.localeCompare(b.task_id) ||
               parseISO(b.grading.created_at).getTime() - parseISO(a.grading.created_at).getTime(),
@@ -178,7 +178,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
   }
 
   const postThisStateToIFrame: CustomViewIframeState = {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     view_type: "custom-view",
     course_name: courseInfo.data?.name,
     module_completion_date: completionDate ? parseISO(completionDate).toLocaleDateString() : null,

@@ -3,7 +3,7 @@
 // Skip text characters for text token, place those to pending buffer
 // and increment current pos
 
-import { InlineParsingRule } from "remarkable/lib"
+import type { InlineParsingRule } from "remarkable/lib"
 
 // Rule to skip pure text
 // '{}$%@~+=:' reserved for extentions
@@ -42,7 +42,7 @@ function isTerminatorChar(ch: number) {
 export const textParser: InlineParsingRule = (state, silent) => {
   var pos = state.pos
 
-  while (pos < state.posMax && !isTerminatorChar(state.src.charCodeAt(pos))) {
+  while (pos < state.posMax && !isTerminatorChar(state.src.codePointAt(pos) ?? 0)) {
     pos++
   }
 

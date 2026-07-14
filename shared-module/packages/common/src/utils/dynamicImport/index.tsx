@@ -115,12 +115,12 @@ const dynamicImport = <P extends object = Record<string, never>>(
     log(id, "dynamic-import-started", { online })
 
     try {
-      const module = await importWithRetry(
+      const importedModule = await importWithRetry(
         () =>
           withTimeout(
             importFn(),
             15_000,
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             "Dynamic import timed out",
           ),
         DYNAMIC_IMPORT_MAX_ATTEMPTS,
@@ -144,26 +144,26 @@ const dynamicImport = <P extends object = Record<string, never>>(
         sleep,
       )
 
-      if (!module || !("default" in module)) {
+      if (!importedModule || !("default" in importedModule)) {
         setDynamicImportStatus(id, {
           state: DYNAMIC_IMPORT_STATE_INVALID_EXPORT,
           startedAt,
           details: DYNAMIC_IMPORT_MISSING_DEFAULT_EXPORT_DETAILS,
         })
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         logError(id, "dynamic-import-missing-default-export", {
           error: new Error(DYNAMIC_IMPORT_MISSING_DEFAULT_EXPORT_ERROR),
         })
         throw new Error(DYNAMIC_IMPORT_MISSING_DEFAULT_EXPORT_ERROR)
       }
 
-      if (!isProbablyReactComponent(module.default)) {
+      if (!isProbablyReactComponent(importedModule.default)) {
         setDynamicImportStatus(id, {
           state: DYNAMIC_IMPORT_STATE_INVALID_EXPORT,
           startedAt,
           details: DYNAMIC_IMPORT_INVALID_COMPONENT_DETAILS,
         })
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         logError(id, "dynamic-import-invalid-component", {
           error: new Error(DYNAMIC_IMPORT_INVALID_COMPONENT_ERROR),
         })
@@ -191,7 +191,7 @@ const dynamicImport = <P extends object = Record<string, never>>(
         }
       }, 5_000)
 
-      const Original = module.default
+      const Original = importedModule.default
       const OriginalComponent = Original as ComponentType<Record<string, unknown>>
 
       const WrappedComponent = (props: P) => {
@@ -204,7 +204,7 @@ const dynamicImport = <P extends object = Record<string, never>>(
                 startedAt,
                 errorMessage: message,
               })
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               logError(id, "dynamic-import-render-error", error)
             }}
           >
@@ -263,7 +263,7 @@ const dynamicImport = <P extends object = Record<string, never>>(
           errorMessage: message,
         })
       }
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       logError(id, "dynamic-import-or-wrapping-failed", error)
       throw error
     }

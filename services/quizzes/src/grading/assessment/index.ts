@@ -1,6 +1,6 @@
-import { UserAnswer } from "../../../types/quizTypes/answer"
-import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
-import {
+import type { UserAnswer } from "../../../types/quizTypes/answer"
+import type { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemChooseN,
   PrivateSpecQuizItemClosedEndedQuestion,
@@ -31,7 +31,7 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
     throw new Error("Quiz was not provided")
   }
   return quizAnswer.itemAnswers.map((itemAnswer) => {
-    const quizItem = quiz.items.find((quizItem) => quizItem.id === itemAnswer.quizItemId)
+    const quizItem = quiz.items.find((item) => item.id === itemAnswer.quizItemId)
     if (!quizItem) {
       const allAvailableIds = quiz.items.map((item) => item.id)
       const allAnsweredIds = quizAnswer.itemAnswers.map((item) => item.quizItemId)

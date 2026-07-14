@@ -151,9 +151,9 @@ const emptyTasksStyles = css`
 function formatPhaseTimeline(startsOn: string, endsOn: string): string {
   const s = new Date(startsOn)
   const e = new Date(endsOn)
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" }
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   return `${s.toLocaleDateString(undefined, opts)} – ${e.toLocaleDateString(undefined, opts)}`
 }
 
@@ -250,7 +250,7 @@ export default function WorkspaceStageSection({
       <div className={progressBlockStyles}>
         <div className={progressLabelStyles}>
           {t("course-plans-phase-progress", {
-            completed: stage.tasks.filter((t) => t.is_completed).length,
+            completed: stage.tasks.filter((task) => task.is_completed).length,
             total: stage.tasks.length,
           })}
           {stage.tasks.length > 0 && (
@@ -258,7 +258,8 @@ export default function WorkspaceStageSection({
               {" "}
               {t("course-plans-phase-progress-percent", {
                 percent: Math.round(
-                  (stage.tasks.filter((t) => t.is_completed).length / stage.tasks.length) * 100,
+                  (stage.tasks.filter((task) => task.is_completed).length / stage.tasks.length) *
+                    100,
                 ),
               })}
             </span>
@@ -271,7 +272,9 @@ export default function WorkspaceStageSection({
               css({
                 width: `${
                   stage.tasks.length > 0
-                    ? (stage.tasks.filter((t) => t.is_completed).length / stage.tasks.length) * 100
+                    ? (stage.tasks.filter((task) => task.is_completed).length /
+                        stage.tasks.length) *
+                      100
                     : 0
                 }%`,
               }),

@@ -7,7 +7,7 @@ import { Button } from "../src/components/Button"
 import { pressEnter, pressSpace, renderUi } from "./testUtils"
 
 type Variant = "primary" | "secondary" | "tertiary" | "icon"
-type Size = "sm" | "md" | "lg"
+type Size = "small" | "medium" | "large"
 
 describe("Button", () => {
   test("renders label and icon", () => {
@@ -140,11 +140,11 @@ describe("Button", () => {
 
 describe("Button variants and sizes", () => {
   const variants: Variant[] = ["primary", "secondary", "tertiary", "icon"]
-  const sizes: Size[] = ["sm", "md", "lg"]
+  const sizes: Size[] = ["small", "medium", "large"]
 
   test.each(variants)("variant renders without crashing: %s", (variant) => {
     renderUi(
-      <Button variant={variant} size="md">
+      <Button variant={variant} size="medium">
         Label
       </Button>,
     )

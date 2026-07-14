@@ -87,7 +87,7 @@ const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProp
       >
         <BorderDiv column={column} row={row} matrixSize={matrixSize}></BorderDiv>
         <CellInputContainer
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           aria-label={`row: ${row}, column: ${column}`}
           column={column}
           row={row}

@@ -11,11 +11,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const OrganizationsPage: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("organizations-heading"))
-  return (
-    <>
-      <OrganizationsList />
-    </>
-  )
+  return <OrganizationsList />
 }
 
 export default withErrorBoundary(OrganizationsPage)

@@ -12,7 +12,7 @@ import type {
   UserCourseSettings,
 } from "@/generated/course-material-api/types.generated"
 
-export type CourseMaterialState = {
+export interface CourseMaterialState {
   status: "loading" | "ready" | "error"
   error: unknown | null
   page: Page | null
@@ -96,7 +96,7 @@ export const courseMaterialAtom = atom<CourseMaterialState>((get) => {
       return emptyState
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const enrollmentData = (data as any).enrollment_data
     const examPage = enrollmentData?.tag === "EnrolledAndStarted" ? enrollmentData.page : null
 

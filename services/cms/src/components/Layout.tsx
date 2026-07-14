@@ -3,7 +3,8 @@
 import { css } from "@emotion/css"
 import Head from "next/head"
 import { useRouter } from "next/router"
-import React, { ReactNode } from "react"
+import type { ReactNode } from "react"
+import React from "react"
 
 import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
 
@@ -26,7 +27,7 @@ import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 export const SIDEBAR_WIDTH_PX = 350
 
-type LayoutProps = {
+interface LayoutProps {
   children: ReactNode
   hideBreadcrumbs?: boolean
 }

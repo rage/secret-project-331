@@ -1,4 +1,4 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
 import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"

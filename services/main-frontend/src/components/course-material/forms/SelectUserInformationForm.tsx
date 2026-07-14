@@ -15,7 +15,7 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 
-type SelectUserInfoFormFields = {
+interface SelectUserInfoFormFields {
   email: string
   first_name: string
   last_name: string
@@ -23,7 +23,7 @@ type SelectUserInfoFormFields = {
   emailCommunicationConsent: boolean
 }
 
-type SelectUserInfoFormProps = {
+interface SelectUserInfoFormProps {
   shouldAnswerMissingInfoForm: boolean
   setShouldAnswerMissingInfoForm: (shouldAnswerMissingInfoForm: boolean) => void
   email: string
@@ -52,7 +52,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     reset,
     register,
     setValue,
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
   } = useForm<SelectUserInfoFormFields>({ mode: "onChange" })
 
   const countriesOptions = React.useMemo(
@@ -86,12 +86,18 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   }, [country, preFillCountry.data, reset])
   const postUserCountryMutation = useToastMutation<unknown, unknown, SelectUserInfoFormFields>(
     async (data) => {
-      const { email, first_name, last_name, country, emailCommunicationConsent } = data
+      const {
+        email: submittedEmail,
+        first_name,
+        last_name,
+        country: submittedCountry,
+        emailCommunicationConsent: submittedEmailConsent,
+      } = data
       await updateCourseMaterialUserInfo({
         body: {
-          country,
-          email,
-          email_communication_consent: emailCommunicationConsent,
+          country: submittedCountry,
+          email: submittedEmail,
+          email_communication_consent: submittedEmailConsent,
           first_name,
           last_name,
         },
@@ -114,78 +120,76 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   }
 
   return (
-    <>
-      <StandardDialog
-        showCloseButton={false}
-        closeable={false}
-        open={shouldAnswerMissingInfoForm}
-        onClose={() => setShouldAnswerMissingInfoForm(false)}
-        aria-label={t("enter-country-question")}
-        title={t("title-fill-missing-information")}
-        buttons={[
-          {
-            type: "submit",
-            disabled: postUserCountryMutation.isPending || !isValid,
-            // eslint-disable-next-line i18next/no-literal-string
-            className: "primary-button",
+    <StandardDialog
+      showCloseButton={false}
+      closeable={false}
+      open={shouldAnswerMissingInfoForm}
+      onClose={() => setShouldAnswerMissingInfoForm(false)}
+      aria-label={t("enter-country-question")}
+      title={t("title-fill-missing-information")}
+      buttons={[
+        {
+          type: "submit",
+          disabled: postUserCountryMutation.isPending || !isValid,
+          // oxlint-disable-next-line i18next/no-literal-string
+          className: "primary-button",
 
-            variant: "primary",
-            children: t("save"),
-            onClick: handleSubmit((data) => postUserCountryMutation.mutate(data)),
-          },
-        ]}
-      >
-        <form onSubmit={handleSubmit((data) => postUserCountryMutation.mutate(data))}>
-          <TextField
-            label={t("first-name")}
-            defaultValue={firstName}
-            placeholder={t("enter-first-name")}
-            {...register("first_name", {
-              required: t("required-field"),
-            })}
-            required={true}
-            error={errors.first_name}
-          />
+          variant: "primary",
+          children: t("save"),
+          onClick: handleSubmit((data) => postUserCountryMutation.mutate(data)),
+        },
+      ]}
+    >
+      <form onSubmit={handleSubmit((data) => postUserCountryMutation.mutate(data))}>
+        <TextField
+          label={t("first-name")}
+          defaultValue={firstName}
+          placeholder={t("enter-first-name")}
+          {...register("first_name", {
+            required: t("required-field"),
+          })}
+          required={true}
+          error={errors.first_name}
+        />
 
-          <TextField
-            label={t("last-name")}
-            defaultValue={lastName}
-            placeholder={t("enter-last-name")}
-            {...register("last_name", {
-              required: t("required-field"),
-            })}
-            required={true}
-            error={errors.last_name}
-          />
+        <TextField
+          label={t("last-name")}
+          defaultValue={lastName}
+          placeholder={t("enter-last-name")}
+          {...register("last_name", {
+            required: t("required-field"),
+          })}
+          required={true}
+          error={errors.last_name}
+        />
 
-          <Controller
-            name="country"
-            control={control}
-            rules={{ required: t("required-field") }}
-            render={({ field }) => (
-              <SearchableSelectField
-                label={t("enter-country-question")}
-                options={countriesOptions}
-                onChangeByValue={field.onChange}
-                value={field.value}
-                error={errors.country?.message}
-                required={true}
-                placeholder={selectedCountry ?? t("select-a-country")}
-              />
-            )}
-          />
+        <Controller
+          name="country"
+          control={control}
+          rules={{ required: t("required-field") }}
+          render={({ field }) => (
+            <SearchableSelectField
+              label={t("enter-country-question")}
+              options={countriesOptions}
+              onChangeByValue={field.onChange}
+              value={field.value}
+              error={errors.country?.message}
+              required={true}
+              placeholder={selectedCountry ?? t("select-a-country")}
+            />
+          )}
+        />
 
-          <CheckBox
-            className={css`
-              margin-top: 1rem;
-            `}
-            label={t("email-communication-consent-checkbox-text")}
-            defaultChecked={emailCommunicationConsent}
-            {...register("emailCommunicationConsent")}
-          ></CheckBox>
-        </form>
-      </StandardDialog>
-    </>
+        <CheckBox
+          className={css`
+            margin-top: 1rem;
+          `}
+          label={t("email-communication-consent-checkbox-text")}
+          defaultChecked={emailCommunicationConsent}
+          {...register("emailCommunicationConsent")}
+        ></CheckBox>
+      </form>
+    </StandardDialog>
   )
 }
 

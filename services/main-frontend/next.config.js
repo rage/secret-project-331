@@ -1,4 +1,4 @@
-/* eslint-disable import/order */
+/* oxlint-disable import/order */
 const generateNormalResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").generateNormalResponseHeaders
 const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
@@ -18,6 +18,7 @@ const config = {
   },
   output: "standalone",
   outputFileTracingRoot: ".",
+  // oxlint-disable-next-line require-await -- Next.js config expects headers() to return a Promise
   async headers() {
     return [
       {
@@ -26,8 +27,8 @@ const config = {
       },
     ]
   },
-  webpack(config) {
-    config.module.rules.push({
+  webpack(webpackConfig) {
+    webpackConfig.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
       loader: "@svgr/webpack",
@@ -37,7 +38,7 @@ const config = {
       },
     })
 
-    return config
+    return webpackConfig
   },
   turbopack: {
     rules: {

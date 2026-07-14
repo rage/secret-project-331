@@ -51,33 +51,33 @@ export const UserTabContent: React.FC<{ courseId: string; searchQuery: string }>
       columns={[
         {
           header: t("user-id"),
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           accessorKey: "user_id",
         },
         {
           header: t("first-name"),
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           accessorKey: "first_name",
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           cell: ({ getValue }) => getValue<string | null>() ?? "—",
         },
         {
           header: t("last-name"),
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           accessorKey: "last_name",
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           cell: ({ getValue }) => getValue<string | null>() ?? "—",
         },
         {
           header: t("label-email"),
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           accessorKey: "email",
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           cell: ({ getValue }) => getValue<string | null>() ?? "—",
         },
         {
           header: t("course-instance"),
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           accessorKey: "course_instance",
           cell: ({ getValue }) => getValue<string | null>() ?? t("default-instance"),
         },

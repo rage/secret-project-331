@@ -20,7 +20,11 @@ const rowCss = css`
   gap: 16px;
 `
 
-type Form = { a: string; b: string; c: string }
+interface Form {
+  a: string
+  b: string
+  c: string
+}
 
 const meta = {
   title: "Components/TextArea",

@@ -47,7 +47,7 @@ const useSelectionTracking = (): void => {
       const isWithinIgnoredBlock = parentHasCssSelector(element, `.${IGNORE_BLOCK_FEEDBACK_CLASS}`)
       const isWithinFeedback = parentHasCssSelector(
         element,
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         `#${FEEDBACK_DIALOG_CONTENT_ID}, #${TEXT_SELECTION_TOOLTIP_ID}`,
       )
       return isWithinIgnoredBlock || isWithinFeedback

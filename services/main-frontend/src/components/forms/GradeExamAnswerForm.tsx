@@ -98,7 +98,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
         getSubmissions.data.data.at(currentSubmissionIndex + 1)?.exercise_slide_submission.id ?? "",
       )
     } else {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setNextSubmissionId("lastAnswer")
     }
   }
@@ -108,7 +108,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
     {
       notify: true,
       method: "PUT",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       errorMessage: "Cannot give more points than maximum points",
     },
     {
@@ -127,7 +127,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
       justification: data.justification,
       hidden: true,
       exercise_id: submissionInfo.exercise.id,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       action: "CustomPoints",
       manual_points: Number(data.manual_points),
     }

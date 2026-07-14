@@ -217,7 +217,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
     const pages = [...phraseSearchResults]
     // After the phrase search results, we add the word search results if the page is not already in the result set
     wordSearchResults.forEach((pageWithWords) => {
-      if (pages.find((p) => p.id === pageWithWords.id)) {
+      if (pages.some((p) => p.id === pageWithWords.id)) {
         return
       }
       pages.push(pageWithWords)
@@ -347,7 +347,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
               <SearchIcon size={20} weight="bold" />
               <StyledInput
                 value={query}
-                // eslint-disable-next-line jsx-a11y/no-autofocus -- This is a search bar that opens on the screen. This rule seems to be to prevent people from autofocusing in middle of a page which would skip important content such as headers. However, in this case we aren't skipping anything since the search bar is the thing that opens.
+                // oxlint-disable-next-line jsx-a11y/no-autofocus -- search bar opens as its own overlay; nothing is skipped
                 autoFocus
                 onChange={(e) => {
                   setError(null)
@@ -410,18 +410,20 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                       __html: sanitizeCourseMaterialHtml(result.title_headline ?? ""),
                     }}
                   />
-                  {result.chapter_name != null && result.chapter_name !== "" && (
-                    <div
-                      className={css`
-                        font-size: 0.75rem;
-                        color: ${baseTheme.colors.gray[500]};
-                        margin: 0 0 0.25rem;
-                        line-height: 1.4;
-                      `}
-                    >
-                      {result.chapter_name}
-                    </div>
-                  )}
+                  {result.chapter_name !== null &&
+                    result.chapter_name !== undefined &&
+                    result.chapter_name !== "" && (
+                      <div
+                        className={css`
+                          font-size: 0.75rem;
+                          color: ${baseTheme.colors.gray[500]};
+                          margin: 0 0 0.25rem;
+                          line-height: 1.4;
+                        `}
+                      >
+                        {result.chapter_name}
+                      </div>
+                    )}
                   {result.content_headline && (
                     <p
                       className={css`

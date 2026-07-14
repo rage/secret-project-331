@@ -51,7 +51,7 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("An algorithm here")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 3, length: 9 }], "term-1")
     expect(p.innerHTML).toBe('An <span data-glossary-id="term-1"></span> here')
   })
@@ -60,7 +60,7 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("algorithm and algorithm")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(
       doc,
       textNode,
@@ -79,7 +79,7 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("algorithm here")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 0, length: 9 }], "x")
     expect(p.innerHTML).toBe('<span data-glossary-id="x"></span> here')
   })
@@ -88,7 +88,7 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("the algorithm")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 4, length: 9 }], "y")
     expect(p.innerHTML).toBe('the <span data-glossary-id="y"></span>')
   })
@@ -97,16 +97,16 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("word")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 0, length: 4 }], "custom-id-123")
-    expect(p.querySelector("span")?.getAttribute("data-glossary-id")).toBe("custom-id-123")
+    expect(p.querySelector("span")?.dataset.glossaryId).toBe("custom-id-123")
   })
 
   test("original text node is removed from the parent", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("an algorithm")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 3, length: 9 }], "id")
     expect(p.contains(textNode)).toBe(false)
   })
@@ -115,7 +115,7 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("Use x<y and a&b")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 4, length: 1 }], "id")
     expect(p.querySelectorAll("span")).toHaveLength(1)
     expect(p.childNodes.length).toBe(3)
@@ -491,7 +491,7 @@ describe("parseText", () => {
         'An <span data-glossary-id="id-a"></span> uses a <span data-glossary-id="id-b"></span>.',
       )
       expect(glossaryEntries).toHaveLength(2)
-      expect(glossaryEntries.map((t) => t.id).sort()).toEqual(["id-a", "id-b"])
+      expect(glossaryEntries.map((t) => t.id).toSorted()).toEqual(["id-a", "id-b"])
     })
 
     test("term at start and term at end of string", () => {

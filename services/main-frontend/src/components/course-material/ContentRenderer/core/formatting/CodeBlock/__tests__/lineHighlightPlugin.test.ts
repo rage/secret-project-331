@@ -86,10 +86,10 @@ describe("lineHighlightPlugin", () => {
       el.dataset.highlightLines = "1,NaN,-2,0,abc,3"
       el.innerHTML = "a\nb\nc"
       applyLineWrapping(el)
-      const highlighted = el.querySelectorAll(".highlighted-line")
+      const highlighted = el.querySelectorAll<HTMLElement>(".highlighted-line")
       expect(highlighted.length).toBe(2)
-      expect(highlighted[0].getAttribute("data-line")).toBe("1")
-      expect(highlighted[1].getAttribute("data-line")).toBe("3")
+      expect(highlighted[0].dataset.line).toBe("1")
+      expect(highlighted[1].dataset.line).toBe("3")
     })
 
     it("handles empty lines between spans", () => {

@@ -11,9 +11,9 @@ import NameStep from "./components/steps/NameStep"
 import ScheduleEditorStep from "./components/steps/ScheduleEditorStep"
 import SetupStep from "./components/steps/SetupStep"
 import useScheduleWizardController from "./hooks/useScheduleWizardController"
-import { ScheduleWizardStepId } from "./scheduleConstants"
+import type { ScheduleWizardStepId } from "./scheduleConstants"
 
-import { CourseDesignerStage } from "@/generated/api/types.generated"
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import { manageCoursePlanWorkspaceRoute } from "@/shared-module/common/utils/routes"
@@ -152,7 +152,7 @@ function ScheduleWizardPage() {
                 <NameStep
                   planName={controller.ui.planName}
                   onPlanNameChange={controller.actions.setPlanName}
-                  // eslint-disable-next-line i18next/no-literal-string -- wizard step id
+                  // oxlint-disable-next-line i18next/no-literal-string -- wizard step id
                   onContinue={() => controller.actions.goToStep("setup")}
                 />
               )}
@@ -164,7 +164,7 @@ function ScheduleWizardPage() {
                   isGeneratingSuggestion={controller.status.isGeneratingSuggestion}
                   onCourseSizeChange={controller.actions.setCourseSize}
                   onStartsOnMonthChange={controller.actions.setStartsOnMonth}
-                  // eslint-disable-next-line i18next/no-literal-string -- wizard step id
+                  // oxlint-disable-next-line i18next/no-literal-string -- wizard step id
                   onBack={() => controller.actions.goToStep("name")}
                   onContinue={() => {
                     void controller.actions.generateSuggestion({ goToScheduleStep: true })
@@ -188,7 +188,7 @@ function ScheduleWizardPage() {
                   }}
                   onAddMonth={controller.actions.addMonth}
                   onRemoveMonth={controller.actions.removeMonth}
-                  // eslint-disable-next-line i18next/no-literal-string -- wizard step id
+                  // oxlint-disable-next-line i18next/no-literal-string -- wizard step id
                   onBack={() => controller.actions.goToStep("setup")}
                   onFinalize={async () => {
                     const ok = await controller.actions.finalizeDraft()

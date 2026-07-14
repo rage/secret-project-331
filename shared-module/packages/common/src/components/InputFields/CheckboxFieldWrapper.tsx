@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { InputHTMLAttributes, useState } from "react"
+import type { InputHTMLAttributes } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import CheckBox from "./CheckBox"
@@ -26,11 +27,11 @@ const CheckboxFieldWrapper: React.FC<React.PropsWithChildren<CheckboxFieldWrappe
       <CheckBox
         label={t("set-field-value", { name: fieldName })}
         checked={checked}
-        onChangeByValue={(checked: boolean) => {
-          if (!checked) {
+        onChangeByValue={(newChecked: boolean) => {
+          if (!newChecked) {
             onUncheck()
           }
-          setChecked(checked)
+          setChecked(newChecked)
         }}
         className={css`
           ${checked && `margin-bottom: 0.2rem;`}

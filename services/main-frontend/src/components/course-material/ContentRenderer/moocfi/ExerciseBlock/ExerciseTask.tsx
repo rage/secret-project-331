@@ -12,8 +12,8 @@ import ExerciseTaskIframe from "./ExerciseTaskIframe"
 import type { CourseMaterialExerciseTask } from "@/generated/course-material-api/types.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { ExerciseIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { Block } from "@/types/courseMaterialBlock"
+import type { ExerciseIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { Block } from "@/types/courseMaterialBlock"
 
 interface ExerciseTaskProps {
   canPostSubmission: boolean
@@ -36,7 +36,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
 }) => {
   const { signedIn } = useContext(LoginStateContext)
   const { t } = useTranslation()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const currentExerciseTaskAssignment = exerciseTask.assignment as Block<any>[]
   const url = exerciseTask.exercise_iframe_url
 
@@ -44,7 +44,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
     () =>
       currentExerciseTaskAssignment?.every(
         (paragraph) =>
-          paragraph.name === "core/paragraph" && paragraph.attributes?.content.trim() == "",
+          paragraph.name === "core/paragraph" && paragraph.attributes?.content.trim() === "",
       ),
     [currentExerciseTaskAssignment],
   )

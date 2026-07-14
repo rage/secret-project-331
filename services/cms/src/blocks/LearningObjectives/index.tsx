@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { createBlock } from "@wordpress/blocks"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
@@ -23,7 +23,7 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
       {
         type: "block",
         blocks: ["core/list"],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         transform(attributes: any, innerBlocks: any) {
           return createBlock("moocfi/learning-objectives", {}, [
             createBlock("core/list", attributes, innerBlocks),
@@ -35,7 +35,7 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
       {
         type: "block",
         blocks: ["core/list"],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         transform(_attributes: any, innerBlocks: any[]) {
           return innerBlocks[0]
         },

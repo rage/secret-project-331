@@ -5,12 +5,12 @@ import { css } from "@emotion/css"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
-import {
+import type {
   CurrentStateMessage,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import { RepositoryExercise } from "@/utils/playgroundSchemas"
+import type { RepositoryExercise } from "@/utils/playgroundSchemas"
 
 interface PlaygroundExerciseEditorIframeProps {
   url: string
@@ -21,7 +21,7 @@ interface PlaygroundExerciseEditorIframeProps {
   showIframeBorders: boolean
   disableSandbox: boolean
   userInformation: UserInformation
-  repositoryExercises: Array<RepositoryExercise>
+  repositoryExercises: RepositoryExercise[]
 }
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
@@ -52,7 +52,7 @@ const PlaygroundExerciseEditorIframe: React.FC<
         key={iframeKey}
         url={url}
         postThisStateToIFrame={{
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           view_type: "exercise-editor",
           exercise_task_id: EXAMPLE_UUID,
           data: {
@@ -61,11 +61,9 @@ const PlaygroundExerciseEditorIframe: React.FC<
           user_information: userInformation,
           repository_exercises: repositoryExercises,
         }}
-        onMessageFromIframe={async (msg, _responsePort) => {
-          if (isMessageFromIframe(msg)) {
-            if (msg.message === "current-state") {
-              setCurrentStateReceivedFromIframe(msg)
-            }
+        onMessageFromIframe={(msg, _responsePort) => {
+          if (isMessageFromIframe(msg) && msg.message === "current-state") {
+            setCurrentStateReceivedFromIframe(msg)
           }
         }}
         title={TITLE}

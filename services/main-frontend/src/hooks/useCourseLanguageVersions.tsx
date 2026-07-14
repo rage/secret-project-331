@@ -1,6 +1,7 @@
 "use client"
 
-import { QueryClient, useQuery } from "@tanstack/react-query"
+import type { QueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
 import {
   getCourseLanguageVersionsQueryKey as getCourseLanguageVersionsGeneratedQueryKey,
@@ -23,11 +24,11 @@ const useCourseLanguageVersions = (courseId: string | null) => {
   const query = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
         getCourseLanguageVersionsOptions({
           path: {
-            course_id: courseId,
+            course_id: value,
           },
         }),
     }),

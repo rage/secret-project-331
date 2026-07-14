@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 import InnerBlocks from "../util/InnerBlocks"
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

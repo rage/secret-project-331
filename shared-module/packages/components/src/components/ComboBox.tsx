@@ -88,7 +88,7 @@ export type ComboBoxProps<
   className?: string
 }
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const filterSensitivityBase = "base" as const
 
 export function ComboBox<TItem, TField extends FieldValues, N extends Path<TField> = Path<TField>>(

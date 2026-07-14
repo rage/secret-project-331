@@ -3,7 +3,7 @@ import {
   extractPageCitations,
   orderedUniqueCitationKeys,
 } from "@/components/course-material/references/citationExtraction"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 const block = (
   name: string,

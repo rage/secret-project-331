@@ -1,4 +1,5 @@
-import { expect, Page, test } from "@playwright/test"
+import type { Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -15,7 +16,7 @@ const pageOrderingText = "Do you want to save the changes to the page ordering?"
 
 async function verifyDialogState(page: Page, chapterVisible: boolean, pageVisible: boolean) {
   await test.step("Verify dialog state", async () => {
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (chapterVisible) {
       await expect(page.getByText(chapterOrderingText)).toBeVisible()
     } else {
@@ -23,7 +24,7 @@ async function verifyDialogState(page: Page, chapterVisible: boolean, pageVisibl
       await expect(page.getByText(chapterOrderingText)).toHaveCount(0)
     }
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (pageVisible) {
       await expect(page.getByText(pageOrderingText)).toBeVisible()
     } else {

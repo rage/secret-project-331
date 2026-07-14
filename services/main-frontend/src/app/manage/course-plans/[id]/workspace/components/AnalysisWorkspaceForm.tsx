@@ -192,7 +192,7 @@ export default function AnalysisWorkspaceForm(props: {
                 control={control}
                 rules={{
                   setValueAs: (v: unknown) =>
-                    v === "" || v == null ? null : (v as AnalysisCourseType),
+                    v === "" || v === null || v === undefined ? null : (v as AnalysisCourseType),
                 }}
                 label={t("course-plans-analysis-field-course-type")}
                 options={[
@@ -201,12 +201,12 @@ export default function AnalysisWorkspaceForm(props: {
                     label: t("course-plans-analysis-course-type-none"),
                   },
                   {
-                    // eslint-disable-next-line i18next/no-literal-string -- backend enum value
+                    // oxlint-disable-next-line i18next/no-literal-string -- backend enum value
                     value: "compulsory",
                     label: t("course-plans-analysis-course-type-compulsory"),
                   },
                   {
-                    // eslint-disable-next-line i18next/no-literal-string -- backend enum value
+                    // oxlint-disable-next-line i18next/no-literal-string -- backend enum value
                     value: "elective",
                     label: t("course-plans-analysis-course-type-elective"),
                   },

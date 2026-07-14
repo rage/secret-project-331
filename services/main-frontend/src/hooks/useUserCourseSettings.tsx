@@ -18,11 +18,11 @@ export const useUserCourseSettings = (
         courseId: string
         userId: string
       } => Boolean(value?.courseId && value?.userId),
-      build: ({ courseId, userId }) =>
+      build: ({ courseId: validCourseId, userId: validUserId }) =>
         getCourseUserSettingsForUserOptions({
           path: {
-            course_id: courseId,
-            user_id: userId,
+            course_id: validCourseId,
+            user_id: validUserId,
           },
         }),
     }),

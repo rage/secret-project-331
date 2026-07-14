@@ -6,8 +6,8 @@ import "@testing-library/jest-dom/vitest"
 // jsdom lacks ResizeObserver (used by the iframe height tracker).
 if (!("ResizeObserver" in globalThis)) {
   ;(globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
+    public observe() {}
+    public unobserve() {}
+    public disconnect() {}
   }
 }

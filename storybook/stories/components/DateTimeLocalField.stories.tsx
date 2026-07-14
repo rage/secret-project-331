@@ -13,7 +13,9 @@ const stackCss = css`
   max-width: 360px;
 `
 
-type Form = { dt: string }
+interface Form {
+  dt: string
+}
 
 function PlaygroundStory() {
   const { t } = useTranslation()

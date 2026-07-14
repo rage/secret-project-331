@@ -154,7 +154,9 @@
     "jsx-a11y/tabindex-no-positive": "error",
     "react/display-name": "error",
     "react/react-in-jsx-scope": "off",
-    "react/jsx-key": "warn",
+    "react/jsx-key": "error",
+    "react/iframe-missing-sandbox": "error",
+    "react/no-unstable-nested-components": ["error", { "allowAsProps": true }],
     "react/jsx-no-comment-textnodes": "error",
     "react/jsx-no-duplicate-props": "error",
     "react/jsx-no-target-blank": "error",
@@ -184,6 +186,7 @@
     "unicorn/no-negated-condition": "off",
     "import/no-unassigned-import": "off",
     "eslint/no-shadow": "warn",
+    "eslint/eqeqeq": ["warn", "always"],
     "unicorn/no-array-sort": "warn",
     "unicorn/consistent-function-scoping": "warn",
     "unicorn/prefer-add-event-listener": "warn",
@@ -193,7 +196,10 @@
     "unicorn/no-useless-fallback-in-spread": "warn",
     "unicorn/no-thenable": "warn",
     "unicorn/no-array-reverse": "warn",
-    "unicorn/no-useless-undefined": "off"
+    "unicorn/no-useless-undefined": "off",
+    "unicorn/prefer-at": "off",
+    "unicorn/prefer-dom-node-dataset": "off",
+    "unicorn/prefer-optional-catch-binding": "off"
   },
   "overrides": [
     {
@@ -335,7 +341,7 @@
         ],
         "curly": ["error", "all"],
         "nextjs/no-img-element": "off",
-        "react/rules-of-hooks": "warn",
+        "react/rules-of-hooks": "error",
         "react/exhaustive-deps": [
           "warn",
           {
@@ -358,7 +364,28 @@
         "typescript/no-wrapper-object-types": "error",
         "typescript/prefer-as-const": "error",
         "typescript/prefer-namespace-keyword": "error",
-        "typescript/triple-slash-reference": "error"
+        "typescript/triple-slash-reference": "error",
+        "typescript/consistent-type-definitions": "error",
+        "typescript/consistent-indexed-object-style": "error",
+        "typescript/consistent-type-assertions": "error",
+        "typescript/consistent-generic-constructors": "error",
+        "typescript/explicit-member-accessibility": "error",
+        "typescript/no-inferrable-types": "error",
+        "typescript/no-import-type-side-effects": "error",
+        "typescript/no-confusing-non-null-assertion": "error",
+        "typescript/no-non-null-asserted-nullish-coalescing": "error",
+        "typescript/prefer-enum-initializers": "error",
+        "typescript/prefer-literal-enum-member": "error",
+        "typescript/unified-signatures": "error",
+        "typescript/array-type": "error",
+        "typescript/consistent-type-imports": ["error", { "disallowTypeAnnotations": false }],
+        "typescript/method-signature-style": "error",
+        "typescript/parameter-properties": "error",
+        "typescript/prefer-for-of": "error",
+        "typescript/no-extraneous-class": "error",
+        "typescript/no-dynamic-delete": "error",
+        "typescript/no-non-null-assertion": "error",
+        "typescript/prefer-ts-expect-error": "off"
       },
       "globals": {
         "React": "writable",
@@ -476,7 +503,7 @@
       "jsPlugins": ["eslint-plugin-explicit-use-directives"]
     },
     {
-      "files": ["**/*.stories.@(ts|tsx|js|jsx|mjs|cjs)", "**/*.story.@(ts|tsx|js|jsx|mjs|cjs)"],
+      "files": ["**/*.stories.{ts,tsx,js,jsx,mjs,cjs}", "**/*.story.{ts,tsx,js,jsx,mjs,cjs}"],
       "rules": {
         "storybook/await-interactions": "error",
         "storybook/context-in-play-function": "error",
@@ -494,7 +521,7 @@
       "jsPlugins": ["eslint-plugin-storybook"]
     },
     {
-      "files": [".storybook/main.@(js|cjs|mjs|ts)"],
+      "files": [".storybook/main.{js,cjs,mjs,ts}"],
       "rules": {
         "storybook/no-uninstalled-addons": "error"
       },
@@ -635,6 +662,9 @@
                 "info",
                 "group",
                 "Error",
+                "TypeError",
+                "RangeError",
+                "SyntaxError",
                 "querySelector",
                 "usePopper",
                 "i18n.on",
@@ -718,6 +748,26 @@
       "rules": {
         "i18next/no-literal-string": "off"
       }
+    },
+    {
+      "files": ["services/tmc/src/tmc/cli.d.ts"],
+      "rules": {
+        "typescript/array-type": "off"
+      },
+      "plugins": ["typescript"]
+    },
+    {
+      "files": [
+        "**/*.test.{ts,tsx}",
+        "**/*.spec.{ts,tsx}",
+        "**/tests/**",
+        "system-tests/**",
+        "**/__tests__/**"
+      ],
+      "rules": {
+        "typescript/no-non-null-assertion": "off"
+      },
+      "plugins": ["typescript"]
     }
   ]
 }

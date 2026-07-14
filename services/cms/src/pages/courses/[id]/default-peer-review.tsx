@@ -3,14 +3,14 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
-import { ExerciseAttributes } from "../../../blocks/Exercise"
+import type { ExerciseAttributes } from "../../../blocks/Exercise"
 import CmsPageTitle from "../../../components/CmsPageTitle"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/PeerReviewAdditionalInstructionsEditor"
 import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
 import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
 
-import {
+import type {
   CmsPeerOrSelfReviewConfig,
   CmsPeerOrSelfReviewConfiguration,
   CmsPeerOrSelfReviewQuestion,
@@ -19,9 +19,8 @@ import { getCmsCourseDefaultPeerReviewOptions } from "@/generated/api/@tanstack/
 import { updateCmsCourseDefaultPeerReview } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"

@@ -68,19 +68,18 @@ const CourseInstancePointsList: React.FC = () => {
   })
 
   function sortUsers(first: ProcessedUser, second: ProcessedUser): number {
-    if (sorting == NAME) {
+    if (sorting === NAME) {
       return `${first.user.last_name} ${first.user.first_name}`.localeCompare(
         `${second.user.last_name} ${second.user.first_name}`,
       )
-    } else if (sorting == NUMBER) {
+    } else if (sorting === NUMBER) {
       return first.user.user_id.localeCompare(second.user.user_id)
-    } else if (sorting == SCORE) {
+    } else if (sorting === SCORE) {
       return second.totalPoints - first.totalPoints
-    } else if (sorting == EMAIL) {
+    } else if (sorting === EMAIL) {
       return first.user.email.localeCompare(second.user.email)
-    } else {
-      return second.chapterPoints[sorting] - first.chapterPoints[sorting]
     }
+    return second.chapterPoints[sorting] - first.chapterPoints[sorting]
   }
 
   const getPointsList = useQuery({
@@ -176,14 +175,14 @@ const CourseInstancePointsList: React.FC = () => {
                     </th>
 
                     {data.chapter_points.map((c) => {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       const courseSorting = `#ch${c.chapter_number}`
                       return (
                         <th key={c.id}>
                           {t("title-chapter-only-number", { "chapter-number": c.chapter_number })}{" "}
                           <a
                             href={courseSorting}
-                            onClick={() => setSorting(courseSorting.substring(1))}
+                            onClick={() => setSorting(courseSorting.slice(1))}
                           >
                             {DOWN_ARROW}
                           </a>
@@ -206,14 +205,14 @@ const CourseInstancePointsList: React.FC = () => {
                       const userChapterPoints = data.user_chapter_points[user.user_id] || {}
                       const chapterPoints = Object.fromEntries(
                         data.chapter_points.map((c) => [
-                          // eslint-disable-next-line i18next/no-literal-string
+                          // oxlint-disable-next-line i18next/no-literal-string
                           `ch${c.chapter_number}`,
                           userChapterPoints[c.id] || 0,
                         ]),
                       )
                       return { user, totalPoints, chapterPoints }
                     })
-                    .sort(sortUsers)
+                    .toSorted(sortUsers)
                     .map(({ user, totalPoints }) => {
                       return (
                         <FullWidthTableRow key={user.user_id}>

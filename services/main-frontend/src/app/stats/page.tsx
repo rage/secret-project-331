@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import GlobalStatTable from "./GlobalStatTable"
 
-import { TimeGranularity } from "@/generated/api/types.generated"
+import type { TimeGranularity } from "@/generated/api/types.generated"
 import {
   useCourseModuleStatsByCompletionsRegisteredToStudyRegistryQuery,
   useNumberOfPeopleCompletedACourseQuery,

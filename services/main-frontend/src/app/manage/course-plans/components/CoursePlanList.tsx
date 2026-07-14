@@ -13,7 +13,7 @@ const listStyles = css`
 `
 
 interface CoursePlanListProps {
-  plans: Array<CourseDesignerPlanSummary>
+  plans: CourseDesignerPlanSummary[]
 }
 
 export default function CoursePlanList({ plans }: CoursePlanListProps) {

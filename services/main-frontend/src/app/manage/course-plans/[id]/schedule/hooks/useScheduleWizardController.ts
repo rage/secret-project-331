@@ -4,14 +4,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAtomValue, useSetAtom } from "jotai"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
+import type { ScheduleWizardStep } from "../scheduleAtoms"
 import {
   addMonthToStageAtomFamily,
   draftStagesAtomFamily,
   removeMonthFromStageAtomFamily,
-  ScheduleWizardStep,
   scheduleWizardStepAtomFamily,
 } from "../scheduleAtoms"
-import { SCHEDULE_STAGE_ORDER, ScheduleWizardStepId } from "../scheduleConstants"
+import type { ScheduleWizardStepId } from "../scheduleConstants"
+import { SCHEDULE_STAGE_ORDER } from "../scheduleConstants"
 import {
   buildStageCardViewModels,
   getStartsOnMonthFromStages,

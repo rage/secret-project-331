@@ -31,7 +31,7 @@ const normalizeHeadingText = (value: unknown): string => {
     return ""
   }
 
-  return extractPlainTextFromHtml(value).replace(/\s+/g, " ").trim()
+  return extractPlainTextFromHtml(value).replaceAll(/\s+/g, " ").trim()
 }
 
 const parseHeadingLevel = (value: unknown): number | null => {

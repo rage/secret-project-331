@@ -55,7 +55,7 @@ function toCharacterMatcher(pattern: RegExp) {
     throw new Error("toCharacterMatcher expects a simple character-class RegExp (e.g. /[0-9]/)")
   }
 
-  const flags = pattern.flags.replace(/g/g, "")
+  const flags = pattern.flags.replaceAll("g", "")
   return new RegExp(pattern.source, flags)
 }
 

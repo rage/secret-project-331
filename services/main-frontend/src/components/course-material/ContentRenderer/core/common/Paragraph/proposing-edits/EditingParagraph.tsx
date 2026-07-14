@@ -12,7 +12,7 @@ import EditableParagraph from "./EditableParagraph"
 import PreviewableParagraph from "./PreviewableParagraph"
 import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
-import { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme } from "@/shared-module/common/styles"
 import {
   blockEditsAtom,
@@ -158,55 +158,54 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
         </button>
       </div>
     )
-  } else {
-    // No changes, render the regular paragraph with edit button
-    return (
-      <div
-        className={css`
-          margin: 1.25rem 0;
-          padding: 0.25rem;
-          border-radius: 3px;
-          transition:
-            background-color 0.2s ease,
-            box-shadow 0.2s ease;
-
-          &:has(> div:hover),
-          &:has(.edit-button:hover) {
-            background-color: rgba(121, 247, 96, 0.05);
-            box-shadow: 0 0 0 2px rgba(93, 163, 36, 0.2);
-          }
-        `}
-      >
-        <div
-          className={`${getParagraphStyles(
-            textColor,
-            backgroundColor,
-            fontSize,
-            true,
-            dropCap,
-            align,
-          )} ${getEditableHoverStyles(false)} ${css`
-            display: inline;
-            margin: 0;
-
-            &:hover {
-              background-color: transparent;
-              box-shadow: none;
-            }
-          `}`}
-        >
-          {content}
-        </div>
-        <button
-          ref={editButtonRef}
-          {...editButtonProps}
-          className={`edit-button ${editButtonStyles}`}
-        >
-          {t("edit")}
-        </button>
-      </div>
-    )
   }
+  // No changes, render the regular paragraph with edit button
+  return (
+    <div
+      className={css`
+        margin: 1.25rem 0;
+        padding: 0.25rem;
+        border-radius: 3px;
+        transition:
+          background-color 0.2s ease,
+          box-shadow 0.2s ease;
+
+        &:has(> div:hover),
+        &:has(.edit-button:hover) {
+          background-color: rgba(121, 247, 96, 0.05);
+          box-shadow: 0 0 0 2px rgba(93, 163, 36, 0.2);
+        }
+      `}
+    >
+      <div
+        className={`${getParagraphStyles(
+          textColor,
+          backgroundColor,
+          fontSize,
+          true,
+          dropCap,
+          align,
+        )} ${getEditableHoverStyles(false)} ${css`
+          display: inline;
+          margin: 0;
+
+          &:hover {
+            background-color: transparent;
+            box-shadow: none;
+          }
+        `}`}
+      >
+        {content}
+      </div>
+      <button
+        ref={editButtonRef}
+        {...editButtonProps}
+        className={`edit-button ${editButtonStyles}`}
+      >
+        {t("edit")}
+      </button>
+    </div>
+  )
 }
 
 export default EditingParagraph

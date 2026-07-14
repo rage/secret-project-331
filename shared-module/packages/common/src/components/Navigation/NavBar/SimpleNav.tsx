@@ -9,7 +9,7 @@ import { respondToOrLarger } from "../../../styles/respond"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../utils/constants"
 import SkipLink from "../../SkipLink"
 
-import { NavigationProps } from "."
+import type { NavigationProps } from "."
 
 const StyledIcon = css`
   font-size: 1.8rem;
@@ -57,7 +57,7 @@ const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = ({
   const makeTopLeftButtonToTemporarilyGoToMoocfi = true
 
   const moocfiUrl =
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     i18n?.language?.indexOf("fi") !== -1 ? "https://www.mooc.fi" : "https://www.mooc.fi/en"
 
   const logoHref = logoLinkUrl ?? (makeTopLeftButtonToTemporarilyGoToMoocfi ? moocfiUrl : "/")
@@ -66,6 +66,7 @@ const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = ({
     <nav role="navigation" className={cx(Navbar)} aria-label={t("navigation-menu")}>
       <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
       <div className={cx(NavbarLogo)}>
+        {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- anchor navigates via href; a button would change behavior */}
         <a href={logoHref} aria-label={t("home-page")} role="button">
           <MOOCfi className={cx(StyledIcon)} />
         </a>

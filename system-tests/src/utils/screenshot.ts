@@ -1,6 +1,7 @@
-/* eslint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
+/* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 
-import { expect, Locator, Page, test, TestInfo } from "@playwright/test"
+import type { Locator, Page, TestInfo } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import accessibilityCheck from "./accessibilityCheck"
 import {
@@ -24,8 +25,8 @@ import {
 
 // Same regex as Playwright uses to sanitize the filenames so that we can access those same files.
 const PLAYWRIGHT_SCREENSHOT_NAME_SANITIZE_REGEX =
-  // eslint-disable-next-line no-control-regex
-  /[\x00-\x2C\x2E-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F]+/g
+  // oxlint-disable-next-line no-control-regex
+  /[\u0000-\u002C\u002E-\u002F\u003A-\u0040\u005B-\u0060\u007B-\u007F]+/g
 
 const viewPorts = {
   "desktop-regular": { width: 1920, height: 1080 },
@@ -163,7 +164,7 @@ export default async function expectScreenshotsToMatchSnapshots({
             replaceSomePartsWithPlaceholders,
             waitForMessageChannelIframeReadiness,
             useCoordinatesFromTheBottomForSavingYCoordinates,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // oxlint-disable-next-line typescript/no-explicit-any
             screenshotTarget: screenshotTarget as any,
           })
         }
@@ -181,7 +182,7 @@ export default async function expectScreenshotsToMatchSnapshots({
           replaceSomePartsWithPlaceholders,
           waitForMessageChannelIframeReadiness,
           useCoordinatesFromTheBottomForSavingYCoordinates,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // oxlint-disable-next-line typescript/no-explicit-any
           screenshotTarget: screenshotTarget as any,
         })
       } finally {
@@ -259,13 +260,13 @@ async function snapshotWithViewPort({
 
   if (scrollToYCoordinate !== undefined) {
     if (typeof scrollToYCoordinate === "number") {
-      await page.evaluate(async (coord) => {
+      await page.evaluate((coord) => {
         window.scrollTo(0, coord)
       }, scrollToYCoordinate)
       // 100ms was not enough at the time of writing this
       await page.waitForTimeout(200)
     } else {
-      await page.evaluate(async (coord) => {
+      await page.evaluate((coord) => {
         window.scrollTo(0, coord)
       }, scrollToYCoordinate[viewPortName])
       // 100ms was not enough at the time of writing this
@@ -373,8 +374,8 @@ export async function waitToBeStable(waitForThisToBeStable: Locator[]): Promise<
   }
 }
 
-async function waitToBeGone(waitToBeGone: Locator[]): Promise<void> {
-  for (const locator of waitToBeGone) {
+async function waitToBeGone(locators: Locator[]): Promise<void> {
+  for (const locator of locators) {
     await expect(locator).toHaveCount(0)
   }
 }
@@ -418,6 +419,7 @@ async function scrollToSavedImageCoordinate(
             return document.documentElement.scrollHeight - window.innerHeight
           })
           console.info(`Maximum possible y coordinate is ${maximumPossibleCoordinate}`)
+          // oxlint-disable-next-line max-depth -- nested retry branch; flattening risks changing scroll-retry behavior
           if (savedYCoordinate > maximumPossibleCoordinate) {
             console.error(
               `Saved y coordinate ${savedYCoordinate} is greater than the maximum possible y coordinate ${maximumPossibleCoordinate}`,

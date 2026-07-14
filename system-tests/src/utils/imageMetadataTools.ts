@@ -1,6 +1,6 @@
 import { spawnSync } from "child_process"
 import { readFile, writeFile } from "fs/promises"
-import { Page } from "playwright"
+import type { Page } from "playwright"
 // @ts-expect-error: no typescript definitions
 import pngMetadata from "png-metadata"
 
@@ -18,18 +18,17 @@ export async function ensureImageHasBeenOptimized(pathToImage: string): Promise<
 
 async function hasImageBeenOptimizedBefore(pathToImage: string): Promise<boolean> {
   const contents = await readFile(pathToImage, "binary")
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const listOfPngMetadataChunks: any[] = pngMetadata.splitChunk(contents)
   return listOfPngMetadataChunks.some((chunk) => chunk.data === "moocfi-optimized")
 }
 
 async function markImageAsOptimized(pathToImage: string): Promise<void> {
   const contents = await readFile(pathToImage, "binary")
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const listOfPngMetadataChunks: any[] = pngMetadata.splitChunk(contents)
   const iend = listOfPngMetadataChunks.pop()
-  listOfPngMetadataChunks.push(pngMetadata.createChunk("aaaa", "moocfi-optimized"))
-  listOfPngMetadataChunks.push(iend)
+  listOfPngMetadataChunks.push(pngMetadata.createChunk("aaaa", "moocfi-optimized"), iend)
   const newContents = pngMetadata.joinChunk(listOfPngMetadataChunks)
   await writeFile(pathToImage, newContents, "binary")
 }
@@ -37,7 +36,7 @@ async function markImageAsOptimized(pathToImage: string): Promise<void> {
 export async function imageSavedPageYCoordinate(pathToImage: string): Promise<number | null> {
   try {
     const contents = await readFile(pathToImage, "binary")
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const listOfPngMetadataChunks: any[] = pngMetadata.splitChunk(contents)
     const coordString: string | undefined = listOfPngMetadataChunks.find((chunk) =>
       (chunk.data as string).startsWith("moocfi-page-y-"),
@@ -65,7 +64,7 @@ export async function savePageYCoordinateToImage(
   page: Page,
   useCoordinatesFromTheBottomForSavingYCoordinates: boolean | undefined,
 ): Promise<void> {
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
   const yCoordinate = await observeYCoordinate(
     page,
@@ -75,15 +74,17 @@ export async function savePageYCoordinateToImage(
   console.info(`Saving y-coordinate ${yCoordinate} to image "${pathToImage}"`)
 
   const contents = await readFile(pathToImage, "binary")
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   let listOfPngMetadataChunks: any[] = pngMetadata.splitChunk(contents)
   const iend = listOfPngMetadataChunks.pop()
   // Remove previous y-coordinate metadata
   listOfPngMetadataChunks = listOfPngMetadataChunks.filter(
     (chunk) => !(chunk.data as string).startsWith("moocfi-page-y-"),
   )
-  listOfPngMetadataChunks.push(pngMetadata.createChunk("aaab", `moocfi-page-y-${yCoordinate}`))
-  listOfPngMetadataChunks.push(iend)
+  listOfPngMetadataChunks.push(
+    pngMetadata.createChunk("aaab", `moocfi-page-y-${yCoordinate}`),
+    iend,
+  )
   const newContents = pngMetadata.joinChunk(listOfPngMetadataChunks)
   await writeFile(pathToImage, newContents, "binary")
 }
@@ -96,7 +97,7 @@ export async function observeYCoordinate(
   let tries = 0
 
   while (true) {
-    // eslint-disable-next-line playwright/no-wait-for-timeout
+    // oxlint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(100)
     let yCoordinate = await page.mainFrame().evaluate(() => {
       return window.scrollY
@@ -111,9 +112,8 @@ export async function observeYCoordinate(
 
     if (previousYCoordinate === yCoordinate) {
       return yCoordinate
-    } else {
-      previousYCoordinate = yCoordinate
     }
+    previousYCoordinate = yCoordinate
 
     if (tries > 100) {
       throw new Error(`Could not stabilize y-coordinate after ${tries} tries.`)

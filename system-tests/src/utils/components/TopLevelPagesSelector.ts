@@ -1,28 +1,33 @@
-import { expect, Locator, Page } from "@playwright/test"
+import type { Locator, Page } from "@playwright/test"
+import { expect } from "@playwright/test"
 
 export class TopLevelPagesSelector {
-  constructor(private readonly page: Page) {}
+  private readonly page: Page
 
-  getContainer(): Locator {
+  public constructor(page: Page) {
+    this.page = page
+  }
+
+  public getContainer(): Locator {
     return this.page.getByTestId("top-level-pages-container")
   }
 
-  async waitForTopLevelPagesList(): Promise<void> {
+  public async waitForTopLevelPagesList(): Promise<void> {
     await this.getContainer().waitFor()
   }
 
-  getTopLevelPageLink(title: string): Locator {
+  public getTopLevelPageLink(title: string): Locator {
     return this.getContainer().getByRole("link", { name: title })
   }
 
-  async getAllTopLevelPageTitles(): Promise<string[]> {
+  public async getAllTopLevelPageTitles(): Promise<string[]> {
     await this.waitForTopLevelPagesList()
     const pageLinks = this.getContainer().locator("a")
     const raw = await pageLinks.locator("h3").allTextContents()
     return raw.map((t) => t.trim()).filter(Boolean)
   }
 
-  async clickTopLevelPage(title: string): Promise<void> {
+  public async clickTopLevelPage(title: string): Promise<void> {
     const link = this.getTopLevelPageLink(title)
     await expect(link).toBeVisible()
     await link.click()

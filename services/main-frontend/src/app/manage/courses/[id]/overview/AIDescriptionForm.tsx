@@ -65,10 +65,10 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled: open,
-      build: (courseId) =>
+      build: (value) =>
         getSisuCourseLlmDescriptionsOptions({
           path: {
-            course_id: courseId,
+            course_id: value,
           },
         }),
     }),

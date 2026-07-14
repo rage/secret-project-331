@@ -2,11 +2,11 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import KaTex from "katex"
+import { renderToString } from "katex"
 import React from "react"
 
 import "katex/dist/katex.min.css"
-import { TextAttributes } from "."
+import type { TextAttributes } from "."
 
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
@@ -33,7 +33,7 @@ const LatexEditor: React.FC<React.PropsWithChildren<BlockEditProps<TextAttribute
   }
 
   const convert_to_latex = () => {
-    const output = KaTex.renderToString(attributes.text, {
+    const output = renderToString(attributes.text, {
       throwOnError: false,
       displayMode: true,
       output: KATEX_OUTPUT_FORMAT,

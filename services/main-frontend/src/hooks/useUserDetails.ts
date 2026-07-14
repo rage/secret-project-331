@@ -112,7 +112,8 @@ export const useUserDetails = (
         courseIds: string[]
         userId: string
       } => isUserDetailsQueryReady(value?.courseIds, value?.userId),
-      build: ({ courseIds, userId }) => getUserDetailsQueryOptions(courseIds, userId),
+      build: ({ courseIds: readyCourseIds, userId: readyUserId }) =>
+        getUserDetailsQueryOptions(readyCourseIds, readyUserId),
     }),
     staleTime: options?.staleTime,
     gcTime: options?.gcTime,
@@ -133,7 +134,8 @@ export const useBulkUserDetails = (
         courseId: string
         userIds: string[]
       } => Boolean(value?.courseId && value.userIds.length > 0),
-      build: ({ courseId, userIds }) => getBulkUserDetailsQueryOptions(courseId, userIds),
+      build: ({ courseId: readyCourseId, userIds: readyUserIds }) =>
+        getBulkUserDetailsQueryOptions(readyCourseId, readyUserIds),
     }),
   )
 }

@@ -181,14 +181,14 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
           `}
           onClick={(e) => {
             e.preventDefault()
-            const firstChapterGrid = document.getElementsByClassName(
-              CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING,
-            )[0]
+            const firstChapterGrid = document.querySelector(
+              `.${CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING}`,
+            )
             if (!firstChapterGrid) {
               console.warn("Cannot find scroll destination")
               return
             }
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             firstChapterGrid.scrollIntoView({ behavior: "smooth" })
           }}
         >

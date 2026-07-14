@@ -2,6 +2,14 @@ import { jest } from "@jest/globals"
 
 import { flushPendingErrorOccurrences, reportErrorOccurrence } from "../reportErrorOccurrence"
 
+const createDeferredResponse = () => {
+  let resolve!: (response: Response) => void
+  const promise = new Promise<Response>((resolver) => {
+    resolve = resolver
+  })
+  return { promise, resolve }
+}
+
 describe("reportErrorOccurrence", () => {
   const browserGlobal = window as Window & { fetch?: typeof fetch }
   const pendingErrorReportsStorageKey = "pending_error_occurrence_reports"
@@ -37,15 +45,7 @@ describe("reportErrorOccurrence", () => {
 
   const readPendingReports = () => {
     const raw = window.localStorage.getItem(pendingErrorReportsStorageKey)
-    return raw ? (JSON.parse(raw) as Array<{ body: string }>) : []
-  }
-
-  const createDeferredResponse = () => {
-    let resolve!: (response: Response) => void
-    const promise = new Promise<Response>((resolver) => {
-      resolve = resolver
-    })
-    return { promise, resolve }
+    return raw ? (JSON.parse(raw) as { body: string }[]) : []
   }
 
   test("uses fetch for normal browser reports even when sendBeacon is available", async () => {
@@ -70,7 +70,7 @@ describe("reportErrorOccurrence", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(sendBeacon).not.toHaveBeenCalled()
-    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit | undefined]
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit | undefined]
     expect(url).toBe("/api/v0/errors")
     expect(init?.method).toBe("POST")
     expect(init?.keepalive).toBe(true)
@@ -106,7 +106,7 @@ describe("reportErrorOccurrence", () => {
     await flushPendingErrorOccurrences({ transport: "exit" })
 
     expect(sendBeacon).toHaveBeenCalledTimes(1)
-    const [url, blob] = sendBeacon.mock.calls[0] as [string, Blob]
+    const [url, blob] = sendBeacon.mock.calls[0] as unknown as [string, Blob]
     expect(url).toBe("/api/v0/errors")
     expect(blob.type).toBe("application/json")
     expect(blob.size).toBe(new Blob([JSON.stringify(payload)]).size)

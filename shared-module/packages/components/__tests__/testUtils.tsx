@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
 import { fireEvent, render } from "@testing-library/react"
 import type React from "react"
@@ -13,7 +13,7 @@ export function renderUi(ui: React.ReactElement) {
   return render(ui)
 }
 
-type FormHarnessProps<T extends FieldValues> = {
+interface FormHarnessProps<T extends FieldValues> {
   defaultValues?: DefaultValues<T>
   children: (control: Control<T>) => React.ReactElement
 }
@@ -66,8 +66,12 @@ export function renderWithForm<T extends FieldValues>(
   }
 }
 
-export type StringFieldForm = { f: string }
-export type BooleanFieldForm = { f: boolean }
+export interface StringFieldForm {
+  f: string
+}
+export interface BooleanFieldForm {
+  f: boolean
+}
 
 /** Renders a field backed by `{ f: string }` (default `""`). */
 export function renderStringField(

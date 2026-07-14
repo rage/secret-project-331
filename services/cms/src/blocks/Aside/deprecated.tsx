@@ -1,10 +1,10 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { createBlock } from "@wordpress/blocks"
 import { omit } from "lodash"
 
-import { AsideComponentProps } from "."
+import type { AsideComponentProps } from "."
 
 import type { BlockDeprecation } from "@/utils/Gutenberg/types"
 
@@ -29,7 +29,7 @@ export const Deprecated1: BlockDeprecation<Deprecated1AsideComponentProps> = {
     },
   },
   save() {
-    return <></>
+    return null
   },
   isEligible: (attributes) => Boolean(attributes.title || attributes.bodyText),
   // @ts-expect-error: wat

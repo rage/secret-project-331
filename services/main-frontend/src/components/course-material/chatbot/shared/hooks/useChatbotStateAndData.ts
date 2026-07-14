@@ -1,8 +1,9 @@
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import chatbotReducer, { ChatbotAction, ChatbotState } from "../chatbotReducer"
+import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
+import chatbotReducer from "../chatbotReducer"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
@@ -88,47 +89,48 @@ const useChatbotStateAndData = (
       while (!done) {
         const { done: doneReading, value } = await reader.read()
         done = doneReading
-        if (value) {
-          const valueAsString = new TextDecoder().decode(value)
-          const lines = valueAsString.split("\n")
-          for (const line of lines) {
-            if (line?.indexOf("{") !== 0) {
-              continue
+        if (!value) {
+          continue
+        }
+        const valueAsString = new TextDecoder().decode(value)
+        const lines = valueAsString.split("\n")
+        for (const line of lines) {
+          if (line?.indexOf("{") !== 0) {
+            continue
+          }
+          try {
+            const parsedValue: ChatbotChatStreamEvent = JSON.parse(line)
+            if (parsedValue.type === "Delta") {
+              dispatch({
+                type: "RECEIVED_TEXT_DELTA",
+                payload: { text: parsedValue.data.text, message_id: parsedValue.data.message_id },
+              })
+            } else if (parsedValue.type === "Reasoning") {
+              dispatch(
+                parsedValue.data.finished
+                  ? {
+                      type: "REASONING_FINISHED",
+                      payload: { reasoning_id: parsedValue.data.reasoning_id },
+                    }
+                  : {
+                      type: "REASONING_IN_PROGRESS",
+                      payload: { reasoning_id: parsedValue.data.reasoning_id },
+                    },
+              )
+            } else if (parsedValue.type === "ToolCall") {
+              dispatch(
+                parsedValue.data.finished
+                  ? {
+                      type: "TOOL_CALL_FINISHED",
+                      payload: { tool_call_id: parsedValue.data.tool_call_id },
+                    }
+                  : { type: "TOOL_CALL_IN_PROGRESS", payload: { ...parsedValue.data } },
+              )
+            } else if (parsedValue.type === "Error") {
+              setError(parsedValue.data)
             }
-            try {
-              const parsedValue: ChatbotChatStreamEvent = JSON.parse(line)
-              if (parsedValue.type === "Delta") {
-                dispatch({
-                  type: "RECEIVED_TEXT_DELTA",
-                  payload: { text: parsedValue.data.text, message_id: parsedValue.data.message_id },
-                })
-              } else if (parsedValue.type === "Reasoning") {
-                if (parsedValue.data.finished) {
-                  dispatch({
-                    type: "REASONING_FINISHED",
-                    payload: { reasoning_id: parsedValue.data.reasoning_id },
-                  })
-                } else {
-                  dispatch({
-                    type: "REASONING_IN_PROGRESS",
-                    payload: { reasoning_id: parsedValue.data.reasoning_id },
-                  })
-                }
-              } else if (parsedValue.type === "ToolCall") {
-                if (parsedValue.data.finished) {
-                  dispatch({
-                    type: "TOOL_CALL_FINISHED",
-                    payload: { tool_call_id: parsedValue.data.tool_call_id },
-                  })
-                } else {
-                  dispatch({ type: "TOOL_CALL_IN_PROGRESS", payload: { ...parsedValue.data } })
-                }
-              } else if (parsedValue.type === "Error") {
-                setError(parsedValue.data)
-              }
-            } catch (e) {
-              console.error(e)
-            }
+          } catch (e) {
+            console.error(e)
           }
         }
       }
@@ -141,8 +143,8 @@ const useChatbotStateAndData = (
         dispatch({ type: "RESPONSE_COMPLETED" })
         setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
       },
-      onError: async (error) => {
-        setError(error)
+      onError: async (err) => {
+        setError(err)
         dispatch({ type: "RESPONSE_COMPLETED" })
         await currentConversationInfo.refetch()
       },

@@ -54,11 +54,13 @@ export function useRunOutput() {
     if (!worker) {
       return
     }
-    if (flushTimerRef.current != null) {
+    if (flushTimerRef.current !== null) {
       clearInterval(flushTimerRef.current)
       flushTimerRef.current = null
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
     worker.onmessage = null
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
     worker.onerror = null
     setPyodideLoading(false)
     setRunExecuting(false)
@@ -69,6 +71,7 @@ export function useRunOutput() {
   }, [])
 
   const runPython = useCallback(
+    // oxlint-disable-next-line eslint/require-await -- kept async; runPython is a public hook API callers may await
     async (contents: string) => {
       if (runExecuting) {
         stopRun()
@@ -100,6 +103,8 @@ export function useRunOutput() {
           return
         }
       }
+      // `worker` is non-null past the guard above; capture it so the closures below don't need `!`.
+      const activeWorker = worker
 
       const flushStdout = () => {
         const pending = runOutputBufferRef.current
@@ -108,7 +113,7 @@ export function useRunOutput() {
         }
         runOutputBufferRef.current = ""
         setSegments((prev) => {
-          const last = prev[prev.length - 1]
+          const last = prev.at(-1)
           if (last?.type === "stdout") {
             return [...prev.slice(0, -1), { type: "stdout", text: last.text + pending }]
           }
@@ -135,23 +140,27 @@ export function useRunOutput() {
             setWaitingForInput(true)
             break
           case "run_done":
-            if (flushTimerRef.current != null) {
+            if (flushTimerRef.current !== null) {
               clearInterval(flushTimerRef.current)
               flushTimerRef.current = null
             }
             flushStdout()
-            worker!.onmessage = null
-            worker!.onerror = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
+            activeWorker.onmessage = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
+            activeWorker.onerror = null
             finish(data.output ?? runOutputBufferRef.current, null)
             break
           case "run_error":
-            if (flushTimerRef.current != null) {
+            if (flushTimerRef.current !== null) {
               clearInterval(flushTimerRef.current)
               flushTimerRef.current = null
             }
             flushStdout()
-            worker!.onmessage = null
-            worker!.onerror = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
+            activeWorker.onmessage = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
+            activeWorker.onerror = null
             finish(data.output ?? runOutputBufferRef.current, data.message ?? "Unknown error")
             break
           default:
@@ -160,24 +169,29 @@ export function useRunOutput() {
       }
 
       const handleError = () => {
-        if (flushTimerRef.current != null) {
+        if (flushTimerRef.current !== null) {
           clearInterval(flushTimerRef.current)
           flushTimerRef.current = null
         }
         flushStdout()
-        worker!.onmessage = null
-        worker!.onerror = null
+        // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
+        activeWorker.onmessage = null
+        // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
+        activeWorker.onerror = null
         finish(runOutputBufferRef.current, "Worker error")
       }
 
-      if (flushTimerRef.current != null) {
+      if (flushTimerRef.current !== null) {
         clearInterval(flushTimerRef.current)
         flushTimerRef.current = null
       }
       flushTimerRef.current = setInterval(flushStdout, 50)
 
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       worker.onmessage = handleMessage
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       worker.onerror = handleError
+      // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
       worker.postMessage({ type: "run", script: contents })
     },
     [runExecuting, stopRun],

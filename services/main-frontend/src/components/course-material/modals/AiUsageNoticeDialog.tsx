@@ -65,7 +65,7 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
 
   // The link content is provided by the translation string via <Trans>, so the anchor has no
   // static children here.
-  // eslint-disable-next-line jsx-a11y/anchor-has-content
+  // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
   const guidelinesLink = <a href={guidelinesUrl} target="_blank" rel="noopener noreferrer" />
 
   const paragraphStyle = css`

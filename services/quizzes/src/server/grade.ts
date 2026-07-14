@@ -1,15 +1,15 @@
-import { UserAnswer } from "../../types/quizTypes/answer"
-import { ItemAnswerFeedback } from "../../types/quizTypes/grading"
-import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
+import type { UserAnswer } from "../../types/quizTypes/answer"
+import type { ItemAnswerFeedback } from "../../types/quizTypes/grading"
+import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 
 import { assessAnswers } from "@/grading/assessment"
 import { submissionFeedback } from "@/grading/feedback"
 import { gradeAnswers } from "@/grading/grading"
 import { handlePrivateSpecMigration, handleUserAnswerMigration } from "@/grading/utils"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import { ExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
+import type { ExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
 
 type QuizzesGradingRequest = GradingRequest<PrivateSpecQuiz, UserAnswer>
 

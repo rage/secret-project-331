@@ -40,7 +40,7 @@ const fileButtonLgCss = css`
   font-size: var(--font-size-lg);
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
 
 function resolveFileButtonSizeCss(fieldSize: FieldSize) {
@@ -49,7 +49,6 @@ function resolveFileButtonSizeCss(fieldSize: FieldSize) {
       return fileButtonSmCss
     case "lg":
       return fileButtonLgCss
-    case "md":
     default:
       return fileButtonMdCss
   }
@@ -195,6 +194,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
             </>
           </VisuallyHidden>
         ) : null}
+        {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> is inline, changes styling */}
         <div aria-live="polite" className={fileSummaryCss} role="status">
           {fileSummary}
         </div>

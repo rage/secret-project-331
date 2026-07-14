@@ -1,4 +1,4 @@
-import { OpenDialogMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { OpenDialogMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isDialogResponseMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 
 /**
@@ -24,9 +24,9 @@ export interface OpenDialogOptions {
  * `MessagePort` is structurally assignable to this.
  */
 export interface DialogCapableMessagePort {
-  postMessage(message: unknown): void
-  addEventListener(type: "message", listener: (event: MessageEvent) => void): void
-  removeEventListener(type: "message", listener: (event: MessageEvent) => void): void
+  postMessage: (message: unknown) => void
+  addEventListener: (type: "message", listener: (event: MessageEvent) => void) => void
+  removeEventListener: (type: "message", listener: (event: MessageEvent) => void) => void
 }
 
 /**
@@ -49,7 +49,7 @@ export class ParentDialogClient {
   private nextId = 0
   private disposed = false
 
-  constructor(port: DialogCapableMessagePort) {
+  public constructor(port: DialogCapableMessagePort) {
     this.port = port
     this.listener = (event) => this.handleMessage(event.data)
     this.port.addEventListener("message", this.listener)
@@ -60,7 +60,7 @@ export class ParentDialogClient {
    * (or acknowledged a warning), `false` if they cancelled. Resolves `false` if the client has been
    * disposed.
    */
-  openDialog(options: OpenDialogOptions): Promise<boolean> {
+  public openDialog(options: OpenDialogOptions): Promise<boolean> {
     if (this.disposed) {
       return Promise.resolve(false)
     }
@@ -77,12 +77,13 @@ export class ParentDialogClient {
     return new Promise<boolean>((resolve) => {
       // Register the resolver before posting so a response can never race ahead of it.
       this.pending.set(requestId, resolve)
+      // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
       this.port.postMessage(message)
     })
   }
 
   /** Removes the message listener and resolves any still-pending dialogs as not confirmed. */
-  dispose(): void {
+  public dispose(): void {
     if (this.disposed) {
       return
     }

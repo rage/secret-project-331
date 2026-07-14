@@ -56,7 +56,10 @@ export function useIntersectionObserver(
     undefined,
   )
   callbackRef.current = (entries) => {
-    const e = entries[entries.length - 1]
+    const e = entries.at(-1)
+    if (!e) {
+      return
+    }
     setEntry(e)
     setInView(e.isIntersecting)
     if (freezeOnceVisible && e.isIntersecting) {
@@ -95,7 +98,7 @@ export function useIntersectionObserver(
     refresh()
 
     return cleanup
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh])
 
   return { ref, entry, inView, refresh }

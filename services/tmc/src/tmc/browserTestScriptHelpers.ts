@@ -33,7 +33,7 @@ export async function readFilesByExtension(dir: string, extension: string): Prom
       content,
     })
   }
-  return files.sort((a, b) => a.shortName.localeCompare(b.shortName))
+  return files.toSorted((a, b) => a.shortName.localeCompare(b.shortName))
 }
 
 /**
@@ -41,5 +41,5 @@ export async function readFilesByExtension(dir: string, extension: string): Prom
  * Backslashes and """ are escaped so the result can be placed between """ delimiters.
  */
 export function escapeForTripleQuotedString(code: string): string {
-  return code.replace(/\\/g, "\\\\").replace(/"""/g, '\\"\\"\\"')
+  return code.replaceAll("\\", "\\\\").replaceAll('"""', '\\"\\"\\"')
 }

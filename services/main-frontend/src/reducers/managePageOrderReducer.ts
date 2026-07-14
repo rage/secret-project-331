@@ -1,5 +1,6 @@
 import { produce, type WritableDraft } from "immer"
-import { Dictionary, groupBy, mapValues, max, orderBy } from "lodash"
+import type { Dictionary } from "lodash"
+import { groupBy, mapValues, max, orderBy } from "lodash"
 
 import type { Chapter, CourseStructure, Page } from "@/generated/api/types.generated"
 
@@ -136,7 +137,7 @@ export default function managePageOrderReducer(
             // moving a page to a different chapter, the new location will be the last page of the new chapter
             const oldChapterPageList = draftState.chapterIdToPages?.[currentPageChapterId ?? "null"]
             const newChapterPageList = draftState.chapterIdToPages?.[chapterId ?? "null"]
-            const page = oldChapterPageList?.find((page) => page.id === pageId)
+            const page = oldChapterPageList?.find((p) => p.id === pageId)
 
             if (!page) {
               break
@@ -200,7 +201,7 @@ export default function managePageOrderReducer(
     if (draftState.chapters) {
       const chapters = draftState.chapters
       chapters
-        .sort((c1, c2) => c1.chapter_number - c2.chapter_number)
+        .toSorted((c1, c2) => c1.chapter_number - c2.chapter_number)
         .forEach((chapter, index) => {
           const expectedChapterNumber = index + 1
           if (chapter.chapter_number !== expectedChapterNumber) {
@@ -261,8 +262,8 @@ function moveChapterWithinChapterList(
     return
   }
 
-  const currentIndex = chapters.findIndex((c) => c.chapter_number == currentChapterNumber)
-  const targetIndex = chapters.findIndex((c) => c.chapter_number == targetChapterNumber)
+  const currentIndex = chapters.findIndex((c) => c.chapter_number === currentChapterNumber)
+  const targetIndex = chapters.findIndex((c) => c.chapter_number === targetChapterNumber)
 
   const temp = currentChapterNumber
   chapters[currentIndex].chapter_number = targetChapterNumber

@@ -6,7 +6,7 @@ import React, { useId } from "react"
 
 import BlockWrapper from "../BlockWrapper"
 
-import { HighlightAttributes } from "."
+import type { HighlightAttributes } from "."
 
 import { baseTheme, fontWeights, monospaceFont, primaryFont } from "@/shared-module/common/styles"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"

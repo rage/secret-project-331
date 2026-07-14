@@ -14,7 +14,8 @@ import type { DateValue } from "react-aria"
 import { useDateField, useDatePicker } from "react-aria"
 
 import { PickerSegmentedField } from "./PickerSegmentedField"
-import { dayGranularity, minuteGranularity } from "./segmentedDateInputFieldConstants"
+import type { dayGranularity } from "./segmentedDateInputFieldConstants"
+import { minuteGranularity } from "./segmentedDateInputFieldConstants"
 import { datePickerPopoverCss, dateTimePickerPopoverCss } from "./segmentedDateInputFieldStyles"
 import {
   parseDateLikeValue,
@@ -70,7 +71,7 @@ export function DateLikePickerInner({
   const state = useDateFieldState(dateFieldProps)
   const dateFieldAria = useDateField(dateFieldProps, state, base.fieldRef)
   const canClear =
-    currentValue != null || pickerState.dateValue != null || pickerState.timeValue != null
+    currentValue !== null || pickerState.dateValue !== null || pickerState.timeValue !== null
 
   return (
     <PickerSegmentedField

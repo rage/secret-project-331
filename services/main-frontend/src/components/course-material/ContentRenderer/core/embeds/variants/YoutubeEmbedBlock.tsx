@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import aspectRatioFromClassName from "@/utils/course-material/aspectRatioFromClassName"
@@ -117,6 +117,7 @@ export function parseYoutubeUrl(url: string): YouTubeVideoParams {
     COMMON_OPTIONS.forEach((option) => {
       const value = parsedUrl.searchParams.get(option)
       if (value !== null) {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- embedOptions initialized to {} above and never cleared
         result.embedOptions![option] = value
       }
     })
@@ -133,7 +134,7 @@ export function parseYoutubeUrl(url: string): YouTubeVideoParams {
         result.listType = YOUTUBE_PLAYLIST_TYPE
       }
     } else if (parsedUrl.hostname === "youtu.be") {
-      const pathId = parsedUrl.pathname.substring(1)
+      const pathId = parsedUrl.pathname.slice(1)
       result.videoId = pathId !== "" ? pathId : null
     }
 
@@ -184,16 +185,19 @@ export function parseTimeParameter(time: string): number {
 
   const hoursMatch = time.match(/(\d+)h/)
   if (hoursMatch) {
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
     seconds += parseInt(hoursMatch[1], 10) * 3600
   }
 
   const minutesMatch = time.match(/(\d+)m/)
   if (minutesMatch) {
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
     seconds += parseInt(minutesMatch[1], 10) * 60
   }
 
   const secondsMatch = time.match(/(\d+)s/)
   if (secondsMatch) {
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
     seconds += parseInt(secondsMatch[1], 10)
   }
 
@@ -225,13 +229,14 @@ export function buildYoutubeEmbedUrl(params: YouTubeVideoParams): string {
   }
 
   if (isPlaylistEmbed) {
-    queryParams.push(`${YOUTUBE_PARAM_LIST_TYPE}=${listType}`)
-    queryParams.push(`${YOUTUBE_PARAM_LIST}=${list}`)
+    queryParams.push(`${YOUTUBE_PARAM_LIST_TYPE}=${listType}`, `${YOUTUBE_PARAM_LIST}=${list}`)
   }
 
-  queryParams.push(`${YOUTUBE_PARAM_REL}=0`)
-  queryParams.push(`${YOUTUBE_PARAM_MODESTBRANDING}=1`)
-  queryParams.push(`${YOUTUBE_PARAM_ENABLEJSAPI}=1`)
+  queryParams.push(
+    `${YOUTUBE_PARAM_REL}=0`,
+    `${YOUTUBE_PARAM_MODESTBRANDING}=1`,
+    `${YOUTUBE_PARAM_ENABLEJSAPI}=1`,
+  )
 
   Object.entries(embedOptions).forEach(([key, value]) => {
     queryParams.push(`${key}=${value}`)
@@ -324,6 +329,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
     }
 
     if (iframeRef.current) {
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       iframeRef.current.onload = initializePlayer
 
       if (iframeRef.current.contentDocument?.readyState === "complete") {
@@ -421,6 +427,8 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
               src={embedUrl}
               title={t("title-youtube-video-player")}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              // Cross-origin YouTube player; both flags are required and the frame runs under youtube.com, not our origin.
+              // oxlint-disable-next-line react/iframe-missing-sandbox
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"
               allowFullScreen
               data-testid="youtube-player-iframe"

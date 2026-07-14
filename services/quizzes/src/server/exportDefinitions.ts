@@ -169,7 +169,6 @@ function getTypeSpecificDefinitionColumns(
       return MATRIX_DEFINITION_COLUMNS
     case "timeline":
       return getTimelineDefinitionColumns(getMaxTimelineItemCount(privateSpecQuiz))
-    case "checkbox":
     default:
       return []
   }
@@ -288,7 +287,6 @@ function buildDefinitionRow(
 
       return row
     }
-    case "checkbox":
     default:
       return baseRow
   }

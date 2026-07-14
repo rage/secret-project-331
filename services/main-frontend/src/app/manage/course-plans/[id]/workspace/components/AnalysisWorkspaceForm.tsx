@@ -192,7 +192,7 @@ export default function AnalysisWorkspaceForm(props: {
                 control={control}
                 rules={{
                   setValueAs: (v: unknown) =>
-                    v === "" || v == null ? null : (v as AnalysisCourseType),
+                    v === "" || v === null || v === undefined ? null : (v as AnalysisCourseType),
                 }}
                 label={t("course-plans-analysis-field-course-type")}
                 options={[

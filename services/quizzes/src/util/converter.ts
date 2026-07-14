@@ -41,7 +41,7 @@ export const convertPublicSpecFromPrivateSpec = (quiz: PrivateSpecQuiz) => {
   quiz.items.forEach((quizItem) => {
     const privateSpecQuizItem: PublicSpecQuizItem | null =
       convertPublicSpecItemFromPrivateSpecItem(quizItem)
-    if (privateSpecQuizItem != null) {
+    if (privateSpecQuizItem !== null) {
       publicQuiz.items.push(privateSpecQuizItem)
     }
   })
@@ -52,7 +52,7 @@ export const convertPublicSpecFromPrivateSpec = (quiz: PrivateSpecQuiz) => {
 export const convertPublicSpecItemFromPrivateSpecItem = (
   quizItem: PrivateSpecQuizItem | null,
 ): PublicSpecQuizItem | null => {
-  if (quizItem == null) {
+  if (quizItem === null) {
     return null
   }
   if (quizItem.type === "checkbox") {

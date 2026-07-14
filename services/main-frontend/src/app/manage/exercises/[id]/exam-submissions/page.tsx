@@ -35,6 +35,7 @@ const GradingPage: React.FC = () => {
   const examId = getSubmissions.data?.data[0]?.exercise.exam_id
   const getExam = useQuery({
     queryKey: ["getExam", examId],
+    // oxlint-disable-next-line require-await -- async so the throw rejects the query promise
     queryFn: async () =>
       getExamFromApi({
         path: {
@@ -47,14 +48,14 @@ const GradingPage: React.FC = () => {
   usePageTitle(joinTitleSegments([t("header-submissions"), getExam.data?.name]), { order: 10 })
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
-    const pieces = [
+    const breadcrumbPieces = [
       // oxlint-disable-next-line i18next/no-literal-string
       { text: t("link-manage"), url: `/manage/exams/${examId}` },
       // oxlint-disable-next-line i18next/no-literal-string
       { text: t("questions"), url: `/manage/exams/${examId}/questions` },
       { text: t("header-submissions"), url: "" },
     ]
-    return pieces
+    return breadcrumbPieces
   }, [examId, t])
 
   return (

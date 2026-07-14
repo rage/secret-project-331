@@ -89,7 +89,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
     })
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (
@@ -115,7 +115,8 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               return
             }
             try {
-              draft.n = parseInt(value)
+              // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+              draft.n = parseInt(value, 10)
             } catch (_e) {
               /* NOP */
             }
@@ -140,16 +141,16 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               title,
               messageAfterSubmissionWhenThisOptionSelected,
               messageOnModelSolutionWhenThisOptionSelected,
-              correct,
+              correctValue,
             ) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
                 draft.options = draft.options.map((opt) => {
-                  if (opt.id == option.id) {
+                  if (opt.id === option.id) {
                     opt.title = title
-                    opt.correct = correct
+                    opt.correct = correctValue
                     opt.messageAfterSubmissionWhenSelected =
                       messageAfterSubmissionWhenThisOptionSelected
                     opt.additionalCorrectnessExplanationOnModelSolution =

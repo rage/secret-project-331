@@ -156,15 +156,15 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
         <RegexTableHeaderCell> {t("format")} </RegexTableHeaderCell>
         <RegexTableHeaderCell> {t("validation")} </RegexTableHeaderCell>
       </tr>
-      {result.map((result, idx) => (
+      {result.map((row, idx) => (
         <tr key={`test-table-row-${idx}`}>
-          <RegexTableStringCell> {result.string} </RegexTableStringCell>
-          {result.format ? (
+          <RegexTableStringCell> {row.string} </RegexTableStringCell>
+          {row.format ? (
             <RegexTableCorrectCell> {t("passed")} </RegexTableCorrectCell>
           ) : (
             <RegexTableFailedCell> {t("failed")} </RegexTableFailedCell>
           )}
-          {result.validation ? (
+          {row.validation ? (
             <RegexTableCorrectCell> {t("passed")} </RegexTableCorrectCell>
           ) : (
             <RegexTableFailedCell> {t("failed")} </RegexTableFailedCell>
@@ -206,7 +206,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
   const handleTestStringChange = (updatedIdx: number) => (value: string) => {
     setTestStrings(
       testStrings.map((content, idx) => {
-        if (idx == updatedIdx) {
+        if (idx === updatedIdx) {
           return value
         }
         return content
@@ -237,18 +237,18 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
       <OptionTitle> {t("grading-strategy")} </OptionTitle>
       <RadioButtonContainer>
         <RadioButton
-          checked={method == 0}
+          checked={method === 0}
           onClick={() => setMethod(0)}
           label={t("exact-string")}
         ></RadioButton>
         <RadioButton
-          checked={method == 1}
+          checked={method === 1}
           onClick={() => setMethod(1)}
           label={t("regex")}
         ></RadioButton>
       </RadioButtonContainer>
 
-      {method == 0 && (
+      {method === 0 && (
         <>
           <SelectField
             id="regex-pattern-select"
@@ -278,7 +278,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
           />
         </>
       )}
-      {method == 1 && (
+      {method === 1 && (
         <>
           <TextField
             value={convertToString(selected.validityRegex)}

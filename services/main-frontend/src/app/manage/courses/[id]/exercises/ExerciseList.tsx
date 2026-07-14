@@ -134,7 +134,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                           `}
                         >
                           {courseExercises
-                            .filter((ex) => ex.page_id == page.id)
+                            .filter((ex) => ex.page_id === page.id)
                             .toSorted((ex1, ex2) => ex1.order_number - ex2.order_number)
                             .map((exercise) => (
                               <li

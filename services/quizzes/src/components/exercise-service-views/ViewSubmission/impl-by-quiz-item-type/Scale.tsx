@@ -21,6 +21,7 @@ const Scale: React.FC<
 
   return (
     <div
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- div+role=group keeps emotion flex layout; fieldset adds UA styling
       role="group"
       aria-labelledby={radioLabelId}
       className={css`
@@ -116,6 +117,7 @@ const Scale: React.FC<
                   value={value}
                   checked={user_quiz_item_answer?.intData.toString() === value}
                   disabled
+                  readOnly
                 />
                 <span>{value}</span>
               </label>

@@ -16,13 +16,16 @@ import type { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTy
 import type { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
 
 const convertIntDataForScale = (quizItemAnswer: OldQuizItemAnswer) => {
-  if (!quizItemAnswer.intData) {
-    if (quizItemAnswer.optionAnswers && quizItemAnswer.optionAnswers.length > 0) {
-      try {
-        return Number.parseInt(quizItemAnswer.optionAnswers[0])
-      } catch (_e) {
-        console.error("Scale does not have int data: ", quizItemAnswer)
-      }
+  if (
+    !quizItemAnswer.intData &&
+    quizItemAnswer.optionAnswers &&
+    quizItemAnswer.optionAnswers.length > 0
+  ) {
+    try {
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+      return Number.parseInt(quizItemAnswer.optionAnswers[0], 10)
+    } catch (_e) {
+      console.error("Scale does not have int data: ", quizItemAnswer)
     }
   }
   return quizItemAnswer.intData
@@ -61,7 +64,7 @@ const migrateQuizItemAnswer = (
       return {
         id: quizItemAnswer.id,
         type: "checkbox",
-        checked: quizItemAnswer.intData == 1,
+        checked: quizItemAnswer.intData === 1,
         quizItemId: quizItemAnswer.quizItemId,
         valid: quizItemAnswer.valid,
       } as UserItemAnswerCheckbox

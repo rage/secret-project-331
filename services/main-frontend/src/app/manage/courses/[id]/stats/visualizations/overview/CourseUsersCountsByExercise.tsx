@@ -79,7 +79,7 @@ const CourseUsersCountsByExercise: React.FC<
                 margin-bottom: 2rem;
               `}
             >
-              {result.map((data) => (
+              {result.map((chapterData) => (
                 <div
                   className={css`
                     margin-bottom: 1.5rem;
@@ -87,7 +87,7 @@ const CourseUsersCountsByExercise: React.FC<
                     border-radius: 6px;
                     padding: 1rem;
                   `}
-                  key={JSON.stringify(data[0])}
+                  key={JSON.stringify(chapterData[0])}
                 >
                   <div>
                     <h3
@@ -95,11 +95,13 @@ const CourseUsersCountsByExercise: React.FC<
                         color: ${baseTheme.colors.gray[400]};
                         font-size: 1.3rem;
                       `}
-                    >{`${t("chapter")} ${data[0].chapter_number}`}</h3>
+                    >{`${t("chapter")} ${chapterData[0].chapter_number}`}</h3>
                   </div>
                   <Echarts
                     height={Math.max(
-                      data.length > 2 ? data.length * 100 : (data.length + 1) * 100,
+                      chapterData.length > 2
+                        ? chapterData.length * 100
+                        : (chapterData.length + 1) * 100,
                       230,
                     )}
                     options={{
@@ -120,23 +122,23 @@ const CourseUsersCountsByExercise: React.FC<
                       },
                       yAxis: {
                         type: "category",
-                        data: data.map((o) => o.exercise_name || o.exercise_id || ""),
+                        data: chapterData.map((o) => o.exercise_name || o.exercise_id || ""),
                       },
                       series: [
                         {
                           name: t("number-of-users-attempted-the-exercise"),
                           type: "bar",
-                          data: data.map((o) => o.n_users_attempted),
+                          data: chapterData.map((o) => o.n_users_attempted),
                         },
                         {
                           name: t("number-of-users-with-some-points"),
                           type: "bar",
-                          data: data.map((o) => o.n_users_with_some_points),
+                          data: chapterData.map((o) => o.n_users_with_some_points),
                         },
                         {
                           name: t("number-of-users-with-max-points"),
                           type: "bar",
-                          data: data.map((o) => o.n_users_with_max_points),
+                          data: chapterData.map((o) => o.n_users_with_max_points),
                         },
                       ],
                     }}

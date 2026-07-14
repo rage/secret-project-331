@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import Link from "next/link"
-import React, { Fragment } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import ArrowSVGIcon from "../img/arrow.svg"
@@ -106,196 +106,194 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
           </StyledLink>
         )}
 
-        <Fragment>
-          <h2
-            className={css`
-              font-size: clamp(28px, 3vw, 2rem);
-              line-height: 1.3;
-              font-weight: 600;
-              opacity: 0.9;
-              color: ${baseTheme.colors.gray[700]};
-            `}
-          >
-            {title}
-          </h2>
-          <p
-            className={css`
-              font-size: 18px;
-              color: ${baseTheme.colors.gray[700]};
-              font-weight: 500;
-              margin: 0.3rem 0;
-              padding: 0;
-              display: flex;
+        <h2
+          className={css`
+            font-size: clamp(28px, 3vw, 2rem);
+            line-height: 1.3;
+            font-weight: 600;
+            opacity: 0.9;
+            color: ${baseTheme.colors.gray[700]};
+          `}
+        >
+          {title}
+        </h2>
+        <p
+          className={css`
+            font-size: 18px;
+            color: ${baseTheme.colors.gray[700]};
+            font-weight: 500;
+            margin: 0.3rem 0;
+            padding: 0;
+            display: flex;
 
-              ${respondToOrLarger.md} {
-                font-size: 20px;
+            ${respondToOrLarger.md} {
+              font-size: 20px;
+            }
+          `}
+        >
+          {subtitle}
+        </p>
+        <div
+          className={css`
+            display: grid;
+            grid-template-columns: ${previous ? "60px 1fr" : "1fr"};
+            column-gap: 10px;
+            margin-top: 1.5rem;
+
+            ${respondToOrLarger.md} {
+              grid-template-columns: ${previous ? "80px 1fr" : "1fr"};
+              column-gap: 12px;
+            }
+          `}
+        >
+          {previous && (
+            <Link href={previous} aria-label={t("previous-page")}>
+              <div
+                className={css`
+                  background: ${baseTheme.colors.green[100]};
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 100%;
+
+                  &:hover {
+                    filter: brightness(95%) contrast(110%);
+                    cursor: pointer;
+                  }
+
+                  svg {
+                    fill: #44827e;
+                    width: 30%;
+                    ${respondToOrLarger.md} {
+                      width: 100%;
+                    }
+                  }
+                `}
+              >
+                <BackArrowIcon
+                  id="back-arrow-icon"
+                  role="presentation"
+                  alt=""
+                  width="25"
+                  height="25"
+                  viewBox="0 0 39 39"
+                />
+              </div>
+            </Link>
+          )}
+          <LinkOrNoLink
+            url={url}
+            linkClassName={css`
+              overflow: hidden;
+              text-decoration: none;
+              &:focus-visible {
+                outline: 2px solid ${baseTheme.colors.green[500]};
+                outline-offset: 2px;
               }
             `}
           >
-            {subtitle}
-          </p>
-          <div
-            className={css`
-              display: grid;
-              grid-template-columns: ${previous ? "60px 1fr" : "1fr"};
-              column-gap: 10px;
-              margin-top: 1.5rem;
-
-              ${respondToOrLarger.md} {
-                grid-template-columns: ${previous ? "80px 1fr" : "1fr"};
-                column-gap: 12px;
-              }
-            `}
-          >
-            {previous && (
-              <Link href={previous} aria-label={t("previous-page")}>
-                <div
-                  className={css`
-                    background: ${baseTheme.colors.green[100]};
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100%;
-
-                    &:hover {
-                      filter: brightness(95%) contrast(110%);
-                      cursor: pointer;
-                    }
-
-                    svg {
-                      fill: #44827e;
-                      width: 30%;
-                      ${respondToOrLarger.md} {
-                        width: 100%;
-                      }
-                    }
-                  `}
-                >
-                  <BackArrowIcon
-                    id="back-arrow-icon"
-                    role="presentation"
-                    alt=""
-                    width="25"
-                    height="25"
-                    viewBox="0 0 39 39"
-                  />
-                </div>
-              </Link>
-            )}
-            <LinkOrNoLink
-              url={url}
-              linkClassName={css`
-                overflow: hidden;
-                text-decoration: none;
-                &:focus-visible {
-                  outline: 2px solid ${baseTheme.colors.green[500]};
-                  outline-offset: 2px;
+            <div
+              className={css`
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                transition: filter 0.2s;
+                cursor: ${url ? "pointer" : "not-allowed"};
+                &:hover {
+                  text-decoration: none;
+                  filter: brightness(92%) contrast(110%);
                 }
               `}
             >
               <div
                 className={css`
-                  display: flex;
-                  flex-direction: row;
+                  background-color: ${url
+                    ? baseTheme.colors.green[600]
+                    : baseTheme.colors.gray[600]};
+
+                  flex: 1;
+                  line-height: 1.3;
                   width: 100%;
-                  transition: filter 0.2s;
-                  cursor: ${url ? "pointer" : "not-allowed"};
-                  &:hover {
-                    text-decoration: none;
-                    filter: brightness(92%) contrast(110%);
+                  padding: 1.2rem 1rem;
+
+                  overflow: hidden;
+                  white-space: nowrap;
+                  text-overflow: ellipsis;
+                  display: inline-grid;
+
+                  .next-page-title {
+                    display: block;
+                    width: 100%;
+                    font-size: ${typography.h5};
+                    font-weight: 600;
+                    color: #fff;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                  }
+                  .next-page-subtitle {
+                    font-weight: medium;
+                    color: #dae6e5;
+                    font-size: 15px;
+
+                    ${respondToOrLarger.md} {
+                      font-size: ${typography.paragraph};
+                    }
+                  }
+
+                  ${respondToOrLarger.md} {
+                    width: 68%;
+                    padding: 1.2rem 1.8rem;
                   }
                 `}
               >
-                <div
-                  className={css`
-                    background-color: ${url
-                      ? baseTheme.colors.green[600]
-                      : baseTheme.colors.gray[600]};
-
-                    flex: 1;
-                    line-height: 1.3;
-                    width: 100%;
-                    padding: 1.2rem 1rem;
-
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    display: inline-grid;
-
-                    .next-page-title {
-                      display: block;
-                      width: 100%;
-                      font-size: ${typography.h5};
-                      font-weight: 600;
-                      color: #fff;
-                      white-space: nowrap;
-                      text-overflow: ellipsis;
-                      overflow: hidden;
-                    }
-                    .next-page-subtitle {
-                      font-weight: medium;
-                      color: #dae6e5;
-                      font-size: 15px;
-
-                      ${respondToOrLarger.md} {
-                        font-size: ${typography.paragraph};
-                      }
-                    }
-
-                    ${respondToOrLarger.md} {
-                      width: 68%;
-                      padding: 1.2rem 1.8rem;
-                    }
-                  `}
-                >
-                  <span className="next-page-subtitle">{t("next-page")}:</span>
-                  <span className="next-page-title">
-                    <HideTextInSystemTests
-                      text={nextTitle}
-                      testPlaceholder={"Title of the next page"}
-                    />
-                  </span>
-                </div>
-                <div
-                  className={css`
-                    color: white;
-                    padding: 16px 16px 16px 0;
-                    background-color: ${url
-                      ? baseTheme.colors.green[600]
-                      : baseTheme.colors.gray[600]};
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-
-                    .arrow {
-                      fill: #fff;
-                    }
-
-                    ${respondToOrLarger.sm} {
-                      padding: 1.6rem;
-                      width: auto;
-                    }
-
-                    svg {
-                      width: auto;
-                    }
-                  `}
-                >
-                  {url && (
-                    <ArrowSVGIcon
-                      id="right-svg-icon"
-                      role="presentation"
-                      alt=""
-                      width="30"
-                      height="30"
-                      viewBox="0 0 39 39"
-                    />
-                  )}
-                </div>
+                <span className="next-page-subtitle">{t("next-page")}:</span>
+                <span className="next-page-title">
+                  <HideTextInSystemTests
+                    text={nextTitle}
+                    testPlaceholder={"Title of the next page"}
+                  />
+                </span>
               </div>
-            </LinkOrNoLink>
-          </div>
-        </Fragment>
+              <div
+                className={css`
+                  color: white;
+                  padding: 16px 16px 16px 0;
+                  background-color: ${url
+                    ? baseTheme.colors.green[600]
+                    : baseTheme.colors.gray[600]};
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+
+                  .arrow {
+                    fill: #fff;
+                  }
+
+                  ${respondToOrLarger.sm} {
+                    padding: 1.6rem;
+                    width: auto;
+                  }
+
+                  svg {
+                    width: auto;
+                  }
+                `}
+              >
+                {url && (
+                  <ArrowSVGIcon
+                    id="right-svg-icon"
+                    role="presentation"
+                    alt=""
+                    width="30"
+                    height="30"
+                    viewBox="0 0 39 39"
+                  />
+                )}
+              </div>
+            </div>
+          </LinkOrNoLink>
+        </div>
       </div>
     </Wrapper>
   )

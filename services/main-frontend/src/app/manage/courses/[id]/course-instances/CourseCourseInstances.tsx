@@ -99,6 +99,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
   const [showDialog, setShowDialog] = useState(false)
   const getCourseInstances = useCourseInstancesQuery(courseId)
 
+  // oxlint-disable-next-line require-await -- onSubmit prop is typed () => Promise<void>
   const handleCreateNewCourseInstance = async () => {
     setShowDialog(false)
     invalidateCourseInstances(courseId)

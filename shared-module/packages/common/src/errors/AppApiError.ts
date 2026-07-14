@@ -136,6 +136,7 @@ export function extractRetryAfterSeconds(headers: Headers | null | undefined): n
   if (!raw) {
     return null
   }
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
   const parsed = Number.parseInt(raw, 10)
   return Number.isFinite(parsed) ? parsed : null
 }

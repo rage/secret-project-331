@@ -19,7 +19,10 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
   const { t } = useTranslation()
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
   const passed =
-    grading != null && grading.score_given >= grading.score_maximum && grading.score_maximum > 0
+    grading !== null &&
+    grading !== undefined &&
+    grading.score_given >= grading.score_maximum &&
+    grading.score_maximum > 0
 
   const { editorFiles, editorKey, setEditorState, resetToInitial } = useEditorState(
     initialState,
@@ -50,10 +53,10 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
   const isPython = filepath.endsWith(".py")
   const runDisabled = pyodideLoading || runExecuting
   const hasBrowserTestScript =
-    publicSpec.browser_test != null && publicSpec.browser_test.script.length > 0
+    publicSpec.browser_test !== undefined && publicSpec.browser_test.script.length > 0
   const canRunBrowserTest =
     hasBrowserTestScript &&
-    (publicSpec.browser_test?.runtime == null ||
+    (publicSpec.browser_test?.runtime === undefined ||
       isSupportedForBrowserTest(filepath, publicSpec.browser_test.runtime))
   const testDisabled = runDisabled || testInProgress || !canRunBrowserTest
   const showRun = !runExecuting && !pyodideLoading
@@ -62,14 +65,14 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
     (pyodideLoading ||
       runExecuting ||
       !!runOutput ||
-      runError != null ||
+      runError !== null ||
       waitingForInput ||
       testInProgress ||
-      testResults != null)
+      testResults !== null)
   const outputMode: "run" | "test-running" | "test-results" = testInProgress
     ? // oxlint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
       "test-running"
-    : lastOutputKind === "test" && testResults != null
+    : lastOutputKind === "test" && testResults !== null
       ? // oxlint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
         "test-results"
       : // oxlint-disable-next-line i18next/no-literal-string -- internal mode value (not user-facing text)
@@ -77,7 +80,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
 
   return (
     <Card>
-      {grading != null && (
+      {grading !== null && grading !== undefined && (
         <div
           className={css`
             margin-bottom: 1rem;
@@ -97,7 +100,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
                 score: grading.score_given,
                 max: grading.score_maximum,
               })}
-          {grading.feedback_text != null && grading.feedback_text.trim() !== "" && (
+          {grading.feedback_text !== null && grading.feedback_text.trim() !== "" && (
             <div
               className={css`
                 margin-top: 0.5rem;

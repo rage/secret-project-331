@@ -117,13 +117,14 @@ export function defaultAnalysisWorkspaceV1(): AnalysisWorkspaceV1 {
 export function parseAnalysisWorkspaceFromApi(
   raw: unknown | null | undefined,
 ): AnalysisWorkspaceV1 {
-  if (raw == null || typeof raw !== "object") {
+  if (raw === null || raw === undefined || typeof raw !== "object") {
     return defaultAnalysisWorkspaceV1()
   }
   const value = raw as { schema?: string; payload?: unknown }
   if (
     value.schema === ANALYSIS_WORKSPACE_SCHEMA_V1 &&
-    value.payload != null &&
+    value.payload !== null &&
+    value.payload !== undefined &&
     typeof value.payload === "object"
   ) {
     return { ...defaultAnalysisWorkspaceV1(), ...(value.payload as AnalysisWorkspaceV1) }
@@ -155,7 +156,8 @@ export function buildCreditsFieldRules(t: TFunction) {
   return {
     setValueAs: stringToNumberOrNull,
     validate: (v: unknown) =>
-      v == null ||
+      v === null ||
+      v === undefined ||
       (typeof v === "number" && Number.isFinite(v)) ||
       t("course-plans-analysis-error-credits-invalid"),
   }

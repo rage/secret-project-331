@@ -23,7 +23,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
   useEffect(() => requestRepositoryExercises(), [])
 
   // cms editor view
-  if (state.private_spec == null) {
+  if (state.private_spec === null) {
     // no exercise selected yet: treat null/undefined as loading, [] as empty
     const repository_exercises = state.repository_exercises
     if (repository_exercises === null || repository_exercises === undefined) {
@@ -41,10 +41,10 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
                 variant="primary"
                 size="medium"
                 onClick={() =>
-                  setState((state) => {
-                    if (state?.view_type === "exercise-editor") {
+                  setState((prev) => {
+                    if (prev?.view_type === "exercise-editor") {
                       return {
-                        ...state,
+                        ...prev,
                         private_spec: {
                           type: "editor",
                           repository_exercise: re,

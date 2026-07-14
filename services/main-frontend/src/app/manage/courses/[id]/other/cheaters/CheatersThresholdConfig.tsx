@@ -335,9 +335,11 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                         aria-labelledby={`duration-header ${labelId}`}
                         value={displayedValue}
                         onChangeByValue={(value: string) => {
+                          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
                           const parsed = parseFloat(value)
                           setModuleThresholds((prev) => {
                             const next = new Map(prev)
+                            // oxlint-disable-next-line unicorn/no-immediate-mutation -- intended immutable copy-then-set; folding breaks tuple inference
                             next.set(module.id, Number.isFinite(parsed) ? parsed : undefined)
                             return next
                           })

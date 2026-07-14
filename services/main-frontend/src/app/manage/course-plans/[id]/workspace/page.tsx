@@ -585,7 +585,7 @@ function CoursePlanWorkspacePage() {
                 : null
 
               const viewedStageData =
-                viewedStage != null
+                viewedStage !== null
                   ? (stages.find((stage) => stage.stage === viewedStage) ?? null)
                   : null
 
@@ -623,7 +623,7 @@ function CoursePlanWorkspacePage() {
                 : null
 
               const currentPhaseEndDateFormatted =
-                currentStageData?.planned_ends_on != null
+                currentStageData?.planned_ends_on !== undefined
                   ? new Date(currentStageData.planned_ends_on).toLocaleDateString(i18n.language, {
                       // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
                       month: "long",
@@ -633,11 +633,11 @@ function CoursePlanWorkspacePage() {
                   : null
 
               const activeStageTaskCompleted =
-                currentStageData?.tasks != null
+                currentStageData?.tasks !== undefined
                   ? currentStageData.tasks.filter((task) => task.is_completed).length
                   : 0
               const activeStageTaskTotal =
-                currentStageData?.tasks != null ? currentStageData.tasks.length : 0
+                currentStageData?.tasks !== undefined ? currentStageData.tasks.length : 0
               const currentStageIndex = currentStage
                 ? SCHEDULE_STAGE_ORDER.indexOf(currentStage)
                 : -1

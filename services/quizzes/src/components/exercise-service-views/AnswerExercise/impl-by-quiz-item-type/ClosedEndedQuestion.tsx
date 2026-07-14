@@ -98,7 +98,7 @@ const answerFormatIsValidAgainstRegex = (
   answer: string | undefined,
   validatorRegex: string | undefined,
 ): boolean => {
-  if (answer?.length == 0) {
+  if (answer?.length === 0) {
     return true
   }
   if (!answer || !validatorRegex) {

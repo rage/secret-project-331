@@ -130,7 +130,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
 
   const maxPart = max(courseStructure.chapters.map((p) => p.chapter_number))
 
-  const openEditor = async () => {
+  const openEditor = () => {
     window.location.assign(`/cms/partners-block/${courseStructure.course.id}/edit`)
   }
 

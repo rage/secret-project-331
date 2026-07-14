@@ -37,7 +37,7 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
         testRequestResponse={testRequestResponse}
         setState={setState}
         grading={grading}
-        readOnly={grading != null}
+        readOnly={grading !== null && grading !== undefined}
       />
     )
   } else if (userAnswer.type === "editor") {

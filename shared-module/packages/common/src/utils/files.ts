@@ -59,7 +59,7 @@ export function fileMatchesType(file: File, typesAndExtensions: string[] | undef
   }
 
   const extensionIndex = file.name.lastIndexOf(".")
-  const fileExtension = extensionIndex > 0 ? file.name.substring(extensionIndex) : undefined
+  const fileExtension = extensionIndex > 0 ? file.name.slice(extensionIndex) : undefined
   const fileType = file.type || undefined
 
   return typesAndExtensions.some((type) => {
@@ -88,7 +88,7 @@ export function fileMatchAudio(file: File): Record<string, string | undefined> |
   }
 
   const extensionIndex = file.name.lastIndexOf(".")
-  const fileExtension = extensionIndex > 0 ? file.name.substring(extensionIndex) : undefined
+  const fileExtension = extensionIndex > 0 ? file.name.slice(extensionIndex) : undefined
   const fileType = file.type || undefined
 
   return { extension: fileExtension, type: fileType }

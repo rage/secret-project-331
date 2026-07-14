@@ -88,7 +88,7 @@ export function useIframeProtocol() {
     })
   }
 
-  const port = useExerciseServiceParentConnection((messageData, port) => {
+  const port = useExerciseServiceParentConnection((messageData, messagePort) => {
     if (isMessageToIframe(messageData)) {
       debug("Received message:", messageData)
       if (messageData.message === "set-state") {
@@ -142,7 +142,7 @@ export function useIframeProtocol() {
       } else if (messageData.message === "upload-result") {
         setFileUploadResponse(messageData)
         if (messageData.success) {
-          setStateAndSend(port, (old) => {
+          setStateAndSend(messagePort, (old) => {
             if (old && old.view_type === "answer-exercise" && old.user_answer.type === "editor") {
               const urls = messageData.urls
               const archiveDownloadUrl =
@@ -197,8 +197,7 @@ export function useIframeProtocol() {
     setStateAndSend: (updater: (s: ExerciseIframeState | null) => ExerciseIframeState | null) =>
       setStateAndSend(port, updater),
     sendFileUploadMessage: (filename: string, file: File) => {
-      const files = new Map<string, string | Blob>()
-      files.set(filename, file)
+      const files = new Map<string, string | Blob>([[filename, file]])
       sendFileUploadMsg(port, files)
     },
     requestRepositoryExercises: () => requestRepoExercises(port),

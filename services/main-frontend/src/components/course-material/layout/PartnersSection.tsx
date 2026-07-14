@@ -74,7 +74,7 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
               const isSvgUrl = url.endsWith(".svg")
 
               // Conditionally return image wrapped in a link or just the image based on whether 'link' is available
-              return linkDestination == "custom" ? (
+              return linkDestination === "custom" ? (
                 <a
                   key={block.clientId}
                   href={formattedLink}
@@ -97,6 +97,7 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
                 </figure>
               )
             }
+            return null
           })}
         </div>
       )}

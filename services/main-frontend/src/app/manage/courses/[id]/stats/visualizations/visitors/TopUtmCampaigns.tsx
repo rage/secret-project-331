@@ -45,7 +45,7 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
     ).reduce((acc, utm_campaign) => {
       const totalCount = query.data
         .filter((item) => item.utm_campaign === utm_campaign)
-        .reduce((acc, item) => acc + item.num_visitors, 0)
+        .reduce((sum, item) => sum + item.num_visitors, 0)
       // oxlint-disable-next-line i18next/no-literal-string
       return { ...acc, [utm_campaign ?? "null"]: totalCount }
     }, {})

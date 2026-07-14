@@ -28,11 +28,11 @@ const ExerciseSettingsEditor = () => {
   const courseQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
         getCmsCourseOptions({
           path: {
-            course_id: courseId,
+            course_id: value,
           },
         }),
     }),
@@ -68,7 +68,8 @@ const ExerciseSettingsEditor = () => {
         value={attributes.score_maximum?.toString() ?? ""}
         type="number"
         onChangeByValue={(value) => {
-          const parsed = parseInt(value)
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+          const parsed = parseInt(value, 10)
           if (isNaN(parsed)) {
             // empty
             setAttributes({ score_maximum: undefined })
@@ -109,7 +110,8 @@ const ExerciseSettingsEditor = () => {
           disabled={!attributes.limit_number_of_tries}
           type="number"
           onChangeByValue={(value) => {
-            const parsed = parseInt(value)
+            // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+            const parsed = parseInt(value, 10)
             if (isNaN(parsed)) {
               // empty
               setAttributes({ max_tries_per_slide: undefined })

@@ -101,6 +101,7 @@ function enforceExerciseIdDefined(
 ): ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseAttributes>>> {
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || DEFAULT_DISPLAY_NAME
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- closes over WrappedComponent; cannot be hoisted
   const InnerComponent = (props: BlockEditProps<ExerciseAttributes>) => {
     const { attributes, setAttributes } = props
 

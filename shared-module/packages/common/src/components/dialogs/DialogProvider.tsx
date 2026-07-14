@@ -235,6 +235,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
               />
             )
         }
+        return null
       })}
     </DialogContext.Provider>
   )

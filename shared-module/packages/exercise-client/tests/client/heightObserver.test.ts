@@ -2,6 +2,13 @@ import { observeHeight } from "../../src/client/heightObserver"
 import type { MockMessagePort } from "../utils/iframeTestUtils"
 import { createMockMessagePort } from "../utils/iframeTestUtils"
 
+const makeElement = () => {
+  let height = 0
+  const element = document.createElement("div")
+  element.getBoundingClientRect = () => ({ height }) as DOMRect
+  return { element, setHeight: (value: number) => (height = value) }
+}
+
 describe("observeHeight", () => {
   let resizeCallbacks: (() => void)[]
   let originalResizeObserver: typeof ResizeObserver
@@ -26,13 +33,6 @@ describe("observeHeight", () => {
     jest.useRealTimers()
     ;(global as { ResizeObserver: unknown }).ResizeObserver = originalResizeObserver
   })
-
-  const makeElement = () => {
-    let height = 0
-    const element = document.createElement("div")
-    element.getBoundingClientRect = () => ({ height }) as DOMRect
-    return { element, setHeight: (value: number) => (height = value) }
-  }
 
   const triggerResize = () => resizeCallbacks.forEach((callback) => callback())
 

@@ -39,7 +39,7 @@ const blockLibrary = require("@wordpress/block-library")
 // oxlint-disable-next-line typescript/no-require-imports
 const blocks = require("@wordpress/blocks")
 
-async function main() {
+function main() {
   blockLibrary.registerCoreBlocks()
   const allBlockInstances: BlockType<Record<string, unknown>>[] = blocks.getBlockTypes()
   const coreBlocks = allBlockInstances.map((block) => block.name)

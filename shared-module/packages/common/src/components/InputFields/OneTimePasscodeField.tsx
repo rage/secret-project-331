@@ -12,7 +12,7 @@ interface Props {
 
 export function OneTimePassCodeField({ onChange }: Props) {
   const length = 6
-  const [values, setValues] = useState<string[]>(Array(length).fill(""))
+  const [values, setValues] = useState<string[]>(Array.from({ length }, () => ""))
   const inputs = useRef<(HTMLInputElement | null)[]>([])
 
   const focusInput = (index: number) => {

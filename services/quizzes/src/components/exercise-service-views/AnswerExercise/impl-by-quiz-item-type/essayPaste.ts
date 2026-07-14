@@ -1,6 +1,5 @@
 import type { TFunction } from "i18next"
 
-import { wordCount } from "@/shared-module/common/utils/strings"
 import type { OpenDialogOptions } from "@/shared-module/exercise-client/client/parentDialog"
 
 /**
@@ -17,17 +16,102 @@ export const LARGE_PASTE_WORD_THRESHOLD = 50
 export const LARGE_PASTE_CHAR_THRESHOLD = 400
 
 /**
- * Whether a pasted chunk of text is large enough to warrant the academic-integrity warning. Pure so
- * it can be unit tested independently of the essay component.
+ * Tokens longer than this are never citations: real URLs/DOIs fit well under it, and it keeps a
+ * huge unbroken block (e.g. CJK text or code) counted as content.
+ */
+const MAX_CITATION_TOKEN_LENGTH = 512
+
+/**
+ * Numbered citation markers like [1]. Removed from the text before measuring so that markers
+ * glued to words or to each other ("word.[1][2]") don't count toward either threshold.
+ */
+const CITATION_MARKERS = /\[\d{1,3}\]/g
+
+/**
+ * Whole-token matchers for citation-like content excluded from the paste size: URLs (plain or
+ * markdown-wrapped), DOIs, emails, and bare domains with a path. Kept anchored and unambiguous so
+ * they run in linear time. Leading wrappers like `("<` are allowed in-pattern; trailing
+ * punctuation is peeled off by classifyToken.
+ */
+const CITATION_TOKEN_PATTERNS: RegExp[] = [
+  /^[<(["']*(?:https?:\/\/|www\.)\S+$/i,
+  /^[<(["']*(?:doi:)?10\.\d{4,9}\/\S+$/i,
+  /^[<(["']*doi:$/i,
+  /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i,
+  /^[<(["']*(?:[\w-]+\.)+[a-z]{2,}\/\S*$/i,
+  /^\[[^\]]*\]\(\S+\)$/,
+]
+
+/** Punctuation-only leftovers, e.g. residue of citation-marker removal or standalone operators. */
+const PUNCTUATION_ONLY = /^[^\p{L}\p{N}]+$/u
+
+const TRAILING_AFFIX = /[>)\]"'.,;:]$/
+
+/** Bounds the trailing-punctuation peeling so retesting stays constant per token. */
+const MAX_AFFIX_PEEL = 4
+
+type TokenKind = "citation" | "punctuation" | "prose"
+
+/**
+ * Citation and punctuation tokens are both excluded from the counts, but they differ in how the
+ * whitespace around them is treated: only citations swallow it (see isLargePaste).
+ */
+const classifyToken = (token: string): TokenKind => {
+  if (token.length > MAX_CITATION_TOKEN_LENGTH) {
+    return "prose"
+  }
+  for (let end = token.length; end > 0 && end >= token.length - MAX_AFFIX_PEEL; end--) {
+    const core = token.slice(0, end)
+    if (CITATION_TOKEN_PATTERNS.some((pattern) => pattern.test(core))) {
+      return "citation"
+    }
+    if (PUNCTUATION_ONLY.test(core)) {
+      return "punctuation"
+    }
+    if (!TRAILING_AFFIX.test(core)) {
+      return "prose"
+    }
+  }
+  return "prose"
+}
+
+/**
+ * Whether a pasted chunk of text is large enough to warrant the academic-integrity warning.
+ * Citation-like content (links, DOIs, emails, citation markers) is excluded from the measurement,
+ * so that pasting citations doesn't trigger the warning.
+ * Scans incrementally and returns as soon as a threshold is reached, keeping huge pastes cheap.
  */
 export function isLargePaste(pastedText: string): boolean {
   if (!pastedText) {
     return false
   }
-  return (
-    wordCount(pastedText) >= LARGE_PASTE_WORD_THRESHOLD ||
-    pastedText.trim().length >= LARGE_PASTE_CHAR_THRESHOLD
-  )
+  const text = pastedText.replace(CITATION_MARKERS, "")
+  const tokens = /\S+/g
+  let proseWords = 0
+  let proseChars = 0
+  let pendingWhitespace = 0
+  let previousEnd = 0
+  for (let match = tokens.exec(text); match !== null; match = tokens.exec(text)) {
+    pendingWhitespace += match.index - previousEnd
+    previousEnd = tokens.lastIndex
+    const kind = classifyToken(match[0])
+    if (kind !== "prose") {
+      if (kind === "citation") {
+        pendingWhitespace = 0
+      }
+      continue
+    }
+    if (proseChars > 0) {
+      proseChars += pendingWhitespace
+    }
+    pendingWhitespace = 0
+    proseWords += 1
+    proseChars += match[0].length
+    if (proseWords >= LARGE_PASTE_WORD_THRESHOLD || proseChars >= LARGE_PASTE_CHAR_THRESHOLD) {
+      return true
+    }
+  }
+  return false
 }
 
 /**

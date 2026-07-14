@@ -151,6 +151,7 @@ const LanguageSelector: React.FC<React.PropsWithChildren<LanguageSelectorProps>>
             >
               <IconContainer>
                 {checked === index && <StCheck />}
+                {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=img span wraps an icon; <img> needs src, no children */}
                 <span role="img" aria-label={t("language-icon")}>
                   <LanguageTranslation size={24} aria-hidden="true" />
                 </span>

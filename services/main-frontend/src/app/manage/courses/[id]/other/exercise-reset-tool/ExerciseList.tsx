@@ -72,9 +72,9 @@ const ExerciseList: React.FC<Props> = ({
     }, {})
   }, [exercises, t])
 
-  const renderContent = (exercises: Exercise[], chapters: DatabaseChapter[], pages: Page[]) => {
+  const renderContent = (allExercises: Exercise[], chapters: DatabaseChapter[], pages: Page[]) => {
     const selectAll = () => {
-      const allIds = exercises.map((ex) => ex.id)
+      const allIds = allExercises.map((ex) => ex.id)
       setSelectedExerciseIds(allIds)
     }
 
@@ -83,18 +83,18 @@ const ExerciseList: React.FC<Props> = ({
     }
 
     const invertSelection = () => {
-      const allIds = exercises.map((ex) => ex.id)
+      const allIds = allExercises.map((ex) => ex.id)
       const inverted = allIds.filter((id) => !selectedExerciseIds.includes(id))
       setSelectedExerciseIds(inverted)
     }
 
     const selectPeerReview = () => {
-      const peerIds = exercises.filter((ex) => ex.needs_peer_review).map((ex) => ex.id)
+      const peerIds = allExercises.filter((ex) => ex.needs_peer_review).map((ex) => ex.id)
       setSelectedExerciseIds(peerIds)
     }
 
     const selectSelfReview = () => {
-      const selfIds = exercises.filter((ex) => ex.needs_self_review).map((ex) => ex.id)
+      const selfIds = allExercises.filter((ex) => ex.needs_self_review).map((ex) => ex.id)
       setSelectedExerciseIds(selfIds)
     }
 
@@ -232,8 +232,8 @@ const ExerciseList: React.FC<Props> = ({
                             const orderB = pageB ? pageB.order_number : Number.MAX_VALUE
                             return orderA - orderB
                           })
-                          .map(([pageId, exercises]) => {
-                            return exercises
+                          .map(([pageId, exercisesForPage]) => {
+                            return exercisesForPage
                               .slice()
                               .toSorted((a, b) => a.order_number - b.order_number)
                               .map((exercise) => (
@@ -280,7 +280,9 @@ const ExerciseList: React.FC<Props> = ({
   return (
     <QueryResults
       queries={[exercisesQuery, chaptersQuery, pagesQuery] as const}
-      renderData={([exercises, chapters, pages]) => renderContent(exercises, chapters, pages)}
+      renderData={([exercisesData, chapters, pages]) =>
+        renderContent(exercisesData, chapters, pages)
+      }
       treatEmptyAsData
     />
   )

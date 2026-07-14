@@ -113,7 +113,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
       link.setAttribute("download", "data.csv")
       document.body.append(link)
       link.click()
-      document.body.removeChild(link)
+      link.remove()
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Failed to generate CSV:", error)

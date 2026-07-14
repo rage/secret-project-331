@@ -43,6 +43,7 @@ function enforceExerciseSlideIdDefined(
 ): ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseSlideAttributes>>> {
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || DEFAULT_DISPLAY_NAME
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- InnerComponent captures WrappedComponent from enclosing scope
   const InnerComponent = (props: BlockEditProps<ExerciseSlideAttributes>) => {
     const { attributes, setAttributes } = props
 

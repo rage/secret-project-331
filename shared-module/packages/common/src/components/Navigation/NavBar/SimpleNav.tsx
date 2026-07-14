@@ -66,6 +66,7 @@ const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = ({
     <nav role="navigation" className={cx(Navbar)} aria-label={t("navigation-menu")}>
       <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
       <div className={cx(NavbarLogo)}>
+        {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- anchor navigates via href; a button would change behavior */}
         <a href={logoHref} aria-label={t("home-page")} role="button">
           <MOOCfi className={cx(StyledIcon)} />
         </a>

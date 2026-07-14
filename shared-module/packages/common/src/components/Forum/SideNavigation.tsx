@@ -152,6 +152,7 @@ const SideNavigation = () => {
               const activeId = active !== id && items ? id : ""
               setActive(activeId)
             }}
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- div wraps block-level <li>; a <button> would be invalid HTML
             role="button"
             tabIndex={index}
           >
@@ -160,10 +161,10 @@ const SideNavigation = () => {
               <a href={path}>{text}</a>
             </li>
             {active === id &&
-              items?.map(({ text, path }) => (
-                <ListItem key={text}>
+              items?.map(({ text: itemText, path: itemPath }) => (
+                <ListItem key={itemText}>
                   <PlaceholderAvatar></PlaceholderAvatar>
-                  <a href={path}>{text}</a>
+                  <a href={itemPath}>{itemText}</a>
                 </ListItem>
               ))}
           </div>

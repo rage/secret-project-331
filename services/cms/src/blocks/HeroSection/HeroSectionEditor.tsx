@@ -24,8 +24,8 @@ const HeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<HeroSectionAttributes>>
 > = ({ clientId, attributes, setAttributes }) => {
   const { title, subtitle, alignCenter, useDefaultTextForLabel, label } = attributes
-  const direction = alignCenter || alignCenter == undefined ? "center" : "left"
-  const defaultLabel = useDefaultTextForLabel == undefined || useDefaultTextForLabel
+  const direction = alignCenter || alignCenter === undefined ? "center" : "left"
+  const defaultLabel = useDefaultTextForLabel === undefined || useDefaultTextForLabel
 
   const path = useContext(PageContext)?.page?.url_path
   const formattedPath = path?.replace("-", " ").replace("/", "")
@@ -84,14 +84,14 @@ const HeroSectionEditor: React.FC<
               ${respondToOrLarger.md} {
                 opacity: ${partiallyTransparent ? "1" : "0.4"};
                 background-position: ${direction} ${backgroundVerticalAlignment};
-                background-size: ${direction == "center" ? "contain" : "22rem"};
-                left: ${direction == "center" ? "0" : "30px"};
+                background-size: ${direction === "center" ? "contain" : "22rem"};
+                left: ${direction === "center" ? "0" : "30px"};
               }
               ${respondToOrLarger.lg} {
                 opacity: ${partiallyTransparent ? "1" : "0.4"};
                 background-position: ${direction} ${backgroundVerticalAlignment};
-                background-size: ${direction == "center" ? "contain" : "26rem"};
-                left: ${direction == "center" ? "0" : "40px"};
+                background-size: ${direction === "center" ? "contain" : "26rem"};
+                left: ${direction === "center" ? "0" : "40px"};
               }
             }
           `}

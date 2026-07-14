@@ -13,7 +13,7 @@ export const downloadTextFile = (
   try {
     document.body.append(link)
     link.click()
-    link.parentNode?.removeChild(link)
+    link.remove()
   } finally {
     window.URL.revokeObjectURL(url)
   }

@@ -138,10 +138,10 @@ const SubmissionFeedback: React.FC<{
 
   const userScore = showScore ? (itemFeedback?.correctnessCoefficient ?? itemFeedback?.score) : null
   if (showScore) {
-    if (userScore == 1) {
+    if (userScore === 1) {
       backgroundColor = "#e8f5e8"
       textColor = "#292929"
-    } else if (userScore == 0) {
+    } else if (userScore === 0) {
       backgroundColor = "#fdeaea"
       textColor = "#292929"
     } else if (userScore !== null && userScore !== undefined) {
@@ -166,20 +166,20 @@ const SubmissionFeedback: React.FC<{
     if (!showScore || !itemFeedback) {
       return null
     }
-    const customItemFeedback = itemFeedback.quiz_item_feedback?.trim()
+    const trimmedItemFeedback = itemFeedback.quiz_item_feedback?.trim()
     // If feedback on model solution is defined, this feedback takes precedence as the user is allowed to see the model solution and the teacher wants to show a custom message on the model solution
     const messageOnModelSolution = itemModelSolution?.messageOnModelSolution ?? null
     if (messageOnModelSolution !== null && messageOnModelSolution.trim() !== "") {
       return messageOnModelSolution.trim()
     }
     if (
-      customItemFeedback === "" ||
-      customItemFeedback === null ||
-      customItemFeedback === undefined
+      trimmedItemFeedback === "" ||
+      trimmedItemFeedback === null ||
+      trimmedItemFeedback === undefined
     ) {
       return null
     }
-    return customItemFeedback
+    return trimmedItemFeedback
   }, [itemFeedback, itemModelSolution?.messageOnModelSolution, showScore])
 
   const combinedFeedback = useMemo(() => {
@@ -264,8 +264,10 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   // in quiz items
   let direction: FlexDirection = COLUMN
   publicAlternatives.items.every((item) => {
-    if (item.type == "multiple-choice") {
+    // oxlint-disable-next-line array-callback-return -- .every short-circuit is intended; a return would change iteration
+    if (item.type === "multiple-choice") {
       direction = sanitizeFlexDirection(item.optionDisplayDirection, COLUMN)
+      // oxlint-disable-next-line no-useless-return -- kept to preserve exact control flow
       return
     }
   })
@@ -332,7 +334,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           ? feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0]
           : null
         const itemModelSolution = modelSolutions
-          ? modelSolutions.items.filter((itemModelSolution) => itemModelSolution.id === item.id)[0]
+          ? modelSolutions.items.filter((modelSolutionItem) => modelSolutionItem.id === item.id)[0]
           : null
         const quizItemAnswer = user_answer.itemAnswers.filter((ia) => ia.quizItemId === item.id)[0]
         const feedback = itemAnswerFeedback &&
@@ -540,6 +542,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
               )
             )
         }
+        return null
       })}
     </FlexWrapper>
   )

@@ -34,7 +34,7 @@ const BottomPanel: React.FC<Props> = ({
   const { t } = useTranslation()
 
   if (!show) {
-    return <></>
+    return null
   }
 
   return (

@@ -151,6 +151,7 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
           {timeColumns.map((column) => (
             <th key={column.key}>{column.label}</th>
           ))}
+          {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- actions/spacer column header intentionally has no text */}
           <th></th>
         </FullWidthTableRow>
       </thead>
@@ -185,17 +186,18 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
                 {timeColumns.map((column) => {
                   let entry
                   if (column.isYear) {
-                    entry = entries.find((entry) => entry.year === Number(column.key))
+                    entry = entries.find((candidate) => candidate.year === Number(column.key))
                   } else {
                     const [year, month] = column.key.split("-")
                     entry = entries.find(
-                      (entry) =>
-                        entry.year === Number(year) &&
-                        (moduleStats || String(entry.month ?? "").padStart(2, "0") === month),
+                      (candidate) =>
+                        candidate.year === Number(year) &&
+                        (moduleStats || String(candidate.month ?? "").padStart(2, "0") === month),
                     )
                   }
                   return <td key={column.key}>{entry ? entry.value : "-"}</td>
                 })}
+                {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- cell contains a labeled Button/Link */}
                 <td>
                   <Link href={courseStatsRoute(courseId)}>
                     <Button variant="tertiary" size="small">

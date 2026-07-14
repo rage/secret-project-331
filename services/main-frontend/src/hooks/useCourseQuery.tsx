@@ -23,11 +23,11 @@ export const useCourseQuery = (courseId: string | null) => {
   const query = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
         getCourseOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
           },
         }),
     }),

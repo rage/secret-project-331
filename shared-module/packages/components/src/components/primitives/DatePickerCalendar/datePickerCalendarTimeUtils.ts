@@ -70,7 +70,6 @@ export function getDisplayHour(hour: number, hourCycle: SupportedHourCycle) {
       return hour % 12 === 0 ? 12 : hour % 12
     case "h24":
       return hour === 0 ? 24 : hour
-    case "h23":
     default:
       return hour
   }

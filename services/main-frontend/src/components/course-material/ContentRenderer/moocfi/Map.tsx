@@ -74,6 +74,23 @@ export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 const STUDENT_COUNTRIES_QUERY_KEY = "courseMaterialStudentCountries"
 const STUDENT_COUNTRY_QUERY_KEY = "courseMaterialStudentCountry"
 
+const getElementBySelectorAsync = (selector: string): Promise<SVGLineElement> =>
+  new Promise((resolve) => {
+    const getElement = () => {
+      const element: SVGLineElement | null = document.querySelector(selector)
+      if (element) {
+        resolve(element)
+      } else {
+        requestAnimationFrame(getElement)
+      }
+    }
+    getElement()
+  })
+
+const isPath = (child: RouteElement): child is SVGLineElement => {
+  return child.tagName === "g" || child.tagName === "path"
+}
+
 const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
   let countryCodeCount: CountryCountPair[] = useMemo(() => [], [])
 
@@ -116,19 +133,6 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     enabled: Boolean(courseInstanceId),
   })
 
-  const getElementBySelectorAsync = (selector: string): Promise<SVGLineElement> =>
-    new Promise((resolve) => {
-      const getElement = () => {
-        const element: SVGLineElement | null = document.querySelector(selector)
-        if (element) {
-          resolve(element)
-        } else {
-          requestAnimationFrame(getElement)
-        }
-      }
-      getElement()
-    })
-
   const uploadStudentCountry = useToastMutation(
     (country: string) => {
       if (!country) {
@@ -163,10 +167,6 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
       },
     },
   )
-
-  const isPath = (child: RouteElement): child is SVGLineElement => {
-    return child.tagName === "g" || child.tagName === "path"
-  }
 
   useEffect(() => {
     const getMap = async () => {
@@ -290,72 +290,68 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     <Fragment>
       <Wrapper>
         {getCountry.isSuccess && studentCountryAdded && (
-          <>
-            <Fragment>
-              <h3>{t("student-in-this-region")}</h3>
-              <StyledMap codes={formattedCountryCodes} className="world-map" />
-            </Fragment>
-          </>
+          <Fragment>
+            <h3>{t("student-in-this-region")}</h3>
+            <StyledMap codes={formattedCountryCodes} className="world-map" />
+          </Fragment>
         )}
         {!studentCountryAdded && (
-          <>
-            <CotentWrapper>
-              <h3>{t("add-country-to-map")}</h3>
-              <span
-                className={css`
-                  display: inline-block;
-                  color: ${baseTheme.colors.gray[600]};
-                  width: 40rem;
-                  font-size: 18px;
-                  line-height: 120%;
-                  padding: 0.5rem 0 1rem 0;
-                  line-height: 130%;
-                  opacity: 0.8;
-                `}
-              >
-                {t("map-instruction")}
-              </span>
-              <StyledForm
-                onSubmit={handleCountryChange}
-                className={css`
-                  input[type="submit"] {
-                    border: none;
-                    color: #fff;
-                    cursor: pointer;
-                    width: 100px;
-                    font-size: 17px;
-                    padding: 8px 10px 10px 10px;
-                    transition: background 0.2s ease-in-out;
-                    background: ${baseTheme.colors.gray[600]};
-                    margin: auto 0 1rem 15px;
-                    border: 1px solid #374461;
-                  }
-                `}
-              >
-                <SelectField
-                  id={`country`}
-                  label={t("label-country")}
-                  onChange={() => null}
-                  options={countryList}
-                  defaultValue={countryList[90].label}
-                />
-                <input type="submit" value={t("submit")} />
-              </StyledForm>
-              <span
-                className={css`
-                  display: inline-block;
-                  color: ${baseTheme.colors.gray[400]};
-                  width: 30rem;
-                  font-size: 15px;
-                  line-height: 120%;
-                  padding-bottom: 2.4rem;
-                  padding-left: 2px;
-                `}
-              >
-                {t("map-disclaimer")}
-              </span>
-            </CotentWrapper>
-          </>
+          <CotentWrapper>
+            <h3>{t("add-country-to-map")}</h3>
+            <span
+              className={css`
+                display: inline-block;
+                color: ${baseTheme.colors.gray[600]};
+                width: 40rem;
+                font-size: 18px;
+                line-height: 120%;
+                padding: 0.5rem 0 1rem 0;
+                line-height: 130%;
+                opacity: 0.8;
+              `}
+            >
+              {t("map-instruction")}
+            </span>
+            <StyledForm
+              onSubmit={handleCountryChange}
+              className={css`
+                input[type="submit"] {
+                  border: none;
+                  color: #fff;
+                  cursor: pointer;
+                  width: 100px;
+                  font-size: 17px;
+                  padding: 8px 10px 10px 10px;
+                  transition: background 0.2s ease-in-out;
+                  background: ${baseTheme.colors.gray[600]};
+                  margin: auto 0 1rem 15px;
+                  border: 1px solid #374461;
+                }
+              `}
+            >
+              <SelectField
+                id={`country`}
+                label={t("label-country")}
+                onChange={() => null}
+                options={countryList}
+                defaultValue={countryList[90].label}
+              />
+              <input type="submit" value={t("submit")} />
+            </StyledForm>
+            <span
+              className={css`
+                display: inline-block;
+                color: ${baseTheme.colors.gray[400]};
+                width: 30rem;
+                font-size: 15px;
+                line-height: 120%;
+                padding-bottom: 2.4rem;
+                padding-left: 2px;
+              `}
+            >
+              {t("map-disclaimer")}
+            </span>
+          </CotentWrapper>
         )}
       </Wrapper>
       {studentCountryAdded && (

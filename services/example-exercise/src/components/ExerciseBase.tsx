@@ -41,6 +41,7 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
         const border = model_solutions ? `4px solid ${correct ? green : red}` : `0`
         return (
           <button
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled button uses role=checkbox; an input would change styling
             role="checkbox"
             className={
               interactable

@@ -1,7 +1,7 @@
 import type React from "react"
 
 export function hasTextControlValue(value: unknown): boolean {
-  if (value == null) {
+  if (value === null || value === undefined) {
     return false
   }
 

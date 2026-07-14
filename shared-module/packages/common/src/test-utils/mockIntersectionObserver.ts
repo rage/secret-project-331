@@ -20,7 +20,7 @@ export class MockIntersectionObserver implements IntersectionObserver {
     // oxlint-disable-next-line typescript/no-explicit-any
     this.scrollMargin = (options as any)?.scrollMargin ?? "0px 0px 0px 0px"
     this.thresholds = Array.isArray(options?.threshold)
-      ? // oxlint-disable-next-line typescript/no-non-null-assertion -- Array.isArray(options?.threshold) is true here, so options and options.threshold are defined
+      ? // oxlint-disable-next-line typescript/no-non-null-assertion -- Array.isArray guard above ensures both are defined
         options!.threshold!.slice().toSorted((a, b) => a - b)
       : [options?.threshold ?? 0]
 
@@ -61,6 +61,7 @@ export function triggerIntersection(
   opts: Partial<IntersectionObserverEntry> & {
     isIntersecting: boolean
     intersectionRatio?: number
+    // oxlint-disable-next-line unicorn/no-object-as-default-parameter -- default applies only when opts is fully omitted
   } = {
     isIntersecting: true,
     intersectionRatio: 1,

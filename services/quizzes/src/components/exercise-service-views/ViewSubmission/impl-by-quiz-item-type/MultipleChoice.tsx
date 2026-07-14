@@ -127,12 +127,14 @@ const MultipleChoiceSubmission: React.FC<
           const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
             (f) => f.option_id === qo.id,
           )
-          if (feedbackForThisOption && feedbackForThisOption.this_option_was_correct !== null) {
-            // if we have received feedback for this option, use that
-            // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
-            if (!correctAnswer) {
-              correctAnswer = feedbackForThisOption.this_option_was_correct
-            }
+          // if we have received feedback for this option, use that
+          // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
+          if (
+            feedbackForThisOption &&
+            feedbackForThisOption.this_option_was_correct !== null &&
+            !correctAnswer
+          ) {
+            correctAnswer = feedbackForThisOption.this_option_was_correct
           }
           let feedBackForOption: string | null = null
           if (answerSelectedThisOption) {
@@ -143,82 +145,79 @@ const MultipleChoiceSubmission: React.FC<
             }
           }
           return (
-            <>
-              <div>
+            <div key={qo.id}>
+              <div
+                className={cx(
+                  gradingOption,
+                  answerSelectedThisOption && gradingOptionSelected,
+                  answerSelectedThisOption &&
+                    correctAnswer === false &&
+                    gradingOptionWrongAndSelected,
+                  answerSelectedThisOption &&
+                    correctAnswer === true &&
+                    gradingOptionCorrectAndSelected,
+                )}
+              >
                 <div
-                  key={qo.id}
-                  className={cx(
-                    gradingOption,
-                    answerSelectedThisOption && gradingOptionSelected,
-                    answerSelectedThisOption &&
-                      correctAnswer === false &&
-                      gradingOptionWrongAndSelected,
-                    answerSelectedThisOption &&
-                      correctAnswer === true &&
-                      gradingOptionCorrectAndSelected,
-                  )}
+                  className={css`
+                    padding: 0.8rem 0;
+                    max-width: 50ch;
+                  `}
                 >
+                  <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
+                </div>
+                <div>
                   <div
                     className={css`
-                      padding: 0.8rem 0;
-                      max-width: 50ch;
-                    `}
-                  >
-                    <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
-                  </div>
-                  <div>
-                    <div
-                      className={css`
-                        display: flex;
-                        flex-direction: ${sanitizeFlexDirection(
-                          public_quiz_item.optionDisplayDirection,
-                          "row",
-                        )};
-                        ${public_quiz_item.optionDisplayDirection === "horizontal" &&
-                        `
+                      display: flex;
+                      flex-direction: ${sanitizeFlexDirection(
+                        public_quiz_item.optionDisplayDirection,
+                        "row",
+                      )};
+                      ${public_quiz_item.optionDisplayDirection === "horizontal" &&
+                      `
                             padding-left: 0.635rem;
                           `}
-                      `}
-                    >
-                      {correctAnswer == true && (
-                        <div
-                          className={css`
-                            background: #9dc7b1;
-                            font-size: 0.625rem;
-                            text-transform: uppercase;
-                            font-weight: bold;
-                            padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
-                            border-radius: 0.125rem;
-                            color: #14261c;
-                          `}
-                        >
-                          {t("correct-option")}
-                        </div>
-                      )}
-                      {correctAnswer == false && (
-                        <div
-                          className={css`
-                            background: #eedbdd;
-                            font-size: 0.625rem;
-                            text-transform: uppercase;
-                            font-weight: bold;
-                            padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
-                            border-radius: 0.125rem;
-                            color: #b12632;
-                          `}
-                        >
-                          {t("incorrect-option")}
-                        </div>
-                      )}
-                    </div>
+                    `}
+                  >
+                    {correctAnswer === true && (
+                      <div
+                        className={css`
+                          background: #9dc7b1;
+                          font-size: 0.625rem;
+                          text-transform: uppercase;
+                          font-weight: bold;
+                          padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
+                          border-radius: 0.125rem;
+                          color: #14261c;
+                        `}
+                      >
+                        {t("correct-option")}
+                      </div>
+                    )}
+                    {correctAnswer === false && (
+                      <div
+                        className={css`
+                          background: #eedbdd;
+                          font-size: 0.625rem;
+                          text-transform: uppercase;
+                          font-weight: bold;
+                          padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
+                          border-radius: 0.125rem;
+                          color: #b12632;
+                        `}
+                      >
+                        {t("incorrect-option")}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <RowSubmissionFeedback
-                  correct={correctAnswer ?? false}
-                  feedback={feedBackForOption}
-                />
               </div>
-            </>
+              <RowSubmissionFeedback
+                correct={correctAnswer ?? false}
+                feedback={feedBackForOption}
+              />
+            </div>
           )
         })}
       </div>

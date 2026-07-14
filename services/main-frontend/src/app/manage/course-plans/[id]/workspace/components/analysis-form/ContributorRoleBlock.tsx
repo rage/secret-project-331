@@ -3,7 +3,6 @@
 import type { TFunction } from "i18next"
 import type { Control } from "react-hook-form"
 
-import type { CONTRIBUTOR_ROLES } from "./analysisFormDomain"
 import {
   type AnalysisWorkspaceFormValues,
   contributorCardLeadStyles,
@@ -11,6 +10,7 @@ import {
   contributorCardTitleStyles,
   contributorDutiesStyles,
   type ContributorFieldKey,
+  type CONTRIBUTOR_ROLES,
 } from "./analysisFormDomain"
 
 import { nullIfEmpty, TextField } from "@/shared-module/components"

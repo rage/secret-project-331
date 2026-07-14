@@ -33,10 +33,10 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
             },
           })
       : skipToken,
-    enabled: courseId != null,
+    enabled: courseId !== null && courseId !== undefined,
   })
 
-  if (courseId == null) {
+  if (courseId === null || courseId === undefined) {
     return (
       <div className={IGNORE_BLOCK_FEEDBACK_CLASS}>
         <div

@@ -51,7 +51,7 @@ export function GroupedRadio({
   const descriptionId = useId()
   const errorMessageId = useId()
   const resolvedFieldSize = fieldSize ?? group.fieldSize ?? defaultFieldSize
-  const radioValue = value == null ? undefined : String(value)
+  const radioValue = value === undefined ? undefined : String(value)
   const {
     inputProps,
     isDisabled: isRadioDisabled,

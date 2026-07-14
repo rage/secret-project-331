@@ -31,6 +31,17 @@ interface ProgressBarProps {
   duration: number
 }
 
+const formatTime = (timeInSeconds: number) => {
+  if (timeInSeconds && !isNaN(timeInSeconds)) {
+    const minutes = Math.floor(timeInSeconds / 60)
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`
+    const seconds = Math.floor(timeInSeconds % 60)
+    const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`
+    return `${formattedMinutes}:${formattedSeconds}`
+  }
+  return "00:00"
+}
+
 const ProgressBar = ({ progressBarRef, audioRef, timeProgress, duration }: ProgressBarProps) => {
   const { t } = useTranslation()
 
@@ -38,17 +49,6 @@ const ProgressBar = ({ progressBarRef, audioRef, timeProgress, duration }: Progr
     if (audioRef?.current && progressBarRef?.current) {
       audioRef.current.currentTime = Number(progressBarRef.current.value)
     }
-  }
-
-  const formatTime = (time: number) => {
-    if (time && !isNaN(time)) {
-      const minutes = Math.floor(time / 60)
-      const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`
-      const seconds = Math.floor(time % 60)
-      const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`
-      return `${formattedMinutes}:${formattedSeconds}`
-    }
-    return "00:00"
   }
 
   const currentTimeFormatted = formatTime(timeProgress)

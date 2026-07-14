@@ -21,11 +21,11 @@ const useResearchConsentForm = (
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled: loginState.signedIn === true && enabled,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
         getCourseMaterialResearchConsentFormOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
           },
         }),
     }),

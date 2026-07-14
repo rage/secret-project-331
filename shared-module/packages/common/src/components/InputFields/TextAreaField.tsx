@@ -104,7 +104,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       if (!autoResize) {
         return
       }
-      if (prevValueRef.current && rest.value != prevValueRef.current) {
+      if (prevValueRef.current && rest.value !== prevValueRef.current) {
         updateHeight(textareaRef, onAutoResized, autoResizeMaxHeightPx)
       }
       prevValueRef.current = rest.value

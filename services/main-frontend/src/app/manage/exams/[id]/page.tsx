@@ -76,7 +76,7 @@ const ManageExam: React.FC = () => {
             },
           })
       : skipToken,
-    enabled: organizationId != null,
+    enabled: organizationId !== undefined,
   }).data?.slug
 
   const [editExamFormOpen, setEditExamFormOpen] = useState(false)

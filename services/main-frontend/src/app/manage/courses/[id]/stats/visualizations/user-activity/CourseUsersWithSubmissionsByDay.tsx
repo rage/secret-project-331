@@ -69,6 +69,7 @@ const CourseUsersWithSubmissionsByDay: React.FC<
           {(data) => {
             const eChartsData = groupBy(data, (o) => {
               const dateString = o.date as string | null
+              // oxlint-disable-next-line unicorn/prefer-string-slice -- indexOf may return -1; substring clamps negatives, slice differs
               const year = dateString?.substring(0, dateString.indexOf("-"))
               return year
             })

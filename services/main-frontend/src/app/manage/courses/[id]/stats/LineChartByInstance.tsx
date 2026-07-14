@@ -225,7 +225,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         // If sortValues are equal, sort alphabetically by name
         return a.name.localeCompare(b.name)
       })
-      .map(({ name, type, data }) => ({ name, type, data }))
+      .map(({ name, type, data: seriesData }) => ({ name, type, data: seriesData }))
 
     return {
       color: [

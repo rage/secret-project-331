@@ -77,6 +77,7 @@ export class ParentDialogClient {
     return new Promise<boolean>((resolve) => {
       // Register the resolver before posting so a response can never race ahead of it.
       this.pending.set(requestId, resolve)
+      // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
       this.port.postMessage(message)
     })
   }

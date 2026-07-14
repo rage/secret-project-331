@@ -40,7 +40,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
       method: "POST",
     },
     {
-      onSuccess: async (data) => {
+      onSuccess: (data) => {
         getChatbotsList.refetch()
         closeEdit(data.id)
       },

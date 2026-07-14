@@ -94,7 +94,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
   const inputRef = useRef<HTMLInputElement>(null)
-  const stringValue = field.value == null ? "" : String(field.value)
+  const stringValue = field.value === null || field.value === undefined ? "" : String(field.value)
 
   const floatingState = useFloatingFieldState({
     defaultValue: undefined,

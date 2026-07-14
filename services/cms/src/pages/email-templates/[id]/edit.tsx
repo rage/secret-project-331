@@ -36,11 +36,11 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
   const templateQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: emailTemplateId,
-      isReady: (emailTemplateId): emailTemplateId is string => Boolean(emailTemplateId),
-      build: (emailTemplateId) =>
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
         getCmsEmailTemplateOptions({
           path: {
-            email_template_id: emailTemplateId,
+            email_template_id: value,
           },
         }),
     }),

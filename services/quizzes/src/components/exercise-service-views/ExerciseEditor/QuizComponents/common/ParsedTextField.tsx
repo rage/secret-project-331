@@ -119,7 +119,7 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
             <AutoExpandingTextField
               allowNewlines={allowNewlines}
               value={value ?? ""}
-              onChangeByValue={(value) => handleOnChange(value)}
+              onChangeByValue={(newValue) => handleOnChange(newValue)}
               label={label}
             />
           )}

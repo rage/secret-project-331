@@ -58,6 +58,48 @@ interface ModuleList {
   error: string | null
 }
 
+const firstAndLastChaptersOfModule = (
+  moduleId: string,
+  chapters: ChapterView[],
+): [number | null, number | null] => {
+  let first = null
+  let last = null
+
+  for (const chapter of chapters) {
+    if (chapter.module === moduleId) {
+      if (first === null || first > chapter.chapter_number) {
+        first = chapter.chapter_number
+      }
+      if (last === null || last < chapter.chapter_number) {
+        last = chapter.chapter_number
+      }
+    }
+  }
+
+  return [first, last]
+}
+
+const sortAndUpdateOrderNumbers = (modules: ModuleView[]): ModuleView[] => {
+  modules.sort((l, r) => {
+    // sort default module first
+    if (l.name === null) {
+      return -1
+    } else if (r.name === null) {
+      return 1
+    }
+    // sort according to first chapters, empty modules last
+    return (l.firstChapter ?? Infinity) - (r.firstChapter ?? 0)
+  })
+
+  // update order numbers
+  let order = 0
+  modules.forEach((m) => {
+    m.order_number = order
+    order += 1
+  })
+  return modules
+}
+
 const CourseModules: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
 
@@ -90,18 +132,18 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           // should be unseen module
           const prevChapter = seenModules.get(chapter.module)
           if (prevChapter !== undefined) {
+            // oxlint-disable-next-line no-loop-func -- find runs synchronously; currentModule read immediately
             const erroringModule = modules.find((m) => m.id === currentModule)
-            if (erroringModule?.name === null) {
-              return t("error-modules-default-noncontinuous-chapters", {
-                prevChapter,
-                currChapter: chapter.chapter_number,
-              })
-            }
-            return t("error-modules-noncontinuous-chapters", {
-              moduleName: erroringModule?.name ?? "",
-              prevChapter,
-              currChapter: chapter.chapter_number,
-            })
+            return erroringModule?.name === null
+              ? t("error-modules-default-noncontinuous-chapters", {
+                  prevChapter,
+                  currChapter: chapter.chapter_number,
+                })
+              : t("error-modules-noncontinuous-chapters", {
+                  moduleName: erroringModule?.name ?? "",
+                  prevChapter,
+                  currChapter: chapter.chapter_number,
+                })
           }
         }
         seenModules.set(chapter.module, chapter.chapter_number)
@@ -122,46 +164,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
     // all ok
     return null
-  }
-  const firstAndLastChaptersOfModule = (
-    moduleId: string,
-    chapters: ChapterView[],
-  ): [number | null, number | null] => {
-    let first = null
-    let last = null
-
-    for (const chapter of chapters) {
-      if (chapter.module === moduleId) {
-        if (first === null || first > chapter.chapter_number) {
-          first = chapter.chapter_number
-        }
-        if (last === null || last < chapter.chapter_number) {
-          last = chapter.chapter_number
-        }
-      }
-    }
-
-    return [first, last]
-  }
-  const sortAndUpdateOrderNumbers = (modules: ModuleView[]): ModuleView[] => {
-    modules.sort((l, r) => {
-      // sort default module first
-      if (l.name === null) {
-        return -1
-      } else if (r.name === null) {
-        return 1
-      }
-      // sort according to first chapters, empty modules last
-      return (l.firstChapter ?? Infinity) - (r.firstChapter ?? 0)
-    })
-
-    // update order numbers
-    let order = 0
-    modules.forEach((m) => {
-      m.order_number = order
-      order += 1
-    })
-    return modules
   }
 
   // queries and mutations
@@ -284,10 +286,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             enable_registering_completion_to_uh_open_university:
               courseModule.enable_registering_completion_to_uh_open_university,
           })
-        } else if (initialModule !== undefined) {
+        } else if (
+          initialModule !== undefined &&
           // old module, check for modifications
-          if (
-            courseModule.name !== initialModule.name ||
+          (courseModule.name !== initialModule.name ||
             courseModule.uh_course_code !== initialModule.uh_course_code ||
             courseModule.ects_credits !== initialModule.ects_credits ||
             courseModule.automatic_completion !== initialModule.automatic_completion ||
@@ -301,21 +303,20 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             courseModule.completion_registration_link_override !==
               initialModule.completion_registration_link_override ||
             courseModule.enable_registering_completion_to_uh_open_university !==
-              initialModule.enable_registering_completion_to_uh_open_university
-          ) {
-            modifiedModules.push({
-              id: courseModule.id,
-              name: courseModule.name,
-              order_number: courseModule.order_number,
-              uh_course_code: courseModule.uh_course_code,
-              ects_credits: courseModule.ects_credits,
-              completion_policy: mapFieldsToCompletionPolicy(courseModule),
-              completion_registration_link_override:
-                courseModule.completion_registration_link_override,
-              enable_registering_completion_to_uh_open_university:
-                courseModule.enable_registering_completion_to_uh_open_university,
-            })
-          }
+              initialModule.enable_registering_completion_to_uh_open_university)
+        ) {
+          modifiedModules.push({
+            id: courseModule.id,
+            name: courseModule.name,
+            order_number: courseModule.order_number,
+            uh_course_code: courseModule.uh_course_code,
+            ects_credits: courseModule.ects_credits,
+            completion_policy: mapFieldsToCompletionPolicy(courseModule),
+            completion_registration_link_override:
+              courseModule.completion_registration_link_override,
+            enable_registering_completion_to_uh_open_university:
+              courseModule.enable_registering_completion_to_uh_open_university,
+          })
         }
       }
 

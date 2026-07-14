@@ -3,7 +3,7 @@ import type { Locator, Page } from "playwright"
 
 /** Scrolls the page to the specified y coordinate */
 export async function scrollToYCoordinate(page: Page, y: number) {
-  await page.evaluate((y) => window.scrollTo(0, y), y)
+  await page.evaluate((yCoord) => window.scrollTo(0, yCoord), y)
 }
 
 /** Finds and scrolls the scrollable parent container of an element to the bottom */

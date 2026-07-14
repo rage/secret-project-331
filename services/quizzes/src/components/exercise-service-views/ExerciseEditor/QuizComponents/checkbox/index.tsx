@@ -50,7 +50,7 @@ const CheckboxEditor: React.FC<CheckboxEditorProps> = ({ quizItemId }) => {
     })
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (

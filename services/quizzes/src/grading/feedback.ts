@@ -38,9 +38,9 @@ const submissionFeedback = (
 
       // Multiple choices
       if (
-        item.type == "multiple-choice" ||
-        item.type == "multiple-choice-dropdown" ||
-        item.type == "choose-n"
+        item.type === "multiple-choice" ||
+        item.type === "multiple-choice-dropdown" ||
+        item.type === "choose-n"
       ) {
         const multipleChoiceQuizItem = item as PrivateSpecQuizItemMultiplechoice
         const multipleChoiceUserAnswer = itemAnswer as UserItemAnswerMultiplechoice
@@ -70,7 +70,8 @@ const submissionFeedback = (
           quiz_item_option_feedbacks: multipleChoiceUserAnswer.selectedOptionIds.map(
             (optionId): OptionAnswerFeedback => {
               const option =
-                multipleChoiceQuizItem.options.find((option) => option.id === optionId) || null
+                multipleChoiceQuizItem.options.find((candidate) => candidate.id === optionId) ||
+                null
 
               if (!option) {
                 return {
@@ -92,7 +93,7 @@ const submissionFeedback = (
       }
 
       // Timeline
-      if (item.type == "timeline") {
+      if (item.type === "timeline") {
         const timelineQuizItem = item as PrivateSpecQuizItemTimeline
         const timelineItemAnswer = itemAnswer as UserItemAnswerTimeline
         const quizItemFeedback =
@@ -108,7 +109,7 @@ const submissionFeedback = (
           timeline_item_feedbacks: timelineItemAnswer.timelineChoices.map<TimelineItemFeedback>(
             (timelineChoice) => {
               const timelineItem = timelineQuizItem.timelineItems?.find(
-                (timelineItem) => timelineItem.id == timelineChoice.timelineItemId,
+                (candidate) => candidate.id === timelineChoice.timelineItemId,
               )
               if (!timelineItem) {
                 return {

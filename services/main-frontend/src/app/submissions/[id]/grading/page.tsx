@@ -56,6 +56,7 @@ const Submission: React.FC = () => {
 
   const getExam = useQuery({
     queryKey: ["getExam", examId],
+    // oxlint-disable-next-line eslint/require-await -- async so the queryFn returns a normalized Promise
     queryFn: async () =>
       getExamFromApi({
         path: {
@@ -66,7 +67,7 @@ const Submission: React.FC = () => {
   })
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
-    const pieces = [
+    const breadcrumbPieces = [
       // oxlint-disable-next-line i18next/no-literal-string
       { text: t("link-manage"), url: `/manage/exams/${examId}` },
       // oxlint-disable-next-line i18next/no-literal-string
@@ -78,7 +79,7 @@ const Submission: React.FC = () => {
       },
       { text: id, url: "" },
     ]
-    return pieces
+    return breadcrumbPieces
   }, [examId, exerciseId, id, t])
 
   return (

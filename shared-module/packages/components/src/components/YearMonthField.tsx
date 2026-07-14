@@ -167,8 +167,8 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
   const displayValue = selectedValue
     ? dateFormatter.format(new Date(Date.UTC(selectedValue.year, selectedValue.month - 1, 1)))
     : null
-  const isPlaceholder = displayValue == null
-  const isFloated = state.isOpen || selectedValue != null || hasFocusWithin
+  const isPlaceholder = displayValue === null
+  const isFloated = state.isOpen || selectedValue !== null || hasFocusWithin
 
   return (
     <FieldShell

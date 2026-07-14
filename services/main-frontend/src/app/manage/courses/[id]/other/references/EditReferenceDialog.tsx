@@ -27,18 +27,18 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
   const { t } = useTranslation()
   const updateReferenceMutation = useToastMutation(
     ({
-      courseId,
+      courseId: updateCourseId,
       id,
-      reference,
+      reference: updateReference,
     }: {
       courseId: string
       id: string
       reference: NewMaterialReference
     }) =>
       updateCourseReference({
-        body: reference,
+        body: updateReference,
         path: {
-          course_id: courseId,
+          course_id: updateCourseId,
           reference_id: id,
         },
       }),
@@ -56,10 +56,10 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
   )
 
   const deleteReferenceMutation = useToastMutation(
-    ({ courseId, id }: { courseId: string; id: string }) =>
+    ({ courseId: deleteCourseId, id }: { courseId: string; id: string }) =>
       deleteCourseReference({
         path: {
-          course_id: courseId,
+          course_id: deleteCourseId,
           reference_id: id,
         },
       }),
@@ -80,9 +80,15 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
     <StandardDialog open={open} onClose={onClose} title={t("edit-reference")}>
       <EditReferenceForm
         onCancel={onClose}
-        onDelete={(courseId, id) => deleteReferenceMutation.mutate({ courseId, id })}
-        onEdit={(courseId, id, reference) =>
-          updateReferenceMutation.mutate({ courseId, id, reference })
+        onDelete={(deleteCourseId, id) =>
+          deleteReferenceMutation.mutate({ courseId: deleteCourseId, id })
+        }
+        onEdit={(editCourseId, id, editReference) =>
+          updateReferenceMutation.mutate({
+            courseId: editCourseId,
+            id,
+            reference: editReference,
+          })
         }
         reference={reference}
         courseId={courseId}

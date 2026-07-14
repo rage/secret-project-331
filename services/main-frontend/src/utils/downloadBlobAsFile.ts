@@ -8,7 +8,7 @@ export const downloadBlobAsFile = (blob: Blob, fileName: string) => {
   try {
     document.body.append(link)
     link.click()
-    link.parentNode?.removeChild(link)
+    link.remove()
   } finally {
     window.URL.revokeObjectURL(url)
   }

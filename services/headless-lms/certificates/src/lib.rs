@@ -421,18 +421,14 @@ mod tests {
     use std::sync::Arc;
     use usvg::fontdb;
 
-    /// Torture string of characters that incomplete fonts drop — NOT a real name.
-    /// Vietnamese stacked diacritics + Nordic + assorted Latin-Extended.
-    const TRICKY: &str = "Đặng Hồ ẹẽợỹ Åström Ñuñez Œuvre Łódź Öğüş Straße";
+    /// Diacritics and scripts the default font supports, to catch missing-glyph regressions.
+    const TRICKY: &str = "ăôồặ ẹẽợỹ Đđ Ååäöø üñÑÖ ßŒœ Łłóź ğşĞ Ææ Джёщ ΔΩλφ";
 
     fn seed_fontdb() -> fontdb::Database {
         let mut db = fontdb::Database::new();
-        // Canonical seed copies — the same files the render path loads.
+        // The canonical seed copy — the same file the render path loads.
         db.load_font_data(
             include_bytes!("../../server/src/programs/seed/data/InterVariable.ttf").to_vec(),
-        );
-        db.load_font_data(
-            include_bytes!("../../server/src/programs/seed/data/Lato-Regular.ttf").to_vec(),
         );
         db
     }

@@ -4,22 +4,8 @@ use models::certificate_fonts::NewCertificateFont;
 pub async fn seed_certificate_fonts(db_pool: PgPool) -> anyhow::Result<()> {
     let mut conn = db_pool.acquire().await?;
 
-    let lato_file_upload_id = models::file_uploads::insert(
-        &mut conn,
-        "Lato Regular",
-        "fonts/lato-regular.ttf",
-        "application/octet-stream",
-        None,
-    )
-    .await?;
-    let lato = NewCertificateFont {
-        file_path: "fonts/lato-regular.ttf".to_string(),
-        file_upload_id: lato_file_upload_id,
-        display_name: "Lato Regular".to_string(),
-    };
-    models::certificate_fonts::insert(&mut conn, &lato).await?;
-
-    // Default certificate font
+    // The default certificate font (see certificates::TextToRender). It has full glyph coverage
+    // for the scripts we render, which the certificate rendering relies on.
     let inter_file_upload_id = models::file_uploads::insert(
         &mut conn,
         "Inter Variable",

@@ -44,12 +44,13 @@ const ChatbotCommandCenter = ({ chatbotData }: Props) => {
                 .filter((data) => data.course_name === course)
                 .map((dataFiltered) => {
                   return {
-                    label: `${dataFiltered.course_name}: ${dataFiltered.chatbot_name}`,
+                    label: `${dataFiltered.chatbot_name}`,
                     value: dataFiltered.configuration_id,
                   }
                 }),
             }
           })}
+          hasSearch={true}
           className={css`
             margin-bottom: 1rem;
           `}

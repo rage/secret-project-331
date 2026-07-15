@@ -66,6 +66,7 @@ export type SelectProps<T extends FieldValues, N extends Path<T> = Path<T>> = Rh
   onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement>
   onKeyUp?: React.KeyboardEventHandler<HTMLButtonElement>
   className?: string
+  hasSearch?: boolean
 }
 
 const selectRootCss = css`
@@ -89,6 +90,22 @@ const triggerChevronCss = css`
   flex: 0 0 auto;
   margin-left: var(--space-3);
   color: var(--field-chrome);
+`
+
+const searchfieldCss = css`
+  margin-left: 6px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 999px;
+  padding: 0 1rem;
+  outline: none;
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--field-border);
+  min-height: 2rem;
+  &:focus-visible {
+    box-shadow: none;
+    outline: 2px solid var(--field-border-color-focus);
+  }
 `
 
 export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -211,7 +228,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const { buttonProps } = useButton(triggerProps, buttonRef)
   const { labelProps, inputProps } = useSearchField(
-    autoCompleteInputProps,
+    { ...autoCompleteInputProps, placeholder: "Search chatbots" },
     searchFieldState,
     searchRef,
   )
@@ -311,7 +328,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
             }}
           >
             <FocusScope autoFocus>
-              <input {...inputProps} ref={searchRef} />
+              <input className={searchfieldCss} {...inputProps} ref={searchRef} />
               <ListBox
                 {...mergeProps(menuProps, collectionProps)}
                 state={state}

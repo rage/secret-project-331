@@ -921,44 +921,48 @@ async fn parse_tool<'a>(
                     "Received tool response but response id not found, this shouldn't happen."
                 ))?
             };
-            let mut tool_msgs = Vec::new();
 
             for (name, id, args) in function_name_id_args.into_iter() {
-                let tool_result = call_chatbot_tool(conn, &name, args, user_context).await?;
+                let mut tx = conn.begin().await.map_err(ChatbotError::from)?;
+                let tool_result = call_chatbot_tool(&mut tx, &name, args, user_context).await?;
 
-                tool_msgs.push(APIOutputMessage {
+                let tool_call_message = APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
                         response_id: response_id.to_owned(),
                         call_id: id.to_owned(),
                         tool_name: name.to_owned(),
                         arguments: tool_result.arguments,
                     },
-                });
+                };
+                chatbot_conversation_messages::insert(
+                    &mut tx,
+                    tool_call_message.to_chatbot_conversation_message(conversation_id)?,
+                )
+                .await?;
+
                 let function_call_output = OutputItem::FunctionCallOutput {
                         call_id: id.to_owned(),
                         output: tool_result.output,
                         response_id: response_id.to_owned(),
                     };
-                tool_msgs.push(APIOutputMessage {
+                let output_message = APIOutputMessage {
                     message_type: function_call_output.to_owned(),
-                });
+                };
+                chatbot_conversation_messages::insert(
+                    &mut tx,
+                    output_message.to_chatbot_conversation_message(conversation_id)?,
+                )
+                .await?;
+                tx.commit().await.map_err(ChatbotError::from)?;
+
+                messages.extend([tool_call_message, output_message]);
+
                 yield StreamEvent::Item(StreamItem {
                     item: function_call_output,
                     finished: true,
                 });
             }
-            // save tool_msgs to the db
-            let mut tx = conn.begin().await.map_err(ChatbotError::from)?;
-            for m in &tool_msgs {
-                chatbot_conversation_messages::insert(
-                    &mut tx,
-                    m.to_chatbot_conversation_message(conversation_id)?,
-                )
-                .await?;
-            }
-            tx.commit().await.map_err(ChatbotError::from)?;
 
-            messages.extend(tool_msgs);
             let input_messages = messages.into_iter().map(APIInputMessage::from).collect::<Vec<APIInputMessage>>();
             yield StreamEvent::Messages(input_messages);
             break;
@@ -976,7 +980,7 @@ async fn parse_tool<'a>(
                         call_id,
                         arguments,
                     ));
-                    yield StreamEvent::Item(StreamItem { item, finished: false });
+                    yield StreamEvent::Item(StreamItem { item, finished: true });
                 }
                 OutputItem::Message { content, .. } => {
                     if let MessageContent::Refusal(..) = content {
@@ -1354,6 +1358,22 @@ fn check_error_should_terminate_stream(err: &ChatbotErrorType) -> bool {
     )
 }
 
+async fn clean_up_unfinished_tool_calls(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+) -> ChatbotResult<()> {
+    trace!("Cleaning up unfinished tool calls: {}", conversation_id);
+    // wrong response id? IT DOESN'T WORK
+    let lol = headless_lms_models::chatbot_conversation_messages::delete_orphan_tool_call_for_conversation(
+        conn,
+        conversation_id,
+    )
+    .await
+    .map_err(ChatbotError::from)?;
+    trace!("Cleaned tool call: {lol:?}");
+    Ok(())
+}
+
 /// Send and parse a Chatbot message and response and stream it to the user.
 /// Controls the whole operation.
 pub async fn send_chat_request_and_parse_stream(
@@ -1383,6 +1403,7 @@ pub async fn send_chat_request_and_parse_stream(
     let response_id = Arc::new(Mutex::new(String::new()));
 
     let done = Arc::new(AtomicBool::new(false));
+    let mut should_clean_tool_calls = false;
     let full_response_text = Arc::new(Mutex::new(Vec::new()));
     let response_message_id = Arc::new(Mutex::new(Uuid::nil()));
 
@@ -1420,7 +1441,6 @@ pub async fn send_chat_request_and_parse_stream(
                     yield Bytes::from("\n");
                     done.store(true, atomic::Ordering::Relaxed);
                     break 'outer;
-
                 },
             };
             let mut response_stream = stream_and_detect_response_stream_type(lines);
@@ -1470,6 +1490,7 @@ pub async fn send_chat_request_and_parse_stream(
                     },
                     Err(e) => {
                         error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.lock().await, e);
+                        should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
                             return Err(e)?;
                         };
@@ -1549,6 +1570,7 @@ pub async fn send_chat_request_and_parse_stream(
                                 request_estimated_tokens + estimated_cost,
                             ).await?;
                         };
+                        should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
                             return Err(e)?;
                         };
@@ -1604,6 +1626,8 @@ pub async fn send_chat_request_and_parse_stream(
                 }
             }
         }
+        if should_clean_tool_calls { clean_up_unfinished_tool_calls(&mut conn, conversation_id).await?;}
+
         if !done.load(atomic::Ordering::Relaxed) {
             let id = response_id.lock().await;
             let event_string = error_event_string_from_message(Some(format!("Stream ended unexpectedly. Response id: {id}").as_str()), None)?;

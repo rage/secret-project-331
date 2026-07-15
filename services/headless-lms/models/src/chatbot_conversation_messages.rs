@@ -253,6 +253,39 @@ RETURNING *
     Ok(res)
 }
 
+pub async fn delete_orphan_tool_call_for_conversation(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+) -> ModelResult<Option<ChatbotConversationMessageRow>> {
+    let mut tx = conn.begin().await?;
+    let mut res = None;
+
+    let deleted_child =
+        chatbot_conversation_message_tool_calls::delete_orphan_tool_call_for_conversation(
+            &mut tx,
+            conversation_id,
+        )
+        .await?;
+
+    if let Some(c) = deleted_child {
+        let deleted = sqlx::query_as!(
+            ChatbotConversationMessageRow,
+            r#"
+UPDATE chatbot_conversation_messages
+SET deleted_at = NOW()
+WHERE id = $1
+RETURNING *
+        "#,
+            c.chatbot_conversation_message_id
+        )
+        .fetch_one(&mut *tx)
+        .await?;
+        res = Some(deleted)
+    }
+    tx.commit().await?;
+    Ok(res)
+}
+
 pub async fn update(
     conn: &mut PgConnection,
     id: Uuid,

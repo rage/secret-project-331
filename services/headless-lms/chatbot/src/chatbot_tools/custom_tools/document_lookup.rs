@@ -30,8 +30,13 @@ impl ChatbotTool for DocumentLookupTool {
     type Arguments = DocumentLookupArguments;
 
     fn parse_arguments(args_string: String) -> ChatbotResult<Self::Arguments> {
-        serde_json::from_str::<Self::Arguments>(&args_string)
-            .map_err(|e| chatbot_err!(InvalidToolArguments, "Couldn't parse tool arguments", e))
+        serde_json::from_str::<Self::Arguments>(&args_string).map_err(|e| {
+            chatbot_err!(
+                InvalidToolArguments,
+                format!("Couldn't parse tool arguments. Arguments: {args_string}"),
+                e
+            )
+        })
     }
 
     async fn from_db_and_arguments(

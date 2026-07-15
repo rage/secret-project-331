@@ -47,7 +47,7 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
 
   return (
     <form
-      onSubmit={handleSubmit(({ code }) => onSubmit(code))}
+      onSubmit={handleSubmit((values) => onSubmit(values.code))}
       aria-describedby={hasError ? "code-error" : undefined}
     >
       <div
@@ -115,7 +115,7 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
               }}
               className={css`
                 padding-left: 4px !important;
-                color: ${baseTheme.colors.green[600]}!important;
+                color: ${baseTheme.colors.green[600]} !important;
               `}
             >
               {resendCooldown > 0 ? `${resend.label} (${resendCooldown})` : resend.label}

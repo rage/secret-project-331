@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { forwardRef, InputHTMLAttributes } from "react"
+import type { InputHTMLAttributes } from "react"
+import React, { forwardRef } from "react"
 
 interface SelectOption {
   value: string
@@ -125,9 +126,14 @@ const SelectField = forwardRef<HTMLSelectElement, SelectMenuProps>(
             {...rest}
             // Register overrides onChange if specified
           >
-            {options.map(({ value, label, disabled }) => (
-              <option value={value} key={label} disabled={disabled} selected={disabled && true}>
-                {label}
+            {options.map(({ value, label: optionLabel, disabled: optionDisabled }) => (
+              <option
+                value={value}
+                key={optionLabel}
+                disabled={optionDisabled}
+                selected={optionDisabled && true}
+              >
+                {optionLabel}
               </option>
             ))}
           </select>

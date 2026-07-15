@@ -28,7 +28,12 @@ import { useFloatingFieldState } from "./primitives/useFloatingFieldState"
  * Uses react-hook-form; pass `name` and `control`.
  *
  * @example
+ * // Basic usage
  * <TextField name="email" control={control} label="Email" type="email" />
+ *
+ * @example
+ * // Usage with validation rules
+ * <TextField name="email" control={control} label="Email" type="email" rules={{ required: t("required-field") }} />
  */
 export type TextFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
   T,
@@ -54,6 +59,7 @@ export type TextFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]
   placeholder?: string
   className?: string
+  step?: string
 }
 
 export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -83,11 +89,12 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
     className,
     min,
     max,
+    step,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
   const inputRef = useRef<HTMLInputElement>(null)
-  const stringValue = field.value == null ? "" : String(field.value)
+  const stringValue = field.value === null || field.value === undefined ? "" : String(field.value)
 
   const floatingState = useFloatingFieldState({
     defaultValue: undefined,
@@ -145,6 +152,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
     placeholder: resolveFloatingPlaceholder(),
     min,
     max,
+    step,
   })
 
   const resolvedRenderedError = resolveRenderedErrorMessage(

@@ -72,9 +72,8 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
             current_page_id: chapter.front_page_id,
           },
         })
-      } else {
-        return `/chapter-${chapter.chapter_number}`
       }
+      return `/chapter-${chapter.chapter_number}`
     },
   })
 

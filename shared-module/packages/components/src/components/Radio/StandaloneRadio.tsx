@@ -21,7 +21,7 @@ import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
 
 import type { RadioInnerProps } from "./radioTypes"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const defaultFieldSize = "md" as const
 
 /** Renders a standalone radio input outside of `RadioGroup`. */
@@ -48,7 +48,7 @@ export function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
   const descriptionId = useId()
   const errorMessageId = useId()
   const resolvedFieldSize = fieldSize ?? defaultFieldSize
-  const radioValue = value == null ? undefined : String(value)
+  const radioValue = value === undefined ? undefined : String(value)
   const isControlled = checked !== undefined
   const standaloneState = resolveFieldState({
     isDisabled: Boolean(isDisabled || disabled),

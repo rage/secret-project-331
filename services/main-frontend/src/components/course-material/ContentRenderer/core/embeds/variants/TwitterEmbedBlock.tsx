@@ -2,12 +2,12 @@
 
 import { css } from "@emotion/css"
 
-import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 
 export const TwitterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   const blob = new Blob(
     [
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       `
       <blockquote class="twitter-tweet">
         <a href="${props.url}">Tweet</a>
@@ -22,8 +22,10 @@ export const TwitterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes
   return (
     <iframe
       src={window.URL.createObjectURL(blob)}
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       title={"Twitter"}
+      // Renders Twitter's own oembed HTML from a same-origin blob; the widget script needs both flags.
+      // oxlint-disable-next-line react/iframe-missing-sandbox
       sandbox="allow-scripts allow-same-origin"
       frameBorder="0"
       className={css`

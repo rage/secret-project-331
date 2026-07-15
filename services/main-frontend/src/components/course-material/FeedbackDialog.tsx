@@ -30,7 +30,7 @@ interface Props {
 interface Comment {
   selectedText: string
   comment: string
-  relatedBlocks: Array<FeedbackBlock>
+  relatedBlocks: FeedbackBlock[]
 }
 
 const CLOSE_SYMBOL = "×"
@@ -39,7 +39,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
   const { t } = useTranslation()
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [selection, setSelection] = useAtom(selectionAtom)
-  const [comments, setComments] = useState<Array<Comment>>([])
+  const [comments, setComments] = useState<Comment[]>([])
   const [comment, setComment] = useState("")
   const [error, setError] = useState<string | null>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -47,8 +47,8 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
   const { dialogProps } = useDialog({ "aria-labelledby": titleId }, dialogRef)
 
   const mutation = useToastMutation(
-    (comments: Comment[]) => {
-      const feedback = comments.map((c) => {
+    (commentsToSubmit: Comment[]) => {
+      const feedback = commentsToSubmit.map((c) => {
         return {
           feedback_given: c.comment,
           selected_text: c.selectedText.length > 0 ? c.selectedText : null,
@@ -83,7 +83,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
     setCurrentlyOpenFeedbackDialog(null)
   }
 
-  async function addComment() {
+  function addComment() {
     setError("")
     if (comment.length === 0) {
       setError(t("error-comment-cannot-be-empty"))
@@ -94,10 +94,9 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
       return
     }
 
-    const relatedBlocks: Array<FeedbackBlock> = []
-    const blocks = document.getElementsByClassName(courseMaterialBlockClass)
-    for (let i = 0; i < blocks.length; i++) {
-      const block = blocks[i]
+    const relatedBlocks: FeedbackBlock[] = []
+    const blocks = document.querySelectorAll(`.${courseMaterialBlockClass}`)
+    for (const block of blocks) {
       const rect = block.getBoundingClientRect()
       const topBelowScreen = rect.top > window.innerHeight
       const bottomAboveScreen = rect.bottom < 0
@@ -277,9 +276,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
                       color: ${baseTheme.colors.red[600]};
                     }
                   `}
-                  onClick={() =>
-                    setComments((cs) => [...cs.slice(0, i), ...cs.slice(i + 1, cs.length)])
-                  }
+                  onClick={() => setComments((cs) => [...cs.slice(0, i), ...cs.slice(i + 1)])}
                 >
                   {t("delete")}
                 </button>

@@ -1,15 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, {
-  DOMAttributes,
-  memo,
-  ReactPortal,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react"
+import type { DOMAttributes, ReactPortal } from "react"
+import React, { memo, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
 import CitationButton from "./CitationButton"
@@ -91,9 +84,9 @@ const messageStyle = css`
 `
 
 export enum MessageRenderType {
-  User,
-  ChatbotNoCitations,
-  ChatbotWithCitations,
+  User = 0,
+  ChatbotNoCitations = 1,
+  ChatbotWithCitations = 2,
 }
 
 interface RenderedMessageProps {
@@ -139,7 +132,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   const [readyForPortal, setReadyForPortal] = useState(false)
 
   useLayoutEffect(() => {
-    if (renderOption == MessageRenderType.ChatbotWithCitations) {
+    if (renderOption === MessageRenderType.ChatbotWithCitations) {
       setReadyForPortal(true)
     } else {
       setReadyForPortal(false)

@@ -2,7 +2,7 @@
 
 import { createContext } from "react"
 
-import { ExerciseAttributes } from "../blocks/Exercise"
+import type { ExerciseAttributes } from "../blocks/Exercise"
 
 interface ExerciseBlockContextType {
   setAttributes: (attributes: Partial<ExerciseAttributes>) => void

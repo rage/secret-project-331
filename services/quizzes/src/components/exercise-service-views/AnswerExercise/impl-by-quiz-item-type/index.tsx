@@ -1,8 +1,6 @@
-"use client"
-
 import { useCallback } from "react"
 
-import {
+import type {
   UserAnswer,
   UserItemAnswer,
   UserItemAnswerCheckbox,
@@ -15,7 +13,7 @@ import {
   UserItemAnswerScale,
   UserItemAnswerTimeline,
 } from "../../../../../types/quizTypes/answer"
-import {
+import type {
   PublicSpecQuiz,
   PublicSpecQuizItem,
   PublicSpecQuizItemCheckbox,
@@ -42,10 +40,11 @@ import Scale from "./Scale"
 import Timeline from "./Timeline"
 import Unsupported from "./Unsupported"
 
-import { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { UpdateFunction } from "@/shared-module/exercise-react/react/hooks/useExerciseServiceOutputState"
+import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { UpdateFunction } from "@/shared-module/exercise-react/react/hooks/useExerciseServiceOutputState"
 import { COLUMN, QUIZ_ITEM_CLASS } from "@/util/constants"
-import { FlexDirection, sanitizeFlexDirection } from "@/util/css-sanitization"
+import type { FlexDirection } from "@/util/css-sanitization"
+import { sanitizeFlexDirection } from "@/util/css-sanitization"
 
 interface WidgetProps {
   publicSpec: PublicSpecQuiz
@@ -86,14 +85,14 @@ const GetComponent: React.FC<{
         }
         // Update existing answer
         const item = userAnswer.itemAnswers.filter(
-          (item) => item.quizItemId == newQuizItemAnswer.quizItemId,
+          (itemAnswer) => itemAnswer.quizItemId === newQuizItemAnswer.quizItemId,
         )
         if (!item) {
           userAnswer.itemAnswers = [...userAnswer.itemAnswers, newQuizItemAnswer]
         } else {
           userAnswer.itemAnswers = [
             ...userAnswer.itemAnswers.filter(
-              (item) => item.quizItemId != newQuizItemAnswer.quizItemId,
+              (itemAnswer) => itemAnswer.quizItemId !== newQuizItemAnswer.quizItemId,
             ),
             newQuizItemAnswer,
           ]
@@ -278,7 +277,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
   return (
     <FlexWrapper wideScreenDirection={direction}>
       {publicSpec.items
-        .sort((i1, i2) => i1.order - i2.order)
+        .toSorted((i1, i2) => i1.order - i2.order)
         .map((quizItem, idx) => {
           // Quiz item answer state'
           let quizItemAnswerState: UserItemAnswer | null = null

@@ -1,14 +1,12 @@
-"use client"
-
-import "@testing-library/jest-dom"
+import { vi } from "vitest"
 import { fireEvent, render, screen } from "@testing-library/react"
 
-import { UserItemAnswerMatrix } from "../../../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMatrix } from "../../../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerMatrix } from "../../../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMatrix } from "../../../../../../../types/quizTypes/publicSpec"
 import Matrix from "../Matrix"
 
 // Override the global identity i18n mock so interpolation values (row/column) are visible.
-jest.mock("react-i18next", () => ({
+vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) =>
       options
@@ -37,7 +35,7 @@ const baseItem: PublicSpecQuizItemMatrix = {
 }
 
 const renderMatrix = (answer: UserItemAnswerMatrix | null = null) => {
-  const setQuizItemAnswerState = jest.fn()
+  const setQuizItemAnswerState = vi.fn()
   const utils = render(
     <Matrix
       quizDirection="column"
@@ -74,7 +72,8 @@ describe("Matrix accessibility", () => {
   it("uses cell separator borders with >= 3:1 contrast instead of the failing light gray", () => {
     renderMatrix()
     const styleText = allCssText()
-    expect(styleText).toMatch(/#767b85/i)
+    // jsdom's CSSOM serializes hex colors to rgb(), so accept either form of #767b85.
+    expect(styleText).toMatch(/#767b85|rgb\(118,\s*123,\s*133\)/i)
     expect(styleText).not.toContain("#e1e1e1")
   })
 

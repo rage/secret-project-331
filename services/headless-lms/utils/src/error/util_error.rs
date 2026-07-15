@@ -3,6 +3,7 @@ Contains error and result types for all the util functions.
 */
 
 use std::fmt::Display;
+use std::panic::Location;
 
 use backtrace::Backtrace;
 use headless_lms_base::error::backend_error::BackendError;
@@ -89,7 +90,6 @@ some_function_returning_an_error().map_err(|original_error| {
 # }
 ```
 */
-#[derive(Debug)]
 pub struct UtilError {
     error_type: <UtilError as BackendError>::ErrorType,
     message: String,
@@ -99,17 +99,24 @@ pub struct UtilError {
     span_trace: Box<SpanTrace>,
     /// Stack trace, generated automatically when the error is created.
     backtrace: Box<Backtrace>,
+    /// Source location where the error was raised.
+    location: Option<&'static Location<'static>>,
 }
 
 impl std::error::Error for UtilError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.source.as_ref().and_then(|o| o.source())
+        self.source
+            .as_deref()
+            .map(|e| e as &(dyn std::error::Error + 'static))
     }
 
     fn cause(&self) -> Option<&dyn std::error::Error> {
         self.source()
     }
 }
+
+// Generate the clean developer `Debug`/`clean_string` and a cause resolver.
+headless_lms_base::impl_clean_debug!(UtilError, [UtilError]);
 
 impl Display for UtilError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -119,20 +126,6 @@ impl Display for UtilError {
 
 impl BackendError for UtilError {
     type ErrorType = UtilErrorType;
-
-    fn new<M: Into<String>, S: Into<Option<anyhow::Error>>>(
-        error_type: Self::ErrorType,
-        message: M,
-        source_error: S,
-    ) -> Self {
-        Self::new_with_traces(
-            error_type,
-            message,
-            source_error,
-            Backtrace::new(),
-            SpanTrace::capture(),
-        )
-    }
 
     fn backtrace(&self) -> Option<&Backtrace> {
         Some(&self.backtrace)
@@ -150,12 +143,17 @@ impl BackendError for UtilError {
         &self.span_trace
     }
 
-    fn new_with_traces<M: Into<String>, S: Into<Option<anyhow::Error>>>(
+    fn location(&self) -> Option<&'static Location<'static>> {
+        self.location
+    }
+
+    fn new_with_traces_and_location<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
         message: M,
         source_error: S,
         backtrace: Backtrace,
         span_trace: SpanTrace,
+        location: Option<&'static Location<'static>>,
     ) -> Self {
         Self {
             error_type,
@@ -163,6 +161,7 @@ impl BackendError for UtilError {
             source: source_error.into(),
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
+            location,
         }
     }
 }
@@ -343,5 +342,34 @@ mod tests {
         let path = "/tmp/test.txt";
         let err = util_err!(Other, format!("Failed to process file: {}", path));
         assert_eq!(err.message(), "Failed to process file: /tmp/test.txt");
+    }
+
+    /// The captured `Location` points at the `util_err!` call site, not `macros.rs` or
+    /// the `new` constructor.
+    #[test]
+    fn err_macro_captures_the_real_call_site() {
+        let expected_line = line!() + 1;
+        let err = util_err!(Other, "boom".to_string());
+        let location = err.location().expect("location should be captured");
+        assert_eq!(location.line(), expected_line, "file: {}", location.file());
+        assert!(
+            location.file().ends_with("util_error.rs"),
+            "expected the call site, got: {}",
+            location.file()
+        );
+        assert!(
+            !location.file().contains("macros.rs"),
+            "got: {}",
+            location.file()
+        );
+    }
+
+    /// `Debug` renders the clean format without leaking infra paths.
+    #[test]
+    fn debug_uses_clean_format() {
+        let err = util_err!(Other, "boom".to_string());
+        let debug = format!("{err:?}");
+        assert!(debug.contains("UtilError · Other: boom"), "got: {debug}");
+        assert!(!debug.contains("backend_error.rs"), "got: {debug}");
     }
 }

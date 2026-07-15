@@ -34,76 +34,74 @@ const Organization: React.FC = () => {
   const examsSectionHeadingId = useId()
 
   return (
-    <>
-      <div>
-        <QueryResult query={organizationQuery}>
-          {(organization) => (
-            <>
-              <h1
+    <div>
+      <QueryResult query={organizationQuery}>
+        {(organization) => (
+          <>
+            <h1
+              className={css`
+                font-size: clamp(26px, 3vw, 30px);
+                font-weight: 600;
+              `}
+            >
+              {organization.name}
+            </h1>
+            <OnlyRenderIfPermissions
+              action={{
+                type: "edit",
+              }}
+              resource={{
+                type: "organization",
+                id: organization.id,
+              }}
+            >
+              <Link
+                href={manageOrganizationRoute(organization.id)}
+                aria-label={`${t("link-manage")}`}
+              >
+                {t("manage")}
+              </Link>
+            </OnlyRenderIfPermissions>
+            {organization.organization_image_url && (
+              <img
                 className={css`
-                  font-size: clamp(26px, 3vw, 30px);
-                  font-weight: 600;
+                  max-width: 20rem;
+                  max-height: 20rem;
+                `}
+                src={organization.organization_image_url}
+                alt={t("image-alt-what-to-display-on-organization")}
+              />
+            )}
+            <section aria-labelledby={coursesSectionHeadingId}>
+              <h2
+                id={coursesSectionHeadingId}
+                className={css`
+                  font-size: clamp(26px, 3.6vw, 36px);
+                  margin-bottom: 10px;
                 `}
               >
-                {organization.name}
-              </h1>
-              <OnlyRenderIfPermissions
-                action={{
-                  type: "edit",
-                }}
-                resource={{
-                  type: "organization",
-                  id: organization.id,
-                }}
-              >
-                <Link
-                  href={manageOrganizationRoute(organization.id)}
-                  aria-label={`${t("link-manage")}`}
-                >
-                  {t("manage")}
-                </Link>
-              </OnlyRenderIfPermissions>
-              {organization.organization_image_url && (
-                <img
-                  className={css`
-                    max-width: 20rem;
-                    max-height: 20rem;
-                  `}
-                  src={organization.organization_image_url}
-                  alt={t("image-alt-what-to-display-on-organization")}
-                />
-              )}
-              <section aria-labelledby={coursesSectionHeadingId}>
-                <h2
-                  id={coursesSectionHeadingId}
-                  className={css`
-                    font-size: clamp(26px, 3.6vw, 36px);
-                    margin-bottom: 10px;
-                  `}
-                >
-                  {t("course-list")}
-                </h2>
-                {/* TODO: Implement perPage dropdown? */}
-                <CourseList organizationId={organization.id} organizationSlug={organizationSlug} />
+                {t("course-list")}
+              </h2>
+              {/* TODO: Implement perPage dropdown? */}
+              <CourseList organizationId={organization.id} organizationSlug={organizationSlug} />
+            </section>
+
+            {/* TODO: We should render ExamList once we can filter away exams etc. */}
+            <OnlyRenderIfPermissions
+              action={{ type: "create_courses_or_exams" }}
+              resource={{ id: organization.id, type: "organization" }}
+            >
+              <section aria-labelledby={examsSectionHeadingId}>
+                <h2 id={examsSectionHeadingId}>{t("exam-list")}</h2>
+                <ExamList organizationId={organization.id} organizationSlug={organizationSlug} />
               </section>
+            </OnlyRenderIfPermissions>
+          </>
+        )}
+      </QueryResult>
 
-              {/* TODO: We should render ExamList once we can filter away exams etc. */}
-              <OnlyRenderIfPermissions
-                action={{ type: "create_courses_or_exams" }}
-                resource={{ id: organization.id, type: "organization" }}
-              >
-                <section aria-labelledby={examsSectionHeadingId}>
-                  <h2 id={examsSectionHeadingId}>{t("exam-list")}</h2>
-                  <ExamList organizationId={organization.id} organizationSlug={organizationSlug} />
-                </section>
-              </OnlyRenderIfPermissions>
-            </>
-          )}
-        </QueryResult>
-
-        <DebugModal data={organizationQuery.data} />
-      </div>
-    </>
+      <DebugModal data={organizationQuery.data} />
+    </div>
   )
 }
 

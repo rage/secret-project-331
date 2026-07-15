@@ -1,7 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { ReactNode } from "react"
+import type { ReactNode } from "react"
+import React from "react"
 import { Tooltip, TooltipTrigger } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 

@@ -52,7 +52,7 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
         {t("track-your-progress")}
       </h2>
       {userCourseProgress
-        .sort((a, b) => a.course_module_order_number - b.course_module_order_number)
+        .toSorted((a, b) => a.course_module_order_number - b.course_module_order_number)
         .map((courseModuleProgress) => (
           <TempAccordionItem
             onClick={() => handleAccordionToggle(courseModuleProgress.course_module_order_number)}

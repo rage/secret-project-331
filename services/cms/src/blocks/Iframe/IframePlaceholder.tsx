@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { useState } from "react"
 
@@ -55,6 +55,7 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
           const input = value.trim()
           let url: string | null = null
           try {
+            // oxlint-disable-next-line no-new -- validates input; throws on invalid URLs, caught below
             new URL(input)
             url = input
           } catch (_e) {
@@ -65,15 +66,16 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
             const iframe = htmlDoc.querySelector("iframe")
             if (iframe) {
               try {
+                // oxlint-disable-next-line no-new -- validates iframe.src; throws on invalid URLs, caught below
                 new URL(iframe.src)
                 url = iframe.src
-              } catch (_e) {
+              } catch (_e2) {
                 // NOP
               }
             }
           }
           if (url !== null) {
-            if (URLS_BETTER_HANDLED_BY_THE_EMBED_BLOCK.find((u) => url?.includes(u))) {
+            if (URLS_BETTER_HANDLED_BY_THE_EMBED_BLOCK.some((u) => url?.includes(u))) {
               setError("Please use the embed block instead.")
               return
             }

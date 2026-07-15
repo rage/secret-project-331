@@ -1,5 +1,5 @@
 import { HtmlRenderer, Parser as MarkdownParser } from "commonmark"
-import KaTex from "katex"
+import { renderToString } from "katex"
 
 const markdownParser = new MarkdownParser()
 const htmlWriter = new HtmlRenderer()
@@ -61,7 +61,7 @@ const validateText = (latex = false, markdown = false, text: string) => {
  * @returns LaTex in HTML
  */
 const parseLatex = (text: string, displayMode: boolean) => {
-  return KaTex.renderToString(text, {
+  return renderToString(text, {
     throwOnError: false,
     displayMode,
     output: KATEX_OUTPUT_FORMAT,
@@ -117,7 +117,7 @@ const formatText = (latex = false, markdown = false, text: string | null, inline
   const parts: string[] = []
   let lastIndex = 0
 
-  for (let match: RegExpExecArray | null; (match = ANY_TAG_REGEX.exec(originalText)) !== null;) {
+  for (let match: RegExpExecArray | null; (match = ANY_TAG_REGEX.exec(originalText)) !== null; ) {
     const fullMatch = match[0]
     const tagName = match[1]
     const innerContent = match[2]

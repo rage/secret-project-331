@@ -1,11 +1,12 @@
-"use client"
-
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { ArrowDownCircle, ArrowUpCircle, Trash } from "@vectopus/atlas-icons-react"
 import React from "react"
 
-import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../../../types/quizTypes/privateSpec"
+import type {
+  PrivateSpecQuiz,
+  PrivateSpecQuizItem,
+} from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 
 import Button from "@/shared-module/common/components/Button"
@@ -59,7 +60,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
     },
   )
   if (!selected) {
-    return <></>
+    return null
   }
 
   return (
@@ -81,7 +82,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
               }
               removeDuplicateOrderNumbers(draft.items)
               console.info(`Moving ${currentItem.id} (order ${currentItem.order}) up`)
-              const orders = draft.items.map((item) => item.order).sort()
+              const orders = draft.items.map((item) => item.order).toSorted()
               const minOrder = Math.min(...orders)
 
               if (currentItem.order !== minOrder) {
@@ -97,7 +98,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
                   i++
                 }
                 draft.items = draft.items.map((item) => {
-                  if (item.order == currentOrder) {
+                  if (item.order === currentOrder) {
                     return {
                       ...item,
                       order: nextOrder,
@@ -110,7 +111,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
                   }
                   return item
                 })
-                draft.items = draft.items.sort((a, b) => a.order - b.order)
+                draft.items = draft.items.toSorted((a, b) => a.order - b.order)
                 console.info("New orders")
                 for (const item of draft.items) {
                   console.info(item.id, item.order)
@@ -147,7 +148,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
               }
               removeDuplicateOrderNumbers(draft.items)
               console.info(`Moving ${currentItem.id} (order ${currentItem.order}) down`)
-              const orders = draft.items.map((item) => item.order).sort()
+              const orders = draft.items.map((item) => item.order).toSorted()
               const maxOrder = Math.max(...orders)
 
               if (currentItem.order !== maxOrder) {
@@ -162,7 +163,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
                   i++
                 }
                 draft.items = draft.items.map((item) => {
-                  if (item.order == currentOrder) {
+                  if (item.order === currentOrder) {
                     return {
                       ...item,
                       order: nextOrder,
@@ -175,7 +176,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
                   }
                   return item
                 })
-                draft.items = draft.items.sort((a, b) => a.order - b.order)
+                draft.items = draft.items.toSorted((a, b) => a.order - b.order)
                 console.info("New orders")
                 for (const item of draft.items) {
                   console.info(item.id, item.order)
@@ -221,7 +222,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
 }
 /** Modifies the order numbers in the given items so that there will be no duplicate order numbers */
 function removeDuplicateOrderNumbers(items: PrivateSpecQuizItem[]) {
-  const sorted = items.sort((a, b) => a.order - b.order)
+  const sorted = items.toSorted((a, b) => a.order - b.order)
   for (let i = 0; i < sorted.length; i++) {
     sorted[i].order = i
   }

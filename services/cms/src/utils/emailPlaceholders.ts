@@ -50,7 +50,7 @@ export function extractPlaceholders(blocks: BlockInstance[]): string[] {
     }
   }
 
-  blocks.forEach(extractFromBlock)
+  blocks.forEach((block) => extractFromBlock(block))
   return Array.from(placeholders)
 }
 

@@ -150,7 +150,7 @@ describe("CodeBlock", () => {
       expect(copied).toBeDefined()
       const processed = replaceBrTagsWithNewlines(contentWithBrAndMarkers)
       const { cleanCode: expected } = parseHighlightedCode(processed ?? "")
-      expect(String(copied).replace(/\r\n/g, "\n")).toBe(expected)
+      expect(String(copied).replaceAll("\r\n", "\n")).toBe(expected)
     })
 
     it("copies code with blank lines preserved when marker-only lines are removed", async () => {

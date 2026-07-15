@@ -10,7 +10,7 @@ import NewOrEditPageForm from "../NewOrEditPageForm"
 import PageAudioWidget from "./PageAudioWidget"
 
 import type { Chapter, Page } from "@/generated/api/types.generated"
-import { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
+import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
@@ -75,7 +75,7 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
         }}
         isUpdate={true}
         savedPage={page}
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         prefix={chapter && `/chapter-${chapter.chapter_number}/`}
         open={showEditPageDetailsForm}
         onClose={() => setShowEditDetailsPageForm(false)}

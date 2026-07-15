@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { theme } from "../../../styles"
 
-import { TabLinkProps } from "./TabLink"
+import type { TabLinkProps } from "./TabLink"
 
 interface TabLinkNavigationProps {
   orientation?: "horizontal" | "vertical"
@@ -43,16 +43,14 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
 
   useEffect(() => {
     const childElementUrlProps = React.Children.map(children, (child) => {
-      if (React.isValidElement<TabLinkProps>(child)) {
-        if (typeof child.props.url === "string") {
-          return child.props.url
-        }
+      if (React.isValidElement<TabLinkProps>(child) && typeof child.props.url === "string") {
+        return child.props.url
       }
     })
     // Ensure we redirect to the first tab URL if on root or unknown path and routing enabled
     if (
       childElementUrlProps &&
-      childElementUrlProps.length !== 0 &&
+      childElementUrlProps.length > 0 &&
       enableRouting &&
       !childElementUrlProps.includes(path)
     ) {
@@ -67,30 +65,26 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
    * @param event User keyboard event
    */
   const tabListOnKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const previousSiblingKey = orientation === "horizontal" ? "ArrowLeft" : "ArrowUp"
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const nextSiblingKey = orientation === "horizontal" ? "ArrowRight" : "ArrowDown"
     if (event.key === previousSiblingKey) {
       event.preventDefault()
       if (document.activeElement?.previousElementSibling instanceof HTMLAnchorElement) {
         document.activeElement.previousElementSibling.focus()
-      } else {
+      } else if (event.currentTarget.lastElementChild instanceof HTMLAnchorElement) {
         // We at the start of tab nav, go to last
-        if (event.currentTarget.lastElementChild instanceof HTMLAnchorElement) {
-          event.currentTarget.lastElementChild.focus()
-        }
+        event.currentTarget.lastElementChild.focus()
       }
     }
     if (event.key === nextSiblingKey) {
       event.preventDefault()
       if (document.activeElement?.nextElementSibling instanceof HTMLAnchorElement) {
         document.activeElement.nextElementSibling.focus()
-      } else {
+      } else if (event.currentTarget.firstElementChild instanceof HTMLAnchorElement) {
         // We at the end of tab nav, go to first
-        if (event.currentTarget.firstElementChild instanceof HTMLAnchorElement) {
-          event.currentTarget.firstElementChild.focus()
-        }
+        event.currentTarget.firstElementChild.focus()
       }
     }
     if (event.key === "Home") {
@@ -115,7 +109,7 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
 
   return (
     // Interactive support is done in children
-    // eslint-disable-next-line jsx-a11y/interactive-supports-focus
+    // oxlint-disable-next-line jsx-a11y/interactive-supports-focus
     <div
       ref={tabsRef}
       role="tablist"
@@ -139,9 +133,8 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
             ...child.props,
             isActive: path ? child.props.isActive : i === 0,
           })
-        } else {
-          return child
         }
+        return child
       })}
     </div>
   )

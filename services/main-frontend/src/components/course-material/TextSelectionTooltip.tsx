@@ -147,7 +147,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   const giveFeedbackHandleClick = () => {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     setCurrentlyOpenFeedbackDialog("select-type" as const)
   }
 
@@ -191,7 +191,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
     <div
       ref={setPopperElement}
       className={tooltipClass}
-      // eslint-disable-next-line react/forbid-dom-props
+      // oxlint-disable-next-line react/forbid-dom-props
       style={styles.popper}
       {...attributes.popper}
       id={TEXT_SELECTION_TOOLTIP_ID}
@@ -199,7 +199,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
     >
       <SpeechBalloon
         placement={state?.placement}
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         paddingValue="0.2rem"
       >
         <div
@@ -211,7 +211,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
           {courseName && pageTitle && courseHasChatbot && (
             <>
               <Button
-                isDisabled={chatbotCommunicationChannel == null}
+                isDisabled={chatbotCommunicationChannel === null}
                 onClick={() => {
                   chatbotCommunicationChannel?.sendNewMessage(
                     t("text-selection-summarize-with-ai", {
@@ -226,7 +226,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
                 <AIChat className={svgCss} />
               </Button>
               <Button
-                isDisabled={chatbotCommunicationChannel == null}
+                isDisabled={chatbotCommunicationChannel === null}
                 onClick={() => {
                   chatbotCommunicationChannel?.sendNewMessage(
                     t("text-selection-explain-with-ai", {

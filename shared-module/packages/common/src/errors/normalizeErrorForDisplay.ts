@@ -1,7 +1,8 @@
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import { ZodError } from "zod"
 
-import { AppApiError, isAppApiError } from "./AppApiError"
+import type { AppApiError } from "./AppApiError"
+import { isAppApiError } from "./AppApiError"
 
 export type ErrorCategory =
   | "validation"
@@ -117,7 +118,7 @@ function severityFromCategory(category: ErrorCategory): ErrorSeverity {
   return category === "rate_limit" || category === "unknown" ? "warning" : "error"
 }
 
-type SimplifiedPayload = {
+interface SimplifiedPayload {
   type?: unknown
   message_key?: unknown
   message?: unknown
@@ -125,7 +126,7 @@ type SimplifiedPayload = {
   metadata?: unknown
 }
 
-type LegacyErrorResponse = {
+interface LegacyErrorResponse {
   title?: unknown
   message?: unknown
   source?: unknown

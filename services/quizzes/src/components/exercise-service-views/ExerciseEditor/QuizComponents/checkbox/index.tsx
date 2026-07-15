@@ -1,10 +1,8 @@
-"use client"
-
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuizItemCheckbox } from "../../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuizItemCheckbox } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
@@ -47,12 +45,12 @@ const CheckboxEditor: React.FC<CheckboxEditorProps> = ({ quizItemId }) => {
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemCheckbox>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemCheckbox>(quiz, quizItemId, "checkbox")
     })
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (

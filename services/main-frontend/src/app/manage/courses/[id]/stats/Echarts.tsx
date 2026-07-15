@@ -23,7 +23,7 @@ const Echarts: React.FC<React.PropsWithChildren<EchartsProps>> = ({ options, hei
         width: 100%;
       `}
     >
-      {/* eslint-disable-next-line react/forbid-component-props */}
+      {/* oxlint-disable-next-line react/forbid-component-props */}
       <ReactECharts style={{ height }} option={options} />
     </div>
   )

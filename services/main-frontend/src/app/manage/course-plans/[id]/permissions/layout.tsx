@@ -24,5 +24,5 @@ export default function CoursePlanPermissionsLayout({ children }: { children: Re
     disabled: planId === "",
   })
 
-  return <>{children}</>
+  return children
 }

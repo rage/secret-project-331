@@ -1,6 +1,4 @@
-"use client"
-
-import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 import QuizzesExerciseServiceContext from "../contexts/QuizzesExerciseServiceContext"
 
 import useExerciseServiceOutputState from "@/shared-module/exercise-react/react/hooks/useExerciseServiceOutputState"

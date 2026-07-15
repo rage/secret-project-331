@@ -1,14 +1,12 @@
-"use client"
-
 import { css } from "@emotion/css"
 import { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -73,21 +71,19 @@ const MultipleChoiceDropdown: React.FunctionComponent<
           `}
         >
           {quizItem.title ? (
-            <>
-              <label
-                htmlFor={selectId}
-                className={css`
-                  display: block;
-                  font-size: ${quizTheme.quizTitleFontSize} !important;
-                  font-weight: 500;
-                  color: #4c5868;
-                  font-family: ${primaryFont};
-                  margin-bottom: 1rem;
-                `}
-              >
-                {quizItem.title}
-              </label>
-            </>
+            <label
+              htmlFor={selectId}
+              className={css`
+                display: block;
+                font-size: ${quizTheme.quizTitleFontSize} !important;
+                font-weight: 500;
+                color: #4c5868;
+                font-family: ${primaryFont};
+                margin-bottom: 1rem;
+              `}
+            >
+              {quizItem.title}
+            </label>
           ) : null}
         </div>
         {quizItem.body && (
@@ -97,16 +93,14 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             `}
           >
             {quizItem.body ? (
-              <>
-                <p
-                  id={bodyId}
-                  className={css`
-                    font-size: 1.25rem !important;
-                  `}
-                >
-                  {quizItem.body}
-                </p>
-              </>
+              <p
+                id={bodyId}
+                className={css`
+                  font-size: 1.25rem !important;
+                `}
+              >
+                {quizItem.body}
+              </p>
             ) : null}
           </div>
         )}

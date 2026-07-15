@@ -1,14 +1,12 @@
-"use client"
-
-import "@testing-library/jest-dom"
+import { vi } from "vitest"
 import { act, fireEvent, render, screen } from "@testing-library/react"
 
-import { UserItemAnswerEssay } from "../../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemEssay } from "../../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerEssay } from "../../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemEssay } from "../../../../../../types/quizTypes/publicSpec"
 import Essay from "../Essay"
 
 // Override the global identity i18n mock so interpolation options show up in the rendered string.
-jest.mock("react-i18next", () => ({
+vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) =>
       options ? `${key} ${JSON.stringify(options)}` : key,
@@ -21,10 +19,10 @@ jest.mock("react-i18next", () => ({
 // jsdom has no IntersectionObserver; the auto-resizing textarea in TextAreaField relies on it.
 beforeAll(() => {
   class MockIntersectionObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-    takeRecords() {
+    public observe() {}
+    public unobserve() {}
+    public disconnect() {}
+    public takeRecords() {
       return []
     }
   }
@@ -53,7 +51,7 @@ const renderEssay = (
   overrides: Partial<PublicSpecQuizItemEssay> = {},
   answer: UserItemAnswerEssay | null = null,
 ) => {
-  const setQuizItemAnswerState = jest.fn()
+  const setQuizItemAnswerState = vi.fn()
   const makeElement = (currentAnswer: UserItemAnswerEssay | null) => (
     <Essay
       quizDirection="column"
@@ -80,6 +78,7 @@ describe("Essay accessibility", () => {
     expect(labelledBy).toBeTruthy()
     const referenced = (labelledBy as string)
       .split(" ")
+      // oxlint-disable-next-line unicorn/prefer-query-selector -- useId values aren't valid CSS selectors
       .map((id) => document.getElementById(id)?.textContent)
       .join(" ")
     expect(referenced).toContain("What is your opinion?")
@@ -91,6 +90,7 @@ describe("Essay accessibility", () => {
     const textarea = screen.getByLabelText(/What is your opinion\?/)
     const ids = (textarea.getAttribute("aria-labelledby") as string).split(" ")
     expect(ids).toHaveLength(1)
+    // oxlint-disable-next-line unicorn/prefer-query-selector -- useId values aren't valid CSS selectors
     expect(document.getElementById(ids[0])?.textContent).toBe("What is your opinion?")
   })
 
@@ -116,16 +116,17 @@ describe("Essay accessibility", () => {
 
 describe("Essay word count announcement debouncing", () => {
   beforeEach(() => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- colocated with its describe block for readability
   const advance = (ms: number) => {
     act(() => {
-      jest.advanceTimersByTime(ms)
+      vi.advanceTimersByTime(ms)
     })
   }
 

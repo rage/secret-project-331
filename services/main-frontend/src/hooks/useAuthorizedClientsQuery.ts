@@ -16,6 +16,7 @@ const useAuthorizedClientsQuery = () => {
   })
 
   const revokeMutation = useMutation({
+    // oxlint-disable-next-line require-await -- kept async for Promise-returning mutationFn contract
     mutationFn: async (clientId: string) =>
       deleteOauthAuthorizedClient({
         path: {

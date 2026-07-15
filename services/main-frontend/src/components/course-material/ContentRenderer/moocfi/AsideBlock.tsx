@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 import InnerBlocks from "../util/InnerBlocks"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -36,6 +36,14 @@ const AsideBLock: React.FC<React.PropsWithChildren<BlockRendererProps<AsideBlock
         h5,
         h6 {
           margin-top: 0;
+        }
+
+        /* Contain floated children (e.g. left-floated images) so they don't overflow past
+        the bottom border when the adjacent text is short. */
+        &::after {
+          content: "";
+          display: block;
+          clear: both;
         }
       `}
     >

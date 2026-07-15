@@ -5,7 +5,7 @@
  * PYODIDE_INDEX_URL is injected at build time from src/util/pyodide-version.json.
  */
 /* global importScripts, loadPyodide */
-var PYODIDE_INDEX_URL = "/pyodide/v0.29.3/full/"
+var PYODIDE_INDEX_URL = "/tmc/pyodide/v0.29.3/full/"
 
 importScripts(PYODIDE_INDEX_URL + "pyodide.js")
 
@@ -22,6 +22,7 @@ function getPyodide() {
   return pyodidePromise
 }
 
+// oxlint-disable-next-line unicorn/prefer-add-event-listener -- Worker onmessage intentional property-handler
 self.onmessage = function (e) {
   var script = e.data.script
   getPyodide()
@@ -42,16 +43,18 @@ self.onmessage = function (e) {
         var lines = stdout.split("\n").filter(function (s) {
           return s.trim().length > 0
         })
-        var lastLine = lines.length > 0 ? lines[lines.length - 1] : ""
+        var lastLine = lines.length > 0 ? lines.at(-1) : ""
         var runResult = JSON.parse(lastLine)
         if (stderrBuffer.length > 0) {
           runResult.stderr = stderrBuffer.join("\n")
         }
+        // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
         self.postMessage({ runResult: runResult })
       })
     })
     .catch(function (err) {
       var message = err && err.message ? err.message : String(err)
+      // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
       self.postMessage({ error: message })
     })
 }

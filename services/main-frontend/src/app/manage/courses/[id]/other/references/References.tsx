@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next"
 import EditReferenceDialog from "./EditReferenceDialog"
 import NewReferenceDialog from "./NewReferenceDialog"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { getCourseReferencesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MaterialReference } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
@@ -70,7 +70,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
       />
       <ul>
         {[...data]
-          .sort((o1, o2) => o1.citation_key.localeCompare(o2.citation_key))
+          .toSorted((o1, o2) => o1.citation_key.localeCompare(o2.citation_key))
           .map((r, idx) => {
             try {
               const c = Cite(r.reference)

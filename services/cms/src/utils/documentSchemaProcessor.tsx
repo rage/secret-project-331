@@ -1,16 +1,16 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
 import { v4, v5 } from "uuid"
 
-import { ExerciseAttributes } from "../blocks/Exercise"
-import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+import type { ExerciseAttributes } from "../blocks/Exercise"
+import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
 
 import { isGutenbergBlockArray } from "./Gutenberg/gutenbergBlocks"
 
-import {
+import type {
   CmsPageExercise,
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
@@ -34,6 +34,7 @@ export interface UnnormalizedDocument {
   title: string
   urlPath: string
   chapterId: string | null
+  hidden: boolean
 }
 
 /**
@@ -168,6 +169,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     exercise_tasks: exerciseTasks,
     title: args.title,
     url_path: args.urlPath,
+    hidden: args.hidden,
   }
 }
 
@@ -202,7 +204,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         },
         isValid: true,
         innerBlocks: tasks
-          .sort((a, b) => a.order_number - b.order_number)
+          .toSorted((a, b) => a.order_number - b.order_number)
           .map((task) => {
             const denormalizedTask: BlockInstance<ExerciseTaskAttributes> = {
               // Using task id in tests ensures that this operation is reversible
@@ -278,6 +280,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
     title: input.title,
     urlPath: input.url_path,
     chapterId: input.chapter_id ?? null,
+    hidden: input.hidden,
   }
 
   return res

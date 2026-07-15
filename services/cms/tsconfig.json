@@ -3,13 +3,15 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "target": "es2017",
+    "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "typeRoots": ["types", "./src/shared-module/common/types", "./node_modules/@types"],
     "types": ["jest", "node"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,

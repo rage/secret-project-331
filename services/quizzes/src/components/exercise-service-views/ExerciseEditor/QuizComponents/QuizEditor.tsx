@@ -1,6 +1,4 @@
-"use client"
-
-import { PrivateSpecQuizItem } from "../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuizItem } from "../../../../../types/quizTypes/privateSpec"
 
 import CheckboxEditor from "./checkbox"
 import ChooseNEditor from "./choose-n"

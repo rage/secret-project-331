@@ -20,11 +20,11 @@ const useGlossary = (
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled: exam === null && isMaterialPage && enabled,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
         getCourseMaterialGlossaryOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
           },
         }),
     }),

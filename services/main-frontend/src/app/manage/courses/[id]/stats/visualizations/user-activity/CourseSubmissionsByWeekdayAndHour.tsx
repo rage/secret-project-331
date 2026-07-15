@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { Dictionary, groupBy, max } from "lodash"
+import type { Dictionary } from "lodash"
+import { groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +12,7 @@ import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
 import { getCourseWeekdayHourSubmissionCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { ExerciseSlideSubmissionCountByWeekAndHour } from "@/generated/api/types.generated"
+import type { ExerciseSlideSubmissionCountByWeekAndHour } from "@/generated/api/types.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -85,7 +86,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
           return <div>{t("no-data")}</div>
         }
 
-        const dataByWeekDayOrdered = Object.entries(data.dataByWeekDay).sort(
+        const dataByWeekDayOrdered = Object.entries(data.dataByWeekDay).toSorted(
           ([num, _a], [num2, _a2]) => Number(num) - Number(num2),
         )
 
@@ -108,7 +109,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
                 options={{
                   title: Object.keys(isodowToWeekdayName).map((weekdayNumber, i) => {
                     return {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       textBaseline: "middle",
                       top: ((i + 0.5) * 100) / 7 + "%",
                       // @ts-expect-error: todo
@@ -116,7 +117,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
                     }
                   }),
                   tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     position: "top",
                     formatter: (a) => {
                       return t("hourly-submissions-visualization-tooltip", {
@@ -144,12 +145,12 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
                   series: dataByWeekDayOrdered.map(([_weekdayNumber, entries], i) => {
                     return {
                       singleAxisIndex: i,
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       coordinateSystem: "singleAxis",
 
                       type: "scatter",
-                      // eslint-disable-next-line
-                  data: entries.map((o) => [o.hour ?? -1, o.count ?? -1]),
+                      // oxlint-disable-next-line
+                      data: entries.map((o) => [o.hour ?? -1, o.count ?? -1]),
                       symbolSize: function (dataItem) {
                         // scaling the size so that the largest value has size maxCircleSize
                         return (dataItem[1] / data.maxValue) * maxCircleSize

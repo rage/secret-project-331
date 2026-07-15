@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
 import UnsupportedEditor from "./UnsupportedEditor"
 import UnsupportedSave from "./UnsupportedSave"

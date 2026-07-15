@@ -3,7 +3,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
 import CustomViewIframe from "./CustomViewIframe"
 

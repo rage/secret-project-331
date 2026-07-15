@@ -56,8 +56,7 @@ const SelectMenu = <T extends string = string>({
       className={cx(
         css`
           margin-bottom: 1rem;
-          ${rest.disabled && `filter: opacity(0.5);`}
-          :hover {
+          ${rest.disabled && `filter: opacity(0.5);`}: hover {
             background: #f9f9f9;
           }
 
@@ -78,9 +77,7 @@ const SelectMenu = <T extends string = string>({
             color: #4c5868;
             appearance: none;
             background: transparent;
-            ${rest.disabled && `cursor: not-allowed;`}
-
-            :hover {
+            ${rest.disabled && `cursor: not-allowed;`}: hover {
               background: #f9f9f9;
             }
           }

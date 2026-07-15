@@ -58,15 +58,13 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
           total: pageData.reduce((acc, curr) => acc + curr.num_visitors, 0),
         }
       })
-      .sort((a, b) => a.total - b.total)
-    const topPages: { [page_id: string]: number } = totalCountsByPage
-      .slice(-100)
-      .reduce((acc, curr) => {
-        return {
-          ...acc,
-          [curr.page_id]: curr.total,
-        }
-      }, {})
+      .toSorted((a, b) => a.total - b.total)
+    const topPages: Record<string, number> = totalCountsByPage.slice(-100).reduce((acc, curr) => {
+      return {
+        ...acc,
+        [curr.page_id]: curr.total,
+      }
+    }, {})
     return topPages
   }, [query.data])
 
@@ -85,7 +83,7 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
+  const chartHeight = categories.length > 0 ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
 
   return (
     <>
@@ -125,9 +123,9 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
                       },
                     ],
                     tooltip: {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       trigger: "item",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       formatter: "{b}: {c}",
                     },
                   }}

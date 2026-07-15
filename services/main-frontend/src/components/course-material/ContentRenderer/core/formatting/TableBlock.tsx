@@ -1,11 +1,11 @@
 "use client"
 
-import { css } from "@emotion/css"
-import React, { useMemo, useRef } from "react"
+import { css, cx } from "@emotion/css"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import { BlockRendererProps } from "../.."
+import type { BlockRendererProps } from "../.."
 
-import { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
 import { stringToNumberOrPlaceholder } from "@/shared-module/common/utils/numbers"
@@ -13,6 +13,43 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExtraAttributes {
   className?: string
+}
+
+const scrollContainerStyles = css`
+  overflow-x: auto;
+  overflow-y: hidden;
+`
+
+const scrollWrapperStyles = css`
+  position: relative;
+`
+
+// Edge fades that hint the table scrolls horizontally. Shown only on the side(s) with hidden content.
+const edgeShadowBaseStyles = css`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2rem;
+  pointer-events: none;
+`
+
+const rightShadowStyles = css`
+  right: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.16));
+`
+
+const leftShadowStyles = css`
+  left: 0;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.16));
+`
+
+const fetchAlignment = (align: string | undefined) => {
+  if (align) {
+    return css`
+      text-align: ${align};
+    `
+  }
+  return undefined
 }
 
 const TableBlock: React.FC<
@@ -35,6 +72,7 @@ const TableBlock: React.FC<
     if (!refsMap.has(key)) {
       refsMap.set(key, React.createRef<HTMLElement>())
     }
+    // oxlint-disable-next-line typescript/no-non-null-assertion -- key was just inserted above, so get(key) is defined
     return refsMap.get(key)!
   }
 
@@ -53,138 +91,152 @@ const TableBlock: React.FC<
 
   const captionRef = useRef<HTMLElement>(null)
 
-  const fetchAlignment = (align: string | undefined) => {
-    if (align) {
-      return css`
-        text-align: ${align};
-      `
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [canScroll, setCanScroll] = useState({ left: false, right: false })
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) {
+      return
     }
-    return undefined
-  }
+    const left = el.scrollLeft > 1
+    const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 1
+    setCanScroll((prev) => (prev.left === left && prev.right === right ? prev : { left, right }))
+  }, [])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) {
+      return
+    }
+    updateScrollState()
+    const resizeObserver = new ResizeObserver(updateScrollState)
+    resizeObserver.observe(el)
+    return () => resizeObserver.disconnect()
+  }, [updateScrollState])
 
   return (
-    <div
-      className={css`
-        overflow-x: auto;
-        overflow-y: hidden;
-      `}
-    >
-      <table
-        className={css`
-          border-collapse: collapse;
-          td,
-          th {
-            ${!isStriped && `border: 1px solid currentColor;`}
-            white-space: pre-wrap;
-            padding: 0.5rem;
-            ${hasFixedLayout && "overflow-wrap: break-word;"}
-          }
-          /* stylelint-disable-next-line block-no-empty */
-          tbody tr:nth-child(odd) {
-            ${isStriped && `background-color: ${baseTheme.colors.gray[100]};`}
-          }
-          ${hasFixedLayout && "table-layout: fixed;"}
-          thead {
-            border-bottom: 3px solid;
-          }
-          tfoot {
-            border-top: 3px solid;
-          }
+    <div className={scrollWrapperStyles}>
+      <div ref={scrollRef} onScroll={updateScrollState} className={scrollContainerStyles}>
+        <table
+          className={css`
+            border-collapse: collapse;
+            td,
+            th {
+              ${!isStriped && `border: 1px solid currentColor;`}
+              white-space: pre-wrap;
+              padding: 0.5rem;
+              ${hasFixedLayout && "overflow-wrap: break-word;"}
+            }
+            /* stylelint-disable-next-line block-no-empty */
+            tbody tr:nth-child(odd) {
+              ${isStriped && `background-color: ${baseTheme.colors.gray[100]};`}
+            }
+            ${hasFixedLayout && "table-layout: fixed;"}
+            thead {
+              border-bottom: 3px solid;
+            }
+            tfoot {
+              border-top: 3px solid;
+            }
 
-          ${shouldUseSmallerFont && `font-size: 15px;`}
-        `}
-      >
-        {head && (
-          <thead>
-            {head.map((cellRows: Cells, j: number) => (
-              <tr key={j}>
-                {cellRows.cells &&
-                  cellRows.cells.map((cell: CellAttributes, i) => (
-                    <ParsedText
-                      key={i}
-                      // eslint-disable-next-line i18next/no-literal-string
-                      text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
-                      tag="th"
-                      tagProps={{
-                        // eslint-disable-next-line i18next/no-literal-string
-                        scope: "col",
-                        className: fetchAlignment(cell.align),
-                        colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
-                        rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
-                      }}
-                      useWrapperElement={false}
-                      // eslint-disable-next-line i18next/no-literal-string
-                      wrapperRef={getRef(`head-${j}-${i}`)}
-                    />
-                  ))}
-              </tr>
-            ))}
-          </thead>
-        )}
-        <tbody>
-          {body.map((cellRows: Cells, j: number) => (
-            <tr key={j}>
-              {cellRows.cells &&
-                cellRows.cells.map((cell: CellAttributes, i: number) => (
-                  <ParsedText
-                    key={i}
-                    // eslint-disable-next-line i18next/no-literal-string
-                    text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
-                    tag="td"
-                    tagProps={{
-                      className: fetchAlignment(cell.align),
-                      colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
-                      rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
-                    }}
-                    useWrapperElement={false}
-                    // eslint-disable-next-line i18next/no-literal-string
-                    wrapperRef={getRef(`body-${j}-${i}`)}
-                  />
-                ))}
-            </tr>
-          ))}
-        </tbody>
-        {foot && (
-          <tfoot>
-            {foot.map((cellRows: Cells, j: number) => (
+            ${shouldUseSmallerFont && `font-size: 15px;`}
+          `}
+        >
+          {head && (
+            <thead>
+              {head.map((cellRows: Cells, j: number) => (
+                <tr key={j}>
+                  {cellRows.cells &&
+                    cellRows.cells.map((cell: CellAttributes, i) => (
+                      <ParsedText
+                        key={i}
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
+                        tag="th"
+                        tagProps={{
+                          // oxlint-disable-next-line i18next/no-literal-string
+                          scope: "col",
+                          className: fetchAlignment(cell.align),
+                          colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
+                          rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
+                        }}
+                        useWrapperElement={false}
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        wrapperRef={getRef(`head-${j}-${i}`)}
+                      />
+                    ))}
+                </tr>
+              ))}
+            </thead>
+          )}
+          <tbody>
+            {body.map((cellRows: Cells, j: number) => (
               <tr key={j}>
                 {cellRows.cells &&
                   cellRows.cells.map((cell: CellAttributes, i: number) => (
                     <ParsedText
                       key={i}
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
-                      tag="th"
+                      tag="td"
                       tagProps={{
-                        // eslint-disable-next-line i18next/no-literal-string
-                        scope: "col",
                         className: fetchAlignment(cell.align),
                         colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
                         rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                       }}
                       useWrapperElement={false}
-                      // eslint-disable-next-line i18next/no-literal-string
-                      wrapperRef={getRef(`foot-${j}-${i}`)}
+                      // oxlint-disable-next-line i18next/no-literal-string
+                      wrapperRef={getRef(`body-${j}-${i}`)}
                     />
                   ))}
               </tr>
             ))}
-          </tfoot>
-        )}
-        <ParsedText
-          text={caption}
-          tag="caption"
-          tagProps={{
-            className: css`
-              text-align: center;
-              font-size: 0.8125rem;
-              caption-side: bottom;
-            `,
-          }}
-          useWrapperElement={false}
-          wrapperRef={captionRef}
-        />
-      </table>
+          </tbody>
+          {foot && (
+            <tfoot>
+              {foot.map((cellRows: Cells, j: number) => (
+                <tr key={j}>
+                  {cellRows.cells &&
+                    cellRows.cells.map((cell: CellAttributes, i: number) => (
+                      <ParsedText
+                        key={i}
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
+                        tag="td"
+                        tagProps={{
+                          className: fetchAlignment(cell.align),
+                          colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
+                          rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
+                        }}
+                        useWrapperElement={false}
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        wrapperRef={getRef(`foot-${j}-${i}`)}
+                      />
+                    ))}
+                </tr>
+              ))}
+            </tfoot>
+          )}
+          <ParsedText
+            text={caption}
+            tag="caption"
+            tagProps={{
+              className: css`
+                text-align: center;
+                font-size: 0.8125rem;
+                caption-side: bottom;
+              `,
+            }}
+            useWrapperElement={false}
+            wrapperRef={captionRef}
+          />
+        </table>
+      </div>
+      {canScroll.left && <div aria-hidden className={cx(edgeShadowBaseStyles, leftShadowStyles)} />}
+      {canScroll.right && (
+        <div aria-hidden className={cx(edgeShadowBaseStyles, rightShadowStyles)} />
+      )}
     </div>
   )
 }

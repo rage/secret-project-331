@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { ModuleView } from "./CourseModules"
+import type { ModuleView } from "./CourseModules"
 
 import Button from "@/shared-module/common/components/Button"
 import Checkbox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -17,7 +17,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
   module: ModuleView
-  chapters: Array<number>
+  chapters: number[]
   onSubmitForm: (id: string, fields: EditCourseModuleFormFields) => void
   onDeleteModule: (id: string) => void
 }
@@ -41,7 +41,7 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseMo
   return {
     name: module.name,
     starts: module.firstChapter ?? (chapters.length > 0 ? chapters[0] : 1),
-    ends: module.lastChapter ?? (chapters.length > 0 ? chapters[chapters.length - 1] : 1),
+    ends: module.lastChapter ?? chapters.at(-1) ?? 1,
     ects_credits: Number(module.ects_credits) || 0,
     uh_course_code: module.uh_course_code ?? "",
     automatic_completion: module.automatic_completion ?? false,
@@ -76,7 +76,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
     reset,
     watch,
   } = useForm<EditCourseModuleFormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: makeDefaultValues(module, chapters),
   })
@@ -331,7 +331,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 label={t("ects-credits")}
                 placeholder={t("ects-credits")}
                 type="number"
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 step="any"
                 {...register("ects_credits", {
                   valueAsNumber: true,

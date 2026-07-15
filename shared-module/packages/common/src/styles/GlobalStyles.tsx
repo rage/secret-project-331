@@ -28,7 +28,8 @@ import "@fontsource-variable/inter/wght.css"
 const globalCss = css`
   ${cssReset}
 
-  html, body {
+  html,
+  body {
     font-family: ${primaryFont};
     font-weight: 400;
     font-size: ${defaultFontSizePx}px;
@@ -88,7 +89,7 @@ const globalCss = css`
   }
 `
 
-// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+// oxlint-disable-next-line typescript/no-unused-expressions
 injectGlobal`
 ${globalCss}
 `

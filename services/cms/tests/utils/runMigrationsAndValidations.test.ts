@@ -8,8 +8,8 @@ const loadRunMigrationsAndValidations = async () => {
     getBlockType: jest.fn(() => undefined),
   }))
 
-  const module = await import("../../src/utils/Gutenberg/runMigrationsAndValidations")
-  return module.default
+  const imported = await import("../../src/utils/Gutenberg/runMigrationsAndValidations")
+  return imported.default
 }
 
 describe("runMigrationsAndValidations", () => {

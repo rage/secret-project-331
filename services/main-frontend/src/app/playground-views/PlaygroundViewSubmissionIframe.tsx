@@ -1,25 +1,25 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import {
+import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
+import type {
   CurrentStateMessage,
   ExerciseIframeState,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
-import { ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
+import type { ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
 interface PlaygroundViewSubmissionIframeProps {
   url: string
   publicSpecQuery: UseQueryResult<unknown, unknown>
   // Caused weird type errors when the parameter generic was set to unknown
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   gradingQuery: UseMutationResult<ExerciseTaskGradingResult, unknown, any, unknown>
   modelSolutionSpecQuery: UseQueryResult<unknown, unknown>
   userAnswer: unknown
@@ -61,7 +61,7 @@ const PlaygroundViewSubmissionIframe: React.FC<
     return <>{t("error-no-grading")}</>
   }
   const iframeState: ExerciseIframeState = {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     view_type: "view-submission",
     exercise_task_id: EXAMPLE_UUID,
     user_information: userInformation,
@@ -85,11 +85,9 @@ const PlaygroundViewSubmissionIframe: React.FC<
         key={iframeKey}
         url={url}
         postThisStateToIFrame={iframeState}
-        onMessageFromIframe={async (msg) => {
-          if (isMessageFromIframe(msg)) {
-            if (msg.message === "current-state") {
-              setCurrentStateReceivedFromIframe(msg)
-            }
+        onMessageFromIframe={(msg) => {
+          if (isMessageFromIframe(msg) && msg.message === "current-state") {
+            setCurrentStateReceivedFromIframe(msg)
           }
         }}
         title={TITLE}

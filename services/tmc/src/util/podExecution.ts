@@ -1,15 +1,40 @@
 import * as k8s from "@kubernetes/client-node"
 import { createReadStream, createWriteStream, promises as fs } from "fs"
-import internal, { Writable } from "stream"
+import type internal from "stream"
+import { Writable } from "stream"
 import { finished } from "stream/promises"
 import { temporaryFile } from "tempy"
 import { v4 } from "uuid"
 
 import { initKube } from "@/lib"
-import { Logger } from "@/util/logger"
+import type { Logger } from "@/util/logger"
 
 const DEFAULT_TASK_TIMEOUT_MS = 60000
 const CONTAINER_NAME = "tmc-submission-execution-sandbox"
+
+const delay = (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+
+const extractExitCodeFromStatus = (status: unknown): number | undefined => {
+  const s = status as {
+    details?: { causes?: { reason?: string; message?: string }[] }
+  } | null
+  const causes = s?.details?.causes
+  if (!Array.isArray(causes)) {
+    return undefined
+  }
+  const exitCause =
+    causes.find((c) => c?.reason === "ExitCode") ?? causes.find((c) => c?.message !== undefined)
+  const msg = exitCause?.message
+  if (msg === undefined) {
+    return undefined
+  }
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+  const parsed = Number.parseInt(msg, 10)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
 
 /**
  * Execute a command in a pod with a maximum wall-clock wait of `timeoutMs`.
@@ -26,7 +51,7 @@ export async function execWithTimeout(
   kubeExec: k8s.Exec,
   podName: string,
   containerName: string,
-  command: Array<string>,
+  command: string[],
   stdout: internal.Writable,
   stderr: internal.Writable,
   stdin: internal.Readable | null,
@@ -36,27 +61,10 @@ export async function execWithTimeout(
   let observedStatus = false
   let resolved = false
 
-  const extractExitCodeFromStatus = (status: unknown): number | undefined => {
-    const s = status as {
-      details?: { causes?: Array<{ reason?: string; message?: string }> }
-    } | null
-    const causes = s?.details?.causes
-    if (!Array.isArray(causes)) {
-      return undefined
-    }
-    const exitCause =
-      causes.find((c) => c?.reason === "ExitCode") ?? causes.find((c) => c?.message != null)
-    const msg = exitCause?.message
-    if (msg == null) {
-      return undefined
-    }
-    const parsed = Number.parseInt(msg, 10)
-    return Number.isFinite(parsed) ? parsed : undefined
-  }
-
   /** Socket returned by kubeExec.exec(); has onclose and optional close/destroy. */
   let execSocket:
-    { onclose?: (() => void) | null; close?: () => void; destroy?: () => void } | undefined
+    | { onclose?: (() => void) | null; close?: () => void; destroy?: () => void }
+    | undefined
   const connectTimeoutMs = timeoutMs
   let connectTimer: NodeJS.Timeout | undefined
   const connectTimeoutPromise = new Promise<never>((_resolve, reject) => {
@@ -109,7 +117,7 @@ export async function execWithTimeout(
       clearTimeout(connectTimer)
     }
   }
-  if (execSocket == null) {
+  if (execSocket === undefined) {
     throw new Error("exec socket not available")
   }
   // Const so TS narrows inside Promise executors (closures don't see `let` narrowing).
@@ -122,6 +130,7 @@ export async function execWithTimeout(
       resolved = true
       resolve(result)
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     socket.onclose = () => {
       // Prefer the Kubernetes status channel's exit code when available.
       const exitCode = observedStatus ? observedStatusExitCode : undefined
@@ -149,7 +158,7 @@ const WAIT_FOR_POD_RUNNING_MS = 120_000
  * Create a Writable that buffers only the last `maxBytes` of input.
  * When `maxBytes === 0`, discards everything (useful as a sink).
  */
-function captureStream(maxBytes: number = 0): { stream: Writable; getBuffer: () => Buffer } {
+function captureStream(maxBytes = 0): { stream: Writable; getBuffer: () => Buffer } {
   if (maxBytes === 0) {
     return {
       stream: new Writable({
@@ -166,6 +175,7 @@ function captureStream(maxBytes: number = 0): { stream: Writable; getBuffer: () 
 
   const trimToMax = () => {
     while (totalBytes > maxBytes && chunks.length > 0) {
+      // oxlint-disable-next-line typescript/no-non-null-assertion -- while condition chunks.length > 0 guarantees chunks[0] exists
       const first = chunks[0]!
       const overflow = totalBytes - maxBytes
       if (overflow >= first.length) {
@@ -218,7 +228,6 @@ async function waitForPodRunning(
         `waitForPodRunning timed out for pod ${podName}, last phase: ${podPhase ?? "unknown"}`,
       )
     }
-    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
     await delay(500)
 
     const remainingMs = Math.max(0, deadline - Date.now())
@@ -302,7 +311,8 @@ async function copySubmissionToPod(
 }
 
 export type TmcRunOutcome =
-  { timedOut: true } | { timedOut: false; output: string; parsed: unknown }
+  | { timedOut: true }
+  | { timedOut: false; output: string; parsed: unknown }
 
 /**
  * Run `/tmc-run`, then read `/app/test_output.txt` from the pod and parse it as JSON.

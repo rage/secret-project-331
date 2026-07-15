@@ -3,15 +3,15 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { Period } from "../../LineChart"
 import LineChart, {
   DAILY_DATE_FORMAT,
   DAILY_PERIOD,
   MONTHLY_DATE_FORMAT,
   MONTHLY_PERIOD,
-  Period,
 } from "../../LineChart"
 
-import { TimeGranularity } from "@/generated/api/types.generated"
+import type { TimeGranularity } from "@/generated/api/types.generated"
 import { useStudentCompletionsByCountryQuery } from "@/hooks/stats"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -38,20 +38,18 @@ const CompletionsByCountry: React.FC<Props> = ({ courseId, selectedCountry }) =>
   )
 
   return (
-    <>
-      <LineChart
-        data={data}
-        isLoading={isLoading}
-        error={error}
-        period={period}
-        setPeriod={setPeriod}
-        yAxisName={t("users")}
-        tooltipValueLabel={t("users")}
-        dateFormat={period === MONTHLY_PERIOD ? MONTHLY_DATE_FORMAT : DAILY_DATE_FORMAT}
-        statHeading={t("student-completions-by-country")}
-        instructionText={t("stats-instruction-completions-by-country")}
-      />
-    </>
+    <LineChart
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      period={period}
+      setPeriod={setPeriod}
+      yAxisName={t("users")}
+      tooltipValueLabel={t("users")}
+      dateFormat={period === MONTHLY_PERIOD ? MONTHLY_DATE_FORMAT : DAILY_DATE_FORMAT}
+      statHeading={t("student-completions-by-country")}
+      instructionText={t("stats-instruction-completions-by-country")}
+    />
   )
 }
 

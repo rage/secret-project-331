@@ -1,14 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { groupBy, mapValues, sortBy } from "lodash"
 import Link from "next/link"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import {
+import type {
   GlobalCourseModuleStatEntry,
   GlobalStatEntry,
   TimeGranularity,
@@ -18,13 +18,13 @@ import { courseStatsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
-type RegularStatTableProps = {
+interface RegularStatTableProps {
   query: UseQueryResult<GlobalStatEntry[]>
   moduleStats: false
   granularity: TimeGranularity
 }
 
-type ModuleStatTableProps = {
+interface ModuleStatTableProps {
   query: UseQueryResult<GlobalCourseModuleStatEntry[]>
   moduleStats: true
   granularity: TimeGranularity
@@ -151,6 +151,7 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
           {timeColumns.map((column) => (
             <th key={column.key}>{column.label}</th>
           ))}
+          {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- actions/spacer column header intentionally has no text */}
           <th></th>
         </FullWidthTableRow>
       </thead>
@@ -185,17 +186,18 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
                 {timeColumns.map((column) => {
                   let entry
                   if (column.isYear) {
-                    entry = entries.find((entry) => entry.year === Number(column.key))
+                    entry = entries.find((candidate) => candidate.year === Number(column.key))
                   } else {
                     const [year, month] = column.key.split("-")
                     entry = entries.find(
-                      (entry) =>
-                        entry.year === Number(year) &&
-                        (moduleStats || String(entry.month ?? "").padStart(2, "0") === month),
+                      (candidate) =>
+                        candidate.year === Number(year) &&
+                        (moduleStats || String(candidate.month ?? "").padStart(2, "0") === month),
                     )
                   }
                   return <td key={column.key}>{entry ? entry.value : "-"}</td>
                 })}
+                {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- cell contains a labeled Button/Link */}
                 <td>
                   <Link href={courseStatsRoute(courseId)}>
                     <Button variant="tertiary" size="small">

@@ -3,14 +3,14 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
-import { ExerciseAttributes } from "../../../blocks/Exercise"
+import type { ExerciseAttributes } from "../../../blocks/Exercise"
 import CmsPageTitle from "../../../components/CmsPageTitle"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/PeerReviewAdditionalInstructionsEditor"
 import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
 import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
 
-import {
+import type {
   CmsPeerOrSelfReviewConfig,
   CmsPeerOrSelfReviewConfiguration,
   CmsPeerOrSelfReviewQuestion,
@@ -19,9 +19,8 @@ import { getCmsCourseDefaultPeerReviewOptions } from "@/generated/api/@tanstack/
 import { updateCmsCourseDefaultPeerReview } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
@@ -36,12 +35,20 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   query,
 }) => {
   const { t } = useTranslation()
-  const [attributes, setAttributes] = useState<Partial<Readonly<ExerciseAttributes>>>({
+  const [attributes, setAttributesRaw] = useState<Partial<Readonly<ExerciseAttributes>>>({
     peer_or_self_review_config: "{}",
     peer_or_self_review_questions_config: "[]",
     needs_peer_review: true,
     use_course_default_peer_review: false,
   })
+
+  // PeerReviewEditor expects setAttributes to merge (Gutenberg semantics), writing only the changed
+  // fields. A raw useState setter replaces, which would drop needs_peer_review /
+  // use_course_default_peer_review on every edit and collapse the editor, so merge here.
+  const setAttributes = useCallback(
+    (attr: Partial<ExerciseAttributes>) => setAttributesRaw((prev) => ({ ...prev, ...attr })),
+    [],
+  )
 
   const { id } = query
 
@@ -62,7 +69,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     if (!peerOrSelfReviewConfigurationQuery.data) {
       return
     }
-    setAttributes({
+    setAttributesRaw({
       peer_or_self_review_config: JSON.stringify(
         peerOrSelfReviewConfigurationQuery.data.peer_or_self_review_config,
       ),
@@ -119,7 +126,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   }, [attributes.peer_or_self_review_config])
 
   const updateAdditionalInstructions = useCallback((newValue: BlockInstance[]) => {
-    setAttributes((prev) => {
+    setAttributesRaw((prev) => {
       const newConfig = JSON.parse(
         prev.peer_or_self_review_config ?? "{}",
       ) as CmsPeerOrSelfReviewConfig

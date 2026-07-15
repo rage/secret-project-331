@@ -10,7 +10,7 @@ const PROJECT_NAME = "smoke-exercise"
 const PORT = 4567
 
 /** Relative paths inside the generated project that should never contain the template name. */
-const SKIP_DIRS = new Set(["shared-module", "node_modules", ".git", ".next"])
+const SKIP_DIRS = new Set(["shared-module", "node_modules", ".git", "dist"])
 
 /** Recursively collect files whose contents still mention the template service name. */
 async function findStrayTemplateName(root: string, dir = root): Promise<string[]> {
@@ -30,6 +30,27 @@ async function findStrayTemplateName(root: string, dir = root): Promise<string[]
     }
   }
   return stray
+}
+
+/** Recursively collect source files (outside SKIP_DIRS) whose contents match a pattern. */
+async function findFilesMatching(root: string, pattern: RegExp, dir = root): Promise<string[]> {
+  const matches: string[] = []
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (SKIP_DIRS.has(entry.name)) {
+      continue
+    }
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      matches.push(...(await findFilesMatching(root, pattern, full)))
+    } else if (
+      entry.isFile() &&
+      /\.(ts|tsx|js|jsx|mjs|cjs)$/.test(entry.name) &&
+      pattern.test(await readFile(full, "utf8"))
+    ) {
+      matches.push(full.slice(root.length + 1))
+    }
+  }
+  return matches
 }
 
 describe("scaffoldReactProject", () => {
@@ -78,7 +99,33 @@ describe("scaffoldReactProject", () => {
     const workspace = await readFile(join(projectPath, "pnpm-workspace.yaml"), "utf8")
     assert.match(workspace, /allowBuilds:/)
     assert.match(workspace, /esbuild: true/)
-    assert.match(workspace, /sharp: true/)
+  })
+
+  test("generates the TanStack Start stack, not Next.js", async () => {
+    const pkg = JSON.parse(await readFile(join(projectPath, "package.json"), "utf8"))
+    assert.ok(pkg.dependencies["@tanstack/react-start"], "@tanstack/react-start should be a dep")
+    assert.ok(pkg.dependencies["@tanstack/react-router"], "@tanstack/react-router should be a dep")
+    assert.equal(pkg.dependencies.next, undefined, "next should not be a dep")
+    for (const rel of [
+      "rsbuild.config.ts",
+      "server.mjs",
+      "vitest.config.ts",
+      "iframe-headers.mjs",
+      "src/routeTree.gen.ts",
+    ]) {
+      await assert.doesNotReject(stat(join(projectPath, rel)), `${rel} should exist`)
+    }
+  })
+
+  test("omits monorepo-only files", async () => {
+    for (const rel of [
+      "Dockerfile",
+      "Dockerfile.production.slim.dockerfile",
+      ".dockerignore",
+      "pnpm-lock.yaml",
+    ]) {
+      await assert.rejects(stat(join(projectPath, rel)), `${rel} should not be generated`)
+    }
   })
 
   test("replaces the template service name", async () => {
@@ -87,10 +134,7 @@ describe("scaffoldReactProject", () => {
       "utf8",
     )
     assert.match(wrapper, new RegExp(`const SERVICE_NAME = "${PROJECT_NAME}"`))
-    const serviceInfo = await readFile(
-      join(projectPath, "src/app/api/service-info/route.ts"),
-      "utf8",
-    )
+    const serviceInfo = await readFile(join(projectPath, "src/server/serviceInfo.ts"), "utf8")
     assert.match(serviceInfo, /service_name: "Smoke exercise"/)
   })
 
@@ -107,5 +151,11 @@ describe("scaffoldReactProject", () => {
   test("leaves no stray template name outside src/shared-module", async () => {
     const stray = await findStrayTemplateName(projectPath)
     assert.deepEqual(stray, [], `template name still present in: ${stray.join(", ")}`)
+  })
+
+  test("the generated app code imports no next/* modules", async () => {
+    // SKIP_DIRS excludes the vendored shared-module, so this checks only the project's own code.
+    const offenders = await findFilesMatching(projectPath, /from ["']next\/|require\(["']next\//)
+    assert.deepEqual(offenders, [], `next imports still present in: ${offenders.join(", ")}`)
   })
 })

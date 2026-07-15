@@ -1,9 +1,7 @@
-"use client"
-
 import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
 
-import { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 
@@ -37,7 +35,7 @@ interface TableContentProps {
 const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ quizItemId }) => {
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMatrix>(
     (quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemMatrix>(quiz, quizItemId, "matrix")
     },
   )
@@ -81,9 +79,8 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
       return rowArray.map((cell, columnIndex) => {
         if (column === columnIndex && row === rowIndex) {
           return text
-        } else {
-          return cell
         }
+        return cell
       })
     })
     setMatrixVariable(newMatrix)
@@ -97,35 +94,27 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
 
   const tempArray = [0, 1, 2, 3, 4, 5]
   return (
-    <>
-      <MatrixTableContainer>
-        <tbody>
-          <>
-            {tempArray.map((rowIndex) => (
-              <tr key={`row ${rowIndex}`}>
-                {tempArray.map((columnIndex) => {
-                  const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
-                  return (
-                    <>
-                      {checkNeighbour !== null ? (
-                        <TableCellContent
-                          key={`row ${rowIndex} column: ${columnIndex}`}
-                          matrixSize={matrixActiveSize}
-                          cellText={checkNeighbour}
-                          columnLoop={columnIndex}
-                          rowLoop={rowIndex}
-                          handleTextarea={handleTextarea}
-                        />
-                      ) : null}
-                    </>
-                  )
-                })}
-              </tr>
-            ))}
-          </>
-        </tbody>
-      </MatrixTableContainer>
-    </>
+    <MatrixTableContainer>
+      <tbody>
+        {tempArray.map((rowIndex) => (
+          <tr key={`row ${rowIndex}`}>
+            {tempArray.map((columnIndex) => {
+              const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
+              return checkNeighbour !== null ? (
+                <TableCellContent
+                  key={`row ${rowIndex} column: ${columnIndex}`}
+                  matrixSize={matrixActiveSize}
+                  cellText={checkNeighbour}
+                  columnLoop={columnIndex}
+                  rowLoop={rowIndex}
+                  handleTextarea={handleTextarea}
+                />
+              ) : null
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </MatrixTableContainer>
   )
 }
 

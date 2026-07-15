@@ -1,15 +1,13 @@
-"use client"
-
 import _ from "lodash"
 import React from "react"
 
 import AnswerBrowserExercise from "./AnswerBrowserExercise"
 import AnswerEditorExercise from "./AnswerEditorExercise"
 
-import { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { RunResult } from "@/tmc/cli"
-import { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
-import { ExerciseIframeState, PublicSpec, UserAnswer } from "@/util/stateInterfaces"
+import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { RunResult } from "@/tmc/cli"
+import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
+import type { ExerciseIframeState, PublicSpec, UserAnswer } from "@/util/stateInterfaces"
 
 interface Props {
   publicSpec: PublicSpec
@@ -39,7 +37,7 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
         testRequestResponse={testRequestResponse}
         setState={setState}
         grading={grading}
-        readOnly={grading != null}
+        readOnly={grading !== null && grading !== undefined}
       />
     )
   } else if (userAnswer.type === "editor") {
@@ -50,9 +48,8 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
         fileUploadResponse={fileUploadResponse}
       />
     )
-  } else {
-    throw new Error("Unhandled exercise type")
   }
+  throw new Error("Unhandled exercise type")
 }
 
 export default AnswerExercise

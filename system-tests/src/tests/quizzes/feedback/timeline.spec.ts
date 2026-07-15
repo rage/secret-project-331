@@ -29,7 +29,7 @@ test.describe("Quizzes timeline feedback", () => {
 
     await page.frameLocator("iframe").getByText("1995").first().waitFor()
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })
@@ -51,7 +51,7 @@ test.describe("Quizzes timeline feedback", () => {
       label: "Finland joins the Economic and Monetary Union of the European Union",
     })
 
-    // eslint-disable-next-line playwright/no-wait-for-timeout
+    // oxlint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(100)
     await page.locator(`button[aria-disabled="true"]:text("Submit")`).waitFor()
 

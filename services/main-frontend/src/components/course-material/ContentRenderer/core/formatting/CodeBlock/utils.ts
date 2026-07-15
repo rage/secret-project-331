@@ -17,7 +17,7 @@ export function formatHighlightedLinesRanges(lines: Set<number>): string {
   if (lines.size === 0) {
     return ""
   }
-  const sorted = Array.from(lines).sort((a, b) => a - b)
+  const sorted = Array.from(lines).toSorted((a, b) => a - b)
   const parts: string[] = []
   let rangeStart = sorted[0]
   let rangeEnd = sorted[0]
@@ -43,7 +43,7 @@ export function replaceBrTagsWithNewlines(html: string | null | undefined): type
   if (!html) {
     return html
   }
-  return html.replace(/<br\b[^>]*>/gi, "\n")
+  return html.replaceAll(/<br\b[^>]*>/gi, "\n")
 }
 
 /**

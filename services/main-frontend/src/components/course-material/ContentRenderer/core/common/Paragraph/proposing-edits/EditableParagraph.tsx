@@ -48,13 +48,11 @@ const EditableParagraphContent = memo(
       <p
         ref={contentEditableRef}
         className={`${getEditingStyles(textColor, backgroundColor, fontSize)} ${getEditableHoverStyles(true)} ${css`
-          ${
-            isFocusVisible &&
-            `
+          ${isFocusVisible &&
+          `
             outline: 2px solid ${baseTheme.colors.green[500]};
             outline-offset: 2px;
-          `
-          }
+          `}
         `}`}
         contentEditable
         aria-label={ariaLabel}

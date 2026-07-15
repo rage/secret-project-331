@@ -1,13 +1,11 @@
-"use client"
-
 import { css, cx } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import _ from "lodash"
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
 
@@ -17,7 +15,7 @@ import {
   TWO_DIMENSIONAL_BUTTON_STYLES,
 } from "./AnswerQuizStyles"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -106,7 +104,7 @@ const MultipleChoice: React.FunctionComponent<
       >
         <ParsedText parseLatex parseMarkdown inline text={quizItem.title} />
       </div>
-      <p
+      <div
         id={bodyId}
         className={css`
           color: ${quizTheme.quizBodyColor};
@@ -115,8 +113,9 @@ const MultipleChoice: React.FunctionComponent<
         `}
       >
         <ParsedText parseLatex parseMarkdown inline text={quizItem.body} />
-      </p>
+      </div>
       <div
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=group on a styled div; fieldset alters layout
         role="group"
         // Fall back to body, then a generic label, when there's no title.
         aria-labelledby={quizItem.title ? titleId : quizItem.body ? bodyId : undefined}
@@ -128,12 +127,10 @@ const MultipleChoice: React.FunctionComponent<
 
           ${respondToOrLarger.sm} {
             flex-direction: ${direction};
-            ${
-              direction === ROW &&
-              `
-              column-gap: 0.625rem;
+            ${direction === ROW &&
             `
-            }
+              column-gap: 0.625rem;
+            `}
           }
         `}
       >

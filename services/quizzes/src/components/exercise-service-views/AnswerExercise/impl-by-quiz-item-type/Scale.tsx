@@ -1,5 +1,3 @@
-"use client"
-
 import { css } from "@emotion/css"
 import { useRadioGroupState } from "@react-stately/radio"
 import type { RadioGroupState } from "@react-stately/radio"
@@ -7,13 +5,13 @@ import React, { useRef } from "react"
 import { mergeProps, useFocusRing, useRadio, useRadioGroup, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
 import ParsedText from "../../../ParsedText"
 
 import { QUIZ_TITLE_STYLE } from "./AnswerQuizStyles"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -111,7 +109,10 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
   }
 
   const state = useRadioGroupState({
-    value: quizItemAnswerState?.intData != null ? String(quizItemAnswerState.intData) : null,
+    value:
+      quizItemAnswerState?.intData !== null && quizItemAnswerState?.intData !== undefined
+        ? String(quizItemAnswerState.intData)
+        : null,
     onChange: handleOptionSelect,
   })
   const { radioGroupProps, labelProps } = useRadioGroup(

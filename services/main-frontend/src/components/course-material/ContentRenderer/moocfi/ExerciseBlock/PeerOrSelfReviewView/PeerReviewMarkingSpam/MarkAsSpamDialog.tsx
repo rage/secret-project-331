@@ -9,11 +9,11 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import { Radio, RadioGroup, TextArea } from "@/shared-module/components"
 
 export const ReportReasonValues = {
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   Spam: "Spam",
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   HarmfulContent: "HarmfulContent",
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   AiGenerated: "AiGenerated",
 } as const
 

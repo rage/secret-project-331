@@ -1,11 +1,16 @@
-"use client"
-
-import "@testing-library/jest-dom"
+import { vi } from "vitest"
 import { act, fireEvent, render, screen } from "@testing-library/react"
 
-import { UserItemAnswerScale } from "../../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemScale } from "../../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerScale } from "../../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemScale } from "../../../../../../types/quizTypes/publicSpec"
 import Scale from "../Scale"
+
+// ParsedText renders via dynamicImport (React.lazy); mock it so the question text is present
+// synchronously for the accessible-name assertions.
+vi.mock("../../../../ParsedText", () => ({
+  __esModule: true,
+  default: ({ text }: { text: string | null }) => <span>{text}</span>,
+}))
 
 /** All CSS rules in the document; emotion inserts rules with insertRule, so style tag textContent is empty. */
 const allCssText = () =>
@@ -34,7 +39,7 @@ const renderScale = (
   overrides: Partial<PublicSpecQuizItemScale> = {},
   answer: UserItemAnswerScale | null = null,
 ) => {
-  const setQuizItemAnswerState = jest.fn()
+  const setQuizItemAnswerState = vi.fn()
   const utils = render(
     <Scale
       quizDirection="column"
@@ -95,7 +100,8 @@ describe("Scale accessibility", () => {
   it("uses an unchecked ring color with >= 3:1 contrast instead of the failing light gray", () => {
     renderScale()
     const styleText = allCssText()
-    expect(styleText).toMatch(/#767b85/i)
+    // jsdom's CSSOM serializes hex colors to rgb(), so accept either form of #767b85.
+    expect(styleText).toMatch(/#767b85|rgb\(118,\s*123,\s*133\)/i)
     expect(styleText).not.toContain("#dfe1e6")
   })
 })

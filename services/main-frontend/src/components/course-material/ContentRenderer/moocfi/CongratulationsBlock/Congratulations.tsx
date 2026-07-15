@@ -90,7 +90,7 @@ const ModuleWrapper = styled.div`
 `
 
 export interface CongratulationsProps {
-  modules: Array<UserModuleCompletionStatus>
+  modules: UserModuleCompletionStatus[]
 }
 
 const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> = ({ modules }) => {
@@ -112,11 +112,10 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
       return anyCompletedModuleAllowsRegisteringCompletion
         ? t("you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links")
         : t("you-have-completed-the-course-to-receive-certificate-use-following-links")
-    } else {
-      return anyCompletedModuleAllowsRegisteringCompletion
-        ? t("you-have-completed-the-course-to-receive-credits-use-following-links")
-        : t("you-have-completed-the-course")
     }
+    return anyCompletedModuleAllowsRegisteringCompletion
+      ? t("you-have-completed-the-course-to-receive-credits-use-following-links")
+      : t("you-have-completed-the-course")
   }
 
   return (
@@ -129,7 +128,7 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
 
         <ModuleWrapper>
           {modules
-            .sort((a, b) => a.order_number - b.order_number)
+            .toSorted((a, b) => a.order_number - b.order_number)
             .map((module) => (
               <ModuleCard
                 key={module.module_id}

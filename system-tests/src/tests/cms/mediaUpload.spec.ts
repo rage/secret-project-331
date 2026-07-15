@@ -1,11 +1,10 @@
-import {
-  expect,
+import type {
   PlaywrightTestArgs,
   PlaywrightTestOptions,
   PlaywrightWorkerArgs,
   PlaywrightWorkerOptions,
-  test,
 } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 

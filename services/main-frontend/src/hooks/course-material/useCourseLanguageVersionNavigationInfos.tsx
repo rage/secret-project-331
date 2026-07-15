@@ -18,10 +18,10 @@ const useCourseLanguageVersionNavigationInfos = (
         courseId: string
         pageId: string
       } => Boolean(value?.courseId && value.pageId),
-      build: ({ courseId, pageId }) => ({
+      build: ({ courseId: id, pageId }) => ({
         ...getCourseMaterialLanguageVersionNavigationInfosOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
             page_id: pageId,
           },
         }),

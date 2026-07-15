@@ -10,7 +10,7 @@ import CardDeadlineOverlay, { cardTopBandStyle } from "./CardDeadlineOverlay"
 import CardOpensTextOverlay from "./CardOpenTextOverlay"
 import CardOpensText from "./CardOpensText"
 
-import { CardExtraProps } from "."
+import type { CardExtraProps } from "."
 
 import PseudoContentLink from "@/components/PseudoContentLink"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -192,15 +192,13 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
             width: 100%;
             height: 23.163rem;
             transition: transform 0.2s;
-            ${
-              backgroundImage &&
-              `background-image: url(${backgroundImage});
+            ${backgroundImage &&
+            `background-image: url(${backgroundImage});
               background-repeat: no-repeat;
               background-color: ${bg};
               background-position: center center;
               background-size: cover;
-              `
-            }
+              `}
 
             &:hover {
               transform: scale(1.1);

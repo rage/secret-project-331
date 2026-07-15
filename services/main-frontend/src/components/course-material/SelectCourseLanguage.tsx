@@ -22,7 +22,7 @@ import { currentPageDataAtom } from "@/state/course-material/selectors"
 
 export interface CourseTranslationsListProps {
   selectedLangCourseId: string
-  setSelectedLangCourseId(setLanguage: string): void
+  setSelectedLangCourseId: (setLanguage: string) => void
   setDialogLanguage: React.Dispatch<React.SetStateAction<string>>
   dialogLanguage: string
   currentPageId: string

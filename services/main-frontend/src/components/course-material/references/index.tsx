@@ -2,7 +2,8 @@
 
 import { css, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { ReactPortal, useEffect, useLayoutEffect, useMemo, useState } from "react"
+import type { ReactPortal } from "react"
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 
@@ -140,7 +141,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
   // and prenote/postnote edits also re-trigger the scan, while the DOM changes caused by rendering
   // the portals themselves don't.
   useEffect(() => {
-    const container = document.getElementById("content")
+    const container = document.querySelector("#content")
     if (!container) {
       return
     }
@@ -176,7 +177,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
       childList: true,
       subtree: true,
       attributes: true,
-      // eslint-disable-next-line i18next/no-literal-string -- DOM attribute names, not user-facing text
+      // oxlint-disable-next-line i18next/no-literal-string -- DOM attribute names, not user-facing text
       attributeFilter: ["data-citation-id", "data-citation-prenote", "data-citation-postnote"],
     })
     return () => {
@@ -253,7 +254,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
       .filter((o): o is ReactPortal => !!o)
     // scanVersion is a deliberate trigger (not read in the body): it re-runs the DOM scan when
     // citation spans mount/unmount, e.g. when an expandable block is opened.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [data, referenceByKey, readyForPortal, scanVersion])
 
   return (

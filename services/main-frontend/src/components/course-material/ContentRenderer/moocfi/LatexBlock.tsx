@@ -1,9 +1,9 @@
 "use client"
 
-import KaTex from "katex"
+import { renderToString } from "katex"
 
 import "katex/dist/katex.min.css"
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -19,7 +19,7 @@ const LatexBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TextAttrib
   const attributes: TextAttributes = data.attributes
 
   const convert_to_latex = () => {
-    const output = KaTex.renderToString(attributes.text, {
+    const output = renderToString(attributes.text, {
       throwOnError: false,
       displayMode: true,
       output: KATEX_OUTPUT_FORMAT,

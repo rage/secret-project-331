@@ -147,34 +147,26 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         padding: 5em 1em;
         margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
         background-color: ${backgroundColor};
-        ${
-          getBackgroundImageUrl("mobile") &&
-          `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("mobile"))}");
+        ${getBackgroundImageUrl("mobile") &&
+        `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("mobile"))}");
         background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
-        background-position: center center;`
-        }
+        background-position: center center;`}
         background-size: cover;
         touch-action: manipulation;
 
         ${respondToOrLarger.md} {
-          ${
-            getBackgroundImageUrl("medium") &&
-            `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("medium"))}");`
-          }
+          ${getBackgroundImageUrl("medium") &&
+          `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("medium"))}");`}
         }
 
         ${respondToOrLarger.lg} {
-          ${
-            getBackgroundImageUrl("large") &&
-            `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("large"))}");`
-          }
+          ${getBackgroundImageUrl("large") &&
+          `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("large"))}");`}
         }
 
         ${respondToOrLarger.xl} {
-          ${
-            getBackgroundImageUrl("xlarge") &&
-            `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("xlarge"))}");`
-          }
+          ${getBackgroundImageUrl("xlarge") &&
+          `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("xlarge"))}");`}
         }
 
         ${respondToOrLarger.xxxxl} {
@@ -199,14 +191,14 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
           `}
           onClick={(e) => {
             e.preventDefault()
-            const firstChapterGrid = document.getElementsByClassName(
-              CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING,
-            )[0]
+            const firstChapterGrid = document.querySelector(
+              `.${CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING}`,
+            )
             if (!firstChapterGrid) {
               console.warn("Cannot find scroll destination")
               return
             }
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             firstChapterGrid.scrollIntoView({ behavior: "smooth" })
           }}
         >

@@ -32,7 +32,7 @@ const ContentArea: React.FC<React.PropsWithChildren<ContentAreaProps>> = ({
       <strong>{title}:</strong>
       <br />
 
-      {editing && type == "text" && (
+      {editing && type === "text" && (
         <TextField
           label=""
           error={error}
@@ -41,7 +41,7 @@ const ContentArea: React.FC<React.PropsWithChildren<ContentAreaProps>> = ({
           placeholder={`${title}...`}
         />
       )}
-      {editing && type == "number" && (
+      {editing && type === "number" && (
         <TextField
           label=""
           error={error}

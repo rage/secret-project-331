@@ -73,9 +73,9 @@ const DomainStatsPage = () => {
               className={css`
                 margin-right: 1rem;
               `}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
-              ← {t("back-to-all-domains")}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}← {t("back-to-all-domains")}
             </Button>
           )}
           {selectedDomain && <h2>{selectedDomain}</h2>}

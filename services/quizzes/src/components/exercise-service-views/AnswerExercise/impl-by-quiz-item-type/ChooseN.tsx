@@ -1,13 +1,11 @@
-"use client"
-
 import { css } from "@emotion/css"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useId, useRef, useState } from "react"
 import { ToggleButton, ToggleButtonGroup } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
 
 import {
   QUIZ_TITLE_STYLE,
@@ -15,7 +13,7 @@ import {
   TWO_DIMENSIONAL_BUTTON_STYLES,
 } from "./AnswerQuizStyles"
 
-import { QuizItemComponentProps } from "."
+import type { QuizItemComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -69,11 +67,11 @@ const ChooseN: React.FunctionComponent<
     }
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const statusId = `${groupId}-status`
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const hintId = `${groupId}-hint`
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const liveId = `${groupId}-live`
 
   return (
@@ -98,7 +96,7 @@ const ChooseN: React.FunctionComponent<
 
       <div>
         <ToggleButtonGroup
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           selectionMode="multiple"
           selectedKeys={new Set(selectedIds)}
           onSelectionChange={handleSelectionChange}
@@ -122,19 +120,17 @@ const ChooseN: React.FunctionComponent<
                   ${isSelected && TWO_DIMENSIONAL_BUTTON_SELECTED}
 
                   /* "Looks disabled" but stays interactive */
-                  ${
-                    visuallyMuted &&
-                    css`
-                      background-color: #f8f8f9;
-                      border-color: #d0d0d8;
-                      box-shadow:
-                        rgba(45, 35, 66, 0) 0 2px 4px,
-                        rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                        #d0d0d8 0 -2px 0 inset;
-                      color: #2d3a4a;
-                      cursor: not-allowed;
-                    `
-                  }
+                  ${visuallyMuted &&
+                  css`
+                    background-color: #f8f8f9;
+                    border-color: #d0d0d8;
+                    box-shadow:
+                      rgba(45, 35, 66, 0) 0 2px 4px,
+                      rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                      #d0d0d8 0 -2px 0 inset;
+                    color: #2d3a4a;
+                    cursor: not-allowed;
+                  `}
                 `}
               >
                 <span
@@ -210,6 +206,7 @@ const ChooseN: React.FunctionComponent<
         {/* Persistent live region for invalid action feedback */}
         <div
           id={liveId}
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div live region; <output> would change display and layout
           role="status"
           aria-live="polite"
           aria-atomic="true"

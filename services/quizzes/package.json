@@ -1,19 +1,13 @@
 {
   "name": "quizzes-dashboard",
   "version": "0.1.0",
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
+  "type": "module",
   "scripts": {
-    "build": "NODE_ENV=production next build",
-    "dev": "next dev --port 3004 --turbopack",
-    "export": "next export",
-    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
-    "test-silent": "jest --silent"
+    "build": "rsbuild build",
+    "dev": "rsbuild dev --port 3004",
+    "start": "node server.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
@@ -29,7 +23,6 @@
     "@internationalized/date": "^3.12.2",
     "@json2csv/plainjs": "^7.0.6",
     "@monaco-editor/react": "^4.7.0",
-    "@next/bundle-analyzer": "16.2.9",
     "@popperjs/core": "^2.11.8",
     "@react-aria/dialog": "^3.6.1",
     "@react-aria/focus": "^3.22.1",
@@ -45,14 +38,14 @@
     "@react-stately/toggle": "^3.10.1",
     "@react-types/dialog": "^3.6.0",
     "@tanstack/react-query": "^5.101.2",
+    "@tanstack/react-router": "^1.170.16",
+    "@tanstack/react-start": "^1.168.26",
     "@types/commonmark": "^0.27.10",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "commonmark": "^0.31.2",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",
     "dompurify": "^3.4.11",
-    "express": "^5.2.1",
-    "http-proxy-middleware": "^4.1.1",
     "i18next": "^26.3.3",
     "immer": "^11.1.8",
     "jotai": "^2.20.1",
@@ -60,7 +53,6 @@
     "katex": "^0.17.0",
     "lodash": "^4.18.1",
     "monaco-editor": "^0.55.1",
-    "next": "16.2.9",
     "postcss": "^8.5.16",
     "react": "19.2.7",
     "react-aria": "3.50.0",
@@ -71,31 +63,40 @@
     "react-i18next": "^17.0.8",
     "react-popper": "^2.3.0",
     "react-spring": "^10.0.4",
-    "svgo": "^4.0.1",
     "use-debounce": "^10.1.1",
     "uuid": "^14.0.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@jest/globals": "^30.4.1",
-    "@svgr/webpack": "latest",
+    "@rsbuild/core": "^2.1.1",
+    "@rsbuild/plugin-react": "^2.1.0",
+    "@rsbuild/plugin-svgr": "^2.0.4",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@types/jest": "^30.0.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/katex": "^0.16.8",
     "@types/lodash": "^4.17.24",
     "@types/luxon": "^3.7.2",
+    "@types/node": "^26.0.1",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
-    "@types/supertest": "^7.2.0",
-    "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1",
-    "jest-environment-node": "^30.4.1",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "@vitejs/plugin-react": "^6.0.3",
+    "jsdom": "^27.0.0",
     "postcss-styled-syntax": "^0.7.2",
     "stylelint": "^17.14.0",
     "stylelint-config-recommended": "^18.0.0",
-    "supertest": "^7.2.2",
-    "ts-jest": "^29.4.11",
-    "typescript": "^6.0.3"
+    "tsx": "^4.22.3",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite-plugin-svgr": "^5.2.0",
+    "vitest": "^4.1.9"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
   }
 }

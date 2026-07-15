@@ -1,5 +1,5 @@
-import { UserAnswer, UserItemAnswerMultiplechoice } from "../../../types/quizTypes/answer"
-import {
+import type { UserAnswer, UserItemAnswerMultiplechoice } from "../../../types/quizTypes/answer"
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
@@ -13,7 +13,7 @@ import {
   QuizItemOption,
 } from "../../../types/quizTypes/privateSpec"
 
-import { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 
 export const MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS = "You should see this after a submission"
 export const ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS =
@@ -422,13 +422,13 @@ export function generateChooseNGradingRequest(
 }
 
 export function generateTimelineGradingRequest(
-  timelineItems: Array<{
+  timelineItems: {
     id: string
     year: string
     correctEventName: string
     correctEventId: string
-  }>,
-  timelineChoices: Array<{ timelineItemId: string; chosenEventId: string }>,
+  }[],
+  timelineChoices: { timelineItemId: string; chosenEventId: string }[],
 ) {
   const privateSpecQuiz: PrivateSpecQuiz = {
     version: "2",

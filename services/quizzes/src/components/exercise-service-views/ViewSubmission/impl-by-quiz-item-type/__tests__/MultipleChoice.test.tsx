@@ -1,15 +1,20 @@
-"use client"
-
-import "@testing-library/jest-dom"
+import { vi } from "vitest"
 import { render, screen, within } from "@testing-library/react"
 
-import { UserItemAnswerMultiplechoice } from "../../../../../../types/quizTypes/answer"
-import {
+import type { UserItemAnswerMultiplechoice } from "../../../../../../types/quizTypes/answer"
+import type {
   ModelSolutionQuizItemMultiplechoice,
   QuizItemOption,
 } from "../../../../../../types/quizTypes/modelSolutionSpec"
-import { PublicSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/publicSpec"
+import type { PublicSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/publicSpec"
 import MultipleChoiceSubmission from "../MultipleChoice"
+
+// ParsedText renders via dynamicImport (React.lazy); mock it so title/option text is present
+// synchronously for the accessible-name assertions.
+vi.mock("../../../../ParsedText", () => ({
+  __esModule: true,
+  default: ({ text }: { text: string | null }) => <span>{text}</span>,
+}))
 
 const makeModelSolutionOption = (id: string, title: string, correct: boolean): QuizItemOption => ({
   id,
@@ -91,7 +96,7 @@ describe("MultipleChoice submission view accessibility", () => {
     expect(within(list).getAllByRole("listitem")).toHaveLength(2)
   })
 
-  // react-i18next is mocked in tests/setup-jest.js, so t() returns the translation key.
+  // react-i18next is mocked in src/test/setup.ts, so t() returns the translation key.
   it("marks the user's own selection with screen reader text", () => {
     renderSubmission()
     const [first, second] = screen.getAllByRole("listitem")

@@ -4,7 +4,7 @@ import styled from "@emotion/styled"
 import { t } from "i18next"
 import React from "react"
 
-import { BlockRendererProps } from ".."
+import type { BlockRendererProps } from ".."
 import InnerBlocks from "../util/InnerBlocks"
 
 import { baseTheme } from "@/shared-module/common/styles"

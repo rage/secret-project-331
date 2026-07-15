@@ -1,11 +1,9 @@
-"use client"
-
 import styled from "@emotion/styled"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
-import { QuizItemComponentProps } from ".."
-import { UserItemAnswerMatrix } from "../../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMatrix } from "../../../../../../types/quizTypes/publicSpec"
+import type { QuizItemComponentProps } from ".."
+import type { UserItemAnswerMatrix } from "../../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMatrix } from "../../../../../../types/quizTypes/publicSpec"
 
 import MatrixCell from "./MatrixCell"
 
@@ -90,9 +88,8 @@ const Matrix: React.FunctionComponent<
       return rowArray.map((cell, columnIndex) => {
         if (column === columnIndex && row === rowIndex) {
           return text
-        } else {
-          return cell
         }
+        return cell
       })
     })
     const tempMatrixActiveSize = handleSizeChange(newMatrix)
@@ -136,35 +133,32 @@ const Matrix: React.FunctionComponent<
 
   const tempArray = [0, 1, 2, 3, 4, 5]
   return (
-    <>
-      <MatrixTableContainer>
-        <tbody>
-          <>
-            {tempArray.map((rowIndex) => {
-              return (
-                <tr key={`row${rowIndex}`}>
-                  {tempArray.map((columnIndex) => {
-                    const cellText = findOptionText(columnIndex, rowIndex)
-                    if (cellText !== null) {
-                      return (
-                        <MatrixCell
-                          key={`${columnIndex} ${rowIndex}`}
-                          column={columnIndex}
-                          row={rowIndex}
-                          cellText={cellText}
-                          handleOptionSelect={handleOptionSelect}
-                          matrixSize={matrixActiveSize}
-                        ></MatrixCell>
-                      )
-                    }
-                  })}
-                </tr>
-              )
-            })}
-          </>
-        </tbody>
-      </MatrixTableContainer>
-    </>
+    <MatrixTableContainer>
+      <tbody>
+        {tempArray.map((rowIndex) => {
+          return (
+            <tr key={`row${rowIndex}`}>
+              {tempArray.map((columnIndex) => {
+                const cellText = findOptionText(columnIndex, rowIndex)
+                if (cellText !== null) {
+                  return (
+                    <MatrixCell
+                      key={`${columnIndex} ${rowIndex}`}
+                      column={columnIndex}
+                      row={rowIndex}
+                      cellText={cellText}
+                      handleOptionSelect={handleOptionSelect}
+                      matrixSize={matrixActiveSize}
+                    ></MatrixCell>
+                  )
+                }
+                return null
+              })}
+            </tr>
+          )
+        })}
+      </tbody>
+    </MatrixTableContainer>
   )
 }
 

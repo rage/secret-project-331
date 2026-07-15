@@ -78,6 +78,7 @@ impl PageBuilder {
                 exercises: cms_exercises,
                 exercise_slides: cms_slides,
                 exercise_tasks: cms_tasks,
+                hidden: false,
             },
         )
         .await

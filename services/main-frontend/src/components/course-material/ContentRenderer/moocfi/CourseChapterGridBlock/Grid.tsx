@@ -49,7 +49,7 @@ const Grid: React.FC<React.PropsWithChildren<GridProps>> = ({
       `}
     >
       {chapters
-        .sort((a, b) => a.chapter_number - b.chapter_number)
+        .toSorted((a, b) => a.chapter_number - b.chapter_number)
         .map((chapter) => (
           <li key={chapter.id}>
             <StyledCard

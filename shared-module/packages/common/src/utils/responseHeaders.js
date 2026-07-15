@@ -1,7 +1,7 @@
 /**
- * @param {{requireTrustedTypesFor: boolean}} options
+ * @param {{requireTrustedTypesFor?: boolean}} [options]
  */
-function generateNormalResponseHeaders(options = { requireTrustedTypesFor: false }) {
+function generateNormalResponseHeaders(options = {}) {
   return [
     {
       key: "Referrer-Policy",

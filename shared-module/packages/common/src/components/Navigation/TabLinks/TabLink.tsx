@@ -1,10 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { UrlObject } from "node:url"
+import type { UrlObject } from "node:url"
 import React from "react"
 
 import { baseTheme, theme } from "../../../styles"
@@ -50,11 +50,9 @@ const TabLink: React.FC<React.PropsWithChildren<TabLinkProps>> = ({
         text-align: center;
         text-decoration: none;
         background: ${isActive ? theme.secondary.activeBg : "inherit"};
-        box-shadow: ${
-          isActive
-            ? "rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px"
-            : "none"
-        };
+        box-shadow: ${isActive
+          ? "rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px"
+          : "none"};
         border-radius: 0.3rem;
         padding: 0.75rem 0.35rem;
         ${respondToOrLarger.sm} {

@@ -1,13 +1,15 @@
-/** @jest-environment jsdom */
+/** @vitest-environment jsdom */
 
-import { jest } from "@jest/globals"
+import { vi } from "vitest"
 
 import dynamicWithIframeReload, {
   requestIframeReloadFromParent,
 } from "../../src/utils/dynamicWithIframeReload"
 
+const noop = () => {}
+const dynamicFn = (loaderArg: unknown) => loaderArg
+
 describe("dynamicWithIframeReload", () => {
-  const noop = () => {}
   let realConsole: Pick<typeof console, "info" | "error" | "warn">
 
   beforeEach(() => {
@@ -29,7 +31,7 @@ describe("dynamicWithIframeReload", () => {
       __exerciseServiceRequestReload?: () => void
     }
     delete anyWindow.__exerciseServiceRequestReload
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   test("requestIframeReloadFromParent calls the global bridge when present", async () => {
@@ -47,7 +49,7 @@ describe("dynamicWithIframeReload", () => {
   })
 
   test("requestIframeReloadFromParent waits for the global bridge to appear", async () => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
 
     let reloadCalls = 0
     const anyWindow = window as typeof window & {
@@ -62,7 +64,7 @@ describe("dynamicWithIframeReload", () => {
       }
     }, 1_500)
 
-    await jest.advanceTimersByTimeAsync(1_500)
+    await vi.advanceTimersByTimeAsync(1_500)
     await reloadRequest
     expect(reloadCalls).toBe(1)
   })
@@ -71,17 +73,16 @@ describe("dynamicWithIframeReload", () => {
     const anyWindow = window as typeof window & {
       __exerciseServiceRequestReload?: () => void
     }
-    anyWindow.__exerciseServiceRequestReload = jest.fn()
+    anyWindow.__exerciseServiceRequestReload = vi.fn()
 
-    const loader = jest.fn<() => Promise<{ default: () => null }>>().mockResolvedValue({
+    const loader = vi.fn<() => Promise<{ default: () => null }>>().mockResolvedValue({
       default: () => null,
     })
-    const dynamicFn = (loaderArg: unknown) => loaderArg
     const wrappedLoader = dynamicWithIframeReload(
       loader as unknown as () => Promise<{ default: () => null }>,
       undefined,
       {
-        dynamicFn: dynamicFn as typeof import("next/dynamic").default,
+        dynamicFn: dynamicFn as typeof import("@/lib/next-shims/dynamic").default,
       },
     ) as unknown as () => Promise<unknown>
 
@@ -91,66 +92,64 @@ describe("dynamicWithIframeReload", () => {
   })
 
   test("retries loader once after failure and then succeeds without requesting reload", async () => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
 
     const anyWindow = window as typeof window & {
       __exerciseServiceRequestReload?: () => void
     }
-    anyWindow.__exerciseServiceRequestReload = jest.fn()
+    anyWindow.__exerciseServiceRequestReload = vi.fn()
 
-    const loader = jest
+    const loader = vi
       .fn<() => Promise<unknown>>()
       .mockRejectedValueOnce(new Error("dynamic load failed 1"))
       .mockResolvedValueOnce({ default: () => null })
-    const dynamicFn = (loaderArg: unknown) => loaderArg
     const wrappedLoaderPromise = (
       dynamicWithIframeReload(
         loader as unknown as () => Promise<{ default: () => null }>,
         undefined,
         {
-          dynamicFn: dynamicFn as typeof import("next/dynamic").default,
+          dynamicFn: dynamicFn as typeof import("@/lib/next-shims/dynamic").default,
         },
       ) as unknown as () => Promise<unknown>
     )()
 
     expect(loader).toHaveBeenCalledTimes(1)
 
-    await jest.advanceTimersByTimeAsync(200)
+    await vi.advanceTimersByTimeAsync(200)
     await expect(wrappedLoaderPromise).resolves.toEqual({ default: expect.any(Function) })
     expect(loader).toHaveBeenCalledTimes(2)
     expect(anyWindow.__exerciseServiceRequestReload).not.toHaveBeenCalled()
   })
 
   test("retries loader multiple times before succeeding without requesting reload", async () => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
 
     const anyWindow = window as typeof window & {
       __exerciseServiceRequestReload?: () => void
     }
-    anyWindow.__exerciseServiceRequestReload = jest.fn()
+    anyWindow.__exerciseServiceRequestReload = vi.fn()
 
-    const loader = jest
+    const loader = vi
       .fn<() => Promise<{ default: () => null }>>()
       .mockRejectedValueOnce(new Error("dynamic load failed 1"))
       .mockRejectedValueOnce(new Error("dynamic load failed 2"))
       .mockResolvedValueOnce({ default: () => null })
-    const dynamicFn = (loaderArg: unknown) => loaderArg
     const wrappedLoaderPromise = (
       dynamicWithIframeReload(
         loader as unknown as () => Promise<{ default: () => null }>,
         undefined,
         {
-          dynamicFn: dynamicFn as typeof import("next/dynamic").default,
+          dynamicFn: dynamicFn as typeof import("@/lib/next-shims/dynamic").default,
         },
       ) as unknown as () => Promise<unknown>
     )()
 
     expect(loader).toHaveBeenCalledTimes(1)
 
-    await jest.advanceTimersByTimeAsync(200)
+    await vi.advanceTimersByTimeAsync(200)
     expect(loader).toHaveBeenCalledTimes(2)
 
-    await jest.advanceTimersByTimeAsync(400)
+    await vi.advanceTimersByTimeAsync(400)
     await expect(wrappedLoaderPromise).resolves.toEqual({ default: expect.any(Function) })
     expect(loader).toHaveBeenCalledTimes(3)
     expect(anyWindow.__exerciseServiceRequestReload).not.toHaveBeenCalled()
@@ -164,14 +163,14 @@ describe("dynamicWithIframeReload", () => {
     anyWindow.__exerciseServiceRequestReload = () => {
       reloadCalls += 1
     }
-    const dynamicFn = (loader: unknown) => loader
     const wrappedLoader = dynamicWithIframeReload(
+      // oxlint-disable-next-line require-await -- must reject as a Promise (expects () => Promise)
       async () => {
         throw new Error("dynamic load failed")
       },
       undefined,
       {
-        dynamicFn: dynamicFn as typeof import("next/dynamic").default,
+        dynamicFn: dynamicFn as typeof import("@/lib/next-shims/dynamic").default,
       },
     ) as unknown as () => Promise<unknown>
 
@@ -192,14 +191,14 @@ describe("dynamicWithIframeReload", () => {
     anyWindow.__exerciseServiceRequestReload = () => {
       throw new Error("reload bridge failed")
     }
-    const dynamicFn = (loader: unknown) => loader
     const wrappedLoader = dynamicWithIframeReload(
+      // oxlint-disable-next-line require-await -- must reject as a Promise (expects () => Promise)
       async () => {
         throw new Error("dynamic load failed")
       },
       undefined,
       {
-        dynamicFn: dynamicFn as typeof import("next/dynamic").default,
+        dynamicFn: dynamicFn as typeof import("@/lib/next-shims/dynamic").default,
       },
     ) as unknown as () => Promise<unknown>
 
@@ -217,7 +216,7 @@ describe("dynamicWithIframeReload", () => {
   })
 
   test("requestIframeReloadFromParent gives up after 10 seconds if the bridge never appears", async () => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
 
     const originalWarn = console.warn
     const warnCalls: unknown[][] = []
@@ -227,7 +226,7 @@ describe("dynamicWithIframeReload", () => {
 
     try {
       const reloadRequest = requestIframeReloadFromParent()
-      await jest.advanceTimersByTimeAsync(10_000)
+      await vi.advanceTimersByTimeAsync(10_000)
       await reloadRequest
 
       expect(warnCalls).toEqual([

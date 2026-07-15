@@ -11,7 +11,7 @@ import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 
 export const formatLanguageVersionsQueryKey = (courseId: string): string => {
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   return `course-${courseId}-language-versions`
 }
 
@@ -48,6 +48,7 @@ const LanguageDisplay: React.FC<{ langCode: string }> = ({ langCode }) => {
         margin-top: 3px;
       `}
     >
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=img labels the wrapped SVG; <img> is void, no children */}
       <span role="img" aria-label={t("language-icon")}>
         <LanguageTranslation size={18} aria-hidden="true" />
       </span>

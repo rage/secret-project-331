@@ -1,12 +1,10 @@
-"use client"
-
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { PrivateSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
@@ -128,12 +126,12 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMultiplechoice>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemMultiplechoice>(quiz, quizItemId, "multiple-choice")
     })
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (
@@ -169,16 +167,16 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               title,
               messageAfterSubmissionWhenThisOptionSelected,
               messageOnModelSolutionWhenThisOptionSelected,
-              correct,
+              optionCorrect,
             ) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
                 draft.options = draft.options.map((opt) => {
-                  if (opt.id == option.id) {
+                  if (opt.id === option.id) {
                     opt.title = title
-                    opt.correct = correct
+                    opt.correct = optionCorrect
                     opt.messageAfterSubmissionWhenSelected =
                       messageAfterSubmissionWhenThisOptionSelected
                     opt.additionalCorrectnessExplanationOnModelSolution =
@@ -262,11 +260,11 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                     if (!draft) {
                       return
                     }
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     draft.optionDisplayDirection = "vertical"
                   })
                 }}
-                checked={selected.optionDisplayDirection == "vertical"}
+                checked={selected.optionDisplayDirection === "vertical"}
                 label={t("vertical")}
               />
               <RadioButton
@@ -275,11 +273,11 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                     if (!draft) {
                       return
                     }
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     draft.optionDisplayDirection = "horizontal"
                   })
                 }}
-                checked={selected.optionDisplayDirection == "horizontal"}
+                checked={selected.optionDisplayDirection === "horizontal"}
                 label={t("horizontal")}
               />
             </MultipleChoiceLayoutChoiceContainer>
@@ -340,22 +338,22 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                   }
                   switch (value) {
                     case "default":
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       draft.multipleChoiceMultipleOptionsGradingPolicy = "default"
                       break
                     case "points-off-incorrect-options":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "points-off-incorrect-options"
                       break
                     case "points-off-unselected-options":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "points-off-unselected-options"
                       break
                     case "some-correct-none-incorrect":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "some-correct-none-incorrect"
                       break
                   }
@@ -375,15 +373,15 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 ${!selected.allowSelectingMultipleOptions && "opacity: 0.5;"}
               `}
             >
-              {selected.multipleChoiceMultipleOptionsGradingPolicy == "default" &&
+              {selected.multipleChoiceMultipleOptionsGradingPolicy === "default" &&
                 t("multiple-choice-grading-default-description")}
-              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ===
                 "points-off-incorrect-options" &&
                 t("multiple-choice-grading-points-off-incorrect-options-description")}
-              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ===
                 "points-off-unselected-options" &&
                 t("multiple-choice-grading-points-off-unselected-options-description")}
-              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ===
                 "some-correct-none-incorrect" &&
                 t("multiple-choice-grading-some-correct-none-incorrect-description")}
 

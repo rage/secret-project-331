@@ -1,4 +1,4 @@
-import { NextWebVitalsMetric } from "next/dist/shared/lib/utils"
+import type { NextWebVitalsMetric } from "next/dist/shared/lib/utils"
 
 const generateWebVitalsReporter = (serviceName: string) => {
   let webVitals: NextWebVitalsMetric[] = []

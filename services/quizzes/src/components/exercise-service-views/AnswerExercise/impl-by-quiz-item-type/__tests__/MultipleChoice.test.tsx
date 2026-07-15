@@ -1,11 +1,16 @@
-"use client"
-
-import "@testing-library/jest-dom"
+import { vi } from "vitest"
 import { render, screen } from "@testing-library/react"
 
-import { UserItemAnswerMultiplechoice } from "../../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerMultiplechoice } from "../../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/publicSpec"
 import MultipleChoice from "../MultipleChoice"
+
+// ParsedText renders via dynamicImport (React.lazy); mock it so title/body text is present
+// synchronously for the accessible-name assertions.
+vi.mock("../../../../ParsedText", () => ({
+  __esModule: true,
+  default: ({ text }: { text: string | null }) => <span>{text}</span>,
+}))
 
 const baseItem: PublicSpecQuizItemMultiplechoice = {
   type: "multiple-choice",
@@ -28,7 +33,7 @@ const renderMultipleChoice = (
   overrides: Partial<PublicSpecQuizItemMultiplechoice> = {},
   answer: UserItemAnswerMultiplechoice | null = null,
 ) => {
-  const setQuizItemAnswerState = jest.fn()
+  const setQuizItemAnswerState = vi.fn()
   const utils = render(
     <MultipleChoice
       quizDirection="column"
@@ -72,6 +77,7 @@ describe("MultipleChoice answer view accessibility", () => {
     const labelledBy = group.getAttribute("aria-labelledby") as string
     expect(labelledBy).toBeTruthy()
     for (const id of labelledBy.split(" ")) {
+      // oxlint-disable-next-line unicorn/prefer-query-selector -- useId values aren't valid CSS selectors
       expect(document.getElementById(id)?.textContent).not.toBe("")
     }
   })

@@ -1,14 +1,11 @@
-"use client"
-
-import "@testing-library/jest-dom"
 import { render, screen } from "@testing-library/react"
 
-import { UserItemAnswerChooseN } from "../../../../../../types/quizTypes/answer"
-import {
+import type { UserItemAnswerChooseN } from "../../../../../../types/quizTypes/answer"
+import type {
   ModelSolutionQuizItemChooseN,
   QuizItemOption,
 } from "../../../../../../types/quizTypes/modelSolutionSpec"
-import { PublicSpecQuizItemChooseN } from "../../../../../../types/quizTypes/publicSpec"
+import type { PublicSpecQuizItemChooseN } from "../../../../../../types/quizTypes/publicSpec"
 import ChooseNSubmission from "../ChooseN"
 
 const makeModelSolutionOption = (id: string, title: string, correct: boolean): QuizItemOption => ({
@@ -73,7 +70,7 @@ const renderSubmission = (solution: ModelSolutionQuizItemChooseN | null = modelS
     />,
   )
 
-// react-i18next is mocked in tests/setup-jest.js, so t() returns the translation key.
+// react-i18next is mocked in src/test/setup.ts, so t() returns the translation key.
 describe("ChooseN submission view accessibility", () => {
   it("labels a correctly selected option's icon as selected and correct (WCAG 1.1.1)", () => {
     renderSubmission()

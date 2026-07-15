@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -149,8 +149,8 @@ const Forum = () => {
           const comment = target.comment.value
           const visible = target.visibility.value
 
-          setState((state) => [
-            ...state,
+          setState((prevState) => [
+            ...prevState,
             {
               id: String(current.toLocaleTimeString()),
               text: comment,

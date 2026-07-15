@@ -1,13 +1,14 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
 import { produce } from "immer"
-import React, { Dispatch } from "react"
+import type { Dispatch } from "react"
+import React from "react"
 import { v4 } from "uuid"
 
-import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
 
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 
@@ -40,7 +41,10 @@ interface SetContentAction {
 }
 
 export type EditorContentAction =
-  AddExerciseSlideAction | AddExerciseTaskAction | DeleteExerciseTaskAction | SetContentAction
+  | AddExerciseSlideAction
+  | AddExerciseTaskAction
+  | DeleteExerciseTaskAction
+  | SetContentAction
 
 // Reducer
 
@@ -116,8 +120,7 @@ export const editorContentReducer = (
       })
     case "deleteExerciseTask":
       return produce(prev, (draft) => {
-        outerloop: for (let i = 0; i < draft.length; i++) {
-          const block = draft[i]
+        outerloop: for (const block of draft) {
           if (block.name !== "moocfi/exercise") {
             continue
           }
@@ -125,8 +128,7 @@ export const editorContentReducer = (
           if (!slidesBlock) {
             continue
           }
-          for (let j = 0; j < slidesBlock.innerBlocks.length; j++) {
-            const slideBlock = slidesBlock.innerBlocks[j]
+          for (const slideBlock of slidesBlock.innerBlocks) {
             const taskToDeleteIndex = slideBlock.innerBlocks.findIndex(
               (taskBlock) => taskBlock.clientId === action.payload.clientId,
             )

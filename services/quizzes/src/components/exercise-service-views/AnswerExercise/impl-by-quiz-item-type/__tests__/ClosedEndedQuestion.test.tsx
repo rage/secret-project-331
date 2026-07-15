@@ -1,14 +1,12 @@
-"use client"
-
-import "@testing-library/jest-dom"
+import { vi } from "vitest"
 import { fireEvent, render, screen } from "@testing-library/react"
 
-import { UserItemAnswerClosedEndedQuestion } from "../../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerClosedEndedQuestion } from "../../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/publicSpec"
 import ClosedEndedQuestion from "../ClosedEndedQuestion"
 
 // Render synchronously; ParsedText otherwise resolves content via a dynamic import.
-jest.mock("../../../../ParsedText", () => ({
+vi.mock("../../../../ParsedText", () => ({
   __esModule: true,
   default: ({ text }: { text: string | null }) => <span>{text}</span>,
 }))
@@ -26,7 +24,7 @@ const renderQuestion = (
   overrides: Partial<PublicSpecQuizItemClosedEndedQuestion> = {},
   answer: UserItemAnswerClosedEndedQuestion | null = null,
 ) => {
-  const setQuizItemAnswerState = jest.fn()
+  const setQuizItemAnswerState = vi.fn()
   const utils = render(
     <ClosedEndedQuestion
       quizDirection="column"
@@ -47,6 +45,7 @@ describe("ClosedEndedQuestion accessibility", () => {
     expect(input.tagName).toBe("INPUT")
     expect(input).not.toHaveAttribute("aria-label")
     const labelledBy = input.getAttribute("aria-labelledby") as string
+    // oxlint-disable-next-line unicorn/prefer-query-selector -- useId values aren't valid CSS selectors
     expect(document.getElementById(labelledBy)?.textContent).toBe("juhannus")
   })
 
@@ -54,6 +53,7 @@ describe("ClosedEndedQuestion accessibility", () => {
     renderQuestion()
     const input = screen.getByLabelText("juhannus")
     const describedBy = input.getAttribute("aria-describedby") as string
+    // oxlint-disable-next-line unicorn/prefer-query-selector -- useId values aren't valid CSS selectors
     expect(document.getElementById(describedBy)?.textContent).toBe(
       "Fill in the sentence using the given word.",
     )

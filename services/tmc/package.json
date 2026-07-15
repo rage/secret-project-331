@@ -1,19 +1,14 @@
 {
   "name": "tmc",
   "version": "1.0.0",
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
+  "type": "module",
   "scripts": {
-    "build": "node scripts/inject-pyodide-version.cjs && next build",
-    "dev": "node scripts/inject-pyodide-version.cjs && next dev --port 3005 --turbopack",
-    "export": "node scripts/inject-pyodide-version.cjs && next export",
+    "build": "node scripts/inject-pyodide-version.cjs && rsbuild build",
+    "dev": "node scripts/inject-pyodide-version.cjs && rsbuild dev --port 3005",
     "postinstall": "node scripts/prepare-pyodide-assets.cjs",
-    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
+    "start": "node server.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
@@ -30,7 +25,6 @@
     "@json2csv/plainjs": "^7.0.6",
     "@kubernetes/client-node": "^1.4.0",
     "@monaco-editor/react": "^4.7.0",
-    "@next/bundle-analyzer": "16.2.9",
     "@popperjs/core": "^2.11.8",
     "@react-aria/dialog": "^3.6.1",
     "@react-aria/live-announcer": "^3.5.1",
@@ -44,14 +38,14 @@
     "@react-stately/select": "^3.10.1",
     "@react-stately/toggle": "^3.10.1",
     "@tanstack/react-query": "^5.101.2",
+    "@tanstack/react-router": "^1.170.16",
+    "@tanstack/react-start": "^1.168.26",
     "@types/node": "^26.0.1",
     "@types/ws": "^8.18.1",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",
-    "express": "^5.2.1",
     "form-data": "^4.0.6",
-    "http-proxy-middleware": "^4.1.1",
     "i18next": "^26.3.3",
     "immer": "^11.1.8",
     "jotai": "^2.20.1",
@@ -59,7 +53,6 @@
     "lodash": "^4.18.1",
     "monaco-editor": "^0.55.1",
     "natural-orderby": "^5.0.0",
-    "next": "^16.2.9",
     "react": "^19.2.7",
     "react-aria": "3.50.0",
     "react-aria-components": "^1.19.0",
@@ -69,30 +62,41 @@
     "react-i18next": "^17.0.8",
     "react-popper": "^2.3.0",
     "react-spring": "^10.0.4",
-    "svgo": "^4.0.1",
-    "tar": "7.5.19",
     "tar-stream": "^3.2.0",
     "tempy": "^3.2.0",
     "tree-kill": "^1.2.2",
     "use-debounce": "^10.1.1",
     "uuid": "^14.0.1",
-    "workerpool": "^10.0.2",
     "zod": "^4.4.3",
     "zstddec": "^0.2.0"
   },
   "devDependencies": {
-    "@svgr/webpack": "latest",
-    "@types/jest": "^30.0.0",
+    "@rsbuild/core": "^2.1.1",
+    "@rsbuild/plugin-node-polyfill": "^1.4.6",
+    "@rsbuild/plugin-react": "^2.1.0",
+    "@rsbuild/plugin-svgr": "^2.0.4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/lodash": "^4.17.24",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@types/tar-stream": "^3.1.4",
-    "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1",
-    "node-loader": "^2.1.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "@vitejs/plugin-react": "^6.0.3",
+    "jsdom": "^27.0.0",
     "postcss-styled-syntax": "^0.7.2",
     "pyodide": "^314.0.1",
-    "ts-jest": "^29.4.11",
-    "typescript": "^6.0.3"
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite-plugin-svgr": "^5.2.0",
+    "vitest": "^4.1.9"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
   }
 }

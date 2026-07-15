@@ -171,6 +171,8 @@ jobs:
       - name: pnpm install --frozen-lockfile
         run: pnpm install --frozen-lockfile
         working-directory: ./services/cms
+      - name: Typecheck
+        run: pnpm exec tsc -p ./services/cms --noEmit
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/cms
@@ -225,6 +227,8 @@ jobs:
       - name: pnpm install --frozen-lockfile
         run: pnpm install --frozen-lockfile
         working-directory: ./services/quizzes
+      - name: Typecheck
+        run: pnpm exec tsc -p ./services/quizzes --noEmit
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/quizzes
@@ -250,6 +254,8 @@ jobs:
       - name: pnpm install --frozen-lockfile
         run: pnpm install --frozen-lockfile
         working-directory: ./services/main-frontend
+      - name: Typecheck
+        run: pnpm exec tsc -p ./services/main-frontend --noEmit
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/main-frontend
@@ -260,6 +266,54 @@ jobs:
             echo "## 🎨 Main Frontend Tests"
             echo "- **Status**: ${{ job.status }}"
             echo "- **Service**: Main Frontend"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  example-exercise-typecheck:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: pnpm install --frozen-lockfile for the root of the repo
+        run: pnpm install --frozen-lockfile
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
+        working-directory: ./services/example-exercise
+      - name: Typecheck
+        run: pnpm exec tsc -p ./services/example-exercise --noEmit
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🧩 Example Exercise Typecheck"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Example Exercise"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  tmc-typecheck:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: pnpm install --frozen-lockfile for the root of the repo
+        run: pnpm install --frozen-lockfile
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
+        working-directory: ./services/tmc
+      - name: Typecheck
+        run: pnpm exec tsc -p ./services/tmc --noEmit
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🧪 TMC Typecheck"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: TMC"
           } >> "$GITHUB_STEP_SUMMARY"
 
   shared-module-exercise-client:
@@ -312,6 +366,31 @@ jobs:
             echo "- **Service**: Shared Module Exercise React"
           } >> "$GITHUB_STEP_SUMMARY"
 
+  shared-module-exercise-iframe-host:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Install dependencies at repository root
+        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for shared-module/packages/exercise-iframe-host
+        run: pnpm install --frozen-lockfile
+        working-directory: ./shared-module/packages/exercise-iframe-host
+      - name: Run tests
+        run: pnpm run test
+        working-directory: ./shared-module/packages/exercise-iframe-host
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🖼️ Exercise IFrame Host Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Shared Module Exercise IFrame Host"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   shared-module-exercise-protocol:
     permissions:
       contents: read
@@ -326,8 +405,7 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: ./shared-module/packages/exercise-protocol
       - name: Typecheck
-        run: pnpm exec tsc --noEmit
-        working-directory: ./shared-module/packages/exercise-protocol
+        run: pnpm exec tsc -p ./shared-module/packages/exercise-protocol --noEmit
       - name: Check generated guards are up to date
         run: |
           pnpm run generate-guards

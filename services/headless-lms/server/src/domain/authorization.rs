@@ -942,24 +942,40 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
     let user = match models::users::find_by_upstream_id(conn, upstream_id).await? {
         Some(existing_user) => existing_user,
         None => {
-            models::users::insert_with_upstream_id_and_moocfi_id(
+            let inserted = models::users::insert_with_upstream_id_and_moocfi_id(
                 conn,
                 &email,
-                // convert empty names to None
-                if user_field.first_name.trim().is_empty() {
-                    None
-                } else {
-                    Some(user_field.first_name.as_str())
-                },
-                if user_field.last_name.trim().is_empty() {
-                    None
-                } else {
-                    Some(user_field.last_name.as_str())
-                },
+                // convert missing/empty names to None
+                user_field
+                    .first_name
+                    .as_deref()
+                    .filter(|s| !s.trim().is_empty()),
+                user_field
+                    .last_name
+                    .as_deref()
+                    .filter(|s| !s.trim().is_empty()),
                 upstream_id,
                 id,
             )
-            .await?
+            .await;
+            match inserted {
+                Ok(user) => user,
+                // A concurrent request can create the user between the find and the insert
+                // (the insert runs in a savepoint, so the connection stays usable). The unique
+                // index on upstream_id rejects the loser; return the winner's row instead.
+                Err(insert_error)
+                    if matches!(
+                        insert_error.error_type(),
+                        models::ModelErrorType::DatabaseConstraint { constraint, .. }
+                            if constraint == "users_upstream_id_active_uniq_idx"
+                    ) =>
+                {
+                    models::users::find_by_upstream_id(conn, upstream_id)
+                        .await?
+                        .ok_or(insert_error)?
+                }
+                Err(insert_error) => return Err(insert_error.into()),
+            }
         }
     };
     Ok(user)

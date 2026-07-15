@@ -5,7 +5,8 @@ import React, { useEffect, useId, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme, typography } from "../../styles"
-import Button, { ButtonProps } from "../Button"
+import type { ButtonProps } from "../Button"
+import Button from "../Button"
 
 import Dialog from "./Dialog"
 
@@ -75,6 +76,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
       width={width}
       noPadding={true}
       className={className}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Dialog is a custom component, not a raw HTML element
       role="dialog"
       aria-labelledby={titleId}
       disableContentScroll={disableContentScroll}
@@ -132,12 +134,10 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
                   width: 40px;
                   height: 40px;
                   color: #000;
-                  ${
-                    leftAlignTitle &&
-                    `
-                    margin-top: -6px;
+                  ${leftAlignTitle &&
                   `
-                  }
+                    margin-top: -6px;
+                  `}
                   &:hover {
                     background-color: #f0f0f0;
                   }
@@ -187,11 +187,9 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
             ${!disableContentScroll && "overflow-y: auto;"}
 
             @media (max-width: 480px) {
-              ${
-                !noPadding &&
-                `padding-left: 1rem;
-              padding-right: 1rem;`
-              }
+              ${!noPadding &&
+              `padding-left: 1rem;
+              padding-right: 1rem;`}
             }
           `}
         >

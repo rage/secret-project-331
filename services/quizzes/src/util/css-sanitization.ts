@@ -1,4 +1,4 @@
-import { DisplayDirection } from "../../types/quizTypes/privateSpec"
+import type { DisplayDirection } from "../../types/quizTypes/privateSpec"
 
 export type FlexDirection = "column" | "column-reverse" | "row" | "row-reverse"
 export const DEFAULT_QUIZ_DIRECTION: DisplayDirection = "vertical"

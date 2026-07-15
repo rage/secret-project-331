@@ -128,7 +128,7 @@ const capitalizeFirstLetter: (language: string) => string = (language) => {
   if (!language) {
     return language
   }
-  return language.charAt(0).toUpperCase() + language.substring(1).toLowerCase()
+  return language.charAt(0).toUpperCase() + language.slice(1).toLowerCase()
 }
 
 const CourseCard: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
@@ -185,6 +185,7 @@ const CourseCard: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
           <CourseDescription>{description}</CourseDescription>
         </CourseContent>
         <CourseLanguageContent>
+          {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- span+role=img wraps an SVG icon; <img> tag unusable */}
           <span role="img" aria-label={t("language-icon")}>
             <LanguageTranslation
               className={css`

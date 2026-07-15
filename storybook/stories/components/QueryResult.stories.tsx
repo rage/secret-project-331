@@ -108,6 +108,7 @@ export const Refreshing: Story = {
       query={mockQuery({
         data: "Content while refetching",
         isPending: false,
+        isFetching: true,
         isRefetching: true,
       })}
     >

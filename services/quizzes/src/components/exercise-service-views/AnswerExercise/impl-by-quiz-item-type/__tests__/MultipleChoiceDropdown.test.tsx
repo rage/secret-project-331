@@ -1,10 +1,8 @@
-"use client"
-
-import "@testing-library/jest-dom"
+import { vi } from "vitest"
 import { fireEvent, render, screen } from "@testing-library/react"
 
-import { UserItemAnswerMultiplechoiceDropdown } from "../../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerMultiplechoiceDropdown } from "../../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../../types/quizTypes/publicSpec"
 import MultipleChoiceDropdown from "../MultipleChoiceDropdown"
 
 const baseItem: PublicSpecQuizItemMultiplechoiceDropdown = {
@@ -23,7 +21,7 @@ const renderDropdown = (
   overrides: Partial<PublicSpecQuizItemMultiplechoiceDropdown> = {},
   answer: UserItemAnswerMultiplechoiceDropdown | null = null,
 ) => {
-  const setQuizItemAnswerState = jest.fn()
+  const setQuizItemAnswerState = vi.fn()
   const utils = render(
     <MultipleChoiceDropdown
       quizDirection="column"
@@ -77,7 +75,8 @@ describe("MultipleChoiceDropdown accessibility", () => {
           .join("\n"),
       )
       .join("\n")
-    expect(styleText).toMatch(/#767b85/i)
+    // jsdom's CSSOM serializes hex colors to rgb(), so accept either form of #767b85.
+    expect(styleText).toMatch(/#767b85|rgb\(118,\s*123,\s*133\)/i)
     expect(styleText).not.toContain("#dfe1e6")
   })
 

@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -75,7 +73,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = (props) => {
       </OutputHeader>
       <OutputBody>
         {mode === "test-running" && <Spinner />}
-        {mode === "test-results" && testResults != null && (
+        {mode === "test-results" && testResults !== null && (
           <TestResultsContent testResults={testResults} />
         )}
         {mode === "run" && (

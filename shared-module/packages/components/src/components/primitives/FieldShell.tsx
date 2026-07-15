@@ -16,9 +16,8 @@ import {
 } from "./fieldShellStyles"
 import { fieldControlCss, type FieldSize, resolveFieldLabelCss } from "./fieldStyles"
 
-type ControlProps = React.HTMLAttributes<HTMLDivElement> & {
-  [key: `data-${string}`]: string | undefined
-}
+type ControlProps = React.HTMLAttributes<HTMLDivElement> &
+  Record<`data-${string}`, string | undefined>
 
 type FieldShellProps = React.PropsWithChildren<{
   className?: string

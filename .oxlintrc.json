@@ -1,0 +1,773 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["jsx-a11y", "react", "import", "unicorn"],
+  "jsPlugins": [
+    "eslint-plugin-explicit-use-directives",
+    "@tanstack/eslint-plugin-query",
+    "eslint-plugin-i18next"
+  ],
+  "categories": {
+    "correctness": "warn",
+    "suspicious": "warn",
+    "pedantic": "warn"
+  },
+  "env": {
+    "builtin": true,
+    "es2018": true
+  },
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/target/**",
+    "**/.next/**",
+    "**/out/**",
+    "**/playwright-report/**",
+    "**/storybook-static/**",
+    "**/services/main-frontend/public/monaco-editor/**",
+    "**/services/tmc/public/pyodide/**",
+    "**/services/main-frontend/src/generated/**",
+    "**/services/cms/src/generated/**",
+    "**/shared-module/packages/common/src/generated/**",
+    "**/.venv/**",
+    "**/generated-docs/**",
+    "**/GutenbergBlockAttributes.ts",
+    "**/*.guard.ts",
+    "**/DeprecatedGutenbergBlockAttributes.ts",
+    "**/*.generated.*",
+    "**/shared-module/**",
+    "!shared-module/**",
+    "shared-module/**/node_modules/**",
+    "shared-module/**/target/**",
+    "shared-module/**/.next/**",
+    "shared-module/**/out/**",
+    "shared-module/**/playwright-report/**",
+    "shared-module/**/storybook-static/**",
+    "shared-module/**/services/main-frontend/public/monaco-editor/**",
+    "shared-module/**/services/tmc/public/pyodide/**",
+    "shared-module/**/services/main-frontend/src/generated/**",
+    "shared-module/**/services/cms/src/generated/**",
+    "shared-module/**/shared-module/packages/common/src/generated/**",
+    "shared-module/**/.venv/**",
+    "shared-module/**/generated-docs/**",
+    "shared-module/**/GutenbergBlockAttributes.ts",
+    "shared-module/**/*.guard.ts",
+    "shared-module/**/DeprecatedGutenbergBlockAttributes.ts",
+    "shared-module/**/*.generated.*"
+  ],
+  "rules": {
+    "explicit-use-directives/require-use-directive-first": [
+      "error",
+      {
+        "directive": "use client"
+      }
+    ],
+    "explicit-use-directives/empty-line-after-use-directive": ["error", "always"],
+    "@tanstack/query/exhaustive-deps": "error",
+    "@tanstack/query/no-rest-destructuring": "warn",
+    "@tanstack/query/stable-query-client": "error",
+    "@tanstack/query/no-unstable-deps": "error",
+    "@tanstack/query/infinite-query-property-order": "error",
+    "@tanstack/query/no-void-query-fn": "off",
+    "@tanstack/query/mutation-property-order": "error",
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/anchor-has-content": "error",
+    "jsx-a11y/anchor-is-valid": "error",
+    "jsx-a11y/aria-activedescendant-has-tabindex": "error",
+    "jsx-a11y/aria-props": "error",
+    "jsx-a11y/aria-proptypes": "error",
+    "jsx-a11y/aria-role": "error",
+    "jsx-a11y/aria-unsupported-elements": "error",
+    "jsx-a11y/autocomplete-valid": "error",
+    "jsx-a11y/click-events-have-key-events": "error",
+    "jsx-a11y/heading-has-content": "error",
+    "jsx-a11y/html-has-lang": "error",
+    "jsx-a11y/iframe-has-title": "error",
+    "jsx-a11y/img-redundant-alt": "error",
+    "jsx-a11y/interactive-supports-focus": [
+      "warn",
+      {
+        "tabbable": ["button", "checkbox", "link", "searchbox", "spinbutton", "switch", "textbox"]
+      }
+    ],
+    "jsx-a11y/label-has-associated-control": "error",
+    "jsx-a11y/media-has-caption": "error",
+    "jsx-a11y/mouse-events-have-key-events": "error",
+    "jsx-a11y/no-access-key": "error",
+    "jsx-a11y/no-autofocus": "error",
+    "jsx-a11y/no-distracting-elements": "error",
+    "jsx-a11y/no-interactive-element-to-noninteractive-role": [
+      "error",
+      {
+        "tr": ["none", "presentation"],
+        "canvas": ["img"]
+      }
+    ],
+    "jsx-a11y/no-noninteractive-element-interactions": [
+      "error",
+      {
+        "handlers": [
+          "onClick",
+          "onError",
+          "onLoad",
+          "onMouseDown",
+          "onMouseUp",
+          "onKeyPress",
+          "onKeyDown",
+          "onKeyUp"
+        ],
+        "alert": ["onKeyUp", "onKeyDown", "onKeyPress"],
+        "body": ["onError", "onLoad"],
+        "dialog": ["onKeyUp", "onKeyDown", "onKeyPress"],
+        "iframe": ["onError", "onLoad"],
+        "img": ["onError", "onLoad"]
+      }
+    ],
+    "jsx-a11y/no-noninteractive-element-to-interactive-role": [
+      "error",
+      {
+        "ul": ["listbox", "menu", "menubar", "radiogroup", "tablist", "tree", "treegrid"],
+        "ol": ["listbox", "menu", "menubar", "radiogroup", "tablist", "tree", "treegrid"],
+        "li": ["menuitem", "menuitemradio", "menuitemcheckbox", "option", "row", "tab", "treeitem"],
+        "table": ["grid"],
+        "td": ["gridcell"],
+        "fieldset": ["radiogroup", "presentation"]
+      }
+    ],
+    "jsx-a11y/no-noninteractive-tabindex": [
+      "error",
+      {
+        "tags": [],
+        "roles": ["tabpanel"],
+        "allowExpressionValues": true
+      }
+    ],
+    "jsx-a11y/no-redundant-roles": "error",
+    "jsx-a11y/no-static-element-interactions": [
+      "error",
+      {
+        "allowExpressionValues": true,
+        "handlers": ["onClick", "onMouseDown", "onMouseUp", "onKeyPress", "onKeyDown", "onKeyUp"]
+      }
+    ],
+    "jsx-a11y/role-has-required-aria-props": "error",
+    "jsx-a11y/role-supports-aria-props": "error",
+    "jsx-a11y/scope": "error",
+    "jsx-a11y/tabindex-no-positive": "error",
+    "react/display-name": "error",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-key": "error",
+    "react/iframe-missing-sandbox": "error",
+    "react/no-unstable-nested-components": ["error", { "allowAsProps": true }],
+    "react/jsx-no-comment-textnodes": "error",
+    "react/jsx-no-duplicate-props": "error",
+    "react/jsx-no-target-blank": "error",
+    "react/jsx-no-undef": "error",
+    "react/no-children-prop": "error",
+    "react/no-danger-with-children": "error",
+    "react/no-direct-mutation-state": "error",
+    "react/no-find-dom-node": "error",
+    "react/no-is-mounted": "error",
+    "react/no-render-return-value": "error",
+    "react/no-string-refs": "error",
+    "react/no-unescaped-entities": "error",
+    "react/no-unknown-property": "error",
+    "import/namespace": "error",
+    "import/default": "error",
+    "import/no-named-as-default": "warn",
+    "import/no-named-as-default-member": "warn",
+    "import/no-duplicates": "warn",
+    "eslint/max-lines-per-function": "off",
+    "eslint/max-lines": "off",
+    "import/max-dependencies": "off",
+    "eslint/no-inline-comments": "off",
+    "eslint/no-warning-comments": "off",
+    "eslint/no-underscore-dangle": "off",
+    "eslint/require-unicode-regexp": "off",
+    "eslint/no-negated-condition": "off",
+    "unicorn/no-negated-condition": "off",
+    "import/no-unassigned-import": "off",
+    "eslint/no-shadow": "warn",
+    "eslint/eqeqeq": ["warn", "always"],
+    "unicorn/no-array-sort": "warn",
+    "unicorn/consistent-function-scoping": "warn",
+    "unicorn/prefer-add-event-listener": "warn",
+    "unicorn/no-single-promise-in-promise-methods": "warn",
+    "unicorn/no-await-in-promise-methods": "warn",
+    "unicorn/require-post-message-target-origin": "warn",
+    "unicorn/no-useless-fallback-in-spread": "warn",
+    "unicorn/no-thenable": "warn",
+    "unicorn/no-array-reverse": "warn",
+    "unicorn/no-useless-undefined": "off",
+    "unicorn/prefer-at": "off",
+    "unicorn/prefer-dom-node-dataset": "off",
+    "unicorn/prefer-optional-catch-binding": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.{js,jsx,ts,tsx}"],
+      "rules": {
+        "nextjs/no-html-link-for-pages": "warn",
+        "nextjs/no-img-element": "error",
+        "nextjs/no-sync-scripts": "error",
+        "nextjs/no-script-component-in-head": "error",
+        "nextjs/google-font-display": "error",
+        "nextjs/google-font-preconnect": "error",
+        "nextjs/next-script-for-ga": "error",
+        "nextjs/no-head-element": "error",
+        "nextjs/no-page-custom-font": "error",
+        "nextjs/no-styled-jsx-in-document": "error",
+        "nextjs/no-title-in-document-head": "error",
+        "nextjs/no-typos": "error",
+        "nextjs/no-unwanted-polyfillio": "error"
+      },
+      "plugins": ["nextjs"]
+    },
+    {
+      "files": ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
+      "rules": {
+        "import/namespace": "off",
+        "import/default": "off"
+      }
+    },
+    {
+      "files": ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
+      "rules": {
+        "constructor-super": "error",
+        "for-direction": "error",
+        "getter-return": "error",
+        "no-async-promise-executor": "error",
+        "no-case-declarations": "error",
+        "no-class-assign": "error",
+        "no-compare-neg-zero": "error",
+        "no-cond-assign": "error",
+        "no-const-assign": "error",
+        "no-constant-binary-expression": "error",
+        "no-constant-condition": "error",
+        "no-control-regex": "warn",
+        "no-debugger": "error",
+        "no-delete-var": "error",
+        "no-dupe-class-members": "error",
+        "no-dupe-else-if": "error",
+        "no-dupe-keys": "error",
+        "no-duplicate-case": "error",
+        "no-empty": "error",
+        "no-empty-character-class": "error",
+        "no-empty-pattern": "error",
+        "no-empty-static-block": "error",
+        "no-ex-assign": "error",
+        "no-extra-boolean-cast": "error",
+        "no-fallthrough": "error",
+        "no-func-assign": "error",
+        "no-global-assign": "error",
+        "no-import-assign": "error",
+        "no-invalid-regexp": "error",
+        "no-irregular-whitespace": "error",
+        "no-loss-of-precision": "error",
+        "no-misleading-character-class": "error",
+        "no-new-native-nonconstructor": "error",
+        "no-nonoctal-decimal-escape": "error",
+        "no-obj-calls": "error",
+        "no-prototype-builtins": "error",
+        "no-redeclare": "warn",
+        "no-regex-spaces": "error",
+        "no-self-assign": "error",
+        "no-setter-return": "error",
+        "no-shadow-restricted-names": "error",
+        "no-sparse-arrays": "error",
+        "no-this-before-super": "error",
+        "no-unassigned-vars": "error",
+        "no-unexpected-multiline": "error",
+        "no-unreachable": "error",
+        "no-unsafe-finally": "error",
+        "no-unsafe-negation": "error",
+        "no-unsafe-optional-chaining": "error",
+        "no-unused-labels": "error",
+        "no-unused-private-class-members": "error",
+        "no-unused-vars": [
+          "warn",
+          {
+            "varsIgnorePattern": "^_",
+            "argsIgnorePattern": "^_",
+            "caughtErrorsIgnorePattern": "^_",
+            "destructuredArrayIgnorePattern": "^_"
+          }
+        ],
+        "no-useless-backreference": "error",
+        "no-useless-catch": "error",
+        "no-useless-escape": "error",
+        "no-with": "error",
+        "preserve-caught-error": "error",
+        "require-yield": "error",
+        "use-isnan": "error",
+        "valid-typeof": "error",
+        "no-array-constructor": "error",
+        "no-unused-expressions": "error",
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "axios",
+                "message": "Use fetch or generated @hey-api/client-fetch clients instead of axios."
+              },
+              {
+                "name": "@emotion/react",
+                "importNames": ["css"],
+                "message": "Use \"@emotion/css\" instead."
+              }
+            ]
+          }
+        ],
+        "react/forbid-component-props": [
+          "error",
+          {
+            "forbid": [
+              {
+                "propName": "style",
+                "message": "Use emotion.js instead."
+              }
+            ]
+          }
+        ],
+        "react/forbid-dom-props": [
+          "error",
+          {
+            "forbid": [
+              {
+                "propName": "style",
+                "message": "Use emotion.js instead."
+              }
+            ]
+          }
+        ],
+        "curly": ["error", "all"],
+        "nextjs/no-img-element": "off",
+        "react/rules-of-hooks": "error",
+        "react/exhaustive-deps": [
+          "warn",
+          {
+            "additionalHooks": "(useMyCustomHook|useMyOtherCustomHook)"
+          }
+        ],
+        "typescript/ban-ts-comment": "error",
+        "typescript/no-duplicate-enum-values": "error",
+        "typescript/no-empty-object-type": "error",
+        "typescript/no-explicit-any": "error",
+        "typescript/no-extra-non-null-assertion": "error",
+        "typescript/no-misused-new": "error",
+        "typescript/no-namespace": "error",
+        "typescript/no-non-null-asserted-optional-chain": "error",
+        "typescript/no-require-imports": "error",
+        "typescript/no-this-alias": "error",
+        "typescript/no-unnecessary-type-constraint": "error",
+        "typescript/no-unsafe-declaration-merging": "error",
+        "typescript/no-unsafe-function-type": "error",
+        "typescript/no-wrapper-object-types": "error",
+        "typescript/prefer-as-const": "error",
+        "typescript/prefer-namespace-keyword": "error",
+        "typescript/triple-slash-reference": "error",
+        "typescript/consistent-type-definitions": "error",
+        "typescript/consistent-indexed-object-style": "error",
+        "typescript/consistent-type-assertions": "error",
+        "typescript/consistent-generic-constructors": "error",
+        "typescript/explicit-member-accessibility": "error",
+        "typescript/no-inferrable-types": "error",
+        "typescript/no-import-type-side-effects": "error",
+        "typescript/no-confusing-non-null-assertion": "error",
+        "typescript/no-non-null-asserted-nullish-coalescing": "error",
+        "typescript/prefer-enum-initializers": "error",
+        "typescript/prefer-literal-enum-member": "error",
+        "typescript/unified-signatures": "error",
+        "typescript/array-type": "error",
+        "typescript/consistent-type-imports": ["error", { "disallowTypeAnnotations": false }],
+        "typescript/method-signature-style": "error",
+        "typescript/parameter-properties": "error",
+        "typescript/prefer-for-of": "error",
+        "typescript/no-extraneous-class": "error",
+        "typescript/no-dynamic-delete": "error",
+        "typescript/no-non-null-assertion": "error",
+        "typescript/prefer-ts-expect-error": "off"
+      },
+      "globals": {
+        "React": "writable",
+        "NodeJS": "writable",
+        "JSX": "writable",
+        "globalThis": "writable",
+        "WindowEventMap": "writable",
+        "RequestInit": "writable",
+        "IntersectionObserverInit": "writable",
+        "IntersectionObserverCallback": "writable"
+      },
+      "plugins": ["typescript", "nextjs"],
+      "env": {
+        "browser": true,
+        "node": true
+      }
+    },
+    {
+      "files": ["**/*.js", "**/*.cjs"],
+      "rules": {
+        "typescript/no-require-imports": "off"
+      },
+      "plugins": ["typescript"]
+    },
+    {
+      "files": ["system-tests/src/**/*"],
+      "rules": {
+        "no-empty-pattern": "off",
+        "playwright/consistent-spacing-between-blocks": "warn",
+        "playwright/expect-expect": "off",
+        "playwright/max-nested-describe": "warn",
+        "playwright/missing-playwright-await": "error",
+        "playwright/no-conditional-expect": "warn",
+        "playwright/no-conditional-in-test": "warn",
+        "playwright/no-duplicate-hooks": "warn",
+        "playwright/no-duplicate-slow": "warn",
+        "playwright/no-element-handle": "warn",
+        "playwright/no-eval": "warn",
+        "playwright/no-focused-test": "off",
+        "playwright/no-force-option": "warn",
+        "playwright/no-nested-step": "warn",
+        "playwright/no-networkidle": "error",
+        "playwright/no-page-pause": "warn",
+        "playwright/no-skipped-test": "warn",
+        "playwright/no-standalone-expect": "off",
+        "playwright/no-unsafe-references": "error",
+        "playwright/no-unused-locators": "error",
+        "playwright/no-useless-await": "warn",
+        "playwright/no-useless-not": "warn",
+        "playwright/no-wait-for-navigation": "error",
+        "playwright/no-wait-for-selector": "warn",
+        "playwright/no-wait-for-timeout": "warn",
+        "playwright/prefer-hooks-in-order": "warn",
+        "playwright/prefer-hooks-on-top": "warn",
+        "playwright/prefer-locator": "warn",
+        "playwright/prefer-to-have-count": "warn",
+        "playwright/prefer-to-have-length": "warn",
+        "playwright/prefer-web-first-assertions": "error",
+        "playwright/valid-describe-callback": "error",
+        "playwright/valid-expect": "off",
+        "playwright/valid-expect-in-promise": "error",
+        "playwright/valid-test-tags": "error",
+        "playwright/valid-title": "error",
+        "playwright/prefer-strict-equal": "error",
+        "playwright/prefer-to-be": "error"
+      },
+      "jsPlugins": ["eslint-plugin-playwright"],
+      "globals": {
+        "test": "writable",
+        "expect": "writable",
+        "describe": "writable",
+        "it": "writable",
+        "jest": "writable",
+        "beforeAll": "writable",
+        "afterAll": "writable",
+        "beforeEach": "writable",
+        "afterEach": "writable",
+        "Buffer": "writable",
+        "BufferEncoding": "writable"
+      }
+    },
+    {
+      "files": ["**/*.test.*", "**/tests/**/*"],
+      "globals": {
+        "test": "writable",
+        "expect": "writable",
+        "describe": "writable",
+        "it": "writable",
+        "jest": "writable",
+        "beforeAll": "writable",
+        "afterAll": "writable",
+        "beforeEach": "writable",
+        "afterEach": "writable",
+        "Buffer": "writable",
+        "BufferEncoding": "writable"
+      }
+    },
+    {
+      "files": ["**/next-env.d.ts"],
+      "rules": {
+        "typescript/triple-slash-reference": "off"
+      },
+      "plugins": ["typescript"]
+    },
+    {
+      "files": [
+        "services/example-exercise/**/*.{js,jsx,ts,tsx}",
+        "services/quizzes/**/*.{js,jsx,ts,tsx}",
+        "services/tmc/**/*.{js,jsx,ts,tsx}"
+      ],
+      "rules": {
+        "explicit-use-directives/require-use-directive-first": "off",
+        "explicit-use-directives/empty-line-after-use-directive": "off"
+      },
+      "jsPlugins": ["eslint-plugin-explicit-use-directives"]
+    },
+    {
+      "files": ["**/*.stories.{ts,tsx,js,jsx,mjs,cjs}", "**/*.story.{ts,tsx,js,jsx,mjs,cjs}"],
+      "rules": {
+        "storybook/await-interactions": "error",
+        "storybook/context-in-play-function": "error",
+        "storybook/default-exports": "error",
+        "storybook/hierarchy-separator": "warn",
+        "storybook/no-redundant-story-name": "warn",
+        "storybook/no-renderer-packages": "error",
+        "storybook/prefer-pascal-case": "warn",
+        "storybook/story-exports": "error",
+        "storybook/use-storybook-expect": "error",
+        "storybook/use-storybook-testing-library": "error",
+        "import/no-anonymous-default-export": "off",
+        "react/rules-of-hooks": "off"
+      },
+      "jsPlugins": ["eslint-plugin-storybook"]
+    },
+    {
+      "files": [".storybook/main.{js,cjs,mjs,ts}"],
+      "rules": {
+        "storybook/no-uninstalled-addons": "error"
+      },
+      "jsPlugins": ["eslint-plugin-storybook"]
+    },
+    {
+      "files": ["**/*.{jsx,tsx}"],
+      "jsPlugins": ["eslint-plugin-i18next"],
+      "rules": {
+        "i18next/no-literal-string": [
+          "error",
+          {
+            "mode": "all",
+            "message": "Untranslated string",
+            "should-validate-template": false,
+            "jsx-components": { "exclude": ["Trans"] },
+            "jsx-attributes": {
+              "exclude": [
+                "className",
+                "styleName",
+                "style",
+                "type",
+                "key",
+                "id",
+                "placement",
+                "width",
+                "height",
+                "variant",
+                "size",
+                "href",
+                "severity",
+                "navVariant",
+                "aria-labelledby",
+                "aria-describedby",
+                "aria-live",
+                "url",
+                "labelId",
+                "defaultLanguage",
+                "color",
+                "labelPlacement",
+                "role",
+                "aria-hidden",
+                "aria-errormessage",
+                "aria-invalid",
+                "maxWidth",
+                "transform",
+                "viewBox",
+                "testPlaceholder",
+                "sidebarPosition",
+                "buttonSize",
+                "labelStyle",
+                "data-testid",
+                "weight",
+                "action",
+                "tagName",
+                "templateLock",
+                "^data-.*",
+                "htmlFor",
+                "src",
+                "ref",
+                "buttonId",
+                "target",
+                "rel",
+                "autoComplete",
+                "value",
+                "defaultValue",
+                "maxHeight",
+                "loading",
+                "fetchpriority",
+                "sx",
+                "component",
+                "align",
+                "slot",
+                "tag",
+                "themeMode",
+                "status",
+                "name"
+              ]
+            },
+            "words": {
+              "exclude": [
+                ":.*;",
+                "!important",
+                ";.*:",
+                "^\\d+px$",
+                "^\\d+rem$",
+                "^\\d+em$",
+                "^#[0-9A-Fa-f]{6}$|^(?:rgb|rgba|hsl|hsla)\\(.*\\)$",
+                "^(height|width|transform|transition|background|color|margin|padding|border|display|position|top|bottom|left|right|z-index|font-size|font-weight|line-height|cursor|content|clip-path|appearance|gap|grid-template-columns|place-content|box-shadow|border-radius|transition-property|transition-duration|transition-timing-function|fill):",
+                "cubic-bezier\\([^)]+\\)",
+                "translate(Y|3d)|rotate|scale",
+                "[0-9!-/:-@[-`{-~]+",
+                "[A-Z_-]+",
+                "^\\p{Emoji}+$",
+                "set-language",
+                "set-state",
+                "main-navigation-menu",
+                "Component",
+                "use client",
+                "use server",
+                "use cache"
+              ]
+            },
+            "callees": {
+              "exclude": [
+                "i18n(ext)?",
+                "t",
+                "require",
+                "addEventListener",
+                "removeEventListener",
+                "postMessage",
+                "getElementById",
+                "dispatch",
+                "commit",
+                "includes",
+                "indexOf",
+                "endsWith",
+                "startsWith",
+                "div",
+                "useQuery",
+                "useQueryParameter",
+                "get",
+                "post",
+                "put",
+                "delete",
+                "create",
+                "styled",
+                "css",
+                "register",
+                "setValue",
+                "getValues",
+                "watch",
+                "useMediaQuery",
+                "log",
+                "groupCollapsed",
+                "error",
+                "warn",
+                "info",
+                "group",
+                "Error",
+                "TypeError",
+                "RangeError",
+                "SyntaxError",
+                "querySelector",
+                "usePopper",
+                "i18n.on",
+                "i18n.off",
+                "createElement",
+                "localStorage.setItem",
+                "localStorage.getItem",
+                "differenceBy",
+                "accessor",
+                "useTranslation",
+                "sortBy",
+                "split",
+                "JSON.parse",
+                "addFilter",
+                "removeFilter",
+                "setError",
+                "clearErrors",
+                "URL",
+                "setTimeout",
+                "setInterval",
+                "clearTimeout",
+                "clearInterval",
+                "fetch",
+                "requestAnimationFrame",
+                "document.cookie",
+                "document.querySelectorAll",
+                "setAttribute",
+                "innerHTML",
+                "setActive",
+                "window.open",
+                "window.location.replace",
+                "window.location.href",
+                "window.location.assign",
+                "window.history.pushState",
+                "setFormError",
+                "animated",
+                "useTransition",
+                "createPopper",
+                "closest",
+                "querySelectorAll",
+                "getAttribute",
+                "useRegisterBreadcrumbs",
+                "format",
+                "createFileRoute",
+                "createRootRoute"
+              ]
+            },
+            "object-properties": {
+              "exclude": [
+                "type",
+                "[A-Z_-]+",
+                "displayName",
+                "href",
+                "direction",
+                "variant",
+                "size",
+                "width",
+                "minWidth",
+                "maxWidth",
+                "boxSizing",
+                "transform"
+              ]
+            },
+            "class-properties": { "exclude": ["displayName"] }
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "system-tests/**/*",
+        "**/*.test.tsx",
+        "**/*.test.ts",
+        "storybook/**/*",
+        "**/*.stories.*",
+        "**/*.story.*",
+        "shared-module/packages/create-exercise-service/**/*",
+        "**/playground-views/**"
+      ],
+      "jsPlugins": ["eslint-plugin-i18next"],
+      "rules": {
+        "i18next/no-literal-string": "off"
+      }
+    },
+    {
+      "files": ["services/tmc/src/tmc/cli.d.ts"],
+      "rules": {
+        "typescript/array-type": "off"
+      },
+      "plugins": ["typescript"]
+    },
+    {
+      "files": [
+        "**/*.test.{ts,tsx}",
+        "**/*.spec.{ts,tsx}",
+        "**/tests/**",
+        "system-tests/**",
+        "**/__tests__/**"
+      ],
+      "rules": {
+        "typescript/no-non-null-assertion": "off"
+      },
+      "plugins": ["typescript"]
+    }
+  ]
+}

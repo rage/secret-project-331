@@ -19,7 +19,7 @@ import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-type SelectUserInfoFormFields = {
+interface SelectUserInfoFormFields {
   email: string
   first_name: string
   last_name: string
@@ -27,7 +27,7 @@ type SelectUserInfoFormFields = {
   emailCommunicationConsent: boolean
 }
 
-type SelectUserInfoFormProps = {
+interface SelectUserInfoFormProps {
   email: string
   firstName: string
   lastName: string
@@ -54,7 +54,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     register,
     reset,
   } = useForm<SelectUserInfoFormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       email,
@@ -75,15 +75,22 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   )
 
   const postUserCountryMutation = useToastMutation<UserDetail, unknown, SelectUserInfoFormFields>(
+    // oxlint-disable-next-line require-await -- async for the mutation Promise contract
     async (data) => {
-      const { email, first_name, last_name, country, emailCommunicationConsent } = data
+      const {
+        email: submittedEmail,
+        first_name,
+        last_name,
+        country: submittedCountry,
+        emailCommunicationConsent: submittedEmailConsent,
+      } = data
       return updateUserInfo({
         body: {
-          email,
+          email: submittedEmail,
           first_name,
           last_name,
-          country,
-          email_communication_consent: emailCommunicationConsent,
+          country: submittedCountry,
+          email_communication_consent: submittedEmailConsent,
         },
       })
     },

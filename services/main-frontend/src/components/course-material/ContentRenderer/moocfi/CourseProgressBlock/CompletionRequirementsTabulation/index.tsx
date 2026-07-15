@@ -23,25 +23,23 @@ const CompletionRequirementsTabulation: React.FC<
 > = ({ attemptedExercisesRequiredForCompletion, pointsRequiredForCompletion }) => {
   const { t } = useTranslation()
   return (
-    <>
-      <HighlightContainer>
-        {!!pointsRequiredForCompletion && (
-          <HighlightItem
-            highlightColor={baseTheme.colors.gradient["green"]}
-            highlightDescription={t("points-required-for-completion")}
-            highlightText={pointsRequiredForCompletion}
-          />
-        )}
-        {!!attemptedExercisesRequiredForCompletion && (
-          <HighlightItem
-            highlightColor={baseTheme.colors.gradient["blue"]}
-            highlightDescription={t("attempted-exercises-required-for-completion")}
-            highlightText={attemptedExercisesRequiredForCompletion}
-            leftBorder={!!pointsRequiredForCompletion}
-          />
-        )}
-      </HighlightContainer>
-    </>
+    <HighlightContainer>
+      {!!pointsRequiredForCompletion && (
+        <HighlightItem
+          highlightColor={baseTheme.colors.gradient["green"]}
+          highlightDescription={t("points-required-for-completion")}
+          highlightText={pointsRequiredForCompletion}
+        />
+      )}
+      {!!attemptedExercisesRequiredForCompletion && (
+        <HighlightItem
+          highlightColor={baseTheme.colors.gradient["blue"]}
+          highlightDescription={t("attempted-exercises-required-for-completion")}
+          highlightText={attemptedExercisesRequiredForCompletion}
+          leftBorder={!!pointsRequiredForCompletion}
+        />
+      )}
+    </HighlightContainer>
   )
 }
 

@@ -34,7 +34,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [step, setStep] = useState<Step>("password")
   const [password, setPassword] = useState("")
 
@@ -42,9 +42,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
   const [openDialog, setOpenDialog] = useState(false)
 
   const sendEmailCodeMutation = useToastMutation(
-    async (password: string) => {
+    async (passwordInput: string) => {
       const result = await postAuthSendEmailCode({
-        body: { email, password, language: i18n.language },
+        body: { email, password: passwordInput, language: i18n.language },
       })
       setCredentialsError(!result)
       return result
@@ -53,7 +53,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
     {
       onSuccess: (result) => {
         if (result) {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           setStep("verifyCode")
         }
       },
@@ -102,7 +102,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
         open={openDialog}
         title={t("title-delete-account")}
         showCloseButton
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         aria-modal="true"
         onClose={() => setOpenDialog(false)}
       >
@@ -112,9 +112,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
         {step === "password" && (
           <VerifyPasswordForm
-            onSubmit={(password) => {
-              setPassword(password)
-              sendEmailCodeMutation.mutateAsync(password)
+            onSubmit={(passwordValue) => {
+              setPassword(passwordValue)
+              sendEmailCodeMutation.mutateAsync(passwordValue)
             }}
             isPending={sendEmailCodeMutation.isPending}
             credentialsError={credentialsError}

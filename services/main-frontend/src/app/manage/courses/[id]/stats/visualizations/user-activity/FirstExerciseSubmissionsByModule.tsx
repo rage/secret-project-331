@@ -3,16 +3,16 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { Period } from "../../LineChart"
 import {
   DAILY_DATE_FORMAT,
   DAILY_PERIOD,
   MONTHLY_DATE_FORMAT,
   MONTHLY_PERIOD,
-  Period,
 } from "../../LineChart"
 import LineChartByInstance from "../../LineChartByInstance"
 
-import { TimeGranularity } from "@/generated/api/types.generated"
+import type { TimeGranularity } from "@/generated/api/types.generated"
 import { useFirstExerciseSubmissionsByModuleQuery } from "@/hooks/stats"
 
 interface FirstExerciseSubmissionsByModuleProps {

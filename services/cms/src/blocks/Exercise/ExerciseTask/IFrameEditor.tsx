@@ -18,12 +18,12 @@ import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
-import {
+import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
+import type {
   ExerciseIframeState,
   MessageToIframe,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 const VIEW_TYPE = "exercise-editor"
@@ -32,7 +32,7 @@ const IFRAME_EDITOR = "IFRAME EDITOR"
 
 interface ExerciseTaskIFrameEditorProps {
   exerciseTaskId: string
-  onPrivateSpecChange(newSpec: string): void
+  onPrivateSpecChange: (newSpec: string) => void
   privateSpec: string | null
   url: string | null | undefined
 }
@@ -83,7 +83,7 @@ const ExerciseTaskIFrameEditor: React.FC<
       onMessageFromIframe={async (messageContainer, responsePort) => {
         if (isMessageFromIframe(messageContainer)) {
           if (messageContainer.message === "current-state") {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // oxlint-disable-next-line typescript/no-explicit-any
             onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
           }
           if (messageContainer.message === "request-repository-exercises") {
@@ -94,19 +94,21 @@ const ExerciseTaskIFrameEditor: React.FC<
                 },
               })
               const message: MessageToIframe = {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 message: "repository-exercises",
                 repository_exercises: repositoryExercises,
               }
+              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
               responsePort.postMessage(message)
             } else {
               console.warn("Missing page context")
               // todo: handle missing page context properly?
               const message: MessageToIframe = {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 message: "repository-exercises",
                 repository_exercises: [],
               }
+              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
               responsePort.postMessage(message)
             }
           }
@@ -118,9 +120,9 @@ const ExerciseTaskIFrameEditor: React.FC<
         largeScreen
           ? {
               sidebar: true,
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               sidebarWidth: `${SIDEBAR_WIDTH_PX}px`,
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               sidebarPosition: "right",
             }
           : undefined

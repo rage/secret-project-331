@@ -41,14 +41,14 @@ const FeedbackTypeDialog: React.FC = () => {
 
   const handleFeedbackClick = () => {
     restoreSelectionIfNeeded(() => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setCurrentlyOpenFeedbackDialog("written")
     })
   }
 
   const handleImprovementClick = () => {
     restoreSelectionIfNeeded(() => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setCurrentlyOpenFeedbackDialog("proposed-edits")
     })
   }

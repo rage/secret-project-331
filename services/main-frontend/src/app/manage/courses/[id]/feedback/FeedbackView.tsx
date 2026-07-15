@@ -132,8 +132,8 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
               <summary>{t("text-visible-when-feedback-given")}</summary>
               <div>
                 {[...feedback.blocks]
-                  .sort((a, b) => a.text?.localeCompare(b.text ?? "") ?? 0)
-                  .sort((a, b) => (a.order_number ?? 0) - (b.order_number ?? 0))
+                  .toSorted((a, b) => a.text?.localeCompare(b.text ?? "") ?? 0)
+                  .toSorted((a, b) => (a.order_number ?? 0) - (b.order_number ?? 0))
                   .map((b) => (
                     <p
                       className={css`

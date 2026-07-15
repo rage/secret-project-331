@@ -5,7 +5,7 @@ import { css } from "@emotion/css"
 import useAllExerciseServices from "../../hooks/useAllExerciseServices"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-import { ExerciseCustomViewAttributes } from "."
+import type { ExerciseCustomViewAttributes } from "."
 
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"

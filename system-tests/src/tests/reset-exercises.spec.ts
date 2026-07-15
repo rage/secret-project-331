@@ -1,4 +1,5 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import {
@@ -6,6 +7,7 @@ import {
   selectCourseInstanceIfPrompted,
 } from "@/utils/courseMaterialActions"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "@/utils/iframeLocators"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -110,7 +112,7 @@ test("Can manually reset exercises", async () => {
     .getByRole("checkbox", { name: "Incorrect", exact: true })
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).click()
-
+  await waitForSpinnersToDisappear(student1Page)
   await navigateToNextPageInMaterial(student1Page)
   await student1Page
     .locator('iframe[title="Exercise 1\\, task 1 content"]')

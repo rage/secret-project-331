@@ -1,22 +1,21 @@
-"use client"
-
 import { css, cx } from "@emotion/css"
 import React, { useId } from "react"
 import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
-import { ModelSolutionQuizItemMultiplechoice } from "../../../../../types/quizTypes/modelSolutionSpec"
-import { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
+import type { ModelSolutionQuizItemMultiplechoice } from "../../../../../types/quizTypes/modelSolutionSpec"
+import type { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
 
-import { QuizItemSubmissionComponentProps } from "."
+import type { QuizItemSubmissionComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
-import { FlexDirection, sanitizeFlexDirection } from "@/util/css-sanitization"
+import type { FlexDirection } from "@/util/css-sanitization"
+import { sanitizeFlexDirection } from "@/util/css-sanitization"
 import { orderArrayWithId } from "@/util/randomizer"
 
 const gradingOption = css`
@@ -69,7 +68,7 @@ const MultipleChoiceSubmission: React.FC<
   // device width. Sanitized since the value is used in CSS.
   const direction: FlexDirection = sanitizeFlexDirection(
     public_quiz_item.optionDisplayDirection,
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     "row",
   )
 
@@ -80,6 +79,7 @@ const MultipleChoiceSubmission: React.FC<
 
   return (
     <div
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=group on a styled div; fieldset alters layout
       role="group"
       aria-labelledby={titleId}
       className={css`
@@ -98,7 +98,7 @@ const MultipleChoiceSubmission: React.FC<
       >
         <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
       </div>
-      <p
+      <div
         className={css`
           color: ${quizTheme.quizBodyColor};
           font-size: ${quizTheme.quizBodyFontSize};
@@ -108,8 +108,9 @@ const MultipleChoiceSubmission: React.FC<
         {public_quiz_item.body && (
           <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.body} />
         )}
-      </p>
+      </div>
       <div
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=list on a styled flex div; <ul> alters layout
         role="list"
         className={css`
           display: flex;
@@ -117,12 +118,10 @@ const MultipleChoiceSubmission: React.FC<
 
           ${respondToOrLarger.sm} {
             flex-direction: ${direction};
-            ${
-              public_quiz_item.optionDisplayDirection === "horizontal" &&
-              `
+            ${public_quiz_item.optionDisplayDirection === "horizontal" &&
+            `
                 flex-wrap: wrap;
-              `
-            }
+              `}
           }
         `}
       >
@@ -136,12 +135,14 @@ const MultipleChoiceSubmission: React.FC<
           const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
             (f) => f.option_id === qo.id,
           )
-          if (feedbackForThisOption && feedbackForThisOption.this_option_was_correct !== null) {
-            // if we have received feedback for this option, use that
-            // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
-            if (!correctAnswer) {
-              correctAnswer = feedbackForThisOption.this_option_was_correct
-            }
+          // if we have received feedback for this option, use that
+          // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
+          if (
+            feedbackForThisOption &&
+            feedbackForThisOption.this_option_was_correct !== null &&
+            !correctAnswer
+          ) {
+            correctAnswer = feedbackForThisOption.this_option_was_correct
           }
           let feedBackForOption: string | null = null
           if (answerSelectedThisOption) {
@@ -152,85 +153,85 @@ const MultipleChoiceSubmission: React.FC<
             }
           }
           return (
-            <div key={qo.id} role="listitem">
-              <div>
+            <div
+              key={qo.id}
+              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=listitem on a styled div; <li> needs a <ul> parent
+              role="listitem"
+            >
+              <div
+                className={cx(
+                  gradingOption,
+                  answerSelectedThisOption && gradingOptionSelected,
+                  answerSelectedThisOption &&
+                    correctAnswer === false &&
+                    gradingOptionWrongAndSelected,
+                  answerSelectedThisOption &&
+                    correctAnswer === true &&
+                    gradingOptionCorrectAndSelected,
+                )}
+              >
                 <div
-                  className={cx(
-                    gradingOption,
-                    answerSelectedThisOption && gradingOptionSelected,
-                    answerSelectedThisOption &&
-                      correctAnswer === false &&
-                      gradingOptionWrongAndSelected,
-                    answerSelectedThisOption &&
-                      correctAnswer === true &&
-                      gradingOptionCorrectAndSelected,
-                  )}
+                  className={css`
+                    padding: 0.8rem 0;
+                    max-width: 50ch;
+                  `}
                 >
+                  <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
+                  {answerSelectedThisOption && (
+                    <VisuallyHidden>{t("you-selected-this-option")}</VisuallyHidden>
+                  )}
+                </div>
+                <div>
                   <div
                     className={css`
-                      padding: 0.8rem 0;
-                      max-width: 50ch;
+                      display: flex;
+                      flex-direction: ${sanitizeFlexDirection(
+                        public_quiz_item.optionDisplayDirection,
+                        "row",
+                      )};
+                      ${public_quiz_item.optionDisplayDirection === "horizontal" &&
+                      `
+                            padding-left: 0.635rem;
+                          `}
                     `}
                   >
-                    <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
-                    {answerSelectedThisOption && (
-                      <VisuallyHidden>{t("you-selected-this-option")}</VisuallyHidden>
+                    {correctAnswer === true && (
+                      <div
+                        className={css`
+                          background: #9dc7b1;
+                          font-size: 0.625rem;
+                          text-transform: uppercase;
+                          font-weight: bold;
+                          padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
+                          border-radius: 0.125rem;
+                          color: #14261c;
+                        `}
+                      >
+                        {t("correct-option")}
+                      </div>
+                    )}
+                    {correctAnswer === false && (
+                      <div
+                        className={css`
+                          background: #eedbdd;
+                          font-size: 0.625rem;
+                          text-transform: uppercase;
+                          font-weight: bold;
+                          padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
+                          border-radius: 0.125rem;
+                          color: #b12632;
+                        `}
+                      >
+                        {t("incorrect-option")}
+                      </div>
                     )}
                   </div>
-                  <div>
-                    <div
-                      className={css`
-                        display: flex;
-                        flex-direction: ${sanitizeFlexDirection(
-                          public_quiz_item.optionDisplayDirection,
-                          "row",
-                        )};
-                        ${
-                          public_quiz_item.optionDisplayDirection === "horizontal" &&
-                          `
-                            padding-left: 0.635rem;
-                          `
-                        }
-                      `}
-                    >
-                      {correctAnswer == true && (
-                        <div
-                          className={css`
-                            background: #9dc7b1;
-                            font-size: 0.625rem;
-                            text-transform: uppercase;
-                            font-weight: bold;
-                            padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
-                            border-radius: 0.125rem;
-                            color: #14261c;
-                          `}
-                        >
-                          {t("correct-option")}
-                        </div>
-                      )}
-                      {correctAnswer == false && (
-                        <div
-                          className={css`
-                            background: #eedbdd;
-                            font-size: 0.625rem;
-                            text-transform: uppercase;
-                            font-weight: bold;
-                            padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
-                            border-radius: 0.125rem;
-                            color: #b12632;
-                          `}
-                        >
-                          {t("incorrect-option")}
-                        </div>
-                      )}
-                    </div>
-                  </div>
                 </div>
-                <RowSubmissionFeedback
-                  correct={correctAnswer ?? false}
-                  feedback={feedBackForOption}
-                />
               </div>
+              <RowSubmissionFeedback
+                correct={correctAnswer ?? false}
+                feedback={feedBackForOption}
+              />
             </div>
           )
         })}
@@ -255,11 +256,9 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
         display: flex;
         color: #4c5868;
         font-size: 1.125rem;
-        border-left: ${
-          correct
-            ? `0.375rem solid ${quizTheme.gradingCorrectItemBorderColor}`
-            : `0.375rem solid #ebcbcd`
-        };
+        border-left: ${correct
+          ? `0.375rem solid ${quizTheme.gradingCorrectItemBorderColor}`
+          : `0.375rem solid #ebcbcd`};
         box-sizing: border-box;
         background: ${quizTheme.feedbackBackground};
         padding: 0.5rem 0px 0.5rem 0.5rem;

@@ -225,7 +225,6 @@ export function resolveCheckableSizeCss(fieldSize: FieldSize) {
       return css`
         font-size: var(--font-size-lg);
       `
-    case "md":
     default:
       return css`
         font-size: var(--font-size-md);

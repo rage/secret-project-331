@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next"
 
-import { PeerOrSelfReviewQuestionProps } from "."
+import type { PeerOrSelfReviewQuestionProps } from "."
 
 import TextArea from "@/shared-module/common/components/InputFields/TextAreaField"
 

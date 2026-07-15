@@ -5,12 +5,12 @@ import type { Control } from "react-hook-form"
 
 import {
   type AnalysisWorkspaceFormValues,
-  CONTRIBUTOR_ROLES,
   contributorCardLeadStyles,
   contributorCardStyles,
   contributorCardTitleStyles,
   contributorDutiesStyles,
   type ContributorFieldKey,
+  type CONTRIBUTOR_ROLES,
 } from "./analysisFormDomain"
 
 import { nullIfEmpty, TextField } from "@/shared-module/components"

@@ -9,7 +9,7 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
-type ImportCodesFormProps = {
+interface ImportCodesFormProps {
   codeGiveawayId: string
   dialogOpen: boolean
   setDialogOpen: (dialogOpen: boolean) => void

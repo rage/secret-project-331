@@ -1,7 +1,8 @@
 "use client"
 
-import { useQuery, UseQueryResult } from "@tanstack/react-query"
-import { TFunction } from "i18next"
+import type { UseQueryResult } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
+import type { TFunction } from "i18next"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -119,9 +120,8 @@ const ModuleCertificate: React.FC = () => {
     const moduleData = userGrade.data?.module
     if (moduleData.grade !== null) {
       return String(moduleData.grade)
-    } else {
-      return String(moduleData.passed)
     }
+    return String(moduleData.passed)
   }, [userGrade.data?.module])
 
   const generateCertificateMutation = useToastMutationOptions(

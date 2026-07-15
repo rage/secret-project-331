@@ -1,4 +1,4 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
 import { Topbar } from "../utils/components/Topbar"
@@ -67,7 +67,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
     )
     await page.getByRole("link", { name: "Change language course", exact: true }).click()
     await selectCourseInstanceIfPrompted(page)
-    // eslint-disable-next-line playwright/no-networkidle
+    // oxlint-disable-next-line playwright/no-networkidle
     await page.waitForLoadState("networkidle")
 
     const topbar2 = new Topbar(page)

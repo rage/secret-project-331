@@ -1,4 +1,4 @@
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 
 import { normalizeErrorForDisplay } from "../../errors/normalizeErrorForDisplay"
 import type { ErrorViewTechnicalDetails } from "../../errors/normalizeErrorForDisplay"
@@ -14,7 +14,7 @@ export interface ParsedError {
   type?: string | null
   requestId?: string | null
   code?: string | null
-  issues?: Array<{ path?: string; code?: string; message: string }>
+  issues?: { path?: string; code?: string; message: string }[]
   retryAfterSeconds?: number | null
 }
 

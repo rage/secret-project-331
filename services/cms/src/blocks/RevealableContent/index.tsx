@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 
@@ -9,7 +9,7 @@ import RevealableContentSave from "./RevealableContentSave"
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// oxlint-disable-next-line typescript/no-empty-object-type
 export interface ConditionAttributes {}
 
 const RevealableContentConfiguration: BlockConfiguration<ConditionAttributes> = {

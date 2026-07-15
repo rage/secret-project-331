@@ -8,9 +8,9 @@ import ThrottledChildRenderer, {
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import { ExerciseIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
+import type { ExerciseIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 import {
   EXERCISE_IFRAME_QUEUE_CONFIG,
   EXERCISE_IFRAME_QUEUE_ID,
@@ -37,7 +37,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
   const dialog = useDialog()
 
   const handleMessageFromIframe = useCallback(
-    async (messageContainer: unknown, _responsePort: MessagePort) => {
+    (messageContainer: unknown, _responsePort: MessagePort) => {
       if (!isMessageFromIframe(messageContainer)) {
         return
       }

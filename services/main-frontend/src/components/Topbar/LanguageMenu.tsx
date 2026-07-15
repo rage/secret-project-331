@@ -1,4 +1,4 @@
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 "use client"
 
 import { css } from "@emotion/css"
@@ -124,11 +124,11 @@ interface LanguageMenuProps {
   // Optional props for non-course pages
   courseId?: string | null
   currentPageId?: string | null
-  availableLanguages?: Array<{
+  availableLanguages?: {
     code: string
     name: string
     isDraft?: boolean
-  }>
+  }[]
   onLanguageChange?: (languageCode: string) => Promise<void>
 }
 

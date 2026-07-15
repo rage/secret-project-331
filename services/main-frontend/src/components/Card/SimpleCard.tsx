@@ -10,7 +10,7 @@ import CardDeadlineOverlay, { cardTopBandStyle } from "./CardDeadlineOverlay"
 import CardOpensTextOverlay from "./CardOpenTextOverlay"
 import CardOpensText from "./CardOpensText"
 
-import { CardExtraProps } from "."
+import type { CardExtraProps } from "."
 
 import PseudoContentLink from "@/components/PseudoContentLink"
 import CardSVG from "@/shared-module/common/img/cardNext.svg"
@@ -70,7 +70,7 @@ const CardContentWrapper = styled.div`
     line-height: 2.5em;
   }
 `
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export const StyledSVG = (Image: any) => {
   return (
     <Image
@@ -195,6 +195,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
         </div>
         {showLock && (
           <div
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- decorative lock overlay div with aria-label; <img> needs a src
             role="img"
             aria-label={t("chapter-locked-message")}
             className={css`

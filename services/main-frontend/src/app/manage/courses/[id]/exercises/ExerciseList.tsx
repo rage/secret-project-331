@@ -34,7 +34,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
           (value) => value,
         )
 
-        const chapters = structure.chapters.sort((a, b) => a.chapter_number - b.chapter_number)
+        const chapters = structure.chapters.toSorted((a, b) => a.chapter_number - b.chapter_number)
 
         return (
           <ul
@@ -64,7 +64,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                   `}
                 >
                   {pageByChapterId[chapter.id]
-                    .sort((page1, page2) => page1.order_number - page2.order_number)
+                    .toSorted((page1, page2) => page1.order_number - page2.order_number)
                     .map((page) => (
                       <li
                         key={page.id}
@@ -134,8 +134,8 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                           `}
                         >
                           {courseExercises
-                            .filter((ex) => ex.page_id == page.id)
-                            .sort((ex1, ex2) => ex1.order_number - ex2.order_number)
+                            .filter((ex) => ex.page_id === page.id)
+                            .toSorted((ex1, ex2) => ex1.order_number - ex2.order_number)
                             .map((exercise) => (
                               <li
                                 key={exercise.id}

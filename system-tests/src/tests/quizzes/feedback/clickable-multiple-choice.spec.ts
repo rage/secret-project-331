@@ -1,4 +1,4 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
@@ -18,9 +18,7 @@ test.describe("Quizzes clickable multiple-choice feedback", () => {
   test("quizzes clickable multiple-choice feedback", async ({ page, headless }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
     await page.getByRole("link", { name: "Introduction to everything", exact: true }).click()
@@ -41,7 +39,7 @@ test.describe("Quizzes clickable multiple-choice feedback", () => {
     const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
     await frame.getByText("Pick all the programming languages from below").waitFor()
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })

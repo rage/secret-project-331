@@ -1,13 +1,11 @@
-"use client"
-
 import { css } from "@emotion/css"
 import React, { useId } from "react"
 
-import { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
 import ParsedText from "../../../ParsedText"
 
-import { QuizItemSubmissionComponentProps } from "."
+import type { QuizItemSubmissionComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -23,6 +21,7 @@ const Scale: React.FC<
 
   return (
     <div
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- div+role=group keeps emotion flex layout; fieldset adds UA styling
       role="group"
       aria-labelledby={radioLabelId}
       className={css`
@@ -118,6 +117,7 @@ const Scale: React.FC<
                   value={value}
                   checked={user_quiz_item_answer?.intData.toString() === value}
                   disabled
+                  readOnly
                 />
                 <span>{value}</span>
               </label>

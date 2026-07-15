@@ -58,7 +58,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
     if (!courseStructureQuery.data?.modules) {
       return []
     }
-    return [...courseStructureQuery.data.modules].sort(
+    return [...courseStructureQuery.data.modules].toSorted(
       (a: CourseModule, b: CourseModule) => a.order_number - b.order_number,
     )
   }, [courseStructureQuery.data?.modules])
@@ -295,9 +295,9 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                 (durationSeconds !== undefined && durationSeconds === configuredSeconds) ||
                 (!hasValue && !hasConfiguredValue)
               const minHours = minimumSeconds / SECONDS_PER_HOUR
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               const inputId = `duration-input-${module.id}`
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               const labelId = `${inputId}-label`
               return (
                 <tr key={module.id}>
@@ -335,9 +335,11 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                         aria-labelledby={`duration-header ${labelId}`}
                         value={displayedValue}
                         onChangeByValue={(value: string) => {
+                          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
                           const parsed = parseFloat(value)
                           setModuleThresholds((prev) => {
                             const next = new Map(prev)
+                            // oxlint-disable-next-line unicorn/no-immediate-mutation -- intended immutable copy-then-set; folding breaks tuple inference
                             next.set(module.id, Number.isFinite(parsed) ? parsed : undefined)
                             return next
                           })

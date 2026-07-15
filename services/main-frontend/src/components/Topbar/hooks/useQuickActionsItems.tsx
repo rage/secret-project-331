@@ -1,10 +1,11 @@
 "use client"
 
 import { useAtomValue } from "jotai"
-import { ReactElement, useContext, useMemo } from "react"
+import type { ReactElement } from "react"
+import { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { DropdownMenuItem } from "../../DropdownMenu"
+import type { DropdownMenuItem } from "../../DropdownMenu"
 
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
@@ -12,14 +13,14 @@ import { editPageRoute, manageCourseRoute } from "@/shared-module/common/utils/r
 import { currentCourseIdAtom, currentPageIdAtom } from "@/state/course-material/selectors"
 
 export interface UseQuickActionsItemsProps {
-  menuOptions?: Array<{
+  menuOptions?: {
     type: "link" | "action" | "separator"
     label?: string
     href?: string
     onAction?: () => void
     icon?: ReactElement
     isDestructive?: boolean
-  }>
+  }[]
   courseId?: string | null
   onMenuClose?: () => void
   onCourseSettingsOpen?: () => void
@@ -67,7 +68,7 @@ export function useQuickActionsItems({
       return menuOptions
     }
 
-    const items: Array<Omit<DropdownMenuItem, "id">> = []
+    const items: Omit<DropdownMenuItem, "id">[] = []
 
     const isSignedIn = loginStateContext.signedIn === true
     const shouldShowCourseSettings = isSignedIn && effectiveCourseId !== null
@@ -128,14 +129,14 @@ export function useQuickActionsItems({
     return quickActions.map((item, idx) => {
       if (item.type === "separator") {
         return {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           id: `quick-sep-${idx}`,
           type: "separator" as const,
         }
       }
 
       return {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         id: `quick-${item.href || item.label || idx}`,
         type: item.type,
         label: item.label,

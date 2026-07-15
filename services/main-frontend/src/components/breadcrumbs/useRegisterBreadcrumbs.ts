@@ -25,8 +25,7 @@ export function useRegisterBreadcrumbs(opts: {
     }
     return () => {
       setEntries((prev) => {
-        const next = { ...prev }
-        delete next[opts.key]
+        const { [opts.key]: _omit, ...next } = prev
         return next
       })
     }

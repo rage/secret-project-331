@@ -78,9 +78,9 @@ const otpSlotLgCss = css`
   font-size: 1.4rem;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const slotInputSelector = "input"
 
 function resolveOtpSlotSizeCss(fieldSize: FieldSize) {
@@ -89,7 +89,6 @@ function resolveOtpSlotSizeCss(fieldSize: FieldSize) {
       return otpSlotSmCss
     case "lg":
       return otpSlotLgCss
-    case "md":
     default:
       return otpSlotMdCss
   }
@@ -154,7 +153,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
   const inputId = id ?? generatedInputId
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const slotsContainerRef = useRef<HTMLDivElement>(null)
-  const slotRefs = useRef<Array<HTMLInputElement | null>>([])
+  const slotRefs = useRef<(HTMLInputElement | null)[]>([])
   const hasFocusWithinRef = useRef(false)
 
   useImperativeHandle(field.ref, () => {
@@ -251,9 +250,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
           tabIndex={-1}
           autoComplete={autoComplete ?? "one-time-code"}
           aria-describedby={describedBy}
-          onChange={() => {
-            return
-          }}
+          onChange={() => {}}
         />
       </VisuallyHidden>
 
@@ -261,6 +258,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
         {...groupFieldProps}
         ref={slotsContainerRef}
         className={otpSlotsCss}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div typed HTMLDivElement; a native tag changes behavior
         role="group"
         aria-labelledby={groupAriaLabelledBy || undefined}
         aria-disabled={isDisabled ? "true" : undefined}

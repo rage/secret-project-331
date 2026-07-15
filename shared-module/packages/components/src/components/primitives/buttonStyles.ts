@@ -6,7 +6,7 @@ export type IconPosition = "start" | "end"
 
 export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon"
 
-export type PressHandlers = {
+export interface PressHandlers {
   onPress?: (e: PressEvent) => void
   onPressStart?: (e: PressEvent) => void
   onPressEnd?: (e: PressEvent) => void
@@ -14,7 +14,7 @@ export type PressHandlers = {
   onPressUp?: (e: PressEvent) => void
 }
 
-type ResolveStylesInput = {
+interface ResolveStylesInput {
   size: ButtonSize
   variant: ButtonVariant
 }

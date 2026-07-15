@@ -9,6 +9,7 @@ import "@wordpress/block-library/build-style/style.css"
 import "@wordpress/block-library/build-style/theme.css"
 import "@wordpress/block-library/build-style/editor.css"
 import { css } from "@emotion/css"
+import type { EditorBlockListSettings, EditorSettings } from "@wordpress/block-editor"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
@@ -17,8 +18,6 @@ import {
   BlockList,
   BlockTools,
   ButtonBlockAppender,
-  EditorBlockListSettings,
-  EditorSettings,
   __experimentalListView as ListView,
   ObserveTyping,
   __unstableUseBlockSelectionClearer as useBlockSelectionClearer,
@@ -31,11 +30,11 @@ import { useMergeRefs } from "@wordpress/compose"
 import { addFilter, removeFilter } from "@wordpress/hooks"
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import toast from "react-hot-toast"
+import { toast } from "react-hot-toast"
 
 import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
-import { MediaUploadProps } from "../../services/mediaUpload"
+import type { MediaUploadProps } from "../../services/mediaUpload"
 import {
   ensureStandaloneGutenbergBootstrap,
   getDefaultAllowedBlockTypes,
@@ -53,6 +52,7 @@ import {
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
 import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
 import withHeadingHierarchyWarnings from "../../utils/Gutenberg/withHeadingHierarchyWarnings"
+import withImageFocalPointReset from "../../utils/Gutenberg/withImageFocalPointReset"
 import withImageWarnings from "../../utils/Gutenberg/withImageWarnings"
 import withParagraphWarnings from "../../utils/Gutenberg/withParagraphWarnings"
 import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
@@ -64,7 +64,7 @@ import { primaryFont } from "@/shared-module/common/styles"
 import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]
 
 interface GutenbergEditorProps {
@@ -231,7 +231,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   const [sidebarView, setSidebarView] = useState<
     "block-props" | "block-list" | "block-menu" | string
   >(
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     "block-props",
   )
 
@@ -257,6 +257,13 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     addFilter("editor.BlockEdit", "moocfi/cms/imageWarnings", withImageWarnings)
     return () => {
       removeFilter("editor.BlockEdit", "moocfi/cms/imageWarnings")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter("editor.BlockEdit", "moocfi/cms/imageFocalPointReset", withImageFocalPointReset)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/imageFocalPointReset")
     }
   }, [])
 
@@ -407,11 +414,11 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                       value={sidebarView}
                       label={t("editor-select-sidebar-view")}
                       options={[
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-props", label: t("block-props") },
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-list", label: t("block-list") },
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-menu", label: t("block-menu") },
                       ]}
                       onChangeByValue={(val) => setSidebarView(val)}
@@ -439,7 +446,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                     ref={contentRef}
                     className="editor-styles-wrapper"
                     tabIndex={-1}
-                    // eslint-disable-next-line react/forbid-component-props
+                    // oxlint-disable-next-line react/forbid-component-props
                     style={{
                       height: "100%",
                       width: "100%",

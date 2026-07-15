@@ -1,15 +1,12 @@
 import { deepStrictEqual } from "assert"
 
-import { ExerciseAttributes } from "../../src/blocks/Exercise"
-import { ExerciseSlideAttributes } from "../../src/blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../../src/blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
-import {
-  denormalizeDocument,
-  normalizeDocument,
-  UnnormalizedDocument,
-} from "../../src/utils/documentSchemaProcessor"
+import type { ExerciseAttributes } from "../../src/blocks/Exercise"
+import type { ExerciseSlideAttributes } from "../../src/blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import type { ExerciseTaskAttributes } from "../../src/blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+import type { UnnormalizedDocument } from "../../src/utils/documentSchemaProcessor"
+import { denormalizeDocument, normalizeDocument } from "../../src/utils/documentSchemaProcessor"
 
-import { CmsPageUpdate } from "@/generated/api"
+import type { CmsPageUpdate } from "@/generated/api"
 
 const exampleCMSPageUpdate: CmsPageUpdate = {
   content: [
@@ -136,6 +133,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
   url_path: "/path/to/page",
   title: "Example page",
   chapter_id: "babb2322-8bdf-417f-be05-89b2263f4851",
+  hidden: false,
 }
 
 // Doing this separately so that we get type errors when the type changes
@@ -249,14 +247,15 @@ const exampleUnnormalizedDocument: UnnormalizedDocument = {
   title: "Example page",
   urlPath: "/path/to/page",
   chapterId: "babb2322-8bdf-417f-be05-89b2263f4851",
+  hidden: false,
 }
 
-test("We get the original document if we first denormalize and then normalize", async () => {
+test("We get the original document if we first denormalize and then normalize", () => {
   const res = normalizeDocument(denormalizeDocument(exampleCMSPageUpdate))
   deepStrictEqual(res, exampleCMSPageUpdate)
 })
 
-test("We get the original document if we first normalize and then denormalize", async () => {
+test("We get the original document if we first normalize and then denormalize", () => {
   const res = denormalizeDocument(normalizeDocument(exampleUnnormalizedDocument))
   deepStrictEqual(res, exampleUnnormalizedDocument)
 })

@@ -55,6 +55,9 @@ importers:
       '@react-types/shared':
         specifier: ^3.36.0
         version: 3.36.0(react@19.2.7)
+      '@vectopus/atlas-icons-react':
+        specifier: github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b
+        version: https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b
       react-aria:
         specifier: ^3.50.0
         version: 3.50.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -1248,6 +1251,10 @@ packages:
     resolution: {integrity: sha512-nAB74NfSNKknqQ1RrYj6uz8FcXEomu/MATJZxh/x+BArzN2U3JbOYC0APYzUIGhVY3m5hRxA8VPNdPBoG8txlA==}
     cpu: [x64]
     os: [win32]
+
+  '@vectopus/atlas-icons-react@https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b':
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b}
+    version: 0.0.10
 
   agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
@@ -3823,6 +3830,8 @@ snapshots:
 
   '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
     optional: true
+
+  '@vectopus/atlas-icons-react@https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b': {}
 
   agent-base@7.1.4: {}
 

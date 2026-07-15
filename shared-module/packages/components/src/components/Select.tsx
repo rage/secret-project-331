@@ -4,6 +4,12 @@ import { css, cx } from "@emotion/css"
 import { useAutocompleteState } from "@react-stately/autocomplete"
 import { useSearchFieldState } from "@react-stately/searchfield"
 import { useSelectState } from "@react-stately/select"
+import {
+  CheckCircle,
+  ExclamationTriangle,
+  MagnifyingGlass,
+  XmarkCircle,
+} from "@vectopus/atlas-icons-react"
 import React, { useId, useMemo, useRef, useState } from "react"
 import {
   mergeProps,
@@ -343,19 +349,17 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
                 >
                   <span
                     className={css`
-                      transform: scaleX(-1);
-                      font-size: 2rem;
                       display: inline-block;
                       position: absolute;
                       left: 1rem;
+                      top: 1.125rem;
                     `}
                   >
-                    &#x2315;
+                    <MagnifyingGlass size={16} weight="bold" />
                   </span>
                   <input className={searchfieldCss} {...inputProps} ref={searchRef} />
                 </div>
               )}
-
               <ListBox
                 {...mergeProps(menuProps, collectionProps)}
                 state={state}

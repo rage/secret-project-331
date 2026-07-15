@@ -8,6 +8,7 @@ import React from "react"
 
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BackgroundImageSection from "./BackgroundImageSection"
@@ -168,7 +169,7 @@ const BackgroundAndColorCustomizer: React.FC<
             />
             <CheckBox
               label={t("label-align-bottom")}
-              {...(attributes.alignBottom !== undefined ? { checked: attributes.alignBottom } : {})}
+              {...omitUndefined({ checked: attributes.alignBottom })}
               onChange={() => setAttributes({ alignBottom: !attributes.alignBottom })}
             />
           </>

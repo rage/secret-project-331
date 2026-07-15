@@ -12,6 +12,7 @@ import {
 } from "@/shared-module/common/hooks/useLanguage"
 import { LANGUAGE_COOKIE_KEY } from "@/shared-module/common/utils/constants"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 function capitalizeFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -150,7 +151,7 @@ export function useLanguageMenuItems({
         localizedLabel: localized,
         englishLabel: english,
         isSelected: selected,
-        ...("isDraft" in lang && lang.isDraft !== undefined ? { isDraft: lang.isDraft } : {}),
+        ...omitUndefined({ isDraft: "isDraft" in lang ? lang.isDraft : undefined }),
         lang: code,
         dir: getDir(code),
         onSelect: () => handleLanguageChange(code),

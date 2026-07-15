@@ -5,6 +5,7 @@ import { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef } from "react-aria"
 
 import { joinAriaDescribedBy, resolveFieldState } from "../../lib/utils/field"
+import { omitUndefined } from "../../lib/utils/nullability"
 import {
   checkableContentCss,
   checkableInputCss,
@@ -66,7 +67,7 @@ export function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
     type: "radio" as const,
     disabled: standaloneState.isDisabled,
     required: standaloneState.isRequired,
-    ...(radioValue !== undefined ? { value: radioValue } : {}),
+    ...omitUndefined({ value: radioValue }),
     "aria-describedby": describedBy,
     ...(isControlled ? { checked, onChange } : { defaultChecked, onChange }),
   })

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import type { UserDetail } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 import UserSearch from "./UserSearch"
 
@@ -51,7 +52,7 @@ const SelectedUsers: React.FC<Props> = ({
           addUser={addUser}
           removeUser={removeUser}
           selectedUsers={selectedUsers}
-          {...(users !== undefined ? { users } : {})}
+          {...omitUndefined({ users })}
         />
       </div>
       <div

@@ -4,6 +4,8 @@ import { type TabListState, useTabListState } from "@react-stately/tabs"
 import { usePathname } from "next/navigation"
 import React, { createContext, useContext, useMemo } from "react"
 
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
 import { resolveActiveTab } from "./resolveActiveTab"
 import type { RouteTabDefinition } from "./RouteTab"
 
@@ -46,8 +48,8 @@ export function RouteTabListProvider({
   )
 
   const state = useTabListState({
-    ...(selectedKey !== undefined ? { selectedKey } : {}),
-    ...(tabs[0]?.key !== undefined ? { defaultSelectedKey: tabs[0].key } : {}),
+    ...omitUndefined({ selectedKey }),
+    ...omitUndefined({ defaultSelectedKey: tabs[0]?.key }),
     items,
   })
 

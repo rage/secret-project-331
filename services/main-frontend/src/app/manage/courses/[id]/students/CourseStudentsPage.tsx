@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
 
 import * as styles from "./StudentsPageStyles"
@@ -113,10 +114,7 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
       <ProgressTabContent courseId={courseId} searchQuery={searchQuery} />
     ) : null,
     [TAB_CERTIFICATES]: (
-      <CertificatesTabContent
-        {...(courseId !== undefined ? { courseId } : {})}
-        searchQuery={searchQuery}
-      />
+      <CertificatesTabContent {...omitUndefined({ courseId })} searchQuery={searchQuery} />
     ),
   }
 

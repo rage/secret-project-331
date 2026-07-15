@@ -14,6 +14,7 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 
 import AiPolicyFields from "./AiPolicyFields"
@@ -86,7 +87,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
       await updateCourse({
         body: {
           name: data.name,
-          ...(data.description !== undefined ? { description: data.description } : {}),
+          ...omitUndefined({ description: data.description }),
           is_draft: data.is_draft,
           is_test_mode: data.is_test_mode,
           is_unlisted: unlisted,

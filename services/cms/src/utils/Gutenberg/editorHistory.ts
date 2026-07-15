@@ -1,3 +1,4 @@
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 type EditorSelection = Record<string, unknown>
@@ -23,7 +24,7 @@ export const createEditorHistoryEntry = (
   selection?: GutenbergEditorSelection,
 ): GutenbergEditorHistoryEntry => ({
   content,
-  ...(selection !== undefined ? { selection } : {}),
+  ...omitUndefined({ selection }),
 })
 
 export const initializeEditorHistory = (

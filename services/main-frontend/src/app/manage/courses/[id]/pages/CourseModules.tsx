@@ -13,6 +13,7 @@ import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/ap
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { QueryResult } from "@/shared-module/components"
 
@@ -614,7 +615,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           </div>
           <BottomPanel
             title={t("title-dialog-module-save")}
-            {...(moduleList?.error !== undefined ? { error: moduleList.error } : {})}
+            {...omitUndefined({ error: moduleList?.error })}
             show={edited}
             leftButtonText={t("save-changes")}
             leftButtonDisabled={

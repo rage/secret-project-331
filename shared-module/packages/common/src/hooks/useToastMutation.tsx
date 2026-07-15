@@ -20,6 +20,7 @@ import { isAppApiError } from "../errors/AppApiError"
 import { normalizeErrorForDisplay } from "../errors/normalizeErrorForDisplay"
 import { resolveErrorDisplayCopy } from "../errors/resolveErrorDisplayCopy"
 import { baseTheme } from "../styles"
+import { omitUndefined } from "../utils/nullability"
 import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfinitely"
 
 interface EnableNotifications {
@@ -70,8 +71,8 @@ export default function useToastMutation<
       (toastInstance: Toast) => {
         return (
           <SuccessNotification
-            {...(options.header !== undefined ? { header: options.header } : {})}
-            {...(options.message !== undefined ? { message: options.message } : {})}
+            {...omitUndefined({ header: options.header })}
+            {...omitUndefined({ message: options.message })}
             {...(enabledNotificationOptions.dismissable ? { toastId: toastInstance.id } : {})}
             icon={options.icon}
             {...(options.closeHoverBackgroundColor !== undefined

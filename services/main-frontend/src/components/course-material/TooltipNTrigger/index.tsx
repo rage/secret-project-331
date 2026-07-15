@@ -6,6 +6,8 @@ import React from "react"
 import { Tooltip, TooltipTrigger } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
 import GlossaryTriggerNPopover from "./GlossaryTriggerNPopover"
 import { TooltipBox } from "./TooltipBox"
 import { TooltipNTriggerAnchor } from "./TooltipNTriggerAnchor"
@@ -49,7 +51,7 @@ const TooltipNTrigger: React.FC<TooltipNTriggerProps> = (props) => {
 
   return (
     <GlossaryTriggerNPopover
-      {...(props.className !== undefined ? { className: props.className } : {})}
+      {...omitUndefined({ className: props.className })}
       tooltipContent={tooltipContent}
       dialogAriaLabel={t("definition")}
     >

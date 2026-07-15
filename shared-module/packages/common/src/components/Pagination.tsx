@@ -12,6 +12,7 @@ import type { PaginationInfo } from "../hooks/usePaginationInfo"
 import ArrowLeft from "../img/caret-arrow-left.svg"
 import ArrowRight from "../img/caret-arrow-right.svg"
 import { headingFont } from "../styles"
+import { omitUndefined } from "../utils/nullability"
 import PaginationItemsPerPage from "./PaginationItemsPerPage"
 
 interface PaginationProps {
@@ -138,7 +139,7 @@ const Pagination: React.FC<React.PropsWithChildren<PaginationProps>> = ({
       {!disableItemsPerPage && (
         <PaginationItemsPerPage
           paginationInfo={paginationInfo}
-          {...(itemsPerPageOptions !== undefined ? { itemsPerPageOptions } : {})}
+          {...omitUndefined({ itemsPerPageOptions })}
         />
       )}
     </div>

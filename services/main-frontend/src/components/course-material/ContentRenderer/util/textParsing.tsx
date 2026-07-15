@@ -2,10 +2,12 @@
 
 import { renderToString } from "katex"
 
+import type { StringWithHTML } from "@/../types"
+
 import "katex/dist/katex.min.css"
 
-import type { StringWithHTML } from "@/../types"
 import type { Term } from "@/generated/course-material-api/types.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
@@ -262,8 +264,7 @@ export const extractCitationsFromText = (text: string | null | undefined): Citat
     const notes = normalizeCitationNotes(prenote, postnote)
     matches.push({
       citationKey: decodeHtmlEntities(citationId ?? ""),
-      ...(notes.prenote !== undefined ? { prenote: notes.prenote } : {}),
-      ...(notes.postnote !== undefined ? { postnote: notes.postnote } : {}),
+      ...omitUndefined({ prenote: notes.prenote, postnote: notes.postnote }),
     })
   }
   return matches

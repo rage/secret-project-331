@@ -5,6 +5,7 @@ import React from "react"
 import type { TimeValue } from "react-aria"
 import { useTimeField } from "react-aria"
 
+import { omitUndefined } from "../../../lib/utils/nullability"
 import { NonPickerSegmentedField } from "./NonPickerSegmentedField"
 import { minuteGranularity } from "./segmentedDateInputFieldConstants"
 import {
@@ -39,9 +40,11 @@ export function TimeSegmentedInputField(
     isReadOnly: base.resolvedState.isReadOnly,
     isRequired: base.resolvedState.isRequired,
     isInvalid: base.resolvedState.isInvalid,
-    ...(base.hourCycle !== undefined ? { hourCycle: base.hourCycle } : {}),
-    ...(parsedMinValue !== undefined ? { minValue: parsedMinValue } : {}),
-    ...(parsedMaxValue !== undefined ? { maxValue: parsedMaxValue } : {}),
+    ...omitUndefined({
+      hourCycle: base.hourCycle,
+      minValue: parsedMinValue,
+      maxValue: parsedMaxValue,
+    }),
     onChange: (nextValue: TimeValue | null) => {
       const serializedValue = serializeTimeValue(nextValue, granularity)
       base.onValueChange?.(serializedValue)

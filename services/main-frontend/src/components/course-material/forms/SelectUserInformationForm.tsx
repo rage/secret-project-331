@@ -14,6 +14,7 @@ import SearchableSelectField from "@/shared-module/common/components/InputFields
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 interface SelectUserInfoFormFields {
   email: string
@@ -149,7 +150,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             required: t("required-field"),
           })}
           required={true}
-          {...(errors.first_name !== undefined ? { error: errors.first_name } : {})}
+          {...omitUndefined({ error: errors.first_name })}
         />
 
         <TextField
@@ -160,7 +161,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             required: t("required-field"),
           })}
           required={true}
-          {...(errors.last_name !== undefined ? { error: errors.last_name } : {})}
+          {...omitUndefined({ error: errors.last_name })}
         />
 
         <Controller
@@ -173,7 +174,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               options={countriesOptions}
               onChangeByValue={field.onChange}
               value={field.value}
-              {...(errors.country?.message !== undefined ? { error: errors.country.message } : {})}
+              {...omitUndefined({ error: errors.country?.message })}
               required={true}
               placeholder={selectedCountry ?? t("select-a-country")}
             />

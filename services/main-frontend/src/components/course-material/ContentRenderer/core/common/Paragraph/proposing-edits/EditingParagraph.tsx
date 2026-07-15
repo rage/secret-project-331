@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import type { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import {
   blockEditsAtom,
   currentlyOpenFeedbackDialogAtom,
@@ -141,12 +142,12 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
         <PreviewableParagraph
           id={id}
           content={content ?? null}
-          {...(textColor !== null && textColor !== undefined ? { textColor } : {})}
-          {...(backgroundColor !== null && backgroundColor !== undefined
-            ? { backgroundColor }
-            : {})}
-          {...(fontSize !== null && fontSize !== undefined ? { fontSize } : {})}
-          {...(align !== null && align !== undefined ? { align } : {})}
+          {...omitUndefined({
+            textColor: textColor ?? undefined,
+            backgroundColor: backgroundColor ?? undefined,
+            fontSize: fontSize ?? undefined,
+            align: align ?? undefined,
+          })}
           setEdits={setEdits}
           editedContent={editedContent}
         />

@@ -10,6 +10,7 @@ import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { toInputValue } from "../lib/utils/field"
 import { resolveRenderedErrorMessage } from "../lib/utils/floatingField"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   buildSelectCollectionNodes,
   type NormalizedSelectOption,
@@ -162,7 +163,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       description,
       errorMessage: resolvedError,
       name: field.name,
-      ...(autoComplete !== undefined ? { autoComplete } : {}),
+      ...omitUndefined({ autoComplete }),
     },
     state,
     buttonRef,

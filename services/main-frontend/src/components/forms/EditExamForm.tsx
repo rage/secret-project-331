@@ -12,6 +12,7 @@ import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 
 interface EditExamFormProps {
@@ -52,8 +53,7 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
     mode: "onChange",
     defaultValues: {
       name: initialData.name,
-      ...(initialStartsAt !== undefined ? { startsAt: initialStartsAt } : {}),
-      ...(initialEndsAt !== undefined ? { endsAt: initialEndsAt } : {}),
+      ...omitUndefined({ startsAt: initialStartsAt, endsAt: initialEndsAt }),
       timeMinutes: initialData.time_minutes,
       automaticCompletionEnabled: initialData.minimum_points_treshold !== 0,
       minimumPointsTreshold: initialData.minimum_points_treshold,
@@ -90,17 +90,17 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
         >
           <TextField
             id={"name"}
-            {...(errors.name?.message !== undefined ? { error: errors.name.message } : {})}
+            {...omitUndefined({ error: errors.name?.message })}
             label={t("label-name")}
             {...register("name", { required: t("required-field") })}
           />
           <DateTimeLocal
-            {...(errors.startsAt?.message !== undefined ? { error: errors.startsAt.message } : {})}
+            {...omitUndefined({ error: errors.startsAt?.message })}
             label={t("label-starts-at")}
             {...register("startsAt", { required: t("required-field") })}
           />
           <DateTimeLocal
-            {...(errors.endsAt?.message !== undefined ? { error: errors.endsAt.message } : {})}
+            {...omitUndefined({ error: errors.endsAt?.message })}
             label={t("label-ends-at")}
             {...register("endsAt", { required: t("required-field"), validate: validateDates })}
           />

@@ -8,6 +8,7 @@ import type { DateFieldAria } from "react-aria"
 import { composeRefs } from "../../../lib/utils/compositeField"
 import type { resolveFieldState } from "../../../lib/utils/field"
 import { joinAriaDescribedBy } from "../../../lib/utils/field"
+import { omitUndefined } from "../../../lib/utils/nullability"
 import { FieldShell } from "../FieldShell"
 import {
   type FieldSize,
@@ -107,7 +108,7 @@ export function NonPickerSegmentedField({
       errorMessage={errorMessage}
       errorMessageProps={aria.errorMessageProps as React.HTMLAttributes<HTMLElement>}
       notice={notice}
-      {...(className !== undefined ? { className } : {})}
+      {...omitUndefined({ className })}
       {...(label ? { labelProps: aria.labelProps as React.HTMLAttributes<HTMLElement> } : {})}
       {...(notice ? { noticeId } : {})}
       isDisabled={resolvedState.isDisabled}

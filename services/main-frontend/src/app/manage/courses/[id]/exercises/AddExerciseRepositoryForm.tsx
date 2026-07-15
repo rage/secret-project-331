@@ -9,6 +9,7 @@ import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 interface Props {
   courseId: string | null
@@ -68,7 +69,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
       <TextField
         label={t("exercise-repositories-git-url")}
         placeholder={t("exercise-repositories-git-url-placeholder")}
-        {...(errors["gitUrl"]?.message !== undefined ? { error: errors["gitUrl"]?.message } : {})}
+        {...omitUndefined({ error: errors["gitUrl"]?.message })}
         {...register("gitUrl", { required: t("required-field") })}
       />
       <TextAreaField

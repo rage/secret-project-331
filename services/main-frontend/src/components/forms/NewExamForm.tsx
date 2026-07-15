@@ -12,6 +12,7 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
 interface NewExamFormProps {
@@ -225,12 +226,12 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
         >
           <TextField
             id={"name"}
-            {...(errors.name?.message !== undefined ? { error: errors.name.message } : {})}
+            {...omitUndefined({ error: errors.name?.message })}
             label={t("label-name")}
             {...register("name", { required: t("required-field") })}
           />
           <DateTimeLocal
-            {...(errors.startsAt?.message !== undefined ? { error: errors.startsAt.message } : {})}
+            {...omitUndefined({ error: errors.startsAt?.message })}
             {...(startTimeWarning !== null && startTimeWarning !== undefined
               ? { warning: startTimeWarning }
               : {})}
@@ -241,7 +242,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
             {...register("startsAt", { required: t("required-field") })}
           />
           <DateTimeLocal
-            {...(errors.endsAt?.message !== undefined ? { error: errors.endsAt.message } : {})}
+            {...omitUndefined({ error: errors.endsAt?.message })}
             {...(initialData?.ends_at
               ? { defaultValue: dateToDateTimeLocalString(initialData.ends_at) }
               : {})}
@@ -299,7 +300,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
                 label: e.name,
                 value: e.id,
               }))}
-              {...(exams[0]?.id !== undefined ? { defaultValue: exams[0].id } : {})}
+              {...omitUndefined({ defaultValue: exams[0]?.id })}
             />
           )}
         </div>

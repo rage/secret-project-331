@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { editPageRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
 import { currentCourseIdAtom, currentPageIdAtom } from "@/state/course-material/selectors"
 
@@ -141,8 +142,7 @@ export function useQuickActionsItems({
         // oxlint-disable-next-line i18next/no-literal-string
         id: `quick-${item.href || item.label || idx}`,
         type: item.type,
-        ...(item.label !== undefined ? { label: item.label } : {}),
-        ...(item.href !== undefined ? { href: item.href } : {}),
+        ...omitUndefined({ label: item.label, href: item.href }),
         ...(item.onAction
           ? {
               onAction: () => {
@@ -151,8 +151,7 @@ export function useQuickActionsItems({
               },
             }
           : {}),
-        ...(item.icon !== undefined ? { icon: item.icon } : {}),
-        ...(item.isDestructive !== undefined ? { isDestructive: item.isDestructive } : {}),
+        ...omitUndefined({ icon: item.icon, isDestructive: item.isDestructive }),
       }
     })
   }, [quickActions, onMenuClose])

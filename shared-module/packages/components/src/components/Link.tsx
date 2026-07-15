@@ -7,6 +7,7 @@ import { mergeProps, useLink, useObjectRef, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   type ButtonSize,
   type ButtonVariant,
@@ -108,14 +109,16 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
     const { linkProps, isPressed } = useLink(
       {
         isDisabled: isInteractivelyDisabled,
-        ...(onPress !== undefined ? { onPress } : {}),
-        ...(onPressStart !== undefined ? { onPressStart } : {}),
-        ...(onPressEnd !== undefined ? { onPressEnd } : {}),
-        ...(onPressChange !== undefined ? { onPressChange } : {}),
-        ...(onPressUp !== undefined ? { onPressUp } : {}),
-        ...(userAriaLabel !== undefined ? { "aria-label": userAriaLabel } : {}),
-        ...(describedBy !== undefined ? { "aria-describedby": describedBy } : {}),
-        ...(labelledBy !== undefined ? { "aria-labelledby": labelledBy } : {}),
+        ...omitUndefined({
+          onPress,
+          onPressStart,
+          onPressEnd,
+          onPressChange,
+          onPressUp,
+          "aria-label": userAriaLabel,
+          "aria-describedby": describedBy,
+          "aria-labelledby": labelledBy,
+        }),
       },
       ref,
     )

@@ -23,6 +23,7 @@ import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 
 import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
+import { omitUndefined } from "../../utils/nullability"
 
 interface SelectOption {
   value: string
@@ -58,8 +59,8 @@ const SearchableSelectField = forwardRef<HTMLDivElement, SearchableSelectProps>(
     return (
       <Select
         ref={ref}
-        {...(placeholder !== undefined ? { placeholder } : {})}
-        {...(value !== undefined ? { selectedKey: value } : {})}
+        {...omitUndefined({ placeholder })}
+        {...omitUndefined({ selectedKey: value })}
         onSelectionChange={(selected) => {
           const newValue = String(selected)
           onChangeByValue?.(newValue)

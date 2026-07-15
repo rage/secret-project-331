@@ -23,6 +23,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
@@ -371,12 +372,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             )}
             <FeedbackHandler
               courseId={courseId}
-              {...(courseName !== undefined ? { courseName } : {})}
+              {...omitUndefined({ courseName })}
               courseHasChatbot={
                 chatbotConfiguration.data !== null && chatbotConfiguration.data !== undefined
               }
               pageId={pageId}
-              {...(pageTitle !== undefined ? { pageTitle } : {})}
+              {...omitUndefined({ pageTitle })}
             />
           </>
         )}

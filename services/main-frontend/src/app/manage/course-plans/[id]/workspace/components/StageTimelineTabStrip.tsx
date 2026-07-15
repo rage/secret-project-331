@@ -12,6 +12,7 @@ import type {
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 import { useStageTimelineMeasurements } from "../hooks/useStageTimelineMeasurements"
@@ -187,13 +188,13 @@ export default function StageTimelineTabStrip({
       activeStage,
       selectedStage,
       stagesDependency: stages,
-      ...(currentStageLabel !== undefined ? { currentStageLabel } : {}),
+      ...omitUndefined({ currentStageLabel }),
     })
 
   const firstItemKey = items[0]?.key
   const state = useTabListState({
     ...(selectedStage !== null ? { selectedKey: selectedStage } : {}),
-    ...(firstItemKey !== undefined ? { defaultSelectedKey: firstItemKey } : {}),
+    ...omitUndefined({ defaultSelectedKey: firstItemKey }),
     items: items.map((item) => ({
       key: item.key,
       id: item.key,

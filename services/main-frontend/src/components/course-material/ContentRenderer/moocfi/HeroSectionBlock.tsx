@@ -4,6 +4,7 @@ import { useAtomValue } from "jotai"
 import React from "react"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 
@@ -29,7 +30,7 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
   return (
     <BreakFromCentered sidebar={false}>
       <HeroSection
-        {...(chapterNumber !== undefined ? { label: chapterNumber } : {})}
+        {...omitUndefined({ label: chapterNumber })}
         title={props.data.attributes.title}
         subtitle={props.data.attributes.subtitle}
         {...(props.data.attributes.backgroundImage !== undefined

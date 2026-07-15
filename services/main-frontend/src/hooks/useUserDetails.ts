@@ -3,6 +3,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query"
 import { getBulkUserDetails, getUserDetailsByCourses } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 export interface UseUserDetailsOptions {
@@ -120,8 +121,8 @@ export const useUserDetails = (
       build: ({ courseIds: readyCourseIds, userId: readyUserId }) =>
         getUserDetailsQueryOptions(readyCourseIds, readyUserId),
     }),
-    ...(options?.staleTime !== undefined ? { staleTime: options.staleTime } : {}),
-    ...(options?.gcTime !== undefined ? { gcTime: options.gcTime } : {}),
+    ...omitUndefined({ staleTime: options?.staleTime }),
+    ...omitUndefined({ gcTime: options?.gcTime }),
     ...(options?.refetchOnWindowFocus !== undefined
       ? { refetchOnWindowFocus: options.refetchOnWindowFocus }
       : {}),

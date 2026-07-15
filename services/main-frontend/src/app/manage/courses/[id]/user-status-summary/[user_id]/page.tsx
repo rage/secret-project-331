@@ -24,6 +24,7 @@ import { useExerciseStatusSummaries } from "@/hooks/useExerciseStatusSummaries"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { courseExerciseResetToolRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResults } from "@/shared-module/components"
@@ -138,7 +139,7 @@ const CourseExerciseStatusList: React.FC = () => {
               chapterLockingEnabled={courseQuery.data?.chapter_locking_enabled === true}
               chapterLockStatusesByChapterId={chapterLockStatuses}
               onUpdateChapterLockStatus={updateChapterLockStatus}
-              {...(lockActionPendingChapterId !== undefined ? { lockActionPendingChapterId } : {})}
+              {...omitUndefined({ lockActionPendingChapterId })}
             />
             <Link href={courseExerciseResetToolRoute(id, user_id)}>
               {t("title-reset-exercises")}

@@ -18,6 +18,7 @@ import Intersection from "@/shared-module/common/img/card-defualt-bg/intersectio
 import PixelSquare from "@/shared-module/common/img/card-defualt-bg/pixel-square.svg"
 import QuadrupleCircle from "@/shared-module/common/img/card-defualt-bg/quadruple-circle.svg"
 import Triangle from "@/shared-module/common/img/card-defualt-bg/triangle.svg"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { QueryResult } from "@/shared-module/components"
 import { materialInstanceAtom } from "@/state/course-material/selectors"
 import { coursePageRoute } from "@/utils/course-material/routing"
@@ -139,12 +140,12 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
             chapterNumber={chapter.chapter_number}
             key={chapter.id}
             open={open}
-            {...(date !== undefined ? { date } : {})}
-            {...(time !== undefined ? { time } : {})}
-            {...(url !== undefined ? { url } : {})}
-            {...(cardBg !== undefined ? { bg: cardBg } : {})}
-            {...(cardBackgroundImage !== undefined ? { backgroundImage: cardBackgroundImage } : {})}
-            {...(pointsData !== undefined ? { points: pointsData } : {})}
+            {...omitUndefined({ date })}
+            {...omitUndefined({ time })}
+            {...omitUndefined({ url })}
+            {...omitUndefined({ bg: cardBg })}
+            {...omitUndefined({ backgroundImage: cardBackgroundImage })}
+            {...omitUndefined({ points: pointsData })}
             showLock={showLock}
             isLocked={isLocked}
             deadline={chapter.deadline ?? null}

@@ -12,6 +12,7 @@ import Button from "@/shared-module/common/components/Button"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 import ExerciseList from "./ExerciseList"
 import ResetFilter from "./ResetFilter"
@@ -105,7 +106,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
           removeUser={removeUser}
           isLoading={isLoading}
           addUser={addUser}
-          {...(users !== undefined ? { users } : {})}
+          {...omitUndefined({ users })}
         />
       </div>
 

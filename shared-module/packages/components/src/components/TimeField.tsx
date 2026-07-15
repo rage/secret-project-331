@@ -4,6 +4,7 @@ import React from "react"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { omitUndefined } from "../lib/utils/nullability"
 import type { FieldSize } from "./primitives/fieldStyles"
 import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
 
@@ -79,20 +80,20 @@ export function TimeField<T extends FieldValues, N extends Path<T> = Path<T>>(
       description={description}
       errorMessage={resolvedError}
       notice={notice}
-      {...(fieldSize !== undefined ? { fieldSize } : {})}
+      {...omitUndefined({ fieldSize })}
       iconStart={iconStart}
       iconEnd={iconEnd}
-      {...(isDisabled !== undefined ? { isDisabled } : {})}
-      {...(isReadOnly !== undefined ? { isReadOnly } : {})}
-      {...(isRequired !== undefined ? { isRequired } : {})}
+      {...omitUndefined({ isDisabled })}
+      {...omitUndefined({ isReadOnly })}
+      {...omitUndefined({ isRequired })}
       isInvalid={isInvalid}
-      {...(id !== undefined ? { id } : {})}
-      {...(className !== undefined ? { className } : {})}
-      {...(min !== undefined ? { min } : {})}
-      {...(max !== undefined ? { max } : {})}
-      {...(step !== undefined ? { step } : {})}
-      {...(hourCycle !== undefined ? { hourCycle } : {})}
-      {...(inputRef !== undefined ? { inputRef } : {})}
+      {...omitUndefined({ id })}
+      {...omitUndefined({ className })}
+      {...omitUndefined({ min })}
+      {...omitUndefined({ max })}
+      {...omitUndefined({ step })}
+      {...omitUndefined({ hourCycle })}
+      {...omitUndefined({ inputRef })}
       value={value}
       onChange={(e) => {
         field.onChange(e.target.value)

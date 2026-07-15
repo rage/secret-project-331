@@ -4,6 +4,8 @@ import { css } from "@emotion/css"
 import React, { useContext } from "react"
 import { Button as AriaButton, OverlayTriggerStateContext } from "react-aria-components"
 
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
 import ClarificationTooltip from "../ClarificationTooltip"
 
 const Chevron: React.FC<{ open: boolean }> = ({ open }) => (
@@ -59,12 +61,12 @@ const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
   return (
     <ClarificationTooltip text={tooltipText}>
       <AriaButton
-        {...(id !== undefined ? { id } : {})}
-        {...(dataTestId !== undefined ? { "data-testid": dataTestId } : {})}
+        {...omitUndefined({ id })}
+        {...omitUndefined({ "data-testid": dataTestId })}
         aria-label={ariaLabel}
         aria-expanded={isOpen}
-        {...(lang !== undefined ? { lang } : {})}
-        {...(dir !== undefined ? { dir } : {})}
+        {...omitUndefined({ lang })}
+        {...omitUndefined({ dir })}
         className={css`
           display: inline-flex;
           align-items: center;
@@ -98,7 +100,7 @@ const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
 
           ${className}
         `}
-        {...(onClick !== undefined ? { onClick } : {})}
+        {...omitUndefined({ onClick })}
       >
         {children}
         {showChevron && <Chevron open={isOpen} />}

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
+import { omitUndefined } from "../utils/nullability"
+
 export type ExtendedIntersectionObserverInit = IntersectionObserverInit & {
   scrollMargin?: string
 }
@@ -42,8 +44,7 @@ export function useIntersectionObserver(
   const opts = useMemo(() => {
     const out: ExtendedIntersectionObserverInit = {
       root,
-      ...(rootMargin !== undefined ? { rootMargin } : {}),
-      ...(threshold !== undefined ? { threshold } : {}),
+      ...omitUndefined({ rootMargin, threshold }),
     }
     if (typeof scrollMargin === "string") {
       out.scrollMargin = scrollMargin

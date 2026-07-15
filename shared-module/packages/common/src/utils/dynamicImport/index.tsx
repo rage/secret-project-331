@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic"
 import type { ComponentType } from "react"
 
+import { omitUndefined } from "../nullability"
 import CommitMarker from "./CommitMarker"
 import DynamicImportErrorBoundary from "./DynamicImportErrorBoundary"
 import { createDynamicImportFallbackModule } from "./DynamicImportFallback"
@@ -113,7 +114,7 @@ const dynamicImport = <P extends object = Record<string, never>>(
     setDynamicImportStatus(id, {
       state: DYNAMIC_IMPORT_STATE_LOADING,
       startedAt,
-      ...(online !== undefined ? { online } : {}),
+      ...omitUndefined({ online }),
     })
 
     log(id, "dynamic-import-started", { online })

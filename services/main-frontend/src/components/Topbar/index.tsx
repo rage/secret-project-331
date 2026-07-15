@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
 
@@ -192,8 +193,8 @@ const Topbar: React.FC<TopbarProps> = ({
             >
               {enableSearch && (
                 <SearchButton
-                  {...(courseId !== undefined ? { courseId } : {})}
-                  {...(organizationSlug !== undefined ? { organizationSlug } : {})}
+                  {...omitUndefined({ courseId })}
+                  {...omitUndefined({ organizationSlug })}
                 />
               )}
 
@@ -370,11 +371,11 @@ const Topbar: React.FC<TopbarProps> = ({
             enableLanguageMenu={enableLanguageMenu}
             enableUserMenu={enableUserMenu}
             enableQuickActions={enableQuickActions}
-            {...(courseId !== undefined ? { courseId } : {})}
-            {...(currentPagePath !== undefined ? { currentPagePath } : {})}
-            {...(userMenuOptions !== undefined ? { userMenuOptions } : {})}
-            {...(quickActionsOptions !== undefined ? { quickActionsOptions } : {})}
-            {...(languageMenuProps !== undefined ? { languageMenuProps } : {})}
+            {...omitUndefined({ courseId })}
+            {...omitUndefined({ currentPagePath })}
+            {...omitUndefined({ userMenuOptions })}
+            {...omitUndefined({ quickActionsOptions })}
+            {...omitUndefined({ languageMenuProps })}
           />
         </OverlayContainer>
       )}

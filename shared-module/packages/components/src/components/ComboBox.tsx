@@ -12,6 +12,7 @@ import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { normalizeComboBoxItems, resolveComboBoxHasValue } from "../lib/utils/combobox"
 import type { ComboBoxItemAccessors } from "../lib/utils/combobox"
 import { composeRefs } from "../lib/utils/compositeField"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -127,7 +128,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
   const { field, resolvedError, isInvalid } = useRhfField({
     name,
     control,
-    ...(rules !== undefined ? { rules } : {}),
+    ...omitUndefined({ rules }),
     errorMessage,
   })
 
@@ -145,8 +146,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     () => ({
       getItemKey,
       getItemTextValue,
-      ...(getItemDisabled !== undefined ? { getItemDisabled } : {}),
-      ...(children !== undefined ? { renderItem: children } : {}),
+      ...omitUndefined({ getItemDisabled, renderItem: children }),
     }),
     [children, getItemDisabled, getItemKey, getItemTextValue],
   )
@@ -185,8 +185,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     description,
     errorMessage: resolvedError,
     placeholder: placeholder ?? " ",
-    ...(inputValueProp !== undefined ? { inputValue: inputValueProp } : {}),
-    ...(onInputChangeProp !== undefined ? { onInputChange: onInputChangeProp } : {}),
+    ...omitUndefined({ inputValue: inputValueProp, onInputChange: onInputChangeProp }),
   })
 
   const {
@@ -218,9 +217,11 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
       errorMessage: resolvedError,
       placeholder: placeholder ?? " ",
       name: field.name,
-      ...(inputValueProp !== undefined ? { inputValue: inputValueProp } : {}),
-      ...(onInputChangeProp !== undefined ? { onInputChange: onInputChangeProp } : {}),
-      ...(ariaLabel !== undefined ? { "aria-label": ariaLabel } : {}),
+      ...omitUndefined({
+        inputValue: inputValueProp,
+        onInputChange: onInputChangeProp,
+        "aria-label": ariaLabel,
+      }),
     },
     state,
   )

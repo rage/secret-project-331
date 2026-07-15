@@ -12,6 +12,7 @@ import AIChat from "@/img/course-material/ai-chat.svg"
 import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { baseTheme } from "@/shared-module/common/styles"
 import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"
 import {
   currentlyOpenFeedbackDialogAtom,
@@ -198,7 +199,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
       data-testid={textSelectionTooltipTestId}
     >
       <SpeechBalloon
-        {...(state?.placement !== undefined ? { placement: state.placement } : {})}
+        {...omitUndefined({ placement: state?.placement })}
         // oxlint-disable-next-line i18next/no-literal-string
         paddingValue="0.2rem"
       >

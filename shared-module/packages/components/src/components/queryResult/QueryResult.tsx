@@ -3,6 +3,7 @@
 import type { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 
+import { omitUndefined } from "../../lib/utils/nullability"
 import { AnimatedQueryFrame, type AnimatedQueryFrameProps } from "./AnimatedQueryFrame"
 import { getSingleQueryState, isQueryResultEmpty } from "./queryResultState"
 import type { ThemeMode } from "./queryResultStyles"
@@ -61,16 +62,16 @@ export function QueryResult<T, E = unknown>({
   return (
     <AnimatedQueryFrame
       themeMode={themeMode}
-      {...(minHeight !== undefined ? { minHeight } : {})}
-      {...(loadingDelayMs !== undefined ? { loadingDelayMs } : {})}
+      {...omitUndefined({ minHeight })}
+      {...omitUndefined({ loadingDelayMs })}
       initialLoading={state.initialLoading}
       refreshing={state.refreshing}
       blockingError={state.blockingError}
       staleError={state.staleError}
-      {...(state.error !== undefined ? { error: state.error } : {})}
+      {...omitUndefined({ error: state.error })}
       retry={retry}
-      {...(renderBlockingError !== undefined ? { renderBlockingError } : {})}
-      {...(renderStaleError !== undefined ? { renderStaleError } : {})}
+      {...omitUndefined({ renderBlockingError })}
+      {...omitUndefined({ renderStaleError })}
     >
       {body}
     </AnimatedQueryFrame>

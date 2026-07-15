@@ -4,6 +4,7 @@ import React from "react"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { omitUndefined } from "../lib/utils/nullability"
 import type { FieldSize } from "./primitives/fieldStyles"
 import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
 
@@ -70,7 +71,7 @@ export function DateTimeLocalField<T extends FieldValues, N extends Path<T> = Pa
   const { field, resolvedError, isInvalid } = useRhfField({
     name,
     control,
-    ...(rules !== undefined ? { rules } : {}),
+    ...omitUndefined({ rules }),
     errorMessage,
   })
   const value = (field.value as string | undefined) ?? ""
@@ -87,17 +88,17 @@ export function DateTimeLocalField<T extends FieldValues, N extends Path<T> = Pa
       iconStart={iconStart}
       iconEnd={iconEnd}
       isInvalid={isInvalid}
-      {...(fieldSize !== undefined ? { fieldSize } : {})}
-      {...(isDisabled !== undefined ? { isDisabled } : {})}
-      {...(isReadOnly !== undefined ? { isReadOnly } : {})}
-      {...(isRequired !== undefined ? { isRequired } : {})}
-      {...(id !== undefined ? { id } : {})}
-      {...(className !== undefined ? { className } : {})}
-      {...(min !== undefined ? { min } : {})}
-      {...(max !== undefined ? { max } : {})}
-      {...(step !== undefined ? { step } : {})}
-      {...(hourCycle !== undefined ? { hourCycle } : {})}
-      {...(inputRef !== undefined ? { inputRef } : {})}
+      {...omitUndefined({ fieldSize })}
+      {...omitUndefined({ isDisabled })}
+      {...omitUndefined({ isReadOnly })}
+      {...omitUndefined({ isRequired })}
+      {...omitUndefined({ id })}
+      {...omitUndefined({ className })}
+      {...omitUndefined({ min })}
+      {...omitUndefined({ max })}
+      {...omitUndefined({ step })}
+      {...omitUndefined({ hourCycle })}
+      {...omitUndefined({ inputRef })}
       value={value}
       onChange={(e) => {
         field.onChange(e.target.value)

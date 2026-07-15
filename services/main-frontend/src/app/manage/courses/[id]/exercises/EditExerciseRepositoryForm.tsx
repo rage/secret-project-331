@@ -9,6 +9,7 @@ import type { ExerciseRepository } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 interface Props {
   exerciseRepository: ExerciseRepository
@@ -70,7 +71,7 @@ const EditExerciseRepositoryForm: React.FC<Props> = ({
         label={t("exercise-repositories-git-url")}
         placeholder={t("exercise-repositories-git-url-placeholder")}
         {...register("gitUrl", { required: t("required-field") })}
-        {...(errors["gitUrl"]?.message !== undefined ? { error: errors["gitUrl"]?.message } : {})}
+        {...omitUndefined({ error: errors["gitUrl"]?.message })}
       />
       <Button
         type="submit"

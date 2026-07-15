@@ -7,6 +7,7 @@ import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
@@ -103,8 +104,8 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
       {type === "proposed-edits" && <EditProposalDialog courseId={courseId} pageId={pageId} />}
       {type === null && selection.text && (
         <TextSelectionTooltip
-          {...(courseName !== undefined ? { courseName } : {})}
-          {...(pageTitle !== undefined ? { pageTitle } : {})}
+          {...omitUndefined({ courseName })}
+          {...omitUndefined({ pageTitle })}
           courseHasChatbot={courseHasChatbot}
         />
       )}

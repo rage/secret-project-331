@@ -148,9 +148,7 @@ const Dialog: React.FC<DialogProps> = ({
               `}
             >
               {children}
-              {closeable && (
-                <DismissButton {...(onClose !== undefined ? { onDismiss: onClose } : {})} />
-              )}
+              {closeable && <DismissButton {...omitUndefined({ onDismiss: onClose })} />}
             </div>
           </div>
         </FocusScope>

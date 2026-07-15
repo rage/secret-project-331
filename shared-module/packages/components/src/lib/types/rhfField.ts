@@ -2,6 +2,8 @@ import type { ReactNode } from "react"
 import type { Control, FieldValues, Path, RegisterOptions } from "react-hook-form"
 import { useController } from "react-hook-form"
 
+import { omitUndefined } from "../utils/nullability"
+
 /** Shared react-hook-form wiring for public field components. */
 export interface RhfFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> {
   name: N
@@ -21,7 +23,7 @@ export function useRhfField<T extends FieldValues, N extends Path<T> = Path<T>>(
   const { field, fieldState } = useController({
     name,
     control,
-    ...(rules !== undefined ? { rules } : {}),
+    ...omitUndefined({ rules }),
   })
   const resolvedError = errorMessage ?? fieldState.error?.message
   const isInvalid = fieldState.invalid || Boolean(resolvedError)

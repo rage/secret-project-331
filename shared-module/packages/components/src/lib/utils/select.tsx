@@ -3,6 +3,8 @@
 import { Item, Section } from "@react-stately/collections"
 import React from "react"
 
+import { omitUndefined } from "./nullability"
+
 export interface SelectOption {
   value: string
   label: React.ReactNode
@@ -84,8 +86,7 @@ export function normalizeSelectOptions(
       label: option.label,
       textValue: option.textValue ?? getNodeTextValue(option.label),
       isDisabled: Boolean(option.isDisabled),
-      ...(groupKey !== undefined ? { groupKey } : {}),
-      ...(groupLabel !== undefined ? { groupLabel } : {}),
+      ...omitUndefined({ groupKey, groupLabel }),
     }
 
     valueToKey.set(normalizedOption.value, normalizedOption.key)

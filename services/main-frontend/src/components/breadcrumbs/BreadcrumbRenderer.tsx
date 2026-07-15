@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 import { breadcrumbCrumbsAtom, type Crumb } from "./breadcrumbAtoms"
 
@@ -20,7 +21,7 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
   const label = crumb.isLoading ? "" : crumb.label
   const href = crumb.isLoading ? undefined : (crumb.href ?? undefined)
   const { itemProps } = useBreadcrumbItem(
-    { children: label, isCurrent, ...(href !== undefined ? { href } : {}) },
+    { children: label, isCurrent, ...omitUndefined({ href }) },
     ref,
   )
 

@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next"
 import type { NewMaterialReference } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface NewReferenceFormProps {
@@ -101,7 +102,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
       <TextAreaField
         label={REFERENCE}
         id={"references"}
-        {...(errors["references"] !== undefined ? { error: errors["references"] } : {})}
+        {...omitUndefined({ error: errors["references"] })}
         placeholder={REFERENCE}
         {...register("references", { required: t("required-field") })}
         rows={5}

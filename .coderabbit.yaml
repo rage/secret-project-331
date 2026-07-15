@@ -59,6 +59,10 @@ reviews:
 
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
 
+    - path: "**/*.{ts,tsx}"
+      instructions: >
+        To build an object with maybe-undefined properties under exactOptionalPropertyTypes, use the omitUndefined helper instead of chained `...(x !== undefined ? { x } : {})` spreads. Import it from "@/shared-module/common/utils/nullability", or from "../lib/utils/nullability" within shared-module/packages/components (which cannot depend on common).
+
     - path: "services/main-frontend/src/app/**/*.tsx"
       instructions: >
         Pages and layouts should set the browser title with the usePageTitle hook: import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle".

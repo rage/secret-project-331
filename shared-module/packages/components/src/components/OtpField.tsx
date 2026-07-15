@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { findFirstMatchingChild } from "../lib/utils/compositeField"
 import { resolveFieldDescribedBy } from "../lib/utils/field"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   applyOtpBackspace,
   applyOtpCharacter,
@@ -148,7 +149,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
   const { field, resolvedError, isInvalid } = useRhfField({
     name,
     control,
-    ...(rules !== undefined ? { rules } : {}),
+    ...omitUndefined({ rules }),
     errorMessage,
   })
 
@@ -228,7 +229,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      {...(className !== undefined ? { className } : {})}
+      {...omitUndefined({ className })}
       label={label}
       labelProps={mergedLabelProps as React.HTMLAttributes<HTMLElement>}
       description={description}

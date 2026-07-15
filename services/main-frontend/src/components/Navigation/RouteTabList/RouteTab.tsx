@@ -10,6 +10,7 @@ import { useFocusRing, useHover, useTab } from "react-aria"
 
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 export interface RouteTabDefinition {
   key: string
@@ -32,7 +33,7 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
   const { tabProps, isSelected, isDisabled } = useTab(
     {
       key: item.key,
-      ...(item.disabled !== undefined ? { isDisabled: item.disabled } : {}),
+      ...omitUndefined({ isDisabled: item.disabled }),
     },
     state,
     ref,

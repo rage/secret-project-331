@@ -8,6 +8,7 @@ import type { DateFieldAria, DatePickerAria, DateValue, TimeValue } from "react-
 import { composeRefs } from "../../../lib/utils/compositeField"
 import type { resolveFieldState } from "../../../lib/utils/field"
 import { joinAriaDescribedBy } from "../../../lib/utils/field"
+import { omitUndefined } from "../../../lib/utils/nullability"
 import { DatePickerCalendar } from "../DatePickerCalendar"
 import { FieldShell } from "../FieldShell"
 import {
@@ -145,7 +146,7 @@ export function PickerSegmentedField({
       errorMessage={errorMessage}
       errorMessageProps={pickerAria.errorMessageProps as React.HTMLAttributes<HTMLElement>}
       notice={notice}
-      {...(className !== undefined ? { className } : {})}
+      {...omitUndefined({ className })}
       {...(label ? { labelProps: pickerAria.labelProps as React.HTMLAttributes<HTMLElement> } : {})}
       {...(notice ? { noticeId } : {})}
       isDisabled={resolvedState.isDisabled}
@@ -257,10 +258,10 @@ export function PickerSegmentedField({
             dialogProps={pickerAria.dialogProps}
             onClear={onClear}
             onSelectToday={onSelectToday}
-            {...(onSelectNextWeek !== undefined ? { onSelectNextWeek } : {})}
-            {...(onSelectNow !== undefined ? { onSelectNow } : {})}
-            {...(onSelectTomorrow !== undefined ? { onSelectTomorrow } : {})}
-            {...(timeSelectorProps !== undefined ? { timeSelectorProps } : {})}
+            {...omitUndefined({ onSelectNextWeek })}
+            {...omitUndefined({ onSelectNow })}
+            {...omitUndefined({ onSelectTomorrow })}
+            {...omitUndefined({ timeSelectorProps })}
           />
         </Popover>
       ) : null}

@@ -2,6 +2,7 @@
 
 import { toast, type Toast } from "react-hot-toast"
 
+import { omitUndefined } from "../../utils/nullability"
 import ErrorNotification from "./Error"
 import LoadingNotification from "./Loading"
 import SuccessNotification from "./Success"
@@ -20,8 +21,8 @@ export const showSuccessNotification = ({
   return toast.custom(
     (t: Toast) => (
       <SuccessNotification
-        {...(header !== undefined ? { header } : {})}
-        {...(message !== undefined ? { message } : {})}
+        {...omitUndefined({ header })}
+        {...omitUndefined({ message })}
         toastId={t.id}
       />
     ),
@@ -37,8 +38,8 @@ export const showErrorNotification = ({
   return toast.custom(
     (t: Toast) => (
       <ErrorNotification
-        {...(header !== undefined ? { header } : {})}
-        {...(message !== undefined ? { message } : {})}
+        {...omitUndefined({ header })}
+        {...omitUndefined({ message })}
         toastId={t.id}
       />
     ),
@@ -50,12 +51,9 @@ export const showLoadingNotification = ({
   message,
   duration = 5000,
 }: Omit<NotificationOptions, "header">) => {
-  return toast.custom(
-    (_t: Toast) => <LoadingNotification {...(message !== undefined ? { message } : {})} />,
-    {
-      duration,
-    },
-  )
+  return toast.custom((_t: Toast) => <LoadingNotification {...omitUndefined({ message })} />, {
+    duration,
+  })
 }
 
 // Helper to remove a specific toast

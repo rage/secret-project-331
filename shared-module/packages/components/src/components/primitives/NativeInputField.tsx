@@ -4,6 +4,7 @@ import { cx } from "@emotion/css"
 import React, { useEffect, useId, useState } from "react"
 
 import { resolveFieldDescribedBy, resolveFieldState, toInputValue } from "../../lib/utils/field"
+import { omitUndefined } from "../../lib/utils/nullability"
 import { FieldShell } from "./FieldShell"
 import {
   type FieldSize,
@@ -70,14 +71,16 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
 
     const state = resolveFieldState({
       errorMessage,
-      ...(disabled !== undefined ? { disabled } : {}),
-      ...(readOnly !== undefined ? { readOnly } : {}),
-      ...(required !== undefined ? { required } : {}),
-      ...(isDisabled !== undefined ? { isDisabled } : {}),
-      ...(isReadOnly !== undefined ? { isReadOnly } : {}),
-      ...(isRequired !== undefined ? { isRequired } : {}),
-      ...(isInvalid !== undefined ? { isInvalid } : {}),
-      ...(ariaInvalid !== undefined ? { ariaInvalid } : {}),
+      ...omitUndefined({
+        disabled,
+        readOnly,
+        required,
+        isDisabled,
+        isReadOnly,
+        isRequired,
+        isInvalid,
+        ariaInvalid,
+      }),
     })
 
     const describedBy = resolveFieldDescribedBy({
@@ -87,7 +90,7 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
       hasDescription: Boolean(description),
       hasNotice: Boolean(notice),
       hasErrorMessage: Boolean(errorMessage),
-      ...(ariaDescribedBy !== undefined ? { ariaDescribedBy } : {}),
+      ...omitUndefined({ ariaDescribedBy }),
     })
 
     const [isFocused, setIsFocused] = useState(false)
@@ -111,7 +114,7 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
         description={description}
         errorMessage={errorMessage}
         notice={notice}
-        {...(className !== undefined ? { className } : {})}
+        {...omitUndefined({ className })}
         {...(description ? { descriptionId } : {})}
         {...(errorMessage ? { errorMessageId } : {})}
         {...(notice ? { noticeId } : {})}

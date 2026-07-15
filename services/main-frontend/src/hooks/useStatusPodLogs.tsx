@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { getStatusPodLogsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 export const useStatusPodLogs = (
   podName: string | null | undefined,
@@ -16,8 +17,7 @@ export const useStatusPodLogs = (
         pod_name: podName!,
       },
       query: {
-        ...(container !== undefined ? { container } : {}),
-        ...(tail !== undefined ? { tail } : {}),
+        ...omitUndefined({ container, tail }),
       },
     }),
     enabled: !!podName,

@@ -2,6 +2,7 @@ import { Editor } from "@monaco-editor/react"
 import _ from "lodash"
 import React from "react"
 
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import type { ExerciseFile } from "@/util/stateInterfaces"
 
 import { EditorSection as EditorSectionStyled, EditorWrapper } from "../styles"
@@ -37,7 +38,7 @@ export const EditorSection: React.FC<EditorSectionProps> = (props) => {
           key={editorKey}
           height="100%"
           width="100%"
-          {...(language !== undefined ? { language } : {})}
+          {...omitUndefined({ language })}
           value={contents}
           onChange={onChange}
           options={{ readOnly }}

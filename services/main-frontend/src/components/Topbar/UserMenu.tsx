@@ -8,6 +8,7 @@ import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-comp
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 import { useUserMenuItems } from "./hooks/useUserMenuItems"
 import TopBarMenuButton from "./TopBarMenuButton"
@@ -199,11 +200,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
 
             if (item.type === "link") {
               return (
-                <MenuItem
-                  key={item.id}
-                  {...(item.href !== undefined ? { href: item.href } : {})}
-                  className={itemRow}
-                >
+                <MenuItem key={item.id} {...omitUndefined({ href: item.href })} className={itemRow}>
                   <span>{item.label}</span>
                 </MenuItem>
               )
@@ -212,7 +209,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
             return (
               <MenuItem
                 key={item.id}
-                {...(item.onAction !== undefined ? { onAction: item.onAction } : {})}
+                {...omitUndefined({ onAction: item.onAction })}
                 className={css`
                   ${itemRow};
                   ${item.isDestructive ? "color: #dc2626; font-weight: 600;" : ""};

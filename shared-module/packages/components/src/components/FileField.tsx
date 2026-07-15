@@ -10,6 +10,7 @@ import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { joinAriaDescribedBy } from "../lib/utils/field"
 import { summarizeFiles } from "../lib/utils/files"
+import { omitUndefined } from "../lib/utils/nullability"
 import { fileListToArray } from "../lib/utils/rhfAdapters"
 import { FieldShell } from "./primitives/FieldShell"
 import type { FieldSize } from "./primitives/fieldStyles"
@@ -101,7 +102,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
   const { field, resolvedError, isInvalid } = useRhfField({
     name,
     control,
-    ...(rules !== undefined ? { rules } : {}),
+    ...omitUndefined({ rules }),
     errorMessage,
   })
 
@@ -141,7 +142,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      {...(className !== undefined ? { className } : {})}
+      {...omitUndefined({ className })}
       label={label}
       labelProps={labelProps as React.HTMLAttributes<HTMLElement>}
       description={description}

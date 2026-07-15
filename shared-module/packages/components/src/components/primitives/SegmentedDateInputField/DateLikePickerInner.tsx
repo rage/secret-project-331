@@ -13,6 +13,7 @@ import { useDateFieldState, useDatePickerState } from "@react-stately/datepicker
 import type { DateValue } from "react-aria"
 import { useDateField, useDatePicker } from "react-aria"
 
+import { omitUndefined } from "../../../lib/utils/nullability"
 import { PickerSegmentedField } from "./PickerSegmentedField"
 import type { dayGranularity } from "./segmentedDateInputFieldConstants"
 import { minuteGranularity } from "./segmentedDateInputFieldConstants"
@@ -56,9 +57,11 @@ export function DateLikePickerInner({
     isInvalid: base.resolvedState.isInvalid,
     shouldCloseOnSelect: kind === "date",
     onChange: onCommitValue,
-    ...(base.hourCycle !== undefined ? { hourCycle: base.hourCycle } : {}),
-    ...(parsedMinValue !== undefined ? { minValue: parsedMinValue } : {}),
-    ...(parsedMaxValue !== undefined ? { maxValue: parsedMaxValue } : {}),
+    ...omitUndefined({
+      hourCycle: base.hourCycle,
+      minValue: parsedMinValue,
+      maxValue: parsedMaxValue,
+    }),
   }
 
   const pickerState = useDatePickerState(pickerProps)
@@ -155,7 +158,7 @@ export function DateLikePickerInner({
               onChange: (nextValue) => {
                 pickerState.setTimeValue(nextValue)
               },
-              ...(base.hourCycle !== undefined ? { hourCycle: base.hourCycle } : {}),
+              ...omitUndefined({ hourCycle: base.hourCycle }),
             }
           : undefined
       }

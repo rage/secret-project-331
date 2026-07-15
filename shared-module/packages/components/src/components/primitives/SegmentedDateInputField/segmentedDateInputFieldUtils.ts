@@ -3,6 +3,7 @@ import { useLocale } from "react-aria"
 
 import { findFirstMatchingChild } from "../../../lib/utils/compositeField"
 import { resolveFieldState } from "../../../lib/utils/field"
+import { omitUndefined } from "../../../lib/utils/nullability"
 import {
   parseDateLikeValue,
   parseTimeOnlyValue,
@@ -168,10 +169,7 @@ export function useSegmentedFieldBase(
     externalOnFocus: onFocus,
     resolvedState: resolveFieldState({
       errorMessage,
-      ...(isDisabled !== undefined ? { isDisabled } : {}),
-      ...(isReadOnly !== undefined ? { isReadOnly } : {}),
-      ...(isRequired !== undefined ? { isRequired } : {}),
-      ...(isInvalid !== undefined ? { isInvalid } : {}),
+      ...omitUndefined({ isDisabled, isReadOnly, isRequired, isInvalid }),
     }),
     setIsFocused,
     step,

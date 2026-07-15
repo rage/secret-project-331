@@ -9,6 +9,7 @@ import type { FieldValues, Path } from "react-hook-form"
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { resolveFieldDescribedBy } from "../lib/utils/field"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   checkableContentCss,
   checkableInputCss,
@@ -120,9 +121,11 @@ export function Switch<T extends FieldValues, N extends Path<T> = Path<T>>(
       name: field.name,
       isDisabled,
       isReadOnly,
-      ...(inputValue !== undefined ? { value: inputValue } : {}),
-      ...(ariaLabel !== undefined ? { "aria-label": ariaLabel } : {}),
-      ...(describedBy !== undefined ? { "aria-describedby": describedBy } : {}),
+      ...omitUndefined({
+        value: inputValue,
+        "aria-label": ariaLabel,
+        "aria-describedby": describedBy,
+      }),
     },
     toggleState,
     inputRef,

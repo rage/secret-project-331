@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useLogout from "@/shared-module/common/hooks/useLogout"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import "@/shared-module/common/init/registerAuthApiClients"
 import { userSettingsRoute } from "@/shared-module/common/utils/routes"
 
@@ -129,20 +130,19 @@ export function useUserMenuItems({
         // oxlint-disable-next-line i18next/no-literal-string
         id: `user-${"href" in item ? item.href : "label" in item ? item.label : i}`,
         type: item.type,
-        ...("label" in item && item.label !== undefined ? { label: item.label } : {}),
-        ...("href" in item && item.href !== undefined ? { href: item.href } : {}),
-        ...("onAction" in item && item.onAction
-          ? {
-              onAction: () => {
-                item.onAction?.()
-                onMenuClose?.()
-              },
-            }
-          : {}),
-        ...("icon" in item && item.icon !== undefined ? { icon: item.icon } : {}),
-        ...("isDestructive" in item && item.isDestructive !== undefined
-          ? { isDestructive: item.isDestructive }
-          : {}),
+        ...omitUndefined({
+          label: "label" in item ? item.label : undefined,
+          href: "href" in item ? item.href : undefined,
+          onAction:
+            "onAction" in item && item.onAction
+              ? () => {
+                  item.onAction?.()
+                  onMenuClose?.()
+                }
+              : undefined,
+          icon: "icon" in item ? item.icon : undefined,
+          isDestructive: "isDestructive" in item ? item.isDestructive : undefined,
+        }),
       }
     })
   }, [userMenuItems, onMenuClose])

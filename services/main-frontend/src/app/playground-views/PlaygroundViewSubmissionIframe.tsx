@@ -5,6 +5,7 @@ import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
@@ -66,7 +67,7 @@ const PlaygroundViewSubmissionIframe: React.FC<
     const { set_user_variables, ...rest } = gradingQuery.data
     grading = {
       ...rest,
-      ...(set_user_variables !== undefined ? { set_user_variables } : {}),
+      ...omitUndefined({ set_user_variables }),
     }
   }
   const iframeState: ExerciseIframeState = {

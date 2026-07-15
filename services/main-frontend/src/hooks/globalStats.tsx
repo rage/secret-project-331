@@ -12,6 +12,7 @@ import {
   getNumberOfPeopleStartedCourseOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { TimeGranularity } from "@/generated/api/types.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 export const useNumberOfPeopleCompletedACourseQuery = (granularity: TimeGranularity) => {
   return useQuery({
@@ -71,7 +72,7 @@ export const useCourseCompletionStatsForEmailDomainQuery = (
     ...getCourseCompletionStatsForEmailDomainOptions({
       query: {
         email_domain: emailDomain,
-        ...(year !== undefined ? { year } : {}),
+        ...omitUndefined({ year }),
       },
     }),
   })

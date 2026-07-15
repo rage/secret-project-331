@@ -10,6 +10,7 @@ import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { joinAriaDescribedBy } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
 import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -109,16 +110,18 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
     type,
     value: stringValue,
     isInvalid,
-    ...(id !== undefined ? { id } : {}),
-    ...(autoComplete !== undefined ? { autoComplete } : {}),
-    ...(maxLength !== undefined ? { maxLength } : {}),
-    ...(minLength !== undefined ? { minLength } : {}),
-    ...(pattern !== undefined ? { pattern } : {}),
-    ...(inputMode !== undefined ? { inputMode } : {}),
-    ...(placeholder !== undefined ? { placeholder } : {}),
-    ...(isDisabled !== undefined ? { isDisabled } : {}),
-    ...(isReadOnly !== undefined ? { isReadOnly } : {}),
-    ...(isRequired !== undefined ? { isRequired } : {}),
+    ...omitUndefined({
+      id,
+      autoComplete,
+      maxLength,
+      minLength,
+      pattern,
+      inputMode,
+      placeholder,
+      isDisabled,
+      isReadOnly,
+      isRequired,
+    }),
   }
 
   const {

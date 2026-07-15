@@ -8,6 +8,7 @@ import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -60,7 +61,7 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
             exercise_tasks: data.exercise_tasks,
             url_path: data.page.url_path,
             title: data.page.title,
-            ...(data.page.chapter_id !== undefined ? { chapter_id: data.page.chapter_id } : {}),
+            ...omitUndefined({ chapter_id: data.page.chapter_id }),
             hidden: data.page.hidden,
           }).content
           let filename = page.url_path

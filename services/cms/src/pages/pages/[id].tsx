@@ -14,6 +14,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
@@ -57,7 +58,7 @@ const Pages = ({ query }: PagesProps) => {
           exercise_tasks: data.exercise_tasks,
           url_path: data.page.url_path,
           title: data.page.title,
-          ...(data.page.chapter_id !== undefined ? { chapter_id: data.page.chapter_id } : {}),
+          ...omitUndefined({ chapter_id: data.page.chapter_id }),
           hidden: data.page.hidden,
         }).content,
       }

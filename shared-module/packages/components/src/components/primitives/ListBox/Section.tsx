@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import type { ListState } from "@react-stately/list"
 import { useListBoxSection } from "react-aria"
 
+import { omitUndefined } from "../../../lib/utils/nullability"
 import { Option } from "./Option"
 
 type ListBoxNode<T extends object> = NonNullable<ReturnType<ListState<T>["collection"]["getItem"]>>
@@ -38,7 +39,7 @@ export function Section<T extends object>({
   const ariaLabel = section["aria-label"]
   const { itemProps, headingProps, groupProps } = useListBoxSection({
     heading: section.rendered,
-    ...(ariaLabel !== undefined ? { "aria-label": ariaLabel } : {}),
+    ...omitUndefined({ "aria-label": ariaLabel }),
   })
 
   return (

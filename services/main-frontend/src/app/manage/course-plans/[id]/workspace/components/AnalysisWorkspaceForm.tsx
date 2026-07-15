@@ -4,6 +4,7 @@ import { cx } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import type { AnalysisCourseType } from "@/generated/api/types.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import {
   Button,
   ComboBox,
@@ -73,7 +74,7 @@ export default function AnalysisWorkspaceForm(props: {
   } = useAnalysisWorkspaceFormController({
     planId,
     workspaceData,
-    ...(onDirtyChange !== undefined ? { onDirtyChange } : {}),
+    ...omitUndefined({ onDirtyChange }),
   })
 
   return (

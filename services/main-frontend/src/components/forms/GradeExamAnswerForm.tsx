@@ -22,7 +22,7 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { assertNotNullOrUndefined, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 
 interface GradeExamAnswerProps {
@@ -124,7 +124,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
   ) => {
     const newGrading: NewTeacherGradingDecision = {
       user_exercise_state_id: assertNotNullOrUndefined(getCurrentGradingInfo.data?.id),
-      ...(data.justification !== undefined ? { justification: data.justification } : {}),
+      ...omitUndefined({ justification: data.justification }),
       hidden: true,
       exercise_id: submissionInfo.exercise.id,
       // oxlint-disable-next-line i18next/no-literal-string

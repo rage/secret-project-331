@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { normalizePath } from "@/utils/normalizePath"
 
 import type { FormFields } from "."
@@ -37,7 +38,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
         <TextField
           required
           label={t("text-field-label-name")}
-          {...(errors.name?.message !== undefined ? { error: errors.name.message } : {})}
+          {...omitUndefined({ error: errors.name?.message })}
           {...register("name", {
             required: t("required-field"),
             minLength: {
@@ -51,7 +52,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
         <TextField
           required
           label={t("text-field-label-or-header-slug-or-short-name")}
-          {...(errors.slug?.message !== undefined ? { error: errors.slug.message } : {})}
+          {...omitUndefined({ error: errors.slug?.message })}
           {...register("slug", {
             required: t("required-field"),
             pattern: {

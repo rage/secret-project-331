@@ -8,6 +8,7 @@ import { mergeProps, useRadioGroup } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   descriptionCss,
   errorCss,
@@ -130,7 +131,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       isReadOnly,
       isRequired,
       isInvalid,
-      ...(ariaLabel !== undefined ? { "aria-label": ariaLabel } : {}),
+      ...omitUndefined({ "aria-label": ariaLabel }),
     },
     state,
   )

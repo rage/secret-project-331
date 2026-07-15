@@ -2,6 +2,7 @@
 
 import React from "react"
 
+import { omitUndefined } from "../../lib/utils/nullability"
 import { AnimatedQueryFrame, type AnimatedQueryFrameProps } from "./AnimatedQueryFrame"
 import {
   getMultiQueryState,
@@ -87,11 +88,11 @@ export function QueryResults<E, TQueries extends QueryTuple<E>>({
       blockingError={state.blockingError}
       staleError={state.staleError}
       retry={retry}
-      {...(minHeight !== undefined ? { minHeight } : {})}
-      {...(loadingDelayMs !== undefined ? { loadingDelayMs } : {})}
-      {...(state.error !== undefined ? { error: state.error } : {})}
-      {...(renderBlockingError !== undefined ? { renderBlockingError } : {})}
-      {...(renderStaleError !== undefined ? { renderStaleError } : {})}
+      {...omitUndefined({ minHeight })}
+      {...omitUndefined({ loadingDelayMs })}
+      {...omitUndefined({ error: state.error })}
+      {...omitUndefined({ renderBlockingError })}
+      {...omitUndefined({ renderStaleError })}
     >
       {body}
     </AnimatedQueryFrame>

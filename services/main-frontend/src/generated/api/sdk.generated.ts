@@ -298,6 +298,8 @@ import type {
   GetCourseStudentsCompletionsResponses,
   GetCourseStudentsProgressData,
   GetCourseStudentsProgressResponses,
+  GetCourseStudentsProgressStructureData,
+  GetCourseStudentsProgressStructureResponses,
   GetCourseStudentsUsersData,
   GetCourseStudentsUsersResponses,
   GetCourseSubmissionCountsByExerciseData,
@@ -736,6 +738,7 @@ import {
   zGetCourseStudentsCertificatesResponse,
   zGetCourseStudentsCompletionsResponse,
   zGetCourseStudentsProgressResponse,
+  zGetCourseStudentsProgressStructureResponse,
   zGetCourseStudentsUsersResponse,
   zGetCourseSubmissionCountsByExerciseResponse,
   zGetCourseSuspectedCheatersResponse,
@@ -3785,6 +3788,25 @@ export const getCourseStudentsProgress = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/students/progress-structure`
+ */
+export const getCourseStudentsProgressStructure = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseStudentsProgressStructureData, ThrowOnError>,
+): RequestResult<GetCourseStudentsProgressStructureResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseStudentsProgressStructureResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseStudentsProgressStructureResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/students/progress-structure",
+    ...options,
   })
 
 /**

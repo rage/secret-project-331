@@ -283,6 +283,7 @@ export const zCompletionGridRow = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
   module: z.string().nullish(),
+  module_id: z.uuid(),
   needs_to_be_reviewed: z.boolean(),
   passed: z.boolean().nullish(),
   registered: z.boolean(),
@@ -843,6 +844,16 @@ export const zChapterScore = zDatabaseChapter.and(
       .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   }),
 )
+
+/**
+ * Course-level progress structure for the Progress tab. Does not depend on which students are on
+ * the current page, so it is fetched once and cached per course (not per identity page).
+ */
+export const zCourseStudentsProgressStructure = z.object({
+  chapter_availability: z.array(zChapterAvailability),
+  chapter_locking_enabled: z.boolean(),
+  chapters: z.array(zDatabaseChapter),
+})
 
 export const zDeploymentInfo = z.object({
   name: z.string(),
@@ -2507,13 +2518,9 @@ export const zUserChapterProgress = z.object({
 })
 
 /**
- * Per-user progress detail for the Progress tab. Course-level `chapters` / `chapter_availability`
- * are returned once; the per-user vectors are scoped to the requested `user_ids`.
+ * Per-user progress detail for the Progress tab, scoped to the requested `user_ids`.
  */
-export const zCourseStudentsProgress = z.object({
-  chapter_availability: z.array(zChapterAvailability),
-  chapter_locking_enabled: z.boolean(),
-  chapters: z.array(zDatabaseChapter),
+export const zCourseStudentsProgressUsers = z.object({
   user_chapter_locking_statuses: z.array(zUserChapterLockingStatus),
   user_chapter_progress: z.array(zUserChapterProgress),
 })
@@ -4341,9 +4348,18 @@ export const zGetCourseStudentsProgressPath = z.object({
 })
 
 /**
- * Course student progress overview
+ * Per-user course progress for the given users
  */
-export const zGetCourseStudentsProgressResponse = zCourseStudentsProgress
+export const zGetCourseStudentsProgressResponse = zCourseStudentsProgressUsers
+
+export const zGetCourseStudentsProgressStructurePath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Course-level progress structure
+ */
+export const zGetCourseStudentsProgressStructureResponse = zCourseStudentsProgressStructure
 
 export const zGetCourseStudentsUsersPath = z.object({
   course_id: z.uuid(),

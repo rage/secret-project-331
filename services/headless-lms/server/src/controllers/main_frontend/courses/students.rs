@@ -3,7 +3,8 @@ use crate::prelude::*;
 
 use headless_lms_models::chapter_lock_action_logs;
 use headless_lms_models::library::students_view::{
-    CertificateGridRow, CompletionGridRow, CourseStudentsProgress, StudentsListPage,
+    CertificateGridRow, CompletionGridRow, CourseStudentsProgressStructure,
+    CourseStudentsProgressUsers, StudentsListPage,
 };
 use headless_lms_models::user_chapter_locking_statuses::{
     ChapterLockingStatus, UserChapterLockingStatus,
@@ -14,6 +15,7 @@ use utoipa::ToSchema;
 
 #[derive(OpenApi)]
 #[openapi(paths(
+    get_progress_structure,
     get_progress,
     get_user_chapter_locking_statuses,
     get_course_users,
@@ -47,6 +49,40 @@ struct GetStudentsQuery {
     course_instance_id: Option<Uuid>,
 }
 
+/// GET `/api/v0/main-frontend/courses/{course_id}/students/progress-structure`
+#[utoipa::path(
+    get,
+    path = "/progress-structure",
+    operation_id = "getCourseStudentsProgressStructure",
+    tag = "course-students",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course-level progress structure", body = CourseStudentsProgressStructure)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_progress_structure(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseStudentsProgressStructure>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let res =
+        headless_lms_models::library::students_view::get_progress_structure(&mut conn, *course_id)
+            .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 /// POST `/api/v0/main-frontend/courses/{course_id}/students/progress`
 #[utoipa::path(
     post,
@@ -58,7 +94,7 @@ struct GetStudentsQuery {
     ),
     request_body = UserIdsPayload,
     responses(
-        (status = 200, description = "Course student progress overview", body = CourseStudentsProgress)
+        (status = 200, description = "Per-user course progress for the given users", body = CourseStudentsProgressUsers)
     )
 )]
 #[instrument(skip(pool))]
@@ -67,7 +103,7 @@ async fn get_progress(
     payload: web::Json<UserIdsPayload>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<CourseStudentsProgress>> {
+) -> ControllerResult<web::Json<CourseStudentsProgressUsers>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -478,6 +514,7 @@ async fn teacher_set_student_chapter_status(
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
+    cfg.route("/progress-structure", web::get().to(get_progress_structure));
     cfg.route("/progress", web::post().to(get_progress));
     cfg.route(
         "/{user_id}/chapter-locking-statuses",

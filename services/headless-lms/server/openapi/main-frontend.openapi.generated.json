@@ -5554,11 +5554,42 @@
         },
         "responses": {
           "200": {
-            "description": "Course student progress overview",
+            "description": "Per-user course progress for the given users",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CourseStudentsProgress"
+                  "$ref": "#/components/schemas/CourseStudentsProgressUsers"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/students/progress-structure": {
+      "get": {
+        "tags": ["course-students"],
+        "summary": "GET `/api/v0/main-frontend/courses/{course_id}/students/progress-structure`",
+        "operationId": "getCourseStudentsProgressStructure",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course-level progress structure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseStudentsProgressStructure"
                 }
               }
             }
@@ -12290,7 +12321,7 @@
       },
       "CompletionGridRow": {
         "type": "object",
-        "required": ["user_id", "registered", "needs_to_be_reviewed"],
+        "required": ["user_id", "module_id", "registered", "needs_to_be_reviewed"],
         "properties": {
           "grade": {
             "type": ["integer", "null"],
@@ -12298,6 +12329,10 @@
           },
           "module": {
             "type": ["string", "null"]
+          },
+          "module_id": {
+            "type": "string",
+            "format": "uuid"
           },
           "needs_to_be_reviewed": {
             "type": "boolean"
@@ -13665,16 +13700,10 @@
           }
         }
       },
-      "CourseStudentsProgress": {
+      "CourseStudentsProgressStructure": {
         "type": "object",
-        "description": "Per-user progress detail for the Progress tab. Course-level `chapters` / `chapter_availability`\nare returned once; the per-user vectors are scoped to the requested `user_ids`.",
-        "required": [
-          "chapter_locking_enabled",
-          "chapters",
-          "chapter_availability",
-          "user_chapter_progress",
-          "user_chapter_locking_statuses"
-        ],
+        "description": "Course-level progress structure for the Progress tab. Does not depend on which students are on\nthe current page, so it is fetched once and cached per course (not per identity page).",
+        "required": ["chapter_locking_enabled", "chapters", "chapter_availability"],
         "properties": {
           "chapter_availability": {
             "type": "array",
@@ -13690,7 +13719,14 @@
             "items": {
               "$ref": "#/components/schemas/DatabaseChapter"
             }
-          },
+          }
+        }
+      },
+      "CourseStudentsProgressUsers": {
+        "type": "object",
+        "description": "Per-user progress detail for the Progress tab, scoped to the requested `user_ids`.",
+        "required": ["user_chapter_progress", "user_chapter_locking_statuses"],
+        "properties": {
           "user_chapter_locking_statuses": {
             "type": "array",
             "items": {

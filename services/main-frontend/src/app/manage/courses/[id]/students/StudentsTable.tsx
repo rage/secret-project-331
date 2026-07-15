@@ -35,9 +35,6 @@ function getMeta<T extends object>(colDef: ColumnDef<T, unknown> | undefined): C
   return (colDef as ColumnDef<T, unknown> & { meta?: ColMeta })?.meta
 }
 
-const chapterHeaderStart = 2 // upper headers (groups) start index
-const subHeaderStart = 3 // lower headers (points/attempts) start index
-
 // Estimated row height (px) used by the virtualizer before real rows are measured.
 const ESTIMATED_ROW_HEIGHT = 50
 
@@ -76,6 +73,13 @@ export function StudentsTable<T extends object>({
   onSortingChange,
 }: StudentsTableProps<T>) {
   const { t } = useTranslation()
+
+  // Column-coloring offsets differ per layout. Progress has a leading Student column plus a 2-wide
+  // "Total" group before the colored chapter groups (groups from index 2, leaf cells from index 3).
+  // Completions has only the Student column before its colored module groups (groups from index 1,
+  // leaf cells from index 1). Hardcoding the Progress values mis-colored the Completions tab.
+  const chapterHeaderStart = progressMode ? 2 : 1 // upper headers (groups) start index
+  const subHeaderStart = progressMode ? 3 : 1 // lower headers / leaf cells start index
 
   const table = useReactTable({
     columns,
@@ -127,7 +131,7 @@ export function StudentsTable<T extends object>({
       }
       return undefined
     },
-    [colorHeaders],
+    [colorHeaders, chapterHeaderStart, subHeaderStart],
   )
 
   const renderTableHead = () => (

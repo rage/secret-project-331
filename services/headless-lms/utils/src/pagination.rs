@@ -43,7 +43,9 @@ impl Pagination {
 
     /// Guaranteed to be nonnegative.
     pub fn offset(&self) -> i64 {
-        (self.limit * (self.page - 1)).into()
+        // Computed in i64 so a large `page` cannot overflow the u32 multiplication (an
+        // out-of-range page then simply yields an empty result instead of panicking/wrapping).
+        i64::from(self.limit) * (i64::from(self.page) - 1)
     }
 
     /// Guaranteed to be positive.

@@ -154,6 +154,7 @@ import {
   getCourseStudentsCertificates,
   getCourseStudentsCompletions,
   getCourseStudentsProgress,
+  getCourseStudentsProgressStructure,
   getCourseStudentsUsers,
   getCourseSubmissionCountsByExercise,
   getCourseSuspectedCheaters,
@@ -570,6 +571,8 @@ import type {
   GetCourseStudentsCompletionsResponse,
   GetCourseStudentsProgressData,
   GetCourseStudentsProgressResponse,
+  GetCourseStudentsProgressStructureData,
+  GetCourseStudentsProgressStructureResponse,
   GetCourseStudentsUsersData,
   GetCourseStudentsUsersResponse,
   GetCourseSubmissionCountsByExerciseData,
@@ -4809,6 +4812,32 @@ export const getCourseStudentsProgressMutation = (
   }
   return mutationOptions
 }
+
+export const getCourseStudentsProgressStructureQueryKey = (
+  options: Options<GetCourseStudentsProgressStructureData>,
+) => createQueryKey("getCourseStudentsProgressStructure", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/students/progress-structure`
+ */
+export const getCourseStudentsProgressStructureOptions = (
+  options: Options<GetCourseStudentsProgressStructureData>,
+) =>
+  queryOptions<
+    GetCourseStudentsProgressStructureResponse,
+    DefaultError,
+    GetCourseStudentsProgressStructureResponse,
+    ReturnType<typeof getCourseStudentsProgressStructureQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseStudentsProgressStructure({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseStudentsProgressStructureQueryKey(options),
+  })
 
 export const getCourseStudentsUsersQueryKey = (options: Options<GetCourseStudentsUsersData>) =>
   createQueryKey("getCourseStudentsUsers", options)

@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import { StudentsTable } from "../StudentsTable"
 import {
+  DETAIL_SORT_COLUMNS,
   formatStudentName,
   useCourseStudentsCertificatesDetail,
   useCourseStudentsIdentity,
@@ -35,6 +36,16 @@ const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"
   "/api/v0/main-frontend/certificates/{certificate_verification_id}"
 
 const EM_DASH = "—"
+
+// Certificate issue dates are shown in UTC so the displayed day does not shift with the viewer's
+// timezone (a certificate issued near midnight UTC must read the same for everyone).
+const formatDateIssuedUtc = (value: string | null): string => {
+  if (!value) {
+    return EM_DASH
+  }
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? EM_DASH : date.toISOString().slice(0, 10)
+}
 
 interface CertificateRow {
   user_id: string
@@ -81,7 +92,7 @@ export const CertificatesTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
   const params = useStudentsListParams()
-  const { sorting, onSortingChange } = useStudentsSorting()
+  const { sorting, onSortingChange } = useStudentsSorting(DETAIL_SORT_COLUMNS)
   const queryClient = useQueryClient()
 
   const identityQuery = useCourseStudentsIdentity(courseId, params)
@@ -175,7 +186,7 @@ export const CertificatesTabContent: React.FC = () => {
         // oxlint-disable-next-line i18next/no-literal-string
         accessorKey: "date_issued",
         enableSorting: false,
-        cell: ({ getValue }) => formatDateForDateInputs(getValue<string | null>()) ?? EM_DASH,
+        cell: ({ getValue }) => formatDateIssuedUtc(getValue<string | null>()),
       },
       {
         header: t("actions"),

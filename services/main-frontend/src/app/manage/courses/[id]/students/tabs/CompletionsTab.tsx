@@ -10,6 +10,7 @@ import { useStudentsContext, useStudentsListParams, useStudentsSorting } from ".
 import { StudentsTable } from "../StudentsTable"
 import { COMPLETIONS_LEAF_MIN_WIDTH, PAD } from "../studentsTableStyles"
 import {
+  DETAIL_SORT_COLUMNS,
   formatStudentName,
   useCourseStudentsCompletionsDetail,
   useCourseStudentsIdentity,
@@ -24,38 +25,43 @@ const PLACEHOLDER = "-"
 
 type CompletionRow = Record<string, unknown> & { user_id: string; student: string }
 
-const moduleKey = (name: string | null, t: TFunction) =>
-  (name && name.trim().length > 0 ? name : t("default-module"))
-    .toLowerCase()
-    .replaceAll(/\s+/g, "_")
-    .replaceAll(/[^a-z0-9_]/g, "_")
+/** One completion column group: keyed by the module's id (names are not unique), labelled by name. */
+interface ModuleColumn {
+  id: string
+  label: string
+}
 
-const gradeKeyOf = (mKey: string) => `${mKey}__grade`
-const passedKeyOf = (mKey: string) => `${mKey}__passed`
-const registeredKeyOf = (mKey: string) => `${mKey}__registered`
-const needsReviewKeyOf = (mKey: string) => `${mKey}__needsReview`
+const gradeKeyOf = (moduleId: string) => `${moduleId}__grade`
+const passedKeyOf = (moduleId: string) => `${moduleId}__passed`
+const registeredKeyOf = (moduleId: string) => `${moduleId}__registered`
+const needsReviewKeyOf = (moduleId: string) => `${moduleId}__needsReview`
 
-/** Pivots the flat (user × module) completion rows into one wide row per identity user. */
+/**
+ * Pivots the flat (user × module) completion rows into one wide row per identity user. Columns are
+ * keyed by `module_id` (the server orders rows by module order_number) so two modules with the same
+ * or punctuation-only-differing names never collide onto the same cells.
+ */
 const pivotCompletions = (
   identityRows: { user_id: string; first_name?: string | null; last_name?: string | null }[],
   completions: CompletionGridRow[],
   t: TFunction,
 ) => {
-  const modulesInOrder: string[] = []
+  const modulesInOrder: ModuleColumn[] = []
   const seen = new Set<string>()
   const byUser = new Map<string, Record<string, unknown>>()
   for (const r of completions) {
-    const label = r.module ?? t("default-module")
-    if (!seen.has(label)) {
-      seen.add(label)
-      modulesInOrder.push(label)
+    if (!seen.has(r.module_id)) {
+      seen.add(r.module_id)
+      modulesInOrder.push({
+        id: r.module_id,
+        label: r.module && r.module.trim().length > 0 ? r.module : t("default-module"),
+      })
     }
-    const mKey = moduleKey(label, t)
     const existing = byUser.get(r.user_id) ?? {}
-    existing[gradeKeyOf(mKey)] = r.grade ?? null
-    existing[passedKeyOf(mKey)] = r.passed ?? null
-    existing[registeredKeyOf(mKey)] = r.registered
-    existing[needsReviewKeyOf(mKey)] = r.needs_to_be_reviewed
+    existing[gradeKeyOf(r.module_id)] = r.grade ?? null
+    existing[passedKeyOf(r.module_id)] = r.passed ?? null
+    existing[registeredKeyOf(r.module_id)] = r.registered
+    existing[needsReviewKeyOf(r.module_id)] = r.needs_to_be_reviewed
     byUser.set(r.user_id, existing)
   }
   const data: CompletionRow[] = identityRows.map((u) => ({
@@ -109,7 +115,7 @@ const StatusCell: React.FC<{ registered: boolean; needsReview: boolean }> = ({
 }
 
 const buildColumns = (
-  modulesInOrder: string[],
+  modulesInOrder: ModuleColumn[],
   t: TFunction,
 ): ColumnDef<CompletionRow, unknown>[] => {
   const columns: ColumnDef<CompletionRow, unknown>[] = [
@@ -124,19 +130,18 @@ const buildColumns = (
     },
   ]
 
-  modulesInOrder.forEach((label, groupIdx) => {
-    const mKey = moduleKey(label, t)
+  modulesInOrder.forEach(({ id: moduleId, label }, groupIdx) => {
     const colorPairIndex = groupIdx
     columns.push({
       // oxlint-disable-next-line i18next/no-literal-string
-      id: `${mKey}__group`,
+      id: `${moduleId}__group`,
       header: label || "",
       meta: { colorPairIndex },
       columns: [
         {
-          id: gradeKeyOf(mKey),
+          id: gradeKeyOf(moduleId),
           header: t("grade"),
-          accessorKey: gradeKeyOf(mKey),
+          accessorKey: gradeKeyOf(moduleId),
           enableSorting: false,
           meta: {
             minWidth: COMPLETIONS_LEAF_MIN_WIDTH,
@@ -146,11 +151,11 @@ const buildColumns = (
             padRight: PAD,
           },
           cell: ({ row }) =>
-            gradeLabel(row.original[gradeKeyOf(mKey)], row.original[passedKeyOf(mKey)], t),
+            gradeLabel(row.original[gradeKeyOf(moduleId)], row.original[passedKeyOf(moduleId)], t),
         },
         {
           // oxlint-disable-next-line i18next/no-literal-string
-          id: `${mKey}__status`,
+          id: `${moduleId}__status`,
           header: t("status"),
           enableSorting: false,
           meta: {
@@ -162,8 +167,8 @@ const buildColumns = (
           },
           cell: ({ row }) => (
             <StatusCell
-              registered={Boolean(row.original[registeredKeyOf(mKey)])}
-              needsReview={Boolean(row.original[needsReviewKeyOf(mKey)])}
+              registered={Boolean(row.original[registeredKeyOf(moduleId)])}
+              needsReview={Boolean(row.original[needsReviewKeyOf(moduleId)])}
             />
           ),
         },
@@ -178,7 +183,7 @@ export const CompletionsTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
   const params = useStudentsListParams()
-  const { sorting, onSortingChange } = useStudentsSorting()
+  const { sorting, onSortingChange } = useStudentsSorting(DETAIL_SORT_COLUMNS)
 
   const identityQuery = useCourseStudentsIdentity(courseId, params)
   const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])

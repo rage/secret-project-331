@@ -26,12 +26,22 @@ pub struct StudentsListPage {
     pub total_pages: u32,
 }
 
+/// Escapes the `LIKE`/`ILIKE` metacharacters `\`, `%` and `_` so a search string is matched
+/// literally (used together with `ESCAPE '\'` in the query).
+fn escape_like_pattern(input: &str) -> String {
+    input
+        .replace('\\', "\\\\")
+        .replace('%', "\\%")
+        .replace('_', "\\_")
+}
+
 /// Returns a filtered, sorted, paginated page of the course's enrolled users (identity only).
 ///
 /// `sort_column` is one of `last_name` | `first_name` | `email` and `sort_direction` is `asc` |
 /// `desc`; both are matched to fixed SQL fragments (never interpolated from raw input). `search`
-/// matches name/email substrings case-insensitively; if it parses as a UUID it also matches the
-/// user id exactly. `course_instance_id` optionally narrows to a single instance.
+/// matches name/email/instance-name substrings and user-id substrings case-insensitively; if it
+/// parses as a UUID it also matches the user id exactly. `course_instance_id` optionally narrows to
+/// a single instance.
 pub async fn get_course_students_page(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -44,6 +54,8 @@ pub async fn get_course_students_page(
     // Empty/blank search behaves like no search.
     let search = search.map(str::trim).filter(|s| !s.is_empty());
     let user_id_exact = search.and_then(|s| Uuid::parse_str(s).ok());
+    // Metacharacters are escaped so the substring match is literal (see `escape_like_pattern`).
+    let search_pattern = search.map(escape_like_pattern);
 
     let total_count = sqlx::query!(
         r#"
@@ -53,14 +65,19 @@ FROM (
   FROM course_instance_enrollments cie
     JOIN users u ON u.id = cie.user_id
     LEFT JOIN user_details ud ON ud.user_id = u.id
+    LEFT JOIN course_instances ci
+      ON ci.id = cie.course_instance_id
+     AND ci.deleted_at IS NULL
   WHERE cie.course_id = $1
     AND cie.deleted_at IS NULL
     AND ($2::uuid IS NULL OR cie.course_instance_id = $2)
     AND (
       $3::text IS NULL
-      OR ud.first_name ILIKE '%' || $3 || '%'
-      OR ud.last_name ILIKE '%' || $3 || '%'
-      OR ud.email ILIKE '%' || $3 || '%'
+      OR ud.first_name ILIKE '%' || $3 || '%' ESCAPE '\'
+      OR ud.last_name ILIKE '%' || $3 || '%' ESCAPE '\'
+      OR ud.email ILIKE '%' || $3 || '%' ESCAPE '\'
+      OR ci.name ILIKE '%' || $3 || '%' ESCAPE '\'
+      OR u.id::text ILIKE '%' || $3 || '%' ESCAPE '\'
       OR ($4::uuid IS NOT NULL AND u.id = $4)
     )
   GROUP BY u.id
@@ -68,7 +85,7 @@ FROM (
         "#,
         course_id,
         course_instance_id,
-        search,
+        search_pattern.as_deref(),
         user_id_exact
     )
     .fetch_one(&mut *conn)
@@ -80,16 +97,18 @@ FROM (
         Some("desc") | Some("DESC") => "DESC",
         _ => "ASC",
     };
+    // `u.id` is appended as a unique tiebreaker so paging over rows with equal sort keys (duplicate
+    // names, NULL names, duplicate emails) is deterministic and never skips or repeats a student.
     let order_by = match sort_column {
         Some("first_name") => {
             format!(
-                "LOWER(TRIM(ud.first_name)) {dir} NULLS LAST, LOWER(TRIM(ud.last_name)) ASC NULLS LAST"
+                "LOWER(TRIM(ud.first_name)) {dir} NULLS LAST, LOWER(TRIM(ud.last_name)) ASC NULLS LAST, u.id ASC"
             )
         }
-        Some("email") => format!("LOWER(ud.email) {dir} NULLS LAST"),
+        Some("email") => format!("LOWER(ud.email) {dir} NULLS LAST, u.id ASC"),
         _ => {
             format!(
-                "LOWER(TRIM(ud.last_name)) {dir} NULLS LAST, LOWER(TRIM(ud.first_name)) ASC NULLS LAST"
+                "LOWER(TRIM(ud.last_name)) {dir} NULLS LAST, LOWER(TRIM(ud.first_name)) ASC NULLS LAST, u.id ASC"
             )
         }
     };
@@ -108,15 +127,19 @@ SELECT
 FROM course_instance_enrollments cie
   JOIN users u ON u.id = cie.user_id
   LEFT JOIN user_details ud ON ud.user_id = u.id
-  JOIN course_instances ci ON ci.id = cie.course_instance_id
+  LEFT JOIN course_instances ci
+    ON ci.id = cie.course_instance_id
+   AND ci.deleted_at IS NULL
 WHERE cie.course_id = $1
   AND cie.deleted_at IS NULL
   AND ($4::uuid IS NULL OR cie.course_instance_id = $4)
   AND (
     $2::text IS NULL
-    OR ud.first_name ILIKE '%' || $2 || '%'
-    OR ud.last_name ILIKE '%' || $2 || '%'
-    OR ud.email ILIKE '%' || $2 || '%'
+    OR ud.first_name ILIKE '%' || $2 || '%' ESCAPE '\'
+    OR ud.last_name ILIKE '%' || $2 || '%' ESCAPE '\'
+    OR ud.email ILIKE '%' || $2 || '%' ESCAPE '\'
+    OR ci.name ILIKE '%' || $2 || '%' ESCAPE '\'
+    OR u.id::text ILIKE '%' || $2 || '%' ESCAPE '\'
     OR ($3::uuid IS NOT NULL AND u.id = $3)
   )
 GROUP BY u.id, ud.first_name, ud.last_name, ud.email
@@ -127,7 +150,7 @@ LIMIT $5 OFFSET $6
 
     let data = sqlx::query_as::<_, CourseStudentListRow>(AssertSqlSafe(page_sql))
         .bind(course_id)
-        .bind(search)
+        .bind(search_pattern.as_deref())
         .bind(user_id_exact)
         .bind(course_instance_id)
         .bind(pagination.limit())
@@ -145,10 +168,11 @@ LIMIT $5 OFFSET $6
 
 pub struct CompletionGridRow {
     pub user_id: Uuid,
+    pub module_id: Uuid, // stable key for pivoting (module names are not unique)
     pub module: Option<String>, // empty/default row can be None
-    pub grade: Option<i32>,     // raw numeric grade, if any
-    pub passed: Option<bool>,   // pass/fail when there is no numeric grade
-    pub registered: bool,       // registered to a study registry
+    pub grade: Option<i32>, // raw numeric grade, if any
+    pub passed: Option<bool>, // pass/fail when there is no numeric grade
+    pub registered: bool, // registered to a study registry
     pub needs_to_be_reviewed: bool,
 }
 
@@ -197,6 +221,7 @@ cmcr AS (
 )
 SELECT
   e.user_id AS "user_id!",
+  m.module_id AS "module_id!",
   m.module_name AS "module?",
   r.grade AS "grade?",
   r.passed AS "passed?",
@@ -207,6 +232,7 @@ CROSS JOIN targets e
 LEFT JOIN latest_cmc r
   ON r.user_id = e.user_id
  AND r.course_module_id = m.module_id
+ORDER BY m.order_number, e.user_id
         "#,
         course_id,
         user_ids
@@ -281,36 +307,54 @@ LEFT JOIN user_certs uc ON uc.user_id = e.user_id
     Ok(rows)
 }
 
-/// Per-user progress detail for the Progress tab. Course-level `chapters` / `chapter_availability`
-/// are returned once; the per-user vectors are scoped to the requested `user_ids`.
+/// Course-level progress structure for the Progress tab. Does not depend on which students are on
+/// the current page, so it is fetched once and cached per course (not per identity page).
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 
-pub struct CourseStudentsProgress {
+pub struct CourseStudentsProgressStructure {
     pub chapter_locking_enabled: bool,
     pub chapters: Vec<DatabaseChapter>,
     pub chapter_availability: Vec<ChapterAvailability>,
+}
+
+/// Per-user progress detail for the Progress tab, scoped to the requested `user_ids`.
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
+
+pub struct CourseStudentsProgressUsers {
     pub user_chapter_progress: Vec<UserChapterProgress>,
     pub user_chapter_locking_statuses: Vec<UserChapterLockingStatus>,
 }
 
+/// Returns the course-level chapter structure shared by every page of the Progress tab.
+pub async fn get_progress_structure(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CourseStudentsProgressStructure> {
+    let course = crate::courses::get_course(conn, course_id).await?;
+    let chapters = crate::chapters::course_chapters(conn, course_id).await?;
+    let chapter_availability = chapters::fetch_chapter_availability(conn, course_id).await?;
+
+    Ok(CourseStudentsProgressStructure {
+        chapter_locking_enabled: course.chapter_locking_enabled,
+        chapters,
+        chapter_availability,
+    })
+}
+
+/// Returns per-user chapter progress and locking statuses for the given `user_ids`.
 pub async fn get_progress_for_users(
     conn: &mut PgConnection,
     course_id: Uuid,
     user_ids: &[Uuid],
-) -> ModelResult<CourseStudentsProgress> {
+) -> ModelResult<CourseStudentsProgressUsers> {
     let course = crate::courses::get_course(conn, course_id).await?;
-    let chapters = crate::chapters::course_chapters(conn, course_id).await?;
-    let chapter_availability = chapters::fetch_chapter_availability(conn, course_id).await?;
     let user_chapter_progress =
         chapters::fetch_user_chapter_progress_for_users(conn, course_id, user_ids).await?;
     let user_chapter_locking_statuses =
         crate::user_chapter_locking_statuses::get_for_users_and_course(conn, user_ids, &course)
             .await?;
 
-    Ok(CourseStudentsProgress {
-        chapter_locking_enabled: course.chapter_locking_enabled,
-        chapters,
-        chapter_availability,
+    Ok(CourseStudentsProgressUsers {
         user_chapter_progress,
         user_chapter_locking_statuses,
     })

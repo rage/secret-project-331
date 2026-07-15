@@ -2,7 +2,10 @@ import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
 import { useEffect } from "react"
 
-import { getCourseStudentsUsersOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCourseStudentsProgressStructureOptions,
+  getCourseStudentsUsersOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import {
   getCourseStudentsCertificates,
   getCourseStudentsCompletions,
@@ -15,6 +18,9 @@ export type SortDirection = "asc" | "desc"
 
 /** Server sort keys accepted by the identity endpoint. */
 export type StudentsSortColumn = "last_name" | "first_name" | "email"
+
+/** Detail subtabs (Completions/Progress/Certificates) only render the Student column as sortable. */
+export const DETAIL_SORT_COLUMNS: StudentsSortColumn[] = ["last_name"]
 
 export interface StudentsListParams {
   page: number
@@ -46,19 +52,27 @@ const buildIdentityOptions = (courseId: string, params: StudentsListParams) =>
 
 /**
  * Shared, cached identity query that drives every subtab. Returns a page of enrolled users and the
- * total page count, and prefetches the next page so paging forward is instant.
+ * total page count. Next-page prefetching is owned by {@link useCourseStudentsPrefetchNextPage} so
+ * it runs once (in the layout) rather than once per mounted subtab.
  */
-export const useCourseStudentsIdentity = (courseId: string, params: StudentsListParams) => {
-  const query = useQuery({
+export const useCourseStudentsIdentity = (courseId: string, params: StudentsListParams) =>
+  useQuery({
     ...buildIdentityOptions(courseId, params),
     staleTime: STALE_TIME,
     gcTime: GC_TIME,
     placeholderData: keepPreviousData,
   })
 
-  const totalPages = query.data?.total_pages ?? 0
+/**
+ * Prefetches the next identity page so paging forward is instant. Call from a single owner (the
+ * layout); calling it from every subtab would just re-schedule the same prefetch redundantly.
+ */
+export const useCourseStudentsPrefetchNextPage = (
+  courseId: string,
+  params: StudentsListParams,
+  totalPages: number,
+) => {
   const hasNextPage = params.page < totalPages
-
   useEffect(() => {
     if (!hasNextPage) {
       return
@@ -85,8 +99,6 @@ export const useCourseStudentsIdentity = (courseId: string, params: StudentsList
     params.sortDirection,
     params.courseInstanceId,
   ])
-
-  return query
 }
 
 export const useCourseStudentsCompletionsDetail = (courseId: string, userIds: string[]) =>
@@ -105,7 +117,9 @@ export const useCourseStudentsCompletionsDetail = (courseId: string, userIds: st
             }),
           staleTime: STALE_TIME,
           gcTime: GC_TIME,
-          placeholderData: keepPreviousData,
+          // No keepPreviousData: on a page change the detail must not show the previous page's rows
+          // (keyed by old user_ids) joined against the new identity rows — that mismatch renders
+          // blank cells. Dropping it lets the isLoading guard show a spinner until this page loads.
         }),
     }),
   )
@@ -126,11 +140,23 @@ export const useCourseStudentsCertificatesDetail = (courseId: string, userIds: s
             }),
           staleTime: STALE_TIME,
           gcTime: GC_TIME,
-          placeholderData: keepPreviousData,
+          // See useCourseStudentsCompletionsDetail: no keepPreviousData to avoid stale-page joins.
         }),
     }),
   )
 
+/**
+ * Course-level progress structure (chapters + availability). Keyed by course only, so it is fetched
+ * once and reused across every identity page instead of being re-downloaded per page.
+ */
+export const useCourseStudentsProgressStructure = (courseId: string) =>
+  useQuery({
+    ...getCourseStudentsProgressStructureOptions({ path: { course_id: courseId } }),
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME,
+  })
+
+/** Per-user progress detail (chapter progress + locking statuses) for the current page's users. */
 export const useCourseStudentsProgressDetail = (courseId: string, userIds: string[]) =>
   useQuery(
     optionalGeneratedQueryOptions({
@@ -147,7 +173,7 @@ export const useCourseStudentsProgressDetail = (courseId: string, userIds: strin
             }),
           staleTime: STALE_TIME,
           gcTime: GC_TIME,
-          placeholderData: keepPreviousData,
+          // See useCourseStudentsCompletionsDetail: no keepPreviousData to avoid stale-page joins.
         }),
     }),
   )

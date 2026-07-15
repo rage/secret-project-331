@@ -21,6 +21,7 @@ const SEARCH_DEBOUNCE_MS = 300
 const DEFAULT_SORT_COLUMN: StudentsSortColumn = "last_name"
 const DEFAULT_SORT_DIRECTION: SortDirection = "asc"
 const DEFAULT_LIMIT = 100
+const ALL_SORT_COLUMNS: StudentsSortColumn[] = ["last_name", "first_name", "email"]
 
 interface StudentsContextValue {
   courseId: string
@@ -120,13 +121,25 @@ export function useStudentsListParams(): StudentsListParams {
 /**
  * Bridges the shared identity sort state to TanStack Table's controlled-sorting API. Column ids are
  * the server sort keys, so toggling a sortable header updates the identity query directly.
+ *
+ * `allowedColumns` lists the sort keys the calling tab actually renders as sortable columns. Detail
+ * tabs only render the Student column, so if the shared sort still points at a Users-only column
+ * (first_name / email) it is normalized to the tab's first allowed column. Without this the header
+ * shows no active sort and clicking it silently jumps to a different column.
  */
-export function useStudentsSorting(): {
+export function useStudentsSorting(allowedColumns: StudentsSortColumn[] = ALL_SORT_COLUMNS): {
   sorting: SortingState
   onSortingChange: OnChangeFn<SortingState>
 } {
   const { sortColumn, sortDirection, setSort } = useStudentsContext()
-  const sorting: SortingState = [{ id: sortColumn, desc: sortDirection === "desc" }]
+  const columnAllowed = allowedColumns.includes(sortColumn)
+  useEffect(() => {
+    if (!columnAllowed) {
+      setSort(allowedColumns[0], sortDirection)
+    }
+  }, [columnAllowed, allowedColumns, sortDirection, setSort])
+  const effectiveColumn = columnAllowed ? sortColumn : allowedColumns[0]
+  const sorting: SortingState = [{ id: effectiveColumn, desc: sortDirection === "desc" }]
   const onSortingChange: OnChangeFn<SortingState> = (updater) => {
     const next = typeof updater === "function" ? updater(sorting) : updater
     const first = next[0]

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +11,7 @@ import {
   useStudentsListParams,
 } from "./StudentsContext"
 import * as styles from "./StudentsPageStyles"
-import { useCourseStudentsIdentity } from "./studentsQueries"
+import { useCourseStudentsIdentity, useCourseStudentsPrefetchNextPage } from "./studentsQueries"
 
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
@@ -86,6 +86,13 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
   const listParams = useStudentsListParams()
   const identityQuery = useCourseStudentsIdentity(ctxCourseId, listParams)
   const totalPages = identityQuery.data?.total_pages ?? 0
+  // Owned here (single instance) so the next-page prefetch is scheduled once, not once per subtab.
+  useCourseStudentsPrefetchNextPage(ctxCourseId, listParams, totalPages)
+
+  const searchParams = useSearchParams()
+  // Subtab links carry the current query string so the shared (URL-synced) search and page survive
+  // a tab switch; `pathPrefix` below keeps active-tab matching on the clean path.
+  const tabQuerySuffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
 
   const courseInstancesQuery = useCourseInstancesQuery(courseId)
 
@@ -104,13 +111,19 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     const base = manageCourseStudentsRoute(courseId)
+    const tab = (key: string, title: string): RouteTabDefinition => ({
+      key,
+      title,
+      href: `${base}/${key}${tabQuerySuffix}`,
+      pathPrefix: `${base}/${key}`,
+    })
     return [
-      { key: KEY_USERS, title: t("users"), href: `${base}/${KEY_USERS}` },
-      { key: KEY_COMPLETIONS, title: t("completions"), href: `${base}/${KEY_COMPLETIONS}` },
-      { key: KEY_PROGRESS, title: t("progress"), href: `${base}/${KEY_PROGRESS}` },
-      { key: KEY_CERTIFICATES, title: t("certificates"), href: `${base}/${KEY_CERTIFICATES}` },
+      tab(KEY_USERS, t("users")),
+      tab(KEY_COMPLETIONS, t("completions")),
+      tab(KEY_PROGRESS, t("progress")),
+      tab(KEY_CERTIFICATES, t("certificates")),
     ]
-  }, [courseId, t])
+  }, [courseId, t, tabQuerySuffix])
 
   return (
     <BreakFromCentered sidebar={false}>

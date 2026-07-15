@@ -9,9 +9,11 @@ import { useTranslation } from "react-i18next"
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import { StudentsTable } from "../StudentsTable"
 import {
+  DETAIL_SORT_COLUMNS,
   formatStudentName,
   useCourseStudentsIdentity,
   useCourseStudentsProgressDetail,
+  useCourseStudentsProgressStructure,
 } from "../studentsQueries"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -35,29 +37,27 @@ export const ProgressTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
   const params = useStudentsListParams()
-  const { sorting, onSortingChange } = useStudentsSorting()
+  const { sorting, onSortingChange } = useStudentsSorting(DETAIL_SORT_COLUMNS)
 
   const identityQuery = useCourseStudentsIdentity(courseId, params)
   const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])
   const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
+  // Course-level structure is cached per course; only the per-user detail is keyed by the page.
+  const structureQuery = useCourseStudentsProgressStructure(courseId)
   const detailQuery = useCourseStudentsProgressDetail(courseId, userIds)
 
   const { allRows, dynamicColumns } = useMemo(() => {
-    const progress = detailQuery.data
-    if (!progress) {
+    const structure = structureQuery.data
+    const detail = detailQuery.data
+    if (!structure || !detail) {
       return {
         allRows: [] as ProgressRow[],
         dynamicColumns: [] as ColumnDef<ProgressRow, unknown>[],
       }
     }
 
-    const {
-      chapters,
-      user_chapter_progress,
-      chapter_availability,
-      chapter_locking_enabled,
-      user_chapter_locking_statuses,
-    } = progress
+    const { chapters, chapter_availability, chapter_locking_enabled } = structure
+    const { user_chapter_progress, user_chapter_locking_statuses } = detail
     const chapterLockStatuses = user_chapter_locking_statuses ?? []
 
     // --- maxima lookups (per chapter, not per user)
@@ -208,15 +208,22 @@ export const ProgressTabContent: React.FC = () => {
     })
 
     return { allRows: rows, dynamicColumns: cols }
-  }, [detailQuery.data, identityRows, t])
+  }, [structureQuery.data, detailQuery.data, identityRows, t])
 
   if (identityQuery.isError) {
     return <ErrorBanner error={identityQuery.error} />
   }
+  if (structureQuery.isError) {
+    return <ErrorBanner error={structureQuery.error} />
+  }
   if (detailQuery.isError) {
     return <ErrorBanner error={detailQuery.error} />
   }
-  if (identityQuery.isPending || (userIds.length > 0 && detailQuery.isLoading)) {
+  if (
+    identityQuery.isPending ||
+    structureQuery.isPending ||
+    (userIds.length > 0 && detailQuery.isLoading)
+  ) {
     return <Spinner variant="medium" />
   }
 

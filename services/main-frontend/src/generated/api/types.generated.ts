@@ -435,6 +435,7 @@ export type CohortActivity = {
 export type CompletionGridRow = {
   grade?: number | null
   module?: string | null
+  module_id: string
   needs_to_be_reviewed: boolean
   passed?: boolean | null
   registered: boolean
@@ -925,13 +926,19 @@ export type CourseStudentListRow = {
 }
 
 /**
- * Per-user progress detail for the Progress tab. Course-level `chapters` / `chapter_availability`
- * are returned once; the per-user vectors are scoped to the requested `user_ids`.
+ * Course-level progress structure for the Progress tab. Does not depend on which students are on
+ * the current page, so it is fetched once and cached per course (not per identity page).
  */
-export type CourseStudentsProgress = {
+export type CourseStudentsProgressStructure = {
   chapter_availability: Array<ChapterAvailability>
   chapter_locking_enabled: boolean
   chapters: Array<DatabaseChapter>
+}
+
+/**
+ * Per-user progress detail for the Progress tab, scoped to the requested `user_ids`.
+ */
+export type CourseStudentsProgressUsers = {
   user_chapter_locking_statuses: Array<UserChapterLockingStatus>
   user_chapter_progress: Array<UserChapterProgress>
 }
@@ -5814,13 +5821,35 @@ export type GetCourseStudentsProgressData = {
 
 export type GetCourseStudentsProgressResponses = {
   /**
-   * Course student progress overview
+   * Per-user course progress for the given users
    */
-  200: CourseStudentsProgress
+  200: CourseStudentsProgressUsers
 }
 
 export type GetCourseStudentsProgressResponse =
   GetCourseStudentsProgressResponses[keyof GetCourseStudentsProgressResponses]
+
+export type GetCourseStudentsProgressStructureData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/students/progress-structure"
+}
+
+export type GetCourseStudentsProgressStructureResponses = {
+  /**
+   * Course-level progress structure
+   */
+  200: CourseStudentsProgressStructure
+}
+
+export type GetCourseStudentsProgressStructureResponse =
+  GetCourseStudentsProgressStructureResponses[keyof GetCourseStudentsProgressStructureResponses]
 
 export type GetCourseStudentsUsersData = {
   body?: never

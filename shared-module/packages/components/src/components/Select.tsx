@@ -12,6 +12,7 @@ import {
   useSearchField,
   useFilter,
   useAutocomplete,
+  FocusScope,
 } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
@@ -115,6 +116,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
   const [filterValue, setFilterValue] = useState("")
 
   let { contains } = useFilter({
+    // oxlint-disable-next-line i18next/no-literal-string
     sensitivity: "base",
   })
 
@@ -125,44 +127,31 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
   const buttonRef = useRef<HTMLButtonElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
-  const collectionRefContainer = useRef<HTMLDivElement>(null)
+  const listBoxRef = useRef(null)
   const hasFocusWithinRef = useRef(false)
 
-  // const filteredOptions = options.map((group) =>
-  //   group.options.filter((option) => contains(option.label, filterValue)),
-  // )
-
-  // const filteredOptions = options
-  //   .map((item) => {
-  //     if ("options" in item) {
-  //       return item.options.filter((option) => contains(option.label, filterValue))
-  //     }
-
-  //     return contains(item.label, filterValue) ? item : null
-  //   })
-  //   .filter(Boolean)
-
-  // const testi = options.filter((d) => d.options.every((c) => contains(c.label, filterValue)))
-
   const normalizedCollection = useMemo(() => normalizeSelectOptions(options), [options])
-  const collectionChildren = useMemo(
-    () => buildSelectCollectionNodes(normalizedCollection),
-    [normalizedCollection],
-  )
+
+  const collectionChildren = buildSelectCollectionNodes({
+    ...normalizedCollection,
+    options: normalizedCollection.options.filter((option) =>
+      contains(option.textValue, filterValue),
+    ),
+  })
+
   const optionsByKey = useMemo(
     () => new Map(normalizedCollection.options.map((option) => [option.key, option])),
     [normalizedCollection.options],
   )
 
-  const controlledString = toInputValue(field.value)
-  const selectedKey = normalizedCollection.valueToKey.get(controlledString) ?? null
+  const selectedKey = normalizedCollection.valueToKey.get(toInputValue(field.value)) ?? null
 
   const state = useSelectState<NormalizedSelectOption>({
     children: collectionChildren as never,
     disabledKeys: normalizedCollection.disabledKeys,
     value: selectedKey,
     onSelectionChange: (key) => {
-      const selectedOption = key != null ? optionsByKey.get(String(key)) : undefined
+      const selectedOption = key !== null ? optionsByKey.get(String(key)) : undefined
       const nextValue = selectedOption?.value ?? ""
       field.onChange(nextValue)
     },
@@ -179,19 +168,16 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     onChange: setFilterValue,
   })
 
-  const autoCompleteState = useAutocompleteState({
-    inputValue: filterValue,
-    onInputChange: setFilterValue,
-  })
+  const autoCompleteState = useAutocompleteState({})
 
   const {
     inputProps: autoCompleteInputProps,
     collectionProps,
-    collectionRef: _mergedCollectionRef,
+    collectionRef: mergedCollectionRef,
   } = useAutocomplete(
     {
       inputRef: searchRef,
-      collectionRef: collectionRefContainer,
+      collectionRef: listBoxRef,
     },
     autoCompleteState,
   )
@@ -272,10 +258,9 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     hookIsInvalid,
     validationErrors,
   )
-  const selectedOption =
-    state.selectedKey != null ? optionsByKey.get(String(state.selectedKey)) : undefined
-  const isPlaceholderState = selectedOption == null
-  const isFloated = state.isOpen || selectedOption != null
+  const selectedOption = selectedKey !== null ? optionsByKey.get(String(selectedKey)) : undefined
+  const isPlaceholderState = selectedOption === null
+  const isFloated = state.isOpen || selectedOption !== null
   return (
     <div className={cx(fieldRootCss, className)}>
       <div
@@ -325,11 +310,14 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
               },
             }}
           >
-            <div ref={collectionRefContainer}>
-              <label {...labelProps}>{"search"}</label>
+            <FocusScope autoFocus>
               <input {...inputProps} ref={searchRef} />
-              <ListBox {...menuProps} state={state} />
-            </div>
+              <ListBox
+                {...mergeProps(menuProps, collectionProps)}
+                state={state}
+                listBoxRef={mergedCollectionRef}
+              />
+            </FocusScope>
           </Popover>
         ) : null}
       </div>

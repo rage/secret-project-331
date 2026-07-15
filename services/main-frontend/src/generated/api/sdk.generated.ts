@@ -3721,12 +3721,12 @@ export const getCourseStructure = <ThrowOnError extends boolean = true>(
   })
 
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/certificates`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/certificates`
  */
 export const getCourseStudentsCertificates = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseStudentsCertificatesData, ThrowOnError>,
 ): RequestResult<GetCourseStudentsCertificatesResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<
+  (options.client ?? client).post<
     GetCourseStudentsCertificatesResponses,
     unknown,
     ThrowOnError,
@@ -3737,15 +3737,19 @@ export const getCourseStudentsCertificates = <ThrowOnError extends boolean = tru
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/students/certificates",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/completions`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/completions`
  */
 export const getCourseStudentsCompletions = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseStudentsCompletionsData, ThrowOnError>,
 ): RequestResult<GetCourseStudentsCompletionsResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<
+  (options.client ?? client).post<
     GetCourseStudentsCompletionsResponses,
     unknown,
     ThrowOnError,
@@ -3755,22 +3759,33 @@ export const getCourseStudentsCompletions = <ThrowOnError extends boolean = true
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/students/completions",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/progress`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/progress`
  */
 export const getCourseStudentsProgress = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseStudentsProgressData, ThrowOnError>,
 ): RequestResult<GetCourseStudentsProgressResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<GetCourseStudentsProgressResponses, unknown, ThrowOnError, "data">(
-    {
-      responseValidator: async (data) => await zGetCourseStudentsProgressResponse.parseAsync(data),
-      responseStyle: "data",
-      url: "/api/v0/main-frontend/courses/{course_id}/students/progress",
-      ...options,
+  (options.client ?? client).post<
+    GetCourseStudentsProgressResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseStudentsProgressResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/students/progress",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
     },
-  )
+  })
 
 /**
  * GET `/api/v0/main-frontend/courses/{course_id}/students/users`

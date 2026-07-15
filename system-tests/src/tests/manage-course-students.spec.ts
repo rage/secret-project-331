@@ -15,7 +15,10 @@ test.describe("Manage course students tab", () => {
     await expect(page).toHaveURL(/\/students\/users/)
     await expect(page.getByText("user_1@example.com")).toBeVisible()
 
-    // The shared search box filters rows client-side across every subtab.
+    // A functional course-instance filter lives next to the search box.
+    await expect(page.getByRole("combobox", { name: "Course instance" })).toBeVisible()
+
+    // The shared search box filters rows server-side across every subtab.
     const search = page.getByPlaceholder("Search students...")
     await search.fill("user_3@example.com")
     await expect(page.getByText("user_3@example.com")).toBeVisible()

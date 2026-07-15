@@ -1,16 +1,10 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
-import type { ColumnDef, FilterFn, SortingState } from "@tanstack/react-table"
+import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
+import type { ColumnDef, OnChangeFn, SortingState } from "@tanstack/react-table"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import React, { useCallback, useRef, useState } from "react"
+import React, { useCallback, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { colorPairs } from "./studentsTableColors"
@@ -61,16 +55,15 @@ interface StudentsTableProps<T extends object> {
   colorColumns?: boolean
   colorHeaderUnderline?: boolean
   progressMode?: boolean
-  /** Search text; rows are kept when a searchable column contains it (case-insensitive). */
-  globalFilter?: string
-  /** Leaf column ids to search. When omitted, every leaf column is searched. */
-  searchableColumnIds?: readonly string[]
+  /** Controlled sort state; column ids are the server sort keys. Sorting/filtering happen server-side. */
+  sorting?: SortingState
+  onSortingChange?: OnChangeFn<SortingState>
 }
 
 /**
- * Sticky-header, sortable, row-virtualized table shared by every students subtab. The header stays
- * pinned while the body scrolls inside the viewport, so it works for long student lists without the
- * page-level scroll cloning it used to do.
+ * Sticky-header, row-virtualized table shared by every students subtab. Sorting is controlled and
+ * applied server-side (`manualSorting`); the data arrives pre-sorted and pre-filtered. The header
+ * stays pinned while the body scrolls inside the viewport, so it works for long student lists.
  */
 export function StudentsTable<T extends object>({
   columns,
@@ -79,47 +72,19 @@ export function StudentsTable<T extends object>({
   colorColumns = false,
   colorHeaderUnderline = false,
   progressMode = false,
-  globalFilter,
-  searchableColumnIds,
+  sorting,
+  onSortingChange,
 }: StudentsTableProps<T>) {
   const { t } = useTranslation()
-  const [sorting, setSorting] = useState<SortingState>([])
-
-  const globalFilterFn = useCallback<FilterFn<T>>(
-    (row, _columnId, filterValue) => {
-      const q = String(filterValue ?? "")
-        .trim()
-        .toLowerCase()
-      if (!q) {
-        return true
-      }
-      const ids =
-        searchableColumnIds && searchableColumnIds.length > 0
-          ? searchableColumnIds
-          : row.getVisibleCells().map((c) => c.column.id)
-      return ids.some((id) => {
-        const value = row.getValue(id)
-        if (typeof value === "string") {
-          return value.toLowerCase().includes(q)
-        }
-        if (typeof value === "number") {
-          return String(value).includes(q)
-        }
-        return false
-      })
-    },
-    [searchableColumnIds],
-  )
 
   const table = useReactTable({
     columns,
     data,
-    state: { sorting, globalFilter: globalFilter ?? "" },
-    onSortingChange: setSorting,
-    globalFilterFn,
+    state: { sorting: sorting ?? [] },
+    onSortingChange,
+    manualSorting: true,
+    enableSortingRemoval: false,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
   })
 
   const rows = table.getRowModel().rows

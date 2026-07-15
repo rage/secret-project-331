@@ -2,9 +2,8 @@
 use crate::prelude::*;
 
 use headless_lms_models::chapter_lock_action_logs;
-use headless_lms_models::chapters::CourseUserInfo;
 use headless_lms_models::library::students_view::{
-    CertificateGridRow, CompletionGridRow, ProgressOverview,
+    CertificateGridRow, CompletionGridRow, CourseStudentsProgress, StudentsListPage,
 };
 use headless_lms_models::user_chapter_locking_statuses::{
     ChapterLockingStatus, UserChapterLockingStatus,
@@ -31,25 +30,44 @@ struct ChapterLockStatusActionPayload {
     status: ChapterLockingStatus,
 }
 
-/// GET `/api/v0/main-frontend/courses/{course_id}/students/progress`
+/// Body for the batch detail endpoints: the users of the current identity-list page.
+#[derive(Debug, Deserialize, ToSchema)]
+struct UserIdsPayload {
+    user_ids: Vec<Uuid>,
+}
+
+/// Query parameters for the paginated student identity list.
+#[derive(Debug, Deserialize)]
+struct GetStudentsQuery {
+    page: Option<u32>,
+    limit: Option<u32>,
+    search: Option<String>,
+    sort_column: Option<String>,
+    sort_direction: Option<String>,
+    course_instance_id: Option<Uuid>,
+}
+
+/// POST `/api/v0/main-frontend/courses/{course_id}/students/progress`
 #[utoipa::path(
-    get,
+    post,
     path = "/progress",
     operation_id = "getCourseStudentsProgress",
     tag = "course-students",
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
+    request_body = UserIdsPayload,
     responses(
-        (status = 200, description = "Course student progress overview", body = ProgressOverview)
+        (status = 200, description = "Course student progress overview", body = CourseStudentsProgress)
     )
 )]
 #[instrument(skip(pool))]
 async fn get_progress(
     course_id: web::Path<Uuid>,
+    payload: web::Json<UserIdsPayload>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<ProgressOverview>> {
+) -> ControllerResult<web::Json<CourseStudentsProgress>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -58,8 +76,12 @@ async fn get_progress(
         Res::Course(*course_id),
     )
     .await?;
-    let res =
-        headless_lms_models::library::students_view::get_progress(&mut conn, *course_id).await?;
+    let res = headless_lms_models::library::students_view::get_progress_for_users(
+        &mut conn,
+        *course_id,
+        &payload.user_ids,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -118,18 +140,25 @@ async fn get_user_chapter_locking_statuses(
     operation_id = "getCourseStudentsUsers",
     tag = "course-students",
     params(
-        ("course_id" = Uuid, Path, description = "Course id")
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("page" = Option<u32>, Query, description = "Page number (1-based)"),
+        ("limit" = Option<u32>, Query, description = "Page size (1-10000)"),
+        ("search" = Option<String>, Query, description = "Filter by name/email substring or exact user id"),
+        ("sort_column" = Option<String>, Query, description = "last_name | first_name | email"),
+        ("sort_direction" = Option<String>, Query, description = "asc | desc"),
+        ("course_instance_id" = Option<Uuid>, Query, description = "Filter to a single course instance")
     ),
     responses(
-        (status = 200, description = "Course users", body = [CourseUserInfo])
+        (status = 200, description = "A page of enrolled students", body = StudentsListPage)
     )
 )]
 #[instrument(skip(pool))]
 async fn get_course_users(
     course_id: web::Path<Uuid>,
+    query: web::Query<GetStudentsQuery>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<CourseUserInfo>>> {
+) -> ControllerResult<web::Json<StudentsListPage>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -138,28 +167,40 @@ async fn get_course_users(
         Res::Course(*course_id),
     )
     .await?;
-    let res = headless_lms_models::library::students_view::get_course_users(&mut conn, *course_id)
-        .await?;
+    let pagination = Pagination::new(query.page.unwrap_or(1), query.limit.unwrap_or(100))
+        .map_err(|e| ControllerError::new(ControllerErrorType::BadRequest, e.to_string(), None))?;
+    let res = headless_lms_models::library::students_view::get_course_students_page(
+        &mut conn,
+        *course_id,
+        pagination,
+        query.search.as_deref(),
+        query.sort_column.as_deref(),
+        query.sort_direction.as_deref(),
+        query.course_instance_id,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }
 
-/// GET `/api/v0/main-frontend/courses/{course_id}/students/completions`
+/// POST `/api/v0/main-frontend/courses/{course_id}/students/completions`
 #[utoipa::path(
-    get,
+    post,
     path = "/completions",
     operation_id = "getCourseStudentsCompletions",
     tag = "course-students",
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
+    request_body = UserIdsPayload,
     responses(
-        (status = 200, description = "Course completions", body = [CompletionGridRow])
+        (status = 200, description = "Course completions for the given users", body = [CompletionGridRow])
     )
 )]
 #[instrument(skip(pool))]
 async fn get_completions(
     course_id: web::Path<Uuid>,
+    payload: web::Json<UserIdsPayload>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<CompletionGridRow>>> {
@@ -171,30 +212,34 @@ async fn get_completions(
         Res::Course(*course_id),
     )
     .await?;
-    let rows = headless_lms_models::library::students_view::get_completions_grid_by_course_id(
-        &mut conn, *course_id,
+    let rows = headless_lms_models::library::students_view::get_completions_grid_for_users(
+        &mut conn,
+        *course_id,
+        &payload.user_ids,
     )
     .await?;
 
     token.authorized_ok(web::Json(rows))
 }
 
-/// GET `/api/v0/main-frontend/courses/{course_id}/students/certificates`
+/// POST `/api/v0/main-frontend/courses/{course_id}/students/certificates`
 #[utoipa::path(
-    get,
+    post,
     path = "/certificates",
     operation_id = "getCourseStudentsCertificates",
     tag = "course-students",
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
+    request_body = UserIdsPayload,
     responses(
-        (status = 200, description = "Course certificates", body = [CertificateGridRow])
+        (status = 200, description = "Course certificates for the given users", body = [CertificateGridRow])
     )
 )]
 #[instrument(skip(pool))]
 async fn get_certificates(
     course_id: web::Path<Uuid>,
+    payload: web::Json<UserIdsPayload>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<CertificateGridRow>>> {
@@ -206,8 +251,10 @@ async fn get_certificates(
         Res::Course(*course_id),
     )
     .await?;
-    let rows = headless_lms_models::library::students_view::get_certificates_grid_by_course_id(
-        &mut conn, *course_id,
+    let rows = headless_lms_models::library::students_view::get_certificates_grid_for_users(
+        &mut conn,
+        *course_id,
+        &payload.user_ids,
     )
     .await?;
 
@@ -431,14 +478,14 @@ async fn teacher_set_student_chapter_status(
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
-    cfg.route("/progress", web::get().to(get_progress));
+    cfg.route("/progress", web::post().to(get_progress));
     cfg.route(
         "/{user_id}/chapter-locking-statuses",
         web::get().to(get_user_chapter_locking_statuses),
     );
     cfg.route("/users", web::get().to(get_course_users));
-    cfg.route("/completions", web::get().to(get_completions));
-    cfg.route("/certificates", web::get().to(get_certificates));
+    cfg.route("/completions", web::post().to(get_completions));
+    cfg.route("/certificates", web::post().to(get_certificates));
     cfg.route(
         "/{user_id}/chapters/{chapter_id}/lock",
         web::post().to(teacher_lock_student_chapter),

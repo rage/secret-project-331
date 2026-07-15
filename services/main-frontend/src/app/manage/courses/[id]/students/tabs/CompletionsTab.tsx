@@ -1,26 +1,28 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
-import type { CellContext, ColumnDef } from "@tanstack/react-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import { StudentsTable } from "../StudentsTable"
 import { COMPLETIONS_LEAF_MIN_WIDTH, PAD } from "../studentsTableStyles"
+import {
+  formatStudentName,
+  useCourseStudentsCompletionsDetail,
+  useCourseStudentsIdentity,
+} from "../studentsQueries"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
-import { getCourseStudentsCompletionsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CompletionGridRow } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import { QueryResult } from "@/shared-module/components"
+import Spinner from "@/shared-module/common/components/Spinner"
 
-interface Props {
-  courseId: string
-  searchQuery: string
-}
-type RowObject = Record<string, unknown> & { student: string }
+const PLACEHOLDER = "-"
+
+type CompletionRow = Record<string, unknown> & { user_id: string; student: string }
 
 const moduleKey = (name: string | null, t: TFunction) =>
   (name && name.trim().length > 0 ? name : t("default-module"))
@@ -28,31 +30,53 @@ const moduleKey = (name: string | null, t: TFunction) =>
     .replaceAll(/\s+/g, "_")
     .replaceAll(/[^a-z0-9_]/g, "_")
 
-const pivotCompletions = (rows: CompletionGridRow[], t: TFunction) => {
+const gradeKeyOf = (mKey: string) => `${mKey}__grade`
+const passedKeyOf = (mKey: string) => `${mKey}__passed`
+const registeredKeyOf = (mKey: string) => `${mKey}__registered`
+const needsReviewKeyOf = (mKey: string) => `${mKey}__needsReview`
+
+/** Pivots the flat (user × module) completion rows into one wide row per identity user. */
+const pivotCompletions = (
+  identityRows: { user_id: string; first_name?: string | null; last_name?: string | null }[],
+  completions: CompletionGridRow[],
+  t: TFunction,
+) => {
   const modulesInOrder: string[] = []
   const seen = new Set<string>()
-  for (const r of rows) {
+  const byUser = new Map<string, Record<string, unknown>>()
+  for (const r of completions) {
     const label = r.module ?? t("default-module")
     if (!seen.has(label)) {
       seen.add(label)
       modulesInOrder.push(label)
     }
+    const mKey = moduleKey(label, t)
+    const existing = byUser.get(r.user_id) ?? {}
+    existing[gradeKeyOf(mKey)] = r.grade ?? null
+    existing[passedKeyOf(mKey)] = r.passed ?? null
+    existing[registeredKeyOf(mKey)] = r.registered
+    existing[needsReviewKeyOf(mKey)] = r.needs_to_be_reviewed
+    byUser.set(r.user_id, existing)
   }
-  const byStudent = new Map<string, RowObject>()
-  for (const r of rows) {
-    const key = r.student
-    const modLabel = r.module ?? t("default-module")
-    const mKey = moduleKey(modLabel, t)
-    const existing: RowObject = byStudent.get(key) ?? { student: key }
-    // oxlint-disable-next-line i18next/no-literal-string
-    existing[`${mKey}__grade`] = r.grade ?? "-"
-    // oxlint-disable-next-line i18next/no-literal-string
-    existing[`${mKey}__status`] = r.status ?? "-"
-    // oxlint-disable-next-line i18next/no-literal-string
-    existing[`${mKey}__needsReview`] = r.needs_to_be_reviewed
-    byStudent.set(key, existing)
+  const data: CompletionRow[] = identityRows.map((u) => ({
+    user_id: u.user_id,
+    student: formatStudentName(u, t),
+    ...byUser.get(u.user_id),
+  }))
+  return { modulesInOrder, data }
+}
+
+const gradeLabel = (grade: unknown, passed: unknown, t: TFunction): string => {
+  if (typeof grade === "number") {
+    return String(grade)
   }
-  return { modulesInOrder, data: Array.from(byStudent.values()) }
+  if (passed === true) {
+    return t("passed")
+  }
+  if (passed === false) {
+    return t("failed")
+  }
+  return PLACEHOLDER
 }
 
 const studentEllipsis = css`
@@ -62,10 +86,6 @@ const studentEllipsis = css`
   text-overflow: ellipsis;
 `
 
-const StudentCell = ({ getValue }: CellContext<RowObject, unknown>) => (
-  <span className={studentEllipsis}>{String(getValue() ?? "")}</span>
-)
-
 const statusCellClass = css`
   display: flex;
   flex-direction: column;
@@ -73,15 +93,13 @@ const statusCellClass = css`
   gap: 0.25rem;
 `
 
-interface StatusCellProps extends CellContext<RowObject, unknown> {
-  needsReviewKey: string
-}
-
-const CompletionStatusCell: React.FC<StatusCellProps> = ({ getValue, row, needsReviewKey }) => {
-  const status = String(getValue() ?? "-")
-  const needsReview = Boolean(row.original[needsReviewKey])
-  const showStatus = status !== "-" || !needsReview
-
+const StatusCell: React.FC<{ registered: boolean; needsReview: boolean }> = ({
+  registered,
+  needsReview,
+}) => {
+  const { t } = useTranslation()
+  const status = registered ? t("registered") : PLACEHOLDER
+  const showStatus = registered || !needsReview
   return (
     <div className={statusCellClass}>
       {showStatus && <span>{status}</span>}
@@ -90,28 +108,24 @@ const CompletionStatusCell: React.FC<StatusCellProps> = ({ getValue, row, needsR
   )
 }
 
-const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObject, unknown>[] => {
-  const columns: ColumnDef<RowObject, unknown>[] = [
+const buildColumns = (
+  modulesInOrder: string[],
+  t: TFunction,
+): ColumnDef<CompletionRow, unknown>[] => {
+  const columns: ColumnDef<CompletionRow, unknown>[] = [
     {
       // oxlint-disable-next-line i18next/no-literal-string
-      id: "student",
+      id: "last_name",
       header: t("label-student"),
       // oxlint-disable-next-line i18next/no-literal-string
       accessorKey: "student",
-      meta: {
-        sticky: true,
-        minWidth: 80,
-        padLeft: PAD,
-        padRight: PAD,
-      },
-      cell: StudentCell,
+      meta: { sticky: true, minWidth: 80, padLeft: PAD, padRight: PAD },
+      cell: ({ getValue }) => <span className={studentEllipsis}>{String(getValue() ?? "")}</span>,
     },
   ]
 
   modulesInOrder.forEach((label, groupIdx) => {
     const mKey = moduleKey(label, t)
-    // oxlint-disable-next-line i18next/no-literal-string
-    const needsReviewKey = `${mKey}__needsReview`
     const colorPairIndex = groupIdx
     columns.push({
       // oxlint-disable-next-line i18next/no-literal-string
@@ -120,11 +134,10 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
       meta: { colorPairIndex },
       columns: [
         {
-          // oxlint-disable-next-line i18next/no-literal-string
-          id: `${mKey}__grade`,
+          id: gradeKeyOf(mKey),
           header: t("grade"),
-          // oxlint-disable-next-line i18next/no-literal-string
-          accessorKey: `${mKey}__grade`,
+          accessorKey: gradeKeyOf(mKey),
+          enableSorting: false,
           meta: {
             minWidth: COMPLETIONS_LEAF_MIN_WIDTH,
             colorPairIndex,
@@ -132,14 +145,14 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
             padLeft: PAD,
             padRight: PAD,
           },
+          cell: ({ row }) =>
+            gradeLabel(row.original[gradeKeyOf(mKey)], row.original[passedKeyOf(mKey)], t),
         },
         {
           // oxlint-disable-next-line i18next/no-literal-string
           id: `${mKey}__status`,
           header: t("status"),
-          // oxlint-disable-next-line i18next/no-literal-string
-          accessorKey: `${mKey}__status`,
-          cell: (props) => <CompletionStatusCell {...props} needsReviewKey={needsReviewKey} />,
+          enableSorting: false,
           meta: {
             minWidth: COMPLETIONS_LEAF_MIN_WIDTH,
             colorPairIndex,
@@ -147,6 +160,12 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
             padLeft: PAD,
             padRight: PAD,
           },
+          cell: ({ row }) => (
+            <StatusCell
+              registered={Boolean(row.original[registeredKeyOf(mKey)])}
+              needsReview={Boolean(row.original[needsReviewKeyOf(mKey)])}
+            />
+          ),
         },
       ],
     })
@@ -155,46 +174,42 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
   return columns
 }
 
-export const CompletionsTabContent: React.FC<Props> = ({ courseId, searchQuery }) => {
+export const CompletionsTabContent: React.FC = () => {
   const { t } = useTranslation()
-  const query = useQuery({
-    ...getCourseStudentsCompletionsOptions({
-      path: {
-        course_id: courseId,
-      },
-    }),
-  })
+  const { courseId } = useStudentsContext()
+  const params = useStudentsListParams()
+  const { sorting, onSortingChange } = useStudentsSorting()
+
+  const identityQuery = useCourseStudentsIdentity(courseId, params)
+  const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])
+  const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
+  const detailQuery = useCourseStudentsCompletionsDetail(courseId, userIds)
 
   const { modulesInOrder, data } = useMemo(
-    () => pivotCompletions(query.data ?? [], t),
-    [query.data, t],
+    () => pivotCompletions(identityRows, detailQuery.data ?? [], t),
+    [identityRows, detailQuery.data, t],
   )
+  const columns = useMemo(() => buildColumns(modulesInOrder, t), [modulesInOrder, t])
 
-  const columns = useMemo<ColumnDef<RowObject, unknown>[]>(
-    () => buildColumns(modulesInOrder, t),
-    [modulesInOrder, t],
-  )
-
-  if (!courseId) {
-    return <ErrorBanner error={new Error("Missing courseId")} />
+  if (identityQuery.isError) {
+    return <ErrorBanner error={identityQuery.error} />
+  }
+  if (detailQuery.isError) {
+    return <ErrorBanner error={detailQuery.error} />
+  }
+  if (identityQuery.isPending || (userIds.length > 0 && detailQuery.isLoading)) {
+    return <Spinner variant="medium" />
   }
 
-  const table = (
+  return (
     <StudentsTable
       columns={columns}
       data={data}
       colorHeaders
       colorColumns
       colorHeaderUnderline
-      globalFilter={searchQuery}
-      // oxlint-disable-next-line i18next/no-literal-string
-      searchableColumnIds={["student"]}
+      sorting={sorting}
+      onSortingChange={onSortingChange}
     />
-  )
-
-  return (
-    <QueryResult query={query} treatEmptyAsData>
-      {() => table}
-    </QueryResult>
   )
 }

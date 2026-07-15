@@ -2,68 +2,62 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import type { ColumnDef } from "@tanstack/react-table"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import { StudentsTable } from "../StudentsTable"
+import {
+  formatStudentName,
+  useCourseStudentsIdentity,
+  useCourseStudentsProgressDetail,
+} from "../studentsQueries"
 
-import { getCourseStudentsProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
 import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 import { getTeacherChapterLockLabel } from "@/utils/chapterLockingStatus"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
 type ProgressRow = {
+  user_id: string
   student: string
   total_points: number
   total_attempted: number
 } & Partial<Record<ChapterCellKey, number | string | React.ReactNode | undefined>>
 
-export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: string }> = ({
-  courseId,
-  searchQuery,
-}) => {
-  const { t } = useTranslation()
+const round2 = (n: number) => Math.round(n * 100) / 100
 
-  const query = useQuery({
-    ...getCourseStudentsProgressOptions({
-      path: {
-        course_id: courseId,
-      },
-    }),
-  })
-  const queryData = query.data
+export const ProgressTabContent: React.FC = () => {
+  const { t } = useTranslation()
+  const { courseId } = useStudentsContext()
+  const params = useStudentsListParams()
+  const { sorting, onSortingChange } = useStudentsSorting()
+
+  const identityQuery = useCourseStudentsIdentity(courseId, params)
+  const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])
+  const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
+  const detailQuery = useCourseStudentsProgressDetail(courseId, userIds)
 
   const { allRows, dynamicColumns } = useMemo(() => {
-    if (!queryData) {
-      return { allRows: [], dynamicColumns: [] }
-    }
-
-    const formatUserName = (u: { first_name?: string | null; last_name?: string | null }) => {
-      const first = (u.first_name ?? "").trim()
-      const last = (u.last_name ?? "").trim()
-      if (!first && !last) {
-        return t("missing-name")
+    const progress = detailQuery.data
+    if (!progress) {
+      return {
+        allRows: [] as ProgressRow[],
+        dynamicColumns: [] as ColumnDef<ProgressRow, unknown>[],
       }
-      if (first && last) {
-        return `${last}, ${first}`
-      }
-      return first || last
     }
-
-    const round2 = (n: number) => Math.round(n * 100) / 100
 
     const {
-      user_details,
       chapters,
       user_chapter_progress,
       chapter_availability,
       chapter_locking_enabled,
       user_chapter_locking_statuses,
-    } = queryData
+    } = progress
     const chapterLockStatuses = user_chapter_locking_statuses ?? []
 
     // --- maxima lookups (per chapter, not per user)
@@ -86,19 +80,26 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
     )
 
     // --- columns: Student | Total | per-chapter with maxima in subheaders
-    const cols = [
+    const cols: ColumnDef<ProgressRow, unknown>[] = [
       {
+        // oxlint-disable-next-line i18next/no-literal-string
+        id: "last_name",
         header: t("label-student"),
         // oxlint-disable-next-line i18next/no-literal-string
-        columns: [{ header: "", accessorKey: "student" }],
+        accessorKey: "student",
       },
       {
         header: t("total"),
         columns: [
           // oxlint-disable-next-line i18next/no-literal-string
-          { header: t("points"), accessorKey: "total_points" },
-          // oxlint-disable-next-line i18next/no-literal-string
-          { header: t("attempts"), accessorKey: "total_attempted", meta: { altBg: true } },
+          { header: t("points"), accessorKey: "total_points", enableSorting: false },
+          {
+            header: t("attempts"),
+            // oxlint-disable-next-line i18next/no-literal-string
+            accessorKey: "total_attempted",
+            enableSorting: false,
+            meta: { altBg: true },
+          },
         ],
       },
       ...sortedChapters.map((ch) => {
@@ -111,12 +112,12 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
               header: `${t("points")} /${ptsMax ?? "0"}`,
               // oxlint-disable-next-line i18next/no-literal-string
               accessorKey: `ch_${ch.id}_points`,
+              enableSorting: false,
             },
             {
               header: `${t("attempts")} /${attMax ?? "0"}`,
               // oxlint-disable-next-line i18next/no-literal-string
               accessorKey: `ch_${ch.id}_attempts`,
-              // Attempts cells can render a lock-status React node, which is not sortable.
               enableSorting: false,
               meta: { altBg: true },
             },
@@ -158,11 +159,12 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
       totalsByUser[uid] = { total_points: round2(tp), total_attempted: ta }
     }
 
-    // --- rows
-    const rows: ProgressRow[] = user_details.map((u) => {
+    // --- rows (identity provides the student list + order)
+    const rows: ProgressRow[] = identityRows.map((u) => {
       const totals = totalsByUser[u.user_id] ?? { total_points: 0, total_attempted: 0 }
       const row: ProgressRow = {
-        student: formatUserName(u),
+        user_id: u.user_id,
+        student: formatStudentName(u, t),
         total_points: totals.total_points,
         total_attempted: totals.total_attempted,
       }
@@ -206,23 +208,28 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
     })
 
     return { allRows: rows, dynamicColumns: cols }
-  }, [queryData, t])
+  }, [detailQuery.data, identityRows, t])
+
+  if (identityQuery.isError) {
+    return <ErrorBanner error={identityQuery.error} />
+  }
+  if (detailQuery.isError) {
+    return <ErrorBanner error={detailQuery.error} />
+  }
+  if (identityQuery.isPending || (userIds.length > 0 && detailQuery.isLoading)) {
+    return <Spinner variant="medium" />
+  }
 
   return (
-    <QueryResult query={query} treatEmptyAsData>
-      {() => (
-        <StudentsTable
-          columns={dynamicColumns}
-          data={allRows}
-          colorHeaders
-          colorColumns
-          colorHeaderUnderline
-          progressMode
-          globalFilter={searchQuery}
-          // oxlint-disable-next-line i18next/no-literal-string
-          searchableColumnIds={["student"]}
-        />
-      )}
-    </QueryResult>
+    <StudentsTable
+      columns={dynamicColumns}
+      data={allRows}
+      colorHeaders
+      colorColumns
+      colorHeaderUnderline
+      progressMode
+      sorting={sorting}
+      onSortingChange={onSortingChange}
+    />
   )
 }

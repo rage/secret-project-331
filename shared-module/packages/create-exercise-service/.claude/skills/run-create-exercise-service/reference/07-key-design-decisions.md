@@ -244,7 +244,11 @@ with an empty name, a question with no correct answer yet. Two separate concepts
 Decide your invariants (≥1 option, exactly-one-correct vs at-least-one, non-empty prompt, …), encode
 them in one `validate(privateSpec)` function shared by the editor (to set `valid` and show errors),
 and still keep the server generators defensive — the host currently trusts `valid`, but your
-endpoints shouldn't assume every stored spec passed it (older data, other writers).
+endpoints shouldn't assume every stored spec passed it (older data, other writers). Two invariants are
+easy to forget and bite grading later: **id uniqueness** (duplicate item ids double-count in scoring
+and orphan stored answers on re-save) and **finite, in-range numeric weights** (an editor's
+`Number(input)` happily yields `NaN`/`Infinity`/negatives/fractions — `score_maximum` must stay a
+sane positive number).
 
 ### 8. Choose your grading model consciously
 

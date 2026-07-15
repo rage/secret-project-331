@@ -126,7 +126,7 @@ Plugins must define the following data types for their internal operations:
 2. **`public_spec`**: Information needed to render the exercise for students without revealing the correct answers.
 3. **`model_solution_spec`**: Information needed to display the model solution to students.
 4. **`answer`**: Represents what a student has answered in an exercise.
-5. **`grading_feedback`**: Data used to display feedback about the graded answer.
+5. **`grading_feedback`**: Data used to display feedback about the graded answer. On the wire this is the `feedback_json` field of the Grade endpoint's `GradingResult` (see below), which the host passes back to the View Submission view.
 
 ## REST API Endpoints (Consumed by the Backend)
 
@@ -181,7 +181,9 @@ The backend communicates with the plugin via REST to grade answers and generate 
 | **Service Info**                  | None                     | Metadata              |
 | **Public Spec Generator**         | `private_spec`           | `public_spec`         |
 | **Model Solution Spec Generator** | `private_spec`           | `model_solution_spec` |
-| **Grade Endpoint**                | `private_spec`, `answer` | `grading_feedback`    |
+| **Grade Endpoint**                | `private_spec`, `answer` | `GradingResult`       |
+
+The Grade endpoint returns a `GradingResult`: `grading_progress` (`FullyGraded` \| `Pending` \| `PendingManual` \| `Failed`), `score_given`/`score_maximum`, `feedback_text`, and `feedback_json` (the plugin-defined `grading_feedback`).
 
 ## Example Scenarios
 
@@ -203,7 +205,7 @@ The backend communicates with the plugin via REST to grade answers and generate 
 4. Student interacts with the exercise. Plugin sends `current-state` with the updated `answer`.
 5. Student submits. Course material sends the `answer` to the backend.
 6. Backend retrieves `private_spec` and calls the Grade endpoint with `private_spec` and `answer`.
-7. Plugin returns `correctness_coefficient` and `grading_feedback`. Backend stores this.
+7. Plugin returns a `GradingResult` (`grading_progress`, `score_given`/`score_maximum`, `feedback_text`, `feedback_json`). Backend stores this.
 8. Course material sends `set-state` to switch the IFrame to the View Submission view with `public_spec`, `answer`, `grading_feedback`, and optionally `model_solution_spec`.
 
 ## Developer Tool: Playground

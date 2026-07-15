@@ -31,6 +31,12 @@ and type guards (`isAlternative`, `isPublicAlternative`, `isExerciseFeedback`). 
 deliberately forgiving — a missing/malformed field yields an empty/default value rather than a
 crash. A new plugin should follow the same pattern: never trust the incoming blob's shape.
 
+The file also demonstrates the two durability patterns from `reference/07`: **versioning** (a
+`SPEC_VERSION` discriminant + `Versioned*` stored shapes + `alternativesFromStored`, which migrates
+the legacy bare-`Alternative[]` blob and the versioned envelope on read) and a single
+**`validatePrivateSpec(spec) → { valid, errors }`** authority (invariants: ≥1 option, ≥1 correct,
+non-empty names; errors are i18n keys) that the editor uses to both set `valid` and render errors.
+
 ## 2. The two shared contracts (vendored, do not edit)
 
 The generic host↔plugin contract lives in the vendored shared module and is the same for every
@@ -98,7 +104,10 @@ optional/nullable — the grade/public-spec/model-solution trio is mandatory.
 
 Input `SpecRequest` (`{ request_id, private_spec, upload_url }`), output `public_spec`. Derives the
 student-visible spec from the private one — here, by dropping the `correct` flag so answers don't
-leak to the browser. **This is the security boundary between teacher data and student data.**
+leak to the browser. **This is the security boundary between teacher data and student data.** Both
+this endpoint and `modelSolution.ts` run the fail-closed `src/server/leakGuard.ts` (`assertNoLeak`,
+which walks the projection for forbidden **keys** and forbidden **values**) before returning, so a
+regression that forgets to drop a field throws (500) instead of serving a leak.
 
 ### `src/server/modelSolution.ts` → `POST /api/model-solution`
 
@@ -248,20 +257,37 @@ service name. The plugin owns its own i18n; the host tells it the language via `
 Every server handler and the key components have colocated `*.test.ts(x)` (Vitest + Testing
 Library): `serviceInfo.test.ts`, `publicSpec.test.ts`, `modelSolution.test.ts`, `grade.test.ts`,
 `exportAnswers.test.ts`, `exportDefinitions.test.ts`, `status.test.ts`, `IframeView.test.tsx`,
-`router.test.ts`. A new plugin should keep this pattern — the endpoint tests double as a
-spec of the request/response envelopes.
+`router.test.ts`, plus the doctrine tests from `reference/07 Part II`: `leakGuard.test.ts` (leak
+regression), `roundTrip.test.ts` (an answer built only from the public spec grades against the
+private spec), and `stateInterfaces.test.ts` (validity + the migration anchor: a legacy no-version
+blob lifts to v1, a v1 blob passes through unchanged). A new plugin should keep this pattern — the
+endpoint tests double as a spec of the request/response envelopes.
 
 ## What a new plugin must change vs. keep
 
 **Change (the exercise-specific ~20%):**
 
-- `src/util/stateInterfaces.ts` — your five data types + parsers.
-- `src/server/{publicSpec,modelSolution,grade}.ts` — your spec-derivation and grading logic.
-- `src/components/{ExerciseEditor,AnswerExercise,ViewSubmission,...}.tsx` — your three views.
+- `src/util/stateInterfaces.ts` — your five (versioned) data types + forgiving parsers/migration.
+- `src/server/{publicSpec,modelSolution,grade}.ts` — your spec-derivation and grading logic. Keep the
+  checker (normalization/acceptance) under `src/server/`, **never** in a view-imported util: public
+  source maps ship, so grading code reachable from a view module can leak the algorithm to students
+  (L8). Adapt — or delete — the CSV `export{Definitions,Answers}.ts` handlers to match your data.
+- `src/components/{ExerciseEditor,AnswerExercise,ViewSubmission}.tsx` — your three views. The a11y and
+  validity patterns here (accessible names not raw ids, feedback conveyed by more than colour, a
+  single `validate()` authority that both sets `valid` **and** renders errors) apply to input-based
+  exercises too — carry them over.
+- `src/components/{IframeView,Renderer}.tsx` — **keep the skeleton**, but retype the `State` union /
+  view props to your types (and thread `previous_submission` if you support retry-prefill). Not
+  verbatim — see below.
+- Delete the multiple-choice-only helpers you don't reuse (`ExerciseBase.tsx`, `ButtonEditor.tsx`), or
+  `tsc` fails on their imports of removed types.
+- `src/styles/theme.ts` — extend with any tokens your views need (the shipped palette is minimal).
 - `serviceInfo.ts` `service_name`, locale files, port, package name.
 
-**Keep verbatim (the plugin plumbing ~80%):** the protocol envelope usage, `IframeView`
-state-machine skeleton, `Renderer` dispatcher, `apiRoutes.ts` helpers, all of `src/shared-module/`,
-`rsbuild.config.ts`, `server.mjs`, `iframe-headers.mjs`, `router.tsx`, `basePath.ts`, Dockerfiles.
+**Keep verbatim (the plugin plumbing ~80%):** the protocol envelope usage, the `IframeView`
+state-machine **wiring** and `Renderer` dispatcher wiring (handshake, `flushSync`, error boundary — you
+retype only their `State`/props, per the change list above), `apiRoutes.ts` helpers, all of
+`src/shared-module/`, `rsbuild.config.ts`, `server.mjs`, `iframe-headers.mjs`, `router.tsx`,
+`basePath.ts`, Dockerfiles.
 
 This ~80/20 split is exactly why the scaffolding CLI exists — see `03-scaffolding-cli.md`.

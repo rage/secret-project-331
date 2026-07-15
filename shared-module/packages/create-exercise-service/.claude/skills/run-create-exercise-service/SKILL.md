@@ -1,7 +1,7 @@
 ---
 name: run-create-exercise-service
 description: Scaffold, run, and smoke-test a new moocfi exercise service/plugin with the create-exercise-service CLI (generated from the example-exercise template), and author the exercise itself — its data model (private/public/model-solution specs, answer, grading) and its iframe views/REST endpoints. Use when asked to run/start/scaffold/generate/create/screenshot/verify an exercise service or plugin, or to design/author/implement a new exercise type or its data model.
-allowed-tools: Read, Bash(node *), Bash(pnpm *), Bash(playwright-cli *), Bash(./interactive-demo.sh*)
+allowed-tools: Read, Edit, Write, AskUserQuestion, Bash(node *), Bash(pnpm *), Bash(playwright-cli *), Bash(./interactive-demo.sh*)
 ---
 
 # create-exercise-service
@@ -95,6 +95,17 @@ the port, auto-answers `file-upload`/`open-dialog`, and records the iframe's ful
 (so `current-state` survives the `height-changed` spam). For committed tests, use the typed
 `createHostEmulator` wrapper instead of raw driving — see Part B.
 
+**Driving a text/free-input answer view.** `drive-view.mjs` demonstrates a `click` (checkbox/radio).
+For an `<input>`/`<textarea>` answer (fill-in-the-blank, numeric, …), setting `.value` directly does
+**not** fire React's `onChange`, so no `current-state` is emitted. Use the React-controlled-input
+trick — the native value setter plus a bubbling `input` event:
+
+```js
+const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set
+set.call(el, "your text")
+el.dispatchEvent(new Event("input", { bubbles: true }))
+```
+
 **`interactive-demo.sh` — the prompt flow** (use only when a change touches the prompts themselves;
 otherwise `smoke.mjs` is enough):
 
@@ -114,6 +125,17 @@ It prompts, in order: **Project name** → **Path** (default is the name, resolv
 package dir — pass an explicit path) → **Project type** (only _React_ works) → **Package manager** →
 **Dev server port** (default `3002`, which collides with example-exercise — pick another) →
 **Confirm** (default No, so type `y`). Then `cd <project> && pnpm install && pnpm run dev`.
+
+## Run (scriptable / agent path)
+
+For a **non-interactive, explicit-path** scaffold (subagents, CI, or just to skip the TTY/tmux prompt
+dance), use `scripts/scaffold-to.ts` — the same `scaffoldReactProject()` the prompts drive, but
+scriptable and taking an absolute path + port directly, so it sidesteps the "default path resolves
+relative to the CLI dir" footgun above. `smoke.mjs` uses it internally; `reference/03` documents it.
+
+```bash
+pnpm --dir shared-module/packages/create-exercise-service exec tsx scripts/scaffold-to.ts <abs-path> <name> <port>
+```
 
 ## Test
 
@@ -181,6 +203,13 @@ review/exam mode, the answer shape, validity invariants, grading model, migratio
 user_. Present a concrete _proposed_ model and get explicit sign-off on each item via
 `AskUserQuestion` — propose a recommended shape, don't ask open-ended questions. **Only implement
 once the user has signed off.**
+
+**Headless / subagent context.** If `AskUserQuestion` is unavailable (you are running as a subagent,
+or without an interactive user), do **not** skip the gate or sign off on your own behalf. Instead,
+present the full proposed model — every one-screen-checklist item, plus each open question with your
+recommended default — as your response, and **stop**. Do not write exercise code until a human relays
+sign-off (possibly with tweaks). The gate is the point; a proposed-model-then-stop turn is how you
+honor it without an interactive prompt.
 
 ## Then implement the confirmed model
 

@@ -9,7 +9,7 @@ import type { FieldValues, Path } from "react-hook-form"
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { resolveFieldDescribedBy } from "../lib/utils/field"
-import { omitUndefined } from "../lib/utils/nullability"
+import { includeIf, omitUndefined } from "../lib/utils/nullability"
 import {
   checkableContentCss,
   checkableInputCss,
@@ -157,9 +157,9 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     <FieldShell
       className={cx(checkableRootCss, className)}
       description={description}
-      {...(description ? { descriptionId } : {})}
+      {...includeIf(description, { descriptionId })}
       errorMessage={resolvedError}
-      {...(resolvedError ? { errorMessageId } : {})}
+      {...includeIf(resolvedError, { errorMessageId })}
       layout={stackedLayout}
     >
       <label

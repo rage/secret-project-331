@@ -11,7 +11,7 @@ import Button from "@/shared-module/common/components/Button"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, typography } from "@/shared-module/common/styles"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 
 import NewOrEditPageForm from "../NewOrEditPageForm"
 import PageListItem, {
@@ -117,10 +117,10 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
         {...omitUndefined({ chapterId: chapter?.id })}
         courseId={courseId}
         onSubmitForm={handleCreateTopLevelPage}
-        {...(chapter
-          ? // oxlint-disable-next-line i18next/no-literal-string
-            { prefix: `/chapter-${chapter.chapter_number}/` }
-          : {})}
+        {...includeIf(chapter, {
+          // oxlint-disable-next-line i18next/no-literal-string
+          prefix: `/chapter-${chapter?.chapter_number}/`,
+        })}
         isUpdate={false}
         open={showNewOrEditPageForm}
         onClose={() => setShowNewOrEditPageForm(false)}

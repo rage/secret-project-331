@@ -20,7 +20,7 @@ import { isAppApiError } from "../errors/AppApiError"
 import { normalizeErrorForDisplay } from "../errors/normalizeErrorForDisplay"
 import { resolveErrorDisplayCopy } from "../errors/resolveErrorDisplayCopy"
 import { baseTheme } from "../styles"
-import { omitUndefined } from "../utils/nullability"
+import { includeIf, omitUndefined } from "../utils/nullability"
 import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfinitely"
 
 interface EnableNotifications {
@@ -73,14 +73,10 @@ export default function useToastMutation<
           <SuccessNotification
             {...omitUndefined({ header: options.header })}
             {...omitUndefined({ message: options.message })}
-            {...(enabledNotificationOptions.dismissable ? { toastId: toastInstance.id } : {})}
+            {...includeIf(enabledNotificationOptions.dismissable, { toastId: toastInstance.id })}
             icon={options.icon}
-            {...(options.closeHoverBackgroundColor !== undefined
-              ? { closeHoverBackgroundColor: options.closeHoverBackgroundColor }
-              : {})}
-            {...(options.deleteVariant !== undefined
-              ? { deleteVariant: options.deleteVariant }
-              : {})}
+            {...omitUndefined({ closeHoverBackgroundColor: options.closeHoverBackgroundColor })}
+            {...omitUndefined({ deleteVariant: options.deleteVariant })}
           />
         )
       },
@@ -106,11 +102,7 @@ export default function useToastMutation<
         toast.remove()
         // Set toastId that is updated once operation is successful or erronous.
         toastId = toast.custom(
-          <LoadingNotification
-            {...(notificationOptions.loadingText !== undefined
-              ? { message: notificationOptions.loadingText }
-              : {})}
-          />,
+          <LoadingNotification {...omitUndefined({ message: notificationOptions.loadingText })} />,
           {
             ...notificationOptions.toastOptions,
           },
@@ -130,12 +122,10 @@ export default function useToastMutation<
           header: notificationOptions.successHeader,
           message: notificationOptions.successMessage,
           deleteVariant: isDeleteMethod,
-          ...(isDeleteMethod
-            ? {
-                icon: <BellXmark color={baseTheme.colors.red[700]} size={20} />,
-                closeHoverBackgroundColor: baseTheme.colors.gray[100],
-              }
-            : {}),
+          ...includeIf(isDeleteMethod, {
+            icon: <BellXmark color={baseTheme.colors.red[700]} size={20} />,
+            closeHoverBackgroundColor: baseTheme.colors.gray[100],
+          }),
         }
         switch (notificationOptions.method) {
           case "PUT":
@@ -182,11 +172,9 @@ export default function useToastMutation<
           (toastInstance: Toast) => {
             return (
               <ErrorNotification
-                {...(notificationOptions.errorHeader !== undefined
-                  ? { header: notificationOptions.errorHeader }
-                  : {})}
+                {...omitUndefined({ header: notificationOptions.errorHeader })}
                 message={errorMessage}
-                {...(notificationOptions.dismissable ? { toastId: toastInstance.id } : {})}
+                {...includeIf(notificationOptions.dismissable, { toastId: toastInstance.id })}
               />
             )
           },

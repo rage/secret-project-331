@@ -5,6 +5,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { StatTile } from "@/shared-module/components"
 
 import { awaitingReviewCount, completedModuleCount } from "../lib/completions"
@@ -39,7 +40,7 @@ const UserStatBar: React.FC<UserStatBarProps> = ({ enrollments, reviewTargetId }
         label={t("stat-awaiting-review")}
         value={awaitingReview}
         tone={awaitingReview > 0 ? TONE.ALERT : TONE.NEUTRAL}
-        {...(awaitingReview > 0 ? { href: `#${reviewTargetId}` } : {})}
+        {...includeIf(awaitingReview > 0, { href: `#${reviewTargetId}` })}
       />
     </div>
   )

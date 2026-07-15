@@ -24,6 +24,7 @@ import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validURL } from "@/shared-module/common/utils/validation"
 import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
@@ -275,7 +276,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("public_url")}
             type={"text"}
-            {...(!validURL(service.public_url) ? { error: t("error-title") } : {})}
+            {...includeIf(!validURL(service.public_url), { error: t("error-title") })}
           />
           <ContentArea
             title={t("title-internal-url")}
@@ -284,7 +285,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("internal_url")}
             type={"text"}
-            {...(!validURL(service.internal_url ?? "") ? { error: t("error-title") } : {})}
+            {...includeIf(!validURL(service.internal_url ?? ""), { error: t("error-title") })}
           />
           <ContentArea
             title={t("title-reprocessing-submissions")}
@@ -293,9 +294,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
-            {...(service.max_reprocessing_submissions_at_once < 0
-              ? { error: t("error-title") }
-              : {})}
+            {...includeIf(service.max_reprocessing_submissions_at_once < 0, {
+              error: t("error-title"),
+            })}
           />
         </div>
         <div

@@ -5,6 +5,7 @@ import { ToggleButton, ToggleButtonGroup } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import type { QuizItemComponentProps } from "."
@@ -100,7 +101,7 @@ const ChooseN: React.FunctionComponent<
           selectionMode="multiple"
           selectedKeys={new Set(selectedIds)}
           onSelectionChange={handleSelectionChange}
-          {...(groupAriaLabel ? { "aria-label": groupAriaLabel } : {})}
+          {...includeIf(groupAriaLabel, { "aria-label": groupAriaLabel })}
           aria-describedby={`${statusId} ${hintId} ${liveId}`}
           className={css`
             display: flex;

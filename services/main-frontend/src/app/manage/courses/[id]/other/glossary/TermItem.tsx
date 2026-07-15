@@ -13,6 +13,7 @@ import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 
 interface UpdateTermForm {
   updatedTerm: string
@@ -100,7 +101,7 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
                 message: t("required"),
               },
             })}
-            {...(errors.updatedTerm ? { error: t("required") } : {})}
+            {...includeIf(errors.updatedTerm, { error: t("required") })}
           />
           <TextAreaField
             label={t("updated-definition")}
@@ -112,7 +113,7 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
                 message: t("required"),
               },
             })}
-            {...(errors.updatedDefinition ? { error: t("required") } : {})}
+            {...includeIf(errors.updatedDefinition, { error: t("required") })}
             disabled={false}
           />
           <Button variant="primary" size="medium" type="submit" disabled={!isValid}>

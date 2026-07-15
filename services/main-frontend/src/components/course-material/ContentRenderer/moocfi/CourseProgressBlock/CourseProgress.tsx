@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
 import Progress from "@/shared-module/common/components/CourseProgress"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 
 import ColorsIdentifier from "./ColorsIdentifier"
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
@@ -77,10 +78,11 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                 <Progress
                   variant={"circle"}
                   max={courseModuleProgress.score_maximum ?? null}
-                  {...(courseModuleProgress.score_required !== null &&
-                  courseModuleProgress.score_required !== undefined
-                    ? { required: courseModuleProgress.score_required }
-                    : {})}
+                  {...includeIf(
+                    courseModuleProgress.score_required !== null &&
+                      courseModuleProgress.score_required !== undefined,
+                    { required: courseModuleProgress.score_required },
+                  )}
                   given={courseModuleProgress.score_given ?? null}
                   label={t("total-points")}
                 />
@@ -89,10 +91,11 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                   showAsPercentage={false}
                   exercisesAttempted={courseModuleProgress.attempted_exercises ?? null}
                   exercisesTotal={courseModuleProgress.total_exercises ?? null}
-                  {...(courseModuleProgress.attempted_exercises_required !== null &&
-                  courseModuleProgress.attempted_exercises_required !== undefined
-                    ? { required: courseModuleProgress.attempted_exercises_required }
-                    : {})}
+                  {...includeIf(
+                    courseModuleProgress.attempted_exercises_required !== null &&
+                      courseModuleProgress.attempted_exercises_required !== undefined,
+                    { required: courseModuleProgress.attempted_exercises_required },
+                  )}
                   label={t("exercises-attempted")}
                 />
                 <ColorsIdentifier />

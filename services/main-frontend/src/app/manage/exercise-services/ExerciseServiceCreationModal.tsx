@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import type { ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validURL } from "@/shared-module/common/utils/validation"
 
 import ContentArea from "./ContentArea"
@@ -73,7 +74,7 @@ const ExerciseServiceCreationModal: React.FC<
             editing={true}
             onChange={onChange(SERVICE_PUBLIC_URL)}
             type={"text"}
-            {...(!validURL(exercise_service.public_url) ? { error: t("error-title") } : {})}
+            {...includeIf(!validURL(exercise_service.public_url), { error: t("error-title") })}
           />
           <ContentArea
             title={t("title-internal-url")}
@@ -88,9 +89,9 @@ const ExerciseServiceCreationModal: React.FC<
             editing={true}
             onChange={onChange(MAX_REPROCESSING_SUBMISSION_AT_ONCE)}
             type={"number"}
-            {...(exercise_service.max_reprocessing_submissions_at_once < 0
-              ? { error: t("error-title") }
-              : {})}
+            {...includeIf(exercise_service.max_reprocessing_submissions_at_once < 0, {
+              error: t("error-title"),
+            })}
           />
         </div>
 

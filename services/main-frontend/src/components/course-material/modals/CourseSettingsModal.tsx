@@ -18,6 +18,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { invalidateCourseMaterialStateQueries } from "@/state/course-material/queries"
@@ -197,9 +198,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
                 <SelectCourseInstanceForm
                   courseInstances={courseInstances}
                   submitMutation={handleSubmitAndCloseMutation}
-                  {...(initialSelectedInstanceId !== undefined
-                    ? { initialSelectedInstanceId }
-                    : {})}
+                  {...omitUndefined({ initialSelectedInstanceId })}
                   dialogLanguage={dialogLanguage}
                   selectedLangCourseId={selectedLangCourseId}
                 />

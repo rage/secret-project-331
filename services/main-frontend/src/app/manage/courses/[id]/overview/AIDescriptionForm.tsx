@@ -15,6 +15,7 @@ import type { Course, CourseUpdate } from "@/generated/api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { QueryResult, TextArea } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
@@ -28,9 +29,9 @@ const buildDefaultFormValues = (source: Course) => {
   const { flagged_answers_threshold: flaggedAnswersThreshold, ...courseRest } = source
   return {
     ...courseRest,
-    ...(flaggedAnswersThreshold !== null && flaggedAnswersThreshold !== undefined
-      ? { flagged_answers_threshold: flaggedAnswersThreshold }
-      : {}),
+    ...includeIf(flaggedAnswersThreshold !== null && flaggedAnswersThreshold !== undefined, {
+      flagged_answers_threshold: flaggedAnswersThreshold,
+    }),
   }
 }
 

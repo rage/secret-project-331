@@ -20,6 +20,7 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { courseFrontPageRoute } from "@/shared-module/common/utils/routes"
 import { QueryResult } from "@/shared-module/components"
 
@@ -211,9 +212,7 @@ const PermissionsSettingsPage: React.FC = () => {
         {openResearchForm && (
           <ResearchOnCoursesForm
             afterSubmit={handleGeneralResearchFormAfterSubmit}
-            {...(getUserConsent.data?.research_consent !== undefined
-              ? { initialConsentValue: getUserConsent.data.research_consent }
-              : {})}
+            {...omitUndefined({ initialConsentValue: getUserConsent.data?.research_consent })}
           />
         )}
 

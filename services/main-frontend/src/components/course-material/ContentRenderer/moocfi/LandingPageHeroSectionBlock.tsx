@@ -3,6 +3,7 @@
 import React, { useMemo } from "react"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import type { BlockRendererProps } from ".."
@@ -46,18 +47,10 @@ const LandingPageHeroSectionBlock: React.FC<
     <BreakFromCentered sidebar={false}>
       <LandingPageHeroSection
         title={props.data.attributes.title}
-        {...(props.data.attributes.backgroundImage !== undefined
-          ? { backgroundImage: props.data.attributes.backgroundImage }
-          : {})}
-        {...(props.data.attributes.backgroundColor !== undefined
-          ? { backgroundColor: props.data.attributes.backgroundColor }
-          : {})}
-        {...(props.data.attributes.fontColor !== undefined
-          ? { fontColor: props.data.attributes.fontColor }
-          : {})}
-        {...(props.data.attributes.backgroundRepeatX !== undefined
-          ? { backgroundRepeatX: props.data.attributes.backgroundRepeatX }
-          : {})}
+        {...omitUndefined({ backgroundImage: props.data.attributes.backgroundImage })}
+        {...omitUndefined({ backgroundColor: props.data.attributes.backgroundColor })}
+        {...omitUndefined({ fontColor: props.data.attributes.fontColor })}
+        {...omitUndefined({ backgroundRepeatX: props.data.attributes.backgroundRepeatX })}
       >
         <ContentRenderer data={filteredInnerBlocks} isExam={false} />
       </LandingPageHeroSection>

@@ -14,7 +14,7 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 
 import AiPolicyFields from "./AiPolicyFields"
@@ -106,9 +106,9 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
           closed_additional_message: data.closed_additional_message || null,
           closed_course_successor_id: data.closed_course_successor_id || null,
           ai_policy: data.ai_policy,
-          ...(data.course_material_ai_instructions !== undefined
-            ? { course_material_ai_instructions: data.course_material_ai_instructions }
-            : {}),
+          ...omitUndefined({
+            course_material_ai_instructions: data.course_material_ai_instructions,
+          }),
         },
         path: {
           course_id: course.id,
@@ -144,7 +144,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
             <TextField
               required
               label={t("text-field-label-name")}
-              {...(errors.name?.message ? { error: errors.name.message } : {})}
+              {...includeIf(errors.name?.message, { error: errors.name?.message })}
               {...register("name", { required: t("required-field") })}
             />
           </FieldContainer>
@@ -195,9 +195,9 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
               min={0}
               step={1}
               label={t("label-threshold-to-move-flagged-answer-to-manual-review")}
-              {...(errors.flagged_answers_threshold?.message
-                ? { error: errors.flagged_answers_threshold.message }
-                : {})}
+              {...includeIf(errors.flagged_answers_threshold?.message, {
+                error: errors.flagged_answers_threshold?.message,
+              })}
               {...register("flagged_answers_threshold", {
                 valueAsNumber: true,
                 min: { value: 0, message: t("threshold-must-be-non-negative") },

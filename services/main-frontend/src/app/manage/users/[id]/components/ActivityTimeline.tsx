@@ -18,6 +18,7 @@ import {
 } from "@/components/ModuleTimingTable"
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Disclosure } from "@/shared-module/components"
 import { computeModuleRows, durationSeconds, formatDuration } from "@/utils/moduleTimeline"
@@ -249,21 +250,19 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
       completionData.push({
         value: [meanMs, lane],
         symbolSize: count > 1 ? CLUSTER_DOT_SIZE : DOT_SIZE,
-        ...(needsReview
-          ? { itemStyle: { color: REVIEW_DOT_FILL, borderColor: REVIEW_DOT_BORDER } }
-          : {}),
-        ...(count > 1
-          ? {
-              label: {
-                show: true,
-                formatter: String(count),
-                position: BADGE_LABEL_POSITION,
-                fontSize: 10,
-                fontWeight: BADGE_LABEL_WEIGHT,
-                color: needsReview ? REVIEW_DOT_BORDER : DOT_BORDER,
-              },
-            }
-          : {}),
+        ...includeIf(needsReview, {
+          itemStyle: { color: REVIEW_DOT_FILL, borderColor: REVIEW_DOT_BORDER },
+        }),
+        ...includeIf(count > 1, {
+          label: {
+            show: true,
+            formatter: String(count),
+            position: BADGE_LABEL_POSITION,
+            fontSize: 10,
+            fontWeight: BADGE_LABEL_WEIGHT,
+            color: needsReview ? REVIEW_DOT_BORDER : DOT_BORDER,
+          },
+        }),
         _tip: count > 1 ? `${t("completions-at-point", { n: count })}${LINE_BREAK}${body}` : body,
       })
       cluster = []

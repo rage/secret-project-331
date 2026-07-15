@@ -22,3 +22,17 @@ type OmitUndefined<T> = {
 } & {
   [K in keyof T as undefined extends T[K] ? never : K]: T[K]
 }
+
+/**
+ * Returns `obj` when `condition` is truthy, otherwise `{}`, for spreading a group of keys into an
+ * object only when a condition holds. Keys become optional in the result, with `null` and
+ * `undefined` dropped from their types (a truthy `condition` implies the values are present).
+ *
+ * Use instead of `...(condition ? { key } : {})` spreads: `...includeIf(condition, { key })`. Keep
+ * member access in `obj` optionally-chained (`x?.y`), since `obj` is built before the check.
+ */
+export function includeIf<T extends object>(condition: unknown, obj: T): IncludeIf<T> {
+  return (condition ? obj : {}) as IncludeIf<T>
+}
+
+type IncludeIf<T> = { [K in keyof T]?: NonNullable<T[K]> }

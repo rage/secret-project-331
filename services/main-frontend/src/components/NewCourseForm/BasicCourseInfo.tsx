@@ -73,9 +73,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
         <TextField
           required
           label={t("teacher-in-charge-name")}
-          {...(errors.teacher_in_charge_name?.message !== undefined
-            ? { error: errors.teacher_in_charge_name.message }
-            : {})}
+          {...omitUndefined({ error: errors.teacher_in_charge_name?.message })}
           {...register("teacher_in_charge_name", {
             required: t("required-field"),
             minLength: {
@@ -90,9 +88,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
           required
           label={t("teacher-in-charge-email")}
           type="email"
-          {...(errors.teacher_in_charge_email?.message !== undefined
-            ? { error: errors.teacher_in_charge_email.message }
-            : {})}
+          {...omitUndefined({ error: errors.teacher_in_charge_email?.message })}
           {...register("teacher_in_charge_email", {
             required: t("required-field"),
             pattern: {

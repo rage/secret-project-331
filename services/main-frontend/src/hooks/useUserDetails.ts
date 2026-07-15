@@ -123,9 +123,7 @@ export const useUserDetails = (
     }),
     ...omitUndefined({ staleTime: options?.staleTime }),
     ...omitUndefined({ gcTime: options?.gcTime }),
-    ...(options?.refetchOnWindowFocus !== undefined
-      ? { refetchOnWindowFocus: options.refetchOnWindowFocus }
-      : {}),
+    ...omitUndefined({ refetchOnWindowFocus: options?.refetchOnWindowFocus }),
   })
 }
 

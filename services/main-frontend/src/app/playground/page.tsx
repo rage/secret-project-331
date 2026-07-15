@@ -21,6 +21,7 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { monospaceFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { QueryResult } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 
@@ -220,7 +221,7 @@ const Home: React.FC = () => {
           placeholder={invalidUrl ? t("invalid-url") : t("label-url")}
           label={t("label-url")}
           onChangeByValue={(value) => handleUrlChange(value)}
-          {...(invalidUrl ? { error: t("invalid-url") } : {})}
+          {...includeIf(invalidUrl, { error: t("invalid-url") })}
           className={css`
             margin-bottom: 1rem !important;
           `}

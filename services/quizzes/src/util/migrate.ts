@@ -1,6 +1,8 @@
 // Allow any for this file, because we are checking for properties that no longer exist in interfaces.
 /* oxlint-disable typescript/no-explicit-any */
 
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
 import type { OldQuiz, OldQuizItemOption, QuizItem } from "../../types/oldQuizTypes"
 
 export function migrateQuiz(oldQuiz: unknown): OldQuiz {
@@ -43,8 +45,6 @@ function migrateQuizItemOption(oldQuizItemOption: unknown): OldQuizItemOption {
     order: (oldQuizItemOption as OldQuizItemOption).order,
     title: (oldQuizItemOption as OldQuizItemOption).title,
     updatedAt: (oldQuizItemOption as OldQuizItemOption).updatedAt,
-    ...((oldQuizItemOption as OldQuizItemOption).quizItemId !== undefined
-      ? { quizItemId: (oldQuizItemOption as OldQuizItemOption).quizItemId }
-      : {}),
+    ...omitUndefined({ quizItemId: (oldQuizItemOption as OldQuizItemOption).quizItemId }),
   }
 }

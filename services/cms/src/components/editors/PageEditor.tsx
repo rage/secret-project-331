@@ -1,6 +1,5 @@
 "use client"
 
-/* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import type { UseMutationResult } from "@tanstack/react-query"
 import { useQuery } from "@tanstack/react-query"
@@ -20,6 +19,8 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+/* oxlint-disable i18next/no-literal-string */
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { pageRoute } from "@/shared-module/common/utils/routes"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
@@ -151,9 +152,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             exercise_tasks: saveResult.exercise_tasks,
             url_path: saveResult.page.url_path,
             title: saveResult.page.title,
-            ...(saveResult.page.chapter_id !== undefined
-              ? { chapter_id: saveResult.page.chapter_id }
-              : {}),
+            ...omitUndefined({ chapter_id: saveResult.page.chapter_id }),
             hidden: saveResult.page.hidden,
           }).content,
         })

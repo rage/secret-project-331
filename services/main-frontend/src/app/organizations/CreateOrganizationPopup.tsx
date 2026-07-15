@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 
 interface CreateOrganizationForm {
   name: string
@@ -85,7 +86,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
         <TextField
           {...register("name", { required: true })}
           label={t("label-organization-name")}
-          {...(errors.name ? { error: t("validation-required") } : {})}
+          {...includeIf(errors.name, { error: t("validation-required") })}
         />
 
         <SelectField
@@ -103,7 +104,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
         <TextField
           {...register("slug", { required: true })}
           label={t("label-slug")}
-          {...(errors.slug ? { error: t("validation-required") } : {})}
+          {...includeIf(errors.slug, { error: t("validation-required") })}
         />
       </form>
     </StandardDialog>

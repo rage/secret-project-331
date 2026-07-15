@@ -10,6 +10,7 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 
 type RoleValue = (typeof USER_ROLES)[number]["value"]
 
@@ -101,7 +102,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
             {...register("email", { required: true })}
             id="add-user-email"
             label={t("label-email")}
-            {...(errors.email ? { error: t("validation-required") } : {})}
+            {...includeIf(errors.email, { error: t("validation-required") })}
           />
         </div>
 

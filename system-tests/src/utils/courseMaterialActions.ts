@@ -1,6 +1,8 @@
-/* oxlint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
 import type { Page } from "playwright"
+
+/* oxlint-disable playwright/no-wait-for-timeout */
+import { omitUndefined } from "../shared-module/common/utils/nullability"
 
 // The course material Page component renders a hidden sentinel carrying the result of its dialog
 // decision. `data-dialogs-ready="true"` means the frontend has finished deciding which dialog (if
@@ -12,7 +14,7 @@ const DIALOG_STATE_SELECTOR = `[data-testid="dialog-decision-state"]`
 async function waitForDialogDecision(page: Page, timeout?: number) {
   await page
     .locator(`${DIALOG_STATE_SELECTOR}[data-dialogs-ready="true"]`)
-    .waitFor({ state: "attached", ...(timeout !== undefined ? { timeout } : {}) })
+    .waitFor({ state: "attached", ...omitUndefined({ timeout }) })
 }
 
 /** The dialog the frontend has currently decided to show, e.g. "choose-instance", "ai-usage-notice"

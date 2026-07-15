@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 
 import { breadcrumbCrumbsAtom, type Crumb } from "./breadcrumbAtoms"
 
@@ -60,7 +60,7 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
       ) : (
         <span
           className={cx(breadcrumbText, currentPage)}
-          {...(isCurrent ? { "aria-current": ARIA_CURRENT_PAGE } : {})}
+          {...includeIf(isCurrent, { "aria-current": ARIA_CURRENT_PAGE })}
         >
           {crumb.label}
         </span>

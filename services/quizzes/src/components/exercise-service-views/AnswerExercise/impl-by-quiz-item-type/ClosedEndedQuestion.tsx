@@ -3,6 +3,7 @@ import React, { useCallback, useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { stripNonPrintableCharacters } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
@@ -82,9 +83,9 @@ const ClosedEndedQuestion: React.FC<
           `}
           value={quizItemAnswerState?.textData ?? ""}
           onChangeByValue={(e) => handleChange(e)}
-          {...(formatErrorVisible
-            ? { error: t("error-answer-does-not-match-the-specified-answer-format") }
-            : {})}
+          {...includeIf(formatErrorVisible, {
+            error: t("error-answer-does-not-match-the-specified-answer-format"),
+          })}
         />
       </div>
     </CloseEndedQuestionWrapper>

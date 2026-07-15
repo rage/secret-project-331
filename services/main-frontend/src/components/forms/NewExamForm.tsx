@@ -12,7 +12,7 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
 interface NewExamFormProps {
@@ -232,9 +232,9 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           />
           <DateTimeLocal
             {...omitUndefined({ error: errors.startsAt?.message })}
-            {...(startTimeWarning !== null && startTimeWarning !== undefined
-              ? { warning: startTimeWarning }
-              : {})}
+            {...includeIf(startTimeWarning !== null && startTimeWarning !== undefined, {
+              warning: startTimeWarning,
+            })}
             {...(initialData?.starts_at
               ? { defaultValue: dateToDateTimeLocalString(initialData.starts_at) }
               : {})}
@@ -251,9 +251,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           />
           <TextField
             id={"timeMinutes"}
-            {...(errors.timeMinutes?.message !== undefined
-              ? { error: errors.timeMinutes.message }
-              : {})}
+            {...omitUndefined({ error: errors.timeMinutes?.message })}
             label={t("label-time-minutes")}
             type="number"
             {...register("timeMinutes", {
@@ -271,9 +269,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           {automaticEnabled && (
             <TextField
               id={"minimumPointsThreshold"}
-              {...(errors.minimumPointsThreshold?.message !== undefined
-                ? { error: errors.minimumPointsThreshold.message }
-                : {})}
+              {...omitUndefined({ error: errors.minimumPointsThreshold?.message })}
               label={t("label-exam-minimum-points")}
               type="number"
               {...register("minimumPointsThreshold", {
@@ -292,9 +288,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           {duplicateExam && exams.length > 0 && (
             <SelectField
               id={"parentId"}
-              {...(errors.parentId?.message !== undefined
-                ? { error: errors.parentId.message }
-                : {})}
+              {...omitUndefined({ error: errors.parentId?.message })}
               onChangeByValue={(value) => handleSetExamToDuplicate(value)}
               options={exams.map((e) => ({
                 label: e.name,

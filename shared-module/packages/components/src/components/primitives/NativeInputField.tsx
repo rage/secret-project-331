@@ -4,7 +4,7 @@ import { cx } from "@emotion/css"
 import React, { useEffect, useId, useState } from "react"
 
 import { resolveFieldDescribedBy, resolveFieldState, toInputValue } from "../../lib/utils/field"
-import { omitUndefined } from "../../lib/utils/nullability"
+import { includeIf, omitUndefined } from "../../lib/utils/nullability"
 import { FieldShell } from "./FieldShell"
 import {
   type FieldSize,
@@ -115,9 +115,9 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
         errorMessage={errorMessage}
         notice={notice}
         {...omitUndefined({ className })}
-        {...(description ? { descriptionId } : {})}
-        {...(errorMessage ? { errorMessageId } : {})}
-        {...(notice ? { noticeId } : {})}
+        {...includeIf(description, { descriptionId })}
+        {...includeIf(errorMessage, { errorMessageId })}
+        {...includeIf(notice, { noticeId })}
         isDisabled={state.isDisabled}
         isRequired={state.isRequired}
         layout={layout}

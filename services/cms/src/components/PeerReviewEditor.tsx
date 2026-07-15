@@ -23,6 +23,7 @@ import SelectField from "@/shared-module/common/components/InputFields/SelectFie
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { editCourseDefaultPeerOrSelfReviewConfigRoute } from "@/shared-module/common/utils/routes"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
@@ -464,9 +465,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 <CheckBox
                   label={t("use-course-default-peer-review-config")}
                   onChangeByValue={(checked) => toggleUseDefaultPeerOrSelfReviewConfig(checked)}
-                  {...(exerciseAttributes.use_course_default_peer_review !== undefined
-                    ? { checked: exerciseAttributes.use_course_default_peer_review }
-                    : {})}
+                  {...omitUndefined({ checked: exerciseAttributes.use_course_default_peer_review })}
                 />
               )}
               {exerciseAttributes.use_course_default_peer_review && (

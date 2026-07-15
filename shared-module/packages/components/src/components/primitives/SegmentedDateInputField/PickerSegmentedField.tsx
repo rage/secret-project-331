@@ -8,7 +8,7 @@ import type { DateFieldAria, DatePickerAria, DateValue, TimeValue } from "react-
 import { composeRefs } from "../../../lib/utils/compositeField"
 import type { resolveFieldState } from "../../../lib/utils/field"
 import { joinAriaDescribedBy } from "../../../lib/utils/field"
-import { omitUndefined } from "../../../lib/utils/nullability"
+import { includeIf, omitUndefined } from "../../../lib/utils/nullability"
 import { DatePickerCalendar } from "../DatePickerCalendar"
 import { FieldShell } from "../FieldShell"
 import {
@@ -147,8 +147,10 @@ export function PickerSegmentedField({
       errorMessageProps={pickerAria.errorMessageProps as React.HTMLAttributes<HTMLElement>}
       notice={notice}
       {...omitUndefined({ className })}
-      {...(label ? { labelProps: pickerAria.labelProps as React.HTMLAttributes<HTMLElement> } : {})}
-      {...(notice ? { noticeId } : {})}
+      {...includeIf(label, {
+        labelProps: pickerAria.labelProps as React.HTMLAttributes<HTMLElement>,
+      })}
+      {...includeIf(notice, { noticeId })}
       isDisabled={resolvedState.isDisabled}
       isRequired={resolvedState.isRequired}
       layout={layout}

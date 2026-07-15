@@ -278,9 +278,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           <SelectResearchConsentForm
             editForm={showResearchConsentFormBecauseOfUrl}
             shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
-            {...(researchConsentFormAnswerQuery.data !== undefined
-              ? { usersInitialAnswers: researchConsentFormAnswerQuery.data }
-              : {})}
+            {...omitUndefined({ usersInitialAnswers: researchConsentFormAnswerQuery.data })}
             // oxlint-disable-next-line typescript/no-non-null-assertion -- researchFormIsLoadedAndExists guarantees data is non-null
             researchForm={researchConsentFormQuery.data!}
             onClose={() => {

@@ -106,9 +106,7 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
           />
           <TextField
             id={"timeMinutes"}
-            {...(errors.timeMinutes?.message !== undefined
-              ? { error: errors.timeMinutes.message }
-              : {})}
+            {...omitUndefined({ error: errors.timeMinutes?.message })}
             label={t("label-time-minutes")}
             {...register("timeMinutes", { required: t("required-field") })}
           />
@@ -120,9 +118,7 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
           {automaticEnabled && (
             <TextField
               id={"minimumPointsTreshold"}
-              {...(errors.minimumPointsTreshold?.message !== undefined
-                ? { error: errors.minimumPointsTreshold.message }
-                : {})}
+              {...omitUndefined({ error: errors.minimumPointsTreshold?.message })}
               label={t("label-exam-minimum-points")}
               {...register("minimumPointsTreshold", { required: t("required-field") })}
             />

@@ -12,6 +12,7 @@ import SelectField from "@/shared-module/common/components/InputFields/SelectFie
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 
 import type { ModuleView } from "./CourseModules"
 
@@ -128,7 +129,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               `}
               placeholder={t("name-of-module")}
               {...register("name", { required: true })}
-              {...(errors["name"]?.message ? { error: errors["name"].message } : {})}
+              {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
             />
           ) : (
             `${module.order_number}. ${module.name}`
@@ -187,7 +188,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                     return { value: c.toString(), label: c.toString() }
                   })}
                   {...register("starts", { required: true, valueAsNumber: true })}
-                  {...(errors["starts"]?.message ? { error: errors["starts"].message } : {})}
+                  {...includeIf(errors["starts"]?.message, { error: errors["starts"]?.message })}
                 />
                 <SelectField
                   className={css`
@@ -204,7 +205,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                     return { value: cn.toString(), label: cn.toString() }
                   })}
                   {...register("ends", { required: true, valueAsNumber: true })}
-                  {...(errors["ends"]?.message ? { error: errors["ends"].message } : {})}
+                  {...includeIf(errors["ends"]?.message, { error: errors["ends"]?.message })}
                 />
               </div>
             </div>
@@ -233,7 +234,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   valueAsNumber: true,
                   disabled: !isChecked,
                 })}
-                {...(errors["name"]?.message ? { error: errors["name"].message } : {})}
+                {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
               />
               <TextField
                 className={css`
@@ -247,7 +248,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   valueAsNumber: true,
                   disabled: !isChecked,
                 })}
-                {...(errors["name"]?.message ? { error: errors["name"].message } : {})}
+                {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
               />
               {/* Only for default module */}
               {!module.name && (
@@ -290,9 +291,9 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   disabled: !overrideLink,
                   minLength: 10,
                 })}
-                {...(errors["completion_registration_link_override"]?.message
-                  ? { error: errors["completion_registration_link_override"].message }
-                  : {})}
+                {...includeIf(errors["completion_registration_link_override"]?.message, {
+                  error: errors["completion_registration_link_override"]?.message,
+                })}
               />
             </div>
             <Checkbox
@@ -322,7 +323,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 label={t("uh-course-code")}
                 placeholder={t("uh-course-code")}
                 {...register("uh_course_code")}
-                {...(errors["name"]?.message ? { error: errors["name"].message } : {})}
+                {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
               />
               <TextField
                 className={css`

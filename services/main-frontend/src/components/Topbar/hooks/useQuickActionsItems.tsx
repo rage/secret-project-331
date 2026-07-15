@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { editPageRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
 import { currentCourseIdAtom, currentPageIdAtom } from "@/state/course-material/selectors"
 
@@ -143,14 +143,12 @@ export function useQuickActionsItems({
         id: `quick-${item.href || item.label || idx}`,
         type: item.type,
         ...omitUndefined({ label: item.label, href: item.href }),
-        ...(item.onAction
-          ? {
-              onAction: () => {
-                item.onAction?.()
-                onMenuClose?.()
-              },
-            }
-          : {}),
+        ...includeIf(item.onAction, {
+          onAction: () => {
+            item.onAction?.()
+            onMenuClose?.()
+          },
+        }),
         ...omitUndefined({ icon: item.icon, isDestructive: item.isDestructive }),
       }
     })

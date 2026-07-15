@@ -79,9 +79,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
           "ssh-ed25519 ..."
         }
         {...register("publicKey")}
-        {...(errors["publicKey"]?.message !== undefined
-          ? { errorMessage: errors["publicKey"]?.message }
-          : {})}
+        {...omitUndefined({ errorMessage: errors["publicKey"]?.message })}
       />
       <TextAreaField
         label={t("exercise-repositories-deploy-key")}
@@ -90,9 +88,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
           "-----BEGIN OPENSSH PRIVATE KEY----- ..."
         }
         {...register("deployKey")}
-        {...(errors["deployKey"]?.message !== undefined
-          ? { errorMessage: errors["deployKey"]?.message }
-          : {})}
+        {...omitUndefined({ errorMessage: errors["deployKey"]?.message })}
       />
       <Button
         size="medium"

@@ -434,9 +434,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
                 onChangeByValue={field.onChange}
                 value={field.value}
                 required={true}
-                {...(errors.country?.message !== undefined
-                  ? { error: errors.country.message }
-                  : {})}
+                {...omitUndefined({ error: errors.country?.message })}
                 placeholder={t("label-select-country")}
               />
             )}

@@ -5,6 +5,7 @@ import { css } from "@emotion/css"
 import type { ChapterWithStatus } from "@/generated/course-material-api/types.generated"
 import { cardMaxWidth } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { stringToRandomNumber } from "@/shared-module/common/utils/strings"
 
 import ChapterGridCard from "./ChapterGridCard"
@@ -66,9 +67,7 @@ const StyledCard: React.FC<React.PropsWithChildren<StyledCardProps>> = ({
       `}
     >
       <ChapterGridCard
-        {...(chapter.chapter_image_url !== undefined
-          ? { backgroundImage: chapter.chapter_image_url }
-          : {})}
+        {...omitUndefined({ backgroundImage: chapter.chapter_image_url })}
         bg={randomizedColor}
         now={now}
         chapter={chapter}

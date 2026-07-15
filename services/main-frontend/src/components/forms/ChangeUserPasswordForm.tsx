@@ -10,6 +10,7 @@ import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface ChangePasswordFormFields {
@@ -100,9 +101,7 @@ const ChangeUserPasswordForm: React.FC = () => {
         type="password"
         placeholder={t("enter-your-current-password")}
         {...register("current_password", { required: t("required-field") })}
-        {...(errors.current_password?.message !== undefined
-          ? { error: errors.current_password.message }
-          : {})}
+        {...omitUndefined({ error: errors.current_password?.message })}
         required
       />
 
@@ -114,9 +113,7 @@ const ChangeUserPasswordForm: React.FC = () => {
           required: t("required-field"),
           minLength: { value: 8, message: t("password-must-have-at-least-8-characters") },
         })}
-        {...(errors.new_password?.message !== undefined
-          ? { error: errors.new_password.message }
-          : {})}
+        {...omitUndefined({ error: errors.new_password?.message })}
         required
       />
 
@@ -128,9 +125,7 @@ const ChangeUserPasswordForm: React.FC = () => {
           required: t("required-field"),
           validate: (value) => value === newPassword || t("passwords-dont-match"),
         })}
-        {...(errors.password_confirmation?.message !== undefined
-          ? { error: errors.password_confirmation.message }
-          : {})}
+        {...omitUndefined({ error: errors.password_confirmation?.message })}
         required
       />
 

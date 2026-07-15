@@ -5,7 +5,7 @@ import { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef } from "react-aria"
 
 import { joinAriaDescribedBy, resolveFieldState } from "../../lib/utils/field"
-import { omitUndefined } from "../../lib/utils/nullability"
+import { includeIf, omitUndefined } from "../../lib/utils/nullability"
 import {
   checkableContentCss,
   checkableInputCss,
@@ -87,7 +87,7 @@ export function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
         data-disabled={String(standaloneState.isDisabled)}
         data-focus-visible={String(isFocusVisible)}
         data-invalid={String(standaloneState.isInvalid)}
-        {...(isControlled ? { "data-selected": String(checked) } : {})}
+        {...includeIf(isControlled, { "data-selected": String(checked) })}
       >
         {isControlled ? (
           checked ? (

@@ -10,7 +10,7 @@ import { useFocusRing, useHover, useTab } from "react-aria"
 
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 
 export interface RouteTabDefinition {
   key: string
@@ -61,9 +61,9 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
   return (
     <Link
       {...linkProps}
-      {...(onMouseEnter ? { onMouseEnter } : {})}
-      {...(onClick ? { onClick } : {})}
-      {...(onTouchStart ? { onTouchStart } : {})}
+      {...includeIf(onMouseEnter, { onMouseEnter })}
+      {...includeIf(onClick, { onClick })}
+      {...includeIf(onTouchStart, { onTouchStart })}
       ref={ref}
       href={item.href}
       replace

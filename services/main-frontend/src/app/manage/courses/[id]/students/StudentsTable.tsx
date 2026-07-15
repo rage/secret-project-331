@@ -39,11 +39,13 @@ function getMeta<T extends object>(colDef: ColumnDef<T, unknown> | undefined): C
 const ESTIMATED_ROW_HEIGHT = 50
 
 // Spacer rows above/below the virtualized window reserve the scroll height of the off-screen rows.
-const spacerCellCss = (height: number) => css`
-  height: ${height}px;
-  padding: 0;
-  border: none;
-`
+// Applied inline (not via Emotion `css`) because the height changes on every scroll frame, and each
+// unique height would otherwise leak a new, never-evicted class into the Emotion cache.
+const spacerCellStyle = (height: number): React.CSSProperties => ({
+  height,
+  padding: 0,
+  border: 0,
+})
 
 interface StudentsTableProps<T extends object> {
   columns: ColumnDef<T, unknown>[]
@@ -294,7 +296,7 @@ export function StudentsTable<T extends object>({
       <tr
         key={row.id}
         data-index={rowIndex}
-        ref={(node) => rowVirtualizer.measureElement(node)}
+        ref={rowVirtualizer.measureElement}
         className={rowStyle}
       >
         {row.getVisibleCells().map((cell, i) => {
@@ -410,13 +412,17 @@ export function StudentsTable<T extends object>({
       <tbody>
         {paddingTop > 0 && (
           <tr aria-hidden="true">
-            <td colSpan={leafCount} aria-hidden="true" className={spacerCellCss(paddingTop)} />
+            {/* oxlint-disable-next-line react/forbid-dom-props -- dynamic per-scroll-frame height; a
+            new Emotion class per height would leak into the never-evicted style cache. */}
+            <td colSpan={leafCount} aria-hidden="true" style={spacerCellStyle(paddingTop)} />
           </tr>
         )}
         {virtualItems.map((virtualItem) => renderRow(virtualItem.index))}
         {paddingBottom > 0 && (
           <tr aria-hidden="true">
-            <td colSpan={leafCount} aria-hidden="true" className={spacerCellCss(paddingBottom)} />
+            {/* oxlint-disable-next-line react/forbid-dom-props -- dynamic per-scroll-frame height; a
+            new Emotion class per height would leak into the never-evicted style cache. */}
+            <td colSpan={leafCount} aria-hidden="true" style={spacerCellStyle(paddingBottom)} />
           </tr>
         )}
       </tbody>

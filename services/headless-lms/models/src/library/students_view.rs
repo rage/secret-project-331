@@ -69,6 +69,7 @@ FROM (
     LEFT JOIN user_details ud ON ud.user_id = u.id
   WHERE cie.course_id = $1
     AND cie.deleted_at IS NULL
+    AND u.deleted_at IS NULL
     AND ($2::uuid IS NULL OR cie.course_instance_id = $2)
     AND (
       $3::text IS NULL
@@ -128,6 +129,7 @@ FROM course_instance_enrollments cie
    AND ci.deleted_at IS NULL
 WHERE cie.course_id = $1
   AND cie.deleted_at IS NULL
+  AND u.deleted_at IS NULL
   AND ($4::uuid IS NULL OR cie.course_instance_id = $4)
   AND (
     $2::text IS NULL
@@ -342,7 +344,7 @@ pub async fn get_progress_for_users(
 ) -> ModelResult<CourseStudentsProgressUsers> {
     let course = crate::courses::get_course(conn, course_id).await?;
     let user_chapter_progress =
-        chapters::fetch_user_chapter_progress_for_users(conn, course_id, user_ids).await?;
+        chapters::fetch_user_chapter_progress(conn, course_id, Some(user_ids)).await?;
     let user_chapter_locking_statuses =
         crate::user_chapter_locking_statuses::get_for_users_and_course(conn, user_ids, &course)
             .await?;

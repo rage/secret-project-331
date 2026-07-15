@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH base AS (\n  SELECT ues.user_id,\n    ex.chapter_id,\n    ues.exercise_id,\n    COALESCE(ues.score_given, 0)::double precision AS points\n  FROM user_exercise_states ues\n    JOIN exercises ex ON ex.id = ues.exercise_id\n  WHERE ues.course_id = $1\n    AND ues.user_id = ANY($2::uuid[])\n    AND ues.deleted_at IS NULL\n    AND ex.deleted_at IS NULL\n)\nSELECT b.user_id AS user_id,\n  c.id AS chapter_id,\n  c.chapter_number AS chapter_number,\n  c.name AS chapter_name,\n  COALESCE(SUM(b.points), 0)::double precision AS \"points_obtained!\",\n  COALESCE(COUNT(DISTINCT b.exercise_id), 0)::bigint AS \"exercises_attempted!\"\nFROM base b\n  JOIN chapters c ON c.id = b.chapter_id\nGROUP BY b.user_id,\n  c.id,\n  c.chapter_number,\n  c.name\nORDER BY b.user_id,\n  c.chapter_number\n        ",
+  "query": "\nWITH base AS (\n  SELECT ues.user_id,\n    ex.chapter_id,\n    ues.exercise_id,\n    COALESCE(ues.score_given, 0)::double precision AS points\n  FROM user_exercise_states ues\n    JOIN exercises ex ON ex.id = ues.exercise_id\n  WHERE ues.course_id = $1\n    AND ($2::uuid[] IS NULL OR ues.user_id = ANY($2::uuid[]))\n    AND ues.deleted_at IS NULL\n    AND ex.deleted_at IS NULL\n)\nSELECT b.user_id AS user_id,\n  c.id AS chapter_id,\n  c.chapter_number AS chapter_number,\n  c.name AS chapter_name,\n  COALESCE(SUM(b.points), 0)::double precision AS \"points_obtained!\",\n  COALESCE(COUNT(DISTINCT b.exercise_id), 0)::bigint AS \"exercises_attempted!\"\nFROM base b\n  JOIN chapters c ON c.id = b.chapter_id\nGROUP BY b.user_id,\n  c.id,\n  c.chapter_number,\n  c.name\nORDER BY b.user_id,\n  c.chapter_number\n        ",
   "describe": {
     "columns": [
       {
@@ -75,5 +75,5 @@
       null
     ]
   },
-  "hash": "06adbc44f45e9a5ce8437b57041660c3c0bde798edf91a8e2068b4a995744698"
+  "hash": "332f1b7576909d4e5067eb2a179f79e1f3df53f78b9de56690d3dc39abff96b2"
 }

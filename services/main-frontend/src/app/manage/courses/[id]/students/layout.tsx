@@ -21,6 +21,7 @@ import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Pagination from "@/shared-module/common/components/Pagination"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
 
@@ -29,7 +30,9 @@ const KEY_COMPLETIONS = "completions"
 const KEY_PROGRESS = "progress"
 const KEY_CERTIFICATES = "certificates"
 
-const ITEMS_PER_PAGE_OPTIONS = [100, 500, 1000, 5000, 10000]
+// Capped at 1000: the detail subtabs POST the whole page's user_ids in one request, so larger pages
+// would send oversized payloads for the Completions/Certificates/Progress grids.
+const ITEMS_PER_PAGE_OPTIONS = [100, 500, 1000]
 
 const tableSection = css`
   padding-left: 0;
@@ -57,11 +60,11 @@ const tableSection = css`
 
 const instanceSelect = css`
   height: 36px;
-  border: 1px solid #dbdbdb;
+  border: 1px solid ${baseTheme.colors.gray[100]};
   border-radius: 4px;
   padding: 0 12px;
   font-size: 14px;
-  background: #fff;
+  background: ${baseTheme.colors.clear[50]};
   min-width: 180px;
 `
 

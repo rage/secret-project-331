@@ -204,7 +204,7 @@ async fn get_course_users(
     )
     .await?;
     let pagination = Pagination::new(query.page.unwrap_or(1), query.limit.unwrap_or(100))
-        .map_err(|e| ControllerError::new(ControllerErrorType::BadRequest, e.to_string(), None))?;
+        .map_err(|e| controller_err!(BadRequest, e.to_string()))?;
     let res = headless_lms_models::library::students_view::get_course_students_page(
         &mut conn,
         *course_id,

@@ -101,48 +101,51 @@ export const useCourseStudentsPrefetchNextPage = (
   ])
 }
 
+/**
+ * Shared options for a user-scoped detail subtab (Completions/Certificates/Progress). Gates on a
+ * non-empty page of `userIds`, keys the request by (prefix, courseId, ids) and POSTs those ids. The
+ * response type is inferred from `fetcher`, so each hook stays fully typed.
+ *
+ * No `keepPreviousData`: on a page change the detail must not show the previous page's rows (keyed
+ * by old user_ids) joined against the new identity rows — that mismatch renders blank cells.
+ * Dropping it lets each tab's isLoading guard show a spinner until this page loads.
+ */
+const userScopedDetailOptions = <TData>(
+  keyPrefix: string,
+  courseId: string,
+  userIds: string[],
+  fetcher: (ids: string[]) => Promise<TData>,
+) =>
+  optionalGeneratedQueryOptions({
+    value: userIds.length > 0 ? userIds : null,
+    isReady: (v): v is string[] => Array.isArray(v) && v.length > 0,
+    build: (ids) =>
+      // The key (prefix + courseId + ids) fully identifies the request; `fetcher` is fixed per
+      // keyPrefix, so it does not belong in the key.
+      // oxlint-disable-next-line @tanstack/query/exhaustive-deps
+      queryOptions({
+        // oxlint-disable-next-line i18next/no-literal-string
+        queryKey: [keyPrefix, courseId, ids],
+        queryFn: () => fetcher(ids),
+        staleTime: STALE_TIME,
+        gcTime: GC_TIME,
+      }),
+  })
+
 export const useCourseStudentsCompletionsDetail = (courseId: string, userIds: string[]) =>
   useQuery(
-    optionalGeneratedQueryOptions({
-      value: userIds.length > 0 ? userIds : null,
-      isReady: (v): v is string[] => Array.isArray(v) && v.length > 0,
-      build: (ids) =>
-        queryOptions({
-          // oxlint-disable-next-line i18next/no-literal-string
-          queryKey: ["course-students/completions", courseId, ids],
-          queryFn: () =>
-            getCourseStudentsCompletions({
-              path: { course_id: courseId },
-              body: { user_ids: ids },
-            }),
-          staleTime: STALE_TIME,
-          gcTime: GC_TIME,
-          // No keepPreviousData: on a page change the detail must not show the previous page's rows
-          // (keyed by old user_ids) joined against the new identity rows — that mismatch renders
-          // blank cells. Dropping it lets the isLoading guard show a spinner until this page loads.
-        }),
-    }),
+    // oxlint-disable-next-line i18next/no-literal-string
+    userScopedDetailOptions("course-students/completions", courseId, userIds, (ids) =>
+      getCourseStudentsCompletions({ path: { course_id: courseId }, body: { user_ids: ids } }),
+    ),
   )
 
 export const useCourseStudentsCertificatesDetail = (courseId: string, userIds: string[]) =>
   useQuery(
-    optionalGeneratedQueryOptions({
-      value: userIds.length > 0 ? userIds : null,
-      isReady: (v): v is string[] => Array.isArray(v) && v.length > 0,
-      build: (ids) =>
-        queryOptions({
-          // oxlint-disable-next-line i18next/no-literal-string
-          queryKey: ["course-students/certificates", courseId, ids],
-          queryFn: () =>
-            getCourseStudentsCertificates({
-              path: { course_id: courseId },
-              body: { user_ids: ids },
-            }),
-          staleTime: STALE_TIME,
-          gcTime: GC_TIME,
-          // See useCourseStudentsCompletionsDetail: no keepPreviousData to avoid stale-page joins.
-        }),
-    }),
+    // oxlint-disable-next-line i18next/no-literal-string
+    userScopedDetailOptions("course-students/certificates", courseId, userIds, (ids) =>
+      getCourseStudentsCertificates({ path: { course_id: courseId }, body: { user_ids: ids } }),
+    ),
   )
 
 /**
@@ -159,23 +162,10 @@ export const useCourseStudentsProgressStructure = (courseId: string) =>
 /** Per-user progress detail (chapter progress + locking statuses) for the current page's users. */
 export const useCourseStudentsProgressDetail = (courseId: string, userIds: string[]) =>
   useQuery(
-    optionalGeneratedQueryOptions({
-      value: userIds.length > 0 ? userIds : null,
-      isReady: (v): v is string[] => Array.isArray(v) && v.length > 0,
-      build: (ids) =>
-        queryOptions({
-          // oxlint-disable-next-line i18next/no-literal-string
-          queryKey: ["course-students/progress", courseId, ids],
-          queryFn: () =>
-            getCourseStudentsProgress({
-              path: { course_id: courseId },
-              body: { user_ids: ids },
-            }),
-          staleTime: STALE_TIME,
-          gcTime: GC_TIME,
-          // See useCourseStudentsCompletionsDetail: no keepPreviousData to avoid stale-page joins.
-        }),
-    }),
+    // oxlint-disable-next-line i18next/no-literal-string
+    userScopedDetailOptions("course-students/progress", courseId, userIds, (ids) =>
+      getCourseStudentsProgress({ path: { course_id: courseId }, body: { user_ids: ids } }),
+    ),
   )
 
 /** "Last, First" for a sorted student list; falls back to the single set name or a generic label. */

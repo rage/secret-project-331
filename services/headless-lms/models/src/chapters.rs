@@ -710,9 +710,12 @@ pub struct CourseUserInfo {
     pub course_instance: Option<String>,
 }
 
+/// Per-user chapter progress for a course. When `user_ids` is `Some`, only those users are included;
+/// when `None`, every user with progress in the course is returned.
 pub async fn fetch_user_chapter_progress(
     conn: &mut PgConnection,
     course_id: Uuid,
+    user_ids: Option<&[Uuid]>,
 ) -> ModelResult<Vec<UserChapterProgress>> {
     let rows = sqlx::query_as!(
         UserChapterProgress,
@@ -725,50 +728,7 @@ WITH base AS (
   FROM user_exercise_states ues
     JOIN exercises ex ON ex.id = ues.exercise_id
   WHERE ues.course_id = $1
-    AND ues.deleted_at IS NULL
-    AND ex.deleted_at IS NULL
-)
-SELECT b.user_id AS user_id,
-  c.id AS chapter_id,
-  c.chapter_number AS chapter_number,
-  c.name AS chapter_name,
-  COALESCE(SUM(b.points), 0)::double precision AS "points_obtained!",
-  COALESCE(COUNT(DISTINCT b.exercise_id), 0)::bigint AS "exercises_attempted!"
-FROM base b
-  JOIN chapters c ON c.id = b.chapter_id
-GROUP BY b.user_id,
-  c.id,
-  c.chapter_number,
-  c.name
-ORDER BY b.user_id,
-  c.chapter_number
-        "#,
-        course_id
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-
-    Ok(rows)
-}
-
-/// Like [`fetch_user_chapter_progress`] but scoped to the given users.
-pub async fn fetch_user_chapter_progress_for_users(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    user_ids: &[Uuid],
-) -> ModelResult<Vec<UserChapterProgress>> {
-    let rows = sqlx::query_as!(
-        UserChapterProgress,
-        r#"
-WITH base AS (
-  SELECT ues.user_id,
-    ex.chapter_id,
-    ues.exercise_id,
-    COALESCE(ues.score_given, 0)::double precision AS points
-  FROM user_exercise_states ues
-    JOIN exercises ex ON ex.id = ues.exercise_id
-  WHERE ues.course_id = $1
-    AND ues.user_id = ANY($2::uuid[])
+    AND ($2::uuid[] IS NULL OR ues.user_id = ANY($2::uuid[]))
     AND ues.deleted_at IS NULL
     AND ex.deleted_at IS NULL
 )
@@ -788,7 +748,7 @@ ORDER BY b.user_id,
   c.chapter_number
         "#,
         course_id,
-        user_ids
+        user_ids as Option<&[Uuid]>
     )
     .fetch_all(&mut *conn)
     .await?;

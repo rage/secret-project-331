@@ -94,15 +94,16 @@ const triggerChevronCss = css`
 `
 
 const searchfieldCss = css`
-  margin-left: 6px;
+  margin: 0 6px;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
   border-radius: 999px;
-  padding: 0 1rem;
+  padding: 0 2rem;
+  width: 99%;
   outline: none;
   border: none;
   box-shadow: inset 0 0 0 1px var(--field-border);
-  min-height: 2rem;
+  min-height: 2.5rem;
   &:focus-visible {
     box-shadow: none;
     outline: 2px solid var(--field-border-color-focus);
@@ -332,8 +333,26 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
           >
             <FocusScope autoFocus>
               {searchEnabled && (
-                <input className={searchfieldCss} {...inputProps} ref={searchRef} />
+                <div
+                  className={css`
+                    position: relative;
+                  `}
+                >
+                  <span
+                    className={css`
+                      transform: scaleX(-1);
+                      font-size: 2rem;
+                      display: inline-block;
+                      position: absolute;
+                      left: 1rem;
+                    `}
+                  >
+                    &#x2315;
+                  </span>
+                  <input className={searchfieldCss} {...inputProps} ref={searchRef} />
+                </div>
               )}
+
               <ListBox
                 {...mergeProps(menuProps, collectionProps)}
                 state={state}

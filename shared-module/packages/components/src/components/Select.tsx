@@ -132,8 +132,19 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
   //   group.options.filter((option) => contains(option.label, filterValue)),
   // )
 
-  const normalizedCollection = useMemo(() => normalizeSelectOptions(options), [options])
+  // const filteredOptions = options
+  //   .map((item) => {
+  //     if ("options" in item) {
+  //       return item.options.filter((option) => contains(option.label, filterValue))
+  //     }
 
+  //     return contains(item.label, filterValue) ? item : null
+  //   })
+  //   .filter(Boolean)
+
+  // const testi = options.filter((d) => d.options.every((c) => contains(c.label, filterValue)))
+
+  const normalizedCollection = useMemo(() => normalizeSelectOptions(options), [options])
   const collectionChildren = useMemo(
     () => buildSelectCollectionNodes(normalizedCollection),
     [normalizedCollection],
@@ -177,7 +188,6 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     inputProps: autoCompleteInputProps,
     collectionProps,
     collectionRef: _mergedCollectionRef,
-    filter,
   } = useAutocomplete(
     {
       inputRef: searchRef,

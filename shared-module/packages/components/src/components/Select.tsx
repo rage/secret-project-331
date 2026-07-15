@@ -1,9 +1,9 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { useSelectState } from "@react-stately/select"
-import { useSearchFieldState } from "@react-stately/searchfield"
 import { useAutocompleteState } from "@react-stately/autocomplete"
+import { useSearchFieldState } from "@react-stately/searchfield"
+import { useSelectState } from "@react-stately/select"
 import React, { useId, useMemo, useRef, useState } from "react"
 import {
   mergeProps,
@@ -15,6 +15,7 @@ import {
   FocusScope,
 } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
+
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { toInputValue } from "../lib/utils/field"
@@ -223,6 +224,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       description,
       errorMessage: resolvedError,
       name: field.name,
+      ...collectionProps,
       ...omitUndefined({ autoComplete }),
     },
     state,

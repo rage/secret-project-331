@@ -72,7 +72,7 @@ const ExerciseSettingsEditor = () => {
           const parsed = parseInt(value, 10)
           if (isNaN(parsed)) {
             // empty
-            // @ts-expect-error -- Intentionally resetting the attribute to undefined at runtime; score_maximum is a required number on ExerciseAttributes because it is used to build required API payloads, so widening it to include undefined is not viable
+            // @ts-expect-error -- score_maximum is required on ExerciseAttributes (used in API payloads); resetting to undefined at runtime is intentional
             setAttributes({ score_maximum: undefined })
             return
           }

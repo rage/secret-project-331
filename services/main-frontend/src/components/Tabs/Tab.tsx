@@ -36,7 +36,7 @@ const Tab: React.FC<TabProps> = ({ tabName, children }) => {
   const { "aria-controls": _ariaControls, ...restTabProps } = tabProps
 
   return (
-    // @ts-expect-error -- react-aria mergeProps types DOM event handlers as `handler | undefined` on FocusableElement, which Next.js LinkProps' optional HTMLAnchorElement handlers reject under exactOptionalPropertyTypes; the merged handlers are safe at runtime
+    // @ts-expect-error -- mergeProps' `handler | undefined` event handlers are rejected by Next LinkProps under exactOptionalPropertyTypes; safe at runtime
     <Link
       {...mergeProps(restTabProps, focusProps, hoverProps)}
       ref={tabRef}

@@ -1,16 +1,11 @@
-export function assertNotNullOrUndefined<T>(value: T | null | undefined): T {
-  if (value === null || value === undefined) {
-    throw new Error("Value cannot be null or undefined.")
-  }
-  return value
-}
-
 /**
  * `obj` with every `undefined`-valued key dropped, and those keys made optional in the result type.
  *
  * Under `exactOptionalPropertyTypes` an optional prop `key?: T` rejects an explicit `undefined`, so
  * passing a maybe-undefined value straight through fails to type-check. Use this instead of chained
  * `...(x !== undefined ? { x } : {})` spreads: `omitUndefined({ a, b, c })`.
+ *
+ * `components` cannot depend on `common`, so this mirrors `common`'s `utils/nullability` helper.
  */
 export function omitUndefined<T extends object>(obj: T): OmitUndefined<T> {
   const result: Record<string, unknown> = {}

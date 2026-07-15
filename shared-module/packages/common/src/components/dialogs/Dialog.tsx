@@ -16,6 +16,7 @@ import type { AriaDialogProps } from "@react-types/dialog"
 import React, { useRef } from "react"
 
 import { typography } from "../../styles"
+import { omitUndefined } from "../../utils/nullability"
 
 interface DialogProps extends AriaDialogProps {
   open: boolean
@@ -61,7 +62,7 @@ const Dialog: React.FC<DialogProps> = ({
   const { overlayProps, underlayProps } = useOverlay(
     {
       isOpen: open,
-      ...(onClose !== undefined ? { onClose } : {}),
+      ...omitUndefined({ onClose }),
       isDismissable: isDismissable,
       shouldCloseOnBlur: shouldCloseOnBlur,
     },

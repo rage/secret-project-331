@@ -39,9 +39,10 @@ fn escape_like_pattern(input: &str) -> String {
 ///
 /// `sort_column` is one of `last_name` | `first_name` | `email` and `sort_direction` is `asc` |
 /// `desc`; both are matched to fixed SQL fragments (never interpolated from raw input). `search`
-/// matches name/email/instance-name substrings and user-id substrings case-insensitively; if it
-/// parses as a UUID it also matches the user id exactly. `course_instance_id` optionally narrows to
-/// a single instance.
+/// matches name/email substrings via the trigram-indexed `name_search_helper` / `email_search_helper`
+/// columns; if it parses as a UUID it also matches the user id exactly. Every search branch is
+/// index-backed so the planner can drive the trigram indexes for selective terms. Instance narrowing
+/// is done with `course_instance_id` (the UI dropdown), not free-text search.
 pub async fn get_course_students_page(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -54,8 +55,9 @@ pub async fn get_course_students_page(
     // Empty/blank search behaves like no search.
     let search = search.map(str::trim).filter(|s| !s.is_empty());
     let user_id_exact = search.and_then(|s| Uuid::parse_str(s).ok());
-    // Metacharacters are escaped so the substring match is literal (see `escape_like_pattern`).
-    let search_pattern = search.map(escape_like_pattern);
+    // The helper columns are lowercased generated columns, so lowercase the term and escape the LIKE
+    // metacharacters (matched literally via `ESCAPE '\'`). The GiST trigram indexes serve LIKE.
+    let search_pattern = search.map(|s| escape_like_pattern(&s.to_lowercase()));
 
     let total_count = sqlx::query!(
         r#"
@@ -65,19 +67,13 @@ FROM (
   FROM course_instance_enrollments cie
     JOIN users u ON u.id = cie.user_id
     LEFT JOIN user_details ud ON ud.user_id = u.id
-    LEFT JOIN course_instances ci
-      ON ci.id = cie.course_instance_id
-     AND ci.deleted_at IS NULL
   WHERE cie.course_id = $1
     AND cie.deleted_at IS NULL
     AND ($2::uuid IS NULL OR cie.course_instance_id = $2)
     AND (
       $3::text IS NULL
-      OR ud.first_name ILIKE '%' || $3 || '%' ESCAPE '\'
-      OR ud.last_name ILIKE '%' || $3 || '%' ESCAPE '\'
-      OR ud.email ILIKE '%' || $3 || '%' ESCAPE '\'
-      OR ci.name ILIKE '%' || $3 || '%' ESCAPE '\'
-      OR u.id::text ILIKE '%' || $3 || '%' ESCAPE '\'
+      OR ud.name_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
+      OR ud.email_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
       OR ($4::uuid IS NOT NULL AND u.id = $4)
     )
   GROUP BY u.id
@@ -135,11 +131,8 @@ WHERE cie.course_id = $1
   AND ($4::uuid IS NULL OR cie.course_instance_id = $4)
   AND (
     $2::text IS NULL
-    OR ud.first_name ILIKE '%' || $2 || '%' ESCAPE '\'
-    OR ud.last_name ILIKE '%' || $2 || '%' ESCAPE '\'
-    OR ud.email ILIKE '%' || $2 || '%' ESCAPE '\'
-    OR ci.name ILIKE '%' || $2 || '%' ESCAPE '\'
-    OR u.id::text ILIKE '%' || $2 || '%' ESCAPE '\'
+    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
+    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
     OR ($3::uuid IS NOT NULL AND u.id = $3)
   )
 GROUP BY u.id, ud.first_name, ud.last_name, ud.email

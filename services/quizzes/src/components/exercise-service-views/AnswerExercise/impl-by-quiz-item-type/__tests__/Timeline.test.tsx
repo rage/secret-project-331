@@ -1,5 +1,5 @@
-import { vi } from "vitest"
 import { fireEvent, render, screen, within } from "@testing-library/react"
+import { vi } from "vitest"
 
 import type { UserItemAnswerTimeline } from "../../../../../../types/quizTypes/answer"
 import type { PublicSpecQuizItemTimeline } from "../../../../../../types/quizTypes/publicSpec"

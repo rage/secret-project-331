@@ -1,12 +1,11 @@
 "use client"
 
 import "@testing-library/jest-dom"
-
 import { render, screen, within } from "@testing-library/react"
 
-import CongratulationsLinks from "../CongratulationsLinks"
-
 import type { UserModuleCompletionStatus } from "@/generated/course-material-api/types.generated"
+
+import CongratulationsLinks from "../CongratulationsLinks"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
 const baseModule: UserModuleCompletionStatus = {

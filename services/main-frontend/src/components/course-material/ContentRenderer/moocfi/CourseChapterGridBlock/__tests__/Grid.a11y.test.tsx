@@ -1,12 +1,11 @@
 "use client"
 
 import "@testing-library/jest-dom"
-
 import { render, screen } from "@testing-library/react"
 
-import Grid from "../Grid"
-
 import type { ChapterWithStatus } from "@/generated/course-material-api/types.generated"
+
+import Grid from "../Grid"
 
 // Focus the test on the list semantics of the grid, not the inner card chain.
 jest.mock("../StyledCard", () => ({

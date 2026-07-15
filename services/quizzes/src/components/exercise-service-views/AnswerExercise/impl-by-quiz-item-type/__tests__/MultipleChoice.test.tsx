@@ -1,5 +1,5 @@
-import { vi } from "vitest"
 import { render, screen } from "@testing-library/react"
+import { vi } from "vitest"
 
 import type { UserItemAnswerMultiplechoice } from "../../../../../../types/quizTypes/answer"
 import type { PublicSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/publicSpec"

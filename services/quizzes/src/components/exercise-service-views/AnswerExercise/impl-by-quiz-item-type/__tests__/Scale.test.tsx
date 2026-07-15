@@ -1,5 +1,5 @@
-import { vi } from "vitest"
 import { act, fireEvent, render, screen } from "@testing-library/react"
+import { vi } from "vitest"
 
 import type { UserItemAnswerScale } from "../../../../../../types/quizTypes/answer"
 import type { PublicSpecQuizItemScale } from "../../../../../../types/quizTypes/publicSpec"

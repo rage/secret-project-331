@@ -1,7 +1,6 @@
 "use client"
 
 import "@testing-library/jest-dom"
-
 import { render } from "@testing-library/react"
 
 import { baseTheme } from "../../../styles"

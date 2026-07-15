@@ -34,6 +34,27 @@ type CourseUpdateBody = UpdateCourseData["body"]
 
 export type EditCourseFormValues = CourseUpdateBody & { set_course_closed_at: boolean }
 
+const buildFormValues = (course: Course): EditCourseFormValues => ({
+  name: course.name,
+  description: course.description ?? null,
+  is_draft: course.is_draft,
+  is_test_mode: course.is_test_mode,
+  is_unlisted: course.is_unlisted,
+  can_add_chatbot: course.can_add_chatbot,
+  is_joinable_by_code_only: course.is_joinable_by_code_only,
+  ask_marketing_consent: course.ask_marketing_consent,
+  chapter_locking_enabled: course.chapter_locking_enabled,
+  flagged_answers_threshold: course.flagged_answers_threshold ?? 3,
+  flagged_answers_skip_manual_review_and_allow_retry:
+    course.flagged_answers_skip_manual_review_and_allow_retry,
+  closed_at: course.closed_at ? (formatDateForDateTimeLocalInputs(course.closed_at) ?? null) : null,
+  closed_additional_message: course.closed_additional_message ?? null,
+  closed_course_successor_id: course.closed_course_successor_id ?? null,
+  set_course_closed_at: Boolean(course.closed_at),
+  ai_policy: course.ai_policy,
+  course_material_ai_instructions: course.course_material_ai_instructions ?? null,
+})
+
 const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = ({
   course,
   onSubmitForm,
@@ -43,28 +64,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
   const { t } = useTranslation()
 
   const methods = useForm<EditCourseFormValues>({
-    defaultValues: {
-      name: course.name,
-      description: course.description ?? null,
-      is_draft: course.is_draft,
-      is_test_mode: course.is_test_mode,
-      is_unlisted: course.is_unlisted,
-      can_add_chatbot: course.can_add_chatbot,
-      is_joinable_by_code_only: course.is_joinable_by_code_only,
-      ask_marketing_consent: course.ask_marketing_consent,
-      chapter_locking_enabled: course.chapter_locking_enabled,
-      flagged_answers_threshold: course.flagged_answers_threshold ?? 3,
-      flagged_answers_skip_manual_review_and_allow_retry:
-        course.flagged_answers_skip_manual_review_and_allow_retry,
-      closed_at: course.closed_at
-        ? (formatDateForDateTimeLocalInputs(course.closed_at) ?? null)
-        : null,
-      closed_additional_message: course.closed_additional_message ?? null,
-      closed_course_successor_id: course.closed_course_successor_id ?? null,
-      set_course_closed_at: Boolean(course.closed_at),
-      ai_policy: course.ai_policy,
-      course_material_ai_instructions: course.course_material_ai_instructions ?? null,
-    },
+    defaultValues: buildFormValues(course),
   })
 
   const {
@@ -76,14 +76,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
   } = methods
 
   useEffect(() => {
-    reset({
-      ...course,
-      flagged_answers_threshold: course.flagged_answers_threshold ?? undefined,
-      closed_at: course.closed_at
-        ? (formatDateForDateTimeLocalInputs(course.closed_at) ?? null)
-        : null,
-      set_course_closed_at: Boolean(course.closed_at),
-    })
+    reset(buildFormValues(course))
   }, [course, reset])
 
   const draftStatus = watch("is_draft")

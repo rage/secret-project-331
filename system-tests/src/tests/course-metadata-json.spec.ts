@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -33,7 +34,9 @@ test("Teacher setting metadata suggestions changes jsonLd", async ({ page }) => 
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "Manage course 'Metadata" }).click()
   await page.getByRole("button", { name: "Suggest metadata" }).click()
-  await page.getByRole("button", { name: "Replace metadata" }).click()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Replace metadata" }).click()
+  })
   await page.getByRole("button", { name: "Open course front page" }).click()
   await selectCourseInstanceIfPrompted(page)
   await selectCourseInstanceIfPrompted(page)

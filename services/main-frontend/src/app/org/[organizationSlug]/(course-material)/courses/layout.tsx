@@ -18,14 +18,15 @@ function CourseMaterialLayout({
   // Suppress unused params warning
   void params
 
-  const courseId = useAtomValue(currentCourseIdAtom) ?? ""
+  const courseId = useAtomValue(currentCourseIdAtom)
 
   const metadataQuery = useQuery({
     ...getCourseMetadataOptions({
       path: {
-        course_id: courseId,
+        course_id: courseId ?? "",
       },
     }),
+    enabled: !!courseId,
   })
 
   const jsonLd = {

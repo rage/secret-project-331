@@ -110,6 +110,8 @@ test("Description not replaced if use suggested box unticked", async ({ page }) 
   await page
     .getByRole("textbox", { name: "AI generated description" })
     .fill("should not be visible")
-  await page.getByRole("button", { name: "Replace metadata" }).click()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Replace metadata" }).click()
+  })
   await expect(page.getByText("should not be visible")).toHaveCount(0)
 })

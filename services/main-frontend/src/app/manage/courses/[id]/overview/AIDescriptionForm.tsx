@@ -22,6 +22,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { QueryResult, TextArea, TextField } from "@/shared-module/components"
 import { Button, Checkbox } from "@/shared-module/components/"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import Spinner from "@/shared-module/common/components/Spinner"
 
 const FieldSet = styled.fieldset`
   margin-bottom: 1rem;
@@ -277,7 +278,11 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                     </div>
                   </div>
 
-                  {hasPrerequisites ? (
+                  {prerequisitesQuery.isFetching ? (
+                    <Spinner />
+                  ) : prerequisitesQuery.isError ? (
+                    <ErrorBanner error={prerequisitesQuery.error} />
+                  ) : hasPrerequisites ? (
                     <div>
                       {prerequisitesQuery.data?.map((preq, idx) => (
                         <li
@@ -380,7 +385,11 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                       />
                     </div>
                   </div>
-                  {hasAudiences ? (
+                  {audiencesQuery.isFetching ? (
+                    <Spinner />
+                  ) : audiencesQuery.isError ? (
+                    <ErrorBanner error={audiencesQuery.error} />
+                  ) : hasAudiences ? (
                     <div>
                       {audiencesQuery.data?.map((audience, idx) => (
                         <li

@@ -66,7 +66,8 @@ export type SelectProps<T extends FieldValues, N extends Path<T> = Path<T>> = Rh
   onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement>
   onKeyUp?: React.KeyboardEventHandler<HTMLButtonElement>
   className?: string
-  hasSearch?: boolean
+  searchEnabled?: boolean
+  searchPlaceholder?: string
 }
 
 const selectRootCss = css`
@@ -128,6 +129,8 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     autoComplete,
     onKeyDown,
     onKeyUp,
+    searchEnabled = false,
+    searchPlaceholder = "search",
   } = props
 
   const [filterValue, setFilterValue] = useState("")
@@ -228,7 +231,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const { buttonProps } = useButton(triggerProps, buttonRef)
   const { labelProps, inputProps } = useSearchField(
-    { ...autoCompleteInputProps, placeholder: "Search chatbots" },
+    { ...autoCompleteInputProps, placeholder: searchPlaceholder },
     searchFieldState,
     searchRef,
   )
@@ -328,7 +331,9 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
             }}
           >
             <FocusScope autoFocus>
-              <input className={searchfieldCss} {...inputProps} ref={searchRef} />
+              {searchEnabled && (
+                <input className={searchfieldCss} {...inputProps} ref={searchRef} />
+              )}
               <ListBox
                 {...mergeProps(menuProps, collectionProps)}
                 state={state}

@@ -50,7 +50,8 @@ const ChatbotCommandCenter = ({ chatbotData }: Props) => {
                 }),
             }
           })}
-          hasSearch={true}
+          searchEnabled={true}
+          searchPlaceholder={t("chatbot-search-placeholder")}
           className={css`
             margin-bottom: 1rem;
           `}

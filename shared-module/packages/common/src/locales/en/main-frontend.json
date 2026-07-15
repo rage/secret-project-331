@@ -221,6 +221,7 @@
   "chatbot-finished-responding": "Chatbot has finished responding",
   "chatbot-is-responding": "Chatbot is responding",
   "chatbot-preview-modal-title": "Chatbot preview",
+  "chatbot-search-placeholder": "Search chatbot",
   "chatbot-status-course-material-search": "Searched course material",
   "chatbot-status-course-material-search-finished": "Searched course material with query {{ query }}",
   "chatbot-status-thinking": "Thinking",

@@ -2,21 +2,13 @@
   "name": "material-editor",
   "version": "0.1.0",
   "private": true,
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --turbopack",
     "export": "next export",
-    "list-gutenberg-block-names": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/listGutenbergBlockNames.ts",
-    "postinstall": "pnpm run -F '**' postinstall:clean-wp && pnpm run -F '**' postinstall:remove-gutenberg-eslint-deps-that-breaks-our-eslint",
-    "postinstall:clean-wp": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/cleanWordpressModules.ts",
-    "postinstall:remove-gutenberg-eslint-deps-that-breaks-our-eslint": "find node_modules -maxdepth 1 -type d -name '*eslint*' -exec rm -r {} +",
+    "list-gutenberg-block-names": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\",\\\"verbatimModuleSyntax\\\":false}\" scripts/listGutenbergBlockNames.ts",
+    "postinstall": "pnpm run -F '**' postinstall:clean-wp",
+    "postinstall:clean-wp": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\",\\\"verbatimModuleSyntax\\\":false}\" scripts/cleanWordpressModules.ts",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
   "dependencies": {
@@ -101,6 +93,7 @@
     "@types/node": "^26.0.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@wordpress/scripts": "^32.5.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
@@ -112,6 +105,13 @@
     "ts-jest": "^29.4.11",
     "ts-node": "^10.9.2",
     "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
   }
 }

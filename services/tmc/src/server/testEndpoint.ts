@@ -1,17 +1,17 @@
 import { v4 } from "uuid"
 
-import { testRequestSchema } from "./requestSchemas"
-import { testRuns } from "./testRuns"
-
 import { reportErrorOccurrence } from "@/shared-module/common/errors/reportErrorOccurrence"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { RunResult } from "@/tmc/cli"
+import type { RunResult } from "@/tmc/cli"
 import { badRequest, jsonOk } from "@/util/apiResponse"
 import { runTests } from "@/util/test"
 
+import { testRequestSchema } from "./requestSchemas"
+import { testRuns } from "./testRuns"
+
 export type { TestRequest } from "./requestSchemas"
 
-export type TestRequestResult = {
+export interface TestRequestResult {
   id: string
 }
 
@@ -37,7 +37,7 @@ function reportBackgroundFailure(err: unknown, request: Request): void {
       service: "tmc",
       error_source: "backend",
       message,
-      stack_trace: stack,
+      stack_trace: stack ?? null,
       path,
       details: {
         kind: "tmc-background-test-run",

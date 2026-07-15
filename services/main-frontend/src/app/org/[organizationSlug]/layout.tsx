@@ -5,8 +5,8 @@ import { useParams } from "next/navigation"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import BreadcrumbRenderer from "@/components/breadcrumbs/BreadcrumbRenderer"
 import { isCourseMaterialAtom } from "@/components/breadcrumbs/breadcrumbAtoms"
+import BreadcrumbRenderer from "@/components/breadcrumbs/BreadcrumbRenderer"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useOrganizationQueryBySlug from "@/hooks/useOrganizationQueryBySlug"
 
@@ -42,7 +42,7 @@ function OrgLayoutContent({
     disabled: isCourseMaterial,
   })
 
-  return <>{children}</>
+  return children
 }
 
 export default function OrgLayout({ children }: { children: React.ReactNode }) {

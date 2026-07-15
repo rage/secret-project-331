@@ -29,7 +29,11 @@ function renderView(
   initial?: Parameters<typeof useConcurrencyThrottle>[1],
 ) {
   return renderHook(
-    (p: { qid: string; id?: string; init?: Parameters<typeof useConcurrencyThrottle>[1] }) => {
+    (p: {
+      qid: string
+      id?: string | undefined
+      init?: Parameters<typeof useConcurrencyThrottle>[1]
+    }) => {
       const api = useConcurrencyThrottle(p.qid, p.init)
       const view = useParticipantView(p.qid, p.id)
       const metrics = useQueueMetrics(p.qid)

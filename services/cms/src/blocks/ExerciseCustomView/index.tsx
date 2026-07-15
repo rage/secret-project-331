@@ -1,13 +1,12 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
-import ExerciseCustomViewEditor from "./ExerciseCustomViewEditor"
-import ExerciseCustomViewkSave from "./ExerciseCustomViewSave"
+/* oxlint-disable i18next/no-literal-string */
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import ExerciseCustomViewEditor from "./ExerciseCustomViewEditor"
+import ExerciseCustomViewkSave from "./ExerciseCustomViewSave"
 
 export interface ExerciseCustomViewAttributes {
   exercise_type: string | undefined

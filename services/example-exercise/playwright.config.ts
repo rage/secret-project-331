@@ -1,14 +1,15 @@
-import { defineConfig } from "@playwright/test"
 import { readFileSync } from "node:fs"
-import { dirname, join } from "node:path"
-import { fileURLToPath } from "node:url"
+import { join } from "node:path"
+
+import { defineConfig } from "@playwright/test"
 
 // Derive the dev-server port from package.json's `dev` script so this stays correct after the
 // scaffolding CLI rewrites the port for a generated project.
-const configDir = dirname(fileURLToPath(import.meta.url))
+const configDir = import.meta.dirname
 const devScript =
   (JSON.parse(readFileSync(join(configDir, "package.json"), "utf8")).scripts?.dev as
-    string | undefined) ?? ""
+    | string
+    | undefined) ?? ""
 const port = Number(/--port(?:\s+|=)(\d+)/.exec(devScript)?.[1] ?? "3002")
 
 // In the moocfi Nix dev shell chromium is on PATH but Playwright's managed browsers aren't

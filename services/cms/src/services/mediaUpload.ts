@@ -6,9 +6,9 @@ import { validateFile } from "@/shared-module/common/utils/files"
 
 export interface MediaItem {
   url: string
-  alt?: string
-  caption?: string
-  title?: string
+  alt?: string | undefined
+  caption?: string | undefined
+  title?: string | undefined
 }
 
 export interface MediaUploadProps {
@@ -96,7 +96,7 @@ const uploadMedia = async ({
   }))
   onFileChange(initialItems)
 
-  const mediaItems = initialItems as Array<(typeof initialItems)[0] | null>
+  const mediaItems = initialItems as ((typeof initialItems)[0] | null)[]
 
   await Promise.all(
     validFiles.map(async (file, i) => {

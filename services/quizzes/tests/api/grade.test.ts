@@ -2,6 +2,10 @@
  * @vitest-environment node
  */
 
+import { handleGrade } from "@/server/grade"
+import type { ExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
+import { isExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
+
 import testClient from "./utils/appRouterTestClient"
 import { oldGenerateMultipleChoiceRequest } from "./utils/oldQuizGenerator"
 import {
@@ -10,9 +14,6 @@ import {
   generateTimelineGradingRequest,
   generateUnknownItemTypeGradingRequest,
 } from "./utils/privateSpecGenerator"
-
-import { handleGrade } from "@/server/grade"
-import { ExerciseTaskGradingResult, isExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
 
 const client = testClient(handleGrade)
 

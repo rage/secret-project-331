@@ -5,10 +5,6 @@ import React from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import SearchUsersResults from "./SearchUsersResults"
-import useSearchUsersLiveRegion from "./useSearchUsersLiveRegion"
-import useSearchUsersQueries from "./useSearchUsersQueries"
-
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -19,6 +15,10 @@ import useUrlSyncedDebouncedQuery from "@/shared-module/common/hooks/useUrlSynce
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
+import SearchUsersResults from "./SearchUsersResults"
+import useSearchUsersLiveRegion from "./useSearchUsersLiveRegion"
+import useSearchUsersQueries from "./useSearchUsersQueries"
+
 const SearchUsersPage: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("title-user-search"))
@@ -28,7 +28,7 @@ const SearchUsersPage: React.FC = () => {
     queryValue: searchQuery,
     runImmediate,
   } = useUrlSyncedDebouncedQuery({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     paramName: "search",
     delayMs: 250,
   })

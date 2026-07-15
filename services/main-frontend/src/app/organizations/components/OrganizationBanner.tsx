@@ -9,12 +9,13 @@ import { useTranslation } from "react-i18next"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import {
   manageOrganizationRoute,
   organizationFrontPageRoute,
 } from "@/shared-module/common/utils/routes"
 
-type Props = {
+interface Props {
   organization: {
     id: string
     name: string
@@ -66,7 +67,10 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
         `}
       >
         <OrganizationIcon />
-        <OrganizationText name={organization.name} hidden={organization.hidden} />
+        <OrganizationText
+          name={organization.name}
+          {...omitUndefined({ hidden: organization.hidden })}
+        />
         <div
           className={css`
             display: flex;

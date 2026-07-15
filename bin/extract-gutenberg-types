@@ -19,8 +19,8 @@ run_command cd "$RELATIVE_CMS_PATH" || exit
 HOOK_IMPORT="./scripts/registerDiffResolveHook.mjs"
 run_command pnpm exec env NODE_OPTIONS="${NODE_OPTIONS:-} --import $HOOK_IMPORT" tsx scripts/extractGutenbergAttributeTypes.ts
 
-# Format the generated files with prettier instead of eslint
-run_command pnpm exec prettier --write ../main-frontend/types/GutenbergBlockAttributes.ts ../main-frontend/types/DeprecatedGutenbergBlockAttributes.ts
+# Format the generated files with oxfmt
+run_command pnpm exec oxfmt ../main-frontend/types/GutenbergBlockAttributes.ts ../main-frontend/types/DeprecatedGutenbergBlockAttributes.ts
 
 run_command cd ../..
 if [ -f "./services/main-frontend/types/GutenbergBlockAttributes.guard.ts" ]; then
@@ -30,16 +30,15 @@ if [ -f "./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard
   run_command rm ./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts
 fi
 
+# Only the source type file is formatted; guard files are committed as ts-auto-guard emits them
+# (they are excluded from oxfmt, so passing them here would be a no-op at best). The single
+# post-processing step is the type-only import rewrite below: ts-auto-guard 5.x has no option to
+# emit `import type`, and its combined leading import references only types, so under
+# verbatimModuleSyntax the `import {` must become `import type {` (a no-op at runtime).
 run_command pnpm exec ts-auto-guard --export-all --paths services/main-frontend/types/GutenbergBlockAttributes.ts --project services/main-frontend/tsconfig.json
-if [ -f "./services/main-frontend/types/GutenbergBlockAttributes.guard.ts" ]; then
-  run_command pnpm exec prettier --write services/main-frontend/types/GutenbergBlockAttributes.ts services/main-frontend/types/GutenbergBlockAttributes.guard.ts
-else
-  run_command pnpm exec prettier --write services/main-frontend/types/GutenbergBlockAttributes.ts
-fi
+run_command sed -i -E 's/^import \{/import type {/' services/main-frontend/types/GutenbergBlockAttributes.guard.ts
+run_command pnpm exec oxfmt services/main-frontend/types/GutenbergBlockAttributes.ts
 
 run_command pnpm exec ts-auto-guard --export-all --paths services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts --project services/main-frontend/tsconfig.json
-if [ -f "./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts" ]; then
-  run_command pnpm exec prettier --write services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts
-else
-  run_command pnpm exec prettier --write services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts
-fi
+run_command sed -i -E 's/^import \{/import type {/' services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts
+run_command pnpm exec oxfmt services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts

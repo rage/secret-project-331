@@ -14,7 +14,7 @@
  * turns a thrown non-`BadRequestError` into a 500). Better a failed request than a leaked answer.
  */
 export class LeakError extends Error {
-  constructor(message: string) {
+  public constructor(message: string) {
     super(message)
     this.name = "LeakError"
   }

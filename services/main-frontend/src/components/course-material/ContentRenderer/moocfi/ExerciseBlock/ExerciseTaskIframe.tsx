@@ -4,14 +4,15 @@ import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
 import { uploadFilesFromExerciseService } from "@/generated/api/sdk.generated"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import ThrottledChildRenderer, {
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
-import {
+import type {
   ExerciseIframeState,
   MessageToIframe,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
@@ -86,7 +87,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
             messageContainer.files,
           )
           response = {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             message: "upload-result",
             requestId: messageContainer.requestId ?? null,
             success: true,
@@ -94,13 +95,14 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
           }
         } catch (e) {
           response = {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             message: "upload-result",
             requestId: messageContainer.requestId ?? null,
             success: false,
             error: e instanceof Error ? e.message : String(e),
           }
         }
+        // oxlint-disable-next-line unicorn/require-post-message-target-origin -- MessagePort.postMessage takes no targetOrigin
         responsePort.postMessage(response)
       }
     },
@@ -112,7 +114,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       return (
         <MessageChannelIFrame
           dialog={dialog}
-          headingBeforeIframe={headingBeforeIframe}
+          {...omitUndefined({ headingBeforeIframe })}
           url={url}
           postThisStateToIFrame={postThisStateToIFrame}
           onMessageFromIframe={handleMessageFromIframe}

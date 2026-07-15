@@ -74,6 +74,7 @@ pub async fn create_page(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        hidden: page_data.hidden,
     };
     let page = pages::insert_page(
         conn,
@@ -96,6 +97,7 @@ pub async fn create_page(
                 url_path: page_data.url_path,
                 title: page_data.title,
                 chapter_id,
+                hidden: page_data.hidden,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -642,6 +644,7 @@ pub async fn create_exam(
             chapter_id: None,
             front_page_of_chapter_id: None,
             content_search_language: None,
+            hidden: false,
         },
         teacher,
         get_seed_spec_fetcher(),

@@ -23,7 +23,7 @@ const STAGE_BRIEF_KEYS = {
 
 interface PlanQueryData {
   plan: { active_stage?: CourseDesignerStage | null }
-  stages: Array<{ stage: CourseDesignerStage }>
+  stages: { stage: CourseDesignerStage }[]
 }
 
 interface UseCoursePlanWorkspacePageStateOptions {
@@ -66,10 +66,13 @@ export function useCoursePlanWorkspacePageState({
 
   const handleSelectedStageChange = useCallback(
     (stage: CourseDesignerStage) => {
-      if (analysisWorkspaceDirty && viewedStage === "Analysis" && stage !== viewedStage) {
-        if (!window.confirm(t("course-plans-analysis-unsaved-confirm"))) {
-          return
-        }
+      if (
+        analysisWorkspaceDirty &&
+        viewedStage === "Analysis" &&
+        stage !== viewedStage &&
+        !window.confirm(t("course-plans-analysis-unsaved-confirm"))
+      ) {
+        return
       }
       setViewedStage(stage)
     },
@@ -88,7 +91,7 @@ export function useCoursePlanWorkspacePageState({
     setIsOverviewOpen(false)
 
     const nextStage = result.plan.active_stage ?? null
-    // eslint-disable-next-line i18next/no-literal-string -- internal sentinel value, not user-facing copy
+    // oxlint-disable-next-line i18next/no-literal-string -- internal sentinel value, not user-facing copy
     const transitionKey = nextStage ?? "completed"
     if (welcomedStageRef.current === transitionKey) {
       return
@@ -174,7 +177,7 @@ export function useCoursePlanWorkspacePageState({
     const nextActiveStage = planData.plan.active_stage ?? null
     const firstAvailableStage = planData.stages[0]?.stage ?? null
     const hasViewedStage =
-      viewedStage != null && planData.stages.some((stage) => stage.stage === viewedStage)
+      viewedStage !== null && planData.stages.some((stage) => stage.stage === viewedStage)
 
     if (!hasViewedStage) {
       setViewedStage(nextActiveStage ?? firstAvailableStage)

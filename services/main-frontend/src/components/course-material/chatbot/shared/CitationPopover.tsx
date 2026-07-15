@@ -2,18 +2,19 @@
 
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import { RefObject, SetStateAction, useEffect, useMemo, useRef, useState } from "react"
+import type { RefObject, SetStateAction } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 import { OverlayTriggerStateContext } from "react-aria-components"
 import { useTranslation } from "react-i18next"
-
-import { citationId } from "./CitationButton"
 
 import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
 import SpeechBalloonPopover from "@/shared-module/common/components/SpeechBalloonPopover"
 import { baseTheme } from "@/shared-module/common/styles"
 import { getRemarkable } from "@/utils/course-material/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+
+import { citationId } from "./CitationButton"
 
 interface CitationPopoverProps {
   citation: ChatbotConversationMessageCitation
@@ -41,7 +42,12 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
   const { t } = useTranslation()
   const popoverRef = useRef<HTMLElement>(null)
   let [isPopoverOpen, setIsPopoverOpen] = useState(false)
-  let { hoverProps: hoverPopoverProps, isHovered: isPopoverHovered } = useHover({})
+  let { hoverProps: rawHoverPopoverProps, isHovered: isPopoverHovered } = useHover({})
+  // useHover types its props with `| undefined` on optional keys, which clashes with
+  // SpeechBalloonPopover's exactOptional props. Strip the `undefined` without changing runtime.
+  const hoverPopoverProps = rawHoverPopoverProps as {
+    [K in keyof typeof rawHoverPopoverProps]: Exclude<(typeof rawHoverPopoverProps)[K], undefined>
+  }
 
   useEffect(() => {
     let open = isCitationHovered || isPopoverHovered || citationButtonClicked
@@ -118,7 +124,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
           setTriggerElementId("")
         }}
         popoverLabel={t("citation-n", { n: citationNumber })}
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         dataTestId="chatbot-citation-popover"
         {...hoverPopoverProps}
       >
@@ -161,6 +167,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
             gap: 10px;
           `}
         >
+          {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- link label comes from dynamic child text (citation title) */}
           <a
             href={citation.document_url}
             className={css`

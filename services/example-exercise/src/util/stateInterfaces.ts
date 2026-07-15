@@ -149,9 +149,11 @@ export function isExerciseFeedback(value: unknown): value is ExerciseFeedback {
 export function parsePublicSpec(value: unknown): PublicAlternative[] {
   // Accept the current bare array and a future `{ version, options }` envelope (migrate-on-read).
   if (Array.isArray(value)) {
+    // oxlint-disable-next-line unicorn/no-array-callback-reference -- type guard; wrapping drops the `value is` narrowing
     return value.filter(isPublicAlternative)
   }
   if (isObject(value) && Array.isArray(value.options)) {
+    // oxlint-disable-next-line unicorn/no-array-callback-reference -- type guard; wrapping drops the `value is` narrowing
     return value.options.filter(isPublicAlternative)
   }
   return []
@@ -160,6 +162,7 @@ export function parsePublicSpec(value: unknown): PublicAlternative[] {
 export function parsePrivateSpec(value: unknown): Alternative[] {
   // Accept the legacy bare array and the versioned envelope (migrate-on-read).
   const alternatives = alternativesFromStored(value)
+  // oxlint-disable-next-line unicorn/no-array-callback-reference -- type guard; wrapping drops the `value is` narrowing
   return alternatives ? alternatives.filter(isAlternative) : []
 }
 

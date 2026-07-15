@@ -1,9 +1,9 @@
 import { useState } from "react"
 
-import ExerciseBase from "./ExerciseBase"
+import type { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { toVersionedAnswer, type Answer, type PublicAlternative } from "@/util/stateInterfaces"
 
-import { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { Answer, PublicAlternative, toVersionedAnswer } from "@/util/stateInterfaces"
+import ExerciseBase from "./ExerciseBase"
 
 interface Props {
   state: PublicAlternative[]
@@ -34,7 +34,7 @@ const Exercise: React.FC<React.PropsWithChildren<Props>> = ({
 
     // Report the current answer to the parent so it can be saved (as the versioned stored shape).
     const message: CurrentStateMessage = {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       message: "current-state",
       data: toVersionedAnswer(optionId),
       valid: true,

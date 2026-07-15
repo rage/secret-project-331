@@ -4,24 +4,22 @@ import _ from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
-import { quizTheme } from "../../../../styles/QuizStyles"
-import ParsedText from "../../../ParsedText"
-
-import {
-  QUIZ_TITLE_STYLE,
-  TWO_DIMENSIONAL_BUTTON_SELECTED,
-  TWO_DIMENSIONAL_BUTTON_STYLES,
-} from "./AnswerQuizStyles"
-
-import { QuizItemComponentProps } from "."
-
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { COLUMN, ROW } from "@/util/constants"
 import { sanitizeFlexDirection } from "@/util/css-sanitization"
 import { orderArrayWithId } from "@/util/randomizer"
+
+import type { QuizItemComponentProps } from "."
+import type { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
+import { quizTheme } from "../../../../styles/QuizStyles"
+import ParsedText from "../../../ParsedText"
+import {
+  QUIZ_TITLE_STYLE,
+  TWO_DIMENSIONAL_BUTTON_SELECTED,
+  TWO_DIMENSIONAL_BUTTON_STYLES,
+} from "./AnswerQuizStyles"
 
 export const optionButton = css`
   ${TWO_DIMENSIONAL_BUTTON_STYLES}
@@ -101,7 +99,7 @@ const MultipleChoice: React.FunctionComponent<
       >
         <ParsedText parseLatex parseMarkdown inline text={quizItem.title} />
       </div>
-      <p
+      <div
         className={css`
           color: ${quizTheme.quizBodyColor};
           font-size: ${quizTheme.quizBodyFontSize};
@@ -109,7 +107,7 @@ const MultipleChoice: React.FunctionComponent<
         `}
       >
         <ParsedText parseLatex parseMarkdown inline text={quizItem.body} />
-      </p>
+      </div>
       <div
         className={css`
           display: flex;
@@ -117,12 +115,10 @@ const MultipleChoice: React.FunctionComponent<
 
           ${respondToOrLarger.sm} {
             flex-direction: ${direction};
-            ${
-              direction === ROW &&
-              `
-              column-gap: 0.625rem;
+            ${direction === ROW &&
             `
-            }
+              column-gap: 0.625rem;
+            `}
           }
         `}
       >

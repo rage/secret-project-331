@@ -1,8 +1,7 @@
 "use client"
 
-import { queryOptions, useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
-
-import { HookQueryOptions } from "."
+import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
+import { queryOptions, useQuery } from "@tanstack/react-query"
 
 import {
   getAvgTimeToFirstSubmissionHistoryOptions as getAvgTimeToFirstSubmissionHistoryGeneratedOptions,
@@ -34,7 +33,7 @@ import {
   getUsersReturningExercisesHistoryByInstanceOptions as getUsersReturningExercisesHistoryByInstanceGeneratedOptions,
   getUsersReturningExercisesHistoryOptions as getUsersReturningExercisesHistoryGeneratedOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import {
+import type {
   AverageMetric,
   CohortActivity,
   CountResult,
@@ -43,8 +42,10 @@ import {
 } from "@/generated/api/types.generated"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
+import type { HookQueryOptions } from "."
+
 const disabledQueryKey = (id: string, extras?: Record<string, unknown>) =>
-  [{ _id: id, ...(extras ?? {}) }] as const
+  [{ _id: id, ...extras }] as const
 
 type BuiltQueryOptions<TData> = UseQueryOptions<TData, Error, TData>
 
@@ -102,7 +103,7 @@ const withCustomTimePeriod = (courseId: string, startDate: string, endDate: stri
   },
 })
 
-type GeneratedOptionsWithKey = {
+interface GeneratedOptionsWithKey {
   queryKey: readonly unknown[]
 }
 
@@ -112,6 +113,7 @@ const buildDisabledQueryOptions = <TData,>(
 ): BuiltQueryOptions<TData> =>
   queryOptions<TData, Error>({
     queryKey: [...queryKey, ...requiredValues],
+    // oxlint-disable-next-line require-await -- queryFn must reject as a Promise, not throw synchronously
     queryFn: async () => {
       requiredValues.forEach((value) => assertNotNullOrUndefined(value))
       throw new Error("Disabled query executed unexpectedly")
@@ -122,7 +124,7 @@ function buildCourseOnlyQueryOptions<TData>(
   courseId: string | null | undefined,
   getGeneratedOptions: (args: ReturnType<typeof withCourseId>) => GeneratedOptionsWithKey,
 ): BuiltQueryOptions<TData> {
-  if (courseId != null) {
+  if (courseId !== null && courseId !== undefined) {
     return getGeneratedOptions(withCourseId(courseId)) as BuiltQueryOptions<TData>
   }
 
@@ -144,7 +146,7 @@ function buildGranularityAndWindowQueryOptions<TData>(
     args: ReturnType<typeof withGranularityAndWindow>,
   ) => GeneratedOptionsWithKey,
 ): BuiltQueryOptions<TData> {
-  if (courseId != null) {
+  if (courseId !== null && courseId !== undefined) {
     return getGeneratedOptions(
       withGranularityAndWindow(courseId, granularity, timeWindow),
     ) as BuiltQueryOptions<TData>
@@ -171,7 +173,7 @@ function buildHistoryAndTrackingWindowQueryOptions<TData>(
     args: ReturnType<typeof withHistoryAndTrackingWindow>,
   ) => GeneratedOptionsWithKey,
 ): BuiltQueryOptions<TData> {
-  if (courseId != null) {
+  if (courseId !== null && courseId !== undefined) {
     return getGeneratedOptions(
       withHistoryAndTrackingWindow(courseId, granularity, historyWindow, trackingWindow),
     ) as BuiltQueryOptions<TData>
@@ -197,7 +199,7 @@ function buildCountryQueryOptions<TData>(
   country: string | null | undefined,
   getGeneratedOptions: (args: ReturnType<typeof withCountry>) => GeneratedOptionsWithKey,
 ): BuiltQueryOptions<TData> {
-  if (courseId != null && country != null) {
+  if (courseId !== null && courseId !== undefined && country !== null && country !== undefined) {
     return getGeneratedOptions(
       withCountry(courseId, granularity, timeWindow, country),
     ) as BuiltQueryOptions<TData>
@@ -222,7 +224,7 @@ function buildCustomTimePeriodQueryOptions<TData>(
   endDate: string,
   getGeneratedOptions: (args: ReturnType<typeof withCustomTimePeriod>) => GeneratedOptionsWithKey,
 ): BuiltQueryOptions<TData> {
-  if (courseId != null) {
+  if (courseId !== null && courseId !== undefined) {
     return getGeneratedOptions(
       withCustomTimePeriod(courseId, startDate, endDate),
     ) as BuiltQueryOptions<TData>

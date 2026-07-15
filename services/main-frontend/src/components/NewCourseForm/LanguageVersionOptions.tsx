@@ -1,14 +1,15 @@
 "use client"
 
 import React from "react"
-import { UseFormReturn } from "react-hook-form"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-
-import { FieldContainer, FormFields } from "."
 
 import type { Course } from "@/generated/api/types.generated"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+
+import type { FormFields } from "."
+import { FieldContainer } from "."
 
 interface LanguageVersionOptionsProps {
   form: UseFormReturn<FormFields>

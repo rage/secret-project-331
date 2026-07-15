@@ -5,12 +5,12 @@ import { AnimatePresence, LayoutGroup, motion } from "motion/react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { SCHEDULE_STAGE_COUNT } from "../../scheduleConstants"
-import { StageCardViewModel } from "../../scheduleMappers"
-import StageCard from "../StageCard"
-
-import { CourseDesignerStage } from "@/generated/api/types.generated"
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import { Button } from "@/shared-module/components"
+
+import { SCHEDULE_STAGE_COUNT } from "../../scheduleConstants"
+import type { StageCardViewModel } from "../../scheduleMappers"
+import StageCard from "../StageCard"
 
 const toolbarStyles = css`
   display: flex;
@@ -41,7 +41,7 @@ const validationErrorStyles = css`
 
 interface ScheduleEditorStepProps {
   draftStageCount: number
-  stageCards: Array<StageCardViewModel>
+  stageCards: StageCardViewModel[]
   stageLabel: (stage: CourseDesignerStage) => string
   validationError: string | null
   startsOnMonth: string
@@ -99,7 +99,7 @@ export default function ScheduleEditorStep({
         <LayoutGroup>
           <div className={stageListStyles}>
             {stageCards.map((card) => {
-              // eslint-disable-next-line i18next/no-literal-string -- stable test id prefix
+              // oxlint-disable-next-line i18next/no-literal-string -- stable test id prefix
               const stageTestId = `course-plan-stage-${card.stage}`
               return (
                 <StageCard
@@ -144,7 +144,7 @@ export default function ScheduleEditorStep({
                 ? { duration: 0 }
                 : {
                     duration: 0.2,
-                    // eslint-disable-next-line i18next/no-literal-string -- Motion ease value
+                    // oxlint-disable-next-line i18next/no-literal-string -- Motion ease value
                     ease: "easeOut",
                   }
             }

@@ -11,7 +11,7 @@ export function isElementFullyInViewport(element: HTMLElement): boolean {
 }
 
 export function nodeIsElement(obj: Node): obj is Element {
-  return obj.nodeType == 1
+  return obj.nodeType === 1
 }
 
 export function isHtmlButtonElement(value: HTMLElement): value is HTMLButtonElement {

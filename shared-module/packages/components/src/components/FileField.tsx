@@ -10,8 +10,8 @@ import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { joinAriaDescribedBy } from "../lib/utils/field"
 import { summarizeFiles } from "../lib/utils/files"
+import { omitUndefined } from "../lib/utils/nullability"
 import { fileListToArray } from "../lib/utils/rhfAdapters"
-
 import { FieldShell } from "./primitives/FieldShell"
 import type { FieldSize } from "./primitives/fieldStyles"
 import { fileButtonCss, fileTriggerRowCss } from "./primitives/selectStyles"
@@ -40,7 +40,7 @@ const fileButtonLgCss = css`
   font-size: var(--font-size-lg);
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
 
 function resolveFileButtonSizeCss(fieldSize: FieldSize) {
@@ -49,7 +49,6 @@ function resolveFileButtonSizeCss(fieldSize: FieldSize) {
       return fileButtonSmCss
     case "lg":
       return fileButtonLgCss
-    case "md":
     default:
       return fileButtonMdCss
   }
@@ -100,7 +99,12 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
     multiple,
   } = props
 
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...omitUndefined({ rules }),
+    errorMessage,
+  })
 
   const { t } = useTranslation("shared-module")
   const fileSummaryLabels = useMemo(
@@ -138,7 +142,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      className={className}
+      {...omitUndefined({ className })}
       label={label}
       labelProps={labelProps as React.HTMLAttributes<HTMLElement>}
       description={description}
@@ -195,6 +199,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
             </>
           </VisuallyHidden>
         ) : null}
+        {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> is inline, changes styling */}
         <div aria-live="polite" className={fileSummaryCss} role="status">
           {fileSummary}
         </div>

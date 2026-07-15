@@ -4,8 +4,16 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewOrEditPageForm from "../NewOrEditPageForm"
+import { deletePageMutation as deletePageMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { Chapter, Page } from "@/generated/api/types.generated"
+import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
+import Button from "@/shared-module/common/components/Button"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { baseTheme, typography } from "@/shared-module/common/styles"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 
+import NewOrEditPageForm from "../NewOrEditPageForm"
 import PageListItem, {
   MOVING_ALLOWED,
   MOVING_ALLOWED_ONLY_DOWN,
@@ -14,17 +22,9 @@ import PageListItem, {
 } from "./PageListItem"
 import TableWrapper from "./TableWrapper"
 
-import { deletePageMutation as deletePageMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import type { Chapter, Page } from "@/generated/api/types.generated"
-import { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
-import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { baseTheme, typography } from "@/shared-module/common/styles"
-
 interface Props {
   data: Page[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   refetch: () => any
   courseId: string
   chapter?: Chapter
@@ -114,11 +114,13 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
       </Button>
 
       <NewOrEditPageForm
-        chapterId={chapter?.id}
+        {...omitUndefined({ chapterId: chapter?.id })}
         courseId={courseId}
         onSubmitForm={handleCreateTopLevelPage}
-        // eslint-disable-next-line i18next/no-literal-string
-        prefix={chapter && `/chapter-${chapter.chapter_number}/`}
+        {...includeIf(chapter, {
+          // oxlint-disable-next-line i18next/no-literal-string
+          prefix: `/chapter-${chapter?.chapter_number}/`,
+        })}
         isUpdate={false}
         open={showNewOrEditPageForm}
         onClose={() => setShowNewOrEditPageForm(false)}

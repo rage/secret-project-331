@@ -6,8 +6,6 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import Grid from "./Grid"
-
 import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "@/components/course-material/LandingPageHeroSection"
 import { getCourseMaterialChapters } from "@/generated/course-material-api/sdk.generated"
 import type { ChaptersWithStatus } from "@/generated/course-material-api/types.generated"
@@ -17,6 +15,8 @@ import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/st
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { stringToRandomNumber } from "@/shared-module/common/utils/strings"
 import { QueryResult } from "@/shared-module/components"
+
+import Grid from "./Grid"
 
 const COLORS_ARRAY = [
   "#215887",
@@ -92,7 +92,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
           {(data) => (
             <>
               {[...data.modules]
-                .sort((a, b) => a.order_number - b.order_number)
+                .toSorted((a, b) => a.order_number - b.order_number)
                 .map((module) => {
                   const randomNumber = stringToRandomNumber(module.id) % COLORS_ARRAY.length
                   const randomizedColor = COLORS_ARRAY[randomNumber]

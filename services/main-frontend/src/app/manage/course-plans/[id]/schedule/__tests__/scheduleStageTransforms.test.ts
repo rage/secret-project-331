@@ -2,12 +2,12 @@
 
 import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 
-import { addMonthToStage, removeMonthFromStage } from "../scheduleStageTransforms"
-
-import {
+import type {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
+
+import { addMonthToStage, removeMonthFromStage } from "../scheduleStageTransforms"
 
 const STAGE_ORDER: CourseDesignerStage[] = [
   "Analysis",
@@ -38,7 +38,7 @@ const buildContiguousStages = (
   const stages: CourseDesignerScheduleStageInput[] = []
 
   STAGE_ORDER.forEach((stage, idx) => {
-    const months = totalMonthsPerStage[idx]
+    const months = totalMonthsPerStage[idx] ?? 0
     stages.push(makeStage(stage, cursor, months))
     cursor = addMonths(cursor, months)
   })
@@ -65,11 +65,11 @@ describe("scheduleStageTransforms", () => {
     expect(updated).not.toBeNull()
     const stages = updated!
 
-    expect(countMonthsForStage(stages[0])).toBe(3)
-    expect(countMonthsForStage(stages[1])).toBe(2)
-    expect(countMonthsForStage(stages[2])).toBe(2)
-    expect(countMonthsForStage(stages[3])).toBe(2)
-    expect(countMonthsForStage(stages[4])).toBe(2)
+    expect(countMonthsForStage(stages[0]!)).toBe(3)
+    expect(countMonthsForStage(stages[1]!)).toBe(2)
+    expect(countMonthsForStage(stages[2]!)).toBe(2)
+    expect(countMonthsForStage(stages[3]!)).toBe(2)
+    expect(countMonthsForStage(stages[4]!)).toBe(2)
   })
 
   it("adds a month to the last stage and extends the plan", () => {
@@ -78,7 +78,7 @@ describe("scheduleStageTransforms", () => {
     expect(updated).not.toBeNull()
     const stages = updated!
 
-    expect(countMonthsForStage(stages[4])).toBe(3)
+    expect(countMonthsForStage(stages[4]!)).toBe(3)
   })
 
   it("adds a month to a middle stage and keeps other lengths", () => {
@@ -87,11 +87,11 @@ describe("scheduleStageTransforms", () => {
     expect(updated).not.toBeNull()
     const stages = updated!
 
-    expect(countMonthsForStage(stages[0])).toBe(2)
-    expect(countMonthsForStage(stages[1])).toBe(2)
-    expect(countMonthsForStage(stages[2])).toBe(3)
-    expect(countMonthsForStage(stages[3])).toBe(2)
-    expect(countMonthsForStage(stages[4])).toBe(2)
+    expect(countMonthsForStage(stages[0]!)).toBe(2)
+    expect(countMonthsForStage(stages[1]!)).toBe(2)
+    expect(countMonthsForStage(stages[2]!)).toBe(3)
+    expect(countMonthsForStage(stages[3]!)).toBe(2)
+    expect(countMonthsForStage(stages[4]!)).toBe(2)
   })
 
   it("removes a month from the first stage when it has more than one month", () => {
@@ -100,7 +100,7 @@ describe("scheduleStageTransforms", () => {
     expect(updated).not.toBeNull()
     const stages = updated!
 
-    expect(countMonthsForStage(stages[0])).toBe(2)
+    expect(countMonthsForStage(stages[0]!)).toBe(2)
   })
 
   it("does not remove a month from a stage with only one month", () => {
@@ -115,7 +115,7 @@ describe("scheduleStageTransforms", () => {
     expect(updated).not.toBeNull()
     const stages = updated!
 
-    expect(countMonthsForStage(stages[4])).toBe(2)
+    expect(countMonthsForStage(stages[4]!)).toBe(2)
   })
 
   it("removes a month from a middle stage and keeps others the same length", () => {
@@ -124,10 +124,10 @@ describe("scheduleStageTransforms", () => {
     expect(updated).not.toBeNull()
     const stages = updated!
 
-    expect(countMonthsForStage(stages[2])).toBe(2)
-    expect(countMonthsForStage(stages[0])).toBe(2)
-    expect(countMonthsForStage(stages[1])).toBe(2)
-    expect(countMonthsForStage(stages[3])).toBe(2)
-    expect(countMonthsForStage(stages[4])).toBe(2)
+    expect(countMonthsForStage(stages[2]!)).toBe(2)
+    expect(countMonthsForStage(stages[0]!)).toBe(2)
+    expect(countMonthsForStage(stages[1]!)).toBe(2)
+    expect(countMonthsForStage(stages[3]!)).toBe(2)
+    expect(countMonthsForStage(stages[4]!)).toBe(2)
   })
 })

@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React from "react"
 
-import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
-
 import { getCourseMaterialChapterPagesWithExercisesOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { QueryResult } from "@/shared-module/components"
+
+import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
 
 const ExercisesInChapter: React.FC<
   React.PropsWithChildren<{ chapterId: string; courseInstanceId: string | undefined }>

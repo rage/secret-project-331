@@ -1,5 +1,5 @@
 import { BadRequestError, jsonRoute, readJsonBody } from "@/lib/apiRoutes"
-import {
+import type {
   GradingRequest,
   GradingResult,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
@@ -8,7 +8,7 @@ import {
   alternativesFromStored,
   parseAnswer,
   toVersionedFeedback,
-  VersionedExerciseFeedback,
+  type VersionedExerciseFeedback,
 } from "@/util/stateInterfaces"
 
 type ExampleExerciseGradingResult = GradingResult<VersionedExerciseFeedback | null>

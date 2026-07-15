@@ -7,7 +7,7 @@ import { mergeProps, useLink, useObjectRef, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
-
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   type ButtonSize,
   type ButtonVariant,
@@ -27,7 +27,7 @@ type CommonLinkExtras = PressHandlers & {
   loadingLabel?: string
 }
 
-type ButtonLikeStyling = {
+interface ButtonLikeStyling {
   variant?: ButtonVariant
   size?: ButtonSize
   icon?: React.ReactNode
@@ -108,15 +108,17 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
 
     const { linkProps, isPressed } = useLink(
       {
-        onPress,
-        onPressStart,
-        onPressEnd,
-        onPressChange,
-        onPressUp,
         isDisabled: isInteractivelyDisabled,
-        "aria-label": userAriaLabel,
-        "aria-describedby": describedBy,
-        "aria-labelledby": labelledBy,
+        ...omitUndefined({
+          onPress,
+          onPressStart,
+          onPressEnd,
+          onPressChange,
+          onPressUp,
+          "aria-label": userAriaLabel,
+          "aria-describedby": describedBy,
+          "aria-labelledby": labelledBy,
+        }),
       },
       ref,
     )
@@ -142,7 +144,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       ) || undefined
 
     const resolvedIcon = styledAsButtonResolved ? icon : undefined
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const defaultIconPosition: IconPosition = "start"
     const resolvedIconPosition =
       (styledAsButtonResolved ? iconPosition : undefined) ?? defaultIconPosition
@@ -160,7 +162,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
 
     return (
       <NextLink
-        {...mergedLinkProps}
+        {...(mergedLinkProps as Partial<NextProps>)}
         {...rest}
         ref={ref}
         className={rootClassName}
@@ -168,7 +170,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
         data-disabled-reason={
           isLoading ? "loading" : isInteractivelyDisabled ? "disabled" : undefined
         }
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         aria-busy={isLoading ? "true" : undefined}
         tabIndex={finalTabIndex}
       >

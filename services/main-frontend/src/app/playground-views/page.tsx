@@ -10,10 +10,6 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
-import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
-import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
-
 import type {
   GetPlaygroundViewsWebsocketData,
   ReceivePlaygroundGradingData,
@@ -32,21 +28,27 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { QueryResult } from "@/shared-module/components"
-import {
+import type {
   CurrentStateMessage,
   IframeViewType,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
-import {
+import type {
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,
+  SpecRequest,
+} from "@/utils/playgroundSchemas"
+import {
   parseExerciseServiceInfoApi,
   parseExerciseTaskGradingResult,
   parsePlaygroundViewsMessage,
-  SpecRequest,
 } from "@/utils/playgroundSchemas"
+
+import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
+import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
+import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
 interface PlaygroundFields {
   url: string
@@ -182,7 +184,7 @@ const IframeViewPlayground: React.FC = () => {
 
   const [currentStateReceivedFromIframe, setCurrentStateReceivedFromIframe] =
     useState<CurrentStateMessage | null>(null)
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [currentView, setCurrentView] = useState<IframeViewType>("exercise-editor")
   const [submissionViewSendModelsolutionSpec, setSubmissionViewSendModelsolutionSpec] =
     useState(true)
@@ -191,15 +193,15 @@ const IframeViewPlayground: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0)
 
   const { register, setValue, watch } = useForm<PlaygroundFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       url: localStorage.getItem("service-info-url") ?? DEFAULT_SERVICE_INFO_URL,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       private_spec: "null",
       showIframeBorders: true,
       disableSandbox: false,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       pseudonymousUserId: "78b62532-b836-4387-8f99-673cb023b903",
       signedIn: true,
     },
@@ -310,7 +312,7 @@ const IframeViewPlayground: React.FC = () => {
           throw new Error("Playground websocket is not registered.")
         }
         const gradingRequest: GradingRequest = {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           grading_update_url: `${buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
             websocket_id: websocketId,
           })}?playground-grading-callback-claim=${encodeURIComponent(
@@ -335,9 +337,8 @@ const IframeViewPlayground: React.FC = () => {
         return parseExerciseTaskGradingResult(gradingJson)
       } else if (param.type === "fromWebsocket") {
         return param.data
-      } else {
-        throw new Error("unreachable")
       }
+      throw new Error("unreachable")
     },
     { notify: true, method: "POST" },
   )
@@ -355,23 +356,26 @@ const IframeViewPlayground: React.FC = () => {
       return
     }
     const ws = websocket
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     ws.onmessage = (ev) => {
       const msg = parsePlaygroundViewsMessage(JSON.parse(ev.data))
-      if (msg.tag == "TimedOut") {
+      if (msg.tag === "TimedOut") {
         console.error("websocket timed out")
-      } else if (msg.tag == "Registered") {
+      } else if (msg.tag === "Registered") {
         console.info("Registered websocket", msg.data)
         setWebsocketId(msg.data.websocket_id)
         setPlaygroundGradingCallbackClaim(msg.data.playground_grading_callback_claim)
-      } else if (msg.tag == "ExerciseTaskGradingResult") {
+      } else if (msg.tag === "ExerciseTaskGradingResult") {
         submitAnswerMutation.mutate({ type: "fromWebsocket", data: msg.data })
       } else {
         throw new Error(`Unexpected websocket message: ${ev}`)
       }
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     ws.onclose = (ev) => {
       console.error("websocket closed unexpectedly", ev)
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     ws.onerror = (err) => {
       console.error("websocket error", err)
     }
@@ -590,7 +594,7 @@ const IframeViewPlayground: React.FC = () => {
                 <QueryResult query={publicSpecQuery}>
                   {(data) => (
                     <StyledPre fullWidth={false}>
-                      {/* eslint-disable-next-line i18next/no-literal-string */}
+                      {/* oxlint-disable-next-line i18next/no-literal-string */}
                       {JSON.stringify(data, undefined, 2).replaceAll("\\n", "\n")}
                     </StyledPre>
                   )}
@@ -611,7 +615,7 @@ const IframeViewPlayground: React.FC = () => {
                 <QueryResult query={modelSolutionSpecQuery}>
                   {(data) => (
                     <StyledPre fullWidth={false}>
-                      {/* eslint-disable-next-line i18next/no-literal-string */}
+                      {/* oxlint-disable-next-line i18next/no-literal-string */}
                       {JSON.stringify(data, undefined, 2).replaceAll("\\n", "\n")}
                     </StyledPre>
                   )}
@@ -683,7 +687,7 @@ const IframeViewPlayground: React.FC = () => {
                 setCurrentStateReceivedFromIframe(null)
                 setCurrentView("exercise-editor")
               }}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
               exercise-editor
             </button>
@@ -693,7 +697,7 @@ const IframeViewPlayground: React.FC = () => {
                 setCurrentStateReceivedFromIframe(null)
                 setCurrentView("answer-exercise")
               }}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
               answer-exercise
             </button>
@@ -703,7 +707,7 @@ const IframeViewPlayground: React.FC = () => {
                 setCurrentStateReceivedFromIframe(null)
                 setCurrentView("view-submission")
               }}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
               view-submission
             </button>
@@ -722,36 +726,36 @@ const IframeViewPlayground: React.FC = () => {
                   userInformation={userInformation}
                   repositoryExercises={[
                     {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       id: "sample-exercise-1",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_id: "sample-repository-1",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       part: "part01",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       name: "ex01",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_url: "https://github.com/testmycode/tmc-testcourse",
                       checksum: [1, 2, 3, 4],
                       download_url:
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         `${PUBLIC_ADDRESS}/api/v0/files/playground-views/repository-exercise-1.tar.zst`,
                     },
                     {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       id: "sample-exercise-2",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_id: "sample-repository-1",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       part: "part01",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       name: "ex02",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_url: "https://github.com/testmycode/tmc-testcourse",
                       checksum: [5, 6, 7, 8],
 
                       download_url:
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         `${PUBLIC_ADDRESS}/api/v0/files/playground-views/repository-exercise-2.tar.zst`,
                     },
                   ]}
@@ -864,7 +868,7 @@ const IframeViewPlayground: React.FC = () => {
                 setValue(
                   "private_spec",
                   JSON.stringify(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    // oxlint-disable-next-line typescript/no-explicit-any
                     (currentStateReceivedFromIframe?.data as any)?.private_spec,
                     undefined,
                     2,
@@ -881,11 +885,9 @@ const IframeViewPlayground: React.FC = () => {
         {currentStateReceivedFromIframe === null ? (
           <>{t("message-no-current-state-message-received-from-the-iframe-yet")}</>
         ) : (
-          <>
-            <StyledPre fullWidth>
-              {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
-            </StyledPre>
-          </>
+          <StyledPre fullWidth>
+            {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
+          </StyledPre>
         )}
       </Area>
 
@@ -942,6 +944,7 @@ const IframeViewPlayground: React.FC = () => {
               `}
               title={t("title-scroll-to-a-heading-in-this-page")}
               onChange={(event) => {
+                // oxlint-disable-next-line unicorn/prefer-query-selector -- id is dynamic; querySelector needs CSS.escape and may throw
                 const element = document.getElementById(event.target.value)
                 if (!element) {
                   console.error("Element to scroll to not found", event.target.value)

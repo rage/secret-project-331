@@ -4,13 +4,12 @@ import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
-
-import { QuizItemSubmissionComponentProps } from "."
-
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemSubmissionComponentProps } from "."
+import type { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
 
 const MatrixTableContainer = styled.table`
   margin: auto;
@@ -81,6 +80,9 @@ interface isCellCorrectObject {
   correct: boolean | null
 }
 
+const containsNonEmptyString = (arr: string[]): boolean =>
+  arr.some((item) => typeof item === "string" && item.trim() !== "")
+
 const MatrixSubmission: React.FC<
   QuizItemSubmissionComponentProps<PublicSpecQuizItemMatrix, UserItemAnswerMatrix>
 > = ({ quiz_item_model_solution, user_quiz_item_answer, quiz_item_answer_feedback }) => {
@@ -93,7 +95,7 @@ const MatrixSubmission: React.FC<
     throw new Error("No student answers")
   }
 
-  const isIncorrect = quiz_item_answer_feedback?.correctnessCoefficient != 1
+  const isIncorrect = quiz_item_answer_feedback?.correctnessCoefficient !== 1
 
   const findOptionText = (
     column: number,
@@ -103,20 +105,20 @@ const MatrixSubmission: React.FC<
     if (!correctAnswers) {
       if (!isStudentsAnswer && modelSolution?.optionCells) {
         return {
-          text: modelSolution.optionCells[row][column],
+          text: modelSolution.optionCells[row]?.[column] ?? "",
           correct: null,
         }
       }
       return {
-        text: studentAnswers[row][column],
+        text: studentAnswers[row]?.[column] ?? "",
         correct: null,
       }
     }
-    let correct = studentAnswers[row][column] === correctAnswers[row][column]
-    let text = studentAnswers[row][column]
+    let correct = studentAnswers[row]?.[column] === correctAnswers[row]?.[column]
+    let text = studentAnswers[row]?.[column] ?? ""
     if (!isStudentsAnswer) {
       correct = true
-      text = correctAnswers[row][column]
+      text = correctAnswers[row]?.[column] ?? ""
     }
     return {
       text: text,
@@ -128,9 +130,6 @@ const MatrixSubmission: React.FC<
 
   const modelSolutionRowsCountArray: number[] = []
   const modelSolutionColumnsCountArray: number[] = []
-
-  const containsNonEmptyString = (arr: string[]): boolean =>
-    arr.some((item) => typeof item === "string" && item.trim() !== "")
 
   const modelSolutionMatrix = modelSolution?.optionCells
 
@@ -212,16 +211,15 @@ const MatrixSubmission: React.FC<
         )}
       </div>
     )
-  } else {
-    return (
-      <MatrixTable
-        aria-label={t("matrix-fully-correct")}
-        rowsCountArray={rowsCountArray}
-        columnsCountArray={columnsCountArray}
-        findOptionText={findOptionText}
-      ></MatrixTable>
-    )
   }
+  return (
+    <MatrixTable
+      aria-label={t("matrix-fully-correct")}
+      rowsCountArray={rowsCountArray}
+      columnsCountArray={columnsCountArray}
+      findOptionText={findOptionText}
+    ></MatrixTable>
+  )
 }
 
 interface MatrixTableProps {
@@ -244,71 +242,65 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
         <div className="top-right"></div>
         <div className="bottom-left"></div>
         <div className="bottom-right"></div>
-        <>
-          {rowsCountArray.map((row) => {
-            return (
-              <tr key={`row${row}`}>
-                {columnsCountArray.map((column) => {
-                  const cell = findOptionText(column, row, isStudentsAnswer)
-                  if (cell !== null) {
-                    return (
-                      <td
-                        key={`cell ${row} ${column}`}
+        {rowsCountArray.map((row) => {
+          return (
+            <tr key={`row${row}`}>
+              {columnsCountArray.map((column) => {
+                const cell = findOptionText(column, row, isStudentsAnswer)
+                if (cell !== null) {
+                  return (
+                    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- table cell renders dynamic text, not an interactive control
+                    <td
+                      key={`cell ${row} ${column}`}
+                      className={css`
+                        padding: 0;
+                        font-size: 2.8vw;
+                        font-size: 1.375rem;
+                        font-family: ${primaryFont};
+                      `}
+                    >
+                      <div
                         className={css`
-                          padding: 0;
-                          font-size: 2.8vw;
-                          font-size: 1.375rem;
-                          font-family: ${primaryFont};
-                        `}
-                      >
-                        <div
-                          className={css`
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            width: 3.125rem;
-                            height: 3.125rem;
-                            border: 0;
-                            outline: none;
-                            text-align: center;
-                            resize: none;
-                            ${
-                              cell.text.length === 0 &&
-                              `
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          width: 3.125rem;
+                          height: 3.125rem;
+                          border: 0;
+                          outline: none;
+                          text-align: center;
+                          resize: none;
+                          ${cell.text.length === 0 &&
+                          `
                               background-color: #f5f6f7;
-                            `
-                            }
-                            ${
-                              cell.text !== "" &&
-                              `
+                            `}
+                          ${cell.text !== "" &&
+                          `
                                 background-color: #f9f9f9;
                                 color: #4C5868;
-                                `
-                            }
-                                ${
-                                  cell.correct === false &&
-                                  `background-color: #bfbec6;
-                                `
-                                }
+                                `}
+                          ${cell.correct === false &&
+                          `background-color: #bfbec6;
+                                `}
+                        `}
+                      >
+                        <p
+                          className={css`
+                            position: relative;
+                            bottom: -0.188rem;
                           `}
                         >
-                          <p
-                            className={css`
-                              position: relative;
-                              bottom: -0.188rem;
-                            `}
-                          >
-                            {cell.text}
-                          </p>
-                        </div>
-                      </td>
-                    )
-                  }
-                })}
-              </tr>
-            )
-          })}
-        </>
+                          {cell.text}
+                        </p>
+                      </div>
+                    </td>
+                  )
+                }
+                return null
+              })}
+            </tr>
+          )
+        })}
       </tbody>
     </MatrixTableContainer>
   )

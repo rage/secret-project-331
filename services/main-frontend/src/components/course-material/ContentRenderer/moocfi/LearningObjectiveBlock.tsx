@@ -5,16 +5,16 @@ import { useAtomValue } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from ".."
-
 import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterFrontPage"
 import Check from "@/img/course-material/checkmark.svg"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+
+import type { BlockRendererProps } from ".."
 
 // Restricts the width even further than the centered. Centered still used to get some padding on left and right on mobile screens.
 const Wrapper = styled.div`
@@ -95,7 +95,7 @@ const LearningObjectiveSectionBlock: React.FC<
   //It is assumed that LearningBlock accepts only list - it can be updated to accept paragraph
   const data = props.data.innerBlocks[0]
 
-  const childHtmls = parseListBlock(data)
+  const childHtmls = data ? parseListBlock(data) : []
 
   return (
     <Wrapper>
@@ -130,9 +130,9 @@ function parseListBlock({ attributes, innerBlocks }: Block<unknown>): string[] {
   }
   // Handle the old type of list
   const parser = new DOMParser()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const listItem = parser.parseFromString(values, "text/html")
-  const children: string[] = [].slice
+  const children: string[] = Array.prototype.slice
     .call(listItem.body.childNodes)
     .map(({ innerHTML }) => innerHTML)
   return children

@@ -5,17 +5,16 @@ import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import React, { useContext, useMemo } from "react"
 
-import PageContext from "../../contexts/PageContext"
-import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-import { ConditionAttributes } from "."
-
 import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
 import { getCmsCodeGiveawaysByCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ConditionAttributes } from "."
+import PageContext from "../../contexts/PageContext"
+import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/heading",
@@ -41,25 +40,25 @@ const CodeGiveawayBlockEditor: React.FC<
   const codeGivawayQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
         getCmsCodeGiveawaysByCourseOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
           },
         }),
     }),
   )
 
   const title = useMemo(() => {
-    let title = t("code-giveaway")
+    let computedTitle = t("code-giveaway")
     if (codeGivawayQuery.data) {
       const selected = codeGivawayQuery.data.find((o) => o.id === attributes.code_giveaway_id)
       if (selected) {
-        title += ` (${selected.name})`
+        computedTitle += ` (${selected.name})`
       }
     }
-    return title
+    return computedTitle
   }, [attributes.code_giveaway_id, codeGivawayQuery.data, t])
 
   const dropdownOptions = useMemo(() => {

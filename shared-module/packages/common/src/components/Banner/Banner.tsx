@@ -5,7 +5,6 @@ import React from "react"
 
 import Next from "../../img/next.svg"
 import { respondToOrLarger } from "../../styles/respond"
-
 import ReadOnlyBanner from "./ReadOnlyBanner"
 
 const BannerWrapper = styled.div`

@@ -3,13 +3,13 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
-import { t as globalT, TFunction } from "i18next"
+import type { TFunction } from "i18next"
+import { t as globalT } from "i18next"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { assert, Equals } from "tsafe"
-
-import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
+import type { Equals } from "tsafe"
+import { assert } from "tsafe"
 
 import {
   addRoleMutation as addRoleMutationOptions,
@@ -31,6 +31,8 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
@@ -113,23 +115,23 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
   }
 
   let query: RoleQuery
-  if (domain.tag == "Global") {
+  if (domain.tag === "Global") {
     query = { global: true }
-  } else if (domain.tag == "Organization") {
+  } else if (domain.tag === "Organization") {
     query = { organization_id: domain.id }
-  } else if (domain.tag == "Course") {
+  } else if (domain.tag === "Course") {
     query = { course_id: domain.id }
-  } else if (domain.tag == "CourseInstance") {
+  } else if (domain.tag === "CourseInstance") {
     query = { course_instance_id: domain.id }
-  } else if (domain.tag == "Exam") {
+  } else if (domain.tag === "Exam") {
     query = { exam_id: domain.id }
   } else {
-    // eslint-disable-next-line i18next/no-literal-string
-    throw "Unknown domain type"
+    // oxlint-disable-next-line i18next/no-literal-string
+    throw new Error("Unknown domain type")
   }
 
   const [newEmail, setNewEmail] = useState("")
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [newRole, setNewRole] = useState<UserRole>("Assistant")
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)
@@ -155,12 +157,20 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     },
   )
   const editMutation = useToastMutation(
-    ({ email, oldRole, newRole }: { email: string; oldRole: UserRole; newRole: UserRole }) =>
+    ({
+      email,
+      oldRole,
+      newRole: nextRole,
+    }: {
+      email: string
+      oldRole: UserRole
+      newRole: UserRole
+    }) =>
       removeRoleFromApi({
         body: { email, role: oldRole, domain },
       }).then(() =>
         addRoleFromApi({
-          body: { email, role: newRole, domain },
+          body: { email, role: nextRole, domain },
         }),
       ),
     { notify: true, method: "POST" },
@@ -299,7 +309,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
               </tr>
             </thead>
             <tbody>
-              {roleData.sort(sortRoles).map((ur) => (
+              {roleData.toSorted(sortRoles).map((ur) => (
                 <tr
                   className={css`
                     background: #ffffff;

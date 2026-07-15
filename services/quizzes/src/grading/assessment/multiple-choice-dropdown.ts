@@ -1,6 +1,6 @@
-import { UserItemAnswerMultiplechoiceDropdown } from "../../../types/quizTypes/answer"
-import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
-import { PrivateSpecQuizItemMultiplechoiceDropdown } from "../../../types/quizTypes/privateSpec"
+import type { UserItemAnswerMultiplechoiceDropdown } from "../../../types/quizTypes/answer"
+import type { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
+import type { PrivateSpecQuizItemMultiplechoiceDropdown } from "../../../types/quizTypes/privateSpec"
 
 const assessMultipleChoiceDropdown = (
   quizItemAnswer: UserItemAnswerMultiplechoiceDropdown,
@@ -13,7 +13,7 @@ const assessMultipleChoiceDropdown = (
   }
 
   // No option was selected
-  if (quizItemAnswer.selectedOptionIds.length == 0) {
+  if (quizItemAnswer.selectedOptionIds.length === 0) {
     return {
       quizItemId: quizItem.id,
       correctnessCoefficient: 0,
@@ -21,7 +21,7 @@ const assessMultipleChoiceDropdown = (
   }
 
   const selectedOption = quizItemAnswer.selectedOptionIds[0]
-  const answer = quizItem.options.find((item) => item.id == selectedOption)
+  const answer = quizItem.options.find((item) => item.id === selectedOption)
 
   // Answer does not exist in quiz item
   if (!answer) {

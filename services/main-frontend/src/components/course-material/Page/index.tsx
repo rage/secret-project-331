@@ -7,21 +7,8 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React, { useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ClosedCourseWarningDialog from "../ClosedCourseWarningDialog"
-import ContentRenderer from "../ContentRenderer"
-import AudioPlayer from "../ContentRenderer/moocfi/AudioPlayer"
-import NavigationContainer from "../ContentRenderer/moocfi/NavigationContainer"
-import FeedbackHandler from "../FeedbackHandler"
-import HeadingsNavigation from "../HeadingsNavigation"
-import ReferenceList from "../ReferencesList"
-import Chatbot from "../chatbot/Chatbot"
-import SelectResearchConsentForm from "../forms/SelectResearchConsentForm"
-import SelectUserInformationForm from "../forms/SelectUserInformationForm"
-import AiUsageNoticeDialog from "../modals/AiUsageNoticeDialog"
-import CourseSettingsModal from "../modals/CourseSettingsModal"
-import UserOnWrongCourseNotification from "../notifications/UserOnWrongCourseNotification"
-
-import { GlossaryContext, GlossaryState } from "@/contexts/course-material/GlossaryContext"
+import type { GlossaryState } from "@/contexts/course-material/GlossaryContext"
+import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import useAiUsageNoticeAcknowledgement from "@/hooks/course-material/useAiUsageNoticeAcknowledgement"
 import useDefaultChatbotConfiguration from "@/hooks/course-material/useDefaultChatbotConfiguration"
 import useDialogStep, { DialogStep } from "@/hooks/course-material/useDialogStep"
@@ -36,6 +23,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
@@ -45,7 +33,21 @@ import {
   viewIsFetchingAtom,
 } from "@/state/course-material/selectors"
 import { inlineColorStyles } from "@/styles/course-material/inlineColorStyles"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
+
+import Chatbot from "../chatbot/Chatbot"
+import ClosedCourseWarningDialog from "../ClosedCourseWarningDialog"
+import ContentRenderer from "../ContentRenderer"
+import AudioPlayer from "../ContentRenderer/moocfi/AudioPlayer"
+import NavigationContainer from "../ContentRenderer/moocfi/NavigationContainer"
+import FeedbackHandler from "../FeedbackHandler"
+import SelectResearchConsentForm from "../forms/SelectResearchConsentForm"
+import SelectUserInformationForm from "../forms/SelectUserInformationForm"
+import HeadingsNavigation from "../HeadingsNavigation"
+import AiUsageNoticeDialog from "../modals/AiUsageNoticeDialog"
+import CourseSettingsModal from "../modals/CourseSettingsModal"
+import UserOnWrongCourseNotification from "../notifications/UserOnWrongCourseNotification"
+import ReferenceList from "../ReferencesList"
 
 interface Props {
   onRefresh: () => void
@@ -66,6 +68,9 @@ const AudioNotification = styled.div`
     margin-bottom: 0.8rem;
   }
 `
+
+const querySettled = (query: { isSuccess: boolean; isError: boolean }) =>
+  query.isSuccess || query.isError
 
 const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizationSlug }) => {
   const [isVisible, setIsVisible] = useState(false)
@@ -160,8 +165,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   // as settled.
   const signedIn = loginState.signedIn === true
   const courseScopedQueriesShouldRun = signedIn && Boolean(courseId)
-  const querySettled = (query: { isSuccess: boolean; isError: boolean }) =>
-    query.isSuccess || query.isError
   const decisionReady =
     courseMaterialState.status !== "loading" &&
     !viewIsFetching &&
@@ -275,7 +278,8 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           <SelectResearchConsentForm
             editForm={showResearchConsentFormBecauseOfUrl}
             shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
-            usersInitialAnswers={researchConsentFormAnswerQuery.data}
+            {...omitUndefined({ usersInitialAnswers: researchConsentFormAnswerQuery.data })}
+            // oxlint-disable-next-line typescript/no-non-null-assertion -- researchFormIsLoadedAndExists guarantees data is non-null
             researchForm={researchConsentFormQuery.data!}
             onClose={() => {
               setShowResearchConsentFormBecauseOfUrl(false)
@@ -299,7 +303,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             emailCommunicationConsent={userDetailsQuery.data?.email_communication_consent ?? false}
           />
         )}
-        {getPageAudioFiles.isSuccess && tracks.length !== 0 && (
+        {getPageAudioFiles.isSuccess && tracks.length > 0 && (
           <AudioNotification>
             <p>{t("audio-notification-description")}</p>
             <button
@@ -342,7 +346,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           {/* TODO: Better type for Page.content in bindings. */}
           <div id="content" className={inlineColorStyles}>
             <ContentRenderer
-              data={(courseMaterialState.page?.content as Array<Block<unknown>>) ?? []}
+              data={(courseMaterialState.page?.content as Block<unknown>[]) ?? []}
               isExam={courseMaterialState.examData !== null}
               dontAllowBlockToBeWiderThanContainerWidth={false}
             />
@@ -352,7 +356,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         {courseMaterialState.page?.course_id && (
           <ReferenceList courseId={courseMaterialState.page.course_id} />
         )}
-        {getPageAudioFiles.isSuccess && isVisible && tracks.length !== 0 && (
+        {getPageAudioFiles.isSuccess && isVisible && tracks.length > 0 && (
           <AudioPlayer
             tracks={tracks}
             isVisible={isVisible}
@@ -366,10 +370,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             )}
             <FeedbackHandler
               courseId={courseId}
-              courseName={courseName}
-              courseHasChatbot={chatbotConfiguration.data != null}
+              {...omitUndefined({ courseName })}
+              courseHasChatbot={
+                chatbotConfiguration.data !== null && chatbotConfiguration.data !== undefined
+              }
               pageId={pageId}
-              pageTitle={pageTitle}
+              {...omitUndefined({ pageTitle })}
             />
           </>
         )}

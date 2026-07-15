@@ -7,13 +7,13 @@
 
 import type { Page } from "@playwright/test"
 
+import type { ExtendedIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+
 import type {
   RecordedMessage,
   SerializableHostEmulatorOptions,
 } from "../browser/hostEmulator.types"
 import { HOST_EMULATOR_SOURCE } from "../browser/hostEmulatorSource"
-
-import type { ExtendedIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 /** Result the wrapper can hand back to `sendUploadResult` (URLs are a plain object over the wire). */
 export interface WireUploadResult {
@@ -84,7 +84,10 @@ export async function createHostEmulator(
   const handle: HostEmulatorHandle = {
     page,
     async setState(state) {
-      await page.evaluate((s) => window.__host.setStateRaw(s as Record<string, unknown>), state)
+      await page.evaluate(
+        (s) => window.__host.setStateRaw(s as unknown as Record<string, unknown>),
+        state,
+      )
     },
     async setStateData(viewType, data, overrides) {
       await page.evaluate(

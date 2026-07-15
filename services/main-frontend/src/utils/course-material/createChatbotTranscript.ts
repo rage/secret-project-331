@@ -1,9 +1,9 @@
-import { matchSpecifiedCitationNumberRegex, REMOVE_CITATIONS_REGEX } from "./chatbotCitationRegexes"
-
 import { renumberFilterCitations } from "@/components/course-material/chatbot/shared/MessageBubble"
 import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
 import { zChatbotConversationMessageMessage } from "@/generated/course-material-api/zod.generated"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+
+import { matchSpecifiedCitationNumberRegex, REMOVE_CITATIONS_REGEX } from "./chatbotCitationRegexes"
 
 export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
   const messages = info.current_conversation_messages
@@ -59,7 +59,7 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
         )
         anyCitationsUsed = filteredCitations.length > 0 || anyCitationsUsed
         filteredCitations
-          .sort((a, b) =>
+          .toSorted((a, b) =>
             assertNotNullOrUndefined(citationNumberingMap.get(a.citation_number)) <
             assertNotNullOrUndefined(citationNumberingMap.get(b.citation_number))
               ? -1

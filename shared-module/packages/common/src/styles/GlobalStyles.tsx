@@ -2,10 +2,9 @@
 
 import { css, injectGlobal } from "@emotion/css"
 
+import { headingFont, monospaceFont, primaryFont, typography } from "."
 import { defaultFontSizePx, linkWithExtraIconClass } from "./constants"
 import cssReset from "./cssReset"
-
-import { headingFont, monospaceFont, primaryFont, typography } from "."
 
 import "@fontsource/raleway/100.css"
 import "@fontsource/raleway/200.css"
@@ -28,7 +27,8 @@ import "@fontsource-variable/inter/wght.css"
 const globalCss = css`
   ${cssReset}
 
-  html, body {
+  html,
+  body {
     font-family: ${primaryFont};
     font-weight: 400;
     font-size: ${defaultFontSizePx}px;
@@ -88,7 +88,7 @@ const globalCss = css`
   }
 `
 
-// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+// oxlint-disable-next-line typescript/no-unused-expressions
 injectGlobal`
 ${globalCss}
 `

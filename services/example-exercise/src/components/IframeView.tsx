@@ -7,19 +7,21 @@ import { forgivingIsSetStateMessage } from "@/shared-module/exercise-protocol/co
 import { isSetLanguageMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import HeightTrackingContainer from "@/shared-module/exercise-react/react/components/HeightTrackingContainer"
 import useExerciseServiceParentConnection from "@/shared-module/exercise-react/react/hooks/useExerciseServiceParentConnection"
-import { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
-import {
+import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
+import type {
   Alternative,
   Answer,
   ExerciseFeedback,
-  isExerciseFeedback,
   ModelSolutionApi,
+  PublicAlternative,
+} from "@/util/stateInterfaces"
+import {
+  isExerciseFeedback,
   parseAnswer,
   parseModelSolution,
   parsePreviousSubmission,
   parsePrivateSpec,
   parsePublicSpec,
-  PublicAlternative,
 } from "@/util/stateInterfaces"
 
 export interface SubmissionData {

@@ -1,5 +1,7 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import {
   hideToasts,
@@ -8,8 +10,6 @@ import {
   waitForSuccessNotification,
 } from "../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",

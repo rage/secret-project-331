@@ -4,9 +4,6 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ExerciseServiceContainer from "./ExerciseServiceContainer"
-import ExerciseServiceCreationModal from "./ExerciseServiceCreationModal"
-
 import {
   createExerciseServiceMutation as createExerciseServiceMutationOptions,
   getExerciseServicesOptions,
@@ -24,6 +21,9 @@ import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
 import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
 
+import ExerciseServiceContainer from "./ExerciseServiceContainer"
+import ExerciseServiceCreationModal from "./ExerciseServiceCreationModal"
+
 const ExerciseServicePage: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("title-manage-exercise-services"))
@@ -39,7 +39,7 @@ const ExerciseServicePage: React.FC = () => {
   const getExerciseServices = useQuery(getExerciseServicesOptions())
 
   const sortedExerciseServices = useMemo(
-    () => [...(getExerciseServices.data ?? [])].sort((a, b) => a.name.localeCompare(b.name)),
+    () => [...(getExerciseServices.data ?? [])].toSorted((a, b) => a.name.localeCompare(b.name)),
     [getExerciseServices.data],
   )
 

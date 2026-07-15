@@ -5,9 +5,8 @@ import { useTranslation } from "react-i18next"
 
 import { normalizeErrorForDisplay } from "../../errors/normalizeErrorForDisplay"
 import { resolveErrorDisplayCopy } from "../../errors/resolveErrorDisplayCopy"
-
-import SourceBlock from "./SourceBlock"
 import { parseError } from "./parseError"
+import SourceBlock from "./SourceBlock"
 import { BannerWrapper, Content, DetailTag, Text } from "./styles"
 
 export interface BannerExtraProps {

@@ -6,13 +6,13 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { OldNormalizedQuizItemTimelineItem } from "../../../../../../types/oldQuizTypes"
-import { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
-import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import findQuizItem from "../../utils/general"
-
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/exercise-react/styles"
+
+import type { OldNormalizedQuizItemTimelineItem } from "../../../../../../types/oldQuizTypes"
+import type { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
+import findQuizItem from "../../utils/general"
 
 interface TimelineContentProps {
   quizItemId: string
@@ -161,7 +161,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
     formState: { isValid, isSubmitting },
     reset,
   } = useForm<Fields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       year: "",
@@ -171,12 +171,12 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemTimeline>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemTimeline>(quiz, quizItemId, "timeline")
     })
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (
@@ -185,7 +185,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
         selected.timelineItems &&
         selected.timelineItems.map((timelineItem) => {
           if (!timelineItem) {
-            return <></>
+            return null
           }
           return (
             <List key={timelineItem.id} id={timelineItem.id}>
@@ -197,7 +197,8 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
                     if (!draft || !draft.timelineItems) {
                       return
                     }
-                    const parsedYear = parseInt(value)
+                    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+                    const parsedYear = parseInt(value, 10)
                     draft.timelineItems = draft.timelineItems.map((item) => {
                       if (item.id === timelineItem.id) {
                         return {
@@ -264,20 +265,23 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
         {t("add-new-event")}
       </h2>
       <StyledForm
-        onSubmit={handleSubmit(async (data) => {
-          updateState((draft) => {
-            if (!draft || !draft.timelineItems) {
-              return
-            }
-            draft.timelineItems.push({
-              id: v4(),
-              correctEventId: v4(),
-              year: data.year,
-              correctEventName: data.event,
-            } as OldNormalizedQuizItemTimelineItem)
-          })
-          reset()
-        })}
+        onSubmit={handleSubmit(
+          // oxlint-disable-next-line eslint/require-await -- async for react-hook-form's Promise submit contract
+          async (data) => {
+            updateState((draft) => {
+              if (!draft || !draft.timelineItems) {
+                return
+              }
+              draft.timelineItems.push({
+                id: v4(),
+                correctEventId: v4(),
+                year: data.year,
+                correctEventName: data.event,
+              } as OldNormalizedQuizItemTimelineItem)
+            })
+            reset()
+          },
+        )}
       >
         <TextField
           className={cx(yearTextFieldStyles)}

@@ -9,6 +9,7 @@ import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 
 interface NewTermForm {
   newTerm: string
@@ -27,7 +28,7 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
     handleSubmit,
     formState: { errors, isValid },
     reset,
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
   } = useForm<NewTermForm>({ mode: "onChange" })
 
   const createMutation = useToastMutationOptions(
@@ -68,7 +69,7 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
             message: t("required"),
           },
         })}
-        error={errors.newTerm && t("required")}
+        {...includeIf(errors.newTerm, { error: t("required") })}
       />
       <TextAreaField
         placeholder={t("new-definition")}
@@ -80,7 +81,7 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
             message: t("required"),
           },
         })}
-        error={errors.newDefinition && t("required")}
+        {...includeIf(errors.newDefinition, { error: t("required") })}
       />
       <Button variant="primary" size="medium" type="submit" disabled={!isValid}>
         {t("button-text-save")}

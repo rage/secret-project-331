@@ -2,11 +2,11 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { UseQueryResult } from "@tanstack/react-query"
-import { UseFormReturn } from "react-hook-form"
+import type { UseQueryResult } from "@tanstack/react-query"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { PlaygroundSettings } from "@/app/playground-tabs/page"
+import type { PlaygroundSettings } from "@/app/playground-tabs/page"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -117,7 +117,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
 
           {publicSpecQuery.isSuccess && (
             <StyledPre>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               {JSON.stringify(publicSpecQuery.data, undefined, 2).replaceAll("\\n", "\n")}
             </StyledPre>
           )}
@@ -144,7 +144,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
 
           {modelSolutionSpecQuery.isSuccess && (
             <StyledPre>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               {JSON.stringify(modelSolutionSpecQuery.data, undefined, 2).replaceAll("\\n", "\n")}
             </StyledPre>
           )}

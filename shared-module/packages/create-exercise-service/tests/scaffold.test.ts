@@ -42,10 +42,12 @@ async function findFilesMatching(root: string, pattern: RegExp, dir = root): Pro
     const full = join(dir, entry.name)
     if (entry.isDirectory()) {
       matches.push(...(await findFilesMatching(root, pattern, full)))
-    } else if (entry.isFile() && /\.(ts|tsx|js|jsx|mjs|cjs)$/.test(entry.name)) {
-      if (pattern.test(await readFile(full, "utf8"))) {
-        matches.push(full.slice(root.length + 1))
-      }
+    } else if (
+      entry.isFile() &&
+      /\.(ts|tsx|js|jsx|mjs|cjs)$/.test(entry.name) &&
+      pattern.test(await readFile(full, "utf8"))
+    ) {
+      matches.push(full.slice(root.length + 1))
     }
   }
   return matches

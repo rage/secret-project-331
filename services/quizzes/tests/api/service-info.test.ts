@@ -2,10 +2,11 @@
  * @vitest-environment node
  */
 
-import testClient from "./utils/appRouterTestClient"
-
 import { handleServiceInfo } from "@/server/serviceInfo"
-import { ExerciseServiceInfoApi, isExerciseServiceInfoApi } from "@/utils/exerciseServiceApi"
+import type { ExerciseServiceInfoApi } from "@/utils/exerciseServiceApi"
+import { isExerciseServiceInfoApi } from "@/utils/exerciseServiceApi"
+
+import testClient from "./utils/appRouterTestClient"
 
 describe("service-info", () => {
   it("exists", async () => {

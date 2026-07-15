@@ -6,17 +6,18 @@ import type { Color, EChartsOption, TooltipComponentFormatterCallbackParams } fr
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
-import Echarts from "./Echarts"
-import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "./LineChart"
-import StatsHeader from "./StatsHeader"
-
-import { CountResult } from "@/generated/api/types.generated"
+import type { CountResult } from "@/generated/api/types.generated"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
+import Echarts from "./Echarts"
+import type { Period } from "./LineChart"
+import { DAILY_PERIOD, MONTHLY_PERIOD } from "./LineChart"
+import StatsHeader from "./StatsHeader"
 
 interface LineChartByInstanceProps {
   courseId: string
@@ -174,7 +175,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
       })
     })
 
-    const sortedDates = Array.from(allDates).sort()
+    const sortedDates = Array.from(allDates).toSorted()
 
     // Create series for each instance with their data
     const seriesWithData = Object.entries(data).map(([instanceId, instanceData]) => {
@@ -194,7 +195,8 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
       // Find the last date with actual data (not a filled-in zero)
       let lastDataIndex = -1
       for (let i = 0; i < sortedDates.length; i++) {
-        if (countByDate.has(sortedDates[i])) {
+        const sortedDate = sortedDates[i]
+        if (sortedDate !== undefined && countByDate.has(sortedDate)) {
           lastDataIndex = i
         }
       }
@@ -216,7 +218,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
 
     // Sort series by sortValue in descending order, then alphabetically by name
     const series = seriesWithData
-      .sort((a, b) => {
+      .toSorted((a, b) => {
         // First compare by sortValue
         if (b.sortValue !== a.sortValue) {
           return (b.sortValue ?? -1) - (a.sortValue ?? -1)
@@ -224,7 +226,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         // If sortValues are equal, sort alphabetically by name
         return a.name.localeCompare(b.name)
       })
-      .map(({ name, type, data }) => ({ name, type, data }))
+      .map(({ name, type, data: seriesData }) => ({ name, type, data: seriesData }))
 
     return {
       color: [
@@ -282,13 +284,17 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         trigger: AXIS,
         formatter: (params: TooltipComponentFormatterCallbackParams) => {
           if (!Array.isArray(params)) {
-            throw new Error("Tooltip params is not an array")
+            throw new TypeError("Tooltip params is not an array")
           }
-          const date = params[0].name
+          const firstParam = params[0]
+          if (firstParam === undefined) {
+            throw new TypeError("Tooltip params is empty")
+          }
+          const date = firstParam.name
           const rows = params
             .map((p) => {
               const value = Math.round(Number(p.value ?? 0)).toLocaleString()
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               return `
                 <div class="${tooltipRow}">
                   <span class="${tooltipLabel}">
@@ -300,7 +306,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
             })
             .join("")
 
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           return `
             <div class="${tooltipContainer}">
               <div class="${tooltipHeader}">
@@ -322,7 +328,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
       },
       legend: {
         type: "scroll" as const,
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         orient: "horizontal" as const,
         bottom: 0,
       },

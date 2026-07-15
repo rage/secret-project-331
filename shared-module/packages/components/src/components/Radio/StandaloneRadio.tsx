@@ -5,6 +5,7 @@ import { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef } from "react-aria"
 
 import { joinAriaDescribedBy, resolveFieldState } from "../../lib/utils/field"
+import { includeIf, omitUndefined } from "../../lib/utils/nullability"
 import {
   checkableContentCss,
   checkableInputCss,
@@ -18,10 +19,9 @@ import {
   resolveChoiceIndicatorCss,
 } from "../primitives/checkableStyles"
 import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
-
 import type { RadioInnerProps } from "./radioTypes"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const defaultFieldSize = "md" as const
 
 /** Renders a standalone radio input outside of `RadioGroup`. */
@@ -48,7 +48,7 @@ export function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
   const descriptionId = useId()
   const errorMessageId = useId()
   const resolvedFieldSize = fieldSize ?? defaultFieldSize
-  const radioValue = value == null ? undefined : String(value)
+  const radioValue = value === undefined ? undefined : String(value)
   const isControlled = checked !== undefined
   const standaloneState = resolveFieldState({
     isDisabled: Boolean(isDisabled || disabled),
@@ -67,7 +67,7 @@ export function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
     type: "radio" as const,
     disabled: standaloneState.isDisabled,
     required: standaloneState.isRequired,
-    ...(radioValue !== undefined ? { value: radioValue } : {}),
+    ...omitUndefined({ value: radioValue }),
     "aria-describedby": describedBy,
     ...(isControlled ? { checked, onChange } : { defaultChecked, onChange }),
   })
@@ -87,7 +87,7 @@ export function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
         data-disabled={String(standaloneState.isDisabled)}
         data-focus-visible={String(isFocusVisible)}
         data-invalid={String(standaloneState.isInvalid)}
-        {...(isControlled ? { "data-selected": String(checked) } : {})}
+        {...includeIf(isControlled, { "data-selected": String(checked) })}
       >
         {isControlled ? (
           checked ? (

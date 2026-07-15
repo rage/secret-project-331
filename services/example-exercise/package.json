@@ -2,13 +2,6 @@
   "name": "example-exercise",
   "version": "1.0.1",
   "type": "module",
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
   "scripts": {
     "build": "rsbuild build",
     "dev": "rsbuild dev --port 3002",
@@ -42,14 +35,22 @@
     "@types/node": "^26.0.1",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@vitejs/plugin-react": "^6.0.3",
     "jsdom": "^27.0.0",
     "postcss-styled-syntax": "^0.7.2",
     "stylelint": "^17.14.0",
     "stylelint-config-recommended": "^18.0.0",
     "tsx": "^4.22.3",
-    "typescript": "^6.0.3",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "^4.1.9"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
   }
 }

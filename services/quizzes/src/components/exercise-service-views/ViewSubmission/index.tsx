@@ -4,7 +4,14 @@ import { BullhornMegaphone, InfoCircle } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
+import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
+import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { baseTheme } from "@/shared-module/exercise-react/styles"
+import { COLUMN } from "@/util/constants"
+import type { FlexDirection } from "@/util/css-sanitization"
+import { sanitizeFlexDirection } from "@/util/css-sanitization"
+
+import type {
   UserAnswer,
   UserItemAnswerCheckbox,
   UserItemAnswerChooseN,
@@ -16,13 +23,13 @@ import {
   UserItemAnswerScale,
   UserItemAnswerTimeline,
 } from "../../../../types/quizTypes/answer"
-import { ItemAnswerFeedback } from "../../../../types/quizTypes/grading"
-import {
+import type { ItemAnswerFeedback } from "../../../../types/quizTypes/grading"
+import type {
   ModelSolutionQuiz,
   ModelSolutionQuizItem,
 } from "../../../../types/quizTypes/modelSolutionSpec"
-import { QuizItemType } from "../../../../types/quizTypes/privateSpec"
-import {
+import type { QuizItemType } from "../../../../types/quizTypes/privateSpec"
+import type {
   PublicSpecQuiz,
   PublicSpecQuizItemCheckbox,
   PublicSpecQuizItemChooseN,
@@ -36,7 +43,6 @@ import {
 } from "../../../../types/quizTypes/publicSpec"
 import FlexWrapper from "../../FlexWrapper"
 import ParsedText from "../../ParsedText"
-
 import CheckBoxFeedback from "./impl-by-quiz-item-type/Checkbox"
 import ChooseN from "./impl-by-quiz-item-type/ChooseN"
 import ClosedEndedQuestionFeedback from "./impl-by-quiz-item-type/Closed-ended-question"
@@ -46,13 +52,7 @@ import MultipleChoiceSubmission from "./impl-by-quiz-item-type/MultipleChoice"
 import MultipleChoiceDropdownFeedback from "./impl-by-quiz-item-type/MultipleChoiceDropdown"
 import ScaleSubmissionViewComponent from "./impl-by-quiz-item-type/Scale"
 import Timeline from "./impl-by-quiz-item-type/Timeline"
-import Unsupported from "./impl-by-quiz-item-type/Unsupported"
-
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { baseTheme } from "@/shared-module/exercise-react/styles"
-import { COLUMN } from "@/util/constants"
-import { FlexDirection, sanitizeFlexDirection } from "@/util/css-sanitization"
+import type Unsupported from "./impl-by-quiz-item-type/Unsupported"
 
 interface SubmissionProps {
   user_answer: UserAnswer
@@ -77,7 +77,7 @@ interface QuizItemSubmissionComponentDescriptor {
   shouldDisplayCorrectnessMessageAfterAnswer: boolean
 }
 
-const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor } = {
+const mapTypeToComponent: Record<string, QuizItemSubmissionComponentDescriptor> = {
   essay: { component: EssayFeedback, shouldDisplayCorrectnessMessageAfterAnswer: false },
   "multiple-choice": {
     component: MultipleChoiceSubmission,
@@ -137,10 +137,10 @@ const SubmissionFeedback: React.FC<{
 
   const userScore = showScore ? (itemFeedback?.correctnessCoefficient ?? itemFeedback?.score) : null
   if (showScore) {
-    if (userScore == 1) {
+    if (userScore === 1) {
       backgroundColor = "#e8f5e8"
       textColor = "#292929"
-    } else if (userScore == 0) {
+    } else if (userScore === 0) {
       backgroundColor = "#fdeaea"
       textColor = "#292929"
     } else if (userScore !== null && userScore !== undefined) {
@@ -155,9 +155,8 @@ const SubmissionFeedback: React.FC<{
         return t("your-answer-was-not-correct")
       } else if (score < 1) {
         return t("your-answer-was-partially-correct")
-      } else {
-        return t("your-answer-was-correct")
       }
+      return t("your-answer-was-correct")
     },
     [t],
   )
@@ -166,20 +165,20 @@ const SubmissionFeedback: React.FC<{
     if (!showScore || !itemFeedback) {
       return null
     }
-    const customItemFeedback = itemFeedback.quiz_item_feedback?.trim()
+    const trimmedItemFeedback = itemFeedback.quiz_item_feedback?.trim()
     // If feedback on model solution is defined, this feedback takes precedence as the user is allowed to see the model solution and the teacher wants to show a custom message on the model solution
     const messageOnModelSolution = itemModelSolution?.messageOnModelSolution ?? null
     if (messageOnModelSolution !== null && messageOnModelSolution.trim() !== "") {
       return messageOnModelSolution.trim()
     }
     if (
-      customItemFeedback === "" ||
-      customItemFeedback === null ||
-      customItemFeedback === undefined
+      trimmedItemFeedback === "" ||
+      trimmedItemFeedback === null ||
+      trimmedItemFeedback === undefined
     ) {
       return null
     }
-    return customItemFeedback
+    return trimmedItemFeedback
   }, [itemFeedback, itemModelSolution?.messageOnModelSolution, showScore])
 
   const combinedFeedback = useMemo(() => {
@@ -264,8 +263,10 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   // in quiz items
   let direction: FlexDirection = COLUMN
   publicAlternatives.items.every((item) => {
-    if (item.type == "multiple-choice") {
+    // oxlint-disable-next-line array-callback-return -- .every short-circuit is intended; a return would change iteration
+    if (item.type === "multiple-choice") {
       direction = sanitizeFlexDirection(item.optionDisplayDirection, COLUMN)
+      // oxlint-disable-next-line no-useless-return -- kept to preserve exact control flow
       return
     }
   })
@@ -281,7 +282,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   }, [user_answer?.itemAnswers, publicAlternatives?.items])
 
   const orderedItems = useMemo(() => {
-    return [...publicAlternatives.items].sort((i1, i2) => i1.order - i2.order)
+    return [...publicAlternatives.items].toSorted((i1, i2) => i1.order - i2.order)
   }, [publicAlternatives.items])
 
   const lastFeedbackItemId = useMemo(() => {
@@ -329,10 +330,13 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           return <div key={item.id}>{t("quiz-type-not-supported")}</div>
         }
         const itemAnswerFeedback = feedback_json
-          ? feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0]
+          ? (feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0] ??
+            null)
           : null
         const itemModelSolution = modelSolutions
-          ? modelSolutions.items.filter((itemModelSolution) => itemModelSolution.id === item.id)[0]
+          ? (modelSolutions.items.filter(
+              (modelSolutionItem) => modelSolutionItem.id === item.id,
+            )[0] ?? null)
           : null
         const quizItemAnswer = user_answer.itemAnswers.filter((ia) => ia.quizItemId === item.id)[0]
         const feedback = itemAnswerFeedback &&
@@ -540,6 +544,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
               )
             )
         }
+        return null
       })}
     </FlexWrapper>
   )

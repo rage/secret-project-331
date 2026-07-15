@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 
+import type { PublicAlternative } from "@/util/stateInterfaces"
+
 import { handleGrade } from "./grade"
 import { handlePublicSpec } from "./publicSpec"
-
-import { PublicAlternative } from "@/util/stateInterfaces"
 
 // Proves public <-> private id correspondence end to end: a client only ever sees the PUBLIC spec,
 // builds its answer from a public option id, and grading matches that id against the PRIVATE spec.

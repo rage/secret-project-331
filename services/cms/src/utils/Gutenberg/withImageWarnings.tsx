@@ -5,9 +5,9 @@ import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
 
-import { shouldWarnAboutImageAltPlaceholder } from "./imageAltWarning"
-
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { shouldWarnAboutImageAltPlaceholder } from "./imageAltWarning"
 
 interface ImageBlockProps {
   name: string
@@ -22,7 +22,7 @@ interface ImageBlockProps {
 const IMAGE_BLOCK_NAME = "core/image"
 type ImageWarningKey = "warning-image-alt-placeholder"
 const IMAGE_ALT_WARNING_KEY: ImageWarningKey = "warning-image-alt-placeholder"
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const W3C_ALT_DECISION_TREE_URL = "https://www.w3.org/WAI/tutorials/images/decision-tree/"
 const WARNING_NOTICE_STATUS = "warning"
 
@@ -70,7 +70,7 @@ const withImageWarnings = createHigherOrderComponent((BlockEdit) => {
 
   ImageWithWarnings.displayName = "ImageWarnings"
   return ImageWithWarnings
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withImageWarnings")
 
 export default withImageWarnings

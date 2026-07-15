@@ -4,11 +4,7 @@ import { css } from "@emotion/css"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ExerciseList from "./ExerciseList"
-import ResetFilter from "./ResetFilter"
-import SelectedUsers from "./SelectedUsers"
-
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { resetExercisesForSelectedUsers } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { useUsers } from "@/hooks/useUsers"
@@ -16,6 +12,11 @@ import Button from "@/shared-module/common/components/Button"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import ExerciseList from "./ExerciseList"
+import ResetFilter from "./ResetFilter"
+import SelectedUsers from "./SelectedUsers"
 
 const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -41,7 +42,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         addUser(user)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [users])
 
   const addUser = (user: UserDetail) => {
@@ -55,7 +56,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   }
 
   const resetMutation = useToastMutation(
-    async () =>
+    () =>
       resetExercisesForSelectedUsers({
         body: {
           user_ids: selectedUsers.map((u) => u.user_id),
@@ -103,9 +104,9 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         <SelectedUsers
           selectedUsers={selectedUsers}
           removeUser={removeUser}
-          users={users}
           isLoading={isLoading}
           addUser={addUser}
+          {...omitUndefined({ users })}
         />
       </div>
 

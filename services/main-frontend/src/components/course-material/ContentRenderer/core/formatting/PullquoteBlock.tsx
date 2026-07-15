@@ -2,15 +2,15 @@
 
 import { css } from "@emotion/css"
 
-import { BlockRendererProps } from "../.."
-
-import { PullquoteAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { PullquoteAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
-const FONT_SIZES: { [key: string]: string } = {
+import type { BlockRendererProps } from "../.."
+
+const FONT_SIZES: Record<string, string> = {
   small: "18px",
   normal: "22px",
   medium: "36px",
@@ -18,25 +18,39 @@ const FONT_SIZES: { [key: string]: string } = {
   huge: "34px",
 }
 
+// textAlign comes from block supports, so it's not in the generated attributes
+interface ExtraAttributes {
+  textAlign?: string
+}
+
 const PullquoteBlock: React.FC<
-  React.PropsWithChildren<BlockRendererProps<PullquoteAttributes>>
+  React.PropsWithChildren<BlockRendererProps<PullquoteAttributes & ExtraAttributes>>
 > = ({ data }) => {
   const {
     citation,
     // borderColor, // Border color is same as textColor in CMS
     // className,
     // style,
+    align,
+    textAlign,
     fontSize = "medium",
     value,
   } = data.attributes
 
   const size = FONT_SIZES[fontSize]
 
+  // `align` left/right floats the pullquote at half width so content wraps beside it; other values render full-width.
   return (
-    <div>
+    <div
+      className={css`
+        ${align === "left" && `float: left; width: 50%; margin: 0 2rem 1rem 0;`}
+        ${align === "right" && `float: right; width: 50%; margin: 0 0 1rem 2rem;`}
+      `}
+    >
       <figure
         className={css`
           text-align: center;
+          ${textAlign && `text-align: ${textAlign};`}
           border-top: 0.25rem solid #d5dbdf;
           border-bottom: 0.25rem solid #d5dbdf;
           padding: 3rem 0rem !important;

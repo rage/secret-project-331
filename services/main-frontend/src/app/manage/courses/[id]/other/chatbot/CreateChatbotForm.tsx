@@ -1,6 +1,6 @@
 "use client"
 
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -10,6 +10,7 @@ import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 interface CreateChatbotProps {
   courseId: string
@@ -40,7 +41,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
       method: "POST",
     },
     {
-      onSuccess: async (data) => {
+      onSuccess: (data) => {
         getChatbotsList.refetch()
         closeEdit(data.id)
       },
@@ -60,7 +61,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
         })}
       >
         <TextField
-          error={errors.name?.message}
+          {...omitUndefined({ error: errors.name?.message })}
           label={t("label-name")}
           {...register("name", {
             required: t("required-field"),

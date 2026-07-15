@@ -23,7 +23,7 @@ Options:
   -y, --yes       No-op; kept for backward compatibility (steps always run).
   -h, --help      Show this help.
 
-Safe steps: cargo clean, *.tsbuildinfo, .eslintcache, .next/out/build,
+Safe steps: cargo clean, *.tsbuildinfo, .next/out/build,
   storybook-static, system-tests/{test-results,playwright-report}, __pycache__,
   git lfs prune + git gc, unused rustup toolchains (never the pinned channel).
 Destructive steps: pnpm store prune, tear down local cluster,
@@ -89,9 +89,9 @@ else
   echo "cargo not on PATH; skipping."
 fi
 
-section "TypeScript / ESLint caches"
+section "TypeScript caches"
 mapfile -d '' -t ts_caches < <(find "$REPO_ROOT" -name '*.tsbuildinfo' -not -path '*/node_modules/*' -print0)
-safe_rm "${ts_caches[@]}" "$REPO_ROOT/.eslintcache"
+safe_rm "${ts_caches[@]}"
 
 section "Frontend build outputs"
 shopt -s nullglob

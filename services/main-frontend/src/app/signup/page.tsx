@@ -18,19 +18,20 @@ import SearchableSelect from "@/shared-module/common/components/InputFields/Sear
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
-import { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
+import type { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import "@/shared-module/common/init/registerAuthApiClients"
 import countries from "@/shared-module/common/locales/en/countries.json"
+import "@/shared-module/common/init/registerAuthApiClients"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
-type CreateUserErrorResponse = {
+interface CreateUserErrorResponse {
   message?: string
 }
 
@@ -128,7 +129,7 @@ const Wrapper = styled.div`
 const CreateAccountForm: React.FC = () => {
   const { register, formState, watch, reset, handleSubmit, trigger, control, setError } =
     useForm<FormFields>({
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       mode: "onChange",
     })
 
@@ -163,28 +164,29 @@ const CreateAccountForm: React.FC = () => {
 
   useEffect(() => {
     setEmailAlreadyTakenError(null)
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     void trigger("email")
   }, [email, trigger])
 
   const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(
+    // oxlint-disable-next-line eslint/require-await -- kept async for the mutationFn Promise<SignupResponse> contract
     async (data) => {
       const {
         first_name,
         last_name,
-        email,
-        password,
+        email: emailValue,
+        password: passwordValue,
         password_confirmation,
         country,
         email_communication_consent,
       } = data
       return postAuthSignup({
         body: {
-          email: email,
+          email: emailValue,
           first_name: first_name,
           last_name: last_name,
           language: i18n.language,
-          password: password,
+          password: passwordValue,
           password_confirmation: password_confirmation,
           country: country,
           email_communication_consent: Boolean(email_communication_consent),
@@ -203,7 +205,7 @@ const CreateAccountForm: React.FC = () => {
   useEffect(() => {
     // Make sure that password_confirmation is revalidated when the password changes.
     if (password && password !== "" && passwordConfirmation && passwordConfirmation !== "") {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       trigger("password_confirmation")
     }
   }, [password, passwordConfirmation, trigger])
@@ -338,7 +340,7 @@ const CreateAccountForm: React.FC = () => {
               required: t("required-field"),
             })}
             required={true}
-            error={errors.first_name}
+            {...includeIf(errors.first_name, { error: errors.first_name })}
           />
 
           <TextField
@@ -348,7 +350,7 @@ const CreateAccountForm: React.FC = () => {
               required: t("required-field"),
             })}
             required={true}
-            error={errors.last_name}
+            {...includeIf(errors.last_name, { error: errors.last_name })}
           />
 
           <Controller
@@ -364,7 +366,7 @@ const CreateAccountForm: React.FC = () => {
                 options={countriesNames}
                 onChangeByValue={(value) => field.onChange(value)}
                 value={field.value}
-                error={errors.country?.message}
+                {...includeIf(errors.country?.message, { error: errors.country?.message })}
               />
             )}
           />
@@ -381,7 +383,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.email}
+            {...includeIf(errors.email, { error: errors.email })}
           />
           <TextField
             label={t("password")}
@@ -395,7 +397,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.password}
+            {...includeIf(errors.password, { error: errors.password })}
           />
 
           <TextField
@@ -413,7 +415,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.password_confirmation}
+            {...includeIf(errors.password_confirmation, { error: errors.password_confirmation })}
           />
 
           <CheckBox

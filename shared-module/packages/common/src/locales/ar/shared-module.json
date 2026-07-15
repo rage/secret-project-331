@@ -19,6 +19,8 @@
   "close-heading-menu": "إغلاق قائمة العناوين",
   "closed": "مغلق",
   "comboBox.toggleOptions": "تبديل الخيارات",
+  "copy-button.copied": "تم النسخ",
+  "copy-button.failed": "فشل النسخ",
   "could-not-find-requested-resource": "لم يتم العثور على المورد المطلوب",
   "courses": "الدورات",
   "create-new-account": "إنشاء حساب جديد",

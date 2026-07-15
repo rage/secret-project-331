@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  Alternative,
   alternativesFromStored,
   parseModelSolution,
   parsePreviousSubmission,
@@ -9,9 +8,11 @@ import {
   parsePublicSpec,
   toVersionedPrivateSpec,
   validatePrivateSpec,
+  type Alternative,
 } from "./stateInterfaces"
 
 describe("validatePrivateSpec", () => {
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- test-local factory kept beside its describe
   const option = (over: Partial<Alternative>): Alternative => ({
     id: "id",
     name: "Option",

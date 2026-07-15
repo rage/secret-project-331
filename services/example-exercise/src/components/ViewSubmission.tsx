@@ -3,7 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/styles/theme"
-import {
+import type {
   Answer,
   ExerciseFeedback,
   ModelSolutionApi,
@@ -48,7 +48,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           color = optionIsCorrect ? GREEN : RED
         }
 
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         const border = optionIsCorrect !== undefined ? `4px solid ${color}` : "none"
         // Correctness must not rely on color alone (WCAG 1.4.1): pair it with an icon and a
         // localized text label rendered on the light surface, where the semantic tokens meet AA.
@@ -56,7 +56,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           ? baseTheme.semantic.success.text
           : baseTheme.semantic.error.text
         // Decorative glyph; the adjacent localized text ("Correct"/"Incorrect") is the real cue.
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         const statusIcon = optionIsCorrect ? "✓" : "✗"
         return (
           <div
@@ -68,6 +68,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
             `}
           >
             <button
+              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled button as checkbox; an <input> can't hold child content
               role="checkbox"
               className={css`
                 padding: 1rem 2rem;

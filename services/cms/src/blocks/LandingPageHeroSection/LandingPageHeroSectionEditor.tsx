@@ -4,11 +4,6 @@ import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
 import React from "react"
 
-import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
-import BlockWrapper from "../BlockWrapper"
-
-import { LandingPageHeroSectionAttributes } from "."
-
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import {
@@ -17,6 +12,10 @@ import {
 } from "@/shared-module/common/utils/constants"
 import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { LandingPageHeroSectionAttributes } from "."
+import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
+import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph"]
 const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
@@ -49,12 +48,10 @@ const LandingPageHeroSectionEditor: React.FC<
         <div
           className={css`
             background-color: ${attributes.backgroundColor};
-            ${
-              attributes.backgroundImage &&
-              `background-image: url("${attributes.backgroundImage}");
+            ${attributes.backgroundImage &&
+            `background-image: url("${attributes.backgroundImage}");
             background-repeat: ${attributes.backgroundRepeatX ? "repeat-x" : "no-repeat"};
-            background-position: center center;`
-            }
+            background-position: center center;`}
             width: 100%;
             border-radius: 1px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);

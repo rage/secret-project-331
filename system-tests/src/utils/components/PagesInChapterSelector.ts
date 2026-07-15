@@ -1,27 +1,32 @@
-import { expect, Locator, Page } from "@playwright/test"
+import type { Locator, Page } from "@playwright/test"
+import { expect } from "@playwright/test"
 
 export class PagesInChapterSelector {
-  constructor(private readonly page: Page) {}
+  private readonly page: Page
 
-  getContainer(): Locator {
+  public constructor(page: Page) {
+    this.page = page
+  }
+
+  public getContainer(): Locator {
     return this.page.getByTestId("pages-in-chapter-container")
   }
 
-  async waitForPagesInChapterList(): Promise<void> {
+  public async waitForPagesInChapterList(): Promise<void> {
     await this.getContainer().waitFor()
   }
 
-  getPageLinkByTitle(title: string): Locator {
+  public getPageLinkByTitle(title: string): Locator {
     const container = this.getContainer()
-    const escapedTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    const escapedTitle = title.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
     return container.getByRole("link", { name: new RegExp(`^\\d+ ${escapedTitle}$`) })
   }
 
-  getPageLinkByIndex(index: number): Locator {
+  public getPageLinkByIndex(index: number): Locator {
     return this.page.getByTestId(`page-in-chapter-link-${index}`)
   }
 
-  async getAllPageTitles(): Promise<string[]> {
+  public async getAllPageTitles(): Promise<string[]> {
     await this.waitForPagesInChapterList()
     const container = this.getContainer()
     const allLinks = container.locator("a")
@@ -43,7 +48,7 @@ export class PagesInChapterSelector {
     return titles.filter((title): title is string => title !== null)
   }
 
-  async clickPageByTitle(title: string): Promise<void> {
+  public async clickPageByTitle(title: string): Promise<void> {
     const link = this.getPageLinkByTitle(title)
     await expect(link).toBeVisible()
     const href = await link.getAttribute("href")

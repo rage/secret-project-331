@@ -12,7 +12,7 @@ import {
   viewSubmissionState,
 } from "@/shared-module/exercise-service-test-utils/protocol/stateBuilders"
 
-const OPTIONS = [
+const OPTIONS: [{ id: string; name: string }, { id: string; name: string }] = [
   { id: "11111111-1111-1111-1111-111111111111", name: "Helsinki" },
   { id: "22222222-2222-2222-2222-222222222222", name: "Tampere" },
 ]
@@ -40,7 +40,7 @@ test("exercise-editor emits the private spec as current-state", async ({ page })
   )
   const privateSpec = (
     state.data as {
-      private_spec: { version: string; alternatives: Array<Record<string, unknown>> }
+      private_spec: { version: string; alternatives: Record<string, unknown>[] }
     }
   ).private_spec
   expect(privateSpec.version).toBe("1")

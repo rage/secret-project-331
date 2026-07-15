@@ -4,14 +4,13 @@ import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
 import React from "react"
 
-import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
-import BlockWrapper from "../BlockWrapper"
-
-import { TerminologyBlockAttributes } from "."
-
 import { primaryFont } from "@/shared-module/common/styles"
 import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { TerminologyBlockAttributes } from "."
+import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
+import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph", "core/list"]
 const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
@@ -31,7 +30,7 @@ const TerminologyBlockEditor: React.FC<
           attributes={attributes}
           setAttributes={setAttributes}
           defaultBackgroundColor="rgb(53, 63, 75)"
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           customAttributeName="primaryColor"
           customTitle={t("primary-color")}
         />

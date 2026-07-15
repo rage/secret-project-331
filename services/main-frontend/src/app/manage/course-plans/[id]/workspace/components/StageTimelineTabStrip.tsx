@@ -6,18 +6,18 @@ import { type Key, type ReactNode, useMemo, useRef } from "react"
 import { useTabList, useTabPanel } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
-import { useStageTimelineMeasurements } from "../hooks/useStageTimelineMeasurements"
-
-import StageTimelineTab from "./StageTimelineTab"
-import type { StageTimelineTabItem } from "./stageTimelineShared"
-
 import { getStageMonths } from "@/app/manage/course-plans/[id]/schedule/scheduleMappers"
-import {
-  type CourseDesignerPlanStageWithTasks,
-  type CourseDesignerStage,
+import type {
+  CourseDesignerPlanStageWithTasks,
+  CourseDesignerStage,
 } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
+import { useStageTimelineMeasurements } from "../hooks/useStageTimelineMeasurements"
+import type { StageTimelineTabItem } from "./stageTimelineShared"
+import StageTimelineTab from "./StageTimelineTab"
 
 const timelineShellStyles = css`
   position: relative;
@@ -133,7 +133,7 @@ const todayLineStyles = css`
 `
 
 interface StageTimelineTabStripProps {
-  stages: Array<CourseDesignerPlanStageWithTasks>
+  stages: CourseDesignerPlanStageWithTasks[]
   activeStage: CourseDesignerStage | null
   selectedStage: CourseDesignerStage | null
   onSelectedStageChange: (stage: CourseDesignerStage) => void
@@ -188,12 +188,13 @@ export default function StageTimelineTabStrip({
       activeStage,
       selectedStage,
       stagesDependency: stages,
-      currentStageLabel,
+      ...omitUndefined({ currentStageLabel }),
     })
 
+  const firstItemKey = items[0]?.key
   const state = useTabListState({
-    selectedKey: selectedStage ?? undefined,
-    defaultSelectedKey: items[0]?.key,
+    ...includeIf(selectedStage !== null, { selectedKey: selectedStage }),
+    ...omitUndefined({ defaultSelectedKey: firstItemKey }),
     items: items.map((item) => ({
       key: item.key,
       id: item.key,
@@ -228,7 +229,7 @@ export default function StageTimelineTabStrip({
   return (
     <>
       <div className={timelineShellStyles} ref={shellRef}>
-        {activeStage && currentStagePosition != null && onOpenOverview && (
+        {activeStage && currentStagePosition !== null && onOpenOverview && (
           <div
             ref={currentStageCalloutRef}
             className={cx(
@@ -255,7 +256,7 @@ export default function StageTimelineTabStrip({
         )}
         <div className={cardStyles}>
           <div {...tabListProps} ref={listRef} className={tabListRowStyles}>
-            {todayPositionPx != null && (
+            {todayPositionPx !== null && (
               <div className={cx(todayIndicatorStyles, css({ left: todayPositionPx }))}>
                 <span className={todayLabelStyles}>{t("course-plans-timeline-today-label")}</span>
                 <div className={todayTriangleStyles} />

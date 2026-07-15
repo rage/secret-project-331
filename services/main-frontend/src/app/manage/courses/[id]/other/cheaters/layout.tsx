@@ -4,18 +4,18 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import CheatersThresholdConfig from "./CheatersThresholdConfig"
-
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
-import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import {
   manageCourseOtherCheatersConfirmedRoute,
   manageCourseOtherCheatersDismissedRoute,
   manageCourseOtherCheatersSuspectedRoute,
 } from "@/shared-module/common/utils/routes"
+
+import CheatersThresholdConfig from "./CheatersThresholdConfig"
 
 const KEY_SUSPECTED = "suspected"
 const KEY_CONFIRMED = "confirmed"

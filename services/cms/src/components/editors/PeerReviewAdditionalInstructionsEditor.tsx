@@ -3,10 +3,10 @@
 import { css } from "@emotion/css"
 import React, { useEffect, useState } from "react"
 
-import mediaUploadBuilder from "../../services/mediaUpload"
-
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
+
+import mediaUploadBuilder from "../../services/mediaUpload"
 
 interface PeerReviewAdditionalInstructionsEditorProps {
   content: BlockInstance[]
@@ -32,7 +32,7 @@ const PeerReviewAdditionalInstructionsEditor = (
       if (
         additionalInstructionsWrapperRef.current?.contains(e.target as Node) ||
         // Focus detection does not always work with the contains in the gutenberg editor, so we will try to detect that case separately
-        Array.from(target.parentElement?.classList ?? []).find(
+        Array.from(target.parentElement?.classList ?? []).some(
           (c) => c.indexOf("block-editor") > -1,
         )
       ) {

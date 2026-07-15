@@ -6,20 +6,19 @@ import React, { memo, useEffect, useRef } from "react"
 import { useFocusRing, useFocusWithin } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { getEditableHoverStyles, getEditingStyles } from "../styles"
-
-import { useParagraphEditing } from "./hooks/useParagraphEditing"
-
 import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { selectedBlockIdAtom } from "@/stores/course-material/materialFeedbackStore"
 
+import { getEditableHoverStyles, getEditingStyles } from "../styles"
+import { useParagraphEditing } from "./hooks/useParagraphEditing"
+
 interface EditableParagraphProps {
   id: string
   content: string | null
-  textColor?: string
-  backgroundColor?: string
-  fontSize?: string
+  textColor?: string | undefined
+  backgroundColor?: string | undefined
+  fontSize?: string | undefined
   setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
 }
 
@@ -34,9 +33,9 @@ const EditableParagraphContent = memo(
     initialContent,
     ariaLabel,
   }: {
-    textColor?: string
-    backgroundColor?: string
-    fontSize?: string
+    textColor?: string | undefined
+    backgroundColor?: string | undefined
+    fontSize?: string | undefined
     contentEditableRef: React.RefObject<HTMLParagraphElement>
     handleInput: (e: React.FormEvent<HTMLParagraphElement>) => void
     initialContent: string | null
@@ -48,13 +47,11 @@ const EditableParagraphContent = memo(
       <p
         ref={contentEditableRef}
         className={`${getEditingStyles(textColor, backgroundColor, fontSize)} ${getEditableHoverStyles(true)} ${css`
-          ${
-            isFocusVisible &&
-            `
+          ${isFocusVisible &&
+          `
             outline: 2px solid ${baseTheme.colors.green[500]};
             outline-offset: 2px;
-          `
-          }
+          `}
         `}`}
         contentEditable
         aria-label={ariaLabel}
@@ -120,6 +117,7 @@ const EditableParagraph: React.FC<EditableParagraphProps> = ({
         editableElement.removeEventListener("keydown", handleKeyDown)
       }
     }
+    return undefined
   }, [setSelectedBlockId, contentEditableRef])
 
   return (

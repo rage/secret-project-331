@@ -1,10 +1,11 @@
-/* eslint-disable playwright/no-conditional-in-test */
+import { Console } from "console"
+import { Writable } from "stream"
+
+/* oxlint-disable playwright/no-conditional-in-test */
 import { AxeBuilder } from "@axe-core/playwright"
 import { test } from "@playwright/test"
-import { CheckResult } from "axe-core"
-import { Console } from "console"
-import { Page } from "playwright"
-import { Writable } from "stream"
+import type { CheckResult } from "axe-core"
+import type { Page } from "playwright"
 
 import waitForSpinnersToDisappear from "./waitForSpinnersToDisappear"
 
@@ -27,11 +28,12 @@ export default async function accessibilityCheck(
     if (!axeSkip) {
       axeSkip = []
     }
-    // Getting false positives on this one
-    axeSkip.push("scrollable-region-focusable")
-
-    // TODO: remove this
-    axeSkip.push("document-title")
+    axeSkip.push(
+      // Getting false positives on this one
+      "scrollable-region-focusable",
+      // TODO: remove this
+      "document-title",
+    )
 
     if (axeSkip && Array.isArray(axeSkip)) {
       resultsFiltered = results.violations.filter((violation) => {
@@ -40,7 +42,7 @@ export default async function accessibilityCheck(
           violation.nodes.some((node) => node.html.includes("data-overlay-container")) &&
           violation.id === "region"
         ) {
-          return
+          return false
         }
         // Screen reader announcement elements are intentionally positioned off-screen and don't need to be in landmarks
         if (
@@ -51,13 +53,12 @@ export default async function accessibilityCheck(
           ) &&
           violation.id === "region"
         ) {
-          return
+          return false
         }
-        if (axeSkip && axeSkip.find((skippable) => skippable === violation.id)) {
-          return
-        } else {
-          return violation
+        if (axeSkip && axeSkip.some((skippable) => skippable === violation.id)) {
+          return false
         }
+        return violation
       })
     } else {
       resultsFiltered = results.violations
@@ -78,8 +79,8 @@ export default async function accessibilityCheck(
       customConsole.group("Affected DOM nodes:")
       violation.nodes // nodes is an array of all elements the rule tested
         .filter((o) => o.impact !== null) // the check passed for this element if impact is null
-        .forEach((node, n) => {
-          customConsole.group(`Affected DOM node ${n + 1}`)
+        .forEach((node, nodeIndex) => {
+          customConsole.group(`Affected DOM node ${nodeIndex + 1}`)
           customConsole.error(`Impact: ${node.impact}`)
           customConsole.error(`Node HTML: ${node.html}`)
           customConsole.error(`Target: ${node.target}`)
@@ -123,16 +124,16 @@ function displayChecksForNodes(nodes: CheckResult[], stdErrConsole: Console): vo
 }
 
 class StoringStream extends Writable {
-  chunks: string[]
+  public chunks: string[]
 
-  constructor() {
+  public constructor() {
     super()
     this.chunks = []
   }
-  _write(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public override _write(
+    // oxlint-disable-next-line typescript/no-explicit-any
     chunk: any,
-    encoding: BufferEncoding,
+    _encoding: BufferEncoding,
     callback: (error?: Error | null | undefined) => void,
   ): void {
     this.chunks.push(chunk.toString())

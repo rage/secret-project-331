@@ -1,13 +1,7 @@
 "use client"
 
-import React, {
-  createContext,
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-} from "react"
+import type { PropsWithChildren } from "react"
+import React, { createContext, useCallback, useContext, useMemo, useRef } from "react"
 
 interface AccordionContextType {
   expandAll: () => void

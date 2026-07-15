@@ -1,6 +1,10 @@
-import { GradingRequest, GradingResult } from "./exercise-service-protocol-types-2"
+import type { GradingRequest, GradingResult } from "./exercise-service-protocol-types-2"
 import { isSetStateMessage } from "./exercise-service-protocol-types.guard"
-import { ExerciseTaskGradingResult, RepositoryExercise, UserInfo } from "./exerciseServiceTypes"
+import type {
+  ExerciseTaskGradingResult,
+  RepositoryExercise,
+  UserInfo,
+} from "./exerciseServiceTypes"
 
 /**
  * from: IFrame
@@ -129,12 +133,12 @@ export type UploadResultMessage = {
     }
 )
 
-export type RepositoryExercisesMessage = {
+export interface RepositoryExercisesMessage {
   message: "repository-exercises"
-  repository_exercises: Array<RepositoryExercise>
+  repository_exercises: RepositoryExercise[]
 }
 
-export type TestResultsMessage = {
+export interface TestResultsMessage {
   message: "test-results"
   test_result: unknown
 }
@@ -170,14 +174,14 @@ export function forgivingIsSetStateMessage(obj: unknown): obj is SetStateMessage
   return forgivingCheck
 }
 
-export type UserInformation = {
+export interface UserInformation {
   pseudonymous_id: string
   signed_in: boolean
 }
 
-export type UserVariablesMap = { [key: string]: unknown }
+export type UserVariablesMap = Record<string, unknown>
 
-export type AnswerExerciseIframeState = {
+export interface AnswerExerciseIframeState {
   view_type: "answer-exercise"
   exercise_task_id: string
   user_information: UserInformation
@@ -189,7 +193,7 @@ export type AnswerExerciseIframeState = {
   }
 }
 
-export type ViewSubmissionIframeState = {
+export interface ViewSubmissionIframeState {
   view_type: "view-submission"
   exercise_task_id: string
   user_information: UserInformation
@@ -203,37 +207,39 @@ export type ViewSubmissionIframeState = {
   }
 }
 
-export type ExerciseEditorIframeState = {
+export interface ExerciseEditorIframeState {
   view_type: "exercise-editor"
   exercise_task_id: string
   user_information: UserInformation
-  repository_exercises?: Array<RepositoryExercise>
+  repository_exercises?: RepositoryExercise[]
   data: { private_spec: unknown }
 }
 
-export type CustomViewIframeState = {
+export interface CustomViewIframeState {
   view_type: "custom-view"
   user_information: UserInfo
   user_variables?: UserVariablesMap | null
   course_name: string
   module_completion_date: string | null
   data: {
-    submissions_by_exercise: Array<{
+    submissions_by_exercise: {
       exercise_id: string
       exercise_name: string
-      exercise_tasks: Array<{
+      exercise_tasks: {
         task_id: string
         public_spec: unknown
         user_answer: unknown
         grading: unknown
-      }>
-    }>
+      }[]
+    }[]
   }
 }
 
 /** Defines the allowed data formats for the set-state-message */
 export type ExerciseIframeState =
-  AnswerExerciseIframeState | ViewSubmissionIframeState | ExerciseEditorIframeState
+  | AnswerExerciseIframeState
+  | ViewSubmissionIframeState
+  | ExerciseEditorIframeState
 
 export type ExtendedIframeState = ExerciseIframeState | CustomViewIframeState
 

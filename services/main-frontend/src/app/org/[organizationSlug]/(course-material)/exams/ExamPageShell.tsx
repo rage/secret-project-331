@@ -6,12 +6,6 @@ import { useAtomValue, useSetAtom } from "jotai"
 import React, { useCallback, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import CenteredClockSkewWarning from "./CenteredClockSkewWarning"
-import ExamClockSkewWarning from "./ExamClockSkewWarning"
-import ExamInfoHeader from "./ExamInfoHeader"
-import ExamRunningSection from "./ExamRunningSection"
-import ExamStartBanner from "./ExamStartBanner"
-
 import ContentRenderer from "@/components/course-material/ContentRenderer"
 import { enrollInExam } from "@/generated/course-material-api/sdk.generated"
 import type { ExamData, ExamEnrollmentData } from "@/generated/course-material-api/types.generated"
@@ -27,7 +21,13 @@ import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
 import { refetchViewAtom } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
+
+import CenteredClockSkewWarning from "./CenteredClockSkewWarning"
+import ExamClockSkewWarning from "./ExamClockSkewWarning"
+import ExamInfoHeader from "./ExamInfoHeader"
+import ExamRunningSection from "./ExamRunningSection"
+import ExamStartBanner from "./ExamStartBanner"
 
 export type ExamPageShellMode = "exam" | "testexam"
 
@@ -155,7 +155,7 @@ export default function ExamPageShell({
           >
             <div id="maincontent">
               <ContentRenderer
-                data={(examData.instructions as Array<Block<unknown>>) ?? []}
+                data={(examData.instructions as Block<unknown>[]) ?? []}
                 isExam={false}
                 dontAllowBlockToBeWiderThanContainerWidth={false}
               />

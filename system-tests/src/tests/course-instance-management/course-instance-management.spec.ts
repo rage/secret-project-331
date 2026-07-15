@@ -1,10 +1,10 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { downloadToString } from "../../utils/download"
 import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -13,9 +13,7 @@ test.use({
 test("Managing course instances works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page
@@ -28,6 +26,7 @@ test("Managing course instances works", async ({ page }) => {
   await page.getByText("For instructions on how to edit your course materials, view the").waitFor()
   await page.getByRole("tab", { name: "Course instances" }).waitFor()
 
+  await page.getByText("Export submissions (exercise tasks) as CSV").waitFor()
   await page.getByText("Export submissions (exercise tasks) as CSV").scrollIntoViewIfNeeded()
 
   const [submissionsDownload] = await Promise.all([
@@ -54,7 +53,7 @@ test("Managing course instances works", async ({ page }) => {
   expect(usersCsvContents).toContain("3524d694-7fa8-4e73-aa1a-de9a20fd514b,")
   expect(usersCsvContents).toContain(",User4,User4,user_4@example.com")
 
-  await Promise.all([page.getByRole("tab", { name: "Course instances" }).click()])
+  await page.getByRole("tab", { name: "Course instances" }).click()
   await page.getByRole("heading", { name: "All course instances" }).waitFor()
   await page.getByRole("button", { name: "New" }).click()
 

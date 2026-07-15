@@ -8,14 +8,6 @@ import { useParams } from "next/navigation"
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import { SCHEDULE_STAGE_ORDER } from "../schedule/scheduleConstants"
-
-import AnalysisWorkspaceForm from "./components/AnalysisWorkspaceForm"
-import PlanOverviewPanel from "./components/PlanOverviewPanel"
-import StageTimelineTabStrip from "./components/StageTimelineTabStrip"
-import WorkspaceStageSection from "./components/WorkspaceStageSection"
-import { useCoursePlanWorkspacePageState } from "./hooks/useCoursePlanWorkspacePageState"
-
 import {
   advanceCourseDesignerStageMutation,
   extendCourseDesignerStageMutation,
@@ -32,6 +24,13 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCoursePlanPermissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import { SCHEDULE_STAGE_ORDER } from "../schedule/scheduleConstants"
+import AnalysisWorkspaceForm from "./components/AnalysisWorkspaceForm"
+import PlanOverviewPanel from "./components/PlanOverviewPanel"
+import StageTimelineTabStrip from "./components/StageTimelineTabStrip"
+import WorkspaceStageSection from "./components/WorkspaceStageSection"
+import { useCoursePlanWorkspacePageState } from "./hooks/useCoursePlanWorkspacePageState"
 
 const pageRootStyles = css`
   padding: 0 0 3rem 0;
@@ -484,7 +483,7 @@ function buildStageDescriptionItems(stage: CourseDesignerStage | null, t: TFunct
   }
 }
 
-/* eslint-disable i18next/no-literal-string -- internal state discriminants, not user-facing copy */
+/* oxlint-disable i18next/no-literal-string -- internal state discriminants, not user-facing copy */
 type StageRelation = "current" | "past" | "future" | "noActive" | "none"
 
 /** Computes the relation of the selected stage to the active stage for messaging context. */
@@ -508,7 +507,7 @@ function computeStageRelation(
   }
   return selectedIndex < activeIndex ? "past" : "future"
 }
-/* eslint-enable i18next/no-literal-string */
+/* oxlint-enable i18next/no-literal-string */
 
 function CoursePlanWorkspacePage() {
   const { t, i18n } = useTranslation()
@@ -585,7 +584,7 @@ function CoursePlanWorkspacePage() {
                 : null
 
               const viewedStageData =
-                viewedStage != null
+                viewedStage !== null
                   ? (stages.find((stage) => stage.stage === viewedStage) ?? null)
                   : null
 
@@ -623,21 +622,21 @@ function CoursePlanWorkspacePage() {
                 : null
 
               const currentPhaseEndDateFormatted =
-                currentStageData?.planned_ends_on != null
+                currentStageData?.planned_ends_on !== undefined
                   ? new Date(currentStageData.planned_ends_on).toLocaleDateString(i18n.language, {
-                      // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
+                      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
                       month: "long",
-                      // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
+                      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
                       year: "numeric",
                     })
                   : null
 
               const activeStageTaskCompleted =
-                currentStageData?.tasks != null
+                currentStageData?.tasks !== undefined
                   ? currentStageData.tasks.filter((task) => task.is_completed).length
                   : 0
               const activeStageTaskTotal =
-                currentStageData?.tasks != null ? currentStageData.tasks.length : 0
+                currentStageData?.tasks !== undefined ? currentStageData.tasks.length : 0
               const currentStageIndex = currentStage
                 ? SCHEDULE_STAGE_ORDER.indexOf(currentStage)
                 : -1
@@ -876,10 +875,11 @@ function CoursePlanWorkspacePage() {
                       className={`${cardStyles} ${chatbotAreaStyles} ${chatbotCardStyles}`}
                       aria-label={t("course-plans-assistant-aria-label")}
                     >
-                      {/* eslint-disable-next-line i18next/no-literal-string */}
+                      {/* oxlint-disable-next-line i18next/no-literal-string */}
                       <h3 className={sectionTitleStyles}>Assistant</h3>
-                      {/* eslint-disable-next-line i18next/no-literal-string */}
+                      {/* oxlint-disable-next-line i18next/no-literal-string */}
                       <p className={aboutTextStyles}>
+                        {/* oxlint-disable-next-line i18next/no-literal-string */}
                         A course design assistant chatbot will appear here to help you with tasks
                         and questions about each stage.
                       </p>

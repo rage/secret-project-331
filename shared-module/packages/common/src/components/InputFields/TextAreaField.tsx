@@ -1,8 +1,9 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { forwardRef, TextareaHTMLAttributes, useEffect, useRef } from "react"
-import { FieldError } from "react-hook-form"
+import type { TextareaHTMLAttributes } from "react"
+import React, { forwardRef, useEffect, useRef } from "react"
+import type { FieldError } from "react-hook-form"
 
 export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
@@ -23,16 +24,16 @@ function updateHeight(
   if (ref.current) {
     const currentHeight = ref.current.style.height
     // set the height as auto to set the height based on content length
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     ref.current.style.height = "auto"
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const contentHeight = `${ref.current.scrollHeight + 5}px`
 
     if (maxHeightPx && ref.current.scrollHeight > maxHeightPx) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       ref.current.style.height = `${maxHeightPx}px`
     } else {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       ref.current.style.height = `${ref.current.scrollHeight + 5}px`
     }
     if (onAutoResized && currentHeight !== contentHeight) {
@@ -103,7 +104,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       if (!autoResize) {
         return
       }
-      if (prevValueRef.current && rest.value != prevValueRef.current) {
+      if (prevValueRef.current && rest.value !== prevValueRef.current) {
         updateHeight(textareaRef, onAutoResized, autoResizeMaxHeightPx)
       }
       prevValueRef.current = rest.value

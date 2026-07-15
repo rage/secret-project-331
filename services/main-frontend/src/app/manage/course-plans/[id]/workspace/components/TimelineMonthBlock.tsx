@@ -3,10 +3,10 @@
 import { css } from "@emotion/css"
 import { format } from "date-fns"
 
-import { type StageMonth } from "../../schedule/scheduleMappers"
-
 import { COURSE_PLAN_MONTH_ICONS } from "@/app/manage/course-plans/monthIcons"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import type { StageMonth } from "../../schedule/scheduleMappers"
 
 const timelineMonthBlockStyles = css`
   min-width: 84px;
@@ -48,7 +48,7 @@ interface TimelineMonthBlockProps {
 }
 
 export default function TimelineMonthBlock({ month }: TimelineMonthBlockProps) {
-  const MonthIcon = COURSE_PLAN_MONTH_ICONS[month.date.getMonth()]
+  const MonthIcon = COURSE_PLAN_MONTH_ICONS[month.date.getMonth()] ?? COURSE_PLAN_MONTH_ICONS[0]
 
   return (
     <div className={timelineMonthBlockStyles} title={month.label}>

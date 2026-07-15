@@ -5,11 +5,11 @@ import { LanguageTranslation } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Close from "../imgs/close.svg"
-import Tick from "../imgs/tick-03.svg"
-
 import { headingFont } from "@/shared-module/common/styles"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
+
+import Close from "../imgs/close.svg"
+import Tick from "../imgs/tick-03.svg"
 
 const SelectorWrapper = styled.div`
   background: #e7e7e7;
@@ -151,6 +151,7 @@ const LanguageSelector: React.FC<React.PropsWithChildren<LanguageSelectorProps>>
             >
               <IconContainer>
                 {checked === index && <StCheck />}
+                {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=img span wraps an icon; <img> needs src, no children */}
                 <span role="img" aria-label={t("language-icon")}>
                   <LanguageTranslation size={24} aria-hidden="true" />
                 </span>

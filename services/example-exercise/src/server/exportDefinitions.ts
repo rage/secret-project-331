@@ -1,9 +1,9 @@
 import { jsonRoute, readJsonBody } from "@/lib/apiRoutes"
 import {
-  CsvExportColumn,
-  CsvExportResponse,
   parseItemsRequest,
   parseSpecArrayStrict,
+  type CsvExportColumn,
+  type CsvExportResponse,
 } from "@/server/csvExportUtils"
 import { alternativesFromStored, isAlternative } from "@/util/stateInterfaces"
 

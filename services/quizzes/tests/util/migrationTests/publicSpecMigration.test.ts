@@ -1,6 +1,6 @@
 import migratePublicSpecQuiz from "../../../src/util/migration/publicSpecQuiz"
-import { OldPublicQuizItem, OldPublicTimelineItem } from "../../../types/oldQuizTypes"
-import {
+import type { OldPublicQuizItem, OldPublicTimelineItem } from "../../../types/oldQuizTypes"
+import type {
   PublicSpecQuizItemCheckbox,
   PublicSpecQuizItemChooseN,
   PublicSpecQuizItemClosedEndedQuestion,
@@ -9,7 +9,6 @@ import {
   PublicSpecQuizItemScale,
   PublicSpecQuizItemTimeline,
 } from "../../../types/quizTypes/publicSpec"
-
 import { comparePublicSpecQuizItem, expectPublicSpecMetadataToMatch } from "./utils/comparison"
 import {
   generateCheckboxForOlderPublicSpecQuiz,
@@ -28,7 +27,7 @@ describe("public spec migration of quizzes", () => {
     const multipleChoiceItem = generateMultipleChoicePublicSpecQuiz(10, 5)
     const oldPublicQuiz = packToPublicSpecQuiz([multipleChoiceItem])
     const migratedPublicQuiz = migratePublicSpecQuiz(oldPublicQuiz)!
-    const migratedMultipleChoiceItem = migratedPublicQuiz.items[0]
+    const migratedMultipleChoiceItem = migratedPublicQuiz.items[0]! // safe: quiz packed with exactly one item
 
     expectPublicSpecMetadataToMatch(oldPublicQuiz, migratedPublicQuiz)
     comparePublicSpecQuizItem(migratedMultipleChoiceItem, multipleChoiceItem)
@@ -47,7 +46,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuiz = packToPublicSpecQuiz([checkboxQuizItem])
     const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
+    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PublicSpecQuizItemCheckbox = newQuiz.items[0] as PublicSpecQuizItemCheckbox
 
     expect(newQuizItem.type).toBe("checkbox")
@@ -60,7 +59,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuiz = packToPublicSpecQuiz([essayQuizItem])
     const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
+    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PublicSpecQuizItemEssay = newQuiz.items[0] as PublicSpecQuizItemEssay
 
     expect(newQuizItem.type).toBe("essay")
@@ -74,7 +73,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuiz = packToPublicSpecQuiz([matrixQuizItem])
     const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
+    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PublicSpecQuizItemMatrix = newQuiz.items[0] as PublicSpecQuizItemMatrix
 
     expect(newQuizItem.type).toBe("matrix")
@@ -87,7 +86,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuiz = packToPublicSpecQuiz([openQuizItem])
     const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
+    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PublicSpecQuizItemClosedEndedQuestion = newQuiz
       .items[0] as PublicSpecQuizItemClosedEndedQuestion
 
@@ -101,7 +100,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuiz = packToPublicSpecQuiz([scaleQuizItem])
     const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
+    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PublicSpecQuizItemScale = newQuiz.items[0] as PublicSpecQuizItemScale
 
     expect(newQuizItem.type).toBe("scale")
@@ -114,7 +113,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuiz = packToPublicSpecQuiz([timelineQuizItem])
     const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
+    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PublicSpecQuizItemTimeline = newQuiz.items[0] as PublicSpecQuizItemTimeline
 
     // This will always be defined
@@ -141,7 +140,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuiz = packToPublicSpecQuiz([chooseNQuizItem])
     const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
+    const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PublicSpecQuizItemChooseN = newQuiz.items[0] as PublicSpecQuizItemChooseN
 
     expect(newQuizItem.type).toBe("choose-n")

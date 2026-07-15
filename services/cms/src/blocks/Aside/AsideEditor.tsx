@@ -3,13 +3,12 @@
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 
-import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
-import BlockWrapper from "../BlockWrapper"
-
-import { AsideComponentProps } from "."
-
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { AsideComponentProps } from "."
+import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
+import BlockWrapper from "../BlockWrapper"
 
 const AsideEditor = ({
   clientId,
@@ -29,7 +28,7 @@ const AsideEditor = ({
           attributes={attributes}
           setAttributes={setAttributes}
           defaultBackgroundColor="#007acc"
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           customAttributeName="separatorColor"
           customTitle={t("separator-color")}
         />

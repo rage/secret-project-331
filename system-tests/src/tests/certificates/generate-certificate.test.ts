@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { ChapterSelector } from "../../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { respondToConfirmDialog } from "@/utils/dialogs"
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/user@example.com.json",
 })

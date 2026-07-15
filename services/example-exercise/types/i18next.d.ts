@@ -1,6 +1,5 @@
 import "i18next"
-
-import ownTranslations from "@/locales/en/example-exercise.json"
+import type ownTranslations from "@/locales/en/example-exercise.json"
 
 declare module "i18next" {
   interface CustomTypeOptions {

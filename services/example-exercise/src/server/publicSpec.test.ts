@@ -23,7 +23,7 @@ describe("POST /api/public-spec", () => {
       }),
     )
     expect(res.status).toBe(200)
-    const spec = (await res.json()) as Array<Record<string, unknown>>
+    const spec = (await res.json()) as Record<string, unknown>[]
     expect(spec).toEqual([
       { id: "a", name: "Right" },
       { id: "b", name: "Wrong" },
@@ -46,7 +46,7 @@ describe("POST /api/public-spec", () => {
       }),
     )
     expect(res.status).toBe(200)
-    const spec = (await res.json()) as Array<Record<string, unknown>>
+    const spec = (await res.json()) as Record<string, unknown>[]
     // Output stays a bare array (smoke.mjs asserts Array.isArray) with no `correct`.
     expect(Array.isArray(spec)).toBe(true)
     expect(spec).toEqual([

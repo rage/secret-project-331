@@ -1,10 +1,10 @@
-/* eslint-disable playwright/no-wait-for-timeout */
+/* oxlint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
-
-import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
 
 import { selectOrganization } from "@/utils/organizationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
+import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -31,7 +31,7 @@ test.describe("Gutenberg spacer editing", () => {
     await page.getByRole("button", { name: "Add block" }).waitFor()
     await waitForFooterTranslationsToLoad(page)
 
-    // eslint-disable-next-line playwright/no-networkidle
+    // oxlint-disable-next-line playwright/no-networkidle
     await page.waitForLoadState("networkidle")
     await page.getByRole("button", { name: "Add block" }).click()
     await page.getByRole("option", { name: "Paragraph" }).click()

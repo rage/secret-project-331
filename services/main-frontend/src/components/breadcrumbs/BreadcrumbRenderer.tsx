@@ -6,10 +6,11 @@ import { useRef } from "react"
 import { useBreadcrumbItem, useBreadcrumbs } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { breadcrumbCrumbsAtom, type Crumb } from "./breadcrumbAtoms"
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import { breadcrumbCrumbsAtom, type Crumb } from "./breadcrumbAtoms"
 
 const MARKER = "›"
 const ARIA_CURRENT_PAGE = "page"
@@ -19,7 +20,10 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
   const ref = useRef<HTMLAnchorElement>(null)
   const label = crumb.isLoading ? "" : crumb.label
   const href = crumb.isLoading ? undefined : (crumb.href ?? undefined)
-  const { itemProps } = useBreadcrumbItem({ children: label, isCurrent, href }, ref)
+  const { itemProps } = useBreadcrumbItem(
+    { children: label, isCurrent, ...omitUndefined({ href }) },
+    ref,
+  )
 
   if (crumb.isLoading) {
     return (
@@ -27,6 +31,7 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
         <span
           className={cx(breadcrumbText, skeletonLoader)}
           data-testid={LOADING_SPINNER_TEST_ID}
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status on styled span; <output> would change styling
           role="status"
           aria-label={t("loading")}
         />
@@ -39,7 +44,7 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
     )
   }
 
-  const isLink = !isCurrent && crumb.href != null
+  const isLink = !isCurrent && crumb.href !== undefined
 
   return (
     <li className={breadcrumbItem}>
@@ -55,7 +60,7 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
       ) : (
         <span
           className={cx(breadcrumbText, currentPage)}
-          {...(isCurrent ? { "aria-current": ARIA_CURRENT_PAGE } : {})}
+          {...includeIf(isCurrent, { "aria-current": ARIA_CURRENT_PAGE })}
         >
           {crumb.label}
         </span>
@@ -74,7 +79,7 @@ export default function BreadcrumbRenderer() {
   const items = useAtomValue(breadcrumbCrumbsAtom)
   const { navProps } = useBreadcrumbs({ "aria-label": t("aria-label-breadcrumb") })
 
-  if (!items.length) {
+  if (items.length === 0) {
     return null
   }
 

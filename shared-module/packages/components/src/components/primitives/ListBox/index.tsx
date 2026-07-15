@@ -8,7 +8,6 @@ import type { AriaListBoxOptions } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { listBoxCss, listBoxEmptyStateCss } from "../selectStyles"
-
 import { Option } from "./Option"
 import { Section } from "./Section"
 

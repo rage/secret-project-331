@@ -4,15 +4,14 @@ import { useAtomValue } from "jotai"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
-
-import ChapterProgress from "./ChapterProgress"
-
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
+
+import type { BlockRendererProps } from "../.."
+import ChapterProgress from "./ChapterProgress"
 
 const ChapterProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()

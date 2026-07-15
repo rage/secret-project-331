@@ -1,10 +1,10 @@
 "use client"
 
-import { useStudentsContext } from "../StudentsContext"
-import { ProgressTabContent } from "../tabs/ProgressTab"
-
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import { useStudentsContext } from "../StudentsContext"
+import { ProgressTabContent } from "../tabs/ProgressTab"
 
 function ProgressPage() {
   const { courseId, searchQuery } = useStudentsContext()

@@ -8,7 +8,7 @@ export interface CsvExportColumn {
 }
 
 export interface CsvExportResult {
-  rows: Array<Record<string, CsvScalar>>
+  rows: Record<string, CsvScalar>[]
 }
 
 export interface CsvExportResponse {
@@ -43,7 +43,7 @@ export function parseSpecArrayStrict<T>(
   isItem: (item: unknown) => item is T,
   message = "Invalid private_spec: expected an array of the exercise's spec items",
 ): T[] {
-  if (!Array.isArray(value) || !value.every(isItem)) {
+  if (!Array.isArray(value) || !value.every((item) => isItem(item))) {
     throw new BadRequestError(message)
   }
   return value

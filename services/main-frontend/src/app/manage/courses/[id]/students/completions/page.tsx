@@ -1,10 +1,10 @@
 "use client"
 
-import { useStudentsContext } from "../StudentsContext"
-import { CompletionsTabContent } from "../StudentsTableTabs"
-
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import { useStudentsContext } from "../StudentsContext"
+import { CompletionsTabContent } from "../StudentsTableTabs"
 
 function CompletionsPage() {
   const { courseId, searchQuery } = useStudentsContext()

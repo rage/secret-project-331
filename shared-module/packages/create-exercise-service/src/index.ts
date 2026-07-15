@@ -1,8 +1,7 @@
 import { cp, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises"
 import { dirname, extname, join, relative, resolve, sep } from "node:path"
-import { fileURLToPath } from "node:url"
 
-const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
+const SCRIPT_DIR = import.meta.dirname
 // src -> create-exercise-service -> packages -> shared-module -> repository root
 const REPO_ROOT = resolve(SCRIPT_DIR, "../../../..")
 const TEMPLATE_DIR = join(REPO_ROOT, "services", "example-exercise")
@@ -95,7 +94,7 @@ async function readJson<T>(path: string): Promise<T> {
 }
 
 /** Apply a set of literal string replacements to a file in place. */
-async function replaceInFile(path: string, replacements: Array<[string, string]>): Promise<void> {
+async function replaceInFile(path: string, replacements: [string, string][]): Promise<void> {
   let contents = await readFile(path, "utf8")
   for (const [from, to] of replacements) {
     contents = contents.split(from).join(to)
@@ -117,7 +116,7 @@ async function copyTemplate(src: string, dest: string): Promise<void> {
         return true
       }
       const rel = relative(src, source)
-      const topLevel = rel.split(sep)[0]
+      const topLevel = rel.split(sep)[0] ?? ""
       if (COPY_EXCLUDES.has(topLevel)) {
         return false
       }
@@ -162,7 +161,7 @@ async function buildPackageJson(
   pkg.name = projectName
   pkg.version = "0.1.0"
   pkg.dependencies = Object.fromEntries(
-    Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)),
+    Object.entries(merged).toSorted(([a], [b]) => a.localeCompare(b)),
   )
   // The template pins an exact node version for the monorepo; a standalone project shouldn't carry
   // it.
@@ -225,7 +224,7 @@ const BINARY_EXTENSIONS = new Set([
  */
 async function replaceNameInAllFiles(
   root: string,
-  replacements: Array<[string, string]>,
+  replacements: [string, string][],
   dir: string = root,
 ): Promise<void> {
   const sharedModuleDir = join(root, "src", "shared-module")
@@ -248,7 +247,7 @@ async function replaceNameInAllFiles(
 /** Replace the service name and other template-specific values throughout the generated project. */
 async function parameterize(projectPath: string, projectName: string): Promise<void> {
   // Display name (e.g. "my-exercise" -> "My exercise") for service_name and the document <title>.
-  const displayName = projectName.replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
+  const displayName = projectName.replaceAll(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
 
   // Display literal first, then the slug: they don't overlap ("Example exercise" vs
   // "example-exercise"), so one pass covers every occurrence.
@@ -409,15 +408,17 @@ create-exercise-service (or copy the packages over manually) to update it.
 }
 
 // Only run the interactive CLI when executed directly, not when imported (e.g. by tests).
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
-  main().catch((error) => {
+if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {
+  try {
+    await main()
+  } catch (error) {
     // @inquirer/prompts rejects with ExitPromptError when the user aborts a prompt with Ctrl+C;
     // exit quietly instead of printing an unhandled-rejection stack trace.
     if (error instanceof Error && error.name === "ExitPromptError") {
       process.exitCode = 130
-      return
+    } else {
+      console.error(error instanceof Error ? error.message : error)
+      process.exitCode = 1
     }
-    console.error(error instanceof Error ? error.message : error)
-    process.exitCode = 1
-  })
+  }
 }

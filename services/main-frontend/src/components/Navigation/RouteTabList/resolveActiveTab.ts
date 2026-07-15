@@ -1,5 +1,7 @@
 import type { RouteTabDefinition } from "./RouteTab"
 
+const matchPath = (tab: RouteTabDefinition) => tab.pathPrefix ?? tab.href
+
 /**
  * Resolves which tab is active for a given pathname. A tab matches when its match path
  * (`pathPrefix ?? href`) equals the pathname or is a path-segment prefix of it (so `/foo` matches
@@ -15,12 +17,11 @@ export function resolveActiveTab(
   pathname: string,
   fallbackToFirst = true,
 ): RouteTabDefinition | undefined {
-  const matchPath = (tab: RouteTabDefinition) => tab.pathPrefix ?? tab.href
   const isMatch = (tab: RouteTabDefinition) => {
     const mp = matchPath(tab)
     return pathname === mp || pathname.startsWith(mp.endsWith("/") ? mp : `${mp}/`)
   }
-  const matching = tabs.filter(isMatch)
+  const matching = tabs.filter((tab) => isMatch(tab))
   if (matching.length === 0) {
     return fallbackToFirst ? tabs[0] : undefined
   }

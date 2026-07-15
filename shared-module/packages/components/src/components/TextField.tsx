@@ -10,7 +10,7 @@ import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { joinAriaDescribedBy } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
 import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
-
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -94,7 +94,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
   const inputRef = useRef<HTMLInputElement>(null)
-  const stringValue = field.value == null ? "" : String(field.value)
+  const stringValue = field.value === null || field.value === undefined ? "" : String(field.value)
 
   const floatingState = useFloatingFieldState({
     defaultValue: undefined,
@@ -106,21 +106,22 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
     label,
     description,
     errorMessage: resolvedError,
-    id,
     name: field.name,
     type,
     value: stringValue,
-    autoComplete,
-    maxLength,
-    minLength,
-    pattern,
-    inputMode,
-    placeholder,
-    "aria-label": undefined,
-    isDisabled,
-    isReadOnly,
-    isRequired,
     isInvalid,
+    ...omitUndefined({
+      id,
+      autoComplete,
+      maxLength,
+      minLength,
+      pattern,
+      inputMode,
+      placeholder,
+      isDisabled,
+      isReadOnly,
+      isRequired,
+    }),
   }
 
   const {

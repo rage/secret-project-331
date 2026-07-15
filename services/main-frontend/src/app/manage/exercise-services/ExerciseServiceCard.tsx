@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { QueryObserverResult } from "@tanstack/react-query"
+import type { QueryObserverResult } from "@tanstack/react-query"
 import {
   BellXmark,
   CheckCircle,
@@ -14,33 +14,34 @@ import { parseISO } from "date-fns"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ContentArea from "./ContentArea"
-
 import {
   deleteExerciseServiceMutation as deleteExerciseServiceMutationOptions,
   updateExerciseServiceMutation as updateExerciseServiceMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseService, ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validURL } from "@/shared-module/common/utils/validation"
 import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
 import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
 
+import ContentArea from "./ContentArea"
+
 interface ExerciseServiceCardProps {
   id: string
   exerciseService: ExerciseService
-  refetch(): Promise<QueryObserverResult<ExerciseService[], unknown>>
+  refetch: () => Promise<QueryObserverResult<ExerciseService[], unknown>>
 }
 
 enum UpdateStatus {
-  none,
-  saved,
-  failed,
+  none = 0,
+  saved = 1,
+  failed = 2,
 }
 
 const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardProps>> = ({
@@ -210,9 +211,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
                 variant={"icon"}
                 size={"small"}
               >
-                {status == UpdateStatus.none ? (
+                {status === UpdateStatus.none ? (
                   <FloppyDiskSave size={20} />
-                ) : status == UpdateStatus.saved ? (
+                ) : status === UpdateStatus.saved ? (
                   <CheckCircle size={20} />
                 ) : (
                   <BellXmark size={20} />
@@ -262,7 +263,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
                 title={t("text-field-label-or-header-slug-or-short-name")}
                 text={service.slug}
                 editing={editing}
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 onChange={onChange("slug")}
                 type={"text"}
               />
@@ -272,28 +273,30 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             title={t("title-public-url")}
             text={service.public_url}
             editing={editing}
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("public_url")}
             type={"text"}
-            error={!validURL(service.public_url) ? t("error-title") : undefined}
+            {...includeIf(!validURL(service.public_url), { error: t("error-title") })}
           />
           <ContentArea
             title={t("title-internal-url")}
             text={service.internal_url ?? null}
             editing={editing}
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("internal_url")}
             type={"text"}
-            error={!validURL(service.internal_url ?? "") ? t("error-title") : undefined}
+            {...includeIf(!validURL(service.internal_url ?? ""), { error: t("error-title") })}
           />
           <ContentArea
             title={t("title-reprocessing-submissions")}
             text={service.max_reprocessing_submissions_at_once}
             editing={editing}
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
-            error={service.max_reprocessing_submissions_at_once < 0 ? t("error-title") : undefined}
+            {...includeIf(service.max_reprocessing_submissions_at_once < 0, {
+              error: t("error-title"),
+            })}
           />
         </div>
         <div

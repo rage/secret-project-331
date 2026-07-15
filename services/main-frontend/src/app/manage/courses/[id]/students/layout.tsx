@@ -5,18 +5,10 @@ import { useParams, useSearchParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  StudentsContextProvider,
-  useStudentsContext,
-  useStudentsListParams,
-} from "./StudentsContext"
-import * as styles from "./StudentsPageStyles"
-import { useCourseStudentsIdentity, useCourseStudentsPrefetchNextPage } from "./studentsQueries"
-
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
-import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -24,6 +16,14 @@ import Pagination from "@/shared-module/common/components/Pagination"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
+
+import {
+  StudentsContextProvider,
+  useStudentsContext,
+  useStudentsListParams,
+} from "./StudentsContext"
+import * as styles from "./StudentsPageStyles"
+import { useCourseStudentsIdentity, useCourseStudentsPrefetchNextPage } from "./studentsQueries"
 
 const KEY_USERS = "users"
 const KEY_COMPLETIONS = "completions"

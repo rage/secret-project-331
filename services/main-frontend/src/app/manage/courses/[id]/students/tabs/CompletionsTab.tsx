@@ -6,20 +6,20 @@ import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
+import type { CompletionGridRow } from "@/generated/api/types.generated"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
-import { StudentsTable } from "../StudentsTable"
-import { COMPLETIONS_LEAF_MIN_WIDTH, PAD } from "../studentsTableStyles"
 import {
   DETAIL_SORT_COLUMNS,
   formatStudentName,
   useCourseStudentsCompletionsDetail,
   useCourseStudentsIdentity,
 } from "../studentsQueries"
-
-import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
-import type { CompletionGridRow } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { StudentsTable } from "../StudentsTable"
+import { COMPLETIONS_LEAF_MIN_WIDTH, PAD } from "../studentsTableStyles"
 
 const PLACEHOLDER = "-"
 

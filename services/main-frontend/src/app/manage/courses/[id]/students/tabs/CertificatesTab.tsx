@@ -7,30 +7,30 @@ import { Eye, Pen } from "@vectopus/atlas-icons-react"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
-import { StudentsTable } from "../StudentsTable"
-import {
-  DETAIL_SORT_COLUMNS,
-  formatStudentName,
-  useCourseStudentsCertificatesDetail,
-  useCourseStudentsIdentity,
-} from "../studentsQueries"
-
 import { updateGeneratedCertificate } from "@/generated/api/sdk.generated"
 import type {
   CertificateUpdateRequest,
   GetCertificateByVerificationIdData,
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
 import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
+
+import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
+import {
+  DETAIL_SORT_COLUMNS,
+  formatStudentName,
+  useCourseStudentsCertificatesDetail,
+  useCourseStudentsIdentity,
+} from "../studentsQueries"
+import { StudentsTable } from "../StudentsTable"
 
 const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"] =
   "/api/v0/main-frontend/certificates/{certificate_verification_id}"

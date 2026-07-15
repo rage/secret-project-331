@@ -4,12 +4,12 @@ import type { ColumnDef } from "@tanstack/react-table"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
-import { StudentsTable } from "../StudentsTable"
-import { useCourseStudentsIdentity } from "../studentsQueries"
-
 import type { CourseStudentListRow } from "@/generated/api/types.generated"
 import { QueryResult } from "@/shared-module/components"
+
+import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
+import { useCourseStudentsIdentity } from "../studentsQueries"
+import { StudentsTable } from "../StudentsTable"
 
 const EM_DASH = "—"
 

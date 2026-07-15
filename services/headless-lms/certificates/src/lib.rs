@@ -413,3 +413,89 @@ fn generate_text_svg(
 
     Ok(writer.into_inner().into_inner())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{TextToRender, generate_certificate_impl};
+    use headless_lms_models::certificate_configurations::PaperSize;
+    use std::sync::Arc;
+    use usvg::fontdb;
+
+    /// Torture string of characters that incomplete fonts drop — NOT a real name.
+    /// Vietnamese stacked diacritics + Nordic + assorted Latin-Extended.
+    const TRICKY: &str = "Đặng Hồ ẹẽợỹ Åström Ñuñez Œuvre Łódź Öğüş Straße";
+
+    fn seed_fontdb() -> fontdb::Database {
+        let mut db = fontdb::Database::new();
+        // Canonical seed copies — the same files the render path loads.
+        db.load_font_data(
+            include_bytes!("../../server/src/programs/seed/data/InterVariable.ttf").to_vec(),
+        );
+        db.load_font_data(
+            include_bytes!("../../server/src/programs/seed/data/Lato-Regular.ttf").to_vec(),
+        );
+        db
+    }
+
+    /// The default certificate font must contain a glyph for every character we render. When it
+    /// does, usvg never enters its fallback path (which bails on a glyph-count mismatch and renders
+    /// .notdef boxes), so names in these scripts can't regress to boxes.
+    #[test]
+    fn default_certificate_font_covers_supported_scripts() {
+        let db = seed_fontdb();
+        let default = TextToRender::default();
+        let id = db
+            .query(&fontdb::Query {
+                families: &[fontdb::Family::Name(&default.font_family)],
+                ..Default::default()
+            })
+            .unwrap_or_else(|| {
+                panic!(
+                    "default certificate font '{}' not found in seeded fonts",
+                    default.font_family
+                )
+            });
+        let missing: Vec<char> = db
+            .with_face_data(id, |data, index| {
+                let face =
+                    ttf_parser::Face::parse(data, index).expect("seeded default font must parse");
+                TRICKY
+                    .chars()
+                    .filter(|c| !c.is_whitespace() && face.glyph_index(*c).is_none())
+                    .collect()
+            })
+            .expect("face data for default font must be available");
+        assert!(
+            missing.is_empty(),
+            "default certificate font '{}' is missing glyphs for: {:?}",
+            default.font_family,
+            missing
+        );
+    }
+
+    /// The real render pipeline produces a valid, non-trivial PNG for the tricky string.
+    #[test]
+    fn renders_tricky_string_to_png() {
+        let background =
+            br#"<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"></svg>"#;
+        let texts = vec![TextToRender {
+            text: TRICKY.to_string(),
+            ..Default::default()
+        }];
+        let png = generate_certificate_impl(
+            background,
+            None,
+            &texts,
+            &PaperSize::HorizontalA4,
+            false,
+            Arc::new(seed_fontdb()),
+        )
+        .expect("certificate rendering should succeed");
+        assert!(
+            png.len() > 1000,
+            "expected a non-trivial PNG, got {} bytes",
+            png.len()
+        );
+        assert_eq!(&png[..8], b"\x89PNG\r\n\x1a\n", "output should be a PNG");
+    }
+}

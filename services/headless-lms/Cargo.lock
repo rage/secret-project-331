@@ -2696,6 +2696,7 @@ dependencies = [
  "rust-i18n",
  "sqlx",
  "tracing",
+ "ttf-parser",
  "url",
  "usvg",
  "uuid",

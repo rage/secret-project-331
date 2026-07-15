@@ -16,18 +16,19 @@ import type { AriaDialogProps } from "@react-types/dialog"
 import React, { useRef } from "react"
 
 import { typography } from "../../styles"
+import { omitUndefined } from "../../utils/nullability"
 
 interface DialogProps extends AriaDialogProps {
   open: boolean
-  onClose?: () => void
+  onClose?: (() => void) | undefined
   closeable?: boolean
   noPadding?: boolean
   width?: "normal" | "wide"
   disableContentScroll?: boolean
   preventBackgroundScroll?: boolean
   children: React.ReactNode
-  className?: string
-  "data-testid"?: string
+  className?: string | undefined
+  "data-testid"?: string | undefined
   /** Whether the dialog is closable by clicking outside of it */
   isDismissable?: boolean
   /** Whether the dialog should close when focus moves outside of the dialog */
@@ -61,7 +62,7 @@ const Dialog: React.FC<DialogProps> = ({
   const { overlayProps, underlayProps } = useOverlay(
     {
       isOpen: open,
-      onClose,
+      ...omitUndefined({ onClose }),
       isDismissable: isDismissable,
       shouldCloseOnBlur: shouldCloseOnBlur,
     },
@@ -147,7 +148,7 @@ const Dialog: React.FC<DialogProps> = ({
               `}
             >
               {children}
-              {closeable && <DismissButton onDismiss={onClose} />}
+              {closeable && <DismissButton {...omitUndefined({ onDismiss: onClose })} />}
             </div>
           </div>
         </FocusScope>

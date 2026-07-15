@@ -1,12 +1,12 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/language.teacher@example.com.json",

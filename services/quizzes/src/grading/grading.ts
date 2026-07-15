@@ -1,6 +1,5 @@
 import type { QuizItemAnswerGrading } from "../../types/quizTypes/grading"
 import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
-
 import { isValidNumber } from "./utils/math"
 
 const gradeAnswers = (assessedAnswer: QuizItemAnswerGrading[], quiz: PrivateSpecQuiz): number => {
@@ -17,9 +16,8 @@ const gradeAnswers = (assessedAnswer: QuizItemAnswerGrading[], quiz: PrivateSpec
         return 0
       }
       const correctnessCoefficient = answer.correctnessCoefficient
-      // Handle null, undefined, or invalid values
-      // oxlint-disable-next-line eslint/eqeqeq -- typed number but may be nullish at runtime
-      if (correctnessCoefficient == null || !isValidNumber(correctnessCoefficient)) {
+      // isValidNumber rejects null/undefined/NaN/Infinity, so this also guards runtime-nullish values
+      if (!isValidNumber(correctnessCoefficient)) {
         return 0
       }
       // Clamp to [0, 1] range

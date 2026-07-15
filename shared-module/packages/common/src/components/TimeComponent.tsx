@@ -5,7 +5,6 @@ import { InfoCircle } from "@vectopus/atlas-icons-react"
 import React, { useLayoutEffect, useRef, useState } from "react"
 
 import { dateToString } from "../utils/time"
-
 import Button from "./Button"
 import SpeechBalloon from "./SpeechBalloon"
 import HideTextInSystemTests from "./system-tests/HideTextInSystemTests"

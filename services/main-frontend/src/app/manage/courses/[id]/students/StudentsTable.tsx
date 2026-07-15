@@ -7,6 +7,8 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import React, { useCallback, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
 import { colorPairs } from "./studentsTableColors"
 import {
   headerRowStyle,
@@ -24,8 +26,6 @@ import {
   tdStyle,
   thStyle,
 } from "./studentsTableStyles"
-
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface ColMeta {
   minWidth?: number
@@ -87,7 +87,8 @@ export function StudentsTable<T extends object>({
     columns,
     data,
     state: { sorting: sorting ?? [] },
-    onSortingChange,
+    // Omitted when undefined to satisfy exactOptionalPropertyTypes.
+    ...(onSortingChange ? { onSortingChange } : {}),
     manualSorting: true,
     enableSortingRemoval: false,
     getCoreRowModel: getCoreRowModel(),
@@ -105,11 +106,9 @@ export function StudentsTable<T extends object>({
   })
 
   const virtualItems = rowVirtualizer.getVirtualItems()
-  const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0
-  const paddingBottom =
-    virtualItems.length > 0
-      ? rowVirtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end
-      : 0
+  const paddingTop = virtualItems[0]?.start ?? 0
+  const lastVirtualItem = virtualItems[virtualItems.length - 1]
+  const paddingBottom = lastVirtualItem ? rowVirtualizer.getTotalSize() - lastVirtualItem.end : 0
 
   interface HeaderBgArg {
     colSpan: number
@@ -123,13 +122,13 @@ export function StudentsTable<T extends object>({
       // Upper header groups
       if (headerRow === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
         const chapterIdx = colIdx - chapterHeaderStart
-        return colorPairs[chapterIdx % colorPairs.length][0]
+        return colorPairs[chapterIdx % colorPairs.length]?.[0]
       }
       // Lower header (points/attempts)
       if (headerRow === 1 && colIdx >= subHeaderStart && header.colSpan === 1) {
         const pairIdx = Math.floor((colIdx - subHeaderStart) / 2)
         const subIdx = (colIdx - subHeaderStart) % 2
-        return colorPairs[pairIdx % colorPairs.length][subIdx]
+        return colorPairs[pairIdx % colorPairs.length]?.[subIdx]
       }
       return undefined
     },
@@ -298,6 +297,9 @@ export function StudentsTable<T extends object>({
 
   const renderRow = (rowIndex: number) => {
     const row = rows[rowIndex]
+    if (!row) {
+      return null
+    }
     const isLast = rowIndex === rows.length - 1
     return (
       <tr
@@ -311,7 +313,7 @@ export function StudentsTable<T extends object>({
           if (colorColumns && i >= subHeaderStart) {
             const pairIdx = Math.floor((i - subHeaderStart) / 2)
             const subIdx = (i - subHeaderStart) % 2
-            bg = colorPairs[pairIdx % colorPairs.length][subIdx]
+            bg = colorPairs[pairIdx % colorPairs.length]?.[subIdx]
           }
 
           let removeRight = false

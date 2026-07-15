@@ -13,7 +13,7 @@ interface LanguageOptionsContextValue {
   availableLanguages: LanguageOption[] | null
   setAvailableLanguages: (languages: LanguageOption[] | null) => void
   clearAvailableLanguages: () => void
-  onLanguageChange?: (languageCode: string) => Promise<void> | void
+  onLanguageChange?: ((languageCode: string) => Promise<void> | void) | undefined
   setOnLanguageChange?: (
     callback: ((languageCode: string) => Promise<void> | void) | undefined,
   ) => void

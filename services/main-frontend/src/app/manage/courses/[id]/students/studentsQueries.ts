@@ -40,13 +40,14 @@ const GC_TIME = 5 * 60_000
 const buildIdentityOptions = (courseId: string, params: StudentsListParams) =>
   getCourseStudentsUsersOptions({
     path: { course_id: courseId },
+    // Optional keys are omitted (not set to undefined) to satisfy exactOptionalPropertyTypes.
     query: {
       page: params.page,
       limit: params.limit,
-      search: params.search || undefined,
       sort_column: params.sortColumn,
       sort_direction: params.sortDirection,
-      course_instance_id: params.courseInstanceId ?? undefined,
+      ...(params.search ? { search: params.search } : {}),
+      ...(params.courseInstanceId ? { course_instance_id: params.courseInstanceId } : {}),
     },
   })
 

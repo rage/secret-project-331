@@ -5,13 +5,13 @@ import { CheckCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
-import { useAdjustScheduleDialogState } from "../hooks/useAdjustScheduleDialogState"
-
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, Select } from "@/shared-module/components"
+
+import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
+import { useAdjustScheduleDialogState } from "../hooks/useAdjustScheduleDialogState"
 
 const NODE_COLUMN_WIDTH = 28
 const SPINE_OFFSET = 13

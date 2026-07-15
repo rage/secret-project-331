@@ -4,13 +4,12 @@ import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import type { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
-import type { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
-
-import type { QuizItemSubmissionComponentProps } from "."
-
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemSubmissionComponentProps } from "."
+import type { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
 
 const MatrixTableContainer = styled.table`
   margin: auto;
@@ -106,20 +105,20 @@ const MatrixSubmission: React.FC<
     if (!correctAnswers) {
       if (!isStudentsAnswer && modelSolution?.optionCells) {
         return {
-          text: modelSolution.optionCells[row][column],
+          text: modelSolution.optionCells[row]?.[column] ?? "",
           correct: null,
         }
       }
       return {
-        text: studentAnswers[row][column],
+        text: studentAnswers[row]?.[column] ?? "",
         correct: null,
       }
     }
-    let correct = studentAnswers[row][column] === correctAnswers[row][column]
-    let text = studentAnswers[row][column]
+    let correct = studentAnswers[row]?.[column] === correctAnswers[row]?.[column]
+    let text = studentAnswers[row]?.[column] ?? ""
     if (!isStudentsAnswer) {
       correct = true
-      text = correctAnswers[row][column]
+      text = correctAnswers[row]?.[column] ?? ""
     }
     return {
       text: text,

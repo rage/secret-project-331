@@ -4,14 +4,14 @@ import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import type { BlockRendererProps } from "../.."
-
-import { IGNORE_BLOCK_FEEDBACK_CLASS } from "@/components/course-material/SelectionListener"
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
+import { IGNORE_BLOCK_FEEDBACK_CLASS } from "@/components/course-material/SelectionListener"
 import { getDefaultChatbotConfigurationForCourse } from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { QueryResult } from "@/shared-module/components"
+
+import type { BlockRendererProps } from "../.."
 
 interface ChatbotBlockProps {
   chatbotConfigurationId: string

@@ -1,6 +1,6 @@
-import type { BrowserTestRunnerAdapter } from "./types"
-
 import basePath from "@/lib/basePath"
+
+import type { BrowserTestRunnerAdapter } from "./types"
 
 function getTestWorkerUrl(): string {
   return `${basePath()}/browserTestWorker.js`

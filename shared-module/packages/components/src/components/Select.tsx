@@ -10,6 +10,7 @@ import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { toInputValue } from "../lib/utils/field"
 import { resolveRenderedErrorMessage } from "../lib/utils/floatingField"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   buildSelectCollectionNodes,
   type NormalizedSelectOption,
@@ -17,8 +18,6 @@ import {
   type SelectOption,
   type SelectOptionGroup,
 } from "../lib/utils/select"
-
-import { ListBox } from "./primitives/ListBox"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -28,6 +27,7 @@ import {
   resolveSelectTriggerCss,
   selectTriggerValuePlaceholderCss,
 } from "./primitives/fieldStyles"
+import { ListBox } from "./primitives/ListBox"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss } from "./primitives/selectStyles"
 
@@ -163,7 +163,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       description,
       errorMessage: resolvedError,
       name: field.name,
-      autoComplete,
+      ...omitUndefined({ autoComplete }),
     },
     state,
     buttonRef,

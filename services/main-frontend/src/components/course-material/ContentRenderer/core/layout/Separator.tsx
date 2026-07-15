@@ -3,10 +3,10 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import type { BlockRendererProps } from "../.."
-
 import type { SeparatorAttributes } from "@/../types/GutenbergBlockAttributes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../.."
 
 interface ExtraAttributes {
   className?: string

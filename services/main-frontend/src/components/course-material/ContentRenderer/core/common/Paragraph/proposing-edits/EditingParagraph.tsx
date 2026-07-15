@@ -6,19 +6,19 @@ import React, { useEffect, useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { getEditableHoverStyles, getParagraphStyles } from "../styles"
-
-import EditableParagraph from "./EditableParagraph"
-import PreviewableParagraph from "./PreviewableParagraph"
-import { useParagraphEditing } from "./hooks/useParagraphEditing"
-
 import type { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import {
   blockEditsAtom,
   currentlyOpenFeedbackDialogAtom,
   selectedBlockIdAtom,
 } from "@/stores/course-material/materialFeedbackStore"
+
+import { getEditableHoverStyles, getParagraphStyles } from "../styles"
+import EditableParagraph from "./EditableParagraph"
+import { useParagraphEditing } from "./hooks/useParagraphEditing"
+import PreviewableParagraph from "./PreviewableParagraph"
 
 const editButtonStyles = css`
   display: inline-block;
@@ -142,10 +142,12 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
         <PreviewableParagraph
           id={id}
           content={content ?? null}
-          textColor={textColor ?? undefined}
-          backgroundColor={backgroundColor ?? undefined}
-          fontSize={fontSize ?? undefined}
-          align={align ?? undefined}
+          {...omitUndefined({
+            textColor: textColor ?? undefined,
+            backgroundColor: backgroundColor ?? undefined,
+            fontSize: fontSize ?? undefined,
+            align: align ?? undefined,
+          })}
           setEdits={setEdits}
           editedContent={editedContent}
         />

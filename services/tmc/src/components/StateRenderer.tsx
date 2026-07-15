@@ -1,16 +1,16 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import AnswerExercise from "./AnswerExercise"
-import ExerciseEditor from "./ExerciseEditor"
-import ViewSubmission, { normalizeSubmission } from "./ViewSubmission"
-
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
 import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"
 import withNoSsr from "@/shared-module/exercise-react/react/components/withNoSsr"
 import type { RunResult } from "@/tmc/cli"
 import type { ExerciseIframeState } from "@/util/stateInterfaces"
+
+import AnswerExercise from "./AnswerExercise"
+import ExerciseEditor from "./ExerciseEditor"
+import ViewSubmission, { normalizeSubmission } from "./ViewSubmission"
 
 interface Props {
   state: ExerciseIframeState | null

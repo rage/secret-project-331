@@ -1,12 +1,14 @@
-import * as k8s from "@kubernetes/client-node"
 import { createReadStream, createWriteStream, promises as fs } from "fs"
 import type internal from "stream"
 import { Writable } from "stream"
 import { finished } from "stream/promises"
+
+import * as k8s from "@kubernetes/client-node"
 import { temporaryFile } from "tempy"
 import { v4 } from "uuid"
 
 import { initKube } from "@/lib"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import type { Logger } from "@/util/logger"
 
 const DEFAULT_TASK_TIMEOUT_MS = 60000
@@ -134,7 +136,7 @@ export async function execWithTimeout(
     socket.onclose = () => {
       // Prefer the Kubernetes status channel's exit code when available.
       const exitCode = observedStatus ? observedStatusExitCode : undefined
-      resolveOnce({ timedOut: false, exitCode })
+      resolveOnce({ timedOut: false, ...omitUndefined({ exitCode }) })
     }
   })
   const timeoutPromise = new Promise<{ timedOut: boolean; exitCode?: number }>((resolve) => {

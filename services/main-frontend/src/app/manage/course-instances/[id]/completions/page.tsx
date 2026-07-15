@@ -7,13 +7,6 @@ import { useParams } from "next/navigation"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChapterPointsDashboard from "../ChapterPointsDashboard"
-import CompletionRegistrationPreview from "../CompletionRegistrationPreview"
-import type { UserCompletionRowUser } from "../UserCompletionRow"
-import UserCompletionRow from "../UserCompletionRow"
-
-import CompletionsExportButton from "./CompletionsExportButton"
-
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
 import FullWidthTable from "@/components/tables/FullWidthTable"
@@ -40,6 +33,12 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import ChapterPointsDashboard from "../ChapterPointsDashboard"
+import CompletionRegistrationPreview from "../CompletionRegistrationPreview"
+import type { UserCompletionRowUser } from "../UserCompletionRow"
+import UserCompletionRow from "../UserCompletionRow"
+import CompletionsExportButton from "./CompletionsExportButton"
 
 const EMAIL = "email"
 const NAME = "name"

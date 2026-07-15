@@ -1,10 +1,10 @@
 import type { BrowserContext } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
 test.describe("An exercise that has self review but no peer review works", () => {
   let context1: BrowserContext

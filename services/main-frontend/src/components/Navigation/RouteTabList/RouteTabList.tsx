@@ -7,11 +7,12 @@ import React, { useMemo, useRef } from "react"
 import { useTabList } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import { resolveActiveTab } from "./resolveActiveTab"
 import { RouteTab, type RouteTabDefinition } from "./RouteTab"
 import { useRouteTabListContext } from "./RouteTabListContext"
-import { resolveActiveTab } from "./resolveActiveTab"
-
-import { baseTheme } from "@/shared-module/common/styles"
 
 const tabListClassName = css`
   display: flex;
@@ -55,14 +56,14 @@ function RouteTabListStandalone({
   )
 
   const state = useTabListState({
-    selectedKey,
-    defaultSelectedKey: tabs[0]?.key,
+    ...omitUndefined({ selectedKey }),
+    ...omitUndefined({ defaultSelectedKey: tabs[0]?.key }),
     items,
   })
 
   const { tabListProps } = useTabList(
     {
-      orientation,
+      ...omitUndefined({ orientation }),
       "aria-label": t("tab-aria-label-default"),
     },
     state,

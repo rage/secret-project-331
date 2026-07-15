@@ -3,19 +3,19 @@
 import { useRouter } from "next/router"
 import React from "react"
 
-import usePageInfo from "../../hooks/usePageInfo"
-import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
-
 import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
+
+import usePageInfo from "../../hooks/usePageInfo"
+import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
 const EditorBreadcrumbs: React.FC = () => {
   const router = useRouter()
 
   const pathParts = router.asPath ? router.asPath.split("/") : []
-  const pageId = pathParts.length > 2 ? pathParts[2] : ""
-  const prefix = pathParts.length > 1 ? pathParts[1] : ""
+  const pageId = pathParts.length > 2 ? (pathParts[2] ?? "") : ""
+  const prefix = pathParts.length > 1 ? (pathParts[1] ?? "") : ""
 
   const pageInfoQuery = usePageInfo(pageId, prefix)
 

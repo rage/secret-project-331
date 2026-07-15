@@ -6,8 +6,13 @@ import type { ColumnDef } from "@tanstack/react-table"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
+import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
+import { getTeacherChapterLockLabel } from "@/utils/chapterLockingStatus"
+
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
-import { StudentsTable } from "../StudentsTable"
 import {
   DETAIL_SORT_COLUMNS,
   formatStudentName,
@@ -15,12 +20,7 @@ import {
   useCourseStudentsProgressDetail,
   useCourseStudentsProgressStructure,
 } from "../studentsQueries"
-
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
-import { baseTheme } from "@/shared-module/common/styles"
-import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
-import { getTeacherChapterLockLabel } from "@/utils/chapterLockingStatus"
+import { StudentsTable } from "../StudentsTable"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
@@ -141,10 +141,11 @@ export const ProgressTabContent: React.FC = () => {
     }
     const lockStatusByUserChapter: Record<string, Record<string, TeacherChapterLockStatus>> = {}
     for (const lockStatus of chapterLockStatuses) {
-      if (!lockStatusByUserChapter[lockStatus.user_id]) {
-        lockStatusByUserChapter[lockStatus.user_id] = {}
+      const uid = lockStatus.user_id
+      if (!lockStatusByUserChapter[uid]) {
+        lockStatusByUserChapter[uid] = {}
       }
-      lockStatusByUserChapter[lockStatus.user_id][lockStatus.chapter_id] = lockStatus.status
+      lockStatusByUserChapter[uid][lockStatus.chapter_id] = lockStatus.status
     }
 
     // --- totals from same source

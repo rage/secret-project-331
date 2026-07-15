@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../../styles"
 import { runCallbackIfEnterPressed } from "../../../../utils/accessibility"
-
 import Hamburger from "./Hamburger/Hamburger"
 
 const NavMenu = css`

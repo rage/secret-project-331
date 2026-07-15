@@ -6,9 +6,9 @@ import { validateFile } from "@/shared-module/common/utils/files"
 
 export interface MediaItem {
   url: string
-  alt?: string
-  caption?: string
-  title?: string
+  alt?: string | undefined
+  caption?: string | undefined
+  title?: string | undefined
 }
 
 export interface MediaUploadProps {

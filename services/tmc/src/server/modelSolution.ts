@@ -1,10 +1,8 @@
-import FormData from "form-data"
 import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
-import { temporaryDirectory, temporaryFile } from "tempy"
 
-import type { ParsedSpecRequest } from "./requestSchemas"
-import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
+import FormData from "form-data"
+import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
@@ -15,6 +13,9 @@ import { badRequest, jsonOk } from "@/util/apiResponse"
 import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 import { createScopedLogger } from "@/util/logger"
 import type { ModelSolutionSpec } from "@/util/stateInterfaces"
+
+import type { ParsedSpecRequest } from "./requestSchemas"
+import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown
@@ -126,7 +127,7 @@ const uploadModelSolution = async (
   const res = await fetch(uploadUrl, {
     method: "POST",
     headers: { ...headers, ...form.getHeaders() },
-    body: form as unknown as RequestInit["body"],
+    body: form as unknown as Exclude<RequestInit["body"], undefined>,
   })
   if (!res.ok) {
     throw new Error(`Upload failed: ${res.status} ${res.statusText}`)

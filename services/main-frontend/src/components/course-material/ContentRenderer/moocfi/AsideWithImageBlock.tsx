@@ -3,13 +3,13 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import type { BlockRendererProps } from ".."
-import InnerBlocks from "../util/InnerBlocks"
-
 import ParsedText from "@/components/course-material/ParsedText"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
+import InnerBlocks from "../util/InnerBlocks"
 
 interface AsideWithImageBlockAttributes {
   title: string

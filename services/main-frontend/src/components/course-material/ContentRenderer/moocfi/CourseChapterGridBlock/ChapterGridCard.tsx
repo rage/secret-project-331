@@ -18,6 +18,7 @@ import Intersection from "@/shared-module/common/img/card-defualt-bg/intersectio
 import PixelSquare from "@/shared-module/common/img/card-defualt-bg/pixel-square.svg"
 import QuadrupleCircle from "@/shared-module/common/img/card-defualt-bg/quadruple-circle.svg"
 import Triangle from "@/shared-module/common/img/card-defualt-bg/triangle.svg"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { QueryResult } from "@/shared-module/components"
 import { materialInstanceAtom } from "@/state/course-material/selectors"
 import { coursePageRoute } from "@/utils/course-material/routing"
@@ -124,6 +125,10 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
               }
             : undefined
 
+        const cardBg = chapter.color !== null ? chapter.color : bg
+        const cardBackgroundImage = backgroundImage
+          ? backgroundImage
+          : arr[chapter.chapter_number - 1]
         const showLock = !open && !previewable
         const hasExerciseDeadlineOverrides = chapter.exercise_deadline_override_count > 0
         const exerciseDeadlinesMultiple = chapter.exercise_deadline_override_distinct_count > 1
@@ -135,17 +140,19 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
             chapterNumber={chapter.chapter_number}
             key={chapter.id}
             open={open}
-            date={date}
-            time={time}
-            url={url}
-            bg={chapter.color !== null ? chapter.color : bg}
-            backgroundImage={backgroundImage ? backgroundImage : arr[chapter.chapter_number - 1]}
-            points={pointsData}
+            {...omitUndefined({ date })}
+            {...omitUndefined({ time })}
+            {...omitUndefined({ url })}
+            {...omitUndefined({ bg: cardBg })}
+            {...omitUndefined({ backgroundImage: cardBackgroundImage })}
+            {...omitUndefined({ points: pointsData })}
             showLock={showLock}
             isLocked={isLocked}
-            deadline={chapter.deadline}
+            deadline={chapter.deadline ?? null}
             exerciseDeadline={
-              hasExerciseDeadlineOverrides ? chapter.earliest_exercise_deadline_override : null
+              hasExerciseDeadlineOverrides
+                ? (chapter.earliest_exercise_deadline_override ?? null)
+                : null
             }
             exerciseDeadlinesMultiple={hasExerciseDeadlineOverrides && exerciseDeadlinesMultiple}
           />

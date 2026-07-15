@@ -5,8 +5,6 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { TONE } from "../lib/displayConstants"
-
 import DeletedUserNotice from "@/components/DeletedUserNotice"
 import { USER_ROLES } from "@/constants/roles"
 import {
@@ -23,6 +21,8 @@ import {
   DescriptionList,
   QueryResults,
 } from "@/shared-module/components"
+
+import { TONE } from "../lib/displayConstants"
 
 export interface UserIdentityHeaderProps {
   userId: string

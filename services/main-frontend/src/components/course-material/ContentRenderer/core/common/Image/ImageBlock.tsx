@@ -5,14 +5,13 @@ import styled from "@emotion/styled"
 import { useRef, useState } from "react"
 import Zoom from "react-medium-image-zoom"
 
-import type { BlockRendererProps } from "../../.."
-import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
-
-import { useImageInteractivity } from "./ImageInteractivityContext"
-
 import type { ImageAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../../.."
+import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
+import { useImageInteractivity } from "./ImageInteractivityContext"
 
 interface ExtraAttributes {
   align?: string

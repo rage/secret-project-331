@@ -4,10 +4,10 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseEnrollmentCard from "./CourseEnrollmentCard"
-
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import CourseEnrollmentCard from "./CourseEnrollmentCard"
 
 export interface CourseEnrollmentsSectionProps {
   enrollments: CourseEnrollmentInfo[]

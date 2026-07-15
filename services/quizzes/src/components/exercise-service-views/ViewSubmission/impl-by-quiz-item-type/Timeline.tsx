@@ -4,14 +4,13 @@ import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { baseTheme, headingFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemSubmissionComponentProps } from "."
 import type { UserItemAnswerTimeline } from "../../../../../types/quizTypes/answer"
 import type { ModelSolutionQuizItemTimeline } from "../../../../../types/quizTypes/modelSolutionSpec"
 import type { PublicSpecQuizItemTimeline } from "../../../../../types/quizTypes/publicSpec"
-
-import type { QuizItemSubmissionComponentProps } from "."
-
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { baseTheme, headingFont } from "@/shared-module/exercise-react/styles"
 
 const TimelineWrapper = styled.section`
   *,

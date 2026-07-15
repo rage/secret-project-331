@@ -7,13 +7,6 @@ import type { ReactNode } from "react"
 import React, { Suspense, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import SearchDialog from "../SearchDialog"
-import LanguageNavigationControls from "../navigation/LanguageNavigationControls"
-import UserNavigationControls from "../navigation/UserNavigationControls"
-
-import PartnersSectionBlock from "./PartnersSection"
-import ScrollIndicator from "./ScrollIndicator"
-
 import LayoutContext from "@/contexts/course-material/LayoutContext"
 import PageContext, {
   getDefaultPageState,
@@ -34,6 +27,12 @@ import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languageHelpers"
+
+import LanguageNavigationControls from "../navigation/LanguageNavigationControls"
+import UserNavigationControls from "../navigation/UserNavigationControls"
+import SearchDialog from "../SearchDialog"
+import PartnersSectionBlock from "./PartnersSection"
+import ScrollIndicator from "./ScrollIndicator"
 
 interface LayoutProps {
   children: ReactNode

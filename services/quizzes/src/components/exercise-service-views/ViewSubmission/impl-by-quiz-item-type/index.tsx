@@ -1,10 +1,10 @@
+import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { FlexDirection } from "@/util/css-sanitization"
+
 import type { UserItemAnswer } from "../../../../../types/quizTypes/answer"
 import type { ItemAnswerFeedback } from "../../../../../types/quizTypes/grading"
 import type { ModelSolutionQuizItem } from "../../../../../types/quizTypes/modelSolutionSpec"
 import type { PublicSpecQuizItem } from "../../../../../types/quizTypes/publicSpec"
-
-import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import type { FlexDirection } from "@/util/css-sanitization"
 
 export interface QuizItemSubmissionComponentProps<
   T extends PublicSpecQuizItem,

@@ -31,8 +31,8 @@ describe("POST /api/export-definitions", () => {
     }
     expect(body.columns.some((c) => c.key === "option_index")).toBe(true)
     expect(body.results).toHaveLength(1)
-    expect(body.results[0].rows).toHaveLength(2)
-    expect(body.results[0].rows[0]).toEqual({
+    expect(body.results[0]!.rows).toHaveLength(2)
+    expect(body.results[0]!.rows[0]).toEqual({
       option_index: 0,
       option_count: 2,
       option_id: "id-1",

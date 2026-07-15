@@ -2,19 +2,17 @@ import { css } from "@emotion/css"
 import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
-import type { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
-import QuizzesUserItemAnswerContext from "../../../../contexts/QuizzesUserItemAnswerContext"
-
-import { getEssayPasteWarning } from "./essayPaste"
-
-import type { QuizItemComponentProps } from "."
-
 import TextArea from "@/shared-module/common/components/InputFields/TextAreaField"
 import { wordCount } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import useParentDialog from "@/shared-module/exercise-react/react/hooks/useParentDialog"
 import { headingFont, secondaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemComponentProps } from "."
+import type { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
+import QuizzesUserItemAnswerContext from "../../../../contexts/QuizzesUserItemAnswerContext"
+import { getEssayPasteWarning } from "./essayPaste"
 
 export const container = css`
   font-size: 0.563rem;

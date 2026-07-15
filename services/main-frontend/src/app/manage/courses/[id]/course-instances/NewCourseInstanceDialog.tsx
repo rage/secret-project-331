@@ -2,13 +2,13 @@
 
 import { useTranslation } from "react-i18next"
 
-import NewCourseInstanceForm from "./NewCourseInstanceForm"
-
 import { createCourseInstance } from "@/generated/api/sdk.generated"
 import type { CourseInstanceForm } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+
+import NewCourseInstanceForm from "./NewCourseInstanceForm"
 
 interface NewCourseLanguageVersionDialogProps {
   showDialog: boolean

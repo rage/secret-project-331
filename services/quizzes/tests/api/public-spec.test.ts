@@ -1,3 +1,6 @@
+import { handlePublicSpec } from "@/server/publicSpec"
+import type { SpecRequest } from "@/utils/exerciseServiceApi"
+
 /**
  * @vitest-environment node
  */
@@ -22,7 +25,6 @@ import type {
   PublicSpecQuizItemMultiplechoiceDropdown,
   PublicSpecQuizItemTimeline,
 } from "../../types/quizTypes/publicSpec"
-
 import testClient from "./utils/appRouterTestClient"
 import {
   ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
@@ -43,9 +45,6 @@ import {
   SUCCESS_MESSAGE_CANARY_FOR_TESTS,
   VALIDITY_REGEX_CANARY_FOR_TESTS,
 } from "./utils/privateSpecGenerator"
-
-import { handlePublicSpec } from "@/server/publicSpec"
-import type { SpecRequest } from "@/utils/exerciseServiceApi"
 
 const client = testClient(handlePublicSpec)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/public-spec"

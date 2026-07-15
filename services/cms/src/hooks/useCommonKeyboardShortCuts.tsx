@@ -8,8 +8,8 @@ import { store as keyboardShortcutsStore, useShortcut } from "@wordpress/keyboar
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface UseCommonKeyboardShortcutsProps {
-  onUndo?: () => void
-  onRedo?: () => void
+  onUndo?: (() => void) | undefined
+  onRedo?: (() => void) | undefined
 }
 
 const shouldHandleBlockEditorHistoryShortcut = (event: Event): boolean => {

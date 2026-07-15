@@ -41,7 +41,11 @@ export function extractPlaceholders(blocks: BlockInstance[]): string[] {
       const content = String(block.attributes.content)
       let match
       while ((match = placeholderRegex.exec(content)) !== null) {
-        placeholders.add(match[1])
+        // regex has a single required capture group, present when match !== null
+        const captured = match[1]
+        if (captured !== undefined) {
+          placeholders.add(captured)
+        }
       }
     }
 

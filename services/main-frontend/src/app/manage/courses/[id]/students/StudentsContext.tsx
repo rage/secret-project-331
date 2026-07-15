@@ -11,10 +11,10 @@ import React, {
   useRef,
 } from "react"
 
-import type { SortDirection, StudentsListParams, StudentsSortColumn } from "./studentsQueries"
-
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useUrlSyncedDebouncedQuery from "@/shared-module/common/hooks/useUrlSyncedDebouncedQuery"
+
+import type { SortDirection, StudentsListParams, StudentsSortColumn } from "./studentsQueries"
 
 const SEARCH_PARAM = "search"
 const SEARCH_DEBOUNCE_MS = 300
@@ -133,12 +133,14 @@ export function useStudentsSorting(allowedColumns: StudentsSortColumn[] = ALL_SO
 } {
   const { sortColumn, sortDirection, setSort } = useStudentsContext()
   const columnAllowed = allowedColumns.includes(sortColumn)
+  // allowedColumns is always non-empty; fall back to the default sort key if it somehow is not.
+  const primaryColumn: StudentsSortColumn = allowedColumns[0] ?? DEFAULT_SORT_COLUMN
   useEffect(() => {
     if (!columnAllowed) {
-      setSort(allowedColumns[0], sortDirection)
+      setSort(primaryColumn, sortDirection)
     }
-  }, [columnAllowed, allowedColumns, sortDirection, setSort])
-  const effectiveColumn = columnAllowed ? sortColumn : allowedColumns[0]
+  }, [columnAllowed, primaryColumn, sortDirection, setSort])
+  const effectiveColumn = columnAllowed ? sortColumn : primaryColumn
   const sorting: SortingState = [{ id: effectiveColumn, desc: sortDirection === "desc" }]
   const onSortingChange: OnChangeFn<SortingState> = (updater) => {
     const next = typeof updater === "function" ? updater(sorting) : updater

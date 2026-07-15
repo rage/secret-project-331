@@ -4,9 +4,9 @@ import React from "react"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
-
-import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
+import { omitUndefined } from "../lib/utils/nullability"
 import type { FieldSize } from "./primitives/fieldStyles"
+import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const floatingLayout = "floating" as const
@@ -80,20 +80,20 @@ export function TimeField<T extends FieldValues, N extends Path<T> = Path<T>>(
       description={description}
       errorMessage={resolvedError}
       notice={notice}
-      fieldSize={fieldSize}
+      {...omitUndefined({ fieldSize })}
       iconStart={iconStart}
       iconEnd={iconEnd}
-      isDisabled={isDisabled}
-      isReadOnly={isReadOnly}
-      isRequired={isRequired}
+      {...omitUndefined({ isDisabled })}
+      {...omitUndefined({ isReadOnly })}
+      {...omitUndefined({ isRequired })}
       isInvalid={isInvalid}
-      id={id}
-      className={className}
-      min={min}
-      max={max}
-      step={step}
-      hourCycle={hourCycle}
-      inputRef={inputRef}
+      {...omitUndefined({ id })}
+      {...omitUndefined({ className })}
+      {...omitUndefined({ min })}
+      {...omitUndefined({ max })}
+      {...omitUndefined({ step })}
+      {...omitUndefined({ hourCycle })}
+      {...omitUndefined({ inputRef })}
       value={value}
       onChange={(e) => {
         field.onChange(e.target.value)

@@ -1,11 +1,11 @@
 import { test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

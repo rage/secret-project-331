@@ -2,20 +2,19 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import type { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
-import type { ModelSolutionQuizItemMultiplechoice } from "../../../../../types/quizTypes/modelSolutionSpec"
-import type { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
-import { quizTheme } from "../../../../styles/QuizStyles"
-import ParsedText from "../../../ParsedText"
-
-import type { QuizItemSubmissionComponentProps } from "."
-
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
 import type { FlexDirection } from "@/util/css-sanitization"
 import { sanitizeFlexDirection } from "@/util/css-sanitization"
 import { orderArrayWithId } from "@/util/randomizer"
+
+import type { QuizItemSubmissionComponentProps } from "."
+import type { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
+import type { ModelSolutionQuizItemMultiplechoice } from "../../../../../types/quizTypes/modelSolutionSpec"
+import type { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
+import { quizTheme } from "../../../../styles/QuizStyles"
+import ParsedText from "../../../ParsedText"
 
 const gradingOption = css`
   align-items: center;

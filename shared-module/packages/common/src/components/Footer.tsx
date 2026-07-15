@@ -5,8 +5,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import UHLogo from "../img/UHBrandLogo.svg"
 import MOOCfi from "../img/moocfiTextLogo.svg"
+import UHLogo from "../img/UHBrandLogo.svg"
 import { baseTheme, headingFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 

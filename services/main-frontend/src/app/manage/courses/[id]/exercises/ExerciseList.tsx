@@ -63,7 +63,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                     list-style-type: none;
                   `}
                 >
-                  {pageByChapterId[chapter.id]
+                  {(pageByChapterId[chapter.id] ?? [])
                     .toSorted((page1, page2) => page1.order_number - page2.order_number)
                     .map((page) => (
                       <li

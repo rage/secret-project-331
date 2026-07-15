@@ -95,7 +95,10 @@ export const Disclosure: React.FC<DisclosureProps> = ({
     onExpandedChange?.(next)
   }
 
-  const { buttonProps } = useButton({ onPress: toggle, "aria-label": ariaLabel }, triggerRef)
+  const { buttonProps } = useButton(
+    ariaLabel !== undefined ? { onPress: toggle, "aria-label": ariaLabel } : { onPress: toggle },
+    triggerRef,
+  )
 
   return (
     <div className={cx(rootCss, className)}>

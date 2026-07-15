@@ -21,9 +21,10 @@ import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.ge
 import type { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import "@/shared-module/common/init/registerAuthApiClients"
 import countries from "@/shared-module/common/locales/en/countries.json"
+import "@/shared-module/common/init/registerAuthApiClients"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
@@ -339,7 +340,7 @@ const CreateAccountForm: React.FC = () => {
               required: t("required-field"),
             })}
             required={true}
-            error={errors.first_name}
+            {...includeIf(errors.first_name, { error: errors.first_name })}
           />
 
           <TextField
@@ -349,7 +350,7 @@ const CreateAccountForm: React.FC = () => {
               required: t("required-field"),
             })}
             required={true}
-            error={errors.last_name}
+            {...includeIf(errors.last_name, { error: errors.last_name })}
           />
 
           <Controller
@@ -365,7 +366,7 @@ const CreateAccountForm: React.FC = () => {
                 options={countriesNames}
                 onChangeByValue={(value) => field.onChange(value)}
                 value={field.value}
-                error={errors.country?.message}
+                {...includeIf(errors.country?.message, { error: errors.country?.message })}
               />
             )}
           />
@@ -382,7 +383,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.email}
+            {...includeIf(errors.email, { error: errors.email })}
           />
           <TextField
             label={t("password")}
@@ -396,7 +397,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.password}
+            {...includeIf(errors.password, { error: errors.password })}
           />
 
           <TextField
@@ -414,7 +415,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.password_confirmation}
+            {...includeIf(errors.password_confirmation, { error: errors.password_confirmation })}
           />
 
           <CheckBox

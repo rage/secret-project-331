@@ -13,7 +13,6 @@ import type {
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
 import { oldGenerateQuiz } from "../../api/utils/oldQuizGenerator"
-
 import { comparePrivateSpecQuizItem, expectPrivateSpecMetadataToMatch } from "./utils/comparison"
 import {
   generateCheckboxForOlderPrivateSpecQuiz,
@@ -52,7 +51,7 @@ describe("private spec", () => {
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
     expect(newQuiz.items.length).toBe(1)
 
-    const oldQuizItem: QuizItem = oldQuiz.items[0]
+    const oldQuizItem: QuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PrivateSpecQuizItemMultiplechoice = newQuiz
       .items[0] as PrivateSpecQuizItemMultiplechoice
     comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
@@ -64,7 +63,7 @@ describe("private spec", () => {
     const oldQuiz = packToPrivateSpecQuiz([checkboxQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: QuizItem = oldQuiz.items[0]
+    const oldQuizItem: QuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PrivateSpecQuizItemCheckbox = newQuiz.items[0] as PrivateSpecQuizItemCheckbox
 
     expect(newQuizItem.type).toBe("checkbox")
@@ -77,7 +76,7 @@ describe("private spec", () => {
     const oldQuiz = packToPrivateSpecQuiz([essayQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: QuizItem = oldQuiz.items[0]
+    const oldQuizItem: QuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PrivateSpecQuizItemEssay = newQuiz.items[0] as PrivateSpecQuizItemEssay
 
     expect(newQuizItem.type).toBe("essay")
@@ -91,7 +90,7 @@ describe("private spec", () => {
     const oldQuiz = packToPrivateSpecQuiz([matrixQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: QuizItem = oldQuiz.items[0]
+    const oldQuizItem: QuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PrivateSpecQuizItemMatrix = newQuiz.items[0] as PrivateSpecQuizItemMatrix
 
     // This will always be defined
@@ -108,7 +107,7 @@ describe("private spec", () => {
     const oldQuiz = packToPrivateSpecQuiz([openQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: QuizItem = oldQuiz.items[0]
+    const oldQuizItem: QuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PrivateSpecQuizItemClosedEndedQuestion = newQuiz
       .items[0] as PrivateSpecQuizItemClosedEndedQuestion
 
@@ -122,7 +121,7 @@ describe("private spec", () => {
     const oldQuiz = packToPrivateSpecQuiz([scaleQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: QuizItem = oldQuiz.items[0]
+    const oldQuizItem: QuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PrivateSpecQuizItemScale = newQuiz.items[0] as PrivateSpecQuizItemScale
 
     expect(newQuizItem.type).toBe("scale")
@@ -135,7 +134,7 @@ describe("private spec", () => {
     const oldQuiz = packToPrivateSpecQuiz([timelineQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: QuizItem = oldQuiz.items[0]
+    const oldQuizItem: QuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PrivateSpecQuizItemTimeline = newQuiz.items[0] as PrivateSpecQuizItemTimeline
 
     // This will always be defined
@@ -157,7 +156,7 @@ describe("private spec", () => {
     const oldQuiz = packToPrivateSpecQuiz([chooseNQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
-    const oldQuizItem: QuizItem = oldQuiz.items[0]
+    const oldQuizItem: QuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
     const newQuizItem: PrivateSpecQuizItemChooseN = newQuiz.items[0] as PrivateSpecQuizItemChooseN
 
     expect(newQuizItem.type).toBe("choose-n")

@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
+
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { respondToConfirmDialog } from "@/utils/dialogs"
 
 test.use({
   storageState: "src/states/user@example.com.json",

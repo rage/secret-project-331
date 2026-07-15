@@ -4,17 +4,13 @@ import { css } from "@emotion/css"
 import React, { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import FlaggedPeerReviewAccordion from "./FlaggedPeerReviewAccordion"
-import PeerOrSelfReviewAccordion from "./PeerOrSelfReviewAccordion"
-import TeacherGradingDecisionControls from "./TeacherGradingDecisionControls"
-
 import SubmissionIFrame from "@/app/submissions/[id]/grading/SubmissionIFrame"
-import { UserDisplay } from "@/components/UserDisplay"
 import {
   ExerciseCardHeader,
   ExerciseCardPointsBadge,
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
+import { UserDisplay } from "@/components/UserDisplay"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   AnswerRequiringAttentionWithTasks,
@@ -24,6 +20,10 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateToString } from "@/shared-module/common/utils/time"
+
+import FlaggedPeerReviewAccordion from "./FlaggedPeerReviewAccordion"
+import PeerOrSelfReviewAccordion from "./PeerOrSelfReviewAccordion"
+import TeacherGradingDecisionControls from "./TeacherGradingDecisionControls"
 
 interface Props {
   answerRequiringAttention: AnswerRequiringAttentionWithTasks

@@ -3,13 +3,12 @@
 import { css, cx } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
+import type { NavigationProps } from "."
 import MOOCfi from "../../../img/moocfiLogo.svg"
 import { baseTheme } from "../../../styles"
 import { respondToOrLarger } from "../../../styles/respond"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../utils/constants"
 import SkipLink from "../../SkipLink"
-
-import type { NavigationProps } from "."
 
 const StyledIcon = css`
   font-size: 1.8rem;

@@ -5,9 +5,9 @@ import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
 
-import { shouldWarnAboutImageAltPlaceholder } from "./imageAltWarning"
-
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { shouldWarnAboutImageAltPlaceholder } from "./imageAltWarning"
 
 interface ImageBlockProps {
   name: string

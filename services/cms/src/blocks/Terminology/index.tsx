@@ -2,13 +2,12 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
-import LandingPageHeroSectionEditor from "./TerminologyBlockEditor"
-import LandingPageHeroSectionSave from "./TerminologyBlockSave"
-
 import { baseTheme } from "@/shared-module/common/styles"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import LandingPageHeroSectionEditor from "./TerminologyBlockEditor"
+import LandingPageHeroSectionSave from "./TerminologyBlockSave"
 
 export interface TerminologyBlockAttributes {
   title: string

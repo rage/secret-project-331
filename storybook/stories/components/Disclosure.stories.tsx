@@ -15,6 +15,7 @@ const meta = {
   args: {
     title: "Intro to Programming",
     defaultExpanded: false,
+    children: <p>Per-module completion details go here.</p>,
   },
 } satisfies Meta<typeof Disclosure>
 

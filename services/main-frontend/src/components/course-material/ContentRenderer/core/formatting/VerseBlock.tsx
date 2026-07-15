@@ -2,12 +2,12 @@
 
 import { css } from "@emotion/css"
 
-import type { BlockRendererProps } from "../.."
-
 import type { VerseAttributes } from "@/../types/GutenbergBlockAttributes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+
+import type { BlockRendererProps } from "../.."
 
 interface ExtraAttributes {
   textAlign?: string

@@ -2,6 +2,8 @@
  * @vitest-environment node
  */
 
+import { handleExportAnswers } from "@/server/exportAnswers"
+
 import testClient from "./utils/appRouterTestClient"
 import {
   generateEmptyPrivateSpecQuiz,
@@ -12,12 +14,10 @@ import {
   generatePrivateSpecWithOneTimelineQuizItem,
 } from "./utils/privateSpecGenerator"
 
-import { handleExportAnswers } from "@/server/exportAnswers"
-
 describe("export-answers", () => {
   it("exports multiple-choice answers with the reduced answer columns", async () => {
     const privateSpec = generatePrivateSpecWithOneMultipleChoiceQuizItem()
-    const quizItemId = privateSpec.items[0].id
+    const quizItemId = privateSpec.items[0]!.id
 
     const client = testClient(handleExportAnswers)
     const response = await client.post("/api/export-answers").send({
@@ -84,7 +84,7 @@ describe("export-answers", () => {
 
   it("exports timeline answers without summary columns", async () => {
     const privateSpec = generatePrivateSpecWithOneTimelineQuizItem()
-    const quizItemId = privateSpec.items[0].id
+    const quizItemId = privateSpec.items[0]!.id
 
     const client = testClient(handleExportAnswers)
     const response = await client.post("/api/export-answers").send({
@@ -137,7 +137,7 @@ describe("export-answers", () => {
 
   it("exports essay answers without word counts", async () => {
     const privateSpec = generatePrivateSpecWithOneEssayQuizItem()
-    const quizItemId = privateSpec.items[0].id
+    const quizItemId = privateSpec.items[0]!.id
 
     const client = testClient(handleExportAnswers)
     const response = await client.post("/api/export-answers").send({
@@ -255,7 +255,7 @@ describe("export-answers", () => {
 
   it("exports checkbox answers without the readable helper column", async () => {
     const privateSpec = generatePrivateSpecWithOneCheckboxQuizItem()
-    const quizItemId = privateSpec.items[0].id
+    const quizItemId = privateSpec.items[0]!.id
 
     const client = testClient(handleExportAnswers)
     const response = await client.post("/api/export-answers").send({
@@ -296,7 +296,7 @@ describe("export-answers", () => {
 
   it("exports matrix answers as dedicated cells without summary columns", async () => {
     const privateSpec = generatePrivateSpecWithOneMatrixQuizItem()
-    const quizItemId = privateSpec.items[0].id
+    const quizItemId = privateSpec.items[0]!.id
 
     const client = testClient(handleExportAnswers)
     const response = await client.post("/api/export-answers").send({

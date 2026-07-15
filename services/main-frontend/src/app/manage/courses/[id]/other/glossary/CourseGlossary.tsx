@@ -5,14 +5,14 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CreateTermForm from "./CreateTermForm"
-import TermItem from "./TermItem"
-
 import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { getCourseGlossaryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { QueryResult } from "@/shared-module/components"
+
+import CreateTermForm from "./CreateTermForm"
+import TermItem from "./TermItem"
 
 const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,

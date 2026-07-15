@@ -6,8 +6,6 @@ import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
-
 import { updateMarketingConsent } from "@/generated/course-material-api/sdk.generated"
 import type {
   CourseInstance,
@@ -20,6 +18,8 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
 
 const FieldContainer = styled.div`
   margin-bottom: 1.5rem;
@@ -261,8 +261,9 @@ function figureOutInitialValue(
     return initialSelectedInstanceId
   }
   if (instances.length === 1) {
-    return instances[0].id
+    return instances[0]?.id
   }
+  return undefined
 }
 
 export default SelectCourseInstanceForm

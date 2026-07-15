@@ -1,10 +1,18 @@
 "use client"
 
 import "@testing-library/jest-dom"
-
 import { render } from "@testing-library/react"
 
 import TableBlock from "../TableBlock"
+
+// jsdom does not implement ResizeObserver, which TableBlock observes the scroll container with.
+class ResizeObserverStub {
+  public observe() {}
+  public unobserve() {}
+  public disconnect() {}
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+;(global as any).ResizeObserver = ResizeObserverStub
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -203,8 +203,10 @@ const TableBlock: React.FC<
                         key={i}
                         // oxlint-disable-next-line i18next/no-literal-string
                         text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
-                        tag="td"
+                        tag="th"
                         tagProps={{
+                          // oxlint-disable-next-line i18next/no-literal-string
+                          scope: "col",
                           className: fetchAlignment(cell.align),
                           colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
                           rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),

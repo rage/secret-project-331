@@ -59,6 +59,10 @@ reviews:
 
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
 
+    - path: "**/*.{ts,tsx}"
+      instructions: >
+        Under exactOptionalPropertyTypes, build objects with the nullability helpers instead of chained conditional spreads. `omitUndefined({ a, b })` drops keys whose value is `undefined`; use it for `...(x !== undefined ? { x } : {})`. `includeIf(condition, { a, b })` includes the whole group only when `condition` is truthy; use it for `...(condition ? { a } : {})`, including `!== null` and other truthy checks, and keep member access in its object optionally-chained (`x?.y`) since the object is built before the check. `assertNotNullOrUndefined(x)` returns `x` or throws if it is null or undefined. Import these from "@/shared-module/common/utils/nullability", or from the matching "../lib/utils/nullability" within shared-module/packages/components (which cannot depend on common).
+
     - path: "services/main-frontend/src/app/**/*.tsx"
       instructions: >
         Pages and layouts should set the browser title with the usePageTitle hook: import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle".

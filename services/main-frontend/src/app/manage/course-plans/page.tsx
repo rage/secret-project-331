@@ -5,8 +5,6 @@ import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import CoursePlanList from "./components/CoursePlanList"
-
 import {
   createCourseDesignerPlanMutation,
   getCourseDesignerPlansOptions,
@@ -17,6 +15,8 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { manageCoursePlanRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, QueryResult } from "@/shared-module/components"
+
+import CoursePlanList from "./components/CoursePlanList"
 
 const containerStyles = css`
   max-width: 1000px;

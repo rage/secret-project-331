@@ -5,15 +5,14 @@ import { InfoCircle } from "@vectopus/atlas-icons-react"
 import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import ContentRenderer from "../.."
-
-import ExerciseTaskIframe from "./ExerciseTaskIframe"
-
 import type { CourseMaterialExerciseTask } from "@/generated/course-material-api/types.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import type { ExerciseIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import type { Block } from "@/types/courseMaterialBlock"
+
+import ContentRenderer from "../.."
+import ExerciseTaskIframe from "./ExerciseTaskIframe"
 
 interface ExerciseTaskProps {
   canPostSubmission: boolean

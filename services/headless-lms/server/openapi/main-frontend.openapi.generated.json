@@ -10684,7 +10684,9 @@
             "description": "User",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
               }
             }
           }
@@ -10715,6 +10717,118 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CourseEnrollmentsInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/{user_id}/courses/{course_id}/submission-times": {
+      "get": {
+        "tags": ["users"],
+        "summary": "\nGET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise\nsubmission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.",
+        "operationId": "getUserCourseSubmissionTimes",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User course submission times",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserCourseSubmissionTime"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/{user_id}/roles": {
+      "get": {
+        "tags": ["users"],
+        "summary": "\nGET `/api/v0/main-frontend/users/:id/roles` - All roles held by a user, across scopes. Teacher/admin\n(global) view; used to label the account (e.g. staff/teacher) on the user-details page.",
+        "operationId": "getUserRoles",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User roles across scopes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Role"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/{user_id}/suspected-cheaters": {
+      "get": {
+        "tags": ["users"],
+        "summary": "\nGET `/api/v0/main-frontend/users/:id/suspected-cheaters` - Cross-course suspected-cheater records for\na user, each paired with the course's applicable duration threshold. Teacher/admin (global) view;\nread-only (confirm/dismiss happen on the per-course cheaters page).",
+        "operationId": "getUserSuspectedCheaters",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User suspected-cheater records across courses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserSuspectedCheaterInfo"
+                  }
                 }
               }
             }
@@ -12946,6 +13060,7 @@
           "course_id",
           "course",
           "course_instances",
+          "course_modules",
           "course_module_completions",
           "course_module_completions_needing_review",
           "first_enrolled_at",
@@ -12974,6 +13089,13 @@
           "course_module_completions_needing_review": {
             "type": "integer",
             "format": "int32"
+          },
+          "course_modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModuleInfo"
+            },
+            "description": "All non-deleted modules of the course, ordered by `order_number`."
           },
           "first_enrolled_at": {
             "type": "string",
@@ -13402,6 +13524,41 @@
           }
         }
       },
+      "CourseModuleInfo": {
+        "type": "object",
+        "description": "Slim module descriptor so the frontend can label per-module completions and show \"X of Y modules\"\nwithout a separate course-structure fetch. Default (base) module has `name = None`.",
+        "required": ["id", "order_number", "exercise_count", "daily_submissions"],
+        "properties": {
+          "daily_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailySubmissionCount"
+            },
+            "description": "This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none."
+          },
+          "exercise_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of non-deleted exercises in this module. Submission density is divided by this so courses\nof very different size stay comparable. `0` if the module has no chapter-bound exercises."
+          },
+          "first_submission_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Earliest exercise submission by this user in this module. No module \"start\" is stored, so the\nfrontend uses this to infer when an additional module was first worked on. `None` if untouched."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "CourseModuleThresholdInfo": {
         "type": "object",
         "description": "Per-module threshold configuration plus the policy-derived limits the configuration UI needs to\nrender and validate the threshold form. Computed server-side so the exemption rule and the\nminimum/default values live in one place instead of being duplicated in the frontend.",
@@ -13645,6 +13802,21 @@
           },
           "schedule": {
             "type": "string"
+          }
+        }
+      },
+      "DailySubmissionCount": {
+        "type": "object",
+        "description": "One UTC day's exercise-submission count for a module, used for the activity-density violins on the\ncross-course timeline. `day` is midnight of the day the submissions fall in.",
+        "required": ["day", "count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "day": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -17362,6 +17534,38 @@
           "Locked"
         ]
       },
+      "Role": {
+        "type": "object",
+        "required": ["is_global", "role", "user_id"],
+        "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_instance_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "is_global": {
+            "type": "boolean"
+          },
+          "organization_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "RoleDomain": {
         "oneOf": [
           {
@@ -17570,6 +17774,11 @@
           "course_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "course_module_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The module completion that triggered the flag. `None` only for legacy rows the backfill\ncouldn't map to a default module."
           },
           "created_at": {
             "type": "string",
@@ -17801,6 +18010,35 @@
           }
         }
       },
+      "User": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "email_domain": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "upstream_id": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          }
+        }
+      },
       "UserChapterLockingStatus": {
         "type": "object",
         "required": [
@@ -18003,6 +18241,26 @@
           }
         }
       },
+      "UserCourseSubmissionTime": {
+        "type": "object",
+        "description": "A single submission's time, its exercise, and the module that exercise sits in (via its chapter).\nUsed to plot a user's submission activity within a course.",
+        "required": ["created_at", "exercise_id"],
+        "properties": {
+          "course_module_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Module the exercise's chapter belongs to; `None` for exercises not placed in a chapter."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "UserDetail": {
         "type": "object",
         "required": ["user_id", "created_at", "updated_at", "email"],
@@ -18186,6 +18444,44 @@
           "TeachingAndLearningServices",
           "StatsViewer"
         ]
+      },
+      "UserSuspectedCheaterInfo": {
+        "type": "object",
+        "description": "A user's suspected-cheater record in one course, paired with that course's duration threshold.\nRead-only, for the cross-course \"Completion review\" list on the user-details page.",
+        "required": [
+          "course_id",
+          "status",
+          "total_points",
+          "first_flagged_at",
+          "threshold_seconds"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "first_flagged_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When first flagged in this course (record `created_at`, unchanged on re-flag)."
+          },
+          "status": {
+            "$ref": "#/components/schemas/SuspectedCheaterStatus"
+          },
+          "threshold_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Threshold (seconds) of the module that triggered the flag; the student completed faster."
+          },
+          "total_duration_seconds": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "total_points": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "UserWithModuleCompletions": {
         "type": "object",

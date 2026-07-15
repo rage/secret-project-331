@@ -11,8 +11,6 @@ import { useTranslation } from "react-i18next"
 import type { Equals } from "tsafe"
 import { assert } from "tsafe"
 
-import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
-
 import {
   addRoleMutation as addRoleMutationOptions,
   getPendingRolesOptions,
@@ -33,6 +31,8 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"

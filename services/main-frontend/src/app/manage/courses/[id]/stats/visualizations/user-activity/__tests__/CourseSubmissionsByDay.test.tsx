@@ -65,7 +65,7 @@ describe("CourseSubmissionsByDay", () => {
     }
     // Grouped by year -> one heatmap series per year (2022, 2023).
     expect(options.series).toHaveLength(2)
-    expect(options.series[0].type).toBe("heatmap")
+    expect(options.series[0]?.type).toBe("heatmap")
     const allPoints = options.series.flatMap((s) => s.data)
     expect(allPoints).toHaveLength(3)
     expect(allPoints).toEqual(

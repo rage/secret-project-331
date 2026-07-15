@@ -4,8 +4,6 @@ import { css, cx } from "@emotion/css"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import WorkspaceTaskRow from "./WorkspaceTaskRow"
-
 import {
   createCourseDesignerStageTaskMutation,
   deleteCourseDesignerStageTaskMutation,
@@ -15,6 +13,8 @@ import type { CourseDesignerPlanStageWithTasks } from "@/generated/api/types.gen
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, TextField } from "@/shared-module/components"
+
+import WorkspaceTaskRow from "./WorkspaceTaskRow"
 
 const cardStyles = css`
   background: white;

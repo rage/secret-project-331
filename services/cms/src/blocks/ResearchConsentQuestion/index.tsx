@@ -3,10 +3,10 @@
 /* oxlint-disable i18next/no-literal-string */
 import { formatLTR } from "@wordpress/icons"
 
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
 import ResearchConsentCheckBoxEditor from "./ResearchConsentQuestionEditor"
 import ResearchConsentCheckBoxSave from "./ResearchConsentQuestionSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface ResearchConsentQuestionAttributes {
   content: string

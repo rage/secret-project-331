@@ -1,9 +1,10 @@
-import watcher from "@parcel/watcher"
 import { exec as execOriginal } from "child_process"
 import { readdir, stat } from "fs/promises"
-import { groupBy } from "lodash"
 import path from "path"
 import { promisify } from "util"
+
+import watcher from "@parcel/watcher"
+import { groupBy } from "lodash"
 
 const exec = promisify(execOriginal)
 

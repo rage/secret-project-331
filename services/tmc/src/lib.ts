@@ -1,8 +1,9 @@
-import * as k8s from "@kubernetes/client-node"
 import * as fs from "fs"
 import { Readable } from "stream"
 import { pipeline } from "stream/promises"
 import type { ReadableStream as WebReadableStream } from "stream/web"
+
+import * as k8s from "@kubernetes/client-node"
 
 export function initKube(): { config: k8s.KubeConfig; api: k8s.CoreV1Api } {
   const config = new k8s.KubeConfig()

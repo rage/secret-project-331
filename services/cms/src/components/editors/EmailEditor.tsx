@@ -4,21 +4,21 @@ import { css } from "@emotion/css"
 import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react"
 
-import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
-import CourseContext from "../../contexts/CourseContext"
-import mediaUploadBuilder from "../../services/mediaUpload"
-import type { MediaUploadProps } from "../../services/mediaUpload"
-import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
-import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
-import { extractPlaceholders, validatePlaceholders } from "../../utils/emailPlaceholders"
-import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
-
 import type { EmailTemplate, EmailTemplateUpdate } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import CourseContext from "../../contexts/CourseContext"
+import mediaUploadBuilder from "../../services/mediaUpload"
+import type { MediaUploadProps } from "../../services/mediaUpload"
+import { extractPlaceholders, validatePlaceholders } from "../../utils/emailPlaceholders"
+import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
+import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
+import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
 interface EmailEditorProps {
   data: EmailTemplate

@@ -36,9 +36,14 @@ const generateRandomOrder = (n: number, seed: number) => {
   const rng = createDeterministicRandom(seed)
   for (let i = n - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1))
-    const temp = array[i]
-    array[i] = array[j]
-    array[j] = temp
+    // i and j are always valid indices within the array bounds
+    const ai = array[i]
+    const aj = array[j]
+    if (ai === undefined || aj === undefined) {
+      continue
+    }
+    array[i] = aj
+    array[j] = ai
   }
 
   return array
@@ -54,7 +59,8 @@ const generateRandomOrder = (n: number, seed: number) => {
  */
 const orderArrayBySeed = <T>(array: T[], seed: number): T[] => {
   const randomOrder = generateRandomOrder(array.length, seed)
-  return randomOrder.map((index) => array[index])
+  // randomOrder is a permutation of valid indices into array
+  return randomOrder.map((index) => array[index] as T)
 }
 
 /**

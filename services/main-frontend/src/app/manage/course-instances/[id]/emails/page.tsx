@@ -6,8 +6,6 @@ import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewEmailTemplateForm from "./NewEmailTemplateForm"
-
 import {
   deleteEmailTemplateMutation as deleteEmailTemplateMutationOptions,
   getCourseInstanceEmailTemplatesOptions,
@@ -18,6 +16,8 @@ import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import NewEmailTemplateForm from "./NewEmailTemplateForm"
 
 const CourseInstanceEmailTemplates: React.FC = () => {
   const { t } = useTranslation()

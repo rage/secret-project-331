@@ -6,16 +6,16 @@ import type { EChartsOption, TooltipComponentFormatterCallbackParams } from "ech
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
-import Echarts from "./Echarts"
-import StatsHeader from "./StatsHeader"
-
 import type { CountResult } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
+import Echarts from "./Echarts"
+import StatsHeader from "./StatsHeader"
 
 export const MONTHLY_PERIOD = "Month" as const
 export const DAILY_PERIOD = "Day" as const
@@ -98,8 +98,8 @@ const LineChart: React.FC<LineChartProps> = ({
           return ""
         }
         const dataIndex = params[0].dataIndex as number
-        const dataPeriod = data?.[dataIndex].period
-        const value = data?.[dataIndex].count
+        const dataPeriod = data?.[dataIndex]?.period
+        const value = data?.[dataIndex]?.count
         try {
           const formattedDate = format(new Date(dataPeriod || ""), dateFormat)
           // oxlint-disable-next-line i18next/no-literal-string

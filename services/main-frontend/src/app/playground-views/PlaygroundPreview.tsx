@@ -10,10 +10,6 @@ import { useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
-import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
-import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
-
 import type { PlaygroundSettings } from "@/app/playground-tabs/page"
 import type { UseParsedPrivateSpecResult } from "@/hooks/playground/useParsedPrivateSpec"
 import Button from "@/shared-module/common/components/Button"
@@ -27,6 +23,10 @@ import type {
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import type { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
+
+import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
+import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
+import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 

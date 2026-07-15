@@ -5,16 +5,15 @@ import React, { useEffect, useRef, useState } from "react"
 import { useHover, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import type { BlockRendererProps } from "../.."
-import ContentRenderer from "../.."
-import { ImageInteractivityContext } from "../../core/common/Image/ImageInteractivityContext"
-
-import FlipButton from "./FlipButton"
-
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { Block } from "@/types/courseMaterialBlock"
+
+import type { BlockRendererProps } from "../.."
+import ContentRenderer from "../.."
+import { ImageInteractivityContext } from "../../core/common/Image/ImageInteractivityContext"
+import FlipButton from "./FlipButton"
 
 interface FlipCardAttributes {
   backgroundColor: string
@@ -23,7 +22,7 @@ interface FlipCardAttributes {
 
 function isBlockImage(block: Block<unknown>): block is Block<FlipCardAttributes> {
   if (block.innerBlocks.length > 0) {
-    return block.innerBlocks[0].name === "core/image"
+    return block.innerBlocks[0]?.name === "core/image"
   }
   return false
 }

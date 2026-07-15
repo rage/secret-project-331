@@ -2,13 +2,13 @@
 
 import { css } from "@emotion/css"
 
-import type { BlockRendererProps } from "../.."
-
 import type { PreformattedAttributes } from "@/../types/GutenbergBlockAttributes"
 import { monospaceFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+
+import type { BlockRendererProps } from "../.."
 
 const PreformattedBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<PreformattedAttributes>>

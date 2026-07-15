@@ -14,7 +14,7 @@ export function renderUi(ui: React.ReactElement) {
 }
 
 interface FormHarnessProps<T extends FieldValues> {
-  defaultValues?: DefaultValues<T>
+  defaultValues?: DefaultValues<T> | undefined
   children: (control: Control<T>) => React.ReactElement
 }
 
@@ -35,7 +35,7 @@ function FormHarnessCore<T extends FieldValues>({
   children,
   methodsRef,
 }: FormHarnessCoreProps<T>) {
-  const methods = useForm<T>({ defaultValues })
+  const methods = useForm<T>(defaultValues !== undefined ? { defaultValues } : {})
   if (methodsRef) {
     methodsRef.current = methods
   }

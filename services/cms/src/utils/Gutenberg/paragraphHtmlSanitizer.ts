@@ -193,6 +193,9 @@ const isTrimmableBreak = (node: Node): boolean => {
 const appendSanitizedNodes = (target: HTMLElement, nodes: Node[]): void => {
   for (let index = 0; index < nodes.length; index += 1) {
     const node = nodes[index]
+    if (node === undefined) {
+      continue
+    }
 
     if (node.nodeType === Node.TEXT_NODE) {
       target.append(target.ownerDocument.createTextNode(node.textContent ?? ""))
@@ -428,7 +431,11 @@ const countTrailingBreaks = (container: HTMLElement): number => {
 
 const findNextRenderableKind = (nodes: Node[], startIndex: number): "skip" | "inline" | "block" => {
   for (let index = startIndex; index < nodes.length; index += 1) {
-    const renderKind = getRenderableKind(nodes[index])
+    const node = nodes[index]
+    if (node === undefined) {
+      continue
+    }
+    const renderKind = getRenderableKind(node)
     if (renderKind !== "skip") {
       return renderKind
     }
@@ -607,7 +614,7 @@ const shouldPreserveStandaloneBreakTag = (
   tokenIndex: number,
   token: string,
 ): boolean => {
-  const previousChar = tokenIndex > 0 ? html[tokenIndex - 1] : ""
+  const previousChar = tokenIndex > 0 ? (html[tokenIndex - 1] ?? "") : ""
   const nextChar = html[tokenIndex + token.length] ?? ""
   return (
     !/\s/.test(previousChar) || !/\s/.test(nextChar) || isStartOfTrimmedContent(html, tokenIndex)

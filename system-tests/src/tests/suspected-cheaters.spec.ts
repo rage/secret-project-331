@@ -1,10 +1,10 @@
 import type { BrowserContext } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
-import { answerExercise } from "./peer-reviews/peer_review_utils"
-
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
+
+import { answerExercise } from "./peer-reviews/peer_review_utils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

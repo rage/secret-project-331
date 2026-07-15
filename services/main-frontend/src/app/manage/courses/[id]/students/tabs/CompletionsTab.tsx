@@ -7,14 +7,14 @@ import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FloatingHeaderTable } from "../FloatingHeaderTable"
-import { COMPLETIONS_LEAF_MIN_WIDTH, PAD } from "../studentsTableStyles"
-
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
 import { getCourseStudentsCompletionsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CompletionGridRow } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { QueryResult } from "@/shared-module/components"
+
+import { FloatingHeaderTable } from "../FloatingHeaderTable"
+import { COMPLETIONS_LEAF_MIN_WIDTH, PAD } from "../studentsTableStyles"
 
 interface Props {
   courseId: string

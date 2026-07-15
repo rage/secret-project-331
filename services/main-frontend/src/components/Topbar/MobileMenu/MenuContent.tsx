@@ -5,7 +5,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { UnifiedMenuItem } from "../hooks/types"
-
 import { MenuItem } from "./MenuItem"
 
 interface MenuContentProps {

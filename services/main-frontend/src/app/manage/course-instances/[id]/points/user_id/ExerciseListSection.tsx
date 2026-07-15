@@ -6,13 +6,11 @@ import { LockKeyhole, Pen, UnlockKeyhole } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ExerciseAccordion from "./ExerciseAccordion"
-
 import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { QueryResult } from "@/shared-module/components"
@@ -22,6 +20,8 @@ import {
   getTeacherChapterLockLabel,
   teacherChapterLockStatuses,
 } from "@/utils/chapterLockingStatus"
+
+import ExerciseAccordion from "./ExerciseAccordion"
 
 const Section = styled.section`
   margin: 3rem 0;

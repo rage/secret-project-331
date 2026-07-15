@@ -1,10 +1,10 @@
-import type { DialogCapableMessagePort } from "../../src/client/parentDialog"
-import { ParentDialogClient } from "../../src/client/parentDialog"
-
 import type {
   DialogResponseMessage,
   OpenDialogMessage,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+
+import type { DialogCapableMessagePort } from "../../src/client/parentDialog"
+import { ParentDialogClient } from "../../src/client/parentDialog"
 
 /**
  * A fake of the subset of MessagePort the client uses. Captures the registered listener so the test

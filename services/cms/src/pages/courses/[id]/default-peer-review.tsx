@@ -3,13 +3,6 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
-import type { ExerciseAttributes } from "../../../blocks/Exercise"
-import CmsPageTitle from "../../../components/CmsPageTitle"
-import PeerReviewEditor from "../../../components/PeerReviewEditor"
-import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/PeerReviewAdditionalInstructionsEditor"
-import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
-import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
-
 import type {
   CmsPeerOrSelfReviewConfig,
   CmsPeerOrSelfReviewConfiguration,
@@ -25,6 +18,13 @@ import { QueryResult } from "@/shared-module/components/components/queryResult/Q
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ExerciseAttributes } from "../../../blocks/Exercise"
+import CmsPageTitle from "../../../components/CmsPageTitle"
+import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/PeerReviewAdditionalInstructionsEditor"
+import PeerReviewEditor from "../../../components/PeerReviewEditor"
+import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
+import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
 
 interface PeerReviewManagerProps {
   // courseId

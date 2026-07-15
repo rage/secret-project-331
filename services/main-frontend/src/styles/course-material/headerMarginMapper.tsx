@@ -10,6 +10,7 @@ const headingLevelMap: Record<number, string> = {
   6: "0.75rem",
 }
 
-export const marginTopHeadingMapper = (level: number): string => {
+export const marginTopHeadingMapper = (level: number): string | undefined => {
+  // preserves prior runtime behavior (returns the mapped value, or undefined for unknown levels)
   return headingLevelMap[level]
 }

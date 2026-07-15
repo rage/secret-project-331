@@ -10,17 +10,17 @@ import type {
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
-import Echarts from "./Echarts"
-import type { Period } from "./LineChart"
-import { DAILY_PERIOD, MONTHLY_PERIOD } from "./LineChart"
-import StatsHeader from "./StatsHeader"
-
 import type { CohortActivity } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
+import Echarts from "./Echarts"
+import type { Period } from "./LineChart"
+import { DAILY_PERIOD, MONTHLY_PERIOD } from "./LineChart"
+import StatsHeader from "./StatsHeader"
 
 interface CohortAnalysisChartProps {
   data: CohortActivity[] | undefined
@@ -88,8 +88,12 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
     const chartData: [number, number, number, number][] = []
 
     for (let cohortIndex = 0; cohortIndex < cohorts.length; cohortIndex++) {
-      const cohortDate = new Date(cohorts[cohortIndex])
-      const initialSize = cohortSizes[cohorts[cohortIndex]] || 1
+      const cohortKey = cohorts[cohortIndex]
+      if (cohortKey === undefined) {
+        continue
+      }
+      const cohortDate = new Date(cohortKey)
+      const initialSize = cohortSizes[cohortKey] || 1
 
       for (const offset of dayOffsets) {
         // Calculate if this point would be in the future
@@ -132,6 +136,9 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
         }
         const tooltipData = params.data as [number, number, number, number]
         const cohortDate = cohorts[tooltipData[1]]
+        if (cohortDate === undefined) {
+          throw new TypeError("Cohort index out of range")
+        }
         const offset = tooltipData[0]
         const percentRetention = tooltipData[2].toFixed(1)
         const activeUsers = tooltipData[3]

@@ -1,5 +1,6 @@
-import react from "@vitejs/plugin-react"
 import { fileURLToPath } from "node:url"
+
+import react from "@vitejs/plugin-react"
 import svgr from "vite-plugin-svgr"
 import { defineConfig } from "vitest/config"
 

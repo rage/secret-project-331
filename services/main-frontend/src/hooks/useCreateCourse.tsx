@@ -4,15 +4,15 @@ import type { QueryClient } from "@tanstack/react-query"
 import { useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { invalidateCourseLanguageVersions } from "./useCourseLanguageVersions"
-import { invalidateCourseQuery } from "./useCourseQuery"
-import { invalidateOrganizationCourseCount } from "./useOrganizationCourseCount"
-import { invalidateOrganizationCourses } from "./useOrganizationCourses"
-
 import { createCourse, createCourseCopy } from "@/generated/api/sdk.generated"
 import type { CopyCourseMode, Course, NewCourse } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
+
+import { invalidateCourseLanguageVersions } from "./useCourseLanguageVersions"
+import { invalidateCourseQuery } from "./useCourseQuery"
+import { invalidateOrganizationCourseCount } from "./useOrganizationCourseCount"
+import { invalidateOrganizationCourses } from "./useOrganizationCourses"
 
 export interface CreateCourseParams {
   organizationId: string

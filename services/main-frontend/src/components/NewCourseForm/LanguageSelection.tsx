@@ -4,6 +4,10 @@ import React, { useId, useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
+
 import type { FormFields } from "."
 import {
   ENGLISH_LANGUAGE_CODE,
@@ -12,10 +16,6 @@ import {
   NORWEGIAN_LANGUAGE_CODE,
   SWEDISH_LANGUAGE_CODE,
 } from "."
-
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
 
 interface LanguageSelectionProps {
   form: UseFormReturn<FormFields>

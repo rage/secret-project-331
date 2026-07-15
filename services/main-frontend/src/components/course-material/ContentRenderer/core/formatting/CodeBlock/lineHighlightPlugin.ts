@@ -15,7 +15,10 @@ function splitTree(node: Node): Segment[] {
       if (i > 0) {
         result.push(LINE_BREAK)
       }
-      result.push(document.createTextNode(parts[i]))
+      const part = parts[i]
+      if (part !== undefined) {
+        result.push(document.createTextNode(part))
+      }
     }
     return result
   }
@@ -33,7 +36,10 @@ function splitTree(node: Node): Segment[] {
       if (seg === LINE_BREAK) {
         groups.push([])
       } else {
-        groups[groups.length - 1].push(seg as Node)
+        const lastGroup = groups[groups.length - 1]
+        if (lastGroup !== undefined) {
+          lastGroup.push(seg as Node)
+        }
       }
     }
     const result: Segment[] = []
@@ -41,8 +47,12 @@ function splitTree(node: Node): Segment[] {
       if (i > 0) {
         result.push(LINE_BREAK)
       }
+      const group = groups[i]
+      if (group === undefined) {
+        continue
+      }
       const clone = (node as Element).cloneNode(false) as Element
-      for (const n of groups[i]) {
+      for (const n of group) {
         clone.append(n)
       }
       result.push(clone)
@@ -59,7 +69,10 @@ function groupSegmentsIntoLines(segments: Segment[]): Node[][] {
     if (seg === LINE_BREAK) {
       lines.push([])
     } else {
-      lines[lines.length - 1].push(seg as Node)
+      const lastLine = lines[lines.length - 1]
+      if (lastLine !== undefined) {
+        lastLine.push(seg as Node)
+      }
     }
   }
   return lines
@@ -109,6 +122,10 @@ export function applyLineWrapping(el: HTMLElement): void {
 
   const fragment = document.createDocumentFragment()
   for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (line === undefined) {
+      continue
+    }
     const lineNum = i + 1
     const span = document.createElement("span")
     const isHighlighted = highlightedLines.has(lineNum)
@@ -117,12 +134,12 @@ export function applyLineWrapping(el: HTMLElement): void {
     if (isHighlighted) {
       span.setAttribute("aria-label", `Line ${lineNum}, highlighted`)
     }
-    for (const node of lines[i]) {
+    for (const node of line) {
       span.append(node)
     }
     // Preserve visible height for blank lines in the browser.
     // Without a placeholder, empty block spans collapse to zero height.
-    const hasVisibleText = lines[i].some((node) => (node.textContent ?? "").length > 0)
+    const hasVisibleText = line.some((node) => (node.textContent ?? "").length > 0)
     if (!hasVisibleText) {
       span.append(document.createElement("br"))
     }

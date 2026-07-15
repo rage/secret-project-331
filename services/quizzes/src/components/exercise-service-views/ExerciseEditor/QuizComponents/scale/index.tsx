@@ -2,12 +2,12 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+
 import type { PrivateSpecQuizItemScale } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
-
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 
 interface ScaleEditorProps {
   quizItemId: string

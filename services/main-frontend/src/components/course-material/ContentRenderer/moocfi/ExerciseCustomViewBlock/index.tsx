@@ -3,12 +3,11 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import type { BlockRendererProps } from "../.."
-
-import CustomViewIframe from "./CustomViewIframe"
-
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../.."
+import CustomViewIframe from "./CustomViewIframe"
 
 interface ExerciseCustomViewBlockAttributes {
   exercise_type: string | undefined

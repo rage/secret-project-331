@@ -23,6 +23,7 @@
     "@react-stately/collections": "^3.13.1",
     "@react-stately/combobox": "^3.14.1",
     "@react-stately/datepicker": "^3.17.1",
+    "@react-stately/list": "^3.14.1",
     "@react-stately/overlays": "^3.7.1",
     "@react-stately/radio": "^3.12.1",
     "@react-stately/select": "^3.10.1",

@@ -118,7 +118,8 @@ const chatbotCitationRenderer: Rule = (
   // tokens are created in the parser and contain the marker as token.content
 
   // the content is the marker, so: `【x:y†source】`
-  const marker: string = tokens[idx].content
+  // the renderer is always invoked with a valid token index; fall back to empty string otherwise
+  const marker: string = tokens[idx]?.content ?? ""
   const start = marker.indexOf(":") + 1
   const end = marker.length - "†source】".length
   const n = marker.slice(start, end)

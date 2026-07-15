@@ -1,9 +1,7 @@
 import { promises as fs } from "fs"
 import path from "path"
-import { temporaryDirectory, temporaryFile } from "tempy"
 
-import type { GradeRequest } from "./requestSchemas"
-import { gradeRequestSchema, userAnswerSchema, wrappedUserAnswerSchema } from "./requestSchemas"
+import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
@@ -18,6 +16,9 @@ import type { ExerciseTaskGradingResult, GradingProgress } from "@/util/exercise
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
 import type { UserAnswer } from "@/util/stateInterfaces"
+
+import type { GradeRequest } from "./requestSchemas"
+import { gradeRequestSchema, userAnswerSchema, wrappedUserAnswerSchema } from "./requestSchemas"
 
 const { log, debug } = createLogger("grade")
 

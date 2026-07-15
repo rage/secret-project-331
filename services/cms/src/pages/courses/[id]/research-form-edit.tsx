@@ -3,10 +3,6 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
-import type { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
-import CmsPageTitle from "../../../components/CmsPageTitle"
-import CourseContext from "../../../contexts/CourseContext"
-
 import type { NewResearchForm, NewResearchFormQuestion, ResearchForm } from "@/generated/api"
 import { getCmsCourseResearchFormOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
@@ -25,6 +21,10 @@ import { QueryResult } from "@/shared-module/components/components/queryResult/Q
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
+import CmsPageTitle from "../../../components/CmsPageTitle"
+import CourseContext from "../../../contexts/CourseContext"
 
 interface ResearchFormProps {
   query: SimplifiedUrlQuery<"id">

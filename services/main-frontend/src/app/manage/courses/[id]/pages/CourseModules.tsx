@@ -6,11 +6,6 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import type { EditCourseModuleFormFields } from "./EditCourseModuleForm"
-import EditCourseModuleForm from "./EditCourseModuleForm"
-import type { Fields } from "./NewCourseModuleForm"
-import NewCourseModuleForm from "./NewCourseModuleForm"
-
 import BottomPanel from "@/components/BottomPanel"
 import { getCourseStructureOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCourseModules } from "@/generated/api/sdk.generated"
@@ -18,8 +13,14 @@ import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/ap
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { QueryResult } from "@/shared-module/components"
+
+import type { EditCourseModuleFormFields } from "./EditCourseModuleForm"
+import EditCourseModuleForm from "./EditCourseModuleForm"
+import type { Fields } from "./NewCourseModuleForm"
+import NewCourseModuleForm from "./NewCourseModuleForm"
 
 const AUTOMATIC = "automatic"
 const MANUAL = "manual"
@@ -113,8 +114,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     chapters.sort((l, r) => l.chapter_number - r.chapter_number)
 
     // check that the first chapter is in the default module
-    if (chapters.length > 0) {
-      const firstChapter = chapters[0]
+    const firstChapter = chapters[0]
+    if (firstChapter !== undefined) {
       const firstModule = modules.find((m) => m.id === firstChapter.module)
       if (firstModule !== undefined && firstModule.name !== null) {
         return t("error-modules-first-chapter-not-in-default-module")
@@ -614,7 +615,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           </div>
           <BottomPanel
             title={t("title-dialog-module-save")}
-            error={moduleList?.error}
+            {...omitUndefined({ error: moduleList?.error })}
             show={edited}
             leftButtonText={t("save-changes")}
             leftButtonDisabled={

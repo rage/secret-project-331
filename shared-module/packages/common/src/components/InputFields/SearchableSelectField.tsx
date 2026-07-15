@@ -19,10 +19,11 @@ import {
 } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import SearchIcon from "@/shared-module/common/img/search-icon.svg"
+
 import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
-
-import SearchIcon from "@/shared-module/common/img/search-icon.svg"
+import { omitUndefined } from "../../utils/nullability"
 
 interface SelectOption {
   value: string
@@ -58,8 +59,8 @@ const SearchableSelectField = forwardRef<HTMLDivElement, SearchableSelectProps>(
     return (
       <Select
         ref={ref}
-        placeholder={placeholder}
-        selectedKey={value}
+        {...omitUndefined({ placeholder })}
+        {...omitUndefined({ selectedKey: value })}
         onSelectionChange={(selected) => {
           const newValue = String(selected)
           onChangeByValue?.(newValue)

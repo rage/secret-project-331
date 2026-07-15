@@ -5,7 +5,6 @@ import { fireEvent, screen } from "@testing-library/react"
 import { ComboBox } from "../src/components/ComboBox"
 import { Radio } from "../src/components/Radio"
 import { RadioGroup } from "../src/components/RadioGroup"
-
 import { renderWithForm } from "./testUtils"
 
 describe("react-hook-form embedded controller integration", () => {

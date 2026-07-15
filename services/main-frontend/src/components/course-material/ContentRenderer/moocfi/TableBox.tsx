@@ -3,14 +3,14 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import type { BlockRendererProps } from ".."
-import InnerBlocks from "../util/InnerBlocks"
-
 import useMedia from "@/shared-module/common/hooks/useMedia"
 import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+
+import type { BlockRendererProps } from ".."
+import InnerBlocks from "../util/InnerBlocks"
 
 interface TableBoxAttributes {
   width: string

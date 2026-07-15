@@ -9,8 +9,7 @@ import type { FieldValues, Path } from "react-hook-form"
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { resolveFieldDescribedBy } from "../lib/utils/field"
-
-import { FieldShell } from "./primitives/FieldShell"
+import { includeIf, omitUndefined } from "../lib/utils/nullability"
 import {
   checkableContentCss,
   checkableInputCss,
@@ -24,6 +23,7 @@ import {
   resolveCheckableSizeCss,
   resolveChoiceIndicatorCss,
 } from "./primitives/checkableStyles"
+import { FieldShell } from "./primitives/FieldShell"
 import type { FieldSize } from "./primitives/fieldStyles"
 
 // oxlint-disable-next-line i18next/no-literal-string
@@ -80,7 +80,12 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     "aria-label": ariaLabel,
   } = props
 
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...omitUndefined({ rules }),
+    errorMessage,
+  })
   const selected = Boolean(field.value)
 
   const generatedInputId = useId()
@@ -88,7 +93,6 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
   const descriptionId = useId()
   const errorMessageId = useId()
   const describedBy = resolveFieldDescribedBy({
-    ariaDescribedBy: undefined,
     descriptionId,
     errorMessageId,
     hasDescription: Boolean(description),
@@ -117,14 +121,16 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
       children: label,
       id: inputId,
       name: field.name,
-      value: inputValue,
       isDisabled,
       isReadOnly,
       isRequired,
       isInvalid,
       isIndeterminate,
-      "aria-label": ariaLabel,
-      "aria-describedby": describedBy,
+      ...omitUndefined({
+        value: inputValue,
+        "aria-label": ariaLabel,
+        "aria-describedby": describedBy,
+      }),
     },
     toggleState,
     inputRef,
@@ -151,9 +157,9 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     <FieldShell
       className={cx(checkableRootCss, className)}
       description={description}
-      descriptionId={description ? descriptionId : undefined}
+      {...includeIf(description, { descriptionId })}
       errorMessage={resolvedError}
-      errorMessageId={resolvedError ? errorMessageId : undefined}
+      {...includeIf(resolvedError, { errorMessageId })}
       layout={stackedLayout}
     >
       <label

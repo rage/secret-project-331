@@ -6,9 +6,9 @@ import { renderToString } from "katex"
 import React from "react"
 
 import "katex/dist/katex.min.css"
-import type { TextAttributes } from "."
-
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
+
+import type { TextAttributes } from "."
 
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 

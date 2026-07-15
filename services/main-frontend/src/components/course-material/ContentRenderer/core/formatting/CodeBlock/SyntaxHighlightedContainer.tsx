@@ -5,9 +5,9 @@ import { css } from "@emotion/css"
 import hljs from "highlight.js"
 import { memo, useEffect, useRef } from "react"
 
-import { ensureLineHighlightPluginRegistered } from "./lineHighlightPlugin"
-
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+
+import { ensureLineHighlightPluginRegistered } from "./lineHighlightPlugin"
 
 ensureLineHighlightPluginRegistered(hljs)
 

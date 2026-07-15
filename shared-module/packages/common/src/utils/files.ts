@@ -28,7 +28,7 @@ export function getMaxFileSizeForType(file: File): number {
 
   // Extract the main type from MIME type (e.g., "image" from "image/png")
   const typeParts = file.type.split("/")
-  const fileType = typeParts.length > 0 ? typeParts[0].toLowerCase() : ""
+  const fileType = typeParts[0]?.toLowerCase() ?? ""
 
   switch (fileType) {
     case "image":

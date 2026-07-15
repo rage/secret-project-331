@@ -1,6 +1,6 @@
 import { produce, type WritableDraft } from "immer"
 import type { Dictionary } from "lodash"
-import { groupBy, mapValues, max, orderBy } from "lodash"
+import { groupBy, max, orderBy } from "lodash"
 
 import type { Chapter, CourseStructure, Page } from "@/generated/api/types.generated"
 
@@ -83,7 +83,15 @@ export default function managePageOrderReducer(
             chaptersWithFrontpages.some((c) => c.front_page_id === page.id),
         )
         const groupedOnlyFrontpages = groupBy(onlyFrontPages, (page) => page.chapter_id)
-        const chapterIdToFrontpage = mapValues(groupedOnlyFrontpages, (pages) => pages[0])
+        // groupBy only creates keys for non-empty arrays, so the first element always exists;
+        // skip any (impossible) empty group to keep the value type as Page rather than Page | undefined
+        const chapterIdToFrontpage: Dictionary<Page> = {}
+        for (const [chapterId, pages] of Object.entries(groupedOnlyFrontpages)) {
+          const frontPage = pages[0]
+          if (frontPage !== undefined) {
+            chapterIdToFrontpage[chapterId] = frontPage
+          }
+        }
 
         draftState.state = "ready"
         draftState.unsavedChanges = false
@@ -139,12 +147,13 @@ export default function managePageOrderReducer(
             const newChapterPageList = draftState.chapterIdToPages?.[chapterId ?? "null"]
             const page = oldChapterPageList?.find((p) => p.id === pageId)
 
-            if (!page) {
+            if (!page || !oldChapterPageList) {
               break
             }
 
-            draftState.chapterIdToPages[currentPageChapterId ?? "null"] =
-              oldChapterPageList?.filter((o) => o.id !== pageId)
+            draftState.chapterIdToPages[currentPageChapterId ?? "null"] = oldChapterPageList.filter(
+              (o) => o.id !== pageId,
+            )
             const largestOrderNumber = max(newChapterPageList?.map((p) => p.order_number)) ?? -1
             page.order_number = largestOrderNumber + 1
             page.chapter_id = chapterId
@@ -232,13 +241,19 @@ function movePageWithinPageList(
     return
   }
 
-  const temp = pages[currentIndex]
-  pages[currentIndex] = pages[targetIndex]
-  pages[targetIndex] = temp
+  // currentIndex is in range (!= -1) and targetIndex is validated to be within bounds
+  const currentPage = pages[currentIndex]
+  const targetPage = pages[targetIndex]
+  if (currentPage === undefined || targetPage === undefined) {
+    return
+  }
 
-  const tempOrderNumber = pages[currentIndex].order_number
-  pages[currentIndex].order_number = pages[targetIndex].order_number
-  pages[targetIndex].order_number = tempOrderNumber
+  pages[currentIndex] = targetPage
+  pages[targetIndex] = currentPage
+
+  const tempOrderNumber = currentPage.order_number
+  currentPage.order_number = targetPage.order_number
+  targetPage.order_number = tempOrderNumber
 
   draftState.unsavedChanges = true
 }
@@ -265,9 +280,15 @@ function moveChapterWithinChapterList(
   const currentIndex = chapters.findIndex((c) => c.chapter_number === currentChapterNumber)
   const targetIndex = chapters.findIndex((c) => c.chapter_number === targetChapterNumber)
 
+  const currentIndexChapter = chapters[currentIndex]
+  const targetIndexChapter = chapters[targetIndex]
+  if (currentIndexChapter === undefined || targetIndexChapter === undefined) {
+    return
+  }
+
   const temp = currentChapterNumber
-  chapters[currentIndex].chapter_number = targetChapterNumber
-  chapters[targetIndex].chapter_number = temp
+  currentIndexChapter.chapter_number = targetChapterNumber
+  targetIndexChapter.chapter_number = temp
 
   draftState.unsavedChapterChanges = true
 }

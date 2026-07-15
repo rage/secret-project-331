@@ -4,33 +4,34 @@ import type { ReactNode } from "react"
 import React, { createContext, useCallback, useContext, useMemo, useReducer, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
+import { omitUndefined } from "../../utils/nullability"
 import AlertDialog from "./AlertDialog"
 import ConfirmDialog from "./ConfirmDialog"
 import PromptDialog from "./PromptDialog"
 
 interface DialogBase {
   id: number
-  title?: string
+  title?: string | undefined
   message: React.ReactNode
 }
 
 type AlertDialogType = DialogBase & {
   type: "alert"
-  okButtonLabel?: string
+  okButtonLabel?: string | undefined
   resolve: () => void
 }
 
 type ConfirmDialogType = DialogBase & {
   type: "confirm"
-  confirmDisabled?: boolean
-  yesButtonLabel?: string
-  noButtonLabel?: string
+  confirmDisabled?: boolean | undefined
+  yesButtonLabel?: string | undefined
+  noButtonLabel?: string | undefined
   resolve: (result: boolean) => void
 }
 
 type PromptDialogType = DialogBase & {
   type: "prompt"
-  defaultValue?: string
+  defaultValue?: string | undefined
   resolve: (result: string | null) => void
 }
 
@@ -179,7 +180,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 open
                 title={dialog.title ?? t("dialog-title-alert")}
                 message={dialog.message}
-                okButtonLabel={dialog.okButtonLabel}
+                {...omitUndefined({ okButtonLabel: dialog.okButtonLabel })}
                 onClose={() => {
                   dialog.resolve()
                   removeDialog(dialog.id)
@@ -201,8 +202,8 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                   </ConfirmDialogMessageProvider>
                 }
                 confirmDisabled={dialog.confirmDisabled ?? false}
-                noButtonLabel={dialog.noButtonLabel}
-                yesButtonLabel={dialog.yesButtonLabel}
+                {...omitUndefined({ noButtonLabel: dialog.noButtonLabel })}
+                {...omitUndefined({ yesButtonLabel: dialog.yesButtonLabel })}
                 onCancel={() => {
                   dialog.resolve(false)
                   removeDialog(dialog.id)
@@ -223,7 +224,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 open
                 title={dialog.title ?? t("dialog-title-prompt")}
                 message={dialog.message}
-                defaultValue={dialog.defaultValue}
+                {...omitUndefined({ defaultValue: dialog.defaultValue })}
                 onCancel={() => {
                   dialog.resolve(null)
                   removeDialog(dialog.id)

@@ -20,7 +20,7 @@ export function CalendarGrid({
   state: ReturnType<typeof useCalendarState>
 }) {
   const { gridProps, headerProps, weekDays, weeksInMonth } = useCalendarGrid(
-    { firstDayOfWeek },
+    firstDayOfWeek !== undefined ? { firstDayOfWeek } : {},
     state,
   )
   const monthStart = state.visibleRange.start

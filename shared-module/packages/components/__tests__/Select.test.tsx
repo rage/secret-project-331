@@ -3,7 +3,6 @@
 import { act, fireEvent, screen, within } from "@testing-library/react"
 
 import { Select } from "../src/components/Select"
-
 import { renderWithForm } from "./testUtils"
 
 const countryOptions = [

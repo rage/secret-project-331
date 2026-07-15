@@ -4,8 +4,8 @@ source "$(dirname "$0")/.common"
 
 # Run from the repo root; `-p <dir>` resolves types against each project's own node_modules.
 run_command pnpm exec concurrently \
-  -n "cms,main-frontend,example-exercise,quizzes,tmc,exercise-protocol,exercise-client,exercise-react,create-exercise-service" \
-  -c "green.bold,red.bold,blue.bold,yellow.bold,cyan.bold,magenta.bold,white.bold,gray.bold,greenBright.bold" \
+  -n "cms,main-frontend,example-exercise,quizzes,tmc,exercise-protocol,exercise-client,exercise-react,create-exercise-service,common,components,exercise-iframe-host" \
+  -c "green.bold,red.bold,blue.bold,yellow.bold,cyan.bold,magenta.bold,white.bold,gray.bold,greenBright.bold,blueBright.bold,magentaBright.bold,cyanBright.bold" \
   "pnpm exec tsc -p services/cms --noEmit" \
   "pnpm exec tsc -p services/main-frontend --noEmit" \
   "pnpm exec tsc -p services/example-exercise --noEmit" \
@@ -14,6 +14,9 @@ run_command pnpm exec concurrently \
   "pnpm exec tsc -p shared-module/packages/exercise-protocol --noEmit" \
   "pnpm exec tsc -p shared-module/packages/exercise-client --noEmit" \
   "pnpm exec tsc -p shared-module/packages/exercise-react --noEmit" \
-  "pnpm exec tsc -p shared-module/packages/create-exercise-service --noEmit"
+  "pnpm exec tsc -p shared-module/packages/create-exercise-service --noEmit" \
+  "pnpm exec tsc -p shared-module/packages/common --noEmit" \
+  "pnpm exec tsc -p shared-module/packages/components --noEmit" \
+  "pnpm exec tsc -p shared-module/packages/exercise-iframe-host --noEmit"
 
 echo "finished"

@@ -5,9 +5,9 @@ import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
 
-import { shouldWarnAboutParagraphLookingLikeHeading } from "./paragraphHeadingWarning"
-
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { shouldWarnAboutParagraphLookingLikeHeading } from "./paragraphHeadingWarning"
 
 interface ParagraphBlockProps {
   name: string

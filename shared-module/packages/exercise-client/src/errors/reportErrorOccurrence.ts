@@ -223,7 +223,7 @@ async function sendWithFetch(
   body: string,
   options?: {
     credentials?: RequestInit["credentials"]
-    headers?: Record<string, string>
+    headers?: Record<string, string> | undefined
   },
 ): Promise<boolean> {
   try {

@@ -5,14 +5,14 @@ import React, { useEffect, useRef, useState } from "react"
 import { useButton, useFocusRing } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import Controls from "./Controls"
-import DisplayTrack from "./DisplayTrack"
-import ProgressBar from "./ProgressBar"
-
 import type { AudioFile } from "@/components/course-material/Page"
 import CloseIcon from "@/img/course-material/close.svg"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import Controls from "./Controls"
+import DisplayTrack from "./DisplayTrack"
+import ProgressBar from "./ProgressBar"
 
 export interface AudioFileProps {
   tracks: AudioFile[]

@@ -2,12 +2,11 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
-import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
 import ExpandableContentEditor from "./ExpandableContentInnerBlockEditor"
 import ExpandableContentSave from "./ExpandableContentInnerBlockSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface ExpandableContentConfigurationProps {
   name: string

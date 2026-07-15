@@ -2,13 +2,13 @@
 
 import { css } from "@emotion/css"
 
-import type { BlockRendererProps } from "../.."
-
 import type { PullquoteAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+
+import type { BlockRendererProps } from "../.."
 
 const FONT_SIZES: Record<string, string> = {
   small: "18px",

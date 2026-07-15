@@ -4,16 +4,15 @@ import styled from "@emotion/styled"
 import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"
 
-import type { BlockRendererProps } from "../.."
-
-import ExercisesInChapter from "./ExercisesInChapter"
-
 import Spinner from "@/shared-module/common/components/Spinner"
 import AccordionIcon from "@/shared-module/common/img/accordion-arrow.svg"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
+
+import type { BlockRendererProps } from "../.."
+import ExercisesInChapter from "./ExercisesInChapter"
 
 const Wrapper = styled.div`
   margin: 0 0 5rem 0;

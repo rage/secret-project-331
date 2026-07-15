@@ -4,11 +4,11 @@ import { css } from "@emotion/css"
 import { MinusCircle, PlusCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 
-import type { BlockRendererProps } from "../.."
-
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../.."
 
 interface ExpandableContentInnerBlockProps {
   name: string

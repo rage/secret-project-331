@@ -5,6 +5,8 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import type { ColumnDef } from "@tanstack/react-table"
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
 import { colorPairs } from "./studentsTableColors"
 import {
   dockedTrailerCss,
@@ -36,8 +38,6 @@ import {
   wrapAutoX,
   wrapHiddenX,
 } from "./studentsTableStyles"
-
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface ColMeta {
   width?: number
@@ -205,13 +205,13 @@ export function FloatingHeaderTable<T extends object>({
       // Upper header groups
       if (headerRow === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
         const chapterIdx = Math.floor((colIdx - chapterHeaderStart) / 1)
-        return colorPairs[chapterIdx % colorPairs.length][0]
+        return colorPairs[chapterIdx % colorPairs.length]?.[0]
       }
       // Lower header (points/attempts)
       if (headerRow === 1 && colIdx >= subHeaderStart && header.colSpan === 1) {
         const pairIdx = Math.floor((colIdx - subHeaderStart) / 2)
         const subIdx = (colIdx - subHeaderStart) % 2
-        return colorPairs[pairIdx % colorPairs.length][subIdx]
+        return colorPairs[pairIdx % colorPairs.length]?.[subIdx]
       }
       return undefined
     },
@@ -511,7 +511,7 @@ export function FloatingHeaderTable<T extends object>({
             if (colorColumns && i >= subHeaderStart) {
               const pairIdx = Math.floor((i - subHeaderStart) / 2)
               const subIdx = (i - subHeaderStart) % 2
-              bg = colorPairs[pairIdx % colorPairs.length][subIdx]
+              bg = colorPairs[pairIdx % colorPairs.length]?.[subIdx]
             }
 
             let removeRight = false

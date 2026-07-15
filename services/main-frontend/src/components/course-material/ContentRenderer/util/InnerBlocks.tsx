@@ -2,10 +2,10 @@
 
 import React from "react"
 
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
 import type { BlockRendererProps } from ".."
 import ContentRenderer from ".."
-
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface InnerBlocksProps {
   /** For convinience, this takes the props from the parent block directly  */

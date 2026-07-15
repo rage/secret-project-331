@@ -2,10 +2,10 @@
 
 import { css } from "@emotion/css"
 
-import StyledCard from "./StyledCard"
-
 import type { ChapterWithStatus } from "@/generated/course-material-api/types.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import StyledCard from "./StyledCard"
 
 export interface GridProps {
   chapters: ChapterWithStatus[]

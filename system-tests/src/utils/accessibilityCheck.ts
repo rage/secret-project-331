@@ -1,10 +1,11 @@
+import { Console } from "console"
+import { Writable } from "stream"
+
 /* oxlint-disable playwright/no-conditional-in-test */
 import { AxeBuilder } from "@axe-core/playwright"
 import { test } from "@playwright/test"
 import type { CheckResult } from "axe-core"
-import { Console } from "console"
 import type { Page } from "playwright"
-import { Writable } from "stream"
 
 import waitForSpinnersToDisappear from "./waitForSpinnersToDisappear"
 
@@ -132,7 +133,7 @@ class StoringStream extends Writable {
   public override _write(
     // oxlint-disable-next-line typescript/no-explicit-any
     chunk: any,
-    encoding: BufferEncoding,
+    _encoding: BufferEncoding,
     callback: (error?: Error | null | undefined) => void,
   ): void {
     this.chunks.push(chunk.toString())

@@ -46,8 +46,9 @@ export function parseCourseUrl(url: string): ParsedCourseUrl {
     const [, organizationSlug, , courseSlug, ...pagePathSegments] = pathSegments
 
     return {
-      organizationSlug,
-      courseSlug,
+      // safe: length >= 4 checked above, so these segments exist
+      organizationSlug: organizationSlug ?? null,
+      courseSlug: courseSlug ?? null,
       pagePath: pagePathSegments.length > 0 ? `/${pagePathSegments.join("/")}` : "/",
     }
   } catch (error) {

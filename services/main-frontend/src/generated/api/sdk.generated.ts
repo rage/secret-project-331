@@ -484,6 +484,8 @@ import type {
   GetUniqueUsersStartingHistoryResponses,
   GetUserCourseEnrollmentsData,
   GetUserCourseEnrollmentsResponses,
+  GetUserCourseSubmissionTimesData,
+  GetUserCourseSubmissionTimesResponses,
   GetUserData,
   GetUserDetailsByCourseAndUserIdData,
   GetUserDetailsByCourseAndUserIdResponses,
@@ -499,6 +501,8 @@ import type {
   GetUserResetExerciseLogsData,
   GetUserResetExerciseLogsResponses,
   GetUserResponses,
+  GetUserRolesData,
+  GetUserRolesResponses,
   GetUsersByCourseIdForUserDetailsData,
   GetUsersByCourseIdForUserDetailsResponses,
   GetUsersIpCountryData,
@@ -507,6 +511,8 @@ import type {
   GetUsersReturningExercisesHistoryByInstanceResponses,
   GetUsersReturningExercisesHistoryData,
   GetUsersReturningExercisesHistoryResponses,
+  GetUserSuspectedCheatersData,
+  GetUserSuspectedCheatersResponses,
   IntrospectOauthTokenData,
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
@@ -823,16 +829,20 @@ import {
   zGetUniqueUsersStartingHistoryCustomTimePeriodResponse,
   zGetUniqueUsersStartingHistoryResponse,
   zGetUserCourseEnrollmentsResponse,
+  zGetUserCourseSubmissionTimesResponse,
   zGetUserDetailsByCourseAndUserIdResponse,
   zGetUserDetailsByCoursesResponse,
   zGetUserDetailsForAuthenticatedUserResponse,
   zGetUserResearchConsentResponse,
   zGetUserResearchFormQuestionAnswersResponse,
   zGetUserResetExerciseLogsResponse,
+  zGetUserResponse,
+  zGetUserRolesResponse,
   zGetUsersByCourseIdForUserDetailsResponse,
   zGetUsersIpCountryResponse,
   zGetUsersReturningExercisesHistoryByInstanceResponse,
   zGetUsersReturningExercisesHistoryResponse,
+  zGetUserSuspectedCheatersResponse,
   zJoinCourseWithJoinCodeResponse,
   zPreviewCourseInstanceCompletionsResponse,
   zRemoveCoursePlanMemberResponse,
@@ -6786,6 +6796,7 @@ export const getUser = <ThrowOnError extends boolean = true>(
   options: Options<GetUserData, ThrowOnError>,
 ): RequestResult<GetUserResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetUserResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetUserResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/{user_id}",
     ...options,
@@ -6802,6 +6813,57 @@ export const getUserCourseEnrollments = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetUserCourseEnrollmentsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/{user_id}/course-enrollments",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise
+ * submission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.
+ */
+export const getUserCourseSubmissionTimes = <ThrowOnError extends boolean = true>(
+  options: Options<GetUserCourseSubmissionTimesData, ThrowOnError>,
+): RequestResult<GetUserCourseSubmissionTimesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetUserCourseSubmissionTimesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetUserCourseSubmissionTimesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/{user_id}/courses/{course_id}/submission-times",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/roles` - All roles held by a user, across scopes. Teacher/admin
+ * (global) view; used to label the account (e.g. staff/teacher) on the user-details page.
+ */
+export const getUserRoles = <ThrowOnError extends boolean = true>(
+  options: Options<GetUserRolesData, ThrowOnError>,
+): RequestResult<GetUserRolesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetUserRolesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetUserRolesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/{user_id}/roles",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/suspected-cheaters` - Cross-course suspected-cheater records for
+ * a user, each paired with the course's applicable duration threshold. Teacher/admin (global) view;
+ * read-only (confirm/dismiss happen on the per-course cheaters page).
+ */
+export const getUserSuspectedCheaters = <ThrowOnError extends boolean = true>(
+  options: Options<GetUserSuspectedCheatersData, ThrowOnError>,
+): RequestResult<GetUserSuspectedCheatersResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetUserSuspectedCheatersResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetUserSuspectedCheatersResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/{user_id}/suspected-cheaters",
     ...options,
   })
 

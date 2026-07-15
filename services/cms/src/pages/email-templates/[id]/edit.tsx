@@ -3,9 +3,6 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
-import CmsPageTitle from "../../../components/CmsPageTitle"
-import CourseContext from "../../../contexts/CourseContext"
-
 import type { EmailTemplateUpdate } from "@/generated/api"
 import { getCmsEmailTemplateOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCmsEmailTemplate } from "@/generated/api/sdk.generated"
@@ -20,6 +17,9 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import CmsPageTitle from "../../../components/CmsPageTitle"
+import CourseContext from "../../../contexts/CourseContext"
 
 const EmailEditor = dynamicImport(() => import("../../../components/editors/EmailEditor"))
 

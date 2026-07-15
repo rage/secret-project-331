@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test"
-import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

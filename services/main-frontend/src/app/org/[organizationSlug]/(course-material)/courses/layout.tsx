@@ -1,9 +1,10 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import DOMPurify from "dompurify"
 import { useAtomValue } from "jotai"
 import React from "react"
-import DOMPurify from "dompurify"
+
 import { getCourseMetadataOptions } from "@/generated/api/@tanstack/react-query.generated"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"

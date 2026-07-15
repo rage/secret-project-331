@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test"
+
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 

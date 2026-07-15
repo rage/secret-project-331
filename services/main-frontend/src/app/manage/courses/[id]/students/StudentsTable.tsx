@@ -136,15 +136,22 @@ export function StudentsTable<T extends object>({
     [colorHeaders, chapterHeaderStart, subHeaderStart],
   )
 
+  const headerGroups = table.getHeaderGroups()
+  const headerRowCount = headerGroups.length
+
   const renderTableHead = () => (
     <thead className={stickyTheadCss}>
-      {table.getHeaderGroups().map((headerGroup, rowIdx) => {
+      {headerGroups.map((headerGroup, rowIdx) => {
         let chapterCount = 0
         return (
           <tr key={headerGroup.id} className={headerRowStyle}>
             {headerGroup.headers.map((header, colIdx) => {
-              // Leaf headers spanning both header rows are already rendered in the first row.
-              if (rowIdx === 1 && header.depth === 0 && header.colSpan === 1) {
+              // A top-level leaf column (e.g. Student) is repeated by react-table in every header
+              // row: a placeholder cell in the first row and the real cell below. Render it once in
+              // the first row, spanning all header rows, and skip the duplicates below — otherwise
+              // the same column header is exposed twice to assistive tech.
+              const isTopLevelLeaf = !header.column.parent && header.column.columns.length === 0
+              if (rowIdx > 0 && isTopLevelLeaf) {
                 return null
               }
 
@@ -256,7 +263,7 @@ export function StudentsTable<T extends object>({
                       `
                     })(),
                   )}
-                  rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
+                  rowSpan={isTopLevelLeaf && headerRowCount > 1 ? headerRowCount : undefined}
                   colSpan={header.colSpan > 1 ? header.colSpan : undefined}
                 >
                   {headerLabel}

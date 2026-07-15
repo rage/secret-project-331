@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import type { QueryObserverResult } from "@tanstack/react-query"
 import {
   BellXmark,
@@ -15,35 +14,22 @@ import { useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import {
-  sectionHeaderRowStyles,
-  uhCalloutStyles,
-  uhCalloutTitleStyles,
-  uhLineStyles,
-  uhLinkStyles,
-} from "./courseAuditingStyles"
-
 import { updateCourseAfterAuditingMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseToAudit, CourseToAuditUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
-import {
-  Checkbox,
-  DateTimeLocalField,
-  Link,
-  nullIfEmpty,
-  TextArea,
-  TextField,
-} from "@/shared-module/components"
+import { Link, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import ClosedSectionFields from "./ClosedSectionFields"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
+import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
+import ContentDisplayBox from "./ContentDisplayBox"
+import { contentRowStyles } from "./page"
 
 interface CourseAuditingCardProps {
   id: string
@@ -52,9 +38,9 @@ interface CourseAuditingCardProps {
 }
 
 enum UpdateStatus {
-  none,
-  saved,
-  failed,
+  none = 0,
+  saved = 1,
+  failed = 2,
 }
 
 export type EditCourseToAudit = CourseToAuditUpdate & { set_course_closed_at: boolean }
@@ -72,10 +58,6 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
   const courseBreadcrumbInfoQuery = useCourseBreadcrumbInfoQuery(course.id)
   const organizationSlug = courseBreadcrumbInfoQuery.data?.organization_slug
 
-  const toggleEdit = () => {
-    setEditing(!editing)
-  }
-
   const methods = useForm<EditCourseToAudit>({
     defaultValues: {
       ...course,
@@ -86,21 +68,27 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
     },
   })
 
-  const { control, handleSubmit } = methods
+  const { control, handleSubmit, reset } = methods
 
-  const metaStyles = css`
-    color: ${baseTheme.colors.gray[600]};
-    font-size: 0.95rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 0.5rem;
-  `
+  const toggleEdit = () => {
+    setEditing(!editing)
+  }
+
+  const cancelEdit = () => {
+    reset()
+    setEditing(!editing)
+  }
+
   const onSubmit = handleSubmit((data) => {
     updateMutation.mutateAsync({
       body: {
         ...data,
-        closed_at: data.closed_at ? parseISO(data.closed_at).toISOString() : null,
+        uh_course_code: nullIfEmptyString(data.uh_course_code),
+        closed_at: data.set_course_closed_at
+          ? data.closed_at
+            ? parseISO(data.closed_at).toISOString()
+            : null
+          : null,
         closed_additional_message: nullIfEmptyString(data.closed_additional_message),
         closed_course_successor_id: nullIfEmptyString(data.closed_course_successor_id),
       },
@@ -119,9 +107,7 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
         setStatus(UpdateStatus.saved)
         await refetch()
         setEditing(false)
-        window.setTimeout(() => {
-          setStatus(UpdateStatus.none)
-        }, 4000)
+        setStatus(UpdateStatus.none)
       },
       onError: () => {
         showErrorNotification({
@@ -134,6 +120,12 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
       },
     },
   )
+
+  const uhLinkStyles = css`
+    color: ${baseTheme.colors.green[700]};
+    text-decoration: underline;
+    word-break: break-all;
+  `
 
   return (
     <FormProvider {...methods}>
@@ -166,7 +158,16 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               >
                 {course.name}
               </h1>
-              <div className={metaStyles}>
+              <div
+                className={css`
+                  color: ${baseTheme.colors.gray[600]};
+                  font-size: 0.95rem;
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 1rem;
+                  margin-top: 0.5rem;
+                `}
+              >
                 <span>{courseBreadcrumbInfoQuery.data?.organization_name}</span>
               </div>
             </div>
@@ -194,7 +195,7 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
                 </Button>
                 <Button
                   aria-label={t("button-text-cancel")}
-                  onClick={toggleEdit}
+                  onClick={cancelEdit}
                   variant={"icon"}
                   size={"small"}
                 >
@@ -230,6 +231,7 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
                 rules={nullIfEmpty}
                 autoResize={true}
               />
+              {/* <CourseDescription course={course} refetch={refetch} /> */}
               <TextField
                 control={control}
                 label={t("title-default-module-uh-course-code")}
@@ -246,31 +248,40 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
                 gap: 1rem;
               `}
             >
-              <div className={uhCalloutStyles}>
-                <p className={uhCalloutTitleStyles}>{t("text-field-label-description")}</p>
-                <p className={uhLineStyles}>{course.description}</p>
-              </div>
-              <div className={uhCalloutStyles}>
-                <p className={uhCalloutTitleStyles}>{t("title-default-module-uh-course-code")}</p>
-                <p className={uhLineStyles}>{course.uh_course_code}</p>
-              </div>
-              <div className={sectionHeaderRowStyles}>
-                <div className={uhCalloutStyles}>
-                  <p className={uhCalloutTitleStyles}>{t("closed-at")}</p>
-                  {courseToAudit.closed_at && (
-                    <TimeComponent date={parseISO(courseToAudit.closed_at)} />
-                  )}
+              <ContentDisplayBox
+                label={t("text-field-label-description")}
+                content={course.description}
+              />
+              {courseToAudit.closed_at ? (
+                <div>
+                  <div className={contentRowStyles}>
+                    <ContentDisplayBox
+                      label={t("title-default-module-uh-course-code")}
+                      content={course.uh_course_code}
+                    />
+                    <ContentDisplayBox
+                      label={t("closed-at")}
+                      content={<TimeComponent date={parseISO(courseToAudit.closed_at)} />}
+                    />
+                    <ContentDisplayBox
+                      label={t("closed-course-successor-id")}
+                      content={course.closed_course_successor_id}
+                    />
+                  </div>
+                  <ContentDisplayBox
+                    label={t("closed-additional-message")}
+                    content={course.closed_additional_message}
+                  />
                 </div>
-
-                <div className={uhCalloutStyles}>
-                  <p className={uhCalloutTitleStyles}>{t("closed-course-successor-id")}</p>
-                  <p className={uhLineStyles}>{course.closed_course_successor_id}</p>
+              ) : (
+                <div className={contentRowStyles}>
+                  <ContentDisplayBox
+                    label={t("title-default-module-uh-course-code")}
+                    content={course.uh_course_code}
+                  />
+                  <ContentDisplayBox label={t("closed-at")} />
                 </div>
-              </div>
-              <div className={uhCalloutStyles}>
-                <p className={uhCalloutTitleStyles}>{t("closed-additional-message")}</p>
-                <p className={uhLineStyles}>{course.closed_additional_message}</p>
-              </div>
+              )}
             </div>
           )}
           <div
@@ -288,9 +299,9 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
             />
             <TimeComponent
               label={t("label-updated")}
-              boldLabel
               date={parseISO(courseToAudit.updated_at)}
               right={true}
+              boldLabel
             />
             {organizationSlug && (
               <Link
@@ -300,7 +311,7 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
                 {t("course-auditing-card-open-course-front-page")}
               </Link>
             )}
-            <Link className={uhLinkStyles} href={`courses/${courseToAudit.id}`}>
+            <Link className={uhLinkStyles} href={manageCourseByIdRoute(courseToAudit.id)}>
               {t("course-auditing-card-open-course-overview")}
             </Link>
           </div>

@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 import { useWatch, useFormContext } from "react-hook-form"
@@ -15,11 +16,6 @@ import {
   TextArea,
   TextField,
 } from "@/shared-module/components"
-import { sectionHeaderRowStyles } from "./courseAuditingStyles"
-
-const FieldContainer = styled.div`
-  margin-bottom: 1rem;
-`
 
 const ClosedSectionFields = (): React.ReactElement => {
   const { t } = useTranslation()
@@ -35,8 +31,12 @@ const ClosedSectionFields = (): React.ReactElement => {
   const isClosed = useWatch({ name: "set_course_closed_at", control })
 
   return (
-    <>
-      <FieldContainer>
+    <div>
+      <div
+        className={css`
+          margin-bottom: 1rem;
+        `}
+      >
         <Checkbox
           control={control}
           label={t("set-course-closed-at")}
@@ -45,7 +45,7 @@ const ClosedSectionFields = (): React.ReactElement => {
             // Instead, we nullify `closed_at` at submit time (see submit mapping),
             // so users can re-check and keep their previous inputs.
             onChange: (e) => {
-              const checked = (e.target as HTMLInputElement).checked
+              const checked = (e.target as HTMLInputElement).value
               if (checked) {
                 const currentClosedAt = getValues("closed_at")
                 if (!currentClosedAt) {
@@ -55,10 +55,18 @@ const ClosedSectionFields = (): React.ReactElement => {
             },
           })}
         />
-      </FieldContainer>
+      </div>
       {isClosed && (
         <>
-          <div className={sectionHeaderRowStyles}>
+          <div
+            className={css`
+              display: flex;
+              align-items: flex-start;
+              justify-content: space-between;
+              gap: 0.5rem;
+              margin-bottom: 0.75rem;
+            `}
+          >
             <DateTimeLocalField
               control={control}
               label={t("closed-at")}
@@ -93,7 +101,7 @@ const ClosedSectionFields = (): React.ReactElement => {
           />
         </>
       )}
-    </>
+    </div>
   )
 }
 

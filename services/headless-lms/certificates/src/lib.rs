@@ -213,7 +213,8 @@ fn generate_certificate_impl(
 ) -> UtilResult<Vec<u8>> {
     let start_setup = Instant::now();
     let opt = usvg::Options {
-        font_family: "Lato".to_string(),
+        // usvg's default fallback family; keep aligned with TextToRender::default.
+        font_family: "Inter Variable".to_string(),
         dpi: 600.0,
         image_rendering: usvg::ImageRendering::OptimizeQuality,
         shape_rendering: usvg::ShapeRendering::GeometricPrecision,
@@ -331,7 +332,8 @@ pub struct TextToRender {
 impl Default for TextToRender {
     fn default() -> Self {
         Self {
-            font_family: "Lato".to_string(),
+            // Default must fully cover the rendered scripts: usvg's fallback renders .notdef boxes (it breaks on a glyph-count mismatch) when the primary font lacks a glyph, even if a covering font is loaded. Inter Variable covers what we need.
+            font_family: "Inter Variable".to_string(),
             font_size: "150px".to_string(),
             text_color: "black".to_string(),
             x_pos: "50%".to_string(),

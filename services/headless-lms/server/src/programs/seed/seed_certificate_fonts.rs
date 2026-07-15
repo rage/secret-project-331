@@ -4,7 +4,7 @@ use models::certificate_fonts::NewCertificateFont;
 pub async fn seed_certificate_fonts(db_pool: PgPool) -> anyhow::Result<()> {
     let mut conn = db_pool.acquire().await?;
 
-    let file_upload_id = models::file_uploads::insert(
+    let lato_file_upload_id = models::file_uploads::insert(
         &mut conn,
         "Lato Regular",
         "fonts/lato-regular.ttf",
@@ -12,12 +12,28 @@ pub async fn seed_certificate_fonts(db_pool: PgPool) -> anyhow::Result<()> {
         None,
     )
     .await?;
-    let font = NewCertificateFont {
+    let lato = NewCertificateFont {
         file_path: "fonts/lato-regular.ttf".to_string(),
-        file_upload_id,
+        file_upload_id: lato_file_upload_id,
         display_name: "Lato Regular".to_string(),
     };
-    models::certificate_fonts::insert(&mut conn, &font).await?;
+    models::certificate_fonts::insert(&mut conn, &lato).await?;
+
+    // Default certificate font
+    let inter_file_upload_id = models::file_uploads::insert(
+        &mut conn,
+        "Inter Variable",
+        "fonts/inter-variable.ttf",
+        "application/octet-stream",
+        None,
+    )
+    .await?;
+    let inter = NewCertificateFont {
+        file_path: "fonts/inter-variable.ttf".to_string(),
+        file_upload_id: inter_file_upload_id,
+        display_name: "Inter Variable".to_string(),
+    };
+    models::certificate_fonts::insert(&mut conn, &inter).await?;
 
     Ok(())
 }

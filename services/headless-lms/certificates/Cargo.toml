@@ -44,9 +44,7 @@ futures = "0.3.32"
 icu_provider_blob = "2.2.0"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
-
-[dev-dependencies]
-# Font parsing — used in tests to assert glyph coverage of the default certificate font.
+# Font parsing — used to check which font covers a given string when resolving fonts per text.
 ttf-parser = "0.25.1"
 
 [lints.clippy]

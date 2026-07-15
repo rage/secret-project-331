@@ -30,7 +30,11 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, set
   if (state.view_type === "answer-exercise") {
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID} data-view-type="answer-exercise">
-        <AnswerExercise port={port} state={state.public_spec} />
+        <AnswerExercise
+          port={port}
+          state={state.public_spec}
+          previousSubmission={state.previous_submission}
+        />
       </div>
     )
   } else if (state.view_type === "view-submission") {

@@ -31,12 +31,20 @@ test("exercise-editor emits the private spec as current-state", async ({ page })
   )
   await host.waitForViewType("exercise-editor")
 
+  // The editor persists the versioned envelope `{ version, alternatives }` (reference/07 #1); a
+  // legacy bare array pushed in via set-state is migrated on read and re-emitted in this shape.
   const state = await host.waitForCurrentState((message) =>
-    Array.isArray((message.data as { private_spec?: unknown }).private_spec),
+    Array.isArray(
+      (message.data as { private_spec?: { alternatives?: unknown } }).private_spec?.alternatives,
+    ),
   )
-  const privateSpec = (state.data as { private_spec: Array<{ name: string; correct: boolean }> })
-    .private_spec
-  expect(privateSpec[0]).toMatchObject({ name: "Helsinki", correct: true })
+  const privateSpec = (
+    state.data as {
+      private_spec: { version: string; alternatives: Array<Record<string, unknown>> }
+    }
+  ).private_spec
+  expect(privateSpec.version).toBe("1")
+  expect(privateSpec.alternatives[0]).toMatchObject({ name: "Helsinki", correct: true })
 })
 
 test("answer-exercise reports the selected option as current-state", async ({ page }) => {

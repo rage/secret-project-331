@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/styles/theme"
 import { ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
@@ -18,6 +19,7 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
   interactable,
   model_solutions,
 }) => {
+  const { t } = useTranslation()
   return (
     <div
       className={css`
@@ -25,7 +27,7 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
         flex-direction: column;
       `}
     >
-      {alternatives.map((option) => {
+      {alternatives.map((option, index) => {
         let correct = false
         if (model_solutions) {
           correct = model_solutions.correctOptionIds.includes(option.id)
@@ -77,7 +79,9 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
             onClick={() => onClick(option.id, option.name)}
             key={option.id}
           >
-            {option.name}
+            {/* The button's accessible name is its text; fall back to a localized label so a
+                draft option with no name is never announced as an empty/unnamed control. */}
+            {option.name || t("option-n", { n: index + 1 })}
           </button>
         )
       })}

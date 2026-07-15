@@ -5,7 +5,7 @@ import {
   parseItemsRequest,
   parseSpecArrayStrict,
 } from "@/server/csvExportUtils"
-import { isAlternative } from "@/util/stateInterfaces"
+import { alternativesFromStored, isAlternative } from "@/util/stateInterfaces"
 
 interface CsvExportDefinitionsRequestItem {
   private_spec: unknown
@@ -27,7 +27,8 @@ export const handleExportDefinitions = jsonRoute(async (request) => {
     columns: COLUMNS,
     results: parsed.items.map((item) => {
       const privateSpec = parseSpecArrayStrict(
-        item.private_spec,
+        // migrate-on-read: unwrap the versioned envelope (if present) before strict validation.
+        alternativesFromStored(item.private_spec),
         isAlternative,
         "Invalid private_spec: expected an array of alternatives",
       )

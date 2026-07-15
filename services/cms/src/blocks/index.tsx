@@ -2,6 +2,8 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
 import Aside from "./Aside"
 import AsideWithImage from "./AsideWithImage"
 import Author from "./Author"
@@ -48,8 +50,6 @@ import TableBox from "./TableBox"
 import TerminologyBlock from "./Terminology"
 import TopLevelPage from "./TopLevelPage"
 import UnsupportedBlock from "./UnsupportedBlock"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 /**
  * List of custom blocks to be passed on to Gutenberg.
@@ -134,4 +134,4 @@ export const blockTypeMapForTopLevelPages = [
 export const blockTypeMapForResearchConsentForm = [
   ["moocfi/research-consent-question", ResearchFormQuestion],
   // oxlint-disable-next-line typescript/no-explicit-any
-] as [string, BlockConfiguration<Record<string, any>>][]
+] as unknown as [string, BlockConfiguration<Record<string, any>>][]

@@ -1,14 +1,13 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServiceOutputState"
+
 import type { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import ParsedTextField from "../common/ParsedTextField"
-
 import TableContent from "./TableContent"
-
-import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServiceOutputState"
 
 interface MatrixEditorProps {
   quizItemId: string

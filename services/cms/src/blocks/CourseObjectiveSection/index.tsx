@@ -2,12 +2,11 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import CourseObjectiveSectionEditor from "./CourseObjectiveSectionEditor"
 import CourseObjectiveSectionSave from "./CourseObjectiveSectionSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface CourseObjectiveSectionAttributes {
   title: string

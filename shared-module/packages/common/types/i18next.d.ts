@@ -1,5 +1,4 @@
 import "i18next"
-
 import type sharedModule from "../src/locales/en/shared-module.json"
 
 declare module "i18next" {

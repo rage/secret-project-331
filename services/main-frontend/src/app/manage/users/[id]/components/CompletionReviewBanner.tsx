@@ -5,10 +5,10 @@ import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { awaitingReviewCount } from "../lib/completions"
-
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import { awaitingReviewCount } from "../lib/completions"
 
 export interface CompletionReviewBannerProps {
   enrollments: CourseEnrollmentInfo[]

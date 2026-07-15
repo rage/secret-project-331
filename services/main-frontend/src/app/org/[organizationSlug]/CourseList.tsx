@@ -4,9 +4,6 @@ import { css } from "@emotion/css"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseCard, { CourseGrid } from "./CourseCard"
-import NewCourseDialog from "./NewCourseDialog"
-
 import { useOrganizationCourseCount } from "@/hooks/useOrganizationCourseCount"
 import { useOrganizationCourses } from "@/hooks/useOrganizationCourses"
 import Button from "@/shared-module/common/components/Button"
@@ -16,6 +13,9 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResults } from "@/shared-module/components"
+
+import CourseCard, { CourseGrid } from "./CourseCard"
+import NewCourseDialog from "./NewCourseDialog"
 
 interface Props {
   organizationId: string

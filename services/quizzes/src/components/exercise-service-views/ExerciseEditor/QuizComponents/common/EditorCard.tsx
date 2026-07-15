@@ -3,13 +3,13 @@ import styled from "@emotion/styled"
 import { ArrowDownCircle, ArrowUpCircle, Trash } from "@vectopus/atlas-icons-react"
 import React from "react"
 
+import Button from "@/shared-module/common/components/Button"
+
 import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
 } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-
-import Button from "@/shared-module/common/components/Button"
 
 interface EditorCardProps {
   title: string
@@ -91,8 +91,9 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
                 const currentOrder = currentItem.order
                 let nextOrder = 0
                 while (i < orders.length) {
-                  if (orders[i] < currentItem.order) {
-                    nextOrder = orders[i]
+                  const order = orders[i]
+                  if (order !== undefined && order < currentItem.order) {
+                    nextOrder = order
                     break
                   }
                   i++
@@ -156,8 +157,9 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
                 const currentOrder = currentItem.order
                 let nextOrder = 0
                 while (i < orders.length) {
-                  if (orders[i] > currentItem.order) {
-                    nextOrder = orders[i]
+                  const order = orders[i]
+                  if (order !== undefined && order > currentItem.order) {
+                    nextOrder = order
                     break
                   }
                   i++
@@ -224,7 +226,11 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
 function removeDuplicateOrderNumbers(items: PrivateSpecQuizItem[]) {
   const sorted = items.toSorted((a, b) => a.order - b.order)
   for (let i = 0; i < sorted.length; i++) {
-    sorted[i].order = i
+    const item = sorted[i]
+    if (item === undefined) {
+      continue
+    }
+    item.order = i
   }
 }
 

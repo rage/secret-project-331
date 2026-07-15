@@ -6,11 +6,6 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { CertificateFields } from "./CertificateForm"
-import CertificateForm from "./CertificateForm"
-import CertificateView from "./CertificateView"
-import { createCertificateConfigurationFormData } from "./certificateConfigurationFormData"
-
 import {
   getCourseInstanceDefaultCertificateConfigurationsOptions,
   getCourseInstanceOptions,
@@ -24,9 +19,9 @@ import {
 } from "@/generated/api/sdk.generated"
 import type { UpdateCertificateConfigurationData } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -34,6 +29,11 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+
+import { createCertificateConfigurationFormData } from "./certificateConfigurationFormData"
+import type { CertificateFields } from "./CertificateForm"
+import CertificateForm from "./CertificateForm"
+import CertificateView from "./CertificateView"
 
 interface UpdateMutationArgs {
   courseModuleId: string

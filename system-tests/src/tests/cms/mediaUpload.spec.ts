@@ -6,9 +6,9 @@ import type {
 } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.describe("Uploading media as admin", () => {
   // As Admin

@@ -7,20 +7,21 @@ import { useRouter } from "next/navigation"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import OneTimeCodeForm from "./OneTimeCodeForm"
-import VerifyPasswordForm from "./VerifyPasswordForm"
-
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import {
   postAuthDeleteUserAccount,
   postAuthSendEmailCode,
 } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import "@/shared-module/common/init/registerAuthApiClients"
 import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
+
+import OneTimeCodeForm from "./OneTimeCodeForm"
+import "@/shared-module/common/init/registerAuthApiClients"
+
+import VerifyPasswordForm from "./VerifyPasswordForm"
 
 interface DeleteUserAccountProps {
   email: string

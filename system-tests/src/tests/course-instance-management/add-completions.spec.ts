@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test"
 
-import { downloadToString } from "../../utils/download"
-
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { downloadToString } from "../../utils/download"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

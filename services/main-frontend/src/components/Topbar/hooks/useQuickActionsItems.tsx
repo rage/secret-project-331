@@ -5,23 +5,26 @@ import type { ReactElement } from "react"
 import { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { DropdownMenuItem } from "../../DropdownMenu"
-
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { editPageRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
 import { currentCourseIdAtom, currentPageIdAtom } from "@/state/course-material/selectors"
 
+import type { DropdownMenuItem } from "../../DropdownMenu"
+
 export interface UseQuickActionsItemsProps {
-  menuOptions?: {
-    type: "link" | "action" | "separator"
-    label?: string
-    href?: string
-    onAction?: () => void
-    icon?: ReactElement
-    isDestructive?: boolean
-  }[]
-  courseId?: string | null
+  menuOptions?:
+    | {
+        type: "link" | "action" | "separator"
+        label?: string
+        href?: string
+        onAction?: () => void
+        icon?: ReactElement
+        isDestructive?: boolean
+      }[]
+    | undefined
+  courseId?: string | null | undefined
   onMenuClose?: () => void
   onCourseSettingsOpen?: () => void
 }
@@ -139,16 +142,14 @@ export function useQuickActionsItems({
         // oxlint-disable-next-line i18next/no-literal-string
         id: `quick-${item.href || item.label || idx}`,
         type: item.type,
-        label: item.label,
-        href: item.href,
-        onAction: item.onAction
-          ? () => {
-              item.onAction?.()
-              onMenuClose?.()
-            }
-          : undefined,
-        icon: item.icon,
-        isDestructive: item.isDestructive,
+        ...omitUndefined({ label: item.label, href: item.href }),
+        ...includeIf(item.onAction, {
+          onAction: () => {
+            item.onAction?.()
+            onMenuClose?.()
+          },
+        }),
+        ...omitUndefined({ icon: item.icon, isDestructive: item.isDestructive }),
       }
     })
   }, [quickActions, onMenuClose])

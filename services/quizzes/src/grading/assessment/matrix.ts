@@ -20,7 +20,8 @@ const assessMatrixQuiz = (
   const isMatrixCorrect: boolean[] = []
   for (let i = 0; i < 6; i++) {
     for (let j = 0; j < 6; j++) {
-      isMatrixCorrect.push(correctAnswer[i][j] === userAnswer[i][j])
+      // safe: matrices are fixed 6x6 grids, so indices 0..5 are always present
+      isMatrixCorrect.push(correctAnswer[i]?.[j] === userAnswer[i]?.[j])
     }
   }
 

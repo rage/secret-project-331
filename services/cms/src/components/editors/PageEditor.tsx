@@ -1,12 +1,32 @@
 "use client"
 
-/* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import type { UseMutationResult } from "@tanstack/react-query"
 import { useQuery } from "@tanstack/react-query"
 import { isEqual } from "lodash"
 import { useRouter } from "next/router"
 import React, { useMemo, useReducer, useState } from "react"
+
+import type { CmsPageUpdate, ContentManagementPage, Page } from "@/generated/api"
+import {
+  getCmsCourseOptions,
+  getCmsPageNavigationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import Button from "@/shared-module/common/components/Button"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import DebugModal from "@/shared-module/common/components/DebugModal"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+/* oxlint-disable i18next/no-literal-string */
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+import { pageRoute } from "@/shared-module/common/utils/routes"
+import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import {
   blockTypeMapForFrontPages,
@@ -17,34 +37,14 @@ import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supporte
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import usePageInfo from "../../hooks/usePageInfo"
 import mediaUploadBuilder from "../../services/mediaUpload"
+import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
 import { modifyBlocks, removeUncommonSpacesFromBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
-import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
 import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../utils/peerOrSelfReviewConfig"
 import { coursePageRoute } from "../../utils/routing"
 import CmsPageTitle from "../CmsPageTitle"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
-
 import HeadingHierarchyButton from "./HeadingHierarchyButton"
-
-import type { CmsPageUpdate, ContentManagementPage, Page } from "@/generated/api"
-import {
-  getCmsCourseOptions,
-  getCmsPageNavigationOptions,
-} from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
-import { pageRoute } from "@/shared-module/common/utils/routes"
-import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
-import type { BlockInstance } from "@/utils/Gutenberg/types"
-import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface PageEditorProps {
   data: Page
@@ -103,7 +103,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const { confirm } = useDialog()
   const { t } = useTranslation()
   const router = useRouter()
-  const prefix = router.asPath ? router.asPath.split("/")[1] : ""
+  const prefix = router.asPath ? (router.asPath.split("/")[1] ?? "") : ""
   const pageInfo = usePageInfo(data.id, prefix)
   const [title, setTitle] = useState(data.title)
   const savedTitle = data.title
@@ -152,7 +152,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             exercise_tasks: saveResult.exercise_tasks,
             url_path: saveResult.page.url_path,
             title: saveResult.page.title,
-            chapter_id: saveResult.page.chapter_id,
+            ...omitUndefined({ chapter_id: saveResult.page.chapter_id }),
             hidden: saveResult.page.hidden,
           }).content,
         })

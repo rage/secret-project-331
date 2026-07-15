@@ -6,15 +6,6 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ActivityTimeline from "./components/ActivityTimeline"
-import CompletionReviewBanner from "./components/CompletionReviewBanner"
-import CompletionReviewSection from "./components/CompletionReviewSection"
-import CourseEnrollmentsSection from "./components/CourseEnrollmentsSection"
-import ExerciseResetLogSection from "./components/ExerciseResetLogSection"
-import UserIdentityHeader from "./components/UserIdentityHeader"
-import UserStatBar from "./components/UserStatBar"
-import { sectionHeadingCss } from "./lib/sectionHeading"
-
 import { getUserCourseEnrollmentsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
   extractUserDetail,
@@ -28,6 +19,15 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResults } from "@/shared-module/components"
+
+import ActivityTimeline from "./components/ActivityTimeline"
+import CompletionReviewBanner from "./components/CompletionReviewBanner"
+import CompletionReviewSection from "./components/CompletionReviewSection"
+import CourseEnrollmentsSection from "./components/CourseEnrollmentsSection"
+import ExerciseResetLogSection from "./components/ExerciseResetLogSection"
+import UserIdentityHeader from "./components/UserIdentityHeader"
+import UserStatBar from "./components/UserStatBar"
+import { sectionHeadingCss } from "./lib/sectionHeading"
 
 const COMPLETION_REVIEW_ID = "completion-review"
 

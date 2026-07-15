@@ -14,13 +14,14 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { PlaygroundExample } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { QueryResult } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 
@@ -220,7 +221,7 @@ const Home: React.FC = () => {
           placeholder={invalidUrl ? t("invalid-url") : t("label-url")}
           label={t("label-url")}
           onChangeByValue={(value) => handleUrlChange(value)}
-          error={invalidUrl ? t("invalid-url") : undefined}
+          {...includeIf(invalidUrl, { error: t("invalid-url") })}
           className={css`
             margin-bottom: 1rem !important;
           `}

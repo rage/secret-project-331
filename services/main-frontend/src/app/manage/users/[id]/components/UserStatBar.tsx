@@ -4,11 +4,12 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
+import { includeIf } from "@/shared-module/common/utils/nullability"
+import { StatTile } from "@/shared-module/components"
+
 import { awaitingReviewCount, completedModuleCount } from "../lib/completions"
 import { TONE } from "../lib/displayConstants"
-
-import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
-import { StatTile } from "@/shared-module/components"
 
 export interface UserStatBarProps {
   enrollments: CourseEnrollmentInfo[]
@@ -39,7 +40,7 @@ const UserStatBar: React.FC<UserStatBarProps> = ({ enrollments, reviewTargetId }
         label={t("stat-awaiting-review")}
         value={awaitingReview}
         tone={awaitingReview > 0 ? TONE.ALERT : TONE.NEUTRAL}
-        href={awaitingReview > 0 ? `#${reviewTargetId}` : undefined}
+        {...includeIf(awaitingReview > 0, { href: `#${reviewTargetId}` })}
       />
     </div>
   )

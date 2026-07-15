@@ -3,9 +3,9 @@
 import { renderToString } from "katex"
 
 import "katex/dist/katex.min.css"
-import type { BlockRendererProps } from ".."
-
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
 
 export interface TextAttributes {
   text: string

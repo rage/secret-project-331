@@ -3,12 +3,11 @@
 import { useParams } from "next/navigation"
 import React from "react"
 
-import ExamPageShell from "../../ExamPageShell"
-
-import TestExamTeacherTools from "./TestExamTeacherTools"
-
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import ExamPageShell from "../../ExamPageShell"
+import TestExamTeacherTools from "./TestExamTeacherTools"
 
 const Exam: React.FC = () => {
   const params = useParams<{ organizationSlug: string; id: string }>()

@@ -13,8 +13,8 @@ import {
   getCourseMaterialModuleIdByChapterId,
 } from "@/generated/course-material-api/sdk.generated"
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {

@@ -22,7 +22,7 @@ interface RunOutputContentProps {
   stdinPrompt?: string
   /** Ordered stdout + input segments (so input prompt + submitted line stay visible after run) */
   segments?: OutputSegment[]
-  submitStdinLine?: (line: string) => void
+  submitStdinLine?: ((line: string) => void) | undefined
 }
 
 /** Merge consecutive stdout segments into one for a single pre block */

@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises"
+
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { handleExtractStub } from "./extractStub"
@@ -47,6 +48,7 @@ describe("POST /api/extract-stub", () => {
     expect(res.status).toBe(200)
     const body = (await res.json()) as { files: { filepath: string; contents: string }[] }
     expect(body.files).toHaveLength(1)
-    expect(body.files[0].contents).toBe("hello!\n")
+    // safe: toHaveLength(1) asserted above
+    expect(body.files[0]!.contents).toBe("hello!\n")
   })
 })

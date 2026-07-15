@@ -5,11 +5,6 @@ import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import React, { useContext, useState } from "react"
 
-import PageContext from "../../contexts/PageContext"
-import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-import type { ConditionAttributes } from "."
-
 import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
 import {
   getCmsCourseInstancesOptions,
@@ -19,6 +14,10 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ConditionAttributes } from "."
+import PageContext from "../../contexts/PageContext"
+import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/heading",

@@ -1,13 +1,12 @@
 import styled from "@emotion/styled"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
 import type { QuizItemComponentProps } from ".."
 import type { UserItemAnswerMatrix } from "../../../../../../types/quizTypes/answer"
 import type { PublicSpecQuizItemMatrix } from "../../../../../../types/quizTypes/publicSpec"
-
 import MatrixCell from "./MatrixCell"
-
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const MatrixTableContainer = styled.table`
   margin: auto;
@@ -65,10 +64,11 @@ const Matrix: React.FunctionComponent<
     const sizeOfTheMatrix = [0, 0]
     for (let i = 0; i < 6; i++) {
       for (let j = 0; j < 6; j++) {
-        if (matrix[i][j] !== "" && sizeOfTheMatrix[0] < i) {
+        // safe: matrix is a fixed 6x6 grid, so indices 0..5 are always present
+        if (matrix[i]?.[j] !== "" && (sizeOfTheMatrix[0] ?? Number.NaN) < i) {
           sizeOfTheMatrix[0] = i
         }
-        if (matrix[i][j] !== "" && sizeOfTheMatrix[1] < j) {
+        if (matrix[i]?.[j] !== "" && (sizeOfTheMatrix[1] ?? Number.NaN) < j) {
           sizeOfTheMatrix[1] = j
         }
       }
@@ -98,9 +98,10 @@ const Matrix: React.FunctionComponent<
       newOptionCells = quizItemAnswerState?.matrix
     }
     let isValid = null
-    for (let i = 0; i <= tempMatrixActiveSize[0]; i++) {
-      for (let j = 0; j <= tempMatrixActiveSize[1]; j++) {
-        if (newOptionCells[i][j] === "") {
+    for (let i = 0; i <= (tempMatrixActiveSize[0] ?? Number.NaN); i++) {
+      for (let j = 0; j <= (tempMatrixActiveSize[1] ?? Number.NaN); j++) {
+        // safe: newOptionCells is a fixed 6x6 grid, so indices 0..5 are always present
+        if (newOptionCells[i]?.[j] === "") {
           isValid = false
         }
       }
@@ -126,7 +127,7 @@ const Matrix: React.FunctionComponent<
   }
 
   const findOptionText = (column: number, row: number): string => {
-    return matrixVariable[row][column]
+    return matrixVariable[row]?.[column] ?? ""
   }
 
   const tempArray = [0, 1, 2, 3, 4, 5]

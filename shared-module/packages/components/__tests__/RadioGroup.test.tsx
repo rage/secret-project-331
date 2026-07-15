@@ -5,7 +5,6 @@ import type React from "react"
 
 import { Radio } from "../src/components/Radio"
 import { RadioGroup } from "../src/components/RadioGroup"
-
 import { pressArrowDown, renderWithForm } from "./testUtils"
 
 describe("RadioGroup", () => {

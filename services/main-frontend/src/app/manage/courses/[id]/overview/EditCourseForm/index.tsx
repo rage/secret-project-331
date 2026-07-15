@@ -6,18 +6,19 @@ import React, { useEffect } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import AiPolicyFields from "./AiPolicyFields"
-import ClosedSectionFields from "./ClosedSectionFields"
-
 import { updateCourse } from "@/generated/api/sdk.generated"
 import type { Course, UpdateCourseData } from "@/generated/api/types.generated"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+
+import AiPolicyFields from "./AiPolicyFields"
+import ClosedSectionFields from "./ClosedSectionFields"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -91,7 +92,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
       await updateCourse({
         body: {
           name: data.name,
-          description: data.description,
+          ...omitUndefined({ description: data.description }),
           is_draft: data.is_draft,
           is_test_mode: data.is_test_mode,
           is_unlisted: unlisted,
@@ -110,7 +111,9 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
           closed_additional_message: data.closed_additional_message || null,
           closed_course_successor_id: data.closed_course_successor_id || null,
           ai_policy: data.ai_policy,
-          course_material_ai_instructions: data.course_material_ai_instructions,
+          ...omitUndefined({
+            course_material_ai_instructions: data.course_material_ai_instructions,
+          }),
         },
         path: {
           course_id: course.id,
@@ -146,7 +149,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
             <TextField
               required
               label={t("text-field-label-name")}
-              error={errors.name?.message}
+              {...includeIf(errors.name?.message, { error: errors.name?.message })}
               {...register("name", { required: t("required-field") })}
             />
           </FieldContainer>
@@ -197,7 +200,9 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
               min={0}
               step={1}
               label={t("label-threshold-to-move-flagged-answer-to-manual-review")}
-              error={errors.flagged_answers_threshold?.message}
+              {...includeIf(errors.flagged_answers_threshold?.message, {
+                error: errors.flagged_answers_threshold?.message,
+              })}
               {...register("flagged_answers_threshold", {
                 valueAsNumber: true,
                 min: { value: 0, message: t("threshold-must-be-non-negative") },

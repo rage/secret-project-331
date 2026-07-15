@@ -139,7 +139,7 @@ const CourseObjective: React.FC<React.PropsWithChildren<CardProps>> = ({ title, 
                 </Objective>
               ) : (
                 <Objective key={item.clientId} index={index}>
-                  {innerBlocks && isBlockHeading(firstInnerBlock) && (
+                  {firstInnerBlock && isBlockHeading(firstInnerBlock) && (
                     <h3
                       className={css`
                         font-size: 18px !important;

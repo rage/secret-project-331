@@ -14,15 +14,16 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateMetadata } from "@/generated/api/sdk.generated"
 import type { Course, CourseMetadataUpdate } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 // import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
+import { undefinedToNull } from "@/shared-module/common/utils/nullability"
 import { QueryResult, TextArea, TextField } from "@/shared-module/components"
 import { Button, Checkbox } from "@/shared-module/components/"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
-import Spinner from "@/shared-module/common/components/Spinner"
 
 const FieldSet = styled.fieldset`
   margin-bottom: 1rem;
@@ -134,12 +135,16 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
           audience,
         })),
       )
-      setValue(
-        "course_prerequisites",
-        sisuQuery.data.modules[0].prerequisites.map((prerequisite) => ({
-          prerequisite,
-        })),
-      )
+      if (sisuQuery.data.modules[0] === undefined) {
+        console.log("WHAT THE HELLY")
+      } else {
+        setValue(
+          "course_prerequisites",
+          sisuQuery.data.modules[0].prerequisites.map((prerequisite) => ({
+            prerequisite,
+          })),
+        )
+      }
     }
   }, [sisuQuery.data, setValue])
 
@@ -178,9 +183,9 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
 
   const onSubmit = handleSubmit((data) => {
     updateCourseMetadataMutation.mutate({
-      course_description: data.useSuggestedDescription
-        ? data.course_description
-        : course.description,
+      course_description: undefinedToNull(
+        data.useSuggestedDescription ? data.course_description : course.description,
+      ),
       course_prerequisites: data.useSuggestedPrerequisites
         ? data.course_prerequisites
         : (prerequisitesQuery.data ?? []),

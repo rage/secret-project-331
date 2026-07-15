@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test"
 
-import { ensureRedirectServer } from "./redirectServer"
-
 import { hideToasts } from "@/utils/notificationUtils"
+
+import { ensureRedirectServer } from "./redirectServer"
 
 async function submitConsentIfVisible(page: Page): Promise<void> {
   const consentDialog = page.getByTestId("research-consent-dialog")

@@ -4,14 +4,14 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import ParsedText from "./ParsedText"
-
 import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import { respondToOrLarger } from "@/shared-module/common//styles/respond"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
 import { escapeUrlForCss } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+
+import ParsedText from "./ParsedText"
 
 interface TextBoxProps {
   fontColor?: string

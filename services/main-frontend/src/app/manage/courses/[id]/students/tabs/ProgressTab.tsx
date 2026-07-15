@@ -6,13 +6,13 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FloatingHeaderTable } from "../FloatingHeaderTable"
-
 import { getCourseStudentsProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { QueryResult } from "@/shared-module/components"
 import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 import { getTeacherChapterLockLabel } from "@/utils/chapterLockingStatus"
+
+import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
@@ -140,10 +140,8 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
     }
     const lockStatusByUserChapter: Record<string, Record<string, TeacherChapterLockStatus>> = {}
     for (const lockStatus of chapterLockStatuses) {
-      if (!lockStatusByUserChapter[lockStatus.user_id]) {
-        lockStatusByUserChapter[lockStatus.user_id] = {}
-      }
-      lockStatusByUserChapter[lockStatus.user_id][lockStatus.chapter_id] = lockStatus.status
+      const userMap = (lockStatusByUserChapter[lockStatus.user_id] ??= {})
+      userMap[lockStatus.chapter_id] = lockStatus.status
     }
 
     // --- totals from same source

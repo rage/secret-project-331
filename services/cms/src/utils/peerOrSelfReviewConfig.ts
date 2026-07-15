@@ -1,6 +1,6 @@
-import { isBlockInstanceArray } from "./Gutenberg/blockInstance"
-
 import type { CmsPeerOrSelfReviewConfig } from "@/generated/api"
+
+import { isBlockInstanceArray } from "./Gutenberg/blockInstance"
 
 export function makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray(
   config: CmsPeerOrSelfReviewConfig,

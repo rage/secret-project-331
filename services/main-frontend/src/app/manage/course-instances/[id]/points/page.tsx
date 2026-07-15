@@ -7,8 +7,6 @@ import { useParams } from "next/navigation"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChapterPointsDashboard from "../ChapterPointsDashboard"
-
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
@@ -25,6 +23,8 @@ import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import ChapterPointsDashboard from "../ChapterPointsDashboard"
 
 interface ProcessedUser {
   user: UserDetail
@@ -79,7 +79,7 @@ const CourseInstancePointsList: React.FC = () => {
     } else if (sorting === EMAIL) {
       return first.user.email.localeCompare(second.user.email)
     }
-    return second.chapterPoints[sorting] - first.chapterPoints[sorting]
+    return (second.chapterPoints[sorting] ?? 0) - (first.chapterPoints[sorting] ?? 0)
   }
 
   const getPointsList = useQuery({
@@ -122,7 +122,7 @@ const CourseInstancePointsList: React.FC = () => {
 
           const courseId =
             courseInstanceQuery.data?.course_id ??
-            (data.chapter_points.length > 0 ? data.chapter_points[0].course_id : undefined)
+            (data.chapter_points.length > 0 ? data.chapter_points[0]?.course_id : undefined)
 
           return (
             <>

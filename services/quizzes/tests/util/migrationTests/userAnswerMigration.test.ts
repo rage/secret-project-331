@@ -15,7 +15,6 @@ import type {
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
-
 import { compareUserItemAnswer } from "./utils/comparison"
 import {
   generateCheckboxForOlderPrivateSpecQuiz,
@@ -57,7 +56,7 @@ describe("User answer", () => {
     const matrixAnswer = generateUserAnswerForMultipleChoice(multipleChoiceQuizItem.id)
     const userAnswer = packUserAnswers([matrixAnswer])
     const migratedUserAnswer: UserItemAnswer = migrateQuizAnswer(userAnswer, newQuiz)!
-      .itemAnswers[0]
+      .itemAnswers[0]! // safe: single answer packed above
     expect(migratedUserAnswer.type).toBe("multiple-choice")
     compareUserItemAnswer(matrixAnswer, migratedUserAnswer)
   })
@@ -73,7 +72,7 @@ describe("User answer", () => {
     const userAnswer = packUserAnswers([checkboxAnswer])
 
     const migratedUserAnswer: UserItemAnswer = migrateQuizAnswer(userAnswer, newQuiz)!
-      .itemAnswers[0]
+      .itemAnswers[0]! // safe: single answer packed above
     expect(migratedUserAnswer.type).toBe("checkbox")
     // Checked field is boolean where as intData is a number.
     // The field tested manually here
@@ -94,7 +93,7 @@ describe("User answer", () => {
     const essayAnswer = generateUserAnswerForEssay(newQuizItem.id)
     const userAnswer = packUserAnswers([essayAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]! // safe: single answer packed above
     expect(migratedUserAnswer.type).toBe("essay")
     compareUserItemAnswer(essayAnswer, migratedUserAnswer)
   })
@@ -109,7 +108,7 @@ describe("User answer", () => {
     const matrixAnswer = generateUserAnswerForMatrix(newQuizItem.id)
     const userAnswer = packUserAnswers([matrixAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]! // safe: single answer packed above
     expect(migratedUserAnswer.type).toBe("matrix")
     compareUserItemAnswer(matrixAnswer, migratedUserAnswer)
   })
@@ -125,7 +124,7 @@ describe("User answer", () => {
     const closedEndedAnswer = generateUserAnswerForClosedEnded(newQuizItem.id)
     const userAnswer = packUserAnswers([closedEndedAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]! // safe: single answer packed above
     expect(migratedUserAnswer.type).toBe("closed-ended-question")
     compareUserItemAnswer(closedEndedAnswer, migratedUserAnswer)
   })
@@ -140,7 +139,7 @@ describe("User answer", () => {
     const scaleAnswer = generateUserAnswerForScale(newQuizItem.id)
     const userAnswer = packUserAnswers([scaleAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]! // safe: single answer packed above
     expect(migratedUserAnswer.type).toBe("scale")
     // int data and option answers are both used
     if (scaleAnswer.intData) {
@@ -148,7 +147,7 @@ describe("User answer", () => {
     } else {
       if (scaleAnswer.optionAnswers) {
         // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-        expect(Number.parseInt(scaleAnswer.optionAnswers[0], 10)).toEqual(
+        expect(Number.parseInt(scaleAnswer.optionAnswers[0]!, 10)).toEqual(
           (migratedUserAnswer as UserItemAnswerScale).intData,
         )
       }
@@ -167,7 +166,7 @@ describe("User answer", () => {
     const timelineAnswer = generateUserAnswerForTimeline(newQuizItem.id)
     const userAnswer = packUserAnswers([timelineAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]! // safe: single answer packed above
     expect(migratedUserAnswer.type).toBe("timeline")
     compareUserItemAnswer(timelineAnswer, migratedUserAnswer)
   })
@@ -182,7 +181,7 @@ describe("User answer", () => {
     const ChooseNAnswer = generateUserAnswerForChooseN(newQuizItem.id)
     const userAnswer = packUserAnswers([ChooseNAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]! // safe: single answer packed above
     expect(migratedUserAnswer.type).toBe("choose-n")
     compareUserItemAnswer(ChooseNAnswer, migratedUserAnswer)
   })

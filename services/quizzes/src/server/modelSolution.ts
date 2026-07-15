@@ -1,11 +1,11 @@
-import type { OldQuiz } from "../../types/oldQuizTypes"
-import type { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
-import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../types/quizTypes/privateSpec"
-
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { isOldQuiz } from "@/util/migration/migrationSettings"
 import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz"
 import { isSpecRequest } from "@/utils/exerciseServiceApi"
+
+import type { OldQuiz } from "../../types/oldQuizTypes"
+import type { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
+import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../types/quizTypes/privateSpec"
 
 const SERVICE = "quizzes"
 

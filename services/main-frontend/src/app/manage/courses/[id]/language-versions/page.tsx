@@ -2,10 +2,10 @@
 
 import { useParams } from "next/navigation"
 
-import CourseLanguageVersions from "./CourseLanguageVersions"
-
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import CourseLanguageVersions from "./CourseLanguageVersions"
 
 function LanguageVersionsPage() {
   const params = useParams<{ id: string }>()

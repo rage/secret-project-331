@@ -1,11 +1,11 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.describe("anonymous user", () => {
   test("cannot see draft course", async ({ page }) => {

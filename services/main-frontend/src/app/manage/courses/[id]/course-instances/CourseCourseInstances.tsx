@@ -6,10 +6,6 @@ import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ModuleCompletionReprocessButton from "./ModuleCompletionReprocessButton"
-import NewCourseInstanceDialog from "./NewCourseInstanceDialog"
-import PointExportButton from "./PointExportButton"
-
 import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import useCourseInstancesQuery, { invalidateCourseInstances } from "@/hooks/useCourseInstancesQuery"
 import Button from "@/shared-module/common/components/Button"
@@ -23,6 +19,10 @@ import {
   viewCourseInstanceCompletionsPageRoute,
   viewCourseInstancePointsPageRoute,
 } from "@/utils/routing"
+
+import ModuleCompletionReprocessButton from "./ModuleCompletionReprocessButton"
+import NewCourseInstanceDialog from "./NewCourseInstanceDialog"
+import PointExportButton from "./PointExportButton"
 
 const containerStyles = css`
   max-width: 1200px;

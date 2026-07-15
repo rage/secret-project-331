@@ -5,8 +5,6 @@ import Link from "next/link"
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import PeerOrSelfReviewSubmissionSummaryAccordion from "./PeerOrSelfReviewSubmissionSummaryAccordion"
-
 import CustomPointsPopup from "@/app/manage/exercises/[id]/submissions/CustomPointsPopup"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
@@ -16,6 +14,8 @@ import HideTextInSystemTests from "@/shared-module/common/components/system-test
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
+
+import PeerOrSelfReviewSubmissionSummaryAccordion from "./PeerOrSelfReviewSubmissionSummaryAccordion"
 
 interface ExerciseAccordionProps {
   exerciseStatus: ExerciseStatusSummaryForUser

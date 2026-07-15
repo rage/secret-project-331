@@ -5,9 +5,6 @@ import { isEqual } from "lodash"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import useEventCallback from "./useEventCallback"
-import useMessageChannel from "./useMessageChannel"
-
 import type {
   DialogResponseMessage,
   ExtendedIframeState,
@@ -22,6 +19,9 @@ import {
   isOpenLinkMessage,
   isRequestIframeReloadMessage,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+
+import useEventCallback from "./useEventCallback"
+import useMessageChannel from "./useMessageChannel"
 
 // Inlined from shared-module's BreakFromCentered component: only this prop type is needed
 // here, and we don't want this package to depend on a generic layout component.
@@ -310,13 +310,23 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         if (dialogType === "confirm") {
           void dialog
             .confirm(dialogBody, dialogTitle, {
-              yesButtonLabel: confirmButtonLabel ?? undefined,
-              noButtonLabel: cancelButtonLabel ?? undefined,
+              ...(confirmButtonLabel !== null && confirmButtonLabel !== undefined
+                ? { yesButtonLabel: confirmButtonLabel }
+                : {}),
+              ...(cancelButtonLabel !== null && cancelButtonLabel !== undefined
+                ? { noButtonLabel: cancelButtonLabel }
+                : {}),
             })
             .then(respond)
         } else {
           void dialog
-            .alert(dialogBody, dialogTitle, { okButtonLabel: confirmButtonLabel ?? undefined })
+            .alert(
+              dialogBody,
+              dialogTitle,
+              confirmButtonLabel !== null && confirmButtonLabel !== undefined
+                ? { okButtonLabel: confirmButtonLabel }
+                : {},
+            )
             .then(() => respond(true))
         }
       } else if (isMessageFromIframe(data)) {

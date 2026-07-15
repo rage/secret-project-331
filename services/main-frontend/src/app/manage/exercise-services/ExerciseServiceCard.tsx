@@ -14,22 +14,23 @@ import { parseISO } from "date-fns"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ContentArea from "./ContentArea"
-
 import {
   deleteExerciseServiceMutation as deleteExerciseServiceMutationOptions,
   updateExerciseServiceMutation as updateExerciseServiceMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseService, ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validURL } from "@/shared-module/common/utils/validation"
 import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
 import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
+
+import ContentArea from "./ContentArea"
 
 interface ExerciseServiceCardProps {
   id: string
@@ -275,7 +276,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("public_url")}
             type={"text"}
-            error={!validURL(service.public_url) ? t("error-title") : undefined}
+            {...includeIf(!validURL(service.public_url), { error: t("error-title") })}
           />
           <ContentArea
             title={t("title-internal-url")}
@@ -284,7 +285,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("internal_url")}
             type={"text"}
-            error={!validURL(service.internal_url ?? "") ? t("error-title") : undefined}
+            {...includeIf(!validURL(service.internal_url ?? ""), { error: t("error-title") })}
           />
           <ContentArea
             title={t("title-reprocessing-submissions")}
@@ -293,7 +294,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
-            error={service.max_reprocessing_submissions_at_once < 0 ? t("error-title") : undefined}
+            {...includeIf(service.max_reprocessing_submissions_at_once < 0, {
+              error: t("error-title"),
+            })}
           />
         </div>
         <div

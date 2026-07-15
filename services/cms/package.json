@@ -6,9 +6,9 @@
     "build": "NODE_ENV=production next build",
     "dev": "next dev --turbopack",
     "export": "next export",
-    "list-gutenberg-block-names": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/listGutenbergBlockNames.ts",
+    "list-gutenberg-block-names": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\",\\\"verbatimModuleSyntax\\\":false}\" scripts/listGutenbergBlockNames.ts",
     "postinstall": "pnpm run -F '**' postinstall:clean-wp",
-    "postinstall:clean-wp": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/cleanWordpressModules.ts",
+    "postinstall:clean-wp": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\",\\\"verbatimModuleSyntax\\\":false}\" scripts/cleanWordpressModules.ts",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
   "dependencies": {

@@ -1,9 +1,8 @@
 import "@testing-library/jest-dom"
-
-import { renumberFilterCitations } from "../shared/MessageBubble"
-
 import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
 import { REMOVE_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
+
+import { renumberFilterCitations } from "../shared/MessageBubble"
 
 describe("MessageBubble", () => {
   describe("renumberFilterCitations", () => {

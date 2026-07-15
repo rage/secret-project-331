@@ -1,9 +1,9 @@
 import tar from "tar-stream"
 import { ZSTDDecoder } from "zstddec"
 
-import type { ExerciseFile } from "./stateInterfaces"
-
 import type { RepositoryExercise } from "@/util/exerciseServiceApi"
+
+import type { ExerciseFile } from "./stateInterfaces"
 
 export const buildArchiveName = (exercise: RepositoryExercise, identifier?: string): string => {
   if (identifier) {

@@ -12,14 +12,15 @@ export function capitalizeFirstLetter(string: string): string {
 export function normalizeIETFLanguageTag(tag: string): string {
   const subtags = tag.split(/[-_]/)
   if (subtags.length === 1) {
-    if (!/^[a-z]{2,3}$/i.test(subtags[0])) {
+    const primary = subtags[0] ?? ""
+    if (!/^[a-z]{2,3}$/i.test(primary)) {
       throw new Error("Language tag should be two to three letters (e.g., en, fi)")
     }
-    return subtags[0].toLowerCase()
+    return primary.toLowerCase()
   } else if (subtags.length === 2) {
-    return formatIETFLanguageTagWithRegion(subtags[0], undefined, subtags[1])
+    return formatIETFLanguageTagWithRegion(subtags[0] ?? "", undefined, subtags[1] ?? "")
   }
-  return formatIETFLanguageTagWithRegion(subtags[0], subtags[1], subtags[2])
+  return formatIETFLanguageTagWithRegion(subtags[0] ?? "", subtags[1] ?? "", subtags[2] ?? "")
 }
 
 type IETFLanguageTagSubtagSeparator = "-" | "_"

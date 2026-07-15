@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
 import { baseTheme } from "../../styles"
-
 import type { DropdownMenuItemType } from "./DropdownMenuItem"
 import DropdownMenuItem from "./DropdownMenuItem"
 

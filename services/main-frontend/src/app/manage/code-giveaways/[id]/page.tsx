@@ -6,9 +6,6 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CodeGiveawayCode from "./CodeGiveawayCode"
-import ImportCodesForm from "./ImportCodesForm"
-
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
   getCodeGiveawayByIdOptions,
@@ -18,6 +15,9 @@ import Button from "@/shared-module/common/components/Button"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { QueryResults } from "@/shared-module/components"
+
+import CodeGiveawayCode from "./CodeGiveawayCode"
+import ImportCodesForm from "./ImportCodesForm"
 
 const CodeGiveawayPage = () => {
   const { id } = useParams<{ id: string }>()

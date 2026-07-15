@@ -5,12 +5,6 @@ import { css } from "@emotion/css"
 import { InspectorControls, RichText } from "@wordpress/block-editor"
 import React, { useContext, useEffect } from "react"
 
-import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
-import PageContext from "../../contexts/PageContext"
-import BlockWrapper from "../BlockWrapper"
-
-import type { HeroSectionAttributes } from "."
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -19,6 +13,11 @@ import {
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "@/shared-module/common/utils/constants"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
+
+import type { HeroSectionAttributes } from "."
+import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
+import PageContext from "../../contexts/PageContext"
+import BlockWrapper from "../BlockWrapper"
 
 const HeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<HeroSectionAttributes>>
@@ -120,7 +119,7 @@ const HeroSectionEditor: React.FC<
             `}
             tagName="h2"
             value={title}
-            onChange={(value) => {
+            onChange={(value: string) => {
               setAttributes({ title: value })
             }}
             placeholder={"Hero section title..."}

@@ -5,9 +5,9 @@ import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
 
-import { shouldWarnAboutMissingParagraphWrapperInCustomHtml } from "./customHtmlParagraphWarning"
-
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { shouldWarnAboutMissingParagraphWrapperInCustomHtml } from "./customHtmlParagraphWarning"
 
 interface CustomHtmlBlockProps {
   name: string

@@ -4,12 +4,12 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import PageListItem, { MOVING_NOT_ALLOWED } from "./PageListItem"
-import TableWrapper from "./TableWrapper"
-
 import type { Chapter, Page } from "@/generated/api/types.generated"
 import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import { baseTheme, typography } from "@/shared-module/common/styles"
+
+import PageListItem, { MOVING_NOT_ALLOWED } from "./PageListItem"
+import TableWrapper from "./TableWrapper"
 
 interface Props {
   data: Page | null | undefined

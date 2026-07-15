@@ -4,10 +4,14 @@ import { css } from "@emotion/css"
 import React, { useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
+import Button from "@/shared-module/common/components/Button"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+
 import { useFavicon } from "../../hooks/useFavicon"
 import { useLocalNotifications } from "../../hooks/useLocalNotifications"
 import { useSystemHealthDetailed } from "../../hooks/useSystemHealthDetailed"
-
 import StatusCronJobs from "./StatusCronJobs"
 import StatusDeployments from "./StatusDeployments"
 import StatusEvents from "./StatusEvents"
@@ -16,11 +20,6 @@ import StatusJobs from "./StatusJobs"
 import StatusPods from "./StatusPods"
 import StatusServices from "./StatusServices"
 import StatusSummary from "./StatusSummary"
-
-import Button from "@/shared-module/common/components/Button"
-import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
-import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 
 const createFavicon = (status: "healthy" | "warning" | "error"): string => {
   const colors = {

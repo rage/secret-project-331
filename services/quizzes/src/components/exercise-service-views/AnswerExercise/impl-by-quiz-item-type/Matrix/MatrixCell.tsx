@@ -29,15 +29,15 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     background: #FBFBFC;
     ${
       cellText === "" &&
-      (column > matrixSize[1] || row > matrixSize[0]) &&
+      (column > (matrixSize[1] ?? Number.NaN) || row > (matrixSize[0] ?? Number.NaN)) &&
       `
       background-color: #F5F6F7;
 `
     }
     ${
-      (cellText !== "" && column > matrixSize[1]) ||
+      (cellText !== "" && column > (matrixSize[1] ?? Number.NaN)) ||
       (cellText !== "" &&
-        row > matrixSize[0] &&
+        row > (matrixSize[0] ?? Number.NaN) &&
         isActive &&
         cellText.length === 0 &&
         `
@@ -149,7 +149,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
           `}
         ></div>
       ) : null}
-      {column === 0 && row <= matrixSize[0] ? (
+      {column === 0 && row <= (matrixSize[0] ?? Number.NaN) ? (
         <div
           className={css`
             ${BORDER_STYLES}
@@ -160,7 +160,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
           `}
         ></div>
       ) : null}
-      {column === matrixSize[1] && row <= matrixSize[0] ? (
+      {column === matrixSize[1] && row <= (matrixSize[0] ?? Number.NaN) ? (
         <div
           className={css`
             ${BORDER_STYLES}

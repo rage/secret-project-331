@@ -1,9 +1,10 @@
 // Does the rest of the global setup after globalSetup.ts but does it with a test so that we get playwright tracess if this happens to fail
 
-import type { BrowserContext, Page } from "@playwright/test"
-import { test } from "@playwright/test"
 import { statSync } from "fs"
 import path from "path"
+
+import type { BrowserContext, Page } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { login } from "../utils/login"
 

@@ -5,6 +5,7 @@ import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
@@ -13,6 +14,7 @@ import type {
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import type { ExerciseTaskGradingResult as ProtocolExerciseTaskGradingResult } from "@/shared-module/exercise-protocol/core/exerciseServiceTypes"
 import type { ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
 interface PlaygroundViewSubmissionIframeProps {
@@ -60,13 +62,21 @@ const PlaygroundViewSubmissionIframe: React.FC<
   if (gradingQuery.isPending || gradingQuery.isError) {
     return <>{t("error-no-grading")}</>
   }
+  let grading: ProtocolExerciseTaskGradingResult | null = null
+  if (gradingQuery.data) {
+    const { set_user_variables, ...rest } = gradingQuery.data
+    grading = {
+      ...rest,
+      ...omitUndefined({ set_user_variables }),
+    }
+  }
   const iframeState: ExerciseIframeState = {
     // oxlint-disable-next-line i18next/no-literal-string
     view_type: "view-submission",
     exercise_task_id: EXAMPLE_UUID,
     user_information: userInformation,
     data: {
-      grading: gradingQuery.data ?? null,
+      grading,
       user_answer: userAnswer,
       public_spec: publicSpecQuery.data,
       model_solution_spec: sendModelsolutionSpec ? modelSolutionSpecQuery.data : null,

@@ -4,13 +4,13 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useMemo } from "react"
 
-import type { PlaceholderValidationResult } from "../../utils/emailPlaceholders"
-import { getPlaceholderConfig } from "../../utils/emailPlaceholders"
-import PlaceholderInfo from "../email/PlaceholderInfo"
-
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { PlaceholderValidationResult } from "../../utils/emailPlaceholders"
+import { getPlaceholderConfig } from "../../utils/emailPlaceholders"
+import PlaceholderInfo from "../email/PlaceholderInfo"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

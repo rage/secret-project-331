@@ -2,14 +2,14 @@
 
 import { css } from "@emotion/css"
 
-import type { BlockRendererProps } from "../../.."
-import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
-
 import type { ButtonAttributes, ButtonsAttributes } from "@/../types/GutenbergBlockAttributes"
 import Button from "@/shared-module/common/components/Button"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import colorMapper from "@/styles/course-material/colorMapper"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
+
+import type { BlockRendererProps } from "../../.."
+import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
 
 // Layout looks like this:
 // export interface Layout {
@@ -109,6 +109,7 @@ const ButtonsBlock: React.FC<
         href={url}
         target={linkTarget}
       >
+        {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label set via dangerouslySetInnerHTML */}
         <Button
           className={css`
             ${backgroundColor && `background: ${colorMapper(backgroundColor)} !important;`}

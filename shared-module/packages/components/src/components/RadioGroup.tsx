@@ -8,7 +8,7 @@ import { mergeProps, useRadioGroup } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
-
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   descriptionCss,
   errorCss,
@@ -102,7 +102,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
   }))
 
   const state = useRadioGroupState({
-    value: field.value === null || field.value === undefined ? undefined : String(field.value),
+    ...(field.value === null || field.value === undefined ? {} : { value: String(field.value) }),
     onChange: (v) => {
       field.onChange(v)
     },
@@ -126,13 +126,12 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       description,
       errorMessage: resolvedError,
       name: field.name,
-      "aria-describedby": undefined,
-      "aria-label": ariaLabel,
       orientation,
       isDisabled,
       isReadOnly,
       isRequired,
       isInvalid,
+      ...omitUndefined({ "aria-label": ariaLabel }),
     },
     state,
   )

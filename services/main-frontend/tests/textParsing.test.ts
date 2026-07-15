@@ -453,8 +453,8 @@ describe("parseText", () => {
       const { parsedText, glossaryEntries } = parseText("Text with algorithm inside.", [term])
       expect(parsedText).toBe('Text with <span data-glossary-id="term-1"></span> inside.')
       expect(glossaryEntries).toHaveLength(1)
-      expect(glossaryEntries[0].id).toBe("term-1")
-      expect(glossaryEntries[0].term).toBe("algorithm")
+      expect(glossaryEntries[0]?.id).toBe("term-1")
+      expect(glossaryEntries[0]?.term).toBe("algorithm")
     })
 
     test("does not match partial word", () => {
@@ -478,7 +478,7 @@ describe("parseText", () => {
         'An <span data-glossary-id="term-1"></span> here and an <span data-glossary-id="term-1"></span> there.',
       )
       expect(glossaryEntries).toHaveLength(1)
-      expect(glossaryEntries[0].id).toBe("term-1")
+      expect(glossaryEntries[0]?.id).toBe("term-1")
     })
 
     test("replaces two different terms in one string", () => {

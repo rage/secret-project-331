@@ -23,5 +23,36 @@ run_command pnpm exec openapi-ts -f config/openapi/common-auth.openapi-ts.config
 run_command pnpm exec openapi-ts -f config/openapi/errors.openapi-ts.config.ts
 run_command pnpm exec oxfmt services/headless-lms/server/openapi/*.json services/main-frontend/src/generated services/cms/src/generated/api shared-module/packages/common/src/generated/auth-api shared-module/packages/common/src/generated/errors-api
 
+# The @hey-api client runtime helpers (client/ and core/) are emitted verbatim and assign
+# optional properties in ways TS2379 rejects under exactOptionalPropertyTypes. These files must
+# not be hand-edited, so mark only the affected runtime files as untype-checked. This is applied
+# after oxfmt so formatting cannot move the banner off line 1, and it deliberately skips every
+# *types.generated.ts file (those must stay type-checked). Runs after oxfmt.
+TS_NOCHECK_BANNER="// @ts-nocheck -- generated @hey-api client runtime; not type-checked under exactOptionalPropertyTypes"
+HEY_API_RUNTIME_FILES=(
+  "client/client.generated.ts"
+  "client/utils.generated.ts"
+  "core/params.generated.ts"
+  "core/pathSerializer.generated.ts"
+  "core/serverSentEvents.generated.ts"
+)
+HEY_API_GENERATED_ROOTS=(
+  "services/main-frontend/src/generated/api"
+  "services/main-frontend/src/generated/course-material-api"
+  "services/cms/src/generated/api"
+  "shared-module/packages/common/src/generated/auth-api"
+  "shared-module/packages/common/src/generated/errors-api"
+)
+for root in "${HEY_API_GENERATED_ROOTS[@]}"; do
+  for rel in "${HEY_API_RUNTIME_FILES[@]}"; do
+    file="$ROOT_ABSOLUTE_PATH/$root/$rel"
+    [ -f "$file" ] || continue
+    if ! IFS= read -r first_line < "$file" || [ "$first_line" != "$TS_NOCHECK_BANNER" ]; then
+      printf '%s\n' "$TS_NOCHECK_BANNER" | cat - "$file" > "$file.tmp"
+      mv "$file.tmp" "$file"
+    fi
+  done
+done
+
 echo ""
 echo -e "${GREEN}✅ OpenAPI specs and Hey API clients have been regenerated.${RESET_EVERYTHING}"

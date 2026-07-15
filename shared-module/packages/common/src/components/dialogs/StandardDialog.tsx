@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 import { typography } from "../../styles"
 import type { ButtonProps } from "../Button"
 import Button from "../Button"
-
 import Dialog from "./Dialog"
 
 interface StandardDialogProps {

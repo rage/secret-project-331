@@ -2,9 +2,6 @@ import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
-import chatbotReducer from "../chatbotReducer"
-
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
   ChatbotChatStreamEvent,
@@ -15,6 +12,9 @@ import type {
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+
+import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
+import chatbotReducer from "../chatbotReducer"
 
 const SEND_CHATBOT_MESSAGE_PATH: SendChatbotMessageData["url"] =
   "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/send-message"

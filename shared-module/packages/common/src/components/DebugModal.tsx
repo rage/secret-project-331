@@ -8,7 +8,6 @@ import { useCallback, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../styles/theme"
-
 import Button from "./Button"
 import StandardDialog from "./dialogs/StandardDialog"
 import MonacoEditor from "./monaco/MonacoEditor"

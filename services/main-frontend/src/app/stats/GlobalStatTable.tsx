@@ -160,6 +160,9 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
           const organizationCoursesCount = Object.entries(organizationCourses).length
           return Object.entries(organizationCourses).map(([moduleId, entries], n) => {
             const firstEntry = entries[0]
+            if (!firstEntry) {
+              return null
+            }
             const courseId = firstEntry.course_id
             entries.sort((a, b) => {
               if (a.year !== b.year) {

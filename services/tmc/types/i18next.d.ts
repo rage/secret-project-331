@@ -1,5 +1,4 @@
 import "i18next"
-
 import type sharedModule from "@/shared-module/common/locales/en/shared-module.json"
 import type ownTranslations from "@/shared-module/common/locales/en/tmc.json"
 

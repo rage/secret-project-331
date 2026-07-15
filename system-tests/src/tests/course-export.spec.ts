@@ -1,7 +1,8 @@
-import { expect, test } from "@playwright/test"
 import { mkdtemp, readdir, readFile, stat } from "fs/promises"
 import { tmpdir } from "os"
 import path from "path"
+
+import { expect, test } from "@playwright/test"
 import tar from "tar-fs"
 
 import { getImgByURLPrefixAndSuffix } from "@/utils/imageLocators"

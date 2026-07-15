@@ -2,10 +2,10 @@
 
 import React from "react"
 
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
 import type { BlockRendererProps } from ".."
 import InnerBlocks from "../util/InnerBlocks"
-
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface AuthorInnerBlockAttributes {
   backgroundColor: string

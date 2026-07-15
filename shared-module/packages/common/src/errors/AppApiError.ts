@@ -1,8 +1,8 @@
 export type AppApiErrorKind = "api" | "network" | "abort" | "parse" | "client" | "stream"
 
 export interface CanonicalApiIssue {
-  path?: string
-  code?: string
+  path?: string | undefined
+  code?: string | undefined
   message: string
 }
 

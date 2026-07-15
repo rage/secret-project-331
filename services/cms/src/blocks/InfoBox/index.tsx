@@ -2,14 +2,14 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
-import InfoBoxEditor from "./InfoBoxEditor"
-import InfoBoxSave from "./InfoBoxSave"
-import { Deprecated1 } from "./deprecated"
-
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { Deprecated1 } from "./deprecated"
+import InfoBoxEditor from "./InfoBoxEditor"
+import InfoBoxSave from "./InfoBoxSave"
+
 export interface InfoBoxComponentProps {
-  backgroundColor: string
+  backgroundColor: string | undefined
   noPadding: boolean
 }
 

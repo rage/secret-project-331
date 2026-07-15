@@ -4,6 +4,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
+    "typeRoots": ["./node_modules/@types"],
     "types": ["jest", "node"],
     "noEmit": true,
     "jsxImportSource": "react"

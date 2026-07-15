@@ -3,13 +3,12 @@
 import { useParams } from "next/navigation"
 import React from "react"
 
-import ExamPageShell from "../ExamPageShell"
-
-import EndExamButton from "./EndExamButton"
-import ExamGradingView from "./ExamGradingView"
-
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import ExamPageShell from "../ExamPageShell"
+import EndExamButton from "./EndExamButton"
+import ExamGradingView from "./ExamGradingView"
 
 const Exam: React.FC = () => {
   const params = useParams<{ organizationSlug: string; id: string }>()

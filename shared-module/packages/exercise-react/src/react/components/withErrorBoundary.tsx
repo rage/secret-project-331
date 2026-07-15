@@ -8,8 +8,8 @@ import { Translation } from "react-i18next"
 import { reportErrorOccurrence } from "@/shared-module/exercise-client/errors/reportErrorOccurrence"
 
 interface ErrorBoundaryState {
-  error?: string
-  trace?: string
+  error?: string | undefined
+  trace?: string | undefined
 }
 
 const bannerClass = css`

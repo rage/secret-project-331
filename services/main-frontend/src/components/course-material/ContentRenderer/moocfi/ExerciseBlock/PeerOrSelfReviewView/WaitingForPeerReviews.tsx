@@ -5,11 +5,11 @@ import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { exerciseButtonStyles, makeExerciseButtonMutedStyles } from ".."
-
 import type { CourseMaterialExercise } from "@/generated/course-material-api/types.generated"
 import { courseMaterialExerciseQueryKey } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import { exerciseButtonStyles, makeExerciseButtonMutedStyles } from ".."
 
 const WaitingForPeerReviews: React.FC<React.PropsWithChildren<{ exerciseId: string }>> = ({
   exerciseId,

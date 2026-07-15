@@ -6,8 +6,6 @@ import { useRouter } from "next/router"
 import type { ReactNode } from "react"
 import React from "react"
 
-import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
-
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
 import LanguageSelection from "@/shared-module/common/components/LanguageSelection"
@@ -23,6 +21,8 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { DEFAULT_SITE_NAME } from "@/shared-module/common/utils/pageTitle"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+
+import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
 
 const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 export const SIDEBAR_WIDTH_PX = 350

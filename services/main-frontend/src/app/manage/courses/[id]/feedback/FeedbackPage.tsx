@@ -4,11 +4,11 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 
-import FeedbackView from "./FeedbackView"
-
 import { getCourseFeedbackOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { PaginationInfo } from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
+
+import FeedbackView from "./FeedbackView"
 
 interface Props {
   courseId: string

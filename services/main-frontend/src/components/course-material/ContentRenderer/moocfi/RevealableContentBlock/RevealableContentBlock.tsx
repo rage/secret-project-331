@@ -4,14 +4,14 @@ import { css } from "@emotion/css"
 import { t } from "i18next"
 import React, { useState } from "react"
 
-import type { BlockRendererProps } from "../.."
-import ContentRenderer from "../.."
-
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { Block } from "@/types/courseMaterialBlock"
+
+import type { BlockRendererProps } from "../.."
+import ContentRenderer from "../.."
 
 // oxlint-disable-next-line typescript/no-empty-object-type
 interface RevealableContentProps {}

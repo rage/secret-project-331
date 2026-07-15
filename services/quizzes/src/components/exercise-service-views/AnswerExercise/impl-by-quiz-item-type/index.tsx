@@ -1,5 +1,11 @@
 import { useCallback } from "react"
 
+import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { UpdateFunction } from "@/shared-module/exercise-react/react/hooks/useExerciseServiceOutputState"
+import { COLUMN, QUIZ_ITEM_CLASS } from "@/util/constants"
+import type { FlexDirection } from "@/util/css-sanitization"
+import { sanitizeFlexDirection } from "@/util/css-sanitization"
+
 import type {
   UserAnswer,
   UserItemAnswer,
@@ -28,7 +34,6 @@ import type {
 } from "../../../../../types/quizTypes/publicSpec"
 import useQuizzesUserAnswerOutputState from "../../../../hooks/useQuizzesUserAnswerServiceOutputState"
 import FlexWrapper from "../../../FlexWrapper"
-
 import Checkbox from "./Checkbox"
 import ChooseN from "./ChooseN"
 import ClosedEndedQuestion from "./ClosedEndedQuestion"
@@ -39,12 +44,6 @@ import MultipleChoiceDropdown from "./MultipleChoiceDropdown"
 import Scale from "./Scale"
 import Timeline from "./Timeline"
 import Unsupported from "./Unsupported"
-
-import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import type { UpdateFunction } from "@/shared-module/exercise-react/react/hooks/useExerciseServiceOutputState"
-import { COLUMN, QUIZ_ITEM_CLASS } from "@/util/constants"
-import type { FlexDirection } from "@/util/css-sanitization"
-import { sanitizeFlexDirection } from "@/util/css-sanitization"
 
 interface WidgetProps {
   publicSpec: PublicSpecQuiz

@@ -8,9 +8,6 @@ import Cite from "citation-js"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import EditReferenceDialog from "./EditReferenceDialog"
-import NewReferenceDialog from "./NewReferenceDialog"
-
 import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { getCourseReferencesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MaterialReference } from "@/generated/api/types.generated"
@@ -20,6 +17,9 @@ import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import EditReferenceDialog from "./EditReferenceDialog"
+import NewReferenceDialog from "./NewReferenceDialog"
 
 const TYPE = "string"
 const STYLE = "vancouver"

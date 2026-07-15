@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test"
 
+import accessibilityCheck from "@/utils/accessibilityCheck"
+
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "../../utils/iframeLocators"
-
-import accessibilityCheck from "@/utils/accessibilityCheck"
 
 const TEST_PAGE =
   "http://project-331.local/org/uh-mathstat/courses/accessibility-course/chapter-1/choose-n-exercise"

@@ -6,11 +6,12 @@ import { ColorPalette, Notice, PanelBody, Placeholder } from "@wordpress/compone
 import { cover as icon } from "@wordpress/icons"
 import React from "react"
 
-import BackgroundImageSection from "./BackgroundImageSection"
-
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import BackgroundImageSection from "./BackgroundImageSection"
 
 const placeHolderFixHeightStyles = css`
   min-height: unset !important;
@@ -154,7 +155,7 @@ const BackgroundAndColorCustomizer: React.FC<
       <PanelBody title={t("background-layout")} initialOpen={false}>
         <CheckBox
           label={t("label-repeat-background-x")}
-          checked={attributes.backgroundRepeatX}
+          {...omitUndefined({ checked: attributes.backgroundRepeatX })}
           onChange={() => setAttributes({ backgroundRepeatX: !attributes.backgroundRepeatX })}
         />
         {!noAlign && (
@@ -166,7 +167,7 @@ const BackgroundAndColorCustomizer: React.FC<
             />
             <CheckBox
               label={t("label-align-bottom")}
-              checked={attributes.alignBottom}
+              {...omitUndefined({ checked: attributes.alignBottom })}
               onChange={() => setAttributes({ alignBottom: !attributes.alignBottom })}
             />
           </>

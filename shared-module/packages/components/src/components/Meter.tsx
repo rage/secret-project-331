@@ -4,6 +4,8 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useMeter } from "react-aria"
 
+import { omitUndefined } from "../lib/utils/nullability"
+
 export type MeterTone = "neutral" | "success" | "warning" | "danger"
 
 export interface MeterProps {
@@ -115,8 +117,8 @@ export const Meter: React.FC<MeterProps> = ({
     value,
     minValue,
     maxValue,
-    valueLabel,
-    "aria-label": showLabel ? undefined : label,
+    ...omitUndefined({ valueLabel }),
+    ...(showLabel ? {} : { "aria-label": label }),
   })
 
   const fillPct = clampPct(value, minValue, maxValue)

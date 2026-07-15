@@ -7,8 +7,6 @@ import { usePathname } from "next/navigation"
 import type { ReactNode } from "react"
 import React from "react"
 
-import Topbar from "./Topbar"
-
 import { getCourseMaterialPrivacyLink } from "@/generated/course-material-api/sdk.generated"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
@@ -16,6 +14,8 @@ import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
+
+import Topbar from "./Topbar"
 
 interface LayoutProps {
   children: ReactNode

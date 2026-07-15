@@ -30,40 +30,44 @@ export interface HostEmulatorHandle {
   /** The page the emulator was installed on. */
   readonly page: Page
   /** Push a built `set-state` (from the state builders). */
-  setState(state: ExtendedIframeState): Promise<void>
+  setState: (state: ExtendedIframeState) => Promise<void>
   /** Push a `set-state` from a view type + raw data (envelope defaults filled in-browser). */
-  setStateData(viewType: string, data: unknown, overrides?: Record<string, unknown>): Promise<void>
+  setStateData: (
+    viewType: string,
+    data: unknown,
+    overrides?: Record<string, unknown>,
+  ) => Promise<void>
   /** Tell the iframe the UI language (BCP 47 code). */
-  setLanguage(language: string): Promise<void>
+  setLanguage: (language: string) => Promise<void>
   /** Reply to a `file-upload` (use when constructed with `autoUpload: false`). */
-  sendUploadResult(requestId: string | null, result: WireUploadResult): Promise<void>
+  sendUploadResult: (requestId: string | null, result: WireUploadResult) => Promise<void>
   /** Reply to an `open-dialog` (use when constructed with `autoDialog: false`). */
-  respondToDialog(requestId: string, confirmed: boolean): Promise<void>
+  respondToDialog: (requestId: string, confirmed: boolean) => Promise<void>
   /** The most recent message of `type`, or null. */
-  lastMessage(type: string): Promise<RecordedMessage | null>
+  lastMessage: (type: string) => Promise<RecordedMessage | null>
   /** Full message history, optionally filtered by `type`. */
-  messages(type?: string): Promise<RecordedMessage[]>
+  messages: (type?: string) => Promise<RecordedMessage[]>
   /**
    * Poll `last(type)` until a message matches `predicate` (or any message of `type` if omitted).
    * The predicate runs in Node, so any JS works. Note: messages carrying `Map`s (file-upload /
    * upload-result) don't survive serialization — assert those in same-context jest tests instead.
    */
-  waitForMessage(
+  waitForMessage: (
     type: string,
     predicate?: (message: RecordedMessage) => boolean,
     options?: WaitOptions,
-  ): Promise<RecordedMessage>
+  ) => Promise<RecordedMessage>
   /** Convenience for `waitForMessage("current-state", …)`. */
-  waitForCurrentState(
+  waitForCurrentState: (
     predicate?: (message: RecordedMessage) => boolean,
     options?: WaitOptions,
-  ): Promise<RecordedMessage>
+  ) => Promise<RecordedMessage>
   /** Wait for the plugin to render a given view (`[data-view-type="…"]`, emitted by the Renderer). */
-  waitForViewType(viewType: string, options?: { timeoutMs?: number }): Promise<void>
+  waitForViewType: (viewType: string, options?: { timeoutMs?: number }) => Promise<void>
   /** Set files on the plugin's `<input type=file>` (drives a `file-upload`). */
-  driveFileUpload(filePath: string | string[], selector?: string): Promise<void>
+  driveFileUpload: (filePath: string | string[], selector?: string) => Promise<void>
   /** Clear the recorded message history. */
-  reset(): Promise<void>
+  reset: () => Promise<void>
 }
 
 /**
@@ -110,15 +114,15 @@ export async function createHostEmulator(
         confirmed,
       })
     },
-    async lastMessage(type) {
+    lastMessage(type) {
       return page.evaluate((t) => window.__host.last(t), type)
     },
-    async messages(type) {
+    messages(type) {
       return page.evaluate((t) => window.__host.messages(t), type)
     },
-    async waitForMessage(type, predicate, options = {}) {
-      const timeoutMs = options.timeoutMs ?? 5000
-      const intervalMs = options.intervalMs ?? 50
+    async waitForMessage(type, predicate, waitOptions = {}) {
+      const timeoutMs = waitOptions.timeoutMs ?? 5000
+      const intervalMs = waitOptions.intervalMs ?? 50
       const deadline = Date.now() + timeoutMs
       for (;;) {
         // Scan the full history (like the in-browser `waitFor`), not just `last(type)`: a matching
@@ -135,12 +139,12 @@ export async function createHostEmulator(
         await page.waitForTimeout(intervalMs)
       }
     },
-    async waitForCurrentState(predicate, options) {
-      return handle.waitForMessage("current-state", predicate, options)
+    waitForCurrentState(predicate, waitOptions) {
+      return handle.waitForMessage("current-state", predicate, waitOptions)
     },
-    async waitForViewType(viewType, options = {}) {
+    async waitForViewType(viewType, waitOptions = {}) {
       await page.waitForSelector(`[data-view-type="${viewType}"]`, {
-        timeout: options.timeoutMs ?? 5000,
+        timeout: waitOptions.timeoutMs ?? 5000,
       })
     },
     async driveFileUpload(filePath, selector = 'input[type="file"]') {

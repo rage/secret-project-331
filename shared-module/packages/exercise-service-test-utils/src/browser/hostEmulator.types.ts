@@ -37,31 +37,31 @@ export type SerializableHostEmulatorOptions = Pick<
 /** The API the emulator installs on `window.__host`. */
 export interface HostApi {
   /** Push a `set-state` for `viewType` with the given view `data` (merging any envelope overrides). */
-  setState(viewType: string, data: unknown, overrides?: Record<string, unknown>): void
+  setState: (viewType: string, data: unknown, overrides?: Record<string, unknown>) => void
   /** Push a fully-formed `set-state` envelope (e.g. from the state builders). */
-  setStateRaw(state: Record<string, unknown>): void
+  setStateRaw: (state: Record<string, unknown>) => void
   /** Tell the iframe the UI language (BCP 47 code). */
-  setLanguage(language: string): void
+  setLanguage: (language: string) => void
   /** Reply to a `file-upload` (use with `autoUpload: false`), echoing its `requestId`. */
-  sendUploadResult(requestId: string | null, result: UploadResultInput): void
+  sendUploadResult: (requestId: string | null, result: UploadResultInput) => void
   /** Reply to an `open-dialog` (use with `autoDialog: false`), echoing its `requestId`. */
-  respondToDialog(requestId: string, confirmed: boolean): void
+  respondToDialog: (requestId: string, confirmed: boolean) => void
   /** Answer a `request-repository-exercises` (TMC-style plugins). */
-  sendRepositoryExercises(repositoryExercises: unknown[]): void
+  sendRepositoryExercises: (repositoryExercises: unknown[]) => void
   /** Deliver `test-results` (TMC-style plugins). */
-  sendTestResults(testResult: unknown): void
+  sendTestResults: (testResult: unknown) => void
   /** The most recent message of `type`, or null. Survives `height-changed` spam. */
-  last(type: string): RecordedMessage | null
+  last: (type: string) => RecordedMessage | null
   /** Full message history, optionally filtered by `type`. */
-  messages(type?: string): RecordedMessage[]
+  messages: (type?: string) => RecordedMessage[]
   /** Resolve with a matching message (already received or the next to arrive), else reject on timeout. */
-  waitFor(
+  waitFor: (
     type: string,
     predicate?: (message: RecordedMessage) => boolean,
     timeoutMs?: number,
-  ): Promise<RecordedMessage>
+  ) => Promise<RecordedMessage>
   /** Clear the recorded history. */
-  reset(): void
+  reset: () => void
 }
 
 declare global {

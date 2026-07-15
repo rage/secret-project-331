@@ -61,7 +61,7 @@ interface ExerciseEditorInput {
   private_spec: unknown
   exercise_task_id?: string
   user_information?: UserInformation
-  repository_exercises?: Array<RepositoryExercise>
+  repository_exercises?: RepositoryExercise[]
 }
 
 /** Build an `exercise-editor` state (teacher view). */

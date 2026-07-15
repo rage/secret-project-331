@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* oxlint-disable -- injectable eval payload kept byte-identical to HOST_EMULATOR_SOURCE (guarded by sourceParity.test.ts); the linter must not rewrite this dependency-free source */
 // Injectable browser host emulator — the parent/host side of the exercise iframe protocol, written
 // as a single self-contained arrow-function expression so it can be injected verbatim:
 //

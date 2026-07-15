@@ -17,8 +17,6 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
 
-const DOWN_SYMBOL = "▼"
-
 const KEY_USERS = "users"
 const KEY_COMPLETIONS = "completions"
 const KEY_PROGRESS = "progress"
@@ -87,10 +85,6 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
               <div className={styles.title}>{t("label-students")}</div>
               <div className={styles.chatbotInfo}>{t("chatbot-student-page-info")}</div>
             </div>
-            <div className={styles.dropdownTop}>
-              {t("all-instances")}
-              <span className={styles.dropdownIcon}>{DOWN_SYMBOL}</span>
-            </div>
           </div>
           <hr className={styles.divider} />
         </div>
@@ -101,11 +95,11 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
               <input
                 className={styles.searchInput}
                 placeholder={t("search-students")}
+                aria-label={t("search-students")}
                 value={inputValue}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              <span className={styles.searchIcon}>🔍</span>
+              <span className={styles.searchIcon} aria-hidden="true" />
             </div>
 
             <RouteTabPageTitle

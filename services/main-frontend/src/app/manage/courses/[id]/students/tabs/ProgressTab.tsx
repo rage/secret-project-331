@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FloatingHeaderTable } from "../FloatingHeaderTable"
+import { StudentsTable } from "../StudentsTable"
 
 import { getCourseStudentsProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -56,17 +56,15 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
 
     const round2 = (n: number) => Math.round(n * 100) / 100
 
-    interface UserChapterLockStatusRow {
-      user_id: string
-      chapter_id: string
-      status: TeacherChapterLockStatus
-    }
-    const typedData = queryData as typeof queryData & {
-      chapter_locking_enabled?: boolean
-      user_chapter_locking_statuses?: UserChapterLockStatusRow[]
-    }
-    const { user_details, chapters, user_chapter_progress, chapter_availability } = queryData
-    const chapterLockStatuses = typedData.user_chapter_locking_statuses ?? []
+    const {
+      user_details,
+      chapters,
+      user_chapter_progress,
+      chapter_availability,
+      chapter_locking_enabled,
+      user_chapter_locking_statuses,
+    } = queryData
+    const chapterLockStatuses = user_chapter_locking_statuses ?? []
 
     // --- maxima lookups (per chapter, not per user)
     const maxPointsByChapter: Record<string, number | undefined> = {}
@@ -118,6 +116,8 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
               header: `${t("attempts")} /${attMax ?? "0"}`,
               // oxlint-disable-next-line i18next/no-literal-string
               accessorKey: `ch_${ch.id}_attempts`,
+              // Attempts cells can render a lock-status React node, which is not sortable.
+              enableSorting: false,
               meta: { altBg: true },
             },
           ],
@@ -175,7 +175,7 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
         const cell = byUserChapter[u.user_id]?.[ch.id]
         row[pointsKey] = cell ? cell.points : 0
         const attempts = cell ? cell.attempts : 0
-        if (typedData.chapter_locking_enabled !== true) {
+        if (chapter_locking_enabled !== true) {
           row[attemptsKey] = attempts
           continue
         }
@@ -208,27 +208,19 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
     return { allRows: rows, dynamicColumns: cols }
   }, [queryData, t])
 
-  const rows = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return allRows
-    }
-    const queryLower = searchQuery.toLowerCase()
-    return allRows.filter((row) => {
-      const student = String(row.student ?? "").toLowerCase()
-      return student.includes(queryLower)
-    })
-  }, [allRows, searchQuery])
-
   return (
-    <QueryResult query={query}>
+    <QueryResult query={query} treatEmptyAsData>
       {() => (
-        <FloatingHeaderTable
+        <StudentsTable
           columns={dynamicColumns}
-          data={rows}
+          data={allRows}
           colorHeaders
           colorColumns
           colorHeaderUnderline
           progressMode
+          globalFilter={searchQuery}
+          // oxlint-disable-next-line i18next/no-literal-string
+          searchableColumnIds={["student"]}
         />
       )}
     </QueryResult>

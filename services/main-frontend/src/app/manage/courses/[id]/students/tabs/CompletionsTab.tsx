@@ -7,7 +7,7 @@ import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FloatingHeaderTable } from "../FloatingHeaderTable"
+import { StudentsTable } from "../StudentsTable"
 import { COMPLETIONS_LEAF_MIN_WIDTH, PAD } from "../studentsTableStyles"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
@@ -95,8 +95,7 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
     {
       // oxlint-disable-next-line i18next/no-literal-string
       id: "student",
-      // oxlint-disable-next-line i18next/no-literal-string
-      header: "Student",
+      header: t("label-student"),
       // oxlint-disable-next-line i18next/no-literal-string
       accessorKey: "student",
       meta: {
@@ -123,8 +122,7 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
         {
           // oxlint-disable-next-line i18next/no-literal-string
           id: `${mKey}__grade`,
-          // oxlint-disable-next-line i18next/no-literal-string
-          header: "Grade",
+          header: t("grade"),
           // oxlint-disable-next-line i18next/no-literal-string
           accessorKey: `${mKey}__grade`,
           meta: {
@@ -138,8 +136,7 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
         {
           // oxlint-disable-next-line i18next/no-literal-string
           id: `${mKey}__status`,
-          // oxlint-disable-next-line i18next/no-literal-string
-          header: "Status",
+          header: t("status"),
           // oxlint-disable-next-line i18next/no-literal-string
           accessorKey: `${mKey}__status`,
           cell: (props) => <CompletionStatusCell {...props} needsReviewKey={needsReviewKey} />,
@@ -168,21 +165,10 @@ export const CompletionsTabContent: React.FC<Props> = ({ courseId, searchQuery }
     }),
   })
 
-  const { modulesInOrder, data: allData } = useMemo(
+  const { modulesInOrder, data } = useMemo(
     () => pivotCompletions(query.data ?? [], t),
     [query.data, t],
   )
-
-  const data = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return allData
-    }
-    const queryLower = searchQuery.toLowerCase()
-    return allData.filter((row) => {
-      const student = String(row.student ?? "").toLowerCase()
-      return student.includes(queryLower)
-    })
-  }, [allData, searchQuery])
 
   const columns = useMemo<ColumnDef<RowObject, unknown>[]>(
     () => buildColumns(modulesInOrder, t),
@@ -194,12 +180,15 @@ export const CompletionsTabContent: React.FC<Props> = ({ courseId, searchQuery }
   }
 
   const table = (
-    <FloatingHeaderTable
+    <StudentsTable
       columns={columns}
       data={data}
       colorHeaders
       colorColumns
       colorHeaderUnderline
+      globalFilter={searchQuery}
+      // oxlint-disable-next-line i18next/no-literal-string
+      searchableColumnIds={["student"]}
     />
   )
 

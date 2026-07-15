@@ -1,15 +1,18 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FloatingHeaderTable } from "../FloatingHeaderTable"
+import { StudentsTable } from "../StudentsTable"
 
-import { getCourseStudentsCertificatesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCourseStudentsCertificatesOptions,
+  getCourseStudentsCertificatesQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { updateGeneratedCertificate } from "@/generated/api/sdk.generated"
 import type {
   CertificateGridRow,
@@ -22,6 +25,7 @@ import DatePickerField from "@/shared-module/common/components/InputFields/DateP
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
 import { QueryResult } from "@/shared-module/components"
@@ -29,6 +33,9 @@ import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
 
 const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"] =
   "/api/v0/main-frontend/certificates/{certificate_verification_id}"
+
+// oxlint-disable-next-line i18next/no-literal-string
+const SEARCHABLE_COLUMNS = ["student", "name_on_certificate"]
 
 const iconBtnStyle = css`
   display: inline-flex;
@@ -78,6 +85,7 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
   searchQuery,
 }) => {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const [editData, setEditData] = useState<{
     id: string
     name_on_certificate: string
@@ -92,24 +100,25 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
     }),
   })
 
-  const allRows = useMemo(() => query.data ?? [], [query.data])
+  const rows = useMemo(() => query.data ?? [], [query.data])
 
-  const rows = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return allRows
-    }
-    const queryLower = searchQuery.toLowerCase()
-    return allRows.filter((row) => {
-      const student = String(row.student ?? "").toLowerCase()
-      const certificate = String(row.certificate ?? "").toLowerCase()
-      const nameOnCertificate = String(row.name_on_certificate ?? "").toLowerCase()
-      return (
-        student.includes(queryLower) ||
-        certificate.includes(queryLower) ||
-        nameOnCertificate.includes(queryLower)
-      )
-    })
-  }, [allRows, searchQuery])
+  const updateCertificateMutation = useToastMutation(
+    (variables: { certificateId: string; body: CertificateUpdateRequest }) =>
+      updateGeneratedCertificate({
+        body: variables.body,
+        path: { certificate_id: variables.certificateId },
+      }),
+    { notify: true, method: "PUT" },
+    {
+      onSuccess: () => {
+        setEditData(null)
+        void queryClient.invalidateQueries({
+          queryKey: getCourseStudentsCertificatesQueryKey({ path: { course_id: courseId } }),
+        })
+      },
+    },
+  )
+
   const [popupUrl, setPopupUrl] = useState<string | null>(null)
   const [verificationId, setVerificationId] = useState<string | null>(null)
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -126,11 +135,24 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
     setImageLoaded(false)
   }
 
+  // Guard the edit dialog's date so an empty / invalid value never reaches new Date(...).toISOString().
+  const parsedEditDate = editData?.date ? new Date(editData.date) : null
+  const editDateValid = parsedEditDate !== null && !Number.isNaN(parsedEditDate.getTime())
+
   const columns: ColumnDef<CertificateGridRow, unknown>[] = [
     // oxlint-disable-next-line i18next/no-literal-string
     { header: t("label-student"), accessorKey: "student" },
-    // oxlint-disable-next-line i18next/no-literal-string
-    { header: t("certificate"), accessorKey: "certificate" },
+    {
+      header: t("certificate"),
+      // oxlint-disable-next-line i18next/no-literal-string
+      accessorKey: "certificate",
+      // The backend certificate field is un-localized English; derive the label from certificate
+      // presence so it localizes and does not depend on a magic string.
+      cell: ({ row }) => {
+        const hasCertificate = Boolean(row.original.verification_id || row.original.certificate_id)
+        return hasCertificate ? t("course_certificate") : t("no_certificate")
+      },
+    },
     {
       header: t("name-on-certificate"),
       // oxlint-disable-next-line i18next/no-literal-string
@@ -147,12 +169,8 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
       accessorKey: "date_issued",
       cell: ({ getValue }) => {
         const value = getValue<string | null>()
-        if (!value) {
-          // oxlint-disable-next-line i18next/no-literal-string
-          return "—"
-        }
-        const d = new Date(value)
-        return d.toISOString().slice(0, 10)
+        // oxlint-disable-next-line i18next/no-literal-string
+        return formatDateForDateInputs(value) ?? "—"
       },
     },
     {
@@ -160,40 +178,48 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
       // oxlint-disable-next-line i18next/no-literal-string
       id: "actions",
       size: 80,
+      enableSorting: false,
       meta: { style: { paddingLeft: "4px", paddingRight: "4px" } },
       cell: ({ row }) => {
-        const { certificate, verification_id } = row.original
+        const { verification_id, certificate_id, name_on_certificate, date_issued } = row.original
 
-        const handleView = () => {
-          if (certificate === "Course Certificate" && verification_id) {
-            setPopupUrl(
-              buildGeneratedApiUrl(CERTIFICATE_BY_VERIFICATION_PATH, {
-                certificate_verification_id: verification_id,
-              }),
-            )
-            setVerificationId(verification_id)
-          }
-        }
-
-        const handleEdit = () => {
-          if (row.original.certificate === "Course Certificate" && row.original.certificate_id) {
-            setEditData({
-              id: row.original.certificate_id,
-              name_on_certificate: row.original.name_on_certificate ?? "",
-              date: row.original.date_issued ?? null,
-            })
-          }
+        // Only certificates that actually exist can be viewed / edited.
+        if (!verification_id && !certificate_id) {
+          return null
         }
 
         return (
           <div className={actionsCellInner}>
-            <IconButton label={t("view_certificate")} onClick={handleView}>
-              <Eye size={18} />
-            </IconButton>
+            {verification_id && (
+              <IconButton
+                label={t("view_certificate")}
+                onClick={() => {
+                  setPopupUrl(
+                    buildGeneratedApiUrl(CERTIFICATE_BY_VERIFICATION_PATH, {
+                      certificate_verification_id: verification_id,
+                    }),
+                  )
+                  setVerificationId(verification_id)
+                }}
+              >
+                <Eye size={18} />
+              </IconButton>
+            )}
 
-            <IconButton label={t("edit_certificate")} onClick={handleEdit}>
-              <Pen size={18} />
-            </IconButton>
+            {certificate_id && (
+              <IconButton
+                label={t("edit_certificate")}
+                onClick={() =>
+                  setEditData({
+                    id: certificate_id,
+                    name_on_certificate: name_on_certificate ?? "",
+                    date: date_issued ?? null,
+                  })
+                }
+              >
+                <Pen size={18} />
+              </IconButton>
+            )}
           </div>
         )
       },
@@ -369,29 +395,21 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
               fullWidth
               size="medium"
               variant="primary"
-              onClick={async () => {
-                if (!editData) {
+              disabled={!editDateValid || updateCertificateMutation.isPending}
+              onClick={() => {
+                if (!editData || !parsedEditDate || !editDateValid) {
                   return
                 }
-
-                const iso = new Date(editData.date ?? "").toISOString()
-
-                const payload: CertificateUpdateRequest = {
-                  date_issued: iso,
-                  name_on_certificate:
-                    editData.name_on_certificate?.trim() === ""
-                      ? null
-                      : editData.name_on_certificate,
-                }
-
-                await updateGeneratedCertificate({
-                  body: payload,
-                  path: {
-                    certificate_id: editData.id,
+                updateCertificateMutation.mutate({
+                  certificateId: editData.id,
+                  body: {
+                    date_issued: parsedEditDate.toISOString(),
+                    name_on_certificate:
+                      editData.name_on_certificate.trim() === ""
+                        ? null
+                        : editData.name_on_certificate,
                   },
                 })
-                setEditData(null)
-                await query.refetch()
               }}
             >
               {t("button-text-update")}
@@ -404,7 +422,12 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
         </StandardDialog>
       )}
 
-      <FloatingHeaderTable columns={columns} data={rows} />
+      <StudentsTable
+        columns={columns}
+        data={rows}
+        globalFilter={searchQuery}
+        searchableColumnIds={SEARCHABLE_COLUMNS}
+      />
     </>
   )
 

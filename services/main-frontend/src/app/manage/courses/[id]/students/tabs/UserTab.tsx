@@ -4,10 +4,13 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FloatingHeaderTable } from "../FloatingHeaderTable"
+import { StudentsTable } from "../StudentsTable"
 
 import { getCourseStudentsUsersOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { QueryResult } from "@/shared-module/components"
+
+// oxlint-disable-next-line i18next/no-literal-string
+const SEARCHABLE_COLUMNS = ["user_id", "first_name", "last_name", "email", "course_instance"]
 
 export const UserTabContent: React.FC<{ courseId: string; searchQuery: string }> = ({
   courseId,
@@ -23,31 +26,10 @@ export const UserTabContent: React.FC<{ courseId: string; searchQuery: string }>
     }),
   })
 
-  const allRows = useMemo(() => query.data ?? [], [query.data])
-
-  const rows = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return allRows
-    }
-    const queryLower = searchQuery.toLowerCase()
-    return allRows.filter((row) => {
-      const userId = String(row.user_id ?? "").toLowerCase()
-      const firstName = String(row.first_name ?? "").toLowerCase()
-      const lastName = String(row.last_name ?? "").toLowerCase()
-      const email = String(row.email ?? "").toLowerCase()
-      const courseInstance = String(row.course_instance ?? "").toLowerCase()
-      return (
-        userId.includes(queryLower) ||
-        firstName.includes(queryLower) ||
-        lastName.includes(queryLower) ||
-        email.includes(queryLower) ||
-        courseInstance.includes(queryLower)
-      )
-    })
-  }, [allRows, searchQuery])
+  const rows = useMemo(() => query.data ?? [], [query.data])
 
   const table = (
-    <FloatingHeaderTable
+    <StudentsTable
       columns={[
         {
           header: t("user-id"),
@@ -83,6 +65,8 @@ export const UserTabContent: React.FC<{ courseId: string; searchQuery: string }>
         },
       ]}
       data={rows}
+      globalFilter={searchQuery}
+      searchableColumnIds={SEARCHABLE_COLUMNS}
     />
   )
 

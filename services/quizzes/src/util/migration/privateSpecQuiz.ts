@@ -19,7 +19,6 @@ import type {
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
 import { sanitizeQuizDirection } from "../css-sanitization"
-
 import { DEFAULT_N } from "./migrationSettings"
 
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N

@@ -3,12 +3,11 @@
 import { diffWords } from "diff"
 import React from "react"
 
-import { getEditableHoverStyles, getParagraphStyles } from "../styles"
-
-import { useParagraphEditing } from "./hooks/useParagraphEditing"
-
 import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
 import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
+
+import { getEditableHoverStyles, getParagraphStyles } from "../styles"
+import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
 interface PreviewableParagraphProps {
   id: string

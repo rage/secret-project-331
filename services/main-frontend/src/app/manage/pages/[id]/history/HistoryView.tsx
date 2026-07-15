@@ -5,13 +5,13 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import HistoryList from "./HistoryList"
-
 import { getPageHistoryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { PageHistory } from "@/generated/api/types.generated"
 import MonacoDiffEditor from "@/shared-module/common/components/monaco/MonacoDiffEditor"
 import replaceUuidsWithPlaceholdersInText from "@/shared-module/common/utils/testing/replaceUuidsWithPlaceholders"
 import { QueryResult } from "@/shared-module/components"
+
+import HistoryList from "./HistoryList"
 
 interface Props {
   pageId: string
@@ -80,6 +80,9 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
     >
       {(data) => {
         const pageHistory = data[0]
+        if (pageHistory === undefined) {
+          return null
+        }
         return (
           <div>
             <p

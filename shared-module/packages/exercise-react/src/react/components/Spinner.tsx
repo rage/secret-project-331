@@ -3,9 +3,9 @@
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 
-import { baseTheme } from "../../styles"
-
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/exercise-client/utils/constants"
+
+import { baseTheme } from "../../styles"
 
 export interface SpinnerProps {
   variant?: "large" | "medium" | "small" | "placeholder"

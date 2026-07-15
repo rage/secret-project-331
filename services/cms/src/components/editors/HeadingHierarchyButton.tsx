@@ -3,16 +3,16 @@
 import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 
+import Button from "@/shared-module/common/components/Button"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
 import type {
   HeadingHierarchyEntry,
   HeadingHierarchyIssue,
 } from "../../utils/Gutenberg/headingHierarchy"
 import { analyzeHeadingHierarchy } from "../../utils/Gutenberg/headingHierarchy"
-
-import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import type { BlockInstance } from "@/utils/Gutenberg/types"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface HeadingHierarchyButtonProps {
   content: BlockInstance[]

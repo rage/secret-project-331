@@ -3,16 +3,17 @@
 import { fireEvent, render, screen, within } from "@testing-library/react"
 import React from "react"
 
-import SearchButton from "../SearchButton"
-
 import {
   searchPagesWithPhrase,
   searchPagesWithWords,
 } from "@/generated/course-material-api/sdk.generated"
 import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
 
+import SearchButton from "../SearchButton"
+
 // Stable t() to avoid an infinite render loop from the global i18next mock's unstable identity.
 jest.mock("react-i18next", () => {
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- must live inside the mock factory
   const t = (key: string) => key
   return {
     useTranslation: () => ({ t, i18n: { changeLanguage: () => Promise.resolve() } }),
@@ -64,6 +65,7 @@ describe("SearchButton search results", () => {
     mockSearchPagesWithWords.mockReset().mockResolvedValue([])
   })
 
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- colocated with its describe block for readability
   async function openDialogAndSearch() {
     render(<SearchButton courseId="course-id" organizationSlug="org-slug" />)
     fireEvent.click(screen.getByRole("button", { name: "button-label-search-for-pages" }))

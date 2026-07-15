@@ -5,17 +5,16 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { completedModuleCount } from "../lib/completions"
-import { TONE } from "../lib/displayConstants"
-
-import ModuleCompletionsTable from "./ModuleCompletionsTable"
-
 import CourseActivityTimeline from "@/components/CourseActivityTimeline"
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import { Badge, Disclosure } from "@/shared-module/components"
+
+import { completedModuleCount } from "../lib/completions"
+import { TONE } from "../lib/displayConstants"
+import ModuleCompletionsTable from "./ModuleCompletionsTable"
 
 export interface CourseEnrollmentCardProps {
   enrollment: CourseEnrollmentInfo

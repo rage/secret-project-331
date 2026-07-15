@@ -7,7 +7,13 @@ import RouteFocusManager from "../src/components/RouteFocusManager"
 
 const mockState = { pathname: "/" }
 
-function Page({ heading, children }: { heading?: string | null; children?: React.ReactNode }) {
+function Page({
+  heading,
+  children,
+}: {
+  heading?: string | null | undefined
+  children?: React.ReactNode
+}) {
   return (
     <main id="maincontent">
       {heading ? <h1>{heading}</h1> : null}

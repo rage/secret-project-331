@@ -4,10 +4,10 @@ import { css } from "@emotion/css"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useSetupStepFields } from "../../hooks/useWizardStepFields"
-
 import type { CourseDesignerCourseSize } from "@/generated/api/types.generated"
 import { Button, Select, YearMonthField } from "@/shared-module/components"
+
+import { useSetupStepFields } from "../../hooks/useWizardStepFields"
 
 const toolbarStyles = css`
   display: flex;

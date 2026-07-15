@@ -7,7 +7,7 @@ import type { AriaButtonOptions } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
-
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   type ButtonSize,
   type ButtonVariant,
@@ -129,15 +129,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const ref = useObjectRef(forwardedRef)
 
     const ariaOptions: AriaButtonOptions<"button"> = {
-      onPress,
-      onPressStart,
-      onPressEnd,
-      onPressChange,
-      onPressUp,
       isDisabled,
-      "aria-label": userAriaLabel,
-      "aria-describedby": describedBy,
-      "aria-labelledby": labelledBy,
+      ...omitUndefined({
+        onPress,
+        onPressStart,
+        onPressEnd,
+        onPressChange,
+        onPressUp,
+        "aria-label": userAriaLabel,
+        "aria-describedby": describedBy,
+        "aria-labelledby": labelledBy,
+      }),
     }
 
     const { buttonProps, isPressed } = useButton(ariaOptions, ref)

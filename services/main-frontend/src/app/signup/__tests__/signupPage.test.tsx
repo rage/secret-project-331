@@ -104,6 +104,7 @@ describe("Create account form accessibility", () => {
     expect(describedBy).toBeTruthy()
     const errorNode = describedBy
       ?.split(/\s+/)
+      // oxlint-disable-next-line unicorn/prefer-query-selector -- useId values aren't valid CSS selectors
       .map((id) => document.getElementById(id))
       .find((el) => el?.textContent?.includes("required-field"))
     expect(errorNode).toBeTruthy()
@@ -123,6 +124,7 @@ describe("Create account form accessibility", () => {
       expect(combobox).toHaveValue("fi")
     })
 
+    // oxlint-disable-next-line require-await -- act needs an async callback to flush pending effects
     await act(async () => {
       mockResolveIpCountry("se")
     })
@@ -139,6 +141,7 @@ describe("Create account form accessibility", () => {
     // Let the ip-country query start fetching so mockResolveIpCountry targets this render.
     await act(async () => {})
 
+    // oxlint-disable-next-line require-await -- act needs an async callback to flush pending effects
     await act(async () => {
       mockResolveIpCountry("se")
     })

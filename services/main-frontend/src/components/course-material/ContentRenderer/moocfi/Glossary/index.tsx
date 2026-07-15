@@ -4,13 +4,13 @@ import { useAtomValue } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Glossary from "./Glossary"
-
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
+
+import Glossary from "./Glossary"
 
 const GlossaryBlock: React.FC = () => {
   const { t } = useTranslation()

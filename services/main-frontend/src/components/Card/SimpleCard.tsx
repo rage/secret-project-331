@@ -6,18 +6,17 @@ import { LockKeyhole } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CardDeadlineOverlay, { cardTopBandStyle } from "./CardDeadlineOverlay"
-import CardOpensTextOverlay from "./CardOpenTextOverlay"
-import CardOpensText from "./CardOpensText"
-
-import type { CardExtraProps } from "."
-
 import PseudoContentLink from "@/components/PseudoContentLink"
 import CardSVG from "@/shared-module/common/img/cardNext.svg"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { cardMaxWidth } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
+
+import type { CardExtraProps } from "."
+import CardDeadlineOverlay, { cardTopBandStyle } from "./CardDeadlineOverlay"
+import CardOpensText from "./CardOpensText"
+import CardOpensTextOverlay from "./CardOpenTextOverlay"
 
 export interface BackgroundProps {
   bg: string | undefined

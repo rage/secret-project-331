@@ -4,13 +4,13 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ModuleCard from "./ModuleCard"
-
 import type { UserModuleCompletionStatus } from "@/generated/course-material-api/types.generated"
 import ConfettiBg from "@/img/course-material/confetti-bg.svg"
 import BackgroundImage from "@/img/course-material/congratulation-bg.svg"
 import { headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import ModuleCard from "./ModuleCard"
 
 const Wrapper = styled.div`
   font-family: ${headingFont};

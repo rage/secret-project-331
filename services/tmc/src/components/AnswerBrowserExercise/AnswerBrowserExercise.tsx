@@ -45,11 +45,12 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
   // oxlint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
   const [lastOutputKind, setLastOutputKind] = useState<"run" | "test">("run")
 
-  if (editorFiles.length === 0) {
+  const firstFile = editorFiles[0]
+  if (firstFile === undefined) {
     return <div>{t("no-exercise-files")}</div>
   }
 
-  const { filepath, contents } = editorFiles[0]
+  const { filepath, contents } = firstFile
   const isPython = filepath.endsWith(".py")
   const runDisabled = pyodideLoading || runExecuting
   const hasBrowserTestScript =

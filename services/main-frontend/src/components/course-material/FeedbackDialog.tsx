@@ -7,8 +7,6 @@ import React, { useId, useRef, useState } from "react"
 import { FocusScope, useDialog } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
-
 import { postFeedback } from "@/generated/course-material-api/sdk.generated"
 import type { FeedbackBlock } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
@@ -21,6 +19,8 @@ import {
   selectionAtom,
 } from "@/stores/course-material/materialFeedbackStore"
 import { courseMaterialBlockClass } from "@/utils/course-material/constants"
+
+import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
 interface Props {
   courseId: string

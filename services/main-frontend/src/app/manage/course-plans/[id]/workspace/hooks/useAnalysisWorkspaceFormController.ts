@@ -8,6 +8,14 @@ import { useTranslation } from "react-i18next"
 import { useDebouncedCallback } from "use-debounce"
 
 import {
+  getCourseDesignerPlanQueryKey,
+  updateCourseDesignerStageWorkspaceMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { AnalysisWorkspaceV1 } from "@/generated/api/types.generated"
+import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+
+import {
   ANALYSIS_WORKSPACE_SCHEMA_V1,
   type AnalysisWorkspaceFormValues,
   AUTOSAVE_DEBOUNCE_MS,
@@ -24,14 +32,6 @@ import {
   stripOpenPeriodAll,
   withDerivedOpenPeriodAll,
 } from "../components/analysis-form/analysisFormDomain"
-
-import {
-  getCourseDesignerPlanQueryKey,
-  updateCourseDesignerStageWorkspaceMutation,
-} from "@/generated/api/@tanstack/react-query.generated"
-import type { AnalysisWorkspaceV1 } from "@/generated/api/types.generated"
-import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
-import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 const scrollToSection = (id: string) => (e: MouseEvent<HTMLAnchorElement>) => {
   e.preventDefault()
@@ -179,7 +179,11 @@ export default function useAnalysisWorkspaceFormController(props: {
           return
         }
         intersecting.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-        const id = intersecting[0].target.id
+        const firstIntersecting = intersecting[0]
+        if (firstIntersecting === undefined) {
+          return
+        }
+        const id = firstIntersecting.target.id
         // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
         const n = Number.parseInt(id.replace(SECTION_DOM_PREFIX, ""), 10)
         if (!Number.isNaN(n)) {

@@ -3,10 +3,10 @@
 import dynamic from "next/dynamic"
 import type { ComponentType } from "react"
 
+import { omitUndefined } from "../nullability"
 import CommitMarker from "./CommitMarker"
 import DynamicImportErrorBoundary from "./DynamicImportErrorBoundary"
 import { createDynamicImportFallbackModule } from "./DynamicImportFallback"
-import LoadingState from "./LoadingState"
 import {
   DYNAMIC_IMPORT_MAX_ATTEMPTS,
   DYNAMIC_IMPORT_STATE_COMMITTED,
@@ -25,6 +25,7 @@ import {
   isProbablyReactComponent,
   withTimeout,
 } from "./dynamicImportUtils"
+import LoadingState from "./LoadingState"
 
 const DYNAMIC_IMPORT_ID_PREFIX = "dyn_"
 
@@ -110,7 +111,11 @@ const dynamicImport = <P extends object = Record<string, never>>(
   const runImport = async (): Promise<{ default: ComponentType<P> }> => {
     const startedAt = now()
     const online = getOnline()
-    setDynamicImportStatus(id, { state: DYNAMIC_IMPORT_STATE_LOADING, startedAt, online })
+    setDynamicImportStatus(id, {
+      state: DYNAMIC_IMPORT_STATE_LOADING,
+      startedAt,
+      ...omitUndefined({ online }),
+    })
 
     log(id, "dynamic-import-started", { online })
 

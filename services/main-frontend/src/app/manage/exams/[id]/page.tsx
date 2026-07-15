@@ -7,8 +7,6 @@ import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import EditExamDialog from "../EditExamDialog"
-
 import {
   getExamOptions,
   getOrganizationExamByExamIdOptions,
@@ -31,6 +29,8 @@ import {
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import EditExamDialog from "../EditExamDialog"
 
 const GET_ORGANIZATION_QUERY_KEY = "getOrganization"
 

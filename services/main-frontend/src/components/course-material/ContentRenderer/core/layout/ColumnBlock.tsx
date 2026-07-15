@@ -2,13 +2,13 @@
 
 import { css } from "@emotion/css"
 
-import type { BlockRendererProps } from "../.."
-import { blockToRendererMap } from "../.."
-
 import type { ColumnAttributes } from "@/../types/GutenbergBlockAttributes"
 import DefaultBlock from "@/components/course-material/ContentRenderer/DefaultBlock"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../.."
+import { blockToRendererMap } from "../.."
 
 const getAlignSelf = (verticalAlignment: string) => {
   const ALIGN_SELF_FLEX_END = "align-self: flex-end;"
@@ -21,6 +21,7 @@ const getAlignSelf = (verticalAlignment: string) => {
   } else if (verticalAlignment === "top") {
     return ALIGN_SELF_FLEX_START
   }
+  return undefined
 }
 
 const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAttributes>>> = ({

@@ -3,6 +3,9 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { TimeGranularity } from "@/generated/api/types.generated"
+import { useUsersReturningExercisesHistoryByInstanceQuery } from "@/hooks/stats"
+
 import type { Period } from "../../LineChart"
 import {
   DAILY_DATE_FORMAT,
@@ -11,9 +14,6 @@ import {
   MONTHLY_PERIOD,
 } from "../../LineChart"
 import LineChartByInstance from "../../LineChartByInstance"
-
-import type { TimeGranularity } from "@/generated/api/types.generated"
-import { useUsersReturningExercisesHistoryByInstanceQuery } from "@/hooks/stats"
 
 interface UsersReturningExercisesHistoryByInstanceProps {
   courseId: string

@@ -50,6 +50,10 @@ export interface ColorsIdentifierProps {
   showRequiredLegend?: boolean
 }
 
+// Append the value so the info isn't conveyed by colour alone (WCAG 1.4.1).
+const withValue = (label: string, value: number | null | undefined) =>
+  value === null || value === undefined ? label : `${label}: ${value}`
+
 const ColorsIdentifier: React.FunctionComponent<ColorsIdentifierProps> = ({
   studentPoints,
   requiredPoints,
@@ -57,9 +61,6 @@ const ColorsIdentifier: React.FunctionComponent<ColorsIdentifierProps> = ({
   showRequiredLegend = false,
 }) => {
   const { t } = useTranslation()
-  // Append the value so the info isn't conveyed by colour alone (WCAG 1.4.1).
-  const withValue = (label: string, value: number | null | undefined) =>
-    value === null || value === undefined ? label : `${label}: ${value}`
 
   const requiredLegendVisible =
     showRequiredLegend || (requiredPoints !== null && requiredPoints !== undefined)

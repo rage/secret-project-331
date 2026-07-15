@@ -1,3 +1,5 @@
+import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+
 import type { UserAnswer, UserItemAnswerMultiplechoice } from "../../../types/quizTypes/answer"
 import type {
   PrivateSpecQuiz,
@@ -12,8 +14,6 @@ import type {
   PrivateSpecQuizItemTimeline,
   QuizItemOption,
 } from "../../../types/quizTypes/privateSpec"
-
-import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 
 export const MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS = "You should see this after a submission"
 export const ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS =

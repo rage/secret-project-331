@@ -1,7 +1,6 @@
 "use client"
 
 import "@testing-library/jest-dom"
-
 import { render } from "@testing-library/react"
 import React from "react"
 
@@ -11,6 +10,7 @@ import { ImageInteractivityContext } from "../ImageInteractivityContext"
 // react-medium-image-zoom ships ESM that jest can't transform; mock it out.
 jest.mock("react-medium-image-zoom", () => ({
   __esModule: true,
+  // oxlint-disable-next-line react/jsx-no-useless-fragment -- a component mock must return an element, not bare ReactNode
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 

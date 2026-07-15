@@ -4,11 +4,10 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
-import BlockPlaceholderWrapper from "../../BlockPlaceholderWrapper"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 import type { ConditionAttributes } from "."
-
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import BlockPlaceholderWrapper from "../../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph", "core/image", "core/list"]
 

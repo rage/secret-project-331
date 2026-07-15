@@ -2,17 +2,16 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import LandingPageHeroSectionEditor from "./LandingPageHeroSectionEditor"
 import LandingPageHeroSectionSave from "./LandingPageHeroSectionSave"
 
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
-
 export interface LandingPageHeroSectionAttributes {
   title: string
-  backgroundColor: string
-  fontColor: string
+  backgroundColor: string | undefined
+  fontColor: string | undefined
   backgroundImage: string | undefined
   backgroundImageMedium: string | undefined
   backgroundImageLarge: string | undefined

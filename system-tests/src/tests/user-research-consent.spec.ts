@@ -1,14 +1,14 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { Topbar } from "../utils/components/Topbar"
 import { UserSettingsPage } from "../utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import { logoutViaTopbar } from "../utils/flows/topbar.flow"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test("Research consent form is visible on login, if not yet answered", async ({
   page,

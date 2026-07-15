@@ -6,13 +6,13 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { baseTheme } from "@/shared-module/exercise-react/styles"
+
 import type { OldNormalizedQuizItemTimelineItem } from "../../../../../../types/oldQuizTypes"
 import type { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
-
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { baseTheme } from "@/shared-module/exercise-react/styles"
 
 interface TimelineContentProps {
   quizItemId: string

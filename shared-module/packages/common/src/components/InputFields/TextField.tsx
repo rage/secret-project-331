@@ -15,9 +15,9 @@ const ERRORCOLOR = baseTheme.colors.red[600]
 const DEFAULTCOLOR = baseTheme.colors.gray[400]
 
 interface InputExtraProps {
-  error?: string
-  disabled?: boolean
-  colorField?: boolean
+  error?: string | undefined
+  disabled?: boolean | undefined
+  colorField?: boolean | undefined
 }
 
 const NO_COLOR_FIELD_PADDING = "padding: 8px 10px 10px 10px;"

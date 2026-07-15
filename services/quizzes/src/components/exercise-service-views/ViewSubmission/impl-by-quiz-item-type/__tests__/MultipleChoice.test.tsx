@@ -1,5 +1,5 @@
-import { vi } from "vitest"
 import { render, screen, within } from "@testing-library/react"
+import { vi } from "vitest"
 
 import type { UserItemAnswerMultiplechoice } from "../../../../../../types/quizTypes/answer"
 import type {
@@ -100,14 +100,14 @@ describe("MultipleChoice submission view accessibility", () => {
   it("marks the user's own selection with screen reader text", () => {
     renderSubmission()
     const [first, second] = screen.getAllByRole("listitem")
-    expect(within(first).getByText("you-selected-this-option")).toBeInTheDocument()
-    expect(within(second).queryByText("you-selected-this-option")).not.toBeInTheDocument()
+    expect(within(first!).getByText("you-selected-this-option")).toBeInTheDocument()
+    expect(within(second!).queryByText("you-selected-this-option")).not.toBeInTheDocument()
   })
 
   it("conveys correct/incorrect state as text, not only color (WCAG 1.4.1)", () => {
     renderSubmission()
     const [first, second] = screen.getAllByRole("listitem")
-    expect(within(first).getByText("correct-option")).toBeInTheDocument()
-    expect(within(second).getByText("incorrect-option")).toBeInTheDocument()
+    expect(within(first!).getByText("correct-option")).toBeInTheDocument()
+    expect(within(second!).getByText("incorrect-option")).toBeInTheDocument()
   })
 })

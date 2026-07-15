@@ -9,7 +9,6 @@ import { usePopper } from "react-popper"
 
 import useClickOutside from "../../hooks/useClickOutside"
 import { LANGUAGE_COOKIE_KEY } from "../../utils/constants"
-
 import LanguageMenu from "./LanguageMenu"
 import LanguageOptionComponent from "./LanguageOption"
 

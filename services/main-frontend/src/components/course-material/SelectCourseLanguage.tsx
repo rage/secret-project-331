@@ -6,8 +6,6 @@ import { useAtomValue } from "jotai"
 import React, { useCallback, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getLanguageName } from "./modals/ChooseCourseLanguage"
-
 import useCourseLanguageVersionNavigationInfos from "@/hooks/course-material/useCourseLanguageVersionNavigationInfos"
 import {
   baseTheme,
@@ -19,6 +17,8 @@ import {
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
+
+import { getLanguageName } from "./modals/ChooseCourseLanguage"
 
 export interface CourseTranslationsListProps {
   selectedLangCourseId: string
@@ -77,7 +77,11 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     if (i === -1) {
       return courseLanguageVersionsQuery.data.slice()
     }
+    // i !== -1 was handled above, so index i exists.
     const item = courseLanguageVersionsQuery.data[i]
+    if (item === undefined) {
+      return courseLanguageVersionsQuery.data.slice()
+    }
     const reordered = [
       item,
       ...courseLanguageVersionsQuery.data.slice(0, i),

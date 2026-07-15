@@ -1,21 +1,20 @@
 "use client"
 
 import "@testing-library/jest-dom"
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { Provider as JotaiProvider, useSetAtom } from "jotai"
 import React from "react"
 
-import FeedbackDialog from "../FeedbackDialog"
-
 import { currentlyOpenFeedbackDialogAtom } from "@/stores/course-material/materialFeedbackStore"
+
+import FeedbackDialog from "../FeedbackDialog"
 
 // jsdom does not implement IntersectionObserver (used by the shared TextAreaField)
 class IntersectionObserverStub {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  public observe() {}
+  public unobserve() {}
+  public disconnect() {}
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ;(global as any).IntersectionObserver = IntersectionObserverStub

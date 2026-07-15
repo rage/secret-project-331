@@ -4,11 +4,11 @@ import { css } from "@emotion/css"
 import { Trash } from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"
 
-import { useWorkspaceTaskCompletionField } from "../hooks/useWorkspaceTaskCompletionField"
-
 import type { CourseDesignerPlanStageTask } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, Checkbox } from "@/shared-module/components"
+
+import { useWorkspaceTaskCompletionField } from "../hooks/useWorkspaceTaskCompletionField"
 
 const taskRowStyles = css`
   display: flex;

@@ -10,6 +10,9 @@
     "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
@@ -18,6 +21,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "jsxImportSource": "@emotion/react"
   },
   "exclude": ["node_modules", "src/shared-module"],

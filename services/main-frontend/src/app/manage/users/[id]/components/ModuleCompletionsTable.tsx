@@ -4,15 +4,14 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { TONE } from "../lib/displayConstants"
-import { computeModuleTimings } from "../lib/durations"
-
-import Duration from "./Duration"
-
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Badge, Meter } from "@/shared-module/components"
+
+import { TONE } from "../lib/displayConstants"
+import { computeModuleTimings } from "../lib/durations"
+import Duration from "./Duration"
 
 export interface ModuleCompletionsTableProps {
   enrollment: CourseEnrollmentInfo

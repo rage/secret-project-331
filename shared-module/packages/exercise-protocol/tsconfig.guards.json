@@ -1,0 +1,11 @@
+{
+  // ts-auto-guard runs under this config instead of tsconfig.json. Under exactOptionalPropertyTypes
+  // ts-morph resolves an optional property (`foo?: T`) as `T` rather than `T | undefined`, so the
+  // generated guard drops its `typeof x === "undefined"` branch and then wrongly rejects objects that
+  // simply omit the optional property. Generating with the flag off restores the correct,
+  // absence-tolerant guard. The type-check gate (`tsc -p tsconfig.json`) still runs with eOPT on.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "exactOptionalPropertyTypes": false
+  }
+}

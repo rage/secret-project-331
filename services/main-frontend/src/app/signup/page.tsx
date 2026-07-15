@@ -18,8 +18,8 @@ import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.ge
 import type { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import "@/shared-module/common/init/registerAuthApiClients"
 import countries from "@/shared-module/common/locales/en/countries.json"
+import "@/shared-module/common/init/registerAuthApiClients"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
   useCurrentPagePathForReturnTo,

@@ -3,7 +3,6 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 
 import { TextField } from "../src/components/TextField"
-
 import type { StringFieldForm } from "./testUtils"
 import { FormHarness, renderStringField } from "./testUtils"
 

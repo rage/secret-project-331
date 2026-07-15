@@ -259,7 +259,7 @@ function deriveNextpageProps(
   if (currentPageIsChapterFrontPage) {
     res.title = t("start-studying")
     res.subtitle = t("proceed-to-the-first-topic")
-    res.chapterFrontPageURL = undefined
+    delete res.chapterFrontPageURL
   }
 
   if (endOfChapter) {
@@ -276,7 +276,7 @@ function deriveNextpageProps(
 
   if (nextPageIsNotOpen) {
     res.nextTitle = t("closed")
-    res.url = undefined
+    delete res.url
     if (
       info.next_page?.chapter_opens_at !== null &&
       info.next_page?.chapter_opens_at !== undefined

@@ -3,9 +3,9 @@
 import type { QueryObserverResult } from "@tanstack/react-query"
 import React from "react"
 
-import ExerciseServiceCard from "./ExerciseServiceCard"
-
 import type { ExerciseService } from "@/generated/api/types.generated"
+
+import ExerciseServiceCard from "./ExerciseServiceCard"
 
 interface ExerciseServiceEditorProps {
   exerciseServices: ExerciseService[]

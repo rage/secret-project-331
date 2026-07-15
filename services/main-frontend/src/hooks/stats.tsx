@@ -3,8 +3,6 @@
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
 import { queryOptions, useQuery } from "@tanstack/react-query"
 
-import type { HookQueryOptions } from "."
-
 import {
   getAvgTimeToFirstSubmissionHistoryOptions as getAvgTimeToFirstSubmissionHistoryGeneratedOptions,
   getCohortActivityHistoryOptions as getCohortActivityHistoryGeneratedOptions,
@@ -43,6 +41,8 @@ import type {
   TimeGranularity,
 } from "@/generated/api/types.generated"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+
+import type { HookQueryOptions } from "."
 
 const disabledQueryKey = (id: string, extras?: Record<string, unknown>) =>
   [{ _id: id, ...extras }] as const

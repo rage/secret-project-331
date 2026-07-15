@@ -1,5 +1,4 @@
 import "@testing-library/jest-dom/vitest"
-
 import { vi } from "vitest"
 
 // React 19: flush state updates during render tests.

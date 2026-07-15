@@ -3,13 +3,13 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import type { BlockRendererProps } from ".."
-import InnerBlocks from "../util/InnerBlocks"
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
+import InnerBlocks from "../util/InnerBlocks"
 
 const Wrapper = styled.div`
   margin: 0.5rem auto;

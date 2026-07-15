@@ -18,6 +18,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 interface SelectUserInfoFormFields {
   email: string
@@ -397,7 +398,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               },
             })}
             required
-            error={errors.email}
+            {...omitUndefined({ error: errors.email })}
           />
 
           <div></div>
@@ -409,7 +410,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               required: t("required-field"),
             })}
             required
-            error={errors.first_name}
+            {...omitUndefined({ error: errors.first_name })}
           />
 
           <TextField
@@ -419,7 +420,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               required: t("required-field"),
             })}
             required
-            error={errors.last_name}
+            {...omitUndefined({ error: errors.last_name })}
           />
 
           <Controller
@@ -433,7 +434,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
                 onChangeByValue={field.onChange}
                 value={field.value}
                 required={true}
-                error={errors.country?.message}
+                {...omitUndefined({ error: errors.country?.message })}
                 placeholder={t("label-select-country")}
               />
             )}

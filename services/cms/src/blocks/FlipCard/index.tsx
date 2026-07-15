@@ -2,11 +2,11 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
-import FlipCardEditor from "./FlipCardEditor"
-import FlipCardSave from "./FlipCardSave"
-
 import { MOOCFI_CATEGORY_SLUG } from "@/utils/Gutenberg/modifyGutenbergCategories"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
+import FlipCardEditor from "./FlipCardEditor"
+import FlipCardSave from "./FlipCardSave"
 
 export interface FlipCardAttributes {
   size: string

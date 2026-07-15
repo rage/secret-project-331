@@ -118,7 +118,7 @@ export function applyOtpPaste(
   const characters = sanitizedCharacters.slice(0, nextSlots.length - startIndex).split("")
 
   for (let offset = 0; offset < characters.length; offset += 1) {
-    nextSlots[startIndex + offset] = characters[offset]
+    nextSlots[startIndex + offset] = characters[offset] ?? ""
   }
 
   const nextIndex =

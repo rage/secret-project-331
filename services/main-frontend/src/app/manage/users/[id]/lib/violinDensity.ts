@@ -102,7 +102,7 @@ export function buildCourseDensity(enrollment: CourseEnrollmentInfo): CourseDens
       if (b < 0 || b >= nBins) {
         continue
       }
-      perBin[b] += d.count
+      perBin[b] = (perBin[b] ?? 0) + d.count
       hasAny = true
     }
     if (!hasAny) {
@@ -110,13 +110,14 @@ export function buildCourseDensity(enrollment: CourseEnrollmentInfo): CourseDens
     }
     const ex = m.exercise_count
     for (let b = 0; b < nBins; b++) {
-      if (perBin[b] === 0) {
+      const binCount = perBin[b] ?? 0
+      if (binCount === 0) {
         continue
       }
-      totals[b] += perBin[b]
-      breakdowns[b].push({ name: m.name ?? null, count: perBin[b] })
+      totals[b] = (totals[b] ?? 0) + binCount
+      breakdowns[b]?.push({ name: m.name ?? null, count: binCount })
       if (ex > 0) {
-        cumulative[b] += perBin[b] / ex
+        cumulative[b] = (cumulative[b] ?? 0) + binCount / ex
       }
     }
     if (ex > 0) {
@@ -125,7 +126,7 @@ export function buildCourseDensity(enrollment: CourseEnrollmentInfo): CourseDens
   })
 
   const activeDays: DayActivity[] = days
-    .map((ms, b) => ({ ms, total: totals[b], breakdown: breakdowns[b] }))
+    .map((ms, b) => ({ ms, total: totals[b] ?? 0, breakdown: breakdowns[b] ?? [] }))
     .filter((d) => d.total > 0)
 
   return { days, weekly, layers, activeDays }

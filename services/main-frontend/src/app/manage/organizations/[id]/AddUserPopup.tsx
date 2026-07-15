@@ -6,10 +6,11 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { USER_ROLES } from "@/constants/roles"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 
 type RoleValue = (typeof USER_ROLES)[number]["value"]
 
@@ -101,7 +102,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
             {...register("email", { required: true })}
             id="add-user-email"
             label={t("label-email")}
-            error={errors.email ? t("validation-required") : undefined}
+            {...includeIf(errors.email, { error: t("validation-required") })}
           />
         </div>
 

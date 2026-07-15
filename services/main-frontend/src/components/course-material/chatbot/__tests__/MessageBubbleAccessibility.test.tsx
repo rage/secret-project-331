@@ -1,7 +1,6 @@
 "use client"
 
 import "@testing-library/jest-dom"
-
 import { render, screen } from "@testing-library/react"
 
 import ChatbotChatBody from "../shared/ChatbotChatBody"
@@ -12,10 +11,10 @@ import MessageBubble from "../shared/MessageBubble"
 // jsdom lacks IntersectionObserver, needed by TextAreaField's auto-resize inside ChatbotChatBody.
 beforeAll(() => {
   class IntersectionObserverStub {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-    takeRecords() {
+    public observe() {}
+    public unobserve() {}
+    public disconnect() {}
+    public takeRecords() {
       return []
     }
   }

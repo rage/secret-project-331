@@ -11,18 +11,8 @@ import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } f
 import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import type { BlockRendererProps } from "../.."
-
-import ExerciseStatusMessage from "./ExerciseStatusMessage"
-import ExerciseSubmitButton from "./ExerciseSubmitButton"
-import ExerciseTask from "./ExerciseTask"
-import OutOfTriesNotification from "./OutOfTriesNotification"
-import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
-import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
-import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
-
-import YellowBox from "@/components/course-material/YellowBox"
 import UserOnWrongCourseNotification from "@/components/course-material/notifications/UserOnWrongCourseNotification"
+import YellowBox from "@/components/course-material/YellowBox"
 import {
   ExerciseCardHeader,
   ExerciseCardPointsBadge,
@@ -57,6 +47,15 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
+
+import type { BlockRendererProps } from "../.."
+import ExerciseStatusMessage from "./ExerciseStatusMessage"
+import ExerciseSubmitButton from "./ExerciseSubmitButton"
+import ExerciseTask from "./ExerciseTask"
+import OutOfTriesNotification from "./OutOfTriesNotification"
+import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
+import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
+import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -486,7 +485,8 @@ const ExerciseBlock: React.FC<
           const timezoneOffsetParts = (-exerciseDeadline.getTimezoneOffset() / 60)
             .toString()
             .split(".")
-          const start = timezoneOffsetParts[0].padStart(2, "0")
+          // split always yields at least one element, so the fallback never applies.
+          const start = (timezoneOffsetParts[0] ?? "").padStart(2, "0")
           let end = ""
           if (timezoneOffsetParts[1]) {
             end = timezoneOffsetParts[1].padEnd(2, "0")

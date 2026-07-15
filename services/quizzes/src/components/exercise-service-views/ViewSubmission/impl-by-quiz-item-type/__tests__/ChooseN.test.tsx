@@ -74,7 +74,7 @@ const renderSubmission = (solution: ModelSolutionQuizItemChooseN | null = modelS
 describe("ChooseN submission view accessibility", () => {
   it("labels a correctly selected option's icon as selected and correct (WCAG 1.1.1)", () => {
     renderSubmission()
-    const apple = screen.getAllByText("Apple")[0].closest("div")
+    const apple = screen.getAllByText("Apple")[0]!.closest("div")
     expect(apple).not.toBeNull()
     expect(apple?.textContent).toContain("choose-n-selected")
     expect(apple?.textContent).toContain("your-answer-was-correct")
@@ -83,7 +83,7 @@ describe("ChooseN submission view accessibility", () => {
 
   it("labels an incorrectly selected option's icon as selected and incorrect (WCAG 1.1.1)", () => {
     renderSubmission()
-    const carrot = screen.getAllByText("Carrot")[0].closest("div")
+    const carrot = screen.getAllByText("Carrot")[0]!.closest("div")
     expect(carrot).not.toBeNull()
     expect(carrot?.textContent).toContain("choose-n-selected")
     expect(carrot?.textContent).toContain("your-answer-was-not-correct")
@@ -91,7 +91,7 @@ describe("ChooseN submission view accessibility", () => {
 
   it("does not add correctness text when there is no model solution", () => {
     renderSubmission(null)
-    const apple = screen.getAllByText("Apple")[0].closest("div")
+    const apple = screen.getAllByText("Apple")[0]!.closest("div")
     expect(apple?.textContent).toContain("choose-n-selected")
     expect(apple?.textContent).not.toContain("your-answer-was-correct")
   })

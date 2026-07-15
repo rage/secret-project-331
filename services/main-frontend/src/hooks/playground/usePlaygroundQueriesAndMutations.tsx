@@ -5,8 +5,6 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import type { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
-
 import type {
   GetPlaygroundViewsWebsocketData,
   ReceivePlaygroundGradingData,
@@ -24,6 +22,8 @@ import {
   parseExerciseTaskGradingResult,
   parsePlaygroundViewsMessage,
 } from "@/utils/playgroundSchemas"
+
+import type { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 const PLAYGROUND_VIEWS_WEBSOCKET_PATH: GetPlaygroundViewsWebsocketData["url"] =

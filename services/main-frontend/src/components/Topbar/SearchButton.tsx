@@ -9,20 +9,20 @@ import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 import { useDebounce } from "use-debounce"
 
-import useSearchPagesLiveRegion from "./useSearchPagesLiveRegion"
-
 import {
   searchPagesWithPhrase,
   searchPagesWithWords,
 } from "@/generated/course-material-api/sdk.generated"
 import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { coursePageRoute } from "@/shared-module/common/utils/routes"
+
+import useSearchPagesLiveRegion from "./useSearchPagesLiveRegion"
 
 const HeaderBar = styled.div`
   display: flex;

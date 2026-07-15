@@ -5,9 +5,9 @@ import { PlusHeart } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { exerciseCardPillShell } from "./exerciseCardPillShell"
-
 import { headingFont } from "@/shared-module/common/styles"
+
+import { exerciseCardPillShell } from "./exerciseCardPillShell"
 
 export interface ExerciseCardTriesBadgeProps {
   triesRemaining: number

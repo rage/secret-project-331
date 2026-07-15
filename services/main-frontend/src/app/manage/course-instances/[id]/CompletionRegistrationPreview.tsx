@@ -4,13 +4,13 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import PreviewUserList from "./PreviewUserList"
-
 import Collapsible from "@/components/Collapsible"
 import type { ManualCompletionPreview } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+
+import PreviewUserList from "./PreviewUserList"
 
 export interface CompletionRegistrationPreviewProps {
   manualCompletionPreview: ManualCompletionPreview

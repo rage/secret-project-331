@@ -5,10 +5,10 @@ import type { JSX, RefObject } from "react"
 import { memo, useContext, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
-import ParsedTextRenderer from "./ParsedTextRenderer"
-
 import TooltipNTrigger from "@/components/course-material/TooltipNTrigger"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
+
+import ParsedTextRenderer from "./ParsedTextRenderer"
 
 export type Tag = keyof JSX.IntrinsicElements
 
@@ -73,7 +73,13 @@ const sameTargets = (a: GlossaryTarget[], b: GlossaryTarget[]) => {
     return false
   }
   for (let i = 0; i < a.length; i++) {
-    if (a[i].node !== b[i].node || a[i].glossaryId !== b[i].glossaryId) {
+    // i is bounded by a.length and a.length === b.length (checked above), so both are defined.
+    const aItem = a[i]
+    const bItem = b[i]
+    if (aItem === undefined || bItem === undefined) {
+      continue
+    }
+    if (aItem.node !== bItem.node || aItem.glossaryId !== bItem.glossaryId) {
       return false
     }
   }

@@ -5,19 +5,19 @@ import { useAtomValue } from "jotai"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseSettingsModal from "../modals/CourseSettingsModal"
-
 import Button from "@/shared-module/common/components/Button"
 import { Menu } from "@/shared-module/common/components/Navigation/NavBar"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useLogout from "@/shared-module/common/hooks/useLogout"
-import "@/shared-module/common/init/registerAuthApiClients"
 import { baseTheme } from "@/shared-module/common/styles"
+import "@/shared-module/common/init/registerAuthApiClients"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
+
+import CourseSettingsModal from "../modals/CourseSettingsModal"
 
 export interface UserNavigationControlsProps {
   styles?: string[]

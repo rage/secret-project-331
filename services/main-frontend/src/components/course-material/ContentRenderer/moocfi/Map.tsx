@@ -7,9 +7,6 @@ import { useAtomValue } from "jotai"
 import React, { Fragment, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { countryList } from "./../util/Countries"
-import WorldMap from "./worldMap.svg"
-
 import {
   getCourseMaterialStudentCountries,
   getCourseMaterialStudentCountry,
@@ -22,6 +19,9 @@ import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
 import { courseMaterialAtom } from "@/state/course-material"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
+
+import { countryList } from "./../util/Countries"
+import WorldMap from "./worldMap.svg"
 
 const Wrapper = styled.div`
   display: relative;
@@ -231,6 +231,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
             child.removeEventListener("mouseout", eventHandler)
           }
         }
+        return undefined
       })
     }
   }, [countryCodeCount, map, t])
@@ -334,7 +335,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
                 label={t("label-country")}
                 onChange={() => null}
                 options={countryList}
-                defaultValue={countryList[90].label}
+                defaultValue={countryList[90]?.label}
               />
               <input type="submit" value={t("submit")} />
             </StyledForm>

@@ -35,8 +35,8 @@ export type BackendMessageKey =
   | "sisu_resource_not_found"
 
 export interface ErrorViewIssue {
-  path?: string
-  code?: string
+  path?: string | undefined
+  code?: string | undefined
   message: string
 }
 

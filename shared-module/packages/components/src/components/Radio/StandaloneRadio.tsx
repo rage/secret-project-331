@@ -5,6 +5,7 @@ import { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef } from "react-aria"
 
 import { joinAriaDescribedBy, resolveFieldState } from "../../lib/utils/field"
+import { includeIf, omitUndefined } from "../../lib/utils/nullability"
 import {
   checkableContentCss,
   checkableInputCss,
@@ -18,7 +19,6 @@ import {
   resolveChoiceIndicatorCss,
 } from "../primitives/checkableStyles"
 import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
-
 import type { RadioInnerProps } from "./radioTypes"
 
 // oxlint-disable-next-line i18next/no-literal-string
@@ -67,7 +67,7 @@ export function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
     type: "radio" as const,
     disabled: standaloneState.isDisabled,
     required: standaloneState.isRequired,
-    ...(radioValue !== undefined ? { value: radioValue } : {}),
+    ...omitUndefined({ value: radioValue }),
     "aria-describedby": describedBy,
     ...(isControlled ? { checked, onChange } : { defaultChecked, onChange }),
   })
@@ -87,7 +87,7 @@ export function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
         data-disabled={String(standaloneState.isDisabled)}
         data-focus-visible={String(isFocusVisible)}
         data-invalid={String(standaloneState.isInvalid)}
-        {...(isControlled ? { "data-selected": String(checked) } : {})}
+        {...includeIf(isControlled, { "data-selected": String(checked) })}
       >
         {isControlled ? (
           checked ? (

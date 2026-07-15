@@ -1,9 +1,9 @@
 import { test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

@@ -7,8 +7,6 @@ import { Eye, Pen } from "@vectopus/atlas-icons-react"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FloatingHeaderTable } from "../FloatingHeaderTable"
-
 import { getCourseStudentsCertificatesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateGeneratedCertificate } from "@/generated/api/sdk.generated"
 import type {
@@ -17,15 +15,17 @@ import type {
   GetCertificateByVerificationIdData,
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
 import { QueryResult } from "@/shared-module/components"
 import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
+
+import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
 const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"] =
   "/api/v0/main-frontend/certificates/{certificate_verification_id}"

@@ -3,7 +3,6 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { YearMonthField } from "../src/components/YearMonthField"
-
 import { renderWithForm } from "./testUtils"
 
 describe("YearMonthField", () => {

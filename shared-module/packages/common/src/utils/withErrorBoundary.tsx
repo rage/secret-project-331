@@ -10,7 +10,7 @@ import { reportErrorOccurrence } from "../errors/reportErrorOccurrence"
 interface ErrorBoundaryState {
   showTrace: boolean
   error?: string
-  trace?: string
+  trace?: string | undefined
 }
 
 export default function withErrorBoundary<T>(Component: ComponentType<T>): ComponentClass<T> {

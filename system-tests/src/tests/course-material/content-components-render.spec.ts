@@ -1,10 +1,10 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 const ADMIN_STORAGE_STATE = "src/states/admin@example.com.json"
 

@@ -1,7 +1,6 @@
 "use client"
 
 import "@testing-library/jest-dom"
-
 import { OverlayProvider } from "@react-aria/overlays"
 import { fireEvent, render, screen } from "@testing-library/react"
 
@@ -9,6 +8,7 @@ import MarkAsSpamDialog from "../MarkAsSpamDialog"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
 describe("MarkAsSpamDialog (report dialog, issue #64)", () => {
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- colocated with its describe block for readability
   const renderDialog = (onSubmit = jest.fn(), onClose = jest.fn()) => {
     render(
       <OverlayProvider>

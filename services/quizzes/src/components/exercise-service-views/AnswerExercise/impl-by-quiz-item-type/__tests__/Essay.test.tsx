@@ -1,5 +1,5 @@
-import { vi } from "vitest"
 import { act, fireEvent, render, screen } from "@testing-library/react"
+import { vi } from "vitest"
 
 import type { UserItemAnswerEssay } from "../../../../../../types/quizTypes/answer"
 import type { PublicSpecQuizItemEssay } from "../../../../../../types/quizTypes/publicSpec"
@@ -91,7 +91,7 @@ describe("Essay accessibility", () => {
     const ids = (textarea.getAttribute("aria-labelledby") as string).split(" ")
     expect(ids).toHaveLength(1)
     // oxlint-disable-next-line unicorn/prefer-query-selector -- useId values aren't valid CSS selectors
-    expect(document.getElementById(ids[0])?.textContent).toBe("What is your opinion?")
+    expect(document.getElementById(ids[0]!)?.textContent).toBe("What is your opinion?")
   })
 
   it("gives the textarea a border color with >= 3:1 contrast", () => {

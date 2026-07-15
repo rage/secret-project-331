@@ -2,14 +2,14 @@
 
 import { css } from "@emotion/css"
 
-import type { BlockRendererProps } from "../../.."
-import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
-
 import type { ButtonAttributes, ButtonsAttributes } from "@/../types/GutenbergBlockAttributes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Link } from "@/shared-module/components"
 import colorMapper from "@/styles/course-material/colorMapper"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
+
+import type { BlockRendererProps } from "../../.."
+import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
 
 // Layout looks like this:
 // export interface Layout {

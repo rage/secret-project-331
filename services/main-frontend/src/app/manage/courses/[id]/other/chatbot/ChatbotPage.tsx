@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CreateChatbotDialog from "./CreateChatbotDialog"
-
 import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import {
   getCourseChatbotsOptions,
@@ -20,6 +18,8 @@ import { baseTheme, headingFont, typography } from "@/shared-module/common/style
 import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
 import { QueryResult } from "@/shared-module/components"
 import { CardList, CardListItem } from "@/styles/styles"
+
+import CreateChatbotDialog from "./CreateChatbotDialog"
 
 const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()

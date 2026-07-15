@@ -50,7 +50,8 @@ export function computeModuleTimings<T>(
   )
   return sorted.map((completion, index) => {
     const completedAt = getCompletedAt(completion)
-    const previousAt = index === 0 ? null : getCompletedAt(sorted[index - 1])
+    const previous = index === 0 ? undefined : sorted[index - 1]
+    const previousAt = previous ? getCompletedAt(previous) : null
     return {
       completion,
       completedAt,

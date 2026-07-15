@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 import { baseTheme, typography } from "../../styles"
 import type { ButtonProps } from "../Button"
 import Button from "../Button"
-
 import Dialog from "./Dialog"
 
 interface StandardDialogProps {
@@ -27,7 +26,7 @@ interface StandardDialogProps {
   leftAlignTitle?: boolean
   closeable?: boolean
   /** Sets `lang` on the dialog root for correct screen reader pronunciation */
-  lang?: string
+  lang?: string | undefined
   "data-testid"?: string
   /** Whether the dialog is closable by clicking outside of it */
   isDismissable?: boolean

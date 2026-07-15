@@ -9,12 +9,12 @@ import type {
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import AIDescriptionForm from "./AIDescriptionForm"
-
 import type { Course } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import Button from "@/shared-module/common/components/Button"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
+
+import AIDescriptionForm from "./AIDescriptionForm"
 
 interface Props {
   course: Course

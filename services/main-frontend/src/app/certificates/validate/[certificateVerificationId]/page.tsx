@@ -12,6 +12,7 @@ import {
 } from "@/components/queryResultErrorRenderers"
 import { getCertificateByVerificationIdOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { Link, QueryResult } from "@/shared-module/components"
@@ -32,7 +33,9 @@ const ModuleCertificateVerification: React.FC = () => {
       },
       query: {
         debug: !!debug,
-        test_certificate_configuration_id: testCourseModuleId ?? undefined,
+        ...includeIf(testCourseModuleId !== null, {
+          test_certificate_configuration_id: testCourseModuleId,
+        }),
       },
     }),
     // This is expensive, so it doesn't make sense to retry

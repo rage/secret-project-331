@@ -5,13 +5,14 @@ import { usePathname, useRouter } from "next/navigation"
 import React, { useEffect, useMemo, useState, useTransition } from "react"
 import { useTranslation } from "react-i18next"
 
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
+
 import * as styles from "./StudentsPageStyles"
 import { CertificatesTabContent, CompletionsTabContent, UserTabContent } from "./StudentsTableTabs"
 import { ProgressTabContent } from "./tabs/ProgressTab"
-
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
 
 interface Props {
   courseId?: string
@@ -112,7 +113,9 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
     [TAB_PROGRESS]: courseId ? (
       <ProgressTabContent courseId={courseId} searchQuery={searchQuery} />
     ) : null,
-    [TAB_CERTIFICATES]: <CertificatesTabContent courseId={courseId} searchQuery={searchQuery} />,
+    [TAB_CERTIFICATES]: (
+      <CertificatesTabContent {...omitUndefined({ courseId })} searchQuery={searchQuery} />
+    ),
   }
 
   return (

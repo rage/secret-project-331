@@ -3,6 +3,7 @@ import { useLocale } from "react-aria"
 
 import { findFirstMatchingChild } from "../../../lib/utils/compositeField"
 import { resolveFieldState } from "../../../lib/utils/field"
+import { omitUndefined } from "../../../lib/utils/nullability"
 import {
   parseDateLikeValue,
   parseTimeOnlyValue,
@@ -13,7 +14,6 @@ import {
   serializeTimeValue,
   shouldHideRestSegmentPlaceholders,
 } from "../../../lib/utils/segmentedField"
-
 import type { SegmentedDateInputFieldProps } from "./segmentTypes"
 
 export {
@@ -168,11 +168,8 @@ export function useSegmentedFieldBase(
     externalOnBlur: onBlur,
     externalOnFocus: onFocus,
     resolvedState: resolveFieldState({
-      isDisabled,
-      isReadOnly,
-      isRequired,
-      isInvalid,
       errorMessage,
+      ...omitUndefined({ isDisabled, isReadOnly, isRequired, isInvalid }),
     }),
     setIsFocused,
     step,

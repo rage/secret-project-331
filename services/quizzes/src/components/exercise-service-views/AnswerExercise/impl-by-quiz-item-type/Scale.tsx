@@ -5,17 +5,15 @@ import React, { useRef } from "react"
 import { mergeProps, useFocusRing, useRadio, useRadioGroup, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import type { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
-import type { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
-import ParsedText from "../../../ParsedText"
-
-import { QUIZ_TITLE_STYLE } from "./AnswerQuizStyles"
-
-import type { QuizItemComponentProps } from "."
-
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { QuizItemComponentProps } from "."
+import type { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
+import ParsedText from "../../../ParsedText"
+import { QUIZ_TITLE_STYLE } from "./AnswerQuizStyles"
 
 const optionStyle = css`
   display: flex;
@@ -116,10 +114,7 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
     onChange: handleOptionSelect,
   })
   const { radioGroupProps, labelProps } = useRadioGroup(
-    {
-      label: quizItem.title || undefined,
-      "aria-label": quizItem.title ? undefined : t("answer"),
-    },
+    quizItem.title ? { label: quizItem.title } : { "aria-label": t("answer") },
     state,
   )
 

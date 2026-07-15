@@ -19,7 +19,11 @@ function evict() {
   if (store.size > MAX_ENTRIES) {
     const oldest = [...store.entries()].toSorted((a, b) => a[1].createdAt - b[1].createdAt)
     for (let i = 0; i < oldest.length - MAX_ENTRIES; i++) {
-      store.delete(oldest[i][0])
+      const entry = oldest[i]
+      if (entry === undefined) {
+        continue
+      }
+      store.delete(entry[0])
     }
   }
 }

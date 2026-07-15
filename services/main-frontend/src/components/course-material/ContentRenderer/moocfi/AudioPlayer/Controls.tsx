@@ -6,8 +6,6 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useButton, useFocusRing } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { styledRangeInput } from "./RangeComponentStyle"
-
 import FastForward from "@/img/course-material/audio-player/fast-forward.svg"
 import HighVolume from "@/img/course-material/audio-player/high-volume.svg"
 import LowVolume from "@/img/course-material/audio-player/low-volume.svg"
@@ -16,6 +14,8 @@ import MuteVolume from "@/img/course-material/audio-player/mute-volume.svg"
 import Pause from "@/img/course-material/audio-player/pause.svg"
 import Play from "@/img/course-material/audio-player/play.svg"
 import Rewind from "@/img/course-material/audio-player/rewind.svg"
+
+import { styledRangeInput } from "./RangeComponentStyle"
 
 // icons
 

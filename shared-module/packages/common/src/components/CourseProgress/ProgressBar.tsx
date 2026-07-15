@@ -4,10 +4,9 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useEffect, useState } from "react"
 
+import type { ProgressBarExtraProps } from "."
 import { baseTheme, headingFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
-
-import type { ProgressBarExtraProps } from "."
 
 const LinearProgress = styled.div<LinearProgressProps>`
   display: flex;

@@ -2,13 +2,13 @@
 import type { Locator, Page } from "@playwright/test"
 import { test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import expectUrlPathWithRandomUuid from "../../utils/expect"
 import {
   getLocatorForNthExerciseServiceIframe,
   scrollElementInsideIframeToView,
 } from "../../utils/iframeLocators"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",

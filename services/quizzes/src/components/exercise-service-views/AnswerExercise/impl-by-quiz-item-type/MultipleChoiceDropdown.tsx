@@ -2,15 +2,14 @@ import { css } from "@emotion/css"
 import { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
-import type { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/publicSpec"
-import { quizTheme } from "../../../../styles/QuizStyles"
-
-import type { QuizItemComponentProps } from "."
-
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { baseTheme, primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemComponentProps } from "."
+import type { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/publicSpec"
+import { quizTheme } from "../../../../styles/QuizStyles"
 
 const SelectInputIcon = () => {
   return (

@@ -1,7 +1,6 @@
 "use client"
 
 import "@testing-library/jest-dom"
-
 import { render, screen } from "@testing-library/react"
 
 import ColorsIdentifier from "../ColorsIdentifier"
@@ -46,6 +45,7 @@ describe("Progress legend text values (issue #71)", () => {
 })
 
 describe("CourseProgress legend/marker consistency", () => {
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- colocated with its describe block for readability
   const makeProgress = (overrides: Record<string, unknown>) => [
     {
       attempted_exercises: 3,

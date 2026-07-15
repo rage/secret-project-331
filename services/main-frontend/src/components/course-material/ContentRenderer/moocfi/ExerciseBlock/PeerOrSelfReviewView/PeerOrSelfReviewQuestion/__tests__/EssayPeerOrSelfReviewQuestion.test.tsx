@@ -3,19 +3,19 @@
 import "@testing-library/jest-dom"
 import { render, screen } from "@testing-library/react"
 
-import EssayPeerOrSelfReviewQuestion from "../EssayPeerOrSelfReviewQuestion"
-
 import type { PeerOrSelfReviewQuestion } from "@/generated/course-material-api/types.generated"
+
+import EssayPeerOrSelfReviewQuestion from "../EssayPeerOrSelfReviewQuestion"
 
 // react-i18next is globally mocked in tests/setup-jest.js (t(key) => key).
 
 // TextAreaField uses IntersectionObserver for auto-resize; jsdom does not provide it.
 beforeAll(() => {
   class MockIntersectionObserver {
-    observe(): void {}
-    unobserve(): void {}
-    disconnect(): void {}
-    takeRecords(): IntersectionObserverEntry[] {
+    public observe(): void {}
+    public unobserve(): void {}
+    public disconnect(): void {}
+    public takeRecords(): IntersectionObserverEntry[] {
       return []
     }
   }

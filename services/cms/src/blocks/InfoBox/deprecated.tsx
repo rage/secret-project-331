@@ -5,9 +5,9 @@ import { useBlockProps } from "@wordpress/block-editor"
 import { createBlock } from "@wordpress/blocks"
 import { omit } from "lodash"
 
-import type { InfoBoxComponentProps } from "."
-
 import type { BlockDeprecation } from "@/utils/Gutenberg/types"
+
+import type { InfoBoxComponentProps } from "."
 
 interface Deprecated1InfoBoxComponentProps {
   title: string

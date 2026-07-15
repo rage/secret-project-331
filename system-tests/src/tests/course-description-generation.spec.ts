@@ -106,7 +106,7 @@ test("Description not replaced if use suggested box unticked", async ({ page }) 
   await page.getByRole("button", { name: "Suggest metadata" }).click()
   await page.getByRole("textbox", { name: "AI generated description" }).click()
   await page.getByRole("textbox", { name: "AI generated description" }).press("ControlOrMeta+a")
-  await page.locator(".css-18gxwra").first().click()
+  await page.getByTestId("container-suggested-description").getByRole("checkbox").click()
   await page
     .getByRole("textbox", { name: "AI generated description" })
     .fill("should not be visible")

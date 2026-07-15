@@ -201,7 +201,13 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
             onClick: onSubmit,
             children: t("button-text-replace-metadata"),
             variant: "primary",
-            disabled: sisuQuery.isFetching || sisuQuery.isError,
+            disabled:
+              sisuQuery.isFetching ||
+              sisuQuery.isError ||
+              prerequisitesQuery.isFetching ||
+              prerequisitesQuery.isError ||
+              audiencesQuery.isFetching ||
+              audiencesQuery.isError,
           },
         ]}
       >
@@ -224,6 +230,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                   >
                     <HelpText>{t("fieldset-helptext-current")}</HelpText>
                     <div
+                      data-testid="container-suggested-description"
                       className={css`
                         margin-left: auto;
                       `}
@@ -257,6 +264,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                   >
                     <HelpText>{t("fieldset-helptext-current")}</HelpText>
                     <div
+                      data-testid="container-suggested-prerequisites"
                       className={css`
                         margin-left: auto;
                       `}
@@ -302,7 +310,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
 
                   {prereqField.map((item, idx) => (
                     <div
-                      key={idx}
+                      key={item.id}
                       className={css`
                         display: flex;
                         flex-flow: row nowrap;
@@ -312,7 +320,6 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                         className={css`
                           flex-grow: 1;
                         `}
-                        key={idx}
                         control={control}
                         name={`course_prerequisites.${idx}.prerequisite`}
                         label={t("text-field-label-prerequisites", { index: idx + 1 })}
@@ -361,6 +368,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                   >
                     <HelpText>{t("fieldset-helptext-current")}</HelpText>
                     <div
+                      data-testid="container-suggested-audiences"
                       className={css`
                         margin-left: auto;
                       `}
@@ -405,7 +413,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
 
                   {audienceField.map((item, idx) => (
                     <div
-                      key={idx}
+                      key={item.id}
                       className={css`
                         display: flex;
                         flex-flow: row nowrap;
@@ -415,7 +423,6 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                         className={css`
                           flex-grow: 1;
                         `}
-                        key={idx}
                         control={control}
                         name={`course_audiences.${idx}.audience`}
                         label={t("text-field-label-audiences", { index: idx + 1 })}

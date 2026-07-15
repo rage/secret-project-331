@@ -79,6 +79,10 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
     reset({
       ...course,
       flagged_answers_threshold: course.flagged_answers_threshold ?? undefined,
+      closed_at: course.closed_at
+        ? (formatDateForDateTimeLocalInputs(course.closed_at) ?? null)
+        : null,
+      set_course_closed_at: Boolean(course.closed_at),
     })
   }, [course, reset])
 

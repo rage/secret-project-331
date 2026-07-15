@@ -7,6 +7,8 @@ CREATE TABLE course_prerequisites (
   course_id UUID NOT NULL REFERENCES courses,
   prerequisite VARCHAR(255) NOT NULL
 );
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON course_prerequisites FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 COMMENT ON TABLE course_prerequisites IS 'Prerequisites are preliminary knowledge that is assumed for the student to have for a course';
 COMMENT ON COLUMN course_prerequisites.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN course_prerequisites.created_at IS 'Timestamp when the record was created.';

@@ -64,7 +64,7 @@ Constraints:
 Your output must follow the JSON schema exactly:
 {
     "course_description": "...",
-    "audience": ["..."]
+    "audience": ["..."],
     "modules": [
         {
             "course_code": "...",

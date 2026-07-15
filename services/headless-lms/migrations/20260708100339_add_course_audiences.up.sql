@@ -7,6 +7,8 @@ CREATE TABLE course_audiences (
   course_id UUID NOT NULL REFERENCES courses,
   audience VARCHAR(255) NOT NULL
 );
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON course_audiences FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 COMMENT ON TABLE course_audiences IS 'The audience course is meant for';
 COMMENT ON COLUMN course_audiences.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN course_audiences.created_at IS 'Timestamp when the record was created.';

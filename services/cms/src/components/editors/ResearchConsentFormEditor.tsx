@@ -3,15 +3,6 @@
 import { css } from "@emotion/css"
 import React, { useContext, useState } from "react"
 
-import { blockTypeMapForResearchConsentForm } from "../../blocks"
-import { allowedResearchFormCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
-import CourseContext from "../../contexts/CourseContext"
-import mediaUploadBuilder from "../../services/mediaUpload"
-import { isBlockInstanceArray } from "../../utils/Gutenberg/blockInstance"
-import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
-import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
-import SerializeGutenbergModal from "../SerializeGutenbergModal"
-
 import type { NewResearchForm, ResearchForm } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -20,6 +11,15 @@ import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { blockTypeMapForResearchConsentForm } from "../../blocks"
+import { allowedResearchFormCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import CourseContext from "../../contexts/CourseContext"
+import mediaUploadBuilder from "../../services/mediaUpload"
+import { isBlockInstanceArray } from "../../utils/Gutenberg/blockInstance"
+import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
+import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
+import SerializeGutenbergModal from "../SerializeGutenbergModal"
 
 interface ResearchFormEditorProps {
   data: ResearchForm

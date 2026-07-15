@@ -2,14 +2,13 @@
 
 import { css } from "@emotion/css"
 
-import type { BlockRendererProps } from "../.."
-
-import ColumnBlock from "./ColumnBlock"
-
 import type { ColumnAttributes, ColumnsAttributes } from "@/../types/GutenbergBlockAttributes"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { Block } from "@/types/courseMaterialBlock"
+
+import type { BlockRendererProps } from "../.."
+import ColumnBlock from "./ColumnBlock"
 
 const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsAttributes>>> = ({
   data,

@@ -9,11 +9,6 @@ import type {
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { clipRect } from "../lib/clipRect"
-import { completedModuleCount } from "../lib/completions"
-import { packLanes } from "../lib/lanePacking"
-import { buildCourseDensity, courseSpan, maxStackedPerExercise } from "../lib/violinDensity"
-
 import Echarts from "@/app/manage/courses/[id]/stats/Echarts"
 import {
   moduleTimingCaptionCss,
@@ -23,6 +18,7 @@ import {
 } from "@/components/ModuleTimingTable"
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Disclosure } from "@/shared-module/components"
 import { computeModuleRows, durationSeconds, formatDuration } from "@/utils/moduleTimeline"
@@ -37,6 +33,11 @@ import {
   timeAxisBounds,
   TRACK_FILL,
 } from "@/utils/timelineChart"
+
+import { clipRect } from "../lib/clipRect"
+import { completedModuleCount } from "../lib/completions"
+import { packLanes } from "../lib/lanePacking"
+import { buildCourseDensity, courseSpan, maxStackedPerExercise } from "../lib/violinDensity"
 
 export interface ActivityTimelineProps {
   enrollments: CourseEnrollmentInfo[]
@@ -249,26 +250,26 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
       completionData.push({
         value: [meanMs, lane],
         symbolSize: count > 1 ? CLUSTER_DOT_SIZE : DOT_SIZE,
-        itemStyle: needsReview
-          ? { color: REVIEW_DOT_FILL, borderColor: REVIEW_DOT_BORDER }
-          : undefined,
-        label:
-          count > 1
-            ? {
-                show: true,
-                formatter: String(count),
-                position: BADGE_LABEL_POSITION,
-                fontSize: 10,
-                fontWeight: BADGE_LABEL_WEIGHT,
-                color: needsReview ? REVIEW_DOT_BORDER : DOT_BORDER,
-              }
-            : undefined,
+        ...includeIf(needsReview, {
+          itemStyle: { color: REVIEW_DOT_FILL, borderColor: REVIEW_DOT_BORDER },
+        }),
+        ...includeIf(count > 1, {
+          label: {
+            show: true,
+            formatter: String(count),
+            position: BADGE_LABEL_POSITION,
+            fontSize: 10,
+            fontWeight: BADGE_LABEL_WEIGHT,
+            color: needsReview ? REVIEW_DOT_BORDER : DOT_BORDER,
+          },
+        }),
         _tip: count > 1 ? `${t("completions-at-point", { n: count })}${LINE_BREAK}${body}` : body,
       })
       cluster = []
     }
     for (const point of sorted) {
-      if (cluster.length > 0 && point.ms - cluster[cluster.length - 1].ms > clusterMs) {
+      const last = cluster[cluster.length - 1]
+      if (last && point.ms - last.ms > clusterMs) {
         flush()
       }
       cluster.push(point)
@@ -310,15 +311,21 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     const endMs = api.value(2) as number
     const start = api.coord([startMs, lane])
     const end = api.coord([endMs, lane])
+    const startX = start[0] ?? 0
+    const endX = end[0] ?? 0
     const laneHeight = (api.size?.([0, 1]) as number[] | undefined)?.[1] ?? 24
-    const cy = start[1]
+    const cy = start[1] ?? 0
     const coordSys = params.coordSys as unknown as {
       x: number
       y: number
       width: number
       height: number
     }
-    const bar = packed[params.dataIndex].item
+    const packedItem = packed[params.dataIndex]
+    if (!packedItem) {
+      return { type: "group", children: [] }
+    }
+    const bar = packedItem.item
     const baselineY = cy - laneHeight / 2 + laneHeight * BASELINE_FROM_TOP
     const maxViolinPx = laneHeight * VIOLIN_MAX_FRACTION
 
@@ -340,7 +347,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
 
     // No activity yet: a single diamond on the baseline at the enrollment instant, name beneath it.
     if (!bar.hasActivity) {
-      const cx = start[0]
+      const cx = startX
       if (cx < coordSys.x || cx > coordSys.x + coordSys.width) {
         return { type: "group", children: [] }
       }
@@ -370,9 +377,9 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     }
 
     // Faint span track (enrollment → last activity) along the baseline the density rises from.
-    const width = Math.max(end[0] - start[0], 3)
+    const width = Math.max(endX - startX, 3)
     const rect = clipRect(
-      { x: start[0], y: baselineY - TRACK_PX / 2, width, height: TRACK_PX },
+      { x: startX, y: baselineY - TRACK_PX / 2, width, height: TRACK_PX },
       { x: coordSys.x, y: coordSys.y, width: coordSys.width, height: coordSys.height },
     )
     if (!rect) {
@@ -385,12 +392,19 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     const density = densityByCourse.get(bar.courseId)
     if (density && density.layers.length > 0 && globalMaxDensity > 0) {
       const scale = maxViolinPx / globalMaxDensity
-      const xs = density.days.map((d) => api.coord([d, lane])[0])
-      const firstX = xs[0]
-      const lastX = xs[xs.length - 1]
+      const xs = density.days.map((d) => api.coord([d, lane])[0] ?? 0)
+      const firstX = xs[0] ?? 0
+      const lastX = xs[xs.length - 1] ?? 0
       for (let li = density.layers.length - 1; li >= 0; li--) {
-        const { cumulative, colorIndex } = density.layers[li]
-        const top = xs.map((x, i) => [x, baselineY - Math.min(cumulative[i] * scale, maxViolinPx)])
+        const layer = density.layers[li]
+        if (!layer) {
+          continue
+        }
+        const { cumulative, colorIndex } = layer
+        const top = xs.map((x, i) => [
+          x,
+          baselineY - Math.min((cumulative[i] ?? 0) * scale, maxViolinPx),
+        ])
         violins.push({
           type: "polygon",
           shape: {

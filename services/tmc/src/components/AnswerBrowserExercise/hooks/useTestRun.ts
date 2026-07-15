@@ -1,9 +1,9 @@
 import { useCallback, useRef, useState } from "react"
 
-import { getBrowserTestAdapter, TEST_TIMEOUT_MS } from "../browserTest"
-
 import type { RunResult } from "@/tmc/cli"
 import type { PublicSpec } from "@/util/stateInterfaces"
+
+import { getBrowserTestAdapter, TEST_TIMEOUT_MS } from "../browserTest"
 
 /** Worker response: RunResult on success or error message. */
 type TestWorkerResponse = { runResult: RunResult } | { error: string }

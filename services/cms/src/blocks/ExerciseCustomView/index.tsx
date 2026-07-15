@@ -2,12 +2,11 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import ExerciseCustomViewEditor from "./ExerciseCustomViewEditor"
 import ExerciseCustomViewkSave from "./ExerciseCustomViewSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface ExerciseCustomViewAttributes {
   exercise_type: string | undefined

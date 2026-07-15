@@ -64,7 +64,11 @@ export function OneTimePassCodeField({ onChange }: Props) {
       const newValues = [...values]
 
       for (let i = 0; i < chars.length; i++) {
-        newValues[idx + i] = chars[i]
+        const char = chars[i]
+        if (char === undefined) {
+          continue
+        }
+        newValues[idx + i] = char
       }
 
       updateValues(newValues)

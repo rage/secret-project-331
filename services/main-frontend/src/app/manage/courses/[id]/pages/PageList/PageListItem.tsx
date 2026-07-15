@@ -5,15 +5,14 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewOrEditPageForm from "../NewOrEditPageForm"
-
-import PageAudioWidget from "./PageAudioWidget"
-
 import type { Chapter, Page } from "@/generated/api/types.generated"
 import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { baseTheme } from "@/shared-module/common/styles"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { assertNotNullOrUndefined, includeIf } from "@/shared-module/common/utils/nullability"
+
+import NewOrEditPageForm from "../NewOrEditPageForm"
+import PageAudioWidget from "./PageAudioWidget"
 
 export const MOVING_ALLOWED: MovePolicy = "allowed"
 export const MOVING_NOT_ALLOWED: MovePolicy = "not-allowed"
@@ -75,8 +74,10 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
         }}
         isUpdate={true}
         savedPage={page}
-        // oxlint-disable-next-line i18next/no-literal-string
-        prefix={chapter && `/chapter-${chapter.chapter_number}/`}
+        {...includeIf(chapter, {
+          // oxlint-disable-next-line i18next/no-literal-string
+          prefix: `/chapter-${chapter?.chapter_number}/`,
+        })}
         open={showEditPageDetailsForm}
         onClose={() => setShowEditDetailsPageForm(false)}
       />

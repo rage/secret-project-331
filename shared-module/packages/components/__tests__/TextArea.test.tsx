@@ -3,7 +3,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react"
 
 import { TextArea } from "../src/components/TextArea"
-
 import type { StringFieldForm } from "./testUtils"
 import { FormHarness, renderStringField } from "./testUtils"
 

@@ -10,6 +10,7 @@ import { useFocusRing, useHover, useTab } from "react-aria"
 
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 
 export interface RouteTabDefinition {
   key: string
@@ -32,7 +33,7 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
   const { tabProps, isSelected, isDisabled } = useTab(
     {
       key: item.key,
-      isDisabled: item.disabled,
+      ...omitUndefined({ isDisabled: item.disabled }),
     },
     state,
     ref,
@@ -48,10 +49,21 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
   }
 
   const { "aria-controls": _ariaControls, ...restTabProps } = tabProps
+  // next/link declares onMouseEnter/onClick/onTouchStart as optional but without `undefined`, so
+  // under exactOptionalPropertyTypes they cannot receive the possibly-undefined handlers that
+  // mergeProps produces. Pull them out and only spread them back when actually defined.
+  const { onMouseEnter, onClick, onTouchStart, ...linkProps } = mergeProps(
+    restTabProps,
+    focusProps,
+    hoverProps,
+  )
 
   return (
     <Link
-      {...mergeProps(restTabProps, focusProps, hoverProps)}
+      {...linkProps}
+      {...includeIf(onMouseEnter, { onMouseEnter })}
+      {...includeIf(onClick, { onClick })}
+      {...includeIf(onTouchStart, { onTouchStart })}
       ref={ref}
       href={item.href}
       replace

@@ -3,13 +3,13 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CohortAnalysisChart from "../../CohortAnalysisChart"
-import type { Period } from "../../LineChart"
-import { DAILY_PERIOD, MONTHLY_PERIOD } from "../../LineChart"
-
 import type { TimeGranularity } from "@/generated/api/types.generated"
 import { useCohortActivityHistoryQuery } from "@/hooks/stats"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import CohortAnalysisChart from "../../CohortAnalysisChart"
+import type { Period } from "../../LineChart"
+import { DAILY_PERIOD, MONTHLY_PERIOD } from "../../LineChart"
 
 interface CohortProgressProps {
   courseId: string

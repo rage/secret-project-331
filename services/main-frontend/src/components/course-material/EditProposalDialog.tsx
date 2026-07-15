@@ -6,8 +6,6 @@ import React, { useRef } from "react"
 import { useLandmark } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
-
 import { postCourseMaterialProposedEdits } from "@/generated/course-material-api/sdk.generated"
 import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
@@ -20,6 +18,8 @@ import {
   selectedBlockIdAtom,
 } from "@/stores/course-material/materialFeedbackStore"
 import { formatKeyboardShortcut, getModifierKey } from "@/utils/course-material/platformDetection"
+
+import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
 interface Props {
   courseId: string

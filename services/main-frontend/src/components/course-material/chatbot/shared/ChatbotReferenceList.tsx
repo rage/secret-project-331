@@ -6,12 +6,12 @@ import Link from "next/link"
 import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { LIGHT_GREEN } from "./styles"
-
 import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+
+import { LIGHT_GREEN } from "./styles"
 
 const referenceStyle = css`
   margin: 4px 4px 4px 0;

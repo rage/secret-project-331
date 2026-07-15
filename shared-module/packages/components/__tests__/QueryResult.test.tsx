@@ -5,7 +5,6 @@ import type { UseQueryResult } from "@tanstack/react-query"
 import { act, fireEvent, screen } from "@testing-library/react"
 
 import { QueryResult } from "../src/components/queryResult/QueryResult"
-
 import { domClick, renderUi } from "./testUtils"
 
 const edgeContentBorderCss = css`

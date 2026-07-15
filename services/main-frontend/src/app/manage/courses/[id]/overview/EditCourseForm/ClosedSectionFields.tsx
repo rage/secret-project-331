@@ -5,14 +5,15 @@ import React from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import type { EditCourseFormValues } from "."
-
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validateUUID } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+
+import type { EditCourseFormValues } from "."
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -66,7 +67,9 @@ const ClosedSectionFields = (): React.ReactElement => {
           <FieldContainer>
             <TextField
               label={t("closed-course-successor-id")}
-              error={errors.closed_course_successor_id?.message}
+              {...includeIf(errors.closed_course_successor_id?.message, {
+                error: errors.closed_course_successor_id?.message,
+              })}
               {...register("closed_course_successor_id", {
                 validate: (value) => {
                   if (!value) {

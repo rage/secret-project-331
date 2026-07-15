@@ -83,6 +83,7 @@ export const useParagraphEditing = ({
 
       return () => clearTimeout(timeoutId)
     }
+    return undefined
   }, [editing, selectedBlockId, id, positionAtEnd, isEditingEnabled])
 
   const handleClick = useCallback(() => {

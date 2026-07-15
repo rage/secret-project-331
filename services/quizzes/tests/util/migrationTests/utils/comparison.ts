@@ -92,7 +92,7 @@ const compareFields = <T extends object, S extends object>(
         `field '${key}' does not exist in the newer quiz item: ${JSON.stringify(newQuizItem)}`,
       )
     }
-    if (!Object.keys(oldQuizItem).includes(fields[key])) {
+    if (!Object.keys(oldQuizItem).includes(fields[key]!)) {
       throw new Error(
         `field '${fields[key]}' does not exist in old quiz item: ${JSON.stringify(oldQuizItem)}`,
       )

@@ -2,12 +2,11 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
-import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
 import ExerciseSettingsEditor from "./ExerciseSettingsEditor"
 import ExerciseSettingsSave from "./ExerciseSettingsSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const ExerciseSettingsConfiguration: BlockConfiguration<Record<string, never>> = {
   title: "ExerciseSettings",

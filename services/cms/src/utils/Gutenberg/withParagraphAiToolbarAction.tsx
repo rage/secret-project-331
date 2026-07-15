@@ -10,13 +10,20 @@ import { chevronRight } from "@wordpress/icons"
 import { useContext } from "react"
 import { toast } from "react-hot-toast"
 
+import {
+  useConfirmDialogControls,
+  useDialog,
+} from "@/shared-module/common/components/dialogs/DialogProvider"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
 import PageContext from "../../contexts/PageContext"
 import { createParagraphAiSource, extractPlainTextFromHtml } from "../Gutenberg/paragraphAiSource"
 import {
   collectParagraphHtmlTagNames,
   sanitizeParagraphHtml,
 } from "../Gutenberg/paragraphHtmlSanitizer"
-
 import { executeAbility } from "./ai/abilities"
 import {
   AI_GROUPS,
@@ -27,14 +34,6 @@ import {
   type AiActionLabelKey,
   type AiGroupLabelKey,
 } from "./ai/menu"
-
-import Spinner from "@/shared-module/common/components/Spinner"
-import {
-  useConfirmDialogControls,
-  useDialog,
-} from "@/shared-module/common/components/dialogs/DialogProvider"
-import { baseTheme } from "@/shared-module/common/styles"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 const PARAGRAPH_BLOCK_NAME = "core/paragraph"
 

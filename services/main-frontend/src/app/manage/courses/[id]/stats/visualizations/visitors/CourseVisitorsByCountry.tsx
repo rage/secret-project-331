@@ -5,16 +5,16 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox } from "../../CourseStatsPage"
-import Echarts from "../../Echarts"
-import StatsHeader from "../../StatsHeader"
-import NoDataMessage from "../NoDataMessage"
-
 import { getCoursePageVisitDatumSummaryByCountriesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import { InstructionBox } from "../../CourseStatsPage"
+import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 export interface CourseVisitorsByCountryProps {
   courseId: string

@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 import Spinner from "../../components/Spinner"
 import { baseTheme } from "../../styles"
 import { monospaceFont } from "../../styles/typography"
-
 import {
   DYNAMIC_IMPORT_MAX_ATTEMPTS,
   DYNAMIC_IMPORT_STATE_COMMITTED,

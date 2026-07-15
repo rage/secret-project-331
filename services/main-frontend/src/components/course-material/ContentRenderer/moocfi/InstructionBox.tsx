@@ -3,12 +3,12 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import type { BlockRendererProps } from ".."
-
 import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
 
 interface InstructionBoxAttributes {
   content: string

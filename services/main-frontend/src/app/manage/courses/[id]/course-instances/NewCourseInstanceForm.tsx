@@ -9,6 +9,7 @@ import type { CourseInstance, CourseInstanceForm } from "@/generated/api/types.g
 import Button from "@/shared-module/common/components/Button"
 import TimePicker from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 
 interface FormProps {
   initialData: CourseInstance | null
@@ -54,7 +55,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <TextField
         label={t("text-field-label-name")}
         id={"name"}
-        error={errors["name"]}
+        {...includeIf(errors["name"], { error: errors["name"] })}
         defaultValue={initialData?.name || ""}
         placeholder={t("text-field-label-name")}
         {...register("name")}
@@ -62,7 +63,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <TextField
         label={t("text-field-label-description")}
         id={"description"}
-        error={errors["description"]}
+        {...includeIf(errors["description"], { error: errors["description"] })}
         defaultValue={initialData?.description || ""}
         placeholder={t("text-field-label-description")}
         {...register("description")}
@@ -70,7 +71,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <TextField
         label={t("support-email")}
         id={"supportEmail"}
-        error={errors["supportEmail"]}
+        {...includeIf(errors["supportEmail"], { error: errors["supportEmail"] })}
         defaultValue={initialData?.support_email || ""}
         placeholder={t("support-email")}
         {...register("supportEmail")}
@@ -78,7 +79,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <TextField
         label={t("teacher-in-charge-name")}
         id={"teacherName"}
-        error={errors["teacherName"]}
+        {...includeIf(errors["teacherName"], { error: errors["teacherName"] })}
         defaultValue={initialData?.teacher_in_charge_name}
         placeholder={t("teacher-in-charge-name")}
         {...register("teacherName")}
@@ -86,7 +87,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <TextField
         label={t("teacher-in-charge-email")}
         id={"teacherEmail"}
-        error={errors["teacherEmail"]}
+        {...includeIf(errors["teacherEmail"], { error: errors["teacherEmail"] })}
         defaultValue={initialData?.teacher_in_charge_email}
         placeholder={t("teacher-in-charge-email")}
         {...register("teacherEmail")}

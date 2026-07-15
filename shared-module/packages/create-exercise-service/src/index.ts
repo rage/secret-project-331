@@ -102,7 +102,7 @@ async function copyTemplate(src: string, dest: string): Promise<void> {
         return true
       }
       const rel = relative(src, source)
-      const topLevel = rel.split(sep)[0]
+      const topLevel = rel.split(sep)[0] ?? ""
       if (COPY_EXCLUDES.has(topLevel)) {
         return false
       }

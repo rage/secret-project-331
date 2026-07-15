@@ -7,20 +7,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React, { useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ClosedCourseWarningDialog from "../ClosedCourseWarningDialog"
-import ContentRenderer from "../ContentRenderer"
-import AudioPlayer from "../ContentRenderer/moocfi/AudioPlayer"
-import NavigationContainer from "../ContentRenderer/moocfi/NavigationContainer"
-import FeedbackHandler from "../FeedbackHandler"
-import HeadingsNavigation from "../HeadingsNavigation"
-import ReferenceList from "../ReferencesList"
-import Chatbot from "../chatbot/Chatbot"
-import SelectResearchConsentForm from "../forms/SelectResearchConsentForm"
-import SelectUserInformationForm from "../forms/SelectUserInformationForm"
-import AiUsageNoticeDialog from "../modals/AiUsageNoticeDialog"
-import CourseSettingsModal from "../modals/CourseSettingsModal"
-import UserOnWrongCourseNotification from "../notifications/UserOnWrongCourseNotification"
-
 import type { GlossaryState } from "@/contexts/course-material/GlossaryContext"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import useAiUsageNoticeAcknowledgement from "@/hooks/course-material/useAiUsageNoticeAcknowledgement"
@@ -37,6 +23,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
@@ -47,6 +34,20 @@ import {
 } from "@/state/course-material/selectors"
 import { inlineColorStyles } from "@/styles/course-material/inlineColorStyles"
 import type { Block } from "@/types/courseMaterialBlock"
+
+import Chatbot from "../chatbot/Chatbot"
+import ClosedCourseWarningDialog from "../ClosedCourseWarningDialog"
+import ContentRenderer from "../ContentRenderer"
+import AudioPlayer from "../ContentRenderer/moocfi/AudioPlayer"
+import NavigationContainer from "../ContentRenderer/moocfi/NavigationContainer"
+import FeedbackHandler from "../FeedbackHandler"
+import SelectResearchConsentForm from "../forms/SelectResearchConsentForm"
+import SelectUserInformationForm from "../forms/SelectUserInformationForm"
+import HeadingsNavigation from "../HeadingsNavigation"
+import AiUsageNoticeDialog from "../modals/AiUsageNoticeDialog"
+import CourseSettingsModal from "../modals/CourseSettingsModal"
+import UserOnWrongCourseNotification from "../notifications/UserOnWrongCourseNotification"
+import ReferenceList from "../ReferencesList"
 
 interface Props {
   onRefresh: () => void
@@ -277,7 +278,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           <SelectResearchConsentForm
             editForm={showResearchConsentFormBecauseOfUrl}
             shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
-            usersInitialAnswers={researchConsentFormAnswerQuery.data}
+            {...omitUndefined({ usersInitialAnswers: researchConsentFormAnswerQuery.data })}
             // oxlint-disable-next-line typescript/no-non-null-assertion -- researchFormIsLoadedAndExists guarantees data is non-null
             researchForm={researchConsentFormQuery.data!}
             onClose={() => {
@@ -369,12 +370,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             )}
             <FeedbackHandler
               courseId={courseId}
-              courseName={courseName}
+              {...omitUndefined({ courseName })}
               courseHasChatbot={
                 chatbotConfiguration.data !== null && chatbotConfiguration.data !== undefined
               }
               pageId={pageId}
-              pageTitle={pageTitle}
+              {...omitUndefined({ pageTitle })}
             />
           </>
         )}

@@ -4,12 +4,6 @@
 
 import { v4, v5 } from "uuid"
 
-import type { ExerciseAttributes } from "../blocks/Exercise"
-import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
-import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
-
-import { isGutenbergBlockArray } from "./Gutenberg/gutenbergBlocks"
-
 import type {
   CmsPageExercise,
   CmsPageExerciseSlide,
@@ -17,7 +11,13 @@ import type {
   CmsPageUpdate,
   CmsPeerOrSelfReviewConfig,
 } from "@/generated/api"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
+
+import type { ExerciseAttributes } from "../blocks/Exercise"
+import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+import { isGutenbergBlockArray } from "./Gutenberg/gutenbergBlocks"
 
 /**
  * Only id is allowed in normalized exercises. This is because:
@@ -253,7 +253,10 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         id: normalizedBlock.attributes.id,
         name: exercise.name,
         score_maximum: exercise.score_maximum,
-        max_tries_per_slide: exercise.max_tries_per_slide ?? undefined,
+        ...includeIf(
+          exercise.max_tries_per_slide !== null && exercise.max_tries_per_slide !== undefined,
+          { max_tries_per_slide: exercise.max_tries_per_slide },
+        ),
         limit_number_of_tries: exercise.limit_number_of_tries,
         needs_peer_review: exercise.needs_peer_review,
         needs_self_review: exercise.needs_self_review,

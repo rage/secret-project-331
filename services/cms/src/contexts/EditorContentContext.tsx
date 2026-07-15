@@ -7,10 +7,10 @@ import type { Dispatch } from "react"
 import React from "react"
 import { v4 } from "uuid"
 
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+
 import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
 import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
-
-import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 // Context
 
@@ -59,7 +59,12 @@ export const editorContentReducer = (
           (block) => block.clientId === action.payload.clientId,
         )
         if (exerciseBlockIndex !== -1) {
-          const slidesBlock = findExeciseSlidesBlock(draft[exerciseBlockIndex])
+          // exerciseBlockIndex !== -1 means the element exists
+          const exerciseBlock = draft[exerciseBlockIndex]
+          if (!exerciseBlock) {
+            return
+          }
+          const slidesBlock = findExeciseSlidesBlock(exerciseBlock)
           if (!slidesBlock) {
             throw new Error("Exercise block does not have slides block")
           }
@@ -89,7 +94,12 @@ export const editorContentReducer = (
           return slidesBlock.innerBlocks.some((x) => x.clientId === action.payload.clientId)
         })
         if (exerciseBlockIndex !== -1) {
-          const slidesBlock = findExeciseSlidesBlock(draft[exerciseBlockIndex])
+          // exerciseBlockIndex !== -1 means the element exists
+          const exerciseBlock = draft[exerciseBlockIndex]
+          if (!exerciseBlock) {
+            return
+          }
+          const slidesBlock = findExeciseSlidesBlock(exerciseBlock)
           if (!slidesBlock) {
             throw new Error("Exercise block does not have slides block")
           }
@@ -114,7 +124,11 @@ export const editorContentReducer = (
 
           const slideIndex = slidesBlock.innerBlocks.findIndex((x) => x.clientId === slide.clientId)
           if (slideIndex !== -1) {
-            slidesBlock.innerBlocks[slideIndex].innerBlocks.push(newTask)
+            // slideIndex !== -1 means the element exists
+            const targetSlide = slidesBlock.innerBlocks[slideIndex]
+            if (targetSlide) {
+              targetSlide.innerBlocks.push(newTask)
+            }
           }
         }
       })

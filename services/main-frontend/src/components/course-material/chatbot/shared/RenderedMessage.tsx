@@ -5,13 +5,13 @@ import type { DOMAttributes, ReactPortal } from "react"
 import React, { memo, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
-import CitationButton from "./CitationButton"
-
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { planCitationPortals } from "@/utils/course-material/chatbotCitationPortals"
 import { REMOVE_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
 import { getRemarkable } from "@/utils/course-material/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+
+import CitationButton from "./CitationButton"
 
 const PORTAL_PLACEHOLDER_QUERY_SELECTOR = "[data-chatbot-citation='true']"
 
@@ -154,7 +154,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     const plans = planCitationPortals(nodes, citationNumberingMap)
     return nodes.map((node, idx) => {
       const plan = plans[idx]
-      if (plan === null) {
+      if (plan === null || plan === undefined) {
         return createPortal(null, node, idx)
       }
       return createPortal(

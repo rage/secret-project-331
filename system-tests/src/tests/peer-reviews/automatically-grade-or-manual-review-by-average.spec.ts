@@ -1,12 +1,11 @@
 import type { BrowserContext } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
-import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
-
-import { answerExercise, fillPeerReview } from "./peer_review_utils"
-
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
+import { answerExercise, fillPeerReview } from "./peer_review_utils"
 
 const TEST_PAGE = "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-2"
 

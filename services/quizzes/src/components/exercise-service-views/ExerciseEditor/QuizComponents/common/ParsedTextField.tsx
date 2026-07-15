@@ -3,15 +3,14 @@ import { Eye, InfoCircle, Pencil } from "@vectopus/atlas-icons-react"
 import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ParsedText from "../../../../ParsedText"
-
-import AutoExpandingTextField from "./AutoExpandingTextField"
-import { toSingleLine } from "./singleLine"
-import { containsMarkdownTag, containsRenderableTag } from "./tagBlocks"
-
 import MessagePortContext from "@/contexts/MessagePortContext"
 import Button from "@/shared-module/common/components/Button"
 import type { OpenLinkMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+
+import ParsedText from "../../../../ParsedText"
+import AutoExpandingTextField from "./AutoExpandingTextField"
+import { toSingleLine } from "./singleLine"
+import { containsMarkdownTag, containsRenderableTag } from "./tagBlocks"
 
 const DisplayContainer = styled.div`
   display: flex;

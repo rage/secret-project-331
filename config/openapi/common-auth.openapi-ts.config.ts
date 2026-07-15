@@ -1,5 +1,6 @@
-import type { UserConfig } from "@hey-api/openapi-ts"
 import path from "path"
+
+import type { UserConfig } from "@hey-api/openapi-ts"
 
 if (process.env.GENERATE_BINDINGS_RUN !== "1") {
   throw new Error(

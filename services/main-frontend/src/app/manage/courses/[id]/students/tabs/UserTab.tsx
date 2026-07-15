@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FloatingHeaderTable } from "../FloatingHeaderTable"
-
 import { getCourseStudentsUsersOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { QueryResult } from "@/shared-module/components"
+
+import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
 export const UserTabContent: React.FC<{ courseId: string; searchQuery: string }> = ({
   courseId,

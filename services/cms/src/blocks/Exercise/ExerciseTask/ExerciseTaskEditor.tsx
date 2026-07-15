@@ -6,14 +6,6 @@ import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { InnerBlocks } from "@wordpress/block-editor"
 import React, { useContext, useState } from "react"
 
-import { EditorContentDispatch } from "../../../contexts/EditorContentContext"
-import useAllExerciseServices from "../../../hooks/useAllExerciseServices"
-import { gutenbergControlsVisible } from "../../../styles/EditorStyles"
-import breakFromCenteredProps from "../../../utils/breakfromCenteredProps"
-
-import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
-import ExerciseTaskIFrameEditor from "./IFrameEditor"
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -23,6 +15,13 @@ import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessib
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { EditorContentDispatch } from "../../../contexts/EditorContentContext"
+import useAllExerciseServices from "../../../hooks/useAllExerciseServices"
+import { gutenbergControlsVisible } from "../../../styles/EditorStyles"
+import breakFromCenteredProps from "../../../utils/breakfromCenteredProps"
+import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
+import ExerciseTaskIFrameEditor from "./IFrameEditor"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/paragraph",

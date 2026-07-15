@@ -3,12 +3,12 @@
 import React from "react"
 
 import { DateLikeSegmentedInputField } from "./DateLikeSegmentedInputField"
-import { TimeSegmentedInputField } from "./TimeSegmentedInputField"
 import type {
   DateLikeFieldProps,
   SegmentedDateInputFieldProps,
   TimeOnlyFieldProps,
 } from "./segmentTypes"
+import { TimeSegmentedInputField } from "./TimeSegmentedInputField"
 
 export type {
   SegmentedDateInputFieldProps,

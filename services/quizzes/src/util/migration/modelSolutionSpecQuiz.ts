@@ -14,7 +14,6 @@ import type {
 } from "../../../types/quizTypes/modelSolutionSpec"
 import type { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
 import { sanitizeQuizDirection } from "../css-sanitization"
-
 import { DEFAULT_N } from "./migrationSettings"
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
 const migrateModelSolutionSpecQuizItem = (

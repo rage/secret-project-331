@@ -8,17 +8,16 @@ import { LanguageTranslation, MagnifyingGlass } from "@vectopus/atlas-icons-reac
 import React, { useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { getDir } from "@/shared-module/common/hooks/useLanguage"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
 import type { UnifiedMenuItem } from "../hooks/types"
 import { useLanguageMenuItems } from "../hooks/useLanguageMenuItems"
 import { useQuickActionsItems } from "../hooks/useQuickActionsItems"
 import { useUserMenuItems } from "../hooks/useUserMenuItems"
-
 import { MenuContent } from "./MenuContent"
 import { MenuHeader } from "./MenuHeader"
 import type { MobileMenuOverlayProps } from "./types"
-
-import { getDir } from "@/shared-module/common/hooks/useLanguage"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
   state,

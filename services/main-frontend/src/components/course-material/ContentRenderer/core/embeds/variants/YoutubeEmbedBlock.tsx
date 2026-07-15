@@ -114,11 +114,13 @@ export function parseYoutubeUrl(url: string): YouTubeVideoParams {
   try {
     const parsedUrl = new URL(url)
 
+    const embedOptions = result.embedOptions ?? {}
+    result.embedOptions = embedOptions
+
     COMMON_OPTIONS.forEach((option) => {
       const value = parsedUrl.searchParams.get(option)
       if (value !== null) {
-        // oxlint-disable-next-line typescript/no-non-null-assertion -- embedOptions initialized to {} above and never cleared
-        result.embedOptions![option] = value
+        embedOptions[option] = value
       }
     })
 
@@ -128,7 +130,8 @@ export function parseYoutubeUrl(url: string): YouTubeVideoParams {
         result.videoId = videoId !== "" ? videoId : null
       } else if (parsedUrl.pathname.startsWith("/embed/")) {
         const pathParts = parsedUrl.pathname.split("/embed/")
-        result.videoId = pathParts.length > 1 && pathParts[1] !== "" ? pathParts[1] : null
+        const embedId = pathParts[1]
+        result.videoId = embedId ? embedId : null
       } else if (parsedUrl.pathname === "/playlist") {
         result.videoId = null
         result.listType = YOUTUBE_PLAYLIST_TYPE
@@ -183,22 +186,22 @@ export function parseTimeParameter(time: string): number {
 
   let seconds = 0
 
-  const hoursMatch = time.match(/(\d+)h/)
-  if (hoursMatch) {
+  const hours = time.match(/(\d+)h/)?.[1]
+  if (hours !== undefined) {
     // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-    seconds += parseInt(hoursMatch[1], 10) * 3600
+    seconds += parseInt(hours, 10) * 3600
   }
 
-  const minutesMatch = time.match(/(\d+)m/)
-  if (minutesMatch) {
+  const minutes = time.match(/(\d+)m/)?.[1]
+  if (minutes !== undefined) {
     // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-    seconds += parseInt(minutesMatch[1], 10) * 60
+    seconds += parseInt(minutes, 10) * 60
   }
 
-  const secondsMatch = time.match(/(\d+)s/)
-  if (secondsMatch) {
+  const secs = time.match(/(\d+)s/)?.[1]
+  if (secs !== undefined) {
     // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-    seconds += parseInt(secondsMatch[1], 10)
+    seconds += parseInt(secs, 10)
   }
 
   return seconds

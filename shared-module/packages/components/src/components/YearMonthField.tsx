@@ -9,10 +9,9 @@ import { mergeProps, useButton, useDateFormatter, useOverlayTrigger } from "reac
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { omitUndefined } from "../lib/utils/nullability"
 import { parseYearMonth, serializeYearMonth } from "../lib/utils/yearMonth"
-
 import { FieldShell } from "./primitives/FieldShell"
-import { YearMonthPicker } from "./primitives/YearMonthPicker"
 import type { FieldSize } from "./primitives/fieldStyles"
 import {
   resolveSelectLabelCss,
@@ -21,6 +20,7 @@ import {
 } from "./primitives/fieldStyles"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss } from "./primitives/selectStyles"
+import { YearMonthPicker } from "./primitives/YearMonthPicker"
 
 export type YearMonthFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
   T,
@@ -172,7 +172,7 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
 
   return (
     <FieldShell
-      className={className}
+      {...omitUndefined({ className })}
       controlClassName={rootControlCss}
       controlProps={{
         "data-field-control": "true",
@@ -233,10 +233,10 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
           <YearMonthPicker
             selectedYear={selectedValue?.year ?? null}
             selectedMonth={selectedValue?.month ?? null}
-            minYear={minValue?.year}
-            minMonth={minValue?.month}
-            maxYear={maxValue?.year}
-            maxMonth={maxValue?.month}
+            {...omitUndefined({ minYear: minValue?.year })}
+            {...omitUndefined({ minMonth: minValue?.month })}
+            {...omitUndefined({ maxYear: maxValue?.year })}
+            {...omitUndefined({ maxMonth: maxValue?.month })}
             isDisabled={isDisabled}
             isReadOnly={isReadOnly}
             onSelect={(year, month) => {

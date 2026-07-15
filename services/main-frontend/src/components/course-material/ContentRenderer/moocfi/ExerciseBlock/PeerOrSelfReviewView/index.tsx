@@ -5,10 +5,10 @@ import type { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import PeerOrSelfReviewViewImpl from "./PeerOrSelfReviewViewImpl"
-
 import type { CourseMaterialExercise } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import PeerOrSelfReviewViewImpl from "./PeerOrSelfReviewViewImpl"
 
 export interface PeerOrSelfReviewViewProps {
   exerciseNumber: number

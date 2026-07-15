@@ -9,6 +9,7 @@ import { useTabList } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 
 interface TabsContextValue {
   state: TabListState<object>
@@ -95,8 +96,8 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
   )
 
   const state = useTabListState({
-    selectedKey: selectedKey ?? undefined,
-    defaultSelectedKey: tabNames[0] ?? undefined,
+    ...includeIf(selectedKey !== null, { selectedKey }),
+    ...omitUndefined({ defaultSelectedKey: tabNames[0] }),
     items,
     onSelectionChange: (key) => {
       router.replace(`${basePath}/${String(key)}`)

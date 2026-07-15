@@ -4,11 +4,11 @@ import { css } from "@emotion/css"
 import { t } from "i18next"
 import React from "react"
 
-import type { BlockRendererProps } from "../.."
-
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import { fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../.."
 
 interface RevealableContentProps {
   backgroundColor: string

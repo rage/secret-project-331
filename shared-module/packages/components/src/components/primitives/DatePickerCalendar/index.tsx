@@ -6,11 +6,10 @@ import { useCalendarState } from "@react-stately/calendar"
 import React from "react"
 import { useCalendar, useDateFormatter, useDialog, useLocale } from "react-aria"
 
+import { includeIf, omitUndefined } from "../../../lib/utils/nullability"
 import { YearMonthPicker } from "../YearMonthPicker"
-
 import { CalendarGrid } from "./CalendarGrid"
 import { CalendarNavButton } from "./CalendarNavButton"
-import { HybridTimeSelector } from "./HybridTimeSelector"
 import {
   chooseMonthYearLabel,
   clearLabel,
@@ -42,6 +41,7 @@ import {
   quickActionsCss,
 } from "./datePickerCalendarStyles"
 import type { CalendarPickerView, DatePickerCalendarProps } from "./datePickerCalendarTypes"
+import { HybridTimeSelector } from "./HybridTimeSelector"
 
 export type { DatePickerCalendarProps } from "./datePickerCalendarTypes"
 
@@ -224,12 +224,16 @@ export function DatePickerCalendar({
             initialView={pickerView === pickerViewYear ? "year" : "month"}
             selectedYear={state.visibleRange.start.year}
             selectedMonth={state.visibleRange.start.month}
-            minYear={calendarProps.minValue?.year}
-            minMonth={calendarProps.minValue?.month}
-            maxYear={calendarProps.maxValue?.year}
-            maxMonth={calendarProps.maxValue?.month}
-            isDisabled={calendarProps.isDisabled}
-            isReadOnly={calendarProps.isReadOnly}
+            {...includeIf(calendarProps.minValue, {
+              minYear: calendarProps.minValue?.year,
+              minMonth: calendarProps.minValue?.month,
+            })}
+            {...includeIf(calendarProps.maxValue, {
+              maxYear: calendarProps.maxValue?.year,
+              maxMonth: calendarProps.maxValue?.month,
+            })}
+            {...omitUndefined({ isDisabled: calendarProps.isDisabled })}
+            {...omitUndefined({ isReadOnly: calendarProps.isReadOnly })}
             locale={locale}
             onSelect={(year, month) => {
               const nextDate = state.focusedDate.set({ year, month, day: 1 })

@@ -1,8 +1,5 @@
 import { atom } from "jotai"
 
-import { viewParamsAtom } from "./params"
-import { examQueryAtom, materialQueryAtom } from "./queries"
-
 import type {
   CourseInstance,
   CourseMaterialCourse,
@@ -11,6 +8,9 @@ import type {
   Page,
   UserCourseSettings,
 } from "@/generated/course-material-api/types.generated"
+
+import { viewParamsAtom } from "./params"
+import { examQueryAtom, materialQueryAtom } from "./queries"
 
 export interface CourseMaterialState {
   status: "loading" | "ready" | "error"

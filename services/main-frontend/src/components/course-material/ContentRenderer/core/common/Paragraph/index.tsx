@@ -3,16 +3,15 @@
 import { useAtom } from "jotai"
 import React, { useCallback } from "react"
 
-import type { BlockRendererProps } from "../../.."
-
-import EditingParagraph from "./proposing-edits/EditingParagraph"
-import { getParagraphStyles } from "./styles"
-
 import type { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentlyOpenFeedbackDialogAtom } from "@/stores/course-material/materialFeedbackStore"
+
+import type { BlockRendererProps } from "../../.."
+import EditingParagraph from "./proposing-edits/EditingParagraph"
+import { getParagraphStyles } from "./styles"
 
 const LatexParagraph = dynamicImport(() => import("./LatexParagraph"))
 

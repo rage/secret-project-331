@@ -3,11 +3,11 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import type { BlockRendererProps } from "../.."
-
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { Block } from "@/types/courseMaterialBlock"
+
+import type { BlockRendererProps } from "../.."
 
 interface FlipCardAttributes {
   href: string
@@ -20,7 +20,7 @@ interface FlipCardAttributes {
 
 function isBlockImage(block: Block<unknown>): block is Block<FlipCardAttributes> {
   if (block.innerBlocks.length > 0) {
-    return block.innerBlocks[0].name === "core/image"
+    return block.innerBlocks[0]?.name === "core/image"
   }
   return false
 }

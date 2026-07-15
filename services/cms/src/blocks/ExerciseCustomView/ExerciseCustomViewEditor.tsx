@@ -2,17 +2,16 @@
 
 import { css } from "@emotion/css"
 
-import useAllExerciseServices from "../../hooks/useAllExerciseServices"
-import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-import type { ExerciseCustomViewAttributes } from "."
-
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ExerciseCustomViewAttributes } from "."
+import useAllExerciseServices from "../../hooks/useAllExerciseServices"
+import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ExerciseCustomViewEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseCustomViewAttributes>>

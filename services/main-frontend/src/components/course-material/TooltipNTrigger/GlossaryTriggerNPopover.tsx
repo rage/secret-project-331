@@ -14,9 +14,10 @@ import {
 } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import { TooltipBox } from "./TooltipBox"
-
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import { TooltipBox } from "./TooltipBox"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const StyledButton = styled(ReactAriaButton)`
@@ -116,7 +117,7 @@ export const GlossaryTriggerNPopover = ({
         <span {...hoverProps}>
           <StyledButton
             ref={buttonRef}
-            className={className}
+            {...omitUndefined({ className })}
             data-popover-open={popoverOpen}
             // Open the popover on press start so it appears immediately
             // when TooltipTrigger hides the tooltip on pointer/key down.

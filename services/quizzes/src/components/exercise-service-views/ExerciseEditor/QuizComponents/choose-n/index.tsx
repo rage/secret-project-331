@@ -3,18 +3,18 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import Accordion from "@/shared-module/common/components/Accordion"
+import Button from "@/shared-module/common/components/Button"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
 import type { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import MultipleChoiceOption from "../common/MultipleChoiceOption"
 import ParsedTextField from "../common/ParsedTextField"
-
-import Accordion from "@/shared-module/common/components/Accordion"
-import Button from "@/shared-module/common/components/Button"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string

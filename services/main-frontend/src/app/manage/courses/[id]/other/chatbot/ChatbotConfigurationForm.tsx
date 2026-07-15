@@ -7,8 +7,6 @@ import React, { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import ChatbotPreviewModal from "./ChatbotPreviewModal"
-
 import {
   configureChatbotMutation as configureChatbotMutationOptions,
   deleteChatbotConfigurationMutation as deleteChatbotMutationOptions,
@@ -16,13 +14,17 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChatbotConfiguration, NewChatbotConf } from "@/generated/api/types.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isHtmlButtonElement } from "@/shared-module/common/utils/dom"
 import { isReactOnSubmitEvent } from "@/shared-module/common/utils/events"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import {
+  assertNotNullOrUndefined,
+  includeIf,
+  omitUndefined,
+} from "@/shared-module/common/utils/nullability"
 import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
 import {
   Button,
@@ -32,6 +34,8 @@ import {
   TextArea,
   TextField,
 } from "@/shared-module/components"
+
+import ChatbotPreviewModal from "./ChatbotPreviewModal"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration
@@ -101,10 +105,16 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       hide_citations: oldChatbotConf.hide_citations,
       use_semantic_reranking: oldChatbotConf.use_semantic_reranking,
       suggest_next_messages: oldChatbotConf.suggest_next_messages,
-      initial_suggested_messages: oldChatbotConf.initial_suggested_messages,
-      suggested_messages: oldChatbotConf.initial_suggested_messages?.map((v) => ({
-        message: v,
-      })),
+      ...omitUndefined({ initial_suggested_messages: oldChatbotConf.initial_suggested_messages }),
+      ...includeIf(
+        oldChatbotConf.initial_suggested_messages !== null &&
+          oldChatbotConf.initial_suggested_messages !== undefined,
+        {
+          suggested_messages: oldChatbotConf.initial_suggested_messages?.map((v) => ({
+            message: v,
+          })),
+        },
+      ),
     },
   })
 

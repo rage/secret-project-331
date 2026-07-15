@@ -6,14 +6,14 @@ import { groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Echarts from "../../Echarts"
-import StatsHeader from "../../StatsHeader"
-import NoDataMessage from "../NoDataMessage"
-
 import { getCourseDailyUsersWhoSubmittedSomethingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 export interface CourseUsersWithSubmissionsByDayProps {
   courseId: string

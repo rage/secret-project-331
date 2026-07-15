@@ -27,6 +27,9 @@ export const Example = {
     onChange: (event) => {
       console.log("Datepicker changed to" + event.target.value)
     },
+    onChangeByValue: (value) => {
+      console.log("Datepicker changed to" + value)
+    },
     min: "2023-01-01",
     max: "2023-12-31",
     defaultValue: "2023-01-01",

@@ -1,8 +1,8 @@
 "use client"
 
-import type { PeerOrSelfReviewQuestionProps } from "."
-
 import LikertScale from "@/shared-module/common/components/PeerReview/LikertScale"
+
+import type { PeerOrSelfReviewQuestionProps } from "."
 
 const ScalePeerOrSelfReviewQuestion: React.FC<PeerOrSelfReviewQuestionProps> = ({
   peerOrSelfReviewQuestion,

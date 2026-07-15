@@ -12,6 +12,7 @@ import {
 } from "@/shared-module/common/hooks/useLanguage"
 import { LANGUAGE_COOKIE_KEY } from "@/shared-module/common/utils/constants"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 function capitalizeFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -41,12 +42,14 @@ export interface LanguageMenuItem {
 }
 
 export interface UseLanguageMenuItemsProps {
-  availableLanguages?: {
-    code: string
-    name: string
-    isDraft?: boolean
-  }[]
-  onLanguageChange?: (languageCode: string) => Promise<void>
+  availableLanguages?:
+    | {
+        code: string
+        name: string
+        isDraft?: boolean
+      }[]
+    | undefined
+  onLanguageChange?: ((languageCode: string) => Promise<void>) | undefined
   renderAsSubmenu?: boolean
   onMenuClose?: () => void
 }
@@ -126,7 +129,7 @@ export function useLanguageMenuItems({
 
   // Hide menu if only one language is available and we're already on it
   const shouldShow = !(
-    availableLanguages.length === 1 && availableLanguages[0].code === currentLanguage
+    availableLanguages.length === 1 && availableLanguages[0]?.code === currentLanguage
   )
 
   const items: LanguageMenuItem[] = useMemo(() => {
@@ -148,7 +151,7 @@ export function useLanguageMenuItems({
         localizedLabel: localized,
         englishLabel: english,
         isSelected: selected,
-        isDraft: "isDraft" in lang ? lang.isDraft : undefined,
+        ...omitUndefined({ isDraft: "isDraft" in lang ? lang.isDraft : undefined }),
         lang: code,
         dir: getDir(code),
         onSelect: () => handleLanguageChange(code),

@@ -4,18 +4,18 @@ import { PlusCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/privateSpec"
-import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import findQuizItem from "../../utils/general"
-import EditorCard from "../common/EditorCard"
-import ParsedTextField from "../common/ParsedTextField"
-
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
+import findQuizItem from "../../utils/general"
+import EditorCard from "../common/EditorCard"
+import ParsedTextField from "../common/ParsedTextField"
 
 interface ClosedEndedQuestionEditorProps {
   quizItemId: string

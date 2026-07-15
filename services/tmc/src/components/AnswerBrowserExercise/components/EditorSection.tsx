@@ -2,10 +2,11 @@ import { Editor } from "@monaco-editor/react"
 import _ from "lodash"
 import React from "react"
 
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import type { ExerciseFile } from "@/util/stateInterfaces"
+
 import { EditorSection as EditorSectionStyled, EditorWrapper } from "../styles"
 import { extensionToLanguage } from "../utils"
-
-import type { ExerciseFile } from "@/util/stateInterfaces"
 
 interface EditorSectionProps {
   filepath: string
@@ -18,6 +19,7 @@ interface EditorSectionProps {
 
 export const EditorSection: React.FC<EditorSectionProps> = (props) => {
   const { filepath, contents, editorKey, editorFiles, setEditorState, readOnly = false } = props
+  const language = extensionToLanguage(filepath)
   const onChange = (newContents: string | undefined) => {
     if (readOnly || newContents === undefined) {
       return
@@ -36,7 +38,7 @@ export const EditorSection: React.FC<EditorSectionProps> = (props) => {
           key={editorKey}
           height="100%"
           width="100%"
-          language={extensionToLanguage(filepath)}
+          {...omitUndefined({ language })}
           value={contents}
           onChange={onChange}
           options={{ readOnly }}

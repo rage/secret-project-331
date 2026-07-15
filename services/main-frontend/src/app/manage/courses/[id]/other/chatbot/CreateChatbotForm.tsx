@@ -10,6 +10,7 @@ import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 interface CreateChatbotProps {
   courseId: string
@@ -60,7 +61,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
         })}
       >
         <TextField
-          error={errors.name?.message}
+          {...omitUndefined({ error: errors.name?.message })}
           label={t("label-name")}
           {...register("name", {
             required: t("required-field"),

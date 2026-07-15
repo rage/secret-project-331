@@ -6,10 +6,6 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { MIDDLE_DOT } from "../lib/displayConstants"
-import { ratioPercent, toHours } from "../lib/durations"
-import { sectionHeadingCss } from "../lib/sectionHeading"
-
 import { getUserSuspectedCheatersOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   CourseEnrollmentInfo,
@@ -20,6 +16,10 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { manageCourseOtherCheatersSuspectedRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Badge, Meter, QueryResult } from "@/shared-module/components"
+
+import { MIDDLE_DOT } from "../lib/displayConstants"
+import { ratioPercent, toHours } from "../lib/durations"
+import { sectionHeadingCss } from "../lib/sectionHeading"
 
 export interface CompletionReviewSectionProps {
   userId: string

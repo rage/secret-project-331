@@ -4,15 +4,14 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import Button from "@/shared-module/common/components/Button"
+
 import type { PrivateSpecQuiz } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import QuizEditor from "../QuizComponents/QuizEditor"
 import { createEmptyQuizItem } from "../utils/general"
-
 import type { QuizOption } from "./QuizOption"
 import QuizItemOption from "./QuizOption"
-
-import Button from "@/shared-module/common/components/Button"
 
 type QuizOptionProps = Record<string, QuizOption>
 
@@ -176,10 +175,13 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
                 if (!quiz) {
                   return null
                 }
-                quiz.items = [
-                  ...quiz.items,
-                  createEmptyQuizItem(quiz.items[quiz.items.length - 1].type),
-                ]
+                // safe: this menu only renders when quiz.items is non-empty
+                const lastItem = quiz.items[quiz.items.length - 1]
+                if (lastItem === undefined) {
+                  return undefined
+                }
+                quiz.items = [...quiz.items, createEmptyQuizItem(lastItem.type)]
+                return undefined
               })
             }}
             size={"medium"}
@@ -206,7 +208,13 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
                   return null
                 }
                 // Same values except id
-                quiz.items = [...quiz.items, { ...quiz.items[quiz.items.length - 1], id: v4() }]
+                // safe: this menu only renders when quiz.items is non-empty
+                const lastItem = quiz.items[quiz.items.length - 1]
+                if (lastItem === undefined) {
+                  return undefined
+                }
+                quiz.items = [...quiz.items, { ...lastItem, id: v4() }]
+                return undefined
               })
             }}
           >

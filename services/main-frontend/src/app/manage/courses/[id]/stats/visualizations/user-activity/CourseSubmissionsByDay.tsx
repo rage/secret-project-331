@@ -6,15 +6,15 @@ import { groupBy, max } from "lodash"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox } from "../../CourseStatsPage"
-import Echarts from "../../Echarts"
-import StatsHeader from "../../StatsHeader"
-import NoDataMessage from "../NoDataMessage"
-
 import { getCourseDailySubmissionCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import { InstructionBox } from "../../CourseStatsPage"
+import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 export interface CourseSubmissionsByDayProps {
   courseId: string

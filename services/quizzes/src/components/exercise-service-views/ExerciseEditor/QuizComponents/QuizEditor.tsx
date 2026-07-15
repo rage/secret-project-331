@@ -1,5 +1,4 @@
 import type { PrivateSpecQuizItem } from "../../../../../types/quizTypes/privateSpec"
-
 import CheckboxEditor from "./checkbox"
 import ChooseNEditor from "./choose-n"
 import ClosedEndedQuestionEditor from "./closed-ended-question"

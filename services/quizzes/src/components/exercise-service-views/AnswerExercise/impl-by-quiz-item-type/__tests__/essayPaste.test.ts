@@ -1,13 +1,13 @@
 import type { TFunction } from "i18next"
 
+import enQuizzes from "@/shared-module/common/locales/en/quizzes.json"
+
 import {
   getEssayPasteWarning,
   isLargePaste,
   LARGE_PASTE_CHAR_THRESHOLD,
   LARGE_PASTE_WORD_THRESHOLD,
 } from "../essayPaste"
-
-import enQuizzes from "@/shared-module/common/locales/en/quizzes.json"
 
 const words = (n: number, token = "word"): string =>
   Array.from({ length: n }, () => token).join(" ")

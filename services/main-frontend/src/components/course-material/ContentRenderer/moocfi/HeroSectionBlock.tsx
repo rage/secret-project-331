@@ -3,13 +3,14 @@
 import { useAtomValue } from "jotai"
 import React from "react"
 
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { currentPageDataAtom } from "@/state/course-material/selectors"
+
 import type { BlockRendererProps } from ".."
 import type { HeroSectionProps } from "../../HeroSection"
 import HeroSection from "../../HeroSection"
-
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { currentPageDataAtom } from "@/state/course-material/selectors"
 const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeroSectionProps>>> = (
   props,
 ) => {
@@ -29,15 +30,15 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
   return (
     <BreakFromCentered sidebar={false}>
       <HeroSection
-        label={chapterNumber}
+        {...omitUndefined({ label: chapterNumber })}
         title={props.data.attributes.title}
         subtitle={props.data.attributes.subtitle}
-        backgroundImage={props.data.attributes.backgroundImage}
+        {...omitUndefined({ backgroundImage: props.data.attributes.backgroundImage })}
         partiallyTransparent={partiallyTransparent}
-        fontColor={props.data.attributes.fontColor}
+        {...omitUndefined({ fontColor: props.data.attributes.fontColor })}
         alignCenter={props.data.attributes.alignCenter ?? DEFAULT}
-        backgroundColor={props.data.attributes.backgroundColor}
-        backgroundRepeatX={props.data.attributes.backgroundRepeatX}
+        {...omitUndefined({ backgroundColor: props.data.attributes.backgroundColor })}
+        {...omitUndefined({ backgroundRepeatX: props.data.attributes.backgroundRepeatX })}
         alignBottom={props.data.attributes.alignBottom}
       />
     </BreakFromCentered>

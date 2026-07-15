@@ -5,10 +5,10 @@ import React from "react"
 import { Controller, useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import type { EditCourseFormValues } from "."
-
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import type { EditCourseFormValues } from "."
 
 const FieldSet = styled.fieldset`
   margin-bottom: 1rem;

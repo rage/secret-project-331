@@ -5,10 +5,6 @@ import { useAtomValue } from "jotai"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { BlockRendererProps } from "../.."
-
-import CourseProgress from "./CourseProgress"
-
 import { getCourseMaterialUserCourseProgress } from "@/generated/course-material-api/sdk.generated"
 import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
@@ -18,6 +14,9 @@ import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullabili
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
+
+import type { BlockRendererProps } from "../.."
+import CourseProgress from "./CourseProgress"
 
 const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()

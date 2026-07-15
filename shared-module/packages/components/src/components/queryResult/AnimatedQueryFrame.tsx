@@ -6,7 +6,6 @@ import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "../Button"
-
 import type { RetryFn } from "./queryResultState"
 import { getErrorMessage } from "./queryResultState"
 import {

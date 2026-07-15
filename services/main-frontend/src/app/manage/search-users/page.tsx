@@ -5,10 +5,6 @@ import React from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import SearchUsersResults from "./SearchUsersResults"
-import useSearchUsersLiveRegion from "./useSearchUsersLiveRegion"
-import useSearchUsersQueries from "./useSearchUsersQueries"
-
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -18,6 +14,10 @@ import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useUrlSyncedDebouncedQuery from "@/shared-module/common/hooks/useUrlSyncedDebouncedQuery"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+
+import SearchUsersResults from "./SearchUsersResults"
+import useSearchUsersLiveRegion from "./useSearchUsersLiveRegion"
+import useSearchUsersQueries from "./useSearchUsersQueries"
 
 const SearchUsersPage: React.FC = () => {
   const { t } = useTranslation()

@@ -4,10 +4,10 @@ import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
 import React from "react"
 
-import DynamicSvg from "./DynamicSvg"
-
 import { getCourseMaterialPartnersBlock } from "@/generated/course-material-api/sdk.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+
+import DynamicSvg from "./DynamicSvg"
 
 interface PartnersBlockProps {
   courseId: string | null

@@ -1,6 +1,8 @@
 /* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { saveCMSPage } from "../../utils/cmsUtils"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../../utils/expect"
@@ -9,8 +11,6 @@ import {
   scrollLocatorsParentIframeToViewIfNeeded,
 } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

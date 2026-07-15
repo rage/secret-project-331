@@ -1,9 +1,9 @@
-import { matchSpecifiedCitationNumberRegex, REMOVE_CITATIONS_REGEX } from "./chatbotCitationRegexes"
-
 import { renumberFilterCitations } from "@/components/course-material/chatbot/shared/MessageBubble"
 import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
 import { zChatbotConversationMessageMessage } from "@/generated/course-material-api/zod.generated"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+
+import { matchSpecifiedCitationNumberRegex, REMOVE_CITATIONS_REGEX } from "./chatbotCitationRegexes"
 
 export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
   const messages = info.current_conversation_messages

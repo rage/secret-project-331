@@ -2,6 +2,11 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemSubmissionComponentProps } from "."
 import type { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
 import type { ItemAnswerFeedback } from "../../../../../types/quizTypes/grading"
 import type { ModelSolutionQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/modelSolutionSpec"
@@ -11,12 +16,6 @@ import type {
 } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
-
-import type { QuizItemSubmissionComponentProps } from "."
-
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 const SelectIcon = () => {
   return (
@@ -159,14 +158,14 @@ const MultipleChoiceDropdownFeedback: React.FC<
                 : quizTheme.gradingWrongItemBackground};
             `}
           >
-            <option disabled selected={selectedOption.id === null} value="">
+            <option disabled selected={selectedOption?.id === null} value="">
               {t("answer")}
             </option>
             {public_quiz_item.options.map((o) => (
               <option
                 key={o.id}
                 value={o.id}
-                selected={selectedOption.id === o.id}
+                selected={selectedOption?.id === o.id}
                 className={css`
                   display: flex;
                 `}

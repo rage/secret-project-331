@@ -10,8 +10,8 @@ import {
   duplicateExamMutation as duplicateExamMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { NewExam, OrgExam } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { QueryResult } from "@/shared-module/components"
 

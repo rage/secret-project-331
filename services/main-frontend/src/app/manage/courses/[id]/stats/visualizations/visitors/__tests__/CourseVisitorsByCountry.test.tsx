@@ -67,9 +67,9 @@ describe("CourseVisitorsByCountry", () => {
       yAxis: { data: string[] }
     }
     // fi totals 10 + 2 = 12, se totals 5 -> two categories, summed per country.
-    expect(options.series[0].type).toBe("bar")
-    expect(options.series[0].data).toHaveLength(2)
-    expect(options.series[0].data).toEqual(expect.arrayContaining([12, 5]))
+    expect(options.series[0]?.type).toBe("bar")
+    expect(options.series[0]?.data).toHaveLength(2)
+    expect(options.series[0]?.data).toEqual(expect.arrayContaining([12, 5]))
     expect(options.yAxis.data).toHaveLength(2)
   })
 

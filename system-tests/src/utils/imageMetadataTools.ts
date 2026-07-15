@@ -1,5 +1,6 @@
 import { spawnSync } from "child_process"
 import { readFile, writeFile } from "fs/promises"
+
 import type { Page } from "playwright"
 // @ts-expect-error: no typescript definitions
 import pngMetadata from "png-metadata"

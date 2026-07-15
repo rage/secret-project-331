@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test"
 
-import { APP_DISPLAY_NAME, BASE, TEST_CLIENT_ID } from "./constants"
-
 import { UserSettingsPage } from "@/utils/components/UserSettings/UserSettingsPage"
+
+import { APP_DISPLAY_NAME, BASE, TEST_CLIENT_ID } from "./constants"
 
 /** Reset this user's authorization for our test client (clean slate for OAuth tests) */
 export async function resetClientAuthorization(page: Page) {

@@ -16,7 +16,7 @@ export interface ErrorOccurrenceReport {
 }
 
 export interface ErrorOccurrenceRequestContext {
-  headers?: ErrorOccurrenceRequestHeaders | null
+  headers?: ErrorOccurrenceRequestHeaders | null | undefined
   url?: string | URL | null
 }
 
@@ -415,7 +415,11 @@ export async function reportErrorOccurrence(
       return
     }
 
-    const sent = await sendWithFetch(url, body, { headers: forwardedHeaders })
+    const sent = await sendWithFetch(
+      url,
+      body,
+      forwardedHeaders !== undefined ? { headers: forwardedHeaders } : {},
+    )
     if (!sent && isBrowserEnvironment()) {
       enqueuePendingErrorReport(body)
     }

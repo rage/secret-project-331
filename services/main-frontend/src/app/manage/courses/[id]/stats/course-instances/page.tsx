@@ -3,12 +3,12 @@
 import { useParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 
-import CourseInstancesTab from "../tabs/CourseInstancesTab"
-
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { manageCourseStatsOverviewRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import CourseInstancesTab from "../tabs/CourseInstancesTab"
 
 function StatsCourseInstancesPage() {
   const params = useParams<{ id: string }>()

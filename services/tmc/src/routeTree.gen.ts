@@ -9,17 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root"
+import { Route as ApiExtractStubRouteImport } from "./routes/api/extract-stub"
+import { Route as ApiGradeRouteImport } from "./routes/api/grade"
+import { Route as ApiModelSolutionRouteImport } from "./routes/api/model-solution"
+import { Route as ApiPublicSpecRouteImport } from "./routes/api/public-spec"
+import { Route as ApiSandboxResultsRouteImport } from "./routes/api/sandbox-results"
+import { Route as ApiServiceInfoRouteImport } from "./routes/api/service-info"
+import { Route as ApiStatusUpRouteImport } from "./routes/api/status/up"
+import { Route as ApiTestRouteImport } from "./routes/api/test"
+import { Route as ApiTestrunRouteImport } from "./routes/api/testrun"
 import { Route as IframeRouteImport } from "./routes/iframe"
 import { Route as IndexRouteImport } from "./routes/index"
-import { Route as ApiTestrunRouteImport } from "./routes/api/testrun"
-import { Route as ApiTestRouteImport } from "./routes/api/test"
-import { Route as ApiServiceInfoRouteImport } from "./routes/api/service-info"
-import { Route as ApiSandboxResultsRouteImport } from "./routes/api/sandbox-results"
-import { Route as ApiPublicSpecRouteImport } from "./routes/api/public-spec"
-import { Route as ApiModelSolutionRouteImport } from "./routes/api/model-solution"
-import { Route as ApiGradeRouteImport } from "./routes/api/grade"
-import { Route as ApiExtractStubRouteImport } from "./routes/api/extract-stub"
-import { Route as ApiStatusUpRouteImport } from "./routes/api/status/up"
 
 const IframeRoute = IframeRouteImport.update({
   id: "/iframe",
@@ -272,8 +272,9 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from "./router.tsx"
 import type { createStart } from "@tanstack/react-start"
+
+import type { getRouter } from "./router.tsx"
 declare module "@tanstack/react-start" {
   interface Register {
     ssr: true

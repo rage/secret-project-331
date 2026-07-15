@@ -8,6 +8,7 @@ import type { DateFieldAria, DatePickerAria, DateValue, TimeValue } from "react-
 import { composeRefs } from "../../../lib/utils/compositeField"
 import type { resolveFieldState } from "../../../lib/utils/field"
 import { joinAriaDescribedBy } from "../../../lib/utils/field"
+import { includeIf, omitUndefined } from "../../../lib/utils/nullability"
 import { DatePickerCalendar } from "../DatePickerCalendar"
 import { FieldShell } from "../FieldShell"
 import {
@@ -17,7 +18,6 @@ import {
   resolveSegmentedFloatingShellCss,
 } from "../fieldStyles"
 import { Popover } from "../popover"
-
 import { DatePickerTriggerButton } from "./DatePickerTriggerButton"
 import { DateSegment } from "./DateSegment"
 import { dataStateFalse, dataStateTrue } from "./segmentedDateInputFieldConstants"
@@ -39,18 +39,18 @@ import {
 
 export interface PickerSegmentedFieldProps {
   canClear: boolean
-  className?: string
+  className?: string | undefined
   dateFieldAria: DateFieldAria
   description?: React.ReactNode
   errorMessage?: React.ReactNode
-  externalOnBlur?: React.FocusEventHandler<HTMLElement>
-  externalOnFocus?: React.FocusEventHandler<HTMLElement>
+  externalOnBlur?: React.FocusEventHandler<HTMLElement> | undefined
+  externalOnFocus?: React.FocusEventHandler<HTMLElement> | undefined
   fieldRef: React.RefObject<HTMLDivElement | null>
   fieldSize: FieldSize
   groupRef: React.RefObject<HTMLDivElement | null>
   hiddenInputRef: React.RefObject<HTMLInputElement | null>
   hiddenInputValue: string
-  inputRef?: React.Ref<HTMLInputElement>
+  inputRef?: React.Ref<HTMLInputElement> | undefined
   iconEnd?: React.ReactNode
   iconStart?: React.ReactNode
   isFocused: boolean
@@ -59,25 +59,27 @@ export interface PickerSegmentedFieldProps {
   notice?: React.ReactNode
   noticeId: string
   onClear: () => void
-  onSelectNextWeek?: (value: DateValue) => void
-  onSelectNow?: () => void
+  onSelectNextWeek?: ((value: DateValue) => void) | undefined
+  onSelectNow?: (() => void) | undefined
   onSelectToday: (value: DateValue) => void
-  onSelectTomorrow?: (value: DateValue) => void
+  onSelectTomorrow?: ((value: DateValue) => void) | undefined
   pickerAria: DatePickerAria
   pickerState: ReturnType<typeof useDatePickerState>
   popoverClassName: string
   resolvedState: ReturnType<typeof resolveFieldState>
   setIsFocused: React.Dispatch<React.SetStateAction<boolean>>
   state: DateFieldState
-  timeSelectorProps?: {
-    granularity: "hour" | "minute"
-    hourCycle?: 12 | 24
-    isDisabled?: boolean
-    isReadOnly?: boolean
-    minuteStep: number
-    value: TimeValue | null
-    onChange: (value: TimeValue) => void
-  }
+  timeSelectorProps?:
+    | {
+        granularity: "hour" | "minute"
+        hourCycle?: 12 | 24
+        isDisabled?: boolean
+        isReadOnly?: boolean
+        minuteStep: number
+        value: TimeValue | null
+        onChange: (value: TimeValue) => void
+      }
+    | undefined
 }
 
 /** Segmented date/datetime field with calendar popover and optional time column. */
@@ -131,7 +133,6 @@ export function PickerSegmentedField({
 
   return (
     <FieldShell
-      className={className}
       controlClassName={cx(resolveControlSurfaceCss(fieldSize, layout === "floating"))}
       controlProps={{
         "data-disabled": resolvedState.isDisabled ? dataStateTrue : dataStateFalse,
@@ -140,13 +141,16 @@ export function PickerSegmentedField({
         "data-has-icon-start": iconStart ? dataStateTrue : undefined,
       }}
       label={label}
-      labelProps={label ? (pickerAria.labelProps as React.HTMLAttributes<HTMLElement>) : undefined}
       description={description}
       descriptionProps={pickerAria.descriptionProps as React.HTMLAttributes<HTMLElement>}
       errorMessage={errorMessage}
       errorMessageProps={pickerAria.errorMessageProps as React.HTMLAttributes<HTMLElement>}
       notice={notice}
-      noticeId={notice ? noticeId : undefined}
+      {...omitUndefined({ className })}
+      {...includeIf(label, {
+        labelProps: pickerAria.labelProps as React.HTMLAttributes<HTMLElement>,
+      })}
+      {...includeIf(notice, { noticeId })}
       isDisabled={resolvedState.isDisabled}
       isRequired={resolvedState.isRequired}
       layout={layout}
@@ -255,11 +259,11 @@ export function PickerSegmentedField({
             canClear={canClear}
             dialogProps={pickerAria.dialogProps}
             onClear={onClear}
-            onSelectNextWeek={onSelectNextWeek}
-            onSelectNow={onSelectNow}
             onSelectToday={onSelectToday}
-            onSelectTomorrow={onSelectTomorrow}
-            timeSelectorProps={timeSelectorProps}
+            {...omitUndefined({ onSelectNextWeek })}
+            {...omitUndefined({ onSelectNow })}
+            {...omitUndefined({ onSelectTomorrow })}
+            {...omitUndefined({ timeSelectorProps })}
           />
         </Popover>
       ) : null}

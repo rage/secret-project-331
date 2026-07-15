@@ -3,6 +3,11 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { TimeGranularity } from "@/generated/api/types.generated"
+import { useAvgTimeToFirstSubmissionHistoryQuery } from "@/hooks/stats"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
 import type { Period } from "../../LineChart"
 import LineChart, {
   DAILY_DATE_FORMAT,
@@ -10,10 +15,6 @@ import LineChart, {
   MONTHLY_DATE_FORMAT,
   MONTHLY_PERIOD,
 } from "../../LineChart"
-
-import type { TimeGranularity } from "@/generated/api/types.generated"
-import { useAvgTimeToFirstSubmissionHistoryQuery } from "@/hooks/stats"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface AverageTimeToSubmitProps {
   courseId: string
@@ -40,7 +41,7 @@ const AverageTimeToSubmit: React.FC<React.PropsWithChildren<AverageTimeToSubmitP
   return (
     <LineChart
       data={data?.map((item) => ({
-        period: item.period,
+        ...omitUndefined({ period: item.period }),
         count: (item.average ?? 0) / 60,
       }))}
       isLoading={isLoading}

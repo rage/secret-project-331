@@ -81,6 +81,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 500)
       return () => clearInterval(blinkInterval)
     }
+    return undefined
   }, [state.phase, state.caretVisible, updateState])
 
   // Initial → mouseMove after 1s
@@ -91,6 +92,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 1000)
       return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, updateState])
 
   // MouseMove → position cursor near the wrong word
@@ -109,6 +111,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 1000)
       return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, updateState])
 
   // Click animation → show caret
@@ -120,6 +123,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 300)
       return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, updateState])
 
   // Show caret → start deleting
@@ -131,6 +135,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 500)
       return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, updateState])
 
   // Deleting wrong word
@@ -147,6 +152,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 400)
       return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, state.displayWord, updateState])
 
   // Typing correct word
@@ -163,6 +169,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 2000)
       return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, state.displayWord, correctPart, resetAnimation, updateState])
 
   return {

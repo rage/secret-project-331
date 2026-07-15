@@ -4,12 +4,7 @@ import { css, cx } from "@emotion/css"
 import { useAutocompleteState } from "@react-stately/autocomplete"
 import { useSearchFieldState } from "@react-stately/searchfield"
 import { useSelectState } from "@react-stately/select"
-import {
-  CheckCircle,
-  ExclamationTriangle,
-  MagnifyingGlass,
-  XmarkCircle,
-} from "@vectopus/atlas-icons-react"
+import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import React, { useId, useMemo, useRef, useState } from "react"
 import {
   mergeProps,
@@ -101,12 +96,11 @@ const triggerChevronCss = css`
 `
 
 const searchfieldCss = css`
-  margin: 0 6px;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
   border-radius: 999px;
   padding: 0 2rem;
-  width: 99%;
+  width: 100%;
   outline: none;
   border: none;
   box-shadow: inset 0 0 0 1px var(--field-border);
@@ -173,7 +167,6 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
   )
 
   const selectedKey = normalizedCollection.valueToKey.get(toInputValue(field.value)) ?? null
-
   const state = useSelectState<NormalizedSelectOption>({
     children: collectionChildren as never,
     disabledKeys: normalizedCollection.disabledKeys,
@@ -345,6 +338,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
                 <div
                   className={css`
                     position: relative;
+                    padding: 0 6px;
                   `}
                 >
                   <span

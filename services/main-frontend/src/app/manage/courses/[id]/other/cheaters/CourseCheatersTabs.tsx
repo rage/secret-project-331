@@ -76,7 +76,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
   const handleConfirm = useToastMutation(
     (id: string) => {
       if (!id) {
-        throw Error("Student ID undefined")
+        throw new Error("Student ID undefined")
       }
 
       return confirmCourseSuspectedCheater({
@@ -97,7 +97,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
   const handleDismiss = useToastMutation(
     (id: string) => {
       if (!id) {
-        throw Error("Student ID undefined")
+        throw new Error("Student ID undefined")
       }
 
       return dismissCourseSuspectedCheater({

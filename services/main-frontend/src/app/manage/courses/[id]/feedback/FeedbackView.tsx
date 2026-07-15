@@ -11,8 +11,8 @@ import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
-import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
+import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
@@ -132,8 +132,8 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
               <summary>{t("text-visible-when-feedback-given")}</summary>
               <div>
                 {[...feedback.blocks]
-                  .sort((a, b) => a.text?.localeCompare(b.text ?? "") ?? 0)
-                  .sort((a, b) => (a.order_number ?? 0) - (b.order_number ?? 0))
+                  .toSorted((a, b) => a.text?.localeCompare(b.text ?? "") ?? 0)
+                  .toSorted((a, b) => (a.order_number ?? 0) - (b.order_number ?? 0))
                   .map((b) => (
                     <p
                       className={css`

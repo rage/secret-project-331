@@ -6,19 +6,19 @@ import React, { useEffect, useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { getEditableHoverStyles, getParagraphStyles } from "../styles"
-
-import EditableParagraph from "./EditableParagraph"
-import PreviewableParagraph from "./PreviewableParagraph"
-import { useParagraphEditing } from "./hooks/useParagraphEditing"
-
-import { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import {
   blockEditsAtom,
   currentlyOpenFeedbackDialogAtom,
   selectedBlockIdAtom,
 } from "@/stores/course-material/materialFeedbackStore"
+
+import { getEditableHoverStyles, getParagraphStyles } from "../styles"
+import EditableParagraph from "./EditableParagraph"
+import { useParagraphEditing } from "./hooks/useParagraphEditing"
+import PreviewableParagraph from "./PreviewableParagraph"
 
 const editButtonStyles = css`
   display: inline-block;
@@ -142,10 +142,12 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
         <PreviewableParagraph
           id={id}
           content={content ?? null}
-          textColor={textColor ?? undefined}
-          backgroundColor={backgroundColor ?? undefined}
-          fontSize={fontSize ?? undefined}
-          align={align ?? undefined}
+          {...omitUndefined({
+            textColor: textColor ?? undefined,
+            backgroundColor: backgroundColor ?? undefined,
+            fontSize: fontSize ?? undefined,
+            align: align ?? undefined,
+          })}
           setEdits={setEdits}
           editedContent={editedContent}
         />
@@ -158,55 +160,54 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
         </button>
       </div>
     )
-  } else {
-    // No changes, render the regular paragraph with edit button
-    return (
-      <div
-        className={css`
-          margin: 1.25rem 0;
-          padding: 0.25rem;
-          border-radius: 3px;
-          transition:
-            background-color 0.2s ease,
-            box-shadow 0.2s ease;
-
-          &:has(> div:hover),
-          &:has(.edit-button:hover) {
-            background-color: rgba(121, 247, 96, 0.05);
-            box-shadow: 0 0 0 2px rgba(93, 163, 36, 0.2);
-          }
-        `}
-      >
-        <div
-          className={`${getParagraphStyles(
-            textColor,
-            backgroundColor,
-            fontSize,
-            true,
-            dropCap,
-            align,
-          )} ${getEditableHoverStyles(false)} ${css`
-            display: inline;
-            margin: 0;
-
-            &:hover {
-              background-color: transparent;
-              box-shadow: none;
-            }
-          `}`}
-        >
-          {content}
-        </div>
-        <button
-          ref={editButtonRef}
-          {...editButtonProps}
-          className={`edit-button ${editButtonStyles}`}
-        >
-          {t("edit")}
-        </button>
-      </div>
-    )
   }
+  // No changes, render the regular paragraph with edit button
+  return (
+    <div
+      className={css`
+        margin: 1.25rem 0;
+        padding: 0.25rem;
+        border-radius: 3px;
+        transition:
+          background-color 0.2s ease,
+          box-shadow 0.2s ease;
+
+        &:has(> div:hover),
+        &:has(.edit-button:hover) {
+          background-color: rgba(121, 247, 96, 0.05);
+          box-shadow: 0 0 0 2px rgba(93, 163, 36, 0.2);
+        }
+      `}
+    >
+      <div
+        className={`${getParagraphStyles(
+          textColor,
+          backgroundColor,
+          fontSize,
+          true,
+          dropCap,
+          align,
+        )} ${getEditableHoverStyles(false)} ${css`
+          display: inline;
+          margin: 0;
+
+          &:hover {
+            background-color: transparent;
+            box-shadow: none;
+          }
+        `}`}
+      >
+        {content}
+      </div>
+      <button
+        ref={editButtonRef}
+        {...editButtonProps}
+        className={`edit-button ${editButtonStyles}`}
+      >
+        {t("edit")}
+      </button>
+    </div>
+  )
 }
 
 export default EditingParagraph

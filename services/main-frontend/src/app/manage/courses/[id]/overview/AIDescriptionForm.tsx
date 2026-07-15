@@ -12,15 +12,28 @@ import {
   updateCourseMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Course, CourseUpdate } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { QueryResult, TextArea } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
+
+// Build defaults from the course, omitting flagged_answers_threshold when null so the numeric
+// field starts empty (react-hook-form treats an absent key the same as undefined).
+const buildDefaultFormValues = (source: Course) => {
+  const { flagged_answers_threshold: flaggedAnswersThreshold, ...courseRest } = source
+  return {
+    ...courseRest,
+    ...includeIf(flaggedAnswersThreshold !== null && flaggedAnswersThreshold !== undefined, {
+      flagged_answers_threshold: flaggedAnswersThreshold,
+    }),
+  }
+}
 
 interface EditCourseFormProps {
   course: Course
@@ -42,29 +55,23 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled: open,
-      build: (courseId) =>
+      build: (value) =>
         getSisuCourseLlmDescriptionsOptions({
           path: {
-            course_id: courseId,
+            course_id: value,
           },
         }),
     }),
   )
 
   const methods = useForm<CourseUpdate>({
-    defaultValues: {
-      ...course,
-      flagged_answers_threshold: course.flagged_answers_threshold ?? undefined,
-    },
+    defaultValues: buildDefaultFormValues(course),
   })
 
   const { control, register, handleSubmit, setValue, reset } = methods
 
   useEffect(() => {
-    reset({
-      ...course,
-      flagged_answers_threshold: course.flagged_answers_threshold ?? undefined,
-    })
+    reset(buildDefaultFormValues(course))
   }, [course, reset])
 
   // Populate the field once the Sisu-generated description loads. Keyed on the fetched data so it

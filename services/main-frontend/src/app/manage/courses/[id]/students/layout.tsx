@@ -5,17 +5,17 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { StudentsContextProvider, useStudentsContext } from "./StudentsContext"
-import * as styles from "./StudentsPageStyles"
-
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
-import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
+
+import { StudentsContextProvider, useStudentsContext } from "./StudentsContext"
+import * as styles from "./StudentsPageStyles"
 
 const DOWN_SYMBOL = "▼"
 
@@ -104,7 +104,7 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
                 value={inputValue}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <span className={styles.searchIcon}>🔍</span>
             </div>
 

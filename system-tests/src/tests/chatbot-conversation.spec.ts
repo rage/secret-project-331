@@ -1,4 +1,5 @@
-import { BrowserContext, expect, Page, test } from "@playwright/test"
+import type { BrowserContext, Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
@@ -23,7 +24,7 @@ async function closePopover(page: Page) {
     // Clicking closes the popover only, esc would close the chatbot also if repeated
     await page.locator("body").click({ position: { x: 0, y: 0 } })
     // Wait a moment while the popover is closing.
-    // eslint-disable-next-line playwright/no-wait-for-timeout
+    // oxlint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(100)
     const isOpen = await isCitationPopoverOpen(page)
 
@@ -235,7 +236,7 @@ test.describe("Test chatbot chat box", () => {
         "More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long.",
       )
       await textInPopover.waitFor({ state: "visible" })
-      // eslint-disable-next-line playwright/no-wait-for-timeout
+      // oxlint-disable-next-line playwright/no-wait-for-timeout
       await studentPage.waitForTimeout(100)
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: studentPage,
@@ -312,7 +313,7 @@ test.describe("Test chatbot chat box", () => {
         "More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long.",
       )
       await textInPopover.waitFor({ state: "visible" })
-      // eslint-disable-next-line playwright/no-wait-for-timeout
+      // oxlint-disable-next-line playwright/no-wait-for-timeout
       await studentPage.waitForTimeout(100)
       await expectScreenshotsToMatchSnapshots({
         screenshotTarget: studentPage,

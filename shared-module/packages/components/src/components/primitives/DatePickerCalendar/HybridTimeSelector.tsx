@@ -107,6 +107,7 @@ export function HybridTimeSelector({
   }
 
   return (
+    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled panel div; a semantic element changes styling
     <div className={timePanelCss} role="group" aria-labelledby={groupId}>
       <span id={groupId} className={timePanelHeadingCss}>
         {timePanelLabel}
@@ -181,6 +182,7 @@ export function HybridTimeSelector({
           </div>
         ) : null}
         {showsDayPeriod ? (
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled toggle div; a semantic element changes styling
           <div aria-label={dayPeriodGroupAriaLabel} className={timePeriodToggleCss} role="group">
             <button
               className={cx(

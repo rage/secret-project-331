@@ -7,9 +7,9 @@
 
 export interface HeightObserver {
   /** Set (or clear) the port height updates are posted to. Posts immediately if changed. */
-  setPort(port: MessagePort | null): void
+  setPort: (port: MessagePort | null) => void
   /** Stop observing and clear all listeners/timers. Idempotent. */
-  dispose(): void
+  dispose: () => void
 }
 
 export interface HeightObserverOptions {

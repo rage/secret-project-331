@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
+
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { respondToConfirmDialog } from "@/utils/dialogs"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -29,7 +29,9 @@ test("Can take exam after enough course points", async ({ page, headless }, test
     "http://project-331.local/org/uh-cs/courses/automatic-course-with-exam/chapter-1/page-1",
   )
   await selectCourseInstanceIfPrompted(page)
+  await page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).waitFor()
   await page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
+  await expect(page.frameLocator("iframe").getByRole("checkbox", { name: "b" })).toBeChecked()
   await page.getByRole("button", { name: "Submit" }).click()
   await page.getByRole("button", { name: "Try again" }).waitFor()
   await page.getByRole("link", { name: "Automatic Course with Exam" }).click()

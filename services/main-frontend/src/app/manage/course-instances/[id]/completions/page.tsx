@@ -7,12 +7,6 @@ import { useParams } from "next/navigation"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChapterPointsDashboard from "../ChapterPointsDashboard"
-import CompletionRegistrationPreview from "../CompletionRegistrationPreview"
-import UserCompletionRow, { UserCompletionRowUser } from "../UserCompletionRow"
-
-import CompletionsExportButton from "./CompletionsExportButton"
-
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
 import FullWidthTable from "@/components/tables/FullWidthTable"
@@ -39,6 +33,12 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import ChapterPointsDashboard from "../ChapterPointsDashboard"
+import CompletionRegistrationPreview from "../CompletionRegistrationPreview"
+import type { UserCompletionRowUser } from "../UserCompletionRow"
+import UserCompletionRow from "../UserCompletionRow"
+import CompletionsExportButton from "./CompletionsExportButton"
 
 const EMAIL = "email"
 const NAME = "name"
@@ -86,7 +86,7 @@ const CompletionsPage: React.FC = () => {
       },
     }),
     select: (completions) => {
-      const sortedCourseModules = completions.course_modules.sort(
+      const sortedCourseModules = completions.course_modules.toSorted(
         (a, b) => a.order_number - b.order_number,
       )
       return {
@@ -102,7 +102,7 @@ const CompletionsPage: React.FC = () => {
     useState<TeacherManualCompletionRequest | null>(null)
   const [previewData, setPreviewData] = useState<ManualCompletionPreview | null>(null)
   const mutation = useToastMutation(
-    async (data: TeacherManualCompletionRequest) =>
+    (data: TeacherManualCompletionRequest) =>
       createCourseInstanceCompletions({
         body: data,
         path: {
@@ -129,12 +129,11 @@ const CompletionsPage: React.FC = () => {
       )
     } else if (sorting.type === EMAIL) {
       return first.email.localeCompare(second.email)
-    } else {
-      return (
-        (maxBy(second.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0) -
-        (maxBy(first.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0)
-      )
     }
+    return (
+      (maxBy(second.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0) -
+      (maxBy(first.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0)
+    )
   }
 
   const handlePostCompletionsPreview = async (
@@ -160,7 +159,7 @@ const CompletionsPage: React.FC = () => {
           ? completions.reduce((max, curr) => {
               let gradeValue: number
 
-              if (curr.grade != null) {
+              if (curr.grade !== null && curr.grade !== undefined) {
                 gradeValue = curr.grade
               } else if (curr.passed) {
                 gradeValue = 0.5 // "pass"
@@ -326,9 +325,9 @@ const CompletionsPage: React.FC = () => {
                     </a>
                   </th>
                   {data.sortedCourseModules
-                    .sort((a, b) => a.order_number - b.order_number)
+                    .toSorted((a, b) => a.order_number - b.order_number)
                     .map((module) => {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       const moduleSorting = `#mod${module.order_number}`
                       return (
                         <th key={module.id} colSpan={2}>
@@ -362,7 +361,7 @@ const CompletionsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.users.sort(sortUsers).map((user) => (
+                {data.users.toSorted(sortUsers).map((user) => (
                   <UserCompletionRow
                     key={user.userId}
                     sortedCourseModules={data.sortedCourseModules}
@@ -382,7 +381,7 @@ const CompletionsPage: React.FC = () => {
 export default withErrorBoundary(withSignedIn(CompletionsPage))
 
 function prepareUser(user: UserWithModuleCompletions): UserCompletionRowUser {
-  const moduleCompletions = new Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>()
+  const moduleCompletions = new Map<string, CourseModuleCompletionWithRegistrationInfo[]>()
   for (const completion of user.completed_modules) {
     const bucket = moduleCompletions.get(completion.course_module_id) ?? []
     bucket.push(completion)

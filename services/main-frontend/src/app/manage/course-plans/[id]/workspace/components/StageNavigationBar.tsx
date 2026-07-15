@@ -92,7 +92,7 @@ const statusLineUrgentStyles = css`
 `
 
 export interface StageNavigationBarProps {
-  stages: ReadonlyArray<CourseDesignerStage>
+  stages: readonly CourseDesignerStage[]
   activeStage: CourseDesignerStage
   stageLabel: (stage: CourseDesignerStage) => string
   timeRemainingShort: string | null

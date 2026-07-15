@@ -1,10 +1,10 @@
 import { BadRequestError, jsonRoute, readJsonBody } from "@/lib/apiRoutes"
-import {
+import type {
   GradingRequest,
   GradingResult,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import { Alternative, Answer, ExerciseFeedback } from "@/util/stateInterfaces"
+import type { Alternative, Answer, ExerciseFeedback } from "@/util/stateInterfaces"
 
 type ExampleExerciseGradingResult = GradingResult<ExerciseFeedback | null>
 type ServiceGradingRequest = GradingRequest<Alternative[], Answer>

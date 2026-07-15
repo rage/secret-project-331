@@ -39,7 +39,7 @@ function RootComponent() {
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
-      {/* eslint-disable-next-line @next/next/no-head-element -- TanStack Start renders a real <head>, not the Next Head component */}
+      {/* oxlint-disable-next-line @next/next/no-head-element -- TanStack Start renders a real <head>, not Next's Head */}
       <head>
         <HeadContent />
       </head>

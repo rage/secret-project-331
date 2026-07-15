@@ -1,10 +1,10 @@
-import { Page } from "playwright"
+import type { Page } from "playwright"
 import { expect, test } from "playwright/test"
-
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
+
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
 /**
  *
@@ -14,15 +14,15 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 export const fillPeerReview = async (
   page: Page,
   options: string[],
-  startPeerReview: boolean = true,
+  startPeerReview = true,
   refresh = false,
 ) => {
   await test.step("Fill peer review", async () => {
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (startPeerReview) {
       await page.getByRole("button", { name: "Start peer review" }).click()
     }
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (refresh) {
       await page.getByRole("button", { name: "Refresh" }).click()
     }

@@ -2,20 +2,22 @@
 
 import { css } from "@emotion/css"
 
-import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 
 export const SpotifyEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   const url = props.url ?? ""
   const content = url ? url.split("/") : []
-  const type = content.length >= 2 ? content[content.length - 2] : ""
-  const spotifyId = content.length >= 1 ? content[content.length - 1] : ""
+  const type = content.length >= 2 ? content.at(-2) : ""
+  const spotifyId = content.length > 0 ? content.at(-1) : ""
 
   return (
     <iframe
       src={`https://open.spotify.com/embed/${type}/${spotifyId}`}
       frameBorder="0"
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       title="Spotify"
+      // Cross-origin Spotify player; both flags are required and the frame runs under open.spotify.com, not our origin.
+      // oxlint-disable-next-line react/iframe-missing-sandbox
       sandbox="allow-scripts allow-same-origin"
       allow="encrypted-media"
       className={css`

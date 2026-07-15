@@ -4,16 +4,16 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseLanguageVersionsList from "./CourseLanguageVersionsList"
-import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
-
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { getCourseLanguageVersionsQueryKey } from "@/hooks/useCourseLanguageVersions"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import Button from "@/shared-module/common/components/Button"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { QueryResult } from "@/shared-module/components"
+
+import CourseLanguageVersionsList from "./CourseLanguageVersionsList"
+import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
 
 const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,

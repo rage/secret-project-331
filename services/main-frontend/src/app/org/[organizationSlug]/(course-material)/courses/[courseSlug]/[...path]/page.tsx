@@ -4,10 +4,10 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { useParams, useRouter } from "next/navigation"
 import React, { useEffect, useMemo, useRef } from "react"
 
-import Page from "@/components/course-material/Page"
-import PageNotFound from "@/components/course-material/PageNotFound"
 import CourseMaterialPageBreadcrumbs from "@/components/course-material/navigation/CourseMaterialPageBreadcrumbs"
 import CourseTestModeNotification from "@/components/course-material/notifications/CourseTestModeNotification"
+import Page from "@/components/course-material/Page"
+import PageNotFound from "@/components/course-material/PageNotFound"
 import { useLanguageOptions } from "@/contexts/LanguageOptionsContext"
 import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
 import useScrollToSelector from "@/hooks/course-material/useScrollToSelector"
@@ -38,7 +38,7 @@ import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languag
 const decodeNonAsciiPercentEscapes = (segment: string): string =>
   // A run of %XX escapes whose lead nibble is 8-F encodes bytes >= 0x80, i.e. a non-ASCII
   // UTF-8 sequence; decode the whole run at once so multibyte characters round-trip.
-  segment.replace(/(?:%[89A-Fa-f][0-9A-Fa-f])+/g, (run) => {
+  segment.replaceAll(/(?:%[89A-Fa-f][0-9A-Fa-f])+/g, (run) => {
     try {
       return decodeURIComponent(run)
     } catch {
@@ -59,7 +59,9 @@ const PagePage: React.FC = () => {
   // non-ASCII escapes per segment so the path matches the backend's canonical form while
   // reserved ASCII escapes (e.g. %2F) stay encoded and structure is preserved.
   const path = useMemo(() => {
-    const decoded = (params.path ?? []).map(decodeNonAsciiPercentEscapes).join("/")
+    const decoded = (params.path ?? [])
+      .map((segment) => decodeNonAsciiPercentEscapes(segment))
+      .join("/")
     return `/${decoded}`
   }, [params.path])
 
@@ -110,7 +112,7 @@ const PagePage: React.FC = () => {
   // Reset language preference when course loads or changes
   useEffect(() => {
     if (courseMaterialState.status === "ready" && courseMaterialState.course?.id) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setLanguagePreference("same-as-course")
     }
   }, [courseMaterialState.status, courseMaterialState.course?.id, setLanguagePreference])
@@ -121,7 +123,7 @@ const PagePage: React.FC = () => {
     if (!languageOptions?.setOnLanguageChange) {
       return
     }
-    const handler = async (languageCode: string) => {
+    const handler = (languageCode: string) => {
       changeLanguageRef.current(languageCode)
       // Don't call redirectToLanguage - let useCourseMaterialLanguageRedirection handle it
     }
@@ -131,7 +133,7 @@ const PagePage: React.FC = () => {
         languageOptions.setOnLanguageChange(undefined)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [languageOptions?.setOnLanguageChange])
 
   // Update language options context when available languages change
@@ -159,6 +161,7 @@ const PagePage: React.FC = () => {
     // want to fix the url without creating a history entry
     const currentPathName = document.location.pathname
     const courseSlugEndLocation = currentPathName.indexOf(courseSlug) + courseSlug.length
+    // oxlint-disable-next-line unicorn/prefer-string-slice -- index may be negative; substring and slice differ there
     const beginningOfNewPath = currentPathName.substring(0, courseSlugEndLocation)
     const newPath = `${beginningOfNewPath}${courseMaterialState.page.url_path}`
 
@@ -175,7 +178,7 @@ const PagePage: React.FC = () => {
   }
 
   if (courseMaterialState.error) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     if ((courseMaterialState.error as any)?.response?.status === 404) {
       return <PageNotFound path={path} courseId={courseSlug} organizationSlug={organizationSlug} />
     }

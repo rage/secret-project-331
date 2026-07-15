@@ -4,9 +4,8 @@ import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import { usePathname } from "next/navigation"
-import React, { ReactNode } from "react"
-
-import Topbar from "./Topbar"
+import type { ReactNode } from "react"
+import React from "react"
 
 import { getCourseMaterialPrivacyLink } from "@/generated/course-material-api/sdk.generated"
 import Centered from "@/shared-module/common/components/Centering/Centered"
@@ -16,7 +15,9 @@ import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
 
-type LayoutProps = {
+import Topbar from "./Topbar"
+
+interface LayoutProps {
   children: ReactNode
   noVisibleLayout?: boolean
 }
@@ -55,7 +56,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
       : []
 
   const visibleLayout = noVisibleLayout ? (
-    <>{children}</>
+    children
   ) : (
     <>
       <div

@@ -1,9 +1,10 @@
 import { merge } from "lodash"
 import { v4 } from "uuid"
 
-import chatbotReducer, { ChatbotState } from "../chatbotReducer"
+import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 
-import { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
+import type { ChatbotState } from "../chatbotReducer"
+import chatbotReducer from "../chatbotReducer"
 
 describe("chatbotReducer", () => {
   it("works with RECEIVED_CONVERSATION_MESSAGES", () => {
@@ -29,9 +30,9 @@ describe("chatbotReducer", () => {
     })
 
     expect(newState.messages.length).toBe(1)
-    expect(newState.messages[0].optimistic).toBe(true)
+    expect(newState.messages[0]!.optimistic).toBe(true)
     expect(newState.messages[0]).toMatchObject({ optimistic: true, finished: true })
-    expect(newState.messages[0].message.message).toMatchObject({
+    expect(newState.messages[0]!.message.message).toMatchObject({
       text: "Lol",
       message_role: "user",
     })
@@ -46,9 +47,9 @@ describe("chatbotReducer", () => {
     })
 
     expect(newState.messages.length).toBe(2)
-    expect(newState.messages[1].optimistic).toBe(true)
+    expect(newState.messages[1]!.optimistic).toBe(true)
     expect(newState.messages[1]).toMatchObject({ optimistic: true, finished: true })
-    expect(newState.messages[1].message.message).toMatchObject({
+    expect(newState.messages[1]!.message.message).toMatchObject({
       text: "Lol",
       message_role: "user",
     })
@@ -64,7 +65,7 @@ describe("chatbotReducer", () => {
     })
     expect(newState.messages.length).toBe(2)
     expect(newState.messages[1]).toMatchObject({ finished: false, optimistic: false })
-    expect(newState.messages[1].message).toMatchObject({
+    expect(newState.messages[1]!.message).toMatchObject({
       id: streamingMessageId,
       message: { text: "Lol", message_role: "assistant" },
     })
@@ -90,7 +91,7 @@ describe("chatbotReducer", () => {
     })
     expect(newState.messages.length).toBe(2)
     expect(newState.messages[1]).toMatchObject({ finished: false, optimistic: false })
-    expect(newState.messages[1].message).toMatchObject({
+    expect(newState.messages[1]!.message).toMatchObject({
       id: streamingMessageId,
       message: { text: "Lol", message_role: "assistant" },
     })
@@ -110,7 +111,7 @@ describe("chatbotReducer", () => {
     })
     expect(newState.messages.length).toBe(5)
     expect(newState.messages[4]).toMatchObject({ finished: false, optimistic: false })
-    expect(newState.messages[4].message).toMatchObject({
+    expect(newState.messages[4]!.message).toMatchObject({
       message: { tool_call_id: "id", tool_name: "test_tool" },
     })
   })
@@ -129,7 +130,7 @@ describe("chatbotReducer", () => {
     })
     expect(newState.messages.length).toBe(5)
     expect(newState.messages[4]).toMatchObject({ finished: false, optimistic: false })
-    expect(newState.messages[4].message).toMatchObject({
+    expect(newState.messages[4]!.message).toMatchObject({
       message: { tool_call_id: "id", tool_name: "test_tool" },
     })
   })
@@ -152,7 +153,7 @@ describe("chatbotReducer", () => {
     })
     expect(newState.messages.length).toBe(4)
     expect(newState.messages[2]).toMatchObject({ finished: true, optimistic: false })
-    expect(newState.messages[2].message).toMatchObject({
+    expect(newState.messages[2]!.message).toMatchObject({
       message: { tool_call_id: "test_id" },
     })
   })
@@ -180,11 +181,11 @@ describe("chatbotReducer", () => {
     })
     expect(newState.messages.length).toBe(5)
     expect(newState.messages[2]).toMatchObject({ finished: true, optimistic: false })
-    expect(newState.messages[2].message).toMatchObject({
+    expect(newState.messages[2]!.message).toMatchObject({
       message: { tool_call_id: "test_id_1" },
     })
     expect(newState.messages[4]).toMatchObject({ finished: false, optimistic: false })
-    expect(newState.messages[4].message).toMatchObject({
+    expect(newState.messages[4]!.message).toMatchObject({
       message: { tool_call_id: "test_id_2" },
     })
   })
@@ -202,7 +203,7 @@ describe("chatbotReducer", () => {
     })
     expect(newState.messages.length).toBe(4)
     expect(newState.messages[3]).toMatchObject({ finished: false, optimistic: false })
-    expect(newState.messages[3].message).toMatchObject({ message: { reasoning_id: "id" } })
+    expect(newState.messages[3]!.message).toMatchObject({ message: { reasoning_id: "id" } })
   })
   it("works with REASONING_IN_PROGRESS when there is a reasoning in progress", () => {
     const initialState: ChatbotState = {
@@ -222,9 +223,9 @@ describe("chatbotReducer", () => {
     })
     expect(newState.messages.length).toBe(4)
     expect(newState.messages[3]).toMatchObject({ finished: false, optimistic: false })
-    expect(newState.messages[3].message).toMatchObject({ message: { reasoning_id: "id_2" } })
+    expect(newState.messages[3]!.message).toMatchObject({ message: { reasoning_id: "id_2" } })
     expect(newState.messages[2]).toMatchObject({ finished: false, optimistic: false })
-    expect(newState.messages[2].message).toMatchObject({ message: { reasoning_id: "id_1" } })
+    expect(newState.messages[2]!.message).toMatchObject({ message: { reasoning_id: "id_1" } })
   })
   it("works with REASONING_FINISHED when there is a reasoning in progress", () => {
     const initialState: ChatbotState = {
@@ -244,7 +245,7 @@ describe("chatbotReducer", () => {
     })
     expect(newState.messages.length).toBe(3)
     expect(newState.messages[2]).toMatchObject({ finished: true, optimistic: false })
-    expect(newState.messages[2].message).toMatchObject({ message: { reasoning_id: "id_1" } })
+    expect(newState.messages[2]!.message).toMatchObject({ message: { reasoning_id: "id_1" } })
   })
   it("works with REASONING_FINISHED when there is more than one reasoning in progress", () => {
     const initialState: ChatbotState = {
@@ -269,9 +270,9 @@ describe("chatbotReducer", () => {
     })
     expect(newState.messages.length).toBe(4)
     expect(newState.messages[2]).toMatchObject({ finished: true, optimistic: false })
-    expect(newState.messages[2].message).toMatchObject({ message: { reasoning_id: "id_1" } })
+    expect(newState.messages[2]!.message).toMatchObject({ message: { reasoning_id: "id_1" } })
     expect(newState.messages[3]).toMatchObject({ finished: false, optimistic: false })
-    expect(newState.messages[3].message).toMatchObject({ message: { reasoning_id: "id_2" } })
+    expect(newState.messages[3]!.message).toMatchObject({ message: { reasoning_id: "id_2" } })
   })
 })
 

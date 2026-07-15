@@ -2,10 +2,10 @@
 
 import { useParams } from "next/navigation"
 
-import CountryStatsTab from "../tabs/CountryStatsTab"
-
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import CountryStatsTab from "../tabs/CountryStatsTab"
 
 function StatsCountryStatsPage() {
   const params = useParams<{ id: string }>()

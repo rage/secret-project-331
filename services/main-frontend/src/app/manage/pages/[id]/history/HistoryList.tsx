@@ -3,8 +3,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 
-import HistoryPage from "./HistoryPage"
-
 import {
   getPageHistoryCountOptions,
   restorePageHistoryMutation as restorePageHistoryMutationOptions,
@@ -13,6 +11,8 @@ import type { PageHistory } from "@/generated/api/types.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
+
+import HistoryPage from "./HistoryPage"
 
 interface Props {
   pageId: string

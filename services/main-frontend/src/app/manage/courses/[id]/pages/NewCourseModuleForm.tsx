@@ -10,9 +10,10 @@ import Checkbox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 
 interface Props {
-  chapters: Array<number>
+  chapters: number[]
   onSubmitForm: (fields: Fields) => void
 }
 
@@ -39,12 +40,12 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
     reset,
     watch,
   } = useForm<Fields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       name: "",
-      starts: chapters.length > 0 ? chapters[0] : 1,
-      ends: chapters.length > 0 ? chapters[chapters.length - 1] : 1,
+      starts: chapters[0] ?? 1,
+      ends: chapters.at(-1) ?? 1,
       ects_credits: null,
       automatic_completion: false,
       uh_course_code: "",
@@ -76,7 +77,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
           label={t("create-module")}
           placeholder={t("name-of-module")}
           {...register("name", { required: t("required-field") })}
-          error={errors["name"]?.message}
+          {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
         />
         <div
           className={css`
@@ -114,7 +115,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
                 return { value: c.toString(), label: c.toString() }
               })}
               {...register("starts", { required: t("required-field"), valueAsNumber: true })}
-              error={errors["starts"]?.message}
+              {...includeIf(errors["starts"]?.message, { error: errors["starts"]?.message })}
             />
             <SelectField
               className={css`
@@ -126,7 +127,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
                 return { value: c.toString(), label: c.toString() }
               })}
               {...register("ends", { required: t("required-field"), valueAsNumber: true })}
-              error={errors["ends"]?.message}
+              {...includeIf(errors["ends"]?.message, { error: errors["ends"]?.message })}
             />
           </div>
         </div>
@@ -180,7 +181,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
                 valueAsNumber: true,
                 disabled: !isChecked,
               })}
-              error={errors["name"]?.message}
+              {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
             />
             <TextField
               className={css`
@@ -193,7 +194,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
                 valueAsNumber: true,
                 disabled: !isChecked,
               })}
-              error={errors["name"]?.message}
+              {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
             />
             <Checkbox
               label={t("label-enable-registering-completion-to-uh-open-university")}
@@ -211,7 +212,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               label={t("uh-course-code")}
               placeholder={t("uh-course-code")}
               {...register("uh_course_code")}
-              error={errors["name"]?.message}
+              {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
             />
             <TextField
               className={css`

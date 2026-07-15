@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -12,9 +12,7 @@ test.use({
 test("Limited tries work", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.locator("[aria-label=\"Manage\\ course\\ \\'Limited\\ tries\\'\"] svg").click()
 
@@ -45,9 +43,7 @@ test("Limited tries work", async ({ page }) => {
 
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.getByText("Limited tries").click()
 

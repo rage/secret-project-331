@@ -2,17 +2,17 @@ import { css } from "@emotion/css"
 import React, { useCallback, useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
-import ParsedText from "../../../ParsedText"
-import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper"
-
-import { QuizItemComponentProps } from "."
-
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { stripNonPrintableCharacters } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemComponentProps } from "."
+import type { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
+import ParsedText from "../../../ParsedText"
+import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper"
 
 const ClosedEndedQuestion: React.FC<
   QuizItemComponentProps<PublicSpecQuizItemClosedEndedQuestion, UserItemAnswerClosedEndedQuestion>
@@ -24,9 +24,8 @@ const ClosedEndedQuestion: React.FC<
     (answer: string) => {
       if (quizItem.formatRegex) {
         return answer.length > 0 && answerFormatIsValidAgainstRegex(answer, quizItem.formatRegex)
-      } else {
-        return answer.length > 0
       }
+      return answer.length > 0
     },
     [quizItem.formatRegex],
   )
@@ -84,11 +83,9 @@ const ClosedEndedQuestion: React.FC<
           `}
           value={quizItemAnswerState?.textData ?? ""}
           onChangeByValue={(e) => handleChange(e)}
-          error={
-            formatErrorVisible
-              ? t("error-answer-does-not-match-the-specified-answer-format")
-              : undefined
-          }
+          {...includeIf(formatErrorVisible, {
+            error: t("error-answer-does-not-match-the-specified-answer-format"),
+          })}
         />
       </div>
     </CloseEndedQuestionWrapper>
@@ -99,7 +96,7 @@ const answerFormatIsValidAgainstRegex = (
   answer: string | undefined,
   validatorRegex: string | undefined,
 ): boolean => {
-  if (answer?.length == 0) {
+  if (answer?.length === 0) {
     return true
   }
   if (!answer || !validatorRegex) {

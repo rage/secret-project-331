@@ -5,17 +5,17 @@ import { useMemo } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../../.."
-
-import { CopyButton } from "./CopyButton"
-import { parseHighlightedCode } from "./highlightParser"
-import { formatHighlightedLinesRanges, replaceBrTagsWithNewlines } from "./utils"
-
-import { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { monospaceFont } from "@/shared-module/common/styles"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../../.."
+import { CopyButton } from "./CopyButton"
+import { parseHighlightedCode } from "./highlightParser"
+import { formatHighlightedLinesRanges, replaceBrTagsWithNewlines } from "./utils"
 
 const SyntaxHighlightedContainer = dynamicImport(() => import("./SyntaxHighlightedContainer"))
 
@@ -91,7 +91,7 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
           <SyntaxHighlightedContainer
             content={cleanCode}
             highlightedLines={highlightedLines}
-            language={language}
+            {...omitUndefined({ language })}
           />
         </pre>
       </div>

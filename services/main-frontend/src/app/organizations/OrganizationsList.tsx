@@ -4,9 +4,6 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CreateOrganizationPopup from "./CreateOrganizationPopup"
-import OrganizationBanner from "./components/OrganizationBanner"
-
 import { createOrganizationMutation as createOrganizationMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
 import Button from "@/shared-module/common/components/Button"
@@ -16,6 +13,9 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { QueryResult } from "@/shared-module/components"
+
+import OrganizationBanner from "./components/OrganizationBanner"
+import CreateOrganizationPopup from "./CreateOrganizationPopup"
 
 const OrganizationsList: React.FC = () => {
   const { t } = useTranslation()
@@ -133,7 +133,7 @@ const OrganizationsList: React.FC = () => {
           createOrganizationMutation.mutate({
             body: {
               name,
-              slug: slug.trim().toLowerCase().replace(/\s+/g, "-"),
+              slug: slug.trim().toLowerCase().replaceAll(/\s+/g, "-"),
               hidden: visibility === "private",
             },
           })

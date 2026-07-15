@@ -7,10 +7,10 @@
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "main": "src/index.ts",
   "scripts": {
-    "generate-guards": "pnpm exec ts-auto-guard --export-all --paths src/core/exercise-service-protocol-types.ts --project tsconfig.json"
+    "generate-guards": "pnpm exec ts-auto-guard --export-all --paths src/core/exercise-service-protocol-types.ts --project tsconfig.guards.json && sed -i -E 's/^import \\{/import type {/' src/core/exercise-service-protocol-types.guard.ts"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.0.1",
     "@typescript/native": "npm:typescript@^7.0.2",
     "ts-auto-guard": "^5.1.3",
     "typescript": "npm:@typescript/typescript6@^6.0.2"

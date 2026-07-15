@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 type inputType = "number" | "text"
 interface ContentAreaProps {
@@ -32,19 +33,19 @@ const ContentArea: React.FC<React.PropsWithChildren<ContentAreaProps>> = ({
       <strong>{title}:</strong>
       <br />
 
-      {editing && type == "text" && (
+      {editing && type === "text" && (
         <TextField
           label=""
-          error={error}
+          {...omitUndefined({ error })}
           onChangeByValue={(value) => onChange(value)}
           value={String(text)}
           placeholder={`${title}...`}
         />
       )}
-      {editing && type == "number" && (
+      {editing && type === "number" && (
         <TextField
           label=""
-          error={error}
+          {...omitUndefined({ error })}
           onChangeByValue={(value) => onChange(value)}
           type={"number"}
           value={String(text)}

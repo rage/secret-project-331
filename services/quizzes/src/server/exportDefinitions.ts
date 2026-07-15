@@ -1,12 +1,13 @@
-import {
+import { handlePrivateSpecMigration } from "@/grading/utils"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
   QuizItemType,
 } from "../../types/quizTypes/privateSpec"
-
+import type { CsvExportColumn, CsvScalar } from "./csvExportUtils"
 import {
-  CsvExportColumn,
-  CsvScalar,
   getAllowSelectingMultipleOptions,
   getChooseN,
   getCorrectOptionIds,
@@ -35,11 +36,8 @@ import {
   mergeColumns,
 } from "./csvExportUtils"
 
-import { handlePrivateSpecMigration } from "@/grading/utils"
-import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-
 interface CsvExportResult {
-  rows: Array<Record<string, CsvScalar>>
+  rows: Record<string, CsvScalar>[]
 }
 
 interface CsvExportResponse {
@@ -114,7 +112,7 @@ function parseRequest(body: unknown): CsvExportDefinitionsRequest {
     throw new Error("Invalid request body")
   }
   if (!Array.isArray((body as Record<string, unknown>).items)) {
-    throw new Error("Invalid request body: items must be an array")
+    throw new TypeError("Invalid request body: items must be an array")
   }
   return body as CsvExportDefinitionsRequest
 }
@@ -170,7 +168,6 @@ function getTypeSpecificDefinitionColumns(
       return MATRIX_DEFINITION_COLUMNS
     case "timeline":
       return getTimelineDefinitionColumns(getMaxTimelineItemCount(privateSpecQuiz))
-    case "checkbox":
     default:
       return []
   }
@@ -282,14 +279,17 @@ function buildDefinitionRow(
       }
 
       for (let index = 0; index < sortedTimelineItems.length; index += 1) {
+        // index is bounded by sortedTimelineItems.length
         const timelineItem = sortedTimelineItems[index]
+        if (timelineItem === undefined) {
+          continue
+        }
         row[`timeline_item_${index + 1}_year`] = timelineItem.year
         row[`timeline_item_${index + 1}_correct_event`] = timelineItem.correctEventName
       }
 
       return row
     }
-    case "checkbox":
     default:
       return baseRow
   }

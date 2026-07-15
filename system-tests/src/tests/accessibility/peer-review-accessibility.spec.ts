@@ -1,8 +1,9 @@
-import { BrowserContext, expect, test } from "@playwright/test"
-
-import { answerExercise } from "../peer-reviews/peer_review_utils"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
+
+import { answerExercise } from "../peer-reviews/peer_review_utils"
 
 const TEST_PAGE =
   "http://project-331.local/org/uh-mathstat/courses/peer-review-accessibility-course/chapter-1/can-give-extra-reviews"

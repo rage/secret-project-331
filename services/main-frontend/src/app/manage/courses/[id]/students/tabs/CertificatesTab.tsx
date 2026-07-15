@@ -7,8 +7,6 @@ import { Eye, Pen } from "@vectopus/atlas-icons-react"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FloatingHeaderTable } from "../FloatingHeaderTable"
-
 import { getCourseStudentsCertificatesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateGeneratedCertificate } from "@/generated/api/sdk.generated"
 import type {
@@ -17,15 +15,17 @@ import type {
   GetCertificateByVerificationIdData,
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
 import { QueryResult } from "@/shared-module/components"
 import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
+
+import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
 const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"] =
   "/api/v0/main-frontend/certificates/{certificate_verification_id}"
@@ -114,7 +114,7 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
   const [verificationId, setVerificationId] = useState<string | null>(null)
   const [imageLoaded, setImageLoaded] = useState(false)
   const verificationUrl = verificationId
-    ? // eslint-disable-next-line i18next/no-literal-string
+    ? // oxlint-disable-next-line i18next/no-literal-string
       `${window.location.origin}/certificates/validate/${verificationId}`
     : ""
   const copyToClipboard = useCopyToClipboard(verificationUrl)
@@ -127,28 +127,28 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
   }
 
   const columns: ColumnDef<CertificateGridRow, unknown>[] = [
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     { header: t("label-student"), accessorKey: "student" },
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     { header: t("certificate"), accessorKey: "certificate" },
     {
       header: t("name-on-certificate"),
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       accessorKey: "name_on_certificate",
       cell: ({ getValue }) => {
         const value = getValue<string | null>()
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         return value ?? "—"
       },
     },
     {
       header: t("date-issued"),
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       accessorKey: "date_issued",
       cell: ({ getValue }) => {
         const value = getValue<string | null>()
         if (!value) {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           return "—"
         }
         const d = new Date(value)
@@ -157,7 +157,7 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
     },
     {
       header: t("actions"),
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       id: "actions",
       size: 80,
       meta: { style: { paddingLeft: "4px", paddingRight: "4px" } },

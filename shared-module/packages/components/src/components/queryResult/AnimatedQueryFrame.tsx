@@ -6,7 +6,6 @@ import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "../Button"
-
 import type { RetryFn } from "./queryResultState"
 import { getErrorMessage } from "./queryResultState"
 import {
@@ -37,7 +36,7 @@ import {
   wrapperIsolationCss,
 } from "./queryResultStyles"
 
-export type FallbackArgs<E> = {
+export interface FallbackArgs<E> {
   error: E
   retry: RetryFn
 }
@@ -106,7 +105,7 @@ function useBlurSettling(refreshing: boolean) {
   return { settling, onContentTransitionEnd }
 }
 
-export type AnimatedQueryFrameProps<E> = {
+export interface AnimatedQueryFrameProps<E> {
   themeMode: ThemeMode
   minHeight?: number
   loadingDelayMs?: number
@@ -141,6 +140,7 @@ export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
   const { t } = useTranslation()
   return (
     <div className={errorStackCss}>
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> changes styling */}
       <div className={staleStatusCss} role="status">
         {getErrorMessage(error)}
       </div>
@@ -185,6 +185,7 @@ export function AnimatedQueryFrame<E>({
     return (
       <section
         className={cx(wrapperCss, wrapperIsolationCss)}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status on <section>; <output> changes semantics/styling
         role="status"
         aria-live="polite"
         aria-busy="true"
@@ -235,11 +236,12 @@ export function AnimatedQueryFrame<E>({
     <section
       className={cx(wrapperCss, refreshing ? wrapperIsolationCss : undefined)}
       aria-busy={refreshing || blurSettling ? "true" : undefined}
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       {...((refreshing || blurSettling) && { "data-testid": "query-refreshing" })}
     >
       {refreshing ? (
         <div
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> changes styling
           role="status"
           aria-live="polite"
           aria-label={t("queryResult.refreshing")}

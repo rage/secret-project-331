@@ -6,7 +6,9 @@ import type React from "react"
 import type { DateFieldAria } from "react-aria"
 
 import { composeRefs } from "../../../lib/utils/compositeField"
-import { joinAriaDescribedBy, resolveFieldState } from "../../../lib/utils/field"
+import type { resolveFieldState } from "../../../lib/utils/field"
+import { joinAriaDescribedBy } from "../../../lib/utils/field"
+import { includeIf, omitUndefined } from "../../../lib/utils/nullability"
 import { FieldShell } from "../FieldShell"
 import {
   type FieldSize,
@@ -14,7 +16,6 @@ import {
   resolveControlSurfaceCss,
   resolveSegmentedFloatingShellCss,
 } from "../fieldStyles"
-
 import { DateSegment } from "./DateSegment"
 import { dataStateFalse, dataStateTrue } from "./segmentedDateInputFieldConstants"
 import {
@@ -31,18 +32,18 @@ import {
   shouldHideRestSegmentPlaceholders,
 } from "./segmentedDateInputFieldUtils"
 
-export type NonPickerSegmentedFieldProps = {
+export interface NonPickerSegmentedFieldProps {
   aria: DateFieldAria
-  className?: string
+  className?: string | undefined
   description?: React.ReactNode
   errorMessage?: React.ReactNode
-  externalOnBlur?: React.FocusEventHandler<HTMLElement>
-  externalOnFocus?: React.FocusEventHandler<HTMLElement>
+  externalOnBlur?: React.FocusEventHandler<HTMLElement> | undefined
+  externalOnFocus?: React.FocusEventHandler<HTMLElement> | undefined
   fieldRef: React.RefObject<HTMLDivElement | null>
   fieldSize: FieldSize
   hiddenInputRef: React.RefObject<HTMLInputElement | null>
   hiddenInputValue: string
-  inputRef?: React.Ref<HTMLInputElement>
+  inputRef?: React.Ref<HTMLInputElement> | undefined
   iconEnd?: React.ReactNode
   iconStart?: React.ReactNode
   isFocused: boolean
@@ -89,12 +90,11 @@ export function NonPickerSegmentedField({
   const hideRestSegmentPlaceholders = shouldHideRestSegmentPlaceholders(
     layout,
     isFocused,
-    state.value != null,
+    state.value !== null,
   )
 
   return (
     <FieldShell
-      className={className}
       controlClassName={cx(resolveControlSurfaceCss(fieldSize, layout === "floating"))}
       controlProps={{
         "data-disabled": resolvedState.isDisabled ? dataStateTrue : dataStateFalse,
@@ -103,18 +103,19 @@ export function NonPickerSegmentedField({
         "data-has-icon-start": iconStart ? dataStateTrue : undefined,
       }}
       label={label}
-      labelProps={label ? (aria.labelProps as React.HTMLAttributes<HTMLElement>) : undefined}
       description={description}
       descriptionProps={aria.descriptionProps as React.HTMLAttributes<HTMLElement>}
       errorMessage={errorMessage}
       errorMessageProps={aria.errorMessageProps as React.HTMLAttributes<HTMLElement>}
       notice={notice}
-      noticeId={notice ? noticeId : undefined}
+      {...omitUndefined({ className })}
+      {...includeIf(label, { labelProps: aria.labelProps as React.HTMLAttributes<HTMLElement> })}
+      {...includeIf(notice, { noticeId })}
       isDisabled={resolvedState.isDisabled}
       isRequired={resolvedState.isRequired}
       layout={layout}
       fieldSize={fieldSize}
-      isFloatingRaised={layout === "floating" ? isFocused || state.value != null : true}
+      isFloatingRaised={layout === "floating" ? isFocused || state.value !== null : true}
       isFloatingFocused={layout === "floating" ? isFocused : false}
       isInvalid={state.isInvalid}
     >
@@ -180,9 +181,7 @@ export function NonPickerSegmentedField({
         type="hidden"
         aria-describedby={describedBy}
         value={hiddenInputValue}
-        onChange={() => {
-          return
-        }}
+        onChange={() => {}}
       />
       {iconEnd ? <span className={inlineAffixCss}>{iconEnd}</span> : null}
     </FieldShell>

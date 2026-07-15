@@ -15,7 +15,10 @@ function splitTree(node: Node): Segment[] {
       if (i > 0) {
         result.push(LINE_BREAK)
       }
-      result.push(document.createTextNode(parts[i]))
+      const part = parts[i]
+      if (part !== undefined) {
+        result.push(document.createTextNode(part))
+      }
     }
     return result
   }
@@ -33,7 +36,10 @@ function splitTree(node: Node): Segment[] {
       if (seg === LINE_BREAK) {
         groups.push([])
       } else {
-        groups[groups.length - 1].push(seg as Node)
+        const lastGroup = groups[groups.length - 1]
+        if (lastGroup !== undefined) {
+          lastGroup.push(seg as Node)
+        }
       }
     }
     const result: Segment[] = []
@@ -41,9 +47,13 @@ function splitTree(node: Node): Segment[] {
       if (i > 0) {
         result.push(LINE_BREAK)
       }
+      const group = groups[i]
+      if (group === undefined) {
+        continue
+      }
       const clone = (node as Element).cloneNode(false) as Element
-      for (const n of groups[i]) {
-        clone.appendChild(n)
+      for (const n of group) {
+        clone.append(n)
       }
       result.push(clone)
     }
@@ -59,7 +69,10 @@ function groupSegmentsIntoLines(segments: Segment[]): Node[][] {
     if (seg === LINE_BREAK) {
       lines.push([])
     } else {
-      lines[lines.length - 1].push(seg as Node)
+      const lastLine = lines[lines.length - 1]
+      if (lastLine !== undefined) {
+        lastLine.push(seg as Node)
+      }
     }
   }
   return lines
@@ -67,12 +80,12 @@ function groupSegmentsIntoLines(segments: Segment[]): Node[][] {
 
 function wrapSingleLine(el: HTMLElement, highlightedLines: Set<number>): void {
   const span = document.createElement("span")
-  span.setAttribute("data-line", "1")
+  span.dataset.line = "1"
   span.className = highlightedLines.has(1) ? "code-line highlighted-line" : "code-line"
   while (el.firstChild) {
-    span.appendChild(el.firstChild)
+    span.append(el.firstChild)
   }
-  el.appendChild(span)
+  el.append(span)
 }
 
 /** Called by the plugin after highlight.js runs; exported for unit tests only. */
@@ -109,32 +122,42 @@ export function applyLineWrapping(el: HTMLElement): void {
 
   const fragment = document.createDocumentFragment()
   for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (line === undefined) {
+      continue
+    }
     const lineNum = i + 1
     const span = document.createElement("span")
     const isHighlighted = highlightedLines.has(lineNum)
     span.className = isHighlighted ? "code-line highlighted-line" : "code-line"
-    span.setAttribute("data-line", String(lineNum))
+    span.dataset.line = String(lineNum)
     if (isHighlighted) {
       span.setAttribute("aria-label", `Line ${lineNum}, highlighted`)
     }
-    for (const node of lines[i]) {
-      span.appendChild(node)
+    for (const node of line) {
+      span.append(node)
     }
     // Preserve visible height for blank lines in the browser.
     // Without a placeholder, empty block spans collapse to zero height.
-    const hasVisibleText = lines[i].some((node) => (node.textContent ?? "").length > 0)
+    const hasVisibleText = line.some((node) => (node.textContent ?? "").length > 0)
     if (!hasVisibleText) {
-      span.appendChild(document.createElement("br"))
+      span.append(document.createElement("br"))
     }
-    fragment.appendChild(span)
+    fragment.append(span)
   }
   el.innerHTML = ""
-  el.appendChild(fragment)
+  el.append(fragment)
   el.dataset.hljsLineWrapped = "true"
 }
 
 class LineHighlightPlugin {
-  "after:highlightElement"({ el }: { el: Element; result: HighlightResult; text: string }): void {
+  public "after:highlightElement"({
+    el,
+  }: {
+    el: Element
+    result: HighlightResult
+    text: string
+  }): void {
     applyLineWrapping(el as HTMLElement)
   }
 }

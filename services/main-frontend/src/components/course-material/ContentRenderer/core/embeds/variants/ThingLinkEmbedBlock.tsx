@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 
-import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
@@ -29,6 +29,8 @@ export const ThingLinkEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribut
           src={props.url}
           allow="fullscreen"
           title={THINGLINK}
+          // Cross-origin ThingLink embed; both flags are required and the frame runs under thinglink.com, not our origin.
+          // oxlint-disable-next-line react/iframe-missing-sandbox
           sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation allow-popups allow-popups-to-escape-sandbox"
         ></iframe>
 

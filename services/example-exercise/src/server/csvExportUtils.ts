@@ -1,5 +1,6 @@
 import { BadRequestError } from "@/lib/apiRoutes"
-import { Alternative, isAlternative } from "@/util/stateInterfaces"
+import type { Alternative } from "@/util/stateInterfaces"
+import { isAlternative } from "@/util/stateInterfaces"
 
 export type CsvScalar = string | number | boolean | null
 
@@ -9,7 +10,7 @@ export interface CsvExportColumn {
 }
 
 export interface CsvExportResult {
-  rows: Array<Record<string, CsvScalar>>
+  rows: Record<string, CsvScalar>[]
 }
 
 export interface CsvExportResponse {
@@ -39,7 +40,7 @@ export function parseItemsRequest<T>(body: unknown): CsvExportRequest<T> {
  * endpoints reject malformed specs, while the iframe view tolerates them.
  */
 export function parsePrivateSpecStrict(value: unknown): Alternative[] {
-  if (!Array.isArray(value) || !value.every(isAlternative)) {
+  if (!Array.isArray(value) || !value.every((alternative) => isAlternative(alternative))) {
     throw new BadRequestError("Invalid private_spec: expected an array of alternatives")
   }
   return value

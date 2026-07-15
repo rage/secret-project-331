@@ -5,18 +5,18 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
 export const ReportReasonValues = {
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   Spam: "Spam",
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   HarmfulContent: "HarmfulContent",
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   AiGenerated: "AiGenerated",
 } as const
 

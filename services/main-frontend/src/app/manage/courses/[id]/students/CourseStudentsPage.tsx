@@ -5,15 +5,18 @@ import { usePathname, useRouter } from "next/navigation"
 import React, { useEffect, useMemo, useState, useTransition } from "react"
 import { useTranslation } from "react-i18next"
 
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
+
 import * as styles from "./StudentsPageStyles"
 import { CertificatesTabContent, CompletionsTabContent, UserTabContent } from "./StudentsTableTabs"
 import { ProgressTabContent } from "./tabs/ProgressTab"
 
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
-
-type Props = { courseId?: string }
+interface Props {
+  courseId?: string
+}
 
 const tableSection = css`
   padding-left: 0;
@@ -61,7 +64,7 @@ const SLUG_TO_TAB: Record<string, (typeof TAB_LIST)[number]> = {
   certificates: TAB_CERTIFICATES,
 }
 
-const cx = (...arr: Array<string | false | undefined>) => arr.filter(Boolean).join(" ")
+const cx = (...arr: (string | false | undefined)[]) => arr.filter(Boolean).join(" ")
 
 const StudentsPage: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -88,7 +91,7 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
 
   useEffect(() => {
     if (!subtabFromUrl && courseId) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       router.replace(manageCourseStudentsRoute(courseId, "users"))
     }
   }, [subtabFromUrl, courseId, router])
@@ -102,7 +105,7 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
     router.push(manageCourseStudentsRoute(courseId, slug))
   }
 
-  const tabContentMap: { [k in (typeof TAB_LIST)[number]]: React.ReactNode } = {
+  const tabContentMap: Record<(typeof TAB_LIST)[number], React.ReactNode> = {
     [TAB_USER]: courseId ? <UserTabContent courseId={courseId} searchQuery={searchQuery} /> : null,
     [TAB_COMPLETIONS]: courseId ? (
       <CompletionsTabContent courseId={courseId} searchQuery={searchQuery} />
@@ -110,7 +113,9 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
     [TAB_PROGRESS]: courseId ? (
       <ProgressTabContent courseId={courseId} searchQuery={searchQuery} />
     ) : null,
-    [TAB_CERTIFICATES]: <CertificatesTabContent courseId={courseId} searchQuery={searchQuery} />,
+    [TAB_CERTIFICATES]: (
+      <CertificatesTabContent {...omitUndefined({ courseId })} searchQuery={searchQuery} />
+    ),
   }
 
   return (
@@ -145,7 +150,7 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
                   })
                 }}
               />
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <span className={styles.searchIcon}>🔍</span>
             </div>
 

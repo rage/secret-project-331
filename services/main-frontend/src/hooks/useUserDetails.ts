@@ -3,6 +3,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query"
 import { getBulkUserDetails, getUserDetailsByCourses } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 export interface UseUserDetailsOptions {
@@ -35,6 +36,11 @@ export const isUserDetailsNotFound = (
 ): result is { kind: "not-found"; userId: string } => {
   return result?.kind === "not-found"
 }
+
+/** "First Last", trimmed; "" when neither is set (callers fall back to email / a generic label). */
+export const formatUserName = (
+  user: { first_name?: string | null; last_name?: string | null } | null | undefined,
+): string => `${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim()
 
 /** Returns true when user details query inputs are sufficient to fetch data. */
 export const isUserDetailsQueryReady = (
@@ -112,11 +118,12 @@ export const useUserDetails = (
         courseIds: string[]
         userId: string
       } => isUserDetailsQueryReady(value?.courseIds, value?.userId),
-      build: ({ courseIds, userId }) => getUserDetailsQueryOptions(courseIds, userId),
+      build: ({ courseIds: readyCourseIds, userId: readyUserId }) =>
+        getUserDetailsQueryOptions(readyCourseIds, readyUserId),
     }),
-    staleTime: options?.staleTime,
-    gcTime: options?.gcTime,
-    refetchOnWindowFocus: options?.refetchOnWindowFocus,
+    ...omitUndefined({ staleTime: options?.staleTime }),
+    ...omitUndefined({ gcTime: options?.gcTime }),
+    ...omitUndefined({ refetchOnWindowFocus: options?.refetchOnWindowFocus }),
   })
 }
 
@@ -133,7 +140,8 @@ export const useBulkUserDetails = (
         courseId: string
         userIds: string[]
       } => Boolean(value?.courseId && value.userIds.length > 0),
-      build: ({ courseId, userIds }) => getBulkUserDetailsQueryOptions(courseId, userIds),
+      build: ({ courseId: readyCourseId, userIds: readyUserIds }) =>
+        getBulkUserDetailsQueryOptions(readyCourseId, readyUserIds),
     }),
   )
 }

@@ -38,7 +38,7 @@
   "error-answer-does-not-match-the-specified-answer-format": "Svaret matchar inte det angivna svarformatet för denna övning.",
   "error-quiz-item-added-after-answering": "En fråga har lagts till här efter att övningen har besvarats.",
   "essay-paste-warning-acknowledge": "Jag förstår",
-  "essay-paste-warning-body": "Se till att du har tillåtelse att göra detta.\n\nAnvändning av AI är förbjuden på MOOC-kurser om den inte uttryckligen tillåts i kursmaterialet. Om användning är tillåten, följ de givna anvisningarna och rapportera din användning av AI. Att bryta mot reglerna räknas som fusk. Även om användning av AI undantagsvis är tillåten måste du ändå följa universitetets anvisningar. Som standard är användning inte tillåten.\n\nDen här händelsen registreras.",
+  "essay-paste-warning-body": "Se till att du har tillåtelse att göra detta.\n\nAnvändning av AI är förbjuden på MOOC-kurser om den inte uttryckligen tillåts i kursmaterialet. Om användning är tillåten, följ de givna anvisningarna och rapportera din användning av AI. Att bryta mot reglerna räknas som fusk. Även om användning av AI undantagsvis är tillåten måste du ändå följa universitetets anvisningar. Som standard är användning inte tillåten.\n\nDet är oftast tillåtet att klistra in källhänvisningar. Den här händelsen registreras.",
   "essay-paste-warning-title": "Klistra in ditt svar",
   "exact-string": "Exakt sträng",
   "examples-of-grading-policies": "Exempel på bedömningspolicyer",

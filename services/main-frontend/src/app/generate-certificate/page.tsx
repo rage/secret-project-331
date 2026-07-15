@@ -1,7 +1,8 @@
 "use client"
 
-import { useQuery, UseQueryResult } from "@tanstack/react-query"
-import { TFunction } from "i18next"
+import type { UseQueryResult } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
+import type { TFunction } from "i18next"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -19,10 +20,10 @@ import type {
   CourseModule as GeneratedCourseModule,
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
@@ -119,9 +120,8 @@ const ModuleCertificate: React.FC = () => {
     const moduleData = userGrade.data?.module
     if (moduleData.grade !== null) {
       return String(moduleData.grade)
-    } else {
-      return String(moduleData.passed)
     }
+    return String(moduleData.passed)
   }, [userGrade.data?.module])
 
   const generateCertificateMutation = useToastMutationOptions(

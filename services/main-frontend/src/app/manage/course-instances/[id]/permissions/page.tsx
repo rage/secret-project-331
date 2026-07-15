@@ -42,7 +42,7 @@ const CourseInstancePermissions: React.FC = () => {
             </h1>
             <PermissionPage
               domain={{
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 tag: "CourseInstance",
                 id: data.id,
               }}

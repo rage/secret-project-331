@@ -26,6 +26,7 @@
     "@fortawesome/free-solid-svg-icons": "^7.3.0",
     "@fortawesome/react-fontawesome": "^3.3.1",
     "@internationalized/date": "^3.12.2",
+    "@jest/globals": "^30.4.1",
     "@json2csv/plainjs": "^7.0.6",
     "@monaco-editor/react": "^4.7.0",
     "@next/bundle-analyzer": "^16.2.9",

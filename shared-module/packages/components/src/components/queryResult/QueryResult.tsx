@@ -3,11 +3,12 @@
 import type { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 
+import { omitUndefined } from "../../lib/utils/nullability"
 import { AnimatedQueryFrame, type AnimatedQueryFrameProps } from "./AnimatedQueryFrame"
 import { getSingleQueryState, isQueryResultEmpty } from "./queryResultState"
 import type { ThemeMode } from "./queryResultStyles"
 
-export type QueryResultProps<T, E = unknown> = {
+export interface QueryResultProps<T, E = unknown> {
   query: UseQueryResult<T, E>
   themeMode?: ThemeMode
   children: (data: T) => React.ReactNode
@@ -61,16 +62,16 @@ export function QueryResult<T, E = unknown>({
   return (
     <AnimatedQueryFrame
       themeMode={themeMode}
-      minHeight={minHeight}
-      loadingDelayMs={loadingDelayMs}
+      {...omitUndefined({ minHeight })}
+      {...omitUndefined({ loadingDelayMs })}
       initialLoading={state.initialLoading}
       refreshing={state.refreshing}
       blockingError={state.blockingError}
       staleError={state.staleError}
-      error={state.error}
+      {...omitUndefined({ error: state.error })}
       retry={retry}
-      renderBlockingError={renderBlockingError}
-      renderStaleError={renderStaleError}
+      {...omitUndefined({ renderBlockingError })}
+      {...omitUndefined({ renderStaleError })}
     >
       {body}
     </AnimatedQueryFrame>

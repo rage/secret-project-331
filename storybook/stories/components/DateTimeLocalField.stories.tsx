@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import type { ReactNode } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -13,47 +14,54 @@ const stackCss = css`
   max-width: 360px;
 `
 
-type Form = { dt: string }
-
-function PlaygroundStory() {
-  const { t } = useTranslation()
-  const { control } = useForm<Form>({ defaultValues: { dt: "2026-03-11T12:00" } })
-  return (
-    <DateTimeLocalField name="dt" control={control} label={t("story.dateTime.playgroundLabel")} />
-  )
+interface DateTimeLocalFieldDemoProps {
+  label: ReactNode
+  isDisabled?: boolean
+  errorMessage?: ReactNode
+  defaultValue?: string
 }
 
-function StatesStory() {
-  const { t } = useTranslation()
-  const { control } = useForm<Form>({ defaultValues: { dt: "" } })
-  const { control: c2 } = useForm<Form>({ defaultValues: { dt: "2026-03-11T12:00" } })
-  const { control: c3 } = useForm<Form>({ defaultValues: { dt: "" } })
-  return (
-    <div className={stackCss}>
-      <DateTimeLocalField name="dt" control={control} label={t("story.dateTime.default")} />
-      <DateTimeLocalField name="dt" control={c2} label={t("story.dateTime.disabled")} isDisabled />
-      <DateTimeLocalField
-        name="dt"
-        control={c3}
-        label={t("story.dateTime.invalid")}
-        errorMessage={t("story.dateTime.invalidMessage")}
-      />
-    </div>
-  )
+/** Wires a standalone react-hook-form field so the date-time field can be storied on its own. */
+function DateTimeLocalFieldDemo({
+  defaultValue = "2026-03-11T12:00",
+  ...props
+}: DateTimeLocalFieldDemoProps) {
+  const { control } = useForm<{ dt: string }>({ defaultValues: { dt: defaultValue } })
+  return <DateTimeLocalField name="dt" control={control} {...props} />
 }
 
 const meta = {
   title: "Components/DateTimeLocalField",
-  component: DateTimeLocalField,
-  render: () => <PlaygroundStory />,
-} satisfies Meta<typeof DateTimeLocalField>
+  component: DateTimeLocalFieldDemo,
+  args: {
+    label: "Publish at",
+  },
+} satisfies Meta<typeof DateTimeLocalFieldDemo>
 
 export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Playground = {} satisfies Story
+export const Playground = {
+  render: () => {
+    const { t } = useTranslation()
+    return <DateTimeLocalFieldDemo label={t("story.dateTime.playgroundLabel")} />
+  },
+} satisfies Story
 
 export const States = {
-  render: () => <StatesStory />,
+  render: () => {
+    const { t } = useTranslation()
+    return (
+      <div className={stackCss}>
+        <DateTimeLocalFieldDemo label={t("story.dateTime.default")} defaultValue="" />
+        <DateTimeLocalFieldDemo label={t("story.dateTime.disabled")} isDisabled />
+        <DateTimeLocalFieldDemo
+          label={t("story.dateTime.invalid")}
+          defaultValue=""
+          errorMessage={t("story.dateTime.invalidMessage")}
+        />
+      </div>
+    )
+  },
 } satisfies Story

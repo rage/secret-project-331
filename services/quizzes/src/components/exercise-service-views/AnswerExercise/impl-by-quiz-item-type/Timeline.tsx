@@ -4,17 +4,16 @@ import { MinusCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { TimelineChoice, UserItemAnswerTimeline } from "../../../../../types/quizTypes/answer"
-import {
-  PublicSpecQuizItemTimeline,
-  PublicSpecQuizItemTimelineItem,
-} from "../../../../../types/quizTypes/publicSpec"
-
-import { QuizItemComponentProps } from "."
-
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { headingFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemComponentProps } from "."
+import type { TimelineChoice, UserItemAnswerTimeline } from "../../../../../types/quizTypes/answer"
+import type {
+  PublicSpecQuizItemTimeline,
+  PublicSpecQuizItemTimelineItem,
+} from "../../../../../types/quizTypes/publicSpec"
 
 const TimelineWrapper = styled.section`
   *,
@@ -146,7 +145,7 @@ const Timeline: React.FunctionComponent<
   return (
     <TimelineWrapper>
       {quizItem.timelineItems
-        .sort((a, b) => Number(a.year) - Number(b.year))
+        .toSorted((a, b) => Number(a.year) - Number(b.year))
         .map((timelineItem, n) => {
           const selectedTimelineItem = quizItemAnswerState?.timelineChoices?.find(
             (tc) => tc.timelineItemId === timelineItem.itemId,

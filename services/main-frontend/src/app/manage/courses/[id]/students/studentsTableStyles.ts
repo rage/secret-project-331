@@ -249,8 +249,8 @@ export const actionCellFixed = css`
 `
 
 export const contentCell = (w?: number, minW?: number) => css`
-  ${w != null ? `width: ${w}px;` : ``}
-  ${minW != null ? `min-width: ${minW}px;` : ``}
+  ${w !== undefined ? `width: ${w}px;` : ``}
+  ${minW !== undefined ? `min-width: ${minW}px;` : ``}
   ${padX(PAD)};
 `
 

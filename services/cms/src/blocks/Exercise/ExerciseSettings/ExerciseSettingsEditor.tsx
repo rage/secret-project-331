@@ -5,10 +5,6 @@ import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { useContext } from "react"
 
-import PeerReviewEditor from "../../../components/PeerReviewEditor"
-import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
-import PageContext from "../../../contexts/PageContext"
-
 import { getCmsCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -17,6 +13,10 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import PeerReviewEditor from "../../../components/PeerReviewEditor"
+import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
+import PageContext from "../../../contexts/PageContext"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 
@@ -28,11 +28,11 @@ const ExerciseSettingsEditor = () => {
   const courseQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
         getCmsCourseOptions({
           path: {
-            course_id: courseId,
+            course_id: value,
           },
         }),
     }),
@@ -68,9 +68,11 @@ const ExerciseSettingsEditor = () => {
         value={attributes.score_maximum?.toString() ?? ""}
         type="number"
         onChangeByValue={(value) => {
-          const parsed = parseInt(value)
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+          const parsed = parseInt(value, 10)
           if (isNaN(parsed)) {
             // empty
+            // @ts-expect-error -- score_maximum is required on ExerciseAttributes (used in API payloads); resetting to undefined at runtime is intentional
             setAttributes({ score_maximum: undefined })
             return
           }
@@ -109,7 +111,8 @@ const ExerciseSettingsEditor = () => {
           disabled={!attributes.limit_number_of_tries}
           type="number"
           onChangeByValue={(value) => {
-            const parsed = parseInt(value)
+            // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+            const parsed = parseInt(value, 10)
             if (isNaN(parsed)) {
               // empty
               setAttributes({ max_tries_per_slide: undefined })

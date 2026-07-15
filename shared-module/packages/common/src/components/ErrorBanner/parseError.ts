@@ -1,20 +1,20 @@
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 
 import { normalizeErrorForDisplay } from "../../errors/normalizeErrorForDisplay"
 import type { ErrorViewTechnicalDetails } from "../../errors/normalizeErrorForDisplay"
 
 export interface ParsedError {
   title: string
-  message?: string
+  message?: string | undefined
   sourceData?: unknown
-  technicalDetails?: ErrorViewTechnicalDetails
-  linkBlockId?: string
+  technicalDetails?: ErrorViewTechnicalDetails | undefined
+  linkBlockId?: string | undefined
   status?: number | null
   messageKey?: string | null
   type?: string | null
   requestId?: string | null
   code?: string | null
-  issues?: Array<{ path?: string; code?: string; message: string }>
+  issues?: { path?: string | undefined; code?: string | undefined; message: string }[]
   retryAfterSeconds?: number | null
 }
 

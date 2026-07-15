@@ -5,9 +5,9 @@ import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
 
-import { shouldWarnAboutMissingParagraphWrapperInCustomHtml } from "./customHtmlParagraphWarning"
-
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { shouldWarnAboutMissingParagraphWrapperInCustomHtml } from "./customHtmlParagraphWarning"
 
 interface CustomHtmlBlockProps {
   name: string
@@ -53,7 +53,7 @@ const withCustomHtmlParagraphWarning = createHigherOrderComponent((BlockEdit) =>
 
   CustomHtmlWithParagraphWarning.displayName = "CustomHtmlParagraphWarning"
   return CustomHtmlWithParagraphWarning
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withCustomHtmlParagraphWarning")
 
 export default withCustomHtmlParagraphWarning

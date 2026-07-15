@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-
 import { scrollToLocatorsParentIframeAndClick } from "@/utils/iframeLocators"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
 test.use({
   storageState: "src/states/user@example.com.json",

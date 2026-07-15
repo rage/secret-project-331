@@ -1,12 +1,12 @@
 "use client"
 
-import EssayPeerOrSelfReviewQuestion from "./EssayPeerOrSelfReviewQuestion"
-import ScalePeerOrSelfReviewQuestion from "./ScalePeerOrSelfReviewQuestion"
-
 import type {
   CourseMaterialPeerOrSelfReviewQuestionAnswer,
   PeerOrSelfReviewQuestion,
 } from "@/generated/course-material-api/types.generated"
+
+import EssayPeerOrSelfReviewQuestion from "./EssayPeerOrSelfReviewQuestion"
+import ScalePeerOrSelfReviewQuestion from "./ScalePeerOrSelfReviewQuestion"
 
 export interface PeerOrSelfReviewQuestionProps {
   peerOrSelfReviewQuestion: PeerOrSelfReviewQuestion

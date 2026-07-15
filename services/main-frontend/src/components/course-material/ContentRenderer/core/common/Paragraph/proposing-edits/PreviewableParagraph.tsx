@@ -3,12 +3,11 @@
 import { diffWords } from "diff"
 import React from "react"
 
-import { getEditableHoverStyles, getParagraphStyles } from "../styles"
-
-import { useParagraphEditing } from "./hooks/useParagraphEditing"
-
 import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
 import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
+
+import { getEditableHoverStyles, getParagraphStyles } from "../styles"
+import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
 interface PreviewableParagraphProps {
   id: string
@@ -19,6 +18,12 @@ interface PreviewableParagraphProps {
   align?: string
   setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
   editedContent: string | null
+}
+
+const handleSelectForEditing = () => {
+  // This function will be passed to the onClick handler
+  // It doesn't need to do anything special now, as the parent component
+  // will handle setting the selectedBlockId
 }
 
 const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
@@ -42,12 +47,6 @@ const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
 
   const actualEditedContent = hookEditedContent !== content ? hookEditedContent : propEditedContent
 
-  const handleSelectForEditing = () => {
-    // This function will be passed to the onClick handler
-    // It doesn't need to do anything special now, as the parent component
-    // will handle setting the selectedBlockId
-  }
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault()
@@ -67,7 +66,7 @@ const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
       className={`${getParagraphStyles(textColor, backgroundColor, fontSize, true, false, align)} ${getEditableHoverStyles(false)}`}
       onClick={handleSelectForEditing}
       onKeyDown={handleKeyDown}
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
+      // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role, jsx-a11y/prefer-tag-over-role -- intentional interactive paragraph; <button> would change layout
       role="button"
       tabIndex={0}
     >

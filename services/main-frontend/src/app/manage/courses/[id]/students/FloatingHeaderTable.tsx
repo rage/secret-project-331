@@ -5,6 +5,8 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import type { ColumnDef } from "@tanstack/react-table"
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
 import { colorPairs } from "./studentsTableColors"
 import {
   dockedTrailerCss,
@@ -37,9 +39,7 @@ import {
   wrapHiddenX,
 } from "./studentsTableStyles"
 
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-
-type ColMeta = {
+interface ColMeta {
   width?: number
   minWidth?: number
   padLeft?: number
@@ -53,7 +53,7 @@ function getMeta<T extends object>(colDef: ColumnDef<T, unknown> | undefined): C
 const chapterHeaderStart = 2 // upper headers (groups) start index
 const subHeaderStart = 3 // lower headers (points/attempts) start index
 
-type FloatingHeaderTableProps<T extends object> = {
+interface FloatingHeaderTableProps<T extends object> {
   columns: ColumnDef<T, unknown>[]
   data: T[]
   colorHeaders?: boolean
@@ -70,7 +70,9 @@ export function FloatingHeaderTable<T extends object>({
   colorHeaderUnderline = false,
   progressMode = false,
 }: FloatingHeaderTableProps<T>) {
-  type HeaderBgArg = { colSpan: number }
+  interface HeaderBgArg {
+    colSpan: number
+  }
 
   // Refs
   const tableRef = useRef<HTMLTableElement | null>(null)
@@ -114,7 +116,7 @@ export function FloatingHeaderTable<T extends object>({
 
   const scheduleApplySticky = useCallback(
     (x: number) => {
-      if (rafRef.current != null) {
+      if (rafRef.current !== null) {
         return
       }
       rafRef.current = requestAnimationFrame(() => {
@@ -169,7 +171,7 @@ export function FloatingHeaderTable<T extends object>({
     // sync top trailer
     const trailer = trailerRef.current
     if (trailer && syncingRef.current !== "top") {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       syncingRef.current = "wrap"
       trailer.scrollLeft = wrap.scrollLeft
       syncingRef.current = null
@@ -186,7 +188,7 @@ export function FloatingHeaderTable<T extends object>({
       return
     }
     if (syncingRef.current !== "wrap") {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       syncingRef.current = "top"
       wrap.scrollLeft = trailer.scrollLeft
       syncingRef.current = null
@@ -203,13 +205,13 @@ export function FloatingHeaderTable<T extends object>({
       // Upper header groups
       if (headerRow === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
         const chapterIdx = Math.floor((colIdx - chapterHeaderStart) / 1)
-        return colorPairs[chapterIdx % colorPairs.length][0]
+        return colorPairs[chapterIdx % colorPairs.length]?.[0]
       }
       // Lower header (points/attempts)
       if (headerRow === 1 && colIdx >= subHeaderStart && header.colSpan === 1) {
         const pairIdx = Math.floor((colIdx - subHeaderStart) / 2)
         const subIdx = (colIdx - subHeaderStart) % 2
-        return colorPairs[pairIdx % colorPairs.length][subIdx]
+        return colorPairs[pairIdx % colorPairs.length]?.[subIdx]
       }
       return undefined
     },
@@ -268,7 +270,7 @@ export function FloatingHeaderTable<T extends object>({
     return () => {
       wrap.removeEventListener("scroll", onWrapScroll)
       trailer?.removeEventListener("scroll", onTrailerScroll)
-      if (rafRef.current != null) {
+      if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current)
       }
     }
@@ -283,7 +285,7 @@ export function FloatingHeaderTable<T extends object>({
       if (srcThead) {
         // clear previous
         if (dstTable.tHead) {
-          dstTable.removeChild(dstTable.tHead)
+          dstTable.tHead.remove()
         }
 
         // clone
@@ -326,7 +328,7 @@ export function FloatingHeaderTable<T extends object>({
         }
 
         // mount clone + freeze table width
-        dstTable.appendChild(clonedHead)
+        dstTable.append(clonedHead)
         const tableW = srcTable.getBoundingClientRect().width
         dstTable.style.width = `${tableW}px`
 
@@ -509,7 +511,7 @@ export function FloatingHeaderTable<T extends object>({
             if (colorColumns && i >= subHeaderStart) {
               const pairIdx = Math.floor((i - subHeaderStart) / 2)
               const subIdx = (i - subHeaderStart) % 2
-              bg = colorPairs[pairIdx % colorPairs.length][subIdx]
+              bg = colorPairs[pairIdx % colorPairs.length]?.[subIdx]
             }
 
             let removeRight = false

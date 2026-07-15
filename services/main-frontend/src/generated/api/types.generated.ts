@@ -692,6 +692,10 @@ export type CourseEnrollmentInfo = {
   course_instances: Array<CourseInstance>
   course_module_completions: Array<CourseModuleCompletion>
   course_module_completions_needing_review: number
+  /**
+   * All non-deleted modules of the course, ordered by `order_number`.
+   */
+  course_modules: Array<CourseModuleInfo>
   first_enrolled_at: string
   is_current: boolean
   user_course_settings?: null | UserCourseSettings
@@ -851,6 +855,30 @@ export type CourseModuleCompletionWithRegistrationInfo = {
 }
 
 /**
+ * Slim module descriptor so the frontend can label per-module completions and show "X of Y modules"
+ * without a separate course-structure fetch. Default (base) module has `name = None`.
+ */
+export type CourseModuleInfo = {
+  /**
+   * This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none.
+   */
+  daily_submissions: Array<DailySubmissionCount>
+  /**
+   * Number of non-deleted exercises in this module. Submission density is divided by this so courses
+   * of very different size stay comparable. `0` if the module has no chapter-bound exercises.
+   */
+  exercise_count: number
+  /**
+   * Earliest exercise submission by this user in this module. No module "start" is stored, so the
+   * frontend uses this to infer when an additional module was first worked on. `None` if untouched.
+   */
+  first_submission_at?: string | null
+  id: string
+  name?: string | null
+  order_number: number
+}
+
+/**
  * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
  * render and validate the threshold form. Computed server-side so the exemption rule and the
  * minimum/default values live in one place instead of being duplicated in the frontend.
@@ -920,6 +948,15 @@ export type CronJobInfo = {
   last_schedule_time?: string | null
   name: string
   schedule: string
+}
+
+/**
+ * One UTC day's exercise-submission count for a module, used for the activity-density violins on the
+ * cross-course timeline. `day` is midnight of the day the submissions fall in.
+ */
+export type DailySubmissionCount = {
+  count: number
+  day: string
 }
 
 export type DatabaseChapter = {
@@ -2030,6 +2067,16 @@ export type ReviewingStage =
   | "ReviewedAndLocked"
   | "Locked"
 
+export type Role = {
+  course_id?: string | null
+  course_instance_id?: string | null
+  exam_id?: string | null
+  is_global: boolean
+  organization_id?: string | null
+  role: UserRole
+  user_id: string
+}
+
 export type RoleDomain =
   | {
       tag: "Global"
@@ -2104,6 +2151,11 @@ export type SuspectedCheaterStatus = "Flagged" | "ConfirmedCheating" | "Dismisse
 
 export type SuspectedCheaters = {
   course_id: string
+  /**
+   * The module completion that triggered the flag. `None` only for legacy rows the backfill
+   * couldn't map to a default module.
+   */
+  course_module_id?: string | null
   created_at: string
   deleted_at?: string | null
   id: string
@@ -2182,6 +2234,15 @@ export type UploadResult = {
   url: string
 }
 
+export type User = {
+  created_at: string
+  deleted_at?: string | null
+  email_domain?: string | null
+  id: string
+  updated_at: string
+  upstream_id?: number | null
+}
+
 export type UserChapterLockingStatus = {
   chapter_id: string
   course_id: string
@@ -2231,6 +2292,19 @@ export type UserCourseSettings = {
   deleted_at?: string | null
   updated_at: string
   user_id: string
+}
+
+/**
+ * A single submission's time, its exercise, and the module that exercise sits in (via its chapter).
+ * Used to plot a user's submission activity within a course.
+ */
+export type UserCourseSubmissionTime = {
+  /**
+   * Module the exercise's chapter belongs to; `None` for exercises not placed in a chapter.
+   */
+  course_module_id?: string | null
+  created_at: string
+  exercise_id: string
 }
 
 export type UserDetail = {
@@ -2295,6 +2369,25 @@ export type UserRole =
   | "MaterialViewer"
   | "TeachingAndLearningServices"
   | "StatsViewer"
+
+/**
+ * A user's suspected-cheater record in one course, paired with that course's duration threshold.
+ * Read-only, for the cross-course "Completion review" list on the user-details page.
+ */
+export type UserSuspectedCheaterInfo = {
+  course_id: string
+  /**
+   * When first flagged in this course (record `created_at`, unchanged on re-flag).
+   */
+  first_flagged_at: string
+  status: SuspectedCheaterStatus
+  /**
+   * Threshold (seconds) of the module that triggered the flag; the student completed faster.
+   */
+  threshold_seconds: number
+  total_duration_seconds?: number | null
+  total_points: number
+}
 
 export type UserWithModuleCompletions = {
   completed_modules: Array<CourseModuleCompletionWithRegistrationInfo>
@@ -8929,8 +9022,10 @@ export type GetUserResponses = {
   /**
    * User
    */
-  200: unknown
+  200: User
 }
+
+export type GetUserResponse = GetUserResponses[keyof GetUserResponses]
 
 export type GetUserCourseEnrollmentsData = {
   body?: never
@@ -8953,6 +9048,75 @@ export type GetUserCourseEnrollmentsResponses = {
 
 export type GetUserCourseEnrollmentsResponse =
   GetUserCourseEnrollmentsResponses[keyof GetUserCourseEnrollmentsResponses]
+
+export type GetUserCourseSubmissionTimesData = {
+  body?: never
+  path: {
+    /**
+     * User id
+     */
+    user_id: string
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/{user_id}/courses/{course_id}/submission-times"
+}
+
+export type GetUserCourseSubmissionTimesResponses = {
+  /**
+   * User course submission times
+   */
+  200: Array<UserCourseSubmissionTime>
+}
+
+export type GetUserCourseSubmissionTimesResponse =
+  GetUserCourseSubmissionTimesResponses[keyof GetUserCourseSubmissionTimesResponses]
+
+export type GetUserRolesData = {
+  body?: never
+  path: {
+    /**
+     * User id
+     */
+    user_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/{user_id}/roles"
+}
+
+export type GetUserRolesResponses = {
+  /**
+   * User roles across scopes
+   */
+  200: Array<Role>
+}
+
+export type GetUserRolesResponse = GetUserRolesResponses[keyof GetUserRolesResponses]
+
+export type GetUserSuspectedCheatersData = {
+  body?: never
+  path: {
+    /**
+     * User id
+     */
+    user_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/{user_id}/suspected-cheaters"
+}
+
+export type GetUserSuspectedCheatersResponses = {
+  /**
+   * User suspected-cheater records across courses
+   */
+  200: Array<UserSuspectedCheaterInfo>
+}
+
+export type GetUserSuspectedCheatersResponse =
+  GetUserSuspectedCheatersResponses[keyof GetUserSuspectedCheatersResponses]
 
 export type GetUserResetExerciseLogsData = {
   body?: never

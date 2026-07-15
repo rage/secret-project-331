@@ -1,11 +1,10 @@
 import React from "react"
 
+import type { RunResult } from "@/tmc/cli"
+
 import { OutputPre } from "../styles"
 import { formatLogsForDisplay } from "../utils"
-
 import { TestResultCard } from "./TestResultCard"
-
-import { RunResult } from "@/tmc/cli"
 
 interface TestResultsContentProps {
   testResults: RunResult

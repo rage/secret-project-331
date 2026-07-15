@@ -5,14 +5,13 @@ import styled from "@emotion/styled"
 import { useRef, useState } from "react"
 import Zoom from "react-medium-image-zoom"
 
-import { BlockRendererProps } from "../../.."
-import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
-
-import { useImageInteractivity } from "./ImageInteractivityContext"
-
-import { ImageAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { ImageAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../../.."
+import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
+import { useImageInteractivity } from "./ImageInteractivityContext"
 
 interface ExtraAttributes {
   align?: string
@@ -31,15 +30,15 @@ const normalizeCssSize = (value: number | string | undefined): string | undefine
     return undefined
   }
   if (typeof value === "number") {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     return `${value}px`
   }
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   return /^\d+$/.test(value) ? `${value}px` : value
 }
 
 /** Strips HTML tags from a rich-text caption to get a plain-text fallback label. */
-const stripTags = (html: string): string => html.replace(/<[^>]*>/g, "").trim()
+const stripTags = (html: string): string => html.replaceAll(/<[^>]*>/g, "").trim()
 
 const ImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>
@@ -87,25 +86,27 @@ const ImageBlock: React.FC<
   // Only use the fallback when no explicit width was given.
   const fallbackWidth =
     fallbackWidthPx !== null && normalizeCssSize(width) === undefined
-      ? // eslint-disable-next-line i18next/no-literal-string
+      ? // oxlint-disable-next-line i18next/no-literal-string
         `${fallbackWidthPx}px`
       : undefined
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const imageWidthCss = normalizeCssSize(width) ?? fallbackWidth ?? "auto"
   // Constrain a floated figure to the image's width, else a caption wider than the image flows
   // beside the float instead of stacking under it.
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const floatWidthCss = imageWidthCss === "auto" ? "fit-content" : imageWidthCss
   const isFloated = align === "left" || align === "right"
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const wrapperWidthCss = isFloated ? floatWidthCss : "fit-content"
 
   // Width can shrink to the container (max-width: 100%), so height follows via aspect-ratio, not a
   // fixed px height that would distort on narrow screens. Cropped images (object-fit via `scale`)
   // pin the crop-box ratio (Gutenberg's aspectRatio, else author's width:height); uncropped keep
   // their intrinsic ratio with height: auto.
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat intended; Number() differs
   const widthNumber = typeof width === "number" ? width : parseFloat(width ?? "")
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat intended; Number() differs
   const heightNumber = typeof height === "number" ? height : parseFloat(height ?? "")
   const gutenbergAspectRatio = aspectRatio && aspectRatio !== "auto" ? aspectRatio : undefined
   const cropAspectRatio =

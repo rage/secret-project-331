@@ -33,8 +33,8 @@ describe("POST /api/export-answers", () => {
       }),
     )
     expect(res.status).toBe(200)
-    const body = (await res.json()) as { results: Array<{ rows: Array<Record<string, unknown>> }> }
-    expect(body.results[0].rows[0]).toEqual({
+    const body = (await res.json()) as { results: { rows: Record<string, unknown>[] }[] }
+    expect(body.results[0]!.rows[0]).toEqual({
       selected_option_id: "id-1",
       selected_option_name: "Correct option",
       selected_option_correct: true,
@@ -62,8 +62,8 @@ describe("POST /api/export-answers", () => {
       }),
     )
     expect(res.status).toBe(200)
-    const body = (await res.json()) as { results: Array<{ rows: Array<Record<string, unknown>> }> }
-    expect(body.results[0].rows[0]).toEqual({
+    const body = (await res.json()) as { results: { rows: Record<string, unknown>[] }[] }
+    expect(body.results[0]!.rows[0]).toEqual({
       selected_option_id: "missing-option",
       selected_option_name: null,
       selected_option_correct: null,

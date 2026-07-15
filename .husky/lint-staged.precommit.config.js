@@ -1,13 +1,11 @@
-// Runs on precommit.
-// Only fast, deterministic autofixers that (almost) never fail: formatting + sorting.
-// Deliberately NO linting or type-checking here — linters/tsc are slower, they fail, and a
-// linter's --fix can change semantics (e.g. oxlint's unicorn/no-useless-undefined once stripped a
-// required `undefined` arg). Those gates live in bin/git-run-branch-ready-checks
-// (lint-staged.branch-ready.config.js) and in CI (.github/workflows/code-style.yml + tests.yml).
+// Runs on precommit. Autofixers that apply changes but never fail the commit: oxlint --fix
+// (safe only, via bin/oxlint-autofix), oxfmt, sorting. The failing gates live in
+// bin/git-run-branch-ready-checks and CI (oxlint --max-warnings=0). Safe --fix only here, never
+// --fix-suggestions/--fix-dangerously, which can change semantics.
 export default {
-  // --no-error-on-unmatched-pattern: staging only oxfmt-ignored files (e.g. generated *.guard.ts)
-  // otherwise makes oxfmt exit non-zero with "Expected at least one target file".
-  "*.{js,jsx,ts,tsx}": "oxfmt --no-error-on-unmatched-pattern",
+  // bin/oxlint-autofix: safe oxlint fixes, always exits 0; runs before oxfmt.
+  // --no-error-on-unmatched-pattern tolerates a fully oxfmt-ignored fileset.
+  "*.{js,jsx,ts,tsx}": ["./bin/oxlint-autofix", "oxfmt --no-error-on-unmatched-pattern"],
   "*.{md,json,scss,css}": "oxfmt --no-error-on-unmatched-pattern",
   "*.rs": () => [
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",

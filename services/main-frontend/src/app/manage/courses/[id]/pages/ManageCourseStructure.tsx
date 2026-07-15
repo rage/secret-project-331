@@ -1,22 +1,15 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
+import type {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+} from "@tanstack/react-query"
 import { BlockProhibited } from "@vectopus/atlas-icons-react"
 import { max } from "lodash"
 import React, { useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-
-import ChapterFormDialog from "./ChapterFormDialog"
-import ChapterImageDialog from "./ChapterImageDialog"
-import FrontPage from "./PageList/FrontPage"
-import PageList from "./PageList/PageList"
-import {
-  MOVING_ALLOWED,
-  MOVING_ALLOWED_ONLY_DOWN,
-  MOVING_ALLOWED_ONLY_UP,
-  MOVING_NOT_ALLOWED,
-} from "./PageList/PageListItem"
 
 import BottomPanel from "@/components/BottomPanel"
 import { deleteChapterMutation as deleteChapterMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
@@ -32,11 +25,22 @@ import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+
+import ChapterFormDialog from "./ChapterFormDialog"
+import ChapterImageDialog from "./ChapterImageDialog"
+import FrontPage from "./PageList/FrontPage"
+import PageList from "./PageList/PageList"
+import {
+  MOVING_ALLOWED,
+  MOVING_ALLOWED_ONLY_DOWN,
+  MOVING_ALLOWED_ONLY_UP,
+  MOVING_NOT_ALLOWED,
+} from "./PageList/PageListItem"
 
 const headingDropdown = css`
   float: right;
@@ -126,7 +130,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
 
   const maxPart = max(courseStructure.chapters.map((p) => p.chapter_number))
 
-  const openEditor = async () => {
+  const openEditor = () => {
     window.location.assign(`/cms/partners-block/${courseStructure.course.id}/edit`)
   }
 
@@ -156,20 +160,18 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         refetch={refetch}
         data={pageOrderState.chapterIdToFrontPage?.["null"]}
         pageOrderDispatch={pageOrderDispatch}
-        chapter={undefined}
       />
       <PageList
         data={pageOrderState.chapterIdToPages?.["null"] ?? []}
         pageOrderDispatch={pageOrderDispatch}
         refetch={refetch}
         courseId={courseStructure.course.id}
-        chapter={undefined}
       />
       <div>
         {pageOrderState.chapters &&
           pageOrderState.chapters
             .filter((chapter) => !chapter.deleted_at)
-            .sort((a, b) => a.chapter_number - b.chapter_number)
+            .toSorted((a, b) => a.chapter_number - b.chapter_number)
             .map((chapter, n) => {
               let moving = MOVING_ALLOWED
               if (n === 0) {

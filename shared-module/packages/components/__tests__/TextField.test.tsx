@@ -3,8 +3,8 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 
 import { TextField } from "../src/components/TextField"
-
-import { FormHarness, renderStringField, StringFieldForm } from "./testUtils"
+import type { StringFieldForm } from "./testUtils"
+import { FormHarness, renderStringField } from "./testUtils"
 
 describe("TextField - accessibility wiring", () => {
   test("label is associated with the input", () => {

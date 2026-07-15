@@ -1,6 +1,6 @@
-import { OldPublicQuiz, OldPublicQuizItem } from "../../../types/oldQuizTypes"
-import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
-import {
+import type { OldPublicQuiz, OldPublicQuizItem } from "../../../types/oldQuizTypes"
+import type { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
+import type {
   PublicQuizItemOption,
   PublicSpecQuiz,
   PublicSpecQuizItem,
@@ -15,7 +15,6 @@ import {
   PublicSpecQuizItemTimeline,
 } from "../../../types/quizTypes/publicSpec"
 import { sanitizeQuizDirection } from "../css-sanitization"
-
 import { DEFAULT_N } from "./migrationSettings"
 
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N

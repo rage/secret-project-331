@@ -1,17 +1,17 @@
 "use client"
 
-/* eslint-disable jsx-a11y/heading-has-content */
+/* oxlint-disable jsx-a11y/heading-has-content */
 import { css, cx } from "@emotion/css"
-import { DetailedHTMLProps, HTMLAttributes } from "react"
+import type { DetailedHTMLProps, HTMLAttributes } from "react"
 
-import { BlockRendererProps } from "../../.."
-
-import { HeadingAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { HeadingAttributes } from "@/../types/GutenbergBlockAttributes"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 import { marginTopHeadingMapper } from "@/styles/course-material/headerMarginMapper"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+
+import type { BlockRendererProps } from "../../.."
 
 interface ExtraAttributes {
   textAlign?: string

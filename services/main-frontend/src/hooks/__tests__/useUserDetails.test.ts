@@ -1,8 +1,8 @@
 "use client"
 
-import { isUserDetailsNotFoundError, isUserDetailsQueryReady } from "../useUserDetails"
-
 import { AppApiError } from "@/shared-module/common/errors/AppApiError"
+
+import { isUserDetailsNotFoundError, isUserDetailsQueryReady } from "../useUserDetails"
 
 describe("isUserDetailsNotFoundError", () => {
   it("returns true for not_found message key", () => {

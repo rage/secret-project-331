@@ -2,7 +2,7 @@
 
 import React from "react"
 
-type NavigateEvent = {
+interface NavigateEvent {
   preventDefault: () => void
 }
 

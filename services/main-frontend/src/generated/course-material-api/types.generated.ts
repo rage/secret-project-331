@@ -78,9 +78,7 @@ export type ChatbotChatStreamEvent =
       type: "Done"
     }
   | {
-      data: {
-        message: string
-      }
+      data: StreamEventError
       type: "Error"
     }
   | {
@@ -982,6 +980,11 @@ export type SearchRequest = {
 
 export type ShowExerciseAnswers = {
   show_exercise_answers: boolean
+}
+
+export type StreamEventError = {
+  details?: string | null
+  message: string
 }
 
 export type StudentCountry = {

@@ -1,9 +1,13 @@
 import crypto from "crypto"
+
 import { exportJWK, generateKeyPair, type JWK, SignJWT } from "jose"
 
 type KeyLike = CryptoKey | import("crypto").KeyObject
 
-export type DPoPKey = { privateKey: KeyLike; publicJwk: JWK }
+export interface DPoPKey {
+  privateKey: KeyLike
+  publicJwk: JWK
+}
 
 export async function createDPoPKey(): Promise<DPoPKey> {
   const { publicKey, privateKey } = await generateKeyPair("ES256")
@@ -17,7 +21,7 @@ export function nowSec() {
 }
 
 export function toB64Url(buf: Buffer) {
-  return buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "")
+  return buf.toString("base64").replaceAll("+", "-").replaceAll("/", "_").replaceAll(/=+$/g, "")
 }
 
 /** Build a DPoP proof. Pass `ath` (base64url(sha256(access_token))) for resource requests. Pass `nonce` when server requires it. */

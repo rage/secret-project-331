@@ -5,17 +5,16 @@ import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks } from "@wordpress/block-editor"
 import React, { useContext } from "react"
 
-import PageContext from "../../contexts/PageContext"
-import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-import { ChatbotBlockAttributes } from "."
-
 import { getCmsCourseNondefaultChatbotConfigurationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ChatbotBlockAttributes } from "."
+import PageContext from "../../contexts/PageContext"
+import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [""]
 
@@ -30,11 +29,11 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
   const chatbotConfigurations = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
         getCmsCourseNondefaultChatbotConfigurationsOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
           },
         }),
     }),

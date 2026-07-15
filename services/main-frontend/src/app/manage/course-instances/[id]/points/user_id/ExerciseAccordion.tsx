@@ -5,8 +5,6 @@ import Link from "next/link"
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import PeerOrSelfReviewSubmissionSummaryAccordion from "./PeerOrSelfReviewSubmissionSummaryAccordion"
-
 import CustomPointsPopup from "@/app/manage/exercises/[id]/submissions/CustomPointsPopup"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
@@ -16,6 +14,8 @@ import HideTextInSystemTests from "@/shared-module/common/components/system-test
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
+
+import PeerOrSelfReviewSubmissionSummaryAccordion from "./PeerOrSelfReviewSubmissionSummaryAccordion"
 
 interface ExerciseAccordionProps {
   exerciseStatus: ExerciseStatusSummaryForUser
@@ -52,7 +52,7 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
         body: {
           user_exercise_state_id: userExerciseState.id,
           exercise_id: exerciseStatus.exercise.id,
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           action: "CustomPoints",
           manual_points: points,
           justification: null,
@@ -204,9 +204,9 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                 transition: transform 0.2s ease;
                 transform: ${isExpanded ? "rotate(180deg)" : "rotate(0)"};
               `}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
-              {/* eslint-disable-next-line i18next/no-literal-string */}▼
+              {/* oxlint-disable-next-line i18next/no-literal-string */}▼
             </span>
           </button>
           <div

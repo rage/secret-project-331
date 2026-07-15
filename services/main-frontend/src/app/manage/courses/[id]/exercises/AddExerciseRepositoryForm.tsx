@@ -9,6 +9,7 @@ import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 interface Props {
   courseId: string | null
@@ -32,7 +33,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
     formState: { errors, isValid, isSubmitting },
     reset,
   } = useForm<Fields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: { gitUrl: "" },
   })
@@ -68,26 +69,26 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
       <TextField
         label={t("exercise-repositories-git-url")}
         placeholder={t("exercise-repositories-git-url-placeholder")}
-        error={errors["gitUrl"]?.message}
+        {...omitUndefined({ error: errors["gitUrl"]?.message })}
         {...register("gitUrl", { required: t("required-field") })}
       />
       <TextAreaField
         label={t("public-key")}
         placeholder={
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           "ssh-ed25519 ..."
         }
         {...register("publicKey")}
-        errorMessage={errors["publicKey"]?.message}
+        {...omitUndefined({ errorMessage: errors["publicKey"]?.message })}
       />
       <TextAreaField
         label={t("exercise-repositories-deploy-key")}
         placeholder={
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           "-----BEGIN OPENSSH PRIVATE KEY----- ..."
         }
         {...register("deployKey")}
-        errorMessage={errors["deployKey"]?.message}
+        {...omitUndefined({ errorMessage: errors["deployKey"]?.message })}
       />
       <Button
         size="medium"

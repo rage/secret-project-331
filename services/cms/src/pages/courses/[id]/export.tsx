@@ -3,18 +3,18 @@
 import { TarBuilder } from "@bytedance/tar-wasm"
 import React, { useState } from "react"
 
-import CmsPageTitle from "../../../components/CmsPageTitle"
-import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
-
 import { getCmsCoursePages, getCmsPage, getCmsPageInfo } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import CmsPageTitle from "../../../components/CmsPageTitle"
+import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
 
 interface ExportPageProps {
   // courseId
@@ -42,7 +42,9 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
         for (const page of pages) {
           setCurrentStep((old) => old + 1)
           // Wait for a bit to avoid hitting rate limits
-          await new Promise((r) => setTimeout(r, 100))
+          await new Promise((r) => {
+            setTimeout(r, 100)
+          })
           const data = await getCmsPage({
             path: {
               page_id: page.id,
@@ -59,60 +61,62 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
             exercise_tasks: data.exercise_tasks,
             url_path: data.page.url_path,
             title: data.page.title,
-            chapter_id: data.page.chapter_id,
+            ...omitUndefined({ chapter_id: data.page.chapter_id }),
             hidden: data.page.hidden,
           }).content
           let filename = page.url_path
           if (filename === "/") {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             filename = "/index"
           }
           tarBuilder.add_file(
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             `pages${filename}.json`,
             textEncoder.encode(JSON.stringify(denormalizedContent, undefined, 2)),
           )
           // download all linked files
           const contentAsString = JSON.stringify(denormalizedContent)
           const allUrls = contentAsString.match(/https?:\/\/[^"]+/g)
-          if (allUrls) {
-            for (const url of allUrls) {
-              const parsedUrl = new URL(url)
-              if (alreadyAddedFiles.has(url.toString())) {
-                continue
-              }
-              alreadyAddedFiles.add(url.toString())
-              if (parsedUrl.hostname !== window.location.hostname) {
-                console.info(
-                  `Skipping ${url} because it's not coming from ${window.location.hostname}}`,
-                )
-                continue
-              }
-              console.info(`Downloading ${url}`)
-              const response = await fetch(url)
-              if (!response.ok) {
-                throw new Error(`Failed to download ${url}`)
-              }
-              const body = await response.arrayBuffer()
-              const bodyAsUint8Array = new Uint8Array(body)
-              // eslint-disable-next-line i18next/no-literal-string
-              const path = `files${parsedUrl.pathname}`
-              console.info(`Saving ${path}`)
-              tarBuilder.add_file(path, bodyAsUint8Array)
+          if (!allUrls) {
+            continue
+          }
+          for (const url of allUrls) {
+            const parsedUrl = new URL(url)
+            if (alreadyAddedFiles.has(url.toString())) {
+              continue
             }
+            alreadyAddedFiles.add(url.toString())
+            if (parsedUrl.hostname !== window.location.hostname) {
+              console.info(
+                `Skipping ${url} because it's not coming from ${window.location.hostname}}`,
+              )
+              continue
+            }
+            console.info(`Downloading ${url}`)
+            const response = await fetch(url)
+            if (!response.ok) {
+              throw new Error(`Failed to download ${url}`)
+            }
+            const body = await response.arrayBuffer()
+            const bodyAsUint8Array = new Uint8Array(body)
+            // oxlint-disable-next-line i18next/no-literal-string
+            const path = `files${parsedUrl.pathname}`
+            console.info(`Saving ${path}`)
+            tarBuilder.add_file(path, bodyAsUint8Array)
           }
         }
-        if (pages.length === 0) {
+        const firstPage = pages[0]
+        if (firstPage === undefined) {
           throw new Error("Course has no pages")
         }
         const pageInfo = await getCmsPageInfo({
           path: {
-            page_id: pages[0].id,
+            page_id: firstPage.id,
           },
         })
         const tarData = tarBuilder.finish()
         save(
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           `Page export ${pageInfo.course_slug} ${dateToString(new Date()).replaceAll(
             ":",
             ".",
@@ -153,9 +157,9 @@ function save(filename: string, data: Uint8Array) {
   const elem = window.document.createElement("a")
   elem.href = window.URL.createObjectURL(blob)
   elem.download = filename
-  document.body.appendChild(elem)
+  document.body.append(elem)
   elem.click()
-  document.body.removeChild(elem)
+  elem.remove()
 }
 
 const exported = dontRenderUntilQueryParametersReady(ExportPage)

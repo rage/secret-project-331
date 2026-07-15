@@ -1,9 +1,10 @@
-import { BrowserContext, expect, Page, test } from "@playwright/test"
-
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import type { BrowserContext, Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
 /**
  * The peer-review candidate is offered best-effort and the giving view does not auto-retry

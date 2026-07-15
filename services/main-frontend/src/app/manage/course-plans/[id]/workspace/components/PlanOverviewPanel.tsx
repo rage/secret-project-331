@@ -5,13 +5,13 @@ import { CheckCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
-import { useAdjustScheduleDialogState } from "../hooks/useAdjustScheduleDialogState"
-
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, Select } from "@/shared-module/components"
+
+import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
+import { useAdjustScheduleDialogState } from "../hooks/useAdjustScheduleDialogState"
 
 const NODE_COLUMN_WIDTH = 28
 const SPINE_OFFSET = 13
@@ -352,6 +352,13 @@ export interface PlanOverviewPanelProps {
   nextStageLabel?: string | null
 }
 
+/** Adds a month offset to a Date while preserving other fields. */
+const addMonths = (date: Date, months: number): Date => {
+  const result = new Date(date)
+  result.setMonth(result.getMonth() + months)
+  return result
+}
+
 const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   isOpen,
   onClose,
@@ -379,52 +386,46 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   /** Formats a Date as localized month and year. */
   const formatMonthYearFromDate = (date: Date): string =>
     date.toLocaleDateString(i18n.language, {
-      // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
+      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
       month: "long",
-      // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
+      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
       year: "numeric",
     })
 
   /** Formats an ISO date string as localized month and year. */
   const formatMonthYear = (isoDate: string): string => formatMonthYearFromDate(new Date(isoDate))
 
-  /** Adds a month offset to a Date while preserving other fields. */
-  const addMonths = (date: Date, months: number): Date => {
-    const result = new Date(date)
-    result.setMonth(result.getMonth() + months)
-    return result
-  }
-
   const activeStageData =
-    activeStage != null ? (stages.find((stage) => stage.stage === activeStage) ?? null) : null
+    activeStage !== null ? (stages.find((stage) => stage.stage === activeStage) ?? null) : null
 
   const currentPhaseEndLabel =
     currentPhaseEndDateFormatted ??
-    (activeStageData != null ? formatMonthYear(activeStageData.planned_ends_on) : null)
+    (activeStageData !== null ? formatMonthYear(activeStageData.planned_ends_on) : null)
 
   const latestStageEndIso =
     stages.length > 0
       ? stages.reduce(
           (latest, stage) => (stage.planned_ends_on > latest ? stage.planned_ends_on : latest),
+          // oxlint-disable-next-line typescript/no-non-null-assertion -- this branch has stages.length > 0, so stages[0] exists
           stages[0]!.planned_ends_on,
         )
       : null
 
-  const currentPlanEndLabel = latestStageEndIso != null ? formatMonthYear(latestStageEndIso) : null
+  const currentPlanEndLabel = latestStageEndIso !== null ? formatMonthYear(latestStageEndIso) : null
 
   const newPhaseEndLabel =
-    activeStageData != null && extendMonths > 0
+    activeStageData !== null && extendMonths > 0
       ? formatMonthYearFromDate(addMonths(new Date(activeStageData.planned_ends_on), extendMonths))
       : null
 
   const newPlanEndLabel =
-    latestStageEndIso != null && extendMonths > 0
+    latestStageEndIso !== null && extendMonths > 0
       ? formatMonthYearFromDate(addMonths(new Date(latestStageEndIso), extendMonths))
       : null
 
-  const canAdjustSchedule = activeStage != null && activeStageData != null
+  const canAdjustSchedule = activeStage !== null && activeStageData !== null
 
-  const showTaskProgressInSummary = activeStage != null && activeStageTaskTotal > 0
+  const showTaskProgressInSummary = activeStage !== null && activeStageTaskTotal > 0
   const taskProgressPercent = showTaskProgressInSummary
     ? (activeStageTaskCompleted / activeStageTaskTotal) * 100
     : 0
@@ -503,6 +504,7 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
               </span>
               <span
                 className={summaryProgressTrackStyles}
+                // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled progress indicator; native <progress> changes layout
                 role="progressbar"
                 aria-valuenow={activeStageTaskCompleted}
                 aria-valuemin={0}

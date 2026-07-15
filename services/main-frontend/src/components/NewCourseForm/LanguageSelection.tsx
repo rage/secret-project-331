@@ -1,21 +1,21 @@
 "use client"
 
 import React, { useId, useState } from "react"
-import { UseFormReturn } from "react-hook-form"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-
-import {
-  ENGLISH_LANGUAGE_CODE,
-  FieldContainer,
-  FINNISH_LANGUAGE_CODE,
-  FormFields,
-  NORWEGIAN_LANGUAGE_CODE,
-  SWEDISH_LANGUAGE_CODE,
-} from "."
 
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
+
+import type { FormFields } from "."
+import {
+  ENGLISH_LANGUAGE_CODE,
+  FieldContainer,
+  FINNISH_LANGUAGE_CODE,
+  NORWEGIAN_LANGUAGE_CODE,
+  SWEDISH_LANGUAGE_CODE,
+} from "."
 
 interface LanguageSelectionProps {
   form: UseFormReturn<FormFields>
@@ -84,7 +84,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ form }) => {
           label={t("other-language")}
           value="other"
           {...register("language_code")}
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           onChange={(_event) => handleLanguageSelectionChange("other")}
         />
       </FieldContainer>

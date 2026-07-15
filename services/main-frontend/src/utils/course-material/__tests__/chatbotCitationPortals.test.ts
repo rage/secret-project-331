@@ -1,5 +1,22 @@
 import { citationDisplayNumber, planCitationPortals } from "../chatbotCitationPortals"
 
+// Builds a DOM fragment mimicking sanitized chatbot markdown: one citation placeholder
+// span per 【x:y†source】 marker (carrying data-citation-n="y"). When `adjacent` is false,
+// a text node is inserted between placeholders, mirroring markers separated by prose.
+const buildNodes = (rawCitNs: number[], { adjacent = false } = {}): Element[] => {
+  const container = document.createElement("div")
+  rawCitNs.forEach((n, i) => {
+    if (i > 0 && !adjacent) {
+      container.append(document.createTextNode(" some text "))
+    }
+    const span = document.createElement("span")
+    span.dataset.chatbotCitation = "true"
+    span.dataset.citationN = String(n)
+    container.append(span)
+  })
+  return Array.from(container.querySelectorAll<Element>("[data-chatbot-citation='true']"))
+}
+
 describe("chatbotCitationPortals", () => {
   describe("citationDisplayNumber", () => {
     const citationNumberingMap = new Map<number, number>([
@@ -22,23 +39,6 @@ describe("chatbotCitationPortals", () => {
   })
 
   describe("planCitationPortals", () => {
-    // Builds a DOM fragment mimicking sanitized chatbot markdown: one citation placeholder
-    // span per 【x:y†source】 marker (carrying data-citation-n="y"). When `adjacent` is false,
-    // a text node is inserted between placeholders, mirroring markers separated by prose.
-    const buildNodes = (rawCitNs: number[], { adjacent = false } = {}): Element[] => {
-      const container = document.createElement("div")
-      rawCitNs.forEach((n, i) => {
-        if (i > 0 && !adjacent) {
-          container.appendChild(document.createTextNode(" some text "))
-        }
-        const span = document.createElement("span")
-        span.setAttribute("data-chatbot-citation", "true")
-        span.setAttribute("data-citation-n", String(n))
-        container.appendChild(span)
-      })
-      return Array.from(container.querySelectorAll<Element>("[data-chatbot-citation='true']"))
-    }
-
     it("renders one button per citation, in order, on the happy path", () => {
       const citationNumberingMap = new Map<number, number>([
         [3, 1],

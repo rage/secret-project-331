@@ -6,8 +6,6 @@ import React, { useRef } from "react"
 import { useLandmark } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
-
 import { postCourseMaterialProposedEdits } from "@/generated/course-material-api/sdk.generated"
 import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
@@ -20,6 +18,8 @@ import {
   selectedBlockIdAtom,
 } from "@/stores/course-material/materialFeedbackStore"
 import { formatKeyboardShortcut, getModifierKey } from "@/utils/course-material/platformDetection"
+
+import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
 interface Props {
   courseId: string
@@ -37,7 +37,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
 
   const { landmarkProps } = useLandmark(
     {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       role: "region",
       "aria-label": t("improve-content-dialog"),
     },
@@ -45,7 +45,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
   )
 
   const modifierKey = getModifierKey()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const dialogShortcut = formatKeyboardShortcut([modifierKey, "Shift", "I"])
 
   const mutation = useToastMutation(

@@ -3,10 +3,9 @@
 import React, { useContext } from "react"
 
 import { RadioGroupContext } from "../RadioGroup"
-
 import { GroupedRadio } from "./GroupedRadio"
-import { StandaloneRadio } from "./StandaloneRadio"
 import type { RadioProps } from "./radioTypes"
+import { StandaloneRadio } from "./StandaloneRadio"
 
 export type { RadioProps } from "./radioTypes"
 

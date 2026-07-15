@@ -4,8 +4,10 @@
 
 // SVG imported as a React component (matches svgrOptions.exportType: "default").
 declare module "*.svg" {
-  import type React from "react"
-  const ReactComponent: React.FunctionComponent<React.SVGProps<SVGSVGElement> & { title?: string }>
+  import type ReactTypes from "react"
+  const ReactComponent: ReactTypes.FunctionComponent<
+    ReactTypes.SVGProps<SVGSVGElement> & { title?: string }
+  >
   export default ReactComponent
 }
 declare module "*.svg?url" {

@@ -1,12 +1,11 @@
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 "use client"
 
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import LockChapterEditor from "./LockChapterEditor"
 import LockChapterSave from "./LockChapterSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const LockChapterConfiguration: BlockConfiguration = {
   title: "Lock Chapter",

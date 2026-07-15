@@ -3,17 +3,17 @@
 import { css } from "@emotion/css"
 import React, { useContext, useEffect, useState } from "react"
 
-import { allowedPartnerCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
-import CourseContext from "../../contexts/CourseContext"
-import mediaUploadBuilder from "../../services/mediaUpload"
-import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
-
-import { PartnersBlock } from "@/generated/api"
+import type { PartnersBlock } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { allowedPartnerCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import CourseContext from "../../contexts/CourseContext"
+import mediaUploadBuilder from "../../services/mediaUpload"
+import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 
 interface PartnersBlockEditorProps {
   data: PartnersBlock
@@ -62,6 +62,7 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
       const timeout = setTimeout(() => setSuccessMessage(null), 1000)
       return () => clearTimeout(timeout) // Clear timeout if component unmounts
     }
+    return undefined
   }, [successMessage])
 
   return (

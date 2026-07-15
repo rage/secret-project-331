@@ -128,6 +128,7 @@ pub async fn check_and_insert_suspected_cheaters(
             conn,
             completion.user_id,
             course_id,
+            completion.course_module_id,
             Some(student_duration_seconds as i32),
             total_points as i32,
         )

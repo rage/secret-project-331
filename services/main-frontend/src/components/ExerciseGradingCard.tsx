@@ -101,7 +101,7 @@ const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
                 color: ${baseTheme.colors.gray[700]};
               `}
             >
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               {"⚠️"}
             </span>
             <span
@@ -125,7 +125,7 @@ const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
             body: {
               user_exercise_state_id: userExerciseStateId,
               exercise_id: exerciseId,
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               action: "CustomPoints",
               manual_points: points,
               justification: null,

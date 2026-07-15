@@ -1,6 +1,6 @@
 "use client"
 
-import { DiffEditorProps } from "@monaco-editor/react"
+import type { DiffEditorProps } from "@monaco-editor/react"
 import React from "react"
 
 import dynamicImport from "../../utils/dynamicImport"

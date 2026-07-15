@@ -31,9 +31,14 @@ if [ -f "./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard
 fi
 
 # Only the source type file is formatted; guard files are committed as ts-auto-guard emits them
-# (they are excluded from oxfmt, so passing them here would be a no-op at best).
+# (they are excluded from oxfmt, so passing them here would be a no-op at best). The single
+# post-processing step is the type-only import rewrite below: ts-auto-guard 5.x has no option to
+# emit `import type`, and its combined leading import references only types, so under
+# verbatimModuleSyntax the `import {` must become `import type {` (a no-op at runtime).
 run_command pnpm exec ts-auto-guard --export-all --paths services/main-frontend/types/GutenbergBlockAttributes.ts --project services/main-frontend/tsconfig.json
+run_command sed -i -E 's/^import \{/import type {/' services/main-frontend/types/GutenbergBlockAttributes.guard.ts
 run_command pnpm exec oxfmt services/main-frontend/types/GutenbergBlockAttributes.ts
 
 run_command pnpm exec ts-auto-guard --export-all --paths services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts --project services/main-frontend/tsconfig.json
+run_command sed -i -E 's/^import \{/import type {/' services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts
 run_command pnpm exec oxfmt services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts

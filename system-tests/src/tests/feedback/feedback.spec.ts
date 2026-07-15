@@ -1,14 +1,14 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
+
+import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -79,7 +79,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   await page.locator("[aria-label=\"Manage course 'Introduction to feedback'\"] svg").click()
 
-  await Promise.all([page.getByRole("tab", { name: "Feedback 4" }).click()])
+  await page.getByRole("tab", { name: "Feedback 4" }).click()
 
   // Makes sure the components have rendered so that the next waitForTheseToBeVisibleAndStable always works with the placeholder
   await page.getByText(`Page: Page One`).waitFor()
@@ -110,6 +110,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "feedback-empty",
     waitForTheseToBeVisibleAndStable: [page.locator(`text=No feedback`)],
+    // oxlint-disable-next-line require-await -- async for the beforeScreenshot Promise<void> contract
     beforeScreenshot: async () => {
       page.evaluate(() => {
         window.scrollTo({ top: 0, left: 0 })

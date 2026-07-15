@@ -5,8 +5,6 @@ import { useAtomValue } from "jotai"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ContentRenderer from "../ContentRenderer"
-
 import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"
 import {
   getCourseMaterialResearchConsentFormQuestions,
@@ -22,7 +20,9 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { currentCourseIdAtom, materialCourseAtom } from "@/state/course-material/selectors"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
+
+import ContentRenderer from "../ContentRenderer"
 
 interface ResearchConsentFormProps {
   onClose: () => void
@@ -32,7 +32,7 @@ interface ResearchConsentFormProps {
   researchForm: ResearchForm
 }
 
-type UserAnswer = {
+interface UserAnswer {
   questionId: string
   answer: boolean
 }
@@ -49,9 +49,10 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
   const courseId = useAtomValue(currentCourseIdAtom)
   const courseName = useAtomValue(materialCourseAtom)?.name
 
-  const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<{ [key: string]: boolean }>()
+  const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<Record<string, boolean>>()
   const getResearchFormQuestions = useQuery({
     queryKey: ["course-material-research-consent-form-questions", courseId],
+    // oxlint-disable-next-line eslint/require-await -- async for the Promise<ResearchFormQuestion[]> contract
     queryFn: async (): Promise<ResearchFormQuestion[]> =>
       getCourseMaterialResearchConsentFormQuestions({
         path: {
@@ -101,7 +102,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
     },
   )
 
-  const handleOnSubmit = async () => {
+  const handleOnSubmit = () => {
     if (questionIdsAndAnswers) {
       Object.entries(questionIdsAndAnswers).forEach(([id, bol]) => {
         const newAnswer: UserAnswer = { questionId: id, answer: bol }
@@ -130,10 +131,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
       ]}
     >
       <CheckboxContext.Provider value={{ questionIdsAndAnswers, setQuestionIdsAndAnswers }}>
-        <ContentRenderer
-          data={(researchForm.content as Array<Block<unknown>>) ?? []}
-          isExam={false}
-        />
+        <ContentRenderer data={(researchForm.content as Block<unknown>[]) ?? []} isExam={false} />
       </CheckboxContext.Provider>
     </StandardDialog>
   )

@@ -4,10 +4,10 @@ import { css } from "@emotion/css"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useSetupStepFields } from "../../hooks/useWizardStepFields"
-
-import { CourseDesignerCourseSize } from "@/generated/api/types.generated"
+import type { CourseDesignerCourseSize } from "@/generated/api/types.generated"
 import { Button, Select, YearMonthField } from "@/shared-module/components"
+
+import { useSetupStepFields } from "../../hooks/useWizardStepFields"
 
 const toolbarStyles = css`
   display: flex;
@@ -61,11 +61,11 @@ export default function SetupStep({
 
   const courseSizeOptions = useMemo(
     () => [
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { value: "small", label: t("course-plans-course-size-small") },
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { value: "medium", label: t("course-plans-course-size-medium") },
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { value: "large", label: t("course-plans-course-size-large") },
     ],
     [t],

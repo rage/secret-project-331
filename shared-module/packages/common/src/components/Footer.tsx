@@ -5,8 +5,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import UHLogo from "../img/UHBrandLogo.svg"
 import MOOCfi from "../img/moocfiTextLogo.svg"
+import UHLogo from "../img/UHBrandLogo.svg"
 import { baseTheme, headingFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
@@ -218,7 +218,7 @@ const Footer: React.FC<React.PropsWithChildren<Props>> = ({ privacyLinks = null 
           >
             <LogoA
               href={useFinnishLinks ? "https://www.mooc.fi" : "https://www.mooc.fi/en"}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               aria-label="MOOC.fi"
             >
               <MOOCfi />

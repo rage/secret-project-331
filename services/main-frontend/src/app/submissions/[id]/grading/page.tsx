@@ -6,13 +6,12 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import SubmissionIFrame from "./SubmissionIFrame"
-
 import GradeExamAnswerForm from "@/components/forms/GradeExamAnswerForm"
 import { getExerciseSlideSubmissionInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
 import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
-import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import type { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
@@ -22,6 +21,8 @@ import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import SubmissionIFrame from "./SubmissionIFrame"
 
 interface Block<T> {
   name: string
@@ -45,7 +46,7 @@ const Submission: React.FC = () => {
   })
 
   const handleGetAssignments = (task: CourseMaterialExerciseTask) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const assignments = task.assignment as Block<any>[]
     return assignments.map((assignment) => assignment.attributes?.content)
   }
@@ -55,6 +56,7 @@ const Submission: React.FC = () => {
 
   const getExam = useQuery({
     queryKey: ["getExam", examId],
+    // oxlint-disable-next-line eslint/require-await -- async so the queryFn returns a normalized Promise
     queryFn: async () =>
       getExamFromApi({
         path: {
@@ -65,19 +67,19 @@ const Submission: React.FC = () => {
   })
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
-    const pieces = [
-      // eslint-disable-next-line i18next/no-literal-string
+    const breadcrumbPieces = [
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("link-manage"), url: `/manage/exams/${examId}` },
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("questions"), url: `/manage/exams/${examId}/questions` },
       {
         text: t("header-submissions"),
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         url: `/manage/exercises/${exerciseId}/exam-submissions`,
       },
       { text: id, url: "" },
     ]
-    return pieces
+    return breadcrumbPieces
   }, [examId, exerciseId, id, t])
 
   return (
@@ -105,7 +107,7 @@ const Submission: React.FC = () => {
                   {t("label-grade")} {submissionInfo.exercise.name}
                 </h1>
                 {[...submissionInfo.tasks]
-                  .sort((a, b) => a.order_number - b.order_number)
+                  .toSorted((a, b) => a.order_number - b.order_number)
                   .map((task) => (
                     <div key={task.id}>
                       <div

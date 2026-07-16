@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import type { Placement } from "@popperjs/core"
 import { LanguageTranslation } from "@vectopus/atlas-icons-react"
-import React, { useRef, useState } from "react"
+import React, { useId, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
@@ -39,6 +39,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   handleLanguageChange,
 }) => {
   const outSideClickRef = useRef<HTMLDivElement>(null)
+  const menuId = useId()
   const [visible, setVisible] = useState<boolean>(false)
   const [referenceElement, setReferenceElement] = useState<Element | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
@@ -80,6 +81,9 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
           ${noLanguagesToChange && `cursor: not-allowed !important;`}
         `}
         ref={setReferenceElement}
+        aria-haspopup="menu"
+        aria-expanded={visible}
+        aria-controls={menuId}
         onClick={(e) => {
           e.preventDefault()
           setVisible(!visible)
@@ -94,6 +98,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
         {t("language")}
       </button>
       <div
+        id={menuId}
         className={css`
           z-index: 800;
         `}

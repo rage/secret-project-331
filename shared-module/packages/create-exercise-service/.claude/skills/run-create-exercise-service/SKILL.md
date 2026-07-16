@@ -1,7 +1,7 @@
 ---
 name: run-create-exercise-service
 description: Scaffold, run, and smoke-test a new moocfi exercise service/plugin with the create-exercise-service CLI (generated from the example-exercise template), and author the exercise itself — its data model (private/public/model-solution specs, answer, grading) and its iframe views/REST endpoints. Use when asked to run/start/scaffold/generate/create/screenshot/verify an exercise service or plugin, or to design/author/implement a new exercise type or its data model.
-allowed-tools: Read, Edit, Write, AskUserQuestion, Bash(node *), Bash(pnpm *), Bash(playwright-cli *), Bash(./interactive-demo.sh*)
+allowed-tools: Read, Edit, Write, AskUserQuestion, Bash(node *), Bash(pnpm *), Bash(playwright-cli *), Bash(./interactive-demo.sh*), Bash(cp *), Bash(ln *)
 ---
 
 # create-exercise-service
@@ -136,6 +136,24 @@ relative to the CLI dir" footgun above. `smoke.mjs` uses it internally; `referen
 ```bash
 pnpm --dir shared-module/packages/create-exercise-service exec tsx scripts/scaffold-to.ts <abs-path> <name> <port>
 ```
+
+## After scaffolding — ship the plugin guide (do this every time)
+
+The generated project carries no plugin/data-model documentation of its own, and none of this skill's
+`reference/` or the monorepo's `docs/plugin-system.md`. So drop the self-contained guide into it, so
+any agent (Claude Code, or any `AGENTS.md`-aware tool) that later opens the project loads the protocol
+and — most importantly — the **per-data-type allowed/disallowed rules** automatically. From this
+skill dir:
+
+```bash
+cp AGENTS_TEMPLATE.md <project>/AGENTS.md    # verbatim — the guide is service-name-agnostic
+ln -s AGENTS.md <project>/CLAUDE.md          # relative symlink, so Claude Code loads the same file
+```
+
+`AGENTS_TEMPLATE.md` (alongside the drivers here) is the source of truth — a distillation of
+`reference/07`: the five data types and what each may/must-not contain, the leak catalogue, and the
+peer-review/exam-mode visibility surprises. Nothing needs substituting (it refers to "this service"
+generically). **Keep it in sync with `reference/07`** whenever the data-model doctrine changes.
 
 ## Test
 

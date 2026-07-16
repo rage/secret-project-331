@@ -74,4 +74,41 @@ describe("TableBlock accessibility (issue #91)", () => {
     expect(bodyCells.length).toBe(2)
     expect(container.querySelectorAll("tbody th").length).toBe(0)
   })
+
+  it("renders a body cell tagged th with scope=row when no scope is provided", () => {
+    const props = makeProps()
+    props.data.attributes.body = [
+      {
+        cells: [
+          { content: "Alpha", tag: "th" },
+          { content: "1", tag: "td" },
+        ],
+      },
+    ]
+    const { container } = render(<TableBlock {...props} />)
+
+    const bodyHeaders = container.querySelectorAll("tbody th")
+    expect(bodyHeaders.length).toBe(1)
+    expect(bodyHeaders[0]).toHaveAttribute("scope", "row")
+
+    const bodyCells = container.querySelectorAll("tbody td")
+    expect(bodyCells.length).toBe(1)
+  })
+
+  it("keeps an explicit scope on a body th cell", () => {
+    const props = makeProps()
+    props.data.attributes.body = [
+      {
+        cells: [
+          { content: "Alpha", tag: "th", scope: "rowgroup" },
+          { content: "1", tag: "td" },
+        ],
+      },
+    ]
+    const { container } = render(<TableBlock {...props} />)
+
+    const bodyHeaders = container.querySelectorAll("tbody th")
+    expect(bodyHeaders.length).toBe(1)
+    expect(bodyHeaders[0]).toHaveAttribute("scope", "rowgroup")
+  })
 })

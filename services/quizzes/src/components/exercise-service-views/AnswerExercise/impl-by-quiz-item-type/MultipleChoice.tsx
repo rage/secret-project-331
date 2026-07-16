@@ -40,6 +40,8 @@ const selectedCheckmark = css`
   font-weight: 700;
 `
 
+const CHECKMARK_SYMBOL = "✓"
+
 export interface LeftBorderedDivProps {
   correct: boolean | undefined
   direction?: string
@@ -160,8 +162,7 @@ const MultipleChoice: React.FunctionComponent<
             >
               {selected && (
                 <span aria-hidden="true" className={selectedCheckmark}>
-                  {/* oxlint-disable-next-line i18next/no-literal-string -- decorative check glyph, selection is programmatic */}
-                  ✓
+                  {CHECKMARK_SYMBOL}
                 </span>
               )}
               <ParsedText parseMarkdown parseLatex inline text={qo.title || qo.body || ""} />

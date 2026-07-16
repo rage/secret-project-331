@@ -253,34 +253,42 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn delete_orphan_tool_call_for_conversation(
+/// Sometimes during chatbot conversation streaming, the stream ends unexpectedly while
+/// a tool call has been made but not answered. This happens with provider tools that we
+/// can't control. In this case, the conversation is left in a state which is invalid,
+/// so we need to delete the messages with un-answered tool calls.
+pub async fn delete_hanging_tool_call_messages_for_conversation(
     conn: &mut PgConnection,
     conversation_id: Uuid,
-) -> ModelResult<Option<ChatbotConversationMessageRow>> {
+) -> ModelResult<Vec<ChatbotConversationMessageRow>> {
     let mut tx = conn.begin().await?;
-    let mut res = None;
+    let mut res = vec![];
 
-    let deleted_child =
-        chatbot_conversation_message_tool_calls::delete_orphan_tool_call_for_conversation(
+    let deleted_children =
+        chatbot_conversation_message_tool_calls::delete_hanging_tool_calls_for_conversation(
             &mut tx,
             conversation_id,
         )
         .await?;
 
-    if let Some(c) = deleted_child {
+    if !deleted_children.is_empty() {
+        let ids: Vec<Uuid> = deleted_children
+            .iter()
+            .map(|x| x.chatbot_conversation_message_id)
+            .collect();
         let deleted = sqlx::query_as!(
             ChatbotConversationMessageRow,
             r#"
 UPDATE chatbot_conversation_messages
 SET deleted_at = NOW()
-WHERE id = $1
+WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
 RETURNING *
         "#,
-            c.chatbot_conversation_message_id
+            &ids
         )
-        .fetch_one(&mut *tx)
+        .fetch_all(&mut *tx)
         .await?;
-        res = Some(deleted)
+        res = deleted
     }
     tx.commit().await?;
     Ok(res)

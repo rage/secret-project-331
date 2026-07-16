@@ -1364,7 +1364,7 @@ async fn clean_up_unfinished_tool_calls(
 ) -> ChatbotResult<()> {
     trace!("Cleaning up unfinished tool calls: {}", conversation_id);
     // wrong response id? IT DOESN'T WORK
-    let lol = headless_lms_models::chatbot_conversation_messages::delete_orphan_tool_call_for_conversation(
+    let lol = headless_lms_models::chatbot_conversation_messages::delete_hanging_tool_call_messages_for_conversation(
         conn,
         conversation_id,
     )

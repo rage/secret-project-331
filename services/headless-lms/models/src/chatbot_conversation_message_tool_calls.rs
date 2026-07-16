@@ -179,11 +179,11 @@ RETURNING
 /// Sometimes during chatbot conversation streaming, the stream ends unexpectedly while
 /// a tool call has been made but not answered. This happens with provider tools that we
 /// can't control. In this case, the conversation is left in a state which is invalid,
-/// so we need to delete the un-answered tool call.
-pub async fn delete_orphan_tool_call_for_conversation(
+/// so we need to delete the un-answered tool call(s).
+pub async fn delete_hanging_tool_calls_for_conversation(
     conn: &mut PgConnection,
     conversation_id: Uuid,
-) -> ModelResult<Option<ChatbotConversationMessageToolCall>> {
+) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolCall,
         r#"
@@ -215,7 +215,7 @@ RETURNING ccmtc.id,
         "#,
         conversation_id
     )
-    .fetch_optional(conn)
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

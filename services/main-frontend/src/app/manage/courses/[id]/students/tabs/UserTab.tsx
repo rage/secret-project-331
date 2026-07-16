@@ -1,7 +1,7 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import React, { useMemo } from "react"
+import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { CourseStudentListRow } from "@/generated/api/types.generated"
@@ -10,6 +10,7 @@ import { QueryResult } from "@/shared-module/components"
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import { useCourseStudentsIdentity } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
+import { staleTableCss } from "../studentsTableStyles"
 
 const EM_DASH = "—"
 
@@ -20,7 +21,9 @@ export const UserTabContent: React.FC = () => {
   const { sorting, onSortingChange } = useStudentsSorting()
 
   const query = useCourseStudentsIdentity(courseId, params)
-  const rows = useMemo(() => query.data?.data ?? [], [query.data])
+  const deferredData = useDeferredValue(query.data)
+  const isStale = deferredData !== query.data
+  const rows = useMemo(() => deferredData?.data ?? [], [deferredData])
 
   const columns = useMemo<ColumnDef<CourseStudentListRow, unknown>[]>(
     () => [
@@ -70,12 +73,14 @@ export const UserTabContent: React.FC = () => {
   return (
     <QueryResult query={query} treatEmptyAsData>
       {() => (
-        <StudentsTable
-          columns={columns}
-          data={rows}
-          sorting={sorting}
-          onSortingChange={onSortingChange}
-        />
+        <div className={isStale ? staleTableCss : undefined}>
+          <StudentsTable
+            columns={columns}
+            data={rows}
+            sorting={sorting}
+            onSortingChange={onSortingChange}
+          />
+        </div>
       )}
     </QueryResult>
   )

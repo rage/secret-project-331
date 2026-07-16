@@ -13,6 +13,7 @@ import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Pagination from "@/shared-module/common/components/Pagination"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
@@ -77,6 +78,7 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
     searchInput,
     setSearchInput,
     runImmediateSearch,
+    isSearchPending,
     page,
     limit,
     setPage,
@@ -157,6 +159,11 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
                 }}
               />
               <span className={styles.searchIcon} aria-hidden="true" />
+              {isSearchPending && (
+                <span className={styles.searchPendingSpinner} aria-hidden="true">
+                  <Spinner variant="small" disableMargin />
+                </span>
+              )}
             </div>
 
             <select

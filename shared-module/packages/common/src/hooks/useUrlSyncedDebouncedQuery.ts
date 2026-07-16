@@ -1,5 +1,14 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { type Dispatch, type SetStateAction, useCallback, useEffect, useRef, useState } from "react"
+import {
+  type Dispatch,
+  type SetStateAction,
+  startTransition,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react"
 
 import useDebouncedValue from "./useDebouncedValue"
 
@@ -13,6 +22,7 @@ export interface UseUrlSyncedDebouncedQueryResult {
   setInputValue: Dispatch<SetStateAction<string>>
   queryValue: string
   runImmediate: () => void
+  isPending: boolean
 }
 
 /** Owns debounced input and URL-backed query state for a single search param. */
@@ -34,6 +44,7 @@ const useUrlSyncedDebouncedQuery = ({
 
   const [inputValue, setInputValue] = useState(urlInputValue)
   const [queryValue, setQueryValue] = useState(urlQueryValue)
+  const [isRunImmediatePending, startRunImmediateTransition] = useTransition()
 
   const trimmedInputValue = inputValue.trim()
   const debouncedInputValue = useDebouncedValue(trimmedInputValue, delayMs)
@@ -67,7 +78,9 @@ const useUrlSyncedDebouncedQuery = ({
       return
     }
     if (debouncedInputValue !== queryValue) {
-      setQueryValue(debouncedInputValue)
+      startTransition(() => {
+        setQueryValue(debouncedInputValue)
+      })
     }
   }, [debouncedInputValue, queryValue, trimmedInputValue, urlInputValueChanged])
 
@@ -96,10 +109,12 @@ const useUrlSyncedDebouncedQuery = ({
     if (trimmedInputValue === queryValue) {
       return
     }
-    setQueryValue(trimmedInputValue)
+    startRunImmediateTransition(() => {
+      setQueryValue(trimmedInputValue)
+    })
   }, [queryValue, trimmedInputValue])
 
-  return { inputValue, setInputValue, queryValue, runImmediate }
+  return { inputValue, setInputValue, queryValue, runImmediate, isPending: isRunImmediatePending }
 }
 
 export default useUrlSyncedDebouncedQuery

@@ -172,3 +172,10 @@ export const searchIcon = css`
     content: "🔍";
   }
 `
+
+export const searchPendingSpinner = css`
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+`

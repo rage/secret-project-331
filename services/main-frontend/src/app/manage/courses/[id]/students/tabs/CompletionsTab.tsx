@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import type { ColumnDef } from "@tanstack/react-table"
 import type { TFunction } from "i18next"
-import React, { useMemo } from "react"
+import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
@@ -19,7 +19,7 @@ import {
   useCourseStudentsIdentity,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
-import { COMPLETIONS_LEAF_MIN_WIDTH } from "../studentsTableStyles"
+import { COMPLETIONS_LEAF_MIN_WIDTH, staleTableCss } from "../studentsTableStyles"
 
 const PLACEHOLDER = "-"
 
@@ -175,9 +175,15 @@ export const CompletionsTabContent: React.FC = () => {
   const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
   const detailQuery = useCourseStudentsCompletionsDetail(courseId, userIds)
 
+  // Deferred *after* userIds/detailQuery are derived so a search/sort/page commit still fires the
+  // detail request promptly -- only the expensive pivot below is deprioritized.
+  const deferredIdentityRows = useDeferredValue(identityRows)
+  const deferredDetailData = useDeferredValue(detailQuery.data)
+  const isStale = deferredIdentityRows !== identityRows || deferredDetailData !== detailQuery.data
+
   const { modulesInOrder, data } = useMemo(
-    () => pivotCompletions(identityRows, detailQuery.data ?? [], t),
-    [identityRows, detailQuery.data, t],
+    () => pivotCompletions(deferredIdentityRows, deferredDetailData ?? [], t),
+    [deferredIdentityRows, deferredDetailData, t],
   )
   const columns = useMemo(() => buildColumns(modulesInOrder, t), [modulesInOrder, t])
 
@@ -192,14 +198,16 @@ export const CompletionsTabContent: React.FC = () => {
   }
 
   return (
-    <StudentsTable
-      columns={columns}
-      data={data}
-      colorHeaders
-      colorColumns
-      colorHeaderUnderline
-      sorting={sorting}
-      onSortingChange={onSortingChange}
-    />
+    <div className={isStale ? staleTableCss : undefined}>
+      <StudentsTable
+        columns={columns}
+        data={data}
+        colorHeaders
+        colorColumns
+        colorHeaderUnderline
+        sorting={sorting}
+        onSortingChange={onSortingChange}
+      />
+    </div>
   )
 }

@@ -42,6 +42,13 @@ export const floatingHeaderInnerCss = css`
   pointer-events: auto;
 `
 
+// Dims a subtab's table while its columns/data are being recomputed from a newer
+// query result (see useDeferredValue usage in the tab components).
+export const staleTableCss = css`
+  opacity: 0.6;
+  transition: opacity 0.15s;
+`
+
 export const tableStyle = css`
   width: 100%;
   border-collapse: separate;

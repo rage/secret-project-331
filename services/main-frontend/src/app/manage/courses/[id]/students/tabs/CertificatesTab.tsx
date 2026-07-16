@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
-import React, { useMemo, useState } from "react"
+import React, { useDeferredValue, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { updateGeneratedCertificate } from "@/generated/api/sdk.generated"
@@ -31,6 +31,7 @@ import {
   useCourseStudentsIdentity,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
+import { staleTableCss } from "../studentsTableStyles"
 
 const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"] =
   "/api/v0/main-frontend/certificates/{certificate_verification_id}"
@@ -99,6 +100,12 @@ export const CertificatesTabContent: React.FC = () => {
   const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
   const detailQuery = useCourseStudentsCertificatesDetail(courseId, userIds)
 
+  // Deferred *after* userIds/detailQuery are derived so a search/sort/page commit still fires the
+  // detail request promptly -- only the row-building below is deprioritized.
+  const deferredIdentityRows = useDeferredValue(identityRows)
+  const deferredDetailData = useDeferredValue(detailQuery.data)
+  const isStale = deferredIdentityRows !== identityRows || deferredDetailData !== detailQuery.data
+
   const [editData, setEditData] = useState<{
     id: string
     name_on_certificate: string
@@ -138,8 +145,8 @@ export const CertificatesTabContent: React.FC = () => {
   )
 
   const rows = useMemo<CertificateRow[]>(() => {
-    const byUser = new Map((detailQuery.data ?? []).map((c) => [c.user_id, c]))
-    return identityRows.map((u) => {
+    const byUser = new Map((deferredDetailData ?? []).map((c) => [c.user_id, c]))
+    return deferredIdentityRows.map((u) => {
       const cert = byUser.get(u.user_id)
       return {
         user_id: u.user_id,
@@ -150,7 +157,7 @@ export const CertificatesTabContent: React.FC = () => {
         certificate_id: cert?.certificate_id ?? null,
       }
     })
-  }, [detailQuery.data, identityRows, t])
+  }, [deferredDetailData, deferredIdentityRows, t])
 
   // Guard the edit dialog's date so an empty / invalid value never reaches new Date(...).toISOString().
   const parsedEditDate = editData?.date ? new Date(editData.date) : null
@@ -444,12 +451,14 @@ export const CertificatesTabContent: React.FC = () => {
         </StandardDialog>
       )}
 
-      <StudentsTable
-        columns={columns}
-        data={rows}
-        sorting={sorting}
-        onSortingChange={onSortingChange}
-      />
+      <div className={isStale ? staleTableCss : undefined}>
+        <StudentsTable
+          columns={columns}
+          data={rows}
+          sorting={sorting}
+          onSortingChange={onSortingChange}
+        />
+      </div>
     </>
   )
 }

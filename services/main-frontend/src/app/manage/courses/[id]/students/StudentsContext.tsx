@@ -5,6 +5,7 @@ import React, {
   createContext,
   type Dispatch,
   type SetStateAction,
+  startTransition,
   useCallback,
   useContext,
   useEffect,
@@ -30,6 +31,7 @@ interface StudentsContextValue {
   setSearchInput: Dispatch<SetStateAction<string>>
   search: string
   runImmediateSearch: () => void
+  isSearchPending: boolean
   // Pagination (URL-synced).
   page: number
   limit: number
@@ -66,6 +68,7 @@ export function StudentsContextProvider({
     setInputValue: setSearchInput,
     queryValue: search,
     runImmediate: runImmediateSearch,
+    isPending: isSearchPending,
   } = useUrlSyncedDebouncedQuery({ paramName: SEARCH_PARAM, delayMs: SEARCH_DEBOUNCE_MS })
 
   const { page, limit, setPage, setLimit } = usePaginationInfo(DEFAULT_LIMIT)
@@ -88,7 +91,9 @@ export function StudentsContextProvider({
     }
     previousSignature.current = filterSignature
     if (page !== 1) {
-      setPage(1)
+      startTransition(() => {
+        setPage(1)
+      })
     }
   }, [filterSignature, page, setPage])
 
@@ -98,6 +103,7 @@ export function StudentsContextProvider({
     setSearchInput,
     search,
     runImmediateSearch,
+    isSearchPending,
     page,
     limit,
     setPage,

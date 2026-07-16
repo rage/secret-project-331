@@ -1,4 +1,5 @@
 import enMainFrontend from "@/shared-module/common/locales/en/main-frontend.json"
+import enSharedModule from "@/shared-module/common/locales/en/shared-module.json"
 import fiMainFrontend from "@/shared-module/common/locales/fi/main-frontend.json"
 import fiSharedModule from "@/shared-module/common/locales/fi/shared-module.json"
 
@@ -11,6 +12,11 @@ describe("accessibility locale copy", () => {
   it("renames the Finnish breadcrumb nav to a plain 'you are here' phrasing (issue #61)", () => {
     expect(fiSharedModule["breadcrumb"]).toBe("Olet tässä:")
     expect(fiMainFrontend["aria-label-breadcrumb"]).toBe("Olet tässä:")
+  })
+
+  it("renames the English breadcrumb nav to a plain 'you are here' phrasing (issue #61)", () => {
+    expect(enSharedModule["breadcrumb"]).toBe("You are here:")
+    expect(enMainFrontend["aria-label-breadcrumb"]).toBe("You are here:")
   })
 
   it("provides search result live-region keys in both languages (issue #63)", () => {

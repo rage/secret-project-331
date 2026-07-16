@@ -213,8 +213,7 @@ fn generate_certificate_impl(
 ) -> UtilResult<Vec<u8>> {
     let start_setup = Instant::now();
     let opt = usvg::Options {
-        // Default family for elements without one; each text element's family is resolved
-        // per-string in generate_text_svg, so this is only a last-resort fallback.
+        // Last-resort fallback; each text element's family is resolved per-string in generate_text_svg.
         font_family: "Inter Variable".to_string(),
         dpi: 600.0,
         image_rendering: usvg::ImageRendering::OptimizeQuality,
@@ -338,8 +337,7 @@ pub struct TextToRender {
 impl Default for TextToRender {
     fn default() -> Self {
         Self {
-            // Preferred font, tried first when resolving a font per text (see resolve_font_family).
-            // Inter Variable covers Latin, Cyrillic and Greek; other scripts resolve to a Noto font.
+            // Preferred font for resolve_font_family; covers Latin, Cyrillic and Greek.
             font_family: "Inter Variable".to_string(),
             font_size: "150px".to_string(),
             text_color: "black".to_string(),
@@ -355,9 +353,11 @@ impl Default for TextToRender {
 /// preferring `preferred` and then the other loaded fonts in load order.
 ///
 /// Each certificate text element is rendered in a single font: usvg's per-glyph fallback is
-/// unreliable (it gives up after the first fallback font), so we resolve the whole string to one
-/// covering font here instead of relying on it. Falls back to `preferred` when nothing covers the
-/// string (best effort — a name mixing scripts no single font covers will have .notdef glyphs).
+/// unreliable (usvg 0.47 aborts all fallback as soon as one candidate font's reshape changes the
+/// glyph count, and it replaces per-glyph rather than per-cluster), so we resolve the whole string
+/// to one covering font here instead of relying on it. Falls back to `preferred` when nothing
+/// covers the string (best effort — a name mixing scripts no single font covers will have .notdef
+/// glyphs).
 fn resolve_font_family(text: &str, preferred: &str, fontdb: &fontdb::Database) -> String {
     let mut faces: Vec<&fontdb::FaceInfo> = fontdb.faces().collect();
     // Stable sort so `preferred` is tried first while the rest keep their load order.
@@ -367,6 +367,10 @@ fn resolve_font_family(text: &str, preferred: &str, fontdb: &fontdb::Database) -
             return face_family_name(face);
         }
     }
+    warn!(
+        "No loaded font covers the text {:?}; falling back to '{}', uncovered glyphs will render as boxes",
+        text, preferred
+    );
     preferred.to_string()
 }
 
@@ -601,7 +605,7 @@ mod tests {
     /// that no one loaded font covers can't be fully rendered, so it best-effort falls back to the
     /// preferred font (some glyphs will be .notdef). Rendering it properly would need per-run
     /// multi-font layout, which usvg does not support (it ignores per-tspan fonts and its own
-    /// per-glyph fallback bails after one font).
+    /// per-glyph fallback aborts on the first glyph-count mismatch after a fallback reshape).
     #[test]
     fn mixed_script_no_single_covering_font_falls_back_to_preferred() {
         let db = all_certificate_fonts();

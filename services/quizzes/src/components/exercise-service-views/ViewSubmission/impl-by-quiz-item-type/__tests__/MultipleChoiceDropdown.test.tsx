@@ -74,7 +74,7 @@ const renderSubmission = (selectedOptionId: string) =>
           selectedOptionIds: [selectedOptionId],
         } satisfies UserItemAnswerMultiplechoiceDropdown
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       user_information={{} as any}
     />,
   )
@@ -83,13 +83,13 @@ const renderSubmission = (selectedOptionId: string) =>
 describe("MultipleChoiceDropdown submission view accessibility", () => {
   it("conveys a correct answer with a labelled icon, not only color (WCAG 1.4.1)", () => {
     renderSubmission("o-mercury")
-    expect(screen.getByLabelText("your-answer-was-correct")).toBeInTheDocument()
-    expect(screen.queryByLabelText("your-answer-was-not-correct")).not.toBeInTheDocument()
+    expect(screen.getByText("your-answer-was-correct")).toBeInTheDocument()
+    expect(screen.queryByText("your-answer-was-not-correct")).not.toBeInTheDocument()
   })
 
   it("conveys an incorrect answer with a labelled icon, not only color (WCAG 1.4.1)", () => {
     renderSubmission("o-venus")
-    expect(screen.getByLabelText("your-answer-was-not-correct")).toBeInTheDocument()
-    expect(screen.queryByLabelText("your-answer-was-correct")).not.toBeInTheDocument()
+    expect(screen.getByText("your-answer-was-not-correct")).toBeInTheDocument()
+    expect(screen.queryByText("your-answer-was-correct")).not.toBeInTheDocument()
   })
 })

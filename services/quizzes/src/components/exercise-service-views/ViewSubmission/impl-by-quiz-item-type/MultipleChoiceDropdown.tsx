@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
+import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -114,69 +115,78 @@ const MultipleChoiceDropdownFeedback: React.FC<
             display: flex;
             width: 80%;
             align-items: center;
-            position: relative;
 
             ${respondToOrLarger.sm} {
               width: 40%;
             }
-
-            .select-arrow {
-              position: absolute;
-              top: 55%;
-              transform: translateY(-50%);
-              right: 0.625rem;
-              pointer-events: none;
-            }
           `}
         >
-          <select
-            aria-label={t("answer")}
-            disabled
+          <div
             className={css`
-              display: grid;
-              width: 100%;
-              border-radius: 0.25rem;
-              border: none;
-              padding: 0.5rem 2rem 0.5rem 0.625rem;
-              font-size: 18px;
-              cursor: pointer;
-              border: 0.188rem solid
-                ${correct
-                  ? quizTheme.gradingCorrectItemBorderColor
-                  : quizTheme.gradingWrongItemBorderColor};
-              background: none;
-              min-height: 2.5rem;
-              grid-template-areas: "select";
+              display: flex;
+              flex: 1;
               align-items: center;
-              color: #7e8894;
-              appearance: none;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
+              position: relative;
+              min-width: 0;
 
-              background: ${correct
-                ? quizTheme.gradingCorrectItemBackground
-                : quizTheme.gradingWrongItemBackground};
+              .select-arrow {
+                position: absolute;
+                top: 55%;
+                transform: translateY(-50%);
+                right: 0.625rem;
+                pointer-events: none;
+              }
             `}
           >
-            <option disabled selected={selectedOption?.id === null} value="">
-              {t("answer")}
-            </option>
-            {public_quiz_item.options.map((o) => (
-              <option
-                key={o.id}
-                value={o.id}
-                selected={selectedOption?.id === o.id}
-                className={css`
-                  display: flex;
-                `}
-              >
-                {o.title || o.body}
+            <select
+              aria-label={t("answer")}
+              disabled
+              className={css`
+                display: grid;
+                width: 100%;
+                border-radius: 0.25rem;
+                border: none;
+                padding: 0.5rem 2rem 0.5rem 0.625rem;
+                font-size: 18px;
+                cursor: pointer;
+                border: 0.188rem solid
+                  ${correct
+                    ? quizTheme.gradingCorrectItemBorderColor
+                    : quizTheme.gradingWrongItemBorderColor};
+                background: none;
+                min-height: 2.5rem;
+                grid-template-areas: "select";
+                align-items: center;
+                color: #7e8894;
+                appearance: none;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+
+                background: ${correct
+                  ? quizTheme.gradingCorrectItemBackground
+                  : quizTheme.gradingWrongItemBackground};
+              `}
+            >
+              <option disabled selected={selectedOption?.id === null} value="">
+                {t("answer")}
               </option>
-            ))}
-          </select>
-          <div className="select-arrow">
-            <SelectIcon />
+              {public_quiz_item.options.map((o) => (
+                <option
+                  key={o.id}
+                  value={o.id}
+                  selected={selectedOption?.id === o.id}
+                  className={css`
+                    display: flex;
+                  `}
+                >
+                  {o.title || o.body}
+                </option>
+              ))}
+            </select>
+            <div className="select-arrow">
+              <SelectIcon />
+            </div>
           </div>
           <div
             className={css`
@@ -187,21 +197,29 @@ const MultipleChoiceDropdownFeedback: React.FC<
             `}
           >
             {correct ? (
-              <CheckCircle
-                size={24}
-                className={css`
-                  color: ${baseTheme.colors.green[700]};
-                `}
-                aria-label={t("your-answer-was-correct")}
-              />
+              <>
+                <span aria-hidden="true">
+                  <CheckCircle
+                    size={24}
+                    className={css`
+                      color: ${baseTheme.colors.green[700]};
+                    `}
+                  />
+                </span>
+                <VisuallyHidden>{t("your-answer-was-correct")}</VisuallyHidden>
+              </>
             ) : (
-              <XmarkCircle
-                size={24}
-                className={css`
-                  color: ${baseTheme.colors.red[700]};
-                `}
-                aria-label={t("your-answer-was-not-correct")}
-              />
+              <>
+                <span aria-hidden="true">
+                  <XmarkCircle
+                    size={24}
+                    className={css`
+                      color: ${baseTheme.colors.red[700]};
+                    `}
+                  />
+                </span>
+                <VisuallyHidden>{t("your-answer-was-not-correct")}</VisuallyHidden>
+              </>
             )}
           </div>
         </div>

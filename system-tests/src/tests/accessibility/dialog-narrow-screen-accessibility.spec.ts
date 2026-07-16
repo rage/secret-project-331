@@ -5,8 +5,8 @@ import { selectOrganization } from "@/utils/organizationUtils"
 import { withViewportSize } from "../../utils/viewportUtils"
 
 // WCAG 1.4.10 (Reflow): at 320px CSS width, content must not require scrolling in two dimensions.
-// StandardDialog-based dialogs get responsive CSS on this branch; this test guards against
-// regressions by opening a real StandardDialog and asserting it fits within the narrow viewport.
+// This test pins the pre-existing responsive behavior of StandardDialog-based dialogs by
+// opening a real StandardDialog and asserting it fits within the narrow viewport.
 const NARROW_VIEWPORT = { width: 320, height: 800 }
 
 test.describe("Dialog narrow screen accessibility", () => {

@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
+import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { primaryFont } from "@/shared-module/exercise-react/styles"
+import { baseTheme, primaryFont } from "@/shared-module/exercise-react/styles"
 
 import type { QuizItemSubmissionComponentProps } from "."
 import type { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
@@ -176,6 +177,32 @@ const MultipleChoiceDropdownFeedback: React.FC<
           </select>
           <div className="select-arrow">
             <SelectIcon />
+          </div>
+          <div
+            className={css`
+              display: flex;
+              align-items: center;
+              margin-left: 0.5rem;
+              flex-shrink: 0;
+            `}
+          >
+            {correct ? (
+              <CheckCircle
+                size={24}
+                className={css`
+                  color: ${baseTheme.colors.green[700]};
+                `}
+                aria-label={t("your-answer-was-correct")}
+              />
+            ) : (
+              <XmarkCircle
+                size={24}
+                className={css`
+                  color: ${baseTheme.colors.red[700]};
+                `}
+                aria-label={t("your-answer-was-not-correct")}
+              />
+            )}
           </div>
         </div>
       </div>

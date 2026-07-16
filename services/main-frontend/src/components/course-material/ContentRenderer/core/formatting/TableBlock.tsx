@@ -174,41 +174,26 @@ const TableBlock: React.FC<
             {body.map((cellRows: Cells, j: number) => (
               <tr key={j}>
                 {cellRows.cells &&
-                  cellRows.cells.map((cell: CellAttributes, i: number) =>
-                    cell.tag === "th" ? (
-                      <ParsedText
-                        key={i}
-                        // oxlint-disable-next-line i18next/no-literal-string
-                        text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
-                        tag="th"
-                        tagProps={{
-                          // oxlint-disable-next-line i18next/no-literal-string
-                          scope: cell.scope ?? "row",
-                          className: fetchAlignment(cell.align),
-                          colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
-                          rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
-                        }}
-                        useWrapperElement={false}
-                        // oxlint-disable-next-line i18next/no-literal-string
-                        wrapperRef={getRef(`body-${j}-${i}`)}
-                      />
-                    ) : (
-                      <ParsedText
-                        key={i}
-                        // oxlint-disable-next-line i18next/no-literal-string
-                        text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
-                        tag="td"
-                        tagProps={{
-                          className: fetchAlignment(cell.align),
-                          colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
-                          rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
-                        }}
-                        useWrapperElement={false}
-                        // oxlint-disable-next-line i18next/no-literal-string
-                        wrapperRef={getRef(`body-${j}-${i}`)}
-                      />
-                    ),
-                  )}
+                  cellRows.cells.map((cell: CellAttributes, i: number) => (
+                    <ParsedText
+                      key={i}
+                      // oxlint-disable-next-line i18next/no-literal-string
+                      text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
+                      tag={cell.tag === "th" ? "th" : "td"}
+                      tagProps={{
+                        ...(cell.tag === "th"
+                          ? // oxlint-disable-next-line i18next/no-literal-string
+                            { scope: cell.scope ?? "row" }
+                          : {}),
+                        className: fetchAlignment(cell.align),
+                        colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
+                        rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
+                      }}
+                      useWrapperElement={false}
+                      // oxlint-disable-next-line i18next/no-literal-string
+                      wrapperRef={getRef(`body-${j}-${i}`)}
+                    />
+                  ))}
               </tr>
             ))}
           </tbody>

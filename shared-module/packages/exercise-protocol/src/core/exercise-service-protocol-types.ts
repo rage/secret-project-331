@@ -23,6 +23,14 @@ export interface CurrentStateMessage {
   message: "current-state"
   data: unknown // { private_spec: unknown } | { public_spec: unknown } ?
   valid: boolean
+  /**
+   * Optional, already-localized messages explaining why the current answer is not yet submittable
+   * (e.g. "Each option can be chosen only once."). The exercise service owns its i18n and produces
+   * these strings; the parent renders them verbatim next to the disabled submit button so students
+   * understand why it is greyed out. Absent/empty when the answer is valid or when an exercise
+   * service does not supply reasons.
+   */
+  validityMessages?: string[]
 }
 
 export interface HeightChangedMessage {

@@ -23,7 +23,12 @@ export function isCurrentStateMessage(obj: unknown): obj is CurrentStateMessage 
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
         typedObj["message"] === "current-state" &&
-        typeof typedObj["valid"] === "boolean"
+        typeof typedObj["valid"] === "boolean" &&
+        (typeof typedObj["validityMessages"] === "undefined" ||
+            Array.isArray(typedObj["validityMessages"]) &&
+            typedObj["validityMessages"].every((e: any) =>
+                typeof e === "string"
+            ))
     )
 }
 

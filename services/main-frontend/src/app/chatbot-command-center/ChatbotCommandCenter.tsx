@@ -3,7 +3,9 @@
 import { css } from "@emotion/css"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
+import { baseTheme } from "@/shared-module/common/styles"
 import { Select } from "@/shared-module/components"
 
 interface ChatbotCommandCenterData {
@@ -18,15 +20,7 @@ interface Props {
 
 const ChatbotCommandCenter = ({ chatbotData }: Props) => {
   const { t } = useTranslation()
-  const firstChatbot = chatbotData[0]
-  const { control, watch } = useForm<ChatbotCommandCenterData>({
-    defaultValues: {
-      configuration_id: firstChatbot.configuration_id,
-      chatbot_name: firstChatbot.chatbot_name,
-      course_name: firstChatbot.course_name,
-    },
-  })
-
+  const { control, watch } = useForm<ChatbotCommandCenterData>({})
   const configuration_id = watch("configuration_id")
   const distinctCourses = [...new Set(chatbotData.map((data) => data.course_name))]
   return (
@@ -63,7 +57,20 @@ const ChatbotCommandCenter = ({ chatbotData }: Props) => {
           height: 75vh;
         `}
       >
-        <ChatbotChat chatbotConfigurationId={configuration_id} isCourseMaterialBlock={true} />
+        {configuration_id === undefined ? (
+          <div
+            className={css`
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 75vh;
+              border-radius: 10px;
+              box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+            `}
+          ></div>
+        ) : (
+          <ChatbotChat chatbotConfigurationId={configuration_id} isCourseMaterialBlock={true} />
+        )}
       </div>
     </div>
   )

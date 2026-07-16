@@ -154,6 +154,11 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const normalizedCollection = useMemo(() => normalizeSelectOptions(options), [options])
 
+  const collectionChildrenUnFiltered = useMemo(
+    () => buildSelectCollectionNodes(normalizedCollection),
+    [normalizedCollection],
+  )
+
   const collectionChildren = buildSelectCollectionNodes({
     ...normalizedCollection,
     options: normalizedCollection.options.filter((option) =>
@@ -168,7 +173,10 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const selectedKey = normalizedCollection.valueToKey.get(toInputValue(field.value)) ?? null
   const state = useSelectState<NormalizedSelectOption>({
-    children: collectionChildren as never,
+    children:
+      searchRef.current === document.activeElement
+        ? (collectionChildren as never)
+        : (collectionChildrenUnFiltered as never),
     disabledKeys: normalizedCollection.disabledKeys,
     value: selectedKey,
     onSelectionChange: (key) => {
@@ -262,7 +270,6 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
     hasFocusWithinRef.current = true
   }
-
   const mergedButtonProps = mergeProps(buttonProps, {
     onBlur: (event: React.FocusEvent<HTMLButtonElement>) => {
       emitCompositeBlur(event.relatedTarget)

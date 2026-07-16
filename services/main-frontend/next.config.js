@@ -72,7 +72,7 @@ const config = {
   publicRuntimeConfig: {
     publicAddress: process.env.PUBLIC_ADDRESS,
   },
-  transpilePackages: ["@vectopus/atlas-icons-react"],
+  transpilePackages: ["@vectopus/atlas-icons-react", "uuid"],
   allowedDevOrigins: ["project-331.local"],
   // This is open source, so no need to hide the code
   productionBrowserSourceMaps: true,

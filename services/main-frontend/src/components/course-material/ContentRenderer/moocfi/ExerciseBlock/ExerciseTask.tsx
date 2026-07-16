@@ -19,7 +19,7 @@ interface ExerciseTaskProps {
   exerciseTask: CourseMaterialExerciseTask
   isExam: boolean
   postThisStateToIFrame: ExerciseIframeState | undefined
-  setAnswer: (answer: { valid: boolean; data: unknown }) => void
+  setAnswer: (answer: { valid: boolean; data: unknown; validityMessages?: string[] }) => void
   exerciseNumber: number
   isChapterLocked: boolean
 }

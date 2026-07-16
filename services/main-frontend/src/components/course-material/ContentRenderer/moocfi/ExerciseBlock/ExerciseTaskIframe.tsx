@@ -21,7 +21,9 @@ interface ExerciseTaskIframeProps {
   exerciseTaskId: string
   url: string
   postThisStateToIFrame: ExerciseIframeState | null
-  setAnswer: ((answer: { valid: boolean; data: unknown }) => void) | null
+  setAnswer:
+    | ((answer: { valid: boolean; data: unknown; validityMessages?: string[] }) => void)
+    | null
   title: string
   headingBeforeIframe?: string
 }
@@ -44,9 +46,9 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       }
 
       if (messageContainer.message === "current-state") {
-        const { data, valid } = messageContainer
+        const { data, valid, validityMessages } = messageContainer
         if (setAnswer) {
-          setAnswer({ data, valid })
+          setAnswer({ data, valid, ...omitUndefined({ validityMessages }) })
         }
       }
     },

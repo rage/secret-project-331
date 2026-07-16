@@ -240,7 +240,9 @@ const ExerciseBlock: React.FC<
   const returnTo = useCurrentPagePathForReturnTo(
     pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ""),
   )
-  const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
+  const [answers, setAnswers] = useState<
+    Map<string, { valid: boolean; data: unknown; validityMessages?: string[] }>
+  >(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
@@ -507,6 +509,36 @@ const ExerciseBlock: React.FC<
 
         const reviewingStage = courseMaterialExercise.exercise_status?.reviewing_stage
         const gradingState = courseMaterialExercise.exercise_status?.grading_progress
+
+        // Unified, already-localized list of reasons the submit button is disabled, shown proactively
+        // next to it so students understand why they cannot submit yet (course-improvements-issues#161).
+        // Answer-specific reasons come from the exercise iframe (e.g. a Timeline duplicate); the
+        // host-side reasons (deadline, language version, cannot post) are added here.
+        const taskCount = postThisStateToIFrame?.length ?? 0
+        const answerValues = Array.from(answers.values())
+        const answersIncomplete = answers.size < taskCount || answerValues.some((a) => !a.valid)
+        const answerValidityMessages = answerValues.flatMap((a) => a.validityMessages ?? [])
+        const submissionBlockers: string[] = []
+        if (answersIncomplete) {
+          if (answerValidityMessages.length > 0) {
+            submissionBlockers.push(...answerValidityMessages)
+          } else {
+            submissionBlockers.push(t("answer-the-exercise-before-submitting"))
+          }
+        }
+        if (exerciseDeadline && exerciseDeadline.getTime() < Date.now()) {
+          submissionBlockers.push(
+            t("submission-blocked-deadline-passed", { deadline: deadlineAsString }),
+          )
+        }
+        if (userOnWrongLanguageVersion) {
+          submissionBlockers.push(t("submission-blocked-wrong-language"))
+        }
+        if (!courseMaterialExercise.can_post_submission) {
+          submissionBlockers.push(t("submission-blocked-cannot-submit"))
+        }
+        const uniqueSubmissionBlockers = [...new Set(submissionBlockers)]
+
         return (
           <ExerciseCardWrapper
             ref={sectionRef}
@@ -781,72 +813,66 @@ const ExerciseBlock: React.FC<
                 )}
               <OutOfTriesNotification ranOutOfTries={Boolean(ranOutOfTries)} />
               <div>
-                {courseMaterialExercise.can_post_submission &&
-                  !userOnWrongLanguageVersion &&
-                  !inSubmissionView &&
-                  !isChapterLocked && (
-                    <ExerciseSubmitButton
-                      isPending={postSubmissionMutation.isPending}
-                      answersIncomplete={
-                        answers.size < (postThisStateToIFrame?.length ?? 0) ||
-                        Array.from(answers.values()).some((x) => !x.valid)
+                {!inSubmissionView && !isChapterLocked && (
+                  <ExerciseSubmitButton
+                    isPending={postSubmissionMutation.isPending}
+                    blockers={uniqueSubmissionBlockers}
+                    buttonClassName={cx(exerciseButtonStyles)}
+                    onSubmit={() => {
+                      if (!courseInstanceId && !courseMaterialExercise.exercise.exam_id) {
+                        return
                       }
-                      buttonClassName={cx(exerciseButtonStyles)}
-                      onSubmit={() => {
-                        if (!courseInstanceId && !courseMaterialExercise.exercise.exam_id) {
-                          return
-                        }
-                        postSubmissionMutation.mutate(
-                          {
-                            exercise_slide_id: courseMaterialExercise.current_exercise_slide.id,
-                            exercise_task_submissions:
-                              courseMaterialExercise.current_exercise_slide.exercise_tasks.map(
-                                (task) => ({
-                                  exercise_task_id: task.id,
-                                  data_json: answers.get(task.id)?.data,
-                                }),
-                              ),
+                      postSubmissionMutation.mutate(
+                        {
+                          exercise_slide_id: courseMaterialExercise.current_exercise_slide.id,
+                          exercise_task_submissions:
+                            courseMaterialExercise.current_exercise_slide.exercise_tasks.map(
+                              (task) => ({
+                                exercise_task_id: task.id,
+                                data_json: answers.get(task.id)?.data,
+                              }),
+                            ),
+                        },
+                        {
+                          onSuccess: (res) => {
+                            queryClient.setQueryData(
+                              courseMaterialExerciseQueryKey(id),
+                              (old: CourseMaterialExercise | undefined) => {
+                                if (!old) {
+                                  throw new Error("No CourseMaterialExercise found")
+                                }
+                                return produce(old, (draft: CourseMaterialExercise) => {
+                                  res.exercise_task_submission_results.forEach(
+                                    (et_submission_result) => {
+                                      // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
+                                      const receivedExerciseTaskSubmission =
+                                        et_submission_result.submission
+                                      const draftExerciseTask =
+                                        draft.current_exercise_slide.exercise_tasks.find((et) => {
+                                          return (
+                                            et.id ===
+                                            et_submission_result.submission.exercise_task_id
+                                          )
+                                        })
+                                      if (draftExerciseTask) {
+                                        draftExerciseTask.previous_submission =
+                                          receivedExerciseTaskSubmission
+                                      }
+                                      // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
+                                      if (isExam && et_submission_result.grading !== null) {
+                                        throw new Error("Exams should have hidden gradings")
+                                      }
+                                    },
+                                  )
+                                })
+                              },
+                            )
                           },
-                          {
-                            onSuccess: (res) => {
-                              queryClient.setQueryData(
-                                courseMaterialExerciseQueryKey(id),
-                                (old: CourseMaterialExercise | undefined) => {
-                                  if (!old) {
-                                    throw new Error("No CourseMaterialExercise found")
-                                  }
-                                  return produce(old, (draft: CourseMaterialExercise) => {
-                                    res.exercise_task_submission_results.forEach(
-                                      (et_submission_result) => {
-                                        // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
-                                        const receivedExerciseTaskSubmission =
-                                          et_submission_result.submission
-                                        const draftExerciseTask =
-                                          draft.current_exercise_slide.exercise_tasks.find((et) => {
-                                            return (
-                                              et.id ===
-                                              et_submission_result.submission.exercise_task_id
-                                            )
-                                          })
-                                        if (draftExerciseTask) {
-                                          draftExerciseTask.previous_submission =
-                                            receivedExerciseTaskSubmission
-                                        }
-                                        // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
-                                        if (isExam && et_submission_result.grading !== null) {
-                                          throw new Error("Exams should have hidden gradings")
-                                        }
-                                      },
-                                    )
-                                  })
-                                },
-                              )
-                            },
-                          },
-                        )
-                      }}
-                    />
-                  )}
+                        },
+                      )
+                    }}
+                  />
+                )}
 
                 {userOnWrongLanguageVersion &&
                   courseMaterialState.settings &&

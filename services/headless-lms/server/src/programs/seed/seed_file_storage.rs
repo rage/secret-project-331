@@ -6,6 +6,21 @@ const REPOSITORY_EXERCISE_2: &[u8] = include_bytes!("./data/repository-exercise-
 const CERTIFICATE_BACKGROUND: &[u8] = include_bytes!("./data/certificate-background.svg");
 const AUTHOR_IMAGE: &[u8] = include_bytes!("./data/lilo-and-stitch.jpg");
 
+// Build fails on unhydrated git-lfs pointers, which include_bytes! would embed silently.
+const _: () = {
+    let mut i = 0;
+    while i < CERTIFICATE_FONTS.len() {
+        assert!(
+            matches!(
+                CERTIFICATE_FONTS[i].1,
+                [0x00, 0x01, 0x00, 0x00, ..] | [b'O', b'T', b'T', b'O', ..]
+            ),
+            "certificate font is not a valid font file (likely an unhydrated git-lfs pointer); run: git lfs pull --include=\"services/headless-lms/server/src/programs/seed/data\""
+        );
+        i += 1;
+    }
+};
+
 /// Certificate fonts, as `(file_path, bytes)`. Paths must match `seed_certificate_fonts`.
 const CERTIFICATE_FONTS: &[(&str, &[u8])] = &[
     (

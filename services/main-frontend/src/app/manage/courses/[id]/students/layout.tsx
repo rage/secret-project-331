@@ -30,8 +30,8 @@ const KEY_COMPLETIONS = "completions"
 const KEY_PROGRESS = "progress"
 const KEY_CERTIFICATES = "certificates"
 
-// Capped at 1000: the detail subtabs POST the whole page's user_ids in one request, so larger pages
-// would send oversized payloads for the Completions/Certificates/Progress grids.
+// Capped at 1000: detail subtabs POST the whole page's user_ids in one request; larger pages would
+// send oversized payloads.
 const ITEMS_PER_PAGE_OPTIONS = [100, 500, 1000]
 
 const tableSection = css`

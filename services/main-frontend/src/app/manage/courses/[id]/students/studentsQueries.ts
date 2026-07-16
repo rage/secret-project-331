@@ -52,9 +52,8 @@ const buildIdentityOptions = (courseId: string, params: StudentsListParams) =>
   })
 
 /**
- * Shared, cached identity query that drives every subtab. Returns a page of enrolled users and the
- * total page count. Next-page prefetching is owned by {@link useCourseStudentsPrefetchNextPage} so
- * it runs once (in the layout) rather than once per mounted subtab.
+ * Shared, cached identity query that drives every subtab: a page of enrolled users plus the total
+ * page count. Next-page prefetching lives in {@link useCourseStudentsPrefetchNextPage}.
  */
 export const useCourseStudentsIdentity = (courseId: string, params: StudentsListParams) =>
   useQuery({
@@ -66,7 +65,7 @@ export const useCourseStudentsIdentity = (courseId: string, params: StudentsList
 
 /**
  * Prefetches the next identity page so paging forward is instant. Call from a single owner (the
- * layout); calling it from every subtab would just re-schedule the same prefetch redundantly.
+ * layout), not per subtab, to avoid redundant re-scheduling.
  */
 export const useCourseStudentsPrefetchNextPage = (
   courseId: string,
@@ -104,12 +103,11 @@ export const useCourseStudentsPrefetchNextPage = (
 
 /**
  * Shared options for a user-scoped detail subtab (Completions/Certificates/Progress). Gates on a
- * non-empty page of `userIds`, keys the request by (prefix, courseId, ids) and POSTs those ids. The
- * response type is inferred from `fetcher`, so each hook stays fully typed.
+ * non-empty page of `userIds`, keys by (prefix, courseId, ids) and POSTs those ids; the response type
+ * is inferred from `fetcher`.
  *
- * No `keepPreviousData`: on a page change the detail must not show the previous page's rows (keyed
- * by old user_ids) joined against the new identity rows — that mismatch renders blank cells.
- * Dropping it lets each tab's isLoading guard show a spinner until this page loads.
+ * No `keepPreviousData`: on a page change the previous page's rows (keyed by old user_ids) would join
+ * against the new identity rows and render blank cells; without it the isLoading guard shows a spinner.
  */
 const userScopedDetailOptions = <TData>(
   keyPrefix: string,
@@ -121,8 +119,7 @@ const userScopedDetailOptions = <TData>(
     value: userIds.length > 0 ? userIds : null,
     isReady: (v): v is string[] => Array.isArray(v) && v.length > 0,
     build: (ids) =>
-      // The key (prefix + courseId + ids) fully identifies the request; `fetcher` is fixed per
-      // keyPrefix, so it does not belong in the key.
+      // `fetcher` is fixed per keyPrefix (already in the key), so it need not be in the key.
       // oxlint-disable-next-line @tanstack/query/exhaustive-deps
       queryOptions({
         // oxlint-disable-next-line i18next/no-literal-string

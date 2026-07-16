@@ -119,13 +119,12 @@ export function useStudentsListParams(): StudentsListParams {
 }
 
 /**
- * Bridges the shared identity sort state to TanStack Table's controlled-sorting API. Column ids are
- * the server sort keys, so toggling a sortable header updates the identity query directly.
+ * Bridges the shared identity sort state to TanStack Table's controlled-sorting API; column ids are
+ * the server sort keys.
  *
- * `allowedColumns` lists the sort keys the calling tab actually renders as sortable columns. Detail
- * tabs only render the Student column, so if the shared sort still points at a Users-only column
- * (first_name / email) it is normalized to the tab's first allowed column. Without this the header
- * shows no active sort and clicking it silently jumps to a different column.
+ * `allowedColumns` are the sort keys the tab renders as sortable. Detail tabs render only Student, so
+ * a shared sort pointing at a Users-only column (first_name / email) is normalized to the first
+ * allowed column — otherwise the header shows no active sort.
  */
 export function useStudentsSorting(allowedColumns: StudentsSortColumn[] = ALL_SORT_COLUMNS): {
   sorting: SortingState

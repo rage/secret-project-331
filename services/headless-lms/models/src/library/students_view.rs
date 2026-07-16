@@ -37,12 +37,10 @@ fn escape_like_pattern(input: &str) -> String {
 
 /// Returns a filtered, sorted, paginated page of the course's enrolled users (identity only).
 ///
-/// `sort_column` is one of `last_name` | `first_name` | `email` and `sort_direction` is `asc` |
-/// `desc`; both are matched to fixed SQL fragments (never interpolated from raw input). `search`
-/// matches name/email substrings via the trigram-indexed `name_search_helper` / `email_search_helper`
-/// columns; if it parses as a UUID it also matches the user id exactly. Every search branch is
-/// index-backed so the planner can drive the trigram indexes for selective terms. Instance narrowing
-/// is done with `course_instance_id` (the UI dropdown), not free-text search.
+/// `sort_column` (`last_name` | `first_name` | `email`) and `sort_direction` map to fixed SQL
+/// fragments, never interpolated from raw input. `search` matches name/email substrings via the
+/// trigram `name_search_helper` / `email_search_helper` columns, plus an exact user-id match when it
+/// parses as a UUID. `course_instance_id` narrows to a single instance.
 pub async fn get_course_students_page(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -94,8 +92,8 @@ FROM (
         Some("desc") | Some("DESC") => "DESC",
         _ => "ASC",
     };
-    // `u.id` is appended as a unique tiebreaker so paging over rows with equal sort keys (duplicate
-    // names, NULL names, duplicate emails) is deterministic and never skips or repeats a student.
+    // `u.id` breaks ties so paging over equal sort keys (duplicate/NULL names, duplicate emails) is
+    // deterministic and never skips or repeats a student.
     let order_by = match sort_column {
         Some("first_name") => {
             format!(

@@ -38,9 +38,8 @@ function getMeta<T extends object>(colDef: ColumnDef<T, unknown> | undefined): C
 // Estimated row height (px) used by the virtualizer before real rows are measured.
 const ESTIMATED_ROW_HEIGHT = 50
 
-// Spacer rows above/below the virtualized window reserve the scroll height of the off-screen rows.
-// Applied inline (not via Emotion `css`) because the height changes on every scroll frame, and each
-// unique height would otherwise leak a new, never-evicted class into the Emotion cache.
+// Spacer rows reserve the scroll height of off-screen rows. Inline style (not Emotion `css`) so the
+// per-frame height does not leak a new class into Emotion's never-evicted cache.
 const spacerCellStyle = (height: number): React.CSSProperties => ({
   height,
   padding: 0,
@@ -76,10 +75,9 @@ export function StudentsTable<T extends object>({
 }: StudentsTableProps<T>) {
   const { t } = useTranslation()
 
-  // Column-coloring offsets differ per layout. Progress has a leading Student column plus a 2-wide
-  // "Total" group before the colored chapter groups (groups from index 2, leaf cells from index 3).
-  // Completions has only the Student column before its colored module groups (groups from index 1,
-  // leaf cells from index 1). Hardcoding the Progress values mis-colored the Completions tab.
+  // Column-coloring offsets differ per layout. Progress: Student + a 2-wide "Total" group before the
+  // colored chapter groups (groups from index 2, cells from index 3). Completions: only Student before
+  // its colored module groups (index 1).
   const chapterHeaderStart = progressMode ? 2 : 1 // upper headers (groups) start index
   const subHeaderStart = progressMode ? 3 : 1 // lower headers / leaf cells start index
 
@@ -145,10 +143,9 @@ export function StudentsTable<T extends object>({
         return (
           <tr key={headerGroup.id} className={headerRowStyle}>
             {headerGroup.headers.map((header, colIdx) => {
-              // A top-level leaf column (e.g. Student) is repeated by react-table in every header
-              // row: a placeholder cell in the first row and the real cell below. Render it once in
-              // the first row, spanning all header rows, and skip the duplicates below — otherwise
-              // the same column header is exposed twice to assistive tech.
+              // react-table repeats a top-level leaf column (e.g. Student) in every header row
+              // (placeholder + real cell). Render it once in the first row spanning all rows, and
+              // skip the rest, so the columnheader is not exposed twice to assistive tech.
               const isTopLevelLeaf = !header.column.parent && header.column.columns.length === 0
               if (rowIdx > 0 && isTopLevelLeaf) {
                 return null

@@ -7,8 +7,8 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 export const PAD = 8
 export const COMPLETIONS_LEAF_MIN_WIDTH = 60
 
-// Scroll viewport: the table scrolls inside this, letting the header stay pinned (see stickyTheadCss)
-// and rows virtualize, instead of scrolling the whole page.
+// Scroll viewport: the table scrolls inside this so the header stays pinned and rows virtualize,
+// instead of the whole page scrolling.
 export const tableViewportCss = css`
   position: relative;
   width: 100%;

@@ -37,8 +37,7 @@ const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"
 
 const EM_DASH = "—"
 
-// Certificate issue dates are shown in UTC so the displayed day does not shift with the viewer's
-// timezone (a certificate issued near midnight UTC must read the same for everyone).
+// Issue dates render in UTC so the displayed day does not shift with the viewer's timezone.
 const formatDateIssuedUtc = (value: string | null): string => {
   if (!value) {
     return EM_DASH

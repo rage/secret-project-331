@@ -37,9 +37,8 @@ const registeredKeyOf = (moduleId: string) => `${moduleId}__registered`
 const needsReviewKeyOf = (moduleId: string) => `${moduleId}__needsReview`
 
 /**
- * Pivots the flat (user × module) completion rows into one wide row per identity user. Columns are
- * keyed by `module_id` (the server orders rows by module order_number) so two modules with the same
- * or punctuation-only-differing names never collide onto the same cells.
+ * Pivots the flat (user × module) completion rows into one wide row per user. Columns are keyed by
+ * `module_id` (names are not unique) so modules with identical names never collide onto the same cells.
  */
 const pivotCompletions = (
   identityRows: { user_id: string; first_name?: string | null; last_name?: string | null }[],

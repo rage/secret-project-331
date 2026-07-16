@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 import { Topbar } from "@/utils/components/Topbar"
 import { UserSettingsPage } from "@/utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { selectSignupCountry } from "@/utils/flows/signup.flow"
 import { logoutViaTopbar } from "@/utils/flows/topbar.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
@@ -55,12 +56,11 @@ test("User can add missing country information", async ({ page }) => {
     )
     await page.getByRole("textbox", { name: "First name" }).fill("Test")
     await page.getByRole("textbox", { name: "Last name" }).fill("User")
-    await page.getByRole("button", { name: "Select an item Where do you" }).click()
-    await page.getByRole("option", { name: "Andorra" }).click()
+    await selectSignupCountry(page, "Andorra")
     await page.getByRole("textbox", { name: "Email" }).fill("test-user@example.com")
     await page.getByRole("textbox", { name: "Password", exact: true }).fill("test-user")
     await page.getByRole("textbox", { name: "Confirm password" }).fill("test-user")
-    await page.getByText("I consent to receiving email communication").click()
+    await page.getByRole("checkbox", { name: "I consent to receiving email communication" }).click()
 
     await page.getByRole("button", { name: "Create an account" }).click()
 

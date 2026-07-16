@@ -295,8 +295,8 @@ const createClosedEndedQuestion = async (frame: Locator) => {
       })
       .locator("button")
       .click()
-    await frame.getByLabel("Test string").nth(3).click()
-    await frame.getByLabel("Test string").nth(3).fill("20.20.2020")
+    await frame.getByLabel("Test string").nth(1).click()
+    await frame.getByLabel("Test string").nth(1).fill("20.20.2020")
     await frame.getByRole("combobox", { name: "Format regular expression" }).selectOption("\\d+")
     await frame
       .getByRole("combobox", { name: "Format regular expression" })

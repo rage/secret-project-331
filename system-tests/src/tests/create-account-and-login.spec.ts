@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectSignupCountry } from "@/utils/flows/signup.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 import { logoutViaTopbar } from "../utils/flows/topbar.flow"
@@ -10,8 +11,7 @@ test("User can create an account and log in", async ({ page }) => {
 
     await page.getByRole("textbox", { name: "First name" }).fill("Test")
     await page.getByRole("textbox", { name: "Last name" }).fill("User")
-    await page.getByRole("button", { name: "Select an item Where do you" }).click()
-    await page.getByLabel("Where do you live?").getByText("Andorra").click()
+    await selectSignupCountry(page, "Andorra")
     await page.getByRole("textbox", { name: "Email" }).fill("testuser@example.com")
     await page.getByRole("textbox", { name: "Password", exact: true }).fill("testuser")
     await page.getByRole("textbox", { name: "Confirm password" }).fill("testuser")

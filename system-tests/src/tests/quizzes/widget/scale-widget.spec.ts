@@ -47,17 +47,19 @@ test("widget, scale", async ({ page, headless }, testInfo) => {
   // No idea how to fix.
 
   // Change second item to 4
+  // The react-aria radio uses a visually hidden input under the label, so click
+  // the visible label text (as a real user would) instead of the hidden input.
   await iframeLocator
     .getByRole("radiogroup", {
       name: "Regex is what some people consider to be a 'write-only' language.",
     })
-    .getByRole("radio", { name: "4", exact: true })
+    .getByText("4", { exact: true })
     .click()
 
   // Change third item to 15
   await iframeLocator
     .getByRole("radiogroup", { name: "Regex can be useful when parsing HTML." })
-    .getByRole("radio", { name: "15", exact: true })
+    .getByText("15", { exact: true })
     .click()
 
   await expectScreenshotsToMatchSnapshots({

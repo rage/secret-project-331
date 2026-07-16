@@ -15,6 +15,15 @@ export interface SignUpOptions {
 }
 
 /**
+ * Selects a country in the "Where do you live?" combobox on the signup page. Opens the react-aria
+ * combobox and clicks the matching option.
+ */
+export async function selectSignupCountry(page: Page, country: string): Promise<void> {
+  await page.getByRole("combobox", { name: "Where do you live?" }).click()
+  await page.getByRole("option", { name: country, exact: true }).click()
+}
+
+/**
  * Creates a fresh account through the signup page and clears the standard post-signup gates: the
  * research-consent form and the "confirm your email address" notice. Lands the browser on `returnTo`.
  *
@@ -29,8 +38,7 @@ export async function signUp(
 
   await page.getByRole("textbox", { name: "First name" }).fill(firstName)
   await page.getByRole("textbox", { name: "Last name" }).fill(lastName)
-  await page.getByRole("button", { name: "Select an item Where do you" }).click()
-  await page.getByLabel("Where do you live?").getByText(country).click()
+  await selectSignupCountry(page, country)
   await page.getByRole("textbox", { name: "Email" }).fill(email)
   await page.getByRole("textbox", { name: "Password", exact: true }).fill(password)
   await page.getByRole("textbox", { name: "Confirm password" }).fill(password)

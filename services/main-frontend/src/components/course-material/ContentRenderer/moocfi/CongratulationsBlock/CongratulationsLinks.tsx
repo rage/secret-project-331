@@ -18,6 +18,11 @@ const CTAWrapper = styled.div`
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+
+  /* Override ContentRenderer's blue link color; needs contrast against the green card. */
+  a:not(:hover):not(:focus-visible) {
+    color: #04312e;
+  }
 `
 
 const StyledLink = styled.a`

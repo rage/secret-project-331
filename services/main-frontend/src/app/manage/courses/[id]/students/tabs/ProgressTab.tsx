@@ -98,7 +98,6 @@ export const ProgressTabContent: React.FC = () => {
             // oxlint-disable-next-line i18next/no-literal-string
             accessorKey: "total_attempted",
             enableSorting: false,
-            meta: { altBg: true },
           },
         ],
       },
@@ -119,7 +118,6 @@ export const ProgressTabContent: React.FC = () => {
               // oxlint-disable-next-line i18next/no-literal-string
               accessorKey: `ch_${ch.id}_attempts`,
               enableSorting: false,
-              meta: { altBg: true },
             },
           ],
         }

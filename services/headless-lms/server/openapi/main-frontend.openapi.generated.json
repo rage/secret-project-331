@@ -13676,20 +13676,24 @@
       "CourseStudentListRow": {
         "type": "object",
         "description": "One row of the paginated student identity list (one row per distinct enrolled user).",
-        "required": ["user_id", "course_instances"],
+        "required": ["user_id", "course_instances", "has_active_instance"],
         "properties": {
           "course_instances": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "Names of the course instances the user is enrolled in for this course."
+            "description": "Names of the non-deleted course instances the user is enrolled in for this course."
           },
           "email": {
             "type": ["string", "null"]
           },
           "first_name": {
             "type": ["string", "null"]
+          },
+          "has_active_instance": {
+            "type": "boolean",
+            "description": "Whether the user has any enrollment into a non-deleted instance. Separates the unnamed default\ninstance (true) from a since-deleted instance (false) when `course_instances` is empty."
           },
           "last_name": {
             "type": ["string", "null"]

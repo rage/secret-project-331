@@ -14,8 +14,11 @@ pub struct CourseStudentListRow {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: Option<String>,
-    /// Names of the course instances the user is enrolled in for this course.
+    /// Names of the non-deleted course instances the user is enrolled in for this course.
     pub course_instances: Vec<String>,
+    /// Whether the user has any enrollment into a non-deleted instance. Separates the unnamed default
+    /// instance (true) from a since-deleted instance (false) when `course_instances` is empty.
+    pub has_active_instance: bool,
 }
 
 /// A page of the student identity list plus the total number of pages for the current filters.
@@ -118,7 +121,8 @@ SELECT
   COALESCE(
     array_agg(DISTINCT ci.name) FILTER (WHERE ci.name IS NOT NULL),
     ARRAY[]::text[]
-  ) AS course_instances
+  ) AS course_instances,
+  COALESCE(bool_or(ci.id IS NOT NULL), false) AS has_active_instance
 FROM course_instance_enrollments cie
   JOIN users u ON u.id = cie.user_id
   LEFT JOIN user_details ud ON ud.user_id = u.id

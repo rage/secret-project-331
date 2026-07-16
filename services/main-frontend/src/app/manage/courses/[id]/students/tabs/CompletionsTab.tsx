@@ -19,7 +19,7 @@ import {
   useCourseStudentsIdentity,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
-import { COMPLETIONS_LEAF_MIN_WIDTH, PAD } from "../studentsTableStyles"
+import { COMPLETIONS_LEAF_MIN_WIDTH } from "../studentsTableStyles"
 
 const PLACEHOLDER = "-"
 
@@ -124,31 +124,23 @@ const buildColumns = (
       header: t("label-student"),
       // oxlint-disable-next-line i18next/no-literal-string
       accessorKey: "student",
-      meta: { sticky: true, minWidth: 80, padLeft: PAD, padRight: PAD },
+      meta: { minWidth: 80 },
       cell: ({ getValue }) => <span className={studentEllipsis}>{String(getValue() ?? "")}</span>,
     },
   ]
 
-  modulesInOrder.forEach(({ id: moduleId, label }, groupIdx) => {
-    const colorPairIndex = groupIdx
+  modulesInOrder.forEach(({ id: moduleId, label }) => {
     columns.push({
       // oxlint-disable-next-line i18next/no-literal-string
       id: `${moduleId}__group`,
       header: label || "",
-      meta: { colorPairIndex },
       columns: [
         {
           id: gradeKeyOf(moduleId),
           header: t("grade"),
           accessorKey: gradeKeyOf(moduleId),
           enableSorting: false,
-          meta: {
-            minWidth: COMPLETIONS_LEAF_MIN_WIDTH,
-            colorPairIndex,
-            subIdx: 0,
-            padLeft: PAD,
-            padRight: PAD,
-          },
+          meta: { minWidth: COMPLETIONS_LEAF_MIN_WIDTH },
           cell: ({ row }) =>
             gradeLabel(row.original[gradeKeyOf(moduleId)], row.original[passedKeyOf(moduleId)], t),
         },
@@ -157,13 +149,7 @@ const buildColumns = (
           id: `${moduleId}__status`,
           header: t("status"),
           enableSorting: false,
-          meta: {
-            minWidth: COMPLETIONS_LEAF_MIN_WIDTH,
-            colorPairIndex,
-            subIdx: 1,
-            padLeft: PAD,
-            padRight: PAD,
-          },
+          meta: { minWidth: COMPLETIONS_LEAF_MIN_WIDTH },
           cell: ({ row }) => (
             <StatusCell
               registered={Boolean(row.original[registeredKeyOf(moduleId)])}

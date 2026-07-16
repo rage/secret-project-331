@@ -743,6 +743,7 @@ export const zCourseStudentListRow = z.object({
   course_instances: z.array(z.string()),
   email: z.string().nullish(),
   first_name: z.string().nullish(),
+  has_active_instance: z.boolean(),
   last_name: z.string().nullish(),
   user_id: z.uuid(),
 })

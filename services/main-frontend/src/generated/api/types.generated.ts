@@ -916,11 +916,16 @@ export type CourseStructure = {
  */
 export type CourseStudentListRow = {
   /**
-   * Names of the course instances the user is enrolled in for this course.
+   * Names of the non-deleted course instances the user is enrolled in for this course.
    */
   course_instances: Array<string>
   email?: string | null
   first_name?: string | null
+  /**
+   * Whether the user has any enrollment into a non-deleted instance. Separates the unnamed default
+   * instance (true) from a since-deleted instance (false) when `course_instances` is empty.
+   */
+  has_active_instance: boolean
   last_name?: string | null
   user_id: string
 }

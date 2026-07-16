@@ -383,6 +383,7 @@
   "delete-organization": "Slett organisasjon",
   "delete-user": "Slett bruker {{name}}",
   "deleted": "Slettet",
+  "deleted-instance": "Slettet instans",
   "derived-specs-explanation": "Avledede spesifikasjoner genereres fra den private spesifikasjonen ved bruk av spesielle endepunkter i øvelsestjenesten. Disse spesifikasjonene gis til forskjellige visninger av øvelsestjenesten avhengig av hvilken type data brukeren har tillatelse til å se. Hver øvelsestjeneste bestemmer selv hva formatet på de avledede spesifikasjonene er.",
   "disable-generating-certificates": "Deaktiver generering av kursbevis",
   "disable-sandbox": "Deaktiver sandkasse",

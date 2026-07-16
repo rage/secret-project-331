@@ -51,14 +51,16 @@ export const UserTabContent: React.FC = () => {
       {
         header: t("course-instance"),
         // oxlint-disable-next-line i18next/no-literal-string
-        id: "course_instances",
-        // oxlint-disable-next-line i18next/no-literal-string
         accessorKey: "course_instances",
         enableSorting: false,
-        cell: ({ getValue }) => {
-          const instances = getValue<string[]>() ?? []
-          // oxlint-disable-next-line i18next/no-literal-string
-          return instances.length > 0 ? instances.join(", ") : t("default-instance")
+        cell: ({ row }) => {
+          const instances = row.original.course_instances ?? []
+          if (instances.length > 0) {
+            // oxlint-disable-next-line i18next/no-literal-string
+            return instances.join(", ")
+          }
+          // Empty list: distinguish the unnamed default instance from a since-deleted one.
+          return row.original.has_active_instance ? t("default-instance") : t("deleted-instance")
         },
       },
     ],

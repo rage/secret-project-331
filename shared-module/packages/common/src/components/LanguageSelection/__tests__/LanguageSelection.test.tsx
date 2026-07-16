@@ -22,6 +22,9 @@ describe("LanguageSelection", () => {
     render(<LanguageSelection placement="bottom" />, { wrapper: Wrapper })
     const toggle = screen.getByRole("button")
 
+    // The popup is a plain popper list (no role="menu"/menuitem, no menu keyboard
+    // pattern), so aria-haspopup="menu" must not be set.
+    expect(toggle).not.toHaveAttribute("aria-haspopup")
     expect(toggle).toHaveAttribute("aria-expanded", "false")
 
     fireEvent.click(toggle)

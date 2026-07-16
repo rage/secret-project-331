@@ -35,7 +35,9 @@ describe("Menu", () => {
     const toggle = screen.getByRole("button", { name: "Navigation menu" })
     expect(toggle).toBeInTheDocument()
     expect(toggle.tagName).toBe("BUTTON")
-    expect(toggle).toHaveAttribute("aria-haspopup", "menu")
+    // The popup is a plain disclosure list (no role="menu"/menuitem, no menu
+    // keyboard pattern), so aria-haspopup="menu" must not be set.
+    expect(toggle).not.toHaveAttribute("aria-haspopup")
   })
 
   it("toggles aria-expanded when clicked", () => {

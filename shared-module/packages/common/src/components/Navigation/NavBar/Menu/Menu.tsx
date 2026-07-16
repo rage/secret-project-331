@@ -30,6 +30,30 @@ const MenuIcon = css`
   }
 `
 
+// Layout rules shared by every entry rendered inside a Menu, whether it is a
+// <Button> (below) or a direct anchor entry styled via `menuEntryLayout`. Menu
+// owns these so consumers do not hand-copy them and drift out of sync.
+const MENU_ENTRY_LAYOUT = `
+  text-decoration: none;
+  list-style: none;
+  border: none;
+  margin: 0;
+  padding: 12px 25px;
+  font-size: 16px;
+  background: inherit;
+  text-transform: none;
+  text-align: center;
+  width: 100%;
+`
+
+// Apply to a direct anchor entry (e.g. <li><a className={menuEntryLayout}/></li>)
+// so it matches the layout of the <Button> entries the Menu styles internally.
+// Colors are intentionally left to the consumer.
+export const menuEntryLayout = css`
+  display: block;
+  ${MENU_ENTRY_LAYOUT}
+`
+
 const ToolTip = css`
   background: #fff;
   border-color: #cacaca;
@@ -58,16 +82,7 @@ const ToolTip = css`
     }
 
     Button {
-      text-decoration: none;
-      list-style: none;
-      border: none;
-      margin: 0;
-      padding: 12px 25px;
-      font-size: 16px;
-      background: inherit;
-      text-transform: none;
-      text-align: center;
-      width: 100%;
+      ${MENU_ENTRY_LAYOUT}
       color: ${baseTheme.colors.green[500]};
     }
 
@@ -102,7 +117,6 @@ const Menu: React.FC<React.PropsWithChildren<MenuProps>> = ({ children, variant 
         className={cx(MenuIcon)}
         onClick={onClickHandler}
         aria-label={t("navigation-menu")}
-        aria-haspopup="menu"
         aria-expanded={clicked}
         aria-controls={menuId}
       >

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
 import { Menu } from "@/shared-module/common/components/Navigation/NavBar"
+import { menuEntryLayout } from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
@@ -21,24 +22,19 @@ import CourseSettingsModal from "../modals/CourseSettingsModal"
 
 // Styles an anchor to match the buttons rendered inside the menu tooltip, so
 // page-navigation entries are single links instead of a link wrapping a button.
-const menuLink = css`
-  display: block;
-  text-decoration: none;
-  border: none;
-  margin: 0;
-  padding: 12px 25px;
-  font-size: 16px;
-  background: inherit;
-  text-transform: none;
-  text-align: center;
-  width: 100%;
-  color: ${baseTheme.colors.green[600]};
+// Menu owns the layout (padding/sizing/alignment) via menuEntryLayout; only the
+// anchor-specific colors live here.
+const menuLink = cx(
+  menuEntryLayout,
+  css`
+    color: ${baseTheme.colors.green[600]};
 
-  &:hover {
-    background: inherit;
-    color: ${baseTheme.colors.green[700]};
-  }
-`
+    &:hover {
+      background: inherit;
+      color: ${baseTheme.colors.green[700]};
+    }
+  `,
+)
 
 const menuButtonColor = css`
   color: ${baseTheme.colors.green[600]} !important;

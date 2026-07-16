@@ -81,7 +81,6 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
           ${noLanguagesToChange && `cursor: not-allowed !important;`}
         `}
         ref={setReferenceElement}
-        aria-haspopup="menu"
         aria-expanded={visible}
         aria-controls={menuId}
         onClick={(e) => {

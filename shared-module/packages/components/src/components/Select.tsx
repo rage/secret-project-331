@@ -279,11 +279,10 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     hookIsInvalid,
     validationErrors,
   )
-  const selectedOption =
-    state.selectedKey !== null ? optionsByKey.get(String(state.selectedKey)) : undefined
+
+  const selectedOption = optionsByKey.get(String(state.value))
   const isPlaceholderState = selectedOption === undefined
   const isFloated = state.isOpen || selectedOption !== undefined
-
   return (
     <div className={cx(fieldRootCss, className)}>
       <div

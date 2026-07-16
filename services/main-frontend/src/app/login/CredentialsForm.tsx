@@ -52,7 +52,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
         {t("login-description")}{" "}
         <a
           className={css`
-            color: ${baseTheme.colors.blue[500]} !important;
+            color: ${baseTheme.colors.blue[600]};
           `}
           href="https://mooc.fi"
         >
@@ -110,7 +110,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
       >
         <Link
           className={css`
-            color: ${baseTheme.colors.blue[500]} !important;
+            color: ${baseTheme.colors.blue[600]};
           `}
           href="/sign-up"
         >
@@ -124,7 +124,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
       >
         <Link
           className={css`
-            color: ${baseTheme.colors.blue[500]} !important;
+            color: ${baseTheme.colors.blue[600]};
           `}
           href="/reset-password"
         >
@@ -138,7 +138,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
       >
         <a
           className={css`
-            color: ${baseTheme.colors.blue[500]} !important;
+            color: ${baseTheme.colors.blue[600]};
           `}
           href={signUpRoute(returnToForLinkToSignupPage)}
         >

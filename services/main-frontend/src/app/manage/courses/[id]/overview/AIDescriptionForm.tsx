@@ -180,16 +180,20 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
   )
 
   const onSubmit = handleSubmit((data) => {
+    const coursePrerequisites = data.useSuggestedPrerequisites
+      ? data.course_prerequisites
+      : prerequisitesQuery.data
+    const courseAudiences = data.useSuggestedAudiences ? data.course_audiences : audiencesQuery.data
+    if (courseAudiences === undefined || coursePrerequisites === undefined) {
+      return
+    }
+
     updateCourseMetadataMutation.mutate({
       course_description: undefinedToNull(
         data.useSuggestedDescription ? data.course_description : course.description,
       ),
-      course_prerequisites: data.useSuggestedPrerequisites
-        ? data.course_prerequisites
-        : (prerequisitesQuery.data ?? []),
-      course_audiences: data.useSuggestedAudiences
-        ? data.course_audiences
-        : (audiencesQuery.data ?? []),
+      course_prerequisites: coursePrerequisites,
+      course_audiences: courseAudiences,
     })
     console.log("DATA IN onSubmit: ", data)
   })

@@ -3,6 +3,7 @@
 import { cx } from "@emotion/css"
 import type { DateFieldState } from "@react-stately/datepicker"
 import type React from "react"
+import { mergeProps, useFocusWithin } from "react-aria"
 import type { DateFieldAria } from "react-aria"
 
 import { composeRefs } from "../../../lib/utils/compositeField"
@@ -93,6 +94,25 @@ export function NonPickerSegmentedField({
     state.value !== null,
   )
 
+  // Track focus entering/leaving the field with react-aria's focus-within helper instead of
+  // hand-rolled relatedTarget/contains checks (which mishandle relatedTarget === null and Safari).
+  const { focusWithinProps } = useFocusWithin({
+    onFocusWithin: () => {
+      emitSyntheticFocus(
+        hiddenInputRef.current,
+        externalOnFocus as React.FocusEventHandler<HTMLInputElement> | undefined,
+      )
+      setIsFocused(true)
+    },
+    onBlurWithin: () => {
+      setIsFocused(false)
+      emitSyntheticBlur(
+        hiddenInputRef.current,
+        externalOnBlur as React.FocusEventHandler<HTMLInputElement> | undefined,
+      )
+    },
+  })
+
   return (
     <FieldShell
       controlClassName={cx(resolveControlSurfaceCss(fieldSize, layout === "floating"))}
@@ -121,7 +141,7 @@ export function NonPickerSegmentedField({
     >
       {iconStart ? <span className={inlineAffixCss}>{iconStart}</span> : null}
       <div
-        {...aria.fieldProps}
+        {...mergeProps(aria.fieldProps, focusWithinProps)}
         ref={fieldRef}
         className={cx(
           segmentedFieldShellCss,
@@ -139,30 +159,6 @@ export function NonPickerSegmentedField({
         aria-invalid={state.isInvalid ? dataStateTrue : undefined}
         aria-readonly={resolvedState.isReadOnly ? dataStateTrue : undefined}
         aria-required={resolvedState.isRequired ? dataStateTrue : undefined}
-        onBlur={(event) => {
-          const isLeavingField = !fieldRef.current?.contains(event.relatedTarget as Node | null)
-
-          if (isLeavingField) {
-            setIsFocused(false)
-            emitSyntheticBlur(
-              hiddenInputRef.current,
-              externalOnBlur as React.FocusEventHandler<HTMLInputElement> | undefined,
-            )
-          }
-
-          aria.fieldProps.onBlur?.(event)
-        }}
-        onFocus={(event) => {
-          if (!isFocused) {
-            emitSyntheticFocus(
-              hiddenInputRef.current,
-              externalOnFocus as React.FocusEventHandler<HTMLInputElement> | undefined,
-            )
-          }
-
-          setIsFocused(true)
-          aria.fieldProps.onFocus?.(event)
-        }}
       >
         <div
           className={cx(

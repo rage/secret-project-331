@@ -148,8 +148,6 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     }
   }, [sisuQuery.data, setValue])
 
-  //const course_preqs = watch("course_prerequisites")
-
   const {
     fields: prereqField,
     append: appendPrereq,

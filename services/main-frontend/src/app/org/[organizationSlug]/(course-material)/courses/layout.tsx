@@ -91,7 +91,7 @@ function CourseMaterialLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(JSON.stringify(jsonLd)),
+            __html: JSON.stringify(jsonLd).replaceAll("<", "\\u003c"),
           }}
         />
       </section>

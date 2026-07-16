@@ -35,6 +35,11 @@ const optionButtonSelected = css`
   ${TWO_DIMENSIONAL_BUTTON_SELECTED}
 `
 
+const selectedCheckmark = css`
+  margin-right: 0.4rem;
+  font-weight: 700;
+`
+
 export interface LeftBorderedDivProps {
   correct: boolean | undefined
   direction?: string
@@ -133,20 +138,32 @@ const MultipleChoice: React.FunctionComponent<
         `}
       >
         {quiz_options.map((qo) => {
-          const selected = quizItemAnswerState?.selectedOptionIds?.includes(qo.id)
+          const selected = quizItemAnswerState?.selectedOptionIds?.includes(qo.id) ?? false
+          // In single-select mode an option cannot be toggled off (choosing another option moves the
+          // selection), so aria-pressed is the wrong semantic. Expose the chosen option with
+          // aria-current instead and omit the attribute on the others. Multi-select options are true
+          // toggles, so they keep aria-pressed.
+          const multiSelect = quizItem.allowSelectingMultipleOptions
 
           return (
             <button
               key={qo.id}
               value={qo.id}
               onClick={handleOptionSelect}
-              aria-pressed={selected ?? false}
+              aria-pressed={multiSelect ? selected : undefined}
+              aria-current={!multiSelect && selected ? "true" : undefined}
               className={cx(
                 optionButton,
                 selected && optionButtonSelected,
                 direction === COLUMN && optionButtonColumn,
               )}
             >
+              {selected && (
+                <span aria-hidden="true" className={selectedCheckmark}>
+                  {/* oxlint-disable-next-line i18next/no-literal-string -- decorative check glyph, selection is programmatic */}
+                  ✓
+                </span>
+              )}
               <ParsedText parseMarkdown parseLatex inline text={qo.title || qo.body || ""} />
             </button>
           )

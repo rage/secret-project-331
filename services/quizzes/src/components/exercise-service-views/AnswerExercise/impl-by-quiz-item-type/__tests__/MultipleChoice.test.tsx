@@ -90,9 +90,29 @@ describe("MultipleChoice answer view accessibility", () => {
     expect(group).not.toHaveAttribute("aria-describedby")
   })
 
-  it("exposes the selected option via aria-pressed", () => {
+  it("exposes the selected option via aria-current and no aria-pressed in single-select mode", () => {
     renderMultipleChoice(
-      {},
+      { allowSelectingMultipleOptions: false },
+      {
+        type: "multiple-choice",
+        quizItemId: "mc-1",
+        selectedOptionIds: ["o-1"],
+        valid: true,
+      },
+    )
+    // Single-select options cannot be toggled off, so aria-pressed is the wrong semantic.
+    const selected = screen.getByRole("button", { name: "Yes" })
+    expect(selected).toHaveAttribute("aria-current", "true")
+    const unselected = screen.getByRole("button", { name: "No" })
+    expect(unselected).not.toHaveAttribute("aria-current")
+    for (const button of screen.getAllByRole("button")) {
+      expect(button).not.toHaveAttribute("aria-pressed")
+    }
+  })
+
+  it("exposes the selected options via aria-pressed toggles in multi-select mode", () => {
+    renderMultipleChoice(
+      { allowSelectingMultipleOptions: true },
       {
         type: "multiple-choice",
         quizItemId: "mc-1",
@@ -102,5 +122,9 @@ describe("MultipleChoice answer view accessibility", () => {
     )
     expect(screen.getByRole("button", { name: "Yes", pressed: true })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "No", pressed: false })).toBeInTheDocument()
+    // Multi-select toggles must not carry aria-current.
+    for (const button of screen.getAllByRole("button")) {
+      expect(button).not.toHaveAttribute("aria-current")
+    }
   })
 })

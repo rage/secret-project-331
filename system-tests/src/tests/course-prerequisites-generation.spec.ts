@@ -36,6 +36,7 @@ test("Teacher can add new prerequisite", async ({ page }) => {
     await page.getByRole("button", { name: "Replace metadata" }).click()
   })
   await page.getByRole("button", { name: "Suggest metadata" }).click()
+  await waitForSpinnersToDisappear(page)
   await expect(page.getByText("this should be visible")).toBeVisible()
 })
 
@@ -64,6 +65,7 @@ test("No duplicate prerequisites added", async ({ page }) => {
     await page.getByRole("button", { name: "Replace metadata" }).click()
   })
   await page.getByRole("button", { name: "Suggest metadata" }).click()
+  await waitForSpinnersToDisappear(page)
   await expect(page.getByText("No hard prerequisites")).toHaveCount(1)
 })
 
@@ -81,6 +83,7 @@ test("Prerequisites not added if use suggested unticked", async ({ page }) => {
     await page.getByRole("button", { name: "Replace metadata" }).click()
   })
   await page.getByRole("button", { name: "Suggest metadata" }).click()
+  await waitForSpinnersToDisappear(page)
   await expect(page.getByText("should not be added")).toHaveCount(0)
   await expect(page.getByText("you dont see me")).toHaveCount(0)
 })
@@ -103,6 +106,7 @@ test("Old prerequisites are replaced", async ({ page }) => {
     await page.getByRole("button", { name: "Replace metadata" }).click()
   })
   await page.getByRole("button", { name: "Suggest metadata" }).click()
+  await waitForSpinnersToDisappear(page)
   await expect(page.getByText("No hard prerequisites")).toHaveCount(0)
   await expect(
     page.getByText("Linux operating systems and web development experience are useful"),

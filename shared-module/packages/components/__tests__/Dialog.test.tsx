@@ -1,7 +1,5 @@
 "use client"
 
-/* oxlint-disable i18next/no-literal-string */
-
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import React from "react"
 

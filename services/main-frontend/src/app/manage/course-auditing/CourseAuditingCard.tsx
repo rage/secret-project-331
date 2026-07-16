@@ -16,19 +16,21 @@ import { useTranslation } from "react-i18next"
 
 import { updateCourseAfterAuditingMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseToAudit, CourseToAuditUpdate } from "@/generated/api/types.generated"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import Button from "@/shared-module/common/components/Button"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Link, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
-import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
-import ClosedSectionFields from "./ClosedSectionFields"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
-import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
+import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
+import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import { Link, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
+
+import ClosedSectionFields from "./ClosedSectionFields"
 import ContentDisplayBox from "./ContentDisplayBox"
+import CourseDescription from "./CourseDescription"
 import { contentRowStyles } from "./page"
 
 interface CourseAuditingCardProps {
@@ -102,10 +104,9 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
     updateCourseAfterAuditingMutation(),
     { method: "PUT", notify: true },
     {
-      onSuccess: async (updated) => {
+      onSuccess: (updated) => {
         setCourse(updated)
         setStatus(UpdateStatus.saved)
-        await refetch()
         setEditing(false)
         setStatus(UpdateStatus.none)
       },
@@ -124,7 +125,6 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
   const uhLinkStyles = css`
     color: ${baseTheme.colors.green[700]};
     text-decoration: underline;
-    word-break: break-all;
   `
 
   return (
@@ -252,16 +252,17 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
                 label={t("text-field-label-description")}
                 content={course.description}
               />
-              {courseToAudit.closed_at ? (
+
+              {course.closed_at ? (
                 <div>
+                  <ContentDisplayBox
+                    label={t("title-default-module-uh-course-code")}
+                    content={course.uh_course_code}
+                  />
                   <div className={contentRowStyles}>
                     <ContentDisplayBox
-                      label={t("title-default-module-uh-course-code")}
-                      content={course.uh_course_code}
-                    />
-                    <ContentDisplayBox
                       label={t("closed-at")}
-                      content={<TimeComponent date={parseISO(courseToAudit.closed_at)} />}
+                      content={<TimeComponent date={parseISO(course.closed_at)} />}
                     />
                     <ContentDisplayBox
                       label={t("closed-course-successor-id")}
@@ -293,13 +294,13 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
           >
             <TimeComponent
               label={t("label-created")}
-              date={parseISO(courseToAudit.created_at)}
+              date={parseISO(course.created_at)}
               right={false}
               boldLabel
             />
             <TimeComponent
               label={t("label-updated")}
-              date={parseISO(courseToAudit.updated_at)}
+              date={parseISO(course.updated_at)}
               right={true}
               boldLabel
             />

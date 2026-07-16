@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import type { ReactNode } from "react"
 import React from "react"
 import { useTranslation } from "react-i18next"
+
 import { baseTheme } from "@/shared-module/common/styles"
 
 interface ContentDisplayBoxProps {
@@ -24,6 +25,7 @@ const ContentDisplayBox: React.FC<React.PropsWithChildren<ContentDisplayBoxProps
         border: 1px solid ${baseTheme.colors.blue[200]};
         background: ${baseTheme.colors.blue[25]};
         padding: 0.85rem 1rem;
+        flex-grow: 1;
       `}
     >
       <p

@@ -1,14 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import React from "react"
 import { useWatch, useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { validateUUID } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import type { EditCourseToAudit } from "./CourseAuditingCard"
 import {
   Checkbox,
   DateTimeLocalField,
@@ -16,6 +14,8 @@ import {
   TextArea,
   TextField,
 } from "@/shared-module/components"
+
+import type { EditCourseToAudit } from "./CourseAuditingCard"
 
 const ClosedSectionFields = (): React.ReactElement => {
   const { t } = useTranslation()

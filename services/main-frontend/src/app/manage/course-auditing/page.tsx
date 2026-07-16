@@ -7,14 +7,16 @@ import { parseISO } from "date-fns"
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import CourseAuditingCard from "./CourseAuditingCard"
+
 import { getCoursesForAuditingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseToAudit } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { Button, Checkbox, nullIfEmpty, QueryResult, TextField } from "@/shared-module/components"
-import { baseTheme } from "@/shared-module/common/styles"
+
+import CourseAuditingCard from "./CourseAuditingCard"
 
 export interface CourseFilter {
   search_course: string
@@ -27,7 +29,6 @@ export const contentRowStyles = css`
   display: flex;
   align-items: normal;
   justify-content: space-between;
-  gap: 0.5rem;
   margin-bottom: 0.75rem;
 `
 
@@ -69,7 +70,7 @@ const CourseAuditing = () => {
             return false
           }
           if (
-            notClosed && course.closed_at != null
+            notClosed && course.closed_at !== null && course.closed_at !== undefined
               ? parseISO(course.closed_at).getTime() < Date.now()
               : false
           ) {
@@ -77,7 +78,9 @@ const CourseAuditing = () => {
           }
           if (
             shortDescription &&
-            !(course.description != null ? course.description?.length < 200 : false)
+            !(course.description !== null && course.description !== undefined
+              ? course.description?.length < 200
+              : false)
           ) {
             return false
           }
@@ -107,7 +110,14 @@ const CourseAuditing = () => {
           background: ${baseTheme.colors.gray[50]};
         `}
       >
-        <div className={contentRowStyles}>
+        <div
+          className={css`
+            display: flex;
+            align-items: normal;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+          `}
+        >
           <button
             type="button"
             className={css`

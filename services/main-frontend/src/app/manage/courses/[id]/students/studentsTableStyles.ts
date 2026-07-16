@@ -7,23 +7,39 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 export const PAD = 8
 export const COMPLETIONS_LEAF_MIN_WIDTH = 60
 
-// Scroll viewport: the table scrolls inside this so the header stays pinned and rows virtualize,
-// instead of the whole page scrolling.
+// Table wrapper: no longer a scroll container. Rows virtualize against the window scroll
+// position (see useWindowVirtualizer in StudentsTable.tsx), so the table grows in normal
+// page flow and this div only supplies the visual chrome.
 export const tableViewportCss = css`
   position: relative;
   width: 100%;
-  max-height: calc(100vh - 220px);
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
   border: 1px solid #ced1d7;
   border-radius: 8px;
   background: #fff;
 `
 
-export const stickyTheadCss = css`
-  position: sticky;
+// Fixed-position clone of the header shown once the real thead scrolls above the viewport.
+// pointer-events: none on the shell lets clicks in the gutters beside the table fall through
+// to the page; the inner box re-enables them so sort clicks still reach the header cells.
+export const floatingHeaderShellCss = css`
+  position: fixed;
   top: 0;
-  z-index: 3;
+  z-index: 1000;
+  pointer-events: none;
+  overflow: hidden;
+`
+
+export const floatingHeaderShellDynamic = (left: number, width: number) => css`
+  left: ${left}px;
+  width: ${width}px;
+`
+
+export const floatingHeaderInnerCss = css`
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  display: inline-block;
+  pointer-events: auto;
 `
 
 export const tableStyle = css`

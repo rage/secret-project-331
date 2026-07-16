@@ -182,7 +182,9 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <div className={tableSection}>{children}</div>
+        <div className={tableSection} data-students-horizontal-scroll>
+          {children}
+        </div>
 
         <Pagination
           totalPages={totalPages}

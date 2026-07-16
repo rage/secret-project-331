@@ -220,11 +220,10 @@ export type CertificateGenerationRequest = {
 }
 
 export type CertificateGridRow = {
-  certificate: string
   certificate_id?: string | null
   date_issued?: string | null
   name_on_certificate?: string | null
-  student: string
+  user_id: string
   verification_id?: string | null
 }
 
@@ -443,11 +442,13 @@ export type CompleteCourseMetadata = {
 }
 
 export type CompletionGridRow = {
-  grade: string
+  grade?: number | null
   module?: string | null
+  module_id: string
   needs_to_be_reviewed: boolean
-  status: string
-  student: string
+  passed?: boolean | null
+  registered: boolean
+  user_id: string
 }
 
 export type CompletionPolicy =
@@ -949,6 +950,43 @@ export type CourseStructure = {
   pages: Array<Page>
 }
 
+/**
+ * One row of the paginated student identity list (one row per distinct enrolled user).
+ */
+export type CourseStudentListRow = {
+  /**
+   * Names of the non-deleted course instances the user is enrolled in for this course.
+   */
+  course_instances: Array<string>
+  email?: string | null
+  first_name?: string | null
+  /**
+   * Whether the user has any enrollment into a non-deleted instance. Separates the unnamed default
+   * instance (true) from a since-deleted instance (false) when `course_instances` is empty.
+   */
+  has_active_instance: boolean
+  last_name?: string | null
+  user_id: string
+}
+
+/**
+ * Course-level progress structure for the Progress tab. Does not depend on which students are on
+ * the current page, so it is fetched once and cached per course (not per identity page).
+ */
+export type CourseStudentsProgressStructure = {
+  chapter_availability: Array<ChapterAvailability>
+  chapter_locking_enabled: boolean
+  chapters: Array<DatabaseChapter>
+}
+
+/**
+ * Per-user progress detail for the Progress tab, scoped to the requested `user_ids`.
+ */
+export type CourseStudentsProgressUsers = {
+  user_chapter_locking_statuses: Array<UserChapterLockingStatus>
+  user_chapter_progress: Array<UserChapterProgress>
+}
+
 export type CourseUpdate = {
   ai_policy: CourseAiPolicy
   ask_marketing_consent: boolean
@@ -966,14 +1004,6 @@ export type CourseUpdate = {
   is_test_mode: boolean
   is_unlisted: boolean
   name: string
-}
-
-export type CourseUserInfo = {
-  course_instance?: string | null
-  email?: string | null
-  first_name?: string | null
-  last_name?: string | null
-  user_id: string
 }
 
 export type CreateCourseDesignerPlanRequest = {
@@ -2046,16 +2076,6 @@ export type Points = {
   users: Array<UserDetail>
 }
 
-export type ProgressOverview = {
-  chapter_availability: Array<ChapterAvailability>
-  chapter_locking_enabled: boolean
-  chapters: Array<DatabaseChapter>
-  user_chapter_locking_statuses: Array<UserChapterLockingStatus>
-  user_chapter_progress: Array<UserChapterProgress>
-  user_details: Array<UserDetail>
-  user_exercise_states: Array<UserExerciseState>
-}
-
 export type ProposalCount = {
   handled: number
   pending: number
@@ -2208,6 +2228,14 @@ export type SisuDescriptionResponse = {
 export type StudentsByCountryTotalsResult = {
   count: number
   country?: string | null
+}
+
+/**
+ * A page of the student identity list plus the total number of pages for the current filters.
+ */
+export type StudentsListPage = {
+  data: Array<CourseStudentListRow>
+  total_pages: number
 }
 
 /**
@@ -2408,6 +2436,13 @@ export type UserExerciseState = {
   selected_exercise_slide_id?: string | null
   updated_at: string
   user_id: string
+}
+
+/**
+ * Body for the batch detail endpoints: the users of the current identity-list page.
+ */
+export type UserIdsPayload = {
+  user_ids: Array<string>
 }
 
 export type UserInfoPayload = {
@@ -5860,7 +5895,7 @@ export type GetCourseStructureResponse =
   GetCourseStructureResponses[keyof GetCourseStructureResponses]
 
 export type GetCourseStudentsCertificatesData = {
-  body?: never
+  body: UserIdsPayload
   path: {
     /**
      * Course id
@@ -5873,7 +5908,7 @@ export type GetCourseStudentsCertificatesData = {
 
 export type GetCourseStudentsCertificatesResponses = {
   /**
-   * Course certificates
+   * Course certificates for the given users
    */
   200: Array<CertificateGridRow>
 }
@@ -5882,7 +5917,7 @@ export type GetCourseStudentsCertificatesResponse =
   GetCourseStudentsCertificatesResponses[keyof GetCourseStudentsCertificatesResponses]
 
 export type GetCourseStudentsCompletionsData = {
-  body?: never
+  body: UserIdsPayload
   path: {
     /**
      * Course id
@@ -5895,7 +5930,7 @@ export type GetCourseStudentsCompletionsData = {
 
 export type GetCourseStudentsCompletionsResponses = {
   /**
-   * Course completions
+   * Course completions for the given users
    */
   200: Array<CompletionGridRow>
 }
@@ -5904,7 +5939,7 @@ export type GetCourseStudentsCompletionsResponse =
   GetCourseStudentsCompletionsResponses[keyof GetCourseStudentsCompletionsResponses]
 
 export type GetCourseStudentsProgressData = {
-  body?: never
+  body: UserIdsPayload
   path: {
     /**
      * Course id
@@ -5917,13 +5952,35 @@ export type GetCourseStudentsProgressData = {
 
 export type GetCourseStudentsProgressResponses = {
   /**
-   * Course student progress overview
+   * Per-user course progress for the given users
    */
-  200: ProgressOverview
+  200: CourseStudentsProgressUsers
 }
 
 export type GetCourseStudentsProgressResponse =
   GetCourseStudentsProgressResponses[keyof GetCourseStudentsProgressResponses]
+
+export type GetCourseStudentsProgressStructureData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/students/progress-structure"
+}
+
+export type GetCourseStudentsProgressStructureResponses = {
+  /**
+   * Course-level progress structure
+   */
+  200: CourseStudentsProgressStructure
+}
+
+export type GetCourseStudentsProgressStructureResponse =
+  GetCourseStudentsProgressStructureResponses[keyof GetCourseStudentsProgressStructureResponses]
 
 export type GetCourseStudentsUsersData = {
   body?: never
@@ -5933,15 +5990,40 @@ export type GetCourseStudentsUsersData = {
      */
     course_id: string
   }
-  query?: never
+  query?: {
+    /**
+     * Page number (1-based)
+     */
+    page?: number
+    /**
+     * Page size (1-10000)
+     */
+    limit?: number
+    /**
+     * Filter by name/email substring or exact user id
+     */
+    search?: string
+    /**
+     * last_name | first_name | email
+     */
+    sort_column?: string
+    /**
+     * asc | desc
+     */
+    sort_direction?: string
+    /**
+     * Filter to a single course instance
+     */
+    course_instance_id?: string
+  }
   url: "/api/v0/main-frontend/courses/{course_id}/students/users"
 }
 
 export type GetCourseStudentsUsersResponses = {
   /**
-   * Course users
+   * A page of enrolled students
    */
-  200: Array<CourseUserInfo>
+  200: StudentsListPage
 }
 
 export type GetCourseStudentsUsersResponse =

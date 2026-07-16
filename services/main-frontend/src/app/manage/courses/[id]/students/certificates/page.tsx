@@ -3,12 +3,6 @@
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-import { useStudentsContext } from "../StudentsContext"
-import { CertificatesTabContent } from "../StudentsTableTabs"
+import { CertificatesTabContent } from "../tabs/CertificatesTab"
 
-function CertificatesPage() {
-  const { courseId, searchQuery } = useStudentsContext()
-  return <CertificatesTabContent courseId={courseId} searchQuery={searchQuery} />
-}
-
-export default withErrorBoundary(withSignedIn(CertificatesPage))
+export default withErrorBoundary(withSignedIn(CertificatesTabContent))

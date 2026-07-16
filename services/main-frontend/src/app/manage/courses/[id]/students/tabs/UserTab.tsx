@@ -1,94 +1,82 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import type { ColumnDef } from "@tanstack/react-table"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getCourseStudentsUsersOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { CourseStudentListRow } from "@/generated/api/types.generated"
 import { QueryResult } from "@/shared-module/components"
 
-import { FloatingHeaderTable } from "../FloatingHeaderTable"
+import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
+import { useCourseStudentsIdentity } from "../studentsQueries"
+import { StudentsTable } from "../StudentsTable"
 
-export const UserTabContent: React.FC<{ courseId: string; searchQuery: string }> = ({
-  courseId,
-  searchQuery,
-}) => {
+const EM_DASH = "—"
+
+export const UserTabContent: React.FC = () => {
   const { t } = useTranslation()
+  const { courseId } = useStudentsContext()
+  const params = useStudentsListParams()
+  const { sorting, onSortingChange } = useStudentsSorting()
 
-  const query = useQuery({
-    ...getCourseStudentsUsersOptions({
-      path: {
-        course_id: courseId,
+  const query = useCourseStudentsIdentity(courseId, params)
+  const rows = useMemo(() => query.data?.data ?? [], [query.data])
+
+  const columns = useMemo<ColumnDef<CourseStudentListRow, unknown>[]>(
+    () => [
+      {
+        header: t("user-id"),
+        // oxlint-disable-next-line i18next/no-literal-string
+        accessorKey: "user_id",
+        enableSorting: false,
       },
-    }),
-  })
-
-  const allRows = useMemo(() => query.data ?? [], [query.data])
-
-  const rows = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return allRows
-    }
-    const queryLower = searchQuery.toLowerCase()
-    return allRows.filter((row) => {
-      const userId = String(row.user_id ?? "").toLowerCase()
-      const firstName = String(row.first_name ?? "").toLowerCase()
-      const lastName = String(row.last_name ?? "").toLowerCase()
-      const email = String(row.email ?? "").toLowerCase()
-      const courseInstance = String(row.course_instance ?? "").toLowerCase()
-      return (
-        userId.includes(queryLower) ||
-        firstName.includes(queryLower) ||
-        lastName.includes(queryLower) ||
-        email.includes(queryLower) ||
-        courseInstance.includes(queryLower)
-      )
-    })
-  }, [allRows, searchQuery])
-
-  const table = (
-    <FloatingHeaderTable
-      columns={[
-        {
-          header: t("user-id"),
-          // oxlint-disable-next-line i18next/no-literal-string
-          accessorKey: "user_id",
+      {
+        header: t("first-name"),
+        // oxlint-disable-next-line i18next/no-literal-string
+        accessorKey: "first_name",
+        cell: ({ getValue }) => getValue<string | null>() ?? EM_DASH,
+      },
+      {
+        header: t("last-name"),
+        // oxlint-disable-next-line i18next/no-literal-string
+        accessorKey: "last_name",
+        cell: ({ getValue }) => getValue<string | null>() ?? EM_DASH,
+      },
+      {
+        header: t("label-email"),
+        // oxlint-disable-next-line i18next/no-literal-string
+        accessorKey: "email",
+        cell: ({ getValue }) => getValue<string | null>() ?? EM_DASH,
+      },
+      {
+        header: t("course-instance"),
+        // oxlint-disable-next-line i18next/no-literal-string
+        accessorKey: "course_instances",
+        enableSorting: false,
+        cell: ({ row }) => {
+          const instances = row.original.course_instances ?? []
+          if (instances.length > 0) {
+            // oxlint-disable-next-line i18next/no-literal-string
+            return instances.join(", ")
+          }
+          // Empty list: distinguish the unnamed default instance from a since-deleted one.
+          return row.original.has_active_instance ? t("default-instance") : t("deleted-instance")
         },
-        {
-          header: t("first-name"),
-          // oxlint-disable-next-line i18next/no-literal-string
-          accessorKey: "first_name",
-          // oxlint-disable-next-line i18next/no-literal-string
-          cell: ({ getValue }) => getValue<string | null>() ?? "—",
-        },
-        {
-          header: t("last-name"),
-          // oxlint-disable-next-line i18next/no-literal-string
-          accessorKey: "last_name",
-          // oxlint-disable-next-line i18next/no-literal-string
-          cell: ({ getValue }) => getValue<string | null>() ?? "—",
-        },
-        {
-          header: t("label-email"),
-          // oxlint-disable-next-line i18next/no-literal-string
-          accessorKey: "email",
-          // oxlint-disable-next-line i18next/no-literal-string
-          cell: ({ getValue }) => getValue<string | null>() ?? "—",
-        },
-        {
-          header: t("course-instance"),
-          // oxlint-disable-next-line i18next/no-literal-string
-          accessorKey: "course_instance",
-          cell: ({ getValue }) => getValue<string | null>() ?? t("default-instance"),
-        },
-      ]}
-      data={rows}
-    />
+      },
+    ],
+    [t],
   )
 
   return (
     <QueryResult query={query} treatEmptyAsData>
-      {() => table}
+      {() => (
+        <StudentsTable
+          columns={columns}
+          data={rows}
+          sorting={sorting}
+          onSortingChange={onSortingChange}
+        />
+      )}
     </QueryResult>
   )
 }

@@ -710,9 +710,12 @@ pub struct CourseUserInfo {
     pub course_instance: Option<String>,
 }
 
+/// Per-user chapter progress for a course. When `user_ids` is `Some`, only those users are included;
+/// when `None`, every user with progress in the course is returned.
 pub async fn fetch_user_chapter_progress(
     conn: &mut PgConnection,
     course_id: Uuid,
+    user_ids: Option<&[Uuid]>,
 ) -> ModelResult<Vec<UserChapterProgress>> {
     let rows = sqlx::query_as!(
         UserChapterProgress,
@@ -725,6 +728,7 @@ WITH base AS (
   FROM user_exercise_states ues
     JOIN exercises ex ON ex.id = ues.exercise_id
   WHERE ues.course_id = $1
+    AND ($2::uuid[] IS NULL OR ues.user_id = ANY($2::uuid[]))
     AND ues.deleted_at IS NULL
     AND ex.deleted_at IS NULL
 )
@@ -743,7 +747,8 @@ GROUP BY b.user_id,
 ORDER BY b.user_id,
   c.chapter_number
         "#,
-        course_id
+        course_id,
+        user_ids as Option<&[Uuid]>
     )
     .fetch_all(&mut *conn)
     .await?;

@@ -1,7 +1,6 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import DOMPurify from "dompurify"
 import { useAtomValue } from "jotai"
 import React from "react"
 
@@ -82,12 +81,6 @@ function CourseMaterialLayout({
   return (
     <>
       <section>
-        {/* <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jsonLd).replaceAll("<", "\\u003c"),
-          }}
-        /> */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

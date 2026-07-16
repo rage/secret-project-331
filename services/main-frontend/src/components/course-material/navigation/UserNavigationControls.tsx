@@ -19,6 +19,31 @@ import { currentCourseIdAtom } from "@/state/course-material/selectors"
 
 import CourseSettingsModal from "../modals/CourseSettingsModal"
 
+// Styles an anchor to match the buttons rendered inside the menu tooltip, so
+// page-navigation entries are single links instead of a link wrapping a button.
+const menuLink = css`
+  display: block;
+  text-decoration: none;
+  border: none;
+  margin: 0;
+  padding: 12px 25px;
+  font-size: 16px;
+  background: inherit;
+  text-transform: none;
+  text-align: center;
+  width: 100%;
+  color: ${baseTheme.colors.green[600]};
+
+  &:hover {
+    background: inherit;
+    color: ${baseTheme.colors.green[700]};
+  }
+`
+
+const menuButtonColor = css`
+  color: ${baseTheme.colors.green[600]} !important;
+`
+
 export interface UserNavigationControlsProps {
   styles?: string[]
   currentPagePath: string
@@ -78,24 +103,14 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
         <>
           {courseId && hasPermission && (
             <li>
-              <a href={manageCourseRoute(courseId)}>
-                <Button
-                  className={css`
-                    color: ${baseTheme.colors.green[600]} !important;
-                  `}
-                  variant="primary"
-                  size="medium"
-                >
-                  {t("button-text-manage-course")}
-                </Button>
+              <a className={menuLink} href={manageCourseRoute(courseId)}>
+                {t("button-text-manage-course")}
               </a>
             </li>
           )}
           <li>
             <Button
-              className={css`
-                color: ${baseTheme.colors.green[600]} !important;
-              `}
+              className={menuButtonColor}
               size="medium"
               variant="primary"
               onClick={() => {
@@ -107,28 +122,13 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           </li>
 
           <li>
-            <a href={"/user-settings"}>
-              <Button
-                className={css`
-                  color: ${baseTheme.colors.green[600]} !important;
-                `}
-                size="medium"
-                variant="primary"
-              >
-                {t("user-settings")}
-              </Button>
+            <a className={menuLink} href={"/user-settings"}>
+              {t("user-settings")}
             </a>
           </li>
 
           <li className={cx(styles)}>
-            <Button
-              className={css`
-                color: ${baseTheme.colors.green[600]} !important;
-              `}
-              size="medium"
-              variant="primary"
-              onClick={logout}
-            >
+            <Button className={menuButtonColor} size="medium" variant="primary" onClick={logout}>
               {t("log-out")}
             </Button>
           </li>
@@ -138,29 +138,13 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   ) : (
     <Menu>
       <li className={cx(styles)}>
-        <a href={signUpPathWithReturnTo}>
-          <Button
-            className={css`
-              color: ${baseTheme.colors.green[600]} !important;
-            `}
-            size="medium"
-            variant="primary"
-          >
-            {t("create-new-account")}
-          </Button>
+        <a className={menuLink} href={signUpPathWithReturnTo}>
+          {t("create-new-account")}
         </a>
       </li>
       <li className={cx(styles)}>
-        <a href={loginPathWithReturnTo}>
-          <Button
-            className={css`
-              color: ${baseTheme.colors.green[600]} !important;
-            `}
-            size="medium"
-            variant="primary"
-          >
-            {t("log-in")}
-          </Button>
+        <a className={menuLink} href={loginPathWithReturnTo}>
+          {t("log-in")}
         </a>
       </li>
     </Menu>

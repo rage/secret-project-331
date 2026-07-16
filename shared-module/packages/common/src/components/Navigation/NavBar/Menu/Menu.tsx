@@ -2,11 +2,10 @@
 
 import { css, cx } from "@emotion/css"
 import type { ReactNode } from "react"
-import { useState } from "react"
+import { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../../styles"
-import { runCallbackIfEnterPressed } from "../../../../utils/accessibility"
 import Hamburger from "./Hamburger/Hamburger"
 
 const NavMenu = css`
@@ -17,6 +16,14 @@ const NavMenu = css`
 `
 
 const MenuIcon = css`
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+
   &:focus-visible {
     outline: 2px solid ${baseTheme.colors.green[500]};
     outline-offset: 2px;
@@ -83,24 +90,26 @@ export interface MenuProps {
 const Menu: React.FC<React.PropsWithChildren<MenuProps>> = ({ children, variant }) => {
   const [clicked, setClicked] = useState(false)
   const { t } = useTranslation()
+  const menuId = useId()
 
   const onClickHandler = () => {
     setClicked(!clicked)
   }
   return (
     <div className={cx(NavMenu)}>
-      <div
+      <button
+        type="button"
         className={cx(MenuIcon)}
         onClick={onClickHandler}
-        onKeyDown={(e) => runCallbackIfEnterPressed(e, onClickHandler)}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled toggle div; native button changes styling/layout
-        role="button"
-        aria-label={t("open-menu")}
-        tabIndex={0}
+        aria-label={t("navigation-menu")}
+        aria-haspopup="menu"
+        aria-expanded={clicked}
+        aria-controls={menuId}
       >
         <Hamburger isActive={clicked} />
-      </div>
+      </button>
       <ul
+        id={menuId}
         className={
           clicked
             ? cx(

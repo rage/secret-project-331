@@ -596,4 +596,32 @@ mod tests {
             );
         }
     }
+
+    /// Documents the accepted limitation of per-text resolution: a single string mixing scripts
+    /// that no one loaded font covers can't be fully rendered, so it best-effort falls back to the
+    /// preferred font (some glyphs will be .notdef). Rendering it properly would need per-run
+    /// multi-font layout, which usvg does not support (it ignores per-tspan fonts and its own
+    /// per-glyph fallback bails after one font).
+    #[test]
+    fn mixed_script_no_single_covering_font_falls_back_to_preferred() {
+        let db = all_certificate_fonts();
+        // Arabic + CJK: no single seeded font covers both scripts.
+        let mixed = "العربية 中文";
+        let family = resolve_font_family(mixed, "Inter Variable", &db);
+        assert_eq!(
+            family.as_str(),
+            "Inter Variable",
+            "mixed-script text with no single covering font should fall back to the preferred font"
+        );
+        let id = db
+            .query(&fontdb::Query {
+                families: &[fontdb::Family::Name(&family)],
+                ..Default::default()
+            })
+            .expect("preferred font must be loaded");
+        assert!(
+            !face_covers(&db, id, mixed),
+            "sanity check: no single font is expected to cover this mixed-script string"
+        );
+    }
 }

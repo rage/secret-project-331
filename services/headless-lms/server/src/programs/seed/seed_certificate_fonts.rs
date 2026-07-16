@@ -4,8 +4,10 @@ use models::certificate_fonts::NewCertificateFont;
 /// Fonts loaded for certificate rendering, as `(display_name, file_path)`.
 ///
 /// Inter Variable is the default (see `certificates::TextToRender`) and covers Latin, Cyrillic and
-/// Greek. The Noto Sans fonts extend coverage to scripts Inter lacks and are reached via glyph
-/// fallback. `file_path` must match the paths uploaded in `seed_file_storage`.
+/// Greek. The Noto Sans fonts extend coverage to scripts Inter lacks; the renderer resolves each
+/// text to the single loaded font that covers it (see `certificates::resolve_font_family`) rather
+/// than relying on usvg's per-glyph fallback. `file_path` must match the paths uploaded in
+/// `seed_file_storage`.
 const CERTIFICATE_FONTS: &[(&str, &str)] = &[
     ("Inter Variable", "fonts/inter-variable.ttf"),
     ("Noto Sans CJK SC", "fonts/noto-sans-cjk-sc.otf"),

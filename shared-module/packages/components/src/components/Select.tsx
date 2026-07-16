@@ -5,7 +5,7 @@ import { useAutocompleteState } from "@react-stately/autocomplete"
 import { useSearchFieldState } from "@react-stately/searchfield"
 import { useSelectState } from "@react-stately/select"
 import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
-import React, { useId, useMemo, useRef, useState } from "react"
+import React, { useId, useMemo, useRef, useState, type RefObject } from "react"
 import {
   mergeProps,
   useButton,
@@ -110,6 +110,12 @@ const searchfieldCss = css`
     outline: 2px solid var(--field-border-color-focus);
   }
 `
+
+function isHtmlUlistElement(
+  ref: RefObject<HTMLElement | null>,
+): ref is RefObject<HTMLUListElement | null> {
+  return ref.current === null || ref.current instanceof HTMLUListElement
+}
 
 export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
   props: SelectProps<T, N>,
@@ -339,6 +345,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
               },
             }}
           >
+            {/*oxlint-disable-next-line jsx-a11y/no-autofocus*/}
             <FocusScope autoFocus>
               {searchEnabled && (
                 <div
@@ -360,11 +367,13 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
                   <input className={searchfieldCss} {...inputProps} ref={searchRef} />
                 </div>
               )}
-              <ListBox
-                {...mergeProps(menuProps, collectionProps)}
-                state={state}
-                listBoxRef={mergedCollectionRef}
-              />
+              {isHtmlUlistElement(mergedCollectionRef) && (
+                <ListBox
+                  {...mergeProps(menuProps, collectionProps)}
+                  state={state}
+                  listBoxRef={mergedCollectionRef}
+                />
+              )}
             </FocusScope>
           </Popover>
         ) : null}

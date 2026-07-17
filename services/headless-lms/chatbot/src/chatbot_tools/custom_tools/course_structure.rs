@@ -27,19 +27,21 @@ pub enum PageType {
     GenericPage,
 }
 
-fn get_page_type(
-    order_number: i32,
-    chapter_number: Option<i32>,
-    module_number: Option<i32>,
-) -> PageType {
-    if chapter_number.is_none() && module_number.is_none() && order_number == 0 {
-        PageType::CourseFrontPage
-    } else if chapter_number.is_none() && module_number.is_none() && order_number != 0 {
-        PageType::TopLevelPage
-    } else if chapter_number.is_some() && order_number == 0 {
-        PageType::ChapterFrontPage
-    } else {
-        PageType::GenericPage
+impl PageType {
+    fn determine(
+        order_number: i32,
+        chapter_number: Option<i32>,
+        module_number: Option<i32>,
+    ) -> Self {
+        if chapter_number.is_none() && module_number.is_none() && order_number == 0 {
+            PageType::CourseFrontPage
+        } else if chapter_number.is_none() && module_number.is_none() && order_number != 0 {
+            PageType::TopLevelPage
+        } else if chapter_number.is_some() && order_number == 0 {
+            PageType::ChapterFrontPage
+        } else {
+            PageType::GenericPage
+        }
     }
 }
 
@@ -137,7 +139,11 @@ impl ChatbotTool for CourseStructureTool {
                     // no block content
                     return PageDocumentInfo {
                         page_title: p.page_title,
-                        page_type: get_page_type(p.order_number, p.chapter_number, p.module_number),
+                        page_type: PageType::determine(
+                            p.order_number,
+                            p.chapter_number,
+                            p.module_number,
+                        ),
                         chapter_title: p.chapter_title,
                         learning_objective: None,
                         chapter_number: p.chapter_number,
@@ -147,7 +153,11 @@ impl ChatbotTool for CourseStructureTool {
                 let learning_objectives = get_objectives(b).ok();
                 PageDocumentInfo {
                     page_title: p.page_title,
-                    page_type: get_page_type(p.order_number, p.chapter_number, p.module_number),
+                    page_type: PageType::determine(
+                        p.order_number,
+                        p.chapter_number,
+                        p.module_number,
+                    ),
                     chapter_title: p.chapter_title,
                     learning_objective: learning_objectives,
                     chapter_number: p.chapter_number,

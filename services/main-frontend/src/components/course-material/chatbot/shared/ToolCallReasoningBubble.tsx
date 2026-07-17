@@ -122,6 +122,20 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
         if (idx === 1) {
           summaryText += `, ${t("chatbot-status-course-material-search")}`
         }
+      } else if (res2.data.tool_name === "document_lookup") {
+        collapsible = true
+        let title = ""
+        if (toolArguments.length > 0) {
+          let obj: { title: string } = JSON.parse(toolArguments)
+          title = `"${obj.title}"`
+          expandableText.push(t("chatbot-status-document-lookup-finished-title", { title }))
+          if (idx === 0) {
+            summaryText += t("chatbot-status-document-lookup-finished")
+          }
+          if (idx === 1) {
+            summaryText += `, ${t("chatbot-status-document-lookup-finished")}`
+          }
+        }
       } else {
         expandableText.push(
           `${t("chatbot-status-using-tool-finished")} "${res2.data.tool_name.replaceAll("_", " ")}" ${toolArguments}`,

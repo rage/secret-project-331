@@ -5,6 +5,7 @@ import { useAutocompleteState } from "@react-stately/autocomplete"
 import { useSearchFieldState } from "@react-stately/searchfield"
 import { useSelectState } from "@react-stately/select"
 import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
+import { omit } from "lodash"
 import React, { useId, useMemo, useRef, useState, type RefObject } from "react"
 import {
   mergeProps,
@@ -199,7 +200,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const {
     inputProps: autoCompleteInputProps,
-    collectionProps,
+    collectionProps: collectionPropsWrong,
     collectionRef: mergedCollectionRef,
   } = useAutocomplete(
     {
@@ -209,9 +210,12 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     autoCompleteState,
   )
 
+  const collectionProps = omit(collectionPropsWrong, ["aria-label"])
+
   const {
     triggerProps,
     valueProps,
+    labelProps: useSelectLabelProps,
     menuProps,
     descriptionProps,
     errorMessageProps,
@@ -237,11 +241,13 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
   )
 
   const { buttonProps } = useButton(triggerProps, buttonRef)
-  const { labelProps, inputProps } = useSearchField(
+  const { labelProps: useSearchFieldLabelProps, inputProps } = useSearchField(
     { ...autoCompleteInputProps, placeholder: searchPlaceholder, "aria-label": searchPlaceholder },
     searchFieldState,
     searchRef,
   )
+
+  const labelProps = mergeProps(useSelectLabelProps, useSearchFieldLabelProps)
 
   const emitCompositeBlur = (relatedTarget: EventTarget | null) => {
     const nextFocusedNode = relatedTarget as Node | null

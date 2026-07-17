@@ -22,12 +22,16 @@ import {
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
 import { StaleTableWrapper } from "./StaleTableWrapper"
+import { StudentPillCell } from "./StudentPillCell"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
 type ProgressRow = {
   user_id: string
   student: string
+  first_name?: string | null | undefined
+  last_name?: string | null | undefined
+  email?: string | null | undefined
   total_points: number
   total_attempted: number
 } & Partial<Record<ChapterCellKey, number | string | React.ReactNode | undefined>>
@@ -97,8 +101,14 @@ export const ProgressTabContent: React.FC = () => {
         // oxlint-disable-next-line i18next/no-literal-string
         id: "last_name",
         header: t("label-student"),
-        // oxlint-disable-next-line i18next/no-literal-string
-        accessorKey: "student",
+        cell: ({ row }) => (
+          <StudentPillCell
+            userId={row.original.user_id}
+            firstName={row.original.first_name}
+            lastName={row.original.last_name}
+            email={row.original.email}
+          />
+        ),
       },
       {
         header: t("total"),
@@ -176,6 +186,9 @@ export const ProgressTabContent: React.FC = () => {
       const row: ProgressRow = {
         user_id: u.user_id,
         student: formatStudentName(u, t),
+        first_name: u.first_name,
+        last_name: u.last_name,
+        email: u.email,
         total_points: totals.total_points,
         total_attempted: totals.total_attempted,
       }

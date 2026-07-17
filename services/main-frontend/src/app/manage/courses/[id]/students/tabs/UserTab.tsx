@@ -8,9 +8,10 @@ import type { CourseStudentListRow } from "@/generated/api/types.generated"
 import { QueryResult } from "@/shared-module/components"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
-import { useCourseStudentsIdentity } from "../studentsQueries"
+import { USERS_SORT_COLUMNS, useCourseStudentsIdentity } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
 import { StaleTableWrapper } from "./StaleTableWrapper"
+import { StudentPillCell } from "./StudentPillCell"
 
 const EM_DASH = "—"
 
@@ -18,7 +19,7 @@ export const UserTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
   const params = useStudentsListParams()
-  const { sorting, onSortingChange } = useStudentsSorting()
+  const { sorting, onSortingChange } = useStudentsSorting(USERS_SORT_COLUMNS)
 
   const query = useCourseStudentsIdentity(courseId, params)
   const deferredData = useDeferredValue(query.data)
@@ -28,22 +29,18 @@ export const UserTabContent: React.FC = () => {
   const columns = useMemo<ColumnDef<CourseStudentListRow, unknown>[]>(
     () => [
       {
-        header: t("user-id"),
+        // id drives the shared `last_name` sort key; the pill shows the name and opens the details popover.
         // oxlint-disable-next-line i18next/no-literal-string
-        accessorKey: "user_id",
-        enableSorting: false,
-      },
-      {
-        header: t("first-name"),
-        // oxlint-disable-next-line i18next/no-literal-string
-        accessorKey: "first_name",
-        cell: ({ getValue }) => getValue<string | null>() ?? EM_DASH,
-      },
-      {
-        header: t("last-name"),
-        // oxlint-disable-next-line i18next/no-literal-string
-        accessorKey: "last_name",
-        cell: ({ getValue }) => getValue<string | null>() ?? EM_DASH,
+        id: "last_name",
+        header: t("label-student"),
+        cell: ({ row }) => (
+          <StudentPillCell
+            userId={row.original.user_id}
+            firstName={row.original.first_name}
+            lastName={row.original.last_name}
+            email={row.original.email}
+          />
+        ),
       },
       {
         header: t("label-email"),

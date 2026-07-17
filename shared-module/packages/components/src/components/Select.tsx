@@ -160,18 +160,13 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const normalizedCollection = useMemo(() => normalizeSelectOptions(options), [options])
 
-  const collectionChildrenUnFiltered = useMemo(
-    () => buildSelectCollectionNodes(normalizedCollection),
-    [normalizedCollection],
-  )
-
   const collectionChildren = buildSelectCollectionNodes({
     ...normalizedCollection,
-    options: normalizedCollection.options.filter((option) =>
-      contains(option.textValue, filterValue),
-    ),
+    options:
+      searchRef.current === document.activeElement
+        ? normalizedCollection.options.filter((option) => contains(option.textValue, filterValue))
+        : normalizedCollection.options,
   })
-
   const optionsByKey = useMemo(
     () => new Map(normalizedCollection.options.map((option) => [option.key, option])),
     [normalizedCollection.options],
@@ -179,10 +174,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const selectedKey = normalizedCollection.valueToKey.get(toInputValue(field.value)) ?? null
   const state = useSelectState<NormalizedSelectOption>({
-    children:
-      searchRef.current === document.activeElement
-        ? (collectionChildren as never)
-        : (collectionChildrenUnFiltered as never),
+    children: collectionChildren as never,
     disabledKeys: normalizedCollection.disabledKeys,
     value: selectedKey,
     onSelectionChange: (key) => {

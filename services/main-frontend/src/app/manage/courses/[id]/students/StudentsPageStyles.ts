@@ -153,6 +153,9 @@ export const searchInput = css`
   border: 1px solid #dbdbdb;
   border-radius: 4px;
   padding-left: 36px;
+  /* Right gutter reserves room for the absolute pending spinner (right: 10px) so long search text
+     is never obscured by it. */
+  padding-right: 36px;
   font-size: 14px;
   font-family: ${primaryFont};
   color: ${baseTheme.colors.gray[700]};

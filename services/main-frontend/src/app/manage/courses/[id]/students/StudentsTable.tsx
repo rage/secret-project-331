@@ -107,9 +107,8 @@ export function StudentsTable<T extends object>({
   const measureScrollMargin = useCallback(() => {
     const wrapper = tableWrapperRef.current
     // Document-absolute top (getBoundingClientRect + scrollY), not offsetTop: the window virtualizer
-    // measures against the document top, whereas offsetTop is relative to the nearest positioned
-    // ancestor (layout.tsx wraps the table in a position: relative BreakFromCentered), which would
-    // undershoot the true offset and position virtualized rows too high.
+    // measures from the document top, but offsetTop is relative to the nearest positioned ancestor
+    // (layout.tsx's position: relative BreakFromCentered), which would place virtualized rows too high.
     scrollMarginRef.current = wrapper ? wrapper.getBoundingClientRect().top + window.scrollY : 0
   }, [])
 

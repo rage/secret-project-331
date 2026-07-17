@@ -148,9 +148,8 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     if (!el) {
       return
     }
-    // Measure synchronously before the browser paints, so the very first packing uses the real
-    // container width instead of DEFAULT_WIDTH_PX (which would mis-flip / overlap labels on narrow
-    // viewports until the observer fired).
+    // Measure synchronously before paint so the first packing uses the real width, not DEFAULT_WIDTH_PX
+    // (which would mis-flip / overlap labels on narrow viewports until the observer fired).
     setWidth(Math.round(el.getBoundingClientRect().width))
     if (typeof ResizeObserver === "undefined") {
       return
@@ -198,9 +197,9 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   )
 
   // Pack on rendered pixel footprints (marker overhang + measured label), not data spans, so labels
-  // never collide. Memoized on the enrollment-derived bars, the axis bounds, and the measured width:
-  // a resize re-packs (canvas measureText + lane packing), but an unrelated re-render reuses the
-  // previous result. The packed boxes also carry per-course label placement consumed in renderItem.
+  // never collide. Memoized on bars + axis bounds + width: a resize re-packs (canvas measureText +
+  // lane packing), but unrelated re-renders reuse the result. Boxes also carry label placement for
+  // renderItem.
   const { packed, laneCount, laneByCourseId, boxByCourseId } = useMemo(() => {
     // Linear full-range time→pixel scale over the plot area. Packing at the full range is the worst
     // case: zooming in only grows px/ms, so a full-range-valid packing stays overlap-free at every

@@ -43,8 +43,7 @@ const useUrlSyncedDebouncedQuery = ({
 
   const [inputValue, setInputValue] = useState(urlInputValue)
   const [queryValue, setQueryValue] = useState(urlQueryValue)
-  // Drives `isPending` for the debounced-typing path (the common search interaction), so the
-  // in-progress indicator is shown while a settled query is committing.
+  // Drives `isPending` for the debounced-typing path so the search spinner shows while it commits.
   const [isPending, startQueryTransition] = useTransition()
 
   const trimmedInputValue = inputValue.trim()
@@ -106,9 +105,8 @@ const useUrlSyncedDebouncedQuery = ({
   }, [paramName, pathname, queryValue, router, searchParams, urlInputValueChanged])
 
   /**
-   * Applies the current trimmed input as the executed query without waiting for debounce. Committed
-   * urgently (not inside a transition) so pressing Enter runs the search promptly and can never be
-   * deferred behind other updates.
+   * Applies the current trimmed input as the query without waiting for the debounce. Committed urgently
+   * (not in a transition) so Enter runs the search promptly and is never deferred behind other updates.
    */
   const runImmediate = useCallback(() => {
     if (trimmedInputValue === queryValue) {

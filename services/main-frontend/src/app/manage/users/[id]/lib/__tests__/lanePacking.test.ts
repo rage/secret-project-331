@@ -155,16 +155,27 @@ describe("lanePacking", () => {
       )
       expect(noPad.laneCount).toBe(1)
     })
+
+    it("reserves marker overhang left of the span start (no-activity diamond / leading dot)", () => {
+      // The box starts markerPad (12) left of the span start, mirroring the overhang past the end.
+      const boxA = packBoxes([point("a", 50, "A", "a")]).boxes[0]!
+      expect(boxA.start).toBe(boxA.spanStartPx - BASE_OPTS.markerPadPx)
+
+      // b's left overhang (135 - 12 = 123 < a.end 112 + gap 16) keeps it off a's lane, though its raw
+      // point (135) clears a's right edge by more than the gap.
+      expect(packBoxes([span("a", 0, 100, "AI", "a"), point("b", 135, "B", "b")]).laneCount).toBe(2)
+    })
   })
 
   // 5. Boundary check for the `<=` reuse condition: exactly gap-away reuses, one px short does not.
   describe("abutting intervals", () => {
     it("shares a lane at exactly the gap boundary but not one px inside it", () => {
-      // a's box ends at 112 (span end 100 + markerPad 12).
-      const atBoundary = packBoxes([span("a", 0, 100, "AI", "a"), point("b", 128, "B", "b")])
+      // a's box ends at 112 (span end 100 + markerPad 12); b's box starts 12 (markerPad) left of its
+      // point, so the earliest reuse point is 112 + gap(16) + 12 = 140.
+      const atBoundary = packBoxes([span("a", 0, 100, "AI", "a"), point("b", 140, "B", "b")])
       expect(atBoundary.laneCount).toBe(1)
 
-      const oneInside = packBoxes([span("a", 0, 100, "AI", "a"), point("b", 127, "B", "b")])
+      const oneInside = packBoxes([span("a", 0, 100, "AI", "a"), point("b", 139, "B", "b")])
       expect(oneInside.laneCount).toBe(2)
     })
   })
@@ -218,6 +229,26 @@ describe("lanePacking", () => {
     it("returns deep-equal output for identical input", () => {
       expect(packBoxes(inputs).packed).toEqual(packBoxes(inputs).packed)
     })
+
+    it("keeps equal-span periods in input order when keys are absent or duplicated", () => {
+      // Equal start/end and equal (here absent) keys compare equal, so the stable sort keeps input
+      // order — order-independence only holds for distinct keys. First-listed takes the first lane.
+      const keyless = [
+        { start: 0, end: 10, item: "first" },
+        { start: 0, end: 10, item: "second" },
+      ]
+
+      const forward = packLanes(keyless, GAP).packed
+      const forwardLane = (item: string) => forward.find((p) => p.item === item)!.lane
+      expect(forwardLane("first")).toBe(0)
+      expect(forwardLane("second")).toBe(1)
+
+      // Reversing the input reverses the assignment: without distinct keys, order is not independent.
+      const reversed = packLanes([keyless[1]!, keyless[0]!], GAP).packed
+      const reversedLane = (item: string) => reversed.find((p) => p.item === item)!.lane
+      expect(reversedLane("first")).toBe(1)
+      expect(reversedLane("second")).toBe(0)
+    })
   })
 
   // 8. Lane-count optimality: k mutually overlapping items require exactly k lanes.
@@ -262,150 +293,150 @@ describe("lanePacking", () => {
     }
 
     const fixtureA: FixtureEntry[] = [
-      { label: "Me and my dog", start: "2026-06-15T15:07:55Z", end: "2026-06-16T08:17:04Z" },
-      { label: "Me and my cat", start: "2026-06-16T08:27:13Z", end: "2026-06-16T09:56:00Z" },
-      { label: "AI in Society", start: "2026-06-16T10:03:19Z", end: "2026-06-25T12:58:32Z" },
+      { label: "Intro to Botany", start: "2026-06-15T15:07:55Z", end: "2026-06-16T08:17:04Z" },
+      { label: "Intro to Zoology", start: "2026-06-16T08:27:13Z", end: "2026-06-16T09:56:00Z" },
+      { label: "Data and Ethics", start: "2026-06-16T10:03:19Z", end: "2026-06-25T12:58:32Z" },
       {
-        label: "Computing and Society: an Introduction 2025-2026",
+        label: "Foundations of Digital Culture: an Overview 2025-2026",
         start: "2026-06-16T10:10:29Z",
       },
-      { label: "5G MOOC", start: "2026-06-16T10:13:41Z", end: "2026-06-20T00:00:00Z" },
-      { label: "Climate.now", start: "2026-06-16T10:14:31Z" },
+      { label: "Net MOOC", start: "2026-06-16T10:13:41Z", end: "2026-06-20T00:00:00Z" },
+      { label: "Weather.now", start: "2026-06-16T10:14:31Z" },
       {
-        label: "Data Science for Monitoring Aquatic Ecosystems",
+        label: "Modelling Techniques for Coastal Water Systems",
         start: "2026-06-18T17:41:00Z",
         end: "2026-06-22T09:56:10Z",
       },
-      { label: "Sustainable Space", start: "2026-06-18T20:18:05Z", end: "2026-06-20T00:00:00Z" },
+      { label: "Applied Robotics", start: "2026-06-18T20:18:05Z", end: "2026-06-20T00:00:00Z" },
       {
-        label: "Yhteiskuntatietoa suomenoppijoille",
+        label: "Yleistietoa uusille opiskelijoille",
         start: "2026-06-18T22:55:28Z",
         end: "2026-06-25T21:49:16Z",
       },
       {
-        label: "Uncover Finnish Education",
+        label: "Explore Modern Pedagogy",
         start: "2026-06-19T12:17:26Z",
         end: "2026-06-28T15:45:52Z",
       },
-      { label: "PlanetaryHealth.now", start: "2026-06-19T12:25:15Z" },
-      { label: "DevOps with Kubernetes, 2026", start: "2026-06-19T12:53:14Z" },
+      { label: "GlobalSystems.now", start: "2026-06-19T12:25:15Z" },
+      { label: "Cloud Systems with Containers", start: "2026-06-19T12:53:14Z" },
       {
-        label: "Introduction to Sustainability 2025",
+        label: "Introduction to Green Systems 2025",
         start: "2026-06-19T12:59:03Z",
         end: "2026-06-22T12:01:44Z",
       },
       {
-        label: "Biodiversity.now 2025",
+        label: "Ecosystems.now 2025",
         start: "2026-06-19T13:00:22Z",
         end: "2026-06-25T06:13:52Z",
       },
       {
-        label: "EIS-003: Basics of Entrepreneurship - How to Start and Run a Company",
+        label: "BUS-003: Basics of Business - How to Launch and Grow a Startup",
         start: "2026-06-19T13:06:16Z",
         end: "2026-06-20T21:10:00Z",
       },
-      { label: "Climate.now 2025", start: "2026-06-19T13:06:20Z", end: "2026-06-24T12:59:08Z" },
+      { label: "Weather.now 2025", start: "2026-06-19T13:06:20Z", end: "2026-06-24T12:59:08Z" },
       {
-        label: "EIS-005: Business Model Canvas - design your company",
+        label: "BUS-005: Value Proposition Canvas - build your venture",
         start: "2026-06-19T13:08:25Z",
         end: "2026-06-20T00:00:00Z",
       },
       {
-        label: "Computational Affective Modelling",
+        label: "Computational Signal Processing",
         start: "2026-06-19T13:09:48Z",
         end: "2026-06-23T08:01:21Z",
       },
       {
-        label: "Rikosoikeuden MOOC, kevät 2026",
+        label: "Yleistieteen MOOC, kevät 2026",
         start: "2026-06-19T16:21:13Z",
         end: "2026-06-20T17:28:49Z",
       },
       {
-        label: "Johdatus oikeustieteeseen ja oikeudelliseen ajatteluun",
+        label: "Johdatus yleistieteeseen ja tieteelliseen ajatteluun",
         start: "2026-06-19T16:22:10Z",
         end: "2026-07-10T10:00:45Z",
       },
       {
-        label: "Johdatus matriisilaskentaan",
+        label: "Johdatus peruslaskentaan",
         start: "2026-06-19T16:23:17Z",
         end: "2026-06-26T09:12:27Z",
       },
       {
-        label: "Ihmislähtöinen kehittäminen terveydenhuollossa",
+        label: "Käyttäjälähtöinen suunnittelu ohjelmistoissa",
         start: "2026-06-19T16:47:55Z",
         end: "2026-06-20T12:39:43Z",
       },
       {
-        label: "Introduction to the Internet of Things MOOC (2025-2026)",
+        label: "Introduction to Distributed Systems MOOC (2025-2026)",
         start: "2026-06-19T16:48:40Z",
         end: "2026-06-22T09:16:16Z",
       },
-      { label: "Introduction to Sustainability", start: "2026-06-19T16:49:30Z" },
-      { label: "Rikosoikeuden MOOC", start: "2026-06-22T05:56:48Z" },
+      { label: "Introduction to Green Systems", start: "2026-06-19T16:49:30Z" },
+      { label: "Yleistieteen MOOC", start: "2026-06-22T05:56:48Z" },
       {
-        label: "Introduction to the Internet of Things MOOC (2025 - 2026) - Chapter Exercises",
+        label: "Introduction to Distributed Systems MOOC (2025 - 2026) - Chapter Exercises",
         start: "2026-06-22T09:20:05Z",
         end: "2026-06-25T00:00:00Z",
       },
-      { label: "Introduction to the Internet of Things", start: "2026-07-15T20:30:57Z" },
+      { label: "Introduction to Distributed Systems", start: "2026-07-15T20:30:57Z" },
     ]
 
     const fixtureB: FixtureEntry[] = [
       {
-        label: "Uncover Finnish Education",
+        label: "Explore Modern Pedagogy",
         start: "2026-06-07T16:13:03Z",
         end: "2026-07-09T04:05:47Z",
       },
-      { label: "Introduction to Sustainability", start: "2026-06-07T16:14:53Z" },
+      { label: "Introduction to Green Systems", start: "2026-06-07T16:14:53Z" },
       {
-        label: "Introduction to Sustainability 2025",
+        label: "Introduction to Green Systems 2025",
         start: "2026-06-07T16:14:59Z",
         end: "2026-07-02T11:02:42Z",
       },
-      { label: "PlanetaryHealth.now", start: "2026-06-07T22:45:17Z", end: "2026-07-07T10:11:12Z" },
+      { label: "GlobalSystems.now", start: "2026-06-07T22:45:17Z", end: "2026-07-07T10:11:12Z" },
       {
-        label: "Introduction to the Internet of Things MOOC (2025 - 2026) - Chapter Exercises",
+        label: "Introduction to Distributed Systems MOOC (2025 - 2026) - Chapter Exercises",
         start: "2026-06-11T23:44:06Z",
       },
       {
-        label: "Introduction to the Internet of Things MOOC (2024 - 2025)",
+        label: "Introduction to Distributed Systems MOOC (2024 - 2025)",
         start: "2026-06-11T23:44:26Z",
       },
       {
-        label: "Introduction to the Internet of Things MOOC (2025-2026)",
+        label: "Introduction to Distributed Systems MOOC (2025-2026)",
         start: "2026-06-11T23:44:56Z",
         end: "2026-06-19T00:00:00Z",
       },
-      { label: "Sustainable Space", start: "2026-06-12T00:24:24Z", end: "2026-06-16T04:43:25Z" },
-      { label: "Climate.now", start: "2026-06-12T00:27:13Z" },
-      { label: "Climate.now 2025", start: "2026-06-12T00:27:21Z", end: "2026-07-03T00:33:16Z" },
-      { label: "Biodiversity.now", start: "2026-06-12T00:28:39Z" },
+      { label: "Applied Robotics", start: "2026-06-12T00:24:24Z", end: "2026-06-16T04:43:25Z" },
+      { label: "Weather.now", start: "2026-06-12T00:27:13Z" },
+      { label: "Weather.now 2025", start: "2026-06-12T00:27:21Z", end: "2026-07-03T00:33:16Z" },
+      { label: "Ecosystems.now", start: "2026-06-12T00:28:39Z" },
       {
-        label: "Biodiversity.now 2025",
+        label: "Ecosystems.now 2025",
         start: "2026-06-12T00:28:45Z",
         end: "2026-07-07T13:16:25Z",
       },
-      { label: "5G MOOC", start: "2026-06-12T00:30:39Z", end: "2026-06-15T00:00:00Z" },
-      { label: "DevOps with Docker, Spring 2026", start: "2026-06-12T00:42:28Z" },
-      { label: "AI in Society", start: "2026-06-12T00:44:06Z", end: "2026-07-07T14:51:50Z" },
-      { label: "Me and my cat", start: "2026-06-12T00:46:58Z", end: "2026-07-07T19:58:54Z" },
-      { label: "Straffrätt MOOC", start: "2026-06-12T00:50:34Z" },
+      { label: "Net MOOC", start: "2026-06-12T00:30:39Z", end: "2026-06-15T00:00:00Z" },
+      { label: "Cloud Ops with Docker, Spring 2026", start: "2026-06-12T00:42:28Z" },
+      { label: "Data and Ethics", start: "2026-06-12T00:44:06Z", end: "2026-07-07T14:51:50Z" },
+      { label: "Intro to Zoology", start: "2026-06-12T00:46:58Z", end: "2026-07-07T19:58:54Z" },
+      { label: "Grundkurs MOOC", start: "2026-06-12T00:50:34Z" },
       {
-        label: "Straffrätt MOOC, vår 2026",
+        label: "Grundkurs MOOC, vår 2026",
         start: "2026-06-12T00:50:41Z",
         end: "2026-06-16T16:18:32Z",
       },
-      { label: "Me and my dog", start: "2026-06-12T00:51:16Z", end: "2026-07-07T21:50:10Z" },
-      { label: "DevOps with Kubernetes, 2026", start: "2026-06-17T23:52:30Z" },
+      { label: "Intro to Botany", start: "2026-06-12T00:51:16Z", end: "2026-07-07T21:50:10Z" },
+      { label: "Cloud Systems with Containers", start: "2026-06-17T23:52:30Z" },
       {
-        label: "Ihmislähtöinen kehittäminen terveydenhuollossa",
+        label: "Käyttäjälähtöinen suunnittelu ohjelmistoissa",
         start: "2026-06-17T23:55:09Z",
       },
       {
-        label: "Johdatus oikeustieteeseen ja oikeudelliseen ajatteluun",
+        label: "Johdatus yleistieteeseen ja tieteelliseen ajatteluun",
         start: "2026-06-17T23:55:30Z",
       },
-      { label: "Yhteiskuntatietoa suomenoppijoille", start: "2026-06-17T23:55:42Z" },
+      { label: "Yleistietoa uusille opiskelijoille", start: "2026-06-17T23:55:42Z" },
     ]
 
     it("holds the no-overlap invariant for fixture A", () => {
@@ -429,21 +460,22 @@ describe("lanePacking", () => {
 
     it("flips the near-right-edge label in fixture A", () => {
       const { boxes } = buildFixtureBoxes(fixtureA)
-      const nearEdge = boxes.find((b) => b.item === "Introduction to the Internet of Things")!
+      const nearEdge = boxes.find((b) => b.item === "Introduction to Distributed Systems")!
       expect(nearEdge.labelFlipped).toBe(true)
     })
 
-    // The named regression: "Computing and Society" (a no-activity diamond with a wide label) used to
-    // collide with "Yhteiskuntatietoa suomenoppijoille" in the same lane.
-    it("does not let the Computing-and-Society label collide with Yhteiskuntatietoa", () => {
+    // Regression: a no-activity diamond with a wide label used to collide with a later span's label.
+    it("does not let the wide no-activity label collide with the later span", () => {
       const { packed } = buildFixtureBoxes(fixtureA)
-      const cas = packed.find((p) => p.item === "Computing and Society: an Introduction 2025-2026")!
-      const yht = packed.find((p) => p.item === "Yhteiskuntatietoa suomenoppijoille")!
-      if (cas.lane === yht.lane) {
-        const separated = cas.end + GAP <= yht.start || yht.end + GAP <= cas.start
+      const diamond = packed.find(
+        (p) => p.item === "Foundations of Digital Culture: an Overview 2025-2026",
+      )!
+      const later = packed.find((p) => p.item === "Yleistietoa uusille opiskelijoille")!
+      if (diamond.lane === later.lane) {
+        const separated = diamond.end + GAP <= later.start || later.end + GAP <= diamond.start
         expect(separated).toBe(true)
       } else {
-        expect(cas.lane).not.toBe(yht.lane)
+        expect(diamond.lane).not.toBe(later.lane)
       }
     })
   })

@@ -36,8 +36,12 @@ pub fn parse_document_filepath(filepath: &str) -> ChatbotResult<DocumentProperti
         ToolUseError,
         "Failed to parse document filepath"
     ))?;
-    let page_id = Uuid::parse_str(page_id_str.to_string_lossy().as_ref())
-        .map_err(|_| chatbot_err!(ToolUseError, "Failed to parse document page id"))?;
+    let page_id = Uuid::parse_str(page_id_str.to_string_lossy().as_ref()).map_err(|_| {
+        chatbot_err!(
+            ToolUseError,
+            format!("Failed to parse document page id: {:?}", page_id_str)
+        )
+    })?;
 
     Ok(DocumentProperties { page_id })
 }

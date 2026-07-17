@@ -117,12 +117,7 @@ impl ChatbotTool for CourseStructureTool {
                         module_name: p.module_name,
                     };
                 };
-                let learning_objectives = if let Ok(l_o) = get_objectives(b) {
-                    Some(l_o)
-                } else {
-                    // serde json error
-                    None // todo result to option
-                };
+                let learning_objectives = get_objectives(b).ok();
                 PageDocumentInfo {
                     page_title: p.page_title,
                     chapter_title: p.chapter_title,
@@ -146,7 +141,7 @@ impl ChatbotTool for CourseStructureTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some("The user has access to the course structure, so you shouldn't give it to them: they know it already. You can give an overview if asked. Use the course structure to find out more about the course and answer the user's questions. You can look up the content of the listed course pages with the document_lookup tool.".to_string())
+        Some("The user has access to the course structure, so you shouldn't give it to them: they know it already. You can give an overview if asked. Use the course structure to find out more about the course and answer the user's questions. You can look up the content of the listed course pages with the document_lookup tool. The learning objectives listed on the course front page are objectives for the whole course. Learning objectives listed on a chapter front page encompass the whole chapter, and objectives listed on a generic page are for the page only.".to_string())
     }
 
     fn get_arguments(&self) -> &Self::Arguments {

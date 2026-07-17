@@ -1,6 +1,8 @@
 use std::collections::HashMap;
+use std::str::FromStr;
 
 use headless_lms_utils::url_encoding::url_decode;
+use serde::{Deserialize, Deserializer};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
@@ -24,7 +26,23 @@ pub struct DocumentLookupState {
 pub struct DocumentLookupArguments {
     title: String,
     filepath: Option<String>,
+    #[serde(deserialize_with = "parse_uuid_permissibly_optional")]
     page_id: Option<Uuid>,
+}
+
+/// Deserializes an optional string field and parses it into an Uuid, doing this
+/// optionally without failure. If an error occurs, a None is returned. This is
+/// desired for the page_id field in DocumentLookupArguments, which is generated
+/// by an LLM and can be None or a non-Uuid string in some cases. If any errors
+/// should occur, they are emitted in ChatbotTools's from_db_and_arguments.
+fn parse_uuid_permissibly_optional<'de, D>(deserializer: D) -> Result<Option<Uuid>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let res = String::deserialize(deserializer)
+        .ok()
+        .and_then(|s| Uuid::from_str(&s).ok());
+    Ok(res)
 }
 
 /// Look up a document (page) from the course the chatbot is on.
@@ -44,13 +62,21 @@ impl ChatbotTool for DocumentLookupTool {
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
-        arguments: Self::Arguments,
+        mut arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
-        let page_id = if let Some(f) = &arguments.filepath {
-            parse_document_filepath(&f)?.page_id
-        } else if let Some(id) = &arguments.page_id {
+        let page_id = if let Some(id) = &arguments.page_id {
             id.to_owned()
+        } else if let Some(f) = &arguments.filepath {
+            let res = parse_document_filepath(&f);
+            match res {
+                Ok(d) => d.page_id,
+                Err(e) => Err(chatbot_err!(
+                    InvalidToolArguments,
+                    "Couldn't parse document file path and no valid page id was provided, unable to look up document.",
+                    e
+                ))?,
+            }
         } else {
             return Err(chatbot_err!(
                 InvalidToolArguments,
@@ -61,13 +87,14 @@ impl ChatbotTool for DocumentLookupTool {
         };
         let course_id = user_context.course_id;
         let page_title = url_decode(&arguments.title)?;
+        arguments.title = page_title;
 
         let page = headless_lms_models::chatbot_page_sync_statuses::get_latest_synced_page_content_by_page_id(conn, page_id).await?;
 
         let document =
             // Check if the titles match and the page is part of the same course as
             // the one the user is on.
-            if page.title == page_title && page.course_id == course_id {
+            if page.title == arguments.title && page.course_id == course_id {
                 // use markdown content if there is any. else use json as string
                 if let Some(content) = page.markdown_content {
                     Some(content)
@@ -125,12 +152,12 @@ impl ChatbotTool for DocumentLookupTool {
                     (
                         "page_id".to_string(),
                         LLMToolParamProperties {
-                                    param_type: "string".to_string(),
-                                    description: "The page_id of the document to look up. Either page_id or the filepath is required.".to_string(),
-                                },
+                            param_type: "string".to_string(),
+                            description: "The page_id of the document to look up. Either page_id or the filepath is required.".to_string(),
+                        },
                     )
                 ]),
-                required: vec!["title".to_string()],
+                required: vec!["title".to_string(), "page_id".to_string(), "filepath".to_string()],
                 additional_properties: false,
             },
             strict: true,

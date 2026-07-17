@@ -46,8 +46,9 @@ describe("migrateToLatest chain", () => {
   })
 
   test("applies the legacy option-feedback fixup on the shared path (not just the editor)", () => {
-    // A v1 multiple-choice option carrying only success/failure messages should have them folded
-    // into messageAfterSubmissionWhenSelected during the v1->v2 step, on every entry door.
+    // A v1 multiple-choice option carrying only success/failure messages has them folded into
+    // messageAfterSubmissionWhenSelected during the v1->v2 step; by v4 that lands as a
+    // when-selected-after-answer feedback message on the option.
     const item = generateMultipleChoicePrivateSpecQuiz(1, 2, 0)
     item.options = item.options.map((option, idx) => ({
       ...option,
@@ -63,8 +64,14 @@ describe("migrateToLatest chain", () => {
     if (migratedItem.type !== "multiple-choice") {
       throw new Error("expected a multiple-choice item")
     }
-    expect(migratedItem.options[0]?.messageAfterSubmissionWhenSelected).toBe("correct feedback")
-    expect(migratedItem.options[1]?.messageAfterSubmissionWhenSelected).toBe("wrong feedback")
+    expect(migratedItem.options[0]?.feedbackMessages).toContainEqual({
+      visibility: "when-selected-after-answer",
+      message: "correct feedback",
+    })
+    expect(migratedItem.options[1]?.feedbackMessages).toContainEqual({
+      visibility: "when-selected-after-answer",
+      message: "wrong feedback",
+    })
   })
 
   test("migrates a v1 answer against the migrated spec", () => {

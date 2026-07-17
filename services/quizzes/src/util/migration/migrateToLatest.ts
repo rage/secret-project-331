@@ -29,6 +29,12 @@ import type {
   PublicSpecQuizV2,
   UserAnswerV2,
 } from "../../../types/quizTypes/v2"
+import type {
+  ModelSolutionQuizV3,
+  PrivateSpecQuizV3,
+  PublicSpecQuizV3,
+  UserAnswerV3,
+} from "../../../types/quizTypes/v3"
 import { migrateQuiz } from "../migrate"
 import migrateModelSolutionSpecQuiz from "./modelSolutionSpecQuiz"
 import { migratePrivateSpecQuiz } from "./privateSpecQuiz"
@@ -40,6 +46,12 @@ import {
   migratePublicSpecV2ToV3,
   migrateUserAnswerV2ToV3,
 } from "./v2ToV3"
+import {
+  migrateModelSolutionV3ToV4,
+  migratePrivateSpecV3ToV4,
+  migratePublicSpecV3ToV4,
+  migrateUserAnswerV3ToV4,
+} from "./v3ToV4"
 import { detectQuizVersion, LATEST_QUIZ_VERSION, type QuizSpecVersion } from "./versions"
 
 /** A step migrates a spec blob up exactly one version. Keyed by the version it accepts. */
@@ -71,16 +83,19 @@ const runSpecChain = (blob: unknown, steps: SpecMigrationSteps, kind: string): u
 const privateSpecSteps: SpecMigrationSteps = {
   "1": (blob) => migratePrivateSpecQuiz(migrateQuiz(blob)),
   "2": (blob) => migratePrivateSpecV2ToV3(blob as PrivateSpecQuizV2),
+  "3": (blob) => migratePrivateSpecV3ToV4(blob as PrivateSpecQuizV3),
 }
 
 const publicSpecSteps: SpecMigrationSteps = {
   "1": (blob) => migratePublicSpecQuiz(blob as OldPublicQuiz),
   "2": (blob) => migratePublicSpecV2ToV3(blob as PublicSpecQuizV2),
+  "3": (blob) => migratePublicSpecV3ToV4(blob as PublicSpecQuizV3),
 }
 
 const modelSolutionSteps: SpecMigrationSteps = {
   "1": (blob) => migrateModelSolutionSpecQuiz(blob as OldModelSolutionQuiz),
   "2": (blob) => migrateModelSolutionV2ToV3(blob as ModelSolutionQuizV2),
+  "3": (blob) => migrateModelSolutionV3ToV4(blob as ModelSolutionQuizV3),
 }
 
 export const migratePrivateSpecToLatest = (blob: unknown): PrivateSpecQuiz =>
@@ -105,6 +120,7 @@ type AnswerMigrationStep = (
 const answerSteps: Partial<Record<QuizSpecVersion, AnswerMigrationStep>> = {
   "1": (answer, spec) => migrateQuizAnswer(answer as OldQuizAnswer, spec),
   "2": (answer) => migrateUserAnswerV2ToV3(answer as UserAnswerV2),
+  "3": (answer) => migrateUserAnswerV3ToV4(answer as UserAnswerV3),
 }
 
 export const migrateUserAnswerToLatest = (
@@ -144,6 +160,6 @@ export const createEmptyPrivateSpec = (): PrivateSpecQuiz => ({
   awardPointsEvenIfWrong: false,
   grantPointsPolicy: "grant_whenever_possible",
   quizItemDisplayDirection: "vertical",
-  submitMessage: null,
+  feedbackMessages: [],
   items: [],
 })

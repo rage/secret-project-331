@@ -325,6 +325,21 @@ The private spec is the _only_ thing that gets saved. So the iron rule for the e
   derivation was a spread-then-delete (cast the private spec, `delete` one field) and is the live
   example L9 warns against.
 
+### 11. Model recurring optional teacher messages as a visibility-tagged array, not one named field per moment
+
+Feedback-to-student text tends to accrete one named field per display moment (`successMessage`,
+`failureMessage`, `messageOnModelSolution`, `submitMessage`, …). Quizzes ended up with six such
+fields across three scopes; each needed its own editor control (copy-pasted per item type — five
+item types never even got the UI), its own migration line, and its own leak analysis, and one field
+(`sharedOptionFeedbackMessage`) turned out completely dead — defined, migrated, and never read.
+In practice a teacher uses only one or two moments per exercise, so fixed per-moment fields are the
+wrong shape. Model it instead as one array of `{ visibility, message }` with a scope-appropriate
+visibility enum (quizzes: `services/quizzes/types/quizTypes/privateSpec.ts`,
+`QuizFeedbackMessage` / `QuizOptionFeedbackMessage`). This gives one shared editor component
+("add feedback message" → visibility dropdown + text field), additive extension (a new moment is a
+new enum value, not a schema change), and a trivial model-solution projection — filter by
+`on-model-solution` and carry plain strings, so after-answer text structurally cannot leak.
+
 ---
 
 ## Part II — Testing the data models and forms

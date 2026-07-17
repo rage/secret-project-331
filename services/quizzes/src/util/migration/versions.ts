@@ -8,8 +8,8 @@
 
 /** v1 is the pre-version "old quiz" format: its blobs have no `version` field at all. */
 export const OLDEST_QUIZ_VERSION = "1" as const
-export const LATEST_QUIZ_VERSION = "3" as const
-export type QuizSpecVersion = "1" | "2" | "3"
+export const LATEST_QUIZ_VERSION = "4" as const
+export type QuizSpecVersion = "1" | "2" | "3" | "4"
 
 /** A stored blob with no `version` field is the v1 ("old quiz") format. */
 export function detectQuizVersion(blob: unknown): QuizSpecVersion {

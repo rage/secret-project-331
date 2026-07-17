@@ -62,48 +62,42 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         type,
         id: v4(),
         body: null,
-        failureMessage: null,
         order: 0,
-        successMessage: null,
         title: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemCheckbox
     case "choose-n":
       return {
         type,
         id: v4(),
-        failureMessage: null,
         order: 0,
-        successMessage: null,
         title: null,
         body: null,
         n: 2,
         options: [],
-        messageOnModelSolution: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemChooseN
     case "closed-ended-question":
       return {
         type,
         id: v4(),
         body: null,
-        failureMessage: null,
         formatRegex: null,
         gradingStrategy: null,
-        messageOnModelSolution: null,
         order: 0,
-        successMessage: null,
         title: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemClosedEndedQuestion
     case "essay":
       return {
         type,
         id: v4(),
         body: null,
-        failureMessage: null,
         maxWords: 150,
         minWords: 0,
         order: 0,
-        successMessage: null,
         title: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemEssay
     case "matrix":
       return {
@@ -111,8 +105,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         id: v4(),
         optionCells: createEmptyMatrix(),
         order: 0,
-        successMessage: null,
-        failureMessage: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemMatrix
     case "multiple-choice":
       return {
@@ -121,16 +114,13 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         allowSelectingMultipleOptions: false,
         body: null,
         optionDisplayDirection: "vertical",
-        failureMessage: null,
         multipleChoiceMultipleOptionsGradingPolicy: "default",
         order: 0,
-        sharedOptionFeedbackMessage: null,
         shuffleOptions: false,
-        successMessage: null,
         title: null,
         fogOfWar: false,
         options: [],
-        messageOnModelSolution: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemMultiplechoice
     case "multiple-choice-dropdown":
       return {
@@ -139,40 +129,34 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         allowSelectingMultipleOptions: false,
         body: null,
         direction: "row",
-        failureMessage: null,
         multipleChoiceMultipleOptionsGradingPolicy: "default",
         order: 0,
-        sharedOptionFeedbackMessage: null,
         shuffleOptions: false,
-        successMessage: null,
         title: null,
         options: [],
-        messageOnModelSolution: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemMultiplechoiceDropdown
     case "scale":
       return {
         type,
         id: v4(),
-        failureMessage: null,
         maxLabel: null,
         maxValue: 5,
         minLabel: null,
         minValue: 0,
         order: 0,
-        successMessage: null,
         title: null,
         body: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemScale
     case "timeline":
       return {
         events: [],
         type,
         id: v4(),
-        failureMessage: null,
         order: 0,
-        successMessage: null,
         timelineItems: [],
-        messageOnModelSolution: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemTimeline
   }
 }

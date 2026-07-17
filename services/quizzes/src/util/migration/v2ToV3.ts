@@ -11,18 +11,20 @@
  * from one graded as a string, and silently changing grading during migration would be worse than
  * the status quo. Teachers upgrade an item to exact-match / numeric by editing it.
  */
-import type { UserAnswer } from "../../../types/quizTypes/answer"
-import type { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
-import type { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
-import type { PublicSpecQuiz } from "../../../types/quizTypes/publicSpec"
 import type {
   ModelSolutionQuizV2,
   PrivateSpecQuizV2,
   PublicSpecQuizV2,
   UserAnswerV2,
 } from "../../../types/quizTypes/v2"
+import type {
+  ModelSolutionQuizV3,
+  PrivateSpecQuizV3,
+  PublicSpecQuizV3,
+  UserAnswerV3,
+} from "../../../types/quizTypes/v3"
 
-export const migratePrivateSpecV2ToV3 = (quiz: PrivateSpecQuizV2): PrivateSpecQuiz => {
+export const migratePrivateSpecV2ToV3 = (quiz: PrivateSpecQuizV2): PrivateSpecQuizV3 => {
   return {
     ...quiz,
     version: "3",
@@ -48,7 +50,7 @@ export const migratePrivateSpecV2ToV3 = (quiz: PrivateSpecQuizV2): PrivateSpecQu
   }
 }
 
-export const migrateModelSolutionV2ToV3 = (quiz: ModelSolutionQuizV2): ModelSolutionQuiz => {
+export const migrateModelSolutionV2ToV3 = (quiz: ModelSolutionQuizV2): ModelSolutionQuizV3 => {
   return {
     ...quiz,
     version: "3",
@@ -63,12 +65,12 @@ export const migrateModelSolutionV2ToV3 = (quiz: ModelSolutionQuizV2): ModelSolu
   }
 }
 
-export const migratePublicSpecV2ToV3 = (quiz: PublicSpecQuizV2): PublicSpecQuiz => {
+export const migratePublicSpecV2ToV3 = (quiz: PublicSpecQuizV2): PublicSpecQuizV3 => {
   // Public closed-ended items are structurally unchanged between v2 and v3.
   return { ...quiz, version: "3" }
 }
 
-export const migrateUserAnswerV2ToV3 = (answer: UserAnswerV2): UserAnswer => {
+export const migrateUserAnswerV2ToV3 = (answer: UserAnswerV2): UserAnswerV3 => {
   // The answer shape is structurally unchanged between v2 and v3.
   return { ...answer, version: "3" }
 }

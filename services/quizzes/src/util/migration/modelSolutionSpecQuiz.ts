@@ -1,20 +1,20 @@
 import type { OldModelSolutionQuiz, OldModelSolutionQuizItem } from "../../../types/oldQuizTypes"
-import type {
-  ModelSolutionQuizItemCheckbox,
-  ModelSolutionQuizItemChooseN,
-  ModelSolutionQuizItemEssay,
-  ModelSolutionQuizItemMatrix,
-  ModelSolutionQuizItemMultiplechoice,
-  ModelSolutionQuizItemMultiplechoiceDropdown,
-  ModelSolutionQuizItemScale,
-  ModelSolutionQuizItemTimeline,
-} from "../../../types/quizTypes/modelSolutionSpec"
 import type { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
 import type {
   ModelSolutionQuizItemClosedEndedQuestionV2,
   ModelSolutionQuizItemV2,
   ModelSolutionQuizV2,
 } from "../../../types/quizTypes/v2"
+import type {
+  ModelSolutionQuizItemCheckboxV3,
+  ModelSolutionQuizItemChooseNV3,
+  ModelSolutionQuizItemEssayV3,
+  ModelSolutionQuizItemMatrixV3,
+  ModelSolutionQuizItemMultiplechoiceV3,
+  ModelSolutionQuizItemMultiplechoiceDropdownV3,
+  ModelSolutionQuizItemScaleV3,
+  ModelSolutionQuizItemTimelineV3,
+} from "../../../types/quizTypes/v3"
 import { sanitizeQuizDirection } from "../css-sanitization"
 import { DEFAULT_N } from "./migrationSettings"
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
@@ -34,7 +34,7 @@ const migrateModelSolutionSpecQuizItem = (
         order: quizItem.order,
         title: quizItem.title,
         messageOnModelSolution: null,
-      } satisfies ModelSolutionQuizItemEssay
+      } satisfies ModelSolutionQuizItemEssayV3
     case "multiple-choice":
       return {
         id: quizItem.id,
@@ -52,7 +52,7 @@ const migrateModelSolutionSpecQuizItem = (
         options: quizItem.options,
         shuffleOptions: quizItem.shuffleOptions,
         messageOnModelSolution: null,
-      } satisfies ModelSolutionQuizItemMultiplechoice
+      } satisfies ModelSolutionQuizItemMultiplechoiceV3
     case "scale":
       return {
         id: quizItem.id,
@@ -67,7 +67,7 @@ const migrateModelSolutionSpecQuizItem = (
         maxValue: quizItem.maxValue,
         minValue: quizItem.minValue,
         messageOnModelSolution: null,
-      } satisfies ModelSolutionQuizItemScale
+      } satisfies ModelSolutionQuizItemScaleV3
     case "checkbox":
       return {
         id: quizItem.id,
@@ -78,7 +78,7 @@ const migrateModelSolutionSpecQuizItem = (
         successMessage: quizItem.successMessage,
         title: quizItem.title,
         messageOnModelSolution: null,
-      } satisfies ModelSolutionQuizItemCheckbox
+      } satisfies ModelSolutionQuizItemCheckboxV3
     case "open":
       return {
         id: quizItem.id,
@@ -100,7 +100,7 @@ const migrateModelSolutionSpecQuizItem = (
         optionCells: quizItem.optionCells,
         successMessage: quizItem.successMessage,
         messageOnModelSolution: null,
-      } satisfies ModelSolutionQuizItemMatrix
+      } satisfies ModelSolutionQuizItemMatrixV3
     case "timeline":
       return {
         id: quizItem.id,
@@ -110,7 +110,7 @@ const migrateModelSolutionSpecQuizItem = (
         successMessage: quizItem.successMessage,
         timelineItems: quizItem.timelineItems,
         messageOnModelSolution: null,
-      } satisfies ModelSolutionQuizItemTimeline
+      } satisfies ModelSolutionQuizItemTimelineV3
     case "clickable-multiple-choice":
       return {
         id: quizItem.id,
@@ -123,7 +123,7 @@ const migrateModelSolutionSpecQuizItem = (
         options: quizItem.options,
         n: CHOOSE_N_DEFAULT_VALUE,
         messageOnModelSolution: null,
-      } satisfies ModelSolutionQuizItemChooseN
+      } satisfies ModelSolutionQuizItemChooseNV3
     case "multiple-choice-dropdown":
       return {
         id: quizItem.id,
@@ -135,7 +135,7 @@ const migrateModelSolutionSpecQuizItem = (
         successMessage: quizItem.successMessage,
         options: quizItem.options,
         messageOnModelSolution: null,
-      } satisfies ModelSolutionQuizItemMultiplechoiceDropdown
+      } satisfies ModelSolutionQuizItemMultiplechoiceDropdownV3
     default:
       throw new Error(`Unknown quiz item type: '${quizItem.type}'`)
   }

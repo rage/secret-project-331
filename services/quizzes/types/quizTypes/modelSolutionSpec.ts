@@ -2,24 +2,28 @@ import type { DisplayDirection } from "./privateSpec"
 
 type grantPointsPolicy = "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
 
+/**
+ * Feedback shown once the model solution is revealed. Derived by filtering each scope's
+ * `feedbackMessages` down to the `on-model-solution` visibility, so the after-answer messages
+ * structurally cannot leak here (mirrors the `correctAnswerDisplayTexts` allowlist precedent).
+ */
 export interface QuizItemOption {
   id: string
   order: number
   correct: boolean
   title: string | null
   body: string | null
-  messageAfterSubmissionWhenSelected: null | string
-  additionalCorrectnessExplanationOnModelSolution: null | string
+  messagesOnModelSolution: string[]
 }
 
 export interface ModelSolutionQuiz {
-  version: "3"
+  version: "4"
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: grantPointsPolicy
   items: ModelSolutionQuizItem[]
   title: string | null
   body: string | null
-  submitMessage: string | null
+  messagesOnModelSolution: string[]
 }
 
 export type QuizItemType =
@@ -59,10 +63,7 @@ export interface ModelSolutionQuizItemMultiplechoice {
   options: QuizItemOption[]
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  messageOnModelSolution: string | null
-  sharedOptionFeedbackMessage: string | null
+  messagesOnModelSolution: string[]
   optionDisplayDirection: DisplayDirection
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
 }
@@ -75,9 +76,7 @@ export interface ModelSolutionQuizItemEssay {
   maxWords: number | null
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  messageOnModelSolution: string | null
+  messagesOnModelSolution: string[]
 }
 
 export interface ModelSolutionQuizItemScale {
@@ -90,9 +89,7 @@ export interface ModelSolutionQuizItemScale {
   minLabel: string | null
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  messageOnModelSolution: string | null
+  messagesOnModelSolution: string[]
 }
 
 export interface ModelSolutionQuizItemCheckbox {
@@ -101,9 +98,7 @@ export interface ModelSolutionQuizItemCheckbox {
   order: number
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  messageOnModelSolution: string | null
+  messagesOnModelSolution: string[]
 }
 
 export interface ModelSolutionQuizItemClosedEndedQuestion {
@@ -113,9 +108,7 @@ export interface ModelSolutionQuizItemClosedEndedQuestion {
   formatRegex: string | null
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  messageOnModelSolution: string | null
+  messagesOnModelSolution: string[]
   /**
    * Representative correct answer(s) as display text, or null when there is nothing safe to reveal
    * (a regex strategy without an example answer, or a draft). Never contains the regex pattern or
@@ -129,9 +122,7 @@ export interface ModelSolutionQuizItemMatrix {
   id: string
   order: number
   optionCells: string[][] | null
-  successMessage: string | null
-  failureMessage: string | null
-  messageOnModelSolution: string | null
+  messagesOnModelSolution: string[]
 }
 
 export interface ModelSolutionQuizItemTimelineItem {
@@ -148,9 +139,7 @@ export interface ModelSolutionQuizItemTimeline {
   type: "timeline"
   id: string
   order: number
-  successMessage: string | null
-  failureMessage: string | null
-  messageOnModelSolution: string | null
+  messagesOnModelSolution: string[]
   timelineItems: ModelSolutionQuizItemTimelineItem[] | null
 }
 
@@ -162,9 +151,7 @@ export interface ModelSolutionQuizItemChooseN {
   options: QuizItemOption[]
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  messageOnModelSolution: string | null
+  messagesOnModelSolution: string[]
 }
 
 export interface ModelSolutionQuizItemMultiplechoiceDropdown {
@@ -174,7 +161,5 @@ export interface ModelSolutionQuizItemMultiplechoiceDropdown {
   options: QuizItemOption[]
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  messageOnModelSolution: string | null
+  messagesOnModelSolution: string[]
 }

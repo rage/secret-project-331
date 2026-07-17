@@ -15,7 +15,6 @@ import type {
   PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
-  PrivateSpecQuizItemTimelineItem,
   QuizItemOption,
 } from "../../types/quizTypes/privateSpec"
 import type {
@@ -27,8 +26,7 @@ import type {
 } from "../../types/quizTypes/publicSpec"
 import testClient from "./utils/appRouterTestClient"
 import {
-  ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
-  FAILURE_MESSAGE_CANARY_FOR_TESTS,
+  AFTER_ANSWER_AND_ACCEPTANCE_CANARIES,
   generatePrivateSpecWithOneCheckboxQuizItem,
   generatePrivateSpecWithOneChooseNQuizItem,
   generatePrivateSpecWithOneClosedEndedQuestionQuizItem,
@@ -38,16 +36,12 @@ import {
   generatePrivateSpecWithOneMultipleChoiceQuizItem,
   generatePrivateSpecWithOneScaleQuizItem,
   generatePrivateSpecWithOneTimelineQuizItem,
-  MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
-  MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+  ON_MODEL_SOLUTION_CANARIES,
   OPTION_CELLS_CANARY_FOR_TESTS,
-  SHARED_OPTION_FEEDBACK_MESSAGE_CANARY_FOR_TESTS,
-  SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-  VALIDITY_REGEX_CANARY_FOR_TESTS,
 } from "./utils/privateSpecGenerator"
 
 const client = testClient(handlePublicSpec)
-const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/public-spec"
+const PUBLIC_SPEC_ENDPOINT = "/api/public-spec"
 
 /**
  * This function checks that the object does not have the properties in the notAllowedProperties array.
@@ -64,144 +58,84 @@ function expectPropertiesHaveBeenRemoved<T>(object: unknown, notAllowedPropertie
 }
 
 /**
- * Stringifies the object and checks that no known canary strings are in the output.
- * Canary strings are special strings for which we know that they should not be in the output.
- * If they somehow end up in the output, we know that something has been leaked.
+ * Stringifies the object and checks that no known canary strings are in the output. The public spec
+ * carries no feedback at all, so neither after-answer nor on-model-solution canaries may appear, and
+ * the acceptance-rule (validity regex) and option-cell canaries must be gone too.
  */
 function expectNoCanariesInOutput(object: unknown) {
-  // Additional checking just to be sure. If we see a canary string, we know something has been leaked.
   const objectAsString = JSON.stringify(object)
-  expect(objectAsString).not.toContain(MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS)
-  expect(objectAsString).not.toContain(
-    ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
-  )
-  expect(objectAsString).not.toContain(SUCCESS_MESSAGE_CANARY_FOR_TESTS)
-  expect(objectAsString).not.toContain(SHARED_OPTION_FEEDBACK_MESSAGE_CANARY_FOR_TESTS)
-  expect(objectAsString).not.toContain(FAILURE_MESSAGE_CANARY_FOR_TESTS)
-  expect(objectAsString).not.toContain(VALIDITY_REGEX_CANARY_FOR_TESTS)
+  for (const canary of [...AFTER_ANSWER_AND_ACCEPTANCE_CANARIES, ...ON_MODEL_SOLUTION_CANARIES]) {
+    expect(objectAsString).not.toContain(canary)
+  }
   expect(objectAsString).not.toContain(OPTION_CELLS_CANARY_FOR_TESTS)
-  expect(objectAsString).not.toContain(MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS)
+}
+
+async function generatePublicSpec(privateSpec: PrivateSpecQuiz): Promise<PublicSpecQuiz> {
+  const specRequest: SpecRequest = {
+    request_id: "1",
+    private_spec: privateSpec,
+    upload_url: null,
+  }
+  const response = await client.post(PUBLIC_SPEC_ENDPOINT).send(specRequest)
+  expect(response.status).toBe(200)
+  return response.body as PublicSpecQuiz
 }
 
 describe("Public spec generation", () => {
   it("Generating with a multiple choice doesn't add illegal properties", async () => {
-    const privateSpec = generatePrivateSpecWithOneMultipleChoiceQuizItem()
-    const specRequest: SpecRequest = {
-      request_id: "1",
-      private_spec: privateSpec,
-      upload_url: null,
-    }
-    const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toBe(200)
-    const publicSpec = response.body as PublicSpecQuiz
+    const publicSpec = await generatePublicSpec(generatePrivateSpecWithOneMultipleChoiceQuizItem())
 
-    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
-    // verify quiz items
+    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["feedbackMessages"])
     for (const quizItem of publicSpec.items) {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemMultiplechoice>(quizItem, [
-        "successMessage",
-        "failureMessage",
-        "messageOnModelSolution",
-        "sharedOptionFeedbackMessage",
+        "feedbackMessages",
       ])
       for (const option of (quizItem as PublicSpecQuizItemMultiplechoice).options) {
-        expectPropertiesHaveBeenRemoved<QuizItemOption>(option, [
-          "correct",
-          "messageAfterSubmissionWhenSelected",
-          "additionalCorrectnessExplanationOnModelSolution",
-        ])
+        expectPropertiesHaveBeenRemoved<QuizItemOption>(option, ["correct", "feedbackMessages"])
       }
     }
     expectNoCanariesInOutput(publicSpec)
   })
 
   it("Generating with a essay doesn't add illegal properties", async () => {
-    const privateSpec = generatePrivateSpecWithOneEssayQuizItem()
-    const specRequest: SpecRequest = {
-      request_id: "1",
-      private_spec: privateSpec,
-      upload_url: null,
-    }
-    const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toBe(200)
-    const publicSpec = response.body as PublicSpecQuiz
+    const publicSpec = await generatePublicSpec(generatePrivateSpecWithOneEssayQuizItem())
 
-    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
-    // verify quiz items
+    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["feedbackMessages"])
     for (const quizItem of publicSpec.items) {
-      expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemEssay>(quizItem, [
-        "successMessage",
-        "failureMessage",
-        "messageOnModelSolution",
-      ])
+      expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemEssay>(quizItem, ["feedbackMessages"])
     }
     expectNoCanariesInOutput(publicSpec)
   })
 
   it("Generating with a scale doesn't add illegal properties", async () => {
-    const privateSpec = generatePrivateSpecWithOneScaleQuizItem()
-    const specRequest: SpecRequest = {
-      request_id: "1",
-      private_spec: privateSpec,
-      upload_url: null,
-    }
-    const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toBe(200)
-    const publicSpec = response.body as PublicSpecQuiz
+    const publicSpec = await generatePublicSpec(generatePrivateSpecWithOneScaleQuizItem())
 
-    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
-    // verify quiz items
+    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["feedbackMessages"])
     for (const quizItem of publicSpec.items) {
-      expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemScale>(quizItem, [
-        "successMessage",
-        "failureMessage",
-        "messageOnModelSolution",
-      ])
+      expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemScale>(quizItem, ["feedbackMessages"])
     }
     expectNoCanariesInOutput(publicSpec)
   })
 
   it("Generating with a checkbox doesn't add illegal properties", async () => {
-    const privateSpec = generatePrivateSpecWithOneCheckboxQuizItem()
-    const specRequest: SpecRequest = {
-      request_id: "1",
-      private_spec: privateSpec,
-      upload_url: null,
-    }
-    const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toBe(200)
-    const publicSpec = response.body as PublicSpecQuiz
+    const publicSpec = await generatePublicSpec(generatePrivateSpecWithOneCheckboxQuizItem())
 
-    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
-    // verify quiz items
+    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["feedbackMessages"])
     for (const quizItem of publicSpec.items) {
-      expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemCheckbox>(quizItem, [
-        "successMessage",
-        "failureMessage",
-        "messageOnModelSolution",
-      ])
+      expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemCheckbox>(quizItem, ["feedbackMessages"])
     }
     expectNoCanariesInOutput(publicSpec)
   })
 
   it("Generating with a closed ended question doesn't add illegal properties", async () => {
-    const privateSpec = generatePrivateSpecWithOneClosedEndedQuestionQuizItem()
-    const specRequest: SpecRequest = {
-      request_id: "1",
-      private_spec: privateSpec,
-      upload_url: null,
-    }
-    const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toBe(200)
-    const publicSpec = response.body as PublicSpecQuiz
+    const publicSpec = await generatePublicSpec(
+      generatePrivateSpecWithOneClosedEndedQuestionQuizItem(),
+    )
 
-    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
-    // verify quiz items
+    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["feedbackMessages"])
     for (const quizItem of publicSpec.items) {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemClosedEndedQuestion>(quizItem, [
-        "successMessage",
-        "failureMessage",
-        "messageOnModelSolution",
+        "feedbackMessages",
         "gradingStrategy",
       ])
     }
@@ -209,23 +143,12 @@ describe("Public spec generation", () => {
   })
 
   it("Generating with a matrix doesn't add illegal properties", async () => {
-    const privateSpec = generatePrivateSpecWithOneMatrixQuizItem()
-    const specRequest: SpecRequest = {
-      request_id: "1",
-      private_spec: privateSpec,
-      upload_url: null,
-    }
-    const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toBe(200)
-    const publicSpec = response.body as PublicSpecQuiz
+    const publicSpec = await generatePublicSpec(generatePrivateSpecWithOneMatrixQuizItem())
 
-    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
-    // verify quiz items
+    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["feedbackMessages"])
     for (const quizItem of publicSpec.items) {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemMatrix>(quizItem, [
-        "successMessage",
-        "failureMessage",
-        "messageOnModelSolution",
+        "feedbackMessages",
         "optionCells",
       ])
     }
@@ -233,89 +156,46 @@ describe("Public spec generation", () => {
   })
 
   it("Generating with a timeline doesn't add illegal properties", async () => {
-    const privateSpec = generatePrivateSpecWithOneTimelineQuizItem()
-    const specRequest: SpecRequest = {
-      request_id: "1",
-      private_spec: privateSpec,
-      upload_url: null,
-    }
-    const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toBe(200)
-    const publicSpec = response.body as PublicSpecQuiz
+    const publicSpec = await generatePublicSpec(generatePrivateSpecWithOneTimelineQuizItem())
 
-    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
-    // verify quiz items
+    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["feedbackMessages"])
     for (const quizItem of publicSpec.items) {
-      expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemTimeline>(quizItem, [
-        "successMessage",
-        "failureMessage",
-        "messageOnModelSolution",
-      ])
-      for (const timelineItems of (quizItem as PublicSpecQuizItemTimeline).timelineItems) {
-        expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemTimelineItem>(timelineItems, [
-          "correctEventId",
-          "correctEventName",
-        ])
+      expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemTimeline>(quizItem, ["feedbackMessages"])
+      for (const timelineItem of (quizItem as PublicSpecQuizItemTimeline).timelineItems) {
+        expectPropertiesHaveBeenRemoved<{ correctEventId: string; correctEventName: string }>(
+          timelineItem,
+          ["correctEventId", "correctEventName"],
+        )
       }
     }
     expectNoCanariesInOutput(publicSpec)
   })
 
   it("Generating with a choose n doesn't add illegal properties", async () => {
-    const privateSpec = generatePrivateSpecWithOneChooseNQuizItem()
-    const specRequest: SpecRequest = {
-      request_id: "1",
-      private_spec: privateSpec,
-      upload_url: null,
-    }
-    const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toBe(200)
-    const publicSpec = response.body as PublicSpecQuiz
+    const publicSpec = await generatePublicSpec(generatePrivateSpecWithOneChooseNQuizItem())
 
-    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
-    // verify quiz items
+    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["feedbackMessages"])
     for (const quizItem of publicSpec.items) {
-      expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemChooseN>(quizItem, [
-        "successMessage",
-        "failureMessage",
-        "messageOnModelSolution",
-      ])
+      expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemChooseN>(quizItem, ["feedbackMessages"])
       for (const option of (quizItem as PublicSpecQuizItemChooseN).options) {
-        expectPropertiesHaveBeenRemoved<QuizItemOption>(option, [
-          "correct",
-          "messageAfterSubmissionWhenSelected",
-          "additionalCorrectnessExplanationOnModelSolution",
-        ])
+        expectPropertiesHaveBeenRemoved<QuizItemOption>(option, ["correct", "feedbackMessages"])
       }
     }
     expectNoCanariesInOutput(publicSpec)
   })
 
   it("Generating with a multiple choice dropdown doesn't add illegal properties", async () => {
-    const privateSpec = generatePrivateSpecWithOneMultipleChoiceDropdownQuizItem()
-    const specRequest: SpecRequest = {
-      request_id: "1",
-      private_spec: privateSpec,
-      upload_url: null,
-    }
-    const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toBe(200)
-    const publicSpec = response.body as PublicSpecQuiz
+    const publicSpec = await generatePublicSpec(
+      generatePrivateSpecWithOneMultipleChoiceDropdownQuizItem(),
+    )
 
-    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
-    // verify quiz items
+    expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["feedbackMessages"])
     for (const quizItem of publicSpec.items) {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemMultiplechoiceDropdown>(quizItem, [
-        "successMessage",
-        "failureMessage",
-        "messageOnModelSolution",
+        "feedbackMessages",
       ])
       for (const option of (quizItem as PublicSpecQuizItemMultiplechoiceDropdown).options) {
-        expectPropertiesHaveBeenRemoved<QuizItemOption>(option, [
-          "correct",
-          "messageAfterSubmissionWhenSelected",
-          "additionalCorrectnessExplanationOnModelSolution",
-        ])
+        expectPropertiesHaveBeenRemoved<QuizItemOption>(option, ["correct", "feedbackMessages"])
       }
     }
     expectNoCanariesInOutput(publicSpec)

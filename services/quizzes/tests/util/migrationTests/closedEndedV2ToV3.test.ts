@@ -1,9 +1,10 @@
 import { migratePrivateSpecV2ToV3 } from "../../../src/util/migration/v2ToV3"
-import type { PrivateSpecQuizItemEssay } from "../../../types/quizTypes/privateSpec"
 import type {
   PrivateSpecQuizItemClosedEndedQuestionV2,
   PrivateSpecQuizV2,
 } from "../../../types/quizTypes/v2"
+// The v2 quiz re-uses the v3 essay shape (only closed-ended changed between v2 and v3).
+import type { PrivateSpecQuizItemEssayV3 as PrivateSpecQuizItemEssay } from "../../../types/quizTypes/v3"
 
 const essayItem: PrivateSpecQuizItemEssay = {
   type: "essay",

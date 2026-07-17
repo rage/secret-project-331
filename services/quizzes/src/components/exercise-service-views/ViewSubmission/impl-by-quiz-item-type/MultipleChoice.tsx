@@ -7,6 +7,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
 import type { FlexDirection } from "@/util/css-sanitization"
 import { sanitizeFlexDirection } from "@/util/css-sanitization"
+import { resolveDisplayedFeedback } from "@/util/feedbackMessages"
 import { orderArrayWithId } from "@/util/randomizer"
 
 import type { QuizItemSubmissionComponentProps } from "."
@@ -137,11 +138,10 @@ const MultipleChoiceSubmission: React.FC<
           }
           let feedBackForOption: string | null = null
           if (answerSelectedThisOption) {
-            feedBackForOption = feedbackForThisOption?.option_feedback ?? null
-            if (modelSolutionForThisOption?.additionalCorrectnessExplanationOnModelSolution) {
-              feedBackForOption =
-                modelSolutionForThisOption.additionalCorrectnessExplanationOnModelSolution
-            }
+            feedBackForOption = resolveDisplayedFeedback(
+              feedbackForThisOption?.option_feedback,
+              modelSolutionForThisOption?.messagesOnModelSolution,
+            )
           }
           return (
             <div key={qo.id}>

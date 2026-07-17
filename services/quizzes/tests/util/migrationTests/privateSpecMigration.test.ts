@@ -2,18 +2,20 @@ import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQ
 import { detectQuizVersion } from "../../../src/util/migration/versions"
 import type { OldQuiz, OldQuizItemTimelineItem, QuizItem } from "../../../types/oldQuizTypes"
 import type {
-  PrivateSpecQuizItemCheckbox,
-  PrivateSpecQuizItemChooseN,
-  PrivateSpecQuizItemEssay,
-  PrivateSpecQuizItemMatrix,
-  PrivateSpecQuizItemMultiplechoice,
-  PrivateSpecQuizItemScale,
-  PrivateSpecQuizItemTimeline,
-} from "../../../types/quizTypes/privateSpec"
-import type {
   PrivateSpecQuizItemClosedEndedQuestionV2,
   PrivateSpecQuizV2,
 } from "../../../types/quizTypes/v2"
+// migratePrivateSpecQuiz produces the frozen v2 shape (which re-uses the v3 item types for
+// everything except closed-ended), so the migrated items are annotated with the v3 snapshot types.
+import type {
+  PrivateSpecQuizItemCheckboxV3 as PrivateSpecQuizItemCheckbox,
+  PrivateSpecQuizItemChooseNV3 as PrivateSpecQuizItemChooseN,
+  PrivateSpecQuizItemEssayV3 as PrivateSpecQuizItemEssay,
+  PrivateSpecQuizItemMatrixV3 as PrivateSpecQuizItemMatrix,
+  PrivateSpecQuizItemMultiplechoiceV3 as PrivateSpecQuizItemMultiplechoice,
+  PrivateSpecQuizItemScaleV3 as PrivateSpecQuizItemScale,
+  PrivateSpecQuizItemTimelineV3 as PrivateSpecQuizItemTimeline,
+} from "../../../types/quizTypes/v3"
 import { oldGenerateQuiz } from "../../api/utils/oldQuizGenerator"
 import { comparePrivateSpecQuizItem, expectPrivateSpecMetadataToMatch } from "./utils/comparison"
 import {

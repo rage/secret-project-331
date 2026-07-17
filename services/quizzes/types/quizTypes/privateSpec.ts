@@ -1,25 +1,50 @@
 type GrantPointsPolicy = "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
 
+/**
+ * When a feedback message on a quiz or item is shown to the student. The tag replaces the old
+ * per-moment named fields (`successMessage` / `failureMessage` / `messageOnModelSolution` /
+ * `submitMessage`): the visibility, not the field name, decides which channel the text flows
+ * through. Correctness for the tags is the item's (or, at quiz level, the overall) score ratio.
+ */
+export type QuizFeedbackVisibility =
+  | "after-any-answer"
+  | "after-correct-answer"
+  | "after-partially-correct-answer"
+  | "after-incorrect-answer"
+  | "on-model-solution"
+
+export interface QuizFeedbackMessage {
+  visibility: QuizFeedbackVisibility
+  message: string
+}
+
+/** Option-level feedback has only two moments (today's semantics). */
+export type QuizOptionFeedbackVisibility = "when-selected-after-answer" | "on-model-solution"
+
+export interface QuizOptionFeedbackMessage {
+  visibility: QuizOptionFeedbackVisibility
+  message: string
+}
+
 export interface QuizItemOption {
   id: string
   order: number
   correct: boolean
   title: string | null
   body: string | null
-  messageAfterSubmissionWhenSelected: null | string
-  additionalCorrectnessExplanationOnModelSolution: null | string
+  feedbackMessages: QuizOptionFeedbackMessage[]
 }
 
 export type DisplayDirection = "horizontal" | "vertical"
 export interface PrivateSpecQuiz {
-  version: "3"
+  version: "4"
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: GrantPointsPolicy
   items: PrivateSpecQuizItem[]
   title: string | null
   body: string | null
   quizItemDisplayDirection: DisplayDirection
-  submitMessage: string | null
+  feedbackMessages: QuizFeedbackMessage[]
 }
 
 export type QuizItemType =
@@ -60,11 +85,7 @@ export interface PrivateSpecQuizItemMultiplechoice {
   options: QuizItemOption[]
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  /** Message to show either when the user has gotten full points or has ran out of tries. */
-  messageOnModelSolution: string | null
-  sharedOptionFeedbackMessage: string | null
+  feedbackMessages: QuizFeedbackMessage[]
   optionDisplayDirection: DisplayDirection
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
 }
@@ -77,10 +98,7 @@ export interface PrivateSpecQuizItemEssay {
   maxWords: number | null
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  /** Message to show either when the user has gotten full points or has ran out of tries. */
-  messageOnModelSolution: string | null
+  feedbackMessages: QuizFeedbackMessage[]
 }
 
 export interface PrivateSpecQuizItemScale {
@@ -93,10 +111,7 @@ export interface PrivateSpecQuizItemScale {
   minLabel: string | null
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  /** Message to show either when the user has gotten full points or has ran out of tries. */
-  messageOnModelSolution: string | null
+  feedbackMessages: QuizFeedbackMessage[]
 }
 
 export interface PrivateSpecQuizItemCheckbox {
@@ -105,10 +120,7 @@ export interface PrivateSpecQuizItemCheckbox {
   order: number
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  /** Message to show either when the user has gotten full points or has ran out of tries. */
-  messageOnModelSolution: string | null
+  feedbackMessages: QuizFeedbackMessage[]
 }
 
 /**
@@ -165,10 +177,7 @@ export interface PrivateSpecQuizItemClosedEndedQuestion {
   formatRegex: string | null
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  /** Message to show either when the user has gotten full points or has ran out of tries. */
-  messageOnModelSolution: string | null
+  feedbackMessages: QuizFeedbackMessage[]
 }
 
 export interface PrivateSpecQuizItemMatrix {
@@ -177,10 +186,7 @@ export interface PrivateSpecQuizItemMatrix {
   order: number
   title?: string | null
   optionCells: string[][] | null
-  successMessage: string | null
-  failureMessage: string | null
-  /** Message to show either when the user has gotten full points or has ran out of tries. */
-  messageOnModelSolution: string | null
+  feedbackMessages: QuizFeedbackMessage[]
 }
 
 export interface PrivateSpecQuizItemTimelineItem {
@@ -198,11 +204,8 @@ export interface PrivateSpecQuizItemTimeline {
   id: string
   order: number
   title?: string | null
-  successMessage: string | null
-  failureMessage: string | null
   timelineItems: PrivateSpecQuizItemTimelineItem[] | null
-  /** Message to show either when the user has gotten full points or has ran out of tries. */
-  messageOnModelSolution: string | null
+  feedbackMessages: QuizFeedbackMessage[]
 }
 
 export interface PrivateSpecQuizItemChooseN {
@@ -213,10 +216,7 @@ export interface PrivateSpecQuizItemChooseN {
   options: QuizItemOption[]
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  /** Message to show either when the user has gotten full points or has ran out of tries. */
-  messageOnModelSolution: string | null
+  feedbackMessages: QuizFeedbackMessage[]
 }
 
 export interface PrivateSpecQuizItemMultiplechoiceDropdown {
@@ -226,8 +226,5 @@ export interface PrivateSpecQuizItemMultiplechoiceDropdown {
   options: QuizItemOption[]
   title: string | null
   body: string | null
-  successMessage: string | null
-  failureMessage: string | null
-  /** Message to show either when the user has gotten full points or has ran out of tries. */
-  messageOnModelSolution: string | null
+  feedbackMessages: QuizFeedbackMessage[]
 }

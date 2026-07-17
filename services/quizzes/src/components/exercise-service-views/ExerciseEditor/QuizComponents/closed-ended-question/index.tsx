@@ -20,6 +20,9 @@ import type {
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import FeedbackMessagesEditor, {
+  useItemFeedbackVisibilityOptions,
+} from "../common/FeedbackMessagesEditor"
 import ParsedTextField from "../common/ParsedTextField"
 
 interface ClosedEndedQuestionEditorProps {
@@ -194,6 +197,7 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
 const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
   const [testStrings, setTestStrings] = useState([""])
+  const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemClosedEndedQuestion>((quiz) => {
@@ -544,17 +548,17 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
           <RegexTestTableContainer>
             <RegexTestTable quizItem={selected} testStrings={testStrings} />
           </RegexTestTableContainer>
-          <ParsedTextField
-            value={selected.messageOnModelSolution ?? ""}
-            onChange={(newValue) => {
+          <FeedbackMessagesEditor
+            value={selected.feedbackMessages}
+            visibilityOptions={itemFeedbackVisibilityOptions}
+            onChange={(feedbackMessages) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
-                draft.messageOnModelSolution = newValue
+                draft.feedbackMessages = feedbackMessages
               })
             }}
-            label={t("label-message-on-model-solution")}
           />
         </details>
       </Accordion>

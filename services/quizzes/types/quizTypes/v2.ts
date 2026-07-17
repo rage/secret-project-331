@@ -6,32 +6,30 @@
  * and let the v2->v3 step consume it, even as the current (latest) types evolve.
  *
  * Only `closed-ended-question` changed structurally between v2 and v3, so every other item type is
- * re-used from the current type modules. When a FUTURE version changes another item type, snapshot
- * that type's v2 shape here at that time — do not let a re-used current type drift.
+ * re-used from the frozen v3 snapshot (`v3.ts`). When a FUTURE version changes another item type,
+ * snapshot that type's v2 shape here at that time — do not let a re-used snapshot type drift.
  */
 import type { UserItemAnswer } from "./answer"
-import type {
-  ModelSolutionQuizItemCheckbox,
-  ModelSolutionQuizItemChooseN,
-  ModelSolutionQuizItemEssay,
-  ModelSolutionQuizItemMatrix,
-  ModelSolutionQuizItemMultiplechoice,
-  ModelSolutionQuizItemMultiplechoiceDropdown,
-  ModelSolutionQuizItemScale,
-  ModelSolutionQuizItemTimeline,
-} from "./modelSolutionSpec"
-import type {
-  DisplayDirection,
-  PrivateSpecQuizItemCheckbox,
-  PrivateSpecQuizItemChooseN,
-  PrivateSpecQuizItemEssay,
-  PrivateSpecQuizItemMatrix,
-  PrivateSpecQuizItemMultiplechoice,
-  PrivateSpecQuizItemMultiplechoiceDropdown,
-  PrivateSpecQuizItemScale,
-  PrivateSpecQuizItemTimeline,
-} from "./privateSpec"
+import type { DisplayDirection } from "./privateSpec"
 import type { PublicSpecQuizItem } from "./publicSpec"
+import type {
+  ModelSolutionQuizItemCheckboxV3,
+  ModelSolutionQuizItemChooseNV3,
+  ModelSolutionQuizItemEssayV3,
+  ModelSolutionQuizItemMatrixV3,
+  ModelSolutionQuizItemMultiplechoiceV3,
+  ModelSolutionQuizItemMultiplechoiceDropdownV3,
+  ModelSolutionQuizItemScaleV3,
+  ModelSolutionQuizItemTimelineV3,
+  PrivateSpecQuizItemCheckboxV3,
+  PrivateSpecQuizItemChooseNV3,
+  PrivateSpecQuizItemEssayV3,
+  PrivateSpecQuizItemMatrixV3,
+  PrivateSpecQuizItemMultiplechoiceV3,
+  PrivateSpecQuizItemMultiplechoiceDropdownV3,
+  PrivateSpecQuizItemScaleV3,
+  PrivateSpecQuizItemTimelineV3,
+} from "./v3"
 
 type GrantPointsPolicy = "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
 
@@ -51,15 +49,15 @@ export interface PrivateSpecQuizItemClosedEndedQuestionV2 {
 }
 
 export type PrivateSpecQuizItemV2 =
-  | PrivateSpecQuizItemMultiplechoice
-  | PrivateSpecQuizItemEssay
-  | PrivateSpecQuizItemScale
-  | PrivateSpecQuizItemCheckbox
+  | PrivateSpecQuizItemMultiplechoiceV3
+  | PrivateSpecQuizItemEssayV3
+  | PrivateSpecQuizItemScaleV3
+  | PrivateSpecQuizItemCheckboxV3
   | PrivateSpecQuizItemClosedEndedQuestionV2
-  | PrivateSpecQuizItemMatrix
-  | PrivateSpecQuizItemTimeline
-  | PrivateSpecQuizItemChooseN
-  | PrivateSpecQuizItemMultiplechoiceDropdown
+  | PrivateSpecQuizItemMatrixV3
+  | PrivateSpecQuizItemTimelineV3
+  | PrivateSpecQuizItemChooseNV3
+  | PrivateSpecQuizItemMultiplechoiceDropdownV3
 
 export interface PrivateSpecQuizV2 {
   version: "2"
@@ -86,18 +84,18 @@ export interface ModelSolutionQuizItemClosedEndedQuestionV2 {
   messageOnModelSolution: string | null
 }
 
-// Re-uses the current model-solution item types for everything except closed-ended, which is the
+// Re-uses the frozen v3 model-solution item types for everything except closed-ended, which is the
 // only item that changed in v3.
 export type ModelSolutionQuizItemV2 =
-  | ModelSolutionQuizItemMultiplechoice
-  | ModelSolutionQuizItemEssay
-  | ModelSolutionQuizItemScale
-  | ModelSolutionQuizItemCheckbox
+  | ModelSolutionQuizItemMultiplechoiceV3
+  | ModelSolutionQuizItemEssayV3
+  | ModelSolutionQuizItemScaleV3
+  | ModelSolutionQuizItemCheckboxV3
   | ModelSolutionQuizItemClosedEndedQuestionV2
-  | ModelSolutionQuizItemMatrix
-  | ModelSolutionQuizItemTimeline
-  | ModelSolutionQuizItemChooseN
-  | ModelSolutionQuizItemMultiplechoiceDropdown
+  | ModelSolutionQuizItemMatrixV3
+  | ModelSolutionQuizItemTimelineV3
+  | ModelSolutionQuizItemChooseNV3
+  | ModelSolutionQuizItemMultiplechoiceDropdownV3
 
 export interface ModelSolutionQuizV2 {
   version: "2"

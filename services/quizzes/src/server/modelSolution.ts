@@ -91,25 +91,62 @@ function handleModelSolutionGeneration(body: unknown): ModelSolutionQuiz {
   return modelSolution
 }
 
+/** Keep only on-model-solution messages, trimmed and non-empty. Visibility is dropped (already known). */
+function messagesOnModelSolution(messages: { visibility: string; message: string }[]): string[] {
+  return messages
+    .filter((m) => m.visibility === "on-model-solution")
+    .map((m) => m.message.trim())
+    .filter((m) => m !== "")
+}
+
 /**
  * Derive the model solution from the (possibly old) private spec. The model solution is the private
- * spec minus what a finishing student / peer reviewer must not see. Item types other than
- * closed-ended are passed through as before; the closed-ended item gets an explicit projection
- * because its `gradingStrategy` is the acceptance rule (must be dropped) and instead it exposes a
- * readable correct answer via `correctAnswerDisplayTexts`.
+ * spec minus what a finishing student / peer reviewer must not see. Every scope drops
+ * `feedbackMessages` and instead exposes `messagesOnModelSolution` (filtered to the
+ * on-model-solution visibility), so after-answer messages structurally cannot leak. The closed-ended
+ * item additionally drops its `gradingStrategy` (the acceptance rule) and exposes a readable correct
+ * answer via `correctAnswerDisplayTexts`.
  */
 function createModelSolution(privateSpecInput: unknown): ModelSolutionQuiz {
   const privateSpec = migratePrivateSpecToLatest(privateSpecInput)
   const items = privateSpec.items.map((quizItem): ModelSolutionQuizItem => {
-    if (quizItem.type !== "closed-ended-question") {
-      return quizItem as unknown as ModelSolutionQuizItem
+    if (
+      quizItem.type === "multiple-choice" ||
+      quizItem.type === "choose-n" ||
+      quizItem.type === "multiple-choice-dropdown"
+    ) {
+      const { feedbackMessages, options, ...rest } = quizItem
+      const modelSolutionOptions = options.map((option) => {
+        const { feedbackMessages: optionFeedbackMessages, ...optionRest } = option
+        return {
+          ...optionRest,
+          messagesOnModelSolution: messagesOnModelSolution(optionFeedbackMessages),
+        }
+      })
+      return {
+        ...rest,
+        options: modelSolutionOptions,
+        messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
+      } as unknown as ModelSolutionQuizItem
     }
-    const { gradingStrategy, formatRegex, ...rest } = quizItem
+    if (quizItem.type === "closed-ended-question") {
+      const { gradingStrategy, feedbackMessages, ...rest } = quizItem
+      return {
+        ...rest,
+        messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
+        correctAnswerDisplayTexts: revealableCorrectAnswers(gradingStrategy),
+      } satisfies ModelSolutionQuizItemClosedEndedQuestion
+    }
+    const { feedbackMessages, ...rest } = quizItem
     return {
       ...rest,
-      formatRegex,
-      correctAnswerDisplayTexts: revealableCorrectAnswers(gradingStrategy),
-    } satisfies ModelSolutionQuizItemClosedEndedQuestion
+      messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
+    } as unknown as ModelSolutionQuizItem
   })
-  return { ...privateSpec, items } as unknown as ModelSolutionQuiz
+  const { feedbackMessages, ...quizRest } = privateSpec
+  return {
+    ...quizRest,
+    items,
+    messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
+  } as unknown as ModelSolutionQuiz
 }

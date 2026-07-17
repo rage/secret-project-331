@@ -3,6 +3,7 @@ import {
   migratePrivateSpecToLatest,
   migrateUserAnswerToLatest,
 } from "@/util/migration/migrateToLatest"
+import { LATEST_QUIZ_VERSION } from "@/util/migration/versions"
 
 import type { UserAnswer, UserItemAnswer } from "../../types/quizTypes/answer"
 import type {
@@ -157,7 +158,7 @@ function getAnswerColumns(
 function getUserAnswer(privateSpecQuiz: PrivateSpecQuiz, answer: unknown): UserAnswer {
   const userAnswer = migrateUserAnswerToLatest(answer, privateSpecQuiz)
   if (userAnswer === null) {
-    return { version: "3", itemAnswers: [] }
+    return { version: LATEST_QUIZ_VERSION, itemAnswers: [] }
   }
   if (!Array.isArray(userAnswer.itemAnswers)) {
     throw new TypeError("Invalid answer payload")

@@ -31,11 +31,13 @@ function handleGradingRequest(body: unknown): ExerciseTaskGradingResult {
   // Generate feedbacks
   const assessedAnswers = assessAnswers(userAnswer, privateSpecQuiz)
   const score = gradeAnswers(assessedAnswers, privateSpecQuiz)
+  const scoreMaximum = privateSpecQuiz.items.length
+  const overallCorrectnessRatio = scoreMaximum > 0 ? score / scoreMaximum : 1
   const feedbacks: ItemAnswerFeedback[] = submissionFeedback(
-    submission_data,
-    exercise_spec,
+    userAnswer,
+    privateSpecQuiz,
     assessedAnswers,
-    exercise_spec.submitMessage,
+    overallCorrectnessRatio,
   )
 
   const responseJson: ExerciseTaskGradingResult = {
@@ -43,7 +45,7 @@ function handleGradingRequest(body: unknown): ExerciseTaskGradingResult {
     feedback_text: null,
     grading_progress: "FullyGraded",
     score_given: score,
-    score_maximum: exercise_spec.items.length,
+    score_maximum: scoreMaximum,
   }
 
   return responseJson

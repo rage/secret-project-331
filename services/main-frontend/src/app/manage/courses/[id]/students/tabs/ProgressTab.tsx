@@ -3,7 +3,7 @@
 
 import { css } from "@emotion/css"
 import type { ColumnDef } from "@tanstack/react-table"
-import React, { useMemo } from "react"
+import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -21,6 +21,7 @@ import {
   useCourseStudentsProgressStructure,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
+import { StaleTableWrapper } from "./StaleTableWrapper"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
@@ -46,9 +47,20 @@ export const ProgressTabContent: React.FC = () => {
   const structureQuery = useCourseStudentsProgressStructure(courseId)
   const detailQuery = useCourseStudentsProgressDetail(courseId, userIds)
 
+  // Deferred *after* userIds/detailQuery are derived so a search/sort/page commit still fires the
+  // detail request promptly -- only the expensive per-user/per-chapter aggregation below is
+  // deprioritized.
+  const deferredIdentityRows = useDeferredValue(identityRows)
+  const deferredStructureData = useDeferredValue(structureQuery.data)
+  const deferredDetailData = useDeferredValue(detailQuery.data)
+  const isStale =
+    deferredIdentityRows !== identityRows ||
+    deferredStructureData !== structureQuery.data ||
+    deferredDetailData !== detailQuery.data
+
   const { allRows, dynamicColumns } = useMemo(() => {
-    const structure = structureQuery.data
-    const detail = detailQuery.data
+    const structure = deferredStructureData
+    const detail = deferredDetailData
     if (!structure || !detail) {
       return {
         allRows: [] as ProgressRow[],
@@ -159,7 +171,7 @@ export const ProgressTabContent: React.FC = () => {
     }
 
     // --- rows (identity provides the student list + order)
-    const rows: ProgressRow[] = identityRows.map((u) => {
+    const rows: ProgressRow[] = deferredIdentityRows.map((u) => {
       const totals = totalsByUser[u.user_id] ?? { total_points: 0, total_attempted: 0 }
       const row: ProgressRow = {
         user_id: u.user_id,
@@ -207,7 +219,7 @@ export const ProgressTabContent: React.FC = () => {
     })
 
     return { allRows: rows, dynamicColumns: cols }
-  }, [structureQuery.data, detailQuery.data, identityRows, t])
+  }, [deferredStructureData, deferredDetailData, deferredIdentityRows, t])
 
   if (identityQuery.isError) {
     return <ErrorBanner error={identityQuery.error} />
@@ -227,15 +239,17 @@ export const ProgressTabContent: React.FC = () => {
   }
 
   return (
-    <StudentsTable
-      columns={dynamicColumns}
-      data={allRows}
-      colorHeaders
-      colorColumns
-      colorHeaderUnderline
-      progressMode
-      sorting={sorting}
-      onSortingChange={onSortingChange}
-    />
+    <StaleTableWrapper isStale={isStale}>
+      <StudentsTable
+        columns={dynamicColumns}
+        data={allRows}
+        colorHeaders
+        colorColumns
+        colorHeaderUnderline
+        progressMode
+        sorting={sorting}
+        onSortingChange={onSortingChange}
+      />
+    </StaleTableWrapper>
   )
 }

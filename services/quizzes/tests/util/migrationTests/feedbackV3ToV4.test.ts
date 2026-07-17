@@ -210,6 +210,24 @@ describe("v3 -> v4 model solution feedback migration", () => {
   })
 })
 
+describe("v3 -> v4 throws on an unrecognized item type instead of emitting undefined", () => {
+  const bogusItem = { type: "not-a-real-type", id: "x", order: 0 }
+
+  test("private spec migration throws", () => {
+    expect(() =>
+      migratePrivateSpecV3ToV4(quizV3([bogusItem as unknown as PrivateSpecQuizItemV3])),
+    ).toThrow(/unknown quiz item type: 'not-a-real-type'/i)
+  })
+
+  test("model solution migration throws", () => {
+    expect(() =>
+      migrateModelSolutionV3ToV4(
+        modelSolutionQuizV3(bogusItem as unknown as ModelSolutionQuizItemMultiplechoiceV3),
+      ),
+    ).toThrow(/unknown quiz item type: 'not-a-real-type'/i)
+  })
+})
+
 describe("v3 -> v4 public spec and answer migrations are pure version bumps", () => {
   test("public spec only changes the version literal", () => {
     const publicSpecV3: PublicSpecQuizV3 = {

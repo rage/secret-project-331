@@ -61,16 +61,19 @@ type SpecMigrationSteps = Partial<Record<QuizSpecVersion, SpecMigrationStep>>
 const runSpecChain = (blob: unknown, steps: SpecMigrationSteps, kind: string): unknown => {
   let current = blob
   let version = detectQuizVersion(current)
+  const visited = new Set<QuizSpecVersion>()
   while (version !== LATEST_QUIZ_VERSION) {
+    visited.add(version)
     const step = steps[version]
     if (!step) {
       throw new Error(`No ${kind} migration step from version '${version}'`)
     }
     current = step(current)
     const next = detectQuizVersion(current)
-    if (next === version) {
+    // A step that stalls or downgrades would loop forever; fail loud instead.
+    if (visited.has(next)) {
       throw new Error(
-        `${kind} migration step from version '${version}' did not advance the version`,
+        `${kind} migration step from version '${version}' did not advance the version (emitted '${next}')`,
       )
     }
     version = next
@@ -132,7 +135,9 @@ export const migrateUserAnswerToLatest = (
   }
   let current: unknown = blob
   let version = detectQuizVersion(current)
+  const visited = new Set<QuizSpecVersion>()
   while (version !== LATEST_QUIZ_VERSION) {
+    visited.add(version)
     const step = answerSteps[version]
     if (!step) {
       throw new Error(`No user answer migration step from version '${version}'`)
@@ -142,9 +147,9 @@ export const migrateUserAnswerToLatest = (
       return null
     }
     const next = detectQuizVersion(current)
-    if (next === version) {
+    if (visited.has(next)) {
       throw new Error(
-        `User answer migration step from version '${version}' did not advance the version`,
+        `User answer migration step from version '${version}' did not advance the version (emitted '${next}')`,
       )
     }
     version = next

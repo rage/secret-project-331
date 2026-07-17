@@ -73,6 +73,27 @@ describe("closed-ended v2 -> v3 migration", () => {
     expect(item.gradingStrategy).toBeNull()
   })
 
+  test("a missing (absent) validityRegex is treated like null, not a crash on .trim()", () => {
+    // Old stored blobs can omit the field entirely; build one as a plain object cast.
+    const closedEndedWithoutValidityRegex = {
+      type: "closed-ended-question",
+      id: "closed-1",
+      order: 0,
+      formatRegex: "[a-z]+",
+      title: "Q",
+      body: null,
+      successMessage: null,
+      failureMessage: null,
+      messageOnModelSolution: null,
+    } as unknown as PrivateSpecQuizItemClosedEndedQuestionV2
+    const migrated = migratePrivateSpecV2ToV3(v2Quiz(closedEndedWithoutValidityRegex))
+    const item = migrated.items[0]!
+    if (item.type !== "closed-ended-question") {
+      throw new Error("expected closed-ended item")
+    }
+    expect(item.gradingStrategy).toBeNull()
+  })
+
   test("passes every other item type through unchanged", () => {
     const migrated = migratePrivateSpecV2ToV3(v2Quiz(v2ClosedEnded("x")))
     expect(migrated.items[1]).toStrictEqual(essayItem)

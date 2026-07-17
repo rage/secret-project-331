@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { Trash } from "@vectopus/atlas-icons-react"
-import React from "react"
+import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
@@ -55,6 +55,13 @@ const MessageContainer = styled.div`
   min-width: 0;
 `
 
+const EmptyMessageError = styled.div`
+  color: #a84835;
+  font-size: 14px;
+  margin-top: -4px;
+  margin-bottom: 8px;
+`
+
 // Five-level item/quiz visibility list, translated. The tag decides which channel the message
 // flows through at grading time.
 export const useItemFeedbackVisibilityOptions =
@@ -95,48 +102,60 @@ const FeedbackMessagesEditor = <V extends string>({
   onChange,
 }: FeedbackMessagesEditorProps<V>): React.ReactElement => {
   const { t } = useTranslation()
+  // Several editor instances render on one page (quiz level + every item + expanded options), so
+  // the row ids must be unique per instance or labels would target another instance's dropdown.
+  const idPrefix = useId()
 
   return (
     <div>
       <Title> {t("feedback-messages")} </Title>
       {value.map((message, index) => (
-        <FeedbackRow key={index}>
-          <VisibilityContainer>
-            <SelectField
-              id={`feedback-message-visibility-${index}`}
-              className={css`
-                margin-bottom: 0;
-              `}
-              value={message.visibility}
-              options={visibilityOptions}
-              label={t("feedback-message-visibility")}
-              onChangeByValue={(newVisibility) => {
-                onChange(
-                  value.map((m, i) => (i === index ? { ...m, visibility: newVisibility as V } : m)),
-                )
+        <React.Fragment key={index}>
+          <FeedbackRow>
+            <VisibilityContainer>
+              <SelectField
+                id={`${idPrefix}-visibility-${index}`}
+                className={css`
+                  margin-bottom: 0;
+                `}
+                value={message.visibility}
+                options={visibilityOptions}
+                label={t("feedback-message-visibility")}
+                onChangeByValue={(newVisibility) => {
+                  onChange(
+                    value.map((m, i) =>
+                      i === index ? { ...m, visibility: newVisibility as V } : m,
+                    ),
+                  )
+                }}
+              />
+            </VisibilityContainer>
+            <MessageContainer>
+              <ParsedTextField
+                label={t("feedback-message-text")}
+                value={message.message}
+                onChange={(newMessage) => {
+                  onChange(value.map((m, i) => (i === index ? { ...m, message: newMessage } : m)))
+                }}
+              />
+            </MessageContainer>
+            <Button
+              aria-label={t("remove")}
+              variant="icon"
+              size="small"
+              onClick={() => {
+                onChange(value.filter((_, i) => i !== index))
               }}
-            />
-          </VisibilityContainer>
-          <MessageContainer>
-            <ParsedTextField
-              label={t("feedback-message-text")}
-              value={message.message}
-              onChange={(newMessage) => {
-                onChange(value.map((m, i) => (i === index ? { ...m, message: newMessage } : m)))
-              }}
-            />
-          </MessageContainer>
-          <Button
-            aria-label={t("remove")}
-            variant="icon"
-            size="small"
-            onClick={() => {
-              onChange(value.filter((_, i) => i !== index))
-            }}
-          >
-            <Trash size={16} />
-          </Button>
-        </FeedbackRow>
+            >
+              <Trash size={16} />
+            </Button>
+          </FeedbackRow>
+          {message.message.trim() === "" && (
+            // An empty row blocks saving (validatePrivateSpec rejects it); point at the row so the
+            // save-block is not invisible.
+            <EmptyMessageError>{t("feedback-message-cannot-be-empty")}</EmptyMessageError>
+          )}
+        </React.Fragment>
       ))}
       <Button
         variant="tertiary"

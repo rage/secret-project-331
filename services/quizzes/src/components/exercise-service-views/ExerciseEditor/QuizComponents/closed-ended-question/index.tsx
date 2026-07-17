@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { PlusCircle, Trash } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import React, { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { checkClosedEndedQuestionCorrectness } from "@/grading/assessment/closed-ended-question"
@@ -146,6 +146,34 @@ const AddNewRowContainer = styled.div`
   gap: 6px;
 `
 
+interface NumericFieldProps {
+  value: number
+  label: string
+  onCommit: (value: number) => void
+}
+
+// Numeric input backed by local text state so intermediate entries ("1.", "-", "") aren't snapped
+// by a String()/Number() round-trip mid-keystroke; only parseable values reach the spec, and the
+// field normalizes back to the committed value on blur.
+const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit }) => {
+  const [text, setText] = useState(String(value))
+  return (
+    <TextField
+      value={text}
+      label={label}
+      name={label}
+      onChangeByValue={(next) => {
+        setText(next)
+        const parsed = Number(next.trim().replace(",", "."))
+        if (next.trim() !== "" && Number.isFinite(parsed)) {
+          onCommit(parsed)
+        }
+      }}
+      onBlur={() => setText(String(value))}
+    />
+  )
+}
+
 const formatMatches = (formatRegex: string | null, value: string): boolean => {
   if (!formatRegex) {
     return true
@@ -196,6 +224,7 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
 
 const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
+  const formatPresetSelectId = useId()
   const [testStrings, setTestStrings] = useState([""])
   const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
@@ -226,7 +255,8 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
 
   const selectStrategy = (nextStrategy: ClosedEndedQuestionGradingStrategy["strategy"]) => {
     updateState((draft) => {
-      if (!draft) {
+      // Re-clicking the already-selected radio must not wipe the configured strategy fields.
+      if (!draft || draft.gradingStrategy?.strategy === nextStrategy) {
         return
       }
       // Persist the chosen strategy in the spec. This is the whole point of the redesign: the choice
@@ -425,31 +455,27 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
 
       {strategy?.strategy === "numeric" && (
         <StrategyFields>
-          <TextField
-            type="number"
-            value={String(strategy.correctValue)}
+          <NumericField
+            value={strategy.correctValue}
             label={t("numeric-correct-value")}
-            name={t("numeric-correct-value")}
-            onChangeByValue={(value) => {
+            onCommit={(value) => {
               updateState((draft) => {
                 if (draft?.gradingStrategy?.strategy !== "numeric") {
                   return
                 }
-                draft.gradingStrategy.correctValue = Number(value)
+                draft.gradingStrategy.correctValue = value
               })
             }}
           />
-          <TextField
-            type="number"
-            value={String(strategy.tolerance)}
+          <NumericField
+            value={strategy.tolerance}
             label={t("numeric-tolerance")}
-            name={t("numeric-tolerance")}
-            onChangeByValue={(value) => {
+            onCommit={(value) => {
               updateState((draft) => {
                 if (draft?.gradingStrategy?.strategy !== "numeric") {
                   return
                 }
-                draft.gradingStrategy.tolerance = Number(value)
+                draft.gradingStrategy.tolerance = value
               })
             }}
           />
@@ -470,11 +496,11 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
 
       <OptionTitle> {t("answer-format-optional")} </OptionTitle>
       <SelectField
-        id="format-preset-select"
-        label={t("format-regular-expression")}
-        defaultValue={currentFormatPreset}
+        id={formatPresetSelectId}
+        label={t("format")}
+        value={currentFormatPreset}
         options={[
-          { label: t("label-null"), value: FORMAT_NONE },
+          { label: t("answer-format-none"), value: FORMAT_NONE },
           ...FORMAT_PRESETS,
           ...(currentFormatPreset === FORMAT_CUSTOM
             ? [{ label: t("answer-format-custom"), value: FORMAT_CUSTOM, disabled: true }]

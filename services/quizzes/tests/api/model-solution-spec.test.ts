@@ -13,8 +13,15 @@ import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 import testClient from "./utils/appRouterTestClient"
 import {
   AFTER_ANSWER_AND_ACCEPTANCE_CANARIES,
+  generatePrivateSpecWithOneCheckboxQuizItem,
+  generatePrivateSpecWithOneChooseNQuizItem,
   generatePrivateSpecWithOneClosedEndedQuestionQuizItem,
+  generatePrivateSpecWithOneEssayQuizItem,
+  generatePrivateSpecWithOneMatrixQuizItem,
+  generatePrivateSpecWithOneMultipleChoiceDropdownQuizItem,
   generatePrivateSpecWithOneMultipleChoiceQuizItem,
+  generatePrivateSpecWithOneScaleQuizItem,
+  generatePrivateSpecWithOneTimelineQuizItem,
   ITEM_ON_MODEL_SOLUTION_CANARY,
   OPTION_ON_MODEL_SOLUTION_CANARY,
   QUIZ_ON_MODEL_SOLUTION_CANARY,
@@ -70,4 +77,41 @@ describe("Model solution spec generation", () => {
     expect(modelSolution.messagesOnModelSolution).toEqual([QUIZ_ON_MODEL_SOLUTION_CANARY])
     expectNoAfterAnswerCanaries(modelSolution)
   })
+})
+
+// Every item type must project its on-model-solution feedback and drop every after-answer message.
+const ALL_ITEM_GENERATORS: [string, () => PrivateSpecQuiz, boolean][] = [
+  ["multiple-choice", generatePrivateSpecWithOneMultipleChoiceQuizItem, true],
+  ["choose-n", generatePrivateSpecWithOneChooseNQuizItem, true],
+  ["multiple-choice-dropdown", generatePrivateSpecWithOneMultipleChoiceDropdownQuizItem, true],
+  ["essay", generatePrivateSpecWithOneEssayQuizItem, false],
+  ["scale", generatePrivateSpecWithOneScaleQuizItem, false],
+  ["checkbox", generatePrivateSpecWithOneCheckboxQuizItem, false],
+  ["closed-ended-question", generatePrivateSpecWithOneClosedEndedQuestionQuizItem, false],
+  ["matrix", generatePrivateSpecWithOneMatrixQuizItem, false],
+  ["timeline", generatePrivateSpecWithOneTimelineQuizItem, false],
+]
+
+describe("Model solution on-model-solution presence and after-answer absence for every item type", () => {
+  it.each(ALL_ITEM_GENERATORS)(
+    "%s carries on-model-solution feedback but no after-answer messages",
+    async (_type, generate, hasOptions) => {
+      const modelSolution = await generateModelSolution(generate())
+
+      // The quiz-level and item-level on-model-solution feedback is present.
+      expect(modelSolution.messagesOnModelSolution).toContain(QUIZ_ON_MODEL_SOLUTION_CANARY)
+      const item = modelSolution.items[0] as {
+        messagesOnModelSolution: string[]
+        options?: { messagesOnModelSolution: string[] }[]
+      }
+      expect(item.messagesOnModelSolution).toContain(ITEM_ON_MODEL_SOLUTION_CANARY)
+      if (hasOptions) {
+        for (const option of item.options!) {
+          expect(option.messagesOnModelSolution).toContain(OPTION_ON_MODEL_SOLUTION_CANARY)
+        }
+      }
+      // No after-answer / acceptance-rule message may leak into the model solution.
+      expectNoAfterAnswerCanaries(modelSolution)
+    },
+  )
 })

@@ -100,6 +100,33 @@ describe("closed-ended grading: regex", () => {
   test("an uncompilable pattern grades as not matching rather than throwing", () => {
     expect(checkClosedEndedQuestionCorrectness(regex({ pattern: "(" }), "anything")).toBe(false)
   })
+
+  test("matchWholeAnswer with an alternation rejects partial matches", () => {
+    const strategy = regex({ pattern: "cat|dog", matchWholeAnswer: true })
+    // Anchoring wraps the alternation as ^(?:cat|dog)$, so an unanchored alternation can't leak.
+    expect(checkClosedEndedQuestionCorrectness(strategy, "cat")).toBe(true)
+    expect(checkClosedEndedQuestionCorrectness(strategy, "dog")).toBe(true)
+    expect(checkClosedEndedQuestionCorrectness(strategy, "xcat")).toBe(false)
+    expect(checkClosedEndedQuestionCorrectness(strategy, "dogx")).toBe(false)
+  })
+})
+
+describe("closed-ended grading: empty and whitespace-only input", () => {
+  // A blank answer must never be correct once a strategy is set, even for strategies that would
+  // otherwise accept it (numeric 0 near tolerance 0, a regex that matches the empty string).
+  test.each([
+    ["exact-match", exactMatch({ acceptedAnswers: ["Paris"] })],
+    ["numeric zero with zero tolerance", numeric({ correctValue: 0, tolerance: 0 })],
+    ["regex matching the empty string", regex({ pattern: "\\d*" })],
+  ] as const)("%s rejects empty and whitespace-only input", (_label, strategy) => {
+    expect(checkClosedEndedQuestionCorrectness(strategy, "")).toBe(false)
+    expect(checkClosedEndedQuestionCorrectness(strategy, "   ")).toBe(false)
+  })
+
+  test("a null (draft) strategy still accepts blank input", () => {
+    expect(checkClosedEndedQuestionCorrectness(null, "")).toBe(true)
+    expect(checkClosedEndedQuestionCorrectness(null, "   ")).toBe(true)
+  })
 })
 
 describe("closed-ended grading: numeric", () => {

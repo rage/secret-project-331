@@ -23,6 +23,11 @@ export const checkClosedEndedQuestionCorrectness = (
   if (gradingStrategy === null) {
     return true
   }
+  // An empty/whitespace-only answer is never correct: without this, numeric would grade
+  // Number("") === 0 as correct near zero, and an empty-matching regex would accept a blank answer.
+  if (cleaned.trim() === "") {
+    return false
+  }
   switch (gradingStrategy.strategy) {
     case "exact-match": {
       const normalize = (value: string): string => {

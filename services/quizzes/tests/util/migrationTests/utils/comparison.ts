@@ -77,8 +77,9 @@ const expectModelSolutionSpecMetadataToMatch = (
 }
 
 /**
- * Compare specified fields from new object to older object. Also check that there isn't
- * any extra fields in the new object.
+ * Compare the specified fields of a migrated object against the old object they came from. Only the
+ * listed fields are checked (`options` is skipped — option fields change shape across versions and
+ * are compared separately); extra fields on the new object are NOT detected.
  *
  * @param fields Fields from new object to older object
  * @param newObject New object, e.g. new quiz item

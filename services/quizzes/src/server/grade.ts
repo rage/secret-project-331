@@ -32,7 +32,13 @@ function handleGradingRequest(body: unknown): ExerciseTaskGradingResult {
   const assessedAnswers = assessAnswers(userAnswer, privateSpecQuiz)
   const score = gradeAnswers(assessedAnswers, privateSpecQuiz)
   const scoreMaximum = privateSpecQuiz.items.length
-  const overallCorrectnessRatio = scoreMaximum > 0 ? score / scoreMaximum : 1
+  // Quiz-level feedback visibility keys off actual correctness, not awarded points — otherwise
+  // awardPointsEvenIfWrong would show "correct" feedback for all-wrong answers.
+  const correctnessSum = assessedAnswers.reduce(
+    (sum, grading) => sum + grading.correctnessCoefficient,
+    0,
+  )
+  const overallCorrectnessRatio = scoreMaximum > 0 ? correctnessSum / scoreMaximum : 1
   const feedbacks: ItemAnswerFeedback[] = submissionFeedback(
     userAnswer,
     privateSpecQuiz,

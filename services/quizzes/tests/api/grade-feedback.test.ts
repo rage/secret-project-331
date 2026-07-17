@@ -286,6 +286,39 @@ describe("grade quiz-level feedback from the overall ratio", () => {
   })
 })
 
+describe("grade quiz-level feedback with awardPointsEvenIfWrong", () => {
+  const quizFeedback: QuizFeedbackMessage[] = [
+    { visibility: "after-correct-answer", message: "QUIZ_CORRECT" },
+    { visibility: "after-incorrect-answer", message: "QUIZ_INCORRECT" },
+  ]
+
+  // Two single-correct items, both answered wrong.
+  const wrongItem = (id: string): ItemConfig => ({
+    id,
+    numberOfOptions: 2,
+    numberOfCorrect: 1,
+    policy: "default",
+    selected: [optionId(id, 1)],
+  })
+
+  test("all-wrong answers get full points but the quiz-level after-correct message stays hidden", async () => {
+    const request = buildMultipleChoiceRequest([wrongItem("a"), wrongItem("b")], quizFeedback)
+    request.exercise_spec.awardPointsEvenIfWrong = true
+
+    const response = await client.post("/api/grade").send(request)
+    expect(response.status).toBe(200)
+    const result = JSON.parse(response.text)
+    // Points are awarded regardless of correctness ...
+    expect(result.score_given).toBe(2)
+    expect(result.score_maximum).toBe(2)
+
+    // ... but quiz-level feedback keys off actual correctness, so "after-correct" must not show.
+    const entry = quizEntry(result.feedback_json as ItemAnswerFeedback[])!
+    expect(entry.quiz_item_feedback).toContain("QUIZ_INCORRECT")
+    expect(entry.quiz_item_feedback).not.toContain("QUIZ_CORRECT")
+  })
+})
+
 describe("grade migrates raw old spec blobs before generating feedback", () => {
   // Locks in the grade.ts fix: a stored v3 blob must be migrated so its old-style feedback fields
   // still reach the student.

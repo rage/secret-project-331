@@ -1,6 +1,8 @@
 import {
   createEmptyPrivateSpec,
+  migrateModelSolutionToLatest,
   migratePrivateSpecToLatest,
+  migratePublicSpecToLatest,
   migrateUserAnswerToLatest,
 } from "../../../src/util/migration/migrateToLatest"
 import { LATEST_QUIZ_VERSION } from "../../../src/util/migration/versions"
@@ -31,8 +33,9 @@ describe("migrateToLatest chain", () => {
   })
 
   test("throws on an unknown/future version", () => {
+    // detectQuizVersion rejects unknown version strings before any migration step runs.
     expect(() => migratePrivateSpecToLatest({ version: "99", items: [] })).toThrow(
-      /no private spec migration step from version '99'/i,
+      /malformed quiz blob: unsupported version "99"/i,
     )
   })
 
@@ -90,5 +93,131 @@ describe("migrateToLatest chain", () => {
   test("returns null for a null answer blob", () => {
     const migratedSpec = createEmptyPrivateSpec()
     expect(migrateUserAnswerToLatest(null, migratedSpec)).toBeNull()
+  })
+
+  test("an already-v4 user answer passes through unchanged", () => {
+    const migratedSpec = createEmptyPrivateSpec()
+    const answer = {
+      version: LATEST_QUIZ_VERSION,
+      itemAnswers: [{ type: "essay", valid: true, quizItemId: "e1", textData: "blue" }],
+    }
+    expect(migrateUserAnswerToLatest(answer, migratedSpec)).toStrictEqual(answer)
+  })
+
+  // A version whose value is a prototype-chain key must not resolve a step off Object.prototype;
+  // detectQuizVersion rejects it up front as malformed.
+  test("a 'constructor' version throws cleanly for the private-spec chain", () => {
+    expect(() => migratePrivateSpecToLatest({ version: "constructor", items: [] })).toThrow(
+      /malformed quiz blob: unsupported version/i,
+    )
+  })
+
+  test("a 'constructor' version throws cleanly for the user-answer chain", () => {
+    const migratedSpec = createEmptyPrivateSpec()
+    expect(() =>
+      migrateUserAnswerToLatest({ version: "constructor", itemAnswers: [] }, migratedSpec),
+    ).toThrow(/malformed quiz blob: unsupported version/i)
+  })
+})
+
+describe("migratePublicSpecToLatest chain", () => {
+  // A v2-shaped public spec exercises the otherwise-untested v2->v3 and v3->v4 public steps.
+  const v2PublicSpec = {
+    version: "2",
+    items: [
+      {
+        type: "essay",
+        id: "essay-1",
+        order: 0,
+        minWords: 0,
+        maxWords: 100,
+        title: "Essay",
+        body: null,
+      },
+    ],
+    title: "Public",
+    body: null,
+    quizItemDisplayDirection: "vertical",
+  }
+
+  test("lifts a v2 public spec to the latest version", () => {
+    const migrated = migratePublicSpecToLatest(v2PublicSpec)
+    expect(migrated.version).toBe(LATEST_QUIZ_VERSION)
+    expect(migrated.items[0]!.type).toBe("essay")
+  })
+
+  test("returns an already-latest public spec unchanged", () => {
+    const latest = {
+      version: LATEST_QUIZ_VERSION,
+      items: [],
+      title: null,
+      body: null,
+      quizItemDisplayDirection: "vertical",
+    }
+    expect(migratePublicSpecToLatest(latest)).toStrictEqual(latest)
+  })
+
+  test("throws on an unknown/future version", () => {
+    expect(() => migratePublicSpecToLatest({ version: "99", items: [] })).toThrow(
+      /malformed quiz blob: unsupported version "99"/i,
+    )
+  })
+})
+
+describe("migrateModelSolutionToLatest chain", () => {
+  // A v2-shaped model solution exercises the v2->v3 step, incl. correctAnswerDisplayTexts defaulting.
+  const v2ModelSolution = {
+    version: "2",
+    awardPointsEvenIfWrong: false,
+    grantPointsPolicy: "grant_whenever_possible",
+    items: [
+      {
+        type: "closed-ended-question",
+        id: "closed-1",
+        order: 0,
+        formatRegex: "[a-z]+",
+        title: "Q",
+        body: null,
+        successMessage: null,
+        failureMessage: null,
+        messageOnModelSolution: null,
+      },
+    ],
+    title: null,
+    body: null,
+    submitMessage: null,
+  }
+
+  test("lifts a v2 model solution to the latest version and defaults correctAnswerDisplayTexts to null", () => {
+    const migrated = migrateModelSolutionToLatest(v2ModelSolution)!
+    expect(migrated.version).toBe(LATEST_QUIZ_VERSION)
+    const item = migrated.items[0]!
+    if (item.type !== "closed-ended-question") {
+      throw new Error("expected closed-ended item")
+    }
+    expect(item.correctAnswerDisplayTexts).toBeNull()
+  })
+
+  test("returns null for a null model solution blob", () => {
+    expect(migrateModelSolutionToLatest(null)).toBeNull()
+  })
+
+  test("returns an already-latest model solution unchanged", () => {
+    const latest = {
+      version: LATEST_QUIZ_VERSION,
+      awardPointsEvenIfWrong: false,
+      grantPointsPolicy: "grant_whenever_possible",
+      title: null,
+      body: null,
+      items: [],
+      messagesOnModelSolution: [],
+    }
+    expect(migrateModelSolutionToLatest(latest)).toStrictEqual(latest)
+  })
+
+  test("throws on an unknown/future version", () => {
+    expect(() => migrateModelSolutionToLatest({ version: "99", items: [] })).toThrow(
+      /malformed quiz blob: unsupported version "99"/i,
+    )
   })
 })

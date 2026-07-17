@@ -36,7 +36,9 @@ export const migratePrivateSpecV2ToV3 = (quiz: PrivateSpecQuizV2): PrivateSpecQu
       return {
         ...rest,
         gradingStrategy:
-          validityRegex !== null
+          // Also tolerate a missing (undefined) validityRegex in old stored blobs — it graded as
+          // "accept anything", same as null.
+          validityRegex !== null && validityRegex !== undefined
             ? {
                 strategy: "regex",
                 pattern: validityRegex.trim(),

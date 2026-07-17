@@ -49,6 +49,9 @@ const isClosedEndedItemValid = (item: PrivateSpecQuizItemClosedEndedQuestion): b
     return false
   }
   const strategy = item.gradingStrategy
+  // Deliberate: this also blocks re-saving legacy quizzes whose closed-ended item had no
+  // validityRegex (migrated to a null strategy) until the teacher picks a strategy — the item was
+  // effectively "accept anything", which is never what a graded exercise should be.
   if (strategy === null) {
     return false
   }

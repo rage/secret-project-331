@@ -189,6 +189,9 @@ const migratePrivateSpecItem = (item: PrivateSpecQuizItemV3): PrivateSpecQuizIte
         body: item.body,
         feedbackMessages,
       }
+    default:
+      // Stored blobs are untrusted: fail loud rather than silently emitting undefined items.
+      throw new Error(`Unknown quiz item type: '${(item as { type: string }).type}'`)
   }
 }
 
@@ -324,6 +327,9 @@ const migrateModelSolutionItem = (item: ModelSolutionQuizItemV3): ModelSolutionQ
         body: item.body,
         messagesOnModelSolution,
       }
+    default:
+      // Stored blobs are untrusted: fail loud rather than silently emitting undefined items.
+      throw new Error(`Unknown quiz item type: '${(item as { type: string }).type}'`)
   }
 }
 

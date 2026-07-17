@@ -21,7 +21,7 @@ import {
   useCourseStudentsProgressStructure,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
-import { staleTableCss } from "../studentsTableStyles"
+import { StaleTableWrapper } from "./StaleTableWrapper"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
@@ -239,7 +239,7 @@ export const ProgressTabContent: React.FC = () => {
   }
 
   return (
-    <div className={isStale ? staleTableCss : undefined}>
+    <StaleTableWrapper isStale={isStale}>
       <StudentsTable
         columns={dynamicColumns}
         data={allRows}
@@ -250,6 +250,6 @@ export const ProgressTabContent: React.FC = () => {
         sorting={sorting}
         onSortingChange={onSortingChange}
       />
-    </div>
+    </StaleTableWrapper>
   )
 }

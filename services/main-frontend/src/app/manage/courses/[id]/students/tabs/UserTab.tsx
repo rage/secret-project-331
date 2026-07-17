@@ -10,7 +10,7 @@ import { QueryResult } from "@/shared-module/components"
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import { useCourseStudentsIdentity } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
-import { staleTableCss } from "../studentsTableStyles"
+import { StaleTableWrapper } from "./StaleTableWrapper"
 
 const EM_DASH = "—"
 
@@ -73,14 +73,14 @@ export const UserTabContent: React.FC = () => {
   return (
     <QueryResult query={query} treatEmptyAsData>
       {() => (
-        <div className={isStale ? staleTableCss : undefined}>
+        <StaleTableWrapper isStale={isStale}>
           <StudentsTable
             columns={columns}
             data={rows}
             sorting={sorting}
             onSortingChange={onSortingChange}
           />
-        </div>
+        </StaleTableWrapper>
       )}
     </QueryResult>
   )

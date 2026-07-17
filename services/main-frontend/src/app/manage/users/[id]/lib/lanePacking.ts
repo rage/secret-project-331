@@ -28,9 +28,19 @@ export function packLanes<T>(
   packed: PackedPeriod<T>[]
   laneCount: number
 } {
-  const sorted = periods.toSorted(
-    (a, b) => a.start - b.start || a.end - b.end || (a.key ?? "").localeCompare(b.key ?? ""),
-  )
+  const sorted = periods.toSorted((a, b) => {
+    if (a.start !== b.start) {
+      return a.start - b.start
+    }
+    if (a.end !== b.end) {
+      return a.end - b.end
+    }
+    // Plain codepoint comparison, not localeCompare: deterministic across engines/ICU versions and
+    // cheaper, which is exactly the cross-engine stability the total order is here to guarantee.
+    const ak = a.key ?? ""
+    const bk = b.key ?? ""
+    return ak < bk ? -1 : ak > bk ? 1 : 0
+  })
   const laneEnds: number[] = [] // last end-time per open lane
   const packed = sorted.map((period) => {
     let lane = laneEnds.findIndex((end) => end + minGap <= period.start)

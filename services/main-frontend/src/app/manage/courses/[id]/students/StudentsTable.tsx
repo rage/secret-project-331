@@ -104,12 +104,21 @@ export function StudentsTable<T extends object>({
   const scrollMarginRef = useRef(0)
   const [, forceRemeasure] = useState(0)
 
+  const measureScrollMargin = useCallback(() => {
+    const wrapper = tableWrapperRef.current
+    // Document-absolute top (getBoundingClientRect + scrollY), not offsetTop: the window virtualizer
+    // measures against the document top, whereas offsetTop is relative to the nearest positioned
+    // ancestor (layout.tsx wraps the table in a position: relative BreakFromCentered), which would
+    // undershoot the true offset and position virtualized rows too high.
+    scrollMarginRef.current = wrapper ? wrapper.getBoundingClientRect().top + window.scrollY : 0
+  }, [])
+
   useLayoutEffect(() => {
-    scrollMarginRef.current = tableWrapperRef.current?.offsetTop ?? 0
+    measureScrollMargin()
     // Bump state so useWindowVirtualizer picks up the freshly measured scrollMargin on this same
     // paint, instead of waiting for the next scroll event.
     forceRemeasure((n) => n + 1)
-  }, [data])
+  }, [data, measureScrollMargin])
 
   const rowVirtualizer = useWindowVirtualizer({
     count: rows.length,
@@ -141,6 +150,7 @@ export function StudentsTable<T extends object>({
   const floatingInnerRef = useRef<HTMLDivElement | null>(null)
   const horizontalScrollElRef = useRef<HTMLElement | null>(null)
   const horizontalRafRef = useRef<number | null>(null)
+  const showHeaderRafRef = useRef<number | null>(null)
 
   const [showFloatingHeader, setShowFloatingHeader] = useState(false)
   const [floatingRect, setFloatingRect] = useState({ left: 0, width: 0 })
@@ -204,28 +214,38 @@ export function StudentsTable<T extends object>({
   }, [showFloatingHeader])
 
   useEffect(() => {
+    // Header cell widths and pin state are already measured before paint by the useLayoutEffect
+    // above (on mount and on every data/columns change); only the floating rect is measured here.
     measureFloatingRect()
-    measureHeader()
-    updateShowFloatingHeader()
 
     const wrapper = tableWrapperRef.current
     horizontalScrollElRef.current =
       wrapper?.closest<HTMLElement>("[data-students-horizontal-scroll]") ?? null
 
-    const onWindowScroll = () => updateShowFloatingHeader()
+    // rAF-throttle the pin check so a scroll burst does at most one pair of layout reads per frame,
+    // matching the horizontal-scroll handler below.
+    const onWindowScroll = () => {
+      if (showHeaderRafRef.current !== null) {
+        return
+      }
+      showHeaderRafRef.current = requestAnimationFrame(() => {
+        showHeaderRafRef.current = null
+        updateShowFloatingHeader()
+      })
+    }
     window.addEventListener("scroll", onWindowScroll, { passive: true })
 
     const onWindowResize = () => {
       measureFloatingRect()
       measureHeader()
-      scrollMarginRef.current = tableWrapperRef.current?.offsetTop ?? 0
+      measureScrollMargin()
     }
     window.addEventListener("resize", onWindowResize)
 
     const ro = new ResizeObserver(() => {
       measureFloatingRect()
       measureHeader()
-      scrollMarginRef.current = tableWrapperRef.current?.offsetTop ?? 0
+      measureScrollMargin()
     })
     if (wrapper) {
       ro.observe(wrapper)
@@ -257,8 +277,11 @@ export function StudentsTable<T extends object>({
       if (horizontalRafRef.current !== null) {
         cancelAnimationFrame(horizontalRafRef.current)
       }
+      if (showHeaderRafRef.current !== null) {
+        cancelAnimationFrame(showHeaderRafRef.current)
+      }
     }
-  }, [measureFloatingRect, measureHeader, updateShowFloatingHeader])
+  }, [measureFloatingRect, measureHeader, measureScrollMargin, updateShowFloatingHeader])
 
   interface HeaderBgArg {
     colSpan: number

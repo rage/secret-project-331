@@ -31,7 +31,7 @@ import {
   useCourseStudentsIdentity,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
-import { staleTableCss } from "../studentsTableStyles"
+import { StaleTableWrapper } from "./StaleTableWrapper"
 
 const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"] =
   "/api/v0/main-frontend/certificates/{certificate_verification_id}"
@@ -451,14 +451,14 @@ export const CertificatesTabContent: React.FC = () => {
         </StandardDialog>
       )}
 
-      <div className={isStale ? staleTableCss : undefined}>
+      <StaleTableWrapper isStale={isStale}>
         <StudentsTable
           columns={columns}
           data={rows}
           sorting={sorting}
           onSortingChange={onSortingChange}
         />
-      </div>
+      </StaleTableWrapper>
     </>
   )
 }

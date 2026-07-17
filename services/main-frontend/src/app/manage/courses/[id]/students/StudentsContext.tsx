@@ -5,7 +5,6 @@ import React, {
   createContext,
   type Dispatch,
   type SetStateAction,
-  startTransition,
   useCallback,
   useContext,
   useEffect,
@@ -90,10 +89,10 @@ export function StudentsContextProvider({
       return
     }
     previousSignature.current = filterSignature
+    // Reset urgently, together with the filter change, so the identity query never fires for the
+    // old page against the new filter (which would flash an empty page before snapping back).
     if (page !== 1) {
-      startTransition(() => {
-        setPage(1)
-      })
+      setPage(1)
     }
   }, [filterSignature, page, setPage])
 

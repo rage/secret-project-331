@@ -19,7 +19,8 @@ import {
   useCourseStudentsIdentity,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
-import { COMPLETIONS_LEAF_MIN_WIDTH, staleTableCss } from "../studentsTableStyles"
+import { COMPLETIONS_LEAF_MIN_WIDTH } from "../studentsTableStyles"
+import { StaleTableWrapper } from "./StaleTableWrapper"
 
 const PLACEHOLDER = "-"
 
@@ -198,7 +199,7 @@ export const CompletionsTabContent: React.FC = () => {
   }
 
   return (
-    <div className={isStale ? staleTableCss : undefined}>
+    <StaleTableWrapper isStale={isStale}>
       <StudentsTable
         columns={columns}
         data={data}
@@ -208,6 +209,6 @@ export const CompletionsTabContent: React.FC = () => {
         sorting={sorting}
         onSortingChange={onSortingChange}
       />
-    </div>
+    </StaleTableWrapper>
   )
 }

@@ -6,7 +6,7 @@ import type {
   CustomSeriesRenderItemReturn,
   EChartsOption,
 } from "echarts"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/app/manage/courses/[id]/stats/Echarts"
@@ -143,9 +143,16 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   // every resize, re-packing purely in render (integer width avoids sub-pixel churn).
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(DEFAULT_WIDTH_PX)
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = wrapperRef.current
-    if (!el || typeof ResizeObserver === "undefined") {
+    if (!el) {
+      return
+    }
+    // Measure synchronously before the browser paints, so the very first packing uses the real
+    // container width instead of DEFAULT_WIDTH_PX (which would mis-flip / overlap labels on narrow
+    // viewports until the observer fired).
+    setWidth(Math.round(el.getBoundingClientRect().width))
+    if (typeof ResizeObserver === "undefined") {
       return
     }
     const observer = new ResizeObserver((entries) => {
@@ -161,79 +168,100 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   const moduleName = (enrollment: CourseEnrollmentInfo, courseModuleId: string): string =>
     enrollment.course_modules.find((m) => m.id === courseModuleId)?.name ?? t("default-module")
 
-  const bars: CourseBar[] = enrollments.map((enrollment, index) => {
-    const { enrolledMs, lastActivityMs, hasActivity } = courseSpan(enrollment)
-    return {
-      courseId: enrollment.course_id,
-      name: enrollment.course.name,
-      colorIndex: index,
-      enrolledMs,
-      lastActivityMs,
-      hasActivity,
-      completedCount: completedModuleCount(enrollment),
-      totalModules: enrollment.course_modules.length,
-      reviewCount: enrollment.course_module_completions_needing_review,
-    }
-  })
+  const bars: CourseBar[] = useMemo(
+    () =>
+      enrollments.map((enrollment, index) => {
+        const { enrolledMs, lastActivityMs, hasActivity } = courseSpan(enrollment)
+        return {
+          courseId: enrollment.course_id,
+          name: enrollment.course.name,
+          colorIndex: index,
+          enrolledMs,
+          lastActivityMs,
+          hasActivity,
+          completedCount: completedModuleCount(enrollment),
+          totalModules: enrollment.course_modules.length,
+          reviewCount: enrollment.course_module_completions_needing_review,
+        }
+      }),
+    [enrollments],
+  )
 
   // Total time the chart spans; drives the completion-cluster threshold.
   const spanMs =
     Math.max(...bars.map((b) => b.lastActivityMs)) - Math.min(...bars.map((b) => b.enrolledMs))
 
   // Shared time-axis bounds, used both for the x-axis and for the packing scale below.
-  const { min, max } = timeAxisBounds([
-    ...bars.map((b) => b.enrolledMs),
-    ...bars.map((b) => b.lastActivityMs),
-  ])
-
-  // Linear full-range time→pixel scale over the plot area. Packing at the full range is the worst case:
-  // zooming in only grows px/ms, so a full-range-valid packing stays overlap-free at every zoom level. A
-  // degenerate single-instant range collapses every point onto the left edge.
-  const plotLeft = GRID_LEFT
-  const plotRight = width - GRID_RIGHT
-  const plotWidth = plotRight - plotLeft
-  const msToPx = (ms: number): number =>
-    max === min ? plotLeft : plotLeft + ((ms - min) / (max - min)) * plotWidth
-
-  // Pack on rendered pixel footprints (marker overhang + measured label), not data spans, so labels never
-  // collide. `boxes` also carries per-course label placement (width, flip) consumed in renderItem.
-  const boxes = computeLaneBoxes(
-    bars.map((bar) => ({
-      key: bar.courseId,
-      startMs: bar.enrolledMs,
-      endMs: bar.lastActivityMs,
-      label: bar.name,
-      item: bar,
-    })),
-    {
-      msToPx,
-      plotRightPx: plotRight,
-      measureLabelPx,
-      maxLabelPx: MAX_LABEL_PX,
-      markerPadPx: MARKER_PAD_PX,
-      labelPadPx: LABEL_PAD_PX,
-    },
+  const { min, max } = useMemo(
+    () => timeAxisBounds([...bars.map((b) => b.enrolledMs), ...bars.map((b) => b.lastActivityMs)]),
+    [bars],
   )
-  const { packed, laneCount } = packLanes(boxes, LANE_GAP_PX)
-  const laneByCourseId = new Map(packed.map((p) => [p.item.courseId, p.lane]))
-  // Label placement per course (packLanes preserves the box fields at runtime, but its return type widens
-  // to the base period, so look the boxes back up here for the typed extra fields).
-  const boxByCourseId = new Map(boxes.map((b) => [b.key, b]))
+
+  // Pack on rendered pixel footprints (marker overhang + measured label), not data spans, so labels
+  // never collide. Memoized on the enrollment-derived bars, the axis bounds, and the measured width:
+  // a resize re-packs (canvas measureText + lane packing), but an unrelated re-render reuses the
+  // previous result. The packed boxes also carry per-course label placement consumed in renderItem.
+  const { packed, laneCount, laneByCourseId, boxByCourseId } = useMemo(() => {
+    // Linear full-range time→pixel scale over the plot area. Packing at the full range is the worst
+    // case: zooming in only grows px/ms, so a full-range-valid packing stays overlap-free at every
+    // zoom level. A degenerate single-instant range collapses every point onto the left edge.
+    const plotLeft = GRID_LEFT
+    const plotRight = width - GRID_RIGHT
+    const plotWidth = plotRight - plotLeft
+    const msToPx = (ms: number): number =>
+      max === min ? plotLeft : plotLeft + ((ms - min) / (max - min)) * plotWidth
+    const laneBoxes = computeLaneBoxes(
+      bars.map((bar) => ({
+        key: bar.courseId,
+        startMs: bar.enrolledMs,
+        endMs: bar.lastActivityMs,
+        label: bar.name,
+        item: bar,
+      })),
+      {
+        msToPx,
+        plotRightPx: plotRight,
+        measureLabelPx,
+        maxLabelPx: MAX_LABEL_PX,
+        markerPadPx: MARKER_PAD_PX,
+        labelPadPx: LABEL_PAD_PX,
+      },
+    )
+    const packResult = packLanes(laneBoxes, LANE_GAP_PX)
+    return {
+      packed: packResult.packed,
+      laneCount: packResult.laneCount,
+      laneByCourseId: new Map(packResult.packed.map((p) => [p.item.courseId, p.lane])),
+      // Label placement per course (packLanes preserves the box fields at runtime, but its return
+      // type widens to the base period, so look the boxes back up here for the typed extra fields).
+      boxByCourseId: new Map(laneBoxes.map((b) => [b.key, b])),
+    }
+  }, [bars, min, max, width])
 
   // Per-course submission-density geometry + the shared vertical scale (submissions per exercise) that
   // makes lane heights comparable. `null` = no submissions → the course keeps its faint track / diamond.
-  const densityByCourse = new Map(enrollments.map((e) => [e.course_id, buildCourseDensity(e)]))
-  const globalMaxDensity = maxStackedPerExercise([...densityByCourse.values()])
+  const { densityByCourse, globalMaxDensity } = useMemo(() => {
+    const byCourse = new Map(enrollments.map((e) => [e.course_id, buildCourseDensity(e)]))
+    return {
+      densityByCourse: byCourse,
+      globalMaxDensity: maxStackedPerExercise([...byCourse.values()]),
+    }
+  }, [enrollments])
 
   // Per-module rows per course (for the table) and a flat module→row lookup (for completion tooltips).
-  const moduleRowsByCourse = enrollments.map((e) => ({
-    courseId: e.course_id,
-    name: e.course.name,
-    rows: computeModuleRows(e),
-  }))
-  const rowByModuleId = new Map(
-    moduleRowsByCourse.flatMap((c) => c.rows.map((r) => [r.moduleId, r] as const)),
-  )
+  const { moduleRowsByCourse, rowByModuleId } = useMemo(() => {
+    const rowsByCourse = enrollments.map((e) => ({
+      courseId: e.course_id,
+      name: e.course.name,
+      rows: computeModuleRows(e),
+    }))
+    return {
+      moduleRowsByCourse: rowsByCourse,
+      rowByModuleId: new Map(
+        rowsByCourse.flatMap((c) => c.rows.map((r) => [r.moduleId, r] as const)),
+      ),
+    }
+  }, [enrollments])
 
   const barTip = (bar: CourseBar): string => {
     const lines = [

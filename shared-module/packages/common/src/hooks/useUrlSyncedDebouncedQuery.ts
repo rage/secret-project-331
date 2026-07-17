@@ -2,7 +2,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
   type Dispatch,
   type SetStateAction,
-  startTransition,
   useCallback,
   useEffect,
   useRef,
@@ -44,7 +43,9 @@ const useUrlSyncedDebouncedQuery = ({
 
   const [inputValue, setInputValue] = useState(urlInputValue)
   const [queryValue, setQueryValue] = useState(urlQueryValue)
-  const [isRunImmediatePending, startRunImmediateTransition] = useTransition()
+  // Drives `isPending` for the debounced-typing path (the common search interaction), so the
+  // in-progress indicator is shown while a settled query is committing.
+  const [isPending, startQueryTransition] = useTransition()
 
   const trimmedInputValue = inputValue.trim()
   const debouncedInputValue = useDebouncedValue(trimmedInputValue, delayMs)
@@ -78,7 +79,7 @@ const useUrlSyncedDebouncedQuery = ({
       return
     }
     if (debouncedInputValue !== queryValue) {
-      startTransition(() => {
+      startQueryTransition(() => {
         setQueryValue(debouncedInputValue)
       })
     }
@@ -104,17 +105,19 @@ const useUrlSyncedDebouncedQuery = ({
     router.replace(newUrl)
   }, [paramName, pathname, queryValue, router, searchParams, urlInputValueChanged])
 
-  /** Applies the current trimmed input as the executed query without waiting for debounce. */
+  /**
+   * Applies the current trimmed input as the executed query without waiting for debounce. Committed
+   * urgently (not inside a transition) so pressing Enter runs the search promptly and can never be
+   * deferred behind other updates.
+   */
   const runImmediate = useCallback(() => {
     if (trimmedInputValue === queryValue) {
       return
     }
-    startRunImmediateTransition(() => {
-      setQueryValue(trimmedInputValue)
-    })
+    setQueryValue(trimmedInputValue)
   }, [queryValue, trimmedInputValue])
 
-  return { inputValue, setInputValue, queryValue, runImmediate, isPending: isRunImmediatePending }
+  return { inputValue, setInputValue, queryValue, runImmediate, isPending }
 }
 
 export default useUrlSyncedDebouncedQuery

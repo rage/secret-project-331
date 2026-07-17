@@ -32,6 +32,7 @@ import {
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
 import { StaleTableWrapper } from "./StaleTableWrapper"
+import { StudentPillCell } from "./StudentPillCell"
 
 const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"] =
   "/api/v0/main-frontend/certificates/{certificate_verification_id}"
@@ -50,6 +51,9 @@ const formatDateIssuedUtc = (value: string | null): string => {
 interface CertificateRow {
   user_id: string
   student: string
+  first_name: string | null | undefined
+  last_name: string | null | undefined
+  email: string | null | undefined
   name_on_certificate: string | null
   date_issued: string | null
   verification_id: string | null
@@ -151,6 +155,9 @@ export const CertificatesTabContent: React.FC = () => {
       return {
         user_id: u.user_id,
         student: formatStudentName(u, t),
+        first_name: u.first_name,
+        last_name: u.last_name,
+        email: u.email,
         name_on_certificate: cert?.name_on_certificate ?? null,
         date_issued: cert?.date_issued ?? null,
         verification_id: cert?.verification_id ?? null,
@@ -165,8 +172,19 @@ export const CertificatesTabContent: React.FC = () => {
 
   const columns = useMemo<ColumnDef<CertificateRow, unknown>[]>(
     () => [
-      // oxlint-disable-next-line i18next/no-literal-string
-      { id: "last_name", accessorKey: "student", header: t("label-student") },
+      {
+        // oxlint-disable-next-line i18next/no-literal-string
+        id: "last_name",
+        header: t("label-student"),
+        cell: ({ row }) => (
+          <StudentPillCell
+            userId={row.original.user_id}
+            firstName={row.original.first_name}
+            lastName={row.original.last_name}
+            email={row.original.email}
+          />
+        ),
+      },
       {
         // oxlint-disable-next-line i18next/no-literal-string
         id: "certificate",

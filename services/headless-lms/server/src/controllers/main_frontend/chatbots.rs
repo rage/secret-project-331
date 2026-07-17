@@ -135,15 +135,15 @@ async fn delete_chatbot(
 #[instrument(skip(pool))]
 async fn get_chatbot_command_center_data(
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ChatbotCommandCenterData>>> {
     let mut conn = pool.acquire().await?;
     let chatbot_command_center_data =
         models::chatbot_configurations::get_chatbot_command_center_data(&mut conn).await?;
-    let token = skip_authorize();
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?;
     token.authorized_ok(web::Json(chatbot_command_center_data))
 }
 
-// get_chatbot_command_center_data
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("/{chatbot_configuration_id}", web::get().to(get_chatbot))
         .route("/{chatbot_configuration_id}", web::post().to(edit_chatbot))

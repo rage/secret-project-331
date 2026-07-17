@@ -157,18 +157,20 @@ const FrontPage = () => {
           </Link>
         </div>
       </OnlyRenderIfPermissions>
-      <div>
-        <Link
-          href={chatbotCommandCenterRoute()}
-          className={css`
-            cursor: pointer;
-            color: blue;
-            text-decoration: underline;
-          `}
-        >
-          {t("link-text-chatbot-command-center")}
-        </Link>
-      </div>
+      <OnlyRenderIfPermissions action={{ type: "view" }} resource={{ type: "global_permissions" }}>
+        <div>
+          <Link
+            href={chatbotCommandCenterRoute()}
+            className={css`
+              cursor: pointer;
+              color: blue;
+              text-decoration: underline;
+            `}
+          >
+            {t("link-text-chatbot-command-center")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
     </div>
   )
 }

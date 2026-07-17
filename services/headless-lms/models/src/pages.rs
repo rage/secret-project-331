@@ -68,6 +68,23 @@ pub struct PageInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct PageInfoSpecial {
+    pub page_title: String,
+    pub order_number: i32,
+    pub chapter_title: Option<String>,
+    pub chapter_number: Option<i32>,
+    pub module_name: Option<String>,
+    pub module_number: Option<i32>,
+    pub content: serde_json::Value,
+}
+
+impl PageInfoSpecial {
+    pub fn blocks_cloned(&self) -> ModelResult<Vec<GutenbergBlock>> {
+        serde_json::from_value(self.content.clone()).map_err(Into::into)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 
 pub struct PageAudioFiles {
     pub id: Uuid,
@@ -997,6 +1014,41 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
         page_id
     )
     .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn get_page_info_special_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<PageInfoSpecial>> {
+    let inverse_visibility_filter = PageVisibility::Public.get_inverse_visibility_filter();
+    // if chapter_id is null then chanpter_number and title should be null
+    let res = sqlx::query_as!(
+        PageInfoSpecial,
+        r#"
+    SELECT
+        p.title AS page_title,
+        p.order_number,
+        p.content,
+        c.name AS chapter_title,
+        c.chapter_number,
+        m.name AS module_name,
+        m.order_number AS module_number
+    FROM pages p
+    LEFT JOIN chapters c
+        ON c.id = p.chapter_id
+    LEFT JOIN course_modules m
+        ON m.id = c.course_module_id
+    WHERE p.course_id = $1
+    AND p.deleted_at IS NULL
+    AND p.hidden IS DISTINCT FROM $2
+        "#,
+        course_id,
+        inverse_visibility_filter,
+    )
+    .fetch_all(conn)
     .await?;
 
     Ok(res)

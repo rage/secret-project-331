@@ -7,7 +7,10 @@ use crate::{
     azure_chatbot::ChatbotUserContext,
     chatbot_error::chatbot_err,
     chatbot_tools::{
-        custom_tools::{course_progress::CourseProgressTool, document_lookup::DocumentLookupTool},
+        custom_tools::{
+            course_progress::CourseProgressTool, course_structure::CourseStructureTool,
+            document_lookup::DocumentLookupTool,
+        },
         provider_tools::azure_ai_search::AzureAISearchToolDefinition,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
@@ -137,6 +140,7 @@ pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
     vec![
         AzureLLMToolDefinition::Function(CourseProgressTool::get_tool_definition()),
         AzureLLMToolDefinition::Function(DocumentLookupTool::get_tool_definition()),
+        AzureLLMToolDefinition::Function(CourseStructureTool::get_tool_definition()),
     ]
 }
 
@@ -161,6 +165,11 @@ pub async fn call_chatbot_tool(
         }
         "document_lookup" => {
             let tool = DocumentLookupTool::new(conn, fn_args, user_context).await?;
+            let args = tool.get_arguments();
+            (serde_json::to_string(args)?, tool.output())
+        }
+        "course_structure" => {
+            let tool = CourseStructureTool::new(conn, fn_args, user_context).await?;
             let args = tool.get_arguments();
             (serde_json::to_string(args)?, tool.output())
         }

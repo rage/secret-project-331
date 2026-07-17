@@ -1362,15 +1362,17 @@ async fn clean_up_unfinished_tool_calls(
     conn: &mut PgConnection,
     conversation_id: Uuid,
 ) -> ChatbotResult<()> {
-    trace!("Cleaning up unfinished tool calls: {}", conversation_id);
-    // wrong response id? IT DOESN'T WORK
-    let lol = headless_lms_models::chatbot_conversation_messages::delete_hanging_tool_call_messages_for_conversation(
+    trace!(
+        "Cleaning up unfinished tool calls for conversation {}",
+        conversation_id
+    );
+    let res = headless_lms_models::chatbot_conversation_messages::delete_hanging_tool_call_messages_for_conversation(
         conn,
         conversation_id,
     )
     .await
     .map_err(ChatbotError::from)?;
-    trace!("Cleaned tool call: {lol:?}");
+    trace!("Cleaned {} tool calls", res.len());
     Ok(())
 }
 

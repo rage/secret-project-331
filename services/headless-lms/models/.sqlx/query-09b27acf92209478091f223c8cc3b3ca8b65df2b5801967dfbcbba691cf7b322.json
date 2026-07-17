@@ -1,0 +1,101 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    SELECT\n        p.title AS page_title,\n        p.order_number,\n        p.content,\n        c.name AS chapter_title,\n        c.chapter_number,\n        m.name AS module_name,\n        m.order_number AS module_number\n    FROM pages p\n    LEFT JOIN chapters c\n        ON c.id = p.chapter_id\n    LEFT JOIN course_modules m\n        ON m.id = c.course_module_id\n    WHERE p.course_id = $1\n    AND p.deleted_at IS NULL\n    AND p.hidden IS DISTINCT FROM $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "page_title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "title"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "order_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "order_number"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "content",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "content"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "chapter_title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "chapter_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "chapter_number"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "module_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "module_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "order_number"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "09b27acf92209478091f223c8cc3b3ca8b65df2b5801967dfbcbba691cf7b322"
+}

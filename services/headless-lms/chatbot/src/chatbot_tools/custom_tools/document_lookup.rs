@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use headless_lms_utils::url_encoding::url_decode;
 use sqlx::PgConnection;
+use uuid::Uuid;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
@@ -22,9 +23,11 @@ pub struct DocumentLookupState {
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct DocumentLookupArguments {
     title: String,
-    filepath: String,
+    filepath: Option<String>,
+    page_id: Option<Uuid>,
 }
 
+/// Look up a document (page) from the course the chatbot is on.
 impl ChatbotTool for DocumentLookupTool {
     type State = DocumentLookupState;
     type Arguments = DocumentLookupArguments;
@@ -44,7 +47,18 @@ impl ChatbotTool for DocumentLookupTool {
         arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
-        let page_id = parse_document_filepath(&arguments.filepath)?.page_id;
+        let page_id = if let Some(f) = &arguments.filepath {
+            parse_document_filepath(&f)?.page_id
+        } else if let Some(id) = &arguments.page_id {
+            id.to_owned()
+        } else {
+            return Err(chatbot_err!(
+                InvalidToolArguments,
+                format!(
+                    "Unable to call document_lookup tool. No filepath or page id provided. One of them is needed to find the document."
+                )
+            ));
+        };
         let course_id = user_context.course_id;
         let page_title = url_decode(&arguments.title)?;
 
@@ -90,7 +104,7 @@ impl ChatbotTool for DocumentLookupTool {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
             name: "document_lookup".to_string(),
-            description: "After using Azure search tool and receiving course material documents, look up the full content of a specific document by the title and filepath.".to_string(),
+            description: "Look up the full content of a specific document by the title and filepath or id (page_id). The needed arguments can be found from Azure search results or by using the course_structure tool. Either a filepath or a page_id is required to find the correct document, in addition to the document title.".to_string(),
             parameters: LLMToolParams {
                 tool_type: LLMToolParamType::Object,
                 properties: HashMap::from([
@@ -98,7 +112,7 @@ impl ChatbotTool for DocumentLookupTool {
                         "filepath".to_string(),
                         LLMToolParamProperties {
                             param_type: "string".to_string(),
-                            description: "The filepath of the document to look up, as returned from Azure search.".to_string(),
+                            description: "The filepath of the document to look up, as returned from Azure search. Either the filepath or page_id is required.".to_string(),
                         },
                     ),
                     (
@@ -108,8 +122,15 @@ impl ChatbotTool for DocumentLookupTool {
                             description: "The title of the document to look up, as returned from Azure search.".to_string(),
                         },
                     ),
+                    (
+                        "page_id".to_string(),
+                        LLMToolParamProperties {
+                                    param_type: "string".to_string(),
+                                    description: "The page_id of the document to look up. Either page_id or the filepath is required.".to_string(),
+                                },
+                    )
                 ]),
-                required: vec!["filepath".to_string(), "title".to_string()],
+                required: vec!["title".to_string()],
                 additional_properties: false,
             },
             strict: true,

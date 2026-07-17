@@ -11,7 +11,7 @@ import type {
 } from "@wordpress/blocks"
 import type { ComponentType } from "react"
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* oxlint-disable typescript/no-explicit-any */
 type UnknownAttributes = Record<string, unknown>
 type CreateBlock = typeof import("@wordpress/blocks").createBlock
 type CreateBlocksFromInnerBlocksTemplate =
@@ -128,4 +128,4 @@ type UpstreamTemplateInput = NonNullable<Parameters<CreateBlocksFromInnerBlocksT
 export type Template = Exclude<UpstreamTemplateInput[number], GutenbergBlock<UnknownAttributes>>
 
 export type TemplateArray = Template[]
-/* eslint-enable @typescript-eslint/no-explicit-any */
+/* oxlint-enable typescript/no-explicit-any */

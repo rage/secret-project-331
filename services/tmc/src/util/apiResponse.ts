@@ -1,4 +1,4 @@
-import { ClientErrorResponse } from "@/lib"
+import type { ClientErrorResponse } from "@/lib"
 
 export function jsonOk<T>(data: T): Response {
   return Response.json(data, { status: 200 })

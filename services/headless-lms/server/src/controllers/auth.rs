@@ -218,21 +218,37 @@ pub async fn signup(
         .await;
         let user = match user {
             Ok(user) => user,
-            Err(error) => match error.error_type() {
-                ModelErrorType::DatabaseConstraint { constraint, .. }
-                    if constraint == "users_email" =>
-                {
-                    let token = skip_authorize();
-                    return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
-                }
-                _ => {
-                    return Err(controller_err!(
-                        InternalServerError,
-                        "Failed to insert user.".to_string(),
-                        anyhow!(error)
-                    ));
-                }
-            },
+            Err(error)
+                if matches!(
+                    error.error_type(),
+                    ModelErrorType::DatabaseConstraint { constraint, .. }
+                        if constraint == "users_email"
+                ) =>
+            {
+                let token = skip_authorize();
+                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+            }
+            // TMC synchronously posts the new user back to /api/v0/tmc-server/users/create
+            // while post_new_user_to_tmc is still in flight, so that callback has usually
+            // already created the user; continue with the existing row.
+            Err(error)
+                if matches!(
+                    error.error_type(),
+                    ModelErrorType::DatabaseConstraint { constraint, .. }
+                        if constraint == "users_upstream_id_active_uniq_idx"
+                ) =>
+            {
+                models::users::find_by_upstream_id(&mut conn, upstream_id)
+                    .await?
+                    .ok_or(error)?
+            }
+            Err(error) => {
+                return Err(controller_err!(
+                    InternalServerError,
+                    "Failed to insert user.".to_string(),
+                    anyhow!(error)
+                ));
+            }
         };
 
         let country = user_details.country.clone();

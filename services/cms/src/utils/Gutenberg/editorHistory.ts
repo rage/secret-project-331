@@ -1,6 +1,7 @@
-import type { EditorSelection } from "@wordpress/block-editor"
-
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
+
+type EditorSelection = Record<string, unknown>
 
 export interface GutenbergEditorSelection {
   selectionStart?: EditorSelection
@@ -23,7 +24,7 @@ export const createEditorHistoryEntry = (
   selection?: GutenbergEditorSelection,
 ): GutenbergEditorHistoryEntry => ({
   content,
-  selection,
+  ...omitUndefined({ selection }),
 })
 
 export const initializeEditorHistory = (

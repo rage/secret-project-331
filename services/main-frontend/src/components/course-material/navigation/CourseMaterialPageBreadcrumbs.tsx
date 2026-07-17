@@ -27,6 +27,7 @@ const CourseMaterialPageBreadcrumbs: React.FC<
   const { t } = useTranslation()
   const pageChapterAndCourseInformationQuery = useQuery({
     queryKey: [`page-chapter-and-course-${page?.id}`, page, page?.id],
+    // oxlint-disable-next-line require-await -- react-query queryFn is annotated to return a Promise
     queryFn: async (): Promise<PageChapterAndCourseInformation | null> => {
       if (!page) {
         return null
@@ -64,7 +65,7 @@ const CourseMaterialPageBreadcrumbs: React.FC<
         const pageOrderNumber = page.order_number
         const chapterFrontPageId = data.chapter_front_page_id
         const isChapterFrontPage = chapterFrontPageId && page.id === chapterFrontPageId
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         const courseUrlPrefix = `/org/${data.organization_slug}/courses/${data.course_slug}`
 
         const pieces = [{ text: data.course_name ?? t("course"), url: courseUrlPrefix }]

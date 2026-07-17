@@ -5,7 +5,8 @@ import type { useTabListState } from "@react-stately/tabs"
 import { useId, useRef } from "react"
 import { useFocusRing, useHover, useTab } from "react-aria"
 
-import TimelineMonthBlock from "./TimelineMonthBlock"
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
+
 import {
   activeStageDotStyles,
   completedStageCheckStyles,
@@ -24,8 +25,7 @@ import {
   tabBandSelectedStyles,
   tabBandUnselectedStyles,
 } from "./stageTimelineShared"
-
-import type { CourseDesignerStage } from "@/generated/api/types.generated"
+import TimelineMonthBlock from "./TimelineMonthBlock"
 
 interface StageTimelineTabProps {
   item: StageTimelineTabItem

@@ -3,12 +3,12 @@
 import { useParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 
-import AllLanguagesTab from "../tabs/AllLanguagesTab"
-
 import useCourseLanguageVersions from "@/hooks/useCourseLanguageVersions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { manageCourseStatsOverviewRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import AllLanguagesTab from "../tabs/AllLanguagesTab"
 
 function StatsAllLanguagesPage() {
   const params = useParams<{ id: string }>()

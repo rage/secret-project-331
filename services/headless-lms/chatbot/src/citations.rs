@@ -76,7 +76,7 @@ pub async fn chatbot_cited_documents_to_citations(
     api_key: &SecretString,
     conversation_message_id: Uuid,
     conversation_id: Uuid,
-) -> anyhow::Result<Vec<ChatbotConversationMessageCitation>> {
+) -> ChatbotResult<Vec<ChatbotConversationMessageCitation>> {
     let mut documents: Vec<(CourseMaterialDocument, i32)> = vec![];
     for (idx, url) in document_urls.iter_mut().enumerate() {
         let document = get_course_material_document(url, api_key).await?;
@@ -99,7 +99,7 @@ pub async fn chatbot_cited_documents_to_citations(
 async fn get_course_material_document(
     endpoint: &mut Url,
     api_key: &SecretString,
-) -> anyhow::Result<CourseMaterialDocument> {
+) -> ChatbotResult<CourseMaterialDocument> {
     endpoint.set_query(Some(
         "api-version=2024-07-01&$select=chunk_id,parent_id,chunk,title,url,filepath,course_id",
     ));
@@ -117,7 +117,7 @@ async fn get_course_material_document(
 #[instrument(skip(response), fields(status = %response.status()))]
 async fn process_course_material_document_response(
     response: Response,
-) -> anyhow::Result<CourseMaterialDocument> {
+) -> ChatbotResult<CourseMaterialDocument> {
     if !response.status().is_success() {
         let status = response.status();
         let error_text = response.text().await?;
@@ -126,10 +126,12 @@ async fn process_course_material_document_response(
             error = %error_text,
             "Error fetching document from search index."
         );
-        return Err(anyhow::anyhow!(
-            "Error fetching document from search index: Status: {}. Error: {}",
-            status,
-            error_text
+        return Err(chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Error fetching document from search index: Status: {}. Error: {}",
+                status, error_text
+            )
         ));
     }
 
@@ -147,7 +149,7 @@ async fn save_documents(
     documents_with_citation_numbers: Vec<(CourseMaterialDocument, i32)>,
     conversation_message_id: Uuid,
     conversation_id: Uuid,
-) -> anyhow::Result<Vec<ChatbotConversationMessageCitation>> {
+) -> ChatbotResult<Vec<ChatbotConversationMessageCitation>> {
     let (citations, page_ids): (Vec<ChatbotConversationMessageCitation>, Vec<Option<Uuid>>) =
         documents_with_citation_numbers
             .iter()
@@ -173,7 +175,7 @@ async fn save_documents(
 async fn save_documents_mock(
     conn: &mut PgConnection,
     citations: Vec<ChatbotConversationMessageCitation>,
-) -> anyhow::Result<Vec<ChatbotConversationMessageCitation>> {
+) -> ChatbotResult<Vec<ChatbotConversationMessageCitation>> {
     let mut res = vec![];
     for input in citations {
         let a = chatbot_conversation_messages_citations::insert(conn, input).await?;

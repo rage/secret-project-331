@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { assertTopLevelPageNotInList } from "../../utils/flows/topLevelPages.flow"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/user@example.com.json",

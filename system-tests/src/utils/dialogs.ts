@@ -1,5 +1,6 @@
-/* eslint-disable playwright/no-conditional-in-test */
-import { expect, Page, test } from "@playwright/test"
+/* oxlint-disable playwright/no-conditional-in-test */
+import type { Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import {
   ALERT_DIALOG_OK_BUTTON_TEST_ID,

@@ -3,11 +3,11 @@
 import { css } from "@emotion/css"
 import { Parser } from "@json2csv/plainjs"
 import { BugInsect, DownloadArrowDown as Download } from "@vectopus/atlas-icons-react"
-import { Dispatch, useCallback, useMemo, useRef, useState } from "react"
+import type { Dispatch } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../styles/theme"
-
 import Button from "./Button"
 import StandardDialog from "./dialogs/StandardDialog"
 import MonacoEditor from "./monaco/MonacoEditor"
@@ -15,7 +15,7 @@ import MonacoEditor from "./monaco/MonacoEditor"
 export interface DebugModalProps {
   data: unknown
   readOnly?: boolean
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   updateDataOnClose?: Dispatch<any>
   buttonSize?: "small" | "medium" | "large"
   variant?: "default" | "minimal"
@@ -110,9 +110,9 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
       const link = document.createElement("a")
       link.href = url
       link.setAttribute("download", "data.csv")
-      document.body.appendChild(link)
+      document.body.append(link)
       link.click()
-      document.body.removeChild(link)
+      link.remove()
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Failed to generate CSV:", error)

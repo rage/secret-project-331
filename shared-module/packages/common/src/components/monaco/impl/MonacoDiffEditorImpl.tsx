@@ -1,9 +1,10 @@
 "use client"
 
-import { DiffEditor, DiffEditorProps } from "@monaco-editor/react"
+import type { DiffEditorProps } from "@monaco-editor/react"
+import { DiffEditor } from "@monaco-editor/react"
 import React from "react"
-import "./loader"
 
+import "./loader"
 import { monospaceFont } from "../../../styles"
 import monacoStylesFixer from "../../../styles/monacoStylesFixer"
 

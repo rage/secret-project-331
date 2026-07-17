@@ -1,15 +1,16 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { ComponentType, useEffect } from "react"
+/* oxlint-disable i18next/no-literal-string */
+import type { ComponentType } from "react"
+import { useEffect } from "react"
 import { v4 } from "uuid"
 
-import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
-
-import ExerciseTaskEditor, { ExerciseTaskAttributes } from "./ExerciseTaskEditor"
-import ExerciseTaskSave from "./ExerciseTaskSave"
-
 import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
+
+import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
+import type { ExerciseTaskAttributes } from "./ExerciseTaskEditor"
+import ExerciseTaskEditor from "./ExerciseTaskEditor"
+import ExerciseTaskSave from "./ExerciseTaskSave"
 
 const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
   title: "ExerciseTask",
@@ -53,6 +54,7 @@ function enforceExerciseTaskIdDefined(
 ): ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>> {
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || DEFAULT_DISPLAY_NAME
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures WrappedComponent from enclosing scope
   const InnerComponent = (props: BlockEditProps<ExerciseTaskAttributes>) => {
     const { attributes, setAttributes } = props
 

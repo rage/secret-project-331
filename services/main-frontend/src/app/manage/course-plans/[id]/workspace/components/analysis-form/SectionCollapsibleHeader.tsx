@@ -27,7 +27,7 @@ export default function SectionCollapsibleHeader(props: {
   title: ReactNode
 }) {
   const { sectionNum, expanded, onToggle, title } = props
-  const Icon = SECTION_HEADER_ICONS[sectionNum - 1]
+  const Icon = SECTION_HEADER_ICONS[sectionNum - 1] ?? SECTION_HEADER_ICONS[0]
   const headingId = analysisSectionHeadingId(sectionNum)
   const bodyControlsId = analysisSectionBodyId(sectionNum)
   return (

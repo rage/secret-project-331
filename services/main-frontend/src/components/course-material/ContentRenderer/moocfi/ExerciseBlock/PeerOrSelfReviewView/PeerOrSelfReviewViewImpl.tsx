@@ -7,15 +7,6 @@ import { useAtomValue } from "jotai"
 import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { exerciseButtonStyles, getExerciseBlockBeginningScrollingId } from ".."
-import ContentRenderer from "../../.."
-import ExerciseTaskIframe from "../ExerciseTaskIframe"
-
-import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
-import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
-
-import { getPeerReviewBeginningScrollingId, PeerOrSelfReviewViewProps } from "."
-
 import YellowBox from "@/components/course-material/YellowBox"
 import { fetchPeerOrSelfReviewDataByExerciseIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import {
@@ -38,7 +29,15 @@ import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
 import { courseMaterialAtom } from "@/state/course-material"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
+
+import type { PeerOrSelfReviewViewProps } from "."
+import { getPeerReviewBeginningScrollingId } from "."
+import { exerciseButtonStyles, getExerciseBlockBeginningScrollingId } from ".."
+import ContentRenderer from "../../.."
+import ExerciseTaskIframe from "../ExerciseTaskIframe"
+import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
+import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
 
 const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = ({
   exerciseNumber,
@@ -139,6 +138,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           // Will scroll after once the refetch is complete because the refetch might change the heights of some elements and that would invalidate our current scrolling position
           setTimeout(() => {
             document
+              // oxlint-disable-next-line unicorn/prefer-query-selector -- id is a raw UUID; querySelector("#"+id) may throw, getElementById is safe
               .getElementById(getExerciseBlockBeginningScrollingId(exerciseId))
               ?.scrollIntoView({ behavior: "smooth" })
           }, 100)
@@ -151,6 +151,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           // Will scroll after once the refetch is complete because the refetch might change the heights of some elements and that would invalidate our current scrolling position
           setTimeout(() => {
             document
+              // oxlint-disable-next-line unicorn/prefer-query-selector -- id embeds a raw UUID; "#"+id would need CSS-escaping
               .getElementById(getPeerReviewBeginningScrollingId(exerciseId))
 
               ?.scrollIntoView({ behavior: "smooth" })
@@ -291,13 +292,13 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
 
       <div>
         {peerOrSelfReviewData.answer_to_review.course_material_exercise_tasks
-          .sort((a, b) => a.order_number - b.order_number)
+          .toSorted((a, b) => a.order_number - b.order_number)
           .map((course_material_exercise_task) => {
             return (
               <div key={course_material_exercise_task.id}>
                 <div data-testid="assignment">
                   <ContentRenderer
-                    data={(course_material_exercise_task.assignment as Array<Block<unknown>>) ?? []}
+                    data={(course_material_exercise_task.assignment as Block<unknown>[]) ?? []}
                     isExam={false}
                     dontAllowBlockToBeWiderThanContainerWidth={true}
                   />
@@ -307,7 +308,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                   exerciseTaskId={course_material_exercise_task.id}
                   key={course_material_exercise_task.id}
                   postThisStateToIFrame={{
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     view_type: "view-submission",
                     exercise_task_id: course_material_exercise_task.id,
                     user_information: {
@@ -355,7 +356,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       />
 
       {peerOrSelfReviewData.peer_or_self_review_questions
-        .sort((a, b) => a.order_number - b.order_number)
+        .toSorted((a, b) => a.order_number - b.order_number)
         .map((peerOrSelfReviewQuestion) => (
           <PeerOrSelfReviewQuestionComponent
             key={peerOrSelfReviewQuestion.id}
@@ -363,21 +364,23 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
             peerOrSelfReviewQuestionAnswer={answers.get(peerOrSelfReviewQuestion.id) ?? null}
             setPeerOrSelfReviewQuestionAnswer={(newAnswer) => {
               setAnswers((prev) => {
-                const answers = new Map(prev)
+                const nextAnswers = new Map(prev)
                 if (
                   newAnswer.number_data === null &&
-                  (newAnswer.text_data == null || newAnswer.text_data.trim() === "")
+                  (newAnswer.text_data === null ||
+                    newAnswer.text_data === undefined ||
+                    newAnswer.text_data.trim() === "")
                 ) {
                   // If everything in the answer is null, transform the answer to not answered
-                  answers.delete(peerOrSelfReviewQuestion.id)
+                  nextAnswers.delete(peerOrSelfReviewQuestion.id)
                 } else {
-                  answers.set(peerOrSelfReviewQuestion.id, {
+                  nextAnswers.set(peerOrSelfReviewQuestion.id, {
                     ...newAnswer,
                     peer_or_self_review_question_id: peerOrSelfReviewQuestion.id,
                   })
                 }
 
-                return answers
+                return nextAnswers
               })
             }}
           />

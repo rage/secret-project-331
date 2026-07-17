@@ -3,13 +3,18 @@
 import { cx } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import useAnalysisWorkspaceFormController from "../hooks/useAnalysisWorkspaceFormController"
+import type { AnalysisCourseType } from "@/generated/api/types.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import {
+  Button,
+  ComboBox,
+  nullIfEmpty,
+  Select,
+  TextArea,
+  TextField,
+} from "@/shared-module/components"
 
-import ContentFormatCheckboxes from "./analysis-form/ContentFormatCheckboxes"
-import ContributorRoleBlock from "./analysis-form/ContributorRoleBlock"
-import ModeCheckboxRow from "./analysis-form/ModeCheckboxRow"
-import OpenPeriodCheckboxes from "./analysis-form/OpenPeriodCheckboxes"
-import SectionCollapsibleHeader from "./analysis-form/SectionCollapsibleHeader"
+import useAnalysisWorkspaceFormController from "../hooks/useAnalysisWorkspaceFormController"
 import {
   analysisSectionBodyId,
   analysisSectionHeadingId,
@@ -42,16 +47,11 @@ import {
   uhCalloutTitleStyles,
   uhLineStyles,
 } from "./analysis-form/analysisFormDomain"
-
-import type { AnalysisCourseType } from "@/generated/api/types.generated"
-import {
-  Button,
-  ComboBox,
-  nullIfEmpty,
-  Select,
-  TextArea,
-  TextField,
-} from "@/shared-module/components"
+import ContentFormatCheckboxes from "./analysis-form/ContentFormatCheckboxes"
+import ContributorRoleBlock from "./analysis-form/ContributorRoleBlock"
+import ModeCheckboxRow from "./analysis-form/ModeCheckboxRow"
+import OpenPeriodCheckboxes from "./analysis-form/OpenPeriodCheckboxes"
+import SectionCollapsibleHeader from "./analysis-form/SectionCollapsibleHeader"
 
 export default function AnalysisWorkspaceForm(props: {
   onDirtyChange?: (dirty: boolean) => void
@@ -71,7 +71,11 @@ export default function AnalysisWorkspaceForm(props: {
     uhLines,
     showUhResources,
     sectionNavKeys,
-  } = useAnalysisWorkspaceFormController({ onDirtyChange, planId, workspaceData })
+  } = useAnalysisWorkspaceFormController({
+    planId,
+    workspaceData,
+    ...omitUndefined({ onDirtyChange }),
+  })
 
   return (
     <form className={formRootStyles} onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -192,7 +196,7 @@ export default function AnalysisWorkspaceForm(props: {
                 control={control}
                 rules={{
                   setValueAs: (v: unknown) =>
-                    v === "" || v == null ? null : (v as AnalysisCourseType),
+                    v === "" || v === null || v === undefined ? null : (v as AnalysisCourseType),
                 }}
                 label={t("course-plans-analysis-field-course-type")}
                 options={[
@@ -201,12 +205,12 @@ export default function AnalysisWorkspaceForm(props: {
                     label: t("course-plans-analysis-course-type-none"),
                   },
                   {
-                    // eslint-disable-next-line i18next/no-literal-string -- backend enum value
+                    // oxlint-disable-next-line i18next/no-literal-string -- backend enum value
                     value: "compulsory",
                     label: t("course-plans-analysis-course-type-compulsory"),
                   },
                   {
-                    // eslint-disable-next-line i18next/no-literal-string -- backend enum value
+                    // oxlint-disable-next-line i18next/no-literal-string -- backend enum value
                     value: "elective",
                     label: t("course-plans-analysis-course-type-elective"),
                   },

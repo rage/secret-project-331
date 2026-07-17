@@ -1,8 +1,10 @@
 // Does the rest of the global setup after globalSetup.ts but does it with a test so that we get playwright tracess if this happens to fail
 
-import { BrowserContext, Page, test } from "@playwright/test"
 import { statSync } from "fs"
 import path from "path"
+
+import type { BrowserContext, Page } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { login } from "../utils/login"
 
@@ -44,7 +46,7 @@ async function createLoginStates(page: Page, context: BrowserContext) {
   const allStorageStatesRecentlyCreated = usersLoginInformationToCache.every((loginInformation) => {
     try {
       const fileStats = statSync(path.join(__dirname, `../states/${loginInformation.email}.json`))
-      if (new Date().getTime() - fileStats.mtime.getTime() < ONE_WEEK_MS) {
+      if (Date.now() - fileStats.mtime.getTime() < ONE_WEEK_MS) {
         return true
       }
       return false

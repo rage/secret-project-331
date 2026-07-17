@@ -9,11 +9,11 @@ const useOrganization = (organizationId: string | undefined | null) => {
   const query = useQuery(
     optionalGeneratedQueryOptions({
       value: organizationId,
-      isReady: (organizationId): organizationId is string => Boolean(organizationId),
-      build: (organizationId) =>
+      isReady: (orgId): orgId is string => Boolean(orgId),
+      build: (orgId) =>
         getCourseMaterialOrganizationOptions({
           path: {
-            organization_id: organizationId,
+            organization_id: orgId,
           },
         }),
     }),

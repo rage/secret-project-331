@@ -42,6 +42,7 @@ export function ChooserGridSection({
           {pager}
         </div>
       ) : null}
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=group on a styled grid div; fieldset alters layout */}
       <div aria-labelledby={label ? labelId : undefined} className={chooserGridCss} role="group">
         {options.map((option, index) => (
           <button

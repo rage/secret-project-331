@@ -1,18 +1,18 @@
 "use client"
 
 import React from "react"
-import { UseFormReturn } from "react-hook-form"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-
-import LanguageVersionOptions from "./LanguageVersionOptions"
-
-import { FieldContainer, FormFields } from "."
 
 import type { Course } from "@/generated/api/types.generated"
 import { useOrganizationDuplicatableCourses } from "@/hooks/useOrganizationDuplicatableCourses"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import { QueryResult } from "@/shared-module/components"
+
+import type { FormFields } from "."
+import { FieldContainer } from "."
+import LanguageVersionOptions from "./LanguageVersionOptions"
 
 interface DuplicateOptionsProps {
   form: UseFormReturn<FormFields>

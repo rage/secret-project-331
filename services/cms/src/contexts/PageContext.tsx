@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { Page } from "@/generated/api"
+import type { Page } from "@/generated/api"
 
 interface PageContextProps {
   page: Page

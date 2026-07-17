@@ -5,14 +5,14 @@ import { useParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import RegisterCompletion from "./RegisterCompletion"
-
 import { getCourseModuleUserCompletionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import RegisterCompletion from "./RegisterCompletion"
 
 const REDIRECT = "redirect"
 

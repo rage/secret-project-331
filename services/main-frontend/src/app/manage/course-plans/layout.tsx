@@ -25,5 +25,5 @@ export default function CoursePlansLayout({ children }: { children: React.ReactN
 
   useRegisterBreadcrumbs({ key: BREADCRUMB_KEY_COURSE_PLANS, order: 10, crumbs })
 
-  return <>{children}</>
+  return children
 }

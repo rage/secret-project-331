@@ -1,6 +1,7 @@
 #![allow(clippy::unwrap_used)]
 
 pub mod builder;
+pub mod certificate_fonts_data;
 pub mod seed_application_task_llms;
 pub mod seed_certificate_fonts;
 pub mod seed_courses;

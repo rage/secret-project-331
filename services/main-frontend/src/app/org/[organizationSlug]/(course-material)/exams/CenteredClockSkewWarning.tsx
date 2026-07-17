@@ -1,8 +1,8 @@
 "use client"
 
-import ExamClockSkewWarning from "./ExamClockSkewWarning"
-
 import Centered from "@/shared-module/common/components/Centering/Centered"
+
+import ExamClockSkewWarning from "./ExamClockSkewWarning"
 
 /** Renders ExamClockSkewWarning centered to avoid layout regressions. */
 export default function CenteredClockSkewWarning() {

@@ -28,16 +28,16 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     resize: none;
     ${
       cellText === "" &&
-      (column > matrixSize[1] || row > matrixSize[0]) &&
-      // eslint-disable-next-line i18next/no-literal-string
+      (column > (matrixSize[1] ?? Number.NaN) || row > (matrixSize[0] ?? Number.NaN)) &&
+      // oxlint-disable-next-line i18next/no-literal-string
       `background-color: ${baseTheme.colors.clear[100]};
 `
     }
     ${
       cellText === "" &&
       isActive &&
-      (column > matrixSize[1] || row > matrixSize[0]) &&
-      // eslint-disable-next-line i18next/no-literal-string
+      (column > (matrixSize[1] ?? Number.NaN) || row > (matrixSize[0] ?? Number.NaN)) &&
+      // oxlint-disable-next-line i18next/no-literal-string
       `background-color: ${baseTheme.colors.clear[300]};`
     }
   `
@@ -64,37 +64,35 @@ const TableCellContent: React.FC<React.PropsWithChildren<TableCellContentProps>>
   const [isActive, setIsActive] = useState(false)
   const { t } = useTranslation()
   return (
-    <>
-      <td
-        key={`cell ${row} ${column}`}
+    <td
+      key={`cell ${row} ${column}`}
+      className={css`
+        padding: 0;
+      `}
+    >
+      <div
         className={css`
-          padding: 0;
+          height: 100%;
+          width: 100%;
+          position: relative;
         `}
       >
-        <div
-          className={css`
-            height: 100%;
-            width: 100%;
-            position: relative;
-          `}
-        >
-          <BorderDiv column={column} row={row} matrixSize={matrixSize}></BorderDiv>
-          <CellInputContainer
-            aria-label={t("matrix-cell-aria-label", { row, column })}
-            column={column}
-            data-testid="matrix-cell"
-            row={row}
-            matrixSize={matrixSize}
-            cellText={cellText}
-            isActive={isActive}
-            value={cellText ?? ""}
-            onSelect={() => setIsActive(true)}
-            onBlur={() => setIsActive(false)}
-            onChange={(event) => handleTextarea(event.target.value, column, row)}
-          ></CellInputContainer>
-        </div>
-      </td>
-    </>
+        <BorderDiv column={column} row={row} matrixSize={matrixSize}></BorderDiv>
+        <CellInputContainer
+          aria-label={t("matrix-cell-aria-label", { row, column })}
+          column={column}
+          data-testid="matrix-cell"
+          row={row}
+          matrixSize={matrixSize}
+          cellText={cellText}
+          isActive={isActive}
+          value={cellText ?? ""}
+          onSelect={() => setIsActive(true)}
+          onBlur={() => setIsActive(false)}
+          onChange={(event) => handleTextarea(event.target.value, column, row)}
+        ></CellInputContainer>
+      </div>
+    </td>
   )
 }
 
@@ -135,7 +133,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
           `}
         ></div>
       ) : null}
-      {column === 0 && row <= matrixSize[0] ? (
+      {column === 0 && row <= (matrixSize[0] ?? Number.NaN) ? (
         <div
           className={css`
             position: absolute;
@@ -147,7 +145,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
           `}
         ></div>
       ) : null}
-      {column === matrixSize[1] && row <= matrixSize[0] ? (
+      {column === matrixSize[1] && row <= (matrixSize[0] ?? Number.NaN) ? (
         <div
           className={css`
             position: absolute;

@@ -10,6 +10,8 @@ import {
 } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"
 
+import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types"
+
 import {
   blockTypeMapForFrontPages,
   blockTypeMapForPages,
@@ -30,14 +32,12 @@ import withCodeLanguageControls from "../../utils/Gutenberg/withCodeLanguageCont
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 import withParagraphAiToolbarAction from "../../utils/Gutenberg/withParagraphAiToolbarAction"
 
-import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types"
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]
 
 interface StandaloneGutenbergBootstrapOptions {
-  customBlocks?: CustomBlockDefinition[]
-  allowedBlockVariations?: Record<string, string[]>
+  customBlocks?: CustomBlockDefinition[] | undefined
+  allowedBlockVariations?: Record<string, string[]> | undefined
 }
 
 const customBlockRegistry = new Map<string, CustomBlockDefinition[1]>(

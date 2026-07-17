@@ -4,14 +4,13 @@ import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerTimeline } from "../../../../../types/quizTypes/answer"
-import { ModelSolutionQuizItemTimeline } from "../../../../../types/quizTypes/modelSolutionSpec"
-import { PublicSpecQuizItemTimeline } from "../../../../../types/quizTypes/publicSpec"
-
-import { QuizItemSubmissionComponentProps } from "."
-
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { baseTheme, headingFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemSubmissionComponentProps } from "."
+import type { UserItemAnswerTimeline } from "../../../../../types/quizTypes/answer"
+import type { ModelSolutionQuizItemTimeline } from "../../../../../types/quizTypes/modelSolutionSpec"
+import type { PublicSpecQuizItemTimeline } from "../../../../../types/quizTypes/publicSpec"
 
 const TimelineWrapper = styled.section`
   *,
@@ -132,7 +131,7 @@ const Timeline: React.FunctionComponent<
   return (
     <TimelineWrapper>
       {public_quiz_item.timelineItems
-        .sort((a, b) => Number(a.year) - Number(b.year))
+        .toSorted((a, b) => Number(a.year) - Number(b.year))
         .map((timelineItem, n) => {
           const selectedTimelineItem = user_quiz_item_answer?.timelineChoices?.find(
             (tc) => tc.timelineItemId === timelineItem.itemId,
@@ -168,13 +167,11 @@ const Timeline: React.FunctionComponent<
                   background: ${selectedTimelineItem ? "#77C299" : "#EBEDEE"};
                   border: ${selectedTimelineItem ? "none" : "0.125rem solid #898E99"};
                   border-style: ${selectedTimelineItem ? "none" : "dashed"};
-                  ${
-                    selectedTimelineItem &&
-                    `box-shadow:
+                  ${selectedTimelineItem &&
+                  `box-shadow:
                 rgba(45, 35, 66, 0) 0 2px 4px,
                 rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                #69AF8A 0 -2px 0 inset;`
-                  };
+                #69AF8A 0 -2px 0 inset;`};
                   border-radius: 1.563rem;
                   transition: all 200ms linear;
                   z-index: 1;

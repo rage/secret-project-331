@@ -1,7 +1,11 @@
 use crate::{
-    azure_chatbot::CONTENT_FIELD_SEPARATOR, prelude::ChatbotResult, search_filter::SearchFilter,
+    azure_chatbot::CONTENT_FIELD_SEPARATOR,
+    chatbot_error::chatbot_err,
+    prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
+    search_filter::SearchFilter,
 };
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::prelude_base_and_re_exports::BackendError;
 use serde::{Deserialize, Serialize};
 use url::Url;
 use uuid::Uuid;
@@ -57,14 +61,25 @@ pub fn get_azure_ai_search_tool_definition(
 ) -> ChatbotResult<AzureAISearchToolDefinition> {
     let index_name = Url::parse(&app_config.base_url)?
         .host_str()
-        .ok_or_else(|| anyhow::anyhow!("Invalid application base url, no host"))?
+        .ok_or_else(|| {
+            chatbot_err!(
+                AzureRequestBuildError,
+                "Invalid application base url, no host"
+            )
+        })?
         .replace(".", "-");
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure configuration is missing from the application configuration"
+        )
     })?;
 
     let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure search configuration is missing from the Azure configuration"
+        )
     })?;
 
     let query_type = if use_semantic_reranking {

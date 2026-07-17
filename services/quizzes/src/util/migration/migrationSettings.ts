@@ -1,15 +1,15 @@
 // Default value for choose-n exercise
 
-import {
+import type {
   OldPublicQuiz,
   OldQuiz,
   OldQuizAnswer,
   OldQuizItemAnswer,
 } from "../../../types/oldQuizTypes"
-import { UserAnswer } from "../../../types/quizTypes/answer"
-import { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
-import { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
-import { PublicSpecQuiz } from "../../../types/quizTypes/publicSpec"
+import type { UserAnswer } from "../../../types/quizTypes/answer"
+import type { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
+import type { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
+import type { PublicSpecQuiz } from "../../../types/quizTypes/publicSpec"
 
 // Not set in the previous version
 const DEFAULT_N = 10

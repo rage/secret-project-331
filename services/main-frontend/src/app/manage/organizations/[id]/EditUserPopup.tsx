@@ -147,9 +147,9 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
               background-color: white;
             `}
           >
-            {USER_ROLES.map((role) => (
-              <option key={role.value} value={role.value}>
-                {t(role.translationKey)}
+            {USER_ROLES.map((roleOption) => (
+              <option key={roleOption.value} value={roleOption.value}>
+                {t(roleOption.translationKey)}
               </option>
             ))}
           </select>

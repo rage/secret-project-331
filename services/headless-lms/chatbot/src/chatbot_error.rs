@@ -12,6 +12,7 @@ use tracing_error::SpanTrace;
 
 use headless_lms_base::error::backend_error::BackendError;
 
+use crate::azure_chatbot::ResponseError as AzureResponseError;
 use crate::search_filter::SearchFilterError;
 
 /**
@@ -20,7 +21,7 @@ Used as the result types for all of chatbot.
 pub type ChatbotResult<T> = Result<T, ChatbotError>;
 
 /// The type of [ChatbotError] that occured.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ChatbotErrorType {
     InvalidMessageShape,
     InvalidToolName,
@@ -30,10 +31,15 @@ pub enum ChatbotErrorType {
     UrlParse,
     TokioIo,
     SerdeJson,
+    SqlxError,
+    ReqwestError,
     Other,
     DeserializationError,
     AzureAISearchFilterError,
     StreamingError,
+    ContentCleaning,
+    AzureRequestBuildError,
+    FailedAzureResponse,
     SisuDescriptionError,
 }
 
@@ -99,6 +105,7 @@ pub struct ChatbotError {
     backtrace: Box<Backtrace>,
     /// Source location where the error was raised.
     location: Option<&'static Location<'static>>,
+    azure_source: Option<Box<AzureResponseError>>,
 }
 
 impl std::error::Error for ChatbotError {
@@ -160,13 +167,24 @@ impl BackendError for ChatbotError {
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
             location,
+            azure_source: None,
         }
+    }
+}
+
+impl ChatbotError {
+    pub fn azure_source(&self) -> Option<AzureResponseError> {
+        self.azure_source.as_deref().cloned()
+    }
+
+    pub fn add_azure_source(&mut self, err: AzureResponseError) {
+        self.azure_source = Some(Box::new(err));
     }
 }
 
 impl From<url::ParseError> for ChatbotError {
     fn from(source: url::ParseError) -> Self {
-        ChatbotError::new(
+        Self::new(
             ChatbotErrorType::UrlParse,
             source.to_string(),
             Some(source.into()),
@@ -176,7 +194,7 @@ impl From<url::ParseError> for ChatbotError {
 
 impl From<tokio::io::Error> for ChatbotError {
     fn from(source: tokio::io::Error) -> Self {
-        ChatbotError::new(
+        Self::new(
             ChatbotErrorType::TokioIo,
             source.to_string(),
             Some(source.into()),
@@ -186,10 +204,30 @@ impl From<tokio::io::Error> for ChatbotError {
 
 impl From<serde_json::Error> for ChatbotError {
     fn from(source: serde_json::Error) -> Self {
-        ChatbotError::new(
+        Self::new(
             ChatbotErrorType::SerdeJson,
             source.to_string(),
             Some(source.into()),
+        )
+    }
+}
+
+impl From<sqlx::Error> for ChatbotError {
+    fn from(err: sqlx::Error) -> ChatbotError {
+        Self::new(
+            ChatbotErrorType::SqlxError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<reqwest::Error> for ChatbotError {
+    fn from(err: reqwest::Error) -> ChatbotError {
+        Self::new(
+            ChatbotErrorType::ReqwestError,
+            err.to_string(),
+            Some(err.into()),
         )
     }
 }

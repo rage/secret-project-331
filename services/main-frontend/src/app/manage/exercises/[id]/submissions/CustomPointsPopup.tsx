@@ -131,11 +131,11 @@ const CustomPointsPopup: React.FC<CustomPointsPopupProps> = ({
               }
             }
           `}
-          // eslint-disable-next-line react/forbid-dom-props
+          // oxlint-disable-next-line react/forbid-dom-props
           style={styles.popper}
           {...attributes.popper}
         >
-          {/* eslint-disable-next-line react/forbid-dom-props */}
+          {/* oxlint-disable-next-line react/forbid-dom-props */}
           <div id="arrow" ref={setArrowElement} style={styles.arrow} />
           <div
             className={css`

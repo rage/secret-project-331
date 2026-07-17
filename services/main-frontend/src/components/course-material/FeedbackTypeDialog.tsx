@@ -6,15 +6,15 @@ import React, { useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import ImprovementExample from "./ImprovementExample"
-import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
-
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
 } from "@/stores/course-material/materialFeedbackStore"
+
+import ImprovementExample from "./ImprovementExample"
+import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
 const FeedbackTypeDialog: React.FC = () => {
   const { t } = useTranslation()
@@ -41,14 +41,14 @@ const FeedbackTypeDialog: React.FC = () => {
 
   const handleFeedbackClick = () => {
     restoreSelectionIfNeeded(() => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setCurrentlyOpenFeedbackDialog("written")
     })
   }
 
   const handleImprovementClick = () => {
     restoreSelectionIfNeeded(() => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setCurrentlyOpenFeedbackDialog("proposed-edits")
     })
   }

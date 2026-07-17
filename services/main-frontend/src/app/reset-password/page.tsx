@@ -15,11 +15,12 @@ import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
-type SubmitEmailFormFields = {
+interface SubmitEmailFormFields {
   email: string
 }
 const ResetPassword: React.FC = () => {
@@ -94,7 +95,7 @@ const ResetPassword: React.FC = () => {
             },
           })}
           required
-          error={errors.email}
+          {...includeIf(errors.email, { error: errors.email })}
         />
         <Button
           variant="primary"

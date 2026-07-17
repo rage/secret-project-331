@@ -1,9 +1,9 @@
+use super::certificate_fonts_data::CERTIFICATE_FONTS;
 use headless_lms_utils::file_store::{FileStore, local_file_store::LocalFileStore};
 use std::path::Path;
 
 const REPOSITORY_EXERCISE_1: &[u8] = include_bytes!("./data/repository-exercise-1.tar.zst");
 const REPOSITORY_EXERCISE_2: &[u8] = include_bytes!("./data/repository-exercise-2.tar.zst");
-const FONT_LATO_REGULAR: &[u8] = include_bytes!("./data/Lato-Regular.ttf");
 const CERTIFICATE_BACKGROUND: &[u8] = include_bytes!("./data/certificate-background.svg");
 const AUTHOR_IMAGE: &[u8] = include_bytes!("./data/lilo-and-stitch.jpg");
 
@@ -33,13 +33,11 @@ pub async fn seed_file_storage() -> anyhow::Result<SeedFileStorageResult> {
             "application/octet-stream",
         )
         .await?;
-    file_storage
-        .upload(
-            Path::new("fonts/lato-regular.ttf"),
-            FONT_LATO_REGULAR.to_vec(),
-            "application/octet-stream",
-        )
-        .await?;
+    for &(_, path, bytes) in CERTIFICATE_FONTS {
+        file_storage
+            .upload(Path::new(path), bytes.to_vec(), "application/octet-stream")
+            .await?;
+    }
     file_storage
         .upload(
             Path::new("svgs/certificate-background.svg"),

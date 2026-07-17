@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { uploadFilesFromExerciseService } from "@/generated/api/sdk.generated"
@@ -9,7 +9,7 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
-import {
+import type {
   CurrentStateMessage,
   ExerciseIframeState,
   MessageToIframe,
@@ -45,7 +45,7 @@ const uploadFilesFromIframe = async (
   const response = await uploadFilesFromExerciseService({
     body: form as unknown as string,
     path: {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       exercise_service_slug: "playground",
     },
   })
@@ -89,7 +89,7 @@ const PlaygroundExerciseIframe: React.FC<
         url={url}
         postThisStateToIFrame={
           {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             view_type: "answer-exercise",
             exercise_task_id: EXAMPLE_UUID,
             user_information: userInformation,
@@ -108,19 +108,20 @@ const PlaygroundExerciseIframe: React.FC<
               let response: MessageToIframe
               try {
                 response = {
-                  // eslint-disable-next-line i18next/no-literal-string
+                  // oxlint-disable-next-line i18next/no-literal-string
                   message: "upload-result",
                   success: true,
                   urls: files,
                 }
               } catch (e) {
                 response = {
-                  // eslint-disable-next-line i18next/no-literal-string
+                  // oxlint-disable-next-line i18next/no-literal-string
                   message: "upload-result",
                   success: false,
                   error: JSON.stringify(e, null, 2),
                 }
               }
+              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
               responsePort.postMessage(response)
             }
           }

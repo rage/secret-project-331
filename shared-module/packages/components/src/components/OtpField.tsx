@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { findFirstMatchingChild } from "../lib/utils/compositeField"
 import { resolveFieldDescribedBy } from "../lib/utils/field"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   applyOtpBackspace,
   applyOtpCharacter,
@@ -19,7 +20,6 @@ import {
   resolveOtpSlotAriaLabel,
   splitOtpValue,
 } from "../lib/utils/otp"
-
 import { FieldShell } from "./primitives/FieldShell"
 import type { FieldSize } from "./primitives/fieldStyles"
 
@@ -78,9 +78,9 @@ const otpSlotLgCss = css`
   font-size: 1.4rem;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const slotInputSelector = "input"
 
 function resolveOtpSlotSizeCss(fieldSize: FieldSize) {
@@ -89,7 +89,6 @@ function resolveOtpSlotSizeCss(fieldSize: FieldSize) {
       return otpSlotSmCss
     case "lg":
       return otpSlotLgCss
-    case "md":
     default:
       return otpSlotMdCss
   }
@@ -147,14 +146,19 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
     autoComplete,
   } = props
 
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...omitUndefined({ rules }),
+    errorMessage,
+  })
 
   const { t } = useTranslation("shared-module")
   const generatedInputId = useId()
   const inputId = id ?? generatedInputId
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const slotsContainerRef = useRef<HTMLDivElement>(null)
-  const slotRefs = useRef<Array<HTMLInputElement | null>>([])
+  const slotRefs = useRef<(HTMLInputElement | null)[]>([])
   const hasFocusWithinRef = useRef(false)
 
   useImperativeHandle(field.ref, () => {
@@ -205,7 +209,6 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
   }, [otpValue])
 
   const describedBy = resolveFieldDescribedBy({
-    ariaDescribedBy: undefined,
     descriptionId,
     errorMessageId,
     hasDescription: Boolean(description),
@@ -226,7 +229,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      className={className}
+      {...omitUndefined({ className })}
       label={label}
       labelProps={mergedLabelProps as React.HTMLAttributes<HTMLElement>}
       description={description}
@@ -251,9 +254,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
           tabIndex={-1}
           autoComplete={autoComplete ?? "one-time-code"}
           aria-describedby={describedBy}
-          onChange={() => {
-            return
-          }}
+          onChange={() => {}}
         />
       </VisuallyHidden>
 
@@ -261,6 +262,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
         {...groupFieldProps}
         ref={slotsContainerRef}
         className={otpSlotsCss}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div typed HTMLDivElement; a native tag changes behavior
         role="group"
         aria-labelledby={groupAriaLabelledBy || undefined}
         aria-disabled={isDisabled ? "true" : undefined}

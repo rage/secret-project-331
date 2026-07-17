@@ -23,7 +23,7 @@ export default function runMigrationsAndValidations(
       const innerBlocks = block.innerBlocks ?? []
 
       if (ENABLED_BLOCKS.indexOf(block.name) === -1) {
-        innerBlocks.forEach(migrateBlockRecursively)
+        innerBlocks.forEach((innerBlock) => migrateBlockRecursively(innerBlock))
         return
       }
 
@@ -59,7 +59,7 @@ export default function runMigrationsAndValidations(
       }
 
       const nestedInnerBlocks = block.innerBlocks ?? []
-      nestedInnerBlocks.forEach(migrateBlockRecursively)
+      nestedInnerBlocks.forEach((innerBlock) => migrateBlockRecursively(innerBlock))
     }
 
     for (const block of draftContent) {

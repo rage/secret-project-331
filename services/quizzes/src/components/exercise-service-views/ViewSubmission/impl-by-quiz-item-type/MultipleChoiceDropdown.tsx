@@ -2,21 +2,20 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
-import { ItemAnswerFeedback } from "../../../../../types/quizTypes/grading"
-import { ModelSolutionQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/modelSolutionSpec"
-import {
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemSubmissionComponentProps } from "."
+import type { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
+import type { ItemAnswerFeedback } from "../../../../../types/quizTypes/grading"
+import type { ModelSolutionQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/modelSolutionSpec"
+import type {
   PublicQuizItemOption,
   PublicSpecQuizItemMultiplechoiceDropdown,
 } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
-
-import { QuizItemSubmissionComponentProps } from "."
-
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 const SelectIcon = () => {
   return (
@@ -47,7 +46,8 @@ const MultipleChoiceDropdownFeedback: React.FC<
 
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMultiplechoiceDropdown
   const correct =
-    quiz_item_answer_feedback?.score === 1 || quiz_item_answer_feedback?.correctnessCoefficient == 1
+    quiz_item_answer_feedback?.score === 1 ||
+    quiz_item_answer_feedback?.correctnessCoefficient === 1
   const selectedOption = public_quiz_item.options.filter(
     (o) => o.id === (user_quiz_item_answer.selectedOptionIds as string[])[0],
   )[0]
@@ -77,19 +77,17 @@ const MultipleChoiceDropdownFeedback: React.FC<
             `}
           >
             {public_quiz_item.title ? (
-              <>
-                <h2
-                  className={css`
-                    font-size: ${quizTheme.quizTitleFontSize} !important;
-                    font-weight: 500;
-                    color: #4c5868;
-                    font-family: ${primaryFont};
-                    margin-bottom: 1rem;
-                  `}
-                >
-                  {public_quiz_item.title}
-                </h2>
-              </>
+              <h2
+                className={css`
+                  font-size: ${quizTheme.quizTitleFontSize} !important;
+                  font-weight: 500;
+                  color: #4c5868;
+                  font-family: ${primaryFont};
+                  margin-bottom: 1rem;
+                `}
+              >
+                {public_quiz_item.title}
+              </h2>
             ) : null}
           </div>
           {public_quiz_item.body && (
@@ -99,15 +97,13 @@ const MultipleChoiceDropdownFeedback: React.FC<
               `}
             >
               {public_quiz_item.body ? (
-                <>
-                  <h3
-                    className={css`
-                      font-size: 1.25rem !important;
-                    `}
-                  >
-                    {public_quiz_item.body}
-                  </h3>
-                </>
+                <h3
+                  className={css`
+                    font-size: 1.25rem !important;
+                  `}
+                >
+                  {public_quiz_item.body}
+                </h3>
               ) : null}
             </div>
           )}
@@ -144,11 +140,9 @@ const MultipleChoiceDropdownFeedback: React.FC<
               font-size: 18px;
               cursor: pointer;
               border: 0.188rem solid
-                ${
-                  correct
-                    ? quizTheme.gradingCorrectItemBorderColor
-                    : quizTheme.gradingWrongItemBorderColor
-                };
+                ${correct
+                  ? quizTheme.gradingCorrectItemBorderColor
+                  : quizTheme.gradingWrongItemBorderColor};
               background: none;
               min-height: 2.5rem;
               grid-template-areas: "select";
@@ -159,21 +153,19 @@ const MultipleChoiceDropdownFeedback: React.FC<
               overflow: hidden;
               text-overflow: ellipsis;
 
-              background: ${
-                correct
-                  ? quizTheme.gradingCorrectItemBackground
-                  : quizTheme.gradingWrongItemBackground
-              };
+              background: ${correct
+                ? quizTheme.gradingCorrectItemBackground
+                : quizTheme.gradingWrongItemBackground};
             `}
           >
-            <option disabled selected={selectedOption.id === null} value="">
+            <option disabled selected={selectedOption?.id === null} value="">
               {t("answer")}
             </option>
             {public_quiz_item.options.map((o) => (
               <option
                 key={o.id}
                 value={o.id}
-                selected={selectedOption.id === o.id}
+                selected={selectedOption?.id === o.id}
                 className={css`
                   display: flex;
                 `}
@@ -228,12 +220,14 @@ const SubmissionFeedbackMessage: React.FC<
     const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
       (feedback) => feedback.option_id === option.id,
     )
-    if (feedbackForThisOption && feedbackForThisOption.this_option_was_correct !== null) {
+    if (
+      feedbackForThisOption &&
+      feedbackForThisOption.this_option_was_correct !== null &&
+      !correctAnswer
+    ) {
       // if we have received feedback for this option, use that
       // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
-      if (!correctAnswer) {
-        correctAnswer = feedbackForThisOption.this_option_was_correct
-      }
+      correctAnswer = feedbackForThisOption.this_option_was_correct
     }
     let feedBackForOption: string | null = null
     if (answerSelectedThisOption) {
@@ -245,16 +239,15 @@ const SubmissionFeedbackMessage: React.FC<
     }
     return feedBackForOption ? (
       <div
+        key={option.id}
         className={css`
           margin: 0.5rem 0.5rem 1rem 0;
           display: flex;
           font-size: 1.125rem;
           color: #3c4551;
-          border-left: ${
-            correctAnswer
-              ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
-              : `6px solid #ebcbcd`
-          };
+          border-left: ${correctAnswer
+            ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
+            : `6px solid #ebcbcd`};
           box-sizing: border-box;
           background: ${quizTheme.feedbackBackground};
           padding: 0.5rem 0px 0.5rem 0.5rem;

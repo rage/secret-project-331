@@ -37,7 +37,9 @@ reviews:
 
     - path: "**/*.tsx"
       instructions: >
-        Make sure to use the `useTranslation` hook for all text that is visible to the user.
+        Translate all user-facing text (button and link labels, headings, paragraphs, placeholders, aria-labels, tooltips, error and success messages) with the `useTranslation` hook and its `t` function. Never hardcode user-visible strings.
+
+        For false positives on non-UI strings (CSS-in-JS, magic values, technical constants), prefer moving the value to a SCREAMING_CASE constant; otherwise use a single-line `// oxlint-disable-next-line i18next/no-literal-string`. Never use `oxlint-disable` / `oxlint-enable` block pairs.
 
         If a component uses colors, use colors from the theme if possible. Example: import { baseTheme } from "@/shared-module/common/styles" ... background: ${baseTheme.colors.clear[100]};
 
@@ -57,13 +59,17 @@ reviews:
 
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
 
+    - path: "**/*.{ts,tsx}"
+      instructions: >
+        Under exactOptionalPropertyTypes, build objects with the nullability helpers instead of chained conditional spreads. `omitUndefined({ a, b })` drops keys whose value is `undefined`; use it for `...(x !== undefined ? { x } : {})`. `includeIf(condition, { a, b })` includes the whole group only when `condition` is truthy; use it for `...(condition ? { a } : {})`, including `!== null` and other truthy checks, and keep member access in its object optionally-chained (`x?.y`) since the object is built before the check. `assertNotNullOrUndefined(x)` returns `x` or throws if it is null or undefined. Import these from "@/shared-module/common/utils/nullability", or from the matching "../lib/utils/nullability" within shared-module/packages/components (which cannot depend on common).
+
     - path: "services/main-frontend/src/app/**/*.tsx"
       instructions: >
         Pages and layouts should set the browser title with the usePageTitle hook: import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle".
 
-        Where: set the title once per view. A section layout that has an entity (course, exam, organization, course instance, chatbot) registers the entity name so every child page inherits it — child pages must not re-set it. Standalone pages set their own title in the page component.
+        Where: set the title once per view. A section layout that has an entity (course, exam, organization, course instance, chatbot) registers the entity name so every child page inherits it. Child pages must not re-set it. Standalone pages set their own title in the page component.
 
-        Format: pass only the page-specific part — PageTitleManager appends " - {siteName}" automatically, so never include the site name yourself. Use one concise, most-specific label; no "A · B" composites. Pass an already-translated string via a kebab-case title-* key (reuse existing keys where they fit), e.g. usePageTitle(t("title-account-settings")). For fetched names pass the value directly and null while loading, e.g. usePageTitle(course?.name ?? null); do not translate entity names, and never put PII such as emails in a title.
+        Format: pass only the page-specific part. PageTitleManager appends " - {siteName}" automatically, so never include the site name yourself. Use one concise, most-specific label; no "A · B" composites. Pass an already-translated string via a kebab-case title-* key (reuse existing keys where they fit), e.g. usePageTitle(t("title-account-settings")). For fetched names pass the value directly and null while loading, e.g. usePageTitle(course?.name ?? null); do not translate entity names, and never put PII such as emails in a title.
 
         Order: default order 0. Only when a parent layout also registers a title, give the leaf page a higher order (e.g. { order: 10 }) so the more specific title wins.
 

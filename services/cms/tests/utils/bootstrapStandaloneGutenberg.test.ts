@@ -4,11 +4,11 @@
 
 import { jest } from "@jest/globals"
 
-type MockBlockVariation = {
+interface MockBlockVariation {
   name: string
 }
 
-type MockBlockType = {
+interface MockBlockType {
   name: string
   variations: MockBlockVariation[]
 }

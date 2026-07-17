@@ -32,12 +32,14 @@ test("User search works", async ({ page, headless }, testInfo) => {
     })
     .getByRole("button", { name: "Details" })
     .click()
-  await page.getByText("Course: Introduction to feedback (introduction-to-feedback)").waitFor()
-  await page
+  const courseCard = page
     .getByTestId("course-status-card")
     .filter({ hasText: "Introduction to feedback" })
     .first()
-    .getByRole("button", { name: "Course status summary" })
-    .click()
+  await courseCard.waitFor()
+  // The card body (with the "Course status summary" link) is inside a collapsed Disclosure; expand it
+  // via its trigger (the course name leads its accessible name), then follow the now-visible link.
+  await courseCard.getByRole("button", { name: /Introduction to feedback/ }).click()
+  await courseCard.getByRole("link", { name: "Course status summary" }).click()
   await page.getByText("5 submissions").first().waitFor()
 })

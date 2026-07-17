@@ -1,13 +1,12 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
-import LandingPageCopyTextEditor from "./LandingPageCopyTextEditor"
-import LandingPageCopyTextSave from "./LandingPageCopyTextSave"
+/* oxlint-disable i18next/no-literal-string */
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import LandingPageCopyTextEditor from "./LandingPageCopyTextEditor"
+import LandingPageCopyTextSave from "./LandingPageCopyTextSave"
 
 const LandingPageCopyTextConfiguration: BlockConfiguration = {
   title: "Landing Page Copy Text",

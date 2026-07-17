@@ -13,8 +13,10 @@ import { useDateFieldState, useDatePickerState } from "@react-stately/datepicker
 import type { DateValue } from "react-aria"
 import { useDateField, useDatePicker } from "react-aria"
 
+import { omitUndefined } from "../../../lib/utils/nullability"
 import { PickerSegmentedField } from "./PickerSegmentedField"
-import { dayGranularity, minuteGranularity } from "./segmentedDateInputFieldConstants"
+import type { dayGranularity } from "./segmentedDateInputFieldConstants"
+import { minuteGranularity } from "./segmentedDateInputFieldConstants"
 import { datePickerPopoverCss, dateTimePickerPopoverCss } from "./segmentedDateInputFieldStyles"
 import {
   parseDateLikeValue,
@@ -48,16 +50,18 @@ export function DateLikePickerInner({
     description: base.description,
     errorMessage: base.errorMessage,
     granularity,
-    hourCycle: base.hourCycle,
     value: currentValue,
-    minValue: parsedMinValue,
-    maxValue: parsedMaxValue,
     isDisabled: base.resolvedState.isDisabled,
     isReadOnly: base.resolvedState.isReadOnly,
     isRequired: base.resolvedState.isRequired,
     isInvalid: base.resolvedState.isInvalid,
     shouldCloseOnSelect: kind === "date",
     onChange: onCommitValue,
+    ...omitUndefined({
+      hourCycle: base.hourCycle,
+      minValue: parsedMinValue,
+      maxValue: parsedMaxValue,
+    }),
   }
 
   const pickerState = useDatePickerState(pickerProps)
@@ -70,7 +74,7 @@ export function DateLikePickerInner({
   const state = useDateFieldState(dateFieldProps)
   const dateFieldAria = useDateField(dateFieldProps, state, base.fieldRef)
   const canClear =
-    currentValue != null || pickerState.dateValue != null || pickerState.timeValue != null
+    currentValue !== null || pickerState.dateValue !== null || pickerState.timeValue !== null
 
   return (
     <PickerSegmentedField
@@ -147,7 +151,6 @@ export function DateLikePickerInner({
         kind === "datetime"
           ? {
               granularity: minuteGranularity,
-              hourCycle: base.hourCycle,
               isDisabled: base.resolvedState.isDisabled,
               isReadOnly: base.resolvedState.isReadOnly,
               minuteStep: resolveMinuteStep(base.step),
@@ -155,6 +158,7 @@ export function DateLikePickerInner({
               onChange: (nextValue) => {
                 pickerState.setTimeValue(nextValue)
               },
+              ...omitUndefined({ hourCycle: base.hourCycle }),
             }
           : undefined
       }

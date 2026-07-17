@@ -8,8 +8,8 @@ import React, { useEffect, useState } from "react"
 import { RouterProvider } from "react-aria-components"
 
 import { LanguageOptionsProvider } from "@/contexts/LanguageOptionsContext"
-import PageTitleManager from "@/shared-module/common/components/PageTitle/PageTitleManager"
 import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
+import PageTitleManager from "@/shared-module/common/components/PageTitle/PageTitleManager"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
 import useLanguage, { DEFAULT_LANGUAGE, getDir } from "@/shared-module/common/hooks/useLanguage"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
@@ -36,20 +36,20 @@ function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
-      jssStyles.parentElement?.removeChild(jssStyles)
+      jssStyles.remove()
     }
   }, [])
 
   useEffect(() => {
-    i18n.on("languageChanged", (language) => {
-      console.info(`i18n language changed to: ${language}`)
+    i18n.on("languageChanged", (changedLanguage) => {
+      console.info(`i18n language changed to: ${changedLanguage}`)
       const htmlElement = document.querySelector("html")
       if (!htmlElement) {
         return
       }
-      htmlElement.setAttribute("lang", language)
-      htmlElement.setAttribute("dir", getDir(language))
-      setLanguage(language)
+      htmlElement.setAttribute("lang", changedLanguage)
+      htmlElement.setAttribute("dir", getDir(changedLanguage))
+      setLanguage(changedLanguage)
     })
     i18n.on("loaded", () => {
       // Updating the counter forces the  whole app to re-render

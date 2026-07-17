@@ -2,14 +2,13 @@
 
 import styled from "@emotion/styled"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
-import { ReactNode } from "react"
-import toast from "react-hot-toast"
+import type { ReactNode } from "react"
+import { toast } from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
 import CloseIcon from "../../img/close.svg"
 import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
-
 import { NotificationWrapper } from "./Base"
 
 interface SuccessNotificationProps {

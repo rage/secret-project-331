@@ -1,6 +1,6 @@
-import { UserItemAnswerChooseN } from "../../../types/quizTypes/answer"
-import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
-import { PrivateSpecQuizItemChooseN } from "../../../types/quizTypes/privateSpec"
+import type { UserItemAnswerChooseN } from "../../../types/quizTypes/answer"
+import type { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
+import type { PrivateSpecQuizItemChooseN } from "../../../types/quizTypes/privateSpec"
 import { clamp01, safeDivide } from "../utils/math"
 
 const assessChooseN = (

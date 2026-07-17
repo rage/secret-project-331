@@ -16,7 +16,7 @@ import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export interface PeerOrSelfReviewAccordionProps {
-  peerOrSelfReviews: Array<PeerReviewWithQuestionsAndAnswers>
+  peerOrSelfReviews: PeerReviewWithQuestionsAndAnswers[]
   title: string
   courseId: string | null
 }
@@ -29,7 +29,7 @@ const Question = styled.div`
   color: #1a2333;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const Title = styled.h5`
   border-bottom: 1px solid ${baseTheme.colors.clear[600]};
   padding: 0 1.5rem 1rem;
@@ -164,10 +164,10 @@ const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
                 {t("peer-review-n", { n: i + 1 })}
                 <UserDisplay userId={peerReview.peer_review_giver_user_id} courseId={courseId} />
               </Title>
-              {peerReview.questions_and_answers.map((x, i) => (
+              {peerReview.questions_and_answers.map((x, questionIndex) => (
                 <QuestionWrapper key={x.peer_or_self_review_question_id}>
                   {mapToAnswer(
-                    `${t("question-n", { n: i + 1 })}: ${x.question}${
+                    `${t("question-n", { n: questionIndex + 1 })}: ${x.question}${
                       x.answer_required ? " *" : ""
                     }`,
                     x.answer,

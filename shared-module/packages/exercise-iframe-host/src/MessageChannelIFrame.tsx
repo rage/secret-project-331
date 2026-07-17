@@ -5,10 +5,7 @@ import { isEqual } from "lodash"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import useEventCallback from "./useEventCallback"
-import useMessageChannel from "./useMessageChannel"
-
-import {
+import type {
   DialogResponseMessage,
   ExtendedIframeState,
   MessageFromIframe,
@@ -22,6 +19,9 @@ import {
   isOpenLinkMessage,
   isRequestIframeReloadMessage,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+
+import useEventCallback from "./useEventCallback"
+import useMessageChannel from "./useMessageChannel"
 
 // Inlined from shared-module's BreakFromCentered component: only this prop type is needed
 // here, and we don't want this package to depend on a generic layout component.
@@ -89,7 +89,7 @@ const useIframeSandboxingAttribute = (disableSandbox: boolean) => {
   if (disableSandbox) {
     return undefined
   }
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   return "allow-scripts allow-forms allow-downloads allow-same-origin"
 }
 
@@ -147,7 +147,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       hasSignaledReadyRef.current = false
       readyMessageQueueRef.current = []
       if (iframeRef.current) {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         iframeRef.current.dataset.stateSent = "false"
         iframeRef.current.dataset.iframeHeight = "0"
       }
@@ -211,7 +211,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     }, delay)
   }, [resetIframeConnectionState])
 
-  const sendPortToIframe = useCallback((messageChannel: MessageChannel, isRecovery = false) => {
+  const sendPortToIframe = useCallback((channel: MessageChannel, isRecovery = false) => {
     if (portSentRef.current && !isRecovery) {
       return
     }
@@ -225,12 +225,12 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       return
     }
 
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const recoveryMessage = isRecovery ? " (recovery attempt)" : ""
     console.info(`[MessageChannelIFrame] Parent posting message port to iframe${recoveryMessage}`)
     try {
       // The iframe will use port 2 for communication
-      contentWindow.postMessage("communication-port", "*", [messageChannel.port2])
+      contentWindow.postMessage("communication-port", "*", [channel.port2])
       portSentRef.current = true
       portSentTimestampRef.current = Date.now()
     } catch (e) {
@@ -257,7 +257,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
           return
         }
         console.info("Updating height")
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         iframeRef.current.height = Number(data.data).toString() + "px"
         iframeRef.current.dataset.iframeHeight = Number(data.data).toString()
       } else if (isOpenLinkMessage(data)) {
@@ -268,14 +268,22 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         scheduleIframeReload()
       } else if (isOpenDialogMessage(data)) {
         const responsePort = currentMessageChannel.port1
-        const { requestId, dialogType, title, body, confirmButtonLabel, cancelButtonLabel } = data
+        const {
+          requestId,
+          dialogType,
+          title: dialogTitle,
+          body,
+          confirmButtonLabel,
+          cancelButtonLabel,
+        } = data
         const respond = (confirmed: boolean) => {
           const response: DialogResponseMessage = {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             message: "dialog-response",
             requestId,
             confirmed,
           }
+          // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
           responsePort.postMessage(response)
         }
         const dialogBody = (
@@ -301,14 +309,24 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         )
         if (dialogType === "confirm") {
           void dialog
-            .confirm(dialogBody, title, {
-              yesButtonLabel: confirmButtonLabel ?? undefined,
-              noButtonLabel: cancelButtonLabel ?? undefined,
+            .confirm(dialogBody, dialogTitle, {
+              ...(confirmButtonLabel !== null && confirmButtonLabel !== undefined
+                ? { yesButtonLabel: confirmButtonLabel }
+                : {}),
+              ...(cancelButtonLabel !== null && cancelButtonLabel !== undefined
+                ? { noButtonLabel: cancelButtonLabel }
+                : {}),
             })
             .then(respond)
         } else {
           void dialog
-            .alert(dialogBody, title, { okButtonLabel: confirmButtonLabel ?? undefined })
+            .alert(
+              dialogBody,
+              dialogTitle,
+              confirmButtonLabel !== null && confirmButtonLabel !== undefined
+                ? { okButtonLabel: confirmButtonLabel }
+                : {},
+            )
             .then(() => respond(true))
         }
       } else if (isMessageFromIframe(data)) {
@@ -338,6 +356,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       return
     }
     // We use port 1 for communication, defining a event handler
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
       handlePortMessage(message, messageChannel)
     }
@@ -353,6 +372,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     }
 
     return () => {
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
       messageChannel.port1.onmessage = null
     }
   }, [handlePortMessage, messageChannel, sendPortToIframe])
@@ -396,11 +416,10 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
           readyMessageQueueRef.current.push(e)
           recreateMessageChannel()
           return
-        } else {
-          console.error(
-            `[MessageChannelIFrame] Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Giving up.`,
-          )
         }
+        console.error(
+          `[MessageChannelIFrame] Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Giving up.`,
+        )
       }
       return
     }
@@ -457,7 +476,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     console.groupEnd()
     messageChannel.port1.postMessage(postData)
     if (iframeRef.current) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       iframeRef.current.dataset.stateSent = "true"
     }
     lastThingPostedRef.current = postThisStateToIFrame

@@ -3,13 +3,12 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { Link } from "../src/components/Link"
-
 import { pressEnter, renderUi } from "./testUtils"
 
 jest.mock("next/link")
 
 type Variant = "primary" | "secondary" | "tertiary"
-type Size = "sm" | "md" | "lg"
+type Size = "small" | "medium" | "large"
 
 describe("Link", () => {
   test("renders a normal anchor link by default", () => {
@@ -186,7 +185,7 @@ describe("Link", () => {
 
 describe("Link variants and sizes", () => {
   const variants: Variant[] = ["primary", "secondary", "tertiary"]
-  const sizes: Size[] = ["sm", "md", "lg"]
+  const sizes: Size[] = ["small", "medium", "large"]
 
   test("plain link does not receive button styles", () => {
     renderUi(<Link href="/settings">Settings</Link>)
@@ -207,7 +206,7 @@ describe("Link variants and sizes", () => {
 
   test.each(variants)("styledAsButton variant renders with styles: %s", (variant) => {
     renderUi(
-      <Link href="/x" styledAsButton variant={variant} size="md">
+      <Link href="/x" styledAsButton variant={variant} size="medium">
         Go
       </Link>,
     )

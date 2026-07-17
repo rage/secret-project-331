@@ -14,7 +14,7 @@ import {
 import OpenChatbotButton from "../Chatbot/OpenChatbotButton"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
 import ChatbotChatHeader from "../shared/ChatbotChatHeader"
-import { ChatbotStateAndData } from "../shared/hooks/useChatbotStateAndData"
+import type { ChatbotStateAndData } from "../shared/hooks/useChatbotStateAndData"
 
 interface ChatbotDialogProps {
   chatbotStateAndData: ChatbotStateAndData
@@ -99,7 +99,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
   )
 
   const dialogRef = useRef(null)
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   let { dialogProps, titleProps } = useDialog({ role: "dialog" }, dialogRef)
   dialogProps = { ...dialogProps, "aria-labelledby": chatbotTitleId }
   titleProps = { ...titleProps, id: chatbotTitleId }

@@ -1,7 +1,6 @@
 import { jsonRoute, readJsonBody } from "@/lib/apiRoutes"
+import type { CsvExportColumn, CsvExportResponse } from "@/server/csvExportUtils"
 import {
-  CsvExportColumn,
-  CsvExportResponse,
   parseBooleanFieldFromObject,
   parseItemsRequest,
   parseNumberField,

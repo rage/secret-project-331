@@ -1,4 +1,6 @@
-export type ErrorData = { block_id: string }
+export interface ErrorData {
+  block_id: string
+}
 
 export interface ErrorResponse {
   title: string

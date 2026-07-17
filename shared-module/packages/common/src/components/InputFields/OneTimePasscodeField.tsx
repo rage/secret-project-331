@@ -12,7 +12,7 @@ interface Props {
 
 export function OneTimePassCodeField({ onChange }: Props) {
   const length = 6
-  const [values, setValues] = useState<string[]>(Array(length).fill(""))
+  const [values, setValues] = useState<string[]>(Array.from({ length }, () => ""))
   const inputs = useRef<(HTMLInputElement | null)[]>([])
 
   const focusInput = (index: number) => {
@@ -52,8 +52,8 @@ export function OneTimePassCodeField({ onChange }: Props) {
 
   const handlePaste = useCallback(
     (e: React.ClipboardEvent, idx: number) => {
-      // eslint-disable-next-line i18next/no-literal-string
-      const pasted = e.clipboardData.getData("text").replace(/\D/g, "") // digits only
+      // oxlint-disable-next-line i18next/no-literal-string
+      const pasted = e.clipboardData.getData("text").replaceAll(/\D/g, "") // digits only
       if (!pasted) {
         return
       }
@@ -64,7 +64,11 @@ export function OneTimePassCodeField({ onChange }: Props) {
       const newValues = [...values]
 
       for (let i = 0; i < chars.length; i++) {
-        newValues[idx + i] = chars[i]
+        const char = chars[i]
+        if (char === undefined) {
+          continue
+        }
+        newValues[idx + i] = char
       }
 
       updateValues(newValues)
@@ -97,10 +101,10 @@ export function OneTimePassCodeField({ onChange }: Props) {
               ref={(el) => {
                 inputs.current[idx] = el
               }}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               aria-label={`Digit ${idx + 1}`}
               type="text"
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               inputMode="numeric"
               maxLength={1}
               value={val}

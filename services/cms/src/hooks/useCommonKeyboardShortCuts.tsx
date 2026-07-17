@@ -1,4 +1,4 @@
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 "use client"
 
 import { useDispatch } from "@wordpress/data"
@@ -8,8 +8,8 @@ import { store as keyboardShortcutsStore, useShortcut } from "@wordpress/keyboar
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface UseCommonKeyboardShortcutsProps {
-  onUndo?: () => void
-  onRedo?: () => void
+  onUndo?: (() => void) | undefined
+  onRedo?: (() => void) | undefined
 }
 
 const shouldHandleBlockEditorHistoryShortcut = (event: Event): boolean => {

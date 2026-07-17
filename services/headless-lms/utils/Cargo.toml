@@ -77,20 +77,9 @@ anyhow = "1.0.103"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
 flate2 = "1.1.9"
 # higher level HTTP client library
-reqwest = { version = "0.13.4", features = [
-  "brotli",
-  "gzip",
-  "json",
-  "http2",
-  "rustls",
-  "stream",
-] }
+reqwest = { version = "0.13.4", features = ["brotli", "gzip", "json", "http2", "rustls", "stream"] }
 # Redis driver for Rust.
-redis = { version = "1.3.0", features = [
-  "aio",
-  "tokio-comp",
-  "connection-manager",
-] }
+redis = { version = "1.3.0", features = ["aio", "tokio-comp", "connection-manager"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory
 secrecy.workspace = true
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.

@@ -3,15 +3,16 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { DotsHorizontal } from "@vectopus/atlas-icons-react"
-import { TFunction } from "i18next"
-import React, { JSX, useCallback, useMemo } from "react"
+import type { TFunction } from "i18next"
+import type { JSX } from "react"
+import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PaginationInfo } from "../hooks/usePaginationInfo"
+import type { PaginationInfo } from "../hooks/usePaginationInfo"
 import ArrowLeft from "../img/caret-arrow-left.svg"
 import ArrowRight from "../img/caret-arrow-right.svg"
 import { headingFont } from "../styles"
-
+import { omitUndefined } from "../utils/nullability"
 import PaginationItemsPerPage from "./PaginationItemsPerPage"
 
 interface PaginationProps {
@@ -124,7 +125,7 @@ const Pagination: React.FC<React.PropsWithChildren<PaginationProps>> = ({
     [handleChangeEvent, page, t, totalPages],
   )
   // have to have a custom key on the parent of generatedComponents, otherwise react canot update the list of components correctly
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const componentsKey = `pagination-${page}-${totalPages}`
 
   return (
@@ -138,7 +139,7 @@ const Pagination: React.FC<React.PropsWithChildren<PaginationProps>> = ({
       {!disableItemsPerPage && (
         <PaginationItemsPerPage
           paginationInfo={paginationInfo}
-          itemsPerPageOptions={itemsPerPageOptions}
+          {...omitUndefined({ itemsPerPageOptions })}
         />
       )}
     </div>
@@ -155,10 +156,10 @@ const generateComponents = (
   page: number,
   totalPages: number,
 ) => {
-  const components: JSX.Element[] = []
-  components.push(
+  const components: JSX.Element[] = [
     <LeftButton
       tabIndex={0}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
       role="button"
       key={t("go-to-previous-page")}
       aria-label={t("go-to-previous-page")}
@@ -170,7 +171,7 @@ const generateComponents = (
         `}
       />
     </LeftButton>,
-  )
+  ]
 
   // In case there is nothing
   if (totalPages === 0) {
@@ -178,10 +179,9 @@ const generateComponents = (
       <SelectedCircle key={t("current-page-x")} aria-label={t("current-page-x", { number: 1 })}>
         <CircleText>1</CircleText>
       </SelectedCircle>,
-    )
-    components.push(
       <RightButton
         tabIndex={0}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-next-page")}
         aria-label={t("go-to-next-page")}
@@ -199,7 +199,7 @@ const generateComponents = (
 
   if (totalPages <= CAPACITY + 2) {
     for (let idx = 1; idx <= totalPages; idx++) {
-      if (idx == page) {
+      if (idx === page) {
         components.push(
           <SelectedCircle key={idx} aria-label={t("current-page-x", { number: idx })}>
             <CircleText>{idx}</CircleText>
@@ -209,6 +209,7 @@ const generateComponents = (
         components.push(
           <Circle
             tabIndex={0}
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
             role="button"
             key={t("go-to-page-x")}
             aria-label={t("go-to-page-x", { number: idx })}
@@ -223,6 +224,7 @@ const generateComponents = (
     components.push(
       <RightButton
         tabIndex={0}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-next-page")}
         aria-label={t("go-to-next-page")}
@@ -240,7 +242,7 @@ const generateComponents = (
 
   if (page < CAPACITY) {
     for (let idx = 1; idx <= CAPACITY; idx++) {
-      if (idx == page) {
+      if (idx === page) {
         components.push(
           <SelectedCircle key={idx} aria-label={t("current-page-x", { number: idx })}>
             <CircleText>{idx}</CircleText>
@@ -249,6 +251,8 @@ const generateComponents = (
       } else {
         components.push(
           <Circle
+            tabIndex={0}
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
             role="button"
             key={t("go-to-page-x")}
             aria-label={t("go-to-page-x", { number: idx })}
@@ -272,15 +276,14 @@ const generateComponents = (
       </Circle>,
     )
   } else if (CAPACITY <= page && page <= totalPages - CAPACITY + 1) {
-    components.push(<Circle onClick={handleChangeEvent(1)}> 1 </Circle>)
     components.push(
+      <Circle onClick={handleChangeEvent(1)}> 1 </Circle>,
       <HorizontalDots>
         <DotsHorizontal size={18} weight="bold" />
       </HorizontalDots>,
-    )
-    components.push(
       <Circle
         tabIndex={0}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-page-x")}
         aria-label={t("go-to-page-x", { number: page - 1 })}
@@ -288,15 +291,12 @@ const generateComponents = (
       >
         <CircleText>{page - 1}</CircleText>
       </Circle>,
-    )
-    components.push(
       <SelectedCircle key={t("current-page-x")} aria-label={t("current-page-x", { number: page })}>
         <CircleText>{page}</CircleText>
       </SelectedCircle>,
-    )
-    components.push(
       <Circle
         tabIndex={0}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-page-x")}
         aria-label={t("go-to-page-x", { number: page + 1 })}
@@ -304,15 +304,12 @@ const generateComponents = (
       >
         <CircleText>{page + 1}</CircleText>
       </Circle>,
-    )
-    components.push(
       <HorizontalDots>
         <DotsHorizontal size={18} weight="bold" />
       </HorizontalDots>,
-    )
-    components.push(
       <Circle
         tabIndex={0}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-page-x")}
         aria-label={t("go-to-page-x", { number: totalPages })}
@@ -325,6 +322,7 @@ const generateComponents = (
     components.push(
       <Circle
         tabIndex={0}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
         role="button"
         key={t("go-to-page-x")}
         aria-label={t("go-to-page-x", { number: 1 })}
@@ -332,14 +330,12 @@ const generateComponents = (
       >
         <CircleText>1</CircleText>
       </Circle>,
-    )
-    components.push(
       <HorizontalDots>
         <DotsHorizontal size={18} weight="bold" />
       </HorizontalDots>,
     )
     for (let idx = totalPages - CAPACITY + 1; idx <= totalPages; idx++) {
-      if (idx == page) {
+      if (idx === page) {
         components.push(
           <SelectedCircle key={idx} aria-label={t("current-page-x", { number: idx })}>
             <CircleText>{idx}</CircleText>
@@ -349,6 +345,7 @@ const generateComponents = (
         components.push(
           <Circle
             tabIndex={0}
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div; native button changes DOM/styling
             role="button"
             key={t("go-to-page-x")}
             aria-label={t("go-to-page-x", { number: idx })}

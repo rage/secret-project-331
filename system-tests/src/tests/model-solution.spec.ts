@@ -1,12 +1,12 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
 import { getLocatorForNthExerciseServiceIframe } from "../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -57,7 +57,7 @@ test.describe("Model solutions", () => {
     await page.getByText("Page One").first().click()
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs/courses/model-solutions/chapter-1/page-1")
     // Wait for the frame to be visible
-    // eslint-disable-next-line playwright/no-networkidle
+    // oxlint-disable-next-line playwright/no-networkidle
     await page.waitForLoadState("networkidle")
 
     const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)

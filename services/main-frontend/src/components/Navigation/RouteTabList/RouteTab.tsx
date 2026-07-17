@@ -10,6 +10,7 @@ import { useFocusRing, useHover, useTab } from "react-aria"
 
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 
 export interface RouteTabDefinition {
   key: string
@@ -32,7 +33,7 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
   const { tabProps, isSelected, isDisabled } = useTab(
     {
       key: item.key,
-      isDisabled: item.disabled,
+      ...omitUndefined({ isDisabled: item.disabled }),
     },
     state,
     ref,
@@ -48,10 +49,21 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
   }
 
   const { "aria-controls": _ariaControls, ...restTabProps } = tabProps
+  // next/link declares onMouseEnter/onClick/onTouchStart as optional but without `undefined`, so
+  // under exactOptionalPropertyTypes they cannot receive the possibly-undefined handlers that
+  // mergeProps produces. Pull them out and only spread them back when actually defined.
+  const { onMouseEnter, onClick, onTouchStart, ...linkProps } = mergeProps(
+    restTabProps,
+    focusProps,
+    hoverProps,
+  )
 
   return (
     <Link
-      {...mergeProps(restTabProps, focusProps, hoverProps)}
+      {...linkProps}
+      {...includeIf(onMouseEnter, { onMouseEnter })}
+      {...includeIf(onClick, { onClick })}
+      {...includeIf(onTouchStart, { onTouchStart })}
       ref={ref}
       href={item.href}
       replace
@@ -64,13 +76,11 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
         text-decoration: none;
         font-weight: ${isSelected ? fontWeights.semibold : fontWeights.medium};
         font-size: 0.875rem;
-        color: ${
-          isDisabled
-            ? baseTheme.colors.gray[300]
-            : isSelected
-              ? baseTheme.colors.green[700]
-              : baseTheme.colors.gray[500]
-        };
+        color: ${isDisabled
+          ? baseTheme.colors.gray[300]
+          : isSelected
+            ? baseTheme.colors.green[700]
+            : baseTheme.colors.gray[500]};
         background: ${isSelected ? "#fff" : "transparent"};
         border-radius: 6px;
         padding: 0.5rem 0.75rem;
@@ -78,34 +88,28 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
         position: relative;
         cursor: ${isDisabled ? "not-allowed" : "pointer"};
         white-space: nowrap;
-        ${
-          isSelected &&
-          css`
-            box-shadow:
-              0 1px 3px rgba(0, 0, 0, 0.08),
-              0 1px 2px rgba(0, 0, 0, 0.06);
-          `
-        }
+        ${isSelected &&
+        css`
+          box-shadow:
+            0 1px 3px rgba(0, 0, 0, 0.08),
+            0 1px 2px rgba(0, 0, 0, 0.06);
+        `}
         ${respondToOrLarger.sm} {
           padding: 0.625rem 1.125rem;
           font-size: 0.9rem;
         }
-        ${
-          isFocusVisible &&
-          css`
-            outline: 2px solid ${baseTheme.colors.green[400]};
-            outline-offset: 2px;
-          `
-        }
-        ${
-          isHovered &&
-          !isSelected &&
-          !isDisabled &&
-          css`
-            color: ${baseTheme.colors.gray[700]};
-            background: rgba(255, 255, 255, 0.5);
-          `
-        }
+        ${isFocusVisible &&
+        css`
+          outline: 2px solid ${baseTheme.colors.green[400]};
+          outline-offset: 2px;
+        `}
+        ${isHovered &&
+        !isSelected &&
+        !isDisabled &&
+        css`
+          color: ${baseTheme.colors.gray[700]};
+          background: rgba(255, 255, 255, 0.5);
+        `}
       `}
     >
       <span>{item.title}</span>

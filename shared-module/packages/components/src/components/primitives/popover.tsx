@@ -57,7 +57,7 @@ export function Popover({
   const triggerWidth =
     triggerRef.current instanceof HTMLElement ? triggerRef.current.offsetWidth : undefined
   const triggerWidthCss =
-    triggerWidth == null
+    triggerWidth === undefined
       ? undefined
       : css`
           --popover-trigger-width: ${triggerWidth}px;

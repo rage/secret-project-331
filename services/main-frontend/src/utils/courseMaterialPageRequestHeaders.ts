@@ -1,4 +1,4 @@
-import { Dictionary } from "lodash"
+import type { Dictionary } from "lodash"
 
 const referrerIsTheCurrentSite = (referrer: string): boolean => {
   try {

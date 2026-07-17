@@ -4,18 +4,18 @@ import { PlusCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/privateSpec"
-import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import findQuizItem from "../../utils/general"
-import EditorCard from "../common/EditorCard"
-import ParsedTextField from "../common/ParsedTextField"
-
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
+import findQuizItem from "../../utils/general"
+import EditorCard from "../common/EditorCard"
+import ParsedTextField from "../common/ParsedTextField"
 
 interface ClosedEndedQuestionEditorProps {
   quizItemId: string
@@ -156,15 +156,15 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
         <RegexTableHeaderCell> {t("format")} </RegexTableHeaderCell>
         <RegexTableHeaderCell> {t("validation")} </RegexTableHeaderCell>
       </tr>
-      {result.map((result, idx) => (
+      {result.map((row, idx) => (
         <tr key={`test-table-row-${idx}`}>
-          <RegexTableStringCell> {result.string} </RegexTableStringCell>
-          {result.format ? (
+          <RegexTableStringCell> {row.string} </RegexTableStringCell>
+          {row.format ? (
             <RegexTableCorrectCell> {t("passed")} </RegexTableCorrectCell>
           ) : (
             <RegexTableFailedCell> {t("failed")} </RegexTableFailedCell>
           )}
-          {result.validation ? (
+          {row.validation ? (
             <RegexTableCorrectCell> {t("passed")} </RegexTableCorrectCell>
           ) : (
             <RegexTableFailedCell> {t("failed")} </RegexTableFailedCell>
@@ -185,7 +185,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
       return findQuizItem<PrivateSpecQuizItemClosedEndedQuestion>(
         quiz,
         quizItemId,
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "closed-ended-question",
       )
     })
@@ -206,7 +206,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
   const handleTestStringChange = (updatedIdx: number) => (value: string) => {
     setTestStrings(
       testStrings.map((content, idx) => {
-        if (idx == updatedIdx) {
+        if (idx === updatedIdx) {
           return value
         }
         return content
@@ -237,18 +237,18 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
       <OptionTitle> {t("grading-strategy")} </OptionTitle>
       <RadioButtonContainer>
         <RadioButton
-          checked={method == 0}
+          checked={method === 0}
           onClick={() => setMethod(0)}
           label={t("exact-string")}
         ></RadioButton>
         <RadioButton
-          checked={method == 1}
+          checked={method === 1}
           onClick={() => setMethod(1)}
           label={t("regex")}
         ></RadioButton>
       </RadioButtonContainer>
 
-      {method == 0 && (
+      {method === 0 && (
         <>
           <SelectField
             id="regex-pattern-select"
@@ -278,7 +278,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
           />
         </>
       )}
-      {method == 1 && (
+      {method === 1 && (
         <>
           <TextField
             value={convertToString(selected.validityRegex)}

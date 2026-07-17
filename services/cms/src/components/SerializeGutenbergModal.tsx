@@ -6,6 +6,7 @@ import React, { useState } from "react"
 import Button from "@/shared-module/common/components/Button"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import MonacoEditor from "@/shared-module/common/components/monaco/MonacoEditor"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -30,7 +31,7 @@ const SerializeGutenbergModal: React.FC<React.PropsWithChildren<SerializeGutenbe
           height="90vh"
           width="80vw"
           defaultLanguage="html"
-          defaultValue={serialized ?? undefined}
+          {...includeIf(serialized !== null, { defaultValue: serialized })}
         />
       </Dialog>
     </div>

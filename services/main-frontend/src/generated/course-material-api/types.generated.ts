@@ -78,9 +78,7 @@ export type ChatbotChatStreamEvent =
       type: "Done"
     }
   | {
-      data: {
-        message: string
-      }
+      data: StreamEventError
       type: "Error"
     }
   | {
@@ -984,6 +982,11 @@ export type ShowExerciseAnswers = {
   show_exercise_answers: boolean
 }
 
+export type StreamEventError = {
+  details?: string | null
+  message: string
+}
+
 export type StudentCountry = {
   country_code: string
   course_id: string
@@ -1021,7 +1024,11 @@ export type StudentExerciseTaskSubmissionResult = {
 }
 
 export type TeacherDecisionType =
-  "FullPoints" | "ZeroPoints" | "CustomPoints" | "SuspectedPlagiarism" | "RejectAndReset"
+  | "FullPoints"
+  | "ZeroPoints"
+  | "CustomPoints"
+  | "SuspectedPlagiarism"
+  | "RejectAndReset"
 
 export type Term = {
   course_id: string
@@ -1158,7 +1165,8 @@ export type UserModuleCompletionStatus = {
 }
 
 export type UserPointsUpdateStrategy =
-  "CanAddPointsButCannotRemovePoints" | "CanAddPointsAndCanRemovePoints"
+  | "CanAddPointsButCannotRemovePoints"
+  | "CanAddPointsAndCanRemovePoints"
 
 export type DeleteCourseMaterialGlossaryTermData = {
   body?: never

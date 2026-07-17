@@ -4,8 +4,6 @@ import { css } from "@emotion/css"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import MyCourses from "./MyCourses"
-
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -19,6 +17,8 @@ import {
   searchUsersRoute,
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import MyCourses from "./MyCourses"
 
 const FrontPage = () => {
   const { t } = useTranslation()

@@ -1,5 +1,6 @@
-/* eslint-disable playwright/prefer-locator */
-import { expect, Page, test } from "@playwright/test"
+/* oxlint-disable playwright/prefer-locator */
+import type { Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import expectUrlPathWithRandomUuid from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"

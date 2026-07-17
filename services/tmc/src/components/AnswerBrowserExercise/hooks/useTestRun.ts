@@ -1,9 +1,9 @@
 import { useCallback, useRef, useState } from "react"
 
-import { getBrowserTestAdapter, TEST_TIMEOUT_MS } from "../browserTest"
+import type { RunResult } from "@/tmc/cli"
+import type { PublicSpec } from "@/util/stateInterfaces"
 
-import { RunResult } from "@/tmc/cli"
-import { PublicSpec } from "@/util/stateInterfaces"
+import { getBrowserTestAdapter, TEST_TIMEOUT_MS } from "../browserTest"
 
 /** Worker response: RunResult on success or error message. */
 type TestWorkerResponse = { runResult: RunResult } | { error: string }
@@ -30,7 +30,7 @@ export function useTestRun(publicSpec: PublicSpec) {
         return
       }
       const adapter =
-        browserTest?.runtime != null ? getBrowserTestAdapter(browserTest.runtime) : null
+        browserTest?.runtime !== undefined ? getBrowserTestAdapter(browserTest.runtime) : null
       if (!adapter) {
         setTestResults(runResultFromError("Tests are not available for this exercise."))
         return
@@ -51,7 +51,9 @@ export function useTestRun(publicSpec: PublicSpec) {
           workerRef.current = worker
 
           const timeout = setTimeout(() => {
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
             worker.onmessage = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
             worker.onerror = null
             worker.terminate()
             if (workerRef.current === worker) {
@@ -60,26 +62,33 @@ export function useTestRun(publicSpec: PublicSpec) {
             reject(new Error("Test run timed out"))
           }, TEST_TIMEOUT_MS)
 
+          // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
           worker.onmessage = (e: MessageEvent<TestWorkerResponse>) => {
             clearTimeout(timeout)
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
             worker.onmessage = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
             worker.onerror = null
             resolve(e.data)
           }
+          // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
           worker.onerror = (ev: ErrorEvent) => {
             clearTimeout(timeout)
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
             worker.onmessage = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
             worker.onerror = null
             worker.terminate()
             if (workerRef.current === worker) {
               workerRef.current = null
             }
             const message =
-              ev?.message != null && String(ev.message).trim() !== ""
+              ev?.message !== undefined && String(ev.message).trim() !== ""
                 ? String(ev.message)
                 : "Worker error"
             reject(new Error(message))
           }
+          // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
           worker.postMessage({ script: fullScript })
         })
 

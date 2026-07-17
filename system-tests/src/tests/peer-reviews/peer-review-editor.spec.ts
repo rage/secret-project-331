@@ -1,10 +1,10 @@
 import { expect, type Page, test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-import waitForSpinnersToDisappear from "../../utils/waitForSpinnersToDisappear"
-
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import waitForSpinnersToDisappear from "../../utils/waitForSpinnersToDisappear"
 
 async function setPeerReviewCheckbox(page: Page, label: string, checked: boolean) {
   // The checkbox is controlled by a Gutenberg attribute that updates asynchronously; a click can be

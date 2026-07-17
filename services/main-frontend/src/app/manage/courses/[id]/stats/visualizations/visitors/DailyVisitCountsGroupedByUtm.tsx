@@ -10,16 +10,16 @@ import {
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox } from "../../CourseStatsPage"
-import StatsHeader from "../../StatsHeader"
-import NoDataMessage from "../NoDataMessage"
-
-import { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
+import type { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import Accordion from "@/shared-module/common/components/Accordion"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import { InstructionBox } from "../../CourseStatsPage"
+import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 export interface DailyVisitCountsGroupedByUtmProps {
   courseId: string
@@ -91,7 +91,7 @@ const DailyVisitCountsGroupedByUtm: React.FC<
       {} as Record<string, PageVisitDatumSummaryByCourse>,
     )
 
-    const sorted = Object.values(aggregated).sort((a, b) => {
+    const sorted = Object.values(aggregated).toSorted((a, b) => {
       if (a.visit_date < b.visit_date) {
         return -1
       }

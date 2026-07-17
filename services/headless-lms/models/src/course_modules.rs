@@ -349,6 +349,28 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
+/// Batched [`get_by_course_id`]: modules for many courses in one query, to group in memory instead
+/// of one query per course.
+pub async fn get_by_course_ids(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<CourseModule>> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT *
+FROM course_modules
+WHERE course_id = ANY($1)
+AND deleted_at IS NULL
+",
+        course_ids
+    )
+    .map(|x| x.into())
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_course_id_only_with_open_chapters(
     conn: &mut PgConnection,
     course_id: Uuid,

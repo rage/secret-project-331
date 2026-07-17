@@ -1,3 +1,5 @@
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+
 import {
   canRedoEditorHistory,
   createEditorHistoryEntry,
@@ -8,8 +10,6 @@ import {
   undoEditorHistory,
   updateCurrentEditorHistoryEntry,
 } from "../../src/utils/Gutenberg/editorHistory"
-
-import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 const createParagraphBlock = (clientId: string, content: string): BlockInstance => ({
   name: "core/paragraph",
@@ -77,7 +77,8 @@ describe("editorHistory", () => {
 
     expect(updatedState.entries).toHaveLength(2)
     expect(updatedState.index).toBe(1)
-    expect(getCurrentEditorHistoryEntry(updatedState)?.content[0].clientId).toBe("b2")
+    // safe: test data always has at least one content block
+    expect(getCurrentEditorHistoryEntry(updatedState)?.content[0]!.clientId).toBe("b2")
     expect(canRedoEditorHistory(updatedState)).toBe(false)
 
     const branchedState = pushEditorHistoryEntry(
@@ -87,7 +88,8 @@ describe("editorHistory", () => {
 
     expect(branchedState.entries).toHaveLength(3)
     expect(branchedState.index).toBe(2)
-    expect(branchedState.entries.map((entry) => entry.content[0].clientId)).toEqual([
+    // safe: test data always has at least one content block per entry
+    expect(branchedState.entries.map((entry) => entry.content[0]!.clientId)).toEqual([
       "a",
       "b2",
       "d",
@@ -113,6 +115,11 @@ describe("editorHistory", () => {
 
     expect(branchedState.entries).toHaveLength(3)
     expect(branchedState.index).toBe(2)
-    expect(branchedState.entries.map((entry) => entry.content[0].clientId)).toEqual(["a", "b", "d"])
+    // safe: test data always has at least one content block per entry
+    expect(branchedState.entries.map((entry) => entry.content[0]!.clientId)).toEqual([
+      "a",
+      "b",
+      "d",
+    ])
   })
 })

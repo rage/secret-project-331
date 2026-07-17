@@ -26,6 +26,9 @@ export const Example = {
     onChange: (event) => {
       console.log("Time changed to" + event.target.value)
     },
+    onChangeByValue: (value) => {
+      console.log("Time changed to" + value)
+    },
     value: undefined,
     defaultValue: undefined,
     min: undefined,

@@ -17,17 +17,27 @@ export function formatHighlightedLinesRanges(lines: Set<number>): string {
   if (lines.size === 0) {
     return ""
   }
-  const sorted = Array.from(lines).sort((a, b) => a - b)
+  const sorted = Array.from(lines).toSorted((a, b) => a - b)
   const parts: string[] = []
-  let rangeStart = sorted[0]
-  let rangeEnd = sorted[0]
+  const first = sorted[0]
+  if (first === undefined) {
+    // Unreachable: lines is non-empty (checked above), so sorted has at least one element.
+    return ""
+  }
+  let rangeStart = first
+  let rangeEnd = first
   for (let i = 1; i < sorted.length; i++) {
-    if (sorted[i] === rangeEnd + 1) {
-      rangeEnd = sorted[i]
+    const current = sorted[i]
+    if (current === undefined) {
+      // Unreachable: i is always a valid index into sorted.
+      continue
+    }
+    if (current === rangeEnd + 1) {
+      rangeEnd = current
     } else {
       parts.push(rangeStart === rangeEnd ? String(rangeStart) : `${rangeStart} to ${rangeEnd}`)
-      rangeStart = sorted[i]
-      rangeEnd = sorted[i]
+      rangeStart = current
+      rangeEnd = current
     }
   }
   parts.push(rangeStart === rangeEnd ? String(rangeStart) : `${rangeStart} to ${rangeEnd}`)
@@ -43,7 +53,7 @@ export function replaceBrTagsWithNewlines(html: string | null | undefined): type
   if (!html) {
     return html
   }
-  return html.replace(/<br\b[^>]*>/gi, "\n")
+  return html.replaceAll(/<br\b[^>]*>/gi, "\n")
 }
 
 /**

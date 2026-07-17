@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import { openCourseSettingsFromQuickActions } from "../utils/flows/topbar.flow"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -58,10 +58,10 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   const value1 = page.locator("#changeLanguage")
   await value1?.selectOption({ label: "English" })
   await page.getByText("Choose your preferred language").first().waitFor()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
   await page.getByText("Default").first().click()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
   await page.getByTestId("select-course-instance-continue-button").click()
   try {

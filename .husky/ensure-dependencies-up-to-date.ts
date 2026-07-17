@@ -1,12 +1,11 @@
 import { exec as execOriginal, spawn } from "child_process"
 import { mkdir, readFile, writeFile } from "fs/promises"
 import path from "path"
-import { fileURLToPath } from "url"
 import { promisify } from "util"
 
 const exec = promisify(execOriginal)
 
-const currentDir = path.dirname(fileURLToPath(import.meta.url))
+const currentDir = import.meta.dirname
 const projectRoot = path.resolve(currentDir, "..")
 const savedCommitHashesPath = `${projectRoot}/.husky/_/saved-hashes`
 
@@ -72,4 +71,4 @@ async function getLatestCommitHash(relativePath: string): Promise<string> {
   return res.stdout.trim()
 }
 
-main()
+await main()

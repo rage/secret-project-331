@@ -48,7 +48,7 @@ const CourseInstanceUserInfoBox: React.FC<CourseInstanceUserInfoBoxProps> = ({
 
   const items = [
     {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       key: "course",
       label: t("label-course-name"),
       value: courseQuery.data.name,
@@ -57,7 +57,7 @@ const CourseInstanceUserInfoBox: React.FC<CourseInstanceUserInfoBoxProps> = ({
     ...(resolvedCourseInstance
       ? [
           {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             key: "instance",
             label: t("course-instance"),
             value: resolvedCourseInstance.name || t("default-instance"),
@@ -68,21 +68,21 @@ const CourseInstanceUserInfoBox: React.FC<CourseInstanceUserInfoBoxProps> = ({
     ...(userDetails
       ? [
           {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             key: "first-name",
             label: t("first-name"),
             value: userDetails.first_name,
             colSpan: 2,
           },
           {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             key: "last-name",
             label: t("last-name"),
             value: userDetails.last_name,
             colSpan: 2,
           },
           {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             key: "email",
             label: t("label-email"),
             value: userDetails.email,

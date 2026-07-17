@@ -4,7 +4,7 @@ import { cx } from "@emotion/css"
 import React, { useEffect, useId, useState } from "react"
 
 import { resolveFieldDescribedBy, resolveFieldState, toInputValue } from "../../lib/utils/field"
-
+import { includeIf, omitUndefined } from "../../lib/utils/nullability"
 import { FieldShell } from "./FieldShell"
 import {
   type FieldSize,
@@ -14,7 +14,7 @@ import {
   resolveControlSurfaceCss,
 } from "./fieldStyles"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const dataAttrTrue = "true"
 
 export type NativeInputFieldProps = React.ComponentPropsWithoutRef<"input"> & {
@@ -70,25 +70,27 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
     const errorMessageId = useId()
 
     const state = resolveFieldState({
-      disabled,
-      readOnly,
-      required,
-      isDisabled,
-      isReadOnly,
-      isRequired,
-      isInvalid,
-      ariaInvalid,
       errorMessage,
+      ...omitUndefined({
+        disabled,
+        readOnly,
+        required,
+        isDisabled,
+        isReadOnly,
+        isRequired,
+        isInvalid,
+        ariaInvalid,
+      }),
     })
 
     const describedBy = resolveFieldDescribedBy({
-      ariaDescribedBy,
       descriptionId,
       noticeId,
       errorMessageId,
       hasDescription: Boolean(description),
       hasNotice: Boolean(notice),
       hasErrorMessage: Boolean(errorMessage),
+      ...omitUndefined({ ariaDescribedBy }),
     })
 
     const [isFocused, setIsFocused] = useState(false)
@@ -102,7 +104,6 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
 
     return (
       <FieldShell
-        className={className}
         controlClassName={cx(resolveControlSurfaceCss(fieldSize, layout === "floating"))}
         controlProps={{
           "data-has-icon-start": iconStart ? dataAttrTrue : undefined,
@@ -111,11 +112,12 @@ export const NativeInputField = React.forwardRef<HTMLInputElement, NativeInputFi
         label={label}
         inputId={inputId}
         description={description}
-        descriptionId={description ? descriptionId : undefined}
         errorMessage={errorMessage}
-        errorMessageId={errorMessage ? errorMessageId : undefined}
         notice={notice}
-        noticeId={notice ? noticeId : undefined}
+        {...omitUndefined({ className })}
+        {...includeIf(description, { descriptionId })}
+        {...includeIf(errorMessage, { errorMessageId })}
+        {...includeIf(notice, { noticeId })}
         isDisabled={state.isDisabled}
         isRequired={state.isRequired}
         layout={layout}

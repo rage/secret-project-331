@@ -5,7 +5,11 @@ import type { Control } from "react-hook-form"
 
 import { Radio, Switch, TextArea, TextField } from "../src"
 
-type Form = { text: string; notes: string; enabled: boolean }
+interface Form {
+  text: string
+  notes: string
+  enabled: boolean
+}
 const control = null as unknown as Control<Form>
 
 void React.createElement(TextField<Form>, {

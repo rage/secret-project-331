@@ -4,6 +4,8 @@ import type { TFunction } from "i18next"
 import type { Control, UseFormSetValue } from "react-hook-form"
 import { useWatch } from "react-hook-form"
 
+import { Checkbox } from "@/shared-module/components"
+
 import {
   type AnalysisWorkspaceFormValues,
   checkboxGroupStyles,
@@ -16,8 +18,6 @@ import {
   roleBlockStyles,
   sectionTitleStyles,
 } from "./analysisFormDomain"
-
-import { Checkbox } from "@/shared-module/components"
 
 /**
  * Open-period checkboxes; "All" is derived from the four periods and toggles them via `setValue` (not an RHF field).

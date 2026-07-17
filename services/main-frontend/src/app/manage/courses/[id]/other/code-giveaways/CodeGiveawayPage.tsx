@@ -6,14 +6,14 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewCodeGiveawayForm from "./NewCodeGiveawayForm"
-
 import { getCodeGiveawaysByCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CodeGiveaway } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { codeGiveawayRoute } from "@/shared-module/common/utils/routes"
 import { QueryResult } from "@/shared-module/components"
+
+import NewCodeGiveawayForm from "./NewCodeGiveawayForm"
 
 interface CodeGiveawayPageProps {
   courseId: string
@@ -23,7 +23,7 @@ const Content = styled.div`
   margin: 2rem 0;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const CodeGiveawayCard = styled.a`
   padding: 1rem;
   border: 1px solid ${baseTheme.colors.gray[300]};

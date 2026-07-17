@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* oxlint-disable */
 
 // @ts-nocheck
 
@@ -8,131 +8,131 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as IframeRouteImport } from './routes/iframe'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiServiceInfoRouteImport } from './routes/api/service-info'
-import { Route as ApiPublicSpecRouteImport } from './routes/api/public-spec'
-import { Route as ApiModelSolutionRouteImport } from './routes/api/model-solution'
-import { Route as ApiGradeRouteImport } from './routes/api/grade'
-import { Route as ApiExportDefinitionsRouteImport } from './routes/api/export-definitions'
-import { Route as ApiExportAnswersRouteImport } from './routes/api/export-answers'
-import { Route as ApiStatusUpRouteImport } from './routes/api/status/up'
+import { Route as rootRouteImport } from "./routes/__root"
+import { Route as ApiExportAnswersRouteImport } from "./routes/api/export-answers"
+import { Route as ApiExportDefinitionsRouteImport } from "./routes/api/export-definitions"
+import { Route as ApiGradeRouteImport } from "./routes/api/grade"
+import { Route as ApiModelSolutionRouteImport } from "./routes/api/model-solution"
+import { Route as ApiPublicSpecRouteImport } from "./routes/api/public-spec"
+import { Route as ApiServiceInfoRouteImport } from "./routes/api/service-info"
+import { Route as ApiStatusUpRouteImport } from "./routes/api/status/up"
+import { Route as IframeRouteImport } from "./routes/iframe"
+import { Route as IndexRouteImport } from "./routes/index"
 
 const IframeRoute = IframeRouteImport.update({
-  id: '/iframe',
-  path: '/iframe',
+  id: "/iframe",
+  path: "/iframe",
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiServiceInfoRoute = ApiServiceInfoRouteImport.update({
-  id: '/api/service-info',
-  path: '/api/service-info',
+  id: "/api/service-info",
+  path: "/api/service-info",
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicSpecRoute = ApiPublicSpecRouteImport.update({
-  id: '/api/public-spec',
-  path: '/api/public-spec',
+  id: "/api/public-spec",
+  path: "/api/public-spec",
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiModelSolutionRoute = ApiModelSolutionRouteImport.update({
-  id: '/api/model-solution',
-  path: '/api/model-solution',
+  id: "/api/model-solution",
+  path: "/api/model-solution",
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGradeRoute = ApiGradeRouteImport.update({
-  id: '/api/grade',
-  path: '/api/grade',
+  id: "/api/grade",
+  path: "/api/grade",
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiExportDefinitionsRoute = ApiExportDefinitionsRouteImport.update({
-  id: '/api/export-definitions',
-  path: '/api/export-definitions',
+  id: "/api/export-definitions",
+  path: "/api/export-definitions",
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiExportAnswersRoute = ApiExportAnswersRouteImport.update({
-  id: '/api/export-answers',
-  path: '/api/export-answers',
+  id: "/api/export-answers",
+  path: "/api/export-answers",
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStatusUpRoute = ApiStatusUpRouteImport.update({
-  id: '/api/status/up',
-  path: '/api/status/up',
+  id: "/api/status/up",
+  path: "/api/status/up",
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/iframe': typeof IframeRoute
-  '/api/export-answers': typeof ApiExportAnswersRoute
-  '/api/export-definitions': typeof ApiExportDefinitionsRoute
-  '/api/grade': typeof ApiGradeRoute
-  '/api/model-solution': typeof ApiModelSolutionRoute
-  '/api/public-spec': typeof ApiPublicSpecRoute
-  '/api/service-info': typeof ApiServiceInfoRoute
-  '/api/status/up': typeof ApiStatusUpRoute
+  "/": typeof IndexRoute
+  "/iframe": typeof IframeRoute
+  "/api/export-answers": typeof ApiExportAnswersRoute
+  "/api/export-definitions": typeof ApiExportDefinitionsRoute
+  "/api/grade": typeof ApiGradeRoute
+  "/api/model-solution": typeof ApiModelSolutionRoute
+  "/api/public-spec": typeof ApiPublicSpecRoute
+  "/api/service-info": typeof ApiServiceInfoRoute
+  "/api/status/up": typeof ApiStatusUpRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/iframe': typeof IframeRoute
-  '/api/export-answers': typeof ApiExportAnswersRoute
-  '/api/export-definitions': typeof ApiExportDefinitionsRoute
-  '/api/grade': typeof ApiGradeRoute
-  '/api/model-solution': typeof ApiModelSolutionRoute
-  '/api/public-spec': typeof ApiPublicSpecRoute
-  '/api/service-info': typeof ApiServiceInfoRoute
-  '/api/status/up': typeof ApiStatusUpRoute
+  "/": typeof IndexRoute
+  "/iframe": typeof IframeRoute
+  "/api/export-answers": typeof ApiExportAnswersRoute
+  "/api/export-definitions": typeof ApiExportDefinitionsRoute
+  "/api/grade": typeof ApiGradeRoute
+  "/api/model-solution": typeof ApiModelSolutionRoute
+  "/api/public-spec": typeof ApiPublicSpecRoute
+  "/api/service-info": typeof ApiServiceInfoRoute
+  "/api/status/up": typeof ApiStatusUpRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/iframe': typeof IframeRoute
-  '/api/export-answers': typeof ApiExportAnswersRoute
-  '/api/export-definitions': typeof ApiExportDefinitionsRoute
-  '/api/grade': typeof ApiGradeRoute
-  '/api/model-solution': typeof ApiModelSolutionRoute
-  '/api/public-spec': typeof ApiPublicSpecRoute
-  '/api/service-info': typeof ApiServiceInfoRoute
-  '/api/status/up': typeof ApiStatusUpRoute
+  "/": typeof IndexRoute
+  "/iframe": typeof IframeRoute
+  "/api/export-answers": typeof ApiExportAnswersRoute
+  "/api/export-definitions": typeof ApiExportDefinitionsRoute
+  "/api/grade": typeof ApiGradeRoute
+  "/api/model-solution": typeof ApiModelSolutionRoute
+  "/api/public-spec": typeof ApiPublicSpecRoute
+  "/api/service-info": typeof ApiServiceInfoRoute
+  "/api/status/up": typeof ApiStatusUpRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/iframe'
-    | '/api/export-answers'
-    | '/api/export-definitions'
-    | '/api/grade'
-    | '/api/model-solution'
-    | '/api/public-spec'
-    | '/api/service-info'
-    | '/api/status/up'
+    | "/"
+    | "/iframe"
+    | "/api/export-answers"
+    | "/api/export-definitions"
+    | "/api/grade"
+    | "/api/model-solution"
+    | "/api/public-spec"
+    | "/api/service-info"
+    | "/api/status/up"
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
-    | '/iframe'
-    | '/api/export-answers'
-    | '/api/export-definitions'
-    | '/api/grade'
-    | '/api/model-solution'
-    | '/api/public-spec'
-    | '/api/service-info'
-    | '/api/status/up'
+    | "/"
+    | "/iframe"
+    | "/api/export-answers"
+    | "/api/export-definitions"
+    | "/api/grade"
+    | "/api/model-solution"
+    | "/api/public-spec"
+    | "/api/service-info"
+    | "/api/status/up"
   id:
-    | '__root__'
-    | '/'
-    | '/iframe'
-    | '/api/export-answers'
-    | '/api/export-definitions'
-    | '/api/grade'
-    | '/api/model-solution'
-    | '/api/public-spec'
-    | '/api/service-info'
-    | '/api/status/up'
+    | "__root__"
+    | "/"
+    | "/iframe"
+    | "/api/export-answers"
+    | "/api/export-definitions"
+    | "/api/grade"
+    | "/api/model-solution"
+    | "/api/public-spec"
+    | "/api/service-info"
+    | "/api/status/up"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -147,68 +147,68 @@ export interface RootRouteChildren {
   ApiStatusUpRoute: typeof ApiStatusUpRoute
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/iframe': {
-      id: '/iframe'
-      path: '/iframe'
-      fullPath: '/iframe'
+    "/iframe": {
+      id: "/iframe"
+      path: "/iframe"
+      fullPath: "/iframe"
       preLoaderRoute: typeof IframeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
+    "/": {
+      id: "/"
+      path: "/"
+      fullPath: "/"
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/service-info': {
-      id: '/api/service-info'
-      path: '/api/service-info'
-      fullPath: '/api/service-info'
+    "/api/service-info": {
+      id: "/api/service-info"
+      path: "/api/service-info"
+      fullPath: "/api/service-info"
       preLoaderRoute: typeof ApiServiceInfoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public-spec': {
-      id: '/api/public-spec'
-      path: '/api/public-spec'
-      fullPath: '/api/public-spec'
+    "/api/public-spec": {
+      id: "/api/public-spec"
+      path: "/api/public-spec"
+      fullPath: "/api/public-spec"
       preLoaderRoute: typeof ApiPublicSpecRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/model-solution': {
-      id: '/api/model-solution'
-      path: '/api/model-solution'
-      fullPath: '/api/model-solution'
+    "/api/model-solution": {
+      id: "/api/model-solution"
+      path: "/api/model-solution"
+      fullPath: "/api/model-solution"
       preLoaderRoute: typeof ApiModelSolutionRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/grade': {
-      id: '/api/grade'
-      path: '/api/grade'
-      fullPath: '/api/grade'
+    "/api/grade": {
+      id: "/api/grade"
+      path: "/api/grade"
+      fullPath: "/api/grade"
       preLoaderRoute: typeof ApiGradeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/export-definitions': {
-      id: '/api/export-definitions'
-      path: '/api/export-definitions'
-      fullPath: '/api/export-definitions'
+    "/api/export-definitions": {
+      id: "/api/export-definitions"
+      path: "/api/export-definitions"
+      fullPath: "/api/export-definitions"
       preLoaderRoute: typeof ApiExportDefinitionsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/export-answers': {
-      id: '/api/export-answers'
-      path: '/api/export-answers'
-      fullPath: '/api/export-answers'
+    "/api/export-answers": {
+      id: "/api/export-answers"
+      path: "/api/export-answers"
+      fullPath: "/api/export-answers"
       preLoaderRoute: typeof ApiExportAnswersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/status/up': {
-      id: '/api/status/up'
-      path: '/api/status/up'
-      fullPath: '/api/status/up'
+    "/api/status/up": {
+      id: "/api/status/up"
+      path: "/api/status/up"
+      fullPath: "/api/status/up"
       preLoaderRoute: typeof ApiStatusUpRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -230,9 +230,10 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
+import type { createStart } from "@tanstack/react-start"
+
+import type { getRouter } from "./router.tsx"
+declare module "@tanstack/react-start" {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>

@@ -10,7 +10,7 @@ import {
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
+import type { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import Accordion from "@/shared-module/common/components/Accordion"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -53,7 +53,7 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
       {} as Record<string, PageVisitDatumSummaryByCourse>,
     )
 
-    const sorted = Object.values(aggregated).sort((a, b) => {
+    const sorted = Object.values(aggregated).toSorted((a, b) => {
       if (a.visit_date < b.visit_date) {
         return -1
       }

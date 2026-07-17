@@ -104,13 +104,18 @@ test.describe("Chatbot settings testing", () => {
     await page.getByRole("textbox", { name: "Name" }).click()
     await page.getByRole("textbox", { name: "Name" }).fill("Chatbot 2 edited")
 
-    await page.getByRole("button", { name: "Save and preview chatbot", exact: true }).click()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save and preview chatbot", exact: true }).click()
+    })
 
     await test.step("send message", async () => {
       await expect(page.getByRole("heading", { level: 1, name: "Chatbot 2 edited" })).toBeVisible()
 
       await page.getByPlaceholder("Message").click()
       await page.getByPlaceholder("Message").fill("Hello, pls help me!")
+      // The preview mounts its conversation asynchronously; wait for Send to become enabled (canSubmit)
+      // so we don't click while the preview is still settling.
+      await expect(page.getByRole("button", { name: "Send" })).toBeEnabled({ timeout: 15000 })
       await page.getByRole("button", { name: "Send" }).click()
       await page.getByText("Hello! How can I assist you today?").waitFor()
     })

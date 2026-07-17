@@ -35,13 +35,14 @@ export default function ExamLayout({ children }: { children: React.ReactNode }) 
   const organizationId = orgExamQuery.data?.organization_id
   const orgQuery = useQuery({
     queryKey: [{ _id: "getOrganization", path: { organization_id: organizationId } }] as const,
+    // oxlint-disable-next-line require-await -- async so the assertion throw surfaces as a query rejection
     queryFn: async () =>
       getOrganization({
         path: {
           organization_id: assertNotNullOrUndefined(organizationId),
         },
       }),
-    enabled: organizationId != null,
+    enabled: organizationId !== undefined,
   })
 
   usePageTitle(examQuery.data?.name ?? null)
@@ -68,5 +69,5 @@ export default function ExamLayout({ children }: { children: React.ReactNode }) 
 
   useRegisterBreadcrumbs({ key: `exam:${id}`, order: 20, crumbs })
 
-  return <>{children}</>
+  return children
 }

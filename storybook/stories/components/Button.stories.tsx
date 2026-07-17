@@ -37,7 +37,7 @@ const meta = {
     },
     size: {
       control: "select",
-      options: ["sm", "md", "lg"],
+      options: ["small", "medium", "large"],
     },
   },
 } satisfies Meta<typeof Button>
@@ -49,7 +49,7 @@ type StoryType = StoryObj<typeof meta>
 export const Playground = {
   args: {
     variant: "primary",
-    size: "md",
+    size: "medium",
     children: "Button",
   },
 } satisfies StoryType
@@ -70,9 +70,9 @@ export const Variants = {
 export const Sizes = {
   render: () => (
     <div className={sizesCss}>
-      <Button size="sm">Small</Button>
-      <Button size="md">Medium</Button>
-      <Button size="lg">Large</Button>
+      <Button size="small">Small</Button>
+      <Button size="medium">Medium</Button>
+      <Button size="large">Large</Button>
     </div>
   ),
 } satisfies StoryType

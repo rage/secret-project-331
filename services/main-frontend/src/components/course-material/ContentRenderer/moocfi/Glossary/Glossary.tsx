@@ -84,12 +84,12 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
         </thead>
         <tbody>
           {data
-            .sort((a, b) => a.term.toLowerCase().localeCompare(b.term.toLowerCase()))
-            .map((t) => {
+            .toSorted((a, b) => a.term.toLowerCase().localeCompare(b.term.toLowerCase()))
+            .map((entry) => {
               return (
-                <tr key={t.id}>
-                  <td>{t.term}</td>
-                  <td>{t.definition}</td>
+                <tr key={entry.id}>
+                  <td>{entry.term}</td>
+                  <td>{entry.definition}</td>
                 </tr>
               )
             })}

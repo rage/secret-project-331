@@ -38,7 +38,7 @@ export function formatPageTitle(
  * Segments are expected to already be localized by the caller (like `formatPageTitle`).
  */
 export function joinTitleSegments(
-  segments: Array<string | null | undefined>,
+  segments: (string | null | undefined)[],
   separator = " - ",
 ): string {
   return segments

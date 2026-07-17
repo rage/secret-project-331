@@ -3,14 +3,14 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { PlaceholderValidationResult } from "../../utils/emailPlaceholders"
 import {
   getPlaceholderConfig,
   PLACEHOLDER_CODE,
   PLACEHOLDER_RESET_LINK,
-  PlaceholderValidationResult,
 } from "../../utils/emailPlaceholders"
-
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface PlaceholderInfoProps {
   templateType: unknown
@@ -173,7 +173,7 @@ const PlaceholderInfo: React.FC<React.PropsWithChildren<PlaceholderInfoProps>> =
                     font-size: 0.75rem;
                   `}
                 >
-                  {/* eslint-disable-next-line i18next/no-literal-string */}
+                  {/* oxlint-disable-next-line i18next/no-literal-string */}
                   {"✓ "}
                   {t("detected")}
                 </span>

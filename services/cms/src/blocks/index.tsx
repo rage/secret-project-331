@@ -1,6 +1,8 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import Aside from "./Aside"
 import AsideWithImage from "./AsideWithImage"
@@ -49,8 +51,6 @@ import TableBox from "./TableBox"
 import TerminologyBlock from "./Terminology"
 import TopLevelPage from "./TopLevelPage"
 import UnsupportedBlock from "./UnsupportedBlock"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 /**
  * List of custom blocks to be passed on to Gutenberg.
@@ -102,8 +102,8 @@ export const blockTypeMapForPages = [
   ["moocfi/terminology-block", TerminologyBlock],
   ["moocfi/partners", PartnersBlock],
   // ["moocfi/logo-link", LogoLink],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-] as Array<[string, BlockConfiguration<Record<string, any>>]>
+  // oxlint-disable-next-line typescript/no-explicit-any
+] as [string, BlockConfiguration<Record<string, any>>][]
 
 export const blockTypeMapForFrontPages = [
   ["moocfi/congratulations", Congratulations],
@@ -124,18 +124,16 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/expandable-content", ExpendableContent],
   ["moocfi/expandable-content-inner-block", ExpendableContentInnerBlock],
   ["moocfi/partners", PartnersBlock],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-] as Array<[string, BlockConfiguration<Record<string, any>>]>
+  // oxlint-disable-next-line typescript/no-explicit-any
+] as [string, BlockConfiguration<Record<string, any>>][]
 
 export const blockTypeMapForTopLevelPages = [
   ...blockTypeMapForFrontPages,
   ["moocfi/hero-section", HeroSection],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-] as Array<[string, BlockConfiguration<Record<string, any>>]>
+  // oxlint-disable-next-line typescript/no-explicit-any
+] as [string, BlockConfiguration<Record<string, any>>][]
 
 export const blockTypeMapForResearchConsentForm = [
   ["moocfi/research-consent-question", ResearchFormQuestion],
-] as Array<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [string, BlockConfiguration<Record<string, any>>]
->
+  // oxlint-disable-next-line typescript/no-explicit-any
+] as unknown as [string, BlockConfiguration<Record<string, any>>][]

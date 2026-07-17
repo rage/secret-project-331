@@ -20,11 +20,11 @@ const usePageAudioFiles = (
     optionalGeneratedQueryOptions({
       value: pageId,
       enabled: Boolean(courseId) && isMaterialPage && enabled,
-      isReady: (pageId): pageId is string => Boolean(pageId),
-      build: (pageId) =>
+      isReady: (resolvedPageId): resolvedPageId is string => Boolean(resolvedPageId),
+      build: (resolvedPageId) =>
         getCourseMaterialPageAudioFilesOptions({
           path: {
-            page_id: pageId,
+            page_id: resolvedPageId,
           },
         }),
     }),

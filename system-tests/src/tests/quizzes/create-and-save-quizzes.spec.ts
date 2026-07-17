@@ -1,13 +1,14 @@
-/* eslint-disable playwright/prefer-locator */
-import { Locator, Page, test } from "@playwright/test"
+/* oxlint-disable playwright/prefer-locator */
+import type { Locator, Page } from "@playwright/test"
+import { test } from "@playwright/test"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import expectUrlPathWithRandomUuid from "../../utils/expect"
 import {
   getLocatorForNthExerciseServiceIframe,
   scrollElementInsideIframeToView,
 } from "../../utils/iframeLocators"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -17,9 +18,7 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
   await test.step("Create page with an exercise block", async () => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
     await page.click(`button:text("Create")`)
@@ -100,11 +99,11 @@ const addNewQuiz = async (page: Page) => {
     do {
       steps++
       await page.getByText("Add task").click()
-      // eslint-disable-next-line playwright/no-wait-for-timeout
+      // oxlint-disable-next-line playwright/no-wait-for-timeout
       await page.waitForTimeout(100)
       // Sometimes the add task button doesn't respond due to lag
-      // eslint-disable-next-line playwright/no-conditional-in-test
-    } while ((await page.locator('[aria-label="Edit"]').count()) == 0 && steps < 10)
+      // oxlint-disable-next-line playwright/no-conditional-in-test
+    } while ((await page.locator('[aria-label="Edit"]').count()) === 0 && steps < 10)
 
     await page.locator('[aria-label="Edit"]').nth(0).click()
     await page.getByText("Quizzes").click()
@@ -477,7 +476,7 @@ async function scrollToFrame(page: Page, locator: Locator) {
     throw new Error("Frame had no bounding box")
   }
   const y = boundingBox.y
-  await page.evaluate((y) => {
-    window.scrollTo(0, window.scrollY + y)
+  await page.evaluate((offsetY) => {
+    window.scrollTo(0, window.scrollY + offsetY)
   }, y)
 }

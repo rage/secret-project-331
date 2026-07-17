@@ -13,7 +13,7 @@ interface CommitMarkerProps {
 const CommitMarker = ({ onCommit }: CommitMarkerProps) => {
   useEffect(() => {
     onCommit()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return null

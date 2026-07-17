@@ -1,8 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { Ref } from "react"
-import { Dialog, OverlayArrow, Popover, PopoverProps } from "react-aria-components"
+import type { Ref } from "react"
+import React from "react"
+import type { PopoverProps } from "react-aria-components"
+import { Dialog, OverlayArrow, Popover } from "react-aria-components"
 
 import { baseTheme } from "../styles"
 import { respondToOrLarger } from "../styles/respond"

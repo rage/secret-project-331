@@ -3,6 +3,8 @@
 import type { TFunction } from "i18next"
 import type { Control } from "react-hook-form"
 
+import { Checkbox } from "@/shared-module/components"
+
 import {
   type AnalysisWorkspaceFormValues,
   checkboxRowStyles,
@@ -11,8 +13,6 @@ import {
   roleBlockStyles,
   sectionTitleStyles,
 } from "./analysisFormDomain"
-
-import { Checkbox } from "@/shared-module/components"
 
 /**
  * Checkbox groups for mode and content-format preferences.

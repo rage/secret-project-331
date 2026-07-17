@@ -8,7 +8,7 @@ export function removeUnsupportedBlockType(blocks: BlockInstance[]): BlockInstan
       return block.attributes.originalBlockJson
     }
 
-    if (!innerBlocks.length) {
+    if (innerBlocks.length === 0) {
       return block
     }
 

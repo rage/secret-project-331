@@ -5,7 +5,7 @@ describe("createExerciseClient", () => {
   let addEventListenerSpy: jest.SpyInstance
   let removeEventListenerSpy: jest.SpyInstance
   let parentPostMessageSpy: jest.SpyInstance
-  let messageListeners: Array<(event: MessageEvent) => void>
+  let messageListeners: ((event: MessageEvent) => void)[]
 
   beforeEach(() => {
     jest.useFakeTimers()

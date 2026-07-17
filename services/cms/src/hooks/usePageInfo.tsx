@@ -13,11 +13,11 @@ const usePageInfo = (pageId: string, prefix: string) => {
   const data = useQuery(
     optionalGeneratedQueryOptions({
       value: pageId,
-      isReady: (pageId): pageId is string => Boolean(pageId) && isValid && prefix === "pages",
-      build: (pageId) =>
+      isReady: (id): id is string => Boolean(id) && isValid && prefix === "pages",
+      build: (id) =>
         getCmsPageInfoOptions({
           path: {
-            page_id: pageId,
+            page_id: id,
           },
         }),
     }),

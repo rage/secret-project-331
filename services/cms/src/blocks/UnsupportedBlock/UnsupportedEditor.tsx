@@ -2,10 +2,10 @@
 
 import React from "react"
 
-import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const UnsupportedEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>

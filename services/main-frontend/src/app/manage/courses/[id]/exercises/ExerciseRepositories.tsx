@@ -5,9 +5,6 @@ import type { UseQueryResult } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import AddExerciseRepositoryForm from "./AddExerciseRepositoryForm"
-import EditExerciseRepositoryForm from "./EditExerciseRepositoryForm"
-
 import {
   deleteExerciseRepositoryMutation as deleteExerciseRepositoryMutationOptions,
   getExerciseRepositoriesForCourseOptions,
@@ -17,6 +14,9 @@ import type { ExerciseRepository } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { QueryResult } from "@/shared-module/components"
+
+import AddExerciseRepositoryForm from "./AddExerciseRepositoryForm"
+import EditExerciseRepositoryForm from "./EditExerciseRepositoryForm"
 
 interface Props {
   courseId: string | null

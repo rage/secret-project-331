@@ -16,9 +16,9 @@ export interface ParentConnection {
    * Subscribe to the moment the port is received. If the port has already arrived, the
    * listener is invoked synchronously. Returns an unsubscribe function.
    */
-  onPort(listener: (port: MessagePort) => void): () => void
+  onPort: (listener: (port: MessagePort) => void) => () => void
   /** Remove listeners and cancel any pending retry timer. Idempotent. */
-  dispose(): void
+  dispose: () => void
 }
 
 export interface ParentConnectionOptions {
@@ -52,6 +52,7 @@ export function createParentConnection(options: ParentConnectionOptions): Parent
         retryTimeout = null
       }
 
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       receivedPort.onmessage = (portMessage: MessageEvent) => {
         if (portMessage.data.message) {
           console.groupCollapsed(`Frame received a ${portMessage.data.message} message from port`)
@@ -83,7 +84,7 @@ export function createParentConnection(options: ParentConnectionOptions): Parent
     parent.postMessage("ready", "*")
   }
 
-  const scheduleRetry = (attempt: number = 1) => {
+  const scheduleRetry = (attempt = 1) => {
     if (portReceived) {
       return
     }

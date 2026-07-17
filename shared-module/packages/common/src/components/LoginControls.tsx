@@ -9,7 +9,6 @@ import useLogout from "../hooks/useLogout"
 import "../init/registerAuthApiClients"
 import { useCurrentPagePathForReturnTo } from "../utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "../utils/routes"
-
 import Button from "./Button"
 import Spinner from "./Spinner"
 

@@ -1,4 +1,4 @@
-import { CourseDesignerStage } from "@/generated/api/types.generated"
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
 
 export const SCHEDULE_STAGE_ORDER: CourseDesignerStage[] = [
   "Analysis",

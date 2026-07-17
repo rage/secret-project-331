@@ -13,12 +13,13 @@ import {
   releaseExamGradesMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/api/types.generated"
-import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import type { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import InfoComponent from "@/shared-module/common/components/InfoComponent"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -54,7 +55,7 @@ const GradingPage: React.FC = () => {
 
   const sorted = useMemo(
     () =>
-      [...(getExercises.data ?? [])].sort((a, b) =>
+      [...(getExercises.data ?? [])].toSorted((a, b) =>
         a.order_number > b.order_number ? 1 : b.order_number > a.order_number ? -1 : 0,
       ),
     [getExercises.data],
@@ -100,7 +101,7 @@ const GradingPage: React.FC = () => {
   }, [getAllSubmissions.data])
 
   const gradedCheck = useCallback(
-    (id: string) => {
+    (exerciseId: string) => {
       if (!getExam.data?.grade_manually) {
         return (
           <div
@@ -113,7 +114,7 @@ const GradingPage: React.FC = () => {
         )
       }
 
-      const submissions = allSubmissionsList?.[id]
+      const submissions = allSubmissionsList?.[exerciseId]
       if (submissions) {
         const countGraded = submissions.filter((sub) => sub.teacher_grading_decision).length
         if (submissions.length === countGraded) {
@@ -150,46 +151,45 @@ const GradingPage: React.FC = () => {
       } else {
         return " "
       }
+      return undefined
     },
     [getExam.data, allSubmissionsList, t],
   )
 
   const totalAnswered = useCallback(
-    (id: string) => {
-      const submissions = allSubmissionsList?.[id]
+    (exerciseId: string) => {
+      const submissions = allSubmissionsList?.[exerciseId]
       if (submissions) {
         return submissions.length
-      } else {
-        return "0"
       }
+      return "0"
     },
     [allSubmissionsList],
   )
 
   const totalGraded = useCallback(
-    (id: string) => {
+    (exerciseId: string) => {
       if (!getExam.data?.grade_manually) {
-        return <div>{totalAnswered(id)}</div>
+        return <div>{totalAnswered(exerciseId)}</div>
       }
-      const submissions = allSubmissionsList?.[id]
+      const submissions = allSubmissionsList?.[exerciseId]
       if (submissions) {
         return submissions.filter((sub) => sub.teacher_grading_decision).length
-      } else {
-        return "0"
       }
+      return "0"
     },
     [getExam.data?.grade_manually, allSubmissionsList, totalAnswered],
   )
 
   const totalPublished = useCallback(
-    (id: string) => {
+    (exerciseId: string) => {
       if (!getExam.data?.grade_manually) {
         return <div>0</div>
       }
-      const submissions = allSubmissionsList?.[id]
+      const submissions = allSubmissionsList?.[exerciseId]
       let count = 0
       if (submissions) {
-        submissions.map((sub) => {
+        submissions.forEach((sub) => {
           if (sub.teacher_grading_decision?.hidden === true) {
             count = count + 1
           }
@@ -201,13 +201,13 @@ const GradingPage: React.FC = () => {
   )
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
-    const pieces = [
-      // eslint-disable-next-line i18next/no-literal-string
+    const breadcrumbPieces = [
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("link-manage"), url: `/manage/exams/${id}` },
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("questions"), url: `/manage/exams/${id}/questions` },
     ]
-    return pieces
+    return breadcrumbPieces
   }, [id, t])
 
   const questionsContent = (
@@ -304,7 +304,7 @@ const GradingPage: React.FC = () => {
             margin-top: 1.5rem;
           `}
         >
-          {checkPublishable() != 0 && (
+          {checkPublishable() !== 0 && (
             <GenericInfobox>
               {t("unpublishable-grading-results", { amount: checkPublishable() })}
             </GenericInfobox>

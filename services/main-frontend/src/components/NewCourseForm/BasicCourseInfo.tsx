@@ -1,14 +1,16 @@
 "use client"
 
 import React, { useEffect } from "react"
-import { UseFormReturn } from "react-hook-form"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-
-import { FieldContainer, FormFields } from "."
 
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { normalizePath } from "@/utils/normalizePath"
+
+import type { FormFields } from "."
+import { FieldContainer } from "."
 
 interface BasicCourseInfoProps {
   form: UseFormReturn<FormFields>
@@ -36,7 +38,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
         <TextField
           required
           label={t("text-field-label-name")}
-          error={errors.name?.message}
+          {...omitUndefined({ error: errors.name?.message })}
           {...register("name", {
             required: t("required-field"),
             minLength: {
@@ -50,7 +52,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
         <TextField
           required
           label={t("text-field-label-or-header-slug-or-short-name")}
-          error={errors.slug?.message}
+          {...omitUndefined({ error: errors.slug?.message })}
           {...register("slug", {
             required: t("required-field"),
             pattern: {
@@ -71,7 +73,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
         <TextField
           required
           label={t("teacher-in-charge-name")}
-          error={errors.teacher_in_charge_name?.message}
+          {...omitUndefined({ error: errors.teacher_in_charge_name?.message })}
           {...register("teacher_in_charge_name", {
             required: t("required-field"),
             minLength: {
@@ -86,7 +88,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
           required
           label={t("teacher-in-charge-email")}
           type="email"
-          error={errors.teacher_in_charge_email?.message}
+          {...omitUndefined({ error: errors.teacher_in_charge_email?.message })}
           {...register("teacher_in_charge_email", {
             required: t("required-field"),
             pattern: {

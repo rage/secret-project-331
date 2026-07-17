@@ -3,9 +3,9 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import CoursePlanCard from "./CoursePlanCard"
-
 import type { CourseDesignerPlanSummary } from "@/generated/api/types.generated"
+
+import CoursePlanCard from "./CoursePlanCard"
 
 const listStyles = css`
   display: grid;
@@ -13,7 +13,7 @@ const listStyles = css`
 `
 
 interface CoursePlanListProps {
-  plans: Array<CourseDesignerPlanSummary>
+  plans: CourseDesignerPlanSummary[]
 }
 
 export default function CoursePlanList({ plans }: CoursePlanListProps) {

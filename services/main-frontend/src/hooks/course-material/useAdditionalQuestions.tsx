@@ -19,11 +19,11 @@ const useAdditionalQuestions = (
     optionalGeneratedQueryOptions({
       value: instanceId,
       enabled,
-      isReady: (instanceId): instanceId is string => Boolean(instanceId),
-      build: (instanceId) =>
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
         getCourseMaterialBackgroundQuestionsAndAnswersOptions({
           path: {
-            course_instance_id: instanceId,
+            course_instance_id: value,
           },
         }),
     }),

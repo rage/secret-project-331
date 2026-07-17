@@ -23,7 +23,7 @@ minimumReleaseAgeIgnoreMissingTime: false
 strictDepBuilds: true
 
 allowBuilds:
-  '@playwright/browser-chromium': true
+  "@playwright/browser-chromium": true
   node: false
 
 # Trust committed lockfiles instead of revalidating release-age policy on every install
@@ -46,3 +46,8 @@ registrySupportsTimeField: false
 
 # If trying to run a script when node_modules are not up to date, install them before proceeding
 verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  - "typescript@7.0.2"
+  - "@typescript/typescript-*"
+  - "@typescript/typescript6@6.0.2"

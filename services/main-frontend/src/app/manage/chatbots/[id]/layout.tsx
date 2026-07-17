@@ -64,5 +64,5 @@ export default function ChatbotLayout({ children }: { children: React.ReactNode 
 
   useRegisterBreadcrumbs({ key: `chatbot:${id}`, order: 20, crumbs })
 
-  return <>{children}</>
+  return children
 }

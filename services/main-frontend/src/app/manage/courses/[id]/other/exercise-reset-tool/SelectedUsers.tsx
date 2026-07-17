@@ -4,13 +4,14 @@ import { css } from "@emotion/css"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"
 
-import UserSearch from "./UserSearch"
-
 import type { UserDetail } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
-type Props = {
+import UserSearch from "./UserSearch"
+
+interface Props {
   selectedUsers: UserDetail[]
   removeUser: (userId: string) => void
   users?: UserDetail[]
@@ -47,11 +48,11 @@ const SelectedUsers: React.FC<Props> = ({
           {t("label-selected-users")}
         </p>
         <UserSearch
-          users={users}
           isLoading={isLoading}
           addUser={addUser}
           removeUser={removeUser}
           selectedUsers={selectedUsers}
+          {...omitUndefined({ users })}
         />
       </div>
       <div

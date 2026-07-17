@@ -46,8 +46,7 @@ export function usePageTitle(
       if (prev[key]?.owner !== owner) {
         return prev
       }
-      const next = { ...prev }
-      delete next[key]
+      const { [key]: _omit, ...next } = prev
       return next
     })
   }, [setEntries, key, owner])

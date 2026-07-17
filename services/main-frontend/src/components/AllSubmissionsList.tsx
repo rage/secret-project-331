@@ -63,7 +63,7 @@ const AllSubmissionsList: React.FC<AllSubmissionsListProps> = ({
           `}
         >
           {submissions
-            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .toSorted((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
             .map((submission, index) => {
               const isCurrentSubmission = submission.id === currentSubmissionId
               const isLatestSubmission = index === 0
@@ -87,16 +87,12 @@ const AllSubmissionsList: React.FC<AllSubmissionsListProps> = ({
                       padding: 1rem 1.5rem;
                       border-radius: 8px;
                       border: 2px solid
-                        ${
-                          isCurrentSubmission
-                            ? baseTheme.colors.green[500]
-                            : baseTheme.colors.gray[200]
-                        };
-                      background-color: ${
-                        isCurrentSubmission
-                          ? baseTheme.colors.green[100]
-                          : baseTheme.colors.clear[100]
-                      };
+                        ${isCurrentSubmission
+                          ? baseTheme.colors.green[500]
+                          : baseTheme.colors.gray[200]};
+                      background-color: ${isCurrentSubmission
+                        ? baseTheme.colors.green[100]
+                        : baseTheme.colors.clear[100]};
                       position: relative;
 
                       &:hover {

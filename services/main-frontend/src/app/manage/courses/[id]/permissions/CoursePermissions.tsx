@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { PermissionPage } from "@/components/PermissionPage"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -19,7 +19,7 @@ const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesP
   return (
     <div>
       <QueryResult query={course}>
-        {(course) => (
+        {(courseData) => (
           <>
             <h1
               className={css`
@@ -29,13 +29,13 @@ const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesP
                 font-weight: bold;
               `}
             >
-              {t("roles-for-course")} {course.name}
+              {t("roles-for-course")} {courseData.name}
             </h1>
             <PermissionPage
               domain={{
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 tag: "Course",
-                id: course.id,
+                id: courseData.id,
               }}
             />
           </>

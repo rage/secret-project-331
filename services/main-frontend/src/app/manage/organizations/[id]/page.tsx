@@ -9,10 +9,6 @@ import { useParams, useRouter } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import AddUserPopup from "./AddUserPopup"
-import DeleteOrganizationPopup from "./DeleteOrganizationPopup"
-import EditUserPopup from "./EditUserPopup"
-
 import {
   getOrganizationOptions,
   getRolesOptions,
@@ -47,6 +43,10 @@ import {
   disabledButton,
   primaryButton,
 } from "@/styles/sharedStyles"
+
+import AddUserPopup from "./AddUserPopup"
+import DeleteOrganizationPopup from "./DeleteOrganizationPopup"
+import EditUserPopup from "./EditUserPopup"
 
 type NamedRoleUser = RoleUser & { name: string }
 
@@ -462,13 +462,11 @@ const designContent = (
           disabled={editMode}
           className={css`
             ${editMode ? disabledButton : primaryButton};
-            ${
-              editMode &&
-              `
+            ${editMode &&
+            `
               opacity: 0;
               pointer-events: none;
-            `
-            }
+            `}
           `}
         >
           {t("edit")}

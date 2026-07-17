@@ -2,7 +2,7 @@
  * Generated type guards for "exercise-service-protocol-types.ts".
  * WARNING: Do not manually change this file.
  */
-import { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, FileUploadMessage, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, OpenDialogMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, DialogResponseMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
+import type { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, FileUploadMessage, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, OpenDialogMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, DialogResponseMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
 
 export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
     const typedObj = obj as MessageFromIframe

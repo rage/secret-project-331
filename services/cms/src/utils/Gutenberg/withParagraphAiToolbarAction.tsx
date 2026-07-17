@@ -8,7 +8,15 @@ import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment, useEffect, useState } from "@wordpress/element"
 import { chevronRight } from "@wordpress/icons"
 import { useContext } from "react"
-import toast from "react-hot-toast"
+import { toast } from "react-hot-toast"
+
+import {
+  useConfirmDialogControls,
+  useDialog,
+} from "@/shared-module/common/components/dialogs/DialogProvider"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import PageContext from "../../contexts/PageContext"
 import { createParagraphAiSource, extractPlainTextFromHtml } from "../Gutenberg/paragraphAiSource"
@@ -16,7 +24,6 @@ import {
   collectParagraphHtmlTagNames,
   sanitizeParagraphHtml,
 } from "../Gutenberg/paragraphHtmlSanitizer"
-
 import { executeAbility } from "./ai/abilities"
 import {
   AI_GROUPS,
@@ -27,14 +34,6 @@ import {
   type AiActionLabelKey,
   type AiGroupLabelKey,
 } from "./ai/menu"
-
-import Spinner from "@/shared-module/common/components/Spinner"
-import {
-  useConfirmDialogControls,
-  useDialog,
-} from "@/shared-module/common/components/dialogs/DialogProvider"
-import { baseTheme } from "@/shared-module/common/styles"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 const PARAGRAPH_BLOCK_NAME = "core/paragraph"
 
@@ -126,7 +125,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
     return (
       <Fragment>
         <BlockEdit {...props} />
-        {/* eslint-disable-next-line i18next/no-literal-string */}
+        {/* oxlint-disable-next-line i18next/no-literal-string */}
         <BlockControls group="block">
           <ToolbarGroup>
             <Dropdown
@@ -177,7 +176,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                               setSubmenu(group.id)
                             }}
                             icon={chevronRight}
-                            // eslint-disable-next-line i18next/no-literal-string
+                            // oxlint-disable-next-line i18next/no-literal-string
                             aria-haspopup="menu"
                             aria-expanded={submenu === group.id}
                           >
@@ -189,7 +188,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                         <MenuItem
                           onClick={() => setSubmenu(SUBMENU_TONE)}
                           icon={chevronRight}
-                          // eslint-disable-next-line i18next/no-literal-string
+                          // oxlint-disable-next-line i18next/no-literal-string
                           aria-haspopup="menu"
                           aria-expanded={submenu === SUBMENU_TONE}
                         >
@@ -198,7 +197,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                         <MenuItem
                           onClick={() => setSubmenu(SUBMENU_TRANSLATE)}
                           icon={chevronRight}
-                          // eslint-disable-next-line i18next/no-literal-string
+                          // oxlint-disable-next-line i18next/no-literal-string
                           aria-haspopup="menu"
                           aria-expanded={submenu === SUBMENU_TRANSLATE}
                         >
@@ -501,7 +500,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
 
   ParagraphWithAiToolbar.displayName = "ParagraphWithAiToolbar"
   return ParagraphWithAiToolbar
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withParagraphAiToolbarAction")
 
 export default withParagraphAiToolbarAction

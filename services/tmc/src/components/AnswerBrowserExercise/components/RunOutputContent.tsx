@@ -22,14 +22,14 @@ interface RunOutputContentProps {
   stdinPrompt?: string
   /** Ordered stdout + input segments (so input prompt + submitted line stay visible after run) */
   segments?: OutputSegment[]
-  submitStdinLine?: (line: string) => void
+  submitStdinLine?: ((line: string) => void) | undefined
 }
 
 /** Merge consecutive stdout segments into one for a single pre block */
 function mergeStdoutSegments(
   segments: OutputSegment[],
-): Array<{ type: "stdout"; text: string } | OutputSegment> {
-  const result: Array<{ type: "stdout"; text: string } | OutputSegment> = []
+): ({ type: "stdout"; text: string } | OutputSegment)[] {
+  const result: ({ type: "stdout"; text: string } | OutputSegment)[] = []
   let stdoutAcc = ""
   for (const seg of segments) {
     if (seg.type === "stdout") {
@@ -63,7 +63,7 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = () => {
-    if (submitStdinLine == null) {
+    if (submitStdinLine === undefined) {
       return
     }
     submitStdinLine(stdinValue)
@@ -80,13 +80,13 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
   useEffect(() => {
     if (waitingForInput && inputRef.current) {
       /* scrollIntoView options: ScrollBehavior and ScrollLogicalPosition (not user-facing) */
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       inputRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" })
     }
   }, [waitingForInput])
 
   const blocks = mergeStdoutSegments(segments)
-  const lastSegment = segments[segments.length - 1]
+  const lastSegment = segments.at(-1)
   const lastIsInputWaiting =
     lastSegment?.type === "input" && lastSegment.line === "" && waitingForInput
 
@@ -105,20 +105,21 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
           <React.Fragment key={`input-${index}`}>
             {block.line !== "" ? (
               <StdinLineRow>
-                {block.prompt != null && block.prompt !== "" && (
+                {block.prompt !== undefined && block.prompt !== "" && (
                   <StdinPromptLine>{block.prompt}</StdinPromptLine>
                 )}
                 <StdinSubmittedLine>{block.line}</StdinSubmittedLine>
               </StdinLineRow>
             ) : (
               <>
-                {block.prompt != null && block.prompt !== "" && (
+                {block.prompt !== undefined && block.prompt !== "" && (
                   <StdinLineRow>
                     <StdinPromptLine>{block.prompt}</StdinPromptLine>
                   </StdinLineRow>
                 )}
-                {isLastWaiting && submitStdinLine != null ? (
+                {isLastWaiting && submitStdinLine !== undefined ? (
                   <>
+                    {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled component uses role=status; <output> changes styling */}
                     <StdinWaitingBanner role="status">{t("waiting-for-input")}</StdinWaitingBanner>
                     <StdinHint>{t("enter-input-press-enter")}</StdinHint>
                     <StdinInput
@@ -137,8 +138,9 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
         )
       })}
       {/* Show current waiting UI when no segment is last-waiting (e.g. very first stdin_request before any stdout) */}
-      {waitingForInput && submitStdinLine != null && !lastIsInputWaiting && (
+      {waitingForInput && submitStdinLine !== undefined && !lastIsInputWaiting && (
         <>
+          {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled component uses role=status; <output> changes styling */}
           <StdinWaitingBanner role="status">{t("waiting-for-input")}</StdinWaitingBanner>
           {stdinPrompt && <StdinPromptLine>{stdinPrompt}</StdinPromptLine>}
           <StdinHint>{t("enter-input-press-enter")}</StdinHint>
@@ -152,7 +154,7 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
           />
         </>
       )}
-      {runError != null && <OutputPre>{runError}</OutputPre>}
+      {runError !== null && <OutputPre>{runError}</OutputPre>}
     </>
   )
 }

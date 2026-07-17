@@ -5,13 +5,13 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ColorsIdentifier from "../CourseProgressBlock/ColorsIdentifier"
-
 import { getCourseMaterialChapterProgress } from "@/generated/course-material-api/sdk.generated"
 import type { UserCourseInstanceChapterProgress } from "@/generated/course-material-api/types.generated"
 import Progress from "@/shared-module/common/components/CourseProgress"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { QueryResult } from "@/shared-module/components"
+
+import ColorsIdentifier from "../CourseProgressBlock/ColorsIdentifier"
 
 interface ChapterProgressProps {
   chapterId: string

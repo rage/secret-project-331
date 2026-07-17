@@ -1,13 +1,12 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import RadioButton from "../InputFields/RadioButton"
 import TextAreaField from "../InputFields/TextAreaField"
-
 import ThreadComponent from "./Thread"
 
 const placeholder = `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
@@ -149,8 +148,8 @@ const Forum = () => {
           const comment = target.comment.value
           const visible = target.visibility.value
 
-          setState((state) => [
-            ...state,
+          setState((prevState) => [
+            ...prevState,
             {
               id: String(current.toLocaleTimeString()),
               text: comment,

@@ -220,11 +220,10 @@ export type CertificateGenerationRequest = {
 }
 
 export type CertificateGridRow = {
-  certificate: string
   certificate_id?: string | null
   date_issued?: string | null
   name_on_certificate?: string | null
-  student: string
+  user_id: string
   verification_id?: string | null
 }
 
@@ -434,11 +433,13 @@ export type CohortActivity = {
 }
 
 export type CompletionGridRow = {
-  grade: string
+  grade?: number | null
   module?: string | null
+  module_id: string
   needs_to_be_reviewed: boolean
-  status: string
-  student: string
+  passed?: boolean | null
+  registered: boolean
+  user_id: string
 }
 
 export type CompletionPolicy =
@@ -639,7 +640,11 @@ export type CourseDesignerPlanStageWithTasks = CourseDesignerPlanStage & {
 }
 
 export type CourseDesignerPlanStatus =
-  "Draft" | "Scheduling" | "InProgress" | "Completed" | "Archived"
+  | "Draft"
+  | "Scheduling"
+  | "InProgress"
+  | "Completed"
+  | "Archived"
 
 export type CourseDesignerPlanSummary = {
   active_stage?: null | CourseDesignerStage
@@ -670,7 +675,11 @@ export type CourseDesignerScheduleSuggestionResponse = {
 }
 
 export type CourseDesignerStage =
-  "Analysis" | "Design" | "Development" | "Implementation" | "Evaluation"
+  | "Analysis"
+  | "Design"
+  | "Development"
+  | "Implementation"
+  | "Evaluation"
 
 /**
  * Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
@@ -686,6 +695,10 @@ export type CourseEnrollmentInfo = {
   course_instances: Array<CourseInstance>
   course_module_completions: Array<CourseModuleCompletion>
   course_module_completions_needing_review: number
+  /**
+   * All non-deleted modules of the course, ordered by `order_number`.
+   */
+  course_modules: Array<CourseModuleInfo>
   first_enrolled_at: string
   is_current: boolean
   user_course_settings?: null | UserCourseSettings
@@ -845,6 +858,30 @@ export type CourseModuleCompletionWithRegistrationInfo = {
 }
 
 /**
+ * Slim module descriptor so the frontend can label per-module completions and show "X of Y modules"
+ * without a separate course-structure fetch. Default (base) module has `name = None`.
+ */
+export type CourseModuleInfo = {
+  /**
+   * This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none.
+   */
+  daily_submissions: Array<DailySubmissionCount>
+  /**
+   * Number of non-deleted exercises in this module. Submission density is divided by this so courses
+   * of very different size stay comparable. `0` if the module has no chapter-bound exercises.
+   */
+  exercise_count: number
+  /**
+   * Earliest exercise submission by this user in this module. No module "start" is stored, so the
+   * frontend uses this to infer when an additional module was first worked on. `None` if untouched.
+   */
+  first_submission_at?: string | null
+  id: string
+  name?: string | null
+  order_number: number
+}
+
+/**
  * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
  * render and validate the threshold form. Computed server-side so the exemption rule and the
  * minimum/default values live in one place instead of being duplicated in the frontend.
@@ -874,6 +911,43 @@ export type CourseStructure = {
   pages: Array<Page>
 }
 
+/**
+ * One row of the paginated student identity list (one row per distinct enrolled user).
+ */
+export type CourseStudentListRow = {
+  /**
+   * Names of the non-deleted course instances the user is enrolled in for this course.
+   */
+  course_instances: Array<string>
+  email?: string | null
+  first_name?: string | null
+  /**
+   * Whether the user has any enrollment into a non-deleted instance. Separates the unnamed default
+   * instance (true) from a since-deleted instance (false) when `course_instances` is empty.
+   */
+  has_active_instance: boolean
+  last_name?: string | null
+  user_id: string
+}
+
+/**
+ * Course-level progress structure for the Progress tab. Does not depend on which students are on
+ * the current page, so it is fetched once and cached per course (not per identity page).
+ */
+export type CourseStudentsProgressStructure = {
+  chapter_availability: Array<ChapterAvailability>
+  chapter_locking_enabled: boolean
+  chapters: Array<DatabaseChapter>
+}
+
+/**
+ * Per-user progress detail for the Progress tab, scoped to the requested `user_ids`.
+ */
+export type CourseStudentsProgressUsers = {
+  user_chapter_locking_statuses: Array<UserChapterLockingStatus>
+  user_chapter_progress: Array<UserChapterProgress>
+}
+
 export type CourseUpdate = {
   ai_policy: CourseAiPolicy
   ask_marketing_consent: boolean
@@ -893,14 +967,6 @@ export type CourseUpdate = {
   name: string
 }
 
-export type CourseUserInfo = {
-  course_instance?: string | null
-  email?: string | null
-  first_name?: string | null
-  last_name?: string | null
-  user_id: string
-}
-
 export type CreateCourseDesignerPlanRequest = {
   name?: string | null
 }
@@ -914,6 +980,15 @@ export type CronJobInfo = {
   last_schedule_time?: string | null
   name: string
   schedule: string
+}
+
+/**
+ * One UTC day's exercise-submission count for a module, used for the activity-density violins on the
+ * cross-course timeline. `day` is midnight of the day the submissions fall in.
+ */
+export type DailySubmissionCount = {
+  count: number
+  day: string
 }
 
 export type DatabaseChapter = {
@@ -1006,7 +1081,10 @@ export type EmailTemplateNew = {
 }
 
 export type EmailTemplateType =
-  "reset_password_email" | "delete_user_email" | "confirm_email_code" | "generic"
+  | "reset_password_email"
+  | "delete_user_email"
+  | "confirm_email_code"
+  | "generic"
 
 export type EventInfo = {
   count?: number | null
@@ -1938,16 +2016,6 @@ export type Points = {
   users: Array<UserDetail>
 }
 
-export type ProgressOverview = {
-  chapter_availability: Array<ChapterAvailability>
-  chapter_locking_enabled: boolean
-  chapters: Array<DatabaseChapter>
-  user_chapter_locking_statuses: Array<UserChapterLockingStatus>
-  user_chapter_progress: Array<UserChapterProgress>
-  user_details: Array<UserDetail>
-  user_exercise_states: Array<UserExerciseState>
-}
-
 export type ProposalCount = {
   handled: number
   pending: number
@@ -2024,6 +2092,16 @@ export type ReviewingStage =
   | "ReviewedAndLocked"
   | "Locked"
 
+export type Role = {
+  course_id?: string | null
+  course_instance_id?: string | null
+  exam_id?: string | null
+  is_global: boolean
+  organization_id?: string | null
+  role: UserRole
+  user_id: string
+}
+
 export type RoleDomain =
   | {
       tag: "Global"
@@ -2092,12 +2170,25 @@ export type StudentsByCountryTotalsResult = {
 }
 
 /**
+ * A page of the student identity list plus the total number of pages for the current filters.
+ */
+export type StudentsListPage = {
+  data: Array<CourseStudentListRow>
+  total_pages: number
+}
+
+/**
  * Review state of a suspected cheater.
  */
 export type SuspectedCheaterStatus = "Flagged" | "ConfirmedCheating" | "Dismissed"
 
 export type SuspectedCheaters = {
   course_id: string
+  /**
+   * The module completion that triggered the flag. `None` only for legacy rows the backfill
+   * couldn't map to a default module.
+   */
+  course_module_id?: string | null
   created_at: string
   deleted_at?: string | null
   id: string
@@ -2114,7 +2205,11 @@ export type SystemHealthStatus = {
 }
 
 export type TeacherDecisionType =
-  "FullPoints" | "ZeroPoints" | "CustomPoints" | "SuspectedPlagiarism" | "RejectAndReset"
+  | "FullPoints"
+  | "ZeroPoints"
+  | "CustomPoints"
+  | "SuspectedPlagiarism"
+  | "RejectAndReset"
 
 export type TeacherGradingDecision = {
   created_at: string
@@ -2176,6 +2271,15 @@ export type UploadResult = {
   url: string
 }
 
+export type User = {
+  created_at: string
+  deleted_at?: string | null
+  email_domain?: string | null
+  id: string
+  updated_at: string
+  upstream_id?: number | null
+}
+
 export type UserChapterLockingStatus = {
   chapter_id: string
   course_id: string
@@ -2227,6 +2331,19 @@ export type UserCourseSettings = {
   user_id: string
 }
 
+/**
+ * A single submission's time, its exercise, and the module that exercise sits in (via its chapter).
+ * Used to plot a user's submission activity within a course.
+ */
+export type UserCourseSubmissionTime = {
+  /**
+   * Module the exercise's chapter belongs to; `None` for exercises not placed in a chapter.
+   */
+  course_module_id?: string | null
+  created_at: string
+  exercise_id: string
+}
+
 export type UserDetail = {
   country?: string | null
   created_at: string
@@ -2260,6 +2377,13 @@ export type UserExerciseState = {
   user_id: string
 }
 
+/**
+ * Body for the batch detail endpoints: the users of the current identity-list page.
+ */
+export type UserIdsPayload = {
+  user_ids: Array<string>
+}
+
 export type UserInfoPayload = {
   country: string
   email: string
@@ -2269,7 +2393,8 @@ export type UserInfoPayload = {
 }
 
 export type UserPointsUpdateStrategy =
-  "CanAddPointsButCannotRemovePoints" | "CanAddPointsAndCanRemovePoints"
+  | "CanAddPointsButCannotRemovePoints"
+  | "CanAddPointsAndCanRemovePoints"
 
 export type UserResearchConsent = {
   created_at: string
@@ -2289,6 +2414,25 @@ export type UserRole =
   | "MaterialViewer"
   | "TeachingAndLearningServices"
   | "StatsViewer"
+
+/**
+ * A user's suspected-cheater record in one course, paired with that course's duration threshold.
+ * Read-only, for the cross-course "Completion review" list on the user-details page.
+ */
+export type UserSuspectedCheaterInfo = {
+  course_id: string
+  /**
+   * When first flagged in this course (record `created_at`, unchanged on re-flag).
+   */
+  first_flagged_at: string
+  status: SuspectedCheaterStatus
+  /**
+   * Threshold (seconds) of the module that triggered the flag; the student completed faster.
+   */
+  threshold_seconds: number
+  total_duration_seconds?: number | null
+  total_points: number
+}
 
 export type UserWithModuleCompletions = {
   completed_modules: Array<CourseModuleCompletionWithRegistrationInfo>
@@ -5625,7 +5769,7 @@ export type GetCourseStructureResponse =
   GetCourseStructureResponses[keyof GetCourseStructureResponses]
 
 export type GetCourseStudentsCertificatesData = {
-  body?: never
+  body: UserIdsPayload
   path: {
     /**
      * Course id
@@ -5638,7 +5782,7 @@ export type GetCourseStudentsCertificatesData = {
 
 export type GetCourseStudentsCertificatesResponses = {
   /**
-   * Course certificates
+   * Course certificates for the given users
    */
   200: Array<CertificateGridRow>
 }
@@ -5647,7 +5791,7 @@ export type GetCourseStudentsCertificatesResponse =
   GetCourseStudentsCertificatesResponses[keyof GetCourseStudentsCertificatesResponses]
 
 export type GetCourseStudentsCompletionsData = {
-  body?: never
+  body: UserIdsPayload
   path: {
     /**
      * Course id
@@ -5660,7 +5804,7 @@ export type GetCourseStudentsCompletionsData = {
 
 export type GetCourseStudentsCompletionsResponses = {
   /**
-   * Course completions
+   * Course completions for the given users
    */
   200: Array<CompletionGridRow>
 }
@@ -5669,7 +5813,7 @@ export type GetCourseStudentsCompletionsResponse =
   GetCourseStudentsCompletionsResponses[keyof GetCourseStudentsCompletionsResponses]
 
 export type GetCourseStudentsProgressData = {
-  body?: never
+  body: UserIdsPayload
   path: {
     /**
      * Course id
@@ -5682,13 +5826,35 @@ export type GetCourseStudentsProgressData = {
 
 export type GetCourseStudentsProgressResponses = {
   /**
-   * Course student progress overview
+   * Per-user course progress for the given users
    */
-  200: ProgressOverview
+  200: CourseStudentsProgressUsers
 }
 
 export type GetCourseStudentsProgressResponse =
   GetCourseStudentsProgressResponses[keyof GetCourseStudentsProgressResponses]
+
+export type GetCourseStudentsProgressStructureData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/students/progress-structure"
+}
+
+export type GetCourseStudentsProgressStructureResponses = {
+  /**
+   * Course-level progress structure
+   */
+  200: CourseStudentsProgressStructure
+}
+
+export type GetCourseStudentsProgressStructureResponse =
+  GetCourseStudentsProgressStructureResponses[keyof GetCourseStudentsProgressStructureResponses]
 
 export type GetCourseStudentsUsersData = {
   body?: never
@@ -5698,15 +5864,40 @@ export type GetCourseStudentsUsersData = {
      */
     course_id: string
   }
-  query?: never
+  query?: {
+    /**
+     * Page number (1-based)
+     */
+    page?: number
+    /**
+     * Page size (1-10000)
+     */
+    limit?: number
+    /**
+     * Filter by name/email substring or exact user id
+     */
+    search?: string
+    /**
+     * last_name | first_name | email
+     */
+    sort_column?: string
+    /**
+     * asc | desc
+     */
+    sort_direction?: string
+    /**
+     * Filter to a single course instance
+     */
+    course_instance_id?: string
+  }
   url: "/api/v0/main-frontend/courses/{course_id}/students/users"
 }
 
 export type GetCourseStudentsUsersResponses = {
   /**
-   * Course users
+   * A page of enrolled students
    */
-  200: Array<CourseUserInfo>
+  200: StudentsListPage
 }
 
 export type GetCourseStudentsUsersResponse =
@@ -8906,8 +9097,10 @@ export type GetUserResponses = {
   /**
    * User
    */
-  200: unknown
+  200: User
 }
+
+export type GetUserResponse = GetUserResponses[keyof GetUserResponses]
 
 export type GetUserCourseEnrollmentsData = {
   body?: never
@@ -8930,6 +9123,75 @@ export type GetUserCourseEnrollmentsResponses = {
 
 export type GetUserCourseEnrollmentsResponse =
   GetUserCourseEnrollmentsResponses[keyof GetUserCourseEnrollmentsResponses]
+
+export type GetUserCourseSubmissionTimesData = {
+  body?: never
+  path: {
+    /**
+     * User id
+     */
+    user_id: string
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/{user_id}/courses/{course_id}/submission-times"
+}
+
+export type GetUserCourseSubmissionTimesResponses = {
+  /**
+   * User course submission times
+   */
+  200: Array<UserCourseSubmissionTime>
+}
+
+export type GetUserCourseSubmissionTimesResponse =
+  GetUserCourseSubmissionTimesResponses[keyof GetUserCourseSubmissionTimesResponses]
+
+export type GetUserRolesData = {
+  body?: never
+  path: {
+    /**
+     * User id
+     */
+    user_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/{user_id}/roles"
+}
+
+export type GetUserRolesResponses = {
+  /**
+   * User roles across scopes
+   */
+  200: Array<Role>
+}
+
+export type GetUserRolesResponse = GetUserRolesResponses[keyof GetUserRolesResponses]
+
+export type GetUserSuspectedCheatersData = {
+  body?: never
+  path: {
+    /**
+     * User id
+     */
+    user_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/{user_id}/suspected-cheaters"
+}
+
+export type GetUserSuspectedCheatersResponses = {
+  /**
+   * User suspected-cheater records across courses
+   */
+  200: Array<UserSuspectedCheaterInfo>
+}
+
+export type GetUserSuspectedCheatersResponse =
+  GetUserSuspectedCheatersResponses[keyof GetUserSuspectedCheatersResponses]
 
 export type GetUserResetExerciseLogsData = {
   body?: never

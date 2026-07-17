@@ -19,7 +19,7 @@ export function getDir(language: string) {
   try {
     return dir(language)
   } catch (_e) {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     return "ltr"
   }
 }
@@ -41,7 +41,7 @@ export default function useLanguage(): string | null {
 
   if (!IS_SERVER && CAN_ACCESS_COOKIES) {
     // Remember the selected language in a cookie
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage}; path=/; SameSite=Strict; max-age=31536000;`
 
     // Set html lang=lang attribute
@@ -91,7 +91,7 @@ function determineLanguageFromQueryValue(value: string | string[] | undefined): 
 
   // In case of `example.com?lng=en&lng=fi`, we will return `fi`
   if (Array.isArray(value)) {
-    return value[value.length - 1]
+    return value.at(-1) ?? null
   }
   return value
 }

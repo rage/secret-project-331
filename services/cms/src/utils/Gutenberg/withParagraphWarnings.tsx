@@ -5,9 +5,9 @@ import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
 
-import { shouldWarnAboutParagraphLookingLikeHeading } from "./paragraphHeadingWarning"
-
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { shouldWarnAboutParagraphLookingLikeHeading } from "./paragraphHeadingWarning"
 
 interface ParagraphBlockProps {
   name: string
@@ -60,7 +60,7 @@ const withParagraphWarnings = createHigherOrderComponent((BlockEdit) => {
 
   ParagraphWithWarnings.displayName = "ParagraphWarnings"
   return ParagraphWithWarnings
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withParagraphWarnings")
 
 export default withParagraphWarnings

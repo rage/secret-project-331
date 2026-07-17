@@ -55,7 +55,7 @@ function toCharacterMatcher(pattern: RegExp) {
     throw new Error("toCharacterMatcher expects a simple character-class RegExp (e.g. /[0-9]/)")
   }
 
-  const flags = pattern.flags.replace(/g/g, "")
+  const flags = pattern.flags.replaceAll("g", "")
   return new RegExp(pattern.source, flags)
 }
 
@@ -118,7 +118,7 @@ export function applyOtpPaste(
   const characters = sanitizedCharacters.slice(0, nextSlots.length - startIndex).split("")
 
   for (let offset = 0; offset < characters.length; offset += 1) {
-    nextSlots[startIndex + offset] = characters[offset]
+    nextSlots[startIndex + offset] = characters[offset] ?? ""
   }
 
   const nextIndex =

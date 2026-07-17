@@ -10,8 +10,8 @@ import { getAiUsageNoticeAcknowledgementQueryKey } from "@/generated/course-mate
 import { acknowledgeAiUsageNotice } from "@/generated/course-material-api/sdk.generated"
 import type { CourseAiPolicy } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -65,7 +65,7 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
 
   // The link content is provided by the translation string via <Trans>, so the anchor has no
   // static children here.
-  // eslint-disable-next-line jsx-a11y/anchor-has-content
+  // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
   const guidelinesLink = <a href={guidelinesUrl} target="_blank" rel="noopener noreferrer" />
 
   const paragraphStyle = css`

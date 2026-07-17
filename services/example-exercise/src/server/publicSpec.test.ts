@@ -23,7 +23,7 @@ describe("POST /api/public-spec", () => {
       }),
     )
     expect(res.status).toBe(200)
-    const spec = (await res.json()) as Array<Record<string, unknown>>
+    const spec = (await res.json()) as Record<string, unknown>[]
     expect(spec).toEqual([
       { id: "a", name: "Right" },
       { id: "b", name: "Wrong" },

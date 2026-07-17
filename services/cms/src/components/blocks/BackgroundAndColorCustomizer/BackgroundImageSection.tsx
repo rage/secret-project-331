@@ -56,15 +56,15 @@ const BackgroundImageSection: React.FC<BackgroundImageSectionProps> = ({
     onImageRemove()
   }
 
-  const handleError = (error: unknown) => {
+  const handleError = (caughtError: unknown) => {
     let errorMessage = t("upload-error-unknown")
 
-    if (error instanceof Error) {
-      errorMessage = error.message
-    } else if (typeof error === "string") {
-      errorMessage = error
-    } else if (error && typeof error === "object" && "message" in error) {
-      errorMessage = String(error.message)
+    if (caughtError instanceof Error) {
+      errorMessage = caughtError.message
+    } else if (typeof caughtError === "string") {
+      errorMessage = caughtError
+    } else if (caughtError && typeof caughtError === "object" && "message" in caughtError) {
+      errorMessage = String(caughtError.message)
     }
 
     setError(errorMessage)

@@ -3,6 +3,7 @@ import type { WritableAtom } from "jotai"
 import type { SetStateAction } from "react"
 
 import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { courseMaterialBlockClass } from "@/utils/course-material/constants"
 
 /**
@@ -184,6 +185,9 @@ export const selectionAtom = atom(
       // Clearing the selection is done by setting the text to null.
       return
     }
-    set(selectionPrimitiveAtom, { text: text ?? "", position, element })
+    set(selectionPrimitiveAtom, {
+      text: text ?? "",
+      ...omitUndefined({ position, element }),
+    })
   },
 )

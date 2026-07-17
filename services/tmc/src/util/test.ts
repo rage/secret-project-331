@@ -1,9 +1,10 @@
 import { promises as fs } from "fs"
 import path from "path"
+
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
-import { RunResult } from "@/tmc/cli"
+import type { RunResult } from "@/tmc/cli"
 import { isRunResult } from "@/tmc/cli.guard"
 import { compressProject, extractProject, prepareSubmission } from "@/tmc/langs"
 import { createLogger } from "@/util/logger"
@@ -14,7 +15,7 @@ const { log, debug, error } = createLogger("test")
 export type Submission =
   | {
       type: "browser"
-      files: Array<{ filepath: string; contents: string }>
+      files: { filepath: string; contents: string }[]
     }
   | {
       type: "editor"
@@ -95,9 +96,8 @@ export const runTests = async (
 
     if (isRunResult(outcome.parsed)) {
       return outcome.parsed
-    } else {
-      throw new Error("Unexpected results")
     }
+    throw new Error("Unexpected results")
   } finally {
     await Promise.allSettled(tempPaths.map((p) => fs.rm(p, { recursive: true, force: true })))
   }

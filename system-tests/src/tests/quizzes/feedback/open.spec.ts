@@ -1,11 +1,11 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -18,9 +18,7 @@ test.describe("Quizzes open feedback", () => {
   test("quizzes open feedback", async ({ page, headless }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
     await page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`)
@@ -44,7 +42,7 @@ test.describe("Quizzes open feedback", () => {
       .getByText("When you started studying at the uni? Give the date in yyyy-mm-dd format.")
       .waitFor()
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })

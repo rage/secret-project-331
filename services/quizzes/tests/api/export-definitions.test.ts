@@ -2,14 +2,14 @@
  * @vitest-environment node
  */
 
+import { handleExportDefinitions } from "@/server/exportDefinitions"
+
 import testClient from "./utils/appRouterTestClient"
 import {
   generatePrivateSpecWithOneMatrixQuizItem,
   generatePrivateSpecWithOneMultipleChoiceQuizItem,
   generatePrivateSpecWithOneTimelineQuizItem,
 } from "./utils/privateSpecGenerator"
-
-import { handleExportDefinitions } from "@/server/exportDefinitions"
 
 describe("export-definitions", () => {
   it("exports multiple-choice definitions with only multiple-choice columns", async () => {

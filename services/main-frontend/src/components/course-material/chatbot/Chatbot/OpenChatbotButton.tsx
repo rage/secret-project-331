@@ -1,8 +1,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { RefObject } from "react"
-import { AriaButtonProps } from "react-aria"
+import type { RefObject } from "react"
+import React from "react"
+import type { AriaButtonProps } from "react-aria"
 import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 

@@ -1,11 +1,11 @@
-import { OldQuiz } from "../../types/oldQuizTypes"
-import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
-
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { convertPublicSpecFromPrivateSpec } from "@/util/converter"
 import { isOldQuiz } from "@/util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "@/util/migration/privateSpecQuiz"
 import { isSpecRequest } from "@/utils/exerciseServiceApi"
+
+import type { OldQuiz } from "../../types/oldQuizTypes"
+import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 
 const SERVICE = "quizzes"
 

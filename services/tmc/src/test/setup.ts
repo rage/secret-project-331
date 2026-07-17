@@ -1,5 +1,4 @@
 import "@testing-library/jest-dom/vitest"
-
 import { vi } from "vitest"
 
 // React 19: flush state updates during render tests.
@@ -8,16 +7,17 @@ import { vi } from "vitest"
 // jsdom lacks ResizeObserver (used by the iframe height tracker).
 if (!("ResizeObserver" in globalThis)) {
   ;(globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
+    public observe() {}
+    public unobserve() {}
+    public disconnect() {}
   }
 }
 
 // The parent connection uses MessageChannel, which jsdom lacks. Tests only need inert ports.
+// oxlint-disable-next-line max-classes-per-file -- colocated test stub classes
 class StubMessageChannel {
-  port1 = { postMessage: () => {} }
-  port2 = { postMessage: () => {} }
+  public port1 = { postMessage: () => {} }
+  public port2 = { postMessage: () => {} }
 }
 ;(globalThis as unknown as { MessageChannel: unknown }).MessageChannel = StubMessageChannel
 

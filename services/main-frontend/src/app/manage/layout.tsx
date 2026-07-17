@@ -18,7 +18,7 @@ function ManageLayoutContent({ children }: { children: React.ReactNode }) {
     crumbs,
   })
 
-  return <>{children}</>
+  return children
 }
 
 export default function ManageLayout({ children }: { children: React.ReactNode }) {

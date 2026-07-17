@@ -7,8 +7,6 @@ import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import EditExamDialog from "../EditExamDialog"
-
 import {
   getExamOptions,
   getOrganizationExamByExamIdOptions,
@@ -31,6 +29,8 @@ import {
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import EditExamDialog from "../EditExamDialog"
 
 const GET_ORGANIZATION_QUERY_KEY = "getOrganization"
 
@@ -76,7 +76,7 @@ const ManageExam: React.FC = () => {
             },
           })
       : skipToken,
-    enabled: organizationId != null,
+    enabled: organizationId !== undefined,
   }).data?.slug
 
   const [editExamFormOpen, setEditExamFormOpen] = useState(false)
@@ -139,14 +139,14 @@ const ManageExam: React.FC = () => {
               <div className={detailRow}>
                 {t("label-starts-at")}:{" "}
                 <span className={detailValue}>
-                  {/* eslint-disable-next-line i18next/no-literal-string */}
+                  {/* oxlint-disable-next-line i18next/no-literal-string */}
                   {humanReadableDateTime(data.starts_at, i18n.language) ?? "—"}
                 </span>
               </div>
               <div className={detailRow}>
                 {t("label-ends-at")}:{" "}
                 <span className={detailValue}>
-                  {/* eslint-disable-next-line i18next/no-literal-string */}
+                  {/* oxlint-disable-next-line i18next/no-literal-string */}
                   {humanReadableDateTime(data.ends_at, i18n.language) ?? "—"}
                 </span>
               </div>
@@ -163,9 +163,9 @@ const ManageExam: React.FC = () => {
               <div className={detailRow}>
                 {t("label-minimum-points-threshold")}:{" "}
                 <span className={detailValue}>
-                  {/* eslint-disable i18next/no-literal-string */}
+                  {/* oxlint-disable i18next/no-literal-string */}
                   {data.minimum_points_treshold > 0 ? String(data.minimum_points_treshold) : "—"}
-                  {/* eslint-enable i18next/no-literal-string */}
+                  {/* oxlint-enable i18next/no-literal-string */}
                 </span>
               </div>
               <div className={detailRow}>

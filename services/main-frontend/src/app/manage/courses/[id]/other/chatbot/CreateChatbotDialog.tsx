@@ -1,13 +1,13 @@
 "use client"
 
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CreateChatbotForm from "./CreateChatbotForm"
-
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+
+import CreateChatbotForm from "./CreateChatbotForm"
 
 interface CreateChatbotDialogProps {
   courseId: string

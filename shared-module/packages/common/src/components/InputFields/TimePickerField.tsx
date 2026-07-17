@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { InputHTMLAttributes } from "react"
+import type { InputHTMLAttributes } from "react"
+import React from "react"
 
 export interface TimePickerProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string

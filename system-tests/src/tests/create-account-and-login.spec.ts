@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test"
 
-import { logoutViaTopbar } from "../utils/flows/topbar.flow"
-
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
+
+import { logoutViaTopbar } from "../utils/flows/topbar.flow"
 
 test("User can create an account and log in", async ({ page }) => {
   await test.step("User can create an account", async () => {

@@ -4,14 +4,14 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import AnswersRequiringAttentionItem from "./AnswersRequiringAttentionItem"
-import ExerciseAssignmentPreview from "./ExerciseAssignmentPreview"
-
 import type { AnswerRequiringAttentionWithTasks } from "@/generated/api/types.generated"
 import { useAccordionContext } from "@/shared-module/common/components/Accordion/accordionContext"
 import Button from "@/shared-module/common/components/Button"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
+
+import AnswersRequiringAttentionItem from "./AnswersRequiringAttentionItem"
+import ExerciseAssignmentPreview from "./ExerciseAssignmentPreview"
 
 interface Props {
   answersRequiringAttention: AnswerRequiringAttentionWithTasks[]
@@ -32,7 +32,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
   return (
     <>
       <Centered variant="narrow">
-        {answersRequiringAttention.length > 0 && (
+        {answersRequiringAttention[0] && (
           <ExerciseAssignmentPreview tasks={answersRequiringAttention[0].tasks} />
         )}
         <div

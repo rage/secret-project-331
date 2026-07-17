@@ -3,10 +3,10 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { BlockRendererProps } from "../.."
-
-import { SeparatorAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { SeparatorAttributes } from "@/../types/GutenbergBlockAttributes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../.."
 
 interface ExtraAttributes {
   className?: string
@@ -24,10 +24,9 @@ const SeparatorBlock: React.FC<
             (!className || className === "is-style-default") &&
             "width: 6.25rem; text-align: center;" /* Is not style-wide or dots */
           }
-          ${
-            className &&
-            className.includes("is-style-dots") &&
-            `
+          ${className &&
+          className.includes("is-style-dots") &&
+          `
             border: none;
             background: none !important;
             font-size: 1.5rem;
@@ -36,8 +35,7 @@ const SeparatorBlock: React.FC<
               content: '···';
               padding-left: 2rem;
               letter-spacing: 2rem;
-            }`
-          }
+            }`}
         `}
       />
     </div>

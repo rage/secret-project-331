@@ -22,7 +22,7 @@ const useSearchUsersQueries = (searchQuery: string): SearchUsersQueries => {
 
   const searchByEmailQuery = useQuery({
     queryKey: ["searchUsersByEmail", searchQuery],
-    queryFn: async () =>
+    queryFn: () =>
       searchUserDetailsByEmail({
         body: {
           query: assertNotNullOrUndefined(searchQuery),
@@ -33,7 +33,7 @@ const useSearchUsersQueries = (searchQuery: string): SearchUsersQueries => {
 
   const searchByOtherDetailsQuery = useQuery({
     queryKey: ["searchUsersByOtherDetails", searchQuery],
-    queryFn: async () =>
+    queryFn: () =>
       searchUserDetailsByOtherDetails({
         body: {
           query: assertNotNullOrUndefined(searchQuery),
@@ -44,7 +44,7 @@ const useSearchUsersQueries = (searchQuery: string): SearchUsersQueries => {
 
   const searchFuzzyMatchQuery = useQuery({
     queryKey: ["searchUsersFuzzyMatch", searchQuery],
-    queryFn: async () =>
+    queryFn: () =>
       searchUserDetailsFuzzyMatch({
         body: {
           query: assertNotNullOrUndefined(searchQuery),

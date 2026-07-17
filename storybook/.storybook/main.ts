@@ -1,10 +1,10 @@
+import { resolve } from "path"
+
 // This file has been automatically migrated to valid ESM format by Storybook.
 import type { StorybookConfig } from "@storybook/react-vite"
-import { fileURLToPath } from "node:url"
-import { dirname, resolve } from "path"
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const __filename = import.meta.filename
+const __dirname = import.meta.dirname
 
 const config: StorybookConfig = {
   stories: ["../stories/**/*.mdx", "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
@@ -27,13 +27,13 @@ const config: StorybookConfig = {
     reactDocgen: "react-docgen-typescript",
   },
 
-  viteFinal: async (config) => {
-    config.resolve = config.resolve ?? {}
-    config.resolve.alias = {
-      ...(config.resolve.alias ?? {}),
+  viteFinal: (viteConfig) => {
+    viteConfig.resolve = viteConfig.resolve ?? {}
+    viteConfig.resolve.alias = {
+      ...viteConfig.resolve.alias,
       "next/link": resolve(__dirname, "../src/mocks/next-link.tsx"),
     }
-    return config
+    return viteConfig
   },
 }
 export default config

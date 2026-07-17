@@ -1,14 +1,8 @@
 "use client"
 
-import { useStudentsContext } from "../StudentsContext"
-import { CertificatesTabContent } from "../StudentsTableTabs"
-
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-function CertificatesPage() {
-  const { courseId, searchQuery } = useStudentsContext()
-  return <CertificatesTabContent courseId={courseId} searchQuery={searchQuery} />
-}
+import { CertificatesTabContent } from "../tabs/CertificatesTab"
 
-export default withErrorBoundary(withSignedIn(CertificatesPage))
+export default withErrorBoundary(withSignedIn(CertificatesTabContent))

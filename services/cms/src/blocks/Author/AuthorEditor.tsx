@@ -4,11 +4,11 @@ import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
-import BlockWrapper from "../BlockWrapper"
-
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/author-inner-block"]
 const AUTHOR_BLOCK_TEMPLATE: Template[] = [["moocfi/author-inner-block"]]

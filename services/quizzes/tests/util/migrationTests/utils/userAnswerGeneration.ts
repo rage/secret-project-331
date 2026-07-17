@@ -1,4 +1,4 @@
-import { OldQuizAnswer, OldQuizItemAnswer } from "../../../../types/oldQuizTypes"
+import type { OldQuizAnswer, OldQuizItemAnswer } from "../../../../types/oldQuizTypes"
 
 // Quiz answers
 const emptyQuizAnswer = (): OldQuizAnswer => ({

@@ -6,11 +6,6 @@ import { useAtomValue } from "jotai"
 import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import SelectCourseLanguage from "../SelectCourseLanguage"
-import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
-
-import { getLanguageName } from "./ChooseCourseLanguage"
-
 import { saveCourseMaterialCourseSettings } from "@/generated/course-material-api/sdk.generated"
 import type { NewCourseBackgroundQuestionAnswer } from "@/generated/course-material-api/types.generated"
 import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
@@ -18,11 +13,12 @@ import useCourse from "@/hooks/course-material/useCourse"
 import useCourseInstances from "@/hooks/course-material/useCourseInstances"
 import { refetchUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import useUserMarketingConsent from "@/hooks/course-material/useUserMarketingConsent"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { invalidateCourseMaterialStateQueries } from "@/state/course-material/queries"
@@ -34,6 +30,10 @@ import {
   viewStatusAtom,
 } from "@/state/course-material/selectors"
 import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languageHelpers"
+
+import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
+import SelectCourseLanguage from "../SelectCourseLanguage"
+import { getLanguageName } from "./ChooseCourseLanguage"
 
 export interface CourseSettingsModalProps {
   onClose: () => void
@@ -93,7 +93,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   useEffect(() => {
     getCourseInstances.refetch()
     sortInstances()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLangCourseId])
 
   const { availableLanguages } = useLanguageNavigation({
@@ -158,7 +158,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   )
 
   if (courseId === null) {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     return <ErrorBanner variant={"readOnly"} error={"No course ID defined"} />
   }
 
@@ -191,17 +191,19 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         )}
         {selectedLangCourseId && viewStatus === "ready" && (
           <QueryResult query={getCourseInstances} treatEmptyAsData>
-            {(courseInstances) => (
-              <SelectCourseInstanceForm
-                courseInstances={courseInstances}
-                submitMutation={handleSubmitAndCloseMutation}
-                initialSelectedInstanceId={
-                  materialSettings?.current_course_instance_id ?? materialInstance?.id
-                }
-                dialogLanguage={dialogLanguage}
-                selectedLangCourseId={selectedLangCourseId}
-              />
-            )}
+            {(courseInstances) => {
+              const initialSelectedInstanceId =
+                materialSettings?.current_course_instance_id ?? materialInstance?.id
+              return (
+                <SelectCourseInstanceForm
+                  courseInstances={courseInstances}
+                  submitMutation={handleSubmitAndCloseMutation}
+                  {...omitUndefined({ initialSelectedInstanceId })}
+                  dialogLanguage={dialogLanguage}
+                  selectedLangCourseId={selectedLangCourseId}
+                />
+              )
+            }}
           </QueryResult>
         )}
       </div>

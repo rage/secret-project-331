@@ -7,9 +7,6 @@ import React, { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import ChatbotPreviewModal from "./ChatbotPreviewModal"
-
-import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import {
   configureChatbotMutation as configureChatbotMutationOptions,
   deleteChatbotConfigurationMutation as deleteChatbotMutationOptions,
@@ -17,13 +14,17 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChatbotConfiguration, NewChatbotConf } from "@/generated/api/types.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isHtmlButtonElement } from "@/shared-module/common/utils/dom"
 import { isReactOnSubmitEvent } from "@/shared-module/common/utils/events"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import {
+  assertNotNullOrUndefined,
+  includeIf,
+  omitUndefined,
+} from "@/shared-module/common/utils/nullability"
 import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
 import {
   Button,
@@ -33,6 +34,8 @@ import {
   TextArea,
   TextField,
 } from "@/shared-module/components"
+
+import ChatbotPreviewModal from "./ChatbotPreviewModal"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration
@@ -102,16 +105,22 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       hide_citations: oldChatbotConf.hide_citations,
       use_semantic_reranking: oldChatbotConf.use_semantic_reranking,
       suggest_next_messages: oldChatbotConf.suggest_next_messages,
-      initial_suggested_messages: oldChatbotConf.initial_suggested_messages,
-      suggested_messages: oldChatbotConf.initial_suggested_messages?.map((v) => ({
-        message: v,
-      })),
+      ...omitUndefined({ initial_suggested_messages: oldChatbotConf.initial_suggested_messages }),
+      ...includeIf(
+        oldChatbotConf.initial_suggested_messages !== null &&
+          oldChatbotConf.initial_suggested_messages !== undefined,
+        {
+          suggested_messages: oldChatbotConf.initial_suggested_messages?.map((v) => ({
+            message: v,
+          })),
+        },
+      ),
     },
   })
 
   const [showChatbotPreview, setChatbotPreview] = useState(false)
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const { fields, append, remove } = useFieldArray({ control, name: "suggested_messages" })
 
   const getChatbotModelsList = useQuery({
@@ -152,11 +161,9 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     },
   )
 
-  const chatbotStateAndData = useChatbotStateAndData(oldChatbotConf.id, undefined)
-
   const onConfigureChatbotWrapper = handleSubmit(async (data, event) => {
     if (!event) {
-      return new Error("Handlesubimit triggered without an event")
+      throw new Error("handleSubmit triggered without an event")
     }
     if (!isReactOnSubmitEvent(event)) {
       throw new Error("Event does not seem like an react onsbumit event")
@@ -199,14 +206,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     })
 
     if (event.submitter.name === "preview") {
-      const currentConversationInfo = chatbotStateAndData.currentConversationInfo
-      const newConversationMutation = chatbotStateAndData.newConversationMutation
-      const isFirstConversation =
-        currentConversationInfo && !currentConversationInfo.data?.current_conversation
-      // If there is an existing conversation start a new one so that the edits to the chatbot take place
-      if (!isFirstConversation) {
-        await newConversationMutation.mutateAsync()
-      }
+      // The preview modal starts a fresh conversation on open so it reflects the just-saved config.
       setChatbotPreview(true)
     }
   })

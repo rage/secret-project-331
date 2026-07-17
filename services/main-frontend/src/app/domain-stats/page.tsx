@@ -4,10 +4,6 @@ import { css } from "@emotion/css"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseCompletionStatsTable from "./CourseCompletionStatsTable"
-import DomainCompletionStatsTable from "./DomainCompletionStatsTable"
-import YearFilter from "./YearFilter"
-
 import {
   useCompletionStatsByEmailDomainQuery,
   useCourseCompletionStatsForEmailDomainQuery,
@@ -16,6 +12,10 @@ import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import CourseCompletionStatsTable from "./CourseCompletionStatsTable"
+import DomainCompletionStatsTable from "./DomainCompletionStatsTable"
+import YearFilter from "./YearFilter"
 
 const SelectedDomainCourseStatsTable = ({
   selectedDomain,
@@ -73,9 +73,9 @@ const DomainStatsPage = () => {
               className={css`
                 margin-right: 1rem;
               `}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
-              ← {t("back-to-all-domains")}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}← {t("back-to-all-domains")}
             </Button>
           )}
           {selectedDomain && <h2>{selectedDomain}</h2>}

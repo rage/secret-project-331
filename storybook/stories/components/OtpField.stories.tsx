@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { useState } from "react"
+import { useForm } from "react-hook-form"
 
 import { OtpField } from "../../src/shared-module/components"
 
@@ -12,35 +12,56 @@ const stackCss = css`
   max-width: 420px;
 `
 
+interface Form {
+  code: string
+}
+
+function PlaygroundStory() {
+  const { control } = useForm<Form>({ defaultValues: { code: "123" } })
+
+  return <OtpField name="code" control={control} label="Verification code" length={6} />
+}
+
+function StatesStory() {
+  const { control } = useForm<Form>({ defaultValues: { code: "" } })
+  const { control: invalidControl } = useForm<Form>({ defaultValues: { code: "" } })
+  const { control: disabledControl } = useForm<Form>({ defaultValues: { code: "123456" } })
+
+  return (
+    <div className={stackCss}>
+      <OtpField name="code" control={control} label="Default" />
+      <OtpField
+        name="code"
+        control={invalidControl}
+        label="Invalid"
+        errorMessage="Code is required"
+      />
+      <OtpField name="code" control={disabledControl} label="Disabled" isDisabled />
+    </div>
+  )
+}
+
+function ControlledOtpFieldStory() {
+  const { control } = useForm<Form>({ defaultValues: { code: "123" } })
+
+  return <OtpField name="code" control={control} label="Controlled" />
+}
+
 const meta = {
   title: "Components/OtpField",
   component: OtpField,
-  args: {
-    label: "Verification code",
-    length: 6,
-  },
 } satisfies Meta<typeof OtpField>
 
 export default meta
 
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof OtpField>
 
-function ControlledOtpFieldStory() {
-  const [value, setValue] = useState("123")
-
-  return <OtpField label="Controlled" value={value} onValueChange={setValue} />
-}
-
-export const Playground = {} satisfies Story
+export const Playground = {
+  render: () => <PlaygroundStory />,
+} satisfies Story
 
 export const States = {
-  render: () => (
-    <div className={stackCss}>
-      <OtpField label="Default" />
-      <OtpField label="Invalid" errorMessage="Code is required" />
-      <OtpField label="Disabled" disabled defaultValue="123456" />
-    </div>
-  ),
+  render: () => <StatesStory />,
 } satisfies Story
 
 export const Controlled = {

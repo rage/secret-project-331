@@ -7,6 +7,7 @@
  * that fails with ERR_PACKAGE_PATH_NOT_EXPORTED. This hook transparently
  * rewrites such specifiers to have a ".js" suffix so resolution succeeds.
  */
+// oxlint-disable-next-line require-await -- Node module-customization resolve hook is async by contract
 export async function resolve(specifier, context, nextResolve) {
   if (/^diff\/lib\/.+/.test(specifier) && !/\.[a-zA-Z0-9]+$/.test(specifier)) {
     return nextResolve(specifier + ".js", context)

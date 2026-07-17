@@ -1,4 +1,4 @@
-import { DisplayDirection } from "./privateSpec"
+import type { DisplayDirection } from "./privateSpec"
 
 type grantPointsPolicy = "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
 

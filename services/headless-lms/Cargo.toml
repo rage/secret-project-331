@@ -15,10 +15,7 @@ resolver = "2"
 
 [workspace.package]
 version = "0.1.0"
-authors = [
-  "University of Helsinki <mooc@cs.helsinki.fi>",
-  "Henrik Nygren <nygrenh@gmail.com>",
-]
+authors = ["University of Helsinki <mooc@cs.helsinki.fi>", "Henrik Nygren <nygrenh@gmail.com>"]
 edition = "2024"
 rust-version = "1.96.0" # minimum required Rust version, update if you use a new API
 license = "Apache-2.0"
@@ -46,7 +43,7 @@ tokio = { version = "1.52.3", features = [
   "io-util",
   "sync",
   "parking_lot",
-  "rt-multi-thread"
+  "rt-multi-thread",
 ] }
 
 # Rustls is a modern TLS library written in Rust.
@@ -71,7 +68,7 @@ sqlx = { version = "0.9.0", default-features = false, features = [
 ] }
 
 # Utilities to work with `Stream` and `tokio`.
-tokio-stream = { version = "0.1.18", features = [ "io-util" ] }
+tokio-stream = { version = "0.1.18", features = ["io-util"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory.
 secrecy = { version = "0.10.3", features = ["serde"] }
 

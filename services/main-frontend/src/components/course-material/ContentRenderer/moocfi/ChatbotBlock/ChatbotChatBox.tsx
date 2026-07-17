@@ -5,7 +5,7 @@ import React from "react"
 
 import ChatbotChatBody from "@/components/course-material/chatbot/shared/ChatbotChatBody"
 import ChatbotChatHeader from "@/components/course-material/chatbot/shared/ChatbotChatHeader"
-import { ChatbotStateAndData } from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
+import type { ChatbotStateAndData } from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const ChatbotChatBox: React.FC<ChatbotStateAndData> = (props) => {

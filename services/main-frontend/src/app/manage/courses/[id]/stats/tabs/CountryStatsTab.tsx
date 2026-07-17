@@ -3,12 +3,12 @@
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
+import countries from "@/shared-module/common/locales/en/countries.json"
+
 import CompletionsByCountry from "../visualizations/country/CompletionsByCountry"
 import StudentsByCountry from "../visualizations/country/StudentsByCountry"
 import StudentsByCountryTotals from "../visualizations/country/StudentsByCountryTotals"
-
-import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
-import countries from "@/shared-module/common/locales/en/countries.json"
 
 interface CountryStatsTabProps {
   courseId: string

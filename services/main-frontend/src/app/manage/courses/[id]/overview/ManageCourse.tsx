@@ -1,13 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
+import type {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+} from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-
-import CourseDescription from "./CourseDescription"
-import EditCourseForm from "./EditCourseForm"
-import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
 import ModuleCompletionReprocessButton from "@/app/manage/courses/[id]/course-instances/ModuleCompletionReprocessButton"
 import {
@@ -19,11 +19,15 @@ import {
 import type { Course } from "@/generated/api/types.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import Button from "@/shared-module/common/components/Button"
-import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
+
+import CourseDescription from "./CourseDescription"
+import EditCourseForm from "./EditCourseForm"
+import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
 interface Props {
   course: Course
@@ -166,7 +170,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           size="medium"
           onClick={async () => {
             const confirmation = await confirm(
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               `${t("delete-course-confirmation")}\n\n${t(
                 "delete-course-confirmation-explanation",
               )}`,
@@ -387,7 +391,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       </OnlyRenderIfPermissions>
       {course.is_joinable_by_code_only && (
         <div>
-          {/*eslint-disable-next-line i18next/no-literal-string */}
+          {/*oxlint-disable-next-line i18next/no-literal-string */}
           <a href={`/join?code=${course.join_code}`}>{`/join?code=${course.join_code}`}</a>
           <div>
             <Button

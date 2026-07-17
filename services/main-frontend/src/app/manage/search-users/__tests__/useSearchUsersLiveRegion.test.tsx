@@ -3,9 +3,9 @@
 import type { UseQueryResult } from "@tanstack/react-query"
 import { renderHook } from "@testing-library/react"
 
-import useSearchUsersLiveRegion from "../useSearchUsersLiveRegion"
-
 import type { UserDetail } from "@/generated/api/types.generated"
+
+import useSearchUsersLiveRegion from "../useSearchUsersLiveRegion"
 
 const createUser = (user_id: string): UserDetail =>
   ({

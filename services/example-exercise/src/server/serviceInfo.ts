@@ -1,5 +1,5 @@
 import basePath from "@/lib/basePath"
-import { ExerciseServiceInfoApi } from "@/util/exerciseServiceApi"
+import type { ExerciseServiceInfoApi } from "@/util/exerciseServiceApi"
 
 /** Endpoint metadata the host backend reads to discover this plugin (base-path-prefixed). */
 export function handleServiceInfo(): Response {

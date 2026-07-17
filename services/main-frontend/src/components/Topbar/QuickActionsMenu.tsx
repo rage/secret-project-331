@@ -1,13 +1,13 @@
 "use client"
 
-import React, { ReactElement, useState } from "react"
+import type { ReactElement } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import DropdownMenu from "../DropdownMenu"
-
-import { useQuickActionsItems } from "./hooks/useQuickActionsItems"
-
 import CourseSettingsModal from "@/components/course-material/modals/CourseSettingsModal"
+
+import DropdownMenu from "../DropdownMenu"
+import { useQuickActionsItems } from "./hooks/useQuickActionsItems"
 
 interface MenuOption {
   type: "link" | "action" | "separator"
@@ -19,8 +19,8 @@ interface MenuOption {
 }
 
 interface QuickActionsMenuProps {
-  menuOptions?: MenuOption[]
-  courseId?: string | null
+  menuOptions?: MenuOption[] | undefined
+  courseId?: string | null | undefined
 }
 
 const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, courseId }) => {
@@ -50,9 +50,9 @@ const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({ menuOptions, course
         />
       )}
       <DropdownMenu
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         menuTestId="topbar-quick-actions-menu"
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         menuButtonTestId="topbar-quick-actions"
         items={items}
         navLabel={t("quick-actions")}

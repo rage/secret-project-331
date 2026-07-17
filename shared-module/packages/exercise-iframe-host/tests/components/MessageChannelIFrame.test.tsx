@@ -27,7 +27,7 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 describe("MessageChannelIFrame", () => {
-  let messageListeners: Array<(event: MessageEvent) => void>
+  let messageListeners: ((event: MessageEvent) => void)[]
   let addEventListenerSpy: jest.SpyInstance
   let removeEventListenerSpy: jest.SpyInstance
 
@@ -87,8 +87,8 @@ describe("MessageChannelIFrame", () => {
       'iframe[data-testid="message-channel-iframe"]',
     )
     expect(iframe?.src).toBe("http://example.com/example-iframe-page")
-    expect(iframe?.getAttribute("data-state-sent")).toBe("true")
-    expect(iframe?.getAttribute("data-iframe-height")).toBe("0")
+    expect(iframe?.dataset.stateSent).toBe("true")
+    expect(iframe?.dataset.iframeHeight).toBe("0")
   })
 
   describe("basic connection flow", () => {
@@ -334,10 +334,10 @@ describe("MessageChannelIFrame", () => {
       dispatchReady(firstContentWindow)
 
       expect(firstContentWindow.postMessage).toHaveBeenCalledWith("communication-port", "*", [
-        mockChannels[0].port2,
+        mockChannels[0]!.port2, // safe: array literal has fixed length ≥ 3
       ])
       await waitFor(() => {
-        expect(mockChannels[0].port1.postMessage).toHaveBeenCalledWith(
+        expect(mockChannels[0]!.port1.postMessage).toHaveBeenCalledWith(
           expect.objectContaining({
             message: "set-state",
             ...stateToPost,
@@ -360,7 +360,7 @@ describe("MessageChannelIFrame", () => {
         })
       }
 
-      triggerReload(mockChannels[0], 250)
+      triggerReload(mockChannels[0]!, 250) // safe: array literal has fixed length ≥ 3
       const secondIframe = (await waitFor(() => {
         const currentIframe = container.querySelector("iframe")
         expect(currentIframe).not.toBe(firstIframe)
@@ -384,7 +384,7 @@ describe("MessageChannelIFrame", () => {
       )
       expect(window.MessageChannel).toHaveBeenCalledTimes(2)
       await waitFor(() => {
-        expect(mockChannels[1].port1.postMessage).toHaveBeenCalledWith(
+        expect(mockChannels[1]!.port1.postMessage).toHaveBeenCalledWith(
           expect.objectContaining({
             message: "set-state",
             ...stateToPost,
@@ -393,7 +393,7 @@ describe("MessageChannelIFrame", () => {
       })
 
       act(() => {
-        mockChannels[1].port1.onmessage?.({
+        mockChannels[1]!.port1.onmessage?.({
           data: { message: "request-iframe-reload" },
         } as unknown as MessageEvent)
         jest.advanceTimersByTime(499)
@@ -451,6 +451,7 @@ describe("MessageChannelIFrame", () => {
         })
       }
 
+      // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures mockChannels via typeof; cannot hoist
       const sendCurrentState = (channel: (typeof mockChannels)[number]) => {
         act(() => {
           channel.port1.onmessage?.({
@@ -477,10 +478,10 @@ describe("MessageChannelIFrame", () => {
       })
 
       dispatchReady(firstContentWindow)
-      sendCurrentState(mockChannels[0])
+      sendCurrentState(mockChannels[0]!) // safe: array literal has fixed length ≥ 3
 
       act(() => {
-        mockChannels[0].port1.onmessage?.({
+        mockChannels[0]!.port1.onmessage?.({
           data: { message: "request-iframe-reload" },
         } as unknown as MessageEvent)
         jest.advanceTimersByTime(250)
@@ -500,10 +501,10 @@ describe("MessageChannelIFrame", () => {
       })
 
       dispatchReady(secondContentWindow)
-      sendCurrentState(mockChannels[1])
+      sendCurrentState(mockChannels[1]!) // safe: array literal has fixed length ≥ 3
 
       act(() => {
-        mockChannels[1].port1.onmessage?.({
+        mockChannels[1]!.port1.onmessage?.({
           data: { message: "request-iframe-reload" },
         } as unknown as MessageEvent)
         jest.advanceTimersByTime(249)
@@ -568,6 +569,7 @@ describe("MessageChannelIFrame", () => {
         })
       })
 
+      // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures mockChannels via typeof; cannot hoist
       const triggerReloadRequest = (channel: (typeof mockChannels)[number], delay?: number) => {
         act(() => {
           channel.port1.onmessage?.({
@@ -580,7 +582,7 @@ describe("MessageChannelIFrame", () => {
       }
 
       // Exhaust automatic attempts
-      triggerReloadRequest(mockChannels[0], 250)
+      triggerReloadRequest(mockChannels[0]!, 250) // safe: array literal has fixed length 6
       currentIframe = (await waitFor(() => {
         const nextIframe = container.querySelector("iframe")
         expect(nextIframe).not.toBeNull()
@@ -588,7 +590,7 @@ describe("MessageChannelIFrame", () => {
         return nextIframe
       })) as HTMLIFrameElement
 
-      triggerReloadRequest(mockChannels[1], 500)
+      triggerReloadRequest(mockChannels[1]!, 500) // safe: array literal has fixed length 6
       currentIframe = (await waitFor(() => {
         const nextIframe = container.querySelector("iframe")
         expect(nextIframe).not.toBeNull()
@@ -596,7 +598,7 @@ describe("MessageChannelIFrame", () => {
         return nextIframe
       })) as HTMLIFrameElement
 
-      triggerReloadRequest(mockChannels[2], 1000)
+      triggerReloadRequest(mockChannels[2]!, 1000) // safe: array literal has fixed length 6
       currentIframe = (await waitFor(() => {
         const nextIframe = container.querySelector("iframe")
         expect(nextIframe).not.toBeNull()
@@ -604,7 +606,7 @@ describe("MessageChannelIFrame", () => {
         return nextIframe
       })) as HTMLIFrameElement
 
-      triggerReloadRequest(mockChannels[3], 2000)
+      triggerReloadRequest(mockChannels[3]!, 2000) // safe: array literal has fixed length 6
       currentIframe = (await waitFor(() => {
         const nextIframe = container.querySelector("iframe")
         expect(nextIframe).not.toBeNull()
@@ -612,7 +614,7 @@ describe("MessageChannelIFrame", () => {
         return nextIframe
       })) as HTMLIFrameElement
 
-      triggerReloadRequest(mockChannels[4])
+      triggerReloadRequest(mockChannels[4]!) // safe: array literal has fixed length 6
 
       const exhaustedText = getByText(i18nTest.t("exercise-iframe-reload-exhausted-message"))
       expect(exhaustedText).toBeInTheDocument()
@@ -883,7 +885,7 @@ describe("MessageChannelIFrame", () => {
         }
       })
 
-      expect(iframe?.getAttribute("data-iframe-height")).toBe("500")
+      expect(iframe?.dataset.iframeHeight).toBe("500")
 
       rerender(
         <I18nextProvider i18n={i18nTest}>
@@ -907,8 +909,8 @@ describe("MessageChannelIFrame", () => {
       })
 
       expect(mockContentWindow.postMessage).toHaveBeenCalledTimes(2)
-      expect(iframe?.getAttribute("data-state-sent")).toBe("false")
-      expect(iframe?.getAttribute("data-iframe-height")).toBe("0")
+      expect(iframe?.dataset.stateSent).toBe("false")
+      expect(iframe?.dataset.iframeHeight).toBe("0")
     })
   })
 
@@ -983,7 +985,7 @@ describe("MessageChannelIFrame", () => {
       })
     })
 
-    it("ignores null port messages without crashing", async () => {
+    it("ignores null port messages without crashing", () => {
       const mockChannel = createMockMessageChannel()
       const onMessageFromIframe = jest.fn()
 
@@ -1047,7 +1049,7 @@ describe("MessageChannelIFrame", () => {
 
       await waitFor(() => {
         const iframe = container.querySelector("iframe")
-        expect(iframe?.getAttribute("data-state-sent")).toBe("true")
+        expect(iframe?.dataset.stateSent).toBe("true")
       })
     })
 
@@ -1291,6 +1293,7 @@ describe("MessageChannelIFrame", () => {
           origin: "null",
         })
 
+        // oxlint-disable-next-line no-loop-func -- closes over fresh per-iteration `event`; no stale binding
         act(() => {
           messageListeners.forEach((listener) => listener(event))
         })

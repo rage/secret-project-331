@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query"
 import { useContext } from "react"
-import toast from "react-hot-toast"
+import { toast } from "react-hot-toast"
 
 import LoginStateContext from "../contexts/LoginStateContext"
 import { postAuthLogout } from "../generated/auth-api/sdk.generated"

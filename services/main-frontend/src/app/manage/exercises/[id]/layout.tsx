@@ -67,5 +67,5 @@ export default function ExerciseLayout({ children }: { children: React.ReactNode
 
   useRegisterBreadcrumbs({ key: `exercise:${id}`, order: 20, crumbs })
 
-  return <>{children}</>
+  return children
 }

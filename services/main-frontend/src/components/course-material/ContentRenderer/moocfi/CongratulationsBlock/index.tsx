@@ -3,8 +3,6 @@
 import { useAtomValue } from "jotai"
 import React, { useContext } from "react"
 
-import Congratulations from "./Congratulations"
-
 import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
 import useUserModuleCompletions from "@/hooks/course-material/useUserModuleCompletions"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -12,6 +10,8 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
+
+import Congratulations from "./Congratulations"
 
 const CongratulationsBlock: React.FC = () => {
   const courseMaterialState = useAtomValue(courseMaterialAtom)

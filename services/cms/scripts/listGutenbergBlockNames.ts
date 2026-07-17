@@ -34,12 +34,12 @@ global.navigator = dom.window.navigator
 global.CSS = {}
 
 // The following import order matters and are dependant on above window definition.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// oxlint-disable-next-line typescript/no-require-imports
 const blockLibrary = require("@wordpress/block-library")
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// oxlint-disable-next-line typescript/no-require-imports
 const blocks = require("@wordpress/blocks")
 
-async function main() {
+function main() {
   blockLibrary.registerCoreBlocks()
   const allBlockInstances: BlockType<Record<string, unknown>>[] = blocks.getBlockTypes()
   const coreBlocks = allBlockInstances.map((block) => block.name)

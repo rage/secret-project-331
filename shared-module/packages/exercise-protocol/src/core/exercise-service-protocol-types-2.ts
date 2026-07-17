@@ -5,18 +5,18 @@
  *
  * to: exercise service
  */
-export type GradingRequest<S = unknown, D = unknown> = {
+export interface GradingRequest<S = unknown, D = unknown> {
   grading_update_url: string
   exercise_spec: S
   submission_data: D
 }
 
-export type GradingResult<F = unknown> = {
+export interface GradingResult<F = unknown> {
   grading_progress: "FullyGraded" | "Pending" | "PendingManual" | "Failed"
   score_given: number
   score_maximum: number
   feedback_text: string | null
   feedback_json: F
   /** Variables set here will be visible to the iframe views for this user on this course. Can be used to remember things like remembering names. */
-  set_user_variables?: { [key: string]: unknown }
+  set_user_variables?: Record<string, unknown>
 }

@@ -1,5 +1,5 @@
 import { Remarkable } from "remarkable"
-import { ContentToken, InlineParsingRule, Options, Rule } from "remarkable/lib"
+import type { ContentToken, InlineParsingRule, Options, Rule } from "remarkable/lib"
 
 import { MATCH_CITATION_TAG_REGEX } from "./chatbotCitationRegexes"
 import { textParser } from "./remarkableTextParser"
@@ -25,7 +25,7 @@ const chatbotCitationParser: InlineParsingRule = (state, checkMode) => {
       return false
     }
     let char = state.src.charAt(newPos)
-    if (!char.match(digitRegex)) {
+    if (!digitRegex.test(char)) {
       if (i === 0) {
         // there needs to be at least one digit
         return false
@@ -45,7 +45,7 @@ const chatbotCitationParser: InlineParsingRule = (state, checkMode) => {
       return false
     }
     let char = state.src.charAt(newPos)
-    if (!char.match(digitRegex)) {
+    if (!digitRegex.test(char)) {
       if (i === 0) {
         // there needs to be at least one digit
         return false
@@ -89,7 +89,7 @@ const chatbotCitationParser: InlineParsingRule = (state, checkMode) => {
   let marker = state.src.slice(state.pos, newPos)
 
   // double check if the current pos starts a string that matches our tag
-  if (!marker.match(MATCH_CITATION_TAG_REGEX)) {
+  if (!MATCH_CITATION_TAG_REGEX.test(marker)) {
     console.warn(
       `Markdown parser caught an incorrect chatbotCitation marker in the double check. Marker: ${marker}. There's a bug in the parser.`,
     )
@@ -118,7 +118,8 @@ const chatbotCitationRenderer: Rule = (
   // tokens are created in the parser and contain the marker as token.content
 
   // the content is the marker, so: `【x:y†source】`
-  const marker: string = tokens[idx].content
+  // the renderer is always invoked with a valid token index; fall back to empty string otherwise
+  const marker: string = tokens[idx]?.content ?? ""
   const start = marker.indexOf(":") + 1
   const end = marker.length - "†source】".length
   const n = marker.slice(start, end)
@@ -126,13 +127,13 @@ const chatbotCitationRenderer: Rule = (
   return htmlString
 }
 
-let chatbotCitation: Remarkable.Plugin = (md) => {
-  md.inline.ruler.push("chatbotCitation", chatbotCitationParser, {})
-  md.renderer.rules.chatbotCitation = chatbotCitationRenderer
+let chatbotCitation: Remarkable.Plugin = (mdInstance) => {
+  mdInstance.inline.ruler.push("chatbotCitation", chatbotCitationParser, {})
+  mdInstance.renderer.rules.chatbotCitation = chatbotCitationRenderer
 }
 
-let textPlugin: Remarkable.Plugin = (md) => {
-  md.inline.ruler.at("text", textParser, {})
+let textPlugin: Remarkable.Plugin = (mdInstance) => {
+  mdInstance.inline.ruler.at("text", textParser, {})
 }
 
 export const getRemarkable = () => {

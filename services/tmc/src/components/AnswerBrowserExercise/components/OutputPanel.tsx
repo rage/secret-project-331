@@ -1,14 +1,13 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import type { OutputSegment } from "../hooks/useRunOutput"
-import { OutputBody, OutputContainer, OutputHeader, OutputHeaderText } from "../styles"
-
-import { RunOutputContent } from "./RunOutputContent"
-import { TestResultsContent } from "./TestResultsContent"
-
 import Spinner from "@/shared-module/common/components/Spinner"
 import type { RunResult } from "@/tmc/cli"
+
+import type { OutputSegment } from "../hooks/useRunOutput"
+import { OutputBody, OutputContainer, OutputHeader, OutputHeaderText } from "../styles"
+import { RunOutputContent } from "./RunOutputContent"
+import { TestResultsContent } from "./TestResultsContent"
 
 export type OutputPanelMode = "run" | "test-running" | "test-results"
 
@@ -73,7 +72,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = (props) => {
       </OutputHeader>
       <OutputBody>
         {mode === "test-running" && <Spinner />}
-        {mode === "test-results" && testResults != null && (
+        {mode === "test-results" && testResults !== null && (
           <TestResultsContent testResults={testResults} />
         )}
         {mode === "run" && (

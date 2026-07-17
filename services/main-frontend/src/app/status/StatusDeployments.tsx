@@ -83,9 +83,9 @@ const StatusDeployments: React.FC = () => {
                         <span
                           className={css`
                             font-weight: 600;
-                            color: ${
-                              isHealthy ? baseTheme.colors.green[600] : baseTheme.colors.red[600]
-                            };
+                            color: ${isHealthy
+                              ? baseTheme.colors.green[600]
+                              : baseTheme.colors.red[600]};
                           `}
                         >
                           {deployment.ready_replicas}/{deployment.replicas}

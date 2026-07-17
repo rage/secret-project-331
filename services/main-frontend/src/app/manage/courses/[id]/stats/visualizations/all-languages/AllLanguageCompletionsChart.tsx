@@ -3,17 +3,17 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { TimeGranularity } from "@/generated/api/types.generated"
+import { useCourseCompletionsHistoryAllLanguageVersionsQuery } from "@/hooks/stats"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { Period } from "../../LineChart"
 import LineChart, {
   DAILY_DATE_FORMAT,
   DAILY_PERIOD,
   MONTHLY_DATE_FORMAT,
   MONTHLY_PERIOD,
-  Period,
 } from "../../LineChart"
-
-import { TimeGranularity } from "@/generated/api/types.generated"
-import { useCourseCompletionsHistoryAllLanguageVersionsQuery } from "@/hooks/stats"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface AllLanguageCompletionsChartProps {
   courseId: string

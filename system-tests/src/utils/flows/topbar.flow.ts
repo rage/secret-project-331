@@ -1,4 +1,5 @@
-import { expect, Page } from "@playwright/test"
+import type { Page } from "@playwright/test"
+import { expect } from "@playwright/test"
 
 import { Topbar } from "../components/Topbar"
 
@@ -16,12 +17,12 @@ export async function switchLanguageViaTopbar(page: Page, nativeLabel: string) {
   await expect(page.locator("html")).toHaveAttribute("lang", /fi|en/)
 }
 
-export async function openCourseSettingsFromQuickActions(page: Page, label: string = "Settings") {
+export async function openCourseSettingsFromQuickActions(page: Page, label = "Settings") {
   const topbar = new Topbar(page)
   await topbar.expectDesktopVisible()
   await expect(topbar.quickActionsTrigger).toBeVisible()
   await topbar.quickActions.clickItem(label)
   await expect(page.getByRole("dialog")).toBeVisible()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
 }

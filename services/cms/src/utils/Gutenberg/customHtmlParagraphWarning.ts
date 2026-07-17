@@ -62,10 +62,12 @@ export const shouldWarnAboutMissingParagraphWrapperInCustomHtml = (html: string)
     return false
   }
 
+  const firstMeaningfulNode = topLevelMeaningfulNodes[0]
   if (
     topLevelMeaningfulNodes.length === 1 &&
-    topLevelMeaningfulNodes[0].nodeType === Node.ELEMENT_NODE &&
-    (topLevelMeaningfulNodes[0] as HTMLElement).tagName.toLowerCase() === "p"
+    firstMeaningfulNode !== undefined &&
+    firstMeaningfulNode.nodeType === Node.ELEMENT_NODE &&
+    (firstMeaningfulNode as HTMLElement).tagName.toLowerCase() === "p"
   ) {
     return false
   }

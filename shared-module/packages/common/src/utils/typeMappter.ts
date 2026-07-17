@@ -1,6 +1,6 @@
-import { ExerciseTaskGradingResult } from "../exerciseServiceTypes"
+import type { ExerciseTaskGradingResult } from "../exerciseServiceTypes"
 
-type ExerciseTaskGradingLike = {
+interface ExerciseTaskGradingLike {
   grading_progress: ExerciseTaskGradingResult["grading_progress"]
   unscaled_score_given?: number | null
   unscaled_score_maximum?: number | null

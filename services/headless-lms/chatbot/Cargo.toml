@@ -27,14 +27,7 @@ tokio-util = "0.7.18"
 # Utilities to work with `Stream` and `tokio`.
 tokio-stream.workspace = true
 # higher level HTTP client library
-reqwest = { version = "0.13.4", features = [
-  "brotli",
-  "gzip",
-  "json",
-  "http2",
-  "rustls",
-  "stream",
-] }
+reqwest = { version = "0.13.4", features = ["brotli", "gzip", "json", "http2", "rustls", "stream"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
 # A JSON serialization file format

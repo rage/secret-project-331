@@ -7,11 +7,11 @@ import { useCallback } from "react"
 function copyWithFallback(text: string): void {
   const textArea = document.createElement("textarea")
   textArea.value = text
-  document.body.appendChild(textArea)
+  document.body.append(textArea)
   textArea.select()
 
   const successful = document.execCommand("copy")
-  document.body.removeChild(textArea)
+  textArea.remove()
   if (!successful) {
     throw new Error("Copy failed")
   }

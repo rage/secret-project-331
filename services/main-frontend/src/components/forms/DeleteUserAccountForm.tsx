@@ -7,20 +7,21 @@ import { useRouter } from "next/navigation"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import OneTimeCodeForm from "./OneTimeCodeForm"
-import VerifyPasswordForm from "./VerifyPasswordForm"
-
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import {
   postAuthDeleteUserAccount,
   postAuthSendEmailCode,
 } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import "@/shared-module/common/init/registerAuthApiClients"
 import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
+
+import OneTimeCodeForm from "./OneTimeCodeForm"
+import "@/shared-module/common/init/registerAuthApiClients"
+
+import VerifyPasswordForm from "./VerifyPasswordForm"
 
 interface DeleteUserAccountProps {
   email: string
@@ -34,7 +35,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [step, setStep] = useState<Step>("password")
   const [password, setPassword] = useState("")
 
@@ -42,9 +43,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
   const [openDialog, setOpenDialog] = useState(false)
 
   const sendEmailCodeMutation = useToastMutation(
-    async (password: string) => {
+    async (passwordInput: string) => {
       const result = await postAuthSendEmailCode({
-        body: { email, password, language: i18n.language },
+        body: { email, password: passwordInput, language: i18n.language },
       })
       setCredentialsError(!result)
       return result
@@ -53,7 +54,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
     {
       onSuccess: (result) => {
         if (result) {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           setStep("verifyCode")
         }
       },
@@ -102,7 +103,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
         open={openDialog}
         title={t("title-delete-account")}
         showCloseButton
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         aria-modal="true"
         onClose={() => setOpenDialog(false)}
       >
@@ -112,9 +113,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
         {step === "password" && (
           <VerifyPasswordForm
-            onSubmit={(password) => {
-              setPassword(password)
-              sendEmailCodeMutation.mutateAsync(password)
+            onSubmit={(passwordValue) => {
+              setPassword(passwordValue)
+              sendEmailCodeMutation.mutateAsync(passwordValue)
             }}
             isPending={sendEmailCodeMutation.isPending}
             credentialsError={credentialsError}

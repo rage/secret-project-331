@@ -19,6 +19,8 @@
   "close-heading-menu": "Stäng rubriknavigering",
   "closed": "Stängd",
   "comboBox.toggleOptions": "Visa alternativ",
+  "copy-button.copied": "Kopierat",
+  "copy-button.failed": "Kopieringen misslyckades",
   "could-not-find-requested-resource": "Kunde inte hitta den begärda resursen",
   "courses": "Kurser",
   "create-new-account": "Skapa nytt konto",

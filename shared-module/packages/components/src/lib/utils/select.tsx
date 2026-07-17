@@ -3,19 +3,21 @@
 import { Item, Section } from "@react-stately/collections"
 import React from "react"
 
-export type SelectOption = {
+import { omitUndefined } from "./nullability"
+
+export interface SelectOption {
   value: string
   label: React.ReactNode
   textValue?: string
   isDisabled?: boolean
 }
 
-export type SelectOptionGroup = {
+export interface SelectOptionGroup {
   label: React.ReactNode
   options: readonly SelectOption[]
 }
 
-export type NormalizedSelectOption = {
+export interface NormalizedSelectOption {
   key: string
   value: string
   label: React.ReactNode
@@ -25,14 +27,14 @@ export type NormalizedSelectOption = {
   groupLabel?: React.ReactNode
 }
 
-export type NormalizedSelectCollection = {
+export interface NormalizedSelectCollection {
   options: readonly NormalizedSelectOption[]
   disabledKeys: readonly string[]
   valueToKey: Map<string, string>
 }
 
 function getNodeTextValue(node: React.ReactNode): string {
-  if (node == null || typeof node === "boolean") {
+  if (node === null || node === undefined || typeof node === "boolean") {
     return ""
   }
 
@@ -41,7 +43,7 @@ function getNodeTextValue(node: React.ReactNode): string {
   }
 
   if (Array.isArray(node)) {
-    return node.map(getNodeTextValue).join("")
+    return node.map((child) => getNodeTextValue(child)).join("")
   }
 
   if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
@@ -84,8 +86,7 @@ export function normalizeSelectOptions(
       label: option.label,
       textValue: option.textValue ?? getNodeTextValue(option.label),
       isDisabled: Boolean(option.isDisabled),
-      groupKey,
-      groupLabel,
+      ...omitUndefined({ groupKey, groupLabel }),
     }
 
     valueToKey.set(normalizedOption.value, normalizedOption.key)
@@ -99,7 +100,7 @@ export function normalizeSelectOptions(
 
   entries.forEach((entry, index) => {
     if (isSelectOptionGroup(entry)) {
-      // eslint-disable-next-line i18next/no-literal-string -- internal collection key
+      // oxlint-disable-next-line i18next/no-literal-string -- internal collection key
       const groupKey = `group-${index}`
       entry.options.forEach((option) => {
         pushOption(option, {
@@ -129,7 +130,7 @@ function buildItem(option: NormalizedSelectOption): React.ReactElement {
 }
 
 export function buildSelectCollectionNodes(collection: NormalizedSelectCollection) {
-  const orderedNodes: Array<React.ReactElement | { groupKey: string }> = []
+  const orderedNodes: (React.ReactElement | { groupKey: string })[] = []
   const sectionMap = new Map<string, { label: React.ReactNode; items: React.ReactElement[] }>()
 
   collection.options.forEach((option) => {
@@ -153,7 +154,7 @@ export function buildSelectCollectionNodes(collection: NormalizedSelectCollectio
 
   return orderedNodes
     .map((node) => {
-      if (node == null || !("groupKey" in node)) {
+      if (node === null || node === undefined || !("groupKey" in node)) {
         return node
       }
 
@@ -172,7 +173,7 @@ export function buildSelectCollectionNodes(collection: NormalizedSelectCollectio
         </Section>
       )
     })
-    .filter((node): node is React.ReactElement => node != null)
+    .filter((node): node is React.ReactElement => node !== null)
 }
 
 export function findSelectOptionByValue(

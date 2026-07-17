@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest"
 import { sandboxResultsHandlers } from "./sandboxResults"
 import { handleServiceInfo } from "./serviceInfo"
 import { handleStatusUp } from "./status"
-import { testRuns } from "./testRuns"
 import { handleTestrun } from "./testrun"
+import { testRuns } from "./testRuns"
 
 describe("GET /api/status/up", () => {
   it("returns true", async () => {

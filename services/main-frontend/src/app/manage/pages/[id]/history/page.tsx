@@ -3,10 +3,10 @@
 import { useParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import HistoryView from "./HistoryView"
-
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+
+import HistoryView from "./HistoryView"
 
 const History: React.FC = () => {
   const { t } = useTranslation()

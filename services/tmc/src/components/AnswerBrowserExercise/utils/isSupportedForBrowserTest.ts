@@ -1,6 +1,6 @@
-import { extensionToLanguage } from "./extensionToLanguage"
-
 import type { BrowserTestSpec } from "@/util/stateInterfaces"
+
+import { extensionToLanguage } from "./extensionToLanguage"
 
 /**
  * Returns true if the given file can be tested in the browser for the given runtime.
@@ -11,7 +11,7 @@ export function isSupportedForBrowserTest(
   runtime: BrowserTestSpec["runtime"],
 ): boolean {
   const lang = extensionToLanguage(filepath)
-  if (lang == null) {
+  if (lang === undefined) {
     return false
   }
   switch (runtime) {

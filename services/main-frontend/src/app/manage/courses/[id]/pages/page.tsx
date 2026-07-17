@@ -2,10 +2,10 @@
 
 import { useParams } from "next/navigation"
 
-import CoursePages from "./CoursePages"
-
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import CoursePages from "./CoursePages"
 
 function PagesPage() {
   const params = useParams<{ id: string }>()

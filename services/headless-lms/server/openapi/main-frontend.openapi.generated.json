@@ -5438,9 +5438,9 @@
       }
     },
     "/api/v0/main-frontend/courses/{course_id}/students/certificates": {
-      "get": {
+      "post": {
         "tags": ["course-students"],
-        "summary": "GET `/api/v0/main-frontend/courses/{course_id}/students/certificates`",
+        "summary": "POST `/api/v0/main-frontend/courses/{course_id}/students/certificates`",
         "operationId": "getCourseStudentsCertificates",
         "parameters": [
           {
@@ -5454,9 +5454,19 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserIdsPayload"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "Course certificates",
+            "description": "Course certificates for the given users",
             "content": {
               "application/json": {
                 "schema": {
@@ -5472,9 +5482,9 @@
       }
     },
     "/api/v0/main-frontend/courses/{course_id}/students/completions": {
-      "get": {
+      "post": {
         "tags": ["course-students"],
-        "summary": "GET `/api/v0/main-frontend/courses/{course_id}/students/completions`",
+        "summary": "POST `/api/v0/main-frontend/courses/{course_id}/students/completions`",
         "operationId": "getCourseStudentsCompletions",
         "parameters": [
           {
@@ -5488,9 +5498,19 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserIdsPayload"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "Course completions",
+            "description": "Course completions for the given users",
             "content": {
               "application/json": {
                 "schema": {
@@ -5506,10 +5526,51 @@
       }
     },
     "/api/v0/main-frontend/courses/{course_id}/students/progress": {
+      "post": {
+        "tags": ["course-students"],
+        "summary": "POST `/api/v0/main-frontend/courses/{course_id}/students/progress`",
+        "operationId": "getCourseStudentsProgress",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserIdsPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Per-user course progress for the given users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseStudentsProgressUsers"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/students/progress-structure": {
       "get": {
         "tags": ["course-students"],
-        "summary": "GET `/api/v0/main-frontend/courses/{course_id}/students/progress`",
-        "operationId": "getCourseStudentsProgress",
+        "summary": "GET `/api/v0/main-frontend/courses/{course_id}/students/progress-structure`",
+        "operationId": "getCourseStudentsProgressStructure",
         "parameters": [
           {
             "name": "course_id",
@@ -5524,11 +5585,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Course student progress overview",
+            "description": "Course-level progress structure",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProgressOverview"
+                  "$ref": "#/components/schemas/CourseStudentsProgressStructure"
                 }
               }
             }
@@ -5551,18 +5612,74 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-based)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page size (1-10000)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Filter by name/email substring or exact user id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_column",
+            "in": "query",
+            "description": "last_name | first_name | email",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_direction",
+            "in": "query",
+            "description": "asc | desc",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "course_instance_id",
+            "in": "query",
+            "description": "Filter to a single course instance",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Course users",
+            "description": "A page of enrolled students",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CourseUserInfo"
-                  }
+                  "$ref": "#/components/schemas/StudentsListPage"
                 }
               }
             }
@@ -10621,7 +10738,9 @@
             "description": "User",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
               }
             }
           }
@@ -10652,6 +10771,118 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CourseEnrollmentsInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/{user_id}/courses/{course_id}/submission-times": {
+      "get": {
+        "tags": ["users"],
+        "summary": "\nGET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise\nsubmission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.",
+        "operationId": "getUserCourseSubmissionTimes",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User course submission times",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserCourseSubmissionTime"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/{user_id}/roles": {
+      "get": {
+        "tags": ["users"],
+        "summary": "\nGET `/api/v0/main-frontend/users/:id/roles` - All roles held by a user, across scopes. Teacher/admin\n(global) view; used to label the account (e.g. staff/teacher) on the user-details page.",
+        "operationId": "getUserRoles",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User roles across scopes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Role"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/{user_id}/suspected-cheaters": {
+      "get": {
+        "tags": ["users"],
+        "summary": "\nGET `/api/v0/main-frontend/users/:id/suspected-cheaters` - Cross-course suspected-cheater records for\na user, each paired with the course's applicable duration threshold. Teacher/admin (global) view;\nread-only (confirm/dismiss happen on the per-course cheaters page).",
+        "operationId": "getUserSuspectedCheaters",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User suspected-cheater records across courses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserSuspectedCheaterInfo"
+                  }
                 }
               }
             }
@@ -11393,11 +11624,8 @@
       },
       "CertificateGridRow": {
         "type": "object",
-        "required": ["student", "certificate"],
+        "required": ["user_id"],
         "properties": {
-          "certificate": {
-            "type": "string"
-          },
           "certificate_id": {
             "type": ["string", "null"],
             "format": "uuid"
@@ -11409,8 +11637,9 @@
           "name_on_certificate": {
             "type": ["string", "null"]
           },
-          "student": {
-            "type": "string"
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           },
           "verification_id": {
             "type": ["string", "null"]
@@ -12092,22 +12321,31 @@
       },
       "CompletionGridRow": {
         "type": "object",
-        "required": ["student", "grade", "status", "needs_to_be_reviewed"],
+        "required": ["user_id", "module_id", "registered", "needs_to_be_reviewed"],
         "properties": {
           "grade": {
-            "type": "string"
+            "type": ["integer", "null"],
+            "format": "int32"
           },
           "module": {
             "type": ["string", "null"]
           },
+          "module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "needs_to_be_reviewed": {
             "type": "boolean"
           },
-          "status": {
-            "type": "string"
+          "passed": {
+            "type": ["boolean", "null"]
           },
-          "student": {
-            "type": "string"
+          "registered": {
+            "type": "boolean"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -12883,6 +13121,7 @@
           "course_id",
           "course",
           "course_instances",
+          "course_modules",
           "course_module_completions",
           "course_module_completions_needing_review",
           "first_enrolled_at",
@@ -12911,6 +13150,13 @@
           "course_module_completions_needing_review": {
             "type": "integer",
             "format": "int32"
+          },
+          "course_modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModuleInfo"
+            },
+            "description": "All non-deleted modules of the course, ordered by `order_number`."
           },
           "first_enrolled_at": {
             "type": "string",
@@ -13339,6 +13585,41 @@
           }
         }
       },
+      "CourseModuleInfo": {
+        "type": "object",
+        "description": "Slim module descriptor so the frontend can label per-module completions and show \"X of Y modules\"\nwithout a separate course-structure fetch. Default (base) module has `name = None`.",
+        "required": ["id", "order_number", "exercise_count", "daily_submissions"],
+        "properties": {
+          "daily_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailySubmissionCount"
+            },
+            "description": "This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none."
+          },
+          "exercise_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of non-deleted exercises in this module. Submission density is divided by this so courses\nof very different size stay comparable. `0` if the module has no chapter-bound exercises."
+          },
+          "first_submission_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Earliest exercise submission by this user in this module. No module \"start\" is stored, so the\nfrontend uses this to infer when an additional module was first worked on. `None` if untouched."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "CourseModuleThresholdInfo": {
         "type": "object",
         "description": "Per-module threshold configuration plus the policy-derived limits the configuration UI needs to\nrender and validate the threshold form. Computed server-side so the exemption rule and the\nminimum/default values live in one place instead of being duplicated in the frontend.",
@@ -13388,6 +13669,78 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Page"
+            }
+          }
+        }
+      },
+      "CourseStudentListRow": {
+        "type": "object",
+        "description": "One row of the paginated student identity list (one row per distinct enrolled user).",
+        "required": ["user_id", "course_instances", "has_active_instance"],
+        "properties": {
+          "course_instances": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Names of the non-deleted course instances the user is enrolled in for this course."
+          },
+          "email": {
+            "type": ["string", "null"]
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "has_active_instance": {
+            "type": "boolean",
+            "description": "Whether the user has any enrollment into a non-deleted instance. Separates the unnamed default\ninstance (true) from a since-deleted instance (false) when `course_instances` is empty."
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CourseStudentsProgressStructure": {
+        "type": "object",
+        "description": "Course-level progress structure for the Progress tab. Does not depend on which students are on\nthe current page, so it is fetched once and cached per course (not per identity page).",
+        "required": ["chapter_locking_enabled", "chapters", "chapter_availability"],
+        "properties": {
+          "chapter_availability": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterAvailability"
+            }
+          },
+          "chapter_locking_enabled": {
+            "type": "boolean"
+          },
+          "chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatabaseChapter"
+            }
+          }
+        }
+      },
+      "CourseStudentsProgressUsers": {
+        "type": "object",
+        "description": "Per-user progress detail for the Progress tab, scoped to the requested `user_ids`.",
+        "required": ["user_chapter_progress", "user_chapter_locking_statuses"],
+        "properties": {
+          "user_chapter_locking_statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserChapterLockingStatus"
+            }
+          },
+          "user_chapter_progress": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserChapterProgress"
             }
           }
         }
@@ -13461,28 +13814,6 @@
           }
         }
       },
-      "CourseUserInfo": {
-        "type": "object",
-        "required": ["user_id"],
-        "properties": {
-          "course_instance": {
-            "type": ["string", "null"]
-          },
-          "email": {
-            "type": ["string", "null"]
-          },
-          "first_name": {
-            "type": ["string", "null"]
-          },
-          "last_name": {
-            "type": ["string", "null"]
-          },
-          "user_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
       "CreateCourseDesignerPlanRequest": {
         "type": "object",
         "properties": {
@@ -13515,6 +13846,21 @@
           },
           "schedule": {
             "type": "string"
+          }
+        }
+      },
+      "DailySubmissionCount": {
+        "type": "object",
+        "description": "One UTC day's exercise-submission count for a module, used for the activity-density violins on the\ncross-course timeline. `day` is midnight of the day the submissions fall in.",
+        "required": ["day", "count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "day": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -16950,59 +17296,6 @@
           }
         }
       },
-      "ProgressOverview": {
-        "type": "object",
-        "required": [
-          "chapter_locking_enabled",
-          "user_details",
-          "chapters",
-          "user_exercise_states",
-          "chapter_availability",
-          "user_chapter_progress",
-          "user_chapter_locking_statuses"
-        ],
-        "properties": {
-          "chapter_availability": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ChapterAvailability"
-            }
-          },
-          "chapter_locking_enabled": {
-            "type": "boolean"
-          },
-          "chapters": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DatabaseChapter"
-            }
-          },
-          "user_chapter_locking_statuses": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserChapterLockingStatus"
-            }
-          },
-          "user_chapter_progress": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserChapterProgress"
-            }
-          },
-          "user_details": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserDetail"
-            }
-          },
-          "user_exercise_states": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserExerciseState"
-            }
-          }
-        }
-      },
       "ProposalCount": {
         "type": "object",
         "required": ["pending", "handled"],
@@ -17232,6 +17525,38 @@
           "Locked"
         ]
       },
+      "Role": {
+        "type": "object",
+        "required": ["is_global", "role", "user_id"],
+        "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_instance_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "is_global": {
+            "type": "boolean"
+          },
+          "organization_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "RoleDomain": {
         "oneOf": [
           {
@@ -17428,6 +17753,24 @@
           }
         }
       },
+      "StudentsListPage": {
+        "type": "object",
+        "description": "A page of the student identity list plus the total number of pages for the current filters.",
+        "required": ["data", "total_pages"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseStudentListRow"
+            }
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
       "SuspectedCheaterStatus": {
         "type": "string",
         "description": "Review state of a suspected cheater.",
@@ -17440,6 +17783,11 @@
           "course_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "course_module_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The module completion that triggered the flag. `None` only for legacy rows the backfill\ncouldn't map to a default module."
           },
           "created_at": {
             "type": "string",
@@ -17671,6 +18019,35 @@
           }
         }
       },
+      "User": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "email_domain": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "upstream_id": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          }
+        }
+      },
       "UserChapterLockingStatus": {
         "type": "object",
         "required": [
@@ -17873,6 +18250,26 @@
           }
         }
       },
+      "UserCourseSubmissionTime": {
+        "type": "object",
+        "description": "A single submission's time, its exercise, and the module that exercise sits in (via its chapter).\nUsed to plot a user's submission activity within a course.",
+        "required": ["created_at", "exercise_id"],
+        "properties": {
+          "course_module_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Module the exercise's chapter belongs to; `None` for exercises not placed in a chapter."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "UserDetail": {
         "type": "object",
         "required": ["user_id", "created_at", "updated_at", "email"],
@@ -17990,6 +18387,20 @@
           }
         }
       },
+      "UserIdsPayload": {
+        "type": "object",
+        "description": "Body for the batch detail endpoints: the users of the current identity-list page.",
+        "required": ["user_ids"],
+        "properties": {
+          "user_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
       "UserInfoPayload": {
         "type": "object",
         "required": ["email", "first_name", "last_name", "country", "email_communication_consent"],
@@ -18056,6 +18467,44 @@
           "TeachingAndLearningServices",
           "StatsViewer"
         ]
+      },
+      "UserSuspectedCheaterInfo": {
+        "type": "object",
+        "description": "A user's suspected-cheater record in one course, paired with that course's duration threshold.\nRead-only, for the cross-course \"Completion review\" list on the user-details page.",
+        "required": [
+          "course_id",
+          "status",
+          "total_points",
+          "first_flagged_at",
+          "threshold_seconds"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "first_flagged_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When first flagged in this course (record `created_at`, unchanged on re-flag)."
+          },
+          "status": {
+            "$ref": "#/components/schemas/SuspectedCheaterStatus"
+          },
+          "threshold_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Threshold (seconds) of the module that triggered the flag; the student completed faster."
+          },
+          "total_duration_seconds": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "total_points": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "UserWithModuleCompletions": {
         "type": "object",

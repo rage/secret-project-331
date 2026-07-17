@@ -2,9 +2,9 @@
 
 import { InnerBlocks } from "@wordpress/block-editor"
 
-import { gutenbergControlsHidden } from "../../../styles/EditorStyles"
-
 import type { TemplateArray } from "@/utils/Gutenberg/types"
+
+import { gutenbergControlsHidden } from "../../../styles/EditorStyles"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
 

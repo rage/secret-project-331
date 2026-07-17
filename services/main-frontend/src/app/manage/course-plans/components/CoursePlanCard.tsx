@@ -66,13 +66,13 @@ export default function CoursePlanCard({ plan }: CoursePlanCardProps) {
         return t("course-plans-stage-implementation")
       case "Evaluation":
         return t("course-plans-stage-evaluation")
-      case null:
-      case undefined:
+      default:
         return t("course-plans-none")
     }
   })()
 
   return (
+    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label comes from nested dynamic text (plan name/status)
     <button
       type="button"
       className={cardStyles}

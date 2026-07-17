@@ -1,11 +1,11 @@
-import { OldQuiz } from "../../types/oldQuizTypes"
-import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
-import { PrivateSpecQuizItemClosedEndedQuestion } from "../../types/quizTypes/privateSpec"
-
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { isOldQuiz } from "@/util/migration/migrationSettings"
 import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz"
 import { isSpecRequest } from "@/utils/exerciseServiceApi"
+
+import type { OldQuiz } from "../../types/oldQuizTypes"
+import type { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
+import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../types/quizTypes/privateSpec"
 
 const SERVICE = "quizzes"
 
@@ -53,9 +53,8 @@ async function postImpl(request: Request): Promise<Response> {
         },
         { status: 500 },
       )
-    } else {
-      return Response.json({ error_message: e }, { status: 500 })
     }
+    return Response.json({ error_message: e }, { status: 500 })
   }
 }
 

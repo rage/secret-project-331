@@ -25,6 +25,7 @@ const toPx = (value: string | number | undefined): number | undefined => {
   if (value === undefined || value === null || value === "") {
     return undefined
   }
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat intended; Number() differs
   const parsed = typeof value === "number" ? value : parseFloat(value)
   return Number.isFinite(parsed) ? parsed : undefined
 }
@@ -48,6 +49,7 @@ const withImageFocalPointReset = createHigherOrderComponent((BlockEdit) => {
       }
       let cancelled = false
       const image = new Image()
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- Image onload intentional property-handler
       image.onload = () => {
         if (!cancelled) {
           setNaturalSize({ width: image.naturalWidth, height: image.naturalHeight })
@@ -99,7 +101,7 @@ const withImageFocalPointReset = createHigherOrderComponent((BlockEdit) => {
 
   ImageFocalPointReset.displayName = "ImageFocalPointReset"
   return ImageFocalPointReset
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withImageFocalPointReset")
 
 export default withImageFocalPointReset

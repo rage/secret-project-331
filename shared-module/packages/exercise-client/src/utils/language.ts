@@ -24,7 +24,7 @@ export function mapLanguageCandidateToSupportedLanguage(
     return exactMatch
   }
 
-  const primarySubtag = normalizedLanguageCandidate.split(/[-_]/)[0]
+  const primarySubtag = normalizedLanguageCandidate.split(/[-_]/)[0] ?? normalizedLanguageCandidate
   const aliasedPrimarySubtag = LANGUAGE_ALIASES[primarySubtag] ?? primarySubtag
   if (isSupportedLanguage(aliasedPrimarySubtag)) {
     return aliasedPrimarySubtag

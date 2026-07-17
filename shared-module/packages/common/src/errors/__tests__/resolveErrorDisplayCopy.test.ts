@@ -1,4 +1,4 @@
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 
 import { normalizeErrorForDisplay } from "../normalizeErrorForDisplay"
 import { resolveErrorDisplayCopy } from "../resolveErrorDisplayCopy"

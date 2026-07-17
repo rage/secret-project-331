@@ -43,5 +43,5 @@ export default function OrganizationLayout({ children }: { children: React.React
 
   useRegisterBreadcrumbs({ key: `organization:${id}`, order: 20, crumbs })
 
-  return <>{children}</>
+  return children
 }

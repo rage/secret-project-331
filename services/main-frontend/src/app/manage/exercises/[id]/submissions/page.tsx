@@ -6,8 +6,6 @@ import { useParams } from "next/navigation"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ExerciseSubmissionList from "./ExerciseSubmissionList"
-
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
   getExerciseCsvExportTaskOptionsOptions,
@@ -17,11 +15,11 @@ import {
 import type { ExerciseCsvExportTaskOption } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import Pagination from "@/shared-module/common/components/Pagination"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -29,6 +27,8 @@ import { fontWeights } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResults } from "@/shared-module/components"
+
+import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
 type ExportMode = "definitions" | "answers"
 
@@ -106,11 +106,12 @@ const SubmissionsPage: React.FC = () => {
 
   const openExportDialog = (mode: ExportMode) => {
     const options = mode === "definitions" ? definitionTaskOptions : answerTaskOptions
-    if (options.length === 0) {
+    const firstOption = options[0]
+    if (firstOption === undefined) {
       return
     }
     setExportMode(mode)
-    setSelectedTaskId(options[0].exercise_task_id)
+    setSelectedTaskId(firstOption.exercise_task_id)
     setIsExportDialogOpen(true)
   }
 
@@ -119,9 +120,9 @@ const SubmissionsPage: React.FC = () => {
 
   const exportHref =
     exportMode === "definitions"
-      ? // eslint-disable-next-line i18next/no-literal-string
+      ? // oxlint-disable-next-line i18next/no-literal-string
         `/api/v0/main-frontend/exercises/${id}/export-definitions-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}`
-      : // eslint-disable-next-line i18next/no-literal-string
+      : // oxlint-disable-next-line i18next/no-literal-string
         `/api/v0/main-frontend/exercises/${id}/export-answers-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}${onlyLatestPerUser ? "&only_latest_per_user=true" : ""}`
 
   return (
@@ -164,7 +165,7 @@ const SubmissionsPage: React.FC = () => {
         <Button
           variant="secondary"
           size="small"
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           onClick={() => openExportDialog("definitions")}
           disabled={
             csvExportTaskOptionsQuery.isLoading ||
@@ -177,7 +178,7 @@ const SubmissionsPage: React.FC = () => {
         <Button
           variant="secondary"
           size="small"
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           onClick={() => openExportDialog("answers")}
           disabled={
             csvExportTaskOptionsQuery.isLoading ||

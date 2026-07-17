@@ -1,10 +1,10 @@
+import basePath from "@/lib/basePath"
+
 /**
  * Pyodide version and base URL. Single source of truth: pyodide-version.json.
  * Workers get the same URL injected at build time via scripts/inject-pyodide-version.cjs.
  */
 import config from "./pyodide-version.json"
-
-import basePath from "@/lib/basePath"
 
 export const PYODIDE_VERSION = config.version
 

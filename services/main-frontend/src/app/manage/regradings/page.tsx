@@ -21,10 +21,10 @@ import type {
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Pagination from "@/shared-module/common/components/Pagination"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -62,13 +62,13 @@ const RegradingsPage: React.FC = () => {
     handleSubmit,
     formState: { isValid },
   } = useForm<Fields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       ids: "",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       userPointsUpdateStrategy: "CanAddPointsButCannotRemovePoints",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       idType: "ExerciseTaskSubmissionId",
     },
   })
@@ -79,7 +79,7 @@ const RegradingsPage: React.FC = () => {
       onSuccess: (data) => {
         setNewRegradingDialogOpen(false)
         reset()
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         router.push(`/manage/regradings/${data}`)
       },
     },
@@ -104,19 +104,19 @@ const RegradingsPage: React.FC = () => {
                 font-size: 13px;
               `}
             >
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>id</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>created_at</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>updated_at</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>regrading_started_at</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>regrading_completed_at</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>total_grading_progress</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>user_points_update_strategy</th>
             </tr>
           </thead>
@@ -131,14 +131,14 @@ const RegradingsPage: React.FC = () => {
                 <td>
                   {regrading.regrading_started_at
                     ? dateToString(regrading.regrading_started_at)
-                    : // eslint-disable-next-line i18next/no-literal-string
+                    : // oxlint-disable-next-line i18next/no-literal-string
                       "null"}
                 </td>
                 <td>
                   {" "}
                   {regrading.regrading_completed_at
                     ? dateToString(regrading.regrading_completed_at)
-                    : // eslint-disable-next-line i18next/no-literal-string
+                    : // oxlint-disable-next-line i18next/no-literal-string
                       "null"}
                 </td>
                 <td>{regrading.total_grading_progress}</td>
@@ -172,13 +172,13 @@ const RegradingsPage: React.FC = () => {
           options={[
             {
               label: t("option-exercise-task-submission-id"),
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               value: "ExerciseTaskSubmissionId" satisfies NewRegradingIdType,
             },
 
             {
               label: t("option-exercise-id"),
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               value: "ExerciseId" satisfies NewRegradingIdType,
             },
           ]}
@@ -205,13 +205,13 @@ const RegradingsPage: React.FC = () => {
           options={[
             {
               label: t("option-can-add-points-but-cannot-remove-points"),
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               value: "CanAddPointsButCannotRemovePoints" satisfies UserPointsUpdateStrategy,
             },
 
             {
               label: t("option-can-add-points-and-can-remove-points"),
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               value: "CanAddPointsAndCanRemovePoints" satisfies UserPointsUpdateStrategy,
             },
           ]}
@@ -222,7 +222,7 @@ const RegradingsPage: React.FC = () => {
           variant="primary"
           size="medium"
           disabled={!isValid || newRegradingMutation.isPending}
-          onClick={handleSubmit(async (data) => {
+          onClick={handleSubmit((data) => {
             const lines = data.ids
               .trim()
               .split("\n")

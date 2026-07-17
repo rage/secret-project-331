@@ -1,7 +1,7 @@
 import basePath from "@/lib/basePath"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { jsonOk } from "@/util/apiResponse"
-import { ExerciseServiceInfoApi } from "@/util/exerciseServiceApi"
+import type { ExerciseServiceInfoApi } from "@/util/exerciseServiceApi"
 
 /** Endpoint metadata the host backend reads to discover this plugin (base-path-prefixed). */
 function getImpl() {

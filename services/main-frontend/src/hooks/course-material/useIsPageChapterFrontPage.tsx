@@ -9,11 +9,11 @@ const useIsPageChapterFrontPage = (pageId: string | undefined) => {
   const isChapterFrontPageQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: pageId,
-      isReady: (pageId): pageId is string => Boolean(pageId),
-      build: (pageId) =>
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
         getCourseMaterialIsPageChapterFrontPageOptions({
           path: {
-            current_page_id: pageId,
+            current_page_id: id,
           },
         }),
     }),

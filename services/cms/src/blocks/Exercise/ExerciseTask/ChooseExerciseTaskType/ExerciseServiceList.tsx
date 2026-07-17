@@ -2,12 +2,12 @@
 
 import { css } from "@emotion/css"
 
-import useAllExerciseServices from "../../../../hooks/useAllExerciseServices"
-
-import { ExerciseServiceIframeRenderingInfo } from "@/generated/api"
+import type { ExerciseServiceIframeRenderingInfo } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import useAllExerciseServices from "../../../../hooks/useAllExerciseServices"
 
 interface Props {
   onChooseItem: (task: ExerciseServiceIframeRenderingInfo) => void

@@ -247,7 +247,9 @@ describe("usePageTitle + PageTitleManager", () => {
 
     // Let the post-navigation settle window close (the setTimeout(0) in the manager fires).
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0)
+      })
     })
     announceMock.mockClear()
 
@@ -271,7 +273,9 @@ describe("usePageTitle + PageTitleManager", () => {
     // Close the initial-mount settle window FIRST, so the suppression asserted below is caused by
     // the navigation-detection branch and not by a still-open initial window.
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0)
+      })
     })
     announceMock.mockClear()
 
@@ -293,7 +297,9 @@ describe("usePageTitle + PageTitleManager", () => {
       </App>,
     )
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0)
+      })
     })
     announceMock.mockClear()
 

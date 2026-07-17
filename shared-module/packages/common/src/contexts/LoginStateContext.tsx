@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import React, { ComponentType, useContext, useEffect, useRef, useState } from "react"
+import type { ComponentType } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "../components/ErrorBanner"
@@ -13,7 +14,7 @@ import "../init/registerAuthApiClients"
 
 export interface LoginState {
   isLoading: boolean
-  refresh(): Promise<unknown>
+  refresh: () => Promise<unknown>
   signedIn: boolean | null | undefined
 }
 
@@ -72,7 +73,7 @@ export function withSignedIn<T>(Component: ComponentType<T>): React.FC<T> {
         const returnTo = encodeURIComponent(
           window.location.pathname + window.location.search + window.location.hash,
         )
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         router.replace(`/login?return_to=${returnTo}`)
       }
     }, [loginStateContext.isLoading, loginStateContext.signedIn, router])
@@ -85,7 +86,7 @@ export function withSignedIn<T>(Component: ComponentType<T>): React.FC<T> {
       return <div>{t("please-sign-in-to-view-this-page")}</div>
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // oxlint-disable-next-line typescript/ban-ts-comment
     // @ts-ignore: Shared module might have a diffrerent react version
     return <Component {...props} />
   }

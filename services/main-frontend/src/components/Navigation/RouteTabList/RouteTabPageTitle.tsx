@@ -3,11 +3,11 @@
 import { usePathname } from "next/navigation"
 import type React from "react"
 
-import type { RouteTabDefinition } from "./RouteTab"
-import { resolveActiveTab } from "./resolveActiveTab"
-
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+
+import { resolveActiveTab } from "./resolveActiveTab"
+import type { RouteTabDefinition } from "./RouteTab"
 
 interface RouteTabPageTitleProps {
   tabs: RouteTabDefinition[]
@@ -33,6 +33,9 @@ export const RouteTabPageTitle: React.FC<RouteTabPageTitleProps> = ({
   // /manage/courses/{id}/user-status-summary/{id}), we want the title to be the entity name
   // alone, not a misleading "{first tab} - {entity}".
   const activeTab = resolveActiveTab(tabs, pathname, false)
-  usePageTitle(joinTitleSegments([activeTab?.title, entityName]), { order })
+  usePageTitle(
+    joinTitleSegments([activeTab?.title, entityName]),
+    order !== undefined ? { order } : {},
+  )
   return null
 }

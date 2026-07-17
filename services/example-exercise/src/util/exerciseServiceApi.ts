@@ -1,4 +1,4 @@
-export type ExerciseTaskGradingResult = {
+export interface ExerciseTaskGradingResult {
   feedback_json: unknown
   feedback_text: string | null
   grading_progress: "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
@@ -6,7 +6,7 @@ export type ExerciseTaskGradingResult = {
   score_maximum: number
 }
 
-export type ExerciseServiceInfoApi = {
+export interface ExerciseServiceInfoApi {
   service_name: string
   user_interface_iframe_path: string
   grade_endpoint_path: string
@@ -16,7 +16,7 @@ export type ExerciseServiceInfoApi = {
   csv_export_answers_endpoint_path?: string | null
 }
 
-export type SpecRequest = {
+export interface SpecRequest {
   request_id: string
   private_spec: unknown
   upload_url: string | null

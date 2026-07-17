@@ -2,11 +2,11 @@
 
 import { css } from "@emotion/css"
 
-import { BlockRendererProps } from "."
-
-import { BlockAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { BlockAttributes } from "@/../types/GutenbergBlockAttributes"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "."
 
 const DefaultBlock: React.FC<React.PropsWithChildren<BlockRendererProps<BlockAttributes>>> = ({
   data,

@@ -1,12 +1,12 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { formatLTR } from "@wordpress/icons"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import HighlightEditor from "./HighlightEditor"
 import HighlightSave from "./HighlightSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface HighlightAttributes {
   title: string

@@ -3,6 +3,15 @@
 import { css } from "@emotion/css"
 import React, { useContext, useState } from "react"
 
+import type { NewResearchForm, ResearchForm } from "@/generated/api"
+import Button from "@/shared-module/common/components/Button"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
 import { blockTypeMapForResearchConsentForm } from "../../blocks"
 import { allowedResearchFormCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
@@ -11,15 +20,6 @@ import { isBlockInstanceArray } from "../../utils/Gutenberg/blockInstance"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
-
-import { NewResearchForm, ResearchForm } from "@/generated/api"
-import Button from "@/shared-module/common/components/Button"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-import type { BlockInstance } from "@/utils/Gutenberg/types"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface ResearchFormEditorProps {
   data: ResearchForm
@@ -41,7 +41,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [content, setContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "moocfi/research-consent-question",
     ]) as BlockInstance[],
   )
@@ -50,7 +50,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [currentContent, setCurrentContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "moocfi/research-consent-question",
     ]) as BlockInstance[],
   )

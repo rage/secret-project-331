@@ -4,12 +4,12 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/RouteTabListContext"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { RouteTabPanel } from "@/components/Navigation/RouteTabList/RouteTabPanel"
-import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCountAnswersRequiringAttentionHook from "@/hooks/count/useCountAnswersRequiringAttentionHook"
 import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
 import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
@@ -159,7 +159,7 @@ export default function CourseManagementLayout({ children }: { children: React.R
         key: KEY_OTHER,
         title: t("title-other"),
         href: manageCourseOtherReferencesRoute(courseId),
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         pathPrefix: `/manage/courses/${courseId}/other`,
         countHook: flaggedCheaterCountHook,
       },

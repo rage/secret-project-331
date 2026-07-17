@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { TextareaHTMLAttributes, useEffect, useRef } from "react"
+import type { TextareaHTMLAttributes } from "react"
+import React, { useEffect, useRef } from "react"
 
 export interface TextFieldProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
@@ -13,7 +14,7 @@ export interface TextFieldProps extends TextareaHTMLAttributes<HTMLTextAreaEleme
 function updateHeight(ref: React.RefObject<HTMLTextAreaElement | null>) {
   if (ref.current) {
     ref.current.style.height = "20px"
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     ref.current.style.height = `${ref.current.scrollHeight /* + 5 */}px`
   }
 }

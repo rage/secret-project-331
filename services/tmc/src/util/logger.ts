@@ -1,4 +1,4 @@
-export type Logger = {
+export interface Logger {
   log: (message: string, ...args: unknown[]) => void
   debug: (message: string, ...args: unknown[]) => void
   error: (message: string, ...args: unknown[]) => void

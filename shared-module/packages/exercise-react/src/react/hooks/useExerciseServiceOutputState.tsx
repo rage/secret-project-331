@@ -2,13 +2,13 @@
 
 import { useCallback, useContext, useMemo } from "react"
 
-import { ExerciseServiceContextType } from "../contexts/ExerciseServiceContext"
-
+import type { UpdateFunction } from "@/shared-module/exercise-client/client/outputState"
 import {
   applyOutputStateUpdate,
   postCurrentStateMessage,
-  UpdateFunction,
 } from "@/shared-module/exercise-client/client/outputState"
+
+import type { ExerciseServiceContextType } from "../contexts/ExerciseServiceContext"
 
 export type { UpdateFunction }
 

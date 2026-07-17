@@ -1,7 +1,0 @@
-node_modules
-target
-.next
-out
-kubernetes
-**/.sqlx/**/*.json
-services/headless-lms/chatbot/schemas/vega-lite-v6.json

@@ -5,14 +5,14 @@ import { addMinutes, differenceInSeconds, min, parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import ExamTimeOverModal from "@/components/course-material/modals/ExamTimeOverModal"
+import Page from "@/components/course-material/Page"
+import type { ExamData } from "@/generated/course-material-api/types.generated"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+
 import CenteredClockSkewWarning from "./CenteredClockSkewWarning"
 import ExamInfoHeader from "./ExamInfoHeader"
 import ExamTimer from "./ExamTimer"
-
-import Page from "@/components/course-material/Page"
-import ExamTimeOverModal from "@/components/course-material/modals/ExamTimeOverModal"
-import type { ExamData } from "@/generated/course-material-api/types.generated"
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 export interface ExamRunningSectionProps {
   examData: ExamData

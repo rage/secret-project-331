@@ -3,12 +3,12 @@
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import EditProposalPage from "./EditProposalPage"
-
 import { getEditProposalCountOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
+
+import EditProposalPage from "./EditProposalPage"
 
 interface Props {
   courseId: string

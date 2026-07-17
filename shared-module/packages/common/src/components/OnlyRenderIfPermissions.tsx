@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useContext } from "react"
 
-import { Action, Resource } from "../authApiTypes"
+import type { Action, Resource } from "../authApiTypes"
 import LoginStateContext from "../contexts/LoginStateContext"
 import { getAuthUserInfoOptions } from "../generated/auth-api/@tanstack/react-query.generated"
 import { postAuthAuthorize } from "../generated/auth-api/sdk.generated"
@@ -26,7 +26,7 @@ const OnlyRenderIfPermissions: React.FC<React.PropsWithChildren<ComponentProps>>
     ...getAuthUserInfoOptions(),
     enabled: loginState.signedIn === true,
   })
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const userScopedCacheKey = userInfo.data?.user_id ?? "anonymous"
   const data = useQuery({
     queryKey: [
@@ -41,11 +41,11 @@ const OnlyRenderIfPermissions: React.FC<React.PropsWithChildren<ComponentProps>>
 
   if (loginState.signedIn !== true || data.isLoading || data.isError || !data.data) {
     if (elseRender) {
-      return <>{elseRender}</>
+      return elseRender
     }
     return null
   }
-  return <>{children}</>
+  return children
 }
 
 export default OnlyRenderIfPermissions

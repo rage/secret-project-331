@@ -6,8 +6,6 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
-
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { getExerciseAnswersRequiringAttentionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
@@ -21,6 +19,8 @@ import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
 
 const ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE = [15, 50, 100, 1000, 10000]
 const ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT = 50

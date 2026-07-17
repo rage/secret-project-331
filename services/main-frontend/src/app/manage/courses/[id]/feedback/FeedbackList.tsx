@@ -3,12 +3,12 @@
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import FeedbackPage from "./FeedbackPage"
-
 import { getCourseFeedbackCountOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
+
+import FeedbackPage from "./FeedbackPage"
 
 interface Props {
   courseId: string

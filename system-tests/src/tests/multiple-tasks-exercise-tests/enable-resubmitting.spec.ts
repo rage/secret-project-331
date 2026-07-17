@@ -1,12 +1,12 @@
 import { test } from "@playwright/test"
 
-import { ChapterSelector } from "../../utils/components/ChapterSelector"
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import { scrollLocatorsParentIframeToViewIfNeeded } from "../../utils/iframeLocators"
-
 import { selectOrganization } from "@/utils/organizationUtils"
 import { waitForLocatorToBeStable } from "@/utils/waitForLocatorToBeStable"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
+import { ChapterSelector } from "../../utils/components/ChapterSelector"
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { scrollLocatorsParentIframeToViewIfNeeded } from "../../utils/iframeLocators"
 
 test.use({
   storageState: "src/states/user@example.com.json",

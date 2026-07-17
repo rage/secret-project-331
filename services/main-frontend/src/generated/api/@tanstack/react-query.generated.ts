@@ -154,6 +154,7 @@ import {
   getCourseStudentsCertificates,
   getCourseStudentsCompletions,
   getCourseStudentsProgress,
+  getCourseStudentsProgressStructure,
   getCourseStudentsUsers,
   getCourseSubmissionCountsByExercise,
   getCourseSuspectedCheaters,
@@ -247,16 +248,19 @@ import {
   getUniqueUsersStartingHistoryCustomTimePeriod,
   getUser,
   getUserCourseEnrollments,
+  getUserCourseSubmissionTimes,
   getUserDetailsByCourseAndUserId,
   getUserDetailsByCourses,
   getUserDetailsForAuthenticatedUser,
   getUserResearchConsent,
   getUserResearchFormQuestionAnswers,
   getUserResetExerciseLogs,
+  getUserRoles,
   getUsersByCourseIdForUserDetails,
   getUsersIpCountry,
   getUsersReturningExercisesHistory,
   getUsersReturningExercisesHistoryByInstance,
+  getUserSuspectedCheaters,
   introspectOauthToken,
   joinCourseWithJoinCode,
   markFeedbackAsRead,
@@ -567,6 +571,8 @@ import type {
   GetCourseStudentsCompletionsResponse,
   GetCourseStudentsProgressData,
   GetCourseStudentsProgressResponse,
+  GetCourseStudentsProgressStructureData,
+  GetCourseStudentsProgressStructureResponse,
   GetCourseStudentsUsersData,
   GetCourseStudentsUsersResponse,
   GetCourseSubmissionCountsByExerciseData,
@@ -747,6 +753,8 @@ import type {
   GetUniqueUsersStartingHistoryResponse,
   GetUserCourseEnrollmentsData,
   GetUserCourseEnrollmentsResponse,
+  GetUserCourseSubmissionTimesData,
+  GetUserCourseSubmissionTimesResponse,
   GetUserData,
   GetUserDetailsByCourseAndUserIdData,
   GetUserDetailsByCourseAndUserIdResponse,
@@ -760,6 +768,9 @@ import type {
   GetUserResearchFormQuestionAnswersResponse,
   GetUserResetExerciseLogsData,
   GetUserResetExerciseLogsResponse,
+  GetUserResponse,
+  GetUserRolesData,
+  GetUserRolesResponse,
   GetUsersByCourseIdForUserDetailsData,
   GetUsersByCourseIdForUserDetailsResponse,
   GetUsersIpCountryData,
@@ -768,6 +779,8 @@ import type {
   GetUsersReturningExercisesHistoryByInstanceResponse,
   GetUsersReturningExercisesHistoryData,
   GetUsersReturningExercisesHistoryResponse,
+  GetUserSuspectedCheatersData,
+  GetUserSuspectedCheatersResponse,
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
@@ -4725,80 +4738,105 @@ export const getCourseStructureOptions = (options: Options<GetCourseStructureDat
     queryKey: getCourseStructureQueryKey(options),
   })
 
-export const getCourseStudentsCertificatesQueryKey = (
-  options: Options<GetCourseStudentsCertificatesData>,
-) => createQueryKey("getCourseStudentsCertificates", options)
-
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/certificates`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/certificates`
  */
-export const getCourseStudentsCertificatesOptions = (
-  options: Options<GetCourseStudentsCertificatesData>,
-) =>
-  queryOptions<
+export const getCourseStudentsCertificatesMutation = (
+  options?: Partial<Options<GetCourseStudentsCertificatesData>>,
+): UseMutationOptions<
+  GetCourseStudentsCertificatesResponse,
+  DefaultError,
+  Options<GetCourseStudentsCertificatesData>
+> => {
+  const mutationOptions: UseMutationOptions<
     GetCourseStudentsCertificatesResponse,
     DefaultError,
-    GetCourseStudentsCertificatesResponse,
-    ReturnType<typeof getCourseStudentsCertificatesQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
+    Options<GetCourseStudentsCertificatesData>
+  > = {
+    mutationFn: async (fnOptions) =>
       await getCourseStudentsCertificates({
         ...options,
-        ...queryKey[0],
-        signal,
+        ...fnOptions,
         throwOnError: true,
       }),
-    queryKey: getCourseStudentsCertificatesQueryKey(options),
-  })
-
-export const getCourseStudentsCompletionsQueryKey = (
-  options: Options<GetCourseStudentsCompletionsData>,
-) => createQueryKey("getCourseStudentsCompletions", options)
+  }
+  return mutationOptions
+}
 
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/completions`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/completions`
  */
-export const getCourseStudentsCompletionsOptions = (
-  options: Options<GetCourseStudentsCompletionsData>,
-) =>
-  queryOptions<
+export const getCourseStudentsCompletionsMutation = (
+  options?: Partial<Options<GetCourseStudentsCompletionsData>>,
+): UseMutationOptions<
+  GetCourseStudentsCompletionsResponse,
+  DefaultError,
+  Options<GetCourseStudentsCompletionsData>
+> => {
+  const mutationOptions: UseMutationOptions<
     GetCourseStudentsCompletionsResponse,
     DefaultError,
-    GetCourseStudentsCompletionsResponse,
-    ReturnType<typeof getCourseStudentsCompletionsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
+    Options<GetCourseStudentsCompletionsData>
+  > = {
+    mutationFn: async (fnOptions) =>
       await getCourseStudentsCompletions({
         ...options,
-        ...queryKey[0],
-        signal,
+        ...fnOptions,
         throwOnError: true,
       }),
-    queryKey: getCourseStudentsCompletionsQueryKey(options),
-  })
-
-export const getCourseStudentsProgressQueryKey = (
-  options: Options<GetCourseStudentsProgressData>,
-) => createQueryKey("getCourseStudentsProgress", options)
+  }
+  return mutationOptions
+}
 
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/progress`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/progress`
  */
-export const getCourseStudentsProgressOptions = (options: Options<GetCourseStudentsProgressData>) =>
-  queryOptions<
+export const getCourseStudentsProgressMutation = (
+  options?: Partial<Options<GetCourseStudentsProgressData>>,
+): UseMutationOptions<
+  GetCourseStudentsProgressResponse,
+  DefaultError,
+  Options<GetCourseStudentsProgressData>
+> => {
+  const mutationOptions: UseMutationOptions<
     GetCourseStudentsProgressResponse,
     DefaultError,
-    GetCourseStudentsProgressResponse,
-    ReturnType<typeof getCourseStudentsProgressQueryKey>
+    Options<GetCourseStudentsProgressData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await getCourseStudentsProgress({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseStudentsProgressStructureQueryKey = (
+  options: Options<GetCourseStudentsProgressStructureData>,
+) => createQueryKey("getCourseStudentsProgressStructure", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/students/progress-structure`
+ */
+export const getCourseStudentsProgressStructureOptions = (
+  options: Options<GetCourseStudentsProgressStructureData>,
+) =>
+  queryOptions<
+    GetCourseStudentsProgressStructureResponse,
+    DefaultError,
+    GetCourseStudentsProgressStructureResponse,
+    ReturnType<typeof getCourseStudentsProgressStructureQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) =>
-      await getCourseStudentsProgress({
+      await getCourseStudentsProgressStructure({
         ...options,
         ...queryKey[0],
         signal,
         throwOnError: true,
       }),
-    queryKey: getCourseStudentsProgressQueryKey(options),
+    queryKey: getCourseStudentsProgressStructureQueryKey(options),
   })
 
 export const getCourseStudentsUsersQueryKey = (options: Options<GetCourseStudentsUsersData>) =>
@@ -4823,6 +4861,54 @@ export const getCourseStudentsUsersOptions = (options: Options<GetCourseStudents
       }),
     queryKey: getCourseStudentsUsersQueryKey(options),
   })
+
+export const getCourseStudentsUsersInfiniteQueryKey = (
+  options: Options<GetCourseStudentsUsersData>,
+): QueryKey<Options<GetCourseStudentsUsersData>> =>
+  createQueryKey("getCourseStudentsUsers", options, true)
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/students/users`
+ */
+export const getCourseStudentsUsersInfiniteOptions = (
+  options: Options<GetCourseStudentsUsersData>,
+) => {
+  const opts = infiniteQueryOptions<
+    GetCourseStudentsUsersResponse,
+    DefaultError,
+    InfiniteData<GetCourseStudentsUsersResponse>,
+    QueryKey<Options<GetCourseStudentsUsersData>>,
+    | number
+    | Pick<QueryKey<Options<GetCourseStudentsUsersData>>[0], "body" | "headers" | "path" | "query">
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetCourseStudentsUsersData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await getCourseStudentsUsers({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: getCourseStudentsUsersInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getCourseStudentChapterLockingStatusesQueryKey = (
   options: Options<GetCourseStudentChapterLockingStatusesData>,
@@ -9261,7 +9347,7 @@ export const getUserQueryKey = (options: Options<GetUserData>) => createQueryKey
  * GET `/api/v0/main-frontend/users/:id`
  */
 export const getUserOptions = (options: Options<GetUserData>) =>
-  queryOptions<unknown, DefaultError, unknown, ReturnType<typeof getUserQueryKey>>({
+  queryOptions<GetUserResponse, DefaultError, GetUserResponse, ReturnType<typeof getUserQueryKey>>({
     queryFn: async ({ queryKey, signal }) =>
       await getUser({
         ...options,
@@ -9294,6 +9380,85 @@ export const getUserCourseEnrollmentsOptions = (options: Options<GetUserCourseEn
         throwOnError: true,
       }),
     queryKey: getUserCourseEnrollmentsQueryKey(options),
+  })
+
+export const getUserCourseSubmissionTimesQueryKey = (
+  options: Options<GetUserCourseSubmissionTimesData>,
+) => createQueryKey("getUserCourseSubmissionTimes", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise
+ * submission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.
+ */
+export const getUserCourseSubmissionTimesOptions = (
+  options: Options<GetUserCourseSubmissionTimesData>,
+) =>
+  queryOptions<
+    GetUserCourseSubmissionTimesResponse,
+    DefaultError,
+    GetUserCourseSubmissionTimesResponse,
+    ReturnType<typeof getUserCourseSubmissionTimesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getUserCourseSubmissionTimes({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getUserCourseSubmissionTimesQueryKey(options),
+  })
+
+export const getUserRolesQueryKey = (options: Options<GetUserRolesData>) =>
+  createQueryKey("getUserRoles", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/roles` - All roles held by a user, across scopes. Teacher/admin
+ * (global) view; used to label the account (e.g. staff/teacher) on the user-details page.
+ */
+export const getUserRolesOptions = (options: Options<GetUserRolesData>) =>
+  queryOptions<
+    GetUserRolesResponse,
+    DefaultError,
+    GetUserRolesResponse,
+    ReturnType<typeof getUserRolesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getUserRoles({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getUserRolesQueryKey(options),
+  })
+
+export const getUserSuspectedCheatersQueryKey = (options: Options<GetUserSuspectedCheatersData>) =>
+  createQueryKey("getUserSuspectedCheaters", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/suspected-cheaters` - Cross-course suspected-cheater records for
+ * a user, each paired with the course's applicable duration threshold. Teacher/admin (global) view;
+ * read-only (confirm/dismiss happen on the per-course cheaters page).
+ */
+export const getUserSuspectedCheatersOptions = (options: Options<GetUserSuspectedCheatersData>) =>
+  queryOptions<
+    GetUserSuspectedCheatersResponse,
+    DefaultError,
+    GetUserSuspectedCheatersResponse,
+    ReturnType<typeof getUserSuspectedCheatersQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getUserSuspectedCheaters({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getUserSuspectedCheatersQueryKey(options),
   })
 
 export const getUserResetExerciseLogsQueryKey = (options: Options<GetUserResetExerciseLogsData>) =>

@@ -3,13 +3,6 @@
 import { css } from "@emotion/css"
 import React, { useReducer, useState } from "react"
 
-import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
-import { supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
-import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
-import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
-import SerializeGutenbergModal from "../SerializeGutenbergModal"
-import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
-
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -17,6 +10,13 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
+import { supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
+import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
+import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
+import SerializeGutenbergModal from "../SerializeGutenbergModal"
 
 const GutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 

@@ -1,4 +1,4 @@
-/* eslint-disable playwright/no-wait-for-timeout */
+/* oxlint-disable playwright/no-wait-for-timeout */
 import { expect, test } from "@playwright/test"
 
 import { respondToConfirmDialog } from "@/utils/dialogs"
@@ -11,7 +11,7 @@ test.use({
 })
 
 // TODO: Temporarily disabled
-// eslint-disable-next-line playwright/no-skipped-test
+// oxlint-disable-next-line playwright/no-skipped-test
 test.skip("Testing exam works", async ({ page }) => {
   await test.step("Create exam", async () => {
     await page.goto("http://project-331.local/organizations")

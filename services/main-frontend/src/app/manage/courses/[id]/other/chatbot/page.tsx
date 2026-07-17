@@ -3,12 +3,12 @@
 import { useParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 
-import ChatbotPage from "./ChatbotPage"
-
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { manageCourseOtherReferencesRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import ChatbotPage from "./ChatbotPage"
 
 function OtherChatbotPage() {
   const params = useParams<{ id: string }>()

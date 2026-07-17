@@ -90,7 +90,7 @@ describe("CodeBlock", () => {
         () => {
           const highlighted = container.querySelectorAll(".highlighted-line")
           expect(highlighted.length).toBeGreaterThanOrEqual(1)
-          expect(highlighted[0].textContent).toContain("line1")
+          expect(highlighted[0]!.textContent).toContain("line1")
         },
         { timeout: 2000 },
       )
@@ -150,7 +150,7 @@ describe("CodeBlock", () => {
       expect(copied).toBeDefined()
       const processed = replaceBrTagsWithNewlines(contentWithBrAndMarkers)
       const { cleanCode: expected } = parseHighlightedCode(processed ?? "")
-      expect(String(copied).replace(/\r\n/g, "\n")).toBe(expected)
+      expect(String(copied).replaceAll("\r\n", "\n")).toBe(expected)
     })
 
     it("copies code with blank lines preserved when marker-only lines are removed", async () => {
@@ -192,21 +192,21 @@ describe("CodeBlock", () => {
         () => {
           const lines = container.querySelectorAll(".code-line")
           expect(lines.length).toBe(7)
-          expect(lines[0].textContent).toBe("top")
-          expect(lines[1].textContent).toBe("")
-          expect(lines[2].textContent).toBe("")
-          expect(lines[3].textContent).toBe("inside")
-          expect(lines[4].textContent).toBe("")
-          expect(lines[5].textContent).toBe("")
-          expect(lines[6].textContent).toBe("bottom")
-          expect(lines[1].querySelector("br")).not.toBeNull()
-          expect(lines[2].querySelector("br")).not.toBeNull()
-          expect(lines[4].querySelector("br")).not.toBeNull()
-          expect(lines[5].querySelector("br")).not.toBeNull()
-          expect(lines[2].classList.contains("highlighted-line")).toBe(true)
-          expect(lines[3].classList.contains("highlighted-line")).toBe(true)
-          expect(lines[4].classList.contains("highlighted-line")).toBe(true)
-          expect(lines[5].classList.contains("highlighted-line")).toBe(false)
+          expect(lines[0]!.textContent).toBe("top")
+          expect(lines[1]!.textContent).toBe("")
+          expect(lines[2]!.textContent).toBe("")
+          expect(lines[3]!.textContent).toBe("inside")
+          expect(lines[4]!.textContent).toBe("")
+          expect(lines[5]!.textContent).toBe("")
+          expect(lines[6]!.textContent).toBe("bottom")
+          expect(lines[1]!.querySelector("br")).not.toBeNull()
+          expect(lines[2]!.querySelector("br")).not.toBeNull()
+          expect(lines[4]!.querySelector("br")).not.toBeNull()
+          expect(lines[5]!.querySelector("br")).not.toBeNull()
+          expect(lines[2]!.classList.contains("highlighted-line")).toBe(true)
+          expect(lines[3]!.classList.contains("highlighted-line")).toBe(true)
+          expect(lines[4]!.classList.contains("highlighted-line")).toBe(true)
+          expect(lines[5]!.classList.contains("highlighted-line")).toBe(false)
         },
         { timeout: 2000 },
       )
@@ -219,10 +219,10 @@ describe("CodeBlock", () => {
         () => {
           const lines = container.querySelectorAll(".code-line")
           expect(lines.length).toBe(3)
-          expect(lines[0].textContent).toBe("")
-          expect(lines[1].textContent).toBe("inside")
-          expect(lines[2].textContent).toBe("")
-          expect(lines[1].classList.contains("highlighted-line")).toBe(true)
+          expect(lines[0]!.textContent).toBe("")
+          expect(lines[1]!.textContent).toBe("inside")
+          expect(lines[2]!.textContent).toBe("")
+          expect(lines[1]!.classList.contains("highlighted-line")).toBe(true)
         },
         { timeout: 2000 },
       )
@@ -240,7 +240,7 @@ describe("CodeBlock", () => {
           expect(codeElement?.textContent).not.toContain("// END HIGHLIGHT")
           const highlighted = container.querySelectorAll(".highlighted-line")
           expect(highlighted.length).toBeGreaterThanOrEqual(2)
-          expect(highlighted[0].textContent).toContain("const x = 1")
+          expect(highlighted[0]!.textContent).toContain("const x = 1")
         },
         { timeout: 2000 },
       )
@@ -253,7 +253,7 @@ describe("CodeBlock", () => {
         () => {
           const lines = container.querySelectorAll(".code-line")
           expect(lines.length).toBe(3)
-          expect(lines[2].classList.contains("highlighted-line")).toBe(true)
+          expect(lines[2]!.classList.contains("highlighted-line")).toBe(true)
         },
         { timeout: 2000 },
       )
@@ -297,7 +297,7 @@ describe("CodeBlock", () => {
         () => {
           const highlighted = container.querySelectorAll(".highlighted-line")
           expect(highlighted.length).toBe(1)
-          expect(highlighted[0].textContent).toContain("const x = 1")
+          expect(highlighted[0]!.textContent).toContain("const x = 1")
         },
         { timeout: 2000 },
       )
@@ -312,7 +312,7 @@ describe("CodeBlock", () => {
           expect(codeEl?.textContent).not.toContain("# HIGHLIGHT LINE")
           const highlighted = container.querySelectorAll(".highlighted-line")
           expect(highlighted.length).toBe(1)
-          expect(highlighted[0].textContent?.trim()).toBe("x = 1")
+          expect(highlighted[0]!.textContent?.trim()).toBe("x = 1")
         },
         { timeout: 2000 },
       )

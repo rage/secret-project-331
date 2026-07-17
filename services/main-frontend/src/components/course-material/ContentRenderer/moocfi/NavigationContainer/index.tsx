@@ -4,8 +4,6 @@ import { useAtomValue } from "jotai"
 import { useParams } from "next/navigation"
 import React from "react"
 
-import NextPage from "./NextPage"
-
 import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
@@ -14,6 +12,8 @@ import {
   viewStatusAtom,
 } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
+
+import NextPage from "./NextPage"
 
 const NavigationContainer: React.FC<React.PropsWithChildren> = () => {
   const viewStatus = useAtomValue(viewStatusAtom)

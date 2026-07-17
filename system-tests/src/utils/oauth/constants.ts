@@ -25,7 +25,7 @@ export const USER_PASSWORD_2 = "student2"
 export const STUDENT_STORAGE_STATE = "src/states/student1@example.com.json"
 export const STUDENT2_STORAGE_STATE = "src/states/student2@example.com.json"
 
-export type OAuthTestUser = {
+export interface OAuthTestUser {
   email: string
   password: string
   storageStatePath: string

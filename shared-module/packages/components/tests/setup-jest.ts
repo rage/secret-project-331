@@ -1,9 +1,8 @@
 import "@testing-library/jest-dom"
-
 import "./test-i18n"
 
 class MockPointerEvent extends MouseEvent {
-  constructor(type: string, props?: ConstructorParameters<typeof MouseEvent>[1]) {
+  public constructor(type: string, props?: ConstructorParameters<typeof MouseEvent>[1]) {
     super(type, props)
     Object.defineProperty(this, "pointerType", {
       value: props && "pointerType" in props ? (props.pointerType ?? "mouse") : "mouse",

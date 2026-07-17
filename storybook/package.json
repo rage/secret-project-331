@@ -2,17 +2,10 @@
   "name": "secret-project-storybook",
   "version": "1.0.0",
   "description": "",
-  "author": "Henrik Nygren <nygrenh@gmail.com>",
   "keywords": [],
   "license": "Apache-2.0",
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
   "main": "index.js",
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
   "scripts": {
     "build-storybook": "storybook build --docs",
     "storybook": "storybook dev -p 6006 --docs"
@@ -30,6 +23,7 @@
     "@react-stately/collections": "^3.13.1",
     "@react-stately/combobox": "^3.14.1",
     "@react-stately/datepicker": "^3.17.1",
+    "@react-stately/list": "^3.14.1",
     "@react-stately/overlays": "^3.7.1",
     "@react-stately/radio": "^3.12.1",
     "@react-stately/select": "^3.10.1",
@@ -57,11 +51,17 @@
     "@storybook/react-vite": "^10.4.6",
     "@types/react": "^19.2.17",
     "@vitejs/plugin-react": "^6.0.3",
-    "eslint-plugin-storybook": "10.4.6",
     "prop-types": "^15.8.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "storybook": "^10.4.6",
     "vite": "^8.1.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
   }
 }

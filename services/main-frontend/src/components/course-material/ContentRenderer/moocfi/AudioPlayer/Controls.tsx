@@ -1,11 +1,10 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { RefObject, useCallback, useEffect, useRef, useState } from "react"
+import type { RefObject } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useButton, useFocusRing } from "react-aria"
 import { useTranslation } from "react-i18next"
-
-import { styledRangeInput } from "./RangeComponentStyle"
 
 import FastForward from "@/img/course-material/audio-player/fast-forward.svg"
 import HighVolume from "@/img/course-material/audio-player/high-volume.svg"
@@ -15,6 +14,8 @@ import MuteVolume from "@/img/course-material/audio-player/mute-volume.svg"
 import Pause from "@/img/course-material/audio-player/pause.svg"
 import Play from "@/img/course-material/audio-player/play.svg"
 import Rewind from "@/img/course-material/audio-player/rewind.svg"
+
+import { styledRangeInput } from "./RangeComponentStyle"
 
 // icons
 
@@ -114,7 +115,7 @@ const Controls = ({
       const currentTime = audioRef.current.currentTime
       progressBarRef.current.value = String(currentTime)
       progressBarRef.current.style.setProperty(
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "--range-progress",
         `${(Number(progressBarRef.current.value) / duration) * 100}%`,
       )
@@ -178,13 +179,11 @@ const Controls = ({
           {...rewindFocusProps}
           ref={rewindButtonRef}
           className={css`
-            ${
-              isRewindFocusVisible &&
-              css`
-                outline: 2px solid #4a90e2;
-                outline-offset: 2px;
-              `
-            }
+            ${isRewindFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
           `}
         >
           <Rewind aria-hidden="true" />
@@ -196,13 +195,11 @@ const Controls = ({
           ref={actualPlayPauseRef}
           aria-label={isPlaying ? t("audio-player-pause") : t("audio-player-play")}
           className={css`
-            ${
-              isPlayPauseFocusVisible &&
-              css`
-                outline: 2px solid #4a90e2;
-                outline-offset: 2px;
-              `
-            }
+            ${isPlayPauseFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
           `}
         >
           {isPlaying ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
@@ -212,13 +209,11 @@ const Controls = ({
           {...fastForwardFocusProps}
           ref={fastForwardButtonRef}
           className={css`
-            ${
-              isFastForwardFocusVisible &&
-              css`
-                outline: 2px solid #4a90e2;
-                outline-offset: 2px;
-              `
-            }
+            ${isFastForwardFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
           `}
         >
           <FastForward aria-hidden="true" />
@@ -231,13 +226,11 @@ const Controls = ({
           ref={muteButtonRef}
           aria-label={muteVolume ? t("audio-player-unmute") : t("audio-player-mute")}
           className={css`
-            ${
-              isMuteFocusVisible &&
-              css`
-                outline: 2px solid #4a90e2;
-                outline-offset: 2px;
-              `
-            }
+            ${isMuteFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
           `}
         >
           {muteVolume || volume < 1 ? (

@@ -2,10 +2,10 @@
 
 import { useParams } from "next/navigation"
 
-import EditProposalList from "../EditProposalList"
-
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import EditProposalList from "../EditProposalList"
 
 function ChangeRequestsOldPage() {
   const params = useParams<{ id: string }>()

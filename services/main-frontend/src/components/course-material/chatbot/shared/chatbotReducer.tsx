@@ -3,8 +3,6 @@
 import { produce } from "immer"
 import { v4 } from "uuid"
 
-import { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
-
 import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 import {
   zChatbotConversationMessageMessage,
@@ -12,7 +10,9 @@ import {
   zChatbotConversationMessageToolCall,
 } from "@/generated/course-material-api/zod.generated"
 
-export type ChatbotState = {
+import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
+
+export interface ChatbotState {
   messages: ChatbotConversationMessageWithStatus[]
 }
 
@@ -60,7 +60,7 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
           message: {
             id: v4(),
             text: action.payload,
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             message_role: "user",
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
@@ -96,7 +96,11 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
       ) {
         // if the currently streamed response already has a message in the state
         textMessageParseResult.data.text += action.payload.text
-        draftState.messages[streamingMessageIdx].message.message = textMessageParseResult.data
+        streamingMessageWithStatus.message.message = {
+          ...textMessageParseResult.data,
+          deleted_at: textMessageParseResult.data.deleted_at ?? null,
+          response_id: textMessageParseResult.data.response_id ?? null,
+        }
       } else {
         // create a new message for the currently streamed response
         const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
@@ -107,7 +111,7 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
             message: {
               id: v4(),
               text: action.payload.text,
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               message_role: "assistant",
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
@@ -133,18 +137,22 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         let res = zChatbotConversationMessageToolCall.safeParse(m.message.message)
         return res.success && res.data.tool_call_id === action.payload.tool_call_id && !m.finished
       })
-      if (toolCallMessageIdx !== -1) {
+      const toolCallMessage = draftState.messages[toolCallMessageIdx]
+      if (toolCallMessage !== undefined) {
         // tool call found
-        let toolCall = draftState.messages[toolCallMessageIdx].message.message
+        let toolCall = toolCallMessage.message.message
         let res = zChatbotConversationMessageToolCall.safeParse(toolCall)
         if (!res.success) {
           return
         }
         // update arguments for the tool call
-        if (action.payload.arguments != undefined) {
+        if (action.payload.arguments !== null && action.payload.arguments !== undefined) {
           res.data.tool_arguments = action.payload.arguments
         }
-        draftState.messages[toolCallMessageIdx].message.message = res.data
+        toolCallMessage.message.message = {
+          ...res.data,
+          deleted_at: res.data.deleted_at ?? null,
+        }
       } else {
         // create new message
         const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
@@ -161,7 +169,7 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
               response_id: "",
               tool_arguments: action.payload.arguments ?? "",
               tool_call_id: action.payload.tool_call_id,
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               tool_kind: "function",
               tool_name: action.payload.tool_name ?? "",
             },
@@ -181,10 +189,11 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         let res = zChatbotConversationMessageToolCall.safeParse(m.message.message)
         return res.success && res.data.tool_call_id === action.payload.tool_call_id && !m.finished
       })
-      if (toolCallMessageIdx !== -1) {
+      const toolCallMessage = draftState.messages[toolCallMessageIdx]
+      if (toolCallMessage !== undefined) {
         // tool call found
         // set the tool call as finished
-        draftState.messages[toolCallMessageIdx].finished = true
+        toolCallMessage.finished = true
       } else {
         console.warn("Received a tool call finished event but in progress tool call was not found")
         return
@@ -220,9 +229,10 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         let res = zChatbotConversationMessageReasoning.safeParse(m.message.message)
         return res.success && res.data.reasoning_id === action.payload.reasoning_id && !m.finished
       })
-      if (reasoningMessageIdx !== -1) {
+      const reasoningMessage = draftState.messages[reasoningMessageIdx]
+      if (reasoningMessage !== undefined) {
         // found
-        draftState.messages[reasoningMessageIdx].finished = true
+        reasoningMessage.finished = true
       } else {
         console.warn(
           "Received a reasoning finished event but in progress reasoning item was not found",

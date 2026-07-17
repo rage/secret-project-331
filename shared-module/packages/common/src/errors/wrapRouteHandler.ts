@@ -58,9 +58,7 @@ export function wrapRouteHandler<TArgs extends unknown[], TResult>(
             url,
           },
         },
-        {
-          requestContext,
-        },
+        requestContext !== undefined ? { requestContext } : {},
       )
 
       throw error

@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { UseMutationResult } from "@tanstack/react-query"
+import type { UseMutationResult } from "@tanstack/react-query"
 import React, { createRef } from "react"
 import { useTranslation } from "react-i18next"
 

@@ -1,6 +1,7 @@
 "use client"
 
-import { QueryClient, useQuery } from "@tanstack/react-query"
+import type { QueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
 import { getOrganizationCoursesOptions } from "@/generated/api/@tanstack/react-query.generated"
 
@@ -36,6 +37,7 @@ export const useOrganizationCourses = (
   const getOrgCourses = useQuery({
     ...getOrganizationCoursesOptions({
       path: {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- enabled guard ensures organizationId is set when it runs
         organization_id: organizationId!,
       },
       query: {

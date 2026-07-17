@@ -21,7 +21,7 @@ const VerifyPasswordForm: React.FC<VerifyPasswordFormProps> = ({
   credentialsError,
 }) => {
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const { register, handleSubmit } = useForm<{ password: string }>({ mode: "onChange" })
 
   return (

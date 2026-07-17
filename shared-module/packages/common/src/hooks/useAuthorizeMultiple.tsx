@@ -1,9 +1,10 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { useQuery, UseQueryResult } from "@tanstack/react-query"
+/* oxlint-disable i18next/no-literal-string */
+import type { UseQueryResult } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-import { ActionOnResource } from "../authApiTypes"
+import type { ActionOnResource } from "../authApiTypes"
 import { postAuthAuthorizeMultiple } from "../generated/auth-api/sdk.generated"
 import "../init/registerAuthApiClients"
 

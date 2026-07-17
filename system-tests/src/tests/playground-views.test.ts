@@ -1,8 +1,8 @@
 import { test } from "@playwright/test"
 
-import { scrollLocatorsParentIframeToViewIfNeeded } from "../utils/iframeLocators"
-
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
+
+import { scrollLocatorsParentIframeToViewIfNeeded } from "../utils/iframeLocators"
 
 test("Playground views works", async ({ page }) => {
   await page.goto("http://project-331.local/playground-views")

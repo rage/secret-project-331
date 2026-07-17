@@ -19,6 +19,8 @@
   "close-heading-menu": "Close heading navigation",
   "closed": "Closed",
   "comboBox.toggleOptions": "Toggle options",
+  "copy-button.copied": "Copied",
+  "copy-button.failed": "Copy failed",
   "could-not-find-requested-resource": "Could not find requested resource",
   "courses": "Courses",
   "create-new-account": "Create new account",

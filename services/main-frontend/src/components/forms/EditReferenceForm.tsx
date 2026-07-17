@@ -8,16 +8,17 @@ import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
+import Button from "@/shared-module/common/components/Button"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
 import {
   areCitationsValid,
   detectCitationLabelsThatWillChange,
   safeParseReferences,
 } from "./NewReferenceForm"
-
-import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const REFERENCE = "Reference"
 
@@ -105,7 +106,7 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
       <TextAreaField
         label={REFERENCE}
         id={"reference"}
-        error={errors["reference"]}
+        {...omitUndefined({ error: errors["reference"] })}
         placeholder={REFERENCE}
         {...register("reference", { required: true })}
         rows={5}

@@ -22,7 +22,7 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { assertNotNullOrUndefined, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 
 interface GradeExamAnswerProps {
@@ -98,7 +98,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
         getSubmissions.data.data.at(currentSubmissionIndex + 1)?.exercise_slide_submission.id ?? "",
       )
     } else {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setNextSubmissionId("lastAnswer")
     }
   }
@@ -108,7 +108,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
     {
       notify: true,
       method: "PUT",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       errorMessage: "Cannot give more points than maximum points",
     },
     {
@@ -124,10 +124,10 @@ const LoadedGradeExamAnswerForm: React.FC<{
   ) => {
     const newGrading: NewTeacherGradingDecision = {
       user_exercise_state_id: assertNotNullOrUndefined(getCurrentGradingInfo.data?.id),
-      justification: data.justification,
+      ...omitUndefined({ justification: data.justification }),
       hidden: true,
       exercise_id: submissionInfo.exercise.id,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       action: "CustomPoints",
       manual_points: Number(data.manual_points),
     }

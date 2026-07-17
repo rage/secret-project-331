@@ -5,21 +5,6 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import {
-  addMonthToStageAtomFamily,
-  draftStagesAtomFamily,
-  removeMonthFromStageAtomFamily,
-  ScheduleWizardStep,
-  scheduleWizardStepAtomFamily,
-} from "../scheduleAtoms"
-import { SCHEDULE_STAGE_ORDER, ScheduleWizardStepId } from "../scheduleConstants"
-import {
-  buildStageCardViewModels,
-  getStartsOnMonthFromStages,
-  toDraftStages,
-} from "../scheduleMappers"
-import { validateScheduleStages } from "../scheduleValidation"
-
-import {
   createCourseDesignerScheduleSuggestionMutation,
   finalizeCourseDesignerScheduleMutation,
   getCourseDesignerPlanOptions,
@@ -29,6 +14,22 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseDesignerCourseSize, CourseDesignerStage } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+
+import type { ScheduleWizardStep } from "../scheduleAtoms"
+import {
+  addMonthToStageAtomFamily,
+  draftStagesAtomFamily,
+  removeMonthFromStageAtomFamily,
+  scheduleWizardStepAtomFamily,
+} from "../scheduleAtoms"
+import type { ScheduleWizardStepId } from "../scheduleConstants"
+import { SCHEDULE_STAGE_ORDER } from "../scheduleConstants"
+import {
+  buildStageCardViewModels,
+  getStartsOnMonthFromStages,
+  toDraftStages,
+} from "../scheduleMappers"
+import { validateScheduleStages } from "../scheduleValidation"
 
 const todayMonthValue = () => {
   const date = new Date()

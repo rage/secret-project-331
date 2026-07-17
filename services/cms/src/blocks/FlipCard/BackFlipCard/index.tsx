@@ -1,12 +1,12 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-
-import BackFlipCardEditor from "./BackFlipCardEditor"
-import InnerCardSave from "./BackFlipCardSave"
+/* oxlint-disable i18next/no-literal-string */
 
 import { MOOCFI_CATEGORY_SLUG } from "@/utils/Gutenberg/modifyGutenbergCategories"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
+import BackFlipCardEditor from "./BackFlipCardEditor"
+import InnerCardSave from "./BackFlipCardSave"
 
 const BackFlipCardConfiguration: BlockConfiguration = {
   title: "Back Flip Card",

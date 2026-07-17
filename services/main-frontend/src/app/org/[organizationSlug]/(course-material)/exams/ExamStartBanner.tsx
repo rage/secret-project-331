@@ -34,7 +34,7 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
       setDisabled(true)
       try {
         await onStart()
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         window.scrollTo({ top: 0, behavior: "smooth" })
       } catch {
         setDisabled(false)

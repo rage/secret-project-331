@@ -1,10 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
+import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface ChatbotPreviewModalProps {
@@ -21,6 +22,20 @@ const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
   const { t } = useTranslation()
 
   const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, undefined)
+  const { currentConversationInfo, newConversationMutation } = chatbotStateAndData
+  const hasStartedFreshConversation = useRef(false)
+
+  // When the preview opens, start a fresh conversation if one already exists so the preview
+  // reflects the just-saved configuration. Runs once, after the current conversation is known.
+  useEffect(() => {
+    if (hasStartedFreshConversation.current || currentConversationInfo.isPending) {
+      return
+    }
+    hasStartedFreshConversation.current = true
+    if (currentConversationInfo.data?.current_conversation) {
+      void newConversationMutation.mutateAsync()
+    }
+  }, [currentConversationInfo.isPending, currentConversationInfo.data, newConversationMutation])
 
   return (
     <div>

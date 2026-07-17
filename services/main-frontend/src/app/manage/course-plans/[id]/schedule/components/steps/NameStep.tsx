@@ -3,10 +3,10 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import { useWizardTextField } from "../../hooks/useWizardStepFields"
-
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, TextField } from "@/shared-module/components"
+
+import { useWizardTextField } from "../../hooks/useWizardStepFields"
 
 const fieldStyles = css`
   display: flex;
@@ -35,7 +35,7 @@ interface NameStepProps {
 
 export default function NameStep({ planName, onPlanNameChange, onContinue }: NameStepProps) {
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const { control, fieldName } = useWizardTextField("planName", planName, onPlanNameChange)
 
   return (

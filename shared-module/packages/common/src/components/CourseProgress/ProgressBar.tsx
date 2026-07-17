@@ -4,10 +4,9 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useEffect, useState } from "react"
 
+import type { ProgressBarExtraProps } from "."
 import { baseTheme, headingFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
-
-import { ProgressBarExtraProps } from "."
 
 const LinearProgress = styled.div<LinearProgressProps>`
   display: flex;
@@ -91,39 +90,37 @@ const ProgressBar: React.FC<React.PropsWithChildren<ProgressBarExtraProps>> = ({
   }, [percentage])
 
   return (
-    <>
-      <div
-        className={css`
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-direction: column;
-          text-transform: lowercase;
-        `}
-      >
-        {label && (
-          <Label>
-            <span>
-              {showAsPercentage
-                ? `${percentage}% ${label}`
-                : `${exercisesAttempted ?? 0} / ${exercisesTotal ?? 0} ${label}`}
-            </span>
-          </Label>
-        )}
-        <LinearProgress height={height}>
-          <div
-            className={css`
-              width: 100%;
-              position: relative;
-              height: inherit;
-            `}
-          >
-            <LinearProgressFill light percentage={requiredPercentage} height={height} />
-            <LinearProgressFill percentage={visualPercentage} height={height} />
-          </div>
-        </LinearProgress>
-      </div>
-    </>
+    <div
+      className={css`
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-transform: lowercase;
+      `}
+    >
+      {label && (
+        <Label>
+          <span>
+            {showAsPercentage
+              ? `${percentage}% ${label}`
+              : `${exercisesAttempted ?? 0} / ${exercisesTotal ?? 0} ${label}`}
+          </span>
+        </Label>
+      )}
+      <LinearProgress height={height}>
+        <div
+          className={css`
+            width: 100%;
+            position: relative;
+            height: inherit;
+          `}
+        >
+          <LinearProgressFill light percentage={requiredPercentage} height={height} />
+          <LinearProgressFill percentage={visualPercentage} height={height} />
+        </div>
+      </LinearProgress>
+    </div>
   )
 }
 

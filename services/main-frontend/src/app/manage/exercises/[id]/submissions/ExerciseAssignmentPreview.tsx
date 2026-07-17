@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import ContentRenderer from "@/components/course-material/ContentRenderer"
 import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 export interface ExerciseAssignmentPreviewProps {
   tasks: CourseMaterialExerciseTask[]
@@ -17,7 +17,7 @@ export interface ExerciseAssignmentPreviewProps {
 const ExerciseAssignmentPreview: React.FC<ExerciseAssignmentPreviewProps> = ({ tasks }) => {
   const { t } = useTranslation()
   const sortedTasks = useMemo(
-    () => [...tasks].sort((a, b) => a.order_number - b.order_number),
+    () => [...tasks].toSorted((a, b) => a.order_number - b.order_number),
     [tasks],
   )
 
@@ -25,7 +25,7 @@ const ExerciseAssignmentPreview: React.FC<ExerciseAssignmentPreviewProps> = ({ t
     // Treat a task as empty only when every block is an empty core/paragraph.
     // Other block types (e.g. headings) are not considered here and may need handling later.
     return sortedTasks.filter((task) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       const assignment = task.assignment as Block<any>[] | undefined
       if (!assignment?.length) {
         return false
@@ -97,7 +97,7 @@ const ExerciseAssignmentPreview: React.FC<ExerciseAssignmentPreviewProps> = ({ t
           {tasksWithContent.map((task) => (
             <div key={task.id} className="assignment-text">
               <ContentRenderer
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                // oxlint-disable-next-line typescript/no-explicit-any
                 data={task.assignment as Block<any>[]}
                 isExam={false}
                 dontAllowBlockToBeWiderThanContainerWidth={true}

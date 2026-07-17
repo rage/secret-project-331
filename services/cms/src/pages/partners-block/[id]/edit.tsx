@@ -3,21 +3,20 @@
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 
-import CmsPageTitle from "../../../components/CmsPageTitle"
-import CourseContext from "../../../contexts/CourseContext"
-
-import { PartnersBlock } from "@/generated/api"
+import type { PartnersBlock } from "@/generated/api"
 import { getCmsCoursePartnersBlockOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { upsertCmsCoursePartnersBlock } from "@/generated/api/sdk.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import CmsPageTitle from "../../../components/CmsPageTitle"
+import CourseContext from "../../../contexts/CourseContext"
 
 const PartnersBlockEditor = dynamicImport(
   () => import("../../../components/editors/PartnersBlockEditor"),
@@ -34,11 +33,11 @@ const PartnersBlockEdit: React.FC<React.PropsWithChildren<PartnersBlockProps>> =
   const blockQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (resolvedCourseId): resolvedCourseId is string => Boolean(resolvedCourseId),
+      build: (resolvedCourseId) =>
         getCmsCoursePartnersBlockOptions({
           path: {
-            course_id: courseId,
+            course_id: resolvedCourseId,
           },
         }),
     }),

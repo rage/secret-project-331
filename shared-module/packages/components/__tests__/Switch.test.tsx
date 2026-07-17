@@ -4,7 +4,6 @@ import { fireEvent, screen } from "@testing-library/react"
 import type React from "react"
 
 import { Switch } from "../src/components/Switch"
-
 import { pressSpace, renderBooleanField, renderWithForm } from "./testUtils"
 
 describe("Switch", () => {

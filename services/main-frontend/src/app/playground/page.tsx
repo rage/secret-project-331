@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { ChangeEvent, useEffect, useState } from "react"
+import type { ChangeEvent } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -13,18 +14,25 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { PlaygroundExample } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { QueryResult } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
+
+const onMessage = (message: unknown, responsePort: MessagePort) => {
+  console.info(responsePort)
+
+  console.info("received message from iframe", message)
+}
 
 const Home: React.FC = () => {
   const { t } = useTranslation()
@@ -94,12 +102,6 @@ const Home: React.FC = () => {
     },
   )
 
-  const onMessage = (message: unknown, responsePort: MessagePort) => {
-    console.info(responsePort)
-
-    console.info("received message from iframe", message)
-  }
-
   useEffect(() => {
     setCombinedUrl("")
     if (!exampleUrl || !exampleWidth) {
@@ -142,7 +144,7 @@ const Home: React.FC = () => {
     setSelectedExample(example)
   }
 
-  const handleExampleSave = async () => {
+  const handleExampleSave = () => {
     saveMutation.mutate({
       body: {
         name: exampleName,
@@ -153,7 +155,7 @@ const Home: React.FC = () => {
     })
   }
 
-  const handleExampleUpdate = async () => {
+  const handleExampleUpdate = () => {
     if (!selectedExample) {
       return
     }
@@ -168,7 +170,7 @@ const Home: React.FC = () => {
     })
   }
 
-  const handleExampleDeletion = async () => {
+  const handleExampleDeletion = () => {
     if (!selectedExample) {
       return
     }
@@ -199,8 +201,10 @@ const Home: React.FC = () => {
                   name="playground-examples"
                   aria-label={t("playground-examples")}
                 >
+                  {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label attr is the accessible name */}
                   <option selected disabled label={t("label-examples")} />
                   {data.map((example) => (
+                    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label attr is the accessible name
                     <option
                       key={JSON.stringify(example)}
                       value={JSON.stringify(example)}
@@ -217,7 +221,7 @@ const Home: React.FC = () => {
           placeholder={invalidUrl ? t("invalid-url") : t("label-url")}
           label={t("label-url")}
           onChangeByValue={(value) => handleUrlChange(value)}
-          error={invalidUrl ? t("invalid-url") : undefined}
+          {...includeIf(invalidUrl, { error: t("invalid-url") })}
           className={css`
             margin-bottom: 1rem !important;
           `}
@@ -303,7 +307,7 @@ const Home: React.FC = () => {
             key={combinedUrl + exampleData}
             url={combinedUrl}
             postThisStateToIFrame={{
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               view_type: "answer-exercise",
               exercise_task_id: EXAMPLE_UUID,
               user_information: {

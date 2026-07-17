@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 import Spinner from "../../components/Spinner"
 import { baseTheme } from "../../styles"
 import { monospaceFont } from "../../styles/typography"
-
 import {
   DYNAMIC_IMPORT_MAX_ATTEMPTS,
   DYNAMIC_IMPORT_STATE_COMMITTED,
@@ -196,7 +195,6 @@ const LoadingState = ({ debugId }: { debugId: string }) => {
             "Import resolved; waiting for first React commit (mount).",
           ),
         }
-      case DYNAMIC_IMPORT_STATE_COMMITTED:
       default:
         return null
     }

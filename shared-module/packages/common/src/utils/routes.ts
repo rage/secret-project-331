@@ -1,6 +1,6 @@
 import { assertNotNullOrUndefined } from "./nullability"
 
-type PageRouteInfo = {
+interface PageRouteInfo {
   organization_slug?: string | null
   course_slug?: string | null
 }

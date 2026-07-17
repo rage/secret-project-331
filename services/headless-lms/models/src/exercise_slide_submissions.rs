@@ -340,6 +340,48 @@ LIMIT $2 OFFSET $3;
     Ok(submissions)
 }
 
+/// A single submission's time, its exercise, and the module that exercise sits in (via its chapter).
+/// Used to plot a user's submission activity within a course.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct UserCourseSubmissionTime {
+    pub created_at: DateTime<Utc>,
+    pub exercise_id: Uuid,
+    /// Module the exercise's chapter belongs to; `None` for exercises not placed in a chapter.
+    pub course_module_id: Option<Uuid>,
+}
+
+/// All of a user's submission times in a course, each tagged with its exercise and module, ordered
+/// chronologically. Excludes submissions to soft-deleted exercises/chapters so this per-course timeline
+/// agrees with the cross-course density view. Capped to a safe maximum, fetching one past the cap (5001)
+/// so the caller can tell a genuine overflow from an exact-cap result.
+pub async fn get_user_course_submission_times(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Vec<UserCourseSubmissionTime>> {
+    let submissions = sqlx::query_as!(
+        UserCourseSubmissionTime,
+        r#"
+SELECT ess.created_at,
+  ess.exercise_id,
+  c.course_module_id AS "course_module_id?"
+FROM exercise_slide_submissions ess
+  JOIN exercises e ON e.id = ess.exercise_id AND e.deleted_at IS NULL
+  LEFT JOIN chapters c ON c.id = e.chapter_id AND c.deleted_at IS NULL
+WHERE ess.user_id = $1
+  AND ess.course_id = $2
+  AND ess.deleted_at IS NULL
+ORDER BY ess.created_at
+LIMIT 5001
+        "#,
+        user_id,
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
 pub async fn get_users_all_submissions_for_course_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,

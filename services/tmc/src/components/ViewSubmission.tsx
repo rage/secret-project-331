@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next"
 
-import { UserAnswer, ViewSubmissionState } from "@/util/stateInterfaces"
+import type { UserAnswer, ViewSubmissionState } from "@/util/stateInterfaces"
 
 /** Unwrap submission if stored as { private_spec: UserAnswer } (same as grade API). */
 export function normalizeSubmission(submission: ViewSubmissionState["submission"]): UserAnswer {

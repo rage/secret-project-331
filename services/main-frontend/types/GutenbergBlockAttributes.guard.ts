@@ -2,7 +2,7 @@
  * Generated type guards for "GutenbergBlockAttributes.ts".
  * WARNING: Do not manually change this file.
  */
-import {
+import type {
   AudioAttributes,
   BlockAttributes,
   ButtonAttributes,

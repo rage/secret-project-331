@@ -79,5 +79,5 @@ export default function CourseInstanceLayout({ children }: { children: React.Rea
 
   useRegisterBreadcrumbs({ key: `course-instance:${id}`, order: 20, crumbs })
 
-  return <>{children}</>
+  return children
 }

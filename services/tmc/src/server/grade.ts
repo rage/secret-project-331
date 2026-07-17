@@ -1,13 +1,7 @@
 import { promises as fs } from "fs"
 import path from "path"
-import { temporaryDirectory, temporaryFile } from "tempy"
 
-import {
-  GradeRequest,
-  gradeRequestSchema,
-  userAnswerSchema,
-  wrappedUserAnswerSchema,
-} from "./requestSchemas"
+import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
@@ -18,10 +12,13 @@ import {
   prepareSubmission,
 } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
-import { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
+import type { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
-import { UserAnswer } from "@/util/stateInterfaces"
+import type { UserAnswer } from "@/util/stateInterfaces"
+
+import type { GradeRequest } from "./requestSchemas"
+import { gradeRequestSchema, userAnswerSchema, wrappedUserAnswerSchema } from "./requestSchemas"
 
 const { log, debug } = createLogger("grade")
 
@@ -33,8 +30,11 @@ const RUN_STATUSES = new Set([
   "GENERIC_ERROR",
 ] as const)
 
-type NormalizedTestResult = { successful: boolean; points: string[] }
-type NormalizedRunResult = {
+interface NormalizedTestResult {
+  successful: boolean
+  points: string[]
+}
+interface NormalizedRunResult {
   status: "PASSED" | "TESTS_FAILED" | "COMPILE_FAILED" | "TESTRUN_INTERRUPTED" | "GENERIC_ERROR"
   testResults: NormalizedTestResult[]
 }
@@ -170,7 +170,7 @@ const processGrading = async (req: GradeRequest): Promise<Response> => {
 const gradeInPod = async (
   submissionPath: string,
   sandboxImage: string,
-  points: Array<string>,
+  points: string[],
 ): Promise<ExerciseTaskGradingResult> => {
   const logger = createLogger("grade")
   let outcome

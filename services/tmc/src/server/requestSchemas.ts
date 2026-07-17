@@ -6,8 +6,8 @@
  */
 import { z } from "zod"
 
-import { RepositoryExercise } from "@/util/exerciseServiceApi"
-import { ExerciseFile, PrivateSpec, UserAnswer } from "@/util/stateInterfaces"
+import type { RepositoryExercise } from "@/util/exerciseServiceApi"
+import type { ExerciseFile, PrivateSpec, UserAnswer } from "@/util/stateInterfaces"
 
 // Loose objects: tolerate extra fields the backend may add, like the old casts did.
 export const repositoryExerciseSchema = z.looseObject({

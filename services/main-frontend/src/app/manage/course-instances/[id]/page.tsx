@@ -89,8 +89,8 @@ const ManageCourseInstances: React.FC = () => {
             return (
               <NewCourseInstanceForm
                 initialData={data}
-                onSubmit={(data) => {
-                  mutation.mutate(data)
+                onSubmit={(formData) => {
+                  mutation.mutate(formData)
                   setEditing(false)
                 }}
                 onCancel={() => setEditing(false)}

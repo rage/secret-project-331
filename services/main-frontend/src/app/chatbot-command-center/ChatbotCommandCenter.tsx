@@ -15,14 +15,31 @@ interface ChatbotCommandCenterData {
 }
 
 interface Props {
-  chatbotData: ChatbotCommandCenterData[]
+  chatbots: ChatbotCommandCenterData[]
 }
 
-const ChatbotCommandCenter = ({ chatbotData }: Props) => {
+const ChatbotCommandCenter = ({ chatbots }: Props) => {
   const { t } = useTranslation()
   const { control, watch } = useForm<ChatbotCommandCenterData>({})
   const configuration_id = watch("configuration_id")
-  const distinctCourses = [...new Set(chatbotData.map((data) => data.course_name))]
+  function groupChatbotsByCourse() {
+    const distinctCourses = [...new Set(chatbots.map((chatbot) => chatbot.course_name))]
+
+    return distinctCourses.map((course) => {
+      return {
+        label: course,
+        options: chatbots
+          .filter((chatbot) => chatbot.course_name === course)
+          .map((chatbot) => {
+            return {
+              label: `${chatbot.chatbot_name}`,
+              value: chatbot.configuration_id,
+            }
+          }),
+      }
+    })
+  }
+
   return (
     <div>
       <form>
@@ -31,29 +48,14 @@ const ChatbotCommandCenter = ({ chatbotData }: Props) => {
           control={control}
           name={"configuration_id"}
           label={t("select-chatbot")}
-          options={distinctCourses.map((course) => {
-            return {
-              label: course,
-              options: chatbotData
-                .filter((data) => data.course_name === course)
-                .map((dataFiltered) => {
-                  return {
-                    label: `${dataFiltered.chatbot_name}`,
-                    value: dataFiltered.configuration_id,
-                  }
-                }),
-            }
-          })}
+          options={groupChatbotsByCourse()}
           searchEnabled={true}
           searchPlaceholder={t("chatbot-search-placeholder")}
-          className={css`
-            margin-bottom: 1rem;
-          `}
         />
       </form>
-
       <div
         className={css`
+          margin-top: 1rem;
           height: 75vh;
         `}
       >

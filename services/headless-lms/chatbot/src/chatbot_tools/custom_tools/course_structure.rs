@@ -20,8 +20,34 @@ pub struct CourseStructureState {
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub enum PageType {
+    CourseFrontPage,
+    TopLevelPage,
+    ChapterFrontPage,
+    GenericPage,
+}
+
+fn get_page_type(
+    order_number: i32,
+    chapter_number: Option<i32>,
+    module_number: Option<i32>,
+) -> PageType {
+    if chapter_number.is_none() && module_number.is_none() && order_number == 0 {
+        PageType::CourseFrontPage
+    } else if chapter_number.is_none() && module_number.is_none() && order_number != 0 {
+        PageType::TopLevelPage
+    } else if chapter_number.is_some() && order_number == 0 {
+        PageType::ChapterFrontPage
+    } else {
+        PageType::GenericPage
+    }
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct PageDocumentInfo {
     pub page_title: String,
+    #[serde(rename = "snake_case")]
+    pub page_type: PageType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chapter_title: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -111,6 +137,7 @@ impl ChatbotTool for CourseStructureTool {
                     // no block content
                     return PageDocumentInfo {
                         page_title: p.page_title,
+                        page_type: get_page_type(p.order_number, p.chapter_number, p.module_number),
                         chapter_title: p.chapter_title,
                         learning_objective: None,
                         chapter_number: p.chapter_number,
@@ -120,6 +147,7 @@ impl ChatbotTool for CourseStructureTool {
                 let learning_objectives = get_objectives(b).ok();
                 PageDocumentInfo {
                     page_title: p.page_title,
+                    page_type: get_page_type(p.order_number, p.chapter_number, p.module_number),
                     chapter_title: p.chapter_title,
                     learning_objective: learning_objectives,
                     chapter_number: p.chapter_number,
@@ -141,7 +169,7 @@ impl ChatbotTool for CourseStructureTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some("The user has access to the course structure, so you shouldn't give it to them: they know it already. You can give an overview if asked. Use the course structure to find out more about the course and answer the user's questions. You can look up the content of the listed course pages with the document_lookup tool. The learning objectives listed on the course front page are objectives for the whole course. Learning objectives listed on a chapter front page encompass the whole chapter, and objectives listed on a generic page are for the page only.".to_string())
+        Some("The user has access to the course structure, so you shouldn't give it to them: they know it already. You can give an overview if asked. Use the course structure to find out more about the course and answer the user's questions. You can look up the content of the listed course pages with the document_lookup tool. The learning objectives listed on the course front page or top level pages are objectives for the whole course. Learning objectives listed on a chapter front page encompass the whole chapter, and objectives listed on a generic page are for the page only.".to_string())
     }
 
     fn get_arguments(&self) -> &Self::Arguments {

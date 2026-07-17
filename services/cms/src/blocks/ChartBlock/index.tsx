@@ -3,11 +3,11 @@
 /* eslint-disable i18next/no-literal-string */
 import { image as icon } from "@wordpress/icons"
 
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
 import ChartBlockEditor from "./ChartBlockEditor"
 import ChartBlockSave from "./ChartBlockSave"
 import { VEGA_LITE_SCHEMA_URL } from "./chartSpec"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface ChartBlockAttributes {
   spec: string

@@ -7,11 +7,6 @@ import { Modal, Placeholder } from "@wordpress/components"
 import { image as icon } from "@wordpress/icons"
 import React, { useContext, useEffect, useRef, useState } from "react"
 
-import ChartPreview from "./ChartPreview"
-import { dataFormatForUrl, dataUrlFromSpec, extractInlineData, specWithDataUrl } from "./chartSpec"
-
-import { ChartBlockAttributes, DEFAULT_VEGA_LITE_SPEC } from "."
-
 import CourseContext from "@/contexts/CourseContext"
 import PageContext from "@/contexts/PageContext"
 import { requestChartSpecGeneration } from "@/generated/api/sdk.generated"
@@ -23,6 +18,11 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import MonacoEditor from "@/shared-module/common/components/monaco/MonacoEditor"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ChartBlockAttributes } from "."
+import { DEFAULT_VEGA_LITE_SPEC } from "."
+import ChartPreview from "./ChartPreview"
+import { dataFormatForUrl, dataUrlFromSpec, extractInlineData, specWithDataUrl } from "./chartSpec"
 
 // Config/identifier strings kept out of i18next/no-literal-string.
 const MONACO_LANGUAGE = "json"
@@ -539,7 +539,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
               value={caption}
               onChangeByValue={handleCaptionChange}
               placeholder={t("describe-the-chart")}
-              error={caption.trim() ? undefined : t("required")}
+              {...(caption.trim() ? {} : { error: t("required") })}
             />
           </div>
         </div>

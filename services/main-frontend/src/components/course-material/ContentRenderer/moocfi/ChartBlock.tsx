@@ -5,10 +5,10 @@ import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { VegaLite } from "react-vega"
 
-import { BlockRendererProps } from ".."
-
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
 
 interface ChartBlockAttributes {
   spec: string

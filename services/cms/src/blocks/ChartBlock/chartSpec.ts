@@ -56,7 +56,7 @@ export const extractInlineData = (specString: string): ExtractedData | null => {
  * defeat Vega's extension sniffing.
  */
 export const dataFormatForUrl = (url: string): { type: string } | undefined => {
-  const path = url.split("?")[0].toLowerCase()
+  const path = (url.split("?")[0] ?? "").toLowerCase()
   if (path.endsWith(`.${CSV}`)) {
     return { type: CSV }
   }

@@ -12,17 +12,15 @@ import { useDispatch } from "@wordpress/data"
 import { image as icon } from "@wordpress/icons"
 import React, { useEffect, useState } from "react"
 
-import BlockWrapper from "../BlockWrapper"
-
-import ChartBlockEditModal from "./ChartBlockEditModal"
-import ChartPreview, { chartCaptionStyle } from "./ChartPreview"
-
-import { ChartBlockAttributes } from "."
-
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ChartBlockAttributes } from "."
+import BlockWrapper from "../BlockWrapper"
+import ChartBlockEditModal from "./ChartBlockEditModal"
+import ChartPreview, { chartCaptionStyle } from "./ChartPreview"
 
 const MIN_CHART_HEIGHT = 120
 
@@ -53,7 +51,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
 
   const handleHeightInputChange = (value: string) => {
     setHeightInput(value)
-    const parsed = parseInt(value, 10)
+    const parsed = Math.trunc(Number(value))
     if (!Number.isNaN(parsed) && parsed >= MIN_CHART_HEIGHT) {
       setHeight(parsed)
     }

@@ -238,7 +238,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const { buttonProps } = useButton(triggerProps, buttonRef)
   const { labelProps, inputProps } = useSearchField(
-    { ...autoCompleteInputProps, placeholder: searchPlaceholder, "aria-label": "Search content" },
+    { ...autoCompleteInputProps, placeholder: searchPlaceholder, "aria-label": searchPlaceholder },
     searchFieldState,
     searchRef,
   )

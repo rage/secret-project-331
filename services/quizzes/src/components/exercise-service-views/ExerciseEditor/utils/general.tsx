@@ -87,10 +87,11 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         body: null,
         failureMessage: null,
         formatRegex: null,
+        gradingStrategy: null,
+        messageOnModelSolution: null,
         order: 0,
         successMessage: null,
         title: null,
-        validityRegex: null,
       } as PrivateSpecQuizItemClosedEndedQuestion
     case "essay":
       return {

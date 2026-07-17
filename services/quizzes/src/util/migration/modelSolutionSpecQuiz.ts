@@ -1,10 +1,7 @@
 import type { OldModelSolutionQuiz, OldModelSolutionQuizItem } from "../../../types/oldQuizTypes"
 import type {
-  ModelSolutionQuiz,
-  ModelSolutionQuizItem,
   ModelSolutionQuizItemCheckbox,
   ModelSolutionQuizItemChooseN,
-  ModelSolutionQuizItemClosedEndedQuestion,
   ModelSolutionQuizItemEssay,
   ModelSolutionQuizItemMatrix,
   ModelSolutionQuizItemMultiplechoice,
@@ -13,12 +10,17 @@ import type {
   ModelSolutionQuizItemTimeline,
 } from "../../../types/quizTypes/modelSolutionSpec"
 import type { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
+import type {
+  ModelSolutionQuizItemClosedEndedQuestionV2,
+  ModelSolutionQuizItemV2,
+  ModelSolutionQuizV2,
+} from "../../../types/quizTypes/v2"
 import { sanitizeQuizDirection } from "../css-sanitization"
 import { DEFAULT_N } from "./migrationSettings"
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
 const migrateModelSolutionSpecQuizItem = (
   quizItem: OldModelSolutionQuizItem,
-): ModelSolutionQuizItem => {
+): ModelSolutionQuizItemV2 => {
   switch (quizItem.type as OldQuizItemType) {
     case "essay":
       return {
@@ -88,7 +90,7 @@ const migrateModelSolutionSpecQuizItem = (
         successMessage: quizItem.successMessage,
         failureMessage: quizItem.failureMessage,
         messageOnModelSolution: null,
-      } satisfies ModelSolutionQuizItemClosedEndedQuestion
+      } satisfies ModelSolutionQuizItemClosedEndedQuestionV2
     case "matrix":
       return {
         id: quizItem.id,
@@ -134,16 +136,18 @@ const migrateModelSolutionSpecQuizItem = (
         options: quizItem.options,
         messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemMultiplechoiceDropdown
+    default:
+      throw new Error(`Unknown quiz item type: '${quizItem.type}'`)
   }
 }
 
 const migrateModelSolutionSpecQuiz = (
   oldModelSolutionQuiz: OldModelSolutionQuiz | null,
-): ModelSolutionQuiz | null => {
+): ModelSolutionQuizV2 | null => {
   if (oldModelSolutionQuiz === null) {
     return null
   }
-  const modelSolutionQuiz: ModelSolutionQuiz = {
+  const modelSolutionQuiz: ModelSolutionQuizV2 = {
     version: "2",
     awardPointsEvenIfWrong: oldModelSolutionQuiz.awardPointsEvenIfWrong,
     body: oldModelSolutionQuiz.body,

@@ -1,4 +1,4 @@
-import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
+import { migratePrivateSpecToLatest } from "../../../src/util/migration/migrateToLatest"
 import migrateQuizAnswer from "../../../src/util/migration/userAnswerSpec"
 import type { QuizItem } from "../../../types/oldQuizTypes"
 import type {
@@ -50,7 +50,7 @@ describe("User answer", () => {
       quizOrder,
     )
     const oldQuiz = packToPrivateSpecQuiz([multipleChoiceQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
+    const newQuiz = migratePrivateSpecToLatest(oldQuiz)!
 
     // Create and compare user answers
     const matrixAnswer = generateUserAnswerForMultipleChoice(multipleChoiceQuizItem.id)
@@ -64,7 +64,7 @@ describe("User answer", () => {
   test("migrates checkbox answers", () => {
     const checkboxQuizItem: QuizItem = generateCheckboxForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([checkboxQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
+    const newQuiz = migratePrivateSpecToLatest(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemCheckbox = newQuiz.items[0] as PrivateSpecQuizItemCheckbox
 
@@ -86,7 +86,7 @@ describe("User answer", () => {
   test("migrates essay answer", () => {
     const essayQuizItem: QuizItem = generateEssayForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([essayQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
+    const newQuiz = migratePrivateSpecToLatest(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemEssay = newQuiz.items[0] as PrivateSpecQuizItemEssay
 
@@ -101,7 +101,7 @@ describe("User answer", () => {
   test("migrates matrix answer", () => {
     const matrixQuizItem: QuizItem = generateMatrixForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([matrixQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
+    const newQuiz = migratePrivateSpecToLatest(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemMatrix = newQuiz.items[0] as PrivateSpecQuizItemMatrix
 
@@ -116,7 +116,7 @@ describe("User answer", () => {
   test("migrates 'open' answer", () => {
     const closedEndedQuizItem: QuizItem = generateClosedEndedForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([closedEndedQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
+    const newQuiz = migratePrivateSpecToLatest(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemClosedEndedQuestion = newQuiz
       .items[0] as PrivateSpecQuizItemClosedEndedQuestion
@@ -132,7 +132,7 @@ describe("User answer", () => {
   test("migrates scale answer", () => {
     const scaleQuizItem: QuizItem = generateScaleForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([scaleQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
+    const newQuiz = migratePrivateSpecToLatest(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemScale = newQuiz.items[0] as PrivateSpecQuizItemScale
 
@@ -159,7 +159,7 @@ describe("User answer", () => {
   test("migrates timeline answer", () => {
     const timelineQuizItem: QuizItem = generateTimelineForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([timelineQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
+    const newQuiz = migratePrivateSpecToLatest(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemTimeline = newQuiz.items[0] as PrivateSpecQuizItemTimeline
 
@@ -174,7 +174,7 @@ describe("User answer", () => {
   test("migrates clickable-multiple-choice answer", () => {
     const ChooseNQuizItem: QuizItem = generateChooseNForOlderPrivateSpecQuiz(1, 1)
     const oldQuiz = packToPrivateSpecQuiz([ChooseNQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
+    const newQuiz = migratePrivateSpecToLatest(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemChooseN = newQuiz.items[0] as PrivateSpecQuizItemChooseN
 
@@ -222,7 +222,7 @@ describe("User answer", () => {
       chooseNQuizItem,
     ])
 
-    const migratedPrivateSpecQuiz = migratePrivateSpecQuiz(oldQuiz)!
+    const migratedPrivateSpecQuiz = migratePrivateSpecToLatest(oldQuiz)!
 
     const userAnswer = packUserAnswers([
       essayAnswer,

@@ -78,8 +78,15 @@ Consequences, all enforced in this template already (`src/util/stateInterfaces.t
   all must normalize old → current: the editor's `set-state` handler (`IframeView.tsx`), the
   public-spec endpoint, the model-solution endpoint, and grade. You can't rewrite stored blobs, but
   the upgraded shape you return gets persisted on the next save.
-- **Never delete old types or their migration code.** Old data exists whether or not you still like
-  its shape.
+- **Route all four doors through ONE migration chain, built for extension.** Keep a per-blob-kind
+  registry keyed by the version each step accepts and a loop that runs steps up to the latest
+  version; each door calls one `migrate*ToLatest`. Adding the next version must be a _one-line
+  registry addition_ + a type snapshot — no door changes. (See quizzes'
+  `src/util/migration/migrateToLatest.ts` + `versions.ts` for the reference implementation.)
+- **On an unknown/typo'd item type while migrating, throw — never fabricate a placeholder**, which
+  would get persisted on the next save and corrupt data.
+- **Never delete old types or their migration code**, and snapshot the shape you leave behind when
+  you bump the version. Old data exists whether or not you still like its shape.
 
 ---
 
@@ -193,6 +200,20 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 
 ## Other decisions that bite
 
+- **Every editor control that affects the saved/graded result must write to a private-spec field —
+  never to component-local React state.** A control kept in `useState` is silently lost on reopen
+  (quizzes' closed-ended "grading strategy" radio did exactly this and reset on every open). If it
+  changes the saved result, it belongs in the spec; transient view-only state (preview toggles) may
+  stay local.
+- **Model a mode/strategy selector as a discriminated union on a tag field, with an exhaustive
+  `switch` in grading and every derivation** — don't overload one free-form field with two meanings.
+  (Quizzes stored a closed-ended answer as one `validityRegex` and faked an "exact string" mode by
+  running a literal through `new RegExp`, silently mis-grading `C++` / `3.14`; the fix is an
+  `exact-match | regex | numeric` union.) Do escaping/normalization in grading code, not in stored
+  data.
+- **If correctness is stored as an opaque matcher (regex/validator), also store or derive a readable
+  correct answer** for the model solution — otherwise there's nothing to show the student. Derive it
+  by explicit per-variant pick (never reveal the matcher itself).
 - **IDs are minted in the editor**, and flow through the derivations unchanged. Never mint ids inside
   the public-spec / model-solution generators — every re-save would produce fresh ids, orphaning all
   stored answers.
@@ -237,8 +258,12 @@ by explicit pick; (3) every field classified by visibility, surviving peer-revie
 (4) `feedback_json` safe assuming retries remain; (5) ids minted in the editor; (6) derivation pure &
 deterministic; (7) answer gradeable from private spec alone, versioned, safe to show a peer reviewer;
 (8) the single `validate()` and its invariants; (9) sync vs async grading + partial-credit policy;
-(10) all four doors migrate old versions; (11) tests for envelopes, leaks, round-trips, grading
-tables, migrations, and the editor's emitted `current-state`.
+(10) all four doors migrate old versions through one chain where a new version is a one-line
+registry addition; (11) every editor control that affects the saved result writes to a spec field
+(not local state), and each mode/strategy is a tagged union — no field with two meanings;
+(12) a readable model-solution answer exists even when correctness is an opaque matcher; (13) tests
+for envelopes, leaks, round-trips, grading tables, migrations (old→latest chaining + fail-loud on
+unknown item types), and the editor's emitted `current-state`.
 
 > In the moocfi monorepo there is more depth: `docs/plugin-system.md` (the canonical protocol prose)
 > and the `create-exercise-service` skill's `reference/` (especially `07-key-design-decisions.md`,

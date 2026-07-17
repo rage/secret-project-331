@@ -7,10 +7,8 @@ import type {
 } from "../../../types/oldQuizTypes"
 import type { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
 import type {
-  PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
-  PrivateSpecQuizItemClosedEndedQuestion,
   PrivateSpecQuizItemEssay,
   PrivateSpecQuizItemMatrix,
   PrivateSpecQuizItemMultiplechoice,
@@ -18,6 +16,10 @@ import type {
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
+import type {
+  PrivateSpecQuizItemClosedEndedQuestionV2,
+  PrivateSpecQuizV2,
+} from "../../../types/quizTypes/v2"
 import { sanitizeQuizDirection } from "../css-sanitization"
 import { DEFAULT_N } from "./migrationSettings"
 
@@ -110,7 +112,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         successMessage: quizItem.successMessage,
         failureMessage: quizItem.failureMessage,
         messageOnModelSolution: null,
-      } satisfies PrivateSpecQuizItemClosedEndedQuestion
+      } satisfies PrivateSpecQuizItemClosedEndedQuestionV2
     case "scale":
       return {
         id: quizItem.id,
@@ -162,22 +164,10 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         messageOnModelSolution: null,
       } satisfies PrivateSpecQuizItemMultiplechoiceDropdown
     default:
-      console.error(`Unknown type: '${quizItem.type}'`)
+      // The v1 item-type set is closed and historical, so an unknown type means corrupt data.
+      // Fail loud rather than fabricating a placeholder item that would be persisted on next save.
+      throw new Error(`Unknown quiz item type: '${quizItem.type}'`)
   }
-
-  // TODO: Unsupported quiz, can be cause due to typos
-  return {
-    id: quizItem.id,
-    type: "essay",
-    order: 100,
-    title: "quizItem.title",
-    body: "quizItem.body",
-    failureMessage: "quizItem.failureMessage",
-    maxWords: 100,
-    minWords: 0,
-    successMessage: "quizItem.successMessage",
-    messageOnModelSolution: null,
-  } satisfies PrivateSpecQuizItemEssay
 }
 
 /**
@@ -185,11 +175,11 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
  *
  * @param oldQuiz Older version of Quiz
  * @see OldQuiz
- * @see PrivateSpecQuiz
- * @returns New version of Quiz
+ * @see PrivateSpecQuizV2
+ * @returns The v2 version of the quiz (later lifted to the latest version by the migration chain)
  */
-export const migratePrivateSpecQuiz = (oldQuiz: OldQuiz): PrivateSpecQuiz => {
-  const privateSpecQuiz: PrivateSpecQuiz = {
+export const migratePrivateSpecQuiz = (oldQuiz: OldQuiz): PrivateSpecQuizV2 => {
+  const privateSpecQuiz: PrivateSpecQuizV2 = {
     version: "2",
     title: oldQuiz.title,
     body: oldQuiz.body,

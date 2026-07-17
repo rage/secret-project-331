@@ -1,5 +1,8 @@
-import { handlePrivateSpecMigration, handleUserAnswerMigration } from "@/grading/utils"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import {
+  migratePrivateSpecToLatest,
+  migrateUserAnswerToLatest,
+} from "@/util/migration/migrateToLatest"
 
 import type { UserAnswer, UserItemAnswer } from "../../types/quizTypes/answer"
 import type {
@@ -152,11 +155,10 @@ function getAnswerColumns(
 }
 
 function getUserAnswer(privateSpecQuiz: PrivateSpecQuiz, answer: unknown): UserAnswer {
-  if (answer === null || answer === undefined) {
-    return { version: "2", itemAnswers: [] }
+  const userAnswer = migrateUserAnswerToLatest(answer, privateSpecQuiz)
+  if (userAnswer === null) {
+    return { version: "3", itemAnswers: [] }
   }
-
-  const userAnswer = handleUserAnswerMigration(privateSpecQuiz, answer as UserAnswer)
   if (!Array.isArray(userAnswer.itemAnswers)) {
     throw new TypeError("Invalid answer payload")
   }
@@ -290,7 +292,7 @@ async function postImpl(request: Request) {
     const parsed = parseRequest(body)
 
     const migratedItems: MigratedExportAnswerItem[] = parsed.items.map((item) => {
-      const privateSpecQuiz = handlePrivateSpecMigration(item.private_spec as PrivateSpecQuiz)
+      const privateSpecQuiz = migratePrivateSpecToLatest(item.private_spec)
 
       return {
         privateSpecQuiz,

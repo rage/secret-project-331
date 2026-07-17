@@ -1,5 +1,5 @@
 export interface UserAnswer {
-  version: string
+  version: "3"
   itemAnswers: UserItemAnswer[]
 }
 

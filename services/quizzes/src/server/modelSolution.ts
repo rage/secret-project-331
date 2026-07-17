@@ -1,11 +1,13 @@
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { isOldQuiz } from "@/util/migration/migrationSettings"
-import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz"
+import { revealableCorrectAnswers } from "@/util/converter"
+import { migratePrivateSpecToLatest } from "@/util/migration/migrateToLatest"
 import { isSpecRequest } from "@/utils/exerciseServiceApi"
 
-import type { OldQuiz } from "../../types/oldQuizTypes"
-import type { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
-import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../types/quizTypes/privateSpec"
+import type {
+  ModelSolutionQuiz,
+  ModelSolutionQuizItem,
+  ModelSolutionQuizItemClosedEndedQuestion,
+} from "../../types/quizTypes/modelSolutionSpec"
 
 const SERVICE = "quizzes"
 
@@ -81,32 +83,33 @@ function handleModelSolutionGeneration(body: unknown): ModelSolutionQuiz {
     throw new Error(`Invalid spec request: ${JSON.stringify(errorInfo)}`)
   }
   const specRequest = body
-  const quiz = specRequest.private_spec as OldQuiz | null
-  if (quiz === null) {
+  if (specRequest.private_spec === null || specRequest.private_spec === undefined) {
     throw new Error("Private spec cannot be null")
   }
 
-  const modelSolution = createModelSolution(quiz)
+  const modelSolution = createModelSolution(specRequest.private_spec)
   return modelSolution
 }
 
-function createModelSolution(quiz: OldQuiz | ModelSolutionQuiz): ModelSolutionQuiz {
-  const modelSolution: ModelSolutionQuiz | null = isOldQuiz(quiz)
-    ? migrateModelSolutionSpecQuiz(quiz as OldQuiz)
-    : (quiz as ModelSolutionQuiz)
-  if (modelSolution === null) {
-    throw new Error("Model solution was null")
-  }
-  // Make sure we don't include illegal properties
-  for (const quizItem of modelSolution.items) {
-    if (quizItem.type === "closed-ended-question") {
-      const asPrivateSpec = quizItem as PrivateSpecQuizItemClosedEndedQuestion
-      if (asPrivateSpec.validityRegex !== undefined) {
-        // @ts-expect-error: Deleting a property that should not exist
-        delete asPrivateSpec.validityRegex
-      }
+/**
+ * Derive the model solution from the (possibly old) private spec. The model solution is the private
+ * spec minus what a finishing student / peer reviewer must not see. Item types other than
+ * closed-ended are passed through as before; the closed-ended item gets an explicit projection
+ * because its `gradingStrategy` is the acceptance rule (must be dropped) and instead it exposes a
+ * readable correct answer via `correctAnswerDisplayTexts`.
+ */
+function createModelSolution(privateSpecInput: unknown): ModelSolutionQuiz {
+  const privateSpec = migratePrivateSpecToLatest(privateSpecInput)
+  const items = privateSpec.items.map((quizItem): ModelSolutionQuizItem => {
+    if (quizItem.type !== "closed-ended-question") {
+      return quizItem as unknown as ModelSolutionQuizItem
     }
-  }
-
-  return modelSolution as ModelSolutionQuiz
+    const { gradingStrategy, formatRegex, ...rest } = quizItem
+    return {
+      ...rest,
+      formatRegex,
+      correctAnswerDisplayTexts: revealableCorrectAnswers(gradingStrategy),
+    } satisfies ModelSolutionQuizItemClosedEndedQuestion
+  })
+  return { ...privateSpec, items } as unknown as ModelSolutionQuiz
 }

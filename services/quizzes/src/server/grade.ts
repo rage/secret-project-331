@@ -1,10 +1,13 @@
 import { assessAnswers } from "@/grading/assessment"
 import { submissionFeedback } from "@/grading/feedback"
 import { gradeAnswers } from "@/grading/grading"
-import { handlePrivateSpecMigration, handleUserAnswerMigration } from "@/grading/utils"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import {
+  migratePrivateSpecToLatest,
+  migrateUserAnswerToLatest,
+} from "@/util/migration/migrateToLatest"
 import type { ExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
 
 import type { UserAnswer } from "../../types/quizTypes/answer"
@@ -20,9 +23,10 @@ function handleGradingRequest(body: unknown): ExerciseTaskGradingResult {
   }
   const { exercise_spec, submission_data } = body as QuizzesGradingRequest
 
-  // Migrate to newer version
-  const privateSpecQuiz = handlePrivateSpecMigration(exercise_spec)
-  const userAnswer = handleUserAnswerMigration(privateSpecQuiz, submission_data)
+  // Migrate to newer version (spec first, then the answer against the migrated spec)
+  const privateSpecQuiz = migratePrivateSpecToLatest(exercise_spec)
+  const userAnswer =
+    migrateUserAnswerToLatest(submission_data, privateSpecQuiz) ?? (submission_data as UserAnswer)
 
   // Generate feedbacks
   const assessedAnswers = assessAnswers(userAnswer, privateSpecQuiz)

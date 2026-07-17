@@ -202,7 +202,7 @@ describe("Public spec generation", () => {
         "successMessage",
         "failureMessage",
         "messageOnModelSolution",
-        "validityRegex",
+        "gradingStrategy",
       ])
     }
     expectNoCanariesInOutput(publicSpec)

@@ -25,32 +25,46 @@ The core fact everything below follows from:
 
 ### 1. Version your specs from day one (the single most important decision)
 
-Quizzes learned this the hard way: its v1 specs had no version marker, so "is this old?" is now
-detected by _absence_ of a field (`migrationSettings.ts::isOldQuiz`:
-`!Object.prototype.hasOwnProperty.call(quiz, "version")`), and a whole migration layer
-(`services/quizzes/src/util/migration/{privateSpecQuiz,publicSpecQuiz,modelSolutionSpecQuiz,
-userAnswerSpec}.ts` plus `services/quizzes/src/util/migrate.ts`) exists to lift old blobs into the
-current shape.
+Quizzes learned this the hard way: its v1 specs had no version marker, so "is this old?" was for a
+long time detected by _absence_ of a field, and a whole migration layer exists to lift old blobs
+into the current shape (now at `version: "3"`).
 
 Decisions to make:
 
 - **Put a `version` discriminant in every stored type** — private spec, public spec, model solution
   spec, _and the answer_ (quizzes versions `UserAnswer` too: `types/quizTypes/answer.ts`). The
-  current quizzes private spec is literally `version: "2"`
-  (`services/quizzes/types/quizTypes/privateSpec.ts:15`).
-- **Normalize at every entry point, not in one place.** Old blobs enter through _four_ doors and all
-  must migrate-on-read: the public-spec endpoint, the model-solution endpoint, the grade path, and
-  the editor's `set-state` handler. Quizzes applies `isOldQuiz`/migration in exactly those four:
-  `src/server/publicSpec.ts`, `src/server/modelSolution.ts`, `src/grading/utils.ts`,
-  `src/components/IframeView.tsx`.
+  current quizzes private spec is literally `version: "3"`
+  (`services/quizzes/types/quizTypes/privateSpec.ts`).
+- **Normalize at every entry point, not in one place — but behind ONE reusable function.** Old blobs
+  enter through _four_ doors and all must migrate-on-read: the public-spec endpoint, the
+  model-solution endpoint, the grade path, and the editor's `set-state` handler. Quizzes routes all
+  four through a single chain module (`src/util/migration/migrateToLatest.ts`, one
+  `migrate*ToLatest` call per door) rather than copy-pasting a version check — see the extension
+  recipe below.
 - **Migrate-on-read, persist-on-save.** You can't rewrite stored blobs; you _can_ return the
   upgraded shape so the next save persists it. Internal code past the entry points should only ever
   see the current version.
-- **Never delete the old types or their migration code** — `oldQuizTypes.ts` is permanent. Old
-  private specs exist in the DB whether or not you still like them.
+- **Never delete the old types or their migration code** — `types/quizTypes/oldQuizTypes.ts` and the
+  frozen per-version snapshots (quizzes: `types/quizTypes/v2.ts`) are permanent. Old private specs
+  exist in the DB whether or not you still like them; when you bump the version, snapshot the shape
+  you're leaving behind so the previous step keeps compiling.
+
+**Build the migration as an extensible chain from day one, not a growing pile of `if (isOld)`
+branches.** Quizzes' `migrateToLatest.ts` keeps a per-blob-kind registry keyed by the version each
+step _accepts_ (`{ "1": v1->v2, "2": v2->v3 }`) and a loop that applies steps until
+`LATEST_QUIZ_VERSION` (in `versions.ts`, the single source of version truth via `detectQuizVersion`).
+Adding v4 later is: bump `LATEST_QUIZ_VERSION`, snapshot the changed types, write the `v3->v4` step
+functions, and add _one line per registry_. No door ever changes. That property — "a new migration
+is a one-line registry addition" — is the point of centralizing; design for it before you have two
+versions, because retrofitting it across scattered call sites is the expensive part.
+
+**On an unknown/typo'd item type during migration, fail loud — never fabricate.** Quizzes' old v1
+migrator returned a hardcoded placeholder essay (with literal-string content) for unknown types,
+which then got _persisted_ on the next save, silently corrupting data. Throw instead: the historical
+type set is closed, so an unknown type means corrupt input, and a clear error beats corrupted data.
 
 If you take one thing from this doc: a `version: "1"` literal field costs nothing today and is the
-difference between quizzes' controlled migration layer and guessing shapes off `any`.
+difference between quizzes' controlled migration chain and guessing shapes off `any`.
 
 ### 2. Design the derivation, not three independent types
 
@@ -280,6 +294,37 @@ the correct posture differs:
   shapes_ (migrate, then grade) — regrading replays history at you, and a 500 mid-regrade is your
   bug (`Failed` grading_progress exists for genuinely ungradeable submissions).
 
+### 10. Every editor control must map to a spec field; model a mode/strategy as a tagged union
+
+The private spec is the _only_ thing that gets saved. So the iron rule for the editor:
+
+- **If a control changes what gets saved or graded, it must write to a field in the private spec —
+  never to component-local React state.** Quizzes' closed-ended question shipped a
+  "grading strategy" radio (exact-string vs regex) held in `useState`. It was never in the spec, so
+  every reopen silently reset it and the teacher's choice was "undone." A control's value that isn't
+  in the spec does not exist. (Transient UI state that _doesn't_ affect the saved result — a preview
+  toggle, which accordion is open — is fine to keep local; the test is "does it change the private
+  spec?")
+- **Model a "mode/strategy" selector as a discriminated union on a tag field, not as overloaded
+  free-form fields.** The same closed-ended item stored only `{ validityRegex, formatRegex }` and
+  _faked_ "exact string" by writing the literal answer into `validityRegex`, which grading then ran
+  as a regex — so `C++`, `3.14`, `a+b` were silently mis-graded. The fix is a tagged union
+  (`services/quizzes/types/quizTypes/privateSpec.ts`,
+  `ClosedEndedQuestionGradingStrategy = exact-match | regex | numeric`): one `strategy` tag, each
+  variant carrying exactly its own fields, and an exhaustive `switch` in grading and in every
+  derivation. The union makes the persisted choice explicit and makes "which fields are valid right
+  now" a type-level fact.
+- **Don't overload one field with two meanings.** One field, one meaning. Do escaping/normalization
+  in grading code (compare strings as strings), not by reinterpreting stored authoring data.
+- **Make sure the model solution can show a _readable_ correct answer.** If correctness is stored
+  only as an opaque matcher (a regex), there is nothing human-readable to show the student when the
+  model solution is revealed. Store or derive a representative answer distinct from the checker
+  (quizzes' model-solution `correctAnswerDisplayTexts`, derived per strategy; the regex _pattern_ is
+  never revealed — see the leak rules in §3). Deriving it is a per-strategy allowlist projection,
+  which is exactly the shape §2 and the L9 rule below prescribe — quizzes' old model-solution
+  derivation was a spread-then-delete (cast the private spec, `delete` one field) and is the live
+  example L9 warns against.
+
 ---
 
 ## Part II — Testing the data models and forms
@@ -317,6 +362,13 @@ the tests that let you refactor the current types fearlessly — they prove anci
 
 Start this suite at version 1 even though there's nothing to migrate yet: a test asserting "a v1
 spec passes through normalization unchanged" is the anchor the v2 migration tests attach to later.
+
+Also test the **chain entry points** themselves, not just the per-version step functions: a
+versionless (v1) blob lifts all the way to the latest version in one call, an already-latest blob is
+returned unchanged, an unknown/future version throws, an unknown item type throws (fail-loud, no
+fabricated placeholder), and — when you add a version — every _other_ item type is deep-equal to its
+prior shape (the pass-through guarantee). Quizzes: `tests/util/migrationTests/migrateToLatest.test.ts`
+and `closedEndedV2ToV3.test.ts`.
 
 ### 4. Leak regression tests (the anti-cheating tests)
 
@@ -422,6 +474,14 @@ Before writing the editor UI, be able to answer:
    nothing you wouldn't show a peer reviewer?
 8. What are the validity invariants, and which single function encodes them?
 9. Sync or async grading? What's the partial-credit policy and where is it configured?
-10. Which of the four entry doors normalize old versions? (Must be: all four.)
-11. Do tests exist for: envelopes, leaks, round-trips, grading tables, migrations, and the editor's
-    emitted `current-state`?
+10. Which of the four entry doors normalize old versions? (Must be: all four, via one shared
+    `migrate*ToLatest` chain — and adding the next version is a one-line registry addition.)
+11. Does **every editor control that affects the saved/graded result** write to a private-spec
+    field (never to component-local state)? Is each mode/strategy selector a discriminated union on
+    a tag, with an exhaustive switch in grading and every derivation — no single field carrying two
+    meanings?
+12. If correctness is stored as an opaque matcher (regex/validator), is there also a readable
+    correct answer to show in the model solution?
+13. Do tests exist for: envelopes, leaks, round-trips, grading tables, migrations (including
+    old→latest chaining and fail-loud on unknown item types), and the editor's emitted
+    `current-state`?

@@ -5,6 +5,7 @@ import type { UserInformation } from "@/shared-module/exercise-protocol/core/exe
 import type { UserAnswer } from "../../../../types/quizTypes/answer"
 import type { PublicSpecQuiz } from "../../../../types/quizTypes/publicSpec"
 import QuizzesUserItemAnswerContext from "../../../contexts/QuizzesUserItemAnswerContext"
+import { LATEST_QUIZ_VERSION } from "../../../util/migration/versions"
 import AnswerExerciseImpl from "./impl-by-quiz-item-type"
 
 export interface ExerciseProps {
@@ -26,7 +27,7 @@ const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({
     }
     return {
       itemAnswers: [],
-      version: "2",
+      version: LATEST_QUIZ_VERSION,
     } satisfies UserAnswer
   }, [previousSubmission])
   const [userAnswer, setUserAnswer] = useState<UserAnswer | null>(intialAnswer)

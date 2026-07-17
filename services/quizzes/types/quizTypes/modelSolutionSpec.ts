@@ -13,7 +13,7 @@ export interface QuizItemOption {
 }
 
 export interface ModelSolutionQuiz {
-  version: "2"
+  version: "3"
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: grantPointsPolicy
   items: ModelSolutionQuizItem[]
@@ -116,6 +116,12 @@ export interface ModelSolutionQuizItemClosedEndedQuestion {
   successMessage: string | null
   failureMessage: string | null
   messageOnModelSolution: string | null
+  /**
+   * Representative correct answer(s) as display text, or null when there is nothing safe to reveal
+   * (a regex strategy without an example answer, or a draft). Never contains the regex pattern or
+   * any acceptance rule broader than the shown answer.
+   */
+  correctAnswerDisplayTexts: string[] | null
 }
 
 export interface ModelSolutionQuizItemMatrix {

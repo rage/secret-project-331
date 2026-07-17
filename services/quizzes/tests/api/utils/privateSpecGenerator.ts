@@ -29,7 +29,7 @@ export const MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS = "This message is the m
 
 export function generateEmptyPrivateSpecQuiz(): PrivateSpecQuiz {
   return {
-    version: "2",
+    version: "3",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [],
@@ -46,7 +46,13 @@ export function generatePrivateSpecWithOneClosedEndedQuestionQuizItem(): Private
     type: "closed-ended-question",
     id: "988b9c17-9f03-4062-b5ff-c6071d3c6f06",
     order: 0,
-    validityRegex: VALIDITY_REGEX_CANARY_FOR_TESTS,
+    gradingStrategy: {
+      strategy: "regex",
+      pattern: VALIDITY_REGEX_CANARY_FOR_TESTS,
+      caseSensitive: true,
+      matchWholeAnswer: false,
+      exampleCorrectAnswer: null,
+    },
     formatRegex: "[a-z]+",
     title: "What color is the sky?",
     body: null,
@@ -329,7 +335,7 @@ export function generateMultipleChoiceGradingRequest(
   }
 
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "2",
+    version: "3",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [multipleChoiceItem],
@@ -347,7 +353,7 @@ export function generateMultipleChoiceGradingRequest(
   }
 
   const userAnswer: UserAnswer = {
-    version: "2",
+    version: "3",
     itemAnswers: [userItemAnswer],
   }
 
@@ -379,7 +385,7 @@ export function generateChooseNGradingRequest(
   }
 
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "2",
+    version: "3",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [
@@ -410,7 +416,7 @@ export function generateChooseNGradingRequest(
   }
 
   const userAnswer: UserAnswer = {
-    version: "2",
+    version: "3",
     itemAnswers: [userItemAnswer],
   }
 
@@ -431,7 +437,7 @@ export function generateTimelineGradingRequest(
   timelineChoices: { timelineItemId: string; chosenEventId: string }[],
 ) {
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "2",
+    version: "3",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [
@@ -460,7 +466,7 @@ export function generateTimelineGradingRequest(
   }
 
   const userAnswer: UserAnswer = {
-    version: "2",
+    version: "3",
     itemAnswers: [userItemAnswer],
   }
 
@@ -473,7 +479,7 @@ export function generateTimelineGradingRequest(
 
 export function generateUnknownItemTypeGradingRequest() {
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "2",
+    version: "3",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [
@@ -520,7 +526,7 @@ export function generateUnknownItemTypeGradingRequest() {
   }
 
   const userAnswer = {
-    version: "2",
+    version: "3",
     itemAnswers: [userItemAnswer],
   } as UserAnswer
 

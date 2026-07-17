@@ -10,13 +10,16 @@ import type {
   QuizItem,
 } from "../../../../types/oldQuizTypes"
 import type { UserItemAnswer } from "../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItem } from "../../../../types/quizTypes/publicSpec"
 import type {
-  ModelSolutionQuiz,
-  ModelSolutionQuizItem,
-} from "../../../../types/quizTypes/modelSolutionSpec"
-import type { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../types/quizTypes/privateSpec"
-import type { PublicSpecQuiz, PublicSpecQuizItem } from "../../../../types/quizTypes/publicSpec"
+  ModelSolutionQuizItemV2,
+  ModelSolutionQuizV2,
+  PrivateSpecQuizItemV2,
+  PrivateSpecQuizV2,
+  PublicSpecQuizV2,
+} from "../../../../types/quizTypes/v2"
 
+// These helpers verify the v1 -> v2 migration step, whose output is the frozen v2 shape.
 const QUIZ_VERSION = "2"
 
 /**
@@ -27,7 +30,7 @@ const QUIZ_VERSION = "2"
  */
 const expectPrivateSpecMetadataToMatch = (
   oldQuiz: OldQuiz,
-  privateSpecQuiz: PrivateSpecQuiz,
+  privateSpecQuiz: PrivateSpecQuizV2,
   version = QUIZ_VERSION,
 ) => {
   expect(privateSpecQuiz.title).toStrictEqual(oldQuiz.title)
@@ -46,7 +49,7 @@ const expectPrivateSpecMetadataToMatch = (
  */
 const expectPublicSpecMetadataToMatch = (
   oldQuiz: OldPublicQuiz,
-  publicSpecQuiz: PublicSpecQuiz,
+  publicSpecQuiz: PublicSpecQuizV2,
   version = QUIZ_VERSION,
 ) => {
   expect(publicSpecQuiz.title).toStrictEqual(oldQuiz.title)
@@ -62,7 +65,7 @@ const expectPublicSpecMetadataToMatch = (
  */
 const expectModelSolutionSpecMetadataToMatch = (
   oldQuiz: OldModelSolutionQuiz,
-  modelSolutionSpecQuiz: ModelSolutionQuiz,
+  modelSolutionSpecQuiz: ModelSolutionQuizV2,
   version = QUIZ_VERSION,
 ) => {
   expect(modelSolutionSpecQuiz.title).toStrictEqual(oldQuiz.title)
@@ -116,7 +119,7 @@ const compareFields = <T extends object, S extends object>(
  * @param oldQuizItem old quiz item
  */
 const comparePrivateSpecQuizItem = (
-  privateSpecQuizItem: PrivateSpecQuizItem,
+  privateSpecQuizItem: PrivateSpecQuizItemV2,
   oldQuizItem: QuizItem,
 ) => {
   let fields = {}
@@ -222,7 +225,7 @@ const comparePrivateSpecQuizItem = (
       }
       break
   }
-  compareFields<PrivateSpecQuizItem, QuizItem>(fields, privateSpecQuizItem, oldQuizItem)
+  compareFields<PrivateSpecQuizItemV2, QuizItem>(fields, privateSpecQuizItem, oldQuizItem)
 }
 
 const comparePublicSpecQuizItem = (
@@ -316,7 +319,7 @@ const comparePublicSpecQuizItem = (
 }
 
 const compareModelSolutionSpecQuizItem = (
-  modelSolutionQuizItem: ModelSolutionQuizItem,
+  modelSolutionQuizItem: ModelSolutionQuizItemV2,
   oldQuizItem: OldModelSolutionQuizItem,
 ) => {
   let fields = {}
@@ -420,7 +423,7 @@ const compareModelSolutionSpecQuizItem = (
       }
       break
   }
-  compareFields<ModelSolutionQuizItem, OldModelSolutionQuizItem>(
+  compareFields<ModelSolutionQuizItemV2, OldModelSolutionQuizItem>(
     fields,
     modelSolutionQuizItem,
     oldQuizItem,

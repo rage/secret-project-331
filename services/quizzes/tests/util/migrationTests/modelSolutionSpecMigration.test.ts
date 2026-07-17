@@ -3,12 +3,12 @@ import type { OldModelSolutionQuizItem, OldQuizItemTimelineItem } from "../../..
 import type {
   ModelSolutionQuizItemCheckbox,
   ModelSolutionQuizItemChooseN,
-  ModelSolutionQuizItemClosedEndedQuestion,
   ModelSolutionQuizItemEssay,
   ModelSolutionQuizItemMatrix,
   ModelSolutionQuizItemScale,
   ModelSolutionQuizItemTimeline,
 } from "../../../types/quizTypes/modelSolutionSpec"
+import type { ModelSolutionQuizItemClosedEndedQuestionV2 } from "../../../types/quizTypes/v2"
 import {
   compareModelSolutionSpecQuizItem,
   expectModelSolutionSpecMetadataToMatch,
@@ -86,8 +86,8 @@ describe("model solution spec migration of quizzes", () => {
     const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)!
 
     const oldQuizItem: OldModelSolutionQuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
-    const newQuizItem: ModelSolutionQuizItemClosedEndedQuestion = newQuiz
-      .items[0] as ModelSolutionQuizItemClosedEndedQuestion
+    const newQuizItem: ModelSolutionQuizItemClosedEndedQuestionV2 = newQuiz
+      .items[0] as ModelSolutionQuizItemClosedEndedQuestionV2
 
     expect(newQuizItem.type).toBe("closed-ended-question")
     expectModelSolutionSpecMetadataToMatch(oldQuiz, newQuiz)

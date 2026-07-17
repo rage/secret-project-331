@@ -47,8 +47,7 @@ test("widget, scale", async ({ page, headless }, testInfo) => {
   // No idea how to fix.
 
   // Change second item to 4
-  // The react-aria radio uses a visually hidden input under the label, so click
-  // the visible label text (as a real user would) instead of the hidden input.
+  // react-aria radio's input is visually hidden under the label; click the label text instead.
   await iframeLocator
     .getByRole("radiogroup", {
       name: "Regex is what some people consider to be a 'write-only' language.",

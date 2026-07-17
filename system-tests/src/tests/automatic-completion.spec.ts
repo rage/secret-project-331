@@ -49,7 +49,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     beforeScreenshot: () => page.getByText("Congratulations!").scrollIntoViewIfNeeded(),
   })
 
-  // Only the completed module's CTA renders as an enabled link; incomplete modules show disabled buttons
+  // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -96,7 +96,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
   await page.getByText("Congratulations!").waitFor()
 
-  // Only the completed module's CTA renders as an enabled link; incomplete modules show disabled buttons
+  // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
 
   await page.getByText("Use this email address").first().waitFor()

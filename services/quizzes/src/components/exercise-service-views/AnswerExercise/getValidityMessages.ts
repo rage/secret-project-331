@@ -7,9 +7,9 @@ export type QuizValidityMessageKey =
   | "timeline-duplicate-answer-error"
 
 /**
- * Builds the already-localized reasons the current quiz answer is not yet submittable. These are
- * sent to the parent with the `current-state` message so it can tell the student why the submit
- * button is greyed out (course-improvements-issues#161). `t` is the i18next translator.
+ * Localized reasons the current quiz answer is not yet submittable, sent to the parent with the
+ * `current-state` message so it can tell the student why the submit button is greyed out
+ * (course-improvements-issues#161). `t` is the i18next translator.
  */
 export function getQuizValidityMessages(
   state: UserAnswer | null,

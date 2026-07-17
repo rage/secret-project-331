@@ -20,9 +20,8 @@ import { currentCourseIdAtom } from "@/state/course-material/selectors"
 
 import CourseSettingsModal from "../modals/CourseSettingsModal"
 
-// Styles an anchor to match the buttons rendered inside the menu tooltip, so
-// page-navigation entries are single links instead of a link wrapping a button.
-// Menu owns the layout (padding/sizing/alignment) via menuEntryLayout; only the
+// Styles an anchor to match the menu-tooltip buttons, so page-navigation entries are single
+// links, not a link wrapping a button. Menu owns layout via menuEntryLayout; only the
 // anchor-specific colors live here.
 const menuLink = cx(
   menuEntryLayout,

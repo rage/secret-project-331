@@ -66,8 +66,8 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
 
         <OneTimePassCodeField onChange={(val) => setValue("code", val, { shouldValidate: true })} />
 
-        {/* The live region is always in the DOM so that assistive technology has registered it
-            before the error text is inserted; otherwise the announcement can be missed. */}
+        {/* Live region stays in the DOM so assistive tech registers it before the error text is
+            inserted; otherwise the announcement can be missed. */}
         <div
           id="code-error"
           aria-live="assertive"

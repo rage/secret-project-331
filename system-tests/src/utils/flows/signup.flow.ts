@@ -14,10 +14,7 @@ export interface SignUpOptions {
   returnTo?: string
 }
 
-/**
- * Selects a country in the "Where do you live?" combobox on the signup page. Opens the react-aria
- * combobox and clicks the matching option.
- */
+/** Selects a country in the "Where do you live?" combobox on the signup page. */
 export async function selectSignupCountry(page: Page, country: string): Promise<void> {
   await page.getByRole("combobox", { name: "Where do you live?" }).click()
   await page.getByRole("option", { name: country, exact: true }).click()

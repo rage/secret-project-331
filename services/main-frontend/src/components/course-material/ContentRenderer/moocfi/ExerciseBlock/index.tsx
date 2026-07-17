@@ -510,10 +510,10 @@ const ExerciseBlock: React.FC<
         const reviewingStage = courseMaterialExercise.exercise_status?.reviewing_stage
         const gradingState = courseMaterialExercise.exercise_status?.grading_progress
 
-        // Unified, already-localized list of reasons the submit button is disabled, shown proactively
-        // next to it so students understand why they cannot submit yet (course-improvements-issues#161).
-        // Answer-specific reasons come from the exercise iframe (e.g. a Timeline duplicate); the
-        // host-side reasons (deadline, language version, cannot post) are added here.
+        // Already-localized reasons the submit button is disabled, shown next to it so students
+        // understand why (course-improvements-issues#161). Answer-specific reasons come from the
+        // exercise iframe (e.g. a Timeline duplicate); host-side ones (deadline, language version,
+        // cannot post) are added here.
         const taskCount = postThisStateToIFrame?.length ?? 0
         const answerValues = Array.from(answers.values())
         const answersIncomplete = answers.size < taskCount || answerValues.some((a) => !a.valid)

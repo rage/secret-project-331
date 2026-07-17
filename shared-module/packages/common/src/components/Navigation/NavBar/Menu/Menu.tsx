@@ -30,9 +30,8 @@ const MenuIcon = css`
   }
 `
 
-// Layout rules shared by every entry rendered inside a Menu, whether it is a
-// <Button> (below) or a direct anchor entry styled via `menuEntryLayout`. Menu
-// owns these so consumers do not hand-copy them and drift out of sync.
+// Layout shared by every Menu entry (internal <Button>s below and anchor entries
+// styled via `menuEntryLayout`). Kept here so consumers don't hand-copy it and drift.
 const MENU_ENTRY_LAYOUT = `
   text-decoration: none;
   list-style: none;
@@ -46,9 +45,8 @@ const MENU_ENTRY_LAYOUT = `
   width: 100%;
 `
 
-// Apply to a direct anchor entry (e.g. <li><a className={menuEntryLayout}/></li>)
-// so it matches the layout of the <Button> entries the Menu styles internally.
-// Colors are intentionally left to the consumer.
+// Apply to an anchor entry (e.g. <li><a className={menuEntryLayout}/></li>) to match
+// the internal <Button> entries' layout. Colors are left to the consumer.
 export const menuEntryLayout = css`
   display: block;
   ${MENU_ENTRY_LAYOUT}

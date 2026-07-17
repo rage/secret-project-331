@@ -1,9 +1,9 @@
 // CommonJS stand-in for the `uuid` package in Jest.
 //
-// uuid v14 ships as ESM only, and next/jest's transformIgnorePatterns do not allow it through the
-// transformer, so importing it in a test crashes with "Unexpected token 'export'". This mock
-// provides faithful implementations of the two entry points used in this service (`validate` and
-// `v4`) so tests that transitively import `uuid` (e.g. via shared-module `strings.ts`) run.
+// uuid v14 is ESM-only and next/jest's transformIgnorePatterns don't transform it, so importing it
+// in a test crashes with "Unexpected token 'export'". Reimplements the two entry points this service
+// uses (`validate`, `v4`) so tests that transitively import `uuid` (e.g. via shared-module
+// `strings.ts`) run.
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 

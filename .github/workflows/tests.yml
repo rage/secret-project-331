@@ -56,6 +56,9 @@ jobs:
           df -h
 
       - uses: actions/checkout@v4
+        with:
+          # The compile-time font guard rejects unhydrated git-lfs pointers.
+          lfs: true
 
       - uses: actions/cache@v4
         with:

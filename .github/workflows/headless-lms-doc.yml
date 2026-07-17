@@ -42,6 +42,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+          # The compile-time font guard rejects unhydrated git-lfs pointers.
+          lfs: true
 
       - name: Cache Cargo dependencies and docs build output
         uses: actions/cache@v4

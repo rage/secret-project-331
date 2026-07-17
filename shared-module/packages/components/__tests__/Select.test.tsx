@@ -192,4 +192,27 @@ describe("Select", () => {
       )),
     ).toThrow(/unique values/i)
   })
+
+  test("renders search field when it is enabled", () => {
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        description="Select your country"
+        label="Country"
+        options={countryOptions}
+        searchEnabled={true}
+        searchPlaceholder="Search country"
+      />
+    ))
+
+    const trigger = screen.getByRole("button", { name: /Country/ })
+
+    fireEvent.click(trigger)
+
+    const search = screen.getByRole("searchbox", { name: "Search country" })
+    expect(search).toBeInTheDocument()
+    expect(screen.getByPlaceholderText("Search country")).toBeInTheDocument()
+    expect(search).toHaveAttribute("aria-label")
+  })
 })

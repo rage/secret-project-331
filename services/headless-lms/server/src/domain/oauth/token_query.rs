@@ -2,13 +2,14 @@ use super::oauth_validate::OAuthValidate;
 use crate::prelude::*;
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use models::library::oauth::GrantTypeName;
-use serde::{Deserialize, Serialize};
+use secrecy::{ExposeSecret, SecretString};
+use serde::Deserialize;
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Default)]
+#[derive(Debug, Deserialize, Clone, Default)]
 pub struct TokenQuery {
     pub client_id: Option<String>,
-    pub client_secret: Option<String>, // optional: public clients won't send this
+    pub client_secret: Option<SecretString>, // optional: public clients won't send this
     #[serde(flatten)]
     pub grant: Option<TokenGrant>,
     // OAuth 2.0 requires unknown params be ignored at /token (RFC 6749 §3.2)
@@ -16,10 +17,10 @@ pub struct TokenQuery {
     pub _extra: HashMap<String, String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Clone)]
 pub struct TokenParams {
     pub client_id: String,
-    pub client_secret: Option<String>, // carry through; validation for presence is done per-client later
+    pub client_secret: Option<SecretString>, // carry through; validation for presence is done per-client later
     pub grant: TokenGrant,
 }
 
@@ -50,7 +51,7 @@ impl OAuthValidate for TokenQuery {
                     code, redirect_uri, ..
                 } = &grant
                 {
-                    if code.is_empty() {
+                    if code.expose_secret().is_empty() {
                         return Err(ControllerError::new(
                             ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                                 error: OAuthErrorCode::InvalidRequest.as_str().into(),
@@ -85,7 +86,7 @@ impl OAuthValidate for TokenQuery {
             }
             Some(grant @ TokenGrant::RefreshToken { .. }) => {
                 if let TokenGrant::RefreshToken { refresh_token, .. } = &grant
-                    && refresh_token.is_empty()
+                    && refresh_token.expose_secret().is_empty()
                 {
                     return Err(ControllerError::new(
                         ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -137,18 +138,18 @@ impl OAuthValidate for TokenQuery {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "grant_type", rename_all = "snake_case")]
 pub enum TokenGrant {
     AuthorizationCode {
-        code: String,
+        code: SecretString,
         /// Optional per RFC 6749 §4.1.3 (required if it was present in the authorization request)
         redirect_uri: Option<String>,
         /// Optional; enforced later if the code stored a challenge
-        code_verifier: Option<String>,
+        code_verifier: Option<SecretString>,
     },
     RefreshToken {
-        refresh_token: String,
+        refresh_token: SecretString,
         /// Optional down-scope
         #[serde(default)]
         scope: Option<String>,
@@ -387,9 +388,12 @@ mod tests {
                 redirect_uri,
                 code_verifier,
             }) => {
-                assert_eq!(code, "C");
+                assert_eq!(code.expose_secret(), "C");
                 assert_eq!(redirect_uri.as_deref(), Some("http://localhost"));
-                assert_eq!(code_verifier.as_deref(), Some("ver"));
+                assert_eq!(
+                    code_verifier.as_ref().map(|v| v.expose_secret()),
+                    Some("ver")
+                );
             }
             _ => panic!("expected AuthorizationCode"),
         }
@@ -408,7 +412,7 @@ mod tests {
                 refresh_token,
                 scope,
             }) => {
-                assert_eq!(refresh_token, "R");
+                assert_eq!(refresh_token.expose_secret(), "R");
                 assert_eq!(scope.as_deref(), Some("read write"));
             }
             _ => panic!("expected RefreshToken"),

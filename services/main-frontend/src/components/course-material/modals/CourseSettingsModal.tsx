@@ -3,28 +3,24 @@
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
-import React, { useContext, useEffect, useId, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import SelectCourseLanguage from "../SelectCourseLanguage"
-import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
-
-import { getLanguageName } from "./ChooseCourseLanguage"
-
+import { saveCourseMaterialCourseSettings } from "@/generated/course-material-api/sdk.generated"
+import type { NewCourseBackgroundQuestionAnswer } from "@/generated/course-material-api/types.generated"
 import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
 import useCourse from "@/hooks/course-material/useCourse"
 import useCourseInstances from "@/hooks/course-material/useCourseInstances"
 import { refetchUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import useUserMarketingConsent from "@/hooks/course-material/useUserMarketingConsent"
-import { postSaveCourseSettings } from "@/services/course-material/backend"
-import { NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, fontWeights, primaryFont, typography } from "@/shared-module/common/styles"
+import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { invalidateCourseMaterialStateQueries } from "@/state/course-material/queries"
 import {
   currentCourseIdAtom,
@@ -34,6 +30,10 @@ import {
   viewStatusAtom,
 } from "@/state/course-material/selectors"
 import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languageHelpers"
+
+import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
+import SelectCourseLanguage from "../SelectCourseLanguage"
+import { getLanguageName } from "./ChooseCourseLanguage"
 
 export interface CourseSettingsModalProps {
   onClose: () => void
@@ -56,7 +56,6 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   const materialSettings = useAtomValue(materialSettingsAtom)
   const viewStatus = useAtomValue(viewStatusAtom)
   const materialInstance = useAtomValue(materialInstanceAtom)
-  const dialogTitleId = useId()
 
   // i18n.language changes automatically when the page is loaded, need to update dialogLanguage automatically so that we can accurately detect when the user has changed the language
   useEffect(() => {
@@ -94,7 +93,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   useEffect(() => {
     getCourseInstances.refetch()
     sortInstances()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLangCourseId])
 
   const { availableLanguages } = useLanguageNavigation({
@@ -128,8 +127,13 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
       const newLanguage = newLangcode ?? ""
 
       try {
-        await postSaveCourseSettings(variables.instanceId, {
-          background_question_answers: variables.backgroundQuestionAnswers,
+        await saveCourseMaterialCourseSettings({
+          body: {
+            background_question_answers: variables.backgroundQuestionAnswers,
+          },
+          path: {
+            course_instance_id: variables.instanceId,
+          },
         })
 
         if (newLanguage) {
@@ -154,7 +158,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   )
 
   if (courseId === null) {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     return <ErrorBanner variant={"readOnly"} error={"No course ID defined"} />
   }
 
@@ -162,24 +166,20 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     return null
   }
   return (
-    <Dialog open={open} aria-labelledby={dialogTitleId} closeable={false} noPadding>
+    <StandardDialog
+      open={open}
+      title={t("title-course-settings")}
+      noPadding
+      leftAlignTitle={true}
+      showCloseButton={false}
+      closeable={false}
+    >
       <div
         className={css`
           padding: 2rem 3rem;
         `}
       >
         {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
-        <h1
-          className={css`
-            font-weight: ${fontWeights.medium};
-            font-size: ${typography.h5};
-            line-height: 26px;
-            margin-bottom: 1rem;
-          `}
-          id={dialogTitleId}
-        >
-          {t("title-course-settings")}
-        </h1>
         {pageId && selectedLangCourseId && (
           <SelectCourseLanguage
             selectedLangCourseId={selectedLangCourseId}
@@ -189,20 +189,22 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
             currentPageId={pageId}
           />
         )}
-        {getCourseInstances.isError && (
-          <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
-        )}
-        {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
-        {getCourseInstances.isSuccess && selectedLangCourseId && (
-          <SelectCourseInstanceForm
-            courseInstances={getCourseInstances.data}
-            submitMutation={handleSubmitAndCloseMutation}
-            initialSelectedInstanceId={
-              materialSettings?.current_course_instance_id ?? materialInstance?.id
-            }
-            dialogLanguage={dialogLanguage}
-            selectedLangCourseId={selectedLangCourseId}
-          />
+        {selectedLangCourseId && viewStatus === "ready" && (
+          <QueryResult query={getCourseInstances} treatEmptyAsData>
+            {(courseInstances) => {
+              const initialSelectedInstanceId =
+                materialSettings?.current_course_instance_id ?? materialInstance?.id
+              return (
+                <SelectCourseInstanceForm
+                  courseInstances={courseInstances}
+                  submitMutation={handleSubmitAndCloseMutation}
+                  {...omitUndefined({ initialSelectedInstanceId })}
+                  dialogLanguage={dialogLanguage}
+                  selectedLangCourseId={selectedLangCourseId}
+                />
+              )
+            }}
+          </QueryResult>
         )}
       </div>
 
@@ -210,11 +212,11 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         <div
           className={css`
             background: ${baseTheme.colors.green[100]};
-            height: 57px;
+            min-height: 57px;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 0px 0px 4px 4px;
+            padding: 0.75rem 1rem;
           `}
         >
           <p
@@ -226,6 +228,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
               line-height: 17px;
               text-align: center;
               color: ${baseTheme.colors.green[700]};
+              margin: 0;
             `}
           >
             {t("course-language-change-warning", {
@@ -234,7 +237,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
           </p>
         </div>
       )}
-    </Dialog>
+    </StandardDialog>
   )
 }
 

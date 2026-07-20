@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 
-import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
 
 // Global store for edited content (shared between instances)
 const editedContents = new Map<string, string | null>()
@@ -83,6 +83,7 @@ export const useParagraphEditing = ({
 
       return () => clearTimeout(timeoutId)
     }
+    return undefined
   }, [editing, selectedBlockId, id, positionAtEnd, isEditingEnabled])
 
   const handleClick = useCallback(() => {

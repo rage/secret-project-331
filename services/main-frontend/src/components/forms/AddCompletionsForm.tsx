@@ -6,7 +6,7 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { CourseModule, TeacherManualCompletionRequest } from "@/shared-module/common/bindings"
+import type { CourseModule, TeacherManualCompletionRequest } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DatePicker from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -42,7 +42,7 @@ const ExampleTitle = styled.p`
   color: ${baseTheme.colors.gray[700]};
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const CodeExample = styled.pre`
   background-color: ${baseTheme.colors.clear[200]};
   padding: 0.75rem;
@@ -73,7 +73,7 @@ const CSV_EXAMPLE = `user_id,grade,completion_date
 00000000-0000-0000-0000-000000000001,pass,2024-03-16`
 
 interface AddCompletionsFormProps {
-  courseModules: Array<CourseModule>
+  courseModules: CourseModule[]
   onSubmit: (data: TeacherManualCompletionRequest) => void
   /* Text shown in place of the submit button. */
   submitText?: string
@@ -136,7 +136,8 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       })
 
       if (parsed.errors.length > 0) {
-        setError(COMPLETIONS, { message: parsed.errors[0].message })
+        const parseErrorMessage = parsed.errors[0]?.message
+        setError(COMPLETIONS, parseErrorMessage !== undefined ? { message: parseErrorMessage } : {})
         return
       }
 
@@ -153,6 +154,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         // Validate the grade field.
         let validatedGrade = null
         if (grade) {
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number()/Math.trunc differ
           const numericGrade = parseInt(grade, 10)
           if (!isNaN(numericGrade)) {
             if (numericGrade < 0 || numericGrade > 5) {
@@ -169,13 +171,10 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         }
 
         // Validate and process the completion date.
-        let processedDate = null
-        if (completion_date) {
-          processedDate = makeDateStringTimezoneErrorsLessLikely(completion_date)
-          // Optionally, add additional checks here to verify a valid date.
-        } else {
-          processedDate = defaultDate
-        }
+        // Optionally, add additional checks here to verify a valid date.
+        const processedDate = completion_date
+          ? makeDateStringTimezoneErrorsLessLikely(completion_date)
+          : defaultDate
 
         return {
           user_id,

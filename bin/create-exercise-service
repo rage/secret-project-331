@@ -1,0 +1,13 @@
+#!/bin/bash
+# Scaffolds a new exercise service from the example-exercise template. See
+# shared-module/packages/create-exercise-service/README.md for details.
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../shared-module/packages/create-exercise-service"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+cd "$RELATIVE_PATH"
+
+run_command pnpm start

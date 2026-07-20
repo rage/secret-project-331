@@ -2,10 +2,10 @@
 
 import { useCallback, useMemo } from "react"
 
-import useCourseLanguageVersionNavigationInfos from "../useCourseLanguageVersionNavigationInfos"
-
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import { buildLanguageSwitchedUrl } from "@/utils/course-material/urlBuilder"
+
+import useCourseLanguageVersionNavigationInfos from "../useCourseLanguageVersionNavigationInfos"
 
 export interface LanguageOption {
   code: string

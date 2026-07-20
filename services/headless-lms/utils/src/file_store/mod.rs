@@ -16,7 +16,8 @@ use rand::distr::SampleString;
 
 use uuid::Uuid;
 
-use crate::{ApplicationConfiguration, prelude::*};
+use crate::prelude::*;
+use headless_lms_base::config::ApplicationConfiguration;
 
 pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes, anyhow::Error>>>>;
 /**

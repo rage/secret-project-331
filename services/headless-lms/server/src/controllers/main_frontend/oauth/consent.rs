@@ -4,9 +4,18 @@ use crate::domain::oauth::consent_response::ConsentResponse;
 use crate::domain::oauth::helpers::oauth_invalid_request;
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
-use models::{oauth_client::OAuthClient, oauth_user_client_scopes::OAuthUserClientScopes};
+use models::{
+    error::ModelErrorType, oauth_client::OAuthClient,
+    oauth_user_client_scopes::OAuthUserClientScopes,
+};
 use sqlx::PgPool;
 use url::{Url, form_urlencoded};
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(approve_consent, deny_consent))]
+#[allow(dead_code)]
+pub(crate) struct MainFrontendOauthConsentApiDoc;
 
 /// Handles `/consent` approval after the user agrees to grant requested scopes.
 ///
@@ -28,6 +37,16 @@ use url::{Url, form_urlencoded};
 /// Location: /api/v0/main-frontend/oauth/authorize?client_id=...
 /// ```
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/consent",
+    operation_id = "approveOauthConsent",
+    tag = "oauth",
+    request_body = ConsentQuery,
+    responses(
+        (status = 200, description = "Consent approval response", body = ConsentResponse)
+    )
+)]
 pub async fn approve_consent(
     pool: web::Data<PgPool>,
     form: web::Json<ConsentQuery>,
@@ -113,18 +132,40 @@ pub async fn approve_consent(
 /// Location: http://localhost?error=access_denied&state=random123
 /// ```
 #[instrument]
+#[utoipa::path(
+    post,
+    path = "/consent/deny",
+    operation_id = "denyOauthConsent",
+    tag = "oauth",
+    request_body = ConsentDenyQuery,
+    responses(
+        (status = 200, description = "Consent denial response", body = ConsentResponse)
+    )
+)]
 pub async fn deny_consent(
     pool: web::Data<PgPool>,
     form: web::Json<ConsentDenyQuery>,
 ) -> Result<HttpResponse, Error> {
-    let mut conn = pool
-        .acquire()
-        .await
-        .map_err(actix_web::error::ErrorInternalServerError)?;
+    let mut conn = pool.acquire().await.map_err(|e| {
+        tracing::error!(err = %e, "OAuth consent/deny: pool acquire failed");
+        actix_web::error::ErrorInternalServerError(e)
+    })?;
 
-    let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id)
-        .await
-        .map_err(actix_web::error::ErrorBadRequest)?;
+    let client_result = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await;
+    let client = match client_result {
+        Ok(c) => c,
+        Err(err) => {
+            return Err(match err.error_type() {
+                ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
+                    actix_web::error::ErrorNotFound("client not found")
+                }
+                _ => {
+                    tracing::error!(err = %err, "OAuth consent/deny: client lookup failed");
+                    actix_web::error::ErrorInternalServerError(err)
+                }
+            });
+        }
+    };
 
     if !client.redirect_uris.contains(&form.redirect_uri) {
         return Err(actix_web::error::ErrorBadRequest("invalid redirect URI"));
@@ -141,9 +182,9 @@ pub async fn deny_consent(
         }
     }
 
-    Ok(HttpResponse::Found()
-        .append_header(("Location", url.to_string()))
-        .finish())
+    Ok(HttpResponse::Ok().json(ConsentResponse {
+        redirect_uri: url.to_string(),
+    }))
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {

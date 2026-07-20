@@ -1,7 +1,11 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { respondToConfirmDialog } from "@/utils/dialogs"
-import { scrollLocatorsParentIframeToViewIfNeeded } from "@/utils/iframeLocators"
+import {
+  scrollLocatorsParentIframeToViewIfNeeded,
+  waitForMessageChannelIframesToBeReady,
+} from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -38,6 +42,7 @@ test("Grade exams manually", async ({}) => {
 
   await student1Page.getByRole("button", { name: "Start the exam!" }).click()
   await respondToConfirmDialog(student1Page, true)
+  await waitForMessageChannelIframesToBeReady(student1Page)
 
   await student1Page
     .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
@@ -60,9 +65,10 @@ test("Grade exams manually", async ({}) => {
   await student1Page.getByRole("button", { name: "Submit" }).click()
   await student1Page.getByRole("button", { name: "Try again" }).nth(1).waitFor()
 
-  await student1Page.getByRole("button", { name: "End exam" }).click()
-  await respondToConfirmDialog(student1Page, true)
-  await expect(student1Page.getByText("Success", { exact: true })).toBeVisible()
+  await waitForSuccessNotification(student1Page, async () => {
+    await student1Page.getByRole("button", { name: "End exam" }).click()
+    await respondToConfirmDialog(student1Page, true)
+  })
 
   // Student2 goes to the exam page and submits answers and then ends exam
   await student2Page.goto(
@@ -71,6 +77,7 @@ test("Grade exams manually", async ({}) => {
 
   await student2Page.getByRole("button", { name: "Start the exam!" }).click()
   await respondToConfirmDialog(student2Page, true)
+  await waitForMessageChannelIframesToBeReady(student2Page)
 
   await student2Page
     .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
@@ -93,9 +100,10 @@ test("Grade exams manually", async ({}) => {
   await student2Page.getByRole("button", { name: "Submit" }).click()
   await student2Page.getByRole("button", { name: "Try again" }).nth(1).waitFor()
 
-  await student2Page.getByRole("button", { name: "End exam" }).click()
-  await respondToConfirmDialog(student2Page, true)
-  await expect(student2Page.getByText("Success", { exact: true })).toBeVisible()
+  await waitForSuccessNotification(student2Page, async () => {
+    await student2Page.getByRole("button", { name: "End exam" }).click()
+    await respondToConfirmDialog(student2Page, true)
+  })
 
   // Teacher goes to the grading page and grades the students submissions
   await teacherPage.goto("http://project-331.local/organizations")
@@ -109,10 +117,11 @@ test("Grade exams manually", async ({}) => {
   await teacherPage.getByRole("link", { name: "Grading", exact: true }).click()
 
   // Check that there are both students submissions
-  await teacherPage.getByRole("cell", { name: "Number of answered" }).waitFor()
+  await teacherPage.getByRole("columnheader", { name: "Number of answered" }).waitFor()
   await expect(teacherPage.getByRole("cell", { name: "2" }).first()).toBeVisible()
 
   await teacherPage.getByRole("row", { name: "Grade Question 1" }).getByRole("button").click()
+  await waitForMessageChannelIframesToBeReady(teacherPage)
 
   // Check the first submissions has 0 points and it's ungraded
   await expect(teacherPage.getByRole("cell", { name: "Ungraded" }).first()).toBeVisible()
@@ -125,13 +134,16 @@ test("Grade exams manually", async ({}) => {
     .click()
   await teacherPage.locator("#Justification").fill("Ok")
   await teacherPage.getByLabel("Score", { exact: true }).fill("1")
-  await teacherPage.getByRole("button", { name: "Save and next" }).click()
-  await waitForSuccessNotification(teacherPage)
+  await waitForSuccessNotification(teacherPage, async () => {
+    await teacherPage.getByRole("button", { name: "Save and next" }).click()
+  })
+  await waitForMessageChannelIframesToBeReady(teacherPage)
 
   await teacherPage.locator("#Justification").fill("Good")
   await teacherPage.getByLabel("Score", { exact: true }).fill("0.5")
-  await teacherPage.getByRole("button", { name: "Submit" }).click()
-  await waitForSuccessNotification(teacherPage)
+  await waitForSuccessNotification(teacherPage, async () => {
+    await teacherPage.getByRole("button", { name: "Submit" }).click()
+  })
 
   // Check both submissions are graded
   await teacherPage.getByRole("link", { name: "Submissions" }).click()
@@ -167,9 +179,10 @@ test("Grade exams manually", async ({}) => {
   ).toBeVisible()
 
   // Publish grading results
-  await teacherPage.getByRole("button", { name: "Publish grading results" }).click()
-  await respondToConfirmDialog(teacherPage, true)
-  await waitForSuccessNotification(teacherPage)
+  await waitForSuccessNotification(teacherPage, async () => {
+    await teacherPage.getByRole("button", { name: "Publish grading results" }).click()
+    await respondToConfirmDialog(teacherPage, true)
+  })
 
   await expect(
     teacherPage.getByRole("row", { name: "Grade Question 1 Graded 2 2 0" }),

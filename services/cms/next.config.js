@@ -8,11 +8,14 @@ const normalResponseHeaders = generateNormalResponseHeaders()
  * @type {import('next').NextConfig}
  */
 const config = {
-  eslint: {
-    ignoreDuringBuilds: true,
+  // Type errors are gated by the separate fast tsc check (bin/tsc-check-all + the CI
+  // "Typecheck" step), so skip Next's slower in-build type-check.
+  typescript: {
+    ignoreBuildErrors: true,
   },
   output: "standalone",
-  outputFileTracingRoot: ".",
+  outputFileTracingRoot: __dirname,
+  // oxlint-disable-next-line require-await -- Next.js config headers() type expects a Promise-returning function
   async headers() {
     return [
       {
@@ -21,8 +24,8 @@ const config = {
       },
     ]
   },
-  webpack(config) {
-    config.module.rules.push({
+  webpack(webpackConfig) {
+    webpackConfig.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
       loader: "@svgr/webpack",
@@ -33,10 +36,10 @@ const config = {
     })
 
     // Support webassembly
-    config.output.webassemblyModuleFilename = "static/wasm/[modulehash].wasm"
-    config.experiments = { asyncWebAssembly: true, layers: true }
+    webpackConfig.output.webassemblyModuleFilename = "static/wasm/[modulehash].wasm"
+    webpackConfig.experiments = { asyncWebAssembly: true, layers: true }
 
-    return config
+    return webpackConfig
   },
   turbopack: {
     rules: {
@@ -68,6 +71,7 @@ const config = {
     },
   },
   transpilePackages: ["@vectopus/atlas-icons-react"],
+  allowedDevOrigins: ["project-331.local"],
   // This is open source, so no need to hide the code
   productionBrowserSourceMaps: true,
 }

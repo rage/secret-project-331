@@ -2,7 +2,7 @@
 
 // Gutenberg specific, don't use in other contexes
 
-const fontSizes: { [fontName: string]: string | undefined } = {
+const fontSizes: Record<string, string | undefined> = {
   small: "16px",
   normal: "20px",
   medium: "24px",
@@ -10,7 +10,7 @@ const fontSizes: { [fontName: string]: string | undefined } = {
   huge: "42px",
 }
 
-const mobileFontSizes: { [fontName: string]: string | undefined } = {
+const mobileFontSizes: Record<string, string | undefined> = {
   small: "15px",
   normal: "18px",
   medium: "22px",

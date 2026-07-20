@@ -5,12 +5,11 @@ import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
 import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import LanguageSelection, {
-  LanguageOption,
-} from "@/shared-module/common/components/LanguageSelection"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import type { LanguageOption } from "@/shared-module/common/components/LanguageSelection"
+import LanguageSelection from "@/shared-module/common/components/LanguageSelection"
+import Spinner from "@/shared-module/common/components/Spinner"
 import {
   currentCourseIdAtom,
   currentPageDataAtom,
@@ -46,7 +45,7 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
   }))
 
   const handleLanguageChange = useCallback(
-    async (newLanguageCode: string) => {
+    (newLanguageCode: string) => {
       try {
         // Update state - the redirect will be handled by useCourseMaterialLanguageRedirection hook
         changeCourseMaterialLanguage(newLanguageCode)

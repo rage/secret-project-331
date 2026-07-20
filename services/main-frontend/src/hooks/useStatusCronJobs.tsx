@@ -2,14 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchCronJobs } from "../services/backend/status"
-
-import { CronJobInfo } from "@/shared-module/common/bindings"
+import { getStatusCronjobsOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useStatusCronJobs = () => {
-  return useQuery<CronJobInfo[]>({
-    queryKey: ["status", "cronjobs"],
-    queryFn: () => fetchCronJobs(),
+  return useQuery({
+    ...getStatusCronjobsOptions(),
     refetchInterval: 10000,
   })
 }

@@ -1,8 +1,9 @@
 import { test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
 import { respondToConfirmDialog } from "@/utils/dialogs"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -21,8 +22,10 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
     ],
   })
 
-  await page.getByRole("button", { name: "Start the exam!" }).click()
-  await respondToConfirmDialog(page, true)
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Start the exam!" }).click()
+    await respondToConfirmDialog(page, true)
+  })
   await page
     .getByText("In this exam you're supposed to answer to two easy questions. Good luck!")
     .waitFor()
@@ -30,6 +33,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
     headless,
     testInfo,
     screenshotTarget: page,
+    clearNotifications: true,
     snapshotName: "exam-started",
     waitForTheseToBeVisibleAndStable: [
       page.getByText("In this exam you're supposed to answer to two easy questions. Good luck!"),
@@ -80,7 +84,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
   // Make sure this works even after reloading the page
   await page.reload()
   await page.getByText("Answer this question.").first().scrollIntoViewIfNeeded()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.locator("button:text('Try again')").first().click()
   await page

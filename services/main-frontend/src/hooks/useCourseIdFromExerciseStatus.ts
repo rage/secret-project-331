@@ -1,4 +1,4 @@
-import { ExerciseStatusSummaryForUser } from "@/shared-module/common/bindings"
+import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
 
 export const useCourseIdFromExerciseStatus = (
   exerciseStatusSummaries: ExerciseStatusSummaryForUser[] | undefined,
@@ -10,5 +10,5 @@ export const useCourseIdFromExerciseStatus = (
   if (!first) {
     return null
   }
-  return first.exercise.course_id
+  return first.exercise.course_id ?? null
 }

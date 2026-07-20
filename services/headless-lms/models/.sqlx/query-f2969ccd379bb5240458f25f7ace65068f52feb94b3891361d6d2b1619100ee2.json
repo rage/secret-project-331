@@ -1,0 +1,160 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO page_visit_datum_summary_by_courses_device_types (\n    course_id,\n    exam_id,\n    browser,\n    browser_version,\n    operating_system,\n    device_type,\n    num_visitors,\n    visit_date\n  )\nSELECT course_id,\n  exam_id,\n  browser,\n  browser_version,\n  operating_system,\n  device_type,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at >= ($1::date::timestamp AT TIME ZONE 'UTC')\n  AND created_at < (($1::date + 1)::timestamp AT TIME ZONE 'UTC')\n  AND is_bot = FALSE\nGROUP BY course_id,\n  exam_id,\n  browser,\n  browser_version,\n  operating_system,\n  device_type ON CONFLICT (\n    course_id,\n    exam_id,\n    visit_date,\n    browser,\n    browser_version,\n    operating_system,\n    device_type,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "browser",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "browser"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "browser_version",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "browser_version"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "operating_system",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "operating_system"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "device_type",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "device_type"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "exam_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "exam_id"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "num_visitors",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "num_visitors"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "visit_date",
+        "type_info": "Date",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "visit_date"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Date"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "f2969ccd379bb5240458f25f7ace65068f52feb94b3891361d6d2b1619100ee2"
+}

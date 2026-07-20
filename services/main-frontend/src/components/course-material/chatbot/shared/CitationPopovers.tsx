@@ -1,11 +1,11 @@
 "use client"
 
-import { RefObject, SetStateAction } from "react"
+import type { RefObject, SetStateAction } from "react"
+
+import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 import CitationPopover from "./CitationPopover"
-
-import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface CitationPopoversProps {
   citations: ChatbotConversationMessageCitation[]

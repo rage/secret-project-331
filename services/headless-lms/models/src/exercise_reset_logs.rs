@@ -1,8 +1,9 @@
 use crate::prelude::*;
 use sqlx::PgConnection;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseResetLog {
     pub id: Uuid,
     pub reset_by: Option<Uuid>,

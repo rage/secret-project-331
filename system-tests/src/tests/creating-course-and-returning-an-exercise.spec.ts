@@ -1,13 +1,16 @@
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
+
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
 import {
   getLocatorForNthExerciseServiceIframe,
   scrollLocatorsParentIframeToViewIfNeeded,
+  waitForExerciseServiceIframeToBeStable,
 } from "../utils/iframeLocators"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -16,9 +19,7 @@ test.use({
 test("Creating a course an returning an exercise works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   await page.click(`button:text("Create")`)
@@ -106,6 +107,8 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
 
+  // The iframe resizes as the editor view loads; wait for it to settle so the click hits the button.
+  await waitForExerciseServiceIframeToBeStable(page, "example-exercise", 1)
   await frame.getByText("New").first().click()
 
   await frame.locator(':nth-match([placeholder="Option text"], 1)').first().click()
@@ -115,6 +118,8 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
     .locator(':nth-match([placeholder="Option text"], 1)')
     .fill("Manually reviewing the final system")
 
+  // Adding the previous option grew the iframe; wait for the resize to settle before clicking again.
+  await waitForExerciseServiceIframeToBeStable(page, "example-exercise", 1)
   await frame.getByText("New").first().click()
 
   await frame.locator(':nth-match([placeholder="Option text"], 2)').first().click()
@@ -124,6 +129,8 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
     .locator(':nth-match([placeholder="Option text"], 2)')
     .fill("Automatically testing the whole system")
 
+  // Adding the previous option grew the iframe; wait for the resize to settle before clicking again.
+  await waitForExerciseServiceIframeToBeStable(page, "example-exercise", 1)
   await frame.getByText("New").first().click()
 
   await frame.locator(':nth-match([placeholder="Option text"], 3)').first().click()
@@ -136,8 +143,9 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   // Check :nth-match(input[type="checkbox"], 2)
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
-  await page.click('button:text-is("Save") >> visible=true')
-  await page.getByText(`Operation successful!`).waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.click('button:text-is("Save") >> visible=true')
+  })
 
   // Check that the assignment still displays after saving
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
@@ -162,6 +170,8 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   const frame2 = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
   await scrollLocatorsParentIframeToViewIfNeeded(frame2)
 
+  // The iframe resizes as the answer view loads; wait for it to settle so the click hits the option.
+  await waitForExerciseServiceIframeToBeStable(page, "example-exercise", 1)
   await frame2.getByText("Automatically testing the whole system").first().click()
 
   await page.locator("#content >> text=Submit").click()

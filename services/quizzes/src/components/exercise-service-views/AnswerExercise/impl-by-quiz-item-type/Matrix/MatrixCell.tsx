@@ -1,8 +1,8 @@
-"use client"
-
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useState } from "react"
+
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 interface CellInputStyleProps {
   row: number
@@ -18,7 +18,7 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     font-size: 2.8vw;
     font-size: 1.375rem;
     color: #313947;
-    font-family: Inter, sans-serif;
+    font-family: ${primaryFont};
     display: block;
     width: 3.125rem;
     height: 3.125rem;
@@ -29,15 +29,15 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     background: #FBFBFC;
     ${
       cellText === "" &&
-      (column > matrixSize[1] || row > matrixSize[0]) &&
+      (column > (matrixSize[1] ?? Number.NaN) || row > (matrixSize[0] ?? Number.NaN)) &&
       `
       background-color: #F5F6F7;
 `
     }
     ${
-      (cellText !== "" && column > matrixSize[1]) ||
+      (cellText !== "" && column > (matrixSize[1] ?? Number.NaN)) ||
       (cellText !== "" &&
-        row > matrixSize[0] &&
+        row > (matrixSize[0] ?? Number.NaN) &&
         isActive &&
         cellText.length === 0 &&
         `
@@ -75,7 +75,7 @@ const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProp
         font-size: 2.8vw;
         font-size: 1.375rem;
         font-weight: 600;
-        font-family: Inter, sans-serif;
+        font-family: ${primaryFont};
       `}
     >
       <div
@@ -87,7 +87,7 @@ const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProp
       >
         <BorderDiv column={column} row={row} matrixSize={matrixSize}></BorderDiv>
         <CellInputContainer
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           aria-label={`row: ${row}, column: ${column}`}
           column={column}
           row={row}
@@ -149,7 +149,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
           `}
         ></div>
       ) : null}
-      {column === 0 && row <= matrixSize[0] ? (
+      {column === 0 && row <= (matrixSize[0] ?? Number.NaN) ? (
         <div
           className={css`
             ${BORDER_STYLES}
@@ -160,7 +160,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
           `}
         ></div>
       ) : null}
-      {column === matrixSize[1] && row <= matrixSize[0] ? (
+      {column === matrixSize[1] && row <= (matrixSize[0] ?? Number.NaN) ? (
         <div
           className={css`
             ${BORDER_STYLES}

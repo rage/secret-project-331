@@ -4,30 +4,36 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
-import { AxiosError } from "axios"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
-import { fetchCountryFromIP } from "@/services/backend/user-details"
-import { ErrorResponse } from "@/shared-module/common/bindings"
+import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelect from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
+import type { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
-import { createUser } from "@/shared-module/common/services/backend/auth"
+import "@/shared-module/common/init/registerAuthApiClients"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+
+interface CreateUserErrorResponse {
+  message?: string
+}
 
 interface FormFields {
   first_name: string
@@ -123,14 +129,11 @@ const Wrapper = styled.div`
 const CreateAccountForm: React.FC = () => {
   const { register, formState, watch, reset, handleSubmit, trigger, control, setError } =
     useForm<FormFields>({
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       mode: "onChange",
     })
 
-  const preFillCountry = useQuery({
-    queryKey: [`users-ip-country`],
-    queryFn: () => fetchCountryFromIP(),
-  })
+  const preFillCountry = useQuery(getUsersIpCountryOptions())
 
   useEffect(() => {
     if (preFillCountry.data) {
@@ -153,48 +156,44 @@ const CreateAccountForm: React.FC = () => {
   const [emailAlreadyTakenError, setEmailAlreadyTakenError] = useState<string | null>(null)
 
   const { t, i18n } = useTranslation()
+  usePageTitle(t("title-sign-up"))
 
+  const email = watch("email")
   const password = watch("password")
   const passwordConfirmation = watch("password_confirmation")
 
-  const createAccountMutation = useToastMutation<unknown, unknown, FormFields>(
+  useEffect(() => {
+    setEmailAlreadyTakenError(null)
+    // oxlint-disable-next-line i18next/no-literal-string
+    void trigger("email")
+  }, [email, trigger])
+
+  const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(
+    // oxlint-disable-next-line eslint/require-await -- kept async for the mutationFn Promise<SignupResponse> contract
     async (data) => {
       const {
         first_name,
         last_name,
-        email,
-        password,
+        email: emailValue,
+        password: passwordValue,
         password_confirmation,
         country,
         email_communication_consent,
       } = data
-      await createUser({
-        email: email,
-        first_name: first_name,
-        last_name: last_name,
-        language: i18n.language,
-        password: password,
-        password_confirmation: password_confirmation,
-        country: country,
-        email_communication_consent: Boolean(email_communication_consent),
+      return postAuthSignup({
+        body: {
+          email: emailValue,
+          first_name: first_name,
+          last_name: last_name,
+          language: i18n.language,
+          password: passwordValue,
+          password_confirmation: password_confirmation,
+          country: country,
+          email_communication_consent: Boolean(email_communication_consent),
+        },
       })
     },
     { notify: true, method: "POST" },
-    {
-      onSuccess: () => {
-        reset({
-          first_name: "",
-          last_name: "",
-          email: "",
-          password: "",
-          password_confirmation: "",
-          country: "",
-          email_communication_consent: false,
-        })
-        setConfirmEmailPageVisible(true)
-        loginStateContext.refresh()
-      },
-    },
   )
 
   useEffect(() => {
@@ -206,16 +205,27 @@ const CreateAccountForm: React.FC = () => {
   useEffect(() => {
     // Make sure that password_confirmation is revalidated when the password changes.
     if (password && password !== "" && passwordConfirmation && passwordConfirmation !== "") {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       trigger("password_confirmation")
     }
   }, [password, passwordConfirmation, trigger])
 
   useEffect(() => {
     if (createAccountMutation.isError && createAccountMutation.error) {
-      const error = createAccountMutation.error as AxiosError<ErrorResponse>
-      const status = error.response?.status
-      const errorMessage = error.response?.data?.message || ""
+      const err = createAccountMutation.error
+      const status =
+        typeof err === "object" && err !== null && "status" in err ? Number(err.status) : null
+      const errorMessage =
+        typeof err === "object" &&
+        err !== null &&
+        "body" in err &&
+        typeof err.body === "object" &&
+        err.body !== null &&
+        "message" in err.body
+          ? String((err.body as CreateUserErrorResponse).message ?? "")
+          : typeof err === "object" && err !== null && "userMessage" in err
+            ? String(err.userMessage ?? "")
+            : ""
 
       if (
         status === 400 &&
@@ -235,7 +245,6 @@ const CreateAccountForm: React.FC = () => {
       setEmailAlreadyTakenError(null)
     }
   }, [createAccountMutation.isError, createAccountMutation.error, setError, t])
-
   const { t: tCountries } = useTranslation("countries")
   const countriesNames = Object.entries(countries).map(([code]) => ({
     value: code,
@@ -294,7 +303,33 @@ const CreateAccountForm: React.FC = () => {
       <form
         onSubmit={handleSubmit(async (data, event) => {
           event?.preventDefault()
-          createAccountMutation.mutate(data)
+          try {
+            const result = await createAccountMutation.mutateAsync(data)
+
+            if (result.type === "email_already_exists") {
+              setEmailAlreadyTakenError(t("email-already-taken"))
+              setError("email", {
+                type: "manual",
+                message: t("email-already-taken-field-error"),
+              })
+              return
+            }
+
+            setEmailAlreadyTakenError(null)
+            reset({
+              first_name: "",
+              last_name: "",
+              email: "",
+              password: "",
+              password_confirmation: "",
+              country: "",
+              email_communication_consent: false,
+            })
+            setConfirmEmailPageVisible(true)
+            await loginStateContext.refresh()
+          } catch {
+            setEmailAlreadyTakenError(null)
+          }
         })}
       >
         <fieldset disabled={isSubmitting}>
@@ -305,7 +340,7 @@ const CreateAccountForm: React.FC = () => {
               required: t("required-field"),
             })}
             required={true}
-            error={errors.first_name}
+            {...includeIf(errors.first_name, { error: errors.first_name })}
           />
 
           <TextField
@@ -315,11 +350,10 @@ const CreateAccountForm: React.FC = () => {
               required: t("required-field"),
             })}
             required={true}
-            error={errors.last_name}
+            {...includeIf(errors.last_name, { error: errors.last_name })}
           />
 
           <Controller
-            // eslint-disable-next-line i18next/no-literal-string
             name="country"
             control={control}
             rules={{ required: t("required-field") }}
@@ -332,7 +366,7 @@ const CreateAccountForm: React.FC = () => {
                 options={countriesNames}
                 onChangeByValue={(value) => field.onChange(value)}
                 value={field.value}
-                error={errors.country?.message}
+                {...includeIf(errors.country?.message, { error: errors.country?.message })}
               />
             )}
           />
@@ -349,7 +383,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.email}
+            {...includeIf(errors.email, { error: errors.email })}
           />
           <TextField
             label={t("password")}
@@ -363,7 +397,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.password}
+            {...includeIf(errors.password, { error: errors.password })}
           />
 
           <TextField
@@ -381,7 +415,7 @@ const CreateAccountForm: React.FC = () => {
               },
             })}
             required={true}
-            error={errors.password_confirmation}
+            {...includeIf(errors.password_confirmation, { error: errors.password_confirmation })}
           />
 
           <CheckBox

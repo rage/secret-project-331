@@ -1,13 +1,32 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import { UseMutationResult, useQuery } from "@tanstack/react-query"
-import { BlockInstance } from "@wordpress/blocks"
+import type { UseMutationResult } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { isEqual } from "lodash"
 import { useRouter } from "next/router"
 import React, { useMemo, useReducer, useState } from "react"
-import { useTranslation } from "react-i18next"
+
+import type { CmsPageUpdate, ContentManagementPage, Page } from "@/generated/api"
+import {
+  getCmsCourseOptions,
+  getCmsPageNavigationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import Button from "@/shared-module/common/components/Button"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import DebugModal from "@/shared-module/common/components/DebugModal"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+/* oxlint-disable i18next/no-literal-string */
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+import { pageRoute } from "@/shared-module/common/utils/routes"
+import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import {
   blockTypeMapForFrontPages,
@@ -17,32 +36,15 @@ import {
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import usePageInfo from "../../hooks/usePageInfo"
-import { fetchCourseById } from "../../services/backend/courses"
-import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
-import { fetchNextPageRoutingData } from "../../services/backend/pages"
+import mediaUploadBuilder from "../../services/mediaUpload"
+import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
 import { modifyBlocks, removeUncommonSpacesFromBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
-import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
 import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../utils/peerOrSelfReviewConfig"
 import { coursePageRoute } from "../../utils/routing"
-import SerializeGutenbergModal from "../SerializeGutenbergModal"
+import CmsPageTitle from "../CmsPageTitle"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
-
-import {
-  CmsPageUpdate,
-  ContentManagementPage,
-  GutenbergBlock,
-  Page,
-} from "@/shared-module/common/bindings"
-import Button from "@/shared-module/common/components/Button"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import { pageRoute } from "@/shared-module/common/utils/routes"
-import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
+import HeadingHierarchyButton from "./HeadingHierarchyButton"
 
 interface PageEditorProps {
   data: Page
@@ -84,13 +86,11 @@ const customBlocks = (
       blocks = blocks.filter((v) => v[0] !== "moocfi/chatbot")
     }
     return blocks
-  } else {
-    if (urlPath === "/") {
-      return blockTypeMapForFrontPages
-    } else {
-      return blockTypeMapForTopLevelPages
-    }
   }
+  if (urlPath === "/") {
+    return blockTypeMapForFrontPages
+  }
+  return blockTypeMapForTopLevelPages
 }
 
 const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
@@ -103,27 +103,31 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const { confirm } = useDialog()
   const { t } = useTranslation()
   const router = useRouter()
-  const prefix = router.asPath ? router.asPath.split("/")[1] : ""
+  const prefix = router.asPath ? (router.asPath.split("/")[1] ?? "") : ""
   const pageInfo = usePageInfo(data.id, prefix)
   const [title, setTitle] = useState(data.title)
   const savedTitle = data.title
   const savedContent = modifyBlocks(
     data.content as BlockInstance[],
-    supportedBlocks(data.chapter_id, data.exam_id),
+    supportedBlocks(data.chapter_id ?? null, data.exam_id ?? null),
   ) as BlockInstance[]
   const [content, contentDispatch] = useReducer(
     editorContentReducer,
-    modifyBlocks(savedContent, supportedBlocks(data.chapter_id, data.exam_id)) as BlockInstance[],
+    modifyBlocks(
+      savedContent,
+      supportedBlocks(data.chapter_id ?? null, data.exam_id ?? null),
+    ) as BlockInstance[],
   )
   const currentContentStateSaved = isEqual(savedContent, content) && savedTitle === title
   const [currentlySaving, setCurrentlySaving] = useState(false)
-  const handleOnSave = async () => {
+  const handleOnSave = () => {
     setCurrentlySaving(true)
     const dataToSave = normalizeDocument({
-      chapterId: data.chapter_id,
+      chapterId: data.chapter_id ?? null,
       content: removeUncommonSpacesFromBlocks(removeUnsupportedBlockType(content)),
       title,
       urlPath: data.url_path,
+      hidden: data.hidden,
     })
     // Make sure peer review configs are valid
     for (const exercise of dataToSave.exercises) {
@@ -135,20 +139,21 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       }
     }
     saveMutation.mutate(dataToSave, {
-      onSuccess: (data) => {
-        if (!isGutenbergBlockArray(data.page.content)) {
+      onSuccess: (saveResult) => {
+        if (!isGutenbergBlockArray(saveResult.page.content)) {
           throw new Error("Content is not a GutenbergBlock array")
         }
         contentDispatch({
           type: "setContent",
           payload: denormalizeDocument({
-            content: data.page.content,
-            exercises: data.exercises,
-            exercise_slides: data.exercise_slides,
-            exercise_tasks: data.exercise_tasks,
-            url_path: data.page.url_path,
-            title: data.page.title,
-            chapter_id: data.page.chapter_id,
+            content: saveResult.page.content,
+            exercises: saveResult.exercises,
+            exercise_slides: saveResult.exercise_slides,
+            exercise_tasks: saveResult.exercise_tasks,
+            url_path: saveResult.page.url_path,
+            title: saveResult.page.title,
+            ...omitUndefined({ chapter_id: saveResult.page.chapter_id }),
+            hidden: saveResult.page.hidden,
           }).content,
         })
         setNeedToRunMigrationsAndValidations(true)
@@ -165,33 +170,42 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   } else if (data.exam_id) {
     mediaUpload = mediaUploadBuilder({ examId: data.exam_id })
   } else {
-    throw "The backend should ensure that a page is associated with either a course or an exam"
+    throw new Error(
+      "The backend should ensure that a page is associated with either a course or an exam",
+    )
   }
 
-  const getNextPageRoutingData = useQuery({
-    queryKey: [`pages-${data.id}-page-navigation`],
-    queryFn: () => fetchNextPageRoutingData(data.id),
-  })
+  const getNextPageRoutingData = useQuery(
+    getCmsPageNavigationOptions({
+      path: {
+        page_id: data.id,
+      },
+    }),
+  )
 
-  const courseQuery = useQuery({
-    queryKey: ["course", data.course_id],
-    queryFn: () => fetchCourseById(data.course_id!),
-    enabled: !!data.course_id,
-  })
+  const courseQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: data.course_id,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 
   const chapterLockingEnabled = courseQuery.data?.chapter_locking_enabled ?? false
 
   const pageRoutingData = getNextPageRoutingData.data
-  let nextPageUrl = "/"
-
-  if (pageRoutingData && pageRoutingData.next_page) {
-    nextPageUrl = coursePageRoute(pageRoutingData.next_page.page_id)
-  } else {
-    nextPageUrl = coursePageRoute(data.id)
-  }
+  const nextPageUrl =
+    pageRoutingData && pageRoutingData.next_page
+      ? coursePageRoute(pageRoutingData.next_page.page_id)
+      : coursePageRoute(data.id)
   const saveAndReset = (
     <div>
-      {pageInfo.data && (
+      {pageInfo.data && pageInfo.data.organization_slug && pageInfo.data.course_slug && (
         <a
           className={css`
             display: block;
@@ -264,11 +278,17 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       </div>
     </div>
   )
+  const inspectorButtons = (
+    <>
+      <HeadingHierarchyButton content={content} />
+      {saveAndReset}
+    </>
+  )
   const memoizedCustomBlocks = useMemo(
     () =>
       customBlocks(
-        data.chapter_id,
-        data.exam_id,
+        data.chapter_id ?? null,
+        data.exam_id ?? null,
         data.url_path,
         courseCanAddChatbot,
         chapterLockingEnabled,
@@ -277,6 +297,12 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   )
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
+      <CmsPageTitle
+        title={joinTitleSegments([
+          title.trim() ? t("editing-page", { title }) : t("edit"),
+          pageInfo.data?.course_name,
+        ])}
+      />
       <BreakFromCentered sidebar={false}>
         <div className="editor__top-button-wrapper">{saveAndReset}</div>
       </BreakFromCentered>
@@ -294,7 +320,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}
           mediaUpload={mediaUpload}
-          inspectorButtons={saveAndReset}
+          inspectorButtons={inspectorButtons}
           needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
           setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
         />
@@ -306,17 +332,12 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             margin-bottom: 1rem;
           `}
         >
-          <div
-            className={css`
-              margin-bottom: 0.5rem;
-            `}
-          >
-            <SerializeGutenbergModal content={content} />
-          </div>
           <DebugModal
             data={content}
             readOnly={false}
-            updateDataOnClose={(data) => contentDispatch({ type: "setContent", payload: data })}
+            updateDataOnClose={(updatedContent) =>
+              contentDispatch({ type: "setContent", payload: updatedContent })
+            }
           />
         </div>
       </div>

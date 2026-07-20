@@ -1,8 +1,10 @@
+import { handlePublicSpec } from "@/server/publicSpec"
+import type { SpecRequest } from "@/utils/exerciseServiceApi"
+
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
-import { POST } from "../../src/app/api/public-spec/route"
-import {
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
@@ -16,14 +18,13 @@ import {
   PrivateSpecQuizItemTimelineItem,
   QuizItemOption,
 } from "../../types/quizTypes/privateSpec"
-import {
+import type {
   PublicSpecQuiz,
   PublicSpecQuizItemChooseN,
   PublicSpecQuizItemMultiplechoice,
   PublicSpecQuizItemMultiplechoiceDropdown,
   PublicSpecQuizItemTimeline,
 } from "../../types/quizTypes/publicSpec"
-
 import testClient from "./utils/appRouterTestClient"
 import {
   ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
@@ -45,9 +46,7 @@ import {
   VALIDITY_REGEX_CANARY_FOR_TESTS,
 } from "./utils/privateSpecGenerator"
 
-import { SpecRequest } from "@/shared-module/common/bindings"
-
-const client = testClient(POST)
+const client = testClient(handlePublicSpec)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/public-spec"
 
 /**
@@ -59,7 +58,7 @@ function expectPropertiesHaveBeenRemoved<T>(object: unknown, notAllowedPropertie
     if (typeof notAllowedProperty === "string") {
       expect(object).not.toHaveProperty(notAllowedProperty)
     } else {
-      throw new Error("notAllowedProperty must be a string")
+      throw new TypeError("notAllowedProperty must be a string")
     }
   }
 }

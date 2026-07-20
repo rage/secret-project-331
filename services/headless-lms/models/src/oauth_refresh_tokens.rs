@@ -31,6 +31,8 @@ pub struct OAuthRefreshTokens {
     pub metadata: serde_json::Value,
     pub revoked: bool,
     pub rotated_from: Option<Digest>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone)]
@@ -109,18 +111,7 @@ impl OAuthRefreshTokens {
         let token = sqlx::query_as!(
             OAuthRefreshTokens,
             r#"
-            SELECT
-              digest             as "digest: _",
-              user_id,
-              client_id,
-              expires_at,
-              scopes,
-              audience,
-              jti,
-              dpop_jkt,
-              metadata,
-              revoked,
-              rotated_from       as "rotated_from: _"
+            SELECT *
             FROM oauth_refresh_tokens
             WHERE digest = $1
               AND expires_at > now()
@@ -218,18 +209,7 @@ impl OAuthRefreshTokens {
                AND client_id = $2
                AND revoked = false
                AND expires_at > now()
-            RETURNING
-              digest             as "digest: _",
-              user_id,
-              client_id,
-              expires_at,
-              scopes,
-              audience,
-              jti,
-              dpop_jkt,
-              metadata,
-              revoked,
-              rotated_from       as "rotated_from: _"
+            RETURNING *
             "#,
             digest.as_bytes(),
             client_id

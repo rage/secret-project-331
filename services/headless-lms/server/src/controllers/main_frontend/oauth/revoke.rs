@@ -2,13 +2,20 @@ use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::domain::oauth::revoke_query::RevokeQuery;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
-use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 use models::{
     error::ModelErrorType, library::oauth::token_digest_sha256,
     oauth_access_token::OAuthAccessToken, oauth_client::OAuthClient,
     oauth_refresh_tokens::OAuthRefreshTokens,
 };
+use secrecy::ExposeSecret;
 use sqlx::PgPool;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(revoke))]
+#[allow(dead_code)]
+pub(crate) struct MainFrontendOauthRevokeApiDoc;
 
 /// Handles the `/revoke` endpoint for OAuth 2.0 token revocation (RFC 7009).
 ///
@@ -39,6 +46,19 @@ use sqlx::PgPool;
 /// HTTP/1.1 200 OK
 /// ```
 #[instrument(skip(pool, form, app_conf))]
+#[utoipa::path(
+    post,
+    path = "/revoke",
+    operation_id = "revokeOauthToken",
+    tag = "oauth",
+    request_body(
+        content = serde_json::Value,
+        content_type = "application/x-www-form-urlencoded"
+    ),
+    responses(
+        (status = 200, description = "OAuth token revocation acknowledged")
+    )
+)]
 pub async fn revoke(
     pool: web::Data<PgPool>,
     OAuthValidated(form): OAuthValidated<RevokeQuery>,
@@ -69,6 +89,7 @@ pub async fn revoke(
                 }
                 // Database/storage failures - return 5xx per RFC 7009
                 _ => {
+                    tracing::error!(err = %err, "OAuth revoke: client lookup failed");
                     return Err(ControllerError::new(
                         ControllerErrorType::InternalServerError,
                         "Failed to authenticate client due to storage error".to_string(),
@@ -85,7 +106,10 @@ pub async fn revoke(
         match &client.client_secret {
             Some(secret) => {
                 let provided_secret_digest = token_digest_sha256(
-                    &form.client_secret.clone().unwrap_or_default(),
+                    form.client_secret
+                        .as_ref()
+                        .map(|s| s.expose_secret())
+                        .unwrap_or_default(),
                     token_hmac_key,
                 );
                 secret.constant_eq(&provided_secret_digest)
@@ -123,7 +147,7 @@ pub async fn revoke(
     match hint {
         Some("access_token") => {
             // Try access token first
-            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+            let token_digest = token_digest_sha256(form.token.expose_secret(), token_hmac_key);
             let access_token_found = match OAuthAccessToken::find_valid(&mut conn, token_digest)
                 .await
             {
@@ -131,7 +155,8 @@ pub async fn revoke(
                     // Verify the token belongs to the authenticated client before revoking
                     if access_token.client_id == client.id {
                         // Recalculate digest since it was moved
-                        let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                        let token_digest =
+                            token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                         OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
                     }
                     true
@@ -153,13 +178,14 @@ pub async fn revoke(
             };
             // If not found, try refresh token
             if !access_token_found {
-                let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                let token_digest = token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                 match OAuthRefreshTokens::find_valid(&mut conn, token_digest).await {
                     Ok(refresh_token) => {
                         // Verify the token belongs to the authenticated client before revoking
                         if refresh_token.client_id == client.id {
                             // Recalculate digest since it was moved
-                            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                            let token_digest =
+                                token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                             OAuthRefreshTokens::revoke_by_digest(&mut conn, token_digest).await?;
                         }
                     }
@@ -185,7 +211,7 @@ pub async fn revoke(
         }
         Some("refresh_token") => {
             // Try refresh token first
-            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+            let token_digest = token_digest_sha256(form.token.expose_secret(), token_hmac_key);
             let refresh_token_found = match OAuthRefreshTokens::find_valid(&mut conn, token_digest)
                 .await
             {
@@ -193,7 +219,8 @@ pub async fn revoke(
                     // Verify the token belongs to the authenticated client before revoking
                     if refresh_token.client_id == client.id {
                         // Recalculate digest since it was moved
-                        let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                        let token_digest =
+                            token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                         OAuthRefreshTokens::revoke_by_digest(&mut conn, token_digest).await?;
                     }
                     true
@@ -215,13 +242,14 @@ pub async fn revoke(
             };
             // If not found, try access token
             if !refresh_token_found {
-                let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                let token_digest = token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                 match OAuthAccessToken::find_valid(&mut conn, token_digest).await {
                     Ok(access_token) => {
                         // Verify the token belongs to the authenticated client before revoking
                         if access_token.client_id == client.id {
                             // Recalculate digest since it was moved
-                            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                            let token_digest =
+                                token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                             OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
                         }
                     }
@@ -247,7 +275,7 @@ pub async fn revoke(
         }
         _ => {
             // No hint: try access token first, then refresh token
-            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+            let token_digest = token_digest_sha256(form.token.expose_secret(), token_hmac_key);
             let access_token_found = match OAuthAccessToken::find_valid(&mut conn, token_digest)
                 .await
             {
@@ -255,7 +283,8 @@ pub async fn revoke(
                     // Verify the token belongs to the authenticated client before revoking
                     if access_token.client_id == client.id {
                         // Recalculate digest since it was moved
-                        let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                        let token_digest =
+                            token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                         OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
                     }
                     true
@@ -277,13 +306,14 @@ pub async fn revoke(
             };
             // If not found, try refresh token
             if !access_token_found {
-                let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                let token_digest = token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                 match OAuthRefreshTokens::find_valid(&mut conn, token_digest).await {
                     Ok(refresh_token) => {
                         // Verify the token belongs to the authenticated client before revoking
                         if refresh_token.client_id == client.id {
                             // Recalculate digest since it was moved
-                            let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+                            let token_digest =
+                                token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                             OAuthRefreshTokens::revoke_by_digest(&mut conn, token_digest).await?;
                         }
                     }

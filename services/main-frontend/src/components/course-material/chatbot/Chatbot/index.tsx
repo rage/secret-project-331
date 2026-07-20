@@ -2,14 +2,16 @@
 
 import React from "react"
 
-import ChatbotDialog from "./ChatbotDialog"
+import ChatbotChat from "../shared/ChatbotChat"
 
 export interface ChatbotProps {
   chatbotConfigurationId: string
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
-  return <ChatbotDialog chatbotConfigurationId={chatbotConfigurationId} />
+  return (
+    <ChatbotChat chatbotConfigurationId={chatbotConfigurationId} isCourseMaterialBlock={false} />
+  )
 }
 
 export default React.memo(Chatbot)

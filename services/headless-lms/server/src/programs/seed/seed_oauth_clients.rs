@@ -17,10 +17,13 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         Digest::from_str("396b544a35b29f7d613452a165dcaebf4d71b80e981e687e91ce6d9ba9679cb2")
             .unwrap(); // "very-secret"
     let mut conn = db_pool.acquire().await?;
-    let redirect_uris = vec![
-        "http://127.0.0.1:8765/callback".to_string(),
-        "https://localhost.emobix.co.uk:8443/test/a/testing/callback".to_string(),
-    ];
+    // One redirect URI per Playwright worker (ports 8765..8784) so each worker has its own callback server.
+    // Must match system-tests getRedirectUri(): http://127.0.0.1:{port}/callback
+    let mut redirect_uris: Vec<String> = (8765..=8784)
+        .map(|p| format!("http://127.0.0.1:{p}/callback"))
+        .collect();
+    redirect_uris.push("https://localhost.emobix.co.uk:8443/test/a/testing/callback".to_string());
+
     let scopes = vec![
         "openid".to_string(),
         "profile".to_string(),
@@ -32,6 +35,8 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         GrantTypeName::RefreshToken,
     ];
     let pkce_methods_allowed = vec![pkce::PkceMethod::S256];
+    let allowed_origins = vec!["http://localhost".to_string()];
+
     let new_client_parms = oauth_client::NewClientParams {
         client_name: "Test Client",
         application_type: oauth_client::ApplicationType::Web,
@@ -41,7 +46,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         redirect_uris: redirect_uris.as_slice(),
         allowed_grant_types: &allowed_grant_types,
         scopes: scopes.as_slice(),
-        origin: "http://localhost",
+        allowed_origins: Some(allowed_origins.as_slice()),
         bearer_allowed: true,
         pkce_methods_allowed: &pkce_methods_allowed,
         post_logout_redirect_uris: None,
@@ -49,7 +54,14 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         token_endpoint_auth_method: oauth_client::TokenEndpointAuthMethod::ClientSecretPost,
     };
 
-    let client = oauth_client::OAuthClient::insert(&mut conn, new_client_parms).await?;
+    let client = if let Some(existing) =
+        oauth_client::OAuthClient::find_by_client_id_optional(&mut conn, "test-client-id").await?
+    {
+        existing
+    } else {
+        oauth_client::OAuthClient::insert(&mut conn, new_client_parms).await?
+    };
+
     let new_client_parms_2 = oauth_client::NewClientParams {
         client_name: "Test Client 2",
         application_type: oauth_client::ApplicationType::Web,
@@ -59,14 +71,19 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         redirect_uris: redirect_uris.as_slice(),
         allowed_grant_types: &allowed_grant_types,
         scopes: scopes.as_slice(),
-        origin: "http://localhost",
+        allowed_origins: Some(allowed_origins.as_slice()),
         bearer_allowed: true,
         pkce_methods_allowed: &pkce_methods_allowed,
         post_logout_redirect_uris: None,
         require_pkce: false,
         token_endpoint_auth_method: oauth_client::TokenEndpointAuthMethod::ClientSecretPost,
     };
-    let _client_2 = oauth_client::OAuthClient::insert(&mut conn, new_client_parms_2).await?;
+    if oauth_client::OAuthClient::find_by_client_id_optional(&mut conn, "test-client-id-2")
+        .await?
+        .is_none()
+    {
+        let _client_2 = oauth_client::OAuthClient::insert(&mut conn, new_client_parms_2).await?;
+    }
 
     let new_client_parms_3 = oauth_client::NewClientParams {
         client_name: "Test Client 3",
@@ -77,14 +94,19 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         redirect_uris: redirect_uris.as_slice(),
         allowed_grant_types: &allowed_grant_types,
         scopes: scopes.as_slice(),
-        origin: "http://localhost",
+        allowed_origins: Some(allowed_origins.as_slice()),
         bearer_allowed: true,
         pkce_methods_allowed: &pkce_methods_allowed,
         post_logout_redirect_uris: None,
         require_pkce: false,
         token_endpoint_auth_method: oauth_client::TokenEndpointAuthMethod::ClientSecretPost,
     };
-    let _client_3 = oauth_client::OAuthClient::insert(&mut conn, new_client_parms_3).await?;
+    if oauth_client::OAuthClient::find_by_client_id_optional(&mut conn, "test-client-id-3")
+        .await?
+        .is_none()
+    {
+        let _client_3 = oauth_client::OAuthClient::insert(&mut conn, new_client_parms_3).await?;
+    }
 
     Ok(SeedOAuthClientsResult {
         client_db_id: client.id,

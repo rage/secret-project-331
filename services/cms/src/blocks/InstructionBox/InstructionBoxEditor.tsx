@@ -1,14 +1,14 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { RichText } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
 
-import BlockWrapper from "../BlockWrapper"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
-import { InstructionBoxAttributes } from "."
+import type { InstructionBoxAttributes } from "."
+import BlockWrapper from "../BlockWrapper"
 
 const InstructionBoxEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<InstructionBoxAttributes>>

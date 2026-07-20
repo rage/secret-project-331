@@ -1,25 +1,23 @@
-"use client"
-
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { PrivateSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/privateSpec"
+import Accordion from "@/shared-module/common/components/Accordion"
+import Button from "@/shared-module/common/components/Button"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import { headingFont, primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { PrivateSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import MultipleChoiceOption from "../common/MultipleChoiceOption"
 import ParsedTextField from "../common/ParsedTextField"
 import ToggleCard from "../common/ToggleCard"
-
-import Accordion from "@/shared-module/common/components/Accordion"
-import Button from "@/shared-module/common/components/Button"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import { headingFont, primaryFont } from "@/shared-module/common/styles"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string
@@ -46,14 +44,13 @@ const OptionCardContainer = styled.div`
 const OptionNameContainer = styled.div`
   width: 80vh;
   display: inline;
-  position: relative;
-  top: -10px;
 `
 const OptionCheckBoxContainer = styled.div`
   width: 15vh;
   display: inline;
   margin-left: 20px;
-  padding: 0px 8px;
+  /* Bottom padding lifts the checkbox to the input's vertical middle (the input is taller). */
+  padding: 0px 8px 10px 8px;
 `
 
 const OptionCreationWrapper = styled.div`
@@ -63,9 +60,9 @@ const OptionCreationWrapper = styled.div`
   }
   display: flex;
   flex-direction: row;
-  align-items: center;
+  /* Align the input box and checkbox on their bottom edge; the input's label sits above it. */
+  align-items: flex-end;
   margin-bottom: 8px;
-  height: 45px;
   margin-top: 16px;
 `
 
@@ -73,8 +70,17 @@ const OptionCreationContainer = styled.div`
   background-color: #fbfbfb;
   border: 1px solid #e2e4e6;
   width: 100%;
-  margin-top: 28px;
+  margin-top: 16px;
   padding: 20px;
+`
+
+const OptionsSectionHeading = styled.div`
+  /* More separation from the title above, tight against the options below. */
+  margin-top: 32px;
+  margin-bottom: 4px;
+  & > * {
+    margin-bottom: 0;
+  }
 `
 
 const AdvancedOptionsContainer = styled.div`
@@ -120,12 +126,12 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMultiplechoice>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemMultiplechoice>(quiz, quizItemId, "multiple-choice")
     })
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (
@@ -142,8 +148,10 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         }}
         label={t("title")}
       />
-      <OptionTitle> {t("title-options")} </OptionTitle>
-      <OptionDescription>{t("title-options-description")}</OptionDescription>
+      <OptionsSectionHeading>
+        <OptionTitle> {t("title-options")} </OptionTitle>
+        <OptionDescription>{t("title-options-description")}</OptionDescription>
+      </OptionsSectionHeading>
       <OptionCardContainer>
         {selected.options.map((option) => (
           <MultipleChoiceOption
@@ -159,16 +167,16 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               title,
               messageAfterSubmissionWhenThisOptionSelected,
               messageOnModelSolutionWhenThisOptionSelected,
-              correct,
+              optionCorrect,
             ) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
                 draft.options = draft.options.map((opt) => {
-                  if (opt.id == option.id) {
+                  if (opt.id === option.id) {
                     opt.title = title
-                    opt.correct = correct
+                    opt.correct = optionCorrect
                     opt.messageAfterSubmissionWhenSelected =
                       messageAfterSubmissionWhenThisOptionSelected
                     opt.additionalCorrectnessExplanationOnModelSolution =
@@ -252,11 +260,11 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                     if (!draft) {
                       return
                     }
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     draft.optionDisplayDirection = "vertical"
                   })
                 }}
-                checked={selected.optionDisplayDirection == "vertical"}
+                checked={selected.optionDisplayDirection === "vertical"}
                 label={t("vertical")}
               />
               <RadioButton
@@ -265,11 +273,11 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                     if (!draft) {
                       return
                     }
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     draft.optionDisplayDirection = "horizontal"
                   })
                 }}
-                checked={selected.optionDisplayDirection == "horizontal"}
+                checked={selected.optionDisplayDirection === "horizontal"}
                 label={t("horizontal")}
               />
             </MultipleChoiceLayoutChoiceContainer>
@@ -330,22 +338,22 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                   }
                   switch (value) {
                     case "default":
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       draft.multipleChoiceMultipleOptionsGradingPolicy = "default"
                       break
                     case "points-off-incorrect-options":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "points-off-incorrect-options"
                       break
                     case "points-off-unselected-options":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "points-off-unselected-options"
                       break
                     case "some-correct-none-incorrect":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "some-correct-none-incorrect"
                       break
                   }
@@ -365,15 +373,15 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 ${!selected.allowSelectingMultipleOptions && "opacity: 0.5;"}
               `}
             >
-              {selected.multipleChoiceMultipleOptionsGradingPolicy == "default" &&
+              {selected.multipleChoiceMultipleOptionsGradingPolicy === "default" &&
                 t("multiple-choice-grading-default-description")}
-              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ===
                 "points-off-incorrect-options" &&
                 t("multiple-choice-grading-points-off-incorrect-options-description")}
-              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ===
                 "points-off-unselected-options" &&
                 t("multiple-choice-grading-points-off-unselected-options-description")}
-              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ===
                 "some-correct-none-incorrect" &&
                 t("multiple-choice-grading-some-correct-none-incorrect-description")}
 

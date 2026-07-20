@@ -6,12 +6,13 @@ import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { NewExam, OrgExam } from "@/shared-module/common/bindings"
+import type { NewExam, OrgExam } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
 interface NewExamFormProps {
@@ -203,7 +204,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
     if (!duplicateExam) {
       // Switching to duplicate mode
       setDuplicateExam(true)
-      if (exams.length > 0) {
+      if (exams[0]) {
         handleSetExamToDuplicate(exams[0].id)
       }
     } else {
@@ -225,30 +226,32 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
         >
           <TextField
             id={"name"}
-            error={errors.name?.message}
+            {...omitUndefined({ error: errors.name?.message })}
             label={t("label-name")}
             {...register("name", { required: t("required-field") })}
           />
           <DateTimeLocal
-            error={errors.startsAt?.message}
-            warning={startTimeWarning ?? undefined}
-            defaultValue={
-              initialData?.starts_at ? dateToDateTimeLocalString(initialData?.starts_at) : undefined
-            }
+            {...omitUndefined({ error: errors.startsAt?.message })}
+            {...includeIf(startTimeWarning !== null && startTimeWarning !== undefined, {
+              warning: startTimeWarning,
+            })}
+            {...(initialData?.starts_at
+              ? { defaultValue: dateToDateTimeLocalString(initialData.starts_at) }
+              : {})}
             label={t("label-starts-at")}
             {...register("startsAt", { required: t("required-field") })}
           />
           <DateTimeLocal
-            error={errors.endsAt?.message}
-            defaultValue={
-              initialData?.ends_at ? dateToDateTimeLocalString(initialData?.ends_at) : undefined
-            }
+            {...omitUndefined({ error: errors.endsAt?.message })}
+            {...(initialData?.ends_at
+              ? { defaultValue: dateToDateTimeLocalString(initialData.ends_at) }
+              : {})}
             label={t("label-ends-at")}
             {...register("endsAt", { required: t("required-field") })}
           />
           <TextField
             id={"timeMinutes"}
-            error={errors.timeMinutes?.message}
+            {...omitUndefined({ error: errors.timeMinutes?.message })}
             label={t("label-time-minutes")}
             type="number"
             {...register("timeMinutes", {
@@ -266,7 +269,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           {automaticEnabled && (
             <TextField
               id={"minimumPointsThreshold"}
-              error={errors.minimumPointsThreshold?.message}
+              {...omitUndefined({ error: errors.minimumPointsThreshold?.message })}
               label={t("label-exam-minimum-points")}
               type="number"
               {...register("minimumPointsThreshold", {
@@ -285,13 +288,13 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           {duplicateExam && exams.length > 0 && (
             <SelectField
               id={"parentId"}
-              error={errors.parentId?.message}
+              {...omitUndefined({ error: errors.parentId?.message })}
               onChangeByValue={(value) => handleSetExamToDuplicate(value)}
               options={exams.map((e) => ({
                 label: e.name,
                 value: e.id,
               }))}
-              defaultValue={exams[0].id}
+              {...omitUndefined({ defaultValue: exams[0]?.id })}
             />
           )}
         </div>

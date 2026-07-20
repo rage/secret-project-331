@@ -1,0 +1,90 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT users.id AS \"user_id!\",\n  user_details.first_name,\n  user_details.last_name,\n  user_details.email,\n  role AS \"role!\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\n  JOIN user_details ON users.id = user_details.user_id\nWHERE is_global = TRUE\nAND roles.deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "users",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "first_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "last_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "email",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "role!",
+        "type_info": {
+          "Custom": {
+            "name": "user_role",
+            "kind": {
+              "Enum": [
+                "admin",
+                "assistant",
+                "teacher",
+                "reviewer",
+                "course_or_exam_creator",
+                "material_viewer",
+                "teaching_and_learning_services",
+                "stats_viewer"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "roles",
+            "name": "role"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "9add91280255aeeff3b31cf6713ddfa2fc3722de95bfd63f49988ec14d62b8a2"
+}

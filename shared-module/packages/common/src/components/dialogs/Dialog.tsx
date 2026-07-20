@@ -3,23 +3,32 @@
 import { css, cx } from "@emotion/css"
 import { useDialog } from "@react-aria/dialog"
 import { FocusScope } from "@react-aria/focus"
-import { DismissButton, OverlayContainer, useModal, useOverlay } from "@react-aria/overlays"
-import { AriaDialogProps } from "@react-types/dialog"
-import React, { useEffect, useRef } from "react"
+import {
+  DismissButton,
+  OverlayContainer,
+  useModal,
+  useModalOverlay,
+  useOverlay,
+} from "@react-aria/overlays"
+import { mergeProps } from "@react-aria/utils"
+import { useOverlayTriggerState } from "@react-stately/overlays"
+import type { AriaDialogProps } from "@react-types/dialog"
+import React, { useRef } from "react"
 
 import { typography } from "../../styles"
+import { omitUndefined } from "../../utils/nullability"
 
 interface DialogProps extends AriaDialogProps {
   open: boolean
-  onClose?: () => void
+  onClose?: (() => void) | undefined
   closeable?: boolean
   noPadding?: boolean
   width?: "normal" | "wide"
   disableContentScroll?: boolean
   preventBackgroundScroll?: boolean
   children: React.ReactNode
-  className?: string
-  "data-testid"?: string
+  className?: string | undefined
+  "data-testid"?: string | undefined
   /** Whether the dialog is closable by clicking outside of it */
   isDismissable?: boolean
   /** Whether the dialog should close when focus moves outside of the dialog */
@@ -41,11 +50,19 @@ const Dialog: React.FC<DialogProps> = ({
   ...props
 }) => {
   const ref = useRef(null)
+  const state = useOverlayTriggerState({
+    isOpen: open,
+    onOpenChange: (isOpen) => {
+      if (!isOpen) {
+        onClose?.()
+      }
+    },
+  })
 
   const { overlayProps, underlayProps } = useOverlay(
     {
       isOpen: open,
-      onClose,
+      ...omitUndefined({ onClose }),
       isDismissable: isDismissable,
       shouldCloseOnBlur: shouldCloseOnBlur,
     },
@@ -53,18 +70,21 @@ const Dialog: React.FC<DialogProps> = ({
   )
 
   const { modalProps } = useModal()
+  const { modalProps: modalOverlayProps, underlayProps: modalOverlayUnderlayProps } =
+    useModalOverlay(
+      {
+        isDismissable,
+      },
+      state,
+      ref,
+    )
   const { dialogProps } = useDialog(props, ref)
-
-  useEffect(() => {
-    if (open && preventBackgroundScroll) {
-      const originalOverflow = document.body.style.overflow
-      // eslint-disable-next-line i18next/no-literal-string
-      document.body.style.overflow = "hidden"
-      return () => {
-        document.body.style.overflow = originalOverflow
-      }
-    }
-  }, [open, preventBackgroundScroll])
+  const activeUnderlayProps = preventBackgroundScroll ? modalOverlayUnderlayProps : underlayProps
+  const activeOverlayProps = mergeProps(
+    preventBackgroundScroll ? modalOverlayProps : overlayProps,
+    dialogProps,
+    preventBackgroundScroll ? {} : modalProps,
+  )
 
   if (!open) {
     return null
@@ -73,7 +93,7 @@ const Dialog: React.FC<DialogProps> = ({
   return (
     <OverlayContainer>
       <div
-        {...underlayProps}
+        {...activeUnderlayProps}
         className={css`
           position: fixed;
           inset: 0;
@@ -85,12 +105,10 @@ const Dialog: React.FC<DialogProps> = ({
           overflow-y: auto;
         `}
       >
-        {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
+        {/* oxlint-disable-next-line jsx-a11y/no-autofocus */}
         <FocusScope contain restoreFocus autoFocus>
           <div
-            {...overlayProps}
-            {...dialogProps}
-            {...modalProps}
+            {...activeOverlayProps}
             ref={ref}
             className={cx(
               props.className,
@@ -99,7 +117,10 @@ const Dialog: React.FC<DialogProps> = ({
                 border-radius: 5px;
                 width: 95%;
                 max-width: ${width === "normal" ? "700px" : "1200px"};
-                ${disableContentScroll && "overflow: hidden;"}
+                max-height: 90vh;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
                 outline: none;
 
                 h1 {
@@ -118,11 +139,16 @@ const Dialog: React.FC<DialogProps> = ({
           >
             <div
               className={css`
+                flex: 1;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                ${!disableContentScroll && !noPadding && "overflow-y: auto;"}
                 ${!noPadding && "padding: 2rem 3rem;"}
               `}
             >
               {children}
-              {closeable && <DismissButton onDismiss={onClose} />}
+              {closeable && <DismissButton {...omitUndefined({ onDismiss: onClose })} />}
             </div>
           </div>
         </FocusScope>

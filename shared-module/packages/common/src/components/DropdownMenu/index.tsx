@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
 import { baseTheme } from "../../styles"
-
-import DropdownMenuItem, { DropdownMenuItemType } from "./DropdownMenuItem"
+import type { DropdownMenuItemType } from "./DropdownMenuItem"
+import DropdownMenuItem from "./DropdownMenuItem"
 
 export interface DropdownMenuProps {
   items: (DropdownMenuItemType | null)[]
@@ -101,7 +101,7 @@ const DropdownMenu: React.FC<React.PropsWithChildren<DropdownMenuProps>> = ({ it
       </button>
       {expanded && (
         <div
-          // eslint-disable-next-line react/forbid-dom-props
+          // oxlint-disable-next-line react/forbid-dom-props
           style={styles.popper}
           {...attributes.popper}
           className={css`

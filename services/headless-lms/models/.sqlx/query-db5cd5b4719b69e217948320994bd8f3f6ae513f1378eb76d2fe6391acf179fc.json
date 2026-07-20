@@ -6,32 +6,68 @@
       {
         "ordinal": 0,
         "name": "page_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "order_number",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "order_number"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "course_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "course_id"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "exam_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "exam_id"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "chapter_id?",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "chapter_number?",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "chapter_number"
+          }
+        }
       }
     ],
     "parameters": {
@@ -44,8 +80,8 @@
       false,
       true,
       true,
-      false,
-      false
+      true,
+      true
     ]
   },
   "hash": "db5cd5b4719b69e217948320994bd8f3f6ae513f1378eb76d2fe6391acf179fc"

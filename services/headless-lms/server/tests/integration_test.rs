@@ -3,6 +3,7 @@ use std::{env, sync::Arc};
 use actix_http::{Request, body::BoxBody};
 use actix_session::{SessionMiddleware, storage::CookieSessionStore};
 use actix_web::{App, cookie::Key, dev::ServiceResponse, test};
+use headless_lms_base::config::{ApplicationConfiguration, OAuthServerConfiguration};
 use headless_lms_models::{
     PKeyPolicy,
     organizations::{self, Organization},
@@ -13,7 +14,8 @@ use headless_lms_server::{
     setup_tracing,
 };
 use headless_lms_utils::{
-    ApplicationConfiguration, file_store::local_file_store::LocalFileStore, tmc::TmcClient,
+    file_store::local_file_store::LocalFileStore, services::sisu::SisuClient,
+    services::tmc::TmcClient,
 };
 use secrecy::SecretString;
 use sqlx::{Connection, PgConnection, PgPool, Postgres, migrate::MigrateDatabase};
@@ -23,6 +25,19 @@ use uuid::Uuid;
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
 
+fn running_in_kubernetes() -> bool {
+    env::var_os("KUBERNETES_SERVICE_HOST").is_some()
+}
+
+fn default_database_url_test() -> String {
+    if running_in_kubernetes() {
+        "postgres://headless-lms:only-for-local-development-intentionally-public@postgres/headless_lms_test"
+            .to_string()
+    } else {
+        "postgres://headless-lms@localhost:54328/headless_lms_test".to_string()
+    }
+}
+
 /// Reinitializes the test database once per `cargo test` call.
 /// This is done because there's no good way to clean up the database after testing,
 /// so there may be leftover data.
@@ -30,10 +45,8 @@ pub async fn init_db() -> String {
     if let Some(db) = DB_URL.lock().await.as_ref() {
         return db.clone();
     }
-    dotenv::dotenv().ok();
-    let db = env::var("DATABASE_URL_TEST").unwrap_or_else(|_| {
-        "postgres://headless-lms:only-for-local-development-intentionally-public@postgres/headless_lms_test".to_string()
-    });
+    dotenvy::dotenv().ok();
+    let db = env::var("DATABASE_URL_TEST").unwrap_or_else(|_| default_database_url_test());
     if Postgres::database_exists(&db)
         .await
         .expect("failed to check test db existence")
@@ -59,15 +72,17 @@ pub async fn init_db() -> String {
 }
 
 pub fn make_jwt_key() -> JwtKey {
-    let test_jwt_key = "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
-    JwtKey::new(test_jwt_key).unwrap()
+    let test_jwt_key = SecretString::new(
+        "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS".into(),
+    );
+    JwtKey::new(&test_jwt_key).unwrap()
 }
 
 pub async fn test_config() -> ServerConfig {
     ServerConfigBuilder {
-        database_url: init_db().await,
+        database_url: SecretString::new(init_db().await.into()),
         oauth_application_id: "some-id".to_string(),
-        oauth_secret: "some-secret".to_string(),
+        oauth_secret: SecretString::new("some-secret".into()),
         auth_url: "https://example.com".parse().unwrap(),
         token_url: "https://example.com/token".parse().unwrap(),
         icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
@@ -82,21 +97,24 @@ pub async fn test_config() -> ServerConfig {
             enable_admin_email_verification: false,
             azure_configuration: None,
             test_chatbot: false,
+            test_sisu: false,
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
-            oauth_server_configuration: headless_lms_utils::OAuthServerConfiguration {
+            oauth_server_configuration: OAuthServerConfiguration {
                 rsa_public_key: "temp-change-when-needed".into(),
-                rsa_private_key: "test-change".into(),
-                oauth_token_hmac_key: "pippuri".into(),
+                rsa_private_key: SecretString::new("test-change".into()),
+                oauth_token_hmac_key: SecretString::new("pippuri".into()),
                 dpop_nonce_key: std::sync::Arc::new(secrecy::SecretBox::new(Box::new(
                     "test-key".into(),
                 ))),
             },
         },
-        redis_url: "redis://example.com".to_string(),
-        jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"
-            .to_string(),
+        redis_url: SecretString::new("redis://example.com".into()),
+        jwt_password: SecretString::new(
+            "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS".into(),
+        ),
         tmc_client: TmcClient::mock_for_test(),
+        sisu_client: SisuClient::mock_for_test(),
     }
     .build()
     .await

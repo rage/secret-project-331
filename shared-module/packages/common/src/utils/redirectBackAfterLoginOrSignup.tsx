@@ -10,7 +10,7 @@ function figureOutWhichReturnToPathToUse(
     return defaultPath
   }
 
-  let pathToCheck = returnPath
+  let pathToCheck: string
 
   try {
     const parsedUrl = new URL(returnPath)

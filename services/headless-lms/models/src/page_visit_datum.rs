@@ -66,7 +66,7 @@ VALUES (
     $16,
     $17
   )
-RETURNING id
+RETURNING *
 ",
         new_page_visit_datum.course_id,
         new_page_visit_datum.exam_id,

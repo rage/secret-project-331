@@ -16,7 +16,8 @@ function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
       return null
     }
 
-    // @ts-expect-error: no intrisic attributes
+    // oxlint-disable-next-line typescript/ban-ts-comment
+    // @ts-ignore: Shared module might have a different react version
     return <WrappedComponent {...(props as T)} />
   }
 

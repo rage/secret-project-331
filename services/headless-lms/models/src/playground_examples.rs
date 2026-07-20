@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct PlaygroundExample {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -13,8 +14,8 @@ pub struct PlaygroundExample {
     pub data: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct PlaygroundExampleData {
     pub name: String,
     pub url: String,
@@ -36,6 +37,22 @@ WHERE deleted_at IS NULL;
     .fetch_all(&mut *conn)
     .await?;
     Ok(examples)
+}
+
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PlaygroundExample> {
+    let example = sqlx::query_as!(
+        PlaygroundExample,
+        "
+SELECT *
+from playground_examples
+WHERE id = $1
+  AND deleted_at IS NULL;
+  ",
+        id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    Ok(example)
 }
 
 pub async fn insert_playground_example(

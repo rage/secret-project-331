@@ -2,14 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchPodDisruptionBudgets } from "../services/backend/status"
-
-import { PodDisruptionBudgetInfo } from "@/shared-module/common/bindings"
+import { getStatusPodDisruptionBudgetsOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useStatusPodDisruptionBudgets = () => {
-  return useQuery<PodDisruptionBudgetInfo[]>({
-    queryKey: ["status", "pod-disruption-budgets"],
-    queryFn: () => fetchPodDisruptionBudgets(),
+  return useQuery({
+    ...getStatusPodDisruptionBudgetsOptions(),
     refetchInterval: 10000,
   })
 }

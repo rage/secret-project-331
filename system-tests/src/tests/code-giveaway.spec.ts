@@ -1,6 +1,8 @@
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -11,10 +13,11 @@ test("Code giveaways work", async ({ page }) => {
   await page.getByLabel("Manage course 'Giveaway'").click()
   await page.getByRole("tab", { name: "Other" }).click()
   await page.getByRole("tab", { name: "Code giveaways" }).click()
-  await page.getByRole("button", { name: "New" }).click()
+  await page.getByRole("button", { name: "New", exact: true }).click()
   await page.getByLabel("Name", { exact: true }).fill("Best code giveaway of this generation")
-  await page.getByRole("button", { name: "Create" }).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Create" }).click()
+  })
   await page.getByRole("link", { name: "Best code giveaway of this" }).click()
   await page.getByRole("button", { name: "Import" }).click()
   await page.getByLabel("Codes, one per line").fill("\n\n\ncode 1\n  code 2\n\n  code 3  \n\n\n")
@@ -26,6 +29,7 @@ test("Code giveaways work", async ({ page }) => {
   await page.getByText("******").first().waitFor()
   await page.goBack()
   await page.getByRole("tab", { name: "Pages" }).click()
+  await waitForSpinnersToDisappear(page)
   await page
     .getByRole("row", { name: "Giveaway / Edit page Dropdown" })
     .getByRole("button")
@@ -44,8 +48,9 @@ test("Code giveaways work", async ({ page }) => {
   await page
     .getByLabel("Empty block; start writing or")
     .fill("Congratulations! You're the 1 billionth visitor to this website!")
-  await page.getByRole("button", { name: "Save", exact: true }).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Save", exact: true }).click()
+  })
   const page1Promise = page.waitForEvent("popup")
   await page.getByRole("button", { name: "Open saved page in a new tab" }).click()
 

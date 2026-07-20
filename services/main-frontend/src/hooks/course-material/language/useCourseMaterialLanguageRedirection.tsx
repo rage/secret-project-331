@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useCourseLanguageVersions } from "./useCourseLanguageVersions"
-
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { courseMaterialAtom } from "@/state/course-material"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 import { courseLanguagePreferenceAtom } from "@/state/courseLanguagePreference"
 import { normalizeUrl } from "@/utils/course-material/urlBuilder"
+
+import { useCourseLanguageVersions } from "./useCourseLanguageVersions"
 
 function updateHtmlLangAttribute(languageCode: string) {
   const htmlElement = document.documentElement

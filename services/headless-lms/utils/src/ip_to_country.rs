@@ -8,7 +8,7 @@ use flate2::read::GzDecoder;
 use ipnet::IpNet;
 use walkdir::WalkDir;
 
-use crate::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 
 pub struct IpToCountryMapper {
     lists: HashMap<String, Vec<ipnet::IpNet>>,

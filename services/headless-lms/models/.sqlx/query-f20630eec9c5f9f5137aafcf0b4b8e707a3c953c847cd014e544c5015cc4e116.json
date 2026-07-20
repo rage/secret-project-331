@@ -1,0 +1,113 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT *\n        FROM mailchimp_course_tags\n        WHERE course_language_group_id = $1\n        AND marketing_mailing_list_access_token_id = $2\n        AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "mailchimp_course_tags",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "marketing_mailing_list_access_token_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "mailchimp_course_tags",
+            "name": "marketing_mailing_list_access_token_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_language_group_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "mailchimp_course_tags",
+            "name": "course_language_group_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "tag_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "mailchimp_course_tags",
+            "name": "tag_name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "tag_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "mailchimp_course_tags",
+            "name": "tag_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "mailchimp_course_tags",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "mailchimp_course_tags",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "mailchimp_course_tags",
+            "name": "deleted_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "f20630eec9c5f9f5137aafcf0b4b8e707a3c953c847cd014e544c5015cc4e116"
+}

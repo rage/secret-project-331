@@ -1,0 +1,103 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  p.id as page_id,\n  c.chapter_number as chapter_number,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.order_number = (\n    SELECT MIN(pa.order_number)\n    FROM pages pa\n    WHERE pa.order_number > $1\n      AND pa.deleted_at IS NULL\n      AND pa.hidden IS DISTINCT FROM $4\n      AND pa.course_id = p.course_id\n      AND pa.chapter_id IS NOT DISTINCT FROM p.chapter_id\n  )\n  AND p.course_id = $2\n  AND c.chapter_number = $3\n  AND p.deleted_at IS NULL\n  AND p.hidden IS DISTINCT FROM $4;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "url_path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "url_path"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "title"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "chapter_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "chapter_number"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "chapter_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "chapter_opens_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "opens_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "chapter_front_page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "front_page_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Uuid",
+        "Int4",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "95860d884a7ac16849ea1bc4b5d0c6930791d581113ff8e01945d07600f00958"
+}

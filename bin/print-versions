@@ -105,6 +105,7 @@ print_version_two_numbers "jq" jq --version
 print_version "find" find --version
 print_version_two_numbers "getent" getent --version
 print_is_installed "sponge" sponge
+print_version "Git LFS" git-lfs version
 print_version "rsync" rsync --version
 print_version "actionlint" actionlint --version
 print_version "Oxipng" oxipng --version

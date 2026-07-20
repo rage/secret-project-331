@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use utoipa::ToSchema;
+
 use crate::{chapters, prelude::*};
 
 /// Matches the columns in the database.
@@ -25,8 +27,8 @@ struct CourseModulesSchema {
 /**
  * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
  */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseModule {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -147,7 +149,7 @@ impl From<CourseModulesSchema> for CourseModule {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewCourseModule {
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
@@ -230,9 +232,10 @@ INSERT INTO course_modules (
     automatic_completion_number_of_points_treshold,
     automatic_completion_requires_exam,
     ects_credits,
-    enable_registering_completion_to_uh_open_university
+    enable_registering_completion_to_uh_open_university,
+    uh_course_code
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING *
         ",
         pkey_policy.into_uuid(),
@@ -244,7 +247,8 @@ RETURNING *
         points_treshold,
         requires_exam,
         new_course_module.ects_credits,
-        new_course_module.enable_registering_completion_to_uh_open_university
+        new_course_module.enable_registering_completion_to_uh_open_university,
+        new_course_module.uh_course_code
     )
     .fetch_one(conn)
     .await?;
@@ -308,6 +312,23 @@ WHERE id = $1
     Ok(res.into())
 }
 
+pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<CourseModule>> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT *
+FROM course_modules
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        ids,
+    )
+    .map(|x| x.into())
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -321,6 +342,28 @@ WHERE course_id = $1
 AND deleted_at IS NULL
 ",
         course_id
+    )
+    .map(|x| x.into())
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Batched [`get_by_course_id`]: modules for many courses in one query, to group in memory instead
+/// of one query per course.
+pub async fn get_by_course_ids(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<CourseModule>> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT *
+FROM course_modules
+WHERE course_id = ANY($1)
+AND deleted_at IS NULL
+",
+        course_ids
     )
     .map(|x| x.into())
     .fetch_all(conn)
@@ -363,15 +406,32 @@ pub async fn get_by_exercise_id(
 ) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        "
-SELECT course_modules.*
+        r#"
+SELECT
+    course_modules.id AS "id!",
+    course_modules.created_at AS "created_at!",
+    course_modules.updated_at AS "updated_at!",
+    course_modules.deleted_at,
+    course_modules.name,
+    course_modules.course_id AS "course_id!",
+    course_modules.order_number AS "order_number!",
+    course_modules.copied_from,
+    course_modules.uh_course_code,
+    course_modules.automatic_completion AS "automatic_completion!",
+    course_modules.automatic_completion_number_of_exercises_attempted_treshold,
+    course_modules.automatic_completion_number_of_points_treshold,
+    course_modules.automatic_completion_requires_exam AS "automatic_completion_requires_exam!",
+    course_modules.completion_registration_link_override,
+    course_modules.ects_credits,
+    course_modules.enable_registering_completion_to_uh_open_university AS "enable_registering_completion_to_uh_open_university!",
+    course_modules.certification_enabled AS "certification_enabled!"
 FROM exercises
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
   LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
 WHERE exercises.id = $1
 AND chapters.deleted_at IS NULL
 AND course_modules.deleted_at IS NULL
-        ",
+        "#,
         exercise_id,
     )
     .fetch_one(conn)
@@ -393,6 +453,35 @@ where c.id = $1
         chapter_id
     )
     .map(|record| record.course_module_id)
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// How many chapters and exercises a course module contains. Used for deciding whether the module
+/// is small enough to be exempt from the minimum cheater threshold.
+pub struct ModuleSizeCounts {
+    pub chapters: i64,
+    pub exercises: i64,
+}
+
+pub async fn get_chapter_and_exercise_counts(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+) -> ModelResult<ModuleSizeCounts> {
+    let res = sqlx::query_as!(
+        ModuleSizeCounts,
+        r#"
+SELECT COUNT(DISTINCT c.id) AS "chapters!",
+  COUNT(e.id) AS "exercises!"
+FROM chapters c
+  LEFT JOIN exercises e ON e.chapter_id = c.id
+  AND e.deleted_at IS NULL
+WHERE c.course_module_id = $1
+  AND c.deleted_at IS NULL
+        "#,
+        course_module_id
+    )
     .fetch_one(conn)
     .await?;
     Ok(res)
@@ -478,8 +567,8 @@ WHERE uh_course_code IS NOT NULL
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct AutomaticCompletionRequirements {
     /// Course module associated with these requirements.
     pub course_module_id: Uuid,
@@ -517,9 +606,8 @@ impl AutomaticCompletionRequirements {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "policy", rename_all = "kebab-case")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum CompletionPolicy {
     Automatic(AutomaticCompletionRequirements),
     Manual,
@@ -621,8 +709,8 @@ RETURNING *
     Ok(res.into())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewModule {
     name: String,
     order_number: i32,
@@ -634,8 +722,8 @@ pub struct NewModule {
     enable_registering_completion_to_uh_open_university: bool,
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct ModifiedModule {
     id: Uuid,
     name: Option<String>,
@@ -647,8 +735,8 @@ pub struct ModifiedModule {
     enable_registering_completion_to_uh_open_university: bool,
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct ModuleUpdates {
     new_modules: Vec<NewModule>,
     deleted_modules: Vec<Uuid>,

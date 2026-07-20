@@ -4,28 +4,47 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { useParams, useRouter } from "next/navigation"
 import React, { useEffect, useMemo, useRef } from "react"
 
-import Page from "@/components/course-material/Page"
-import PageNotFound from "@/components/course-material/PageNotFound"
 import CourseMaterialPageBreadcrumbs from "@/components/course-material/navigation/CourseMaterialPageBreadcrumbs"
 import CourseTestModeNotification from "@/components/course-material/notifications/CourseTestModeNotification"
+import Page from "@/components/course-material/Page"
+import PageNotFound from "@/components/course-material/PageNotFound"
 import { useLanguageOptions } from "@/contexts/LanguageOptionsContext"
 import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
 import useScrollToSelector from "@/hooks/course-material/useScrollToSelector"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import NoIndexMeta from "@/shared-module/common/components/NoIndexMeta"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
-import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
 import {
   currentCourseIdAtom,
   currentPageIdAtom,
+  materialCourseAtom,
   refetchViewAtom,
 } from "@/state/course-material/selectors"
 import { courseLanguagePreferenceAtom } from "@/state/courseLanguagePreference"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
 import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languageHelpers"
+
+/**
+ * Decodes only the non-ASCII (UTF-8 multibyte) percent-escapes in a path segment, leaving
+ * reserved ASCII escapes (%2F, %23, %25, ...) encoded. This mirrors the backend's canonical
+ * URL path form (`normalize_url_path_for_storage`), so decoding never turns an encoded
+ * separator into a structural one and changes the lookup key.
+ */
+const decodeNonAsciiPercentEscapes = (segment: string): string =>
+  // A run of %XX escapes whose lead nibble is 8-F encodes bytes >= 0x80, i.e. a non-ASCII
+  // UTF-8 sequence; decode the whole run at once so multibyte characters round-trip.
+  segment.replaceAll(/(?:%[89A-Fa-f][0-9A-Fa-f])+/g, (run) => {
+    try {
+      return decodeURIComponent(run)
+    } catch {
+      return run
+    }
+  })
 
 const PagePage: React.FC = () => {
   const router = useRouter()
@@ -36,7 +55,15 @@ const PagePage: React.FC = () => {
   }
   const organizationSlug = params.organizationSlug
   const courseSlug = params.courseSlug
-  const path = useMemo(() => `/${params.path?.join("/") || ""}`, [params.path])
+  // useParams() returns the catch-all segments still percent-encoded. Decode only the
+  // non-ASCII escapes per segment so the path matches the backend's canonical form while
+  // reserved ASCII escapes (e.g. %2F) stay encoded and structure is preserved.
+  const path = useMemo(() => {
+    const decoded = (params.path ?? [])
+      .map((segment) => decodeNonAsciiPercentEscapes(segment))
+      .join("/")
+    return `/${decoded}`
+  }, [params.path])
 
   // Stable object reference for view params
   const viewParams = useMemo(
@@ -61,6 +88,12 @@ const PagePage: React.FC = () => {
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const courseId = useAtomValue(currentCourseIdAtom)
   const pageId = useAtomValue(currentPageIdAtom)
+  const courseName = useAtomValue(materialCourseAtom)?.name
+
+  // Specific page title composed with the course name (e.g. "Chapter 1 - Programming 101") so
+  // identically named pages across courses can be told apart. Wins over the layout's
+  // course-name baseline once the page resolves; while loading it collapses to the course name.
+  usePageTitle(joinTitleSegments([courseMaterialState.page?.title, courseName]), { order: 10 })
   const setLanguagePreference = useSetAtom(courseLanguagePreferenceAtom)
 
   const languageNavigation = useLanguageNavigation({
@@ -79,7 +112,7 @@ const PagePage: React.FC = () => {
   // Reset language preference when course loads or changes
   useEffect(() => {
     if (courseMaterialState.status === "ready" && courseMaterialState.course?.id) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setLanguagePreference("same-as-course")
     }
   }, [courseMaterialState.status, courseMaterialState.course?.id, setLanguagePreference])
@@ -90,7 +123,7 @@ const PagePage: React.FC = () => {
     if (!languageOptions?.setOnLanguageChange) {
       return
     }
-    const handler = async (languageCode: string) => {
+    const handler = (languageCode: string) => {
       changeLanguageRef.current(languageCode)
       // Don't call redirectToLanguage - let useCourseMaterialLanguageRedirection handle it
     }
@@ -100,7 +133,7 @@ const PagePage: React.FC = () => {
         languageOptions.setOnLanguageChange(undefined)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [languageOptions?.setOnLanguageChange])
 
   // Update language options context when available languages change
@@ -128,6 +161,7 @@ const PagePage: React.FC = () => {
     // want to fix the url without creating a history entry
     const currentPathName = document.location.pathname
     const courseSlugEndLocation = currentPathName.indexOf(courseSlug) + courseSlug.length
+    // oxlint-disable-next-line unicorn/prefer-string-slice -- index may be negative; substring and slice differ there
     const beginningOfNewPath = currentPathName.substring(0, courseSlugEndLocation)
     const newPath = `${beginningOfNewPath}${courseMaterialState.page.url_path}`
 
@@ -144,7 +178,7 @@ const PagePage: React.FC = () => {
   }
 
   if (courseMaterialState.error) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     if ((courseMaterialState.error as any)?.response?.status === 404) {
       return <PageNotFound path={path} courseId={courseSlug} organizationSlug={organizationSlug} />
     }
@@ -157,6 +191,8 @@ const PagePage: React.FC = () => {
 
   return (
     <>
+      {/* Keep hidden pages out of search engine indexes (React hoists this into <head>). */}
+      <NoIndexMeta noIndex={courseMaterialState.page?.hidden ?? false} />
       <CourseMaterialPageBreadcrumbs currentPagePath={path} page={courseMaterialState.page} />
       {<CourseTestModeNotification isTestMode={courseMaterialState.isTestMode} />}
       <Page onRefresh={handleRefresh} organizationSlug={organizationSlug} />

@@ -1,25 +1,25 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
-import CourseContext from "../../../contexts/CourseContext"
-import {
-  fetchEmailTemplateWithId,
-  updateExistingEmailTemplate,
-} from "../../../services/backend/email-templates"
-
-import { EmailTemplateUpdate } from "@/shared-module/common/bindings"
+import type { EmailTemplateUpdate } from "@/generated/api"
+import { getCmsEmailTemplateOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { updateCmsEmailTemplate } from "@/generated/api/sdk.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useStateQuery from "@/shared-module/common/hooks/useStateQuery"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import CmsPageTitle from "../../../components/CmsPageTitle"
+import CourseContext from "../../../contexts/CourseContext"
 
 const EmailEditor = dynamicImport(() => import("../../../components/editors/EmailEditor"))
 
@@ -30,21 +30,36 @@ export interface EmailTemplateEditProps {
 const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps>> = ({
   query,
 }) => {
+  const { t } = useTranslation()
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const emailTemplateId = query.id
-  // eslint-disable-next-line i18next/no-literal-string
-  const templateQuery = useStateQuery(["email-template", emailTemplateId], (_emailTemplateId) =>
-    fetchEmailTemplateWithId(_emailTemplateId),
+  const templateQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: emailTemplateId,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCmsEmailTemplateOptions({
+          path: {
+            email_template_id: value,
+          },
+        }),
+    }),
   )
 
   useEffect(() => {
-    if (templateQuery.state === "ready" && templateQuery.data) {
+    if (templateQuery.isSuccess && templateQuery.data) {
       setNeedToRunMigrationsAndValidations(true)
     }
-  }, [templateQuery.state, templateQuery.data])
+  }, [templateQuery.isSuccess, templateQuery.data])
 
   const saveMutation = useToastMutation(
-    (template: EmailTemplateUpdate) => updateExistingEmailTemplate(emailTemplateId, template),
+    (template: EmailTemplateUpdate) =>
+      updateCmsEmailTemplate({
+        path: {
+          email_template_id: emailTemplateId,
+        },
+        body: template,
+      }),
     {
       notify: true,
       method: "PUT",
@@ -56,26 +71,24 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
     },
   )
 
-  if (templateQuery.state === "error") {
-    return <ErrorBanner variant={"readOnly"} error={templateQuery.error} />
-  }
-
-  if (templateQuery.state !== "ready") {
-    return <Spinner variant={"medium"} />
-  }
-
-  const courseId = templateQuery.data?.course_id
-
   return (
-    <CourseContext.Provider value={courseId ? { courseId } : null}>
-      <EmailEditor
-        data={templateQuery.data}
-        saveMutation={saveMutation}
-        needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-        setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-      />
-      <DebugModal data={templateQuery.data} />
-    </CourseContext.Provider>
+    <QueryResult query={templateQuery}>
+      {(data) => {
+        const courseId = data.course_id
+        return (
+          <CourseContext.Provider value={courseId ? { courseId } : null}>
+            <CmsPageTitle title={joinTitleSegments([t("edit-email-template"), data.subject])} />
+            <EmailEditor
+              data={data}
+              saveMutation={saveMutation}
+              needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+              setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+            />
+            <DebugModal data={data} />
+          </CourseContext.Provider>
+        )
+      }}
+    </QueryResult>
   )
 }
 

@@ -6,7 +6,7 @@
 export function roundDown(n: number, maxDecimals?: number): string {
   const actualMaxDecimals = maxDecimals || 0
   if (actualMaxDecimals > 20) {
-    throw "maxDecimals cannot be higher than 20"
+    throw new Error("maxDecimals cannot be higher than 20")
   }
   const fixed = n.toFixed(20).toString()
 
@@ -15,13 +15,13 @@ export function roundDown(n: number, maxDecimals?: number): string {
   // calculate how many unnecessary zeros need to be cut off
   let cutOff = 0
   for (let i = decimal + actualMaxDecimals; i > 1; i--) {
-    if (fixed.charAt(i) == "0") {
+    if (fixed.charAt(i) === "0") {
       cutOff += 1
     } else {
       break
     }
   }
-  if (cutOff == actualMaxDecimals) {
+  if (cutOff === actualMaxDecimals) {
     // all decimals cut off, cut off the decimal point as well
     cutOff += 1
   }

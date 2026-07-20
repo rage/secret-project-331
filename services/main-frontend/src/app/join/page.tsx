@@ -6,18 +6,20 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  addUserToCourseWithJoinCode,
-  fetchCourseWithJoinCode,
-  getCourseBreadCrumbInfo,
-} from "@/services/backend/courses"
+  getCourseBreadcrumbInfoOptions,
+  getCourseByJoinCodeOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { joinCourseWithJoinCode } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { QueryResult } from "@/shared-module/components"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const JoinCoursePage: React.FC = () => {
   const { t } = useTranslation()
@@ -25,18 +27,36 @@ const JoinCoursePage: React.FC = () => {
   const searchParams = useSearchParams()
   const joinCode = searchParams.get("code")
 
-  const course = useQuery({
-    queryKey: [`/courses/join/${joinCode}/`, joinCode],
-    queryFn: () => fetchCourseWithJoinCode(joinCode ?? ""),
-  })
+  const course = useQuery(
+    optionalGeneratedQueryOptions({
+      value: joinCode,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCourseByJoinCodeOptions({
+          path: {
+            join_code: value,
+          },
+        }),
+    }),
+  )
+
+  usePageTitle(joinTitleSegments([t("title-join-course"), course.data?.name]))
 
   const courseId = course.data?.id
 
-  const courseBreadcrumbs = useQuery({
-    queryKey: [`/courses/${courseId}/breadcrumb-info`, courseId],
-    queryFn: () => getCourseBreadCrumbInfo(courseId ?? ""),
-    enabled: false,
-  })
+  const courseBreadcrumbs = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      enabled: false,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCourseBreadcrumbInfoOptions({
+          path: {
+            course_id: value,
+          },
+        }),
+    }),
+  )
 
   useEffect(() => {
     if (
@@ -59,8 +79,15 @@ const JoinCoursePage: React.FC = () => {
   ])
 
   const handleRedirectMutation = useToastMutation(
-    async (courseId: string) => {
-      await addUserToCourseWithJoinCode(courseId)
+    async (targetCourseId: string) => {
+      await joinCourseWithJoinCode({
+        body: {
+          join_code: joinCode ?? "",
+        },
+        path: {
+          course_id: targetCourseId,
+        },
+      })
     },
     {
       notify: true,
@@ -69,7 +96,6 @@ const JoinCoursePage: React.FC = () => {
     {
       onSuccess: async () => {
         await courseBreadcrumbs.refetch()
-        console.log(courseBreadcrumbs.isSuccess)
       },
     },
   )
@@ -79,24 +105,26 @@ const JoinCoursePage: React.FC = () => {
   }
   return (
     <div>
-      {course.isError && <ErrorBanner variant={"readOnly"} error={courseBreadcrumbs.error} />}
-      {course.isLoading && <Spinner variant={"medium"} />}
-      {course.isSuccess && (
-        <div>
-          <h1>{course.data.name}</h1>
+      {joinCode && (
+        <QueryResult query={course}>
+          {(courseData) => (
+            <div>
+              <h1>{courseData.name}</h1>
 
-          <div>{t("do-you-want-to-join-this-course")}?</div>
-          <Button
-            variant={"primary"}
-            size={"small"}
-            onClick={() => handleRedirectMutation.mutate(course.data?.id)}
-          >
-            {t("yes")}
-          </Button>
-          <Button variant={"secondary"} size={"small"} onClick={handleReturn}>
-            {t("button-text-cancel")}
-          </Button>
-        </div>
+              <div>{t("do-you-want-to-join-this-course")}?</div>
+              <Button
+                variant={"primary"}
+                size={"small"}
+                onClick={() => handleRedirectMutation.mutate(courseData.id)}
+              >
+                {t("yes")}
+              </Button>
+              <Button variant={"secondary"} size={"small"} onClick={handleReturn}>
+                {t("button-text-cancel")}
+              </Button>
+            </div>
+          )}
+        </QueryResult>
       )}
     </div>
   )

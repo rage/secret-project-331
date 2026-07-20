@@ -1,6 +1,5 @@
 import "i18next"
-
-import sharedModule from "../src/locales/en/shared-module.json"
+import type sharedModule from "../src/locales/en/shared-module.json"
 
 declare module "i18next" {
   interface CustomTypeOptions {

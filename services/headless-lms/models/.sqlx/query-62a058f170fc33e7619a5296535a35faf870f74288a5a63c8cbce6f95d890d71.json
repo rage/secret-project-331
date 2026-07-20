@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS(\n    SELECT 1\n    FROM error_occurrences o\n    JOIN error_variants v ON v.id = o.error_variant_id\n    WHERE o.id = $1\n      AND o.service = v.service\n) AS \"exists!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "62a058f170fc33e7619a5296535a35faf870f74288a5a63c8cbce6f95d890d71"
+}

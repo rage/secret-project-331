@@ -1,0 +1,220 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM course_modules\nWHERE course_id = ANY($1)\nAND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "order_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "order_number"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "copied_from",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "copied_from"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "uh_course_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "uh_course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "automatic_completion",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "automatic_completion"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "automatic_completion_number_of_exercises_attempted_treshold",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "automatic_completion_number_of_exercises_attempted_treshold"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "automatic_completion_number_of_points_treshold",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "automatic_completion_number_of_points_treshold"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "ects_credits",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "ects_credits"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "completion_registration_link_override",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "completion_registration_link_override"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "automatic_completion_requires_exam",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "automatic_completion_requires_exam"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "enable_registering_completion_to_uh_open_university",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "enable_registering_completion_to_uh_open_university"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "certification_enabled",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "certification_enabled"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "ad3fddbbc40ef0421595c74d25d4c95364fa490a4583a3a67502c590f89d26bd"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE courses\nSET cheater_detection_enabled = $1\nWHERE id = $2\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8a014168404a2dedb62deaa004278a6eff8567bc045772eb79ec738a51e2e74f"
+}

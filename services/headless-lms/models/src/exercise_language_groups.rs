@@ -21,7 +21,7 @@ INSERT INTO exercise_language_groups (
   course_language_group_id
   )
 VALUES ($1, $2)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         course_language_group_id

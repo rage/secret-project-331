@@ -1,0 +1,126 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM user_exercise_slide_states\nWHERE user_exercise_state_id = $1\n  AND exercise_slide_id = $2\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_exercise_slide_states",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_exercise_slide_states",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_exercise_slide_states",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_exercise_slide_states",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "user_exercise_state_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_exercise_slide_states",
+            "name": "user_exercise_state_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_slide_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_exercise_slide_states",
+            "name": "exercise_slide_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "score_given",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "user_exercise_slide_states",
+            "name": "score_given"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "grading_progress",
+        "type_info": {
+          "Custom": {
+            "name": "grading_progress",
+            "kind": {
+              "Enum": [
+                "fully-graded",
+                "pending",
+                "pending-manual",
+                "failed",
+                "not-ready"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "user_exercise_slide_states",
+            "name": "grading_progress"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "627450a0d6ac7e700c254a8aa1b07ad189feaf97467042466f781fee282b2df9"
+}

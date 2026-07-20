@@ -1,10 +1,11 @@
 use itertools::multiunzip;
 use serde_json::json;
+use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct UserMarketingConsent {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -20,7 +21,7 @@ pub struct UserMarketingConsent {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserMarketingConsentWithDetails {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -44,7 +45,7 @@ pub struct UserMarketingConsentWithDetails {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserEmailSubscription {
     pub user_id: Uuid,
     pub email: String,
@@ -52,15 +53,14 @@ pub struct UserEmailSubscription {
     pub user_mailchimp_id: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone)]
 pub struct MarketingMailingListAccessToken {
     pub id: Uuid,
     pub course_id: Uuid,
     pub mailchimp_mailing_list_id: String,
     pub course_language_group_id: Uuid,
     pub server_prefix: String,
-    pub access_token: String,
+    pub access_token: DbSecret,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -79,7 +79,7 @@ pub struct MailchimpCourseTag {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct MailchimpLanguageCodeMapping {
     pub id: Uuid,
     pub marketing_mailing_list_access_token_id: Uuid,
@@ -108,7 +108,7 @@ pub async fn upsert_marketing_consent(
         course_id = $2,
         consent = $4,
         email_subscription_in_mailchimp = $5
-      RETURNING id
+      RETURNING *
       "#,
         user_id,
         course_id,
@@ -216,6 +216,97 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
     .await?;
 
     Ok(result)
+}
+
+pub async fn fetch_user_marketing_consents_with_details_by_user_ids(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+    user_ids: &[Uuid],
+) -> sqlx::Result<Vec<UserMarketingConsentWithDetails>> {
+    if user_ids.is_empty() {
+        return Ok(vec![]);
+    }
+
+    let result = sqlx::query_as!(
+        UserMarketingConsentWithDetails,
+        r#"
+    SELECT
+        umc.id,
+        umc.course_id,
+        umc.course_language_group_id,
+        umc.user_id,
+        umc.user_mailchimp_id,
+        umc.consent,
+        umc.email_subscription_in_mailchimp,
+        umc.created_at,
+        umc.updated_at,
+        umc.deleted_at,
+        umc.synced_to_mailchimp_at,
+        u.first_name AS first_name,
+        u.last_name AS last_name,
+        u.country AS country,
+        u.email AS email,
+        c.name AS course_name,
+        COALESCE(
+            mlcm.mailchimp_language_code,
+            c.language_code
+        ) AS locale,
+        CASE WHEN cmc.passed IS NOT NULL THEN cmc.completion_date ELSE NULL END AS completed_course_at,
+        COALESCE(csfa.research_consent, urc.research_consent) AS research_consent
+    FROM user_marketing_consents AS umc
+    JOIN user_details AS u ON u.user_id = umc.user_id
+    JOIN courses AS c ON c.id = umc.course_id
+    LEFT JOIN course_module_completions AS cmc
+        ON cmc.user_id = umc.user_id AND cmc.course_id = umc.course_id
+    LEFT JOIN course_specific_consent_form_answers AS csfa
+        ON csfa.course_id = umc.course_id AND csfa.user_id = umc.user_id
+    LEFT JOIN user_research_consents AS urc
+        ON urc.user_id = umc.user_id
+    LEFT JOIN marketing_mailing_list_access_tokens AS mmlat
+        ON mmlat.course_language_group_id = umc.course_language_group_id AND mmlat.deleted_at IS NULL
+    LEFT JOIN mailchimp_language_code_mappings AS mlcm
+        ON mlcm.marketing_mailing_list_access_token_id = mmlat.id
+        AND mlcm.our_language_code = c.language_code
+        AND mlcm.deleted_at IS NULL
+    WHERE umc.course_language_group_id = $1
+    AND umc.user_id = ANY($2::uuid[])
+    AND umc.deleted_at IS NULL
+    "#,
+        course_language_group_id,
+        user_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(result)
+}
+
+/// Fetches user_id -> user_mailchimp_id for the given course language group and user IDs (e.g. after syncing to Mailchimp). Only includes entries with a non-null user_mailchimp_id.
+pub async fn fetch_user_mailchimp_id_mapping(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+    user_ids: &[Uuid],
+) -> sqlx::Result<std::collections::HashMap<Uuid, String>> {
+    if user_ids.is_empty() {
+        return Ok(std::collections::HashMap::new());
+    }
+    let rows = sqlx::query!(
+        r#"
+    SELECT *
+    FROM user_marketing_consents
+    WHERE course_language_group_id = $1 AND user_id = ANY($2::uuid[]) AND deleted_at IS NULL
+    "#,
+        course_language_group_id,
+        user_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let map = rows
+        .into_iter()
+        .filter_map(|r| r.user_mailchimp_id.map(|id| (r.user_id, id)))
+        .collect();
+    Ok(map)
 }
 
 /// Fetches email, email subscription status and user ID for users whose details have been updated after their marketing consent was last synced to Mailchimp
@@ -360,16 +451,7 @@ pub async fn fetch_all_marketing_mailing_list_access_tokens(
     let results = sqlx::query_as!(
         MarketingMailingListAccessToken,
         "
-    SELECT
-      id,
-      course_id,
-      course_language_group_id,
-      server_prefix,
-      access_token,
-      mailchimp_mailing_list_id,
-      created_at,
-      updated_at,
-      deleted_at
+    SELECT *
     FROM marketing_mailing_list_access_tokens
     "
     )
@@ -386,9 +468,7 @@ pub async fn fetch_tags_with_course_language_group_id_and_marketing_mailing_list
 ) -> sqlx::Result<Vec<serde_json::Value>> {
     let results = sqlx::query!(
         "
-        SELECT
-          tag_name,
-          tag_id
+        SELECT *
         FROM mailchimp_course_tags
         WHERE course_language_group_id = $1
         AND marketing_mailing_list_access_token_id = $2

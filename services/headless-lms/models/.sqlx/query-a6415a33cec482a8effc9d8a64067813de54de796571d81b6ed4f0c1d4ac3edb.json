@@ -6,42 +6,75 @@
       {
         "ordinal": 0,
         "name": "exercise_name",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "name"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "exercise_order_number",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "order_number"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "page_order_number",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "order_number"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "chapter_number",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "chapter_number"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "exercise_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_exercise_states",
+            "name": "exercise_id"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "n_users_attempted",
-        "type_info": "Int8"
+        "type_info": "Int8",
+        "origin": "Expression"
       },
       {
         "ordinal": 6,
         "name": "n_users_with_some_points",
-        "type_info": "Int8"
+        "type_info": "Int8",
+        "origin": "Expression"
       },
       {
         "ordinal": 7,
         "name": "n_users_with_max_points",
-        "type_info": "Int8"
+        "type_info": "Int8",
+        "origin": "Expression"
       }
     ],
     "parameters": {

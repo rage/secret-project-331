@@ -6,11 +6,7 @@ import { useAtomValue } from "jotai"
 import React, { useCallback, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getLanguageName } from "./modals/ChooseCourseLanguage"
-
 import useCourseLanguageVersionNavigationInfos from "@/hooks/course-material/useCourseLanguageVersionNavigationInfos"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import {
   baseTheme,
   fontWeights,
@@ -19,11 +15,14 @@ import {
   typography,
 } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
+
+import { getLanguageName } from "./modals/ChooseCourseLanguage"
 
 export interface CourseTranslationsListProps {
   selectedLangCourseId: string
-  setSelectedLangCourseId(setLanguage: string): void
+  setSelectedLangCourseId: (setLanguage: string) => void
   setDialogLanguage: React.Dispatch<React.SetStateAction<string>>
   dialogLanguage: string
   currentPageId: string
@@ -78,7 +77,11 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     if (i === -1) {
       return courseLanguageVersionsQuery.data.slice()
     }
+    // i !== -1 was handled above, so index i exists.
     const item = courseLanguageVersionsQuery.data[i]
+    if (item === undefined) {
+      return courseLanguageVersionsQuery.data.slice()
+    }
     const reordered = [
       item,
       ...courseLanguageVersionsQuery.data.slice(0, i),
@@ -97,73 +100,77 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     }
   }, [currentCourseId, reorderedCourseLanguageVersions, langCode, setDialogLanguage])
 
-  if (courseLanguageVersionsQuery.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (courseLanguageVersionsQuery.isError) {
-    return <ErrorBanner variant="readOnly" error={courseLanguageVersionsQuery.error} />
-  }
-
-  if (reorderedCourseLanguageVersions.length < 2) {
-    // The course has only 1 language version, so no need to show the language selection
+  // The query is disabled when there is no course id, in which case it stays pending forever.
+  // Render nothing instead of an infinite loading skeleton.
+  if (!currentCourseId) {
     return null
   }
 
   return (
-    <div
-      className={css`
-        display: flex;
-        justify-content: space-between;
-        font-family: ${headingFont};
-        padding-bottom: 1rem;
-        align-items: center;
-      `}
-    >
-      <label
-        htmlFor="changeLanguage"
-        className={css`
-          font-family: ${primaryFont};
-          font-weight: ${fontWeights.normal};
-          font-size: ${typography.h6};
-          color: ${baseTheme.colors.gray[500]};
-        `}
-      >
-        {t("choose-preferred-language")}
-      </label>
+    <QueryResult query={courseLanguageVersionsQuery}>
+      {() => {
+        if (reorderedCourseLanguageVersions.length < 2) {
+          // The course has only 1 language version, so no need to show the language selection
+          return null
+        }
 
-      <div
-        className={css`
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          height: 37px;
-        `}
-      >
-        <LanguageTranslation size={18} />
-        <select
-          className={css`
-            box-sizing: border-box;
-            background: #ffffff;
-            border: 2px solid ${baseTheme.colors.gray[200]};
-            width: 119px;
-            height: 100%;
-          `}
-          id="changeLanguage"
-          onChange={onChange}
-          defaultValue={selectedLangCourseId}
-        >
-          {reorderedCourseLanguageVersions.map((courseLanguageVersionNavigationInfo) => (
-            <option
-              key={courseLanguageVersionNavigationInfo.course_id}
-              value={courseLanguageVersionNavigationInfo.course_id}
+        return (
+          <div
+            className={css`
+              display: flex;
+              justify-content: space-between;
+              font-family: ${headingFont};
+              padding-bottom: 1rem;
+              align-items: center;
+            `}
+          >
+            <label
+              htmlFor="changeLanguage"
+              className={css`
+                font-family: ${primaryFont};
+                font-weight: ${fontWeights.normal};
+                font-size: ${typography.h6};
+                color: ${baseTheme.colors.gray[500]};
+              `}
             >
-              {getLanguageName(courseLanguageVersionNavigationInfo.language_code)}
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
+              {t("choose-preferred-language")}
+            </label>
+
+            <div
+              className={css`
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                height: 37px;
+              `}
+            >
+              <LanguageTranslation size={18} />
+              <select
+                className={css`
+                  box-sizing: border-box;
+                  background: #ffffff;
+                  border: 2px solid ${baseTheme.colors.gray[200]};
+                  width: 119px;
+                  height: 100%;
+                `}
+                id="changeLanguage"
+                onChange={onChange}
+                defaultValue={selectedLangCourseId}
+              >
+                {reorderedCourseLanguageVersions.map((courseLanguageVersionNavigationInfo) => (
+                  <option
+                    key={courseLanguageVersionNavigationInfo.course_id}
+                    value={courseLanguageVersionNavigationInfo.course_id}
+                  >
+                    {getLanguageName(courseLanguageVersionNavigationInfo.language_code)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )
+      }}
+    </QueryResult>
   )
 }
 

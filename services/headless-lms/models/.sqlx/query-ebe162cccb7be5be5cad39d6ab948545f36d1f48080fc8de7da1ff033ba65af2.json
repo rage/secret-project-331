@@ -6,27 +6,57 @@
       {
         "ordinal": 0,
         "name": "first_name",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "last_name",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "user_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "users",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "email?",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "course_instance?",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_instances",
+            "name": "name"
+          }
+        }
       }
     ],
     "parameters": {

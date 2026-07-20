@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE user_chapter_locking_statuses\nSET status = 'unlocked'::chapter_locking_status, deleted_at = NULL\nWHERE user_id = $1\n  AND course_id = $2\n  AND chapter_id = ANY($3)\n  AND status = 'completed_and_locked'::chapter_locking_status\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c8477fd7a1cfa4934cd566d01e9099a52d0f9f7ec722d664416bebacdb352d0f"
+}

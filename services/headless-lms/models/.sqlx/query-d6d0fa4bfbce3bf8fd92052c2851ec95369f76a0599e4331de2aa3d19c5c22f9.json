@@ -1,0 +1,173 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE oauth_refresh_tokens\n               SET revoked = true\n             WHERE digest = $1\n               AND client_id = $2\n               AND revoked = false\n               AND expires_at > now()\n            RETURNING *\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "digest",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "digest"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "client_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "client_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "scopes",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "scopes"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "audience",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "audience"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "jti",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "jti"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "expires_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "expires_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "revoked",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "revoked"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "rotated_from",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "rotated_from"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "metadata",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "metadata"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "dpop_jkt",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "dpop_jkt"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "updated_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "d6d0fa4bfbce3bf8fd92052c2851ec95369f76a0599e4331de2aa3d19c5c22f9"
+}

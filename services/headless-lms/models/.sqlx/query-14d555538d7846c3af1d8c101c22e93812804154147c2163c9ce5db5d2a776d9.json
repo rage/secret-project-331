@@ -6,37 +6,79 @@
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "certificate_fonts",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "created_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "certificate_fonts",
+            "name": "created_at"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "updated_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "certificate_fonts",
+            "name": "updated_at"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "deleted_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "certificate_fonts",
+            "name": "deleted_at"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "file_path",
-        "type_info": "Text"
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "certificate_fonts",
+            "name": "file_path"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "file_upload_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "certificate_fonts",
+            "name": "file_upload_id"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "display_name",
-        "type_info": "Text"
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "certificate_fonts",
+            "name": "display_name"
+          }
+        }
       }
     ],
     "parameters": {

@@ -1,18 +1,34 @@
 use models::{pages::SearchRequest, user_details::UserDetail};
+use utoipa::{OpenApi, ToSchema};
 
 use crate::{controllers, prelude::*};
-use headless_lms_utils::{ip_to_country::IpToCountryMapper, tmc::TmcClient};
+use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use std::net::IpAddr;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_user_details,
+    get_user_details_by_courses,
+    search_users_by_email,
+    search_users_by_other_details,
+    search_users_fuzzy_match,
+    get_users_by_course_id,
+    get_bulk_user_details,
+    get_user_details_for_user,
+    get_user_country_by_ip,
+    update_user_info
+))]
+pub(crate) struct MainFrontendUserDetailsApiDoc;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct BulkUserDetailsRequest {
     pub user_ids: Vec<Uuid>,
     pub course_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct UserDetailsRequest {
     pub user_id: Uuid,
     pub course_ids: Vec<Uuid>,
@@ -23,6 +39,19 @@ GET `/api/v0/main-frontend/user-details/{course_id}/user/{user_id}` - Find user 
 Only returns user details if the user is enrolled in the specified course
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}/user/{user_id}",
+    operation_id = "getUserDetailsByCourseAndUserId",
+    tag = "user-details",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "User details", body = UserDetail)
+    )
+)]
 pub async fn get_user_details(
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -49,6 +78,19 @@ POST `/api/v0/main-frontend/user-details/user-by-courses` - Find user details by
 Returns user details if the user has permission to view user details through any of the specified courses
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/user-by-courses",
+    operation_id = "getUserDetailsByCourses",
+    tag = "user-details",
+    request_body = UserDetailsRequest,
+    responses(
+        (status = 200, description = "User details", body = UserDetail),
+        (status = 403, description = "Forbidden", body = serde_json::Value),
+        (status = 404, description = "User details not found", body = serde_json::Value),
+        (status = 500, description = "Internal server error", body = serde_json::Value)
+    )
+)]
 pub async fn get_user_details_by_courses(
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -58,6 +100,7 @@ pub async fn get_user_details_by_courses(
 
     // Check if the user has permission to view user details through any of the provided courses
     let mut token = None;
+    let mut authorized_course_ids = Vec::new();
 
     if payload.course_ids.is_empty() {
         // One can view the details though global permissions even though they have not started any course yet
@@ -80,8 +123,10 @@ pub async fn get_user_details_by_courses(
             )
             .await
             {
-                token = Some(auth_token);
-                break;
+                if token.is_none() {
+                    token = Some(auth_token);
+                }
+                authorized_course_ids.push(*course_id);
             }
         }
     }
@@ -94,6 +139,27 @@ pub async fn get_user_details_by_courses(
         )
     })?;
 
+    if !payload.course_ids.is_empty() {
+        let enrollments = models::course_instance_enrollments::get_by_user_id_and_course_ids(
+            &mut conn,
+            payload.user_id,
+            &authorized_course_ids,
+        )
+        .await?;
+        let roles = models::roles::get_by_user_id_and_course_ids(
+            &mut conn,
+            payload.user_id,
+            &authorized_course_ids,
+        )
+        .await?;
+        if enrollments.is_empty() && roles.is_empty() {
+            return Err(controller_err!(
+                Forbidden,
+                "Target user is not linked to an authorized course".to_string()
+            ));
+        }
+    }
+
     // If we have permission, get the user details without course restriction
     let res = models::user_details::get_user_details_by_user_id(&mut conn, payload.user_id).await?;
     token.authorized_ok(web::Json(res))
@@ -103,6 +169,16 @@ pub async fn get_user_details_by_courses(
 GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/search-by-email",
+    operation_id = "searchUserDetailsByEmail",
+    tag = "user-details",
+    request_body = SearchRequest,
+    responses(
+        (status = 200, description = "User details search results", body = [UserDetail])
+    )
+)]
 pub async fn search_users_by_email(
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -126,6 +202,16 @@ pub async fn search_users_by_email(
 GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/search-by-other-details",
+    operation_id = "searchUserDetailsByOtherDetails",
+    tag = "user-details",
+    request_body = SearchRequest,
+    responses(
+        (status = 200, description = "User details search results", body = [UserDetail])
+    )
+)]
 pub async fn search_users_by_other_details(
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -150,6 +236,16 @@ pub async fn search_users_by_other_details(
 GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/search-fuzzy-match",
+    operation_id = "searchUserDetailsFuzzyMatch",
+    tag = "user-details",
+    request_body = SearchRequest,
+    responses(
+        (status = 200, description = "User details fuzzy search results", body = [UserDetail])
+    )
+)]
 pub async fn search_users_fuzzy_match(
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -172,6 +268,18 @@ pub async fn search_users_fuzzy_match(
 /**
 GET `/api/v0/main-frontend/user-details/get-users-by-course-id` - Get user details of users that are in the course
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-users-by-course-id",
+    operation_id = "getUsersByCourseIdForUserDetails",
+    tag = "user-details",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Users by course id", body = [UserDetail])
+    )
+)]
 pub async fn get_users_by_course_id(
     course_id: web::Path<Uuid>,
     user: AuthUser,
@@ -195,6 +303,16 @@ POST `/api/v0/main-frontend/user-details/bulk-user-details` - Get user details f
 Only returns user details for users who are actually enrolled in the specified course
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/bulk-user-details",
+    operation_id = "getBulkUserDetails",
+    tag = "user-details",
+    request_body = BulkUserDetailsRequest,
+    responses(
+        (status = 200, description = "Bulk user details", body = [UserDetail])
+    )
+)]
 pub async fn get_bulk_user_details(
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -222,6 +340,15 @@ pub async fn get_bulk_user_details(
 GET `/api/v0/main-frontend/user-details/user-details-for-user` - Get authenticated user's own details
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/user-details-for-user",
+    operation_id = "getUserDetailsForAuthenticatedUser",
+    tag = "user-details",
+    responses(
+        (status = 200, description = "Authenticated user details", body = UserDetail)
+    )
+)]
 pub async fn get_user_details_for_user(
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -234,6 +361,15 @@ pub async fn get_user_details_for_user(
     token.authorized_ok(web::Json(res))
 }
 
+#[utoipa::path(
+    get,
+    path = "/users-ip-country",
+    operation_id = "getUsersIpCountry",
+    tag = "user-details",
+    responses(
+        (status = 200, description = "Country inferred from request IP", body = String)
+    )
+)]
 pub async fn get_user_country_by_ip(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
@@ -253,8 +389,8 @@ pub async fn get_user_country_by_ip(
     token.authorized_ok(country)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct UserInfoPayload {
     pub email: String,
     pub first_name: String,
@@ -267,6 +403,16 @@ pub struct UserInfoPayload {
 POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
 */
 #[instrument(skip(pool, app_conf, tmc_client))]
+#[utoipa::path(
+    post,
+    path = "/update-user-info",
+    operation_id = "updateUserInfo",
+    tag = "user-details",
+    request_body = UserInfoPayload,
+    responses(
+        (status = 200, description = "Updated user details", body = UserDetail)
+    )
+)]
 pub async fn update_user_info(
     user: AuthUser,
     pool: web::Data<PgPool>,

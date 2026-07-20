@@ -3,16 +3,15 @@
 import { useAtom } from "jotai"
 import React, { useCallback } from "react"
 
-import { BlockRendererProps } from "../../.."
-
-import EditingParagraph from "./proposing-edits/EditingParagraph"
-import { getParagraphStyles } from "./styles"
-
-import { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { ParagraphAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentlyOpenFeedbackDialogAtom } from "@/stores/course-material/materialFeedbackStore"
+
+import type { BlockRendererProps } from "../../.."
+import EditingParagraph from "./proposing-edits/EditingParagraph"
+import { getParagraphStyles } from "./styles"
 
 const LatexParagraph = dynamicImport(() => import("./LatexParagraph"))
 
@@ -26,7 +25,7 @@ const P = "p"
 const ParagraphBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ParagraphAttributes & ExtraAttributes>>
 > = ({ data, id }) => {
-  const { textColor, backgroundColor, fontSize, content, dropCap, align } = data.attributes
+  const { textColor, backgroundColor, fontSize, content, dropCap, align, fitText } = data.attributes
   const [type] = useAtom(currentlyOpenFeedbackDialogAtom)
   const isEditing = type === "proposed-edits"
 
@@ -52,11 +51,12 @@ const ParagraphBlock: React.FC<
             hideOverflow,
             dropCap,
             align,
+            fitText,
           )}
         />
       )
     },
-    [textColor, backgroundColor, fontSize, dropCap, align],
+    [textColor, backgroundColor, fontSize, dropCap, align, fitText],
   )
 
   if (isEditing) {

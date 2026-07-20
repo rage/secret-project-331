@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { DetailedHTMLProps, InputHTMLAttributes } from "react"
+import type { DetailedHTMLProps, InputHTMLAttributes } from "react"
 
 import { baseTheme, primaryFont } from "../../styles"
 
@@ -50,8 +50,10 @@ const labelClass = css`
   }
 `
 
-export interface RadioFieldProps
-  extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
+export interface RadioFieldProps extends DetailedHTMLProps<
+  InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+> {
   label: string
 }
 

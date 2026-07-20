@@ -5,14 +5,39 @@ use models::{
     library::progressing::{CompletionRegistrationLink, UserCompletionInformation},
     suspected_cheaters,
 };
+use utoipa::OpenApi;
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_course_module,
+    get_course_module_completion_information_for_user,
+    get_course_module_completion_registration_link,
+    enable_or_disable_certificate_generation,
+    get_best_course_module_completion_for_user,
+    insert_threshold_for_module,
+    delete_threshold_for_module
+))]
+pub(crate) struct MainFrontendCourseModulesApiDoc;
 
 /**
 GET `/api/v0/main-frontend/course-modules/{course_module_id}`
 
 Returns information about the course module.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_module_id}",
+    operation_id = "getCourseModule",
+    tag = "course_modules",
+    params(
+        ("course_module_id" = Uuid, Path, description = "Course module id")
+    ),
+    responses(
+        (status = 200, description = "Course module", body = CourseModule)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course_module(
     course_module_id: web::Path<Uuid>,
@@ -36,6 +61,18 @@ GET `/api/v0/main-frontend/course-modules/{course_module_id}/user-completion`
 
 Gets active users's completion for the course, if it exists.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_module_id}/user-completion",
+    operation_id = "getCourseModuleUserCompletion",
+    tag = "course_modules",
+    params(
+        ("course_module_id" = Uuid, Path, description = "Course module id")
+    ),
+    responses(
+        (status = 200, description = "User completion information", body = UserCompletionInformation)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course_module_completion_information_for_user(
     course_module_id: web::Path<Uuid>,
@@ -64,6 +101,18 @@ async fn get_course_module_completion_information_for_user(
 /**
 GET `/api/v0/main-frontend/course-modules/{course_slug}/completion-registration-link`
 */
+#[utoipa::path(
+    get,
+    path = "/{course_module_id}/completion-registration-link",
+    operation_id = "getCourseModuleCompletionRegistrationLink",
+    tag = "course_modules",
+    params(
+        ("course_module_id" = Uuid, Path, description = "Course module id")
+    ),
+    responses(
+        (status = 200, description = "Completion registration link", body = CompletionRegistrationLink)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course_module_completion_registration_link(
     course_module_id: web::Path<Uuid>,
@@ -90,6 +139,19 @@ async fn get_course_module_completion_registration_link(
     token.authorized_ok(web::Json(completion_registration_link))
 }
 
+#[utoipa::path(
+    post,
+    path = "/{course_module_id}/set-certificate-generation/{enabled}",
+    operation_id = "setCourseModuleCertificateGeneration",
+    tag = "course_modules",
+    params(
+        ("course_module_id" = Uuid, Path, description = "Course module id"),
+        ("enabled" = bool, Path, description = "Whether certificate generation should be enabled")
+    ),
+    responses(
+        (status = 200, description = "Certificate generation updated", body = bool)
+    )
+)]
 async fn enable_or_disable_certificate_generation(
     params: web::Path<(Uuid, bool)>,
     pool: web::Data<PgPool>,
@@ -118,6 +180,18 @@ GET `/api/v0/main-frontend/course-modules/{course_module_id}/course-module-compl
 
 Gets users's best completion for the course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_module_id}/course-module-completion",
+    operation_id = "getCourseModuleCompletion",
+    tag = "course_modules",
+    params(
+        ("course_module_id" = Uuid, Path, description = "Course module id")
+    ),
+    responses(
+        (status = 200, description = "Best course module completion for the current user", body = Option<CourseModuleCompletion>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_best_course_module_completion_for_user(
     course_module_id: web::Path<Uuid>,
@@ -148,6 +222,19 @@ async fn get_best_course_module_completion_for_user(
 /**
  POST /api/v0/main-frontend/course-modules/${course_module_id}/threshold - post threshold for a specific course module.
 */
+#[utoipa::path(
+    post,
+    path = "/{course_module_id}/threshold",
+    operation_id = "createCourseModuleThreshold",
+    tag = "course_modules",
+    params(
+        ("course_module_id" = Uuid, Path, description = "Course module id")
+    ),
+    request_body = ThresholdData,
+    responses(
+        (status = 200, description = "Threshold created")
+    )
+)]
 #[instrument(skip(pool))]
 async fn insert_threshold_for_module(
     pool: web::Data<PgPool>,
@@ -169,6 +256,32 @@ async fn insert_threshold_for_module(
     )
     .await?;
 
+    // Small modules are exempt from the minimum threshold: they can legitimately be completed
+    // fast, so any duration >= 0 is allowed for them, where 0 turns the duration check off. The
+    // exemption rule lives in suspected_cheaters::minimum_threshold_seconds so the save-time check
+    // and the configuration UI cannot drift. The exemption is checked at save time only -- a module
+    // that later grows past these limits keeps its existing below-minimum threshold until the next
+    // save.
+    let counts =
+        course_modules::get_chapter_and_exercise_counts(&mut conn, course_module_id).await?;
+    let minimum_seconds =
+        suspected_cheaters::minimum_threshold_seconds(counts.chapters, counts.exercises);
+    if new_threshold.duration_seconds < minimum_seconds {
+        let message = if minimum_seconds > 0 {
+            format!(
+                "The threshold must be at least {} hours.",
+                minimum_seconds / 3600
+            )
+        } else {
+            "The threshold cannot be negative.".to_string()
+        };
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            message,
+            None,
+        ));
+    }
+
     suspected_cheaters::insert_thresholds_by_module_id(
         &mut conn,
         course_module_id,
@@ -182,6 +295,18 @@ async fn insert_threshold_for_module(
 /**
  DELETE /api/v0/main-frontend/course-modules/${course_module_id}/threshold - delete threshold for a specific course module.
 */
+#[utoipa::path(
+    delete,
+    path = "/{course_module_id}/threshold",
+    operation_id = "deleteCourseModuleThreshold",
+    tag = "course_modules",
+    params(
+        ("course_module_id" = Uuid, Path, description = "Course module id")
+    ),
+    responses(
+        (status = 200, description = "Threshold deleted")
+    )
+)]
 #[instrument(skip(pool))]
 async fn delete_threshold_for_module(
     pool: web::Data<PgPool>,

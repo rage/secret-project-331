@@ -1,0 +1,139 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR=""
+if [ -n "${BASH_SOURCE[0]:-}" ] && [ "${BASH_SOURCE[0]}" != "bash" ]; then
+  if resolved_script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd -P); then
+    SCRIPT_DIR="$resolved_script_dir"
+  fi
+fi
+
+if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/.common" ]; then
+  # shellcheck source=bin/.common
+  source "$SCRIPT_DIR/.common"
+else
+  BLUE=$'\033[0;34m'
+  RED=$'\033[0;31m'
+  GREEN=$'\033[0;32m'
+  CURSIVE=$'\e[3m'
+  RESET_EVERYTHING=$'\e[0m'
+
+  run_command() {
+    command=$1
+    shift
+    args=("$@")
+    echo -e "${CURSIVE}> $command" "$(printf "%q " "${args[@]}")${RESET_EVERYTHING}"
+    "$command" "${args[@]}"
+  }
+
+  ensure_inside_git_work_tree() {
+    if ! git rev-parse --is-inside-work-tree &> /dev/null; then
+      echo "This command must be run inside the git repository. Aborting."
+      exit 1
+    fi
+  }
+
+  ensure_git_lfs_installed() {
+    if ! command -v git-lfs &> /dev/null; then
+      echo "git-lfs is not installed or it is not in your \$PATH. Aborting."
+      if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "Install: brew install git-lfs"
+      elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        echo "Install: Ubuntu: sudo apt-get install git-lfs | Arch: sudo pacman -S git-lfs"
+      elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+        echo "Install: winget install Git.GitLFS"
+      else
+        echo "Install: see https://git-lfs.com/"
+      fi
+      exit 1
+    fi
+    if ! git lfs version &> /dev/null; then
+      echo "git lfs is not working correctly. Aborting."
+      echo "Try reinstalling git-lfs and ensure 'git lfs install' has been run."
+      exit 1
+    fi
+
+    local_repo_root=$(git rev-parse --show-toplevel 2>/dev/null || true)
+    if [ -n "$local_repo_root" ]; then
+      # Configure the LFS smudge/clean filters locally without touching hooks:
+      # husky owns core.hooksPath (.husky/_) and the git-lfs hook logic lives in
+      # the committed .husky/* hooks. See bin/.common for the rationale.
+      git -C "$local_repo_root" config --local filter.lfs.clean "git-lfs clean -- %f"
+      git -C "$local_repo_root" config --local filter.lfs.smudge "git-lfs smudge -- %f"
+      git -C "$local_repo_root" config --local filter.lfs.process "git-lfs filter-process"
+      git -C "$local_repo_root" config --local filter.lfs.required true
+    fi
+  }
+fi
+
+backup_remote_url_for_origin() {
+  case "$1" in
+    git@github.com:rage/secret-project-331.git | git@github.com:rage/secret-project-331)
+      echo "git@github.com:rage/secret-project-331-pre-git-lfs.git"
+      ;;
+    ssh://git@github.com/rage/secret-project-331.git | ssh://git@github.com/rage/secret-project-331)
+      echo "ssh://git@github.com/rage/secret-project-331-pre-git-lfs.git"
+      ;;
+    https://github.com/rage/secret-project-331.git | https://github.com/rage/secret-project-331)
+      echo "https://github.com/rage/secret-project-331-pre-git-lfs.git"
+      ;;
+    *)
+      echo -e "${RED}origin must point to rage/secret-project-331 on GitHub using SSH or HTTPS.${RESET_EVERYTHING}" >&2
+      echo "Current origin: $1" >&2
+      exit 1
+      ;;
+  esac
+}
+
+ensure_inside_git_work_tree
+ensure_git_lfs_installed
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_DIRNAME=$(basename "$REPO_ROOT")
+PARENT_DIR=$(dirname "$REPO_ROOT")
+OLD_DIR="$PARENT_DIR/secret-project-331-old"
+if ! ORIGIN_URL=$(git config --get remote.origin.url); then
+  echo -e "${RED}No origin remote is configured. Aborting.${RESET_EVERYTHING}"
+  exit 1
+fi
+BACKUP_REMOTE_URL=$(backup_remote_url_for_origin "$ORIGIN_URL")
+
+if [ "$REPO_DIRNAME" != "secret-project-331" ]; then
+  echo -e "${RED}This command must be run from inside a clone named secret-project-331.${RESET_EVERYTHING}"
+  echo "Current repository root: $REPO_ROOT"
+  exit 1
+fi
+
+echo -e "${BLUE}This script will:"
+echo "  1. Rename $REPO_ROOT to $OLD_DIR"
+echo "  2. Point the old clone's remote at the pre-LFS backup repo"
+echo "  3. Fresh-clone from $ORIGIN_URL into $REPO_ROOT"
+echo -e "$RESET_EVERYTHING"
+
+# Check for uncommitted changes
+if [ -n "$(git -C "$REPO_ROOT" status --porcelain)" ]; then
+  echo -e "${RED}You have uncommitted changes. Commit or stash them before running this.${RESET_EVERYTHING}"
+  exit 1
+fi
+
+if [ -d "$OLD_DIR" ]; then
+  echo -e "${RED}$OLD_DIR already exists. Remove or rename it first.${RESET_EVERYTHING}"
+  exit 1
+fi
+
+run_command mv "$REPO_ROOT" "$OLD_DIR"
+run_command git -C "$OLD_DIR" remote set-url origin "$BACKUP_REMOTE_URL"
+run_command git clone "$ORIGIN_URL" "$REPO_ROOT"
+
+echo ""
+echo -e "${GREEN}Done!${RESET_EVERYTHING}"
+echo ""
+echo "Old clone preserved at : $OLD_DIR  (remote → pre-LFS backup)"
+echo "Fresh clone ready at   : $REPO_ROOT"
+echo ""
+echo "Local branches and stash entries remain in the old clone."
+echo "To recover a stash:"
+echo "  git -C $OLD_DIR stash show -p stash@{0} | git -C $REPO_ROOT apply"
+echo ""
+echo "Switch to the fresh clone:"
+echo "  cd $REPO_ROOT"

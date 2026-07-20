@@ -3,25 +3,26 @@
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
-import { i18n, TFunction } from "i18next"
+import type { i18n, TFunction } from "i18next"
 import { useAtomValue } from "jotai"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import useTime from "@/hooks/course-material/useTime"
 import {
-  fetchPageNavigationData,
-  fetchUserChapterInstanceChapterProgress,
-} from "@/services/course-material/backend"
-import { PageNavigationInformation } from "@/shared-module/common/bindings"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import NextSectionLink, {
-  NextSectionLinkProps,
-} from "@/shared-module/common/components/NextSectionLink"
-import Spinner from "@/shared-module/common/components/Spinner"
+  getCourseMaterialChapterProgress,
+  getCourseMaterialPageNavigation,
+} from "@/generated/course-material-api/sdk.generated"
+import type {
+  PageNavigationInformation,
+  UserCourseInstanceChapterProgress,
+} from "@/generated/course-material-api/types.generated"
+import useTime from "@/hooks/course-material/useTime"
+import type { NextSectionLinkProps } from "@/shared-module/common/components/NextSectionLink"
+import NextSectionLink from "@/shared-module/common/components/NextSectionLink"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { QueryResult } from "@/shared-module/components"
 import { materialInstanceAtom } from "@/state/course-material/selectors"
 import { courseFrontPageRoute, coursePageRoute } from "@/utils/course-material/routing"
 
@@ -92,6 +93,13 @@ const ChapterProgress = styled.div`
 const NUMERIC = "numeric"
 const LONG = "long"
 
+function calculatePercentage(attempted: number, total: number): string {
+  if (total === 0) {
+    return "0%"
+  }
+  return Math.round((attempted / total) * 100) + "%"
+}
+
 const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   chapterId,
   currentPageId,
@@ -105,7 +113,12 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
 
   const getPageRoutingData = useQuery({
     queryKey: [`pages-${chapterId}-page-routing-data`, currentPageId],
-    queryFn: () => fetchPageNavigationData(currentPageId),
+    queryFn: (): Promise<PageNavigationInformation> =>
+      getCourseMaterialPageNavigation({
+        path: {
+          current_page_id: currentPageId,
+        },
+      }),
   })
 
   // Compute `shouldFetchChapterProgress` inside `useMemo`
@@ -116,21 +129,24 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
 
   const getUserChapterProgress = useQuery({
     queryKey: [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
-    queryFn: () =>
-      fetchUserChapterInstanceChapterProgress(
-        assertNotNullOrUndefined(courseInstanceId),
-        assertNotNullOrUndefined(chapterId),
-      ),
-    enabled: shouldFetchChapterProgress,
+    queryFn: (): Promise<UserCourseInstanceChapterProgress> =>
+      getCourseMaterialChapterProgress({
+        path: {
+          chapter_id: assertNotNullOrUndefined(chapterId),
+          course_instance_id: assertNotNullOrUndefined(courseInstanceId),
+        },
+      }),
+    enabled: shouldFetchChapterProgress && Boolean(chapterId && courseInstanceId),
   })
 
   const chapterProgress =
     getUserChapterProgress.isSuccess && getUserChapterProgress.data
       ? {
-          maxScore: getUserChapterProgress.data.score_maximum,
-          givenScore: parseFloat(getUserChapterProgress.data.score_given.toFixed(2)),
-          attemptedExercises: getUserChapterProgress.data.attempted_exercises,
-          totalExercises: getUserChapterProgress.data.total_exercises,
+          maxScore: getUserChapterProgress.data.score_maximum ?? 0,
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat intended; Number() differs
+          givenScore: parseFloat((getUserChapterProgress.data.score_given ?? 0).toFixed(2)),
+          attemptedExercises: getUserChapterProgress.data.attempted_exercises ?? 0,
+          totalExercises: getUserChapterProgress.data.total_exercises ?? 0,
         }
       : {}
 
@@ -159,47 +175,42 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
     t,
   ])
 
-  if (getPageRoutingData.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getPageRoutingData.error} />
-  }
-  if (getPageRoutingData.isLoading || !nextPageProps || !getPageRoutingData.data) {
-    return <Spinner variant={"medium"} />
-  }
-
-  function calculatePercentage(attempted: number, total: number): string {
-    if (total === 0) {
-      return "0%"
-    }
-    return Math.round((attempted / total) * 100) + "%"
-  }
-
   return (
-    // Chapter exists, but next chapter not open yet.
-    <>
-      {getPageRoutingData.data.next_page?.chapter_id !== chapterId && (
-        <ChapterProgress>
-          <p>{t("chapter-progress")}</p>
-          <div className="progress-container">
-            <div className="attempted-exercises">
-              <span className="metric">
-                {calculatePercentage(
-                  chapterProgress.attemptedExercises ?? 0,
-                  chapterProgress.totalExercises ?? 0,
-                )}
-              </span>
-              <span className="description">{t("attempted-exercises")}</span>
-            </div>
-            <div className="answers">
-              <span className="metric">
-                {chapterProgress.givenScore ?? 0}/{chapterProgress.maxScore ?? 0}
-              </span>
-              <span className="description">{t("points-label")}</span>
-            </div>
-          </div>
-        </ChapterProgress>
-      )}
-      <NextSectionLink {...nextPageProps} />
-    </>
+    <QueryResult query={getPageRoutingData}>
+      {(data) => {
+        if (!nextPageProps) {
+          return null
+        }
+        return (
+          // Chapter exists, but next chapter not open yet.
+          <>
+            {data.next_page?.chapter_id !== chapterId && (
+              <ChapterProgress>
+                <p>{t("chapter-progress")}</p>
+                <div className="progress-container">
+                  <div className="attempted-exercises">
+                    <span className="metric">
+                      {calculatePercentage(
+                        chapterProgress.attemptedExercises ?? 0,
+                        chapterProgress.totalExercises ?? 0,
+                      )}
+                    </span>
+                    <span className="description">{t("attempted-exercises")}</span>
+                  </div>
+                  <div className="answers">
+                    <span className="metric">
+                      {chapterProgress.givenScore ?? 0}/{chapterProgress.maxScore ?? 0}
+                    </span>
+                    <span className="description">{t("points-label")}</span>
+                  </div>
+                </div>
+              </ChapterProgress>
+            )}
+            <NextSectionLink {...nextPageProps} />
+          </>
+        )
+      }}
+    </QueryResult>
   )
 }
 
@@ -224,23 +235,23 @@ function deriveNextpageProps(
     ),
   }
 
-  const endOfCourse = info.next_page === null
+  const endOfCourse = info.next_page === null || info.next_page === undefined
   const endOfChapter = info.next_page?.chapter_id !== chapterId
   const currentPageIsChapterFrontPage = Boolean(
     info.chapter_front_page && info.chapter_front_page.chapter_front_page_id === currentPageId,
   )
   let nextPageIsNotOpen = false
-  if (info.next_page && info.next_page.chapter_opens_at !== null) {
-    const diffSeconds = differenceInSeconds(info.next_page.chapter_opens_at, now)
+  if (info.next_page?.chapter_opens_at !== null && info.next_page?.chapter_opens_at !== undefined) {
+    const diffSeconds = differenceInSeconds(parseISO(info.next_page.chapter_opens_at), now)
     if (diffSeconds > 0) {
       nextPageIsNotOpen = true
     }
   }
 
-  if (info.previous_page !== null) {
+  if (info.previous_page !== null && info.previous_page !== undefined) {
     res.previous = coursePageRoute(organizationSlug, courseSlug, info.previous_page.url_path)
   }
-  if (info.next_page !== null) {
+  if (info.next_page !== null && info.next_page !== undefined) {
     res.nextTitle = info.next_page.title
     res.url = coursePageRoute(organizationSlug, courseSlug, info.next_page.url_path)
   }
@@ -248,7 +259,7 @@ function deriveNextpageProps(
   if (currentPageIsChapterFrontPage) {
     res.title = t("start-studying")
     res.subtitle = t("proceed-to-the-first-topic")
-    res.chapterFrontPageURL = undefined
+    delete res.chapterFrontPageURL
   }
 
   if (endOfChapter) {
@@ -265,9 +276,12 @@ function deriveNextpageProps(
 
   if (nextPageIsNotOpen) {
     res.nextTitle = t("closed")
-    res.url = undefined
-    if (info.next_page?.chapter_opens_at) {
-      const diffSeconds = differenceInSeconds(info.next_page.chapter_opens_at, now)
+    delete res.url
+    if (
+      info.next_page?.chapter_opens_at !== null &&
+      info.next_page?.chapter_opens_at !== undefined
+    ) {
+      const diffSeconds = differenceInSeconds(parseISO(info.next_page.chapter_opens_at), now)
       if (diffSeconds <= 0) {
         res.nextTitle = t("opens-now")
       } else if (diffSeconds < 60 * 10) {

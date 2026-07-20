@@ -1,0 +1,134 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_conversation_message_tool_outputs\nSET deleted_at = NOW()\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    output,\n    tool_call_id,\n    tool_kind as \"tool_kind: ToolKind\",\n    response_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "chatbot_conversation_message_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "chatbot_conversation_message_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "output",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "output"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "tool_call_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "tool_call_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "tool_kind: ToolKind",
+        "type_info": {
+          "Custom": {
+            "name": "tool_kind",
+            "kind": {
+              "Enum": [
+                "function",
+                "azure-ai-search"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "tool_kind"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "response_id",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "response_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "9178bbe940ca7098383e31554c19b99698ded2a88ece5e20be1dec616c4e5857"
+}

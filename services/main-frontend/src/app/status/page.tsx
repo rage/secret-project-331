@@ -4,20 +4,22 @@ import { css } from "@emotion/css"
 import React, { useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import StatusCronJobs from "../../components/page-specific/status/StatusCronJobs"
-import StatusDeployments from "../../components/page-specific/status/StatusDeployments"
-import StatusEvents from "../../components/page-specific/status/StatusEvents"
-import StatusIngresses from "../../components/page-specific/status/StatusIngresses"
-import StatusJobs from "../../components/page-specific/status/StatusJobs"
-import StatusPods from "../../components/page-specific/status/StatusPods"
-import StatusServices from "../../components/page-specific/status/StatusServices"
-import StatusSummary from "../../components/page-specific/status/StatusSummary"
+import Button from "@/shared-module/common/components/Button"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+
 import { useFavicon } from "../../hooks/useFavicon"
 import { useLocalNotifications } from "../../hooks/useLocalNotifications"
 import { useSystemHealthDetailed } from "../../hooks/useSystemHealthDetailed"
-
-import Button from "@/shared-module/common/components/Button"
-import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import StatusCronJobs from "./StatusCronJobs"
+import StatusDeployments from "./StatusDeployments"
+import StatusEvents from "./StatusEvents"
+import StatusIngresses from "./StatusIngresses"
+import StatusJobs from "./StatusJobs"
+import StatusPods from "./StatusPods"
+import StatusServices from "./StatusServices"
+import StatusSummary from "./StatusSummary"
 
 const createFavicon = (status: "healthy" | "warning" | "error"): string => {
   const colors = {
@@ -28,15 +30,16 @@ const createFavicon = (status: "healthy" | "warning" | "error"): string => {
     error: "#ef4444",
   }
   const icons = {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     healthy: "✓",
 
+    // oxlint-disable-next-line i18next/no-literal-string
     warning: "⚠",
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     error: "✕",
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
       <rect width="32" height="32" fill="${colors[status]}" rx="4"/>
@@ -44,7 +47,7 @@ const createFavicon = (status: "healthy" | "warning" | "error"): string => {
     </svg>
   `.trim()
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 
@@ -61,7 +64,7 @@ const StatusPage: React.FC = () => {
   } = useLocalNotifications()
 
   const overallHealth = useMemo(() => {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const defaultHealth: "healthy" | "warning" | "error" = "healthy"
     return (systemHealthDetailed?.status || defaultHealth) as "healthy" | "warning" | "error"
   }, [systemHealthDetailed?.status])
@@ -101,7 +104,7 @@ const StatusPage: React.FC = () => {
       sendLocalNotification(title, {
         body,
         icon: createFavicon(overallHealth),
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         tag: "status-change",
       })
     }
@@ -119,11 +122,10 @@ const StatusPage: React.FC = () => {
 
   useFavicon({
     favicon: createFavicon(overallHealth),
-    title: `${statusText[overallHealth]} | ${document.location.hostname}`,
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     defaultFavicon: "/favicon.ico",
-    defaultTitle: t("status-kubernetes-status"),
   })
+  usePageTitle(joinTitleSegments([statusText[overallHealth], t("title-system-status")]))
 
   return (
     <div

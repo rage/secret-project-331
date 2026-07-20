@@ -1,0 +1,110 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT prq.id as id,\n  prq.peer_or_self_review_config_id as peer_or_self_review_config_id,\n  prq.order_number as order_number,\n  prq.question as question,\n  prq.question_type,\n  prq.answer_required as answer_required,\n  prq.weight\nfrom pages p\n  join exercises e on p.id = e.page_id\n  join peer_or_self_review_configs pr on e.id = pr.exercise_id\n  join peer_or_self_review_questions prq on pr.id = prq.peer_or_self_review_config_id\nwhere p.id = $1\n  AND p.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n  AND pr.deleted_at IS NULL\n  AND prq.deleted_at IS NULL;\n  ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "peer_or_self_review_config_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "peer_or_self_review_config_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "order_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "order_number"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "question",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "question"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "question_type",
+        "type_info": {
+          "Custom": {
+            "name": "peer_review_question_type",
+            "kind": {
+              "Enum": [
+                "essay",
+                "scale"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "question_type"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "answer_required",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "answer_required"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "weight",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "weight"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d5f1b367eab40d4ff4a3ed011eb0985bc77101f68e3d8966549adf99ef645981"
+}

@@ -1,0 +1,112 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM file_uploads\nWHERE path = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "path"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "mime",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "mime"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "uploaded_by_user",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "uploaded_by_user"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "12b1d43beb9750abb955b2e2591e8c86eaddb11afa28ee5c91d94ee146cc83f5"
+}

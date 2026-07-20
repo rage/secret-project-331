@@ -1,6 +1,9 @@
 //! Handles playground-views-related functionality, in particular the websocket connections used to update the grading for services like tmc.
 
-use crate::prelude::*;
+use crate::{
+    domain::models_requests::{JwtKey, PlaygroundGradingCallbackClaim},
+    prelude::*,
+};
 use actix::{
     Actor, ActorContext, Addr, AsyncContext, Handler, Message, SpawnHandle, StreamHandler,
 };
@@ -12,6 +15,7 @@ use std::{
     sync::RwLock,
     time::{Duration, Instant},
 };
+use utoipa::OpenApi;
 
 // the clients are pinged, to which they are supposed to respond with pongs, and...
 const PING_INTERVAL: Duration = Duration::from_secs(10);
@@ -20,6 +24,10 @@ const CONNECTION_TIMEOUT: Duration = Duration::from_secs(60);
 
 // stores all the ws connections so that they can be fetched by the handler that receives updated gradings
 static WS_CONNECTIONS: WsConnections = WsConnections::new();
+
+#[derive(OpenApi)]
+#[openapi(paths(websocket, receive_grading))]
+pub(crate) struct MainFrontendPlaygroundViewsApiDoc;
 
 // a simple RwLock should be fine since we're not expecting a large amount of ws connections for this page
 struct WsConnections(OnceCell<RwLock<HashMap<Uuid, Addr<ClientConnection>>>>);
@@ -60,15 +68,17 @@ impl WsConnections {
 // models a single client's websocket connection
 struct ClientConnection {
     client_id: Uuid,
+    playground_grading_callback_claim: String,
     last_pong: Instant,
     // stores the task that continuously pings the client
     ping_handle: Option<SpawnHandle>,
 }
 
 impl ClientConnection {
-    fn new() -> Self {
+    fn new(client_id: Uuid, playground_grading_callback_claim: String) -> Self {
         Self {
-            client_id: Uuid::new_v4(),
+            client_id,
+            playground_grading_callback_claim,
             last_pong: Instant::now(),
             ping_handle: None,
         }
@@ -97,7 +107,10 @@ impl Actor for ClientConnection {
         });
         WS_CONNECTIONS.register(id, ctx.address());
         // inform the client of their id
-        if let Ok(text) = serde_json::to_string(&PlaygroundViewsMessage::Registered(id)) {
+        if let Ok(text) = serde_json::to_string(&PlaygroundViewsMessage::Registered {
+            websocket_id: id,
+            playground_grading_callback_claim: self.playground_grading_callback_claim.clone(),
+        }) {
             ctx.text(text);
         } else {
             error!("Failed to serialize PlaygroundViewsMessage::Registered");
@@ -151,32 +164,80 @@ impl Handler<PlaygroundSubmissionMessage> for ClientConnection {
 /// The message type for all messages sent from the server to the client from the playgrounds-views websocket connection.
 #[derive(Debug, Serialize, Message)]
 #[rtype(result = "()")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "tag", content = "data")]
 pub enum PlaygroundViewsMessage {
     /// Server did not receive a pong for a certain period so the connection timed out.
     TimedOut,
     /// Server accepted a new websocket connection and is informing the new client of their connection id.
-    Registered(Uuid),
+    Registered {
+        websocket_id: Uuid,
+        playground_grading_callback_claim: String,
+    },
     /// Server received an updated grading from an exercise service and is passing it on to the client.
     ExerciseTaskGradingResult(ExerciseTaskGradingResult),
 }
 
 /// Starts a new websocket connection.
+#[utoipa::path(
+    get,
+    path = "/ws",
+    operation_id = "getPlaygroundViewsWebsocket",
+    tag = "playground-views",
+    responses(
+        (status = 101, description = "WebSocket connection upgraded")
+    )
+)]
 async fn websocket(
     req: HttpRequest,
     stream: web::Payload,
+    jwt_key: web::Data<JwtKey>,
 ) -> Result<HttpResponse, ControllerError> {
+    let client_id = Uuid::new_v4();
+    let playground_grading_callback_claim =
+        PlaygroundGradingCallbackClaim::expiring_in_1_day(client_id)
+            .sign(jwt_key.as_ref())
+            .map_err(|err| {
+                controller_err!(
+                    InternalServerError,
+                    "Failed to sign playground grading callback claim".to_string(),
+                    err
+                )
+            })?;
     // start websocket connection
-    ws::start(ClientConnection::new(), &req, stream).map_err(Into::into)
+    ws::start(
+        ClientConnection::new(client_id, playground_grading_callback_claim),
+        &req,
+        stream,
+    )
+    .map_err(Into::into)
 }
 
 /// playground-views passes a URL pointing to this route to an exercise service when sending submissions so that if
 /// the service has an update for a pending grading, it will be sent here and passed on to through the websocket
+#[utoipa::path(
+    post,
+    path = "/grading/{websocket_id}",
+    operation_id = "receivePlaygroundGrading",
+    tag = "playground-views",
+    params(
+        ("websocket_id" = Uuid, Path, description = "Playground websocket id")
+    ),
+    request_body = ExerciseTaskGradingResult,
+    responses(
+        (status = 200, description = "Grading forwarded to websocket client")
+    )
+)]
 async fn receive_grading(
     websocket_id: web::Path<Uuid>,
     grading_result: web::Json<ExerciseTaskGradingResult>,
+    playground_grading_callback_claim: PlaygroundGradingCallbackClaim,
 ) -> Result<HttpResponse, ControllerError> {
+    if playground_grading_callback_claim.websocket_id() != *websocket_id {
+        return Err(controller_err!(
+            BadRequest,
+            "Playground grading callback claim did not match websocket id".to_string()
+        ));
+    }
     // send grading result to the corresponding websocket connection
     if let Some(conn) = WS_CONNECTIONS.get(*websocket_id) {
         conn.do_send(PlaygroundSubmissionMessage {

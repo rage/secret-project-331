@@ -1,7 +1,9 @@
 use derive_more::Display;
 use futures::future::BoxFuture;
 use itertools::Itertools;
+use tracing::info;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exams, exercise_reset_logs,
@@ -14,18 +16,19 @@ use crate::{
     peer_or_self_review_configs::CourseMaterialPeerOrSelfReviewConfig,
     peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
     peer_or_self_review_questions::PeerOrSelfReviewQuestion,
-    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmissionWithSubmissionOwner,
     peer_review_queue_entries::PeerReviewQueueEntry,
     prelude::*,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
+    user_chapter_locking_statuses,
     user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
     user_course_settings,
     user_exercise_states::{self, ReviewingStage, UserExerciseState},
 };
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct Exercise {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -46,6 +49,7 @@ pub struct Exercise {
     pub needs_self_review: bool,
     pub use_course_default_peer_or_self_review_config: bool,
     pub exercise_language_group_id: Option<Uuid>,
+    pub teacher_reviews_answer_after_locking: bool,
 }
 
 impl Exercise {
@@ -61,7 +65,7 @@ impl Exercise {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseGradingStatus {
     pub exercise_id: Uuid,
     pub exercise_name: String,
@@ -72,30 +76,30 @@ pub struct ExerciseGradingStatus {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseStatusSummaryForUser {
     pub exercise: Exercise,
     pub user_exercise_state: Option<UserExerciseState>,
     pub exercise_slide_submissions: Vec<ExerciseSlideSubmission>,
-    pub given_peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmission>,
+    pub given_peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmissionWithSubmissionOwner>,
     pub given_peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
-    pub received_peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmission>,
+    pub received_peer_or_self_review_submissions:
+        Vec<PeerOrSelfReviewSubmissionWithSubmissionOwner>,
     pub received_peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
     pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
     pub teacher_grading_decision: Option<TeacherGradingDecision>,
     pub peer_or_self_review_questions: Vec<PeerOrSelfReviewQuestion>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
     pub can_post_submission: bool,
     pub current_exercise_slide: CourseMaterialExerciseSlide,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
-    #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
     pub peer_or_self_review_config: Option<CourseMaterialPeerOrSelfReviewConfig>,
     pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
@@ -131,9 +135,18 @@ Indicates what is the user's completion status for a exercise.
 As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
 */
 #[derive(
-    Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, Display, sqlx::Type,
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq,
+    Clone,
+    Copy,
+    Default,
+    Display,
+    sqlx::Type,
+    ToSchema,
 )]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "activity_progress", rename_all = "kebab-case")]
 pub enum ActivityProgress {
     /// The user has not started the activity, or the activity has been reset for that student.
@@ -156,9 +169,19 @@ Tells what's the status of the grading progress for a user and exercise.
 As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
 */
 #[derive(
-    Clone, Copy, Debug, Deserialize, Eq, Serialize, Ord, PartialEq, PartialOrd, Display, sqlx::Type,
+    Clone,
+    Copy,
+    Debug,
+    Deserialize,
+    Eq,
+    Serialize,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    Display,
+    sqlx::Type,
+    ToSchema,
 )]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]
 pub enum GradingProgress {
     /// The grading could not complete.
@@ -179,8 +202,8 @@ impl GradingProgress {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseStatus {
     // None when grading has not completed yet. Max score can be found from the associated exercise.
     pub score_given: Option<f32>,
@@ -219,7 +242,7 @@ INSERT INTO exercises (
     exercise_language_group_id
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         course_id,
@@ -247,6 +270,41 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(exercise)
+}
+
+pub async fn get_non_deleted_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercise> {
+    let exercise = sqlx::query_as!(
+        Exercise,
+        "
+SELECT *
+FROM exercises
+WHERE id = $1
+  AND deleted_at IS NULL
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exercise)
+}
+
+pub async fn get_non_deleted_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<Exercise>> {
+    let exercises = sqlx::query_as!(
+        Exercise,
+        "
+SELECT *
+FROM exercises
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+",
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercises)
 }
 
 pub async fn get_exercise_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercise> {
@@ -288,7 +346,7 @@ pub async fn get_exercise_submissions_and_status_by_course_instance_id(
         e.name as exercise_name,
         e.score_maximum,
         ues.score_given,
-        tgd.teacher_decision as "teacher_decision: _",
+        tgd.teacher_decision,
         ess.id as submission_id,
         ess.updated_at
         FROM exercises e
@@ -416,7 +474,13 @@ pub async fn get_course_material_exercise(
     exercise_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialExercise> {
-    let exercise = get_by_id(conn, exercise_id).await?;
+    let mut exercise = get_by_id(conn, exercise_id).await?;
+    if exercise.deadline.is_none()
+        && let Some(chapter_id) = exercise.chapter_id
+    {
+        let chapter = crate::chapters::get_chapter(conn, chapter_id).await?;
+        exercise.deadline = chapter.deadline;
+    }
     let (current_exercise_slide, instance_or_exam_id) =
         get_or_select_exercise_slide(&mut *conn, user_id, &exercise, fetch_service_info).await?;
     info!(
@@ -680,7 +744,7 @@ UPDATE exercises
 SET deleted_at = now()
 WHERE page_id = $1
 AND deleted_at IS NULL
-RETURNING id;
+RETURNING *;
         ",
         page_id
     )
@@ -690,6 +754,29 @@ RETURNING id;
     .map(|x| x.id)
     .collect();
     Ok(deleted_ids)
+}
+
+pub async fn update_teacher_reviews_answer_after_locking(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    teacher_reviews_answer_after_locking: bool,
+) -> ModelResult<Exercise> {
+    let exercise = sqlx::query_as!(
+        Exercise,
+        r#"
+UPDATE exercises
+SET teacher_reviews_answer_after_locking = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+RETURNING *
+        "#,
+        exercise_id,
+        teacher_reviews_answer_after_locking
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(exercise)
 }
 
 pub async fn set_exercise_to_use_exercise_specific_peer_or_self_review_config(
@@ -706,7 +793,7 @@ SET use_course_default_peer_or_self_review_config = $1,
   needs_peer_review = $2,
   needs_self_review = $3
 WHERE id = $4
-RETURNING id;
+RETURNING *;
         ",
         use_course_default_peer_or_self_review_config,
         needs_peer_review,
@@ -748,6 +835,17 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_id(
         .into_group_map_by(|o| o.exercise_id);
     let mut given_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_given_peer_or_self_review_submissions_for_user_and_course(&mut *conn, user_id, course_id).await?.into_iter()
         .into_group_map_by(|o| o.exercise_id);
+    let given_submission_ids: Vec<Uuid> = given_peer_or_self_review_submissions
+        .values()
+        .flatten()
+        .map(|prs| prs.exercise_slide_submission_id)
+        .collect();
+    let submission_owner_user_ids =
+        crate::exercise_slide_submissions::get_user_ids_by_submission_ids(
+            &mut *conn,
+            &given_submission_ids,
+        )
+        .await?;
     let mut received_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_received_peer_or_self_review_submissions_for_user_and_course(&mut *conn, user_id, course_id).await?.into_iter()
         .into_group_map_by(|o| o.exercise_id);
     let given_peer_or_self_review_submission_ids = given_peer_or_self_review_submissions
@@ -814,10 +912,27 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_id(
                 .unwrap_or_default();
             let given_peer_or_self_review_submissions = given_peer_or_self_review_submissions
                 .remove(&exercise.id)
-                .unwrap_or_default();
+                .unwrap_or_default()
+                .into_iter()
+                .map(|prs| {
+                    let submission_owner_user_id = submission_owner_user_ids
+                        .get(&prs.exercise_slide_submission_id)
+                        .copied();
+                    PeerOrSelfReviewSubmissionWithSubmissionOwner {
+                        submission: prs,
+                        submission_owner_user_id,
+                    }
+                })
+                .collect();
             let received_peer_or_self_review_submissions = received_peer_or_self_review_submissions
                 .remove(&exercise.id)
-                .unwrap_or_default();
+                .unwrap_or_default()
+                .into_iter()
+                .map(|prs| PeerOrSelfReviewSubmissionWithSubmissionOwner {
+                    submission: prs,
+                    submission_owner_user_id: None,
+                })
+                .collect();
             let given_peer_or_self_review_question_submissions =
                 given_peer_or_self_review_question_submissions
                     .remove(&exercise.id)
@@ -935,7 +1050,25 @@ WHERE ues.user_id = ANY($1)
     Ok(user_exercise_map.into_iter().collect())
 }
 
-/// Resets all related tables for selected users and related exercises
+/// Resolves affected chapter ids for exercise resets in a course.
+async fn get_chapter_ids_for_exercises_in_course(
+    conn: &mut PgConnection,
+    exercise_ids: &[Uuid],
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let mut chapter_ids = HashSet::new();
+    for exercise_id in exercise_ids {
+        let exercise = get_exercise_by_id(conn, *exercise_id).await?;
+        if exercise.course_id == Some(course_id)
+            && let Some(chapter_id) = exercise.chapter_id
+        {
+            chapter_ids.insert(chapter_id);
+        }
+    }
+    Ok(chapter_ids.into_iter().collect())
+}
+
+/// Resets all related tables for selected users and related exercises.
 pub async fn reset_exercises_for_selected_users(
     conn: &mut PgConnection,
     users_and_exercises: &[(Uuid, Vec<Uuid>)],
@@ -1097,7 +1230,228 @@ WHERE user_exercise_state_id IN (
         )
         .await?;
 
+        let chapter_ids =
+            get_chapter_ids_for_exercises_in_course(&mut tx, exercise_ids, course_id).await?;
+        // Keep chapters that are still in their initial `not_unlocked_yet` state untouched.
+        user_chapter_locking_statuses::unlock_chapters_for_user(
+            &mut tx,
+            *user_id,
+            course_id,
+            &chapter_ids,
+        )
+        .await?;
+
         successful_resets.push((*user_id, exercise_ids.to_vec()));
+    }
+    tx.commit().await?;
+    Ok(successful_resets)
+}
+
+pub async fn reset_progress_by_course_id_user_ids_and_exercise_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_ids: &[Uuid],
+    exercise_ids: &[Uuid],
+    reset_by: Option<Uuid>,
+    reason: Option<String>,
+) -> ModelResult<Vec<(Uuid, Vec<Uuid>)>> {
+    let mut successful_resets = Vec::new();
+    let mut tx = conn.begin().await?;
+    let validated_exercise_ids = sqlx::query!(
+        r#"
+SELECT id
+FROM exercises
+WHERE id = ANY($1)
+  AND course_id = $2
+  AND deleted_at IS NULL
+        "#,
+        exercise_ids,
+        course_id
+    )
+    .fetch_all(&mut *tx)
+    .await?
+    .into_iter()
+    .map(|row| row.id)
+    .collect::<Vec<_>>();
+
+    if validated_exercise_ids.is_empty() {
+        tx.commit().await?;
+        return Ok(successful_resets);
+    }
+
+    for user_id in user_ids {
+        sqlx::query!(
+            r#"
+UPDATE exercise_slide_submissions
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND course_id = $2
+  AND exercise_id = ANY($3)
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            &validated_exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE exercise_task_submissions
+SET deleted_at = NOW()
+WHERE exercise_slide_submission_id IN (
+    SELECT id
+    FROM exercise_slide_submissions
+    WHERE user_id = $1
+      AND course_id = $2
+      AND exercise_id = ANY($3)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            &validated_exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE peer_review_queue_entries
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND exercise_id = ANY($2)
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            &validated_exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE exercise_task_gradings
+SET deleted_at = NOW()
+WHERE exercise_task_submission_id IN (
+    SELECT ets.id
+    FROM exercise_task_submissions ets
+      JOIN exercise_slide_submissions ess
+        ON ess.id = ets.exercise_slide_submission_id
+    WHERE ess.user_id = $1
+      AND ess.course_id = $2
+      AND ess.exercise_id = ANY($3)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            &validated_exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE teacher_grading_decisions
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE user_id = $1
+      AND course_id = $2
+      AND exercise_id = ANY($3)
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            &validated_exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE user_exercise_task_states
+SET deleted_at = NOW()
+WHERE user_exercise_slide_state_id IN (
+    SELECT uess.id
+    FROM user_exercise_slide_states uess
+      JOIN user_exercise_states ues ON ues.id = uess.user_exercise_state_id
+    WHERE ues.user_id = $1
+      AND ues.course_id = $2
+      AND ues.exercise_id = ANY($3)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            &validated_exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE user_exercise_slide_states
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE user_id = $1
+      AND course_id = $2
+      AND exercise_id = ANY($3)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            &validated_exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE user_exercise_states
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND course_id = $2
+  AND exercise_id = ANY($3)
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            &validated_exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        exercise_reset_logs::log_exercise_reset(
+            &mut tx,
+            reset_by,
+            *user_id,
+            &validated_exercise_ids,
+            course_id,
+            reason.clone(),
+        )
+        .await?;
+
+        let chapter_ids =
+            get_chapter_ids_for_exercises_in_course(&mut tx, &validated_exercise_ids, course_id)
+                .await?;
+        user_chapter_locking_statuses::unlock_chapters_for_user(
+            &mut tx,
+            *user_id,
+            course_id,
+            &chapter_ids,
+        )
+        .await?;
+
+        successful_resets.push((*user_id, validated_exercise_ids.clone()));
     }
     tx.commit().await?;
     Ok(successful_resets)
@@ -1107,31 +1461,22 @@ WHERE user_exercise_state_id IN (
 mod test {
     use super::*;
     use crate::{
+        chapters,
         course_instance_enrollments::{self, NewCourseInstanceEnrollment},
+        courses,
         exercise_service_info::{self, PathInfo},
         exercise_services::{self, ExerciseServiceNewOrUpdate},
         test_helper::Conn,
         test_helper::*,
+        user_chapter_locking_statuses::{self, ChapterLockingStatus},
         user_exercise_states,
     };
+    use chrono::TimeZone;
+    use sqlx::PgConnection;
 
-    #[tokio::test]
-    async fn selects_course_material_exercise_for_enrolled_student() {
-        insert_data!(
-            :tx,
-            user: user_id,
-            org: organization_id,
-            course: course_id,
-            instance: course_instance,
-            :course_module,
-            chapter: chapter_id,
-            page: page_id,
-            exercise: exercise_id,
-            slide: exercise_slide_id,
-            task: exercise_task_id
-        );
+    async fn insert_exercise_service_with_info(tx: &mut PgConnection) {
         let exercise_service = exercise_services::insert_exercise_service(
-            tx.as_mut(),
+            tx,
             &ExerciseServiceNewOrUpdate {
                 name: "text-exercise".to_string(),
                 slug: TEST_HELPER_EXERCISE_SERVICE_NAME.to_string(),
@@ -1142,8 +1487,8 @@ mod test {
         )
         .await
         .unwrap();
-        let _exercise_service_info = exercise_service_info::insert(
-            tx.as_mut(),
+        exercise_service_info::insert(
+            tx,
             &PathInfo {
                 exercise_service_id: exercise_service.id,
                 user_interface_iframe_path: "/iframe".to_string(),
@@ -1155,6 +1500,24 @@ mod test {
         )
         .await
         .unwrap();
+    }
+
+    #[tokio::test]
+    async fn selects_course_material_exercise_for_enrolled_student() {
+        insert_data!(
+            :tx,
+            user: user_id,
+            org: _organization_id,
+            course: course_id,
+            instance: course_instance,
+            :course_module,
+            chapter: chapter_id,
+            page: _page_id,
+            exercise: exercise_id,
+            slide: exercise_slide_id,
+            task: exercise_task_id
+        );
+        insert_exercise_service_with_info(tx.as_mut()).await;
         course_instance_enrollments::insert_enrollment_and_set_as_current(
             tx.as_mut(),
             NewCourseInstanceEnrollment {
@@ -1209,5 +1572,138 @@ mod test {
                 .unwrap(),
             exercise_slide_id
         );
+    }
+
+    #[tokio::test]
+    async fn course_material_exercise_inherits_chapter_deadline() {
+        insert_data!(
+            :tx,
+            user: user_id,
+            org: organization_id,
+            course: course_id,
+            instance: course_instance,
+            :course_module,
+            chapter: chapter_id,
+            page: page_id,
+            exercise: exercise_id,
+            slide: exercise_slide_id,
+            task: _exercise_task_id
+        );
+        insert_exercise_service_with_info(tx.as_mut()).await;
+        course_instance_enrollments::insert_enrollment_and_set_as_current(
+            tx.as_mut(),
+            NewCourseInstanceEnrollment {
+                course_id,
+                course_instance_id: course_instance.id,
+                user_id,
+            },
+        )
+        .await
+        .unwrap();
+
+        let chapter_deadline = Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap();
+        let chapter = chapters::get_chapter(tx.as_mut(), chapter_id)
+            .await
+            .unwrap();
+        chapters::update_chapter(
+            tx.as_mut(),
+            chapter_id,
+            chapters::ChapterUpdate {
+                name: chapter.name,
+                color: chapter.color,
+                front_page_id: chapter.front_page_id,
+                deadline: Some(chapter_deadline),
+                opens_at: chapter.opens_at,
+                course_module_id: Some(chapter.course_module_id),
+            },
+        )
+        .await
+        .unwrap();
+
+        let exercise = get_course_material_exercise(
+            tx.as_mut(),
+            Some(user_id),
+            exercise_id,
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(exercise.exercise.deadline, Some(chapter_deadline));
+    }
+
+    #[tokio::test]
+    async fn resetting_exercise_unlocks_its_chapter_for_user() {
+        insert_data!(
+            :tx,
+            user: user_id,
+            org: _organization_id,
+            course: course_id,
+            instance: _course_instance,
+            :course_module,
+            chapter: chapter_id,
+            page: _page_id,
+            exercise: exercise_id,
+            slide: _exercise_slide_id,
+            task: _exercise_task_id
+        );
+
+        let existing_course = courses::get_course(tx.as_mut(), course_id).await.unwrap();
+        courses::update_course(
+            tx.as_mut(),
+            course_id,
+            courses::CourseUpdate {
+                name: existing_course.name,
+                description: existing_course.description,
+                is_draft: existing_course.is_draft,
+                is_test_mode: existing_course.is_test_mode,
+                can_add_chatbot: existing_course.can_add_chatbot,
+                is_unlisted: existing_course.is_unlisted,
+                is_joinable_by_code_only: existing_course.is_joinable_by_code_only,
+                ask_marketing_consent: existing_course.ask_marketing_consent,
+                flagged_answers_threshold: existing_course.flagged_answers_threshold.unwrap_or(1),
+                flagged_answers_skip_manual_review_and_allow_retry: existing_course
+                    .flagged_answers_skip_manual_review_and_allow_retry,
+                closed_at: existing_course.closed_at,
+                closed_additional_message: existing_course.closed_additional_message,
+                closed_course_successor_id: existing_course.closed_course_successor_id,
+                chapter_locking_enabled: true,
+                ai_policy: existing_course.ai_policy,
+                course_material_ai_instructions: existing_course.course_material_ai_instructions,
+            },
+        )
+        .await
+        .unwrap();
+
+        user_chapter_locking_statuses::complete_and_lock_chapter(
+            tx.as_mut(),
+            user_id,
+            chapter_id,
+            course_id,
+        )
+        .await
+        .unwrap();
+
+        reset_exercises_for_selected_users(
+            tx.as_mut(),
+            &[(user_id, vec![exercise_id])],
+            Some(user_id),
+            course_id,
+            Some("test-reset".to_string()),
+        )
+        .await
+        .unwrap();
+
+        let status = user_chapter_locking_statuses::get_or_init_status(
+            tx.as_mut(),
+            user_id,
+            chapter_id,
+            Some(course_id),
+            Some(true),
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(status, Some(ChapterLockingStatus::Unlocked));
     }
 }

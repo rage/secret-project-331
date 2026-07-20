@@ -5,13 +5,13 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CongratulationsLinks from "./CongratulationsLinks"
-
+import type { UserModuleCompletionStatus } from "@/generated/course-material-api/types.generated"
 import FailedIcon from "@/img/course-material/failed-icon.svg"
 import Badge from "@/img/course-material/grade-badge.svg"
 import PassedIcon from "@/img/course-material/passed-icon.svg"
-import { UserModuleCompletionStatus } from "@/shared-module/common/bindings"
 import { baseTheme, headingFont, monospaceFont, typography } from "@/shared-module/common/styles"
+
+import CongratulationsLinks from "./CongratulationsLinks"
 
 const Wrapper = styled.div`
   font-family: ${headingFont};
@@ -81,7 +81,7 @@ const StyledFailedIcon = styled(FailedIcon)`
 `
 
 export interface ModuleCardProps {
-  certificateConfigurationId: string | null
+  certificateConfigurationId: string | null | undefined
   module: UserModuleCompletionStatus
 }
 
@@ -93,8 +93,10 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
   const { grade, passed, prerequisite_modules_completed } = module
   const numericGrade = grade?.toString()
   const passOrFAilGrade = passed ? (
+    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- SVG icon with aria-label; not an <img>
     <PassedIcon role="img" aria-label={t("passed")} />
   ) : (
+    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- SVG icon with aria-label; not an <img>
     <StyledFailedIcon role="img" aria-label={t("failed")} />
   )
 
@@ -106,7 +108,9 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
         >
           <Badge />
           <span className="grade">{t("grade")}</span>
-          <div className="points">{numericGrade == undefined ? passOrFAilGrade : numericGrade}</div>
+          <div className="points">
+            {numericGrade === undefined ? passOrFAilGrade : numericGrade}
+          </div>
         </BadgeWrapper>
       )}
       <h2

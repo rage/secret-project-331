@@ -2,7 +2,7 @@
 set -euo pipefail
 
 COMMAND="cargo"
-ARGUMENTS=(sqlx migrate add -r "$@" -- --bin headless-lms-server)
+ARGUMENTS=(sqlx migrate add -r "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

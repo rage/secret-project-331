@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nupdate email_deliveries\nset sent = TRUE,\n    next_retry_at = NULL\nwhere id = $1;\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "94ef6a94b772899bbcb944338c13d00bb4d10af5106dde5398c7cee85b3528ba"
+}

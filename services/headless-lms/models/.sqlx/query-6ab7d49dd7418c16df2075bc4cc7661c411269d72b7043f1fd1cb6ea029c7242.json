@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT p.id\nFROM pages p\nWHERE p.id = $1\n  AND p.deleted_at IS NULL\n  AND (p.course_id = $2 OR p.exam_id = $3)\nFOR UPDATE\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "6ab7d49dd7418c16df2075bc4cc7661c411269d72b7043f1fd1cb6ea029c7242"
+}

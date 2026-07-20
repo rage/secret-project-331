@@ -1,11 +1,9 @@
-"use client"
-
 import { useState } from "react"
 
-import ExerciseBase from "./ExerciseBase"
+import type { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { Answer, PublicAlternative } from "@/util/stateInterfaces"
 
-import { CurrentStateMessage } from "@/shared-module/common/exercise-service-protocol-types"
-import { Answer, PublicAlternative } from "@/util/stateInterfaces"
+import ExerciseBase from "./ExerciseBase"
 
 interface Props {
   state: PublicAlternative[]
@@ -13,35 +11,32 @@ interface Props {
 }
 
 const Exercise: React.FC<React.PropsWithChildren<Props>> = ({ port, state }) => {
-  const [selectedId, _setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
 
-  const setSelectedId: typeof _setSelectedId = (value) => {
-    const res = _setSelectedId(value)
+  const handleSelect = (optionId: string) => {
+    setSelectedId(optionId)
+
     if (!port) {
       console.error("Cannot send current state to parent because I don't have a port")
       return
     }
 
-    console.info("Posting current state to parent")
-    // the type should be the same one that is received as the initial selected id
-    const data: Answer = { selectedOptionId: value ? value.toString() : "" }
+    // Report the current answer to the parent so it can be saved.
+    const data: Answer = { selectedOptionId: optionId }
     const message: CurrentStateMessage = {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       message: "current-state",
       data,
       valid: true,
     }
     port.postMessage(message)
-    return res
   }
 
   return (
     <ExerciseBase
       alternatives={state}
       selectedId={selectedId}
-      onClick={(selectedId) => {
-        setSelectedId(selectedId)
-      }}
+      onClick={handleSelect}
       interactable={true}
       model_solutions={null}
     />

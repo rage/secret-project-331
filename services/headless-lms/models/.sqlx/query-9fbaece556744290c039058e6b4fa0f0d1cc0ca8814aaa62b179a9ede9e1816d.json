@@ -1,0 +1,160 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM email_templates\nWHERE course_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "content",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "content"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "subject",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "subject"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "exercise_completions_threshold",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "exercise_completions_threshold"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "points_threshold",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "points_threshold"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "language",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "language"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "email_template_type",
+        "type_info": {
+          "Custom": {
+            "name": "email_template_type",
+            "kind": {
+              "Enum": [
+                "reset_password_email",
+                "delete_user_email",
+                "generic",
+                "confirm_email_code"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "email_template_type"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "9fbaece556744290c039058e6b4fa0f0d1cc0ca8814aaa62b179a9ede9e1816d"
+}

@@ -3,6 +3,7 @@ use bytes::Bytes;
 
 use futures::TryStreamExt;
 use headless_lms_models::code_giveaway_codes;
+use secrecy::ExposeSecret;
 
 use async_trait::async_trait;
 
@@ -78,7 +79,8 @@ where
                 .map(|o| o.to_string())
                 .unwrap_or("".to_string()),
             next.added_by_user_id.to_string(),
-            next.code.to_string(),
+            // CSV export is an intended exposure (admin download of the codes).
+            next.code.expose_secret().to_string(),
         ];
         writer.write_record(csv_row);
     }

@@ -1,10 +1,13 @@
 import { test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+import { waitForLocatorToBeStable } from "@/utils/waitForLocatorToBeStable"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
 import { ChapterSelector } from "../../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "../../utils/iframeLocators"
 
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -49,6 +52,7 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
     .click()
 
   await page.getByRole("button", { name: "Submit" }).click()
+  await waitForSpinnersToDisappear(page)
   await page.getByText("Try again").waitFor()
   await page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
@@ -70,7 +74,11 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   await page.locator(`text=Second question.`).waitFor()
   await page.locator(`text=Third question.`).waitFor()
 
-  await page.getByRole("button", { name: "try again" }).click()
+  const tryAgainButton = page.getByRole("button", { name: "try again" })
+  // The quiz above is still re-rendering, which can shift the button mid-click. Wait for it to
+  // stop moving (without scrolling) just before clicking.
+  await waitForLocatorToBeStable(tryAgainButton)
+  await tryAgainButton.click()
   await scrollLocatorsParentIframeToViewIfNeeded(
     page
       .frameLocator('iframe[title="Exercise 1\\, task 3 content"]')

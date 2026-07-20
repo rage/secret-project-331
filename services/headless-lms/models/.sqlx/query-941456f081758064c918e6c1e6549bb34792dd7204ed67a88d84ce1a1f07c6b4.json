@@ -1,0 +1,100 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT *\n            FROM oauth_dpop_proofs\n            WHERE jti_hash = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "jti_hash",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "jti_hash"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "seen_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "seen_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "client_id",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "client_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "jkt",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "jkt"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "htm",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "htm"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "htu",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "htu"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "iat",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "iat"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "941456f081758064c918e6c1e6549bb34792dd7204ed67a88d84ce1a1f07c6b4"
+}

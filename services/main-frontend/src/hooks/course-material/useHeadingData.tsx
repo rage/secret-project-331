@@ -1,6 +1,7 @@
 "use client"
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react"
+import type { Dispatch, SetStateAction } from "react"
+import { useEffect, useState } from "react"
 
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
 
@@ -18,7 +19,8 @@ const getHeadings = (headingElements: HTMLHeadingElement[]) => {
     try {
       const { innerText: title, tagName, dataset } = heading
       const headingsNavigationIndex = dataset.headingsNavigationIndex
-      const level = parseInt(tagName.replace(/[^0-6]+/g, ""))
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+      const level = parseInt(tagName.replaceAll(/[^0-6]+/g, ""), 10)
 
       headings.push({
         headingsNavigationIndex,

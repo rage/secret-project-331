@@ -1,11 +1,9 @@
 /// <reference types="jest" />
 
-import managePageOrderReducer, {
-  managePageOrderInitialState,
-  ManagePageOrderState,
-} from "../managePageOrderReducer"
+import type { Chapter, Course, CourseStructure, Page } from "@/generated/api/types.generated"
 
-import { Chapter, Course, CourseStructure, Page } from "@/shared-module/common/bindings"
+import type { ManagePageOrderState } from "../managePageOrderReducer"
+import managePageOrderReducer, { managePageOrderInitialState } from "../managePageOrderReducer"
 
 const createPage = (overrides: Partial<Page>): Page => ({
   id: "default-page-id",
@@ -65,10 +63,14 @@ const createCourse = (overrides: Partial<Course>): Course => ({
   join_code: null,
   ask_marketing_consent: false,
   flagged_answers_threshold: null,
+  flagged_answers_skip_manual_review_and_allow_retry: false,
   closed_at: null,
   closed_additional_message: null,
   closed_course_successor_id: null,
   chapter_locking_enabled: false,
+  cheater_detection_enabled: true,
+  ai_policy: "NotSet",
+  course_material_ai_instructions: null,
   ...overrides,
 })
 
@@ -209,10 +211,10 @@ describe("managePageOrderReducer", () => {
 
         expect(nextState.unsavedChanges).toBe(true)
         const pages = nextState.chapterIdToPages?.["chapter1"] || []
-        expect(pages[0].id).toBe("page2")
-        expect(pages[1].id).toBe("page1")
-        expect(pages[0].order_number).toBe(1)
-        expect(pages[1].order_number).toBe(2)
+        expect(pages[0]?.id).toBe("page2")
+        expect(pages[1]?.id).toBe("page1")
+        expect(pages[0]?.order_number).toBe(1)
+        expect(pages[1]?.order_number).toBe(2)
       })
 
       it("should move a page down within a chapter", () => {
@@ -229,8 +231,8 @@ describe("managePageOrderReducer", () => {
 
         expect(nextState.unsavedChanges).toBe(true)
         const pages = nextState.chapterIdToPages?.["chapter1"] || []
-        expect(pages[0].id).toBe("page2")
-        expect(pages[1].id).toBe("page1")
+        expect(pages[0]?.id).toBe("page2")
+        expect(pages[1]?.id).toBe("page1")
       })
     })
 
@@ -250,9 +252,9 @@ describe("managePageOrderReducer", () => {
         expect(nextState.unsavedChanges).toBe(true)
         expect(nextState.chapterIdToPages?.["chapter1"]?.length).toBe(1)
         expect(nextState.chapterIdToPages?.["chapter2"]?.length).toBe(2)
-        expect(nextState.chapterIdToPages?.["chapter2"]?.[1].id).toBe("page1")
-        expect(nextState.chapterIdToPages?.["chapter2"]?.[1].chapter_id).toBe("chapter2")
-        expect(nextState.chapterIdToPages?.["chapter2"]?.[1].order_number).toBe(2)
+        expect(nextState.chapterIdToPages?.["chapter2"]?.[1]?.id).toBe("page1")
+        expect(nextState.chapterIdToPages?.["chapter2"]?.[1]?.chapter_id).toBe("chapter2")
+        expect(nextState.chapterIdToPages?.["chapter2"]?.[1]?.order_number).toBe(2)
       })
     })
 
@@ -317,8 +319,8 @@ describe("managePageOrderReducer", () => {
 
         expect(nextState.unsavedChanges).toBe(true)
         const pages = nextState.chapterIdToPages?.["chapter1"] || []
-        expect(pages[0].order_number).toBe(1)
-        expect(pages[1].order_number).toBe(2)
+        expect(pages[0]?.order_number).toBe(1)
+        expect(pages[1]?.order_number).toBe(2)
       })
 
       it("should fix gaps in chapter numbers", () => {
@@ -343,8 +345,67 @@ describe("managePageOrderReducer", () => {
 
         expect(nextState.unsavedChapterChanges).toBe(true)
         const chapters = nextState.chapters || []
-        expect(chapters[0].chapter_number).toBe(1)
-        expect(chapters[1].chapter_number).toBe(2)
+        expect(chapters[0]?.chapter_number).toBe(1)
+        expect(chapters[1]?.chapter_number).toBe(2)
+      })
+
+      // Regression test for a CI flake in manage-course-structure.spec.ts: in production the
+      // pages/chapters handed to the reducer are frozen (immer's autoFreeze freezes them once
+      // they end up in produced state, and react-query's structural sharing reuses the same
+      // frozen references across refetches). The reducer normalizes order numbers by mutating
+      // these objects in place, and mutating a frozen object throws. The previous code swallowed
+      // that error, leaving unsavedChanges unset and hiding the "save the page ordering" prompt
+      // after a deletion.
+      it("should fix gaps in page order numbers even when the input pages are frozen", () => {
+        const gappyStructure: CourseStructure = {
+          course: createCourse({}),
+          pages: [
+            samplePage1,
+            createPage({ ...samplePage2, order_number: 5 }),
+            samplePage3,
+            frontPage1,
+            frontPage2,
+          ].map((page) => Object.freeze(page)),
+          chapters: [sampleChapter1, sampleChapter2].map((chapter) => Object.freeze(chapter)),
+          modules: [],
+        }
+
+        const action = {
+          type: "setData" as const,
+          payload: gappyStructure,
+        }
+
+        const nextState = managePageOrderReducer(managePageOrderInitialState, action)
+
+        expect(nextState.unsavedChanges).toBe(true)
+        const pages = nextState.chapterIdToPages?.["chapter1"] || []
+        expect(pages[0]?.order_number).toBe(1)
+        expect(pages[1]?.order_number).toBe(2)
+      })
+
+      it("should fix gaps in chapter numbers even when the input chapters are frozen", () => {
+        const gappyStructure: CourseStructure = {
+          course: createCourse({}),
+          pages: [samplePage1, samplePage2, samplePage3, frontPage1, frontPage2].map((page) =>
+            Object.freeze(page),
+          ),
+          chapters: [sampleChapter1, createChapter({ ...sampleChapter2, chapter_number: 5 })].map(
+            (chapter) => Object.freeze(chapter),
+          ),
+          modules: [],
+        }
+
+        const action = {
+          type: "setData" as const,
+          payload: gappyStructure,
+        }
+
+        const nextState = managePageOrderReducer(managePageOrderInitialState, action)
+
+        expect(nextState.unsavedChapterChanges).toBe(true)
+        const chapters = nextState.chapters || []
+        expect(chapters[0]?.chapter_number).toBe(1)
+        expect(chapters[1]?.chapter_number).toBe(2)
       })
     })
   })

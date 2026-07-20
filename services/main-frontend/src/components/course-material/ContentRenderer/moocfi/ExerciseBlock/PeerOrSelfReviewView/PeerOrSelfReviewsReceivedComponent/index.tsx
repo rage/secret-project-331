@@ -9,13 +9,15 @@ import * as React from "react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
-
-import { fetchPeerReviewDataReceivedByExerciseId } from "@/services/course-material/backend"
+import { fetchPeerReviewDataReceivedByExerciseIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import type { PeerOrSelfReviewsReceived as PeerOrSelfReviewsReceivedData } from "@/generated/course-material-api/types.generated"
+import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { QueryResult } from "@/shared-module/components"
+
+import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
 
 const openAnimation = keyframes`
   0% { opacity: 0; }
@@ -115,13 +117,18 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
   const userInfo = useUserInfo()
 
   const peerOrSelfReviewsReceivedQuery = useQuery({
-    queryKey: [`exercise-${id}-exercise-slide-submission-${submissionId}-peer-reviews-received`],
-    queryFn: () => fetchPeerReviewDataReceivedByExerciseId(id, submissionId),
+    ...fetchPeerReviewDataReceivedByExerciseIdOptions({
+      path: {
+        exercise_id: id,
+        exercise_slide_submission_id: submissionId,
+      },
+    }),
+    select: (data): PeerOrSelfReviewsReceivedData => data,
   })
 
   const data = useMemo(() => {
     const ordered =
-      peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_question_submissions.sort(
+      peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_question_submissions.toSorted(
         (a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime(),
       )
 
@@ -131,34 +138,41 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
     )
 
     let res = Object.values(groupByPeerOrSelfReviewSubmissionId)
-    res = res.sort((a, b) => {
+    res = res.toSorted((a, b) => {
       if (a.length === 0) {
         return 1
       }
       if (b.length === 0) {
         return -1
       }
-      return parseISO(b[0].created_at).getTime() - parseISO(a[0].created_at).getTime()
+      // a and b are non-empty (length === 0 handled above), so these are always defined.
+      const aFirst = a[0]
+      const bFirst = b[0]
+      if (aFirst === undefined || bFirst === undefined) {
+        return 0
+      }
+      return parseISO(bFirst.created_at).getTime() - parseISO(aFirst.created_at).getTime()
     })
 
     // group by whether the review is self review or peer review
     const res2 = groupBy(res, (questionSubmisssions) => {
       if (questionSubmisssions.length === 0) {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         return "peer"
       }
       const peerOrSelfReviewSubmission =
         peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_submissions.find(
-          (pr) => pr.id === questionSubmisssions[0].peer_or_self_review_submission_id,
+          // questionSubmisssions is non-empty (length === 0 handled above).
+          (pr) => pr.id === questionSubmisssions[0]?.peer_or_self_review_submission_id,
         )
       if (
         peerOrSelfReviewSubmission &&
         peerOrSelfReviewSubmission.user_id === userInfo.data?.user_id
       ) {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         return "self"
       }
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return "peer"
     })
     return res2
@@ -168,49 +182,62 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
     userInfo.data?.user_id,
   ])
 
-  if (peerOrSelfReviewsReceivedQuery.isError) {
-    return <ErrorBanner variant={"readOnly"} error={peerOrSelfReviewsReceivedQuery.error} />
-  }
-
-  if (peerOrSelfReviewsReceivedQuery.isLoading || !peerOrSelfReviewsReceivedQuery.data) {
-    return <Spinner variant={"medium"} />
-  }
-
   const numReceivedReviews = (data["peer"]?.length ?? 0) + (data["self"]?.length ?? 0)
 
   return (
-    <Wrapper>
-      <details>
-        <summary>
-          {t("received-reviews")}
-          <Notification>{numReceivedReviews}</Notification>
-        </summary>
+    <QueryResult
+      query={peerOrSelfReviewsReceivedQuery}
+      treatNullAsEmpty
+      emptyFallback={
+        <div>
+          <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+          <Button
+            variant={"primary"}
+            size={"medium"}
+            onClick={() => {
+              void peerOrSelfReviewsReceivedQuery.refetch()
+            }}
+          >
+            {t("button-text-try-again")}
+          </Button>
+        </div>
+      }
+    >
+      {(queryData) => (
+        <Wrapper>
+          <details>
+            <summary>
+              {t("received-reviews")}
+              <Notification>{numReceivedReviews}</Notification>
+            </summary>
 
-        {(data["self"] ?? []).map((items, index) => {
-          return (
-            <ReceivedPeerOrSelfReview
-              orderNumber={index}
-              key={index}
-              reviews={items}
-              questions={peerOrSelfReviewsReceivedQuery.data.peer_or_self_review_questions}
-              selfReview
-            />
-          )
-        })}
+            {(data["self"] ?? []).map((items, index) => {
+              return (
+                <ReceivedPeerOrSelfReview
+                  orderNumber={index}
+                  key={index}
+                  reviews={items}
+                  questions={queryData.peer_or_self_review_questions}
+                  selfReview
+                />
+              )
+            })}
 
-        {(data["peer"] ?? []).map((items, index) => {
-          return (
-            <ReceivedPeerOrSelfReview
-              orderNumber={index}
-              key={index}
-              reviews={items}
-              questions={peerOrSelfReviewsReceivedQuery.data.peer_or_self_review_questions}
-              selfReview={false}
-            />
-          )
-        })}
-      </details>
-    </Wrapper>
+            {(data["peer"] ?? []).map((items, index) => {
+              return (
+                <ReceivedPeerOrSelfReview
+                  orderNumber={index}
+                  key={index}
+                  reviews={items}
+                  questions={queryData.peer_or_self_review_questions}
+                  selfReview={false}
+                />
+              )
+            })}
+          </details>
+        </Wrapper>
+      )}
+    </QueryResult>
   )
 }
 

@@ -1,0 +1,116 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO peer_or_self_review_question_submissions (\n    id,\n    peer_or_self_review_question_id,\n    peer_or_self_review_submission_id,\n    text_data,\n    number_data\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_question_submissions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_question_submissions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_question_submissions",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_question_submissions",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "peer_or_self_review_question_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_question_submissions",
+            "name": "peer_or_self_review_question_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "peer_or_self_review_submission_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_question_submissions",
+            "name": "peer_or_self_review_submission_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "text_data",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_question_submissions",
+            "name": "text_data"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "number_data",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_question_submissions",
+            "name": "number_data"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Float4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "c1531d95488944558dec4dd120be7bcf76d031b86ada1edc53c2890cfbe68c92"
+}

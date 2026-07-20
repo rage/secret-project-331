@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS(\n    SELECT 1\n    FROM user_ai_usage_notice_acknowledgements\n    WHERE user_id = $1\n      AND course_language_group_id = (\n        SELECT course_language_group_id\n        FROM courses\n        WHERE id = $2\n      )\n      AND deleted_at IS NULL\n) AS \"exists!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "fc46821919255a45bc651efd6c92be847307dc08acea9fbf01ad3089b4aba038"
+}

@@ -1,9 +1,10 @@
-import { Page } from "playwright"
+import type { Page } from "playwright"
 import { expect, test } from "playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
-import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
 /**
  *
@@ -13,15 +14,15 @@ import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/consta
 export const fillPeerReview = async (
   page: Page,
   options: string[],
-  startPeerReview: boolean = true,
+  startPeerReview = true,
   refresh = false,
 ) => {
   await test.step("Fill peer review", async () => {
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (startPeerReview) {
       await page.getByRole("button", { name: "Start peer review" }).click()
     }
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (refresh) {
       await page.getByRole("button", { name: "Refresh" }).click()
     }
@@ -40,8 +41,9 @@ export const fillPeerReview = async (
         `:nth-match(p:text-is('${options[1]}'):below(span:has-text('Was the answer good? *')), 1)`,
       )
       .click()
-    await page.getByRole("button", { name: "Submit" }).first().click()
-    await page.getByText("Operation successful!").waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Submit" }).first().click()
+    })
   })
 }
 

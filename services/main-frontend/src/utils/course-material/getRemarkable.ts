@@ -1,23 +1,64 @@
 import { Remarkable } from "remarkable"
-import { ContentToken, Options, Rule, StateInline } from "remarkable/lib"
+import type { ContentToken, InlineParsingRule, Options, Rule } from "remarkable/lib"
 
 import { MATCH_CITATION_TAG_REGEX } from "./chatbotCitationRegexes"
+import { textParser } from "./remarkableTextParser"
 
 let md: Remarkable | null = null
 
-const chatbotCitationParser = (state: StateInline) => {
+const chatbotCitationParser: InlineParsingRule = (state, checkMode) => {
   /** parser for parsing chatbot citations from text.
-  matches `[docn]` where n is a sequence of digits 0-9 */
+  matches `【x:y†source】` where x and y are a sequence of digits 0-9 */
   let digitRegex = /^\d$/
 
-  if (state.src.charAt(state.pos) !== "[") {
+  if (state.src.charAt(state.pos) !== "【") {
     return false
+  } else if (checkMode) {
+    return true
+  }
+  let newPos = state.pos
+
+  // check for the digits 'x' until ':' is found
+  for (let i = 0; i < 100; i++) {
+    newPos += 1
+    if (newPos >= state.posMax) {
+      return false
+    }
+    let char = state.src.charAt(newPos)
+    if (!digitRegex.test(char)) {
+      if (i === 0) {
+        // there needs to be at least one digit
+        return false
+      }
+      if (char === ":") {
+        break
+      } else {
+        return false
+      }
+    }
   }
 
-  let newPos = state.pos
-  newPos += 1
+  // check for the digits 'y' until '†' is found
+  for (let i = 0; i < 100; i++) {
+    newPos += 1
+    if (newPos >= state.posMax) {
+      return false
+    }
+    let char = state.src.charAt(newPos)
+    if (!digitRegex.test(char)) {
+      if (i === 0) {
+        // there needs to be at least one digit
+        return false
+      }
+      if (char !== "†") {
+        return false
+      }
+      break
+    }
+  }
 
-  if (state.src.charAt(newPos) !== "d") {
+  newPos += 1
+  if (state.src.charAt(newPos) !== "s") {
     return false
   }
   newPos += 1
@@ -25,32 +66,30 @@ const chatbotCitationParser = (state: StateInline) => {
     return false
   }
   newPos += 1
+  if (state.src.charAt(newPos) !== "u") {
+    return false
+  }
+  newPos += 1
+  if (state.src.charAt(newPos) !== "r") {
+    return false
+  }
+  newPos += 1
   if (state.src.charAt(newPos) !== "c") {
     return false
   }
-
-  for (let i = 0; i < 1000; i++) {
-    newPos += 1
-    if (newPos >= state.posMax) {
-      return false
-    }
-    let char = state.src.charAt(newPos)
-    if (!char.match(digitRegex)) {
-      if (i === 0) {
-        // there needs to be at least one digit
-        return false
-      }
-      if (!char.match("]")) {
-        return false
-      }
-      break
-    }
+  newPos += 1
+  if (state.src.charAt(newPos) !== "e") {
+    return false
+  }
+  newPos += 1
+  if (state.src.charAt(newPos) !== "】") {
+    return false
   }
   newPos += 1
   let marker = state.src.slice(state.pos, newPos)
 
   // double check if the current pos starts a string that matches our tag
-  if (!marker.match(MATCH_CITATION_TAG_REGEX)) {
+  if (!MATCH_CITATION_TAG_REGEX.test(marker)) {
     console.warn(
       `Markdown parser caught an incorrect chatbotCitation marker in the double check. Marker: ${marker}. There's a bug in the parser.`,
     )
@@ -78,22 +117,29 @@ const chatbotCitationRenderer: Rule = (
   // `tokens` contains some surrounding tokens and this specific token at `idx`.
   // tokens are created in the parser and contain the marker as token.content
 
-  // the content is the marker, so: `[docn]`
-  // the doc number n is at the 4th index
-  const marker: string = tokens[idx].content
-  const citationN = marker.slice(4, marker.length - 1)
-  let htmlString = `<span data-chatbot-citation="true" data-citation-n="${citationN}"></span>`
+  // the content is the marker, so: `【x:y†source】`
+  // the renderer is always invoked with a valid token index; fall back to empty string otherwise
+  const marker: string = tokens[idx]?.content ?? ""
+  const start = marker.indexOf(":") + 1
+  const end = marker.length - "†source】".length
+  const n = marker.slice(start, end)
+  let htmlString = `<span data-chatbot-citation="true" data-citation-n="${n}"></span>`
   return htmlString
 }
 
-let chatbotCitation: Remarkable.Plugin = (md) => {
-  md.inline.ruler.push("chatbotCitation", chatbotCitationParser, {})
-  md.renderer.rules.chatbotCitation = chatbotCitationRenderer
+let chatbotCitation: Remarkable.Plugin = (mdInstance) => {
+  mdInstance.inline.ruler.push("chatbotCitation", chatbotCitationParser, {})
+  mdInstance.renderer.rules.chatbotCitation = chatbotCitationRenderer
+}
+
+let textPlugin: Remarkable.Plugin = (mdInstance) => {
+  mdInstance.inline.ruler.at("text", textParser, {})
 }
 
 export const getRemarkable = () => {
   if (md === null) {
     md = new Remarkable()
+    md.use(textPlugin)
     md.use(chatbotCitation)
   }
   return md

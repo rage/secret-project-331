@@ -15,39 +15,58 @@ use crate::{
 use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
-use headless_lms_models::ModelResult;
+use headless_lms_models::{ModelErrorType, ModelResult};
 use headless_lms_models::{
     email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
     user_passwords, users,
 };
 use headless_lms_utils::{
     prelude::UtilErrorType,
-    tmc::{NewUserInfo, TmcClient},
+    services::tmc::{NewUserInfo, TmcClient},
 };
-use rand::Rng;
-use secrecy::SecretString;
+use secrecy::{ExposeSecret, SecretString};
 use tracing_log::log;
+use utoipa::{OpenApi, ToSchema};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct Login {
-    email: String,
-    password: String,
+    pub email: String,
+    #[schema(value_type = String)]
+    pub password: SecretString,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum LoginResponse {
     Success,
-    RequiresEmailVerification { email_verification_token: String },
+    RequiresEmailVerification {
+        #[schema(value_type = String)]
+        email_verification_token: OutboundSecret,
+    },
     Failed,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SignupResponse {
+    Success,
+    EmailAlreadyExists,
 }
 
 /**
 POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
 **/
 
+#[utoipa::path(
+    post,
+    path = "/authorize",
+    tag = "auth",
+    operation_id = "postAuthAuthorize",
+    request_body = ActionOnResource,
+    responses(
+        (status = 200, description = "Whether the action is allowed for the current user", body = bool)
+    )
+)]
 #[instrument(skip(pool, payload,))]
 pub async fn authorize_action_on_resource(
     pool: web::Data<PgPool>,
@@ -72,15 +91,16 @@ pub async fn authorize_action_on_resource(
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct CreateAccountDetails {
     pub email: String,
     pub first_name: String,
     pub last_name: String,
     pub language: String,
-    pub password: String,
-    pub password_confirmation: String,
+    #[schema(value_type = String)]
+    pub password: SecretString,
+    #[schema(value_type = String)]
+    pub password_confirmation: SecretString,
     pub country: String,
     pub email_communication_consent: bool,
 }
@@ -105,6 +125,17 @@ Content-Type: application/json
 }
 ```
 */
+#[utoipa::path(
+    post,
+    path = "/signup",
+    tag = "auth",
+    operation_id = "postAuthSignup",
+    request_body = CreateAccountDetails,
+    responses(
+        (status = 200, description = "Signup outcome", body = SignupResponse),
+        (status = 400, description = "Cannot sign up (e.g. already signed in or validation error)")
+    )
+)]
 #[instrument(skip(session, pool, payload, app_conf))]
 pub async fn signup(
     session: Session,
@@ -113,7 +144,7 @@ pub async fn signup(
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     tmc_client: web::Data<TmcClient>,
-) -> ControllerResult<HttpResponse> {
+) -> ControllerResult<web::Json<SignupResponse>> {
     let user_details = payload.0;
     let mut conn = pool.acquire().await?;
 
@@ -121,7 +152,20 @@ pub async fn signup(
         return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
     }
     if user.is_none() {
-        let upstream_id = tmc_client
+        match models::users::get_by_email(&mut conn, &user_details.email).await {
+            Ok(_) => {
+                let token = skip_authorize();
+                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+            }
+            Err(error)
+                if matches!(
+                    error.error_type(),
+                    ModelErrorType::RecordNotFound | ModelErrorType::NotFound
+                ) => {}
+            Err(error) => return Err(error.into()),
+        }
+
+        let upstream_id = match tmc_client
             .post_new_user_to_tmc(
                 NewUserInfo {
                     first_name: user_details.first_name.clone(),
@@ -134,16 +178,34 @@ pub async fn signup(
                 app_conf.as_ref(),
             )
             .await
-            .map_err(|e| {
-                let error_message = e.message().to_string();
-                let error_type = match e.error_type() {
-                    UtilErrorType::TmcHttpError => ControllerErrorType::InternalServerError,
-                    UtilErrorType::TmcErrorResponse => ControllerErrorType::BadRequest,
-                    _ => ControllerErrorType::InternalServerError,
+        {
+            Ok(upstream_id) => upstream_id,
+            Err(error) => {
+                let error_message = error.message().to_string();
+                if matches!(error.error_type(), &UtilErrorType::TmcErrorResponse)
+                    && is_duplicate_email_error_message(&error_message)
+                {
+                    let token = skip_authorize();
+                    return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+                }
+                return match error.error_type() {
+                    UtilErrorType::TmcErrorResponse => {
+                        Err(controller_err!(BadRequest, error_message, anyhow!(error)))
+                    }
+                    UtilErrorType::TmcHttpError => Err(controller_err!(
+                        InternalServerError,
+                        error_message,
+                        anyhow!(error)
+                    )),
+                    _ => Err(controller_err!(
+                        InternalServerError,
+                        error_message,
+                        anyhow!(error)
+                    )),
                 };
-                ControllerError::new(error_type, error_message, Some(anyhow!(e)))
-            })?;
-        let password_secret = SecretString::new(user_details.password.into());
+            }
+        };
+        let password_secret = user_details.password;
 
         let user = models::users::insert_with_upstream_id_and_moocfi_id(
             &mut conn,
@@ -153,14 +215,41 @@ pub async fn signup(
             upstream_id,
             PKeyPolicy::Generate.into_uuid(),
         )
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to insert user.".to_string(),
-                Some(anyhow!(e)),
-            )
-        })?;
+        .await;
+        let user = match user {
+            Ok(user) => user,
+            Err(error)
+                if matches!(
+                    error.error_type(),
+                    ModelErrorType::DatabaseConstraint { constraint, .. }
+                        if constraint == "users_email"
+                ) =>
+            {
+                let token = skip_authorize();
+                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+            }
+            // TMC synchronously posts the new user back to /api/v0/tmc-server/users/create
+            // while post_new_user_to_tmc is still in flight, so that callback has usually
+            // already created the user; continue with the existing row.
+            Err(error)
+                if matches!(
+                    error.error_type(),
+                    ModelErrorType::DatabaseConstraint { constraint, .. }
+                        if constraint == "users_upstream_id_active_uniq_idx"
+                ) =>
+            {
+                models::users::find_by_upstream_id(&mut conn, upstream_id)
+                    .await?
+                    .ok_or(error)?
+            }
+            Err(error) => {
+                return Err(controller_err!(
+                    InternalServerError,
+                    "Failed to insert user.".to_string(),
+                    anyhow!(error)
+                ));
+            }
+        };
 
         let country = user_details.country.clone();
         models::user_details::update_user_country(&mut conn, user.id, &country).await?;
@@ -185,22 +274,19 @@ pub async fn signup(
                 )
             })?;
 
-        // Notify tmc that the password is managed by courses.mooc.fi
-        tmc_client
-            .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user.id)
-            .await
-            .map_err(|e| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Failed to notify TMC that user's password is saved in courses.mooc.fi"
-                        .to_string(),
-                    anyhow!(e),
-                )
-            })?;
+        // Notify TMC that the password is now managed by courses.mooc.fi. Best-effort and retried
+        // in the background: the password is already stored locally, so a transient TMC outage
+        // must not fail an otherwise-successful signup.
+        crate::controllers::tmc_server::notify_password_managed_with_retry(
+            &tmc_client,
+            upstream_id.to_string(),
+            user.id,
+        )
+        .await;
 
         let token = skip_authorize();
         authorization::remember(&session, user)?;
-        token.authorized_ok(HttpResponse::Ok().finish())
+        token.authorized_ok(web::Json(SignupResponse::Success))
     } else {
         Err(ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -215,13 +301,26 @@ async fn handle_test_mode_signup(
     session: &Session,
     user_details: &CreateAccountDetails,
     app_conf: &ApplicationConfiguration,
-) -> ControllerResult<HttpResponse> {
+) -> ControllerResult<web::Json<SignupResponse>> {
     assert!(
         app_conf.test_mode,
         "handle_test_mode_signup called outside test mode"
     );
 
     warn!("Handling signup in test mode. No real account is created.");
+
+    match models::users::get_by_email(conn, &user_details.email).await {
+        Ok(_) => {
+            let token = skip_authorize();
+            return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+        }
+        Err(error)
+            if matches!(
+                error.error_type(),
+                ModelErrorType::RecordNotFound | ModelErrorType::NotFound
+            ) => {}
+        Err(error) => return Err(error.into()),
+    }
 
     let user_id = models::users::insert(
         conn,
@@ -230,14 +329,25 @@ async fn handle_test_mode_signup(
         Some(&user_details.first_name),
         Some(&user_details.last_name),
     )
-    .await
-    .map_err(|e| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            "Failed to insert test user.".to_string(),
-            Some(anyhow!(e)),
-        )
-    })?;
+    .await;
+    let user_id = match user_id {
+        Ok(user_id) => user_id,
+        Err(error) => match error.error_type() {
+            ModelErrorType::DatabaseConstraint { constraint, .. }
+                if constraint == "users_email" =>
+            {
+                let token = skip_authorize();
+                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+            }
+            _ => {
+                return Err(controller_err!(
+                    InternalServerError,
+                    "Failed to insert test user.".to_string(),
+                    anyhow!(error)
+                ));
+            }
+        },
+    };
 
     models::user_details::update_user_country(conn, user_id, &user_details.country).await?;
     models::user_details::update_user_email_communication_consent(
@@ -249,10 +359,8 @@ async fn handle_test_mode_signup(
 
     let user = models::users::get_by_email(conn, &user_details.email).await?;
 
-    let password_hash = models::user_passwords::hash_password(&SecretString::new(
-        user_details.password.clone().into(),
-    ))
-    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+    let password_hash = models::user_passwords::hash_password(&user_details.password)
+        .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
     models::user_passwords::upsert_user_password(conn, user.id, &password_hash)
         .await
@@ -266,7 +374,19 @@ async fn handle_test_mode_signup(
     authorization::remember(session, user)?;
 
     let token = skip_authorize();
-    token.authorized_ok(HttpResponse::Ok().finish())
+    token.authorized_ok(web::Json(SignupResponse::Success))
+}
+
+fn is_duplicate_email_error_message(message: &str) -> bool {
+    let normalized = message.to_lowercase();
+    normalized.contains("email already exists")
+        || normalized.contains("email is already registered")
+        || normalized.contains("email already in use")
+        || normalized.contains("duplicate email")
+        || normalized.contains("unique constraint")
+        || normalized.contains("duplicate key")
+        || normalized.contains("users_email")
+        || normalized.contains("email_key")
 }
 
 /**
@@ -274,6 +394,16 @@ POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified
 Returns booleans for the authorizations in the same order as the input.
 **/
 
+#[utoipa::path(
+    post,
+    path = "/authorize-multiple",
+    tag = "auth",
+    operation_id = "postAuthAuthorizeMultiple",
+    request_body = Vec<ActionOnResource>,
+    responses(
+        (status = 200, description = "Authorization result for each input action, in order", body = Vec<bool>)
+    )
+)]
 #[instrument(skip(pool, payload,))]
 pub async fn authorize_multiple_actions_on_resources(
     pool: web::Data<PgPool>,
@@ -314,9 +444,19 @@ pub async fn authorize_multiple_actions_on_resources(
 }
 
 /**
-POST `/api/v0/auth/login` Logs in to TMC.
+POST `/api/v0/auth/login` Logs in to the system.
 Returns LoginResponse indicating success, email verification required, or failure.
 **/
+#[utoipa::path(
+    post,
+    path = "/login",
+    tag = "auth",
+    operation_id = "postAuthLogin",
+    request_body = Login,
+    responses(
+        (status = 200, description = "Login outcome", body = LoginResponse)
+    )
+)]
 #[instrument(skip(session, pool, client, payload, app_conf, tmc_client))]
 pub async fn login(
     session: Session,
@@ -380,7 +520,7 @@ async fn handle_test_mode_login(
     session: &Session,
     conn: &mut PgConnection,
     email: &str,
-    password: &str,
+    password: &SecretString,
     app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
     warn!("Using test credentials. Normal accounts won't work.");
@@ -406,12 +546,8 @@ async fn handle_test_mode_login(
             })?;
 
     if !is_authenticated {
-        is_authenticated = models::user_passwords::verify_user_password(
-            conn,
-            user.id,
-            &SecretString::new(password.into()),
-        )
-        .await?;
+        is_authenticated =
+            models::user_passwords::verify_user_password(conn, user.id, password).await?;
     }
 
     if is_authenticated {
@@ -441,9 +577,12 @@ async fn handle_production_login(
     client: &OAuthClient,
     tmc_client: &TmcClient,
     email: &str,
-    password: &str,
+    password: &SecretString,
     app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
+    // Trim incidental whitespace (e.g. from copy-paste) so the email resolves consistently with
+    // the reset-email path, which also trims. Case is handled by lower(...) in get_by_email.
+    let email = email.trim();
     let mut is_authenticated = false;
     let mut authenticated_user: Option<headless_lms_models::users::User> = None;
 
@@ -452,12 +591,8 @@ async fn handle_production_login(
         let is_password_stored =
             models::user_passwords::check_if_users_password_is_stored(conn, user.id).await?;
         if is_password_stored {
-            is_authenticated = models::user_passwords::verify_user_password(
-                conn,
-                user.id,
-                &SecretString::new(password.into()),
-            )
-            .await?;
+            is_authenticated =
+                models::user_passwords::verify_user_password(conn, user.id, password).await?;
 
             if is_authenticated {
                 info!("Authentication successful");
@@ -468,20 +603,19 @@ async fn handle_production_login(
 
     // Try to authenticate via TMC and store password to courses.mooc.fi if successful
     if !is_authenticated {
-        let auth_result = authorization::authenticate_moocfi_user(
+        let auth_result = authorization::authenticate_tmc_mooc_fi_user(
             conn,
             client,
             email.to_string(),
-            password.to_string(),
+            password.clone(),
             tmc_client,
         )
         .await?;
 
         if let Some((user, _token)) = auth_result {
             // If user is autenticated in TMC successfully, hash password and save it to courses.mooc.fi database
-            let password_hash =
-                models::user_passwords::hash_password(&SecretString::new(password.into()))
-                    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+            let password_hash = models::user_passwords::hash_password(password)
+                .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
             models::user_passwords::upsert_user_password(conn, user.id, &password_hash)
                 .await
@@ -493,19 +627,16 @@ async fn handle_production_login(
                     )
                 })?;
 
-            // Notify TMC that the password is now managed by courses.mooc.fi
+            // Notify TMC that the password is now managed by courses.mooc.fi. Best-effort and
+            // retried in the background: the password is already stored locally, so a transient
+            // TMC outage must not fail an otherwise-successful login.
             if let Some(upstream_id) = user.upstream_id {
-                tmc_client
-                    .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user.id)
-                    .await
-                    .map_err(|e| {
-                        ControllerError::new(
-                            ControllerErrorType::InternalServerError,
-                            "Failed to notify TMC that users password is saved in courses.mooc.fi"
-                                .to_string(),
-                            anyhow!(e),
-                        )
-                    })?;
+                crate::controllers::tmc_server::notify_password_managed_with_retry(
+                    tmc_client,
+                    upstream_id.to_string(),
+                    user.id,
+                )
+                .await;
             } else {
                 warn!("User has no upstream_id; skipping notify to TMC");
             }
@@ -536,6 +667,13 @@ async fn handle_production_login(
 /**
 POST `/api/v0/auth/logout` Logs out.
 **/
+#[utoipa::path(
+    post,
+    path = "/logout",
+    tag = "auth",
+    operation_id = "postAuthLogout",
+    responses((status = 200, description = "Session cleared"))
+)]
 #[instrument(skip(session))]
 #[allow(clippy::async_yields_async)]
 pub async fn logout(session: Session) -> HttpResponse {
@@ -546,6 +684,15 @@ pub async fn logout(session: Session) -> HttpResponse {
 /**
 GET `/api/v0/auth/logged-in` Returns the current user's login status.
 **/
+#[utoipa::path(
+    get,
+    path = "/logged-in",
+    tag = "auth",
+    operation_id = "getAuthLoggedIn",
+    responses(
+        (status = 200, description = "True when an authenticated session exists", body = bool)
+    )
+)]
 #[instrument(skip(session))]
 pub async fn logged_in(session: Session, pool: web::Data<PgPool>) -> web::Json<bool> {
     let logged_in = authorization::has_auth_user_session(&session, pool).await;
@@ -555,8 +702,8 @@ pub async fn logged_in(session: Session, pool: web::Data<PgPool>) -> web::Json<b
 /// Generic information about the logged in user.
 ///
 ///  Could include the user name etc in the future.
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct UserInfo {
     pub user_id: Uuid,
     pub first_name: Option<String>,
@@ -567,6 +714,15 @@ pub struct UserInfo {
 GET `/api/v0/auth/user-info` Returns the current user's info.
 **/
 
+#[utoipa::path(
+    get,
+    path = "/user-info",
+    tag = "auth",
+    operation_id = "getAuthUserInfo",
+    responses(
+        (status = 200, description = "Profile when signed in; null when anonymous", body = Option<UserInfo>)
+    )
+)]
 #[instrument(skip(auth_user, pool))]
 pub async fn user_info(
     auth_user: Option<AuthUser>,
@@ -588,17 +744,27 @@ pub async fn user_info(
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct SendEmailCodeData {
     pub email: String,
-    pub password: String,
+    #[schema(value_type = String)]
+    pub password: SecretString,
     pub language: String,
 }
 
 /**
 POST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion
 **/
+#[utoipa::path(
+    post,
+    path = "/send-email-code",
+    tag = "auth",
+    operation_id = "postAuthSendEmailCode",
+    request_body = SendEmailCodeData,
+    responses(
+        (status = 200, description = "Whether a deletion code email was queued", body = bool)
+    )
+)]
 #[instrument(skip(pool, payload, auth_user))]
 #[allow(clippy::async_yields_async)]
 pub async fn send_delete_user_email_code(
@@ -612,12 +778,9 @@ pub async fn send_delete_user_email_code(
     if let Some(auth_user) = auth_user {
         let mut conn = pool.acquire().await?;
 
-        let password_ok = user_passwords::verify_user_password(
-            &mut conn,
-            auth_user.id,
-            &SecretString::new(payload.password.clone().into()),
-        )
-        .await?;
+        let password_ok =
+            user_passwords::verify_user_password(&mut conn, auth_user.id, &payload.password)
+                .await?;
 
         if !password_ok {
             info!(
@@ -676,8 +839,8 @@ pub async fn send_delete_user_email_code(
     token.authorized_ok(web::Json(false))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct EmailCode {
     pub code: String,
 }
@@ -685,6 +848,16 @@ pub struct EmailCode {
 /**
 POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account
 **/
+#[utoipa::path(
+    post,
+    path = "/delete-user-account",
+    tag = "auth",
+    operation_id = "postAuthDeleteUserAccount",
+    request_body = EmailCode,
+    responses(
+        (status = 200, description = "Whether the account was deleted", body = bool)
+    )
+)]
 #[instrument(skip(pool, payload, auth_user, session))]
 #[allow(clippy::async_yields_async)]
 pub async fn delete_user_account(
@@ -778,16 +951,19 @@ async fn handle_email_verification(
 ) -> ControllerResult<web::Json<LoginResponse>> {
     let code: String = rand::rng().random_range(100_000..1_000_000).to_string();
 
-    let email_verification_token =
-        email_verification_tokens::create_email_verification_token(conn, user.id, code.clone())
-            .await
-            .map_err(|e| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Failed to create email verification token".to_string(),
-                    Some(anyhow!(e)),
-                )
-            })?;
+    let email_verification_token = email_verification_tokens::create_email_verification_token(
+        conn,
+        user.id,
+        DbSecret::new(code.clone()),
+    )
+    .await
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to create email verification token".to_string(),
+            Some(anyhow!(e)),
+        )
+    })?;
 
     user_email_codes::insert_user_email_code(conn, user.id, code.clone())
         .await
@@ -835,20 +1011,34 @@ async fn handle_email_verification(
 
     let token = skip_authorize();
     token.authorized_ok(web::Json(LoginResponse::RequiresEmailVerification {
-        email_verification_token,
+        // Re-wrap for the wire boundary: redacted in Debug/logs, serialized once in the response.
+        email_verification_token: OutboundSecret::new(
+            email_verification_token.expose_secret().to_string(),
+        ),
     }))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct VerifyEmailRequest {
-    pub email_verification_token: String,
-    pub code: String,
+    #[schema(value_type = String)]
+    pub email_verification_token: DbSecret,
+    #[schema(value_type = String)]
+    pub code: DbSecret,
 }
 
 /**
 POST `/api/v0/auth/verify-email` Verifies email verification code and completes login.
 **/
+#[utoipa::path(
+    post,
+    path = "/verify-email",
+    tag = "auth",
+    operation_id = "postAuthVerifyEmail",
+    request_body = VerifyEmailRequest,
+    responses(
+        (status = 200, description = "Whether verification succeeded", body = bool)
+    )
+)]
 #[instrument(skip(session, pool, payload))]
 pub async fn verify_email(
     session: Session,
@@ -897,7 +1087,7 @@ pub async fn verify_email(
 
     let user_id = token_value.user_id;
 
-    user_email_codes::mark_user_email_code_used(&mut conn, user_id, &payload.code)
+    user_email_codes::mark_user_email_code_used(&mut conn, user_id, payload.code.expose_secret())
         .await
         .map_err(|e| {
             ControllerError::new(
@@ -933,6 +1123,37 @@ pub async fn verify_email(
     skip_token.authorized_ok(web::Json(true))
 }
 
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        signup,
+        login,
+        logout,
+        logged_in,
+        authorize_action_on_resource,
+        authorize_multiple_actions_on_resources,
+        user_info,
+        send_delete_user_email_code,
+        delete_user_account,
+        verify_email,
+    ),
+    components(schemas(
+        Login,
+        LoginResponse,
+        CreateAccountDetails,
+        SignupResponse,
+        UserInfo,
+        crate::domain::authorization::ActionOnResource,
+        crate::domain::authorization::Action,
+        crate::domain::authorization::Resource,
+        SendEmailCodeData,
+        EmailCode,
+        VerifyEmailRequest,
+        headless_lms_models::roles::UserRole,
+    ))
+)]
+pub struct AuthRoutesApiDoc;
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         web::resource("/signup")
@@ -941,6 +1162,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: None,
                 per_day: Some(1000),
                 per_month: None,
+                ..Default::default()
             }))
             .to(signup),
     )
@@ -951,6 +1173,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(100),
                 per_day: Some(500),
                 per_month: None,
+                ..Default::default()
             }))
             .to(login),
     )
@@ -969,6 +1192,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(5),
                 per_day: Some(10),
                 per_month: None,
+                ..Default::default()
             }))
             .to(delete_user_account),
     )
@@ -979,6 +1203,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(5),
                 per_day: Some(20),
                 per_month: None,
+                ..Default::default()
             }))
             .to(send_delete_user_email_code),
     )
@@ -989,6 +1214,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(50),
                 per_day: None,
                 per_month: None,
+                ..Default::default()
             }))
             .to(verify_email),
     );

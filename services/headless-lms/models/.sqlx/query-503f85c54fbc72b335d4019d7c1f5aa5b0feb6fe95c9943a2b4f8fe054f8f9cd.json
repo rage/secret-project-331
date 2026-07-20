@@ -1,0 +1,116 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH course_org AS (\n  SELECT organization_id\n  FROM courses\n  WHERE id = $1\n    AND deleted_at IS NULL\n)\nSELECT is_global,\n  organization_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  role,\n  user_id\nFROM roles\nWHERE (\n    is_global = TRUE\n    OR organization_id = (\n      SELECT organization_id\n      FROM course_org\n    )\n    OR course_id = $1\n    OR course_instance_id IN (\n      SELECT id\n      FROM course_instances\n      WHERE course_id = $1\n        AND deleted_at IS NULL\n    )\n  )\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "is_global",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "roles",
+            "name": "is_global"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "organization_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "roles",
+            "name": "organization_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "roles",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "course_instance_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "roles",
+            "name": "course_instance_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "exam_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "roles",
+            "name": "exam_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "role",
+        "type_info": {
+          "Custom": {
+            "name": "user_role",
+            "kind": {
+              "Enum": [
+                "admin",
+                "assistant",
+                "teacher",
+                "reviewer",
+                "course_or_exam_creator",
+                "material_viewer",
+                "teaching_and_learning_services",
+                "stats_viewer"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "roles",
+            "name": "role"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "roles",
+            "name": "user_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "503f85c54fbc72b335d4019d7c1f5aa5b0feb6fe95c9943a2b4f8fe054f8f9cd"
+}

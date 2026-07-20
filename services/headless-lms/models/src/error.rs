@@ -2,10 +2,12 @@
 Contains error and result types for all the model functions.
 */
 
+use std::panic::Location;
 use std::{fmt::Display, num::TryFromIntError};
 
 use backtrace::Backtrace;
-use headless_lms_utils::error::{backend_error::BackendError, util_error::UtilError};
+use headless_lms_base::error::backend_error::BackendError;
+use headless_lms_utils::error::util_error::UtilError;
 use tracing_error::SpanTrace;
 use uuid::Uuid;
 
@@ -88,7 +90,6 @@ some_function_returning_an_error().map_err(|original_error| {
 # }
 ```
 */
-#[derive(Debug)]
 pub struct ModelError {
     error_type: ModelErrorType,
     message: String,
@@ -98,17 +99,24 @@ pub struct ModelError {
     span_trace: Box<SpanTrace>,
     /// Stack trace, generated automatically when the error is created.
     backtrace: Box<Backtrace>,
+    /// Source location where the error was raised.
+    location: Option<&'static Location<'static>>,
 }
 
 impl std::error::Error for ModelError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.source.as_ref().and_then(|o| o.source())
+        self.source
+            .as_deref()
+            .map(|e| e as &(dyn std::error::Error + 'static))
     }
 
     fn cause(&self) -> Option<&dyn std::error::Error> {
         self.source()
     }
 }
+
+// Generate the clean developer `Debug`/`clean_string` and a cause resolver.
+headless_lms_base::impl_clean_debug!(ModelError, [ModelError, UtilError]);
 
 impl Display for ModelError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -118,20 +126,6 @@ impl Display for ModelError {
 
 impl BackendError for ModelError {
     type ErrorType = ModelErrorType;
-
-    fn new<M: Into<String>, S: Into<Option<anyhow::Error>>>(
-        error_type: Self::ErrorType,
-        message: M,
-        source_error: S,
-    ) -> Self {
-        Self::new_with_traces(
-            error_type,
-            message,
-            source_error,
-            Backtrace::new(),
-            SpanTrace::capture(),
-        )
-    }
 
     fn backtrace(&self) -> Option<&Backtrace> {
         Some(&self.backtrace)
@@ -149,12 +143,17 @@ impl BackendError for ModelError {
         &self.span_trace
     }
 
-    fn new_with_traces<M: Into<String>, S: Into<Option<anyhow::Error>>>(
+    fn location(&self) -> Option<&'static Location<'static>> {
+        self.location
+    }
+
+    fn new_with_traces_and_location<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
         message: M,
         source_error: S,
         backtrace: Backtrace,
         span_trace: SpanTrace,
+        location: Option<&'static Location<'static>>,
     ) -> Self {
         Self {
             error_type,
@@ -162,6 +161,7 @@ impl BackendError for ModelError {
             source: source_error.into(),
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
+            location,
         }
     }
 }
@@ -244,6 +244,22 @@ impl From<sqlx::Error> for ModelError {
                             ModelErrorType::DatabaseConstraint {
                                 constraint: constraint.to_string(),
                                 description: "Email must contain an '@' symbol.",
+                            },
+                            err.to_string(),
+                            Some(err.into()),
+                        ),
+                        "users_email" => ModelError::new(
+                            ModelErrorType::DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "Email is already in use.",
+                            },
+                            err.to_string(),
+                            Some(err.into()),
+                        ),
+                        "users_upstream_id_active_uniq_idx" => ModelError::new(
+                            ModelErrorType::DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "A user with this upstream id already exists.",
                             },
                             err.to_string(),
                             Some(err.into()),
@@ -353,6 +369,62 @@ impl From<reqwest::Error> for ModelError {
     }
 }
 
+// Generate error creation macros for ModelError
+headless_lms_utils::define_err_macro!(
+    model_err,
+    ModelError,
+    ModelErrorType,
+    ModelErrorType,
+    "Create a ModelError with less boilerplate."
+);
+
+/// Helper function for `.map_err()` chains to wrap any error as ModelError.
+///
+/// This function creates a closure that converts any error into a `ModelError`
+/// with the specified error type and message, including the original error as the source.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Instead of:
+/// .map_err(|e| ModelError::new(ModelErrorType::Generic, e.to_string(), Some(e.into())))?
+///
+/// // You can write:
+/// .map_err(as_model_error(ModelErrorType::Generic, "Failed to process".to_string()))?
+/// ```
+pub fn as_model_error<E>(
+    error_type: ModelErrorType,
+    message: impl Into<String>,
+) -> impl FnOnce(E) -> ModelError
+where
+    E: Into<anyhow::Error>,
+{
+    let msg = message.into();
+    move |e| ModelError::new(error_type, msg, Some(e.into()))
+}
+
+/// Helper function for `.ok_or_else()` to create ModelError on None.
+///
+/// This function creates a closure that generates a `ModelError` with the
+/// specified error type and message when called.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Instead of:
+/// .ok_or_else(|| ModelError::new(ModelErrorType::NotFound, "Item not found".to_string(), None))
+///
+/// // You can write:
+/// .ok_or_else(missing_model_error(ModelErrorType::NotFound, "Item not found".to_string()))
+/// ```
+pub fn missing_model_error(
+    error_type: ModelErrorType,
+    message: impl Into<String>,
+) -> impl FnOnce() -> ModelError {
+    let msg = message.into();
+    move || ModelError::new(error_type, msg, None)
+}
+
 #[cfg(test)]
 mod test {
     use uuid::Uuid;
@@ -363,6 +435,111 @@ mod test {
         email_templates::{EmailTemplateNew, EmailTemplateType},
         test_helper::*,
     };
+
+    #[test]
+    fn test_model_err_macro_without_source() {
+        let err = model_err!(Generic, "Test error message".to_string());
+        assert_eq!(err.message(), "Test error message");
+        assert!(matches!(err.error_type(), ModelErrorType::Generic));
+    }
+
+    #[test]
+    fn test_model_err_macro_with_source() {
+        let source_err = std::io::Error::new(std::io::ErrorKind::NotFound, "file not found");
+        let err = model_err!(Generic, "Wrapped error".to_string(), source_err);
+        assert_eq!(err.message(), "Wrapped error");
+        assert!(err.source.is_some());
+    }
+
+    #[test]
+    fn test_as_model_error_helper() {
+        let result: Result<(), std::io::Error> = Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "test error",
+        ));
+        let model_result = result.map_err(as_model_error(
+            ModelErrorType::Generic,
+            "Failed to read file".to_string(),
+        ));
+
+        assert!(model_result.is_err());
+        let err = model_result.unwrap_err();
+        assert_eq!(err.message(), "Failed to read file");
+        assert!(matches!(err.error_type(), ModelErrorType::Generic));
+    }
+
+    #[test]
+    fn test_missing_model_error_helper() {
+        let option: Option<String> = None;
+        let result = option.ok_or_else(missing_model_error(
+            ModelErrorType::NotFound,
+            "Item not found".to_string(),
+        ));
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert_eq!(err.message(), "Item not found");
+        assert!(matches!(err.error_type(), ModelErrorType::NotFound));
+    }
+
+    #[test]
+    fn test_model_err_with_format() {
+        let id = 123;
+        let err = model_err!(NotFound, format!("Item with id {} not found", id));
+        assert_eq!(err.message(), "Item with id 123 not found");
+    }
+
+    /// A wrapped `BackendError` cause renders as its own node, not an `(external)` leaf,
+    /// checking the cross-crate downcast resolver.
+    #[test]
+    fn debug_renders_wrapped_backend_error_as_a_cause_node() {
+        use headless_lms_utils::error::util_error::{UtilError, UtilErrorType};
+        let util_error = UtilError::new(UtilErrorType::Other, "disk on fire".to_string(), None);
+        let model_error = ModelError::from(util_error);
+
+        let debug = format!("{model_error:?}");
+        assert!(debug.contains("ModelError · Util"), "got: {debug}");
+        assert!(debug.contains("caused by:"), "got: {debug}");
+        assert!(
+            debug.contains("1. UtilError · Other: disk on fire"),
+            "wrapped BackendError should render as a node, got: {debug}"
+        );
+        assert!(!debug.contains("(external)"), "got: {debug}");
+    }
+
+    #[test]
+    fn test_model_err_macro_struct_variant_without_source() {
+        let err = model_err!(
+            PreconditionFailedWithCMSAnchorBlockId {
+                id: Uuid::nil(),
+                description: "Anchor missing",
+            },
+            "Invalid anchor".to_string()
+        );
+        assert_eq!(err.message(), "Invalid anchor");
+        assert!(matches!(
+            err.error_type(),
+            ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { .. }
+        ));
+    }
+
+    #[test]
+    fn test_model_err_macro_struct_variant_with_source() {
+        let source_err = std::io::Error::other("source");
+        let err = model_err!(
+            PreconditionFailedWithCMSAnchorBlockId {
+                id: Uuid::nil(),
+                description: "Anchor missing",
+            },
+            "Invalid anchor".to_string(),
+            source_err
+        );
+        assert!(matches!(
+            err.error_type(),
+            ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { .. }
+        ));
+        assert!(err.source.is_some());
+    }
 
     #[tokio::test]
     async fn email_templates_check() {

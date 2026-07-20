@@ -1,6 +1,6 @@
 "use client"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/react-vite"
 
 import Component from "../../../src/shared-module/common/components/InputFields/DatePickerField"
 
@@ -26,6 +26,9 @@ export const Example = {
     value: undefined,
     onChange: (event) => {
       console.log("Datepicker changed to" + event.target.value)
+    },
+    onChangeByValue: (value) => {
+      console.log("Datepicker changed to" + value)
     },
     min: "2023-01-01",
     max: "2023-12-31",

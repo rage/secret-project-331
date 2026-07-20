@@ -1,7 +1,6 @@
 resources:
   - ../base
-  - postgres-dev.yml
-  - redis-dev.yml
+  - ../base-data
   - headless-lms/env.yml
   - headless-lms/persistent-file-storage.yml
   - access-ingress-internally.yml

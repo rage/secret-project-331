@@ -5,16 +5,20 @@ import { Padlock } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
-import InnerBlocks from "../../util/InnerBlocks"
-
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+
+import type { BlockRendererProps } from "../.."
+import InnerBlocks from "../../util/InnerBlocks"
 
 interface LockChapterLockedViewProps {
   blockProps: BlockRendererProps<unknown>
+  showTeacherReviewPendingMessage: boolean
 }
 
-const LockChapterLockedView: React.FC<LockChapterLockedViewProps> = ({ blockProps }) => {
+const LockChapterLockedView: React.FC<LockChapterLockedViewProps> = ({
+  blockProps,
+  showTeacherReviewPendingMessage,
+}) => {
   const { t } = useTranslation()
 
   return (
@@ -70,7 +74,9 @@ const LockChapterLockedView: React.FC<LockChapterLockedViewProps> = ({ blockProp
               color: ${baseTheme.colors.gray[600]};
             `}
           >
-            {t("chapter-locked-description")}
+            {showTeacherReviewPendingMessage
+              ? t("chapter-locked-waiting-teacher-review-description")
+              : t("chapter-locked-description")}
           </p>
         </div>
       </div>

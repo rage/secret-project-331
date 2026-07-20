@@ -5,12 +5,13 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
+import Progress from "@/shared-module/common/components/CourseProgress"
+import { includeIf } from "@/shared-module/common/utils/nullability"
+
 import ColorsIdentifier from "./ColorsIdentifier"
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 import TempAccordionItem from "./TempAccordionItem"
-
-import { UserCourseProgress } from "@/shared-module/common/bindings"
-import Progress from "@/shared-module/common/components/CourseProgress"
 
 export interface CourseProgressProps {
   userCourseProgress: UserCourseProgress[]
@@ -52,7 +53,7 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
         {t("track-your-progress")}
       </h2>
       {userCourseProgress
-        .sort((a, b) => a.course_module_order_number - b.course_module_order_number)
+        .toSorted((a, b) => a.course_module_order_number - b.course_module_order_number)
         .map((courseModuleProgress) => (
           <TempAccordionItem
             onClick={() => handleAccordionToggle(courseModuleProgress.course_module_order_number)}
@@ -76,17 +77,25 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                 {/* TODO: Verify how it looks when score_given is a floating number */}
                 <Progress
                   variant={"circle"}
-                  max={courseModuleProgress.score_maximum}
-                  required={courseModuleProgress.score_required ?? undefined}
-                  given={courseModuleProgress.score_given}
+                  max={courseModuleProgress.score_maximum ?? null}
+                  {...includeIf(
+                    courseModuleProgress.score_required !== null &&
+                      courseModuleProgress.score_required !== undefined,
+                    { required: courseModuleProgress.score_required },
+                  )}
+                  given={courseModuleProgress.score_given ?? null}
                   label={t("total-points")}
                 />
                 <Progress
                   variant={"bar"}
                   showAsPercentage={false}
-                  exercisesAttempted={courseModuleProgress.attempted_exercises}
-                  exercisesTotal={courseModuleProgress.total_exercises}
-                  required={courseModuleProgress.attempted_exercises_required ?? undefined}
+                  exercisesAttempted={courseModuleProgress.attempted_exercises ?? null}
+                  exercisesTotal={courseModuleProgress.total_exercises ?? null}
+                  {...includeIf(
+                    courseModuleProgress.attempted_exercises_required !== null &&
+                      courseModuleProgress.attempted_exercises_required !== undefined,
+                    { required: courseModuleProgress.attempted_exercises_required },
+                  )}
                   label={t("exercises-attempted")}
                 />
                 <ColorsIdentifier />
@@ -95,9 +104,9 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
             <Wrapper>
               <CompletionRequirementsTabulation
                 attemptedExercisesRequiredForCompletion={
-                  courseModuleProgress.attempted_exercises_required
+                  courseModuleProgress.attempted_exercises_required ?? null
                 }
-                pointsRequiredForCompletion={courseModuleProgress.score_required}
+                pointsRequiredForCompletion={courseModuleProgress.score_required ?? null}
               />
             </Wrapper>
           </TempAccordionItem>

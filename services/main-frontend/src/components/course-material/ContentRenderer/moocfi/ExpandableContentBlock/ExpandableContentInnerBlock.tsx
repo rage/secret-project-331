@@ -4,12 +4,11 @@ import { css } from "@emotion/css"
 import { MinusCircle, PlusCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 
-import { BlockRendererProps } from "../.."
-
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../.."
 
 interface ExpandableContentInnerBlockProps {
   name: string
@@ -30,26 +29,31 @@ const ExpandableContentInnerBlock: React.FC<
         border-radius: 4px;
         background: #dfdfe480;
       `}
-      role="presentation"
-      onKeyDown={() => (open ? setOpen(false) : setOpen(true))}
-      onClick={() => (open ? setOpen(false) : setOpen(true))}
     >
-      <div
+      <button
+        type="button"
         className={css`
           display: flex;
           flex-direction: row;
+          align-items: center;
+          gap: 8px;
           font-family: ${headingFont};
           color: #4c5868;
+          cursor: pointer;
+          border: 0;
+          width: 100%;
+          text-align: left;
+          background: transparent;
           ${open ? "padding-bottom: 1rem;" : ""}
         `}
+        aria-expanded={open}
+        onClick={() => setOpen((prev) => !prev)}
       >
-        <Button variant={"icon"} size={"small"}>
-          {open ? (
-            <MinusCircle size={18} color="#4C5868" />
-          ) : (
-            <PlusCircle size={18} color="#4C5868" />
-          )}
-        </Button>
+        {open ? (
+          <MinusCircle size={18} color="#4C5868" />
+        ) : (
+          <PlusCircle size={18} color="#4C5868" />
+        )}
         <h4
           className={css`
             font-weight: ${fontWeights.semibold};
@@ -57,7 +61,7 @@ const ExpandableContentInnerBlock: React.FC<
         >
           {heading}
         </h4>
-      </div>
+      </button>
 
       {open && (
         <div

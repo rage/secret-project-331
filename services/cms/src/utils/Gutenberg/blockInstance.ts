@@ -1,4 +1,4 @@
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 export function isBlockInstanceArray(obj: unknown): obj is BlockInstance[] {
   if (!Array.isArray(obj)) {

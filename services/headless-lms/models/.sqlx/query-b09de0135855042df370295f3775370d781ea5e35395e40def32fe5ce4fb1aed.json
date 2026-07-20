@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS count\nFROM proposed_page_edits ppe\n  JOIN proposed_block_edits pbe ON pbe.proposal_id = ppe.id\nWHERE ppe.id = $1\n  AND ppe.page_id = $2\n  AND ppe.deleted_at IS NULL\n  AND pbe.id = ANY($3)\n  AND pbe.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "b09de0135855042df370295f3775370d781ea5e35395e40def32fe5ce4fb1aed"
+}

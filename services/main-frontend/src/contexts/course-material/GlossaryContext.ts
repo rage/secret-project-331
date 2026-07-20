@@ -1,6 +1,6 @@
 import React from "react"
 
-import { Term } from "@/shared-module/common/bindings"
+import type { Term } from "@/generated/course-material-api/types.generated"
 
 export interface GlossaryState {
   terms: Term[]

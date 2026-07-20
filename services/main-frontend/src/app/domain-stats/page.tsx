@@ -1,41 +1,41 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseCompletionStatsTable from "@/components/page-specific/domain-stats/CourseCompletionStatsTable"
-import DomainCompletionStatsTable from "@/components/page-specific/domain-stats/DomainCompletionStatsTable"
-import YearFilter from "@/components/page-specific/domain-stats/YearFilter"
 import {
-  getCompletionStatsByEmailDomain,
-  getCourseCompletionStatsForEmailDomain,
-} from "@/services/backend/global-stats"
+  useCompletionStatsByEmailDomainQuery,
+  useCourseCompletionStatsForEmailDomainQuery,
+} from "@/hooks/globalStats"
 import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import CourseCompletionStatsTable from "./CourseCompletionStatsTable"
+import DomainCompletionStatsTable from "./DomainCompletionStatsTable"
+import YearFilter from "./YearFilter"
+
+const SelectedDomainCourseStatsTable = ({
+  selectedDomain,
+  selectedYear,
+}: {
+  selectedDomain: string
+  selectedYear: number | undefined
+}) => {
+  const courseStatsQuery = useCourseCompletionStatsForEmailDomainQuery(selectedDomain, selectedYear)
+
+  return <CourseCompletionStatsTable query={courseStatsQuery} domain={selectedDomain} />
+}
 
 const DomainStatsPage = () => {
   const { t } = useTranslation()
+  usePageTitle(t("domain-completion-statistics"))
   const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined)
   const [selectedDomain, setSelectedDomain] = useState<string | undefined>(undefined)
 
-  // Query for all domains
-  const domainStatsQuery = useQuery({
-    queryKey: ["domainCompletionStats", selectedYear],
-    queryFn: () => getCompletionStatsByEmailDomain(selectedYear),
-  })
-
-  // Query for courses within selected domain
-  const courseStatsQuery = useQuery({
-    queryKey: ["courseCompletionStats", selectedDomain, selectedYear],
-    queryFn: () =>
-      selectedDomain
-        ? getCourseCompletionStatsForEmailDomain(selectedDomain, selectedYear)
-        : Promise.resolve([]),
-    enabled: !!selectedDomain, // Only run query when domain is selected
-  })
+  const domainStatsQuery = useCompletionStatsByEmailDomainQuery(selectedYear)
 
   const handleDomainSelect = (domain: string) => {
     setSelectedDomain(domain)
@@ -73,9 +73,9 @@ const DomainStatsPage = () => {
               className={css`
                 margin-right: 1rem;
               `}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
-              ← {t("back-to-all-domains")}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}← {t("back-to-all-domains")}
             </Button>
           )}
           {selectedDomain && <h2>{selectedDomain}</h2>}
@@ -86,7 +86,10 @@ const DomainStatsPage = () => {
       {!selectedDomain ? (
         <DomainCompletionStatsTable query={domainStatsQuery} onDomainSelect={handleDomainSelect} />
       ) : (
-        <CourseCompletionStatsTable query={courseStatsQuery} domain={selectedDomain} />
+        <SelectedDomainCourseStatsTable
+          selectedDomain={selectedDomain}
+          selectedYear={selectedYear}
+        />
       )}
     </div>
   )

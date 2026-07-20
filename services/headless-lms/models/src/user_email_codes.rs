@@ -37,7 +37,7 @@ WHERE user_id = $1
         r#"
       INSERT INTO user_email_codes (code, user_id)
 VALUES ($1, $2)
-RETURNING code
+RETURNING *
         "#,
         code,
         user_id
@@ -58,14 +58,7 @@ pub async fn get_unused_user_email_code_with_user_id(
     let record = sqlx::query_as!(
         UserEmailCode,
         r#"
-SELECT id,
-  code,
-  user_id,
-  created_at,
-  updated_at,
-  used_at,
-  deleted_at,
-  expires_at
+SELECT *
 FROM user_email_codes
 WHERE user_id = $1
   AND deleted_at IS NULL
@@ -110,7 +103,7 @@ WHERE user_id = $1
 pub async fn mark_user_email_code_used(
     conn: &mut PgConnection,
     user_id: Uuid,
-    code: &String,
+    code: &str,
 ) -> ModelResult<bool> {
     let result = sqlx::query!(
         r#"

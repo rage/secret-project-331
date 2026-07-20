@@ -1,5 +1,5 @@
 import { test } from "@playwright/test"
-import { Page } from "playwright"
+import type { Page } from "playwright"
 
 export const waitForFooterTranslationsToLoad = async (page: Page) => {
   await test.step(

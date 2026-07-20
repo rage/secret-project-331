@@ -2,7 +2,8 @@
 
 In a **mobile-first CSS** approach, styles are written first for mobile devices, using the smallest screen sizes as the starting point. As the screen size increases, desktop-specific styles are progressively added through media queries. This approach helps ensure that the core design works well on mobile devices, even if the initial design wasn't specifically created for mobile.
 
-> **Note**: Mobile-first CSS and mobile-first design are related but distinct concepts. **Mobile-first CSS** is a coding approach where styling begins with mobile devices, whereas **mobile-first design** refers to the overall design process starting with mobile layouts and user experience considerations. Although we use mobile-first CSS in this project, our designs may not always be mobile-first, depending on the part of the application.
+> [!NOTE]
+> Mobile-first CSS and mobile-first design are related but distinct concepts. **Mobile-first CSS** is a coding approach where styling begins with mobile devices, whereas **mobile-first design** refers to the overall design process starting with mobile layouts and user experience considerations. Although we use mobile-first CSS in this project, our designs may not always be mobile-first, depending on the part of the application.
 
 ## Concept
 

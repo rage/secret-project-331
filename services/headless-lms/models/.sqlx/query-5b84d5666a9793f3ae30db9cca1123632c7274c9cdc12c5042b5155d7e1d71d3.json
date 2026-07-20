@@ -6,27 +6,47 @@
       {
         "ordinal": 0,
         "name": "chapter_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "chapter_number",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "chapter_number"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "chapter_name",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "name"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "exercises_available!",
-        "type_info": "Int8"
+        "type_info": "Int8",
+        "origin": "Expression"
       },
       {
         "ordinal": 4,
         "name": "points_available!",
-        "type_info": "Int8"
+        "type_info": "Int8",
+        "origin": "Expression"
       }
     ],
     "parameters": {

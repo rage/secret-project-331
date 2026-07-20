@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import { openCourseSettingsFromQuickActions } from "../utils/flows/topbar.flow"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -16,7 +16,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
-  await page.getByRole("link", { name: "Navigate to course 'Introduction to citations'" }).click()
+  await page.getByRole("link", { name: "Navigate to course 'Change language course'" }).click()
   await selectCourseInstanceIfPrompted(page)
 
   await openCourseSettingsFromQuickActions(page)
@@ -28,6 +28,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
     headless,
     testInfo,
+    scrollToYCoordinate: 0,
     snapshotName: "course-lang-selection-eng-to-fi",
   })
   const value = page.locator("#changeLanguage")
@@ -40,7 +41,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("heading", { name: "Kurssin yhteenveto" }).waitFor()
   await expect(page).toHaveURL(
-    "http://project-331.local/org/uh-mathstat/courses/johdatus-sitaatioihin",
+    "http://project-331.local/org/uh-mathstat/courses/vaihda-kurssin-kieli",
   )
 
   await openCourseSettingsFromQuickActions(page, "Asetukset")
@@ -49,6 +50,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
     headless,
     testInfo,
+    scrollToYCoordinate: 0,
     snapshotName: "course-lang-selection-fi-to-eng",
     waitForTheseToBeVisibleAndStable: [page.getByText("Valitse kieli")],
   })
@@ -56,10 +58,10 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   const value1 = page.locator("#changeLanguage")
   await value1?.selectOption({ label: "English" })
   await page.getByText("Choose your preferred language").first().waitFor()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
   await page.getByText("Default").first().click()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
   await page.getByTestId("select-course-instance-continue-button").click()
   try {
@@ -72,7 +74,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.getByRole("heading", { name: "Course overview" }).waitFor()
 
   await expect(page).toHaveURL(
-    "http://project-331.local/org/uh-mathstat/courses/introduction-to-citations",
+    "http://project-331.local/org/uh-mathstat/courses/change-language-course",
   )
   // Make sure the language menu changes the course language version
   const chapterSelector = new ChapterSelector(page)
@@ -83,6 +85,6 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   await topbar.languageMenu.clickItem("Suomi")
   await page.getByText("Olet aiemmin aloittanut tämän kurssin eri kielellä.").first().waitFor()
   await expect(page).toHaveURL(
-    "http://project-331.local/org/uh-mathstat/courses/johdatus-sitaatioihin/chapter-1/page-2",
+    "http://project-331.local/org/uh-mathstat/courses/vaihda-kurssin-kieli/chapter-1/page-2",
   )
 })

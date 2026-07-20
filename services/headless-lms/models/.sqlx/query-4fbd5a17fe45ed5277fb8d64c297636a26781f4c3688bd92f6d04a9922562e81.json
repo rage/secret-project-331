@@ -6,62 +6,134 @@
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "created_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "created_at"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "updated_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "updated_at"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "deleted_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "deleted_at"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "browser",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "browser"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "browser_version",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "browser_version"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "operating_system",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "operating_system"
+          }
+        }
       },
       {
         "ordinal": 7,
         "name": "device_type",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "device_type"
+          }
+        }
       },
       {
         "ordinal": 8,
         "name": "course_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "course_id"
+          }
+        }
       },
       {
         "ordinal": 9,
         "name": "exam_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "exam_id"
+          }
+        }
       },
       {
         "ordinal": 10,
         "name": "num_visitors",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "num_visitors"
+          }
+        }
       },
       {
         "ordinal": 11,
         "name": "visit_date",
-        "type_info": "Date"
+        "type_info": "Date",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses_device_types",
+            "name": "visit_date"
+          }
+        }
       }
     ],
     "parameters": {

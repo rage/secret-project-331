@@ -2,12 +2,26 @@ use std::net::IpAddr;
 
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use models::user_details::UserDetail;
+use utoipa::{OpenApi, ToSchema};
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_user_details, update_user_info, get_user_country_by_ip))]
+pub(crate) struct CourseMaterialUserDetailsApiDoc;
 
 /**
 GET `/api/v0/course-material/user-details/user` - Find user details by user id
 */
+#[utoipa::path(
+    get,
+    path = "/user",
+    operation_id = "getCourseMaterialAuthenticatedUserDetails",
+    tag = "course-material-user-details",
+    responses(
+        (status = 200, description = "Authenticated user details", body = UserDetail)
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn get_user_details(
     user: AuthUser,
@@ -21,8 +35,8 @@ pub async fn get_user_details(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct UserInfoPayload {
     pub email: String,
     pub first_name: String,
@@ -34,6 +48,16 @@ pub struct UserInfoPayload {
 /**
 POST `/api/v0/course-material/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
 */
+#[utoipa::path(
+    post,
+    path = "/update-user-info",
+    operation_id = "updateCourseMaterialUserInfo",
+    tag = "course-material-user-details",
+    request_body = UserInfoPayload,
+    responses(
+        (status = 200, description = "Updated user details", body = UserDetail)
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn update_user_info(
     user: AuthUser,
@@ -59,6 +83,15 @@ pub async fn update_user_info(
 /**
 GET `/api/v0/course-material/user-details/users-ip-country` - Find users country by their IP  address
 */
+#[utoipa::path(
+    get,
+    path = "/users-ip-country",
+    operation_id = "getCourseMaterialCountryFromIp",
+    tag = "course-material-user-details",
+    responses(
+        (status = 200, description = "Detected country code", body = String)
+    )
+)]
 pub async fn get_user_country_by_ip(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,

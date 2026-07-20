@@ -5,14 +5,14 @@ import { InspectorControls } from "@wordpress/block-editor"
 import { PanelBody, TextControl } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
-import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { updateQueryStringParameter } from "@/shared-module/common/utils/urlManipulation"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any, unicorn/consistent-function-scoping -- untyped WP BlockEdit props; captures BlockEdit from HOC scope
   const MentiMeterEmbed = (props: any) => {
     const { t } = useTranslation()
     if (props.attributes.providerNameSlug !== "mentimeter") {
@@ -43,7 +43,7 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
                 })
                 if (url) {
                   props.setAttributes({
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     url: updateQueryStringParameter(url, "title", value),
                   })
                 }
@@ -60,7 +60,7 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
                 })
                 if (url) {
                   props.setAttributes({
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     url: updateQueryStringParameter(url, "height", value),
                   })
                 }
@@ -75,7 +75,7 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
 
   MentiMeterEmbed.displayName = "MentimeterComponent"
   return MentiMeterEmbed
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withMentimeterInspector")
 
 export default withMentimeterInspector

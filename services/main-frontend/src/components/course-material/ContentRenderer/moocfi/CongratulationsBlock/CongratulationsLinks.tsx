@@ -4,7 +4,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserModuleCompletionStatus } from "@/shared-module/common/bindings"
+import type { UserModuleCompletionStatus } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 
 const COMPLETION_REGISTRATION_BASE_PATH = `/completion-registration`
@@ -26,7 +26,7 @@ const StyledLink = styled.a`
 `
 
 export interface CongratulationsLinksProps {
-  certificateConfigurationId: string | null
+  certificateConfigurationId: string | null | undefined
   module: UserModuleCompletionStatus
 }
 

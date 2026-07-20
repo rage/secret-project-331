@@ -1,9 +1,7 @@
-"use client"
-
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
-import { Alternative } from "@/util/stateInterfaces"
+import type { Alternative } from "@/util/stateInterfaces"
 interface Props {
   item: Alternative
   onDelete: () => void
@@ -18,7 +16,7 @@ const StyledButtonEditor = styled.div`
   padding: 1rem;
   display: flex;
   align-items: center;
-  justify-content: space-apart;
+  justify-content: space-between;
 `
 
 const Input = styled.input`
@@ -58,7 +56,7 @@ const ButtonEditor: React.FC<React.PropsWithChildren<Props>> = ({ item, onDelete
           onChange({ ...item, name: e.target.value })
         }}
       />
-      {/* eslint-disable-next-line i18next/no-literal-string */}
+      {/* oxlint-disable-next-line i18next/no-literal-string */}
       <DeleteButton onClick={onDelete}>x</DeleteButton>
     </StyledButtonEditor>
   )

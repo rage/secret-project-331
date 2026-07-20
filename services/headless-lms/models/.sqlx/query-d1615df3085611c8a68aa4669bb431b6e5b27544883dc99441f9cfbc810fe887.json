@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_designer_plan_stages (\n  course_designer_plan_id,\n  stage,\n  planned_starts_on,\n  planned_ends_on\n)\nVALUES ($1, $2, $3, $4)\nON CONFLICT ON CONSTRAINT course_designer_plan_stages_plan_stage_unique DO UPDATE\nSET\n  planned_starts_on = EXCLUDED.planned_starts_on,\n  planned_ends_on = EXCLUDED.planned_ends_on\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        },
+        "Date",
+        "Date"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d1615df3085611c8a68aa4669bb431b6e5b27544883dc99441f9cfbc810fe887"
+}

@@ -1,0 +1,135 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT *\n        FROM flagged_answers\n        WHERE flagged_by = $1\n          AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "flagged_answers",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "submission_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "flagged_answers",
+            "name": "submission_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "flagged_user",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "flagged_answers",
+            "name": "flagged_user"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "flagged_by",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "flagged_answers",
+            "name": "flagged_by"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "reason",
+        "type_info": {
+          "Custom": {
+            "name": "report_reason",
+            "kind": {
+              "Enum": [
+                "flagging-reason-spam",
+                "flagging-reason-harmful-content",
+                "flagging-reason-ai-generated"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "flagged_answers",
+            "name": "reason"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "description",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "flagged_answers",
+            "name": "description"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "flagged_answers",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "flagged_answers",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "flagged_answers",
+            "name": "deleted_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "2adba8419ecc577a1af66c7d48ac257cc2d24556803bdd78c2441ad7b94f0568"
+}

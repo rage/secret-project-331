@@ -1,0 +1,158 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE exercise_slide_submissions\n        SET flag_count = COALESCE(flag_count, 0) + 1\n        WHERE id = $1\n        RETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "exercise_slide_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "exercise_slide_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "exam_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "exam_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "user_points_update_strategy",
+        "type_info": {
+          "Custom": {
+            "name": "user_points_update_strategy",
+            "kind": {
+              "Enum": [
+                "can-add-points-but-cannot-remove-points",
+                "can-add-points-and-can-remove-points"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "user_points_update_strategy"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "flag_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "flag_count"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "1dbda322258471a221da6447c62eb0e45bd0f022e4fd68f6105bd8cb20debbbb"
+}

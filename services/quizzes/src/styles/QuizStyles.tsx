@@ -1,10 +1,8 @@
-"use client"
-
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
 import { css } from "@emotion/css"
 
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme } from "@/shared-module/exercise-react/styles"
 
 export const quizTheme = {
   gradingCorrectItemBackground: "#d5eadf",

@@ -3,19 +3,16 @@
 import type { QueryClient } from "@tanstack/react-query"
 import { useQuery } from "@tanstack/react-query"
 
-import { getUserDetailsForUser } from "@/services/backend/user-details"
-import { UserDetail } from "@/shared-module/common/bindings"
+import { getUserDetailsForAuthenticatedUserOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useUserDetailsForUserQuery = () => {
-  return useQuery<UserDetail>({
-    queryKey: [`user-details`],
-    queryFn: () => getUserDetailsForUser(),
+  return useQuery({
+    ...getUserDetailsForAuthenticatedUserOptions(),
   })
 }
 
 export const refetchUserDetailsForUser = async (queryClient: QueryClient) => {
   await queryClient.refetchQueries({
-    // eslint-disable-next-line i18next/no-literal-string
-    queryKey: [`user-details`],
+    queryKey: getUserDetailsForAuthenticatedUserOptions().queryKey,
   })
 }

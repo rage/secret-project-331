@@ -1,4 +1,4 @@
-use crate::domain::oauth::dpop::verify_dpop_from_actix;
+use crate::domain::oauth::dpop::verify_dpop_from_actix_for_token;
 use crate::domain::oauth::errors::TokenGrantError;
 use crate::domain::oauth::helpers::{oauth_invalid_client, ok_json_no_cache, scope_has_openid};
 use crate::domain::oauth::oauth_validated::OAuthValidated;
@@ -13,11 +13,18 @@ use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use chrono::{Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
-use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 use models::{
     library::oauth::token_digest_sha256, oauth_access_token::TokenType, oauth_client::OAuthClient,
 };
+use secrecy::ExposeSecret;
 use sqlx::PgPool;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(token))]
+#[allow(dead_code)]
+pub(crate) struct MainFrontendOauthTokenApiDoc;
 
 /// Handles the `/token` endpoint for exchanging authorization codes or refresh tokens.
 ///
@@ -87,6 +94,20 @@ use sqlx::PgPool;
 /// WWW-Authenticate: DPoP error="use_dpop_proof", error_description="Missing DPoP header"
 /// ```
 #[instrument(skip(pool, app_conf, form))]
+#[utoipa::path(
+    post,
+    path = "/token",
+    operation_id = "exchangeOauthToken",
+    tag = "oauth",
+    request_body(
+        content = serde_json::Value,
+        content_type = "application/x-www-form-urlencoded"
+    ),
+    responses(
+        (status = 200, description = "OAuth token response", body = serde_json::Value),
+        (status = 401, description = "OAuth token error")
+    )
+)]
 pub async fn token(
     pool: web::Data<PgPool>,
     OAuthValidated(form): OAuthValidated<TokenQuery>,
@@ -101,7 +122,10 @@ pub async fn token(
 
     let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id)
         .await
-        .map_err(|_| oauth_invalid_client("invalid client_id"))?;
+        .map_err(|e| {
+            tracing::error!(err = %e, "OAuth token: client lookup failed");
+            oauth_invalid_client("invalid client_id")
+        })?;
 
     // Add non-secret fields to the span for observability
     tracing::Span::current().record("client_id", &form.client_id);
@@ -111,7 +135,10 @@ pub async fn token(
             Some(ref secret) => {
                 let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
                 if !secret.constant_eq(&token_digest_sha256(
-                    &form.client_secret.clone().unwrap_or_default(),
+                    form.client_secret
+                        .as_ref()
+                        .map(|s| s.expose_secret())
+                        .unwrap_or_default(),
                     token_hmac_key,
                 )) {
                     return Err(oauth_invalid_client("invalid client secret"));
@@ -142,15 +169,13 @@ pub async fn token(
         ));
     }
 
-    // DPoP vs Bearer selection
+    // DPoP vs Bearer selection (token endpoint uses deferred replay so use_dpop_nonce does not revoke the auth code)
     let dpop_jkt_opt = if req.headers().get("DPoP").is_some() {
         Some(
-            verify_dpop_from_actix(
+            verify_dpop_from_actix_for_token(
                 &mut conn,
                 &req,
-                "POST",
                 &app_conf.oauth_server_configuration.dpop_nonce_key,
-                None,
             )
             .await?,
         )
@@ -203,7 +228,7 @@ pub async fn token(
         Some(generate_id_token(
             user_id,
             &client.client_id,
-            &nonce_opt.unwrap_or_default(),
+            nonce_opt.as_deref(),
             at_expires_at,
             &format!("{}/api/v0/main-frontend/oauth", base_url),
             &app_conf,
@@ -234,6 +259,7 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
                 per_hour: Some(500),
                 per_day: Some(2000),
                 per_month: None,
+                ..Default::default()
             }))
             .route(web::post().to(token)),
     );

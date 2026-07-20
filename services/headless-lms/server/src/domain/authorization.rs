@@ -1,6 +1,7 @@
 //! Common functionality related to authorization
 
 use crate::OAuthClient;
+use crate::config::server_runtime_config;
 use crate::prelude::*;
 use actix_http::Payload;
 use actix_session::Session;
@@ -11,8 +12,8 @@ use chrono::{DateTime, Duration, Utc};
 use futures::Future;
 use headless_lms_models::{self as models, roles::UserRole, users::User};
 use headless_lms_utils::http::REQWEST_CLIENT;
-use headless_lms_utils::tmc::TMCUser;
-use headless_lms_utils::tmc::TmcClient;
+use headless_lms_utils::services::tmc::TMCUser;
+use headless_lms_utils::services::tmc::TmcClient;
 use models::{CourseOrExamId, roles::Role};
 use oauth2::EmptyExtraTokenFields;
 use oauth2::HttpClientError;
@@ -22,17 +23,47 @@ use oauth2::ResourceOwnerUsername;
 use oauth2::StandardTokenResponse;
 use oauth2::TokenResponse;
 use oauth2::basic::BasicTokenType;
+use secrecy::ExposeSecret;
 use secrecy::SecretString;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use sqlx::PgConnection;
-use std::env;
 use std::pin::Pin;
+use subtle::ConstantTimeEq;
 use tracing_log::log;
-#[cfg(feature = "ts_rs")]
-pub use ts_rs::TS;
+use utoipa::ToSchema;
+
 use uuid::Uuid;
 
 const SESSION_KEY: &str = "user";
+
+const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
+
+fn constant_time_eq_str(left: &str, right: &str) -> bool {
+    left.as_bytes().ct_eq(right.as_bytes()).into()
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GraphQLRequest<'a> {
+    query: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    variables: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiUserResponse {
+    pub data: MoocfiUserResponseData,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiUserResponseData {
+    pub user: MoocfiUserData,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiUserData {
+    pub id: Uuid,
+}
 
 // at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
@@ -47,8 +78,7 @@ pub struct AuthUser {
     upstream_id: Option<i32>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub struct ActionOnResource {
     pub action: Action,
@@ -171,8 +201,7 @@ pub fn forget(session: &Session) {
 }
 
 /// Describes an action that a user can take on some resource.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case", tag = "type", content = "variant")]
 pub enum Action {
     ViewMaterial,
@@ -195,8 +224,7 @@ pub enum Action {
 }
 
 /// The target of an action.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[serde(rename_all = "snake_case", tag = "type", content = "id")]
 pub enum Resource {
     GlobalPermissions,
@@ -328,8 +356,7 @@ pub async fn authorize_access_from_tmc_server_to_course_mooc_fi(
     request: &HttpRequest,
 ) -> Result<AuthorizationToken, ControllerError> {
     let tmc_server_secret_for_communicating_to_secret_project =
-        env::var("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT")
-            .expect("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT must be defined");
+        &server_runtime_config().tmc_server_secret_for_communicating_to_secret_project;
     // check authorization header
     let auth_header = request
         .headers()
@@ -350,7 +377,10 @@ pub async fn authorize_access_from_tmc_server_to_course_mooc_fi(
             )
         })?;
     // If auth header correct one, grant access
-    if auth_header == tmc_server_secret_for_communicating_to_secret_project {
+    if constant_time_eq_str(
+        auth_header,
+        tmc_server_secret_for_communicating_to_secret_project.expose_secret(),
+    ) {
         return Ok(skip_authorize());
     }
     Err(ControllerError::new(
@@ -723,11 +753,11 @@ pub fn parse_secret_key_from_header(header: &HttpRequest) -> Result<&str, Contro
 }
 
 /// Authenticates the user with mooc.fi, returning the authenticated user and their oauth token.
-pub async fn authenticate_moocfi_user(
+pub async fn authenticate_tmc_mooc_fi_user(
     conn: &mut PgConnection,
     client: &OAuthClient,
     email: String,
-    password: String,
+    password: SecretString,
     tmc_client: &TmcClient,
 ) -> anyhow::Result<Option<(User, SecretString)>> {
     info!("Attempting to authenticate user with TMC");
@@ -746,9 +776,9 @@ pub async fn authenticate_moocfi_user(
         tmc_user
             .courses_mooc_fi_user_id
             .map(|uuid| uuid.to_string())
-            .unwrap_or_else(|| "None (will generate new UUID)".to_string())
+            .unwrap_or_else(|| "None (will fetch from mooc.fi or generate new UUID)".to_string())
     );
-    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut *conn, tmc_user).await?;
+    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut *conn, tmc_user, &token).await?;
     info!(
         "Successfully got user details from mooc.fi for user {}",
         user.id
@@ -772,12 +802,13 @@ It returns different results based on the authentication outcome:
 pub async fn exchange_password_with_tmc(
     client: &OAuthClient,
     email: String,
-    password: String,
+    password: SecretString,
 ) -> anyhow::Result<Option<SecretString>> {
     let token_result = client
         .exchange_password(
             &ResourceOwnerUsername::new(email),
-            &ResourceOwnerPassword::new(password),
+            // Exposed only here, at the OAuth2 client boundary.
+            &ResourceOwnerPassword::new(password.expose_secret().to_string()),
         )
         .request_async(&async_http_client_with_headers)
         .await;
@@ -817,9 +848,72 @@ pub async fn exchange_password_with_tmc(
     }
 }
 
+/// Fetches the mooc.fi UUID for a user by their upstream ID using the TMC access token.
+async fn fetch_moocfi_id_by_upstream_id(
+    tmc_access_token: &SecretString,
+    upstream_id: i32,
+) -> anyhow::Result<Option<Uuid>> {
+    info!("Fetching mooc.fi UUID for upstream user id {}", upstream_id);
+
+    let res = REQWEST_CLIENT
+        .post(MOOCFI_GRAPHQL_URL)
+        .header(reqwest::header::CONTENT_TYPE, "application/json")
+        .header(reqwest::header::ACCEPT, "application/json")
+        // Exposed only here, where the bearer token header is built.
+        .bearer_auth(tmc_access_token.expose_secret())
+        .json(&GraphQLRequest {
+            query: r#"
+query ($upstreamId: Int) {
+  user(upstream_id: $upstreamId) {
+    id
+  }
+}"#,
+            variables: Some(json!({ "upstreamId": upstream_id })),
+        })
+        .send()
+        .await;
+
+    match res {
+        Ok(response) => {
+            if !response.status().is_success() {
+                debug!(
+                    "Failed to fetch mooc.fi user with status {}. Will generate new UUID instead.",
+                    response.status()
+                );
+                return Ok(None);
+            }
+
+            match response.json::<MoocfiUserResponse>().await {
+                Ok(current_user_response) => {
+                    info!(
+                        "Successfully fetched mooc.fi UUID {} for upstream id {}",
+                        current_user_response.data.user.id, upstream_id
+                    );
+                    Ok(Some(current_user_response.data.user.id))
+                }
+                Err(e) => {
+                    debug!(
+                        "Failed to parse mooc.fi response: {}. Will generate new UUID instead.",
+                        e
+                    );
+                    Ok(None)
+                }
+            }
+        }
+        Err(e) => {
+            debug!(
+                "Failed to fetch from mooc.fi: {}. Will generate new UUID instead.",
+                e
+            );
+            Ok(None)
+        }
+    }
+}
+
 pub async fn get_or_create_user_from_tmc_mooc_fi_response(
     conn: &mut PgConnection,
     tmc_mooc_fi_user: TMCUser,
+    tmc_access_token: &SecretString,
 ) -> anyhow::Result<User> {
     let TMCUser {
         id: upstream_id,
@@ -829,30 +923,59 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
         ..
     } = tmc_mooc_fi_user;
 
-    let id = moocfi_id.unwrap_or_else(Uuid::new_v4);
+    // If moocfi_id is None, try to fetch it from mooc.fi before generating a new UUID
+    let id = match moocfi_id {
+        Some(id) => id,
+        None => match fetch_moocfi_id_by_upstream_id(tmc_access_token, upstream_id).await? {
+            Some(fetched_id) => {
+                info!("Successfully fetched mooc.fi UUID {} for user", fetched_id);
+                fetched_id
+            }
+            None => {
+                info!("No mooc.fi UUID found, generating new UUID for user");
+                Uuid::new_v4()
+            }
+        },
+    };
 
     // fetch existing user or create new one
     let user = match models::users::find_by_upstream_id(conn, upstream_id).await? {
         Some(existing_user) => existing_user,
         None => {
-            models::users::insert_with_upstream_id_and_moocfi_id(
+            let inserted = models::users::insert_with_upstream_id_and_moocfi_id(
                 conn,
                 &email,
-                // convert empty names to None
-                if user_field.first_name.trim().is_empty() {
-                    None
-                } else {
-                    Some(user_field.first_name.as_str())
-                },
-                if user_field.last_name.trim().is_empty() {
-                    None
-                } else {
-                    Some(user_field.last_name.as_str())
-                },
+                // convert missing/empty names to None
+                user_field
+                    .first_name
+                    .as_deref()
+                    .filter(|s| !s.trim().is_empty()),
+                user_field
+                    .last_name
+                    .as_deref()
+                    .filter(|s| !s.trim().is_empty()),
                 upstream_id,
                 id,
             )
-            .await?
+            .await;
+            match inserted {
+                Ok(user) => user,
+                // A concurrent request can create the user between the find and the insert
+                // (the insert runs in a savepoint, so the connection stays usable). The unique
+                // index on upstream_id rejects the loser; return the winner's row instead.
+                Err(insert_error)
+                    if matches!(
+                        insert_error.error_type(),
+                        models::ModelErrorType::DatabaseConstraint { constraint, .. }
+                            if constraint == "users_upstream_id_active_uniq_idx"
+                    ) =>
+                {
+                    models::users::find_by_upstream_id(conn, upstream_id)
+                        .await?
+                        .ok_or(insert_error)?
+                }
+                Err(insert_error) => return Err(insert_error.into()),
+            }
         }
     };
     Ok(user)
@@ -864,11 +987,14 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
 pub async fn authenticate_test_user(
     conn: &mut PgConnection,
     email: &str,
-    password: &str,
+    password: &SecretString,
     application_configuration: &ApplicationConfiguration,
 ) -> anyhow::Result<bool> {
     // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
     assert!(application_configuration.test_mode);
+
+    // Test-only seeded credentials; exposed once here for the literal comparisons below.
+    let password = password.expose_secret();
 
     let _user = if email == "admin@example.com" && password == "admin" {
         models::users::get_by_email(conn, "admin@example.com").await?
@@ -894,6 +1020,12 @@ pub async fn authenticate_test_user(
         models::users::get_by_email(conn, "student4@example.com").await?
     } else if email == "student5@example.com" && password == "student5" {
         models::users::get_by_email(conn, "student5@example.com").await?
+    } else if email == "student6@example.com" && password == "student6" {
+        models::users::get_by_email(conn, "student6@example.com").await?
+    } else if email == "student7@example.com" && password == "student7" {
+        models::users::get_by_email(conn, "student7@example.com").await?
+    } else if email == "student8@example.com" && password == "student8" {
+        models::users::get_by_email(conn, "student8@example.com").await?
     } else if email == "teaching-and-learning-services@example.com"
         && password == "teaching-and-learning-services"
     {
@@ -937,26 +1069,17 @@ pub async fn authenticate_test_token(
 */
 fn get_ratelimit_api_key() -> Result<reqwest::header::HeaderValue, HttpClientError<reqwest::Error>>
 {
-    let key = match std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY") {
-        Ok(key) => {
-            debug!("Found RATELIMIT_PROTECTION_SAFE_API_KEY");
-            key
-        }
-        Err(e) => {
-            error!(
-                "RATELIMIT_PROTECTION_SAFE_API_KEY environment variable not set: {}",
-                e
-            );
-            return Err(HttpClientError::Other(
-                "RATELIMIT_PROTECTION_SAFE_API_KEY must be defined".to_string(),
-            ));
-        }
-    };
+    let key = server_runtime_config()
+        .ratelimit_protection_safe_api_key
+        .clone();
+    debug!("Using ratelimit API key from runtime config");
 
-    key.parse::<reqwest::header::HeaderValue>().map_err(|err| {
-        error!("Invalid RATELIMIT API key format: {}", err);
-        HttpClientError::Other("Invalid RATELIMIT API key.".to_string())
-    })
+    key.expose_secret()
+        .parse::<reqwest::header::HeaderValue>()
+        .map_err(|err| {
+            error!("Invalid RATELIMIT API key format: {}", err);
+            HttpClientError::Other("Invalid RATELIMIT API key.".to_string())
+        })
 }
 
 /**

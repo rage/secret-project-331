@@ -1,16 +1,31 @@
 "use client"
 
-import { QueryClient, useQuery } from "@tanstack/react-query"
+import type { QueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-import { fetchOrganizationCourses } from "../services/backend/organizations"
-
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-
-const QUERY_KEY_PREFIX = "organization-courses"
+import { getOrganizationCoursesOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const invalidateOrganizationCourses = (queryClient: QueryClient, organizationId: string) => {
   queryClient.invalidateQueries({
-    queryKey: [QUERY_KEY_PREFIX, organizationId],
+    predicate: (query) => {
+      const key = query.queryKey[0]
+      if (
+        typeof key !== "object" ||
+        key === null ||
+        !("_id" in key) ||
+        key._id !== "getOrganizationCourses"
+      ) {
+        return false
+      }
+
+      return (
+        "path" in key &&
+        typeof key.path === "object" &&
+        key.path !== null &&
+        "organization_id" in key.path &&
+        key.path.organization_id === organizationId
+      )
+    },
   })
 }
 
@@ -20,8 +35,16 @@ export const useOrganizationCourses = (
   limit: number,
 ) => {
   const getOrgCourses = useQuery({
-    queryKey: [QUERY_KEY_PREFIX, organizationId, page, limit],
-    queryFn: () => fetchOrganizationCourses(assertNotNullOrUndefined(organizationId), page, limit),
+    ...getOrganizationCoursesOptions({
+      path: {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- enabled guard ensures organizationId is set when it runs
+        organization_id: organizationId!,
+      },
+      query: {
+        page,
+        limit,
+      },
+    }),
     enabled: !!organizationId,
   })
 

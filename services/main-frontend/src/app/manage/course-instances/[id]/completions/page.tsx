@@ -4,36 +4,41 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { maxBy } from "lodash"
 import { useParams } from "next/navigation"
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
-import ChapterPointsDashboard from "@/components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
-import CompletionRegistrationPreview from "@/components/page-specific/manage/course-instances/id/CompletionRegistrationPreview"
-import UserCompletionRow, {
-  UserCompletionRowUser,
-} from "@/components/page-specific/manage/course-instances/id/UserCompletionRow"
-import CompletionsExportButton from "@/components/page-specific/manage/course-instances/id/completions/CompletionsExportButton"
 import FullWidthTable from "@/components/tables/FullWidthTable"
-import CaretDownIcon from "@/imgs/caret-down.svg"
 import {
-  getCompletions,
-  postCompletions,
-  postCompletionsPreview,
-} from "@/services/backend/course-instances"
+  getCourseInstanceCompletionsOptions,
+  getCourseInstanceOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import {
+  createCourseInstanceCompletions,
+  previewCourseInstanceCompletions,
+} from "@/generated/api/sdk.generated"
+import type {
   CourseModuleCompletionWithRegistrationInfo,
   ManualCompletionPreview,
   TeacherManualCompletionRequest,
   UserWithModuleCompletions,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api/types.generated"
+import CaretDownIcon from "@/imgs/caret-down.svg"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
+
+import ChapterPointsDashboard from "../ChapterPointsDashboard"
+import CompletionRegistrationPreview from "../CompletionRegistrationPreview"
+import type { UserCompletionRowUser } from "../UserCompletionRow"
+import UserCompletionRow from "../UserCompletionRow"
+import CompletionsExportButton from "./CompletionsExportButton"
 
 const EMAIL = "email"
 const NAME = "name"
@@ -48,11 +53,40 @@ const CompletionsPage: React.FC = () => {
   const { t } = useTranslation()
   const params = useParams<{ id: string }>()
   const courseInstanceId = params.id
+
+  const courseInstanceQuery = useQuery({
+    ...getCourseInstanceOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
+  })
+
+  usePageTitle(
+    courseInstanceQuery.isLoading
+      ? null
+      : joinTitleSegments([
+          t("completions"),
+          courseInstanceQuery.data?.name || t("default-instance"),
+        ]),
+    { order: 10 },
+  )
+
+  const crumbs = useMemo(() => [{ isLoading: false as const, label: t("completions") }], [t])
+
+  useRegisterBreadcrumbs({
+    key: `course-instance:${courseInstanceId}:completions`,
+    order: 60,
+    crumbs,
+  })
   const getCompletionsList = useQuery({
-    queryKey: [`completions-list-${courseInstanceId}`],
-    queryFn: async () => {
-      const completions = await getCompletions(courseInstanceId)
-      const sortedCourseModules = completions.course_modules.sort(
+    ...getCourseInstanceCompletionsOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
+    select: (completions) => {
+      const sortedCourseModules = completions.course_modules.toSorted(
         (a, b) => a.order_number - b.order_number,
       )
       return {
@@ -68,7 +102,13 @@ const CompletionsPage: React.FC = () => {
     useState<TeacherManualCompletionRequest | null>(null)
   const [previewData, setPreviewData] = useState<ManualCompletionPreview | null>(null)
   const mutation = useToastMutation(
-    (data: TeacherManualCompletionRequest) => postCompletions(courseInstanceId, data),
+    (data: TeacherManualCompletionRequest) =>
+      createCourseInstanceCompletions({
+        body: data,
+        path: {
+          course_instance_id: courseInstanceId,
+        },
+      }),
     { notify: true, method: "POST", successMessage: t("completions-submitted-successfully") },
     {
       onSuccess: () => {
@@ -89,19 +129,23 @@ const CompletionsPage: React.FC = () => {
       )
     } else if (sorting.type === EMAIL) {
       return first.email.localeCompare(second.email)
-    } else {
-      return (
-        (maxBy(second.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0) -
-        (maxBy(first.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0)
-      )
     }
+    return (
+      (maxBy(second.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0) -
+      (maxBy(first.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0)
+    )
   }
 
   const handlePostCompletionsPreview = async (
     data: TeacherManualCompletionRequest,
   ): Promise<void> => {
     setCompletionFormData(data)
-    const previewDataFromBackend = await postCompletionsPreview(courseInstanceId, data)
+    const previewDataFromBackend = await previewCourseInstanceCompletions({
+      body: data,
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    })
 
     const updatedAlreadyCompletedUsers = previewDataFromBackend.already_completed_users.map(
       (user) => {
@@ -110,12 +154,12 @@ const CompletionsPage: React.FC = () => {
           return { ...user, previous_best_grade: null }
         }
 
-        const completions = existingUser.moduleCompletions.get(data.course_module_id ?? "")
+        const completions = existingUser.moduleCompletions.get(data.course_module_id)
         const bestGrade = completions
           ? completions.reduce((max, curr) => {
               let gradeValue: number
 
-              if (curr.grade !== null) {
+              if (curr.grade !== null && curr.grade !== undefined) {
                 gradeValue = curr.grade
               } else if (curr.passed) {
                 gradeValue = 0.5 // "pass"
@@ -174,164 +218,162 @@ const CompletionsPage: React.FC = () => {
         <CompletionsExportButton courseInstanceId={courseInstanceId} />
       </div>
 
-      {getCompletionsList.isError && (
-        <ErrorBanner variant="readOnly" error={getCompletionsList.error} />
-      )}
-      {getCompletionsList.isLoading && <Spinner variant="medium" />}
-      {getCompletionsList.isSuccess && (
-        <>
-          <div
-            className={css`
-              margin-bottom: 2rem;
-            `}
-          >
-            <ChapterPointsDashboard
-              chapterScores={getCompletionsList.data.sortedCourseModules.map((module) => ({
-                id: module.id,
-                name: module.name ?? t("label-default"),
-                value: `${
-                  getCompletionsList.data.users.filter(
-                    (user) => (user.moduleCompletions.get(module.id) ?? []).length > 0,
-                  ).length
-                }/${getCompletionsList.data.users.length}`,
-              }))}
-              userCount={getCompletionsList.data.users.length}
-            />
-          </div>
-
-          <div
-            className={css`
-              margin-bottom: 2rem;
-              padding: 1.5rem;
-              background: #f8f9fa;
-              border-radius: 8px;
-            `}
-          >
-            <Button
-              variant="primary"
-              size="small"
-              onClick={() => setShowForm(!showForm)}
+      <QueryResult query={getCompletionsList}>
+        {(data) => (
+          <>
+            <div
               className={css`
-                margin-bottom: ${showForm ? "1.5rem" : "0"};
+                margin-bottom: 2rem;
               `}
             >
-              {t("manually-add-completions")}
-            </Button>
-            {showForm && (
-              <div
+              <ChapterPointsDashboard
+                chapterScores={data.sortedCourseModules.map((module) => ({
+                  id: module.id,
+                  name: module.name ?? t("label-default"),
+                  value: `${
+                    data.users.filter(
+                      (user) => (user.moduleCompletions.get(module.id) ?? []).length > 0,
+                    ).length
+                  }/${data.users.length}`,
+                }))}
+                userCount={data.users.length}
+              />
+            </div>
+
+            <div
+              className={css`
+                margin-bottom: 2rem;
+                padding: 1.5rem;
+                background: #f8f9fa;
+                border-radius: 8px;
+              `}
+            >
+              <Button
+                variant="primary"
+                size="small"
+                onClick={() => setShowForm(!showForm)}
                 className={css`
-                  background: white;
-                  padding: 1.5rem;
-                  border-radius: 6px;
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                  margin-bottom: ${showForm ? "1.5rem" : "0"};
                 `}
               >
-                <AddCompletionsForm
-                  onSubmit={handlePostCompletionsPreview}
-                  courseModules={getCompletionsList.data.sortedCourseModules}
-                  submitText={t("button-text-check")}
-                />
-                {previewData && completionFormData && (
-                  <CompletionRegistrationPreview
-                    manualCompletionPreview={previewData}
-                    onSubmit={(options) => {
-                      mutation.mutate({
-                        ...completionFormData,
-                        skip_duplicate_completions: options.skipDuplicateCompletions,
-                      })
-                    }}
+                {t("manually-add-completions")}
+              </Button>
+              {showForm && (
+                <div
+                  className={css`
+                    background: white;
+                    padding: 1.5rem;
+                    border-radius: 6px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                  `}
+                >
+                  <AddCompletionsForm
+                    onSubmit={handlePostCompletionsPreview}
+                    courseModules={data.sortedCourseModules}
+                    submitText={t("button-text-check")}
                   />
-                )}
-              </div>
-            )}
-          </div>
-          <FullWidthTable>
-            <thead>
-              <tr
-                className={css`
-                  text-align: left;
-                  font-size: 13px;
-                `}
-              >
-                <th rowSpan={2}>
-                  {t("label-user-id")}{" "}
-                  <a
-                    href="#number"
-                    onClick={() => setSorting({ type: NUMBER, data: null })}
-                    aria-label={t("sort-by-column", { column: t("label-user-id") })}
-                  >
-                    <CaretDownIcon />
-                  </a>
-                </th>
-                <th rowSpan={2}>
-                  {t("student-name")}{" "}
-                  <a
-                    href="#name"
-                    onClick={() => setSorting({ type: NAME, data: null })}
-                    aria-label={t("sort-by-column", { column: t("student-name") })}
-                  >
-                    <CaretDownIcon />
-                  </a>
-                </th>
-                <th rowSpan={2}>
-                  {t("label-email")}{" "}
-                  <a
-                    href="#email"
-                    onClick={() => setSorting({ type: EMAIL, data: null })}
-                    aria-label={t("sort-by-column", { column: t("label-email") })}
-                  >
-                    <CaretDownIcon />
-                  </a>
-                </th>
-                {getCompletionsList.data.sortedCourseModules
-                  .sort((a, b) => a.order_number - b.order_number)
-                  .map((module) => {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    const moduleSorting = `#mod${module.order_number}`
-                    return (
-                      <th key={module.id} colSpan={2}>
-                        <div
-                          className={css`
-                            text-align: center;
-                          `}
-                        >
-                          {module.name ?? t("label-default")}{" "}
-                          <a
-                            href={moduleSorting}
-                            onClick={() => setSorting({ type: moduleSorting, data: module.id })}
-                            aria-label={t("sort-by-column", {
-                              column: module.name ?? t("label-default"),
-                            })}
+                  {previewData && completionFormData && (
+                    <CompletionRegistrationPreview
+                      manualCompletionPreview={previewData}
+                      onSubmit={(options) => {
+                        mutation.mutate({
+                          ...completionFormData,
+                          skip_duplicate_completions: options.skipDuplicateCompletions,
+                        })
+                      }}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+            <FullWidthTable>
+              <thead>
+                <tr
+                  className={css`
+                    text-align: left;
+                    font-size: 13px;
+                  `}
+                >
+                  <th rowSpan={2}>
+                    {t("label-user-id")}{" "}
+                    <a
+                      href="#number"
+                      onClick={() => setSorting({ type: NUMBER, data: null })}
+                      aria-label={t("sort-by-column", { column: t("label-user-id") })}
+                    >
+                      <CaretDownIcon />
+                    </a>
+                  </th>
+                  <th rowSpan={2}>
+                    {t("student-name")}{" "}
+                    <a
+                      href="#name"
+                      onClick={() => setSorting({ type: NAME, data: null })}
+                      aria-label={t("sort-by-column", { column: t("student-name") })}
+                    >
+                      <CaretDownIcon />
+                    </a>
+                  </th>
+                  <th rowSpan={2}>
+                    {t("label-email")}{" "}
+                    <a
+                      href="#email"
+                      onClick={() => setSorting({ type: EMAIL, data: null })}
+                      aria-label={t("sort-by-column", { column: t("label-email") })}
+                    >
+                      <CaretDownIcon />
+                    </a>
+                  </th>
+                  {data.sortedCourseModules
+                    .toSorted((a, b) => a.order_number - b.order_number)
+                    .map((module) => {
+                      // oxlint-disable-next-line i18next/no-literal-string
+                      const moduleSorting = `#mod${module.order_number}`
+                      return (
+                        <th key={module.id} colSpan={2}>
+                          <div
+                            className={css`
+                              text-align: center;
+                            `}
                           >
-                            <CaretDownIcon />
-                          </a>
-                        </div>
-                      </th>
-                    )
-                  })}
-              </tr>
-              <tr>
-                {getCompletionsList.data.sortedCourseModules.map((_, i) => (
-                  <React.Fragment key={i}>
-                    <td>{t("label-grade")}</td>
-                    <td>{t("label-registered")}</td>
-                  </React.Fragment>
+                            {module.name ?? t("label-default")}{" "}
+                            <a
+                              href={moduleSorting}
+                              onClick={() => setSorting({ type: moduleSorting, data: module.id })}
+                              aria-label={t("sort-by-column", {
+                                column: module.name ?? t("label-default"),
+                              })}
+                            >
+                              <CaretDownIcon />
+                            </a>
+                          </div>
+                        </th>
+                      )
+                    })}
+                </tr>
+                <tr>
+                  {data.sortedCourseModules.map((_, i) => (
+                    <React.Fragment key={i}>
+                      <td>{t("label-grade")}</td>
+                      <td>{t("label-registered")}</td>
+                    </React.Fragment>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.users.toSorted(sortUsers).map((user) => (
+                  <UserCompletionRow
+                    key={user.userId}
+                    sortedCourseModules={data.sortedCourseModules}
+                    user={user}
+                  />
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {getCompletionsList.data.users.sort(sortUsers).map((user) => (
-                <UserCompletionRow
-                  key={user.userId}
-                  sortedCourseModules={getCompletionsList.data.sortedCourseModules}
-                  user={user}
-                />
-              ))}
-            </tbody>
-          </FullWidthTable>
-          <p>*: {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}</p>
-        </>
-      )}
+              </tbody>
+            </FullWidthTable>
+            <p>*: {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}</p>
+          </>
+        )}
+      </QueryResult>
     </>
   )
 }
@@ -339,7 +381,7 @@ const CompletionsPage: React.FC = () => {
 export default withErrorBoundary(withSignedIn(CompletionsPage))
 
 function prepareUser(user: UserWithModuleCompletions): UserCompletionRowUser {
-  const moduleCompletions = new Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>()
+  const moduleCompletions = new Map<string, CourseModuleCompletionWithRegistrationInfo[]>()
   for (const completion of user.completed_modules) {
     const bucket = moduleCompletions.get(completion.course_module_id) ?? []
     bucket.push(completion)
@@ -351,8 +393,8 @@ function prepareUser(user: UserWithModuleCompletions): UserCompletionRowUser {
   return {
     moduleCompletions,
     email: user.email,
-    firstName: user.first_name,
-    lastName: user.last_name,
+    firstName: user.first_name ?? null,
+    lastName: user.last_name ?? null,
     userId: user.user_id,
   }
 }

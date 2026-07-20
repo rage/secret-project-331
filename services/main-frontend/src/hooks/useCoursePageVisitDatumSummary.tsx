@@ -2,12 +2,15 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchCoursePageVisitDatumSummaries } from "../services/backend/courses"
+import { getCoursePageVisitDatumSummaryOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 const useCoursePageVisitDatumSummary = (courseId: string) => {
   const query = useQuery({
-    queryKey: [`course-page-visit-datum-summary-${courseId}`],
-    queryFn: () => fetchCoursePageVisitDatumSummaries(courseId),
+    ...getCoursePageVisitDatumSummaryOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
   return query
 }

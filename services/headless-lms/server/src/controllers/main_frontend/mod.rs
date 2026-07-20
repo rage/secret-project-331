@@ -10,6 +10,7 @@ pub mod chapters;
 pub mod chatbot_models;
 pub mod chatbots;
 pub mod code_giveaways;
+pub mod course_designer;
 pub mod course_instances;
 pub mod course_modules;
 pub mod courses;
@@ -34,15 +35,58 @@ pub mod regradings;
 pub mod roles;
 pub mod status;
 pub mod teacher_grading_decisions;
+pub mod time;
 pub mod user_details;
 pub mod users;
 
 use actix_web::web::{self, ServiceConfig};
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(
+    nest(
+        (path = "/certificates", api = certificates::MainFrontendCertificatesApiDoc),
+        (path = "/chapters", api = chapters::MainFrontendChaptersApiDoc),
+        (path = "/chatbot-models", api = chatbot_models::MainFrontendChatbotModelsApiDoc),
+        (path = "/chatbots", api = chatbots::MainFrontendChatbotsApiDoc),
+        (path = "/code-giveaways", api = code_giveaways::MainFrontendCodeGiveawaysApiDoc),
+        (path = "/course-plans", api = course_designer::MainFrontendCourseDesignerApiDoc),
+        (path = "/course-instances", api = course_instances::MainFrontendCourseInstancesApiDoc),
+        (path = "/course-modules", api = course_modules::MainFrontendCourseModulesApiDoc),
+        (path = "/courses", api = courses::MainFrontendCoursesApiDoc),
+        (path = "/email-templates", api = email_templates::MainFrontendEmailTemplatesApiDoc),
+        (path = "/exams", api = exams::MainFrontendExamsApiDoc),
+        (path = "/exercise-repositories", api = exercise_repositories::MainFrontendExerciseRepositoriesApiDoc),
+        (path = "/exercise-services", api = exercise_services::MainFrontendExerciseServicesApiDoc),
+        (path = "/exercise-slide-submissions", api = exercise_slide_submissions::MainFrontendExerciseSlideSubmissionsApiDoc),
+        (path = "/exercises", api = exercises::MainFrontendExercisesApiDoc),
+        (path = "/feedback", api = feedback::MainFrontendFeedbackApiDoc),
+        (path = "/global-stats", api = global_stats::MainFrontendGlobalStatsApiDoc),
+        (path = "/glossary", api = glossary::MainFrontendGlossaryApiDoc),
+        (path = "/oauth", api = oauth::MainFrontendOauthApiDoc),
+        (path = "/org", api = org::MainFrontendOrgApiDoc),
+        (path = "/organizations", api = organizations::MainFrontendOrganizationsApiDoc),
+        (path = "/page_audio", api = page_audio_files::MainFrontendPageAudioApiDoc),
+        (path = "/pages", api = pages::MainFrontendPagesApiDoc),
+        (path = "/playground_examples", api = playground_examples::MainFrontendPlaygroundExamplesApiDoc),
+        (path = "/playground-views", api = playground_views::MainFrontendPlaygroundViewsApiDoc),
+        (path = "/proposed-edits", api = proposed_edits::MainFrontendProposedEditsApiDoc),
+        (path = "/regradings", api = regradings::MainFrontendRegradingsApiDoc),
+        (path = "/roles", api = roles::MainFrontendRolesApiDoc),
+        (path = "/status", api = status::MainFrontendStatusApiDoc),
+        (path = "/teacher-grading-decisions", api = teacher_grading_decisions::MainFrontendTeacherGradingDecisionsApiDoc),
+        (path = "/time", api = time::MainFrontendTimeApiDoc),
+        (path = "/user-details", api = user_details::MainFrontendUserDetailsApiDoc),
+        (path = "/users", api = users::MainFrontendUsersApiDoc)
+    )
+)]
+pub struct MainFrontendRoutesApiDoc;
 
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/chapters").configure(chapters::_add_routes))
         .service(web::scope("/course-instances").configure(course_instances::_add_routes))
+        .service(web::scope("/course-plans").configure(course_designer::_add_routes))
         .service(web::scope("/course-modules").configure(course_modules::_add_routes))
         .service(web::scope("/courses").configure(courses::_add_routes))
         .service(web::scope("/email-templates").configure(email_templates::_add_routes))
@@ -77,5 +121,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/oauth").configure(oauth::_add_routes))
         .service(web::scope("/chatbots").configure(chatbots::_add_routes))
         .service(web::scope("/chatbot-models").configure(chatbot_models::_add_routes))
+        .service(web::scope("/time").configure(time::_add_routes))
         .service(web::scope("/status").configure(status::_add_routes));
 }

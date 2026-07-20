@@ -1,0 +1,157 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE regradings\nSET regrading_started_at = CASE\n    WHEN regrading_started_at IS NULL THEN now()\n    ELSE regrading_started_at\n  END\nWHERE regrading_completed_at IS NULL\n  AND deleted_at IS NULL\nRETURNING *\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "regradings",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "regradings",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "regradings",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "regrading_started_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "regradings",
+            "name": "regrading_started_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "regrading_completed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "regradings",
+            "name": "regrading_completed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "total_grading_progress",
+        "type_info": {
+          "Custom": {
+            "name": "grading_progress",
+            "kind": {
+              "Enum": [
+                "fully-graded",
+                "pending",
+                "pending-manual",
+                "failed",
+                "not-ready"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "regradings",
+            "name": "total_grading_progress"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "regradings",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "error_message",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "regradings",
+            "name": "error_message"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "user_points_update_strategy",
+        "type_info": {
+          "Custom": {
+            "name": "user_points_update_strategy",
+            "kind": {
+              "Enum": [
+                "can-add-points-but-cannot-remove-points",
+                "can-add-points-and-can-remove-points"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "regradings",
+            "name": "user_points_update_strategy"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "regradings",
+            "name": "user_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "cf5fc4244281d06a4ea704794d02f04b2962ab821c44cb4a4604be5744bf6b19"
+}

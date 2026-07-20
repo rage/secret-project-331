@@ -1,0 +1,137 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM course_module_completion_registered_to_study_registries\nWHERE study_registry_registrar_id = $1\n  AND course_module_completion_id = ANY($2)\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "study_registry_registrar_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "study_registry_registrar_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "real_student_number",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "real_student_number"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "75a997beb22a03b138ce3bd8edc463b3cebfb3e95b9f6bac03fc0f141d34f57a"
+}

@@ -1,15 +1,12 @@
 import { deepStrictEqual } from "assert"
 
-import { ExerciseAttributes } from "../../src/blocks/Exercise"
-import { ExerciseSlideAttributes } from "../../src/blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../../src/blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
-import {
-  denormalizeDocument,
-  normalizeDocument,
-  UnnormalizedDocument,
-} from "../../src/utils/documentSchemaProcessor"
+import type { CmsPageUpdate } from "@/generated/api"
 
-import { CmsPageUpdate } from "@/shared-module/common/bindings"
+import type { ExerciseAttributes } from "../../src/blocks/Exercise"
+import type { ExerciseSlideAttributes } from "../../src/blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import type { ExerciseTaskAttributes } from "../../src/blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+import type { UnnormalizedDocument } from "../../src/utils/documentSchemaProcessor"
+import { denormalizeDocument, normalizeDocument } from "../../src/utils/documentSchemaProcessor"
 
 const exampleCMSPageUpdate: CmsPageUpdate = {
   content: [
@@ -98,6 +95,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
           weight: 0.3,
         },
       ],
+      teacher_reviews_answer_after_locking: true,
       use_course_default_peer_or_self_review_config: false,
     },
   ],
@@ -135,6 +133,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
   url_path: "/path/to/page",
   title: "Example page",
   chapter_id: "babb2322-8bdf-417f-be05-89b2263f4851",
+  hidden: false,
 }
 
 // Doing this separately so that we get type errors when the type changes
@@ -150,6 +149,7 @@ const exampleUnnormalizedDocumentExerciseAttributes: ExerciseAttributes = {
     '[{"id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","course_id":"","exercise_id":"dd46fb67-d168-4554-b912-0018f812166d","processing_strategy":"AutomaticallyGradeOrManualReviewByAverage","accepting_threshold":"0.5","peer_reviews_to_give":"1","peer_reviews_to_receive":"1"}]',
   peer_or_self_review_questions_config:
     '[{"id":"f3c8eadd-75ca-409f-b1c6-31db65701930","peer_or_self_review_config_id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","answer_required":"true","order_number":"0","question":"how about...","question_type":"Essay","weight":0}]',
+  teacher_reviews_answer_after_locking: true,
   use_course_default_peer_review: false,
 }
 
@@ -247,14 +247,15 @@ const exampleUnnormalizedDocument: UnnormalizedDocument = {
   title: "Example page",
   urlPath: "/path/to/page",
   chapterId: "babb2322-8bdf-417f-be05-89b2263f4851",
+  hidden: false,
 }
 
-test("We get the original document if we first denormalize and then normalize", async () => {
+test("We get the original document if we first denormalize and then normalize", () => {
   const res = normalizeDocument(denormalizeDocument(exampleCMSPageUpdate))
   deepStrictEqual(res, exampleCMSPageUpdate)
 })
 
-test("We get the original document if we first normalize and then denormalize", async () => {
+test("We get the original document if we first normalize and then denormalize", () => {
   const res = denormalizeDocument(normalizeDocument(exampleUnnormalizedDocument))
   deepStrictEqual(res, exampleUnnormalizedDocument)
 })

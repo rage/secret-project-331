@@ -7,18 +7,22 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
 import {
-  addTeacherGradingForExamSubmission,
-  fetchGradingInfo,
-  fetchSubmissionInfo,
-} from "@/services/backend/submissions"
-import { NewTeacherGradingDecision } from "@/shared-module/common/bindings"
+  addTeacherGradingForExamSubmissionMutation,
+  getExamUserExerciseStateInfoOptions,
+  getExerciseSlideSubmissionInfoOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type {
+  ExerciseSlideSubmissionInfo,
+  NewTeacherGradingDecision,
+} from "@/generated/api/types.generated"
+import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { assertNotNullOrUndefined, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 
 interface GradeExamAnswerProps {
@@ -28,6 +32,32 @@ interface GradeExamAnswerProps {
 const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps>> = ({
   submissionId,
 }) => {
+  const getSubmissionInfo = useQuery({
+    ...getExerciseSlideSubmissionInfoOptions({
+      path: {
+        submission_id: submissionId,
+      },
+    }),
+  })
+
+  if (!getSubmissionInfo.data?.exercise.exam_id) {
+    return null
+  }
+
+  return (
+    <LoadedGradeExamAnswerForm
+      examId={getSubmissionInfo.data.exercise.exam_id}
+      submissionId={submissionId}
+      submissionInfo={getSubmissionInfo.data}
+    />
+  )
+}
+
+const LoadedGradeExamAnswerForm: React.FC<{
+  examId: string
+  submissionId: string
+  submissionInfo: ExerciseSlideSubmissionInfo
+}> = ({ examId, submissionId, submissionInfo }) => {
   const { t } = useTranslation()
   const router = useRouter()
 
@@ -35,23 +65,20 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
   const [nextSubmissionId, setNextSubmissionId] = useState("")
   const paginationInfo = usePaginationInfo()
 
-  const getSubmissionInfo = useQuery({
-    queryKey: [`submission-${submissionId}`],
-    queryFn: () => fetchSubmissionInfo(submissionId),
-  })
-
-  const examId = getSubmissionInfo.data?.exercise.exam_id ?? ""
-  const exerciseId = getSubmissionInfo.data?.exercise.id ?? ""
-  const userId = getSubmissionInfo.data?.exercise_slide_submission.user_id ?? ""
-
   const getCurrentGradingInfo = useQuery({
-    queryKey: [`exercise-slide-submissions-${examId}-user-exercise-state-info`, exerciseId, userId],
-    queryFn: () => fetchGradingInfo(examId, exerciseId, userId),
-    enabled: getSubmissionInfo.isFetched,
+    ...getExamUserExerciseStateInfoOptions({
+      path: {
+        exam_id: examId,
+      },
+      query: {
+        exercise_id: submissionInfo.exercise.id,
+        user_id: submissionInfo.exercise_slide_submission.user_id,
+      },
+    }),
   })
 
   const getSubmissions = useExamSubmissionsInfo(
-    exerciseId,
+    submissionInfo.exercise.id,
     paginationInfo.page,
     paginationInfo.limit,
   )
@@ -71,19 +98,17 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
         getSubmissions.data.data.at(currentSubmissionIndex + 1)?.exercise_slide_submission.id ?? "",
       )
     } else {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setNextSubmissionId("lastAnswer")
     }
   }
 
-  const submitMutation = useToastMutation(
-    (update: NewTeacherGradingDecision) => {
-      return addTeacherGradingForExamSubmission(update)
-    },
+  const submitMutation = useToastMutationOptions(
+    addTeacherGradingForExamSubmissionMutation(),
     {
       notify: true,
       method: "PUT",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       errorMessage: "Cannot give more points than maximum points",
     },
     {
@@ -98,16 +123,18 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
     navigateToNext: boolean,
   ) => {
     const newGrading: NewTeacherGradingDecision = {
-      user_exercise_state_id: getCurrentGradingInfo.data?.id ?? "",
-      justification: data.justification,
+      user_exercise_state_id: assertNotNullOrUndefined(getCurrentGradingInfo.data?.id),
+      ...omitUndefined({ justification: data.justification }),
       hidden: true,
-      exercise_id: getSubmissionInfo.data?.exercise.id ?? "",
-      // eslint-disable-next-line i18next/no-literal-string
+      exercise_id: submissionInfo.exercise.id,
+      // oxlint-disable-next-line i18next/no-literal-string
       action: "CustomPoints",
       manual_points: Number(data.manual_points),
     }
 
-    await submitMutation.mutateAsync(newGrading)
+    await submitMutation.mutateAsync({
+      body: newGrading,
+    })
 
     if (navigateToNext) {
       router.push(submissionGradingRoute(nextSubmissionId))
@@ -157,7 +184,7 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
           `}
         >
           <h4>
-            {t("label-points")} / {getSubmissionInfo.data?.exercise.score_maximum}
+            {t("label-points")} / {submissionInfo.exercise.score_maximum}
           </h4>
           <TextField
             id={t("score")}

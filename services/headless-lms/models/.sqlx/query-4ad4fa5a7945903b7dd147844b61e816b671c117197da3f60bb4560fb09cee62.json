@@ -1,0 +1,100 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT chapters.name as \"chapter_name?\",\n  chapters.chapter_number as \"chapter_number?\",\n  courses.name as \"course_name?\",\n  courses.slug as \"course_slug?\",\n  chapters.front_page_id as \"chapter_front_page_id?\",\n  p2.url_path as \"chapter_front_page_url_path?\",\n  organizations.slug as \"organization_slug?\"\nFROM pages\n  LEFT JOIN chapters on pages.chapter_id = chapters.id\n  LEFT JOIN courses on pages.course_id = courses.id\n  LEFT JOIN pages p2 ON chapters.front_page_id = p2.id\n  LEFT JOIN organizations on courses.organization_id = organizations.id\nWHERE pages.id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chapter_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "chapter_number?",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "chapter_number"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "course_slug?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "slug"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "chapter_front_page_id?",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "front_page_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "chapter_front_page_url_path?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "url_path"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "organization_slug?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "organizations",
+            "name": "slug"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "4ad4fa5a7945903b7dd147844b61e816b671c117197da3f60bb4560fb09cee62"
+}

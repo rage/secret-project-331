@@ -1,6 +1,7 @@
 "use client"
 
-import { ComponentType, Suspense } from "react"
+import type { ComponentType } from "react"
+import { Suspense } from "react"
 
 import Spinner from "../components/Spinner"
 
@@ -12,7 +13,7 @@ export default function withSuspenseBoundary<T>(Component: ComponentType<T>): Co
 
     return (
       <Suspense fallback={FALLBACK}>
-        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+        {/* oxlint-disable-next-line typescript/ban-ts-comment */}
         {/* @ts-ignore: Shared module might have a different react version */}
         <Component {...(componentProps as T)} />
       </Suspense>

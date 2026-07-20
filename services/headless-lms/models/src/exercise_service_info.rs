@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use futures::future::BoxFuture;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exercise_services::{
@@ -21,6 +22,8 @@ pub struct ExerciseServiceInfo {
     pub model_solution_spec_endpoint_path: String,
     //#[serde(skip_serializing_if = "Option::is_none")]
     pub has_custom_view: bool,
+    pub csv_export_definitions_endpoint_path: Option<String>,
+    pub csv_export_answers_endpoint_path: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -35,13 +38,13 @@ pub struct PathInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialExerciseServiceInfo {
     pub exercise_iframe_url: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseServiceInfoApi {
     pub service_name: String,
     pub user_interface_iframe_path: String,
@@ -50,6 +53,10 @@ pub struct ExerciseServiceInfoApi {
     pub model_solution_spec_endpoint_path: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_custom_view: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub csv_export_definitions_endpoint_path: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub csv_export_answers_endpoint_path: Option<String>,
 }
 
 pub async fn insert(
@@ -123,15 +130,19 @@ INSERT INTO exercise_service_info(
     grade_endpoint_path,
     public_spec_endpoint_path,
     model_solution_spec_endpoint_path,
-    has_custom_view
+    has_custom_view,
+    csv_export_definitions_endpoint_path,
+    csv_export_answers_endpoint_path
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET user_interface_iframe_path = $2,
   grade_endpoint_path = $3,
   public_spec_endpoint_path = $4,
   model_solution_spec_endpoint_path = $5,
-  has_custom_view = $6
+  has_custom_view = $6,
+  csv_export_definitions_endpoint_path = $7,
+  csv_export_answers_endpoint_path = $8
 RETURNING *
     "#,
         exercise_service_id,
@@ -139,7 +150,9 @@ RETURNING *
         update.grade_endpoint_path,
         update.public_spec_endpoint_path,
         update.model_solution_spec_endpoint_path,
-        update.has_custom_view.unwrap_or_else(|| false)
+        update.has_custom_view.unwrap_or_else(|| false),
+        update.csv_export_definitions_endpoint_path.as_deref(),
+        update.csv_export_answers_endpoint_path.as_deref()
     )
     .fetch_one(conn)
     .await?;

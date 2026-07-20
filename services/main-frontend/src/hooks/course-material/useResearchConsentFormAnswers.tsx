@@ -3,9 +3,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
-import { fetchResearchFormAnswersWithUserId } from "@/services/course-material/backend"
+import { getCourseMaterialResearchConsentFormAnswersOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface UseResearchConsentFormAnswersOptions {
   enabled?: boolean
@@ -17,11 +17,19 @@ const useResearchConsentFormAnswers = (
 ) => {
   const { enabled = true } = options
   const loginState = useContext(LoginStateContext)
-  const query = useQuery({
-    queryKey: [`courses-${courseId}-research-consent-form-user-answer`],
-    queryFn: () => fetchResearchFormAnswersWithUserId(assertNotNullOrUndefined(courseId)),
-    enabled: loginState.signedIn === true && Boolean(courseId) && enabled,
-  })
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      enabled: loginState.signedIn === true && enabled,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCourseMaterialResearchConsentFormAnswersOptions({
+          path: {
+            course_id: value,
+          },
+        }),
+    }),
+  )
   return query
 }
 

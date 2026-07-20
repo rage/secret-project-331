@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct OtherDomainToCourseRedirection {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

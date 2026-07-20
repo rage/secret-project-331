@@ -1,4 +1,8 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
+
+import { respondToConfirmDialog } from "@/utils/dialogs"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 import { answerExercise } from "./peer-reviews/peer_review_utils"
 
@@ -73,17 +77,18 @@ test.describe("Teacher can set threshold for course", () => {
 
     // Now student 3 should see their results.
     await student3Page.reload()
-    await expect(student2Page.getByTestId("exercise-points")).toContainText("1/1")
-    await student2Page.getByText("Good job!").waitFor()
+    await expect(student3Page.getByTestId("exercise-points")).toContainText("1/1")
+    await student3Page.getByText("Good job!").waitFor()
 
     // Check if the cheaters table is rightly populated
     await teacherPage.reload()
     await teacherPage.getByRole("columnheader", { name: "Student ID" }).waitFor()
     await teacherPage.getByRole("columnheader", { name: "Completion time", exact: true }).waitFor()
-    await teacherPage
-      .getByText("7ba4beb1-abe8-4bad-8bb2-d012c55b310c")
-      .first()
-      .waitFor({ state: "visible" })
+    const targetStudentCell = teacherPage.getByRole("cell", {
+      name: /Student ID: 7ba4beb1-abe8-/,
+    })
+    const targetStudentRow = teacherPage.locator("tr").filter({ has: targetStudentCell })
+    await expect(targetStudentCell).toBeVisible()
     await teacherPage
       .getByText("bc403a82-1e8b-4274-acc8-d765648ef698")
       .first()
@@ -95,24 +100,47 @@ test.describe("Teacher can set threshold for course", () => {
     await student2Page.getByText("Welcome to...").waitFor()
     await expect(student2Page.getByText("Congratulations!")).toHaveCount(0)
 
-    // Navigate cheater's view and delete a suspected cheater
+    // Navigate cheater's view and dismiss a suspected cheater
     await teacherPage.goto(CHEATER_EDITOR_PAGE)
-    await teacherPage.getByText("Clear suspicion", { exact: true }).first().click()
-    await teacherPage.getByRole("tab", { name: "Archived" }).click()
-    await teacherPage
-      .getByText("7ba4beb1-abe8-4bad-8bb2-d012c55b310c")
-      .first()
-      .waitFor({ state: "visible" })
+    await waitForSuccessNotification(
+      teacherPage,
+      async () => {
+        await targetStudentRow.getByText("Dismiss suspicion", { exact: true }).click()
+      },
+      "Suspicion dismissed",
+    )
+    await teacherPage.getByRole("tab", { name: "Dismissed" }).click()
+    await expect(
+      teacherPage
+        .getByRole("row")
+        .filter({
+          has: teacherPage.getByRole("cell", { name: /Student ID: 7ba4beb1-abe8-/ }),
+        })
+        .first(),
+    ).toBeVisible()
 
-    // Teacher approve a suspected cheater
+    // Teacher confirms a suspected cheater is cheating. Confirming always asks for confirmation
+    // first (it fails the student's completions), so the dialog must be accepted before the
+    // mutation fires and the success toast appears.
     await teacherPage.getByRole("tab", { name: "Suspected students" }).click()
-    await teacherPage.getByText("Confirm cheating", { exact: true }).click()
+    await waitForSuccessNotification(
+      teacherPage,
+      async () => {
+        await teacherPage.getByText("Confirm cheating", { exact: true }).click()
+        await respondToConfirmDialog(teacherPage, true)
+      },
+      "Cheating confirmed",
+    )
 
-    // Ensure Congratulation block is not shown for suspected cheaters after teacher approves it
+    // The confirmed cheater now shows up under the "Confirmed cheating" tab
+    await teacherPage.getByRole("tab", { name: "Confirmed cheating" }).click()
+    await expect(teacherPage.getByRole("cell", { name: /Student ID:/ }).first()).toBeVisible()
+
+    // Ensure Congratulation block is not shown for suspected cheaters after teacher confirms it
     await student3Page.goto(
       "http://project-331.local/org/uh-cs/courses/course-for-suspected-cheaters",
     )
     await student3Page.getByText("Welcome to...").waitFor()
-    await expect(student2Page.getByText("Congratulations!")).toHaveCount(0)
+    await expect(student3Page.getByText("Congratulations!")).toHaveCount(0)
   })
 })

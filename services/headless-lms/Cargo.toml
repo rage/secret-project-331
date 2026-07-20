@@ -1,5 +1,6 @@
 [workspace]
 members = [
+  "base",
   "entrypoint",
   "server",
   "models",
@@ -14,12 +15,9 @@ resolver = "2"
 
 [workspace.package]
 version = "0.1.0"
-authors = [
-  "University of Helsinki <mooc@cs.helsinki.fi>",
-  "Henrik Nygren <nygrenh@gmail.com>",
-]
+authors = ["University of Helsinki <mooc@cs.helsinki.fi>", "Henrik Nygren <nygrenh@gmail.com>"]
 edition = "2024"
-rust-version = "1.92.0" # minimum required Rust version, update if you use a new API
+rust-version = "1.96.0" # minimum required Rust version, update if you use a new API
 license = "Apache-2.0"
 
 [profile.dev]
@@ -39,16 +37,29 @@ opt-level = 3
 debug = 1
 
 [workspace.dependencies]
-tokio = { version = "1.48.0", features = [
+# An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
+tokio = { version = "1.52.3", features = [
   "fs",
   "io-util",
   "sync",
   "parking_lot",
-  "rt-multi-thread"
+  "rt-multi-thread",
 ] }
 
-sqlx = { version = "0.8.6", features = [
+# Rustls is a modern TLS library written in Rust.
+rustls = { version = "0.23.41", default-features = false, features = ["ring"] }
+# Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
+hmac = "0.13.0"
+# Pure Rust implementation of the SHA-2 hash function family.
+sha2 = "0.11.0"
+
+# 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries.
+sqlx = { version = "0.9.0", default-features = false, features = [
   "postgres",
+  "macros",
+  "sqlx-toml",
+  "derive",
+  "migrate",
   "runtime-tokio",
   "tls-rustls",
   "uuid",
@@ -57,5 +68,9 @@ sqlx = { version = "0.8.6", features = [
 ] }
 
 # Utilities to work with `Stream` and `tokio`.
-tokio-stream = { version = "0.1.17", features = [ "io-util" ] }
+tokio-stream = { version = "0.1.18", features = ["io-util"] }
+# Secret value wrapper to avoid leaking secrets in logs and memory.
 secrecy = { version = "0.10.3", features = ["serde"] }
+
+# Code-first OpenAPI schema generation for shared utility structs used in request/response models.
+utoipa = { version = "5.5.0", features = ["chrono", "uuid"] }

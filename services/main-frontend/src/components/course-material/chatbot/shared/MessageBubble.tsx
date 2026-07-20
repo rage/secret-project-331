@@ -4,21 +4,25 @@ import { css } from "@emotion/css"
 import React, { useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 
+import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
+import { MATCH_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
+
 import ChatbotReferenceList from "./ChatbotReferenceList"
 import CitationPopovers from "./CitationPopovers"
 import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
-import ThinkingIndicator from "./ThinkingIndicator"
 import { LIGHT_GREEN } from "./styles"
-
-import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
-import { baseTheme } from "@/shared-module/common/styles"
-import { MATCH_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
+import ThinkingIndicator from "./ThinkingIndicator"
 
 export const renumberFilterCitations = (
   message: string,
   citations: ChatbotConversationMessageCitation[],
   isFromChatbot: boolean,
-) => {
+): {
+  filteredCitations: ChatbotConversationMessageCitation[]
+  citedDocs: number[]
+  citationNumberingMap: Map<number, number>
+} => {
   /** change the citation_number of the actually cited citations so that
   the first citation that appears in the msg is 1, the 2nd is 2, etc.
   and filter out citations that were not cited in the msg. */
@@ -27,7 +31,10 @@ export const renumberFilterCitations = (
     return { filteredCitations: [], citedDocs: [], citationNumberingMap: new Map() }
   }
 
-  let citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
+  let citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
+    parseInt(arr[1] ?? "", 10),
+  )
 
   // there might be hallucinated citations in the message :(
   // remove the hallucinated citations
@@ -37,8 +44,6 @@ export const renumberFilterCitations = (
   let citedDocsSet = new Set(citedDocs)
 
   let uniqueCitations = Array.from(citedDocsSet)
-
-  uniqueCitations = uniqueCitations.filter((v) => actualCitationNs.includes(v))
 
   let filteredCitations: ChatbotConversationMessageCitation[] = []
   let citationNumberingMap = new Map()
@@ -126,11 +131,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   }, [message, citations, isFromChatbot])
 
   const [processedMessage, processedCitations, citationNumberingMap] = useMemo(() => {
-    const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitationsResult
+    const { filteredCitations, citationNumberingMap: numberingMap } = renumberFilterCitationsResult
 
     let renderOption = !isFromChatbot
       ? MessageRenderType.User
-      : !citationsOpen || filteredCitations.length == 0
+      : !citationsOpen || filteredCitations.length === 0
         ? MessageRenderType.ChatbotNoCitations
         : MessageRenderType.ChatbotWithCitations
 
@@ -140,8 +145,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         citationButtonClicked={citationButtonClicked}
         currentTriggerId={triggerElementId}
         message={message}
-        citedDocs={citedDocs}
-        citationNumberingMap={citationNumberingMap}
+        citationNumberingMap={numberingMap}
         handleClick={(e) => {
           setCitationButtonClicked(true)
           triggerElement.current = e.currentTarget
@@ -151,7 +155,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       />
     )
 
-    return [renderedMessage, filteredCitations, citationNumberingMap]
+    return [renderedMessage, filteredCitations, numberingMap]
   }, [
     message,
     isFromChatbot,

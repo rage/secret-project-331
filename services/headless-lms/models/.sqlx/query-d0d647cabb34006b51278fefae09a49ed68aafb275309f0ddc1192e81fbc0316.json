@@ -6,72 +6,156 @@
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "created_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "created_at"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "updated_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "updated_at"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "deleted_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "deleted_at"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "course_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "course_id"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "exam_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "exam_id"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "referrer",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "referrer"
+          }
+        }
       },
       {
         "ordinal": 7,
         "name": "utm_source",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "utm_source"
+          }
+        }
       },
       {
         "ordinal": 8,
         "name": "utm_medium",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "utm_medium"
+          }
+        }
       },
       {
         "ordinal": 9,
         "name": "utm_campaign",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "utm_campaign"
+          }
+        }
       },
       {
         "ordinal": 10,
         "name": "utm_term",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "utm_term"
+          }
+        }
       },
       {
         "ordinal": 11,
         "name": "utm_content",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "utm_content"
+          }
+        }
       },
       {
         "ordinal": 12,
         "name": "num_visitors",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "num_visitors"
+          }
+        }
       },
       {
         "ordinal": 13,
         "name": "visit_date",
-        "type_info": "Date"
+        "type_info": "Date",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum_summary_by_courses",
+            "name": "visit_date"
+          }
+        }
       }
     ],
     "parameters": {

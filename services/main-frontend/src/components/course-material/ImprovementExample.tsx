@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -81,6 +81,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 500)
       return () => clearInterval(blinkInterval)
     }
+    return undefined
   }, [state.phase, state.caretVisible, updateState])
 
   // Initial → mouseMove after 1s
@@ -91,6 +92,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 1000)
       return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, updateState])
 
   // MouseMove → position cursor near the wrong word
@@ -109,6 +111,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 1000)
       return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, updateState])
 
   // Click animation → show caret
@@ -120,6 +123,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 300)
       return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, updateState])
 
   // Show caret → start deleting
@@ -131,6 +135,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 500)
       return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, updateState])
 
   // Deleting wrong word
@@ -141,13 +146,13 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
           updateState({ displayWord: state.displayWord.slice(0, -1) })
         }, 100)
         return () => clearInterval(interval)
-      } else {
-        const timeout = setTimeout(() => {
-          updateState({ phase: "typing" })
-        }, 400)
-        return () => clearTimeout(timeout)
       }
+      const timeout = setTimeout(() => {
+        updateState({ phase: "typing" })
+      }, 400)
+      return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, state.displayWord, updateState])
 
   // Typing correct word
@@ -158,13 +163,13 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
           updateState({ displayWord: correctPart.slice(0, state.displayWord.length + 1) })
         }, 100)
         return () => clearInterval(interval)
-      } else {
-        const timeout = setTimeout(() => {
-          resetAnimation()
-        }, 2000)
-        return () => clearTimeout(timeout)
       }
+      const timeout = setTimeout(() => {
+        resetAnimation()
+      }, 2000)
+      return () => clearTimeout(timeout)
     }
+    return undefined
   }, [state.phase, state.displayWord, correctPart, resetAnimation, updateState])
 
   return {

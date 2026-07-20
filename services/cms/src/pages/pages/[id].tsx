@@ -1,25 +1,27 @@
 "use client"
 
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
-import PageContext from "../../contexts/PageContext"
-import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
-import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
-
-import { fetchCourseById } from "@/services/backend/courses"
-import { CmsPageUpdate, Page } from "@/shared-module/common/bindings"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import type { CmsPageUpdate, Page } from "@/generated/api"
+import {
+  getCmsCourseOptions,
+  getCmsPageOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { updateCmsPage } from "@/generated/api/sdk.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+
+import PageContext from "../../contexts/PageContext"
+import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
 
 interface PagesProps {
   query: SimplifiedUrlQuery<"id">
@@ -32,14 +34,17 @@ const Pages = ({ query }: PagesProps) => {
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const queryClient = useQueryClient()
   const getPage = useQuery({
-    queryKey: [`page-${id}`],
+    ...optionalGeneratedQueryOptions({
+      value: id,
+      isReady: (pageId): pageId is string => Boolean(pageId),
+      build: (pageId) =>
+        getCmsPageOptions({
+          path: {
+            page_id: pageId,
+          },
+        }),
+    }),
     gcTime: 0,
-    queryFn: async () => {
-      const res = await fetchPageWithId(id)
-      // This only works when gCTime is set to 0
-      setNeedToRunMigrationsAndValidations(true)
-      return res
-    },
     select: (data) => {
       if (!isGutenbergBlockArray(data.page.content)) {
         throw new Error("Content is not a GutenbergBlock array")
@@ -53,21 +58,40 @@ const Pages = ({ query }: PagesProps) => {
           exercise_tasks: data.exercise_tasks,
           url_path: data.page.url_path,
           title: data.page.title,
-          chapter_id: data.page.chapter_id,
+          ...omitUndefined({ chapter_id: data.page.chapter_id }),
+          hidden: data.page.hidden,
         }).content,
       }
       return page
     },
   })
+  useEffect(() => {
+    if (getPage.isSuccess) {
+      setNeedToRunMigrationsAndValidations(true)
+    }
+  }, [getPage.isSuccess])
   const courseId = getPage.data?.course_id
-  const course = useQuery({
-    queryKey: ["courses", courseId],
-    queryFn: async () => fetchCourseById(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const course = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (resolvedCourseId): resolvedCourseId is string => Boolean(resolvedCourseId),
+      build: (resolvedCourseId) =>
+        getCmsCourseOptions({
+          path: {
+            course_id: resolvedCourseId,
+          },
+        }),
+    }),
+  )
 
   const mutate = useToastMutation(
-    (newPage: CmsPageUpdate) => updateExistingPage(id, newPage),
+    (newPage: CmsPageUpdate) =>
+      updateCmsPage({
+        path: {
+          page_id: id,
+        },
+        body: newPage,
+      }),
     {
       notify: true,
       dismissable: true,
@@ -77,19 +101,17 @@ const Pages = ({ query }: PagesProps) => {
     {
       onSuccess: (newData) => {
         // Refetch, setQueryData or invalidateQueries?
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         queryClient.setQueryData([`page-${id}`], newData)
       },
     },
   )
   return (
-    <>
-      {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
-      {getPage.isLoading && <Spinner variant={"medium"} />}
-      {getPage.isSuccess && (
-        <PageContext.Provider value={{ page: getPage.data }}>
+    <QueryResult query={getPage}>
+      {(page) => (
+        <PageContext.Provider value={{ page }}>
           <PageEditor
-            data={getPage.data}
+            data={page}
             courseCanAddChatbot={!!course.data?.can_add_chatbot}
             saveMutation={mutate}
             needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
@@ -97,7 +119,7 @@ const Pages = ({ query }: PagesProps) => {
           />
         </PageContext.Provider>
       )}
-    </>
+    </QueryResult>
   )
 }
 

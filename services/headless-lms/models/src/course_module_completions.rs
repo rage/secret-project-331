@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
 use futures::Stream;
+use utoipa::ToSchema;
 
 use crate::{prelude::*, study_registry_registrars::StudyRegistryRegistrar};
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema)]
+
 pub struct CourseModuleCompletion {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -27,7 +28,7 @@ pub struct CourseModuleCompletion {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseModuleAverage {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -42,7 +43,7 @@ pub struct CourseModuleAverage {
 
 // Define the CourseModulePointsAverage struct to match the result of the SQL query
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseModulePointsAverage {
     pub course_id: Uuid,
     pub average_points: Option<f32>,
@@ -66,7 +67,7 @@ impl CourseModuleCompletionGranter {
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewCourseModuleCompletion {
     pub course_id: Uuid,
     pub course_module_id: Uuid,
@@ -239,8 +240,8 @@ pub async fn get_by_ids_as_map(
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseModuleCompletionWithRegistrationInfo {
     /// When the student has attempted to register the completion.
     pub completion_registration_attempt_date: Option<DateTime<Utc>>,
@@ -256,6 +257,8 @@ pub struct CourseModuleCompletionWithRegistrationInfo {
     pub prerequisite_modules_completed: bool,
     /// Whether or not the completion has been registered to a study registry.
     pub registered: bool,
+    /// Whether or not the completion needs to be reviewed by the teacher.
+    pub needs_to_be_reviewed: bool,
     /// ID of the user for the completion.
     pub user_id: Uuid,
     // When the user completed the course
@@ -278,6 +281,7 @@ SELECT completions.completion_registration_attempt_date,
   completions.passed,
   completions.prerequisite_modules_completed,
   (registered.id IS NOT NULL) AS "registered!",
+  completions.needs_to_be_reviewed,
   completions.user_id,
   completions.completion_date
 FROM course_module_completions completions
@@ -540,6 +544,33 @@ WHERE course_module_id = $1
     Ok(res)
 }
 
+/// True if the user has at least one non-deleted, teacher-granted (manual) completion in the
+/// course. A manual completion means a teacher vouched for the student, which exempts them from
+/// automatic cheating suspicion for the whole course.
+pub async fn user_has_manual_completion_in_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        r#"
+SELECT EXISTS (
+  SELECT 1
+  FROM course_module_completions
+  WHERE user_id = $1
+    AND course_id = $2
+    AND completion_granter_user_id IS NOT NULL
+    AND deleted_at IS NULL
+) AS "exists!"
+        "#,
+        user_id,
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.exists)
+}
+
 pub async fn update_completion_registration_attempt_date(
     conn: &mut PgConnection,
     id: Uuid,
@@ -578,28 +609,6 @@ WHERE id = $2 AND deleted_at IS NULL
     Ok(res.rows_affected() > 0)
 }
 
-pub async fn update_passed_and_grade_status(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    user_id: Uuid,
-    passed: bool,
-    grade: i32,
-) -> ModelResult<bool> {
-    let res = sqlx::query!(
-        "
-UPDATE course_module_completions SET passed = $1, grade = $2
-WHERE user_id = $3 AND course_id = $4 AND deleted_at IS NULL
-    ",
-        passed,
-        grade,
-        user_id,
-        course_id
-    )
-    .execute(conn)
-    .await?;
-    Ok(res.rows_affected() > 0)
-}
-
 pub async fn update_needs_to_be_reviewed(
     conn: &mut PgConnection,
     id: Uuid,
@@ -612,6 +621,26 @@ WHERE id = $2 AND deleted_at IS NULL
         ",
         needs_to_be_reviewed,
         id
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
+}
+
+pub async fn update_needs_to_be_reviewed_by_course_and_user_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_id: Uuid,
+    needs_to_be_reviewed: bool,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE course_module_completions SET needs_to_be_reviewed = $1
+WHERE course_id = $2 AND user_id = $3 AND deleted_at IS NULL
+        ",
+        needs_to_be_reviewed,
+        course_id,
+        user_id,
     )
     .execute(conn)
     .await?;
@@ -631,7 +660,7 @@ pub async fn user_has_completed_course_module(
 
 /// Completion in the form that is recognized by authorized third party study registry registrars.
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct StudyRegistryCompletion {
     /// The date when the student completed the course. The value of this field is the date that will
     /// end up in the user's study registry as the completion date. If the completion is created
@@ -723,7 +752,7 @@ impl StudyRegistryCompletion {
 /// }
 /// ```
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct StudyRegistryGrade {
     pub scale: String,
     pub grade: String,
@@ -769,6 +798,9 @@ FROM course_module_completions
 WHERE course_module_id = ANY($1)
   AND prerequisite_modules_completed
   AND eligible_for_ects IS TRUE
+  -- Completions still awaiting suspected-cheater review are withheld from study-registry
+  -- registration until a teacher dismisses or confirms them.
+  AND needs_to_be_reviewed = FALSE
   AND deleted_at IS NULL
   AND id NOT IN (
     SELECT course_module_completion_id

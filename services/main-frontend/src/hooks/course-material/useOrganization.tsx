@@ -2,15 +2,22 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchOrganization } from "@/services/course-material/backend"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getCourseMaterialOrganizationOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const useOrganization = (organizationId: string | undefined | null) => {
-  const query = useQuery({
-    queryKey: ["organization", organizationId],
-    queryFn: () => fetchOrganization(assertNotNullOrUndefined(organizationId)),
-    enabled: !!organizationId,
-  })
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: organizationId,
+      isReady: (orgId): orgId is string => Boolean(orgId),
+      build: (orgId) =>
+        getCourseMaterialOrganizationOptions({
+          path: {
+            organization_id: orgId,
+          },
+        }),
+    }),
+  )
   return query
 }
 

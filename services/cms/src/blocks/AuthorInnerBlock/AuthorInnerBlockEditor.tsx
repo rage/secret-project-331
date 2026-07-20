@@ -1,8 +1,9 @@
 "use client"
 
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
+
+import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
 
 import BlockWrapper from "../BlockWrapper"
 

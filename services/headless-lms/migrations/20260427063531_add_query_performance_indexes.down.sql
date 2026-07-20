@@ -1,0 +1,15 @@
+CREATE INDEX IF NOT EXISTS page_history_page_id_created_at_idx ON page_history (page_id, created_at DESC)
+WHERE deleted_at IS NULL;
+
+DROP INDEX IF EXISTS page_history_page_id_created_at_id_idx;
+
+CREATE INDEX IF NOT EXISTS exercise_slide_submissions_user_id_exercise_slide_id_idx ON exercise_slide_submissions (user_id, exercise_slide_id);
+
+DROP INDEX IF EXISTS exercise_slide_submissions_user_id_exercise_slide_id_partial_idx;
+DROP INDEX IF EXISTS exercise_task_submissions_slide_submission_id_slide_id_idx;
+DROP INDEX IF EXISTS user_course_exercise_service_variables_user_id_course_id_idx;
+DROP INDEX IF EXISTS course_module_completions_user_id_course_id_idx;
+DROP INDEX IF EXISTS course_specific_consent_form_answers_course_id_user_id_idx;
+DROP INDEX IF EXISTS chatbot_conversation_messages_citations_conversation_id_idx;
+DROP INDEX IF EXISTS user_details_email_trgm_idx;
+DROP INDEX IF EXISTS user_details_search_helper_gist;

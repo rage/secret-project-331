@@ -21,6 +21,11 @@ if [ -f "headless-lms-entrypoint" ]; then
   exec ./headless-lms-entrypoint "$*"
 else
   # This happens in bin/dev
-  echo "\$ cargo run -- $*"
-  exec cargo run -- "$*"
+  # Note: intentionally no --package: a package-scoped build resolves features
+  # differently than the workspace-scoped `cargo build` baked into the dev image,
+  # which would force every pod to recompile the server crates on startup.
+  # A plain `cargo run` reuses the image's build (headless-lms-entrypoint is the
+  # only binary in the workspace, so the target is unambiguous).
+  echo "\$ cargo run --" "$@"
+  exec cargo run -- "$@"
 fi

@@ -1,8 +1,8 @@
 import { test } from "@playwright/test"
 
-import expectUrlPathWithRandomUuid from "../../utils/expect"
-
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import expectUrlPathWithRandomUuid from "../../utils/expect"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -10,9 +10,7 @@ test.use({
 test("exam list renders, can create exam", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.getByText("Exams").nth(1).click()
 

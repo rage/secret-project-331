@@ -8,17 +8,16 @@ import { LanguageTranslation, MagnifyingGlass } from "@vectopus/atlas-icons-reac
 import React, { useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UnifiedMenuItem } from "../hooks/types"
+import { getDir } from "@/shared-module/common/hooks/useLanguage"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import type { UnifiedMenuItem } from "../hooks/types"
 import { useLanguageMenuItems } from "../hooks/useLanguageMenuItems"
 import { useQuickActionsItems } from "../hooks/useQuickActionsItems"
 import { useUserMenuItems } from "../hooks/useUserMenuItems"
-
 import { MenuContent } from "./MenuContent"
 import { MenuHeader } from "./MenuHeader"
 import type { MobileMenuOverlayProps } from "./types"
-
-import { getDir } from "@/shared-module/common/hooks/useLanguage"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
   state,
@@ -73,13 +72,13 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
     // Search button
     if (enableSearch && courseId && currentPagePath) {
       items.push({
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         id: "mobile-search",
         type: "action",
         label: t("button-label-search-for-pages"),
         icon: <MagnifyingGlass />,
         onAction: () => {
-          const searchButton = document.getElementById("search-for-pages-button")
+          const searchButton = document.querySelector<HTMLElement>("#search-for-pages-button")
           if (searchButton) {
             searchButton.click()
           }
@@ -95,7 +94,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
       const currentLanguageName = currentLanguageItem?.nativeLabel || ""
 
       items.push({
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         id: "mobile-language-menu",
         type: "submenu",
         label: currentLanguageName,
@@ -103,7 +102,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
         lang: languageMenu.currentLanguage,
         dir: getDir(languageMenu.currentLanguage),
         submenuItems: languageMenu.items.map((langItem) => {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           const label = langItem.isSelected ? `${langItem.nativeLabel} ✓` : langItem.nativeLabel
           return {
             id: langItem.id,
@@ -133,26 +132,27 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
     // Login/Signup for non-signed-in users
     if (!userMenu.shouldShow) {
       const returnTo = currentPagePath || ""
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
 
-      items.push({
-        // eslint-disable-next-line i18next/no-literal-string
-        id: "mobile-signup",
-        type: "link",
-        label: t("create-new-account"),
-        href: signUpPathWithReturnTo,
-      })
-
-      items.push({
-        // eslint-disable-next-line i18next/no-literal-string
-        id: "mobile-login",
-        type: "link",
-        label: t("log-in"),
-        href: loginPathWithReturnTo,
-      })
+      items.push(
+        {
+          // oxlint-disable-next-line i18next/no-literal-string
+          id: "mobile-signup",
+          type: "link",
+          label: t("create-new-account"),
+          href: signUpPathWithReturnTo,
+        },
+        {
+          // oxlint-disable-next-line i18next/no-literal-string
+          id: "mobile-login",
+          type: "link",
+          label: t("log-in"),
+          href: loginPathWithReturnTo,
+        },
+      )
     }
 
     return items

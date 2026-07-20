@@ -20,6 +20,10 @@ mod integration_test;
 
 #[actix_web::test]
 async fn gets_and_registers_completions() {
+    if std::env::var_os("KUBERNETES_SERVICE_HOST").is_none() {
+        eprintln!("skipping: not running inside Kubernetes");
+        return;
+    }
     let base_url =
         std::env::var("BASE_URL").unwrap_or_else(|_| "http://project-331.local".to_string());
     let (actix, pool) = integration_test::init_actix().await;

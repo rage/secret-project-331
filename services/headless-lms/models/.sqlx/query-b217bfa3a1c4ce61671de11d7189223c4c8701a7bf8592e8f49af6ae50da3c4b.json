@@ -1,0 +1,115 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO generated_certificates (\n            user_id,\n            certificate_configuration_id,\n            name_on_certificate,\n            verification_id\n        )\n        VALUES ($1, $2, $3, $4)\n        RETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "name_on_certificate",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "name_on_certificate"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "verification_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "verification_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "certificate_configuration_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "certificate_configuration_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b217bfa3a1c4ce61671de11d7189223c4c8701a7bf8592e8f49af6ae50da3c4b"
+}

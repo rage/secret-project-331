@@ -1,0 +1,160 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ess.id,\n  ess.created_at,\n  ess.updated_at,\n  ess.deleted_at,\n  ess.exercise_slide_id,\n  ess.course_id,\n  ess.exam_id,\n  ess.exercise_id,\n  ess.user_id,\n  ess.user_points_update_strategy,\n  ess.flag_count\nFROM exercise_slide_submissions ess\n  JOIN exercises e ON e.id = ess.exercise_id\nWHERE ess.course_id = $1\n  AND e.course_id = $1\n  AND ess.user_id = ANY($2)\n  AND ess.exercise_id = ANY($3)\n  AND ess.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "exercise_slide_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "exercise_slide_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "exam_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "exam_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "user_points_update_strategy",
+        "type_info": {
+          "Custom": {
+            "name": "user_points_update_strategy",
+            "kind": {
+              "Enum": [
+                "can-add-points-but-cannot-remove-points",
+                "can-add-points-and-can-remove-points"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "user_points_update_strategy"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "flag_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "flag_count"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "cba6065c07dfe3f1c8f31b0620c64ddc058e5d2f0d37ec17d5e980a00ee80688"
+}

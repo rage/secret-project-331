@@ -1,5 +1,6 @@
-/* eslint-disable playwright/no-conditional-in-test */
-import { expect, Page, test } from "@playwright/test"
+/* oxlint-disable playwright/no-conditional-in-test */
+import type { Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import {
   ALERT_DIALOG_OK_BUTTON_TEST_ID,
@@ -53,6 +54,7 @@ export async function respondToConfirmDialog(
   expectedTitle?: string,
 ): Promise<void> {
   const action = confirm ? "Confirm" : "Cancel"
+
   await test.step(`Respond to confirm dialog - ${action}`, async () => {
     const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
     await dialog.waitFor()
@@ -89,6 +91,7 @@ export async function fillPromptDialog(
   expectedTitle?: string,
 ): Promise<void> {
   const action = submit ? "Submit" : "Cancel"
+
   await test.step(`Fill prompt dialog - ${action}`, async () => {
     const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
     await dialog.waitFor()

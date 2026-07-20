@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. "$(dirname "$0")/ensure-dev-path.sh"
+
 # Makes the check faster, and the database does not have to be running to commit
 export SQLX_OFFLINE=1
 

@@ -2,14 +2,16 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchOrganizationDuplicatableCourses } from "../services/backend/organizations"
-
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getOrganizationDuplicatableCoursesOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useOrganizationDuplicatableCourses = (organizationId: string | null) => {
   const getDuplicatableCourses = useQuery({
-    queryKey: [`organization-duplicatable-courses`, organizationId],
-    queryFn: () => fetchOrganizationDuplicatableCourses(assertNotNullOrUndefined(organizationId)),
+    ...getOrganizationDuplicatableCoursesOptions({
+      path: {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- enabled guard ensures organizationId is set when it runs
+        organization_id: organizationId!,
+      },
+    }),
     enabled: !!organizationId,
   })
 

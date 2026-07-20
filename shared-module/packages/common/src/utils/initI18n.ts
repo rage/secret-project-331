@@ -5,7 +5,7 @@ import { initReactI18next } from "react-i18next"
 // One of the great powers of Next.js is that it allows us to choose our preferred rendering strategy for each page.
 // next-i18next requires either `getStaticProps` or `getServerSideProps` on each page, and we don't want to limit ourselves to those two options.
 const initI18n = (defaultNS: string): typeof i18n => {
-  // eslint-disable-next-line import/no-named-as-default-member
+  // oxlint-disable-next-line import/no-named-as-default-member
   i18n
     .use(initReactI18next) // passes i18n down to react-i18next
     .use({
@@ -19,9 +19,13 @@ const initI18n = (defaultNS: string): typeof i18n => {
           // this does webpack code splitting, so that we only load the language and the namespace we need
           const resources = await import(`../locales/${language}/${namespace}.json`)
           callback(null, resources)
-        } catch (error) {
-          // @ts-expect-error: checks for existance of the field
-          if (error.code === "MODULE_NOT_FOUND") {
+        } catch (error: unknown) {
+          if (
+            error !== null &&
+            typeof error === "object" &&
+            "code" in error &&
+            (error as { code: string }).code === "MODULE_NOT_FOUND"
+          ) {
             callback(null, {})
             return
           }

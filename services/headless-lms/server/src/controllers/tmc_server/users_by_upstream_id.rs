@@ -11,7 +11,7 @@ use crate::{
     },
     prelude::*,
 };
-use headless_lms_utils::tmc::TmcClient;
+use headless_lms_utils::services::tmc::TmcClient;
 use models::users::User;
 
 /**
@@ -40,7 +40,12 @@ pub async fn get_user_by_upstream_id(
             .map(|uuid| uuid.to_string())
             .unwrap_or_else(|| "None (will generate new UUID)".to_string())
     );
-    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut conn, tmc_user).await?;
+    let user = get_or_create_user_from_tmc_mooc_fi_response(
+        &mut conn,
+        tmc_user,
+        tmc_client.get_admin_access_token(),
+    )
+    .await?;
     info!(
         "Successfully got user details from mooc.fi for user {}",
         user.id

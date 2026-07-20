@@ -2,15 +2,17 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchOrganizationBySlug } from "../services/backend/organizations"
-
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getOrganizationBySlugOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 const useOrganizationBySlug = (organizationSlug: string | null) => {
   return useQuery({
-    queryKey: [`organization-${organizationSlug}`],
-    queryFn: () => fetchOrganizationBySlug(assertNotNullOrUndefined(organizationSlug)),
-    enabled: organizationSlug !== null,
+    ...getOrganizationBySlugOptions({
+      path: {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- enabled guard ensures organizationSlug is set when it runs
+        organization_slug: organizationSlug!,
+      },
+    }),
+    enabled: !!organizationSlug,
   })
 }
 

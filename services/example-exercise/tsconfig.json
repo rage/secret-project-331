@@ -6,36 +6,33 @@
     "target": "esnext",
     "module": "esnext",
     "jsx": "react-jsx",
-    "lib": ["dom", "es2017"],
-    "typeRoots": ["types", "./shared-module/types", "./node_modules/@types"],
-    "moduleResolution": "node",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "typeRoots": ["types", "./node_modules/@types"],
+    "moduleResolution": "bundler",
     "allowJs": true,
     "noEmit": true,
     "strict": true,
-    "allowSyntheticDefaultImports": true,
+    "exactOptionalPropertyTypes": true,
     "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "removeComments": false,
-    "preserveConstEnums": true,
-    "sourceMap": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "verbatimModuleSyntax": true,
+    "incremental": true
   },
   "exclude": ["node_modules", "src/shared-module"],
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/env.d.ts",
+    "rsbuild.config.ts",
+    "vitest.config.ts"
   ]
 }

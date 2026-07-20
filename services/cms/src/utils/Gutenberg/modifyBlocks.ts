@@ -1,4 +1,4 @@
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 const UNCOMMON_SPACES_REGEX = /[\u00A0\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/g
 
@@ -6,8 +6,10 @@ export const modifyBlocks = (
   blocks: BlockInstance[],
   supportedBlocks: string[],
 ): BlockInstance[] => {
-  const modifiedBlocks = blocks.map((block) => {
-    if (supportedBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined) {
+  return blocks.map((block) => {
+    const innerBlocks = block.innerBlocks ?? []
+
+    if (!supportedBlocks.some((supportedBlock) => supportedBlock === block.name)) {
       return {
         clientId: block.clientId,
         name: "moocfi/unsupported-block-type",
@@ -15,11 +17,17 @@ export const modifyBlocks = (
         attributes: { ...block.attributes, originalBlockJson: block },
         innerBlocks: [],
       }
-    } else {
+    }
+
+    if (innerBlocks.length === 0) {
       return block
     }
+
+    return {
+      ...block,
+      innerBlocks: modifyBlocks(innerBlocks, supportedBlocks),
+    }
   })
-  return modifiedBlocks
 }
 
 /**

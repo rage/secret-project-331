@@ -5,9 +5,9 @@ import { BlockIcon } from "@wordpress/block-editor"
 import { ColorPalette, PanelBody, Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const placeHolderFixHeightStyles = css`
   min-height: unset !important;
@@ -35,9 +35,9 @@ interface BackgroundColorCustomizerPropsWithDefaultAttributeName {
 interface BackgroundColorCustomizerPropsWithCustomAttributeName {
   customAttributeName: string
   // Not worth it to make generic over the custom attribute name
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   attributes: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   setAttributes: (attributes: any) => void
   defaultBackgroundColor: string
   customTitle?: string
@@ -51,7 +51,7 @@ const BackgroundColorCustomizer: React.FC<
   React.PropsWithChildren<BackgroundColorCustomizerProps>
 > = ({ attributes, setAttributes, defaultBackgroundColor, customAttributeName, customTitle }) => {
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const attributeName = customAttributeName ? customAttributeName : "backgroundColor"
   return (
     <PanelBody title={customTitle ?? t("background")} initialOpen={false}>

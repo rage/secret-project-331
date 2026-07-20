@@ -7,18 +7,27 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PermissionPage } from "@/components/PermissionPage"
-import { fetchExam } from "@/services/backend/exams"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { getExamOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const ExamPermissions: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
 
-  const exam = useQuery({ queryKey: [`exam-${id}`], queryFn: () => fetchExam(id) })
+  const exam = useQuery({
+    ...getExamOptions({
+      path: {
+        id,
+      },
+    }),
+  })
+
+  usePageTitle(joinTitleSegments([t("link-permissions"), exam.data?.name]), { order: 10 })
 
   return (
     <div
@@ -29,22 +38,22 @@ const ExamPermissions: React.FC = () => {
         }
       `}
     >
-      {exam.isLoading && <Spinner variant="large" />}
-      {exam.isError && <ErrorBanner variant="readOnly" error={exam.error} />}
-      {exam.isSuccess && (
-        <>
-          <h1>
-            {t("roles-for-exam")} {exam.data.name}
-          </h1>
-          <PermissionPage
-            domain={{
-              // eslint-disable-next-line i18next/no-literal-string
-              tag: "Exam",
-              id: exam.data.id,
-            }}
-          />
-        </>
-      )}
+      <QueryResult query={exam}>
+        {(data) => (
+          <>
+            <h1>
+              {t("roles-for-exam")} {data.name}
+            </h1>
+            <PermissionPage
+              domain={{
+                // oxlint-disable-next-line i18next/no-literal-string
+                tag: "Exam",
+                id: data.id,
+              }}
+            />
+          </>
+        )}
+      </QueryResult>
     </div>
   )
 }

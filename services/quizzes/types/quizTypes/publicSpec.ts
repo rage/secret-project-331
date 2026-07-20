@@ -1,4 +1,4 @@
-import { DisplayDirection, multipleChoiceMultipleOptionsGradingPolicy } from "./privateSpec"
+import type { DisplayDirection, multipleChoiceMultipleOptionsGradingPolicy } from "./privateSpec"
 
 export interface PublicSpecQuiz {
   version: "2"

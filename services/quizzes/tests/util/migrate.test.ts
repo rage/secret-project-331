@@ -1,6 +1,17 @@
 import { migrateQuiz } from "../../src/util/migrate"
 
 describe("private spec migration", () => {
+  let realConsoleLog: typeof console.log
+
+  beforeEach(() => {
+    realConsoleLog = console.log
+    console.log = () => {}
+  })
+
+  afterEach(() => {
+    console.log = realConsoleLog
+  })
+
   test("migrates success and failure messages from old quizzes", () => {
     const quiz = {
       ...OLD_QUIZ_SNAPSHOT,
@@ -11,10 +22,10 @@ describe("private spec migration", () => {
     }
     const migrated = migrateQuiz(quiz)
     expect(
-      migrated.items[0].options.find((x) => x.order === 0)?.messageAfterSubmissionWhenSelected,
+      migrated.items[0]?.options.find((x) => x.order === 0)?.messageAfterSubmissionWhenSelected,
     ).toBe("This is a success message for correct option that should be migrated.")
     expect(
-      migrated.items[0].options.find((x) => x.order === 1)?.messageAfterSubmissionWhenSelected,
+      migrated.items[0]?.options.find((x) => x.order === 1)?.messageAfterSubmissionWhenSelected,
     ).toBe("This is failure message for incorrect option that should be migrated.")
   })
 
@@ -27,11 +38,11 @@ describe("private spec migration", () => {
       })),
     }
     const migrated = migrateQuiz(quiz)
-    expect(migrated.items[0].options.length).toBe(2)
-    migrated.items[0].options.forEach((x) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(migrated.items[0]?.options.length).toBe(2)
+    migrated.items[0]?.options.forEach((x) => {
+      // oxlint-disable-next-line typescript/no-explicit-any
       expect((x as any).successMessage).toBeUndefined()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       expect((x as any).failureMessage).toBeUndefined()
     })
   })
@@ -49,8 +60,8 @@ describe("private spec migration", () => {
       })),
     }
     const migrated = migrateQuiz(quiz)
-    expect(migrated.items[0].options.length).toBe(2)
-    migrated.items[0].options.forEach((x) => {
+    expect(migrated.items[0]?.options.length).toBe(2)
+    migrated.items[0]?.options.forEach((x) => {
       expect(x.messageAfterSubmissionWhenSelected).toBe("Already migrated value")
     })
   })

@@ -1,0 +1,140 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT * FROM pending_roles\nWHERE course_instance_id = $1\nAND deleted_at IS NULL\nAND expires_at > NOW()\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pending_roles",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "pending_roles",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "pending_roles",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "pending_roles",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "user_email",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pending_roles",
+            "name": "user_email"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "role",
+        "type_info": {
+          "Custom": {
+            "name": "user_role",
+            "kind": {
+              "Enum": [
+                "admin",
+                "assistant",
+                "teacher",
+                "reviewer",
+                "course_or_exam_creator",
+                "material_viewer",
+                "teaching_and_learning_services",
+                "stats_viewer"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "pending_roles",
+            "name": "role"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pending_roles",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "course_instance_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pending_roles",
+            "name": "course_instance_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "expires_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "pending_roles",
+            "name": "expires_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "32be8ea42fe2dfd2b3e3f861f77fc0bd5b318b2f74aa06df7e0713e28cedb5f9"
+}

@@ -1,7 +1,8 @@
 "use client"
 
 import styled from "@emotion/styled"
-import { FocusEvent, ReactNode, useId, useRef, useState } from "react"
+import type { FocusEvent, ReactNode } from "react"
+import { useId, useRef, useState } from "react"
 import { useHover } from "react-aria"
 import {
   Dialog,
@@ -13,11 +14,12 @@ import {
 } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
 import { TooltipBox } from "./TooltipBox"
 
-import { baseTheme } from "@/shared-module/common/styles"
-
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const StyledButton = styled(ReactAriaButton)`
   text-decoration: underline;
   border: none;
@@ -115,7 +117,7 @@ export const GlossaryTriggerNPopover = ({
         <span {...hoverProps}>
           <StyledButton
             ref={buttonRef}
-            className={className}
+            {...omitUndefined({ className })}
             data-popover-open={popoverOpen}
             // Open the popover on press start so it appears immediately
             // when TooltipTrigger hides the tooltip on pointer/key down.

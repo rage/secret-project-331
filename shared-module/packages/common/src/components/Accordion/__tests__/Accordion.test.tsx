@@ -6,6 +6,30 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import { AccordionProvider, useAccordionContext } from "../accordionContext"
 import Accordion from "../index"
 
+const AccordionWithControls = () => {
+  const { expandAll, collapseAll } = useAccordionContext()
+  return (
+    <div>
+      <div>
+        <button onClick={expandAll}>Expand All</button>
+        <button onClick={collapseAll}>Collapse All</button>
+      </div>
+      <Accordion>
+        <details>
+          <summary>First Accordion</summary>
+          <div>Content</div>
+        </details>
+      </Accordion>
+      <Accordion>
+        <details>
+          <summary>Second Accordion</summary>
+          <div>Content 2</div>
+        </details>
+      </Accordion>
+    </div>
+  )
+}
+
 describe("DetailAccordion", () => {
   it("renders accordion with summary and content", () => {
     render(
@@ -37,30 +61,6 @@ describe("DetailAccordion", () => {
 
   describe("with AccordionProvider", () => {
     it("integrates with context for expand/collapse functionality", () => {
-      const AccordionWithControls = () => {
-        const { expandAll, collapseAll } = useAccordionContext()
-        return (
-          <div>
-            <div>
-              <button onClick={expandAll}>Expand All</button>
-              <button onClick={collapseAll}>Collapse All</button>
-            </div>
-            <Accordion>
-              <details>
-                <summary>First Accordion</summary>
-                <div>Content</div>
-              </details>
-            </Accordion>
-            <Accordion>
-              <details>
-                <summary>Second Accordion</summary>
-                <div>Content 2</div>
-              </details>
-            </Accordion>
-          </div>
-        )
-      }
-
       render(
         <AccordionProvider>
           <AccordionWithControls />

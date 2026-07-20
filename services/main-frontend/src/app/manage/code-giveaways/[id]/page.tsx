@@ -6,45 +6,44 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CodeGiveawayCode from "@/components/page-specific/manage/code-giveaways/CodeGiveawayCode"
-import ImportCodesForm from "@/components/page-specific/manage/code-giveaways/ImportCodesForm"
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import { fetchCodeGiveawayById, fetchCodesByCodeGiveawayId } from "@/services/backend/codeGiveaways"
+import {
+  getCodeGiveawayByIdOptions,
+  getCodeGiveawayCodesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
+import { QueryResults } from "@/shared-module/components"
+
+import CodeGiveawayCode from "./CodeGiveawayCode"
+import ImportCodesForm from "./ImportCodesForm"
 
 const CodeGiveawayPage = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const [importDialogOpen, setImportDialogOpen] = useState(false)
-  const codeGiveawayQuery = useQuery({
-    queryKey: ["code-giveaway", id],
-    queryFn: () => fetchCodeGiveawayById(id!.toString()),
-  })
+  const codeGiveawayQuery = useQuery(
+    getCodeGiveawayByIdOptions({
+      path: {
+        id,
+      },
+    }),
+  )
+
+  usePageTitle(codeGiveawayQuery.data?.name ?? null)
 
   const [revealCodes, setRevealCodes] = useState(false)
 
-  const codeGiveawayCodesQuery = useQuery({
-    queryKey: ["code-giveaway-codes", id],
-    queryFn: () => fetchCodesByCodeGiveawayId(id!.toString()),
-  })
+  const codeGiveawayCodesQuery = useQuery(
+    getCodeGiveawayCodesOptions({
+      path: {
+        id,
+      },
+    }),
+  )
 
-  if (codeGiveawayQuery.isLoading || codeGiveawayCodesQuery.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (codeGiveawayQuery.isError || codeGiveawayCodesQuery.isError) {
-    return (
-      <ErrorBanner
-        variant="readOnly"
-        error={codeGiveawayQuery.error || codeGiveawayCodesQuery.error}
-      />
-    )
-  }
-
-  return (
+  const renderPage = (name: string, codes: typeof codeGiveawayCodesQuery.data) => (
     <>
       <h1
         className={css`
@@ -54,7 +53,7 @@ const CodeGiveawayPage = () => {
           font-weight: bold;
         `}
       >
-        {t("heading-code-giveaway-name", { name: codeGiveawayQuery.data?.name ?? "" })}
+        {t("heading-code-giveaway-name", { name })}
       </h1>
 
       <div
@@ -69,6 +68,7 @@ const CodeGiveawayPage = () => {
           <Button
             size="medium"
             variant="primary"
+            type="button"
             className={css`
               margin-top: 1rem;
             `}
@@ -86,8 +86,8 @@ const CodeGiveawayPage = () => {
           </FullWidthTableRow>
         </thead>
         <tbody>
-          {codeGiveawayCodesQuery.data &&
-            codeGiveawayCodesQuery.data.map((code) => (
+          {codes &&
+            codes.map((code) => (
               <CodeGiveawayCode key={code.id} code={code} revealed={revealCodes} />
             ))}
         </tbody>
@@ -96,7 +96,7 @@ const CodeGiveawayPage = () => {
         {t("button-text-import")}
       </Button>
       <ImportCodesForm
-        codeGiveawayId={id!.toString()}
+        codeGiveawayId={id.toString()}
         dialogOpen={importDialogOpen}
         setDialogOpen={setImportDialogOpen}
         onCreated={() => {
@@ -104,6 +104,14 @@ const CodeGiveawayPage = () => {
         }}
       />
     </>
+  )
+
+  return (
+    <QueryResults
+      queries={[codeGiveawayQuery, codeGiveawayCodesQuery] as const}
+      renderData={([codeGiveaway, codes]) => renderPage(codeGiveaway?.name ?? "", codes)}
+      treatEmptyAsData
+    />
   )
 }
 

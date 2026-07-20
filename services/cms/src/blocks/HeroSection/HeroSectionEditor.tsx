@@ -1,16 +1,9 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { InspectorControls, RichText } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import React, { useContext, useEffect } from "react"
-
-import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
-import PageContext from "../../contexts/PageContext"
-import BlockWrapper from "../BlockWrapper"
-
-import { HeroSectionAttributes } from "."
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -19,13 +12,19 @@ import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "@/shared-module/common/utils/constants"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+
+import type { HeroSectionAttributes } from "."
+import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
+import PageContext from "../../contexts/PageContext"
+import BlockWrapper from "../BlockWrapper"
 
 const HeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<HeroSectionAttributes>>
 > = ({ clientId, attributes, setAttributes }) => {
   const { title, subtitle, alignCenter, useDefaultTextForLabel, label } = attributes
-  const direction = alignCenter || alignCenter == undefined ? "center" : "left"
-  const defaultLabel = useDefaultTextForLabel == undefined || useDefaultTextForLabel
+  const direction = alignCenter || alignCenter === undefined ? "center" : "left"
+  const defaultLabel = useDefaultTextForLabel === undefined || useDefaultTextForLabel
 
   const path = useContext(PageContext)?.page?.url_path
   const formattedPath = path?.replace("-", " ").replace("/", "")
@@ -84,14 +83,14 @@ const HeroSectionEditor: React.FC<
               ${respondToOrLarger.md} {
                 opacity: ${partiallyTransparent ? "1" : "0.4"};
                 background-position: ${direction} ${backgroundVerticalAlignment};
-                background-size: ${direction == "center" ? "contain" : "22rem"};
-                left: ${direction == "center" ? "0" : "30px"};
+                background-size: ${direction === "center" ? "contain" : "22rem"};
+                left: ${direction === "center" ? "0" : "30px"};
               }
               ${respondToOrLarger.lg} {
                 opacity: ${partiallyTransparent ? "1" : "0.4"};
                 background-position: ${direction} ${backgroundVerticalAlignment};
-                background-size: ${direction == "center" ? "contain" : "26rem"};
-                left: ${direction == "center" ? "0" : "40px"};
+                background-size: ${direction === "center" ? "contain" : "26rem"};
+                left: ${direction === "center" ? "0" : "40px"};
               }
             }
           `}
@@ -120,7 +119,7 @@ const HeroSectionEditor: React.FC<
             `}
             tagName="h2"
             value={title}
-            onChange={(value) => {
+            onChange={(value: string) => {
               setAttributes({ title: value })
             }}
             placeholder={"Hero section title..."}

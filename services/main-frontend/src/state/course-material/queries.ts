@@ -1,13 +1,15 @@
 import type { QueryClient } from "@tanstack/react-query"
 import { atomWithQuery } from "jotai-tanstack-query"
 
-import { viewParamsAtom } from "./params"
-
+import { getCourseMaterialUserChapterLocksQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import {
-  fetchCoursePageByPath,
   fetchExam,
   fetchExamForTesting,
-} from "@/services/course-material/backend"
+  getCourseMaterialCoursePageByPath,
+} from "@/generated/course-material-api/sdk.generated"
+import { getCourseMaterialPageRequestHeaders } from "@/utils/courseMaterialPageRequestHeaders"
+
+import { viewParamsAtom } from "./params"
 
 const QUERY_KEYS = {
   MATERIAL_ROOT: "course-page",
@@ -36,7 +38,14 @@ export const materialQueryAtom = atomWithQuery((get) => {
       if (viewParams?.type !== "material") {
         throw new Error("Invalid query param")
       }
-      return fetchCoursePageByPath(materialCourseSlug, materialPath)
+      const data = await getCourseMaterialCoursePageByPath({
+        headers: getCourseMaterialPageRequestHeaders(),
+        path: {
+          course_slug: materialCourseSlug,
+          url_path: materialPath,
+        },
+      })
+      return data
     },
     enabled: isMaterialView,
     suspense: false,
@@ -56,7 +65,19 @@ export const examQueryAtom = atomWithQuery((get) => {
       if (viewParams?.type !== "exam") {
         throw new Error("Invalid query param")
       }
-      return isTestMode ? fetchExamForTesting(examId) : fetchExam(examId)
+      const data = isTestMode
+        ? await fetchExamForTesting({
+            path: {
+              id: examId,
+            },
+          })
+        : await fetchExam({
+            path: {
+              id: examId,
+            },
+          })
+
+      return data
     },
     enabled: isExamView,
     suspense: false,
@@ -72,7 +93,13 @@ export async function invalidateUserChapterLocks(
   courseId: string | null | undefined,
 ) {
   await queryClient.invalidateQueries({
-    queryKey: userChapterLocksQueryKey(courseId),
+    queryKey: courseId
+      ? getCourseMaterialUserChapterLocksQueryKey({
+          path: {
+            course_id: courseId,
+          },
+        })
+      : userChapterLocksQueryKey(courseId),
   })
 }
 

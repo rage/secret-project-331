@@ -2,17 +2,22 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { isPageChapterFrontPage } from "@/services/course-material/backend"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getCourseMaterialIsPageChapterFrontPageOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const useIsPageChapterFrontPage = (pageId: string | undefined) => {
-  const isChapterFrontPageQuery = useQuery({
-    queryKey: [`is-page-${pageId}-chapter-front-page`],
-    queryFn: () => {
-      return isPageChapterFrontPage(assertNotNullOrUndefined(pageId))
-    },
-    enabled: pageId !== undefined,
-  })
+  const isChapterFrontPageQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: pageId,
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
+        getCourseMaterialIsPageChapterFrontPageOptions({
+          path: {
+            current_page_id: id,
+          },
+        }),
+    }),
+  )
   return isChapterFrontPageQuery
 }
 

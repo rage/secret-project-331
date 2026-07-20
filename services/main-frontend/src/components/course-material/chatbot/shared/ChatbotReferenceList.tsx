@@ -6,12 +6,12 @@ import Link from "next/link"
 import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { LIGHT_GREEN } from "./styles"
-
-import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+
+import { LIGHT_GREEN } from "./styles"
 
 const referenceStyle = css`
   margin: 4px 4px 4px 0;
@@ -95,10 +95,9 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
       .filter((cit) => {
         if (citationFilteringSet.has(cit.document_url)) {
           return false
-        } else {
-          citationFilteringSet.add(cit.document_url)
-          return true
         }
+        citationFilteringSet.add(cit.document_url)
+        return true
       })
       .map((cit) => cit.id)
   }, [citations])
@@ -171,7 +170,7 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                         <b>{citationNumber}</b>{" "}
                         {cit.title.length <= citationTitleLen
                           ? citationTitle
-                          : // eslint-disable-next-line i18next/no-literal-string
+                          : // oxlint-disable-next-line i18next/no-literal-string
                             citationTitle.slice(0, citationTitleLen - 3).concat("\u2026")}
                       </>
                     )}

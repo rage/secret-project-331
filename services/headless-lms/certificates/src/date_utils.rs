@@ -1,9 +1,5 @@
 use chrono::{NaiveDate, NaiveTime};
-use headless_lms_utils::prelude::BackendError;
-use headless_lms_utils::{
-    icu4x::Icu4xBlob,
-    prelude::{UtilError, UtilErrorType, UtilResult},
-};
+use headless_lms_utils::icu4x::Icu4xBlob;
 use icu::calendar::Gregorian;
 use icu::datetime::fieldsets::YMD;
 use icu::datetime::{DateTimeFormatter, DateTimeFormatterPreferences};
@@ -13,6 +9,8 @@ use icu::time::DateTime;
 use icu_provider::prelude::BufferProvider;
 use icu_provider_adapters::fallback::LocaleFallbackProvider;
 use icu_provider_blob::BlobDataProvider;
+
+use crate::prelude::*;
 
 /// Converts a date to a localized string representation using ICU4X.
 ///
@@ -130,7 +128,6 @@ fn naive_date_to_icu_datetime(date: NaiveDate) -> UtilResult<DateTime<Gregorian>
 mod tests {
     use super::*;
     use chrono::NaiveDate;
-    use icu::locale::subtags::{Language, Region};
 
     /// Helper function to create an Icu4xBlob for testing if the `ICU4X_POSTCARD_PATH` environment variable is set
     fn try_create_test_icu4x_blob() -> Option<Icu4xBlob> {
@@ -257,13 +254,7 @@ mod tests {
     fn test_create_formatter_preferences() {
         let locale = "en-US".parse::<Locale>().unwrap();
         let preferences = create_formatter_preferences(&locale);
-        assert_eq!(
-            preferences.locale_preferences.language(),
-            Language::try_from_str("en").unwrap()
-        );
-        assert_eq!(
-            preferences.locale_preferences.region(),
-            Some(Region::try_from_str("US").unwrap())
-        );
+        let expected_locale_preferences = (&locale).into();
+        assert_eq!(preferences.locale_preferences, expected_locale_preferences);
     }
 }

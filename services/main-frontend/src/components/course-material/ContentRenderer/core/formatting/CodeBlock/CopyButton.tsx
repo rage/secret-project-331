@@ -1,16 +1,18 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { createPopper, Instance as PopperInstance } from "@popperjs/core"
+import type { Instance as PopperInstance } from "@popperjs/core"
+import { createPopper } from "@popperjs/core"
 import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { animated, SpringValue, useTransition } from "react-spring"
-
-import { useCopyHtmlContentToClipboard } from "./utils"
+import type { SpringValue } from "react-spring"
+import { animated, useTransition } from "react-spring"
 
 import CopyIcon from "@/img/course-material/copy.svg"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import { useCopyHtmlContentToClipboard } from "./utils"
 
 const COPY_STATUS = {
   DEFAULT: "default",
@@ -26,14 +28,15 @@ const ICON_COLORS = {
   ERROR: baseTheme.colors.red[300],
 } as const
 
+/** Plain code string to copy; uses newlines (CodeBlock passes cleanCode; br in source is already normalized). */
 interface CopyButtonProps {
   content: string
 }
 
 const buttonStyles = css`
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 26px;
+  right: 26px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -56,11 +59,11 @@ const buttonStyles = css`
     color: ${ICON_COLORS.ERROR};
   }
   &:hover:not([data-status="default"]) {
-    background-color: ${baseTheme.colors.gray[600]};
+    background-color: rgba(255, 255, 255, 0.08);
   }
   &:hover[data-status="default"] {
     transform: scale(1.1);
-    background-color: ${baseTheme.colors.gray[600]};
+    background-color: rgba(255, 255, 255, 0.08);
   }
 `
 
@@ -107,7 +110,7 @@ const AnimatedDiv = animated.div as React.FC<{
 }>
 
 /**
- * Button component that copies text to clipboard.
+ * Copies the given code string to clipboard. Content is expected to use newlines (upstream handles <br> → \n; escaped br stays literal).
  * Shows success/error state for 2 seconds after copy attempt.
  */
 export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
@@ -164,6 +167,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
       }, 2000)
       return () => clearTimeout(timer)
     }
+    return undefined
   }, [copyStatus])
 
   const handleCopy = useCallback(async () => {
@@ -214,7 +218,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
             ) : (
               <CopyIcon className={iconStyles} />
             )
-          // eslint-disable-next-line react/forbid-component-props
+          // oxlint-disable-next-line react/forbid-component-props
           return <AnimatedDiv style={style}>{IconComponent}</AnimatedDiv>
         })}
       </div>

@@ -7,12 +7,37 @@ use models::{
     teacher_grading_decisions::{self, TeacherGradingDecision},
     user_exercise_states,
 };
+use utoipa::{OpenApi, ToSchema};
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    enrollment,
+    enroll,
+    fetch_exam_for_user,
+    fetch_exam_for_testing,
+    update_show_exercise_answers,
+    reset_exam_progress,
+    end_exam_time
+))]
+pub(crate) struct CourseMaterialExamsApiDoc;
 
 /**
 GET /api/v0/course-material/exams/:id/enrollment
 */
+#[utoipa::path(
+    get,
+    path = "/{id}/enrollment",
+    operation_id = "fetchExamEnrollment",
+    tag = "course-material-exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Exam enrollment", body = Option<ExamEnrollment>)
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn enrollment(
     pool: web::Data<PgPool>,
@@ -25,14 +50,27 @@ pub async fn enrollment(
     token.authorized_ok(web::Json(enrollment))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
+
 pub struct IsTeacherTesting {
     pub is_teacher_testing: bool,
 }
 /**
 POST /api/v0/course-material/exams/:id/enroll
 */
+#[utoipa::path(
+    post,
+    path = "/{id}/enroll",
+    operation_id = "enrollInExam",
+    tag = "course-material-exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    request_body = IsTeacherTesting,
+    responses(
+        (status = 200, description = "Enrollment created", body = ())
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn enroll(
     pool: web::Data<PgPool>,
@@ -45,8 +83,8 @@ pub async fn enroll(
 
     // enroll if teacher is testing regardless of exams starting time
     if payload.is_teacher_testing {
-        exams::enroll(&mut conn, *exam_id, user.id, payload.is_teacher_testing).await?;
         let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+        exams::enroll(&mut conn, *exam_id, user.id, payload.is_teacher_testing).await?;
         return token.authorized_ok(web::Json(()));
     }
 
@@ -85,8 +123,8 @@ pub async fn enroll(
     ))
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct ExamData {
     pub id: Uuid,
     pub name: String,
@@ -99,8 +137,7 @@ pub struct ExamData {
     pub language: String,
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
 #[serde(tag = "tag")]
 pub enum ExamEnrollmentData {
     /// The student has enrolled to the exam and started it.
@@ -125,6 +162,18 @@ pub enum ExamEnrollmentData {
 /**
 GET /api/v0/course-material/exams/:id
 */
+#[utoipa::path(
+    get,
+    path = "/{id}",
+    operation_id = "fetchExam",
+    tag = "course-material-exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Exam data", body = ExamData)
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn fetch_exam_for_user(
     pool: web::Data<PgPool>,
@@ -338,6 +387,18 @@ GET /api/v0/course-material/exams/:id/fetch-exam-for-testing
 
 Fetches an exam for testing.
 */
+#[utoipa::path(
+    get,
+    path = "/testexam/{id}/fetch-exam-for-testing",
+    operation_id = "fetchExamForTesting",
+    tag = "course-material-exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Exam data for testing", body = ExamData)
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn fetch_exam_for_testing(
     pool: web::Data<PgPool>,
@@ -401,8 +462,8 @@ pub async fn fetch_exam_for_testing(
     }))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
+
 pub struct ShowExerciseAnswers {
     pub show_exercise_answers: bool,
 }
@@ -411,6 +472,19 @@ POST /api/v0/course-material/exams/:id/update-show-exercise-answers
 
 Used for testing an exam, updates wheter exercise answers are shown.
 */
+#[utoipa::path(
+    post,
+    path = "/testexam/{id}/update-show-exercise-answers",
+    operation_id = "updateShowExerciseAnswers",
+    tag = "course-material-exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    request_body = ShowExerciseAnswers,
+    responses(
+        (status = 200, description = "Show answers flag updated", body = ())
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn update_show_exercise_answers(
     pool: web::Data<PgPool>,
@@ -420,8 +494,8 @@ pub async fn update_show_exercise_answers(
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let show_answers = payload.show_exercise_answers;
-    exams::update_show_exercise_answers(&mut conn, *exam_id, user.id, show_answers).await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+    exams::update_show_exercise_answers(&mut conn, *exam_id, user.id, show_answers).await?;
     token.authorized_ok(web::Json(()))
 }
 
@@ -430,6 +504,18 @@ POST /api/v0/course-material/exams/:id/reset-exam-progress
 
 Used for testing an exam, resets exercise submissions and restarts the exam time.
 */
+#[utoipa::path(
+    post,
+    path = "/testexam/{id}/reset-exam-progress",
+    operation_id = "resetExamProgress",
+    tag = "course-material-exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Exam progress reset", body = ())
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn reset_exam_progress(
     pool: web::Data<PgPool>,
@@ -437,16 +523,14 @@ pub async fn reset_exam_progress(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
+    let mut tx = conn.begin().await?;
 
-    let started_at = Utc::now();
-    exams::update_exam_start_time(&mut conn, *exam_id, user.id, started_at).await?;
+    let token = authorize(&mut tx, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+    exams::reset_progress_by_exam_id_and_user_id(&mut tx, *exam_id, user.id).await?;
+    exams::update_exam_start_time(&mut tx, *exam_id, user.id, Utc::now()).await?;
 
-    models::exercise_slide_submissions::delete_exercise_submissions_with_exam_id_and_user_id(
-        &mut conn, *exam_id, user.id,
-    )
-    .await?;
+    tx.commit().await?;
 
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
     token.authorized_ok(web::Json(()))
 }
 
@@ -455,6 +539,18 @@ POST /api/v0/course-material/exams/:id/end-exam-time
 
 Used for marking the students exam as ended in the exam enrollment
 */
+#[utoipa::path(
+    post,
+    path = "/{id}/end-exam-time",
+    operation_id = "endExamTime",
+    tag = "course-material-exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Exam end time updated", body = ())
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn end_exam_time(
     pool: web::Data<PgPool>,

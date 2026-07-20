@@ -1,14 +1,14 @@
-import {
+import type {
   CourseMaterialExercise,
   StudentExerciseSlideSubmissionResult,
   UserCourseExerciseServiceVariable,
-} from "@/shared-module/common/bindings"
-import {
-  ExerciseIframeState,
-  UserVariablesMap,
-} from "@/shared-module/common/exercise-service-protocol-types"
+} from "@/generated/course-material-api/types.generated"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
+import type {
+  ExerciseIframeState,
+  UserVariablesMap,
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 export interface ExerciseDownloadedAction {
   type: "exerciseDownloaded"
@@ -42,14 +42,14 @@ function userVariableListToMap(list: UserCourseExerciseServiceVariable[]): UserV
 }
 
 export default function exerciseBlockPostThisStateToIFrameReducer(
-  prev: Array<ExerciseIframeState> | null,
+  prev: ExerciseIframeState[] | null,
   action: PostThisStateToIFrameAction,
-): Array<ExerciseIframeState> | null {
+): ExerciseIframeState[] | null {
   switch (action.type) {
     case "exerciseDownloaded": {
       const exerciseTasks = action.payload.current_exercise_slide.exercise_tasks
       return exerciseTasks
-        .sort((a, b) => a.order_number - b.order_number)
+        .toSorted((a, b) => a.order_number - b.order_number)
         .map<ExerciseIframeState>((exerciseTask) => {
           const prevExerciseTask = prev?.find((x) => x.exercise_task_id === exerciseTask.id)
           const userVariables = userVariableListToMap(

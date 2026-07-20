@@ -340,3 +340,20 @@ describe("escaping outside tags", () => {
     expect(result).toBe("A&lt;b&gt;A&lt;/b&gt;B&lt;i&gt;C&lt;/i&gt;")
   })
 })
+
+describe("markdown block-level output (wrapping targets)", () => {
+  it("renders a fenced code block as <pre><code> so the wrapping styles can target it", () => {
+    const input = "[markdown]```\nconst x = 1\n```[/markdown]"
+    const result = formatText(false, true, input)
+    expect(result).toContain("<pre>")
+    expect(result).toContain("<code>")
+    expect(result).toContain("const x = 1")
+  })
+
+  it("passes a long unbroken token through unchanged (wrapping is left to CSS)", () => {
+    const longToken = "a".repeat(200)
+    const input = `[markdown]${longToken}[/markdown]`
+    const result = formatText(false, true, input)
+    expect(result).toContain(longToken)
+  })
+})

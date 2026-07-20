@@ -16,11 +16,13 @@ test("User search works", async ({ page, headless }, testInfo) => {
   await page.getByLabel("User email or name", { exact: true }).click()
   await page.getByLabel("User email or name", { exact: true }).fill("language.teacher")
   await page.getByRole("button", { name: "Search" }).click()
+  await page.getByText("Searches completed").waitFor({ state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     testInfo,
     headless,
     snapshotName: "search-results",
+    beforeScreenshot: () => page.getByText("Searches completed").waitFor({ state: "hidden" }),
   })
   await page.getByLabel("User email or name", { exact: true }).fill("user@example.com")
   await page.getByRole("button", { name: "Search" }).click()
@@ -30,8 +32,14 @@ test("User search works", async ({ page, headless }, testInfo) => {
     })
     .getByRole("button", { name: "Details" })
     .click()
-  await page.getByText("Course: Introduction to feedback (introduction-to-feedback)").click()
-  await page.getByText("Course status summary").first().click()
+  const courseCard = page
+    .getByTestId("course-status-card")
+    .filter({ hasText: "Introduction to feedback" })
+    .first()
+  await courseCard.waitFor()
+  // The card body (with the "Course status summary" link) is inside a collapsed Disclosure; expand it
+  // via its trigger (the course name leads its accessible name), then follow the now-visible link.
+  await courseCard.getByRole("button", { name: /Introduction to feedback/ }).click()
+  await courseCard.getByRole("link", { name: "Course status summary" }).click()
   await page.getByText("5 submissions").first().waitFor()
-  await page.getByRole("heading", { name: "Submissions" }).first().waitFor()
 })

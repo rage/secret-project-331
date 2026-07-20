@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ph.id\nFROM page_history ph\nWHERE ph.id = $1\n  AND ph.deleted_at IS NULL\n  AND (\n    ph.page_id = $2\n    OR ph.page_id = $3\n  )\nFOR UPDATE\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_history",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "0823181bb860dc3ca0c3cb8d8523b36dbddefb00862476e69df0a4a313deca21"
+}

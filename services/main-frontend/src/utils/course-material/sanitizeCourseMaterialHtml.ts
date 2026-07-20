@@ -1,15 +1,15 @@
-import DOMPurify from "dompurify"
+import DOMPurify, { type Config } from "dompurify"
 
-import { StringWithHTML } from "@/../types"
+import type { StringWithHTML } from "@/../types"
 
 export const sanitizeCourseMaterialHtml = (
   dirty: string | undefined | StringWithHTML,
-  config?: DOMPurify.Config,
+  config?: Config,
 ): string => {
   if (dirty === undefined) {
     return ""
   }
-  const newConfig: DOMPurify.Config = {
+  const newConfig: Config = {
     ...config,
     RETURN_TRUSTED_TYPE: true,
   }
@@ -32,7 +32,7 @@ export const escapeUrlForCss = (url: string | undefined): string => {
     const colonIndex = trimmedUrl.indexOf(":")
     const slashIndex = trimmedUrl.indexOf("/")
     if (colonIndex !== -1 && (slashIndex === -1 || colonIndex < slashIndex)) {
-      const scheme = trimmedUrl.substring(0, colonIndex + 1).toLowerCase()
+      const scheme = trimmedUrl.slice(0, colonIndex + 1).toLowerCase()
       // Only allow safe schemes
       if (!["http:", "https:"].includes(scheme)) {
         console.error(`Blocked dangerous URL scheme in CSS: ${scheme} from URL: ${trimmedUrl}`)
@@ -43,6 +43,7 @@ export const escapeUrlForCss = (url: string | undefined): string => {
     // Handle protocol-relative URLs (//example.com)
     if (trimmedUrl.startsWith("//")) {
       // Validate the URL structure by parsing with https, but return as protocol-relative
+      // oxlint-disable-next-line no-new -- constructed only to validate; the URL throws if invalid
       new URL("https:" + trimmedUrl) // This will throw if invalid
       console.warn(`Using protocol-relative URL in CSS: ${trimmedUrl}`)
       return trimmedUrl
@@ -67,15 +68,14 @@ export const escapeUrlForCss = (url: string | undefined): string => {
         const resolved = new URL(trimmedUrl, base).toString()
         console.warn(`Resolved relative URL in CSS: ${trimmedUrl} -> ${resolved}`)
         return resolved
-      } else {
-        console.warn(`Using relative URL in server context: ${trimmedUrl}`)
-        return encodeURI(trimmedUrl)
-          .replace(/'/g, "%27")
-          .replace(/"/g, "%22")
-          .replace(/\\/g, "%5C")
-          .replace(/\(/g, "%28")
-          .replace(/\)/g, "%29")
       }
+      console.warn(`Using relative URL in server context: ${trimmedUrl}`)
+      return encodeURI(trimmedUrl)
+        .replaceAll("'", "%27")
+        .replaceAll('"', "%22")
+        .replaceAll("\\", "%5C")
+        .replaceAll("(", "%28")
+        .replaceAll(")", "%29")
     }
 
     console.warn(`Rejecting unrecognized URL pattern in CSS: ${trimmedUrl}`)

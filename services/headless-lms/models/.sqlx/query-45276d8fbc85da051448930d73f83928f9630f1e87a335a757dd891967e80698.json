@@ -1,0 +1,150 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE teacher_grading_decisions\n        SET hidden = $1\n        WHERE id = $2\n        RETURNING *;\n              ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_exercise_state_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "user_exercise_state_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "score_given",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "score_given"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "teacher_decision",
+        "type_info": {
+          "Custom": {
+            "name": "teacher_decision_type",
+            "kind": {
+              "Enum": [
+                "full-points",
+                "zero-points",
+                "custom-points",
+                "suspected-plagiarism",
+                "reject-and-reset"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "teacher_decision"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "justification",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "justification"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "hidden",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "hidden"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "45276d8fbc85da051448930d73f83928f9630f1e87a335a757dd891967e80698"
+}

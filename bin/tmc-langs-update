@@ -36,12 +36,15 @@ echo "$GENERATED" >> "$BINDINGS_DOWNLOAD_TARGET"
 # write guard annotation for CliOutput and RunResult
 run_command sed -i '/^export type CliOutput/i \/** @see {isCliOutput} ts-auto-guard:type-guard *\/' "$BINDINGS_DOWNLOAD_TARGET"
 run_command sed -i '/^export type RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$BINDINGS_DOWNLOAD_TARGET"
-run_command pnpm exec eslint --fix "$BINDINGS_DOWNLOAD_TARGET"
+run_command pnpm exec oxfmt "$BINDINGS_DOWNLOAD_TARGET"
 
-# generate guard
+# generate guard. Guard files are committed exactly as ts-auto-guard emits them and are excluded
+# from both oxlint and oxfmt, so no lint-disable prepend or formatting pass is needed here (an
+# oxfmt run would also abort, since every matched file is ignored).
 run_command pnpm exec ts-auto-guard --paths "$BINDINGS_DOWNLOAD_TARGET" --project ./tsconfig.json
-run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' "$BINDINGS_GUARD"
-run_command pnpm exec eslint --fix --no-ignore "$BINDINGS_GUARD"
+# ts-auto-guard 5.x cannot emit `import type`; its leading import references only types, so under
+# verbatimModuleSyntax rewrite the `import {` to `import type {` (a no-op at runtime).
+run_command sed -i -E 's/^import \{/import type {/' "$BINDINGS_GUARD"
 
 echo "Removing old langs binary"
 run_command find ./bin/ -name "${LANGS_FILENAME_ROOT}*" -delete

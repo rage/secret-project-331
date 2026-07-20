@@ -51,7 +51,7 @@ test("Changing course instance preserves completions and points", async ({ page 
     await page.getByRole("radio", { name: "Non-default instance" }).check()
     await page.getByTestId("select-course-instance-continue-button").click()
     await page.getByTestId("select-course-instance-continue-button").waitFor({ state: "detached" })
-    // eslint-disable-next-line playwright/no-networkidle
+    // oxlint-disable-next-line playwright/no-networkidle
     await page.waitForLoadState("networkidle")
     await page.reload()
   })

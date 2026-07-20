@@ -5,26 +5,21 @@ import { useSearchParams } from "next/navigation"
 
 import { LANGUAGE_COOKIE_KEY } from "../utils/constants"
 import { getValueFromCookieString } from "../utils/cookies"
+import { DEFAULT_LANGUAGE, mapLanguageCandidateToSupportedLanguage } from "../utils/language"
 
 const LANGUAGE_QUERY_KEY = "lang"
 const IS_SERVER = typeof window === "undefined"
 
-export const SUPPORTED_LANGUAGES = ["en", "fi", "uk", "sv"] as const
-export const DEFAULT_LANGUAGE: SUPPORTED_LANGUAGES_KEYS = "en" as const
-
-export type SUPPORTED_LANGUAGES_KEYS = (typeof SUPPORTED_LANGUAGES)[number]
+export { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "../utils/language"
+export type { SupportedLanguage as SUPPORTED_LANGUAGES_KEYS } from "../utils/language"
 
 const CAN_ACCESS_COOKIES = detectAccessToCookies()
-
-function isSupportedLanguage(lang: string): lang is SUPPORTED_LANGUAGES_KEYS {
-  return (SUPPORTED_LANGUAGES as readonly string[]).indexOf(lang) !== -1
-}
 
 export function getDir(language: string) {
   try {
     return dir(language)
   } catch (_e) {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     return "ltr"
   }
 }
@@ -42,11 +37,11 @@ export default function useLanguage(): string | null {
 
   // We map the candidate to supported languages to be absolutely sure we're returning a supported language
   const selectedLanguage =
-    mapLanguageCadidateToSupportedLanguage(languageCandidate) ?? DEFAULT_LANGUAGE
+    mapLanguageCandidateToSupportedLanguage(languageCandidate) ?? DEFAULT_LANGUAGE
 
   if (!IS_SERVER && CAN_ACCESS_COOKIES) {
     // Remember the selected language in a cookie
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage}; path=/; SameSite=Strict; max-age=31536000;`
 
     // Set html lang=lang attribute
@@ -73,7 +68,7 @@ function determineLanguageFromQueryValue(value: string | string[] | undefined): 
     }
 
     if (previouslySelectedLanguage) {
-      const supportedLanguage = mapLanguageCadidateToSupportedLanguage(previouslySelectedLanguage)
+      const supportedLanguage = mapLanguageCandidateToSupportedLanguage(previouslySelectedLanguage)
       // If the saved language is not supported, we fall back to the detecting the language from the navigator
       if (supportedLanguage) {
         return supportedLanguage
@@ -86,7 +81,7 @@ function determineLanguageFromQueryValue(value: string | string[] | undefined): 
       return null
     }
     for (const pl of preferredLanguages) {
-      const language = mapLanguageCadidateToSupportedLanguage(pl)
+      const language = mapLanguageCandidateToSupportedLanguage(pl)
       if (language) {
         return language
       }
@@ -96,23 +91,9 @@ function determineLanguageFromQueryValue(value: string | string[] | undefined): 
 
   // In case of `example.com?lng=en&lng=fi`, we will return `fi`
   if (Array.isArray(value)) {
-    return value[value.length - 1]
+    return value.at(-1) ?? null
   }
   return value
-}
-
-// Returns the supported language or null if the the candidate is not supported
-function mapLanguageCadidateToSupportedLanguage(
-  navigatorLanguage: string,
-): SUPPORTED_LANGUAGES_KEYS | null {
-  if (isSupportedLanguage(navigatorLanguage)) {
-    return navigatorLanguage
-  }
-  const languageParts = navigatorLanguage.split("-")
-  if (isSupportedLanguage(languageParts[0])) {
-    return languageParts[0]
-  }
-  return null
 }
 
 function detectAccessToCookies() {

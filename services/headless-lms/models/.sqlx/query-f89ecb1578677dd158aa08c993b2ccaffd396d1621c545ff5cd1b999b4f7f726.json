@@ -1,0 +1,284 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO page_visit_datum (\n    course_id,\n    exam_id,\n    page_id,\n    country,\n    browser,\n    browser_version,\n    operating_system,\n    operating_system_version,\n    device_type,\n    referrer,\n    is_bot,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    anonymous_identifier\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16,\n    $17\n  )\nRETURNING *\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "exam_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "exam_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "page_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "country",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "country"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "browser",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "browser"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "browser_version",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "browser_version"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "operating_system",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "operating_system"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "operating_system_version",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "operating_system_version"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "device_type",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "device_type"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "referrer",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "referrer"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "is_bot",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "is_bot"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "anonymous_identifier",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "anonymous_identifier"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "utm_source",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "utm_source"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "utm_medium",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "utm_medium"
+          }
+        }
+      },
+      {
+        "ordinal": 18,
+        "name": "utm_campaign",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "utm_campaign"
+          }
+        }
+      },
+      {
+        "ordinal": 19,
+        "name": "utm_term",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "utm_term"
+          }
+        }
+      },
+      {
+        "ordinal": 20,
+        "name": "utm_content",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "page_visit_datum",
+            "name": "utm_content"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Bool",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "f89ecb1578677dd158aa08c993b2ccaffd396d1621c545ff5cd1b999b4f7f726"
+}

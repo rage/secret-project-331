@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+
 pub struct User {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -24,7 +25,7 @@ pub async fn insert(
         "
 INSERT INTO users (id, email_domain)
 VALUES ($1, $2)
-RETURNING id
+RETURNING *
 ",
         pkey_policy.into_uuid(),
         email_domain
@@ -90,6 +91,7 @@ VALUES ($1, $2, $3, $4)
     Ok(user)
 }
 
+/// Looks up a user by email (case-insensitive) using the `lower(email)` index on `user_details`.
 pub async fn get_by_email(conn: &mut PgConnection, email: &str) -> ModelResult<User> {
     let user = sqlx::query_as!(
         User,
@@ -97,27 +99,11 @@ pub async fn get_by_email(conn: &mut PgConnection, email: &str) -> ModelResult<U
 SELECT users.*
 FROM user_details
 JOIN users ON (user_details.user_id = users.id)
-WHERE user_details.email = $1
+WHERE lower(user_details.email) = lower($1)
         ",
         email
     )
     .fetch_one(conn)
-    .await?;
-    Ok(user)
-}
-
-pub async fn try_get_by_email(conn: &mut PgConnection, email: &str) -> ModelResult<Option<User>> {
-    let user = sqlx::query_as!(
-        User,
-        "
-SELECT users.*
-FROM user_details
-JOIN users ON (user_details.user_id = users.id)
-WHERE user_details.email = $1
-        ",
-        email
-    )
-    .fetch_optional(conn)
     .await?;
     Ok(user)
 }
@@ -143,7 +129,7 @@ pub async fn find_by_upstream_id(
 ) -> ModelResult<Option<User>> {
     let user = sqlx::query_as!(
         User,
-        "SELECT * FROM users WHERE upstream_id = $1",
+        "SELECT * FROM users WHERE upstream_id = $1 AND deleted_at IS NULL",
         upstream_id
     )
     .fetch_optional(conn)
@@ -200,7 +186,7 @@ pub async fn get_users_ids_in_db_from_upstream_ids(
 ) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query!(
         "
-SELECT id
+SELECT *
 FROM users
 WHERE upstream_id IN (
     SELECT UNNEST($1::integer [])
@@ -224,7 +210,7 @@ pub async fn update_email_for_user(
 
     let user = sqlx::query_as!(
         User,
-        "SELECT * FROM users WHERE upstream_id = $1",
+        "SELECT * FROM users WHERE upstream_id = $1 AND deleted_at IS NULL",
         upstream_id
     )
     .fetch_one(&mut *tx)
@@ -256,6 +242,7 @@ pub async fn update_email_for_user(
 pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     info!("Deleting user {id}");
     let mut tx = conn.begin().await?;
+    crate::email_deliveries::soft_delete_unsent_retryable_deliveries_for_user(&mut tx, id).await?;
     sqlx::query!("DELETE FROM user_details WHERE user_id = $1", id,)
         .execute(&mut *tx)
         .await?;

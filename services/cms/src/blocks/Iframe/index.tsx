@@ -1,8 +1,9 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
+/* oxlint-disable i18next/no-literal-string */
 import { archive as icon } from "@wordpress/icons"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import IframeEditor from "./IframeEditor"
 import IframeSave from "./IframeSave"

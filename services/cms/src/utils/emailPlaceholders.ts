@@ -1,4 +1,4 @@
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 export const PLACEHOLDER_RESET_LINK = "RESET_LINK"
 export const PLACEHOLDER_CODE = "CODE"
@@ -41,7 +41,11 @@ export function extractPlaceholders(blocks: BlockInstance[]): string[] {
       const content = String(block.attributes.content)
       let match
       while ((match = placeholderRegex.exec(content)) !== null) {
-        placeholders.add(match[1])
+        // regex has a single required capture group, present when match !== null
+        const captured = match[1]
+        if (captured !== undefined) {
+          placeholders.add(captured)
+        }
       }
     }
 
@@ -50,7 +54,7 @@ export function extractPlaceholders(blocks: BlockInstance[]): string[] {
     }
   }
 
-  blocks.forEach(extractFromBlock)
+  blocks.forEach((block) => extractFromBlock(block))
   return Array.from(placeholders)
 }
 

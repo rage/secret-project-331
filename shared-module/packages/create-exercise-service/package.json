@@ -1,19 +1,29 @@
 {
   "name": "@moocfi/create-exercise-service",
   "version": "0.0.0",
-  "description": "",
-  "main": "src/index.js",
-  "packageManager": "pnpm@10.26.2",
-  "scripts": {
-    "start": "tsx src/index.ts"
-  },
-  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "description": "Scaffolding CLI for creating new moocfi exercise services",
   "license": "Apache-2.0",
-  "devDependencies": {
-    "tsx": "^4.19.1",
-    "typescript": "^5.2.2"
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
-    "@inquirer/prompts": "^3.0.4"
+    "@inquirer/prompts": "^8.5.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "tsx": "^4.22.4",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
   }
 }

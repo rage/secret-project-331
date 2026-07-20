@@ -1,14 +1,15 @@
-// hooks/useCurrentConversationInfo.ts
 import { useQuery } from "@tanstack/react-query"
 
-import { getChatbotCurrentConversationInfo } from "@/services/course-material/backend"
-import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import { getChatbotCurrentConversationInfoOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 
 const useCurrentConversationInfo = (chatbotConfigurationId: string) => {
-  return useQuery<ChatbotConversationInfo, Error>({
-    queryKey: ["currentConversationInfo", chatbotConfigurationId],
-    queryFn: () => getChatbotCurrentConversationInfo(chatbotConfigurationId),
-  })
+  return useQuery(
+    getChatbotCurrentConversationInfoOptions({
+      path: {
+        chatbot_configuration_id: chatbotConfigurationId,
+      },
+    }),
+  )
 }
 
 export default useCurrentConversationInfo

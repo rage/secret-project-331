@@ -2,10 +2,9 @@
 
 import { css, injectGlobal } from "@emotion/css"
 
+import { headingFont, monospaceFont, primaryFont, typography } from "."
 import { defaultFontSizePx, linkWithExtraIconClass } from "./constants"
 import cssReset from "./cssReset"
-
-import { headingFont, monospaceFont, primaryFont, typography } from "."
 
 import "@fontsource/raleway/100.css"
 import "@fontsource/raleway/200.css"
@@ -15,21 +14,21 @@ import "@fontsource/raleway/500.css"
 import "@fontsource/raleway/600.css"
 import "@fontsource/raleway/700.css"
 import "@fontsource/raleway/800.css"
-import "@fontsource/josefin-sans"
+import "@fontsource/josefin-sans/400.css"
 import "@fontsource/josefin-sans/100.css"
 import "@fontsource/josefin-sans/200.css"
 import "@fontsource/josefin-sans/300.css"
-import "@fontsource/josefin-sans/400.css"
-import "@fontsource/lato"
-import "@fontsource/space-mono"
-import "@fontsource/inter"
-import "@fontsource-variable/inter"
+import "@fontsource/lato/400.css"
+import "@fontsource/space-mono/400.css"
+import "@fontsource/inter/400.css"
+import "@fontsource-variable/inter/wght.css"
 
 // Using this instead of directly injectGlobal because stylelint works in this one.
 const globalCss = css`
   ${cssReset}
 
-  html, body {
+  html,
+  body {
     font-family: ${primaryFont};
     font-weight: 400;
     font-size: ${defaultFontSizePx}px;
@@ -89,7 +88,7 @@ const globalCss = css`
   }
 `
 
-// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+// oxlint-disable-next-line typescript/no-unused-expressions
 injectGlobal`
 ${globalCss}
 `

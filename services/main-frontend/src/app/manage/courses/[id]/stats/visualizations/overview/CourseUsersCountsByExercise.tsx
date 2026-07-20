@@ -1,0 +1,156 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import { reverse, sortBy } from "lodash"
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import { getCourseUsersCountsByExerciseOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { baseTheme } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
+
+import { InstructionBox } from "../../CourseStatsPage"
+import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
+
+export interface CourseUsersCountsByExerciseProps {
+  courseId: string
+}
+
+const CourseUsersCountsByExercise: React.FC<
+  React.PropsWithChildren<CourseUsersCountsByExerciseProps>
+> = ({ courseId }) => {
+  const { t } = useTranslation()
+  const query = useQuery({
+    ...getCourseUsersCountsByExerciseOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  })
+
+  const emptyFallback = (
+    <>
+      <StatsHeader
+        heading={t("stats-heading-exercise-participation", "Exercise Attempts and Points")}
+        debugData={query.data}
+      />
+      <InstructionBox>
+        {t(
+          "stats-instruction-exercise-participation",
+          "Breakdown of student participation and performance for each exercise, showing attempts, partial completions, and full completions",
+        )}
+      </InstructionBox>
+    </>
+  )
+
+  return (
+    <QueryResult query={query} emptyFallback={emptyFallback}>
+      {(data) => {
+        const queryData = sortBy(data, [
+          "chapter_number",
+          "page_order_number",
+          "exercise_order_number",
+        ])
+
+        const chapters = Array.from(new Set(queryData.map((obj) => obj.chapter_number)))
+
+        const result = chapters.map((chapter) =>
+          // echarts takes the data in reverse order
+          reverse(queryData.filter((item) => item.chapter_number === chapter)),
+        )
+
+        return (
+          <>
+            <StatsHeader
+              heading={t("stats-heading-exercise-participation", "Exercise Attempts and Points")}
+              debugData={data}
+            />
+            <InstructionBox>
+              {t(
+                "stats-instruction-exercise-participation",
+                "Breakdown of student participation and performance for each exercise, showing attempts, partial completions, and full completions",
+              )}
+            </InstructionBox>
+            <div
+              className={css`
+                margin-bottom: 2rem;
+              `}
+            >
+              {result.map((chapterData) => (
+                <div
+                  className={css`
+                    margin-bottom: 1.5rem;
+                    border: 3px solid ${baseTheme.colors.clear[200]};
+                    border-radius: 6px;
+                    padding: 1rem;
+                  `}
+                  key={JSON.stringify(chapterData[0])}
+                >
+                  <div>
+                    <h3
+                      className={css`
+                        color: ${baseTheme.colors.gray[400]};
+                        font-size: 1.3rem;
+                      `}
+                    >{`${t("chapter")} ${chapterData[0]?.chapter_number}`}</h3>
+                  </div>
+                  <Echarts
+                    height={Math.max(
+                      chapterData.length > 2
+                        ? chapterData.length * 100
+                        : (chapterData.length + 1) * 100,
+                      230,
+                    )}
+                    options={{
+                      tooltip: {
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        trigger: "axis",
+                        axisPointer: {
+                          type: "shadow",
+                        },
+                      },
+                      grid: {
+                        containLabel: true,
+                      },
+                      legend: {},
+                      xAxis: {
+                        type: "value",
+                        boundaryGap: [0, 0.01],
+                      },
+                      yAxis: {
+                        type: "category",
+                        data: chapterData.map((o) => o.exercise_name || o.exercise_id || ""),
+                      },
+                      series: [
+                        {
+                          name: t("number-of-users-attempted-the-exercise"),
+                          type: "bar",
+                          data: chapterData.map((o) => o.n_users_attempted),
+                        },
+                        {
+                          name: t("number-of-users-with-some-points"),
+                          type: "bar",
+                          data: chapterData.map((o) => o.n_users_with_some_points),
+                        },
+                        {
+                          name: t("number-of-users-with-max-points"),
+                          type: "bar",
+                          data: chapterData.map((o) => o.n_users_with_max_points),
+                        },
+                      ],
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </>
+        )
+      }}
+    </QueryResult>
+  )
+}
+
+export default withErrorBoundary(CourseUsersCountsByExercise)

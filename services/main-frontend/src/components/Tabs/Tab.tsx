@@ -6,10 +6,10 @@ import Link from "next/link"
 import React, { useRef } from "react"
 import { useFocusRing, useHover, useTab } from "react-aria"
 
-import { useTabsContext } from "./Tabs"
-
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import { useTabsContext } from "./Tabs"
 
 interface TabProps {
   tabName: string
@@ -36,6 +36,7 @@ const Tab: React.FC<TabProps> = ({ tabName, children }) => {
   const { "aria-controls": _ariaControls, ...restTabProps } = tabProps
 
   return (
+    // @ts-expect-error -- mergeProps' `handler | undefined` event handlers are rejected by Next LinkProps under exactOptionalPropertyTypes; safe at runtime
     <Link
       {...mergeProps(restTabProps, focusProps, hoverProps)}
       ref={tabRef}

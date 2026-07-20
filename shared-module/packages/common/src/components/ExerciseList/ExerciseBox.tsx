@@ -102,7 +102,7 @@ export interface ExerciseBoxExtraProps {
   bg?: string
 }
 export interface StyledProps {
-  bg?: string
+  bg?: string | undefined
 }
 
 export type ExerciseBoxProps = React.HTMLAttributes<HTMLDivElement> & ExerciseBoxExtraProps

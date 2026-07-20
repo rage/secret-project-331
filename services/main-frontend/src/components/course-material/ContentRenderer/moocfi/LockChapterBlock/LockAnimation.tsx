@@ -1,7 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef } from "react"
-import { animated, SpringValue, to, useSpring, useSprings } from "react-spring"
+import type { SpringValue } from "react-spring"
+import { animated, to, useSpring, useSprings } from "react-spring"
 
 const PARTICLES = 70
 const RIPPLES = 4
@@ -142,7 +143,7 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
       const x1 = Math.cos(a) * speed
       const y1 = Math.sin(a) * speed - up
 
-      const spin = (Math.random() * 420 - 210) | 0
+      const spin = Math.trunc(Math.random() * 420 - 210)
       const s1 = 0.45 + Math.random() * 1.15
       const delay = Math.random() * 80
 
@@ -214,7 +215,7 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
 
   return (
     <div
-      // eslint-disable-next-line react/forbid-dom-props
+      // oxlint-disable-next-line react/forbid-dom-props
       style={{
         position: "relative",
         width: containerSize,
@@ -305,7 +306,7 @@ function LockSVG({ shackle, size }: { shackle: { a: SpringValue<number> }; size:
       viewBox="0 0 24 24"
       preserveAspectRatio="xMidYMid meet"
       overflow="visible"
-      // eslint-disable-next-line react/forbid-dom-props
+      // oxlint-disable-next-line react/forbid-dom-props
       style={{
         width: size,
         height: "auto",

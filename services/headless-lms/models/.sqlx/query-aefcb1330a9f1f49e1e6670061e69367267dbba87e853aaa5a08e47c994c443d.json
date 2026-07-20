@@ -1,0 +1,168 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO teacher_grading_decisions (\n    user_exercise_state_id,\n    teacher_decision,\n    score_given,\n    user_id,\n    justification,\n    hidden\n)\nSELECT ues.id, $3, $4, $5, $6, $7\nFROM user_exercise_states ues\nWHERE ues.id = $1\n  AND ues.exercise_id = $2\n  AND ues.deleted_at IS NULL\nRETURNING id,\n  user_exercise_state_id,\n  user_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision,\n  justification,\n  hidden;\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_exercise_state_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "user_exercise_state_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "score_given",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "score_given"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "teacher_decision",
+        "type_info": {
+          "Custom": {
+            "name": "teacher_decision_type",
+            "kind": {
+              "Enum": [
+                "full-points",
+                "zero-points",
+                "custom-points",
+                "suspected-plagiarism",
+                "reject-and-reset"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "teacher_decision"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "justification",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "justification"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "hidden",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "hidden"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        {
+          "Custom": {
+            "name": "teacher_decision_type",
+            "kind": {
+              "Enum": [
+                "full-points",
+                "zero-points",
+                "custom-points",
+                "suspected-plagiarism",
+                "reject-and-reset"
+              ]
+            }
+          }
+        },
+        "Float4",
+        "Uuid",
+        "Text",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "aefcb1330a9f1f49e1e6670061e69367267dbba87e853aaa5a08e47c994c443d"
+}

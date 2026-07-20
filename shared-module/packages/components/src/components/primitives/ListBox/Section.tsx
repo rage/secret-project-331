@@ -1,0 +1,59 @@
+"use client"
+
+import { css } from "@emotion/css"
+import type { ListState } from "@react-stately/list"
+import { useListBoxSection } from "react-aria"
+
+import { omitUndefined } from "../../../lib/utils/nullability"
+import { Option } from "./Option"
+
+type ListBoxNode<T extends object> = NonNullable<ReturnType<ListState<T>["collection"]["getItem"]>>
+
+const sectionCss = css`
+  display: grid;
+  gap: var(--space-1);
+`
+
+const sectionHeadingCss = css`
+  padding: var(--space-2) var(--space-3) 0;
+  color: var(--field-label-color);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.35;
+`
+
+const sectionGroupCss = css`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`
+
+/** Renders a labeled section grouping options in a list box. */
+export function Section<T extends object>({
+  section,
+  state,
+}: {
+  section: ListBoxNode<T>
+  state: ListState<T>
+}) {
+  const ariaLabel = section["aria-label"]
+  const { itemProps, headingProps, groupProps } = useListBoxSection({
+    heading: section.rendered,
+    ...omitUndefined({ "aria-label": ariaLabel }),
+  })
+
+  return (
+    <li {...itemProps} className={sectionCss}>
+      {section.rendered ? (
+        <span {...headingProps} className={sectionHeadingCss}>
+          {section.rendered}
+        </span>
+      ) : null}
+      <ul {...groupProps} className={sectionGroupCss}>
+        {Array.from(state.collection.getChildren?.(section.key) ?? []).map((item) => (
+          <Option key={item.key} item={item} state={state} />
+        ))}
+      </ul>
+    </li>
+  )
+}

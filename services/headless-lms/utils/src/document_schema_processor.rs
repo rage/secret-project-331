@@ -6,8 +6,8 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
+
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 /// Blocks that are not allowed in top-level pages (pages without chapter_id).
@@ -36,17 +36,17 @@ macro_rules! attributes {
     }};
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct GutenbergBlock {
     #[serde(rename = "clientId")]
     pub client_id: Uuid,
     pub name: String,
     #[serde(rename = "isValid")]
     pub is_valid: bool,
-    #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, unknown>"))]
     pub attributes: Map<String, Value>,
     #[serde(rename = "innerBlocks")]
+    #[schema(no_recursion)]
     pub inner_blocks: Vec<GutenbergBlock>,
 }
 

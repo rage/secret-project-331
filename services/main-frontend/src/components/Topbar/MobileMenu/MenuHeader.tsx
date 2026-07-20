@@ -6,7 +6,7 @@ import React, { useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { UnifiedMenuItem } from "../hooks/types"
+import type { UnifiedMenuItem } from "../hooks/types"
 
 interface MenuHeaderProps {
   currentSubmenu: UnifiedMenuItem | null
@@ -74,7 +74,7 @@ export const MenuHeader: React.FC<MenuHeaderProps> = ({ currentSubmenu, onBack, 
               className={css`
                 color: #111827;
               `}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               aria-label="Go back"
             />
             <span>{currentSubmenu.label}</span>
@@ -116,7 +116,7 @@ export const MenuHeader: React.FC<MenuHeaderProps> = ({ currentSubmenu, onBack, 
               `}
               aria-hidden="true"
             >
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               {"×"}
             </span>
           </button>
@@ -170,7 +170,7 @@ export const MenuHeader: React.FC<MenuHeaderProps> = ({ currentSubmenu, onBack, 
               `}
               aria-hidden="true"
             >
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               {"×"}
             </span>
           </button>

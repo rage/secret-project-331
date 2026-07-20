@@ -1,0 +1,32 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+DOCTOR="${REPO_ROOT}/.devcontainer/scripts/doctor.fish"
+
+export NIX_CONFIG="${NIX_CONFIG:-experimental-features = nix-command flakes}"
+export TILT_DISABLE_ANALYTICS="${TILT_DISABLE_ANALYTICS:-1}"
+
+find_nix() {
+  if command -v nix >/dev/null 2>&1; then
+    command -v nix
+  elif [ -x /nix/var/nix/profiles/default/bin/nix ]; then
+    echo /nix/var/nix/profiles/default/bin/nix
+  elif [ -x "${HOME}/.nix-profile/bin/nix" ]; then
+    echo "${HOME}/.nix-profile/bin/nix"
+  else
+    return 1
+  fi
+}
+
+if command -v fish >/dev/null 2>&1; then
+  exec fish "$DOCTOR" "$@"
+fi
+
+if NIX_BIN="$(find_nix)"; then
+  exec "$NIX_BIN" develop "$REPO_ROOT" --command fish "$DOCTOR" "$@"
+fi
+
+echo "fish is not installed and nix is not available to provide it." >&2
+exit 1

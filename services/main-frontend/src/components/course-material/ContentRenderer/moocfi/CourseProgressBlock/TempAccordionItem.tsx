@@ -26,6 +26,7 @@ const TempAccordion: React.FC<
       <div
         onClick={onClick}
         onKeyDown={(e) => runCallbackIfEnterPressed(e, onClick)}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled clickable div; native button changes styling
         role="button"
         tabIndex={0}
         className={css`
@@ -69,7 +70,7 @@ const TempAccordion: React.FC<
           />
         )}
       </div>
-      {/* eslint-disable-next-line react/forbid-component-props */}
+      {/* oxlint-disable-next-line react/forbid-component-props */}
       {open ? <AnimatedDiv style={openAnimation}>{children}</AnimatedDiv> : null}
     </div>
   )

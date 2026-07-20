@@ -1,0 +1,208 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE oauth_auth_codes\n               SET used = true\n             WHERE digest = $1\n               AND client_id = $2\n               AND redirect_uri = $3\n               AND used = false\n               AND expires_at > now()\n            RETURNING *\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "digest",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "digest"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "client_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "client_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "redirect_uri",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "redirect_uri"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "scopes",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "scopes"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "jti",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "jti"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "nonce",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "nonce"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "code_challenge",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "code_challenge"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "code_challenge_method",
+        "type_info": {
+          "Custom": {
+            "name": "pkce_method",
+            "kind": {
+              "Enum": [
+                "plain",
+                "S256"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "code_challenge_method"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "dpop_jkt",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "dpop_jkt"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "used",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "used"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "expires_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "expires_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "metadata",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "metadata"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f6f3896a2149c987b57a73b1f3b3ff371d4a236b62d007b95e946ca0cee48676"
+}

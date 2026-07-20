@@ -1,6 +1,7 @@
 //! Controllers for requests starting with `/api/v0/cms/courses`.
 
 use crate::prelude::*;
+use utoipa::OpenApi;
 
 use headless_lms_models::chatbot_configurations::ChatbotConfiguration;
 use models::{
@@ -17,10 +18,41 @@ use models::research_forms::{
     NewResearchForm, NewResearchFormQuestion, ResearchForm, ResearchFormQuestion,
 };
 
+#[derive(OpenApi)]
+#[openapi(paths(
+    add_media,
+    get_course_by_id,
+    get_course_default_peer_or_self_review_configuration,
+    put_course_default_peer_or_self_review_configuration,
+    get_all_pages,
+    upsert_course_research_form,
+    get_research_form_with_course_id,
+    upsert_course_research_form_questions,
+    get_course_modules,
+    get_course_instances,
+    post_partners_block,
+    get_partners_block,
+    delete_partners_block,
+    get_course_nondefault_chatbot_configurations
+))]
+pub(crate) struct CmsCoursesApiDoc;
+
 /**
 GET /api/v0/cms/courses/:course_id - Get the course.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}",
+    operation_id = "getCmsCourse",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course", body = Course)
+    )
+)]
 async fn get_course_by_id(
     path: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -48,6 +80,22 @@ BINARY_DATA
 ```
 */
 
+#[utoipa::path(
+    post,
+    path = "/{course_id}/upload",
+    operation_id = "uploadCmsCourseMedia",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body(
+        content = String,
+        content_type = "multipart/form-data"
+    ),
+    responses(
+        (status = 200, description = "Uploaded media result", body = UploadResult)
+    )
+)]
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
     course_id: web::Path<Uuid>,
@@ -77,6 +125,18 @@ async fn add_media(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}/default-peer-review",
+    operation_id = "getCmsCourseDefaultPeerReview",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Default peer review configuration", body = CmsPeerOrSelfReviewConfiguration)
+    )
+)]
 async fn get_course_default_peer_or_self_review_configuration(
     course_id: web::Path<Uuid>,
     user: AuthUser,
@@ -111,6 +171,19 @@ async fn get_course_default_peer_or_self_review_configuration(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    put,
+    path = "/{course_id}/default-peer-review",
+    operation_id = "updateCmsCourseDefaultPeerReview",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = CmsPeerOrSelfReviewConfiguration,
+    responses(
+        (status = 200, description = "Updated default peer review configuration", body = CmsPeerOrSelfReviewConfiguration)
+    )
+)]
 async fn put_course_default_peer_or_self_review_configuration(
     course_id: web::Path<Uuid>,
     user: AuthUser,
@@ -128,10 +201,7 @@ async fn put_course_default_peer_or_self_review_configuration(
     let mut config = payload.0;
     normalize_cms_peer_or_self_review_questions(&mut config.peer_or_self_review_questions);
     let cms_peer_or_self_review_configuration =
-        peer_or_self_review_configs::upsert_course_default_cms_peer_review_and_questions(
-            &mut conn, &config,
-        )
-        .await?;
+        peer_or_self_review_configs::upsert_for_course_id(&mut conn, *course_id, &config).await?;
     token.authorized_ok(web::Json(cms_peer_or_self_review_configuration))
 }
 
@@ -139,6 +209,18 @@ async fn put_course_default_peer_or_self_review_configuration(
 GET `/api/v0/cms/courses/:course_id/pages` - Gets all pages for a course.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}/pages",
+    operation_id = "getCmsCoursePages",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Pages for course", body = Vec<Page>)
+    )
+)]
 async fn get_all_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -162,6 +244,19 @@ PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses res
 */
 
 #[instrument(skip(pool, payload))]
+#[utoipa::path(
+    put,
+    path = "/{course_id}/research-consent-form",
+    operation_id = "upsertCmsCourseResearchForm",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = NewResearchForm,
+    responses(
+        (status = 200, description = "Research form", body = ResearchForm)
+    )
+)]
 async fn upsert_course_research_form(
     payload: web::Json<NewResearchForm>,
     pool: web::Data<PgPool>,
@@ -186,6 +281,18 @@ async fn upsert_course_research_form(
 GET `/api/v0/cms/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}/research-consent-form",
+    operation_id = "getCmsCourseResearchForm",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Research form", body = Option<ResearchForm>)
+    )
+)]
 async fn get_research_form_with_course_id(
     course_id: web::Path<Uuid>,
     user: AuthUser,
@@ -206,6 +313,19 @@ PUT `/api/v0/cms/courses/:course_id/research-consent-form-questions` - Upserts q
 */
 
 #[instrument(skip(pool, payload))]
+#[utoipa::path(
+    put,
+    path = "/{course_id}/research-consent-form-questions",
+    operation_id = "upsertCmsCourseResearchFormQuestions",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = Vec<NewResearchFormQuestion>,
+    responses(
+        (status = 200, description = "Research form questions", body = Vec<ResearchFormQuestion>)
+    )
+)]
 async fn upsert_course_research_form_questions(
     payload: web::Json<Vec<NewResearchFormQuestion>>,
     pool: web::Data<PgPool>,
@@ -226,6 +346,18 @@ GET `/api/v0/cms/courses/:course_id/modules`
 Returns modules in the course.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}/modules",
+    operation_id = "getCmsCourseModules",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course modules", body = Vec<CourseModule>)
+    )
+)]
 async fn get_course_modules(
     course_id: web::Path<Uuid>,
     user: AuthUser,
@@ -241,6 +373,18 @@ async fn get_course_modules(
 GET `/api/v0/cms/courses/:course_id/course-instances` - Returns all course instances for given course id.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}/course-instances",
+    operation_id = "getCmsCourseInstances",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course instances", body = Vec<CourseInstance>)
+    )
+)]
 async fn get_course_instances(
     course_id: web::Path<Uuid>,
     user: AuthUser,
@@ -257,6 +401,19 @@ async fn get_course_instances(
  POST /api/v0/main-frontend/courses/:course_id/partners_block - Create or updates a partners block for a course
 */
 #[instrument(skip(payload, pool))]
+#[utoipa::path(
+    post,
+    path = "/{course_id}/partners-block",
+    operation_id = "upsertCmsCoursePartnersBlock",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = Option<serde_json::Value>,
+    responses(
+        (status = 200, description = "Partners block upserted")
+    )
+)]
 async fn post_partners_block(
     path: web::Path<Uuid>,
     payload: web::Json<Option<serde_json::Value>>,
@@ -278,6 +435,18 @@ async fn post_partners_block(
 GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}/partners-block",
+    operation_id = "getCmsCoursePartnersBlock",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Partners block", body = PartnersBlock)
+    )
+)]
 async fn get_partners_block(
     path: web::Path<Uuid>,
     user: AuthUser,
@@ -285,7 +454,7 @@ async fn get_partners_block(
 ) -> ControllerResult<web::Json<PartnersBlock>> {
     let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
     // Check if the course exists in the partners_blocks table
     let course_exists = models::partner_block::check_if_course_exists(&mut conn, course_id).await?;
@@ -308,6 +477,18 @@ async fn get_partners_block(
 DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a partners block in a course.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    delete,
+    path = "/{course_id}/partners-block",
+    operation_id = "deleteCmsCoursePartnersBlock",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Deleted partners block", body = PartnersBlock)
+    )
+)]
 async fn delete_partners_block(
     path: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -332,6 +513,18 @@ async fn delete_partners_block(
 GET /api/v0/cms/courses/:course_id/nondefault-chatbot-configurations - Get all nondefault, enabled-to-students chatbot configurations of this course.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}/nondefault-chatbot-configurations",
+    operation_id = "getCmsCourseNondefaultChatbotConfigurations",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Chatbot configurations", body = Vec<ChatbotConfiguration>)
+    )
+)]
 async fn get_course_nondefault_chatbot_configurations(
     path: web::Path<Uuid>,
     pool: web::Data<PgPool>,

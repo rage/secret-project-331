@@ -1,0 +1,143 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view,\n    csv_export_definitions_endpoint_path,\n    csv_export_answers_endpoint_path\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET user_interface_iframe_path = $2,\n  grade_endpoint_path = $3,\n  public_spec_endpoint_path = $4,\n  model_solution_spec_endpoint_path = $5,\n  has_custom_view = $6,\n  csv_export_definitions_endpoint_path = $7,\n  csv_export_answers_endpoint_path = $8\nRETURNING *\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_service_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "exercise_service_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "grade_endpoint_path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "grade_endpoint_path"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "public_spec_endpoint_path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "public_spec_endpoint_path"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "model_solution_spec_endpoint_path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "model_solution_spec_endpoint_path"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "user_interface_iframe_path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "user_interface_iframe_path"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "has_custom_view",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "has_custom_view"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "csv_export_definitions_endpoint_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "csv_export_definitions_endpoint_path"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "csv_export_answers_endpoint_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "csv_export_answers_endpoint_path"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Bool",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "17540bc1bb2ac98f94c8e4df164d277f91e3d305c9cb9815d6429203af6c2151"
+}

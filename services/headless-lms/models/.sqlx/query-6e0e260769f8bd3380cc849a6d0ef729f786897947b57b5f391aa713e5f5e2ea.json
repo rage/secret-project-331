@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT s.id AS \"id?\"\nFROM course_designer_plan_stages s\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id\n  AND m.user_id = $2 AND m.deleted_at IS NULL\nWHERE s.id = $3 AND s.course_designer_plan_id = $1 AND s.deleted_at IS NULL\nFOR UPDATE\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id?",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "6e0e260769f8bd3380cc849a6d0ef729f786897947b57b5f391aa713e5f5e2ea"
+}

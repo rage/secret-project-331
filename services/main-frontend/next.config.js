@@ -1,4 +1,4 @@
-/* eslint-disable import/order */
+/* oxlint-disable import/order */
 const generateNormalResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").generateNormalResponseHeaders
 const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
@@ -11,8 +11,14 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Type errors are gated by the separate fast tsc check (bin/tsc-check-all + the CI
+  // "Typecheck" step), so skip Next's slower in-build type-check.
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   output: "standalone",
   outputFileTracingRoot: ".",
+  // oxlint-disable-next-line require-await -- Next.js config expects headers() to return a Promise
   async headers() {
     return [
       {
@@ -21,8 +27,8 @@ const config = {
       },
     ]
   },
-  webpack(config) {
-    config.module.rules.push({
+  webpack(webpackConfig) {
+    webpackConfig.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
       loader: "@svgr/webpack",
@@ -32,7 +38,7 @@ const config = {
       },
     })
 
-    return config
+    return webpackConfig
   },
   turbopack: {
     rules: {
@@ -67,6 +73,7 @@ const config = {
     publicAddress: process.env.PUBLIC_ADDRESS,
   },
   transpilePackages: ["@vectopus/atlas-icons-react"],
+  allowedDevOrigins: ["project-331.local"],
   // This is open source, so no need to hide the code
   productionBrowserSourceMaps: true,
 }

@@ -1,13 +1,15 @@
+/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import {
   hideToasts,
   showNextToastsInfinitely,
   showToastsNormally,
+  waitForSuccessNotification,
 } from "../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -27,20 +29,24 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "initial-permission-management-page",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Roles for course")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("heading", { name: "Roles for course Permission management" }),
+    ],
   })
 
   await page.click('[placeholder="Enter email"]')
   await page.fill('[placeholder="Enter email"]', "teacher@example.com")
   await page.selectOption("select", "Admin")
-  await page.getByText("Add user").click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByText("Add user").click()
+  })
 
   await page.click('[placeholder="Enter email"]')
   await page.fill('[placeholder="Enter email"]', "admin@example.com")
   await page.selectOption("select", "Teacher")
-  await page.getByText("Add user").click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByText("Add user").click()
+  })
 
   await page.click('[aria-label="Sort by email"]')
   await expect(page).toHaveURL(

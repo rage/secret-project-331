@@ -1,3 +1,4 @@
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
 import {

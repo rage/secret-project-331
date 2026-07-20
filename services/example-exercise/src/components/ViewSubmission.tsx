@@ -1,12 +1,13 @@
-"use client"
-
 import { css } from "@emotion/css"
 import React from "react"
 
-import { ExerciseFeedback } from "../app/api/grade/route"
-
-import { baseTheme } from "@/shared-module/common/styles"
-import { Answer, ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
+import { baseTheme } from "@/styles/theme"
+import type {
+  Answer,
+  ExerciseFeedback,
+  ModelSolutionApi,
+  PublicAlternative,
+} from "@/util/stateInterfaces"
 
 interface SubmissionProps {
   port: MessagePort
@@ -44,10 +45,11 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           color = optionIsCorrect ? GREEN : RED
         }
 
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         const border = optionIsCorrect !== undefined ? `4px solid ${color}` : "none"
         return (
           <button
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled button as checkbox; an <input> can't hold child content
             role="checkbox"
             className={css`
               padding: 1rem 2rem;

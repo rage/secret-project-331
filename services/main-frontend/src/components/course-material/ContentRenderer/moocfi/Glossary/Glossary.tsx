@@ -5,10 +5,9 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchGlossary } from "@/services/course-material/backend"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { getCourseMaterialGlossary } from "@/generated/course-material-api/sdk.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { QueryResult } from "@/shared-module/components"
 
 interface Props {
   courseId: string
@@ -19,18 +18,15 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
 
   const glossary = useQuery({
     queryKey: [`glossary-${courseId}`],
-    queryFn: () => fetchGlossary(courseId),
+    queryFn: () =>
+      getCourseMaterialGlossary({
+        path: {
+          course_id: courseId,
+        },
+      }),
   })
 
-  if (glossary.isError) {
-    return <ErrorBanner variant={"readOnly"} error={glossary.error} />
-  }
-
-  if (glossary.isLoading || !glossary.data) {
-    return <Spinner variant={"small"} />
-  }
-
-  return (
+  const renderGlossary = (data: NonNullable<typeof glossary.data>) => (
     <div
       className={css`
         margin: 0 auto;
@@ -87,19 +83,25 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
           </tr>
         </thead>
         <tbody>
-          {glossary.data
-            .sort((a, b) => a.term.toLowerCase().localeCompare(b.term.toLowerCase()))
-            .map((t) => {
+          {data
+            .toSorted((a, b) => a.term.toLowerCase().localeCompare(b.term.toLowerCase()))
+            .map((entry) => {
               return (
-                <tr key={t.id}>
-                  <td>{t.term}</td>
-                  <td>{t.definition}</td>
+                <tr key={entry.id}>
+                  <td>{entry.term}</td>
+                  <td>{entry.definition}</td>
                 </tr>
               )
             })}
         </tbody>
       </table>
     </div>
+  )
+
+  return (
+    <QueryResult query={glossary} treatEmptyAsData>
+      {(data) => renderGlossary(data)}
+    </QueryResult>
   )
 }
 

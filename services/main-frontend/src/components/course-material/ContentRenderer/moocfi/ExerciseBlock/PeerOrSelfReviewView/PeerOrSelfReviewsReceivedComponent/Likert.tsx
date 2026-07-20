@@ -4,6 +4,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { headingFont } from "@/shared-module/common/styles"
+
 import {
   Agree,
   Disagree,
@@ -11,8 +13,6 @@ import {
   StronglyAgree,
   StronglyDisagree,
 } from "./LikertSvgs"
-
-import { headingFont } from "@/shared-module/common/styles"
 
 interface LikertProps {
   question: string

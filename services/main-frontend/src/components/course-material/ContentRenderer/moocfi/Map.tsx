@@ -2,27 +2,26 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import React, { Fragment, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { countryList } from "./../util/Countries"
-import WorldMap from "./worldMap.svg"
-
 import {
-  fetchStudentCountries,
-  fetchStudentCountry,
-  postStudentCountry,
-} from "@/services/course-material/backend"
+  getCourseMaterialStudentCountries,
+  getCourseMaterialStudentCountry,
+  postCourseMaterialStudentCountry,
+} from "@/generated/course-material-api/sdk.generated"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { courseMaterialAtom } from "@/state/course-material"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
+
+import { countryList } from "./../util/Countries"
+import WorldMap from "./worldMap.svg"
 
 const Wrapper = styled.div`
   display: relative;
@@ -72,6 +71,26 @@ interface CountryCountPair {
 
 export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 
+const STUDENT_COUNTRIES_QUERY_KEY = "courseMaterialStudentCountries"
+const STUDENT_COUNTRY_QUERY_KEY = "courseMaterialStudentCountry"
+
+const getElementBySelectorAsync = (selector: string): Promise<SVGLineElement> =>
+  new Promise((resolve) => {
+    const getElement = () => {
+      const element: SVGLineElement | null = document.querySelector(selector)
+      if (element) {
+        resolve(element)
+      } else {
+        requestAnimationFrame(getElement)
+      }
+    }
+    getElement()
+  })
+
+const isPath = (child: RouteElement): child is SVGLineElement => {
+  return child.tagName === "g" || child.tagName === "path"
+}
+
 const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
   let countryCodeCount: CountryCountPair[] = useMemo(() => [], [])
 
@@ -87,35 +106,32 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
   const userId = userInfo.data?.user_id
 
   const getCountries = useQuery({
-    queryKey: [`course-${courseId}-courseInstanceId-${courseInstanceId}-countries`],
-    queryFn: () => {
-      return fetchStudentCountries(
-        assertNotNullOrUndefined(courseId),
-        assertNotNullOrUndefined(courseInstanceId),
-      )
-    },
+    queryKey: [STUDENT_COUNTRIES_QUERY_KEY, courseId, courseInstanceId] as const,
+    queryFn:
+      courseId && courseInstanceId
+        ? () =>
+            getCourseMaterialStudentCountries({
+              path: {
+                course_id: courseId,
+                course_instance_id: courseInstanceId,
+              },
+            })
+        : skipToken,
+    enabled: Boolean(courseId && courseInstanceId),
   })
 
   const getCountry = useQuery({
-    queryKey: [`course-${courseInstanceId}-country`],
-    queryFn: () => {
-      return fetchStudentCountry(assertNotNullOrUndefined(courseInstanceId))
-    },
-    enabled: !!courseInstanceId,
+    queryKey: [STUDENT_COUNTRY_QUERY_KEY, courseInstanceId] as const,
+    queryFn: courseInstanceId
+      ? () =>
+          getCourseMaterialStudentCountry({
+            path: {
+              course_instance_id: courseInstanceId,
+            },
+          })
+      : skipToken,
+    enabled: Boolean(courseInstanceId),
   })
-
-  const getElementBySelectorAsync = (selector: string): Promise<SVGLineElement> =>
-    new Promise((resolve) => {
-      const getElement = () => {
-        const element: SVGLineElement | null = document.querySelector(selector)
-        if (element) {
-          resolve(element)
-        } else {
-          requestAnimationFrame(getElement)
-        }
-      }
-      getElement()
-    })
 
   const uploadStudentCountry = useToastMutation(
     (country: string) => {
@@ -131,7 +147,13 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
         throw new Error("Course instance id undefined")
       }
 
-      return postStudentCountry(courseId, courseInstanceId, country)
+      return postCourseMaterialStudentCountry({
+        path: {
+          course_id: courseId,
+          course_instance_id: courseInstanceId,
+          country_code: country,
+        },
+      })
     },
     {
       notify: true,
@@ -146,13 +168,9 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     },
   )
 
-  const isPath = (child: RouteElement): child is SVGLineElement => {
-    return child.tagName === "g" || child.tagName === "path"
-  }
-
   useEffect(() => {
     const getMap = async () => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       const mapElement: SVGLineElement = await getElementBySelectorAsync(".world-map")
       setMap(mapElement)
     }
@@ -160,14 +178,12 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     getMap()
 
     const eventHandler = (evt: Event) => {
-      const formattedIdentifier = countryCodeCount.map((obj) => obj.code.substring(1))
+      const formattedIdentifier = countryCodeCount.map((obj) => obj.code.slice(1))
 
-      let svgElement = null
-      if (evt.target instanceof Element) {
-        svgElement = evt.target
-      } else {
+      if (!(evt.target instanceof Element)) {
         return
       }
+      const svgElement = evt.target
 
       const classListArr: string[] = Array.from(svgElement.classList)
       const parentElementClassList: DOMTokenList | undefined = svgElement.parentElement?.classList
@@ -194,7 +210,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
         )?.count
 
         if (evt.type === "mouseover") {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           svgElement.innerHTML = `<title style=''>${t("map-tooltip-students-in-country", { country: text, count })}</title>`
         } else if (evt.type === "mouseout") {
           svgElement.innerHTML = ""
@@ -215,6 +231,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
             child.removeEventListener("mouseout", eventHandler)
           }
         }
+        return undefined
       })
     }
   }, [countryCodeCount, map, t])
@@ -242,7 +259,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     activeStudentCountry = getCountry.data.country_code
   }
 
-  if (getCountries.isSuccess && getCountries.data.length !== 0 && activeStudentCountry) {
+  if (getCountries.isSuccess && Object.keys(getCountries.data).length > 0 && activeStudentCountry) {
     const storedCountryCodes = Object.entries(getCountries.data).map(([key, value]) => ({
       code: `.${key}`,
       count: value,
@@ -255,7 +272,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
 
     // Logic for generating Popular Countries table
     // Sort table based on countries count (ascending)
-    countryTableData = [...countryCodeCount].sort((a, b) => b.count - a.count).slice(0, 6)
+    countryTableData = [...countryCodeCount].toSorted((a, b) => b.count - a.count).slice(0, 6)
 
     // Check if active user country is in the sorted TableData and if not add it.
     const userCountryCodeCount = countryCodeCount.find(
@@ -274,72 +291,68 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     <Fragment>
       <Wrapper>
         {getCountry.isSuccess && studentCountryAdded && (
-          <>
-            <Fragment>
-              <h3>{t("student-in-this-region")}</h3>
-              <StyledMap codes={formattedCountryCodes} className="world-map" />
-            </Fragment>
-          </>
+          <Fragment>
+            <h3>{t("student-in-this-region")}</h3>
+            <StyledMap codes={formattedCountryCodes} className="world-map" />
+          </Fragment>
         )}
         {!studentCountryAdded && (
-          <>
-            <CotentWrapper>
-              <h3>{t("add-country-to-map")}</h3>
-              <span
-                className={css`
-                  display: inline-block;
-                  color: ${baseTheme.colors.gray[600]};
-                  width: 40rem;
-                  font-size: 18px;
-                  line-height: 120%;
-                  padding: 0.5rem 0 1rem 0;
-                  line-height: 130%;
-                  opacity: 0.8;
-                `}
-              >
-                {t("map-instruction")}
-              </span>
-              <StyledForm
-                onSubmit={handleCountryChange}
-                className={css`
-                  input[type="submit"] {
-                    border: none;
-                    color: #fff;
-                    cursor: pointer;
-                    width: 100px;
-                    font-size: 17px;
-                    padding: 8px 10px 10px 10px;
-                    transition: background 0.2s ease-in-out;
-                    background: ${baseTheme.colors.gray[600]};
-                    margin: auto 0 1rem 15px;
-                    border: 1px solid #374461;
-                  }
-                `}
-              >
-                <SelectField
-                  id={`country`}
-                  label={t("label-country")}
-                  onChange={() => null}
-                  options={countryList}
-                  defaultValue={countryList[90].label}
-                />
-                <input type="submit" value={t("submit")} />
-              </StyledForm>
-              <span
-                className={css`
-                  display: inline-block;
-                  color: ${baseTheme.colors.gray[400]};
-                  width: 30rem;
-                  font-size: 15px;
-                  line-height: 120%;
-                  padding-bottom: 2.4rem;
-                  padding-left: 2px;
-                `}
-              >
-                {t("map-disclaimer")}
-              </span>
-            </CotentWrapper>
-          </>
+          <CotentWrapper>
+            <h3>{t("add-country-to-map")}</h3>
+            <span
+              className={css`
+                display: inline-block;
+                color: ${baseTheme.colors.gray[600]};
+                width: 40rem;
+                font-size: 18px;
+                line-height: 120%;
+                padding: 0.5rem 0 1rem 0;
+                line-height: 130%;
+                opacity: 0.8;
+              `}
+            >
+              {t("map-instruction")}
+            </span>
+            <StyledForm
+              onSubmit={handleCountryChange}
+              className={css`
+                input[type="submit"] {
+                  border: none;
+                  color: #fff;
+                  cursor: pointer;
+                  width: 100px;
+                  font-size: 17px;
+                  padding: 8px 10px 10px 10px;
+                  transition: background 0.2s ease-in-out;
+                  background: ${baseTheme.colors.gray[600]};
+                  margin: auto 0 1rem 15px;
+                  border: 1px solid #374461;
+                }
+              `}
+            >
+              <SelectField
+                id={`country`}
+                label={t("label-country")}
+                onChange={() => null}
+                options={countryList}
+                defaultValue={countryList[90]?.label}
+              />
+              <input type="submit" value={t("submit")} />
+            </StyledForm>
+            <span
+              className={css`
+                display: inline-block;
+                color: ${baseTheme.colors.gray[400]};
+                width: 30rem;
+                font-size: 15px;
+                line-height: 120%;
+                padding-bottom: 2.4rem;
+                padding-left: 2px;
+              `}
+            >
+              {t("map-disclaimer")}
+            </span>
+          </CotentWrapper>
         )}
       </Wrapper>
       {studentCountryAdded && (
@@ -373,7 +386,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
             <th>{t("number-of-student")}</th>
           </tr>
           {countryTableData?.map(({ code, count }) => {
-            const formattedCode = code.replace(/\./g, "").toUpperCase()
+            const formattedCode = code.replaceAll(".", "").toUpperCase()
             const country = countryList.find((c) => c.value === formattedCode)?.label
             return (
               <tr key={code}>

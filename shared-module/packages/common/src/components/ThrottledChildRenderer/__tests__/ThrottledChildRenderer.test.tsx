@@ -17,7 +17,7 @@ declare global {
   ) => void
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 const mockTriggerIntersection = (global as any).triggerIntersection as (
   el: Element,
   opts?: Partial<IntersectionObserverEntry> & {
@@ -59,7 +59,10 @@ function Heavy({ label, hits }: { label: string; hits: string[] }) {
   return <div>{label}</div>
 }
 
-const flush = () => new Promise((r) => setTimeout(r, 0))
+const flush = () =>
+  new Promise((r) => {
+    setTimeout(r, 0)
+  })
 
 describe("ThrottledChildRenderer", () => {
   test("visible instance renders immediately (bypasses queue)", async () => {
@@ -150,6 +153,7 @@ describe("ThrottledChildRenderer", () => {
       return <div>Child</div>
     }
 
+    // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures ChildWithReady/readyCalls from enclosing test scope
     const childFactory: ChildFactoryWithCallback = (onReady) => <ChildWithReady onReady={onReady} />
 
     const { unmount } = render(
@@ -170,7 +174,9 @@ describe("ThrottledChildRenderer", () => {
 
     // Wait for the timeout in child factory
     await act(async () => {
-      await new Promise((r) => setTimeout(r, 15))
+      await new Promise((r) => {
+        setTimeout(r, 15)
+      })
     })
 
     expect(readyCalls).toContain("ready")

@@ -9,11 +9,15 @@ import { useTranslation } from "react-i18next"
 // useDebounce from "usehooks-ts" doesn't seem to work
 import { useDebounce } from "use-debounce"
 
-import { searchPagesWithPhrase, searchPagesWithWords } from "@/services/course-material/backend"
-import { PageSearchResult } from "@/shared-module/common/bindings"
+import {
+  searchPagesWithPhrase,
+  searchPagesWithWords,
+} from "@/generated/course-material-api/sdk.generated"
+import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
@@ -213,7 +217,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
     const pages = [...phraseSearchResults]
     // After the phrase search results, we add the word search results if the page is not already in the result set
     wordSearchResults.forEach((pageWithWords) => {
-      if (pages.find((p) => p.id === pageWithWords.id)) {
+      if (pages.some((p) => p.id === pageWithWords.id)) {
         return
       }
       pages.push(pageWithWords)
@@ -249,16 +253,20 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
 
       try {
         const [pagesWithPhrase, pagesWithWords] = await Promise.all([
-          searchPagesWithPhrase(
-            { query: debouncedQuery },
-            courseId,
-            abortControllerRef.current.signal,
-          ),
-          searchPagesWithWords(
-            { query: debouncedQuery },
-            courseId,
-            abortControllerRef.current.signal,
-          ),
+          searchPagesWithPhrase({
+            body: { query: debouncedQuery },
+            path: {
+              course_id: courseId,
+            },
+            signal: abortControllerRef.current.signal,
+          }),
+          searchPagesWithWords({
+            body: { query: debouncedQuery },
+            path: {
+              course_id: courseId,
+            },
+            signal: abortControllerRef.current.signal,
+          }),
         ])
         setPhraseSearchResults(pagesWithPhrase)
         setWordSearchResults(pagesWithWords)
@@ -267,18 +275,8 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
         if (e instanceof Error && e.name === "AbortError") {
           return
         }
-
-        if (!(e instanceof Error)) {
-          throw e
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((e as any)?.response?.data) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          setError(JSON.stringify((e as any).response.data, undefined, 2))
-        } else {
-          setError(e.toString())
-        }
+        const parsed = normalizeErrorForDisplay(e, t)
+        setError(parsed.message ?? parsed.title)
       } finally {
         setIsLoading(false)
       }
@@ -288,7 +286,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
     return () => {
       abortControllerRef.current?.abort()
     }
-  }, [courseId, debouncedQuery])
+  }, [courseId, debouncedQuery, t])
 
   // Keep the keyboard shortcut functionality
   useEffect(() => {
@@ -349,7 +347,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
               <SearchIcon size={20} weight="bold" />
               <StyledInput
                 value={query}
-                // eslint-disable-next-line jsx-a11y/no-autofocus -- This is a search bar that opens on the screen. This rule seems to be to prevent people from autofocusing in middle of a page which would skip important content such as headers. However, in this case we aren't skipping anything since the search bar is the thing that opens.
+                // oxlint-disable-next-line jsx-a11y/no-autofocus -- search bar opens as its own overlay; nothing is skipped
                 autoFocus
                 onChange={(e) => {
                   setError(null)
@@ -412,18 +410,20 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                       __html: sanitizeCourseMaterialHtml(result.title_headline ?? ""),
                     }}
                   />
-                  {result.chapter_name != null && result.chapter_name !== "" && (
-                    <div
-                      className={css`
-                        font-size: 0.75rem;
-                        color: ${baseTheme.colors.gray[500]};
-                        margin: 0 0 0.25rem;
-                        line-height: 1.4;
-                      `}
-                    >
-                      {result.chapter_name}
-                    </div>
-                  )}
+                  {result.chapter_name !== null &&
+                    result.chapter_name !== undefined &&
+                    result.chapter_name !== "" && (
+                      <div
+                        className={css`
+                          font-size: 0.75rem;
+                          color: ${baseTheme.colors.gray[500]};
+                          margin: 0 0 0.25rem;
+                          line-height: 1.4;
+                        `}
+                      >
+                        {result.chapter_name}
+                      </div>
+                    )}
                   {result.content_headline && (
                     <p
                       className={css`

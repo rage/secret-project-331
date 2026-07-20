@@ -1,15 +1,9 @@
 # Testing Guide
 
-## Introduction
+The project focuses mainly on **system-level testing** to verify the full application works end to end. **Unit tests** are written when:
 
-Learn about different types of software testing by visiting [Levels of Software Testing](https://artoftesting.com/levels-of-software-testing).
-
-### Focus on System-Level Testing
-
-We focus mainly on **system-level testing** to make sure the entire application works as expected. We also write **unit tests** in cases where:
-
-- They won't break easily due to changes in how the code is implemented.
-- We need to make sure we handle all possible edge cases correctly
+- The behavior won't break easily if the implementation changes.
+- All edge cases need to be covered explicitly.
 
 ## Running System Tests
 
@@ -32,14 +26,10 @@ bin/system-tests-run-tests
 For debugging, run:
 
 ```bash
-bin/system-tests-debug
+bin/system-tests-run-tests-debug
 ```
 
-When debugging, add `test.only` to the test you want to focus on. This will run only that test. Remember to remove `test.only` once debugging is complete.
-
-#### Example of `test.only`
-
-If you want to debug a specific test, you can add `.only` to its definition. This ensures only that test runs, skipping all others:
+Add `test.only` to the test you want to focus on:
 
 ```javascript
 test.only("debugging a specific test", async ({ page }) => {
@@ -47,23 +37,23 @@ test.only("debugging a specific test", async ({ page }) => {
 })
 ```
 
-After debugging, **remove the `.only`** so all tests run as usual.
+Remove `.only` when done so all tests run again.
 
 Tests are located in the `system-tests/src/tests/` folder.
 
 ### Available Commands
 
-Here are the commands you can use to run and manage system tests:
+Commands for running and managing system tests:
 
-- **`bin/system-tests-debug`** &mdash; Debug tests step by step.
-- **`bin/system-tests-record-test-admin`** &mdash; Record a test as an admin user.
-- **`bin/system-tests-record-test-teacher`** &mdash; Record a test as a teacher user.
-- **`bin/system-tests-record-test-user`** &mdash; Record a test as a regular user.
-- **`bin/system-tests-record-test-without-resetting-db`** &mdash; Record a test without resetting the database.
-- **`bin/system-tests-run-tests`** &mdash; Run all tests.
-- **`bin/system-tests-update-snapshots`** &mdash; Update image snapshots.
-- **`bin/system-tests-run-tests-record-video`** &mdash; Run tests and save a video of the process (in `system-tests/test-results`).
-- **`bin/system-tests-run-tests-slowmo`** &mdash; Run tests in slow motion with the browser visible.
+- `bin/system-tests-run-tests-debug` - Debug tests step by step.
+- `bin/system-tests-record-test-admin` - Record a test as an admin user.
+- `bin/system-tests-record-test-teacher` - Record a test as a teacher user.
+- `bin/system-tests-record-test-user` - Record a test as a regular user.
+- `bin/system-tests-record-test-without-resetting-db` - Record a test without resetting the database.
+- `bin/system-tests-run-tests` - Run all tests.
+- `bin/system-tests-update-snapshots` - Update image snapshots.
+- `bin/system-tests-run-tests-record-video` - Run tests and save a video of the process (in `system-tests/test-results`).
+- `bin/system-tests-run-tests-slowmo` - Run tests in slow motion with the browser visible.
 
 > **Tip:** These `bin/xxx` commands are not magic commands. They show the exact shell commands they run. Take a moment to look at the output to understand what they're doing. Often they also print custom messages that help you to resolve the problems you're having.
 
@@ -176,7 +166,7 @@ This will open a detailed view of each test step.
 
 ### Method 1: Using Debug Mode
 
-Run `bin/system-tests-debug` and add `test.only` to focus on specific tests. A browser and debugger window will open, allowing you to step through the test and adjust locators.
+Run `bin/system-tests-run-tests-debug` and add `test.only` to focus on specific tests. A browser and debugger window will open, allowing you to step through the test and adjust locators.
 
 ### Method 2: Playwright for VSCode
 

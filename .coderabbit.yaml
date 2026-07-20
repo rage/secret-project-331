@@ -19,7 +19,8 @@ reviews:
     - path: "system-tests/**/*"
       instructions: >
         For Playwright system tests, make sure each test that triggers a backend mutation (e.g., clicking a save button)
-        waits for a UI confirmation element that proves the request completed successfully before proceeding.
+        waits for a UI confirmation element that proves the request completed successfully before proceeding. Prefer using
+        `waitForSuccessNotification` for success toasts. Example: `await waitForSuccessNotification(page, async () => { await page.getByRole("button", { name: "Save" }).click() })`. If the toast text differs, pass it as the third arg. Default is `/Operation successful!?/`.
         Otherwise, the test might continue before the operation finishes.
 
         Also if someone navigates to a course page, and clicks continue on a dialog straight away, make sure its done with the
@@ -36,7 +37,9 @@ reviews:
 
     - path: "**/*.tsx"
       instructions: >
-        Make sure to use the `useTranslation` hook for all text that is visible to the user.
+        Translate all user-facing text (button and link labels, headings, paragraphs, placeholders, aria-labels, tooltips, error and success messages) with the `useTranslation` hook and its `t` function. Never hardcode user-visible strings.
+
+        For false positives on non-UI strings (CSS-in-JS, magic values, technical constants), prefer moving the value to a SCREAMING_CASE constant; otherwise use a single-line `// oxlint-disable-next-line i18next/no-literal-string`. Never use `oxlint-disable` / `oxlint-enable` block pairs.
 
         If a component uses colors, use colors from the theme if possible. Example: import { baseTheme } from "@/shared-module/common/styles" ... background: ${baseTheme.colors.clear[100]};
 
@@ -48,15 +51,39 @@ reviews:
 
         For loading and error states, use the Spinner and ErrorBanner components from the shared module.
 
+        For screen-reader-only text, use VisuallyHidden from react-aria instead of custom sr-only / visually-hidden CSS.
+
         We have better replacements for window.confirm, window.alert, and window.prompt, use the DialogProvider and the useDialog hook from the shared module instead.
 
         For calling the React hooks useMemo and useEffect, don't use the React. prefix.
 
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
 
+    - path: "**/*.{ts,tsx}"
+      instructions: >
+        Under exactOptionalPropertyTypes, build objects with the nullability helpers instead of chained conditional spreads. `omitUndefined({ a, b })` drops keys whose value is `undefined`; use it for `...(x !== undefined ? { x } : {})`. `includeIf(condition, { a, b })` includes the whole group only when `condition` is truthy; use it for `...(condition ? { a } : {})`, including `!== null` and other truthy checks, and keep member access in its object optionally-chained (`x?.y`) since the object is built before the check. `assertNotNullOrUndefined(x)` returns `x` or throws if it is null or undefined. Import these from "@/shared-module/common/utils/nullability", or from the matching "../lib/utils/nullability" within shared-module/packages/components (which cannot depend on common).
+
+    - path: "services/main-frontend/src/app/**/*.tsx"
+      instructions: >
+        Pages and layouts should set the browser title with the usePageTitle hook: import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle".
+
+        Where: set the title once per view. A section layout that has an entity (course, exam, organization, course instance, chatbot) registers the entity name so every child page inherits it. Child pages must not re-set it. Standalone pages set their own title in the page component.
+
+        Format: pass only the page-specific part. PageTitleManager appends " - {siteName}" automatically, so never include the site name yourself. Use one concise, most-specific label; no "A · B" composites. Pass an already-translated string via a kebab-case title-* key (reuse existing keys where they fit), e.g. usePageTitle(t("title-account-settings")). For fetched names pass the value directly and null while loading, e.g. usePageTitle(course?.name ?? null); do not translate entity names, and never put PII such as emails in a title.
+
+        Order: default order 0. Only when a parent layout also registers a title, give the leaf page a higher order (e.g. { order: 10 }) so the more specific title wins.
+
     - path: "services/headless-lms/models/src/**/*.rs"
       instructions: >
         All sql queries should be written with the macros from the sqlx crate. Macros end with an exclamation mark. Example good functions: query!, query_as!, query_scalar!, query_file!, etc. Example bad functions: query, query_as, query_scalar, query_file, etc.
+
+        Prefer `SELECT *` / `RETURNING *` for single-table queries that read or write every column. Reserve explicit column lists for joins, subsets, computed columns, casts, renames, and other non-table-mirror queries.
+
+        Map Postgres enums, custom column types, and enum arrays through `services/headless-lms/models/sqlx.toml` using `[macros.type-overrides]` and `[macros.table-overrides]` instead of per-query `AS "col: Type"` or `AS "col: _"` annotations.
+
+        A struct that models a table should contain all of the table's columns. Completing such structs, including serialized API types, is encouraged when it makes a single-table query eligible for `SELECT *` / `RETURNING *`; only genuinely sensitive secrets should stay out of an externally-serialized DTO.
+
+        Do not "simplify" by replacing SQLx `!` macros with runtime SQLx APIs. Keep the existing macro kind; only the SQL string and the matching structs should change.
 
         If a transaction is started it should be committed or rolled back before the transaction goes out of scope. Example: `let mut tx = conn.begin().await?; ... tx.commit().await?;`
 
@@ -78,6 +105,22 @@ reviews:
         Tests, seed scripts, and development utilities are more lenient and can use `.unwrap()` or `.expect()` as needed.
 
         No sql queries in code that is not within the models crate. If one needs to fetch data from the database, instead add a new function to the models crate and call that one.
+
+        If handler uses `web::Json<T>`, utoipa request_body content type must be `application/json`.
+
+        utoipa `request_body` schema type must match the handler payload type (`web::Json<NewPage>` => `request_body = NewPage`), avoid `serde_json::Value` unless endpoint is intentionally untyped.
+
+        Pitfall: `request_body = <some primitive value like String>` defaults to `text/plain` in utoipa. For `web::Json<String>`, use `request_body(content = String, content_type = "application/json")`.
+
+        When creating custom errors (ModelError, UtilError, ControllerError, ChatbotError), use the provided macros instead of calling `.new()` directly. The macros are shorter, more readable, and prevent boilerplate:
+        - Use `model_err!(ErrorVariant, "message".to_string())` instead of `ModelError::new(ModelErrorType::ErrorVariant, "message".to_string(), None)`
+        - Use `util_err!(ErrorVariant, "message".to_string())` instead of `UtilError::new(UtilErrorType::ErrorVariant, "message".to_string(), None)`
+        - Use `controller_err!(ErrorVariant, "message".to_string())` instead of `ControllerError::new(ControllerErrorType::ErrorVariant, "message".to_string(), None)`
+        - Use `chatbot_err!(ErrorVariant, "message".to_string())` instead of `ChatbotError::new(ChatbotErrorType::ErrorVariant, "message".to_string(), None)`
+        - For errors with a source, add it as a third argument: `model_err!(Generic, "wrapped".to_string(), source_err)`
+        - For `.map_err()` chains, use helper functions: `.map_err(as_model_error(ModelErrorType::Generic, "msg".to_string()))?`
+        - For `.ok_or_else()` chains, use helper functions: `.ok_or_else(missing_model_error(ModelErrorType::NotFound, "msg".to_string()))?`
+        These macros work with `format!()` for dynamic messages: `model_err!(Generic, format!("Failed: {}", detail))`
 
     - path: "services/headless-lms/migrations/**/*.sql"
       instructions: >

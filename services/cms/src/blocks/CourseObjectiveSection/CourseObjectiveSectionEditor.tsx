@@ -2,12 +2,7 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks, RichText } from "@wordpress/block-editor"
-import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
-
-import BlockWrapper from "../BlockWrapper"
-
-import { CourseObjectiveSectionAttributes } from "."
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -15,6 +10,10 @@ import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "@/shared-module/common/utils/constants"
+import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+
+import type { CourseObjectiveSectionAttributes } from "."
+import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/buttons", "core/button", "core/paragraph"]
 const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
@@ -85,7 +84,10 @@ const CourseObjectiveSectionEditor: React.FC<
             tagName="h2"
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}
-            placeholder={"In this course you'll..."}
+            placeholder={
+              // oxlint-disable-next-line i18next/no-literal-string
+              "In this course you'll..."
+            }
           />
           <InnerBlocks
             template={COURSE_OBJECTIVE_SECTION_TEMPLATE}

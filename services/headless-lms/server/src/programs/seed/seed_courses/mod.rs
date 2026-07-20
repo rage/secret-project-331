@@ -3,10 +3,16 @@ pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;
 pub mod seed_lock_chapter_course;
 pub use seed_lock_chapter_course::seed_lock_chapter_course;
+pub mod seed_material_reference_course;
+pub use seed_material_reference_course::seed_material_reference_course;
 pub mod seed_course_with_peer_review;
 pub mod seed_graded;
 pub use seed_graded::seed_graded_course;
+pub mod seed_generated_description;
 pub mod seed_glossary;
+pub use seed_generated_description::seed_generated_description;
+pub mod seed_introduction_to_codes;
+pub use seed_introduction_to_codes::seed_introduction_to_codes;
 pub mod seed_switching_course_instances_course;
 pub use seed_switching_course_instances_course::seed_switching_course_instances_course;
 
@@ -15,8 +21,8 @@ use std::sync::Arc;
 use crate::domain::models_requests::{self, JwtKey};
 
 use crate::programs::seed::seed_helpers::{
-    create_best_exercise, create_best_peer_review, create_page, example_exercise_flexible,
-    paragraph, quizzes_exercise, submit_and_grade,
+    ExampleExerciseFlexibleParams, create_best_exercise, create_best_peer_review, create_page,
+    example_exercise_flexible, paragraph, quizzes_exercise, submit_and_grade,
 };
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
@@ -28,7 +34,7 @@ use headless_lms_models::{
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{self, NewCourseInstance},
     course_modules::{self, NewCourseModule},
-    courses::NewCourse,
+    courses::{self, NewCourse},
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
     file_uploads, glossary, library,
@@ -43,7 +49,7 @@ use headless_lms_models::{
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
-    url_redirections,
+    url_redirections, user_ai_usage_notice_acknowledgements,
 };
 use headless_lms_models::{certificate_configurations::DatabaseCertificateConfiguration, roles};
 use headless_lms_models::{
@@ -128,6 +134,10 @@ pub async fn seed_sample_course(
             models_requests::fetch_service_info,
         )
         .await?;
+    // Seeded courses are completed in seconds by system tests, which would flag every seeded user
+    // and break the suite, so disable cheater detection. Callers that need detection on (e.g. the
+    // dedicated suspected-cheaters course) re-enable it after seeding.
+    courses::set_cheater_detection_enabled(&mut conn, course.id, false).await?;
     course_modules::update_enable_registering_completion_to_uh_open_university(
         &mut conn,
         default_module.id,
@@ -441,6 +451,7 @@ pub async fn seed_sample_course(
 
                 paragraph("In recent years, digital adaptations of the abacus have also emerged, blending traditional methods with modern interfaces. These tools not only preserve the historical legacy of the abacus but also make it more accessible to new generations of learners. Whether used physically or virtually, the abacus continues to bridge the gap between tactile learning and abstract thinking.", block_id_9),
             ],
+            hidden: false,
         },
 
     )
@@ -537,6 +548,7 @@ pub async fn seed_sample_course(
                 exercise_block_3,
                 exercise_block_4,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1011,6 +1023,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_1,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1034,6 +1047,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_2,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1057,6 +1071,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_3,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1080,6 +1095,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_4,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1103,6 +1119,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_5,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1126,6 +1143,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_7,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1149,6 +1167,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_6,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1172,6 +1191,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_8,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1186,10 +1206,10 @@ pub async fn seed_sample_course(
     let multi_exercise_1_slide_1_task_3_id =
         Uuid::new_v5(&course_id, b"4c4bc8e5-7108-4f0d-a3d9-54383aa57269");
     let (multi_exercise_block_1, multi_exercise_1, multi_exercise_1_slides, multi_exercise_1_tasks) =
-        example_exercise_flexible(
-            multi_exercise_1_id,
-            "Multiple task exercise".to_string(),
-            vec![(
+        example_exercise_flexible(ExampleExerciseFlexibleParams {
+            exercise_id: multi_exercise_1_id,
+            exercise_name: "Multiple task exercise".to_string(),
+            exercise_slides: vec![(
                 multi_exercise_1_slide_1_id,
                 vec![
                     (
@@ -1254,11 +1274,12 @@ pub async fn seed_sample_course(
                     ),
                 ],
             )],
-            Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
-            None,
-            None,
-            None,
-        );
+            client_id: Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+            needs_peer_review: None,
+            peer_or_self_review_config: None,
+            peer_or_self_review_questions: None,
+            teacher_reviews_answer_after_locking: true,
+        });
     create_page(
         &mut conn,
         course.id,
@@ -1278,6 +1299,7 @@ pub async fn seed_sample_course(
                 ),
                 multi_exercise_block_1,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1318,6 +1340,7 @@ pub async fn seed_sample_course(
             exercise_slides: vec![exercise_slide_5],
             exercise_tasks: vec![exercise_task_5],
             content: vec![exercise_block_5],
+            hidden: false,
         },
     )
     .await?;
@@ -1332,10 +1355,10 @@ pub async fn seed_sample_course(
     let multi_exercise_2_slide_1_task_3_id =
         Uuid::new_v5(&course_id, b"8fbdbc4d-0c62-4b70-bb31-4c5fbb4ea6dd");
     let (multi_exercise_block_2, multi_exercise_2, multi_exercise_2_slides, multi_exercise_2_tasks) =
-        example_exercise_flexible(
-            multi_exercise_2_id,
-            "Multiple task quizzes exercise".to_string(),
-            vec![(
+        example_exercise_flexible(ExampleExerciseFlexibleParams {
+            exercise_id: multi_exercise_2_id,
+            exercise_name: "Multiple task quizzes exercise".to_string(),
+            exercise_slides: vec![(
                 multi_exercise_2_slide_1_id,
                 vec![
                     (
@@ -1562,11 +1585,12 @@ pub async fn seed_sample_course(
                     ),
                 ],
             )],
-            Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
-            None,
-            None,
-            None,
-        );
+            client_id: Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+            needs_peer_review: None,
+            peer_or_self_review_config: None,
+            peer_or_self_review_questions: None,
+            teacher_reviews_answer_after_locking: true,
+        });
 
     create_page(
         &mut conn,
@@ -1587,6 +1611,7 @@ pub async fn seed_sample_course(
                 ),
                 multi_exercise_block_2,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1662,7 +1687,8 @@ pub async fn seed_sample_course(
                         },
                     ],
                 }]
-            }]
+            }],
+            hidden: false,
         },
 
     )
@@ -1687,6 +1713,7 @@ pub async fn seed_sample_course(
                 attributes: attributes! {},
                 inner_blocks: vec![],
             }],
+            hidden: false,
         },
     )
     .await?;
@@ -1703,6 +1730,10 @@ pub async fn seed_sample_course(
             },
         )
         .await?;
+
+        // Pre-acknowledge the AI-usage notice for seeded enrollments so the dialog does not
+        // block already-enrolled users (e.g. in system tests).
+        user_ai_usage_notice_acknowledgements::acknowledge(&mut conn, user_id, course_id).await?;
 
         submit_and_grade(
             &mut conn,
@@ -1806,6 +1837,7 @@ pub async fn seed_sample_course(
         },
     )
     .await?;
+    user_ai_usage_notice_acknowledgements::acknowledge(&mut conn, langs_user_id, course_id).await?;
 
     // feedback
     info!("sample feedback");
@@ -2048,6 +2080,7 @@ pub async fn seed_cs_course_material(
             models_requests::fetch_service_info,
         )
         .await?;
+    courses::set_cheater_detection_enabled(&mut conn, course.id, false).await?;
 
     // Exercises
     let (
@@ -2333,6 +2366,7 @@ pub async fn seed_cs_course_material(
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
+                hidden: false,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -2396,6 +2430,7 @@ pub async fn seed_cs_course_material(
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
+                hidden: false,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -2461,6 +2496,7 @@ pub async fn seed_cs_course_material(
             )
             .with_id(Uuid::parse_str("0d47c02a-194e-42a4-927e-fb29a4fda39c")?),
         ],
+        hidden: false,
     };
     create_page(
         &mut conn,
@@ -2507,6 +2543,7 @@ pub async fn seed_cs_course_material(
             )
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ],
+        hidden: false,
     };
     create_page(
         &mut conn,
@@ -2562,6 +2599,7 @@ pub async fn seed_cs_course_material(
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
+                hidden: false,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -2607,6 +2645,7 @@ pub async fn seed_cs_course_material(
         exercise_tasks: vec![],
         url_path: "/chapter-2/user-research".to_string(),
         title: "User research".to_string(),
+        hidden: false,
     };
     create_page(
         &mut conn,
@@ -2617,24 +2656,93 @@ pub async fn seed_cs_course_material(
     )
     .await?;
 
-    let page_content = include_str!("../../../assets/example-page.json");
-    let parse_page_content = serde_json::from_str(page_content)?;
-    create_page(
-        &mut conn,
-        course.id,
-        teacher_user_id,
-        Some(chapter_2.id),
-        CmsPageUpdate {
-            content: parse_page_content,
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
-            url_path: "/chapter-2/content-rendering".to_string(),
-            title: "Content rendering".to_string(),
-            chapter_id: Some(chapter_2.id),
-        },
-    )
-    .await?;
+    let content_rendering_pages: [(&str, &str, &str); 13] = [
+        (
+            "/chapter-2/content-rendering-paragraphs",
+            "Content rendering: Paragraphs",
+            include_str!("../../../assets/content-rendering/paragraphs.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-headings",
+            "Content rendering: Headings",
+            include_str!("../../../assets/content-rendering/headings.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-lists",
+            "Content rendering: Lists",
+            include_str!("../../../assets/content-rendering/lists.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-quotes",
+            "Content rendering: Quotes",
+            include_str!("../../../assets/content-rendering/quotes.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-images",
+            "Content rendering: Images",
+            include_str!("../../../assets/content-rendering/images.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-code",
+            "Content rendering: Code and preformatted",
+            include_str!("../../../assets/content-rendering/code.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-pullquotes",
+            "Content rendering: Pullquotes",
+            include_str!("../../../assets/content-rendering/pullquotes.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-callouts",
+            "Content rendering: Info boxes",
+            include_str!("../../../assets/content-rendering/callouts.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-tables",
+            "Content rendering: Tables",
+            include_str!("../../../assets/content-rendering/tables.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-verse",
+            "Content rendering: Verse",
+            include_str!("../../../assets/content-rendering/verse.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-buttons",
+            "Content rendering: Buttons",
+            include_str!("../../../assets/content-rendering/buttons.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-separators",
+            "Content rendering: Separators",
+            include_str!("../../../assets/content-rendering/separators.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-columns",
+            "Content rendering: Columns",
+            include_str!("../../../assets/content-rendering/columns.json"),
+        ),
+    ];
+    for (url_path, title, page_content) in content_rendering_pages {
+        let parsed_page_content = serde_json::from_str(page_content)?;
+        create_page(
+            &mut conn,
+            course.id,
+            teacher_user_id,
+            Some(chapter_2.id),
+            CmsPageUpdate {
+                content: parsed_page_content,
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                url_path: url_path.to_string(),
+                title: title.to_string(),
+                chapter_id: Some(chapter_2.id),
+                hidden: false,
+            },
+        )
+        .await?;
+    }
 
     // Multiple choice
 
@@ -2657,6 +2765,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_5,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2680,6 +2789,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_6,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2704,6 +2814,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_7,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2727,6 +2838,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_8,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2741,6 +2853,7 @@ pub async fn seed_cs_course_material(
         },
     )
     .await?;
+    user_ai_usage_notice_acknowledgements::acknowledge(&mut conn, langs_user_id, course.id).await?;
 
     Ok(course.id)
 }
@@ -2798,6 +2911,7 @@ pub async fn seed_peer_review_course_without_submissions(
         models_requests::fetch_service_info,
     )
     .await?;
+    courses::set_cheater_detection_enabled(&mut conn, course.id, false).await?;
 
     course_instances::insert(
         &mut conn,
@@ -2903,6 +3017,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_1],
+            hidden: false,
         },
     )
     .await?;
@@ -2959,6 +3074,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_2],
+            hidden: false,
         },
     )
     .await?;
@@ -3015,6 +3131,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_3],
+            hidden: false,
         },
     )
     .await?;
@@ -3071,6 +3188,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_1],
+            hidden: false,
         },
     )
     .await?;
@@ -3127,6 +3245,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_1],
+            hidden: false,
         },
     )
     .await?;

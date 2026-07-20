@@ -6,38 +6,48 @@ import React, { useCallback, useEffect, useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import EditProposalDialog from "./EditProposalDialog"
-import FeedbackDialog from "./FeedbackDialog"
-import FeedbackTooltip from "./FeedbackTooltip"
-import FeedbackTypeDialog from "./FeedbackTypeDialog"
-import SelectionListener, { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
-
 import Button from "@/shared-module/common/components/Button"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
 } from "@/stores/course-material/materialFeedbackStore"
 import { getModifierKey } from "@/utils/course-material/platformDetection"
 
+import EditProposalDialog from "./EditProposalDialog"
+import FeedbackDialog from "./FeedbackDialog"
+import FeedbackTypeDialog from "./FeedbackTypeDialog"
+import SelectionListener, { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
+import TextSelectionTooltip from "./TextSelectionTooltip"
+
 interface Props {
   courseId: string
+  courseName?: string
+  courseHasChatbot: boolean
   pageId: string
+  pageTitle?: string
 }
 
-const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pageId }) => {
+const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
+  courseId,
+  pageId,
+  courseName,
+  courseHasChatbot,
+  pageTitle,
+}) => {
   const { t } = useTranslation()
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [selection] = useAtom(selectionAtom)
   const feedbackButtonRef = useRef<HTMLButtonElement>(null)
 
   const handleGiveFeedbackClick = () => {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     setCurrentlyOpenFeedbackDialog("select-type")
   }
 
   const focusDialog = useCallback(() => {
     if (type === "proposed-edits") {
-      const dialogElement = document.getElementById(FEEDBACK_DIALOG_CONTENT_ID)
+      const dialogElement = document.querySelector<HTMLElement>(`#${FEEDBACK_DIALOG_CONTENT_ID}`)
       if (dialogElement) {
         dialogElement.focus()
       }
@@ -92,7 +102,13 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({ courseId, p
       {type === "select-type" && <FeedbackTypeDialog />}
       {type === "written" && <FeedbackDialog courseId={courseId} pageId={pageId} />}
       {type === "proposed-edits" && <EditProposalDialog courseId={courseId} pageId={pageId} />}
-      {type === null && selection.text && <FeedbackTooltip />}
+      {type === null && selection.text && (
+        <TextSelectionTooltip
+          {...omitUndefined({ courseName })}
+          {...omitUndefined({ pageTitle })}
+          courseHasChatbot={courseHasChatbot}
+        />
+      )}
       <SelectionListener />
     </>
   )

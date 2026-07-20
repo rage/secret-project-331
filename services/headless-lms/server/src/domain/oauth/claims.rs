@@ -7,5 +7,7 @@ pub struct Claims {
     pub iss: String,
     pub iat: i64,
     pub exp: i64,
-    pub nonce: String,
+    /// OIDC nonce; only set when the authorization request included a nonce (omitted when absent per OIDC).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nonce: Option<String>,
 }

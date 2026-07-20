@@ -1,13 +1,15 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { ReactElement, ReactNode, useState } from "react"
+import type { ReactElement, ReactNode } from "react"
+import { useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import TopBarMenuButton from "./Topbar/TopBarMenuButton"
-
 import Hamburger from "@/shared-module/common/components/Navigation/NavBar/Menu/Hamburger/Hamburger"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import TopBarMenuButton from "./Topbar/TopBarMenuButton"
 
 const itemRow = css`
   display: flex;
@@ -109,21 +111,21 @@ const DropdownMenu: React.FC<MenuProps> = ({
 
   const nav = navLabel
     ? (z: ReactNode) => <nav aria-label={navLabel}>{z}</nav>
-    : (z: ReactNode) => <>{z}</>
+    : (z: ReactNode) => z
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
-        id={menuButtonTestId}
+        dataTestId={menuButtonTestId}
         ariaLabel={controlButtonAriaLabel}
         tooltipText={controlButtonTooltipText}
         showChevron={false}
-        className={controlButtonClassName}
+        {...omitUndefined({ className: controlButtonClassName })}
       >
         <Hamburger
           isActive={isOpen}
           buttonWidth={controlButtonIconWidth}
-          barColor={controlButtonIconColor}
+          {...omitUndefined({ barColor: controlButtonIconColor })}
         />
       </TopBarMenuButton>
       <Popover placement="bottom end" offset={8} className={popoverStyle}>
@@ -160,7 +162,11 @@ const DropdownMenu: React.FC<MenuProps> = ({
 
               if (item.type === "link") {
                 return (
-                  <MenuItem key={item.id} href={item.href} className={itemRow}>
+                  <MenuItem
+                    key={item.id}
+                    {...omitUndefined({ href: item.href })}
+                    className={itemRow}
+                  >
                     {icon}
                     <span>{item.label}</span>
                   </MenuItem>
@@ -170,8 +176,8 @@ const DropdownMenu: React.FC<MenuProps> = ({
               return (
                 <MenuItem
                   key={item.id}
-                  onAction={item.onAction}
-                  isDisabled={item.disabled}
+                  {...omitUndefined({ onAction: item.onAction })}
+                  {...omitUndefined({ isDisabled: item.disabled })}
                   className={css`
                     ${itemRow};
                     ${item.isDestructive ? "color: #dc2626; font-weight: 600;" : ""};

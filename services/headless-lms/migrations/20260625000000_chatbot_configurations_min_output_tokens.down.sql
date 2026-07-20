@@ -1,0 +1,5 @@
+ALTER TABLE chatbot_configurations
+DROP CONSTRAINT chatbot_configurations_max_output_tokens_min;
+
+ALTER TABLE chatbot_configurations
+ALTER COLUMN max_output_tokens SET DEFAULT 600;

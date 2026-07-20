@@ -1,211 +1,148 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
+import React, { Fragment, useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
-import { v4 } from "uuid"
 
-import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
-
-import ErrorDisplay from "./ErrorDisplay"
-import MessageBubble from "./MessageBubble"
-
-import { sendChatbotMessage } from "@/services/course-material/backend"
-import {
-  ChatbotConversation,
-  ChatbotConversationInfo,
+import type {
+  ChatbotConversationMessage,
   ChatbotConversationMessageCitation,
-} from "@/shared-module/common/bindings"
+} from "@/generated/course-material-api/types.generated"
+import {
+  zChatbotConversationMessageMessage,
+  zChatbotConversationMessageReasoning,
+  zChatbotConversationMessageToolCall,
+} from "@/generated/course-material-api/zod.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface ChatbotChatBodyProps {
-  chatbotConfigurationId: string
-  currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
-  newMessage: string
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>
-  error: Error | null
-  setError: (error: Error | null) => void
-}
+import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
+import ChatbotDisclaimer from "./ChatbotDisclaimer"
+import ErrorDisplay from "./ErrorDisplay"
+import type { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
+import MessageBubble from "./MessageBubble"
+import SuggestedMessageChip from "./SuggestedMessageChip"
+import ToolCallReasoningBubble from "./ToolCallReasoningBubble"
 
-interface MessageState {
-  optimisticMessage: string | null
-  streamingMessage: string | null
-}
+/// Map each assistant message with the tool call and reasoning items that are
+/// associated with it (which appear before it in the conversation, after a text
+/// message.) User messages and assistant messages with no tool calls etc are
+/// mapped with null. The last tool calls etc. that are streamed and don't yet
+/// have an assistant message are mapped with a null key and should be shown still.
+const messageMapMaker = (
+  messages: ChatbotConversationMessageWithStatus[],
+): Map<
+  ChatbotConversationMessageWithStatus | null,
+  ChatbotConversationMessageWithStatus[] | null
+> => {
+  let messagesMap = new Map<
+    ChatbotConversationMessageWithStatus | null,
+    ChatbotConversationMessageWithStatus[] | null
+  >()
 
-type MessageAction =
-  | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
-  | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
-  | { type: "RESET_MESSAGES" }
+  let earliestItemIndex: number | null = null
+  messages.forEach((m, idx) => {
+    const messageResult = zChatbotConversationMessageMessage.safeParse(m.message.message)
+    let messageSuccess =
+      messageResult.success &&
+      (messageResult.data.message_role === "user" ||
+        messageResult.data.message_role === "assistant")
+    if (messageSuccess) {
+      if (earliestItemIndex !== null) {
+        let toolReasoningItemsForThisMessage = messages.slice(earliestItemIndex, idx)
+        messagesMap.set(m, toolReasoningItemsForThisMessage)
+        earliestItemIndex = null
+      } else {
+        messagesMap.set(m, null)
+      }
+      return
+    }
+    const toolCallResult = zChatbotConversationMessageToolCall.safeParse(m.message.message)
+    const reasoningResult = zChatbotConversationMessageReasoning.safeParse(m.message.message)
+    if ((toolCallResult.success || reasoningResult.success) && earliestItemIndex === null) {
+      earliestItemIndex = idx
+    }
+  })
 
-const messageReducer = (state: MessageState, action: MessageAction): MessageState => {
-  switch (action.type) {
-    case "SET_OPTIMISTIC_MESSAGE":
-      return { ...state, optimisticMessage: action.payload }
-    case "APPEND_STREAMING_MESSAGE":
-      return { ...state, streamingMessage: (state.streamingMessage || "") + action.payload }
-    case "RESET_MESSAGES":
-      return { optimisticMessage: null, streamingMessage: null }
-    default:
-      return state
+  if (earliestItemIndex !== null) {
+    messagesMap.set(null, messages.slice(earliestItemIndex))
   }
+
+  return messagesMap
 }
 
-const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
+export interface ChatbotConversationMessageWithStatus {
+  message: ChatbotConversationMessage
+  finished: boolean
+  optimistic: boolean
+}
+
+const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   currentConversationInfo,
-  newConversation,
-  chatbotConfigurationId,
+  newConversationMutation,
   newMessage,
   setNewMessage,
   error,
-  setError,
+  messageState,
+  chatbotMessageAnnouncement,
+  newMessageMutation,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
-  const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
-  const [messageState, dispatch] = useReducer(messageReducer, {
-    optimisticMessage: null,
-    streamingMessage: null,
-  })
-
-  const newMessageMutation = useToastMutation(
-    async () => {
-      if (!currentConversationInfo.data?.current_conversation) {
-        throw new Error("No active conversation")
-      }
-      setChatbotMessageAnnouncement(t("chatbot-is-responding"))
-      const message = newMessage.trim()
-      dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
-      setNewMessage("")
-      const stream = await sendChatbotMessage(
-        chatbotConfigurationId,
-        currentConversationInfo.data.current_conversation.id,
-        message,
-      )
-      const reader = stream.getReader()
-
-      let done = false
-      while (!done) {
-        const { done: doneReading, value } = await reader.read()
-        done = doneReading
-        if (value) {
-          const valueAsString = new TextDecoder().decode(value)
-          const lines = valueAsString.split("\n")
-          for (const line of lines) {
-            if (line?.indexOf("{") !== 0) {
-              continue
-            }
-            try {
-              const parsedValue = JSON.parse(line)
-              if (parsedValue.text) {
-                dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.text })
-              }
-            } catch (e) {
-              console.error(e)
-            }
-          }
-        }
-      }
-      return stream
-    },
-    { notify: false },
-    {
-      onSuccess: async () => {
-        await currentConversationInfo.refetch()
-        dispatch({ type: "RESET_MESSAGES" })
-        setError(null)
-        setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
-      },
-      onError: async (error) => {
-        if (error instanceof Error) {
-          setError(error)
-          dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
-        } else {
-          console.error(`Failed to send chat message: ${error}`)
-          setError(new Error("Unknown error occurred"))
-        }
-        await currentConversationInfo.refetch()
-      },
-    },
-  )
 
   const citations = useMemo(() => {
-    const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
+    const citationsMap = new Map<string, ChatbotConversationMessageCitation[]>()
 
     if (!currentConversationInfo.data?.hide_citations) {
       currentConversationInfo.data?.current_conversation_message_citations?.forEach((cit) => {
         const id = cit.conversation_message_id
-        if (!citations.has(id)) {
-          citations.set(id, [cit])
+        const existing = citationsMap.get(id)
+        if (existing === undefined) {
+          citationsMap.set(id, [cit])
         } else {
-          // id is definitely in hashmap because of the condition branch we're in
-          citations.set(id, citations.get(id)!.concat(cit))
+          citationsMap.set(id, existing.concat(cit))
         }
       })
     }
 
-    return citations
+    return citationsMap
   }, [
     currentConversationInfo.data?.current_conversation_message_citations,
     currentConversationInfo.data?.hide_citations,
   ])
 
-  const messages = useMemo(() => {
-    const messages = [
-      ...(currentConversationInfo.data?.current_conversation_messages?.filter(
-        (m) => m.message_role !== "tool" && m.tool_call_fields.length === 0,
-      ) ?? []),
+  const messagesMap = useMemo(() => {
+    const messages: ChatbotConversationMessageWithStatus[] = [
+      ...(currentConversationInfo.data?.current_conversation_messages
+        ?.filter((m) => {
+          const messageResult = zChatbotConversationMessageMessage.safeParse(m.message)
+          let messageSuccess =
+            messageResult.success &&
+            (messageResult.data.message_role === "user" ||
+              messageResult.data.message_role === "assistant")
+          const toolCallResult = zChatbotConversationMessageToolCall.safeParse(m.message)
+          const reasoningResult = zChatbotConversationMessageReasoning.safeParse(m.message)
+          return messageSuccess || toolCallResult.success || reasoningResult.success
+        })
+        .map((m) => {
+          return { finished: true, message: m, optimistic: false }
+        }) ?? []),
     ]
-    const lastOrderNumber = Math.max(...messages.map((m) => m.order_number), 0)
-    if (messageState.optimisticMessage) {
-      messages.push({
-        id: v4(),
-        message: messageState.optimisticMessage,
-        // eslint-disable-next-line i18next/no-literal-string
-        message_role: "user",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        deleted_at: null,
-        conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-        message_is_complete: true,
-        used_tokens: 0,
-        order_number: lastOrderNumber + 1,
-        tool_call_fields: [],
-        tool_output: null,
-      })
-    }
-    if (messageState.streamingMessage) {
-      messages.push({
-        id: v4(),
-        message: messageState.streamingMessage,
-        // eslint-disable-next-line i18next/no-literal-string
-        message_role: "assistant",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        deleted_at: null,
-        conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-        message_is_complete: false,
-        used_tokens: 0,
-        order_number: lastOrderNumber + 2,
-        tool_call_fields: [],
-        tool_output: null,
-      })
-    }
-    return messages
-  }, [
-    currentConversationInfo.data?.current_conversation?.id,
-    currentConversationInfo.data?.current_conversation_messages,
-    messageState.optimisticMessage,
-    messageState.streamingMessage,
-  ])
+
+    // map is ordered in the insertion order
+    const orderedMessagesMap = messageMapMaker(messages)
+
+    return orderedMessagesMap
+  }, [currentConversationInfo.data?.current_conversation_messages])
+
+  const messagesMap2 = useMemo(() => {
+    return messageMapMaker(messageState.messages)
+  }, [messageState.messages])
 
   const scrollToBottom = useCallback(() => {
     if (scrollContainerRef.current) {
@@ -215,7 +152,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
 
   useEffect(() => {
     scrollToBottom()
-  }, [scrollToBottom, messages])
+  }, [scrollToBottom, messagesMap, messageState.messages])
 
   const canSubmit = useMemo(
     () => Boolean(newMessage && newMessage.trim().length > 0 && !newMessageMutation.isPending),
@@ -246,70 +183,23 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
 
   if (currentConversationInfo && !currentConversationInfo.data?.current_conversation) {
     return (
-      <div
-        className={css`
-          flex-grow: 1;
-          display: flex;
-          flex-direction: column;
-          padding: 20px;
-          overflow: hidden;
-
-          h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-          }
-
-          p {
-            margin-bottom: 5px;
-          }
-
-          ul {
-            margin-bottom: 10px;
-            padding-left: 20px;
-          }
-
-          li {
-            margin-bottom: 5px;
-          }
-        `}
-      >
-        <div
-          className={css`
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: scroll;
-          `}
-        >
-          <h2>{t("about-the-chatbot")}</h2>
-          <p>{t("chatbot-disclaimer-start")}</p>
-          <ul>
-            <li>{t("chatbot-discalimer-sensitive-information")}</li>
-            <li>{t("chatbot-disclaimer-check")}</li>
-            <li>
-              {t("chatbot-disclaimer-disclose-part-1")}
-              <a href="https://studies.helsinki.fi/instructions/article/using-ai-support-learning">
-                {" "}
-                {t("chatbot-disclaimer-disclose-part-2")}
-              </a>
-              .{" "}
-            </li>
-          </ul>
-        </div>
-        <Button
-          className={css`
-            margin-top: 6px;
-          `}
-          size="medium"
-          variant="secondary"
-          onClick={() => {
-            newConversation.mutate()
-            dispatch({ type: "RESET_MESSAGES" })
-          }}
-        >
-          {t("button-text-agree")}
-        </Button>
-      </div>
+      <ChatbotDisclaimer
+        agreeButton={
+          <Button
+            className={css`
+              margin-top: 6px;
+            `}
+            size="medium"
+            variant="secondary"
+            onClick={() => {
+              newConversationMutation.mutate()
+            }}
+            disabled={newConversationMutation.isPending}
+          >
+            {t("button-text-agree")}
+          </Button>
+        }
+      />
     )
   }
 
@@ -332,20 +222,62 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
         `}
         ref={scrollContainerRef}
       >
-        {messages.map((message) => (
-          <MessageBubble
-            key={`chatbot-message-${message.id}`}
-            message={message.message ?? ""}
-            citations={citations.get(message.id)}
-            isFromChatbot={message.message_role === "assistant"}
-            isPending={!message.message_is_complete && newMessageMutation.isPending}
-          />
-        ))}
+        {[...messagesMap.entries(), ...messagesMap2.entries()].map(([message, items]) => {
+          if (message === null && items !== null && items[0] !== undefined) {
+            const key = items[0].message.id
+            return <ToolCallReasoningBubble key={key} messages={items} />
+          }
+          if (message === null) {
+            return null
+          }
+          let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
+          if (m.success) {
+            return (
+              <Fragment key={`chatbot-status-message-${message.message.id}`}>
+                {items !== null && <ToolCallReasoningBubble messages={items} />}
+                <MessageBubble
+                  message={m.data.text ?? ""}
+                  citations={citations.get(message.message.id)}
+                  isFromChatbot={m.data.message_role === "assistant"}
+                  isPending={!m.data.message_is_complete && newMessageMutation.isPending}
+                />
+              </Fragment>
+            )
+          }
+          return null
+        })}
+        <div
+          className={css`
+            display: flex;
+            flex-flow: column nowrap;
+            margin-top: auto;
+            margin-left: 2rem;
+          `}
+        >
+          {!newMessageMutation.isPending &&
+            currentConversationInfo.data.suggested_messages?.map((m) => (
+              <SuggestedMessageChip
+                key={m.id}
+                isLoading={
+                  newMessageMutation.isPending ||
+                  currentConversationInfo.isLoading ||
+                  currentConversationInfo.isRefetching
+                }
+                message={m.message}
+                handleClick={() => {
+                  if (!newMessageMutation.isPending) {
+                    newMessageMutation.mutate(m.message)
+                  }
+                }}
+              />
+            ))}
+        </div>
       </div>
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- VisuallyHidden wrapper with role=status; <output> drops the styling */}
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
       </VisuallyHidden>
-      {error && <ErrorDisplay error={error} />}
+      {error !== null && error !== undefined ? <ErrorDisplay error={error} /> : null}
       <div
         className={css`
           display: flex;
@@ -373,14 +305,13 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
-                setChatbotMessageAnnouncement("")
                 e.preventDefault()
                 if (canSubmit) {
-                  newMessageMutation.mutate()
+                  newMessageMutation.mutate(newMessage)
                 }
               }
             }}
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             resize={"none"}
             autoResize={true}
             onAutoResized={scrollToBottom}
@@ -419,8 +350,7 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             disabled={!canSubmit}
             aria-label={t("send")}
             onClick={() => {
-              setChatbotMessageAnnouncement("")
-              newMessageMutation.mutate()
+              newMessageMutation.mutate(newMessage)
             }}
           >
             <PaperAirplane />

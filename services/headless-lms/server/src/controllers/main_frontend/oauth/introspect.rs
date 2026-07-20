@@ -3,13 +3,20 @@ use crate::domain::oauth::introspect_response::IntrospectResponse;
 use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
-use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 use models::{
     library::oauth::token_digest_sha256,
     oauth_access_token::{OAuthAccessToken, TokenType},
     oauth_client::OAuthClient,
 };
+use secrecy::ExposeSecret;
 use sqlx::PgPool;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(introspect))]
+#[allow(dead_code)]
+pub(crate) struct MainFrontendOauthIntrospectApiDoc;
 
 /// Handles the `/introspect` endpoint for OAuth 2.0 token introspection (RFC 7662).
 ///
@@ -83,6 +90,19 @@ use sqlx::PgPool;
 /// }
 /// ```
 #[instrument(skip(pool, app_conf, form))]
+#[utoipa::path(
+    post,
+    path = "/introspect",
+    operation_id = "introspectOauthToken",
+    tag = "oauth",
+    request_body(
+        content = serde_json::Value,
+        content_type = "application/x-www-form-urlencoded"
+    ),
+    responses(
+        (status = 200, description = "OAuth token introspection response", body = serde_json::Value)
+    )
+)]
 pub async fn introspect(
     pool: web::Data<PgPool>,
     OAuthValidated(form): OAuthValidated<IntrospectQuery>,
@@ -103,7 +123,8 @@ pub async fn introspect(
     // If client not found or secret invalid, return active: false per RFC 7662
     let client = match client_result {
         Ok(c) => c,
-        Err(_) => {
+        Err(e) => {
+            tracing::debug!(err = %e, "OAuth introspect: client lookup failed (inactive client_id)");
             // Invalid client_id - return active: false per RFC 7662
             return server_token.authorized_ok(
                 HttpResponse::Ok()
@@ -131,7 +152,10 @@ pub async fn introspect(
         match &client.client_secret {
             Some(secret) => {
                 let provided_secret_digest = token_digest_sha256(
-                    &form.client_secret.clone().unwrap_or_default(),
+                    form.client_secret
+                        .as_ref()
+                        .map(|s| s.expose_secret())
+                        .unwrap_or_default(),
                     token_hmac_key,
                 );
                 secret.constant_eq(&provided_secret_digest)
@@ -164,7 +188,7 @@ pub async fn introspect(
     }
 
     // Hash the provided token to get digest
-    let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+    let token_digest = token_digest_sha256(form.token.expose_secret(), token_hmac_key);
 
     // Look up the access token (only access tokens are supported)
     let access_token_result = OAuthAccessToken::find_valid(&mut conn, token_digest).await;
@@ -172,7 +196,8 @@ pub async fn introspect(
     // If token not found or expired, return active: false
     let access_token = match access_token_result {
         Ok(token) => token,
-        Err(_) => {
+        Err(e) => {
+            tracing::debug!(err = %e, "OAuth introspect: access token lookup failed (inactive/expired token)");
             return server_token.authorized_ok(
                 HttpResponse::Ok()
                     .insert_header(("Cache-Control", "no-store"))

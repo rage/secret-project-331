@@ -1,10 +1,11 @@
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -12,9 +13,7 @@ test.use({
 test("content search", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   await page.click(`div:text-is("Introduction to Course Material")`)

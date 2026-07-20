@@ -5,8 +5,8 @@ import React, { useEffect, useId, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { typography } from "../../styles"
-import Button, { ButtonProps } from "../Button"
-
+import type { ButtonProps } from "../Button"
+import Button from "../Button"
 import Dialog from "./Dialog"
 
 interface StandardDialogProps {
@@ -22,6 +22,7 @@ interface StandardDialogProps {
   backgroundColor?: string
   actionButtons?: React.ReactNode
   disableContentScroll?: boolean
+  preventBackgroundScroll?: boolean
   leftAlignTitle?: boolean
   closeable?: boolean
   "data-testid"?: string
@@ -46,6 +47,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
   backgroundColor,
   actionButtons,
   disableContentScroll = false,
+  preventBackgroundScroll = true,
   leftAlignTitle = false,
   closeable = true,
   "data-testid": dataTestId,
@@ -70,9 +72,11 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
       width={width}
       noPadding={true}
       className={className}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Dialog is a custom component, not a raw HTML element
       role="dialog"
       aria-labelledby={titleId}
       disableContentScroll={disableContentScroll}
+      preventBackgroundScroll={preventBackgroundScroll}
       closeable={closeable}
       data-testid={dataTestId}
       isDismissable={isDismissable}
@@ -84,7 +88,8 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
         className={css`
           display: flex;
           flex-direction: column;
-          height: 100%;
+          flex: 1;
+          min-height: 0;
           position: relative;
           ${backgroundColor && `background-color: ${backgroundColor};`}
           &:focus {
@@ -169,6 +174,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
         <div
           className={css`
             flex: 1;
+            min-height: 0;
             ${!noPadding && `padding: 1rem 2rem;`}
             ${!disableContentScroll && "overflow-y: auto;"}
           `}

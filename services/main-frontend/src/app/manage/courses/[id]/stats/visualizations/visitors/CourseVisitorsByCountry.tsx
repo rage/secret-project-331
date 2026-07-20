@@ -1,0 +1,143 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import React, { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+
+import { getCoursePageVisitDatumSummaryByCountriesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type countries from "@/shared-module/common/locales/en/countries.json"
+import { baseTheme } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
+
+import { InstructionBox } from "../../CourseStatsPage"
+import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
+
+export interface CourseVisitorsByCountryProps {
+  courseId: string
+}
+
+// Bucket key used for visitors whose country could not be determined (the backend country field is
+// nullable). Kept distinct from any real ISO code so it can be rendered as a readable label.
+
+const UNKNOWN_COUNTRY_KEY = "null"
+
+const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
+  courseId,
+}) => {
+  const { t } = useTranslation()
+  // Chart data codes are lowercase ISO codes (e.g. "fi"), which match the lowercase keys in the
+  // "countries" namespace, so the labels are localized to the active language.
+  const { t: tCountries } = useTranslation("countries")
+  const query = useQuery({
+    ...getCoursePageVisitDatumSummaryByCountriesOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  })
+
+  const aggregatedData = useMemo(() => {
+    if (!query.data || query.data.length === 0) {
+      return null
+    }
+    const allCountriesInData = new Set(query.data.map((d) => d.country))
+    let totalCountsByCountry = Array.from(allCountriesInData)
+      .map((country) => {
+        const countryData = query.data.filter((d) => d.country === country)
+        return {
+          country,
+          num_visitors: countryData.reduce((acc, d) => acc + d.num_visitors, 0),
+        }
+      })
+      .toSorted((a, b) => a.num_visitors - b.num_visitors)
+    if (totalCountsByCountry.length > 15) {
+      totalCountsByCountry = totalCountsByCountry.filter((d) => d.num_visitors >= 10)
+    }
+    const totalCountsByCountryObject = totalCountsByCountry.reduce(
+      (acc, d) => {
+        acc[d.country ?? UNKNOWN_COUNTRY_KEY] = d.num_visitors
+        return acc
+      },
+      {} as Record<string, number>,
+    )
+    return totalCountsByCountryObject
+  }, [query.data])
+
+  const categories = useMemo(() => {
+    if (!aggregatedData) {
+      return []
+    }
+    return Object.keys(aggregatedData).map((code) =>
+      code === UNKNOWN_COUNTRY_KEY ? t("n-a") : tCountries(code as keyof typeof countries),
+    )
+  }, [aggregatedData, t, tCountries])
+  const values = useMemo(() => {
+    if (!aggregatedData) {
+      return []
+    }
+    return Object.values(aggregatedData)
+  }, [aggregatedData])
+
+  const chartHeight = categories.length > 0 ? 200 + categories.length * 25 : 300
+
+  return (
+    <>
+      <StatsHeader
+        heading={t("stats-heading-geographic-distribution")}
+        debugData={aggregatedData}
+      />
+      <InstructionBox>{t("stats-instruction-geographic-distribution")}</InstructionBox>
+      <div
+        className={css`
+          margin-bottom: 2rem;
+          border: 3px solid ${baseTheme.colors.clear[200]};
+          border-radius: 6px;
+          padding: 1rem;
+          min-height: 300px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        `}
+      >
+        <QueryResult query={query} emptyFallback={<NoDataMessage />}>
+          {() =>
+            !aggregatedData || categories.length === 0 ? (
+              <NoDataMessage />
+            ) : (
+              <Echarts
+                height={chartHeight}
+                options={{
+                  yAxis: {
+                    type: "category",
+                    data: categories,
+                  },
+                  xAxis: {
+                    type: "value",
+                  },
+                  series: [
+                    {
+                      data: values,
+                      type: "bar",
+                    },
+                  ],
+                  tooltip: {
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    trigger: "item",
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    formatter: "{b}: {c}",
+                  },
+                }}
+              />
+            )
+          }
+        </QueryResult>
+      </div>
+    </>
+  )
+}
+
+export default withErrorBoundary(CourseVisitorsByCountry)

@@ -4,6 +4,7 @@ use chrono::Duration;
 use futures::future::BoxFuture;
 use rand::{rng, seq::SliceRandom};
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
@@ -62,8 +63,8 @@ pub async fn start_peer_or_self_review_for_user(
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseMaterialPeerOrSelfReviewSubmission {
     pub exercise_slide_submission_id: Uuid,
     pub peer_or_self_review_config_id: Uuid,
@@ -71,8 +72,8 @@ pub struct CourseMaterialPeerOrSelfReviewSubmission {
     pub token: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseMaterialPeerOrSelfReviewQuestionAnswer {
     pub peer_or_self_review_question_id: Uuid,
     pub text_data: Option<String>,
@@ -431,19 +432,19 @@ async fn update_peer_review_receiver_exercise_status(
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseMaterialPeerOrSelfReviewData {
     /// If none, no answer was available for review.
     pub answer_to_review: Option<CourseMaterialPeerOrSelfReviewDataAnswerToReview>,
     pub peer_or_self_review_config: PeerOrSelfReviewConfig,
     pub peer_or_self_review_questions: Vec<PeerOrSelfReviewQuestion>,
-    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+
     pub num_peer_reviews_given: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseMaterialPeerOrSelfReviewDataAnswerToReview {
     pub exercise_slide_submission_id: Uuid,
     /// Uses the same type as we use when we render and exercise in course material. Allows us to reuse existing logic for getting all the necessary information for rendering the submission.

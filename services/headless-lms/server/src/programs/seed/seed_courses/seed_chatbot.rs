@@ -72,7 +72,6 @@ pub async fn seed_chatbot_course(
             use_azure_search: true,
             hide_citations: false,
             model_id: llm.id,
-            thinking_model: llm.thinking,
             default_chatbot: true,
             ..Default::default()
         })
@@ -86,7 +85,19 @@ pub async fn seed_chatbot_course(
             use_azure_search: true,
             hide_citations: false,
             model_id: llm.id,
-            thinking_model: llm.thinking,
+            ..Default::default()})
+        .chatbot_config(NewChatbotConf {
+            course_id,
+            chatbotconf_id: Some(cx.v5(b"chatbot_config:extra")),
+            enabled_to_students: true,
+            chatbot_name: "Suggestions bot".to_string(),
+            prompt: "You are a random test bot. Don't overthink it.".to_string(),
+            initial_message: "How are we doing this fine evening?".to_string(),
+            use_azure_search: true,
+            hide_citations: false,
+            model_id: llm.id,
+            suggest_next_messages: true,
+            initial_suggested_messages: Some(vec!["What is going on?".to_string(), "Tell me more about your fascinating self.".to_string(), "What's the time? What's the time? What's the time? What's the time? What's the time? What's the time? Aaaaaaaaaaaaaaaaaaaaaaaaaaah!".to_string()]),
             ..Default::default()})
         .role(seed_users_result.teacher_user_id, UserRole::Teacher)
         .module(
@@ -143,6 +154,13 @@ pub async fn seed_chatbot_course(
                             .block(chatbot_block(
                                 cx.v5(b"page:1:2:block:chatbox"),
                                 cx.v5(b"chatbot_config:block"),
+                                course_id,
+                            )))
+                        .page(
+                          PageBuilder::new("/chapter-1/page-3", "Page 3")
+                            .block(chatbot_block(
+                                cx.v5(b"page:1:3:block:chatbox"),
+                                cx.v5(b"chatbot_config:extra"),
                                 course_id,
                             ))),
                 ),

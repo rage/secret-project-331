@@ -6,7 +6,13 @@
       {
         "ordinal": 0,
         "name": "opens_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "opens_at"
+          }
+        }
       }
     ],
     "parameters": {

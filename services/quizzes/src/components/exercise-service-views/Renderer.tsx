@@ -1,26 +1,25 @@
-"use client"
-
-import dynamic from "next/dynamic"
-import React, { Dispatch, SetStateAction } from "react"
+import type { Dispatch, SetStateAction } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { State } from "../../app/iframe/page"
-import DynamicallyLoadingComponentPlaceholder from "../ComponentPlaceholder"
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
+import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"
+import withNoSsr from "@/shared-module/exercise-react/react/components/withNoSsr"
+import dynamicWithIframeReload from "@/utils/dynamicWithIframeReload"
 
-import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import DynamicallyLoadingComponentPlaceholder from "../ComponentPlaceholder"
+import type { State } from "../IframeView"
 
 // Dynamic imports for different view types to keep the bundle size down
-const ExerciseEditor = dynamic(() => import("./ExerciseEditor"), {
+const ExerciseEditor = dynamicWithIframeReload(() => import("./ExerciseEditor"), {
   ssr: false,
   loading: () => <DynamicallyLoadingComponentPlaceholder />,
 })
-const AnswerExercise = dynamic(() => import("./AnswerExercise"), {
+const AnswerExercise = dynamicWithIframeReload(() => import("./AnswerExercise"), {
   ssr: false,
   loading: () => <DynamicallyLoadingComponentPlaceholder />,
 })
-const ViewSubmission = dynamic(() => import("./ViewSubmission"), {
+const ViewSubmission = dynamicWithIframeReload(() => import("./ViewSubmission"), {
   ssr: false,
   loading: () => <DynamicallyLoadingComponentPlaceholder />,
 })
@@ -71,9 +70,8 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
         <ExerciseEditor port={port} privateSpec={state.privateSpec} />
       </div>
     )
-  } else {
-    return <>{t("waiting-for-content")}</>
   }
+  return <>{t("waiting-for-content")}</>
 }
 
 export default withErrorBoundary(withNoSsr(Renderer))

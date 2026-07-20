@@ -1,15 +1,16 @@
+/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test.describe(() => {
+test.describe("Quizzes multiple-choice feedback", () => {
   // Chrome sometimes does not render the ui correctly after resizing the window without reloading the page.
   // This does not seem to be something we can fix, so we'll retry
   test.describe.configure({ retries: 4 })
@@ -17,9 +18,7 @@ test.describe(() => {
   test("quizzes multiple-choice feedback", async ({ page, headless }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
     await page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`)
@@ -31,9 +30,7 @@ test.describe(() => {
       "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
     )
 
-    await Promise.all([
-      await page.getByRole("link", { name: "9 Multiple choice with feedback" }).click(),
-    ])
+    await page.getByRole("link", { name: "9 Multiple choice with feedback" }).click()
     await expect(page).toHaveURL(
       "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/the-multiple-choice-with-feedback",
     )
@@ -43,7 +40,7 @@ test.describe(() => {
     await frame.waitFor()
     await frame.getByText("Which one is the Rust package manager?").waitFor()
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })

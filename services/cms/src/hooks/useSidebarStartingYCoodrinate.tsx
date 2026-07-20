@@ -22,9 +22,8 @@ function calculateNewPosition(): number {
   const scrollY = window.scrollY
   if (scrollY >= TOP_BAR_HEIGHT_PX) {
     return 0
-  } else {
-    return TOP_BAR_HEIGHT_PX - scrollY
   }
+  return TOP_BAR_HEIGHT_PX - scrollY
 }
 
 export default useSidebarStartingYCoodrinate

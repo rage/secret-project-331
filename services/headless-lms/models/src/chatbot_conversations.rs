@@ -1,12 +1,14 @@
 use futures::future::OptionFuture;
+use utoipa::ToSchema;
 
 use crate::{
     chatbot_conversation_messages::ChatbotConversationMessage,
-    chatbot_conversation_messages_citations::ChatbotConversationMessageCitation, prelude::*,
+    chatbot_conversation_messages_citations::ChatbotConversationMessageCitation,
+    chatbot_conversation_suggested_messages::ChatbotConversationSuggestedMessage, prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ChatbotConversation {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -17,15 +19,17 @@ pub struct ChatbotConversation {
     pub chatbot_configuration_id: Uuid,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 /** Should contain all information required to display the chatbot to the user. */
 pub struct ChatbotConversationInfo {
     pub current_conversation: Option<ChatbotConversation>,
     pub current_conversation_messages: Option<Vec<ChatbotConversationMessage>>,
     pub current_conversation_message_citations: Option<Vec<ChatbotConversationMessageCitation>>,
     pub chatbot_name: String,
+    pub course_name: String,
     pub hide_citations: bool,
+    pub suggested_messages: Option<Vec<ChatbotConversationSuggestedMessage>>,
 }
 
 pub async fn insert(
@@ -42,6 +46,56 @@ RETURNING *
         input.course_id,
         input.user_id,
         input.chatbot_configuration_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT *
+FROM chatbot_conversations
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn create_for_user_and_configuration(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+    user_id: Uuid,
+    chatbot_configuration_id: Uuid,
+) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+INSERT INTO chatbot_conversations (
+    id,
+    course_id,
+    user_id,
+    chatbot_configuration_id
+)
+SELECT
+    $1,
+    chatbot_configurations.course_id,
+    $2,
+    chatbot_configurations.id
+FROM chatbot_configurations
+WHERE chatbot_configurations.id = $3
+  AND chatbot_configurations.deleted_at IS NULL
+RETURNING *
+        "#,
+        pkey_policy.into_uuid(),
+        user_id,
+        chatbot_configuration_id
     )
     .fetch_one(conn)
     .await?;
@@ -80,10 +134,12 @@ pub async fn get_current_conversation_info(
 ) -> ModelResult<ChatbotConversationInfo> {
     let chatbot_configuration =
         crate::chatbot_configurations::get_by_id(tx, chatbot_configuration_id).await?;
+    let course = crate::courses::get_course(tx, chatbot_configuration.course_id).await?;
     let current_conversation =
         get_latest_conversation_for_user(tx, user_id, chatbot_configuration_id)
             .await
             .optional()?;
+    // the messages are sorted by response_order_number
     let current_conversation_messages = OptionFuture::from(
         current_conversation
             .clone()
@@ -99,12 +155,29 @@ pub async fn get_current_conversation_info(
         .await
         .transpose()?;
 
+    let suggested_messages = if chatbot_configuration.suggest_next_messages
+        && let Some(ccm) = &current_conversation_messages
+        && let Some(last_ccm) = ccm.last()
+    {
+        let sm = crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
+            tx,
+            last_ccm.id.to_owned(),
+        )
+        .await?;
+        // return an empty vec if there are not yet any suggested messages
+        Some(sm)
+    } else {
+        None
+    };
+
     Ok(ChatbotConversationInfo {
         current_conversation,
         current_conversation_messages,
         current_conversation_message_citations,
+        suggested_messages,
         // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
         chatbot_name: chatbot_configuration.chatbot_name,
+        course_name: course.name,
         hide_citations: chatbot_configuration.hide_citations,
     })
 }

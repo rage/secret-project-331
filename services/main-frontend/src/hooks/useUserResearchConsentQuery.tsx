@@ -4,24 +4,21 @@ import type { QueryClient } from "@tanstack/react-query"
 import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
-import { getResearchConsentByUserId } from "../services/backend/users"
-
+import { getUserResearchConsentOptions } from "@/generated/api/@tanstack/react-query.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 
 const useUserResearchConsentQuery = () => {
   const loginStateContext = useContext(LoginStateContext)
 
   return useQuery({
-    queryKey: [`users-get-user-research-consent`],
-    queryFn: () => getResearchConsentByUserId(),
+    ...getUserResearchConsentOptions(),
     enabled: loginStateContext.signedIn === true,
   })
 }
 
 export const refetchUserResearchConsent = async (queryClient: QueryClient) => {
   await queryClient.refetchQueries({
-    // eslint-disable-next-line i18next/no-literal-string
-    queryKey: [`users-get-user-research-consent`],
+    queryKey: getUserResearchConsentOptions().queryKey,
   })
 }
 

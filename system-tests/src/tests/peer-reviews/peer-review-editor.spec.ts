@@ -1,18 +1,32 @@
-import { test } from "@playwright/test"
+import { expect, type Page, test } from "@playwright/test"
 
-import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import waitForSpinnersToDisappear from "../../utils/waitForSpinnersToDisappear"
+
+async function setPeerReviewCheckbox(page: Page, label: string, checked: boolean) {
+  // The checkbox is controlled by a Gutenberg attribute that updates asynchronously; a click can be
+  // briefly reverted before the value settles. setChecked checks once and flakes on that transient
+  // revert, so click and poll until the controlled value settles.
+  const checkbox = page.getByRole("checkbox", { name: label, exact: true })
+  await expect(async () => {
+    if ((await checkbox.isChecked()) !== checked) {
+      await checkbox.click()
+    }
+    await expect(checkbox).toBeChecked({ checked, timeout: 2000 })
+  }).toPass({ timeout: 15000 })
+}
+
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
-test("create peer review", async ({ page }) => {
+
+async function openPeerReviewConfig(page: Page) {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] svg").click()
 
@@ -25,34 +39,31 @@ test("create peer review", async ({ page }) => {
     .click()
 
   await page.getByText("Peer and self review configuration").click()
-  await page.getByText("Add peer review").check()
-  await page.getByText("Use course default peer review config").uncheck()
+  // Wait out the editor's async QueryResult frames so checkbox clicks aren't lost to a re-render.
+  await waitForSpinnersToDisappear(page, "Peer review editor did not finish loading")
+}
+
+test("create peer review", async ({ page }) => {
+  await openPeerReviewConfig(page)
+
+  await setPeerReviewCheckbox(page, "Add peer review", true)
+  await setPeerReviewCheckbox(page, "Use course default peer review config", false)
 
   await page.getByText("Add peer review question").click()
   // Fill text=Insert question here
   await page.getByText("Insert question here").fill("first question")
 
-  await page.getByText("Save").nth(3).click()
-  await page.getByText(`Operation successful`).waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByText("Save").nth(3).click()
+  })
 })
 
 test("default peer review editing", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/organizations")
+  await openPeerReviewConfig(page)
 
-  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-
-  await page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] path").click()
-
-  await page.getByText("Pages").click()
-
-  await page
-    .getByRole("row", { name: "Page One /chapter-1/page-1" })
-    .getByRole("button")
-    .first()
-    .click()
-
-  await page.getByText("Peer and self review configuration").click()
-  await page.getByText("Use course default peer review config").click()
+  // "Use course default" only renders once peer review is enabled.
+  await setPeerReviewCheckbox(page, "Add peer review", true)
+  await setPeerReviewCheckbox(page, "Use course default peer review config", true)
 
   const [page1] = await Promise.all([
     page.waitForEvent("popup"),
@@ -81,8 +92,7 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
   // Fill text=General comments
   await page1.getByText("General comments").fill("test")
 
-  await showNextToastsInfinitely(page1)
-  await page1.getByText("Save").click()
-  await page1.getByText(`Operation successful`).waitFor()
-  await showToastsNormally(page1)
+  await waitForSuccessNotification(page1, async () => {
+    await page1.getByText("Save").click()
+  })
 })

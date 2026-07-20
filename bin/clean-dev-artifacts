@@ -1,0 +1,179 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+# Reclaim disk space from regenerable dev-environment artifacts. Runs every step
+# unconditionally without prompting. Repo-path deletions go through safe_rm,
+# which only removes git-ignored paths.
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+REPO_ROOT="$(cd "$BASEDIR/.." && pwd)"
+
+DRY_RUN=false
+
+usage() {
+  cat <<EOF
+Usage: bin/clean-dev-artifacts [options]
+
+Reclaims disk space from regenerable dev-environment artifacts. Runs every step
+automatically without asking any questions.
+
+Options:
+      --dry-run   Print what would run without executing.
+  -y, --yes       No-op; kept for backward compatibility (steps always run).
+  -h, --help      Show this help.
+
+Safe steps: cargo clean, *.tsbuildinfo, .next/out/build,
+  storybook-static, system-tests/{test-results,playwright-report}, __pycache__,
+  git lfs prune + git gc, unused rustup toolchains (never the pinned channel).
+Destructive steps: pnpm store prune, tear down local cluster,
+  docker prune + unused volumes, nix-collect-garbage -d.
+EOF
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -y | --yes) ;; # no-op: steps always run
+    --dry-run) DRY_RUN=true ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo -e "${RED}Unknown option: $1${RESET_EVERYTHING}"
+      usage
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+disallow_running_as_root
+ensure_inside_git_work_tree
+
+# Echo a command, then run it unless --dry-run.
+run() {
+  echo -e "${CURSIVE}> $*${RESET_EVERYTHING}"
+  if [ "$DRY_RUN" = false ]; then
+    "$@"
+  fi
+}
+
+# Announce a destructive step. This script never prompts, so steps always run.
+announce() {
+  echo -e "${BLUE}$1${RESET_EVERYTHING}"
+}
+
+# rm -rf a repo path only if git ignores it, so tracked files are never removed.
+safe_rm() {
+  local path
+  for path in "$@"; do
+    [ -e "$path" ] || continue
+    if git -C "$REPO_ROOT" check-ignore -q "$path"; then
+      run rm -rf "$path"
+    else
+      echo -e "${RED}Skipping tracked/non-ignored path: $path${RESET_EVERYTHING}"
+    fi
+  done
+}
+
+section() {
+  echo ""
+  echo -e "${BOLD}${BLUE}== $* ==${RESET_EVERYTHING}"
+}
+
+section "Rust build artifacts"
+if command -v cargo > /dev/null 2>&1; then
+  run "$BASEDIR/cargo-clean"
+else
+  echo "cargo not on PATH; skipping."
+fi
+
+section "TypeScript caches"
+mapfile -d '' -t ts_caches < <(find "$REPO_ROOT" -name '*.tsbuildinfo' -not -path '*/node_modules/*' -print0)
+safe_rm "${ts_caches[@]}"
+
+section "Frontend build outputs"
+shopt -s nullglob
+safe_rm \
+  "$REPO_ROOT"/services/*/.next \
+  "$REPO_ROOT"/services/*/dist \
+  "$REPO_ROOT"/services/*/out \
+  "$REPO_ROOT"/services/*/build \
+  "$REPO_ROOT"/storybook/.next \
+  "$REPO_ROOT"/storybook/storybook-static \
+  "$REPO_ROOT"/shared-module/storybook-static
+shopt -u nullglob
+
+section "Playwright output"
+safe_rm \
+  "$REPO_ROOT/system-tests/test-results" \
+  "$REPO_ROOT/system-tests/playwright-report"
+
+section "Python __pycache__"
+mapfile -d '' -t pycache_dirs < <(find "$REPO_ROOT" -type d -name __pycache__ -not -path '*/node_modules/*' -prune -print0)
+safe_rm "${pycache_dirs[@]}"
+
+section "Git maintenance"
+if command -v git-lfs > /dev/null 2>&1; then
+  run git -C "$REPO_ROOT" lfs prune
+fi
+run git -C "$REPO_ROOT" gc
+
+section "Unused rustup toolchains"
+if command -v rustup > /dev/null 2>&1; then
+  pinned="$(grep -E '^[[:space:]]*channel' "$REPO_ROOT/rust-toolchain.toml" | sed -E 's/.*"([^"]+)".*/\1/')"
+  echo "Pinned channel: $pinned (kept)"
+  while read -r name _; do
+    # Only touch numeric-version toolchains; leave stable/beta/nightly alone.
+    if [[ "$name" =~ ^[0-9]+\.[0-9]+ ]] && [[ "$name" != "$pinned"* ]]; then
+      run rustup toolchain uninstall "$name"
+    fi
+  done < <(rustup toolchain list)
+else
+  echo "rustup not on PATH (nix provides the toolchain); skipping."
+fi
+
+section "pnpm store prune (machine-wide)"
+if command -v pnpm > /dev/null 2>&1; then
+  announce "Pruning the machine-wide pnpm store (removes packages not referenced by any project on this machine)."
+  run pnpm store prune
+else
+  echo "pnpm not on PATH; skipping."
+fi
+
+section "Local Kubernetes cluster teardown"
+announce "Tearing down the local Kubernetes cluster (minikube + kind/ctlptl). Wipes local cluster state and the dev database."
+if command -v minikube > /dev/null 2>&1; then
+  run "$BASEDIR/minikube-delete" \
+    || echo -e "${RED}minikube delete: nothing to do or failed (continuing)${RESET_EVERYTHING}"
+fi
+if command -v ctlptl > /dev/null 2>&1; then
+  run "$BASEDIR/kubernetes-cluster-delete" \
+    || echo -e "${RED}ctlptl delete: nothing to do or failed (continuing)${RESET_EVERYTHING}"
+fi
+
+section "Docker prune (build cache, images, containers, unused volumes)"
+if command -v docker > /dev/null 2>&1; then
+  run docker system df
+  announce "Pruning Docker build cache, dangling images, stopped containers, and unused volumes. Keeps the running minikube volume unless the cluster was torn down above."
+  run docker system prune -f
+  run docker builder prune -f
+  run docker volume prune -f
+  run docker system df
+else
+  echo "docker not on PATH; skipping."
+fi
+
+section "Nix store cleanup"
+if command -v nix-collect-garbage > /dev/null 2>&1; then
+  run df -h /nix/store
+  announce "Running nix-collect-garbage -d. Deletes old profile generations (loses rollback) and all unreferenced store paths."
+  run nix-collect-garbage -d
+  run df -h /nix/store
+else
+  echo "nix-collect-garbage not on PATH; skipping."
+fi
+
+section "Done"
+echo -e "${GREEN}Dev-environment cleanup complete.${RESET_EVERYTHING}"

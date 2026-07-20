@@ -1,6 +1,7 @@
 use super::oauth_validate::OAuthValidate;
 use crate::prelude::*;
 use domain::error::{OAuthErrorCode, OAuthErrorData};
+use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 use std::collections::HashMap;
 
@@ -10,9 +11,9 @@ use std::collections::HashMap;
 #[derive(Debug, Deserialize)]
 pub struct RevokeQuery {
     pub client_id: Option<String>,
-    pub client_secret: Option<String>,
+    pub client_secret: Option<SecretString>,
     /// The token to be revoked (required).
-    pub token: Option<String>,
+    pub token: Option<SecretString>,
 
     /// Hint about the type of the token being revoked (optional).
     /// Valid values: "access_token" or "refresh_token".
@@ -25,8 +26,8 @@ pub struct RevokeQuery {
 #[derive(Debug)]
 pub struct RevokeParams {
     pub client_id: String,
-    pub client_secret: Option<String>,
-    pub token: String,
+    pub client_secret: Option<SecretString>,
+    pub token: SecretString,
     pub token_type_hint: Option<String>,
 }
 
@@ -50,7 +51,11 @@ impl OAuthValidate for RevokeQuery {
             ));
         }
 
-        let token = self.token.as_deref().unwrap_or_default();
+        let token = self
+            .token
+            .as_ref()
+            .map(|t| t.expose_secret())
+            .unwrap_or_default();
         if token.is_empty() {
             return Err(ControllerError::new(
                 ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -78,7 +83,8 @@ impl OAuthValidate for RevokeQuery {
         Ok(RevokeParams {
             client_id: client_id.to_string(),
             client_secret: self.client_secret.clone(),
-            token: token.to_string(),
+            // Non-empty presence verified above.
+            token: SecretString::new(token.into()),
             token_type_hint,
         })
     }

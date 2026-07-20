@@ -1,6 +1,5 @@
-use headless_lms_utils::{
-    ApplicationConfiguration, file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME,
-};
+use headless_lms_utils::{file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME};
+use utoipa::ToSchema;
 
 use crate::{
     chapters::{Chapter, course_chapters},
@@ -15,8 +14,8 @@ pub struct CourseInfo {
     pub is_draft: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct CourseCount {
     pub count: u32,
 }
@@ -26,8 +25,30 @@ pub struct CourseContextData {
     pub is_test_mode: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+/// The AI policy a teacher has selected for a course. Drives which variant of the student-facing
+/// AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
+#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, sqlx::Type, ToSchema,
+)]
+#[sqlx(type_name = "course_ai_policy", rename_all = "snake_case")]
+pub enum CourseAiPolicy {
+    /// No policy selected; the notice shows the generic default message.
+    #[default]
+    NotSet,
+    /// AI is not allowed at any point.
+    NoAi,
+    /// AI may be used for planning (brainstorming/outlining) but not in the final work.
+    PlanningOnly,
+    /// AI may be used for specific tasks only, with disclosure.
+    Limited,
+    /// AI may be used freely; the student directs it and discloses their use.
+    FullUse,
+    /// AI use is expected or mandatory.
+    Required,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct Course {
     pub id: Uuid,
     pub slug: String,
@@ -50,15 +71,19 @@ pub struct Course {
     pub join_code: Option<String>,
     pub ask_marketing_consent: bool,
     pub flagged_answers_threshold: Option<i32>,
+    pub flagged_answers_skip_manual_review_and_allow_retry: bool,
     pub closed_at: Option<DateTime<Utc>>,
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
     pub chapter_locking_enabled: bool,
+    pub cheater_detection_enabled: bool,
+    pub ai_policy: CourseAiPolicy,
+    pub course_material_ai_instructions: Option<bool>,
 }
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseMaterialCourse {
     pub id: Uuid,
     pub slug: String,
@@ -79,6 +104,8 @@ pub struct CourseMaterialCourse {
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
     pub chapter_locking_enabled: bool,
+    pub ai_policy: CourseAiPolicy,
+    pub course_material_ai_instructions: Option<bool>,
 }
 
 impl From<Course> for CourseMaterialCourse {
@@ -104,13 +131,15 @@ impl From<Course> for CourseMaterialCourse {
             closed_additional_message: course.closed_additional_message,
             closed_course_successor_id: course.closed_course_successor_id,
             chapter_locking_enabled: course.chapter_locking_enabled,
+            ai_policy: course.ai_policy,
+            course_material_ai_instructions: course.course_material_ai_instructions,
         }
     }
 }
 
 /** All the necessary info that can be used to switch the user's browser to a different language version of the course. */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseLanguageVersionNavigationInfo {
     pub course_language_group_id: Uuid,
     pub course_id: Uuid,
@@ -141,8 +170,8 @@ impl CourseLanguageVersionNavigationInfo {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseBreadcrumbInfo {
     pub course_id: Uuid,
     pub course_name: String,
@@ -152,8 +181,8 @@ pub struct CourseBreadcrumbInfo {
 }
 
 /// Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewCourse {
     pub name: String,
     pub slug: String,
@@ -232,8 +261,8 @@ RETURNING id
     Ok(res.id)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
@@ -266,10 +295,14 @@ SELECT id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -307,10 +340,14 @@ SELECT id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -355,10 +392,14 @@ SELECT id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -393,7 +434,7 @@ pub async fn get_all_language_versions_of_course(
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
-        "
+        r#"
 SELECT id,
   name,
   created_at,
@@ -415,14 +456,18 @@ SELECT id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
-        ",
+        "#,
         course.course_language_group_id,
     )
     .fetch_all(conn)
@@ -460,10 +505,14 @@ SELECT
     c.join_code,
     c.ask_marketing_consent,
     c.flagged_answers_threshold,
+    c.flagged_answers_skip_manual_review_and_allow_retry,
     c.closed_at,
     c.closed_additional_message,
     c.closed_course_successor_id,
-    c.chapter_locking_enabled
+    c.chapter_locking_enabled,
+    c.cheater_detection_enabled,
+    c.ai_policy,
+    c.course_material_ai_instructions
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -530,14 +579,69 @@ SELECT id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
 FROM courses
-WHERE id = $1;
+WHERE id = $1
+  AND deleted_at IS NULL;
     "#,
         course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(course)
+}
+
+pub async fn get_by_id_and_join_code(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    join_code: &str,
+) -> ModelResult<Course> {
+    let course = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description,
+  is_draft,
+  is_test_mode,
+  can_add_chatbot,
+  is_unlisted,
+  base_module_completion_requires_n_submodule_completions,
+  is_joinable_by_code_only,
+  join_code,
+  ask_marketing_consent,
+  flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id,
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
+FROM courses
+WHERE id = $1
+  AND join_code = $2
+  AND deleted_at IS NULL;
+    "#,
+        course_id,
+        join_code,
     )
     .fetch_one(conn)
     .await?;
@@ -558,7 +662,8 @@ SELECT courses.id as course_id,
   organizations.name as organization_name
 FROM courses
   JOIN organizations ON (courses.organization_id = organizations.id)
-WHERE courses.id = $1;
+WHERE courses.id = $1
+  AND courses.deleted_at IS NULL;
     "#,
         course_id
     )
@@ -642,10 +747,14 @@ SELECT courses.id,
   courses.join_code,
   courses.ask_marketing_consent,
   courses.flagged_answers_threshold,
+  courses.flagged_answers_skip_manual_review_and_allow_retry,
   courses.closed_at,
   courses.closed_additional_message,
   courses.closed_course_successor_id,
-  courses.chapter_locking_enabled
+  courses.chapter_locking_enabled,
+  courses.cheater_detection_enabled,
+  courses.ai_policy,
+  courses.course_material_ai_instructions
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -699,8 +808,8 @@ WHERE organization_id = $1
     })
 }
 // Represents the subset of page fields that one is allowed to update in a course
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Default, ToSchema)]
+
 pub struct CourseUpdate {
     pub name: String,
     pub description: Option<String>,
@@ -711,10 +820,13 @@ pub struct CourseUpdate {
     pub is_joinable_by_code_only: bool,
     pub ask_marketing_consent: bool,
     pub flagged_answers_threshold: i32,
+    pub flagged_answers_skip_manual_review_and_allow_retry: bool,
     pub closed_at: Option<DateTime<Utc>>,
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
     pub chapter_locking_enabled: bool,
+    pub ai_policy: CourseAiPolicy,
+    pub course_material_ai_instructions: Option<bool>,
 }
 
 pub async fn update_course(
@@ -735,11 +847,15 @@ SET name = $1,
   is_joinable_by_code_only = $7,
   ask_marketing_consent = $8,
   flagged_answers_threshold = $9,
-  closed_at = $10,
-  closed_additional_message = $11,
-  closed_course_successor_id = $12,
-  chapter_locking_enabled = $13
-WHERE id = $14
+  flagged_answers_skip_manual_review_and_allow_retry = $10,
+  closed_at = $11,
+  closed_additional_message = $12,
+  closed_course_successor_id = $13,
+  chapter_locking_enabled = $14,
+  ai_policy = $15,
+  course_material_ai_instructions = $16
+WHERE id = $17
+  AND deleted_at IS NULL
 RETURNING id,
   name,
   created_at,
@@ -761,10 +877,14 @@ RETURNING id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
     "#,
         course_update.name,
         course_update.description,
@@ -775,15 +895,41 @@ RETURNING id,
         course_update.is_joinable_by_code_only,
         course_update.ask_marketing_consent,
         course_update.flagged_answers_threshold,
+        course_update.flagged_answers_skip_manual_review_and_allow_retry,
         course_update.closed_at,
         course_update.closed_additional_message,
         course_update.closed_course_successor_id,
         course_update.chapter_locking_enabled,
+        course_update.ai_policy as CourseAiPolicy,
+        course_update.course_material_ai_instructions,
         course_id
     )
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+/// Enables or disables suspected-cheater detection for a single course. Used by the seed routine to
+/// turn detection off for seeded courses (which are completed in seconds and would otherwise flag
+/// every seeded user); production courses keep the on-by-default value set at creation.
+pub async fn set_cheater_detection_enabled(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    enabled: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE courses
+SET cheater_detection_enabled = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+        ",
+        enabled,
+        course_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn update_course_base_module_completion_count_requirement(
@@ -835,10 +981,14 @@ RETURNING id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
     "#,
         course_id
     )
@@ -850,7 +1000,7 @@ RETURNING id,
 pub async fn get_course_by_slug(conn: &mut PgConnection, course_slug: &str) -> ModelResult<Course> {
     let course = sqlx::query_as!(
         Course,
-        "
+        r#"
 SELECT id,
   name,
   created_at,
@@ -872,14 +1022,18 @@ SELECT id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
-",
+"#,
         course_slug,
     )
     .fetch_one(conn)
@@ -946,7 +1100,7 @@ pub(crate) async fn get_by_ids(
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
-        "
+        r#"
 SELECT id,
   name,
   created_at,
@@ -968,14 +1122,18 @@ SELECT id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   AND deleted_at IS NULL
-        ",
+        "#,
         course_ids
     )
     .fetch_all(conn)
@@ -1011,10 +1169,14 @@ SELECT id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -1074,10 +1236,14 @@ SELECT id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;
@@ -1103,6 +1269,7 @@ mod test {
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
                 PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+                "test-clg-allows-valid",
             )
             .await
             .unwrap();
@@ -1123,6 +1290,7 @@ mod test {
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
                 PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+                "test-clg-disallows-empty",
             )
             .await
             .unwrap();
@@ -1143,6 +1311,7 @@ mod test {
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
                 PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+                "test-clg-disallows-wrong-case",
             )
             .await
             .unwrap();
@@ -1163,6 +1332,7 @@ mod test {
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
                 PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+                "test-clg-disallows-underscore",
             )
             .await
             .unwrap();
@@ -1196,6 +1366,75 @@ mod test {
                 flagged_answers_threshold: Some(3),
                 can_add_chatbot: false,
             }
+        }
+    }
+
+    mod ai_policy {
+        use super::*;
+
+        #[tokio::test]
+        async fn update_course_round_trips_ai_policy_fields() {
+            insert_data!(:tx, user: _user, :org);
+            let course_language_group_id = course_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("a1b2c3d4-0000-0000-0000-000000000001").unwrap()),
+                "test-clg-ai-policy",
+            )
+            .await
+            .unwrap();
+            let new_course = NewCourse {
+                name: "AI policy course".to_string(),
+                slug: "ai-policy-course".to_string(),
+                organization_id: org,
+                language_code: "en-US".to_string(),
+                teacher_in_charge_name: "teacher".to_string(),
+                teacher_in_charge_email: "teacher@example.com".to_string(),
+                description: "description".to_string(),
+                is_draft: false,
+                is_test_mode: false,
+                is_unlisted: false,
+                copy_user_permissions: false,
+                is_joinable_by_code_only: false,
+                join_code: None,
+                ask_marketing_consent: false,
+                flagged_answers_threshold: Some(3),
+                can_add_chatbot: false,
+            };
+            let course_id = courses::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("a1b2c3d4-0000-0000-0000-000000000002").unwrap()),
+                course_language_group_id,
+                &new_course,
+            )
+            .await
+            .unwrap();
+
+            // New courses default to the generic notice (NotSet / Unknown).
+            let created = courses::get_course(tx.as_mut(), course_id).await.unwrap();
+            assert_eq!(created.ai_policy, CourseAiPolicy::NotSet);
+            assert_eq!(created.course_material_ai_instructions, None);
+
+            // A teacher selects a policy and indicates the material has its own AI instructions.
+            let updated = courses::update_course(
+                tx.as_mut(),
+                course_id,
+                CourseUpdate {
+                    name: created.name.clone(),
+                    flagged_answers_threshold: 3,
+                    ai_policy: CourseAiPolicy::Limited,
+                    course_material_ai_instructions: Some(true),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+            assert_eq!(updated.ai_policy, CourseAiPolicy::Limited);
+            assert_eq!(updated.course_material_ai_instructions, Some(true));
+
+            // The change is persisted for subsequent reads (which feed the student dialog).
+            let reread = courses::get_course(tx.as_mut(), course_id).await.unwrap();
+            assert_eq!(reread.ai_policy, CourseAiPolicy::Limited);
+            assert_eq!(reread.course_material_ai_instructions, Some(true));
         }
     }
 }

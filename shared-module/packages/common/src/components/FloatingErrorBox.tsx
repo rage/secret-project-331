@@ -5,7 +5,6 @@ import React from "react"
 
 import Tick from "../img/tick.svg"
 import { headingFont } from "../styles"
-
 import Button from "./Button"
 
 const ErrorWrapper = styled.div`

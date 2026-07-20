@@ -1,0 +1,94 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+DEVCONTAINER_SCRIPTS="${REPO_ROOT}/.devcontainer/scripts"
+
+export NIX_CONFIG="${NIX_CONFIG:-experimental-features = nix-command flakes}"
+export TILT_DISABLE_ANALYTICS="${TILT_DISABLE_ANALYTICS:-1}"
+
+find_nix() {
+  if command -v nix >/dev/null 2>&1; then
+    command -v nix
+  elif [ -x /nix/var/nix/profiles/default/bin/nix ]; then
+    echo /nix/var/nix/profiles/default/bin/nix
+  elif [ -x "${HOME}/.nix-profile/bin/nix" ]; then
+    echo "${HOME}/.nix-profile/bin/nix"
+  else
+    return 1
+  fi
+}
+
+run_fish_script() {
+  local script="$1"
+  shift
+
+  if command -v fish >/dev/null 2>&1; then
+    fish "$script" "$@"
+  else
+    local nix_bin
+    nix_bin="$(find_nix 2>/dev/null || true)"
+    if [ -n "$nix_bin" ]; then
+      "$nix_bin" develop "$REPO_ROOT" --command fish "$script" "$@"
+    else
+      echo "fish is not installed and nix is not available to provide it." >&2
+      exit 1
+    fi
+  fi
+}
+
+run_nix() {
+  "$NIX_BIN" develop "$REPO_ROOT" --command "$@"
+}
+
+cd "$REPO_ROOT"
+
+run_fish_script "${DEVCONTAINER_SCRIPTS}/ensure-nix.fish"
+NIX_BIN="$(find_nix)"
+run_fish_script "${DEVCONTAINER_SCRIPTS}/ensure-local-secrets.fish"
+"${REPO_ROOT}/bin/devcontainer-doctor" --prereq
+
+if [ ! -d "${REPO_ROOT}/node_modules/.pnpm" ]; then
+  echo "Installing root pnpm dependencies."
+  run_nix pnpm install --frozen-lockfile
+else
+  echo "Root pnpm dependencies already appear to be installed."
+fi
+
+missing_service_dependencies=0
+for dir in \
+  services/cms \
+  services/main-frontend \
+  services/example-exercise \
+  shared-module \
+  services/quizzes \
+  services/tmc \
+  system-tests \
+  shared-module/packages/common \
+  shared-module/packages/components
+do
+  if [ ! -d "${REPO_ROOT}/${dir}/node_modules" ]; then
+    missing_service_dependencies=1
+    break
+  fi
+done
+
+if [ "$missing_service_dependencies" -eq 1 ]; then
+  echo "Installing service pnpm dependencies with bin/pnpm-install-all."
+  run_nix bin/pnpm-install-all
+else
+  echo "Service pnpm dependencies already appear to be installed."
+fi
+
+if ! find "${REPO_ROOT}/services/tmc/bin" -maxdepth 1 -type f -name 'tmc-langs-cli-*' -print -quit 2>/dev/null | grep -q .; then
+  echo "Installing TMC langs CLI with bin/tmc-langs-setup."
+  run_nix bin/tmc-langs-setup
+else
+  echo "TMC langs CLI already appears to be installed."
+fi
+
+run_fish_script "${DEVCONTAINER_SCRIPTS}/ensure-kind-cluster.fish"
+
+echo "Starting Tilt development mode."
+run_nix bin/dev-tilt "$@"

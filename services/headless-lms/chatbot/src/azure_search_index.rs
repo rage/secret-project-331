@@ -1,5 +1,8 @@
+use secrecy::ExposeSecret;
+
 use crate::prelude::*;
-use headless_lms_utils::{ApplicationConfiguration, http::REQWEST_CLIENT};
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_utils::http::REQWEST_CLIENT;
 
 const API_VERSION: &str = "2024-07-01";
 
@@ -235,13 +238,19 @@ pub struct Profile {
 pub async fn does_search_index_exist(
     index_name: &str,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<bool> {
+) -> ChatbotResult<bool> {
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure configuration is missing from the application configuration"
+        )
     })?;
 
     let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure search configuration is missing from the Azure configuration"
+        )
     })?;
 
     let mut url = search_config.search_endpoint.clone();
@@ -251,7 +260,7 @@ pub async fn does_search_index_exist(
     let response = REQWEST_CLIENT
         .get(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .send()
         .await?;
 
@@ -262,10 +271,12 @@ pub async fn does_search_index_exist(
     } else {
         let status = response.status();
         let error_text = response.text().await?;
-        Err(anyhow::anyhow!(
-            "Error checking if index exists. Status: {}. Error: {}",
-            status,
-            error_text
+        Err(chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Error checking if index exists. Status: {}. Error: {}",
+                status, error_text
+            )
         ))
     }
 }
@@ -273,13 +284,19 @@ pub async fn does_search_index_exist(
 pub async fn create_search_index(
     index_name: String,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<()> {
+) -> ChatbotResult<()> {
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure configuration is missing from the application configuration"
+        )
     })?;
 
     let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure search configuration is missing from the Azure configuration"
+        )
     })?;
 
     let fields = vec![
@@ -524,7 +541,7 @@ pub async fn create_search_index(
                 azure_open_ai_parameters: AzureOpenAiParameters {
                     resource_uri: search_config.vectorizer_resource_uri.clone(),
                     deployment_id: search_config.vectorizer_deployment_id.clone(),
-                    api_key: search_config.vectorizer_api_key.clone(),
+                    api_key: search_config.vectorizer_api_key.expose_secret().to_string(),
                     model_name: search_config.vectorizer_model_name.clone(),
                     auth_identity: None,
                 },
@@ -543,7 +560,7 @@ pub async fn create_search_index(
     let response = REQWEST_CLIENT
         .post(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .body(index_json)
         .send()
         .await?;
@@ -555,10 +572,12 @@ pub async fn create_search_index(
     } else {
         let status = response.status();
         let error_text = response.text().await?;
-        Err(anyhow::anyhow!(
-            "Failed to create index. Status: {}. Error: {}",
-            status,
-            error_text
+        Err(chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Failed to create index. Status: {}. Error: {}",
+                status, error_text
+            )
         ))
     }
 }
@@ -579,23 +598,29 @@ pub async fn add_documents_to_index<T>(
     index_name: &str,
     documents: Vec<T>,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<()>
+) -> ChatbotResult<()>
 where
     T: Serialize,
 {
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure configuration is missing from the application configuration"
+        )
     })?;
 
     let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure search configuration is missing from the Azure configuration"
+        )
     })?;
 
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("indexes('{}')/docs/index", index_name));
     url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
-    let index_actions: anyhow::Result<Vec<IndexAction<String>>> = documents
+    let index_actions: ChatbotResult<Vec<IndexAction<String>>> = documents
         .into_iter()
         .map(|doc| {
             serde_json::to_string(&doc)
@@ -603,7 +628,7 @@ where
                     search_action: "upload".to_string(),
                     document,
                 })
-                .map_err(|e| anyhow::anyhow!("Failed to serialize document: {}", e))
+                .map_err(|e| chatbot_err!(SerdeJson, "Failed to serialize document", e))
         })
         .collect();
     let index_actions = index_actions?;
@@ -617,7 +642,7 @@ where
     let response = REQWEST_CLIENT
         .post(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .body(batch_json)
         .send()
         .await?;
@@ -628,10 +653,12 @@ where
     } else {
         let status = response.status();
         let error_text = response.text().await?;
-        Err(anyhow::anyhow!(
-            "Failed to add documents to index. Status: {}. Error: {}",
-            status,
-            error_text
+        Err(chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Failed to add documents to index. Status: {}. Error: {}",
+                status, error_text
+            )
         ))
     }
 }

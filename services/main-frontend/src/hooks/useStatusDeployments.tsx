@@ -2,14 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchDeployments } from "../services/backend/status"
-
-import { DeploymentInfo } from "@/shared-module/common/bindings"
+import { getStatusDeploymentsOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useStatusDeployments = () => {
-  return useQuery<DeploymentInfo[]>({
-    queryKey: ["status", "deployments"],
-    queryFn: () => fetchDeployments(),
+  return useQuery({
+    ...getStatusDeploymentsOptions(),
     refetchInterval: 10000,
   })
 }

@@ -71,7 +71,7 @@ const ALL_EXPECTED_EVENTS: &[&str] = &[
 
 /// Appended to the system prompt when course-material search is enabled, to ground answers
 /// in retrieved course material.
-const SEARCH_GROUNDING_INSTRUCTION: &str = "\n\nSearch the course material with the azure_ai_search tool before answering, and ground your answer in the results with citations. Put only what you want to find in the query; the search is already limited to this course, so don't include the course name. Searching more than once is fine when it helps — to cover distinct sub-questions or angles, to refine when the first results don't answer, or when a follow-up or new instruction needs material you don't already have. When one search already answers, stop there. Skip searching only for messages that don't need course material, like greetings or thanks.";
+const SEARCH_GROUNDING_INSTRUCTION: &str = "\n\nSearch the course material with the azure_ai_search tool before answering, and ground your answer in the results with citations. Put only what you want to find in the query; the search is already limited to this course, so don't include the course name. Searching more than once is fine when it helps — to cover distinct sub-questions or angles, to refine when the first results don't answer, or when a follow-up or new instruction needs material you don't already have. When one search already answers, stop there. If you need more information about a specific document or a topic covered in it, use the document_lookup tool to retrieve the full document. Use the document_lookup tool every time you cite a document. Skip searching only for messages that don't need course material, like greetings or thanks.";
 
 enum ParsedResponseLine {
     Event(String),
@@ -284,12 +284,12 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                         call_id,
                         ..
                     },
-                finished,
+                ..
             } => ChatbotChatStreamEvent::ToolCall {
                 tool_name: Some(tool_name),
                 arguments: Some(arguments),
                 tool_call_id: call_id,
-                finished,
+                finished: false,
             },
             StreamItem {
                 item: OutputItem::AzureAiSearchCallOutput { call_id, .. },
@@ -980,7 +980,7 @@ async fn parse_tool<'a>(
                         call_id,
                         arguments,
                     ));
-                    yield StreamEvent::Item(StreamItem { item, finished: true });
+                    yield StreamEvent::Item(StreamItem { item, finished: false });
                 }
                 OutputItem::Message { content, .. } => {
                     if let MessageContent::Refusal(..) = content {

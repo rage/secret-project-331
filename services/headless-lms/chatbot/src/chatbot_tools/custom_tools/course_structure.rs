@@ -20,6 +20,7 @@ pub struct CourseStructureState {
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[serde(rename_all = "snake_case")]
 pub enum PageType {
     CourseFrontPage,
     TopLevelPage,
@@ -28,6 +29,7 @@ pub enum PageType {
 }
 
 impl PageType {
+    /// Determine page type based on page's position in course structure
     fn determine(
         order_number: i32,
         chapter_number: Option<i32>,
@@ -48,7 +50,6 @@ impl PageType {
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct PageDocumentInfo {
     pub page_title: String,
-    #[serde(rename = "snake_case")]
     pub page_type: PageType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chapter_title: Option<String>,
@@ -56,9 +57,8 @@ pub struct PageDocumentInfo {
     pub chapter_number: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub module_name: Option<String>,
-    // chapter deadline?
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub learning_objective: Option<String>,
+    pub learning_objectives: Option<String>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -145,7 +145,7 @@ impl ChatbotTool for CourseStructureTool {
                             p.module_number,
                         ),
                         chapter_title: p.chapter_title,
-                        learning_objective: None,
+                        learning_objectives: None,
                         chapter_number: p.chapter_number,
                         module_name: p.module_name,
                     };
@@ -159,7 +159,7 @@ impl ChatbotTool for CourseStructureTool {
                         p.module_number,
                     ),
                     chapter_title: p.chapter_title,
-                    learning_objective: learning_objectives,
+                    learning_objectives,
                     chapter_number: p.chapter_number,
                     module_name: p.module_name,
                 }
@@ -190,7 +190,7 @@ impl ChatbotTool for CourseStructureTool {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
             name: "course_structure".to_string(),
-            description: "Get the course structure.".to_string(),
+            description: "Get the course structure as an ordered list of all course pages. Each page is listed with its title, its place in the course structure, and its learning objectives, if any. Information about the course pages' content can be found with the document_lookup tool.".to_string(),
             parameters: LLMToolParams {
                 tool_type: LLMToolParamType::Object,
                 properties: HashMap::new(),

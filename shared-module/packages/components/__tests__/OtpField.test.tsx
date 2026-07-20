@@ -3,7 +3,6 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 
 import { OtpField } from "../src/components/OtpField"
-
 import { FormHarness, pasteText, renderWithForm } from "./testUtils"
 
 describe("OtpField", () => {

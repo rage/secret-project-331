@@ -3,10 +3,10 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import type { BlockRendererProps } from "../.."
-
 import type { SpacerAttributes } from "@/../types/GutenbergBlockAttributes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../.."
 
 const SpacerBlock: React.FC<React.PropsWithChildren<BlockRendererProps<SpacerAttributes>>> = ({
   data,

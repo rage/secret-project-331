@@ -1,6 +1,6 @@
-import { createChatbotTranscript } from "../createChatbotTranscript"
-
 import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
+
+import { createChatbotTranscript } from "../createChatbotTranscript"
 
 describe("getChatbotTranscript", () => {
   const info1: ChatbotConversationInfo = {

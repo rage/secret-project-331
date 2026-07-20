@@ -3,10 +3,6 @@
 import { css, cx } from "@emotion/css"
 import { useContext } from "react"
 
-import type { BlockRendererProps } from "../../.."
-
-import ListFontSizeContext from "./listFontSizeContext"
-
 import type { ListAttributes } from "@/../types/GutenbergBlockAttributes"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import ParsedText from "@/components/course-material/ParsedText"
@@ -14,6 +10,9 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper, mobileFontSizeMapper } from "@/styles/course-material/fontSizeMapper"
+
+import type { BlockRendererProps } from "../../.."
+import ListFontSizeContext from "./listFontSizeContext"
 
 const LIST_BLOCK_CLASS_NAME = "course-material-list-block"
 

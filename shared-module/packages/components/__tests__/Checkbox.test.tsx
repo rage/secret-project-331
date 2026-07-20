@@ -3,7 +3,6 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { Checkbox } from "../src/components/Checkbox"
-
 import { pressSpace, renderBooleanField, renderWithForm } from "./testUtils"
 
 describe("Checkbox", () => {

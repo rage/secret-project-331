@@ -3,10 +3,10 @@
 /* oxlint-disable i18next/no-literal-string */
 import { formatLTR } from "@wordpress/icons"
 
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
 import LatexEditor from "./LatexEditor"
 import LatexSave from "./LatexSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface TextAttributes {
   text: string

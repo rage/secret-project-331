@@ -56,6 +56,9 @@ jobs:
           df -h
 
       - uses: actions/checkout@v4
+        with:
+          # The compile-time font guard rejects unhydrated git-lfs pointers.
+          lfs: true
 
       - uses: actions/cache@v4
         with:
@@ -202,6 +205,8 @@ jobs:
       - name: Install dependencies for services/main-frontend
         run: pnpm install --frozen-lockfile
         working-directory: ./services/main-frontend
+      - name: Typecheck
+        run: pnpm exec tsc -p ./shared-module/packages/common --noEmit
       - name: Run tests
         run: pnpm run test
         working-directory: ./shared-module/packages/common
@@ -212,6 +217,30 @@ jobs:
             echo "## 🔧 Shared Module Common Tests"
             echo "- **Status**: ${{ job.status }}"
             echo "- **Service**: Shared Module Common"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  shared-module-components:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Install dependencies at repository root
+        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for shared-module/packages/components
+        run: pnpm install --frozen-lockfile
+        working-directory: ./shared-module/packages/components
+      - name: Typecheck
+        run: pnpm exec tsc -p ./shared-module/packages/components --noEmit
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🧱 Shared Module Components Typecheck"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Shared Module Components"
           } >> "$GITHUB_STEP_SUMMARY"
 
   quizzes:
@@ -379,6 +408,8 @@ jobs:
       - name: Install dependencies for shared-module/packages/exercise-iframe-host
         run: pnpm install --frozen-lockfile
         working-directory: ./shared-module/packages/exercise-iframe-host
+      - name: Typecheck
+        run: pnpm exec tsc -p ./shared-module/packages/exercise-iframe-host --noEmit
       - name: Run tests
         run: pnpm run test
         working-directory: ./shared-module/packages/exercise-iframe-host

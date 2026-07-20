@@ -6,8 +6,6 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import SubmissionIFrame from "./SubmissionIFrame"
-
 import GradeExamAnswerForm from "@/components/forms/GradeExamAnswerForm"
 import { getExerciseSlideSubmissionInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
@@ -23,6 +21,8 @@ import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+
+import SubmissionIFrame from "./SubmissionIFrame"
 
 interface Block<T> {
   name: string

@@ -5,12 +5,12 @@ import { AnimatePresence, LayoutGroup, motion } from "motion/react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
+import { Button } from "@/shared-module/components"
+
 import { SCHEDULE_STAGE_COUNT } from "../../scheduleConstants"
 import type { StageCardViewModel } from "../../scheduleMappers"
 import StageCard from "../StageCard"
-
-import type { CourseDesignerStage } from "@/generated/api/types.generated"
-import { Button } from "@/shared-module/components"
 
 const toolbarStyles = css`
   display: flex;

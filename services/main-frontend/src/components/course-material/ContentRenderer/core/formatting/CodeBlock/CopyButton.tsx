@@ -9,10 +9,10 @@ import { useTranslation } from "react-i18next"
 import type { SpringValue } from "react-spring"
 import { animated, useTransition } from "react-spring"
 
-import { useCopyHtmlContentToClipboard } from "./utils"
-
 import CopyIcon from "@/img/course-material/copy.svg"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import { useCopyHtmlContentToClipboard } from "./utils"
 
 const COPY_STATUS = {
   DEFAULT: "default",
@@ -167,6 +167,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
       }, 2000)
       return () => clearTimeout(timer)
     }
+    return undefined
   }, [copyStatus])
 
   const handleCopy = useCallback(async () => {

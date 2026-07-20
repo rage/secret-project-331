@@ -4,13 +4,12 @@ import { css } from "@emotion/css"
 import { AnimatePresence, motion } from "motion/react"
 import { useTranslation } from "react-i18next"
 
-import type { StageMonth } from "../scheduleMappers"
-
-import MonthBlock from "./MonthBlock"
-
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
+
+import type { StageMonth } from "../scheduleMappers"
+import MonthBlock from "./MonthBlock"
 
 const stageCardStyles = css`
   border: 1px solid ${baseTheme.colors.gray[200]};

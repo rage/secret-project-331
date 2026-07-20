@@ -4,19 +4,17 @@ import React, { useContext } from "react"
 import { useMemoOne } from "use-memo-one"
 import { v5 } from "uuid"
 
-import { SIDEBAR_WIDTH_PX } from "../../../components/Layout"
-import CourseContext from "../../../contexts/CourseContext"
-
 import PageContext from "@/contexts/PageContext"
 import { getCmsRepositoryExercisesForCourse } from "@/generated/api/sdk.generated"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useMedia from "@/shared-module/common/hooks/useMedia"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
@@ -25,6 +23,9 @@ import type {
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { SIDEBAR_WIDTH_PX } from "../../../components/Layout"
+import CourseContext from "../../../contexts/CourseContext"
 
 const VIEW_TYPE = "exercise-editor"
 const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
@@ -116,17 +117,15 @@ const ExerciseTaskIFrameEditor: React.FC<
           console.error(UNEXPECTED_MESSAGE_ERROR)
         }
       }}
-      breakFromCenteredProps={
-        largeScreen
-          ? {
-              sidebar: true,
-              // oxlint-disable-next-line i18next/no-literal-string
-              sidebarWidth: `${SIDEBAR_WIDTH_PX}px`,
-              // oxlint-disable-next-line i18next/no-literal-string
-              sidebarPosition: "right",
-            }
-          : undefined
-      }
+      {...includeIf(largeScreen, {
+        breakFromCenteredProps: {
+          sidebar: true,
+          // oxlint-disable-next-line i18next/no-literal-string
+          sidebarWidth: `${SIDEBAR_WIDTH_PX}px`,
+          // oxlint-disable-next-line i18next/no-literal-string
+          sidebarPosition: "right",
+        },
+      })}
       title={IFRAME_EDITOR}
     />
   )

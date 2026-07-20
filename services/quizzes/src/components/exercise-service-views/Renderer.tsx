@@ -2,13 +2,13 @@ import type { Dispatch, SetStateAction } from "react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import DynamicallyLoadingComponentPlaceholder from "../ComponentPlaceholder"
-import type { State } from "../IframeView"
-
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
 import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"
 import withNoSsr from "@/shared-module/exercise-react/react/components/withNoSsr"
 import dynamicWithIframeReload from "@/utils/dynamicWithIframeReload"
+
+import DynamicallyLoadingComponentPlaceholder from "../ComponentPlaceholder"
+import type { State } from "../IframeView"
 
 // Dynamic imports for different view types to keep the bundle size down
 const ExerciseEditor = dynamicWithIframeReload(() => import("./ExerciseEditor"), {

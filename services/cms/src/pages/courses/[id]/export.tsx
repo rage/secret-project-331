@@ -3,17 +3,18 @@
 import { TarBuilder } from "@bytedance/tar-wasm"
 import React, { useState } from "react"
 
-import CmsPageTitle from "../../../components/CmsPageTitle"
-import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
-
 import { getCmsCoursePages, getCmsPage, getCmsPageInfo } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import CmsPageTitle from "../../../components/CmsPageTitle"
+import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
 
 interface ExportPageProps {
   // courseId
@@ -60,7 +61,7 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
             exercise_tasks: data.exercise_tasks,
             url_path: data.page.url_path,
             title: data.page.title,
-            chapter_id: data.page.chapter_id,
+            ...omitUndefined({ chapter_id: data.page.chapter_id }),
             hidden: data.page.hidden,
           }).content
           let filename = page.url_path
@@ -104,12 +105,13 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
             tarBuilder.add_file(path, bodyAsUint8Array)
           }
         }
-        if (pages.length === 0) {
+        const firstPage = pages[0]
+        if (firstPage === undefined) {
           throw new Error("Course has no pages")
         }
         const pageInfo = await getCmsPageInfo({
           path: {
-            page_id: pages[0].id,
+            page_id: firstPage.id,
           },
         })
         const tarData = tarBuilder.finish()

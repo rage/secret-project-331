@@ -4,15 +4,15 @@ import { css } from "@emotion/css"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
-import ThinkingIndicator from "./ThinkingIndicator"
-
 import {
   zChatbotConversationMessageReasoning,
   zChatbotConversationMessageToolCall,
 } from "@/generated/course-material-api/zod.generated"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
+import ThinkingIndicator from "./ThinkingIndicator"
 
 const textStyle = css`
   padding: 0 0.5rem;

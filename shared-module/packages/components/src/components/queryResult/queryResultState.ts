@@ -8,22 +8,22 @@ export type SuccessData<Q> = Q extends UseQueryResult<infer T, unknown> ? T : ne
 
 export interface SingleQueryState<T, E> {
   hasData: boolean
-  data?: T
+  data?: T | undefined
   initialLoading: boolean
   refreshing: boolean
   blockingError: boolean
   staleError: boolean
-  error?: E
+  error?: E | undefined
 }
 
 export interface MultiQueryState<E, TQueries extends QueryTuple<E>> {
   allHaveData: boolean
-  dataTuple?: { [K in keyof TQueries]: SuccessData<TQueries[K]> }
+  dataTuple?: { [K in keyof TQueries]: SuccessData<TQueries[K]> } | undefined
   initialLoading: boolean
   refreshing: boolean
   blockingError: boolean
   staleError: boolean
-  error?: E
+  error?: E | undefined
 }
 
 /** Returns a human-readable message for unknown errors. */

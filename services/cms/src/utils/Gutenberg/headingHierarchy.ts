@@ -1,6 +1,6 @@
-import { extractPlainTextFromHtml } from "./paragraphAiSource"
-
 import type { BlockInstance } from "@/utils/Gutenberg/types"
+
+import { extractPlainTextFromHtml } from "./paragraphAiSource"
 
 type HeadingIssueType = "heading-h1-reserved" | "heading-first-should-be-h2" | "heading-level-jump"
 

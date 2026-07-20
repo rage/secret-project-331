@@ -5,9 +5,9 @@ import { render, screen } from "@testing-library/react"
 import "@testing-library/jest-dom"
 import type React from "react"
 
-import SearchUsersResults from "../SearchUsersResults"
-
 import type { UserDetail } from "@/generated/api/types.generated"
+
+import SearchUsersResults from "../SearchUsersResults"
 
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({

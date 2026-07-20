@@ -4,11 +4,11 @@ import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
-import BlockWrapper from "../BlockWrapper"
-
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/list"]
 const LEARNING_OBJECTIVE_SECTION_TEMPLATE: Template[] = [["core/list", { align: "left" }]]

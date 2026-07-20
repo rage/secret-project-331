@@ -10,5 +10,6 @@ export async function goToPageIfAvailable(page: Page, pageNumber: number) {
   if (pageButtonSelector.length === 0) {
     return
   }
-  await pageButtonSelector[0].click()
+  // safe: length is non-zero here (early return above when empty)
+  await pageButtonSelector[0]!.click()
 }

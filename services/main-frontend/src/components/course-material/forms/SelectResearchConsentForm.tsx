@@ -5,8 +5,6 @@ import { useAtomValue } from "jotai"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ContentRenderer from "../ContentRenderer"
-
 import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"
 import {
   getCourseMaterialResearchConsentFormQuestions,
@@ -23,6 +21,8 @@ import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { currentCourseIdAtom, materialCourseAtom } from "@/state/course-material/selectors"
 import type { Block } from "@/types/courseMaterialBlock"
+
+import ContentRenderer from "../ContentRenderer"
 
 interface ResearchConsentFormProps {
   onClose: () => void

@@ -4,6 +4,17 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAtomValue, useSetAtom } from "jotai"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
+import {
+  createCourseDesignerScheduleSuggestionMutation,
+  finalizeCourseDesignerScheduleMutation,
+  getCourseDesignerPlanOptions,
+  getCourseDesignerPlanQueryKey,
+  getCourseDesignerPlansQueryKey,
+  saveCourseDesignerScheduleMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { CourseDesignerCourseSize, CourseDesignerStage } from "@/generated/api/types.generated"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+
 import type { ScheduleWizardStep } from "../scheduleAtoms"
 import {
   addMonthToStageAtomFamily,
@@ -19,17 +30,6 @@ import {
   toDraftStages,
 } from "../scheduleMappers"
 import { validateScheduleStages } from "../scheduleValidation"
-
-import {
-  createCourseDesignerScheduleSuggestionMutation,
-  finalizeCourseDesignerScheduleMutation,
-  getCourseDesignerPlanOptions,
-  getCourseDesignerPlanQueryKey,
-  getCourseDesignerPlansQueryKey,
-  saveCourseDesignerScheduleMutation,
-} from "@/generated/api/@tanstack/react-query.generated"
-import type { CourseDesignerCourseSize, CourseDesignerStage } from "@/generated/api/types.generated"
-import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 const todayMonthValue = () => {
   const date = new Date()

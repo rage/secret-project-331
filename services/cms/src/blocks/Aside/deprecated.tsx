@@ -4,9 +4,9 @@
 import { createBlock } from "@wordpress/blocks"
 import { omit } from "lodash"
 
-import type { AsideComponentProps } from "."
-
 import type { BlockDeprecation } from "@/utils/Gutenberg/types"
+
+import type { AsideComponentProps } from "."
 
 interface Deprecated1AsideComponentProps {
   title: string

@@ -2,12 +2,11 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import CodeGiveawayBlockEditor from "./CodeGiveawayBlockEditor"
 import CodeGiveawayBlockSave from "./CodeGiveawayBlockSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface ConditionAttributes {
   code_giveaway_id: string

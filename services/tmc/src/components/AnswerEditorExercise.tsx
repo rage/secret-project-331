@@ -37,13 +37,13 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
         <label>{t("upload-solution-instructions")}</label>
         <div>{t("select-file-for-submission")}</div>
         <br />
-        <Button variant="primary" size="medium">
+        <Button variant="primary" size="medium" aria-label={t("select-file-for-submission")}>
           <input
             type="file"
             ref={inputRef}
             onChange={(ev) => {
               if (ev.target && ev.target.files && ev.target.files.length > 0) {
-                setFileToUpload(ev.target.files[0])
+                setFileToUpload(ev.target.files[0] ?? null)
               }
             }}
           />

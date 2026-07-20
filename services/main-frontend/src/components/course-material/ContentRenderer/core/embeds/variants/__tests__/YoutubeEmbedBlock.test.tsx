@@ -1,7 +1,6 @@
 "use client"
 
 import "@testing-library/jest-dom"
-
 import type { YouTubeVideoParams } from "../YoutubeEmbedBlock"
 import { buildYoutubeEmbedUrl, parseTimeParameter, parseYoutubeUrl } from "../YoutubeEmbedBlock"
 

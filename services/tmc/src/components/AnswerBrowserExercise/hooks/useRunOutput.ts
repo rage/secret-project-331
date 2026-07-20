@@ -35,7 +35,7 @@ export function useRunOutput() {
       let i = prev.length - 1
       while (i >= 0) {
         const seg = prev[i]
-        if (seg.type === "input" && seg.line === "") {
+        if (seg?.type === "input" && seg.line === "") {
           return [
             ...prev.slice(0, i),
             { type: "input" as const, prompt: seg.prompt, line },

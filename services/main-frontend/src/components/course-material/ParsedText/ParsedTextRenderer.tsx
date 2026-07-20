@@ -3,11 +3,10 @@
 import type { RefObject } from "react"
 import React, { createElement, memo, useCallback, useContext, useMemo, useRef } from "react"
 
-import { parseText } from "../ContentRenderer/util/textParsing"
+import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 
 import type { ParsedTextProps, Tag } from "."
-
-import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
+import { parseText } from "../ContentRenderer/util/textParsing"
 
 const ParsedTextRenderer = <T extends Tag>(
   props: ParsedTextProps<T> & { wrapperRef?: RefObject<HTMLElement | null> },

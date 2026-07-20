@@ -1,28 +1,39 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { StudentsContextProvider, useStudentsContext } from "./StudentsContext"
-import * as styles from "./StudentsPageStyles"
-
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
-import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
+import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import Pagination from "@/shared-module/common/components/Pagination"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
 
-const DOWN_SYMBOL = "▼"
+import {
+  StudentsContextProvider,
+  useStudentsContext,
+  useStudentsListParams,
+} from "./StudentsContext"
+import * as styles from "./StudentsPageStyles"
+import { useCourseStudentsIdentity, useCourseStudentsPrefetchNextPage } from "./studentsQueries"
 
 const KEY_USERS = "users"
 const KEY_COMPLETIONS = "completions"
 const KEY_PROGRESS = "progress"
 const KEY_CERTIFICATES = "certificates"
+
+// Capped at 1000: detail subtabs POST the whole page's user_ids in one request; larger pages would
+// send oversized payloads.
+const ITEMS_PER_PAGE_OPTIONS = [100, 500, 1000]
 
 const tableSection = css`
   padding-left: 0;
@@ -48,12 +59,47 @@ const tableSection = css`
   }
 `
 
+const instanceSelect = css`
+  height: 36px;
+  border: 1px solid ${baseTheme.colors.gray[100]};
+  border-radius: 4px;
+  padding: 0 12px;
+  font-size: 14px;
+  background: ${baseTheme.colors.clear[50]};
+  min-width: 180px;
+`
+
 function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>()
   const courseId = params.id
   const { t } = useTranslation()
-  const { inputValue, setSearchQuery } = useStudentsContext()
+  const {
+    courseId: ctxCourseId,
+    searchInput,
+    setSearchInput,
+    runImmediateSearch,
+    isSearchPending,
+    page,
+    limit,
+    setPage,
+    setLimit,
+    courseInstanceId,
+    setCourseInstanceId,
+  } = useStudentsContext()
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
+
+  const listParams = useStudentsListParams()
+  const identityQuery = useCourseStudentsIdentity(ctxCourseId, listParams)
+  const totalPages = identityQuery.data?.total_pages ?? 0
+  // Owned here (single instance) so the next-page prefetch is scheduled once, not once per subtab.
+  useCourseStudentsPrefetchNextPage(ctxCourseId, listParams, totalPages)
+
+  const searchParams = useSearchParams()
+  // Subtab links carry the current query string so the shared (URL-synced) search and page survive
+  // a tab switch; `pathPrefix` below keeps active-tab matching on the clean path.
+  const tabQuerySuffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
+
+  const courseInstancesQuery = useCourseInstancesQuery(courseId)
 
   const crumbs = useMemo(
     () => [
@@ -70,13 +116,19 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     const base = manageCourseStudentsRoute(courseId)
+    const tab = (key: string, title: string): RouteTabDefinition => ({
+      key,
+      title,
+      href: `${base}/${key}${tabQuerySuffix}`,
+      pathPrefix: `${base}/${key}`,
+    })
     return [
-      { key: KEY_USERS, title: t("users"), href: `${base}/${KEY_USERS}` },
-      { key: KEY_COMPLETIONS, title: t("completions"), href: `${base}/${KEY_COMPLETIONS}` },
-      { key: KEY_PROGRESS, title: t("progress"), href: `${base}/${KEY_PROGRESS}` },
-      { key: KEY_CERTIFICATES, title: t("certificates"), href: `${base}/${KEY_CERTIFICATES}` },
+      tab(KEY_USERS, t("users")),
+      tab(KEY_COMPLETIONS, t("completions")),
+      tab(KEY_PROGRESS, t("progress")),
+      tab(KEY_CERTIFICATES, t("certificates")),
     ]
-  }, [courseId, t])
+  }, [courseId, t, tabQuerySuffix])
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -86,10 +138,6 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
             <div className={styles.headerTitleWrap}>
               <div className={styles.title}>{t("label-students")}</div>
               <div className={styles.chatbotInfo}>{t("chatbot-student-page-info")}</div>
-            </div>
-            <div className={styles.dropdownTop}>
-              {t("all-instances")}
-              <span className={styles.dropdownIcon}>{DOWN_SYMBOL}</span>
             </div>
           </div>
           <hr className={styles.divider} />
@@ -101,12 +149,36 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
               <input
                 className={styles.searchInput}
                 placeholder={t("search-students")}
-                value={inputValue}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label={t("search-students")}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    runImmediateSearch()
+                  }
+                }}
               />
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              <span className={styles.searchIcon}>🔍</span>
+              <span className={styles.searchIcon} aria-hidden="true" />
+              {isSearchPending && (
+                <span className={styles.searchPendingSpinner} aria-hidden="true">
+                  <Spinner variant="small" disableMargin />
+                </span>
+              )}
             </div>
+
+            <select
+              className={instanceSelect}
+              aria-label={t("course-instance")}
+              value={courseInstanceId ?? ""}
+              onChange={(e) => setCourseInstanceId(e.target.value === "" ? null : e.target.value)}
+            >
+              <option value="">{t("all-instances")}</option>
+              {courseInstancesQuery.data?.map((instance) => (
+                <option key={instance.id} value={instance.id}>
+                  {instance.name ?? t("default-instance")}
+                </option>
+              ))}
+            </select>
 
             <RouteTabPageTitle
               tabs={tabs}
@@ -117,7 +189,15 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <div className={tableSection}>{children}</div>
+        <div className={tableSection} data-students-horizontal-scroll>
+          {children}
+        </div>
+
+        <Pagination
+          totalPages={totalPages}
+          paginationInfo={{ page, setPage, limit, setLimit }}
+          itemsPerPageOptions={ITEMS_PER_PAGE_OPTIONS}
+        />
       </div>
     </BreakFromCentered>
   )

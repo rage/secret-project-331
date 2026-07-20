@@ -9,6 +9,7 @@ import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface ResetPasswordFormFields {
@@ -80,7 +81,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
               message: t("password-must-have-at-least-8-characters"),
             },
           })}
-          error={errors.new_password?.message}
+          {...omitUndefined({ error: errors.new_password?.message })}
           required
         />
 
@@ -92,7 +93,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
             required: t("required-field"),
             validate: (value) => value === newPassword || t("passwords-dont-match"),
           })}
-          error={errors.password_confirmation?.message}
+          {...omitUndefined({ error: errors.password_confirmation?.message })}
           required
         />
 

@@ -70,6 +70,9 @@ export const useLineChartOptions = ({
         trigger: "axis" as const,
         formatter: (params: TooltipComponentFormatterCallbackParams) => {
           const dataPoint = Array.isArray(params) ? params[0] : params
+          if (!dataPoint) {
+            return ""
+          }
           const isLastPoint = dataPoint.dataIndex === data.length - 1
           const period = data[dataPoint.dataIndex]?.period
 

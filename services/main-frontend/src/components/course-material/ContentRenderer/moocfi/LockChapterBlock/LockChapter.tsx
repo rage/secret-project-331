@@ -7,13 +7,6 @@ import { useAtomValue, useSetAtom } from "jotai"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { BlockRendererProps } from "../.."
-
-import LockAnimation from "./LockAnimation"
-import LockChapterLoadingView from "./LockChapterLoadingView"
-import LockChapterLockedView from "./LockChapterLockedView"
-import LockChapterUnlockedView from "./LockChapterUnlockedView"
-
 import {
   getCourseMaterialChapterLockPreview,
   lockCourseMaterialChapter,
@@ -22,12 +15,18 @@ import {
   refetchUserChapterLocks,
   useUserChapterLocks,
 } from "@/hooks/course-material/useUserChapterLocks"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { courseMaterialAtom } from "@/state/course-material"
 import { refetchViewAtom } from "@/state/course-material/selectors"
+
+import type { BlockRendererProps } from "../.."
+import LockAnimation from "./LockAnimation"
+import LockChapterLoadingView from "./LockChapterLoadingView"
+import LockChapterLockedView from "./LockChapterLockedView"
+import LockChapterUnlockedView from "./LockChapterUnlockedView"
 
 interface LockChapterProps {
   chapterId: string

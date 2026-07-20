@@ -4,7 +4,6 @@ import { act, render, screen } from "@testing-library/react"
 import { I18nextProvider } from "react-i18next"
 
 import i18nTest from "../../testing/i18nTest"
-import LoadingState from "../LoadingState"
 import type { DynamicImportStatus } from "../dynamicImportStore"
 import {
   DYNAMIC_IMPORT_STATE_COMMITTED,
@@ -14,6 +13,7 @@ import {
   DYNAMIC_IMPORT_STATE_LOADING,
   setDynamicImportStatus,
 } from "../dynamicImportStore"
+import LoadingState from "../LoadingState"
 
 const renderWithI18n = (debugId: string) =>
   render(

@@ -4,19 +4,18 @@ import React, { useEffect, useId, useRef, useState } from "react"
 import { ToggleButton, ToggleButtonGroup } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf } from "@/shared-module/common/utils/nullability"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { QuizItemComponentProps } from "."
 import type { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
 import type { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
-
 import {
   QUIZ_TITLE_STYLE,
   TWO_DIMENSIONAL_BUTTON_SELECTED,
   TWO_DIMENSIONAL_BUTTON_STYLES,
 } from "./AnswerQuizStyles"
-
-import type { QuizItemComponentProps } from "."
-
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const ChooseN: React.FunctionComponent<
   React.PropsWithChildren<QuizItemComponentProps<PublicSpecQuizItemChooseN, UserItemAnswerChooseN>>
@@ -74,6 +73,8 @@ const ChooseN: React.FunctionComponent<
   // oxlint-disable-next-line i18next/no-literal-string
   const liveId = `${groupId}-live`
 
+  const groupAriaLabel = quizItem.title || quizItem.body
+
   return (
     <div
       className={css`
@@ -100,7 +101,7 @@ const ChooseN: React.FunctionComponent<
           selectionMode="multiple"
           selectedKeys={new Set(selectedIds)}
           onSelectionChange={handleSelectionChange}
-          aria-label={quizItem.title || quizItem.body || undefined}
+          {...includeIf(groupAriaLabel, { "aria-label": groupAriaLabel })}
           aria-describedby={`${statusId} ${hintId} ${liveId}`}
           className={css`
             display: flex;

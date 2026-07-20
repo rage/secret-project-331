@@ -7,13 +7,26 @@
     "eslint-plugin-i18next"
   ],
   "categories": {
-    "correctness": "warn",
-    "suspicious": "warn",
-    "pedantic": "warn"
+    "correctness": "error",
+    "suspicious": "error",
+    "pedantic": "error"
   },
   "env": {
     "builtin": true,
     "es2018": true
+  },
+  "settings": {
+    "react": {
+      "version": "19",
+      "componentWrapperFunctions": ["styled", "css", "sx"],
+      "formComponents": [],
+      "linkComponents": []
+    },
+    "jsx-a11y": {
+      "components": {
+        "Button": "button"
+      }
+    }
   },
   "ignorePatterns": [
     "**/node_modules/**",
@@ -152,6 +165,7 @@
     "jsx-a11y/role-supports-aria-props": "error",
     "jsx-a11y/scope": "error",
     "jsx-a11y/tabindex-no-positive": "error",
+    "jsx-a11y/prefer-tag-over-role": "off",
     "react/display-name": "error",
     "react/react-in-jsx-scope": "off",
     "react/jsx-key": "error",
@@ -557,6 +571,7 @@
                 "aria-labelledby",
                 "aria-describedby",
                 "aria-live",
+                "aria-sort",
                 "url",
                 "labelId",
                 "defaultLanguage",

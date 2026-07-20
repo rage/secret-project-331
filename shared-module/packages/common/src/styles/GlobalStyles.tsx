@@ -2,10 +2,9 @@
 
 import { css, injectGlobal } from "@emotion/css"
 
+import { headingFont, monospaceFont, primaryFont, typography } from "."
 import { defaultFontSizePx, linkWithExtraIconClass } from "./constants"
 import cssReset from "./cssReset"
-
-import { headingFont, monospaceFont, primaryFont, typography } from "."
 
 import "@fontsource/raleway/100.css"
 import "@fontsource/raleway/200.css"

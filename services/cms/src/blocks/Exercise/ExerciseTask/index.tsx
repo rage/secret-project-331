@@ -5,13 +5,12 @@ import type { ComponentType } from "react"
 import { useEffect } from "react"
 import { v4 } from "uuid"
 
-import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
 import type { ExerciseTaskAttributes } from "./ExerciseTaskEditor"
 import ExerciseTaskEditor from "./ExerciseTaskEditor"
 import ExerciseTaskSave from "./ExerciseTaskSave"
-
-import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
 
 const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
   title: "ExerciseTask",

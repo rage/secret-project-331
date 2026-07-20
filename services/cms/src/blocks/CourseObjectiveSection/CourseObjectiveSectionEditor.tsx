@@ -4,10 +4,6 @@ import { css } from "@emotion/css"
 import { InnerBlocks, RichText } from "@wordpress/block-editor"
 import React from "react"
 
-import BlockWrapper from "../BlockWrapper"
-
-import type { CourseObjectiveSectionAttributes } from "."
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import {
@@ -15,6 +11,9 @@ import {
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "@/shared-module/common/utils/constants"
 import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+
+import type { CourseObjectiveSectionAttributes } from "."
+import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/buttons", "core/button", "core/paragraph"]
 const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [

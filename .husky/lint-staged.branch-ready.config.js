@@ -21,6 +21,12 @@ export default {
     "pnpm exec tsc -p shared-module/packages/exercise-react --noEmit",
   "shared-module/packages/create-exercise-service/**/*.{js,jsx,ts,tsx}": () =>
     "pnpm exec tsc -p shared-module/packages/create-exercise-service --noEmit",
+  "shared-module/packages/common/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/common --noEmit",
+  "shared-module/packages/components/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/components --noEmit",
+  "shared-module/packages/exercise-iframe-host/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/exercise-iframe-host --noEmit",
   "*.{md,json,scss,css}": "oxfmt --no-error-on-unmatched-pattern",
   "*.rs": () => [
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",

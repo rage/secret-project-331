@@ -4,8 +4,8 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { createCodeGiveawayMutation as createCodeGiveawayMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 

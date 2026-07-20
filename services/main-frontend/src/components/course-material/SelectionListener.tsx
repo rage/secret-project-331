@@ -3,10 +3,10 @@
 import { useSetAtom } from "jotai"
 import { useEffect } from "react"
 
-import { TEXT_SELECTION_TOOLTIP_ID } from "./TextSelectionTooltip"
-
 import { selectedBlockIdAtom, selectionAtom } from "@/stores/course-material/materialFeedbackStore"
 import { courseMaterialBlockClass } from "@/utils/course-material/constants"
+
+import { TEXT_SELECTION_TOOLTIP_ID } from "./TextSelectionTooltip"
 
 export const FEEDBACK_DIALOG_CONTENT_ID = "feedback-dialog-content"
 export const IGNORE_BLOCK_FEEDBACK_CLASS = "feedback-ignore-block"

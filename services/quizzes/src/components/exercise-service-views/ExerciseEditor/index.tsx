@@ -2,7 +2,6 @@ import React, { useState } from "react"
 
 import type { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
 import QuizzesExerciseServiceContext from "../../../contexts/QuizzesExerciseServiceContext"
-
 import QuizCommonInfo from "./QuizCommonInfo"
 import QuizItemsV2 from "./QuizCreation"
 

@@ -15,6 +15,7 @@ import CheckboxFieldWrapper from "@/shared-module/common/components/InputFields/
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
 interface NewChapterFormProps {
@@ -118,13 +119,15 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
       `}
     >
       <TextField
-        error={errors["name"]?.message}
+        {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
         placeholder={t("text-field-label-name")}
         label={t("text-field-label-name")}
         {...register("name", { required: "required-field" })}
       />
       <TextField
-        error={errors["chapter_number"]?.message}
+        {...includeIf(errors["chapter_number"]?.message, {
+          error: errors["chapter_number"]?.message,
+        })}
         placeholder={t("text-field-label-chapter-number")}
         label={t("text-field-label-chapter-number")}
         type="number"
@@ -144,7 +147,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
             height: 45px;
             padding: 0px 0px 0px 0px !important;
           `}
-          error={errors["color"]?.message}
+          {...includeIf(errors["color"]?.message, { error: errors["color"]?.message })}
           placeholder={t("input-field-chapter-color")}
           label={t("input-field-chapter-color")}
           {...register("color", { required: false })}
@@ -157,7 +160,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         onUncheck={() => setValue("opens_at", null)}
       >
         <DateTimeLocal
-          error={errors["opens_at"]?.message}
+          {...includeIf(errors["opens_at"]?.message, { error: errors["opens_at"]?.message })}
           defaultValue={
             initialData?.opens_at ? dateToDateTimeLocalString(initialData?.opens_at) : undefined
           }
@@ -172,7 +175,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         onUncheck={() => setValue("deadline", null)}
       >
         <DateTimeLocal
-          error={errors["deadline"]?.message}
+          {...includeIf(errors["deadline"]?.message, { error: errors["deadline"]?.message })}
           defaultValue={
             initialData?.deadline ? dateToDateTimeLocalString(initialData?.deadline) : undefined
           }

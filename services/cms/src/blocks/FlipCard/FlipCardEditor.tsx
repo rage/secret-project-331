@@ -4,13 +4,12 @@ import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import React from "react"
 
-import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-import type { FlipCardAttributes } from "."
-
 import FlipBoxSizeCustomizer from "@/components/blocks/FlipCardSizeCustomizer"
 import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { FlipCardAttributes } from "."
+import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/front-card"]
 const INNER_BLOCKS_TEMPLATE: TemplateArray = [

@@ -4,8 +4,8 @@ import { css } from "@emotion/css"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
+import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface ChatbotPreviewModalProps {

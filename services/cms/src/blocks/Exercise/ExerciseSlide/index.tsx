@@ -5,13 +5,12 @@ import type { ComponentType } from "react"
 import React, { useEffect } from "react"
 import { v4 } from "uuid"
 
-import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
 import type { ExerciseSlideAttributes } from "./ExerciseSlideEditor"
 import ExerciseSlideEditor from "./ExerciseSlideEditor"
 import ExerciseSlideSave from "./ExerciseSlideSave"
-
-import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
 
 const ExerciseSlideConfiguration: BlockConfiguration<ExerciseSlideAttributes> = {
   title: "ExerciseSlide",

@@ -31,6 +31,9 @@ const validateText = (latex = false, markdown = false, text: string) => {
   while ((match = tokenRegex.exec(text)) !== null) {
     const isClosing = Boolean(match[1])
     const tagName = match[2]
+    if (tagName === undefined) {
+      continue
+    }
 
     if (!isClosing) {
       if (stack.length > 0) {
@@ -120,7 +123,7 @@ const formatText = (latex = false, markdown = false, text: string | null, inline
   for (let match: RegExpExecArray | null; (match = ANY_TAG_REGEX.exec(originalText)) !== null; ) {
     const fullMatch = match[0]
     const tagName = match[1]
-    const innerContent = match[2]
+    const innerContent = match[2] ?? ""
     const start = match.index
     const end = ANY_TAG_REGEX.lastIndex
 

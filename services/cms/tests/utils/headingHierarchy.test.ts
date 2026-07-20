@@ -1,9 +1,9 @@
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+
 import {
   analyzeHeadingHierarchy,
   getHeadingHierarchyIssuesForBlock,
 } from "../../src/utils/Gutenberg/headingHierarchy"
-
-import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 const createBlock = (
   clientId: string,

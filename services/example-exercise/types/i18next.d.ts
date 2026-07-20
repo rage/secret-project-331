@@ -1,5 +1,4 @@
 import "i18next"
-
 import type ownTranslations from "@/locales/en/example-exercise.json"
 
 declare module "i18next" {

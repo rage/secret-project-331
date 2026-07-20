@@ -18,6 +18,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { QueryResult, QueryResults } from "@/shared-module/components"
 
 interface CheatersThresholdConfigProps {
@@ -331,7 +332,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                         type="number"
                         min={minHours}
                         step={0.01}
-                        error={errorMessage}
+                        {...omitUndefined({ error: errorMessage })}
                         aria-labelledby={`duration-header ${labelId}`}
                         value={displayedValue}
                         onChangeByValue={(value: string) => {

@@ -28,7 +28,7 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     resize: none;
     ${
       cellText === "" &&
-      (column > matrixSize[1] || row > matrixSize[0]) &&
+      (column > (matrixSize[1] ?? Number.NaN) || row > (matrixSize[0] ?? Number.NaN)) &&
       // oxlint-disable-next-line i18next/no-literal-string
       `background-color: ${baseTheme.colors.clear[100]};
 `
@@ -36,7 +36,7 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     ${
       cellText === "" &&
       isActive &&
-      (column > matrixSize[1] || row > matrixSize[0]) &&
+      (column > (matrixSize[1] ?? Number.NaN) || row > (matrixSize[0] ?? Number.NaN)) &&
       // oxlint-disable-next-line i18next/no-literal-string
       `background-color: ${baseTheme.colors.clear[300]};`
     }
@@ -133,7 +133,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
           `}
         ></div>
       ) : null}
-      {column === 0 && row <= matrixSize[0] ? (
+      {column === 0 && row <= (matrixSize[0] ?? Number.NaN) ? (
         <div
           className={css`
             position: absolute;
@@ -145,7 +145,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
           `}
         ></div>
       ) : null}
-      {column === matrixSize[1] && row <= matrixSize[0] ? (
+      {column === matrixSize[1] && row <= (matrixSize[0] ?? Number.NaN) ? (
         <div
           className={css`
             position: absolute;

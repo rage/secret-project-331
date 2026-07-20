@@ -3,7 +3,6 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { Link } from "../src/components/Link"
-
 import { pressEnter, renderUi } from "./testUtils"
 
 jest.mock("next/link")

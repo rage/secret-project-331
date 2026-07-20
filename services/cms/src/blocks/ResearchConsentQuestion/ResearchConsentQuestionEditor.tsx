@@ -4,13 +4,12 @@ import { css } from "@emotion/css"
 import { RichText } from "@wordpress/block-editor"
 import React from "react"
 
-import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-import type { ResearchConsentQuestionAttributes } from "."
-
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ResearchConsentQuestionAttributes } from "."
+import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ResearchConsentCheckBoxEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ResearchConsentQuestionAttributes>>

@@ -2,14 +2,14 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
 import AsideEditor from "./AsideEditor"
 import AsideSave from "./AsideSave"
 import { Deprecated1 } from "./deprecated"
 
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
-
 export interface AsideComponentProps {
-  backgroundColor: string
+  backgroundColor: string | undefined
   separatorColor: string
 }
 

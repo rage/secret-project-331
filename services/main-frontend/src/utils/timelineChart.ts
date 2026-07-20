@@ -72,7 +72,7 @@ export const REVIEW_ACCENT = baseTheme.colors.blue[700]
 
 /** Palette lookup that wraps around for indices past the palette length. */
 export function colorAt(palette: string[], index: number): string {
-  return palette[((index % palette.length) + palette.length) % palette.length]
+  return palette[((index % palette.length) + palette.length) % palette.length] ?? ""
 }
 
 // Event clusters in seed/test data can span only seconds; left to auto-scale a time axis stretches

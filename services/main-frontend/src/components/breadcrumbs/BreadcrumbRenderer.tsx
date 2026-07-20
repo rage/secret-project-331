@@ -6,10 +6,11 @@ import { useRef } from "react"
 import { useBreadcrumbItem, useBreadcrumbs } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { breadcrumbCrumbsAtom, type Crumb } from "./breadcrumbAtoms"
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import { breadcrumbCrumbsAtom, type Crumb } from "./breadcrumbAtoms"
 
 const MARKER = "›"
 const ARIA_CURRENT_PAGE = "page"
@@ -19,7 +20,10 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
   const ref = useRef<HTMLAnchorElement>(null)
   const label = crumb.isLoading ? "" : crumb.label
   const href = crumb.isLoading ? undefined : (crumb.href ?? undefined)
-  const { itemProps } = useBreadcrumbItem({ children: label, isCurrent, href }, ref)
+  const { itemProps } = useBreadcrumbItem(
+    { children: label, isCurrent, ...omitUndefined({ href }) },
+    ref,
+  )
 
   if (crumb.isLoading) {
     return (
@@ -56,7 +60,7 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
       ) : (
         <span
           className={cx(breadcrumbText, currentPage)}
-          {...(isCurrent ? { "aria-current": ARIA_CURRENT_PAGE } : {})}
+          {...includeIf(isCurrent, { "aria-current": ARIA_CURRENT_PAGE })}
         >
           {crumb.label}
         </span>

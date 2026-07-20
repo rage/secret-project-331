@@ -3,12 +3,11 @@
 /* oxlint-disable i18next/no-literal-string */
 import { createBlock } from "@wordpress/blocks"
 
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import LearningObjectiveSectionEditor from "./LearningObjectiveSectionEditor"
 import LearningObjectiveSectionSave from "./LearningObjectiveSectionSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const LearningObjectiveSectionConfiguration: BlockConfiguration = {
   title: "Learning Objective Section",
@@ -35,9 +34,9 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
       {
         type: "block",
         blocks: ["core/list"],
-        // oxlint-disable-next-line typescript/no-explicit-any
-        transform(_attributes: any, innerBlocks: any[]) {
-          return innerBlocks[0]
+        transform(_attributes: unknown, innerBlocks: unknown) {
+          // safe: transform is only invoked when the list block has at least one inner block
+          return (innerBlocks as BlockInstance[])[0] as BlockInstance
         },
       },
     ],

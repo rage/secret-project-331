@@ -1,12 +1,11 @@
 import React, { useCallback, useMemo, useState } from "react"
 
+import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+
 import type { UserAnswer } from "../../../../types/quizTypes/answer"
 import type { PublicSpecQuiz } from "../../../../types/quizTypes/publicSpec"
 import QuizzesUserItemAnswerContext from "../../../contexts/QuizzesUserItemAnswerContext"
-
 import AnswerExerciseImpl from "./impl-by-quiz-item-type"
-
-import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 export interface ExerciseProps {
   port: MessagePort

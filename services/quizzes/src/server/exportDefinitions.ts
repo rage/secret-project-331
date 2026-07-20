@@ -1,9 +1,11 @@
+import { handlePrivateSpecMigration } from "@/grading/utils"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+
 import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
   QuizItemType,
 } from "../../types/quizTypes/privateSpec"
-
 import type { CsvExportColumn, CsvScalar } from "./csvExportUtils"
 import {
   getAllowSelectingMultipleOptions,
@@ -33,9 +35,6 @@ import {
   matrixToHumanReadable,
   mergeColumns,
 } from "./csvExportUtils"
-
-import { handlePrivateSpecMigration } from "@/grading/utils"
-import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 
 interface CsvExportResult {
   rows: Record<string, CsvScalar>[]
@@ -280,7 +279,11 @@ function buildDefinitionRow(
       }
 
       for (let index = 0; index < sortedTimelineItems.length; index += 1) {
+        // index is bounded by sortedTimelineItems.length
         const timelineItem = sortedTimelineItems[index]
+        if (timelineItem === undefined) {
+          continue
+        }
         row[`timeline_item_${index + 1}_year`] = timelineItem.year
         row[`timeline_item_${index + 1}_correct_event`] = timelineItem.correctEventName
       }

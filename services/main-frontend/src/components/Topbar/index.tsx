@@ -8,6 +8,12 @@ import React, { useContext } from "react"
 import { Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
+
 import Brand from "./Brand"
 import LanguageMenu from "./LanguageMenu"
 import { MobileMenuButton } from "./MobileMenu/MobileMenuButton"
@@ -15,11 +21,6 @@ import { MobileMenuOverlay } from "./MobileMenu/MobileMenuOverlay"
 import QuickActionsMenu from "./QuickActionsMenu"
 import SearchButton from "./SearchButton"
 import UserMenu from "./UserMenu"
-
-import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
-import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
 
 interface MenuOption {
   type: "link" | "action" | "separator"
@@ -191,7 +192,10 @@ const Topbar: React.FC<TopbarProps> = ({
               `}
             >
               {enableSearch && (
-                <SearchButton courseId={courseId} organizationSlug={organizationSlug} />
+                <SearchButton
+                  {...omitUndefined({ courseId })}
+                  {...omitUndefined({ organizationSlug })}
+                />
               )}
 
               {enableSearch && enableLanguageMenu && (
@@ -363,15 +367,15 @@ const Topbar: React.FC<TopbarProps> = ({
             state={menuState}
             primaryNavChildren={children}
             onClose={menuState.close}
-            courseId={courseId}
-            currentPagePath={currentPagePath}
             enableSearch={enableSearch}
             enableLanguageMenu={enableLanguageMenu}
             enableUserMenu={enableUserMenu}
             enableQuickActions={enableQuickActions}
-            userMenuOptions={userMenuOptions}
-            quickActionsOptions={quickActionsOptions}
-            languageMenuProps={languageMenuProps}
+            {...omitUndefined({ courseId })}
+            {...omitUndefined({ currentPagePath })}
+            {...omitUndefined({ userMenuOptions })}
+            {...omitUndefined({ quickActionsOptions })}
+            {...omitUndefined({ languageMenuProps })}
           />
         </OverlayContainer>
       )}

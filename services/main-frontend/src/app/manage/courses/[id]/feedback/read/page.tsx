@@ -2,10 +2,10 @@
 
 import { useParams } from "next/navigation"
 
-import FeedbackList from "../FeedbackList"
-
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import FeedbackList from "../FeedbackList"
 
 function FeedbackReadPage() {
   const params = useParams<{ id: string }>()

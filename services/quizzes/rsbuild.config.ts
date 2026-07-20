@@ -1,8 +1,9 @@
+import { fileURLToPath } from "node:url"
+
 import { defineConfig } from "@rsbuild/core"
 import { pluginReact } from "@rsbuild/plugin-react"
 import { pluginSvgr } from "@rsbuild/plugin-svgr"
 import { tanstackStart } from "@tanstack/react-start/plugin/rsbuild"
-import { fileURLToPath } from "node:url"
 
 import { IFRAME_HEADERS } from "./iframe-headers.mjs"
 
@@ -50,14 +51,14 @@ export default defineConfig({
     host: "0.0.0.0",
     port: Number(process.env.PORT ?? 3004),
     // Serve the shell + assets under the ingress base path.
-    base: BASE_PATH || undefined,
+    ...(BASE_PATH ? { base: BASE_PATH } : {}),
     // The dev server doesn't run server.mjs, so stamp the iframe headers here too.
     headers: IFRAME_HEADERS,
   },
   output: {
     // Absolute-prefix every asset URL: the opaque-origin sandboxed iframe can't resolve relative
     // URLs.
-    assetPrefix: BASE_PATH ? `${BASE_PATH}/` : undefined,
+    ...(BASE_PATH ? { assetPrefix: `${BASE_PATH}/` } : {}),
     // Public source maps (this is open source).
     sourceMap: { js: "source-map" },
   },

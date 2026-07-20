@@ -7,7 +7,6 @@ import { DateField } from "../src/components/DateField"
 import { DateTimeLocalField } from "../src/components/DateTimeLocalField"
 import { FileField } from "../src/components/FileField"
 import { TimeField } from "../src/components/TimeField"
-
 import { changeFiles, FormHarness, renderWithForm } from "./testUtils"
 
 describe("date and time fields", () => {

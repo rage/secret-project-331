@@ -71,7 +71,7 @@ impl CourseMaterialDocument {
         // Get the page id
         let page_id = parse_document_filepath(&self.filepath)
             .ok()
-            .and_then(|x| Some(x.page_id));
+            .map(|x| x.page_id);
         Ok((
             ChatbotConversationMessageCitation {
                 conversation_message_id,

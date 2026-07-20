@@ -210,6 +210,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     autoCompleteState,
   )
 
+  // oxlint-disable-next-line i18next/no-literal-string
   const collectionProps = omit(collectionPropsWrong, ["aria-label"])
 
   const {

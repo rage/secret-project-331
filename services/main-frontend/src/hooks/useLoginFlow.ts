@@ -28,6 +28,7 @@ export interface UseLoginFlowReturn {
   isSubmittingVerification: boolean
   submitCredentials: (email: string, password: string) => Promise<void>
   submitVerification: (code: string) => Promise<void>
+  cancelVerification: () => void
   onConsentSubmitted: () => void
 }
 
@@ -130,6 +131,12 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
     }
   }
 
+  const cancelVerification = () => {
+    setVerificationError(null)
+    setVerificationToken(null)
+    setStep({ step: "credentials" })
+  }
+
   const onConsentSubmitted = () => {
     setStep({ step: "complete" })
   }
@@ -143,6 +150,7 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
     isSubmittingVerification: verifyMutation.isPending,
     submitCredentials,
     submitVerification,
+    cancelVerification,
     onConsentSubmitted,
   }
 }

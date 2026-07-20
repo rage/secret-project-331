@@ -3,11 +3,10 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
-import OneTimePassCodeField from "@/shared-module/common/components/InputFields/OneTimePasscodeField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button, OtpField } from "@/shared-module/components"
 
 interface ResendProps {
   helperText: string
@@ -37,8 +36,9 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
   resend,
   containerClassName,
 }) => {
+  const { t } = useTranslation()
   const codeLength = 6
-  const { handleSubmit, setValue, watch } = useForm<{ code: string }>({
+  const { control, handleSubmit, watch } = useForm<{ code: string }>({
     defaultValues: { code: "" },
   })
   const code = watch("code")
@@ -64,7 +64,13 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
         {title && <h1>{title}</h1>}
         <p>{message}</p>
 
-        <OneTimePassCodeField onChange={(val) => setValue("code", val, { shouldValidate: true })} />
+        <OtpField
+          name="code"
+          control={control}
+          label={t("verification-code-label")}
+          length={codeLength}
+          autoComplete="one-time-code"
+        />
 
         {/* Live region stays in the DOM so assistive tech registers it before the error text is
             inserted; otherwise the announcement can be missed. */}
@@ -87,12 +93,10 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
           type="submit"
           variant="primary"
           size="medium"
-          disabled={(code?.length ?? 0) !== codeLength || isSubmitting}
-          className={css`
-            padding-top: 10px;
-          `}
+          isLoading={isSubmitting}
+          disabled={(code?.length ?? 0) !== codeLength}
         >
-          {isSubmitting ? <Spinner variant="small" /> : submitLabel}
+          {submitLabel}
         </Button>
 
         {resend && (
@@ -107,7 +111,6 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
             <Button
               variant="icon"
               size="small"
-              transform="none"
               disabled={resendCooldown > 0}
               onClick={() => {
                 resend.onResend()

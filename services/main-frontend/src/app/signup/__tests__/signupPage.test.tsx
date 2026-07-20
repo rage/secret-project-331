@@ -83,13 +83,13 @@ describe("Create account form accessibility", () => {
 
   it("keeps the submit button enabled while the form is incomplete", () => {
     renderPage()
-    const submit = screen.getByDisplayValue("create-an-account")
+    const submit = screen.getByRole("button", { name: "create-an-account" })
     expect(submit).toBeEnabled()
   })
 
   it("shows errors associated to their fields when submitting an empty form", async () => {
     renderPage()
-    const submit = screen.getByDisplayValue("create-an-account")
+    const submit = screen.getByRole("button", { name: "create-an-account" })
     fireEvent.click(submit)
 
     await waitFor(() => {

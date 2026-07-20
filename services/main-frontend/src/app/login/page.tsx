@@ -17,6 +17,7 @@ import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme } from "@/shared-module/common/styles"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Dialog } from "@/shared-module/components"
 
 const Login: React.FC = () => {
   const { t } = useTranslation()
@@ -39,6 +40,7 @@ const Login: React.FC = () => {
     isSubmittingVerification,
     submitCredentials,
     submitVerification,
+    cancelVerification,
     onConsentSubmitted,
   } = useLoginFlow(redirect, t)
 
@@ -62,7 +64,7 @@ const Login: React.FC = () => {
     >
       {error && <ErrorBanner error={error} />}
 
-      {step.step === "credentials" && (
+      {(step.step === "credentials" || step.step === "verification") && (
         <CredentialsForm
           onSubmit={submitCredentials}
           error={credentialsError}
@@ -70,13 +72,17 @@ const Login: React.FC = () => {
         />
       )}
 
-      {step.step === "verification" && (
+      <Dialog
+        open={step.step === "verification"}
+        onClose={cancelVerification}
+        title={t("email-verification-title")}
+      >
         <VerificationForm
           onSubmit={submitVerification}
           error={verificationError}
           isSubmitting={isSubmittingVerification}
         />
-      )}
+      </Dialog>
 
       {step.step === "awaiting_consent_check" && (
         <div

@@ -3,20 +3,25 @@
 import { css } from "@emotion/css"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import Spinner from "@/shared-module/common/components/Spinner"
+import PasswordField from "@/components/forms/PasswordField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { signUpRoute } from "@/shared-module/common/utils/routes"
+import { Button, TextField } from "@/shared-module/components"
 
 interface CredentialsFormProps {
   onSubmit: (email: string, password: string) => Promise<void>
   error: boolean
   isSubmitting: boolean
+}
+
+interface CredentialsFields {
+  email: string
+  password: string
 }
 
 // CredentialsForm renders the login credentials form for email and password.
@@ -28,25 +33,34 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
   const { t } = useTranslation()
   const pathname = usePathname()
   const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(pathname)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const { control, handleSubmit, watch, setFocus } = useForm<CredentialsFields>({
+    // oxlint-disable-next-line i18next/no-literal-string
+    mode: "onChange",
+    defaultValues: { email: "", password: "" },
+  })
+
+  useEffect(() => {
+    // oxlint-disable-next-line i18next/no-literal-string
+    setFocus("email")
+  }, [setFocus])
+
+  const email = watch("email")
+  const password = watch("password")
 
   return (
     <form
-      onSubmit={async (event) => {
-        event.preventDefault()
-        await onSubmit(email, password)
-      }}
+      onSubmit={handleSubmit((data) => onSubmit(data.email, data.password))}
       className={css`
         display: flex;
         flex-direction: column;
+        gap: 1rem;
         padding: 3rem 0rem;
       `}
     >
       <h1>{t("login")}</h1>
       <div
         className={css`
-          margin-bottom: 2rem;
+          margin-bottom: 1rem;
         `}
       >
         {t("login-description")}{" "}
@@ -61,19 +75,21 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
         {t("login-description2")}
       </div>
       <TextField
+        name="email"
+        control={control}
         label={t("label-email")}
-        onChange={(event) => {
-          setEmail(event.target.value)
-        }}
-        required
+        type="email"
+        autoComplete="username"
+        isRequired
+        rules={{ required: t("required-field") }}
       />
-      <TextField
-        type="password"
+      <PasswordField
+        name="password"
+        control={control}
         label={t("label-password")}
-        onChange={(event) => {
-          setPassword(event.target.value)
-        }}
-        required
+        autoComplete="current-password"
+        isRequired
+        rules={{ required: t("required-field") }}
       />
       {/* Live region stays in the DOM so assistive tech registers it before the error text is
           inserted; otherwise the announcement can be missed. */}
@@ -85,7 +101,6 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
             border: 2px solid ${baseTheme.colors.red[500]};
             font-weight: bold;
             color: ${baseTheme.colors.red[500]};
-            margin-top: 1rem;
           }
         `}
       >
@@ -93,57 +108,31 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
       </div>
       <Button
         className={css`
-          margin: 2rem 0rem;
+          margin: 1rem 0rem;
         `}
-        variant={"primary"}
-        size={"medium"}
-        id={"login-button"}
-        disabled={!email || !password || email === "" || password === "" || isSubmitting}
+        variant="primary"
+        size="medium"
+        type="submit"
+        // oxlint-disable-next-line i18next/no-literal-string
+        domProps={{ id: "login-button" }}
+        isLoading={isSubmitting}
+        disabled={!email || !password}
       >
-        {isSubmitting ? <Spinner variant={"small"} /> : t("login")}
+        {t("login")}
       </Button>
       <div
         className={css`
-          margin-bottom: 1.5rem;
-          display: none;
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+
+          a {
+            color: ${baseTheme.colors.blue[600]};
+          }
         `}
       >
-        <Link
-          className={css`
-            color: ${baseTheme.colors.blue[600]};
-          `}
-          href="/sign-up"
-        >
-          {t("create-new-account")}
-        </Link>
-      </div>
-      <div
-        className={css`
-          margin-bottom: 1.5rem;
-        `}
-      >
-        <Link
-          className={css`
-            color: ${baseTheme.colors.blue[600]};
-          `}
-          href="/reset-password"
-        >
-          {t("forgot-password")}
-        </Link>
-      </div>
-      <div
-        className={css`
-          margin-bottom: 1.5rem;
-        `}
-      >
-        <a
-          className={css`
-            color: ${baseTheme.colors.blue[600]};
-          `}
-          href={signUpRoute(returnToForLinkToSignupPage)}
-        >
-          {t("create-an-account")}
-        </a>
+        <Link href="/reset-password">{t("forgot-password")}</Link>
+        <a href={signUpRoute(returnToForLinkToSignupPage)}>{t("create-an-account")}</a>
       </div>
     </form>
   )

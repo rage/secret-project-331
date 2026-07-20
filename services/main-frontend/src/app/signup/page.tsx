@@ -9,9 +9,9 @@ import { useContext, useEffect, useState } from "react"
 import { useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import PasswordField from "@/components/forms/PasswordField"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
@@ -26,7 +26,7 @@ import {
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Checkbox, ComboBox, TextField } from "@/shared-module/components"
+import { Button, Checkbox, ComboBox, TextField } from "@/shared-module/components"
 
 interface CreateUserErrorResponse {
   message?: string
@@ -82,29 +82,9 @@ const Wrapper = styled.div`
     padding: 0;
   }
 
-  input[type="submit"] {
-    height: 60px;
-    background: #46749b;
-    color: #fff;
-    font-weight: bold;
-    font-size: 22px;
-    padding: 15px 10px;
-    line-height: 1.2;
-    font-family: ${headingFont} !important;
-    justify-content: center;
-    align-items: center;
-    border: none;
+  .submit-button {
     width: 100%;
     margin: 1rem 0;
-
-    &:hover {
-      background: #215887;
-    }
-  }
-
-  input[type="submit"]:disabled {
-    background: #ebedee;
-    color: #989ca3;
   }
 
   .signin-link {
@@ -125,23 +105,38 @@ const Wrapper = styled.div`
 `
 
 const CreateAccountForm: React.FC = () => {
-  const { formState, watch, reset, handleSubmit, trigger, control, setError, setValue, getValues } =
-    useForm<FormFields>({
-      // oxlint-disable-next-line i18next/no-literal-string
-      mode: "onChange",
-      defaultValues: {
-        first_name: "",
-        last_name: "",
-        email: "",
-        password: "",
-        password_confirmation: "",
-        country: "",
-        email_communication_consent: false,
-      },
-    })
+  const {
+    formState,
+    watch,
+    reset,
+    handleSubmit,
+    trigger,
+    control,
+    setError,
+    setValue,
+    setFocus,
+    getValues,
+  } = useForm<FormFields>({
+    // oxlint-disable-next-line i18next/no-literal-string
+    mode: "onChange",
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
+      country: "",
+      email_communication_consent: false,
+    },
+  })
 
   const preFillCountry = useQuery(getUsersIpCountryOptions())
   const { dirtyFields } = useFormState({ control })
+
+  useEffect(() => {
+    // oxlint-disable-next-line i18next/no-literal-string
+    setFocus("first_name")
+  }, [setFocus])
 
   useEffect(() => {
     // Only prefill while the field is untouched and empty so a late-resolving
@@ -407,11 +402,10 @@ const CreateAccountForm: React.FC = () => {
                 },
               }}
             />
-            <TextField
+            <PasswordField
               name="password"
               control={control}
               label={t("password")}
-              type="password"
               autoComplete="new-password"
               isRequired
               rules={{
@@ -423,11 +417,10 @@ const CreateAccountForm: React.FC = () => {
               }}
             />
 
-            <TextField
+            <PasswordField
               name="password_confirmation"
               control={control}
               label={t("confirm-password")}
-              type="password"
               autoComplete="new-password"
               isRequired
               rules={{
@@ -437,7 +430,7 @@ const CreateAccountForm: React.FC = () => {
                   message: t("password-must-have-at-least-8-characters"),
                 },
                 validate: {
-                  passwordMatch: (value) => value === password || t("passwords-dont-match"),
+                  passwordMatch: (value: string) => value === password || t("passwords-dont-match"),
                 },
               }}
             />
@@ -452,11 +445,15 @@ const CreateAccountForm: React.FC = () => {
             />
           </div>
         </fieldset>
-        <input
-          disabled={createAccountMutation.isPending}
-          value={t("create-an-account")}
+        <Button
+          className="submit-button"
+          variant="primary"
+          size="medium"
           type="submit"
-        />
+          isLoading={createAccountMutation.isPending}
+        >
+          {t("create-an-account")}
+        </Button>
       </form>
       <span className="signin-link">
         <a href={`/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`}>

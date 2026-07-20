@@ -1,4 +1,3 @@
-/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
@@ -18,11 +17,12 @@ test("Research consent form is visible on login, if not yet answered", async ({
     await page.goto("http://project-331.local/organizations")
     const topbar = new Topbar(page)
     await topbar.clickLogin()
-    await page.click(`label:has-text("Email")`)
-    await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
-
-    await page.click(`label:has-text("Password")`)
-    await page.fill(`label:has-text("Password")`, "student-without-research-consent")
+    await page
+      .getByRole("textbox", { name: "Email" })
+      .fill("student-without-research-consent@example.com")
+    await page
+      .getByRole("textbox", { name: "Password", exact: true })
+      .fill("student-without-research-consent")
     await page.locator("id=login-button").click()
     await expect(page.getByText("Regarding research done on courses")).toBeVisible()
 
@@ -50,11 +50,12 @@ test("Research consent form is visible on login, if not yet answered", async ({
     await logoutViaTopbar(page)
     await topbar.clickLogin()
 
-    await page.click(`label:has-text("Email")`)
-    await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
-
-    await page.click(`label:has-text("Password")`)
-    await page.fill(`label:has-text("Password")`, "student-without-research-consent")
+    await page
+      .getByRole("textbox", { name: "Email" })
+      .fill("student-without-research-consent@example.com")
+    await page
+      .getByRole("textbox", { name: "Password", exact: true })
+      .fill("student-without-research-consent")
     await page.locator("id=login-button").click()
     await expect(page.getByRole("heading", { name: "Organizations" })).toBeVisible()
   })
@@ -73,11 +74,12 @@ test("Research consent form is visible on login, if not yet answered", async ({
     const topbar2 = new Topbar(page)
     await topbar2.logout()
     await topbar2.clickLogin()
-    await page.click(`label:has-text("Email")`)
-    await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
-
-    await page.click(`label:has-text("Password")`)
-    await page.fill(`label:has-text("Password")`, "student-without-research-consent")
+    await page
+      .getByRole("textbox", { name: "Email" })
+      .fill("student-without-research-consent@example.com")
+    await page
+      .getByRole("textbox", { name: "Password", exact: true })
+      .fill("student-without-research-consent")
     await page.locator("id=login-button").click()
 
     await selectCourseInstanceIfPrompted(page)

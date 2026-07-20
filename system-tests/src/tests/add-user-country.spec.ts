@@ -12,9 +12,9 @@ test("User can add missing country information", async ({ page }) => {
     await page.goto(
       "http://project-331.local/login?return_to=%2Forg%2Fuh-mathstat%2Fcourses%2Faccessibility-course",
     )
-    await page.getByRole("textbox", { name: "Email *" }).fill("student-without-country@example.com")
+    await page.getByRole("textbox", { name: "Email" }).fill("student-without-country@example.com")
     await page
-      .getByRole("textbox", { name: "Password *", exact: true })
+      .getByRole("textbox", { name: "Password", exact: true })
       .fill("student-without-country")
     await page.getByRole("button", { name: "Log in" }).click()
     await page.waitForURL(/\/org\/uh-mathstat\/courses\/accessibility-course/, { timeout: 10_000 })

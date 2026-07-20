@@ -33,8 +33,8 @@ test("User can create an account and log in", async ({ page }) => {
 
   await test.step("User can log in with the created account", async () => {
     await page.getByRole("heading", { name: "Log in" }).waitFor()
-    await page.getByRole("textbox", { name: "Email *" }).fill("testuser@example.com")
-    await page.getByRole("textbox", { name: "Password *", exact: true }).fill("testuser")
+    await page.getByRole("textbox", { name: "Email" }).fill("testuser@example.com")
+    await page.getByRole("textbox", { name: "Password", exact: true }).fill("testuser")
     await page.getByRole("button", { name: "Log in" }).click()
 
     await expect(page.getByRole("heading", { name: "Welcome!" })).toBeVisible()

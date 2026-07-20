@@ -124,17 +124,26 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
         }
       } else if (res2.data.tool_name === "document_lookup") {
         collapsible = true
-        let title = ""
+        let title = undefined
         if (toolArguments.length > 0) {
-          let obj: { title: string } = JSON.parse(toolArguments)
-          title = `"${obj.title}"`
+          try {
+            const obj: { title?: string } = JSON.parse(toolArguments)
+            title = obj.title && `"${obj.title}"`
+          } catch (e) {
+            console.error("Failed to parse document lookup arguments", e)
+          }
+        }
+        if (title) {
           expandableText.push(t("chatbot-status-document-lookup-finished-title", { title }))
-          if (idx === 0) {
-            summaryText += t("chatbot-status-document-lookup-finished")
-          }
-          if (idx === 1) {
-            summaryText += `, ${t("chatbot-status-document-lookup-finished")}`
-          }
+        } else {
+          expandableText.push(t("chatbot-status-document-lookup-finished"))
+        }
+
+        if (idx === 0) {
+          summaryText += t("chatbot-status-document-lookup-finished")
+        }
+        if (idx === 1) {
+          summaryText += `, ${t("chatbot-status-document-lookup-finished")}`
         }
       } else {
         expandableText.push(

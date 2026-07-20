@@ -1,6 +1,7 @@
 "use client"
 
 import { act, fireEvent, screen, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 
 import { Select } from "../src/components/Select"
 import { renderWithForm } from "./testUtils"
@@ -214,5 +215,59 @@ describe("Select", () => {
     expect(search).toBeInTheDocument()
     expect(screen.getByPlaceholderText("Search country")).toBeInTheDocument()
     expect(search).toHaveAttribute("aria-label")
+  })
+
+  test("search field correctly filters results", async () => {
+    const user = userEvent.setup()
+
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        description="Select your country"
+        label="Country"
+        options={countryOptions}
+        searchEnabled={true}
+        searchPlaceholder="Search country"
+      />
+    ))
+
+    const trigger = screen.getByRole("button", { name: /Country/ })
+
+    fireEvent.click(trigger)
+
+    expect(screen.getByRole("option", { name: "Choose" })).toBeInTheDocument()
+    expect(screen.getByRole("option", { name: "Finland" })).toBeInTheDocument()
+
+    const search = screen.getByRole("searchbox", { name: "Search country" })
+    await user.type(search, "fi")
+
+    expect(screen.getByRole("option", { name: "Finland" })).toBeInTheDocument()
+    expect(screen.queryByRole("option", { name: "Choose" })).not.toBeInTheDocument()
+  })
+
+  test("search field returns no results found when there are no matches", async () => {
+    const user = userEvent.setup()
+
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        description="Select your country"
+        label="Country"
+        options={countryOptions}
+        searchEnabled={true}
+        searchPlaceholder="Search country"
+      />
+    ))
+
+    const trigger = screen.getByRole("button", { name: /Country/ })
+    fireEvent.click(trigger)
+
+    const search = screen.getByRole("searchbox", { name: "Search country" })
+    await user.type(search, "This doesn't exist")
+
+    expect(screen.getByRole("presentation")).toBeInTheDocument()
+    expect(screen.getByRole("presentation")).toHaveTextContent("No results found")
   })
 })

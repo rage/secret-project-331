@@ -5,18 +5,24 @@ import { useParams } from "next/navigation"
 import React, { useEffect } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import { fetchCompletionRegistrationLink } from "@/services/backend/course-modules"
+import { getCourseModuleCompletionRegistrationLinkOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const CompletionRedirectPage: React.FC = () => {
   const { courseModuleId } = useParams<{ courseModuleId: string }>()
   const { t } = useTranslation()
-  const userCompletionInformation = useQuery({
-    queryKey: [`course-${courseModuleId}-completion-registration-link`],
-    queryFn: () => fetchCompletionRegistrationLink(courseModuleId),
-  })
+  usePageTitle(t("title-completion-registration-redirect"))
+  const userCompletionInformation = useQuery(
+    getCourseModuleCompletionRegistrationLinkOptions({
+      path: {
+        course_module_id: courseModuleId,
+      },
+    }),
+  )
 
   useEffect(() => {
     if (!userCompletionInformation.data) {
@@ -26,20 +32,20 @@ const CompletionRedirectPage: React.FC = () => {
   }, [userCompletionInformation.data])
 
   return (
-    <>
-      {userCompletionInformation.isError && (
+    <QueryResult
+      query={userCompletionInformation}
+      renderBlockingError={({ error }) => (
         <ErrorBanner
           error={
-            // @ts-expect-error: Using property from axios
-            userCompletionInformation.error.request.status !== 404
-              ? userCompletionInformation.error
-              : t("completion-registration-link-not-found")
+            isAppApiError(error) && error.status === 404
+              ? t("completion-registration-link-not-found")
+              : error
           }
           variant={"readOnly"}
         />
       )}
-      {userCompletionInformation.isLoading && <Spinner variant={"medium"} />}
-      {userCompletionInformation.isSuccess && (
+    >
+      {(data) => (
         <div>
           <Trans
             t={t}
@@ -48,10 +54,10 @@ const CompletionRedirectPage: React.FC = () => {
             You are automatically being redirected to Open University&apos;s completion registration
             page. If nothing happens, please{" "}
             <a
-              href={userCompletionInformation.data.url}
+              href={data.url}
               onClick={(event) => {
                 event.preventDefault()
-                window.location.replace(userCompletionInformation.data.url)
+                window.location.replace(data.url)
               }}
             >
               click here
@@ -60,7 +66,7 @@ const CompletionRedirectPage: React.FC = () => {
           </Trans>
         </div>
       )}
-    </>
+    </QueryResult>
   )
 }
 

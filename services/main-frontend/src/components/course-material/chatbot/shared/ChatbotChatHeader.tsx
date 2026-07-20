@@ -1,17 +1,19 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage, ArrowDownToBracket } from "@vectopus/atlas-icons-react"
+import type { DOMAttributes } from "react"
 import React from "react"
 import { Button, Heading } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import ClarificationTooltip from "../../../ClarificationTooltip"
-import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
-
-import DropdownMenu, { DropdownMenuItem } from "@/components/DropdownMenu"
-import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import type { DropdownMenuItem } from "@/components/DropdownMenu"
+import DropdownMenu from "@/components/DropdownMenu"
+import type {
+  ChatbotConversation,
+  ChatbotConversationInfo,
+} from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -20,10 +22,22 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { createChatbotTranscript } from "@/utils/course-material/createChatbotTranscript"
 import { downloadStringAsFile } from "@/utils/course-material/downloadStringAsFile"
 
+import ClarificationTooltip from "../../../ClarificationTooltip"
+
+interface ChatbotDialogHeaderProps {
+  isCourseMaterialBlock: false
+  closeChatbot: () => void
+  titleProps: DOMAttributes<Element>
+}
+
+interface ChatbotNoDialogHeaderProps {
+  isCourseMaterialBlock: true
+}
+
 type ChatbotChatHeaderProps = {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
-} & DiscrChatbotDialogProps
+  newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
+} & (ChatbotDialogHeaderProps | ChatbotNoDialogHeaderProps)
 
 const headerContainerStyle = css`
   display: flex;
@@ -82,9 +96,10 @@ const buttonsWrapper = css`
 
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
-  const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
+  const { currentConversationInfo, newConversationMutation, isCourseMaterialBlock } = props
 
   const createTranscript = useToastMutation(
+    // oxlint-disable-next-line require-await -- async for the mutation Promise contract
     async () => {
       let info = currentConversationInfo.data
       if (info === undefined) {
@@ -93,7 +108,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       let transcript = createChatbotTranscript(info)
       downloadStringAsFile(
         transcript,
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "txt",
         `${t("conversation-with", { name: info?.chatbot_name })}`,
       )
@@ -107,14 +122,14 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
 
   let items: DropdownMenuItem[] = [
     {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-new-conversation-button",
       onAction: () => {
-        if (!newConversation.isPending) {
-          newConversation.mutate()
+        if (!newConversationMutation.isPending) {
+          newConversationMutation.mutate()
         }
       },
-      disabled: newConversation.isPending,
+      disabled: newConversationMutation.isPending,
       icon: (
         <AddMessage
           className={css`
@@ -131,7 +146,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
 
   if (currentConversationInfo.data?.current_conversation) {
     items.push({
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-dl-transcript-button",
       onAction: createTranscript.mutate,
       disabled: createTranscript.isPending,
@@ -184,9 +199,9 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       </Heading>
       <div className={buttonsWrapper}>
         <DropdownMenu
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           menuTestId="chatbot-header-menu"
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           menuButtonTestId="chatbot-header-menu-button"
           controlButtonClassName={buttonStyle}
           controlButtonIconColor={`${baseTheme.colors.green[700]}`}

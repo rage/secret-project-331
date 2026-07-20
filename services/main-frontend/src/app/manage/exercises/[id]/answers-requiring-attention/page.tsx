@@ -6,30 +6,33 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
-import AnswersRequiringAttentionList from "@/components/page-specific/manage/exercises/id/submissions/AnswersRequiringAttentionList"
-import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import { getExerciseAnswersRequiringAttentionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
-import { fetchAnswersRequiringAttention } from "@/services/backend/answers-requiring-attention"
 import { AccordionProvider } from "@/shared-module/common/components/Accordion/accordionContext"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
-import { manageCourseExercisesRoute } from "@/shared-module/common/utils/routes"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
+
+import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
+
+const ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE = [15, 50, 100, 1000, 10000]
+const ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT = 50
 
 const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
   <h5
     className={css`
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 500;
-      margin-bottom: 2rem;
-      margin-top: -0.5rem;
-      color: ${baseTheme.colors.gray[600]};
+      margin-bottom: 2.5rem;
+      margin-top: 0.5rem;
+      color: ${baseTheme.colors.gray[500]};
       font-family: ${primaryFont};
       text-align: center;
     `}
@@ -42,9 +45,23 @@ const SubmissionsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const exerciseQuery = useExerciseQuery(id)
-  const paginationInfo = usePaginationInfo()
+  usePageTitle(
+    joinTitleSegments([t("header-answers-requiring-attention"), exerciseQuery.data?.name]),
+    { order: 10 },
+  )
+  const paginationInfo = usePaginationInfo(ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT)
   const courseStructure = useCourseStructure(exerciseQuery.data?.course_id ?? null)
-  const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(exerciseQuery.data?.course_id ?? null)
+
+  const crumbs = useMemo(
+    () => [{ isLoading: false as const, label: t("header-answers-requiring-attention") }],
+    [t],
+  )
+
+  useRegisterBreadcrumbs({
+    key: `exercise:${id}:answers-requiring-attention`,
+    order: 60,
+    crumbs,
+  })
 
   const exerciseContext = useMemo(() => {
     if (!courseStructure.data || !exerciseQuery.data) {
@@ -62,43 +79,30 @@ const SubmissionsPage: React.FC = () => {
   }, [courseStructure.data, exerciseQuery.data])
 
   const answersQuery = useQuery({
-    queryKey: [
-      `exercises-${id}-answers-requiring-attention`,
-      paginationInfo.page,
-      paginationInfo.limit,
-    ],
-    queryFn: () => fetchAnswersRequiringAttention(id, paginationInfo.page, paginationInfo.limit),
+    ...getExerciseAnswersRequiringAttentionOptions({
+      path: {
+        exercise_id: id,
+      },
+      query: {
+        page: paginationInfo.page,
+        limit: paginationInfo.limit,
+      },
+    }),
   })
-
-  if (courseStructure.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (courseStructure.isError) {
-    return <ErrorBanner variant="readOnly" error={courseStructure.error} />
-  }
 
   return (
     <div>
-      <MainFrontendBreadCrumbs
-        organizationSlug={courseBreadcrumbInfo.data?.organization_slug ?? null}
-        courseId={exerciseContext?.exercise.course_id ?? null}
-        exerciseName={exerciseContext?.exercise.name}
-        exerciseUrl={manageCourseExercisesRoute(exerciseContext?.exercise.course_id ?? "")}
-        additionalPieces={[{ text: t("header-answers-requiring-attention"), url: "" }]}
-      />
-
       <h4
         className={css`
-          color: #313947;
+          color: ${baseTheme.colors.gray[700]};
           font-family: ${primaryFont};
-          font-size: 30px;
-          font-weight: 500;
-          line-height: 30px;
-          letter-spacing: 0em;
+          font-size: 28px;
+          font-weight: 600;
+          line-height: 1.2;
+          letter-spacing: -0.01em;
           text-align: center;
-          opacity: 0.8;
-          margin-bottom: 1em;
+          margin-bottom: 0.75rem;
+          margin-top: 1rem;
         `}
       >
         {t("header-answers-requiring-attention")}
@@ -117,21 +121,24 @@ const SubmissionsPage: React.FC = () => {
         </ExerciseTitle>
       )}
 
-      {answersQuery.isError && <ErrorBanner variant="readOnly" error={answersQuery.error} />}
-
-      {answersQuery.isLoading && <Spinner variant="medium" />}
-
-      {answersQuery.isSuccess && (
-        // AccordionProvider here allows us to collapse/expand all accordions in this subtree
-        <AccordionProvider>
-          <AnswersRequiringAttentionList
-            answersRequiringAttention={answersQuery.data.data}
-            exercise_max_points={answersQuery.data.exercise_max_points}
-            refetch={answersQuery.refetch}
-          />
-          <Pagination totalPages={answersQuery.data?.total_pages} paginationInfo={paginationInfo} />
-        </AccordionProvider>
-      )}
+      <QueryResult query={answersQuery}>
+        {(answers) => (
+          // AccordionProvider here allows us to collapse/expand all accordions in this subtree
+          <AccordionProvider>
+            <AnswersRequiringAttentionList
+              answersRequiringAttention={answers.data}
+              exercise_max_points={answers.exercise_max_points}
+              courseId={exerciseQuery.data?.course_id ?? null}
+              refetch={answersQuery.refetch}
+            />
+            <Pagination
+              totalPages={answers.total_pages}
+              paginationInfo={paginationInfo}
+              itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
+            />
+          </AccordionProvider>
+        )}
+      </QueryResult>
     </div>
   )
 }

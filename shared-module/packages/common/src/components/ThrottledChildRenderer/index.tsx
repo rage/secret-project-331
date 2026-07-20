@@ -50,7 +50,7 @@ export function ThrottledChildRenderer({
 
   const stableQueueConfig = useMemo(
     () => queueConfig,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
     [queueConfig?.capacity, queueConfig?.maxHoldMs],
   )
   const { join, leave } = useConcurrencyThrottle(qid, stableQueueConfig)
@@ -100,11 +100,12 @@ export function ThrottledChildRenderer({
         leave(pid)
       }
     }
+    return undefined
     // We intentionally use minimal deps to prevent re-render loops:
     // - inViewEver/readyToRender: omitted to prevent cleanup->join cycles when they change
     // - join/leave: omitted because they're recreated on every Jotai update, causing loops
     // The effect should only run once per component instance (based on stable id/qid).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [id, qid])
 
   // As soon as ANY gate has ever flipped true, we no longer participate in the queue.

@@ -78,6 +78,8 @@ pub struct CourseBuilder {
     pub certificate_config: Option<CertificateConfig>,
     pub front_page_content: Option<Vec<GutenbergBlock>>,
     pub chapter_locking_enabled: bool,
+    pub flagged_answers_skip_manual_review_and_allow_retry: bool,
+    pub flagged_answers_threshold: Option<i32>,
 }
 
 impl CourseBuilder {
@@ -99,7 +101,21 @@ impl CourseBuilder {
             certificate_config: None,
             front_page_content: None,
             chapter_locking_enabled: false,
+            flagged_answers_skip_manual_review_and_allow_retry: false,
+            flagged_answers_threshold: None,
         }
+    }
+
+    /// Enables skipping manual review for flagged answers and allowing retry.
+    pub fn flagged_answers_skip_manual_review_and_allow_retry(mut self, v: bool) -> Self {
+        self.flagged_answers_skip_manual_review_and_allow_retry = v;
+        self
+    }
+
+    /// Sets the number of spam reports needed to trigger reset/manual review.
+    pub fn flagged_answers_threshold(mut self, v: Option<i32>) -> Self {
+        self.flagged_answers_threshold = v;
+        self
     }
 
     pub fn chatbot(mut self, v: bool) -> Self {
@@ -221,16 +237,19 @@ impl CourseBuilder {
             is_joinable_by_code_only: false,
             join_code: None,
             ask_marketing_consent: false,
-            flagged_answers_threshold: Some(3),
+            flagged_answers_threshold: Some(self.flagged_answers_threshold.unwrap_or(3)),
             can_add_chatbot: self.can_add_chatbot,
         };
 
         // Create course manually without default module
         let mut tx = conn.begin().await.context("starting transaction")?;
 
-        let course_language_group_id =
-            course_language_groups::insert(&mut tx, headless_lms_models::PKeyPolicy::Generate)
-                .await?;
+        let course_language_group_id = course_language_groups::insert(
+            &mut tx,
+            headless_lms_models::PKeyPolicy::Generate,
+            &new_course.slug,
+        )
+        .await?;
 
         let course_id = courses::insert(
             &mut tx,
@@ -331,6 +350,7 @@ impl CourseBuilder {
             exercise_slides: vec![],
             exercise_tasks: vec![],
             content_search_language: None,
+            hidden: false,
         };
 
         pages::insert_page(
@@ -447,7 +467,13 @@ impl CourseBuilder {
         }
         tx.commit().await.context("committing transaction")?;
 
-        if self.chapter_locking_enabled {
+        // Seeded courses are completed in seconds by system tests, which would flag every seeded
+        // user and break the suite, so disable cheater detection for builder-created courses.
+        courses::set_cheater_detection_enabled(conn, course.id, false)
+            .await
+            .context("disabling cheater detection")?;
+
+        if self.chapter_locking_enabled || self.flagged_answers_skip_manual_review_and_allow_retry {
             use headless_lms_models::courses::CourseUpdate;
             let course_update = CourseUpdate {
                 name: course.name.clone(),
@@ -458,15 +484,19 @@ impl CourseBuilder {
                 is_unlisted: course.is_unlisted,
                 is_joinable_by_code_only: course.is_joinable_by_code_only,
                 ask_marketing_consent: course.ask_marketing_consent,
-                flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or(3),
+                flagged_answers_threshold: self.flagged_answers_threshold.unwrap_or(3),
+                flagged_answers_skip_manual_review_and_allow_retry: self
+                    .flagged_answers_skip_manual_review_and_allow_retry,
                 closed_at: course.closed_at,
                 closed_additional_message: course.closed_additional_message.clone(),
                 closed_course_successor_id: course.closed_course_successor_id,
-                chapter_locking_enabled: true,
+                chapter_locking_enabled: self.chapter_locking_enabled,
+                ai_policy: course.ai_policy,
+                course_material_ai_instructions: course.course_material_ai_instructions,
             };
             let updated_course = courses::update_course(conn, course.id, course_update)
                 .await
-                .context("updating course to enable chapter locking")?;
+                .context("updating course")?;
             return Ok((
                 updated_course,
                 default_instance,

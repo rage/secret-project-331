@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use secrecy::{ExposeSecret, SecretString};
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "exercise_repository_status", rename_all = "kebab-case")]
 pub enum ExerciseRepositoryStatus {
     Pending,
@@ -9,8 +10,8 @@ pub enum ExerciseRepositoryStatus {
     Failure,
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct ExerciseRepository {
     pub id: Uuid,
     pub url: String,
@@ -28,7 +29,7 @@ SELECT id,
   url,
   course_id,
   exam_id,
-  status AS "status: ExerciseRepositoryStatus",
+  status,
   error_message
 FROM exercise_repositories
 WHERE id = $1
@@ -47,7 +48,7 @@ pub async fn new(
     course_or_exam_id: CourseOrExamId,
     url: &str,
     public_key: Option<&str>,
-    deploy_key: Option<&str>,
+    deploy_key: Option<&SecretString>,
 ) -> ModelResult<()> {
     let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
     sqlx::query!(
@@ -60,7 +61,8 @@ VALUES ($1, $2, $3, $4, $5, $6)
         exam_id,
         url,
         public_key,
-        deploy_key
+        // Exposed only here, at the DB-write boundary.
+        deploy_key.map(|k| k.expose_secret())
     )
     .execute(conn)
     .await?;
@@ -128,7 +130,7 @@ SELECT id,
   url,
   course_id,
   exam_id,
-  status AS "status: ExerciseRepositoryStatus",
+  status,
   error_message
 FROM exercise_repositories
 WHERE (
@@ -145,7 +147,7 @@ WHERE (
     Ok(res)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct ExerciseRepositoryUpdate {
     pub url: String,
 }

@@ -1,63 +1,46 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import React, { useState } from "react"
+import React from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import SearchUsersResults from "@/components/page-specific/manage/search-users/SearchUsersResults"
-import {
-  searchForUserDetailsByEmail,
-  searchForUserDetailsByOtherDetails,
-  searchForUserDetailsFuzzyMatch,
-} from "@/services/backend/user-details"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import useUrlSyncedDebouncedQuery from "@/shared-module/common/hooks/useUrlSyncedDebouncedQuery"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
+import SearchUsersResults from "./SearchUsersResults"
+import useSearchUsersLiveRegion from "./useSearchUsersLiveRegion"
+import useSearchUsersQueries from "./useSearchUsersQueries"
+
 const SearchUsersPage: React.FC = () => {
   const { t } = useTranslation()
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const initialSearch = searchParams.get("search") ?? ""
-  const [typedSearchQuery, setTypedSearchQuery] = useState(initialSearch)
-  const [searchQuery, setSearchQuery] = useState<string>(typedSearchQuery)
-  const trimmedSearchQuery = searchQuery.trim()
-  const searchByEmailQuery = useQuery({
-    queryKey: ["searchUsersByEmail", searchQuery],
-    queryFn: () => searchForUserDetailsByEmail(assertNotNullOrUndefined(searchQuery)),
-    enabled: trimmedSearchQuery !== "",
+  usePageTitle(t("title-user-search"))
+  const {
+    inputValue,
+    setInputValue,
+    queryValue: searchQuery,
+    runImmediate,
+  } = useUrlSyncedDebouncedQuery({
+    // oxlint-disable-next-line i18next/no-literal-string
+    paramName: "search",
+    delayMs: 250,
   })
-  const searchByOtherDetailsQuery = useQuery({
-    queryKey: ["searchUsersByOtherDetails", searchQuery],
-    queryFn: () => searchForUserDetailsByOtherDetails(assertNotNullOrUndefined(searchQuery)),
-    enabled: trimmedSearchQuery !== "",
+  const queries = useSearchUsersQueries(searchQuery)
+  const { searchByEmailQuery, searchByOtherDetailsQuery, searchFuzzyMatchQuery } = queries
+  const hasActiveSearch = searchQuery !== ""
+  const liveRegionMessage = useSearchUsersLiveRegion({
+    searchQuery,
+    searchByEmailQuery,
+    searchByOtherDetailsQuery,
+    searchFuzzyMatchQuery,
   })
-  const searchFuzzyMatchQuery = useQuery({
-    queryKey: ["searchUsersFuzzyMatch", searchQuery],
-    queryFn: () => searchForUserDetailsFuzzyMatch(assertNotNullOrUndefined(searchQuery)),
-    enabled: trimmedSearchQuery !== "",
-  })
-  const onSearch = () => {
-    const value = typedSearchQuery.trim()
-    const params = new URLSearchParams(searchParams)
-    if (value === "") {
-      params.delete("search")
-    } else {
-      // eslint-disable-next-line i18next/no-literal-string
-      params.set("search", value)
-    }
-    const newUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ""}`
-    router.replace(newUrl)
-    setSearchQuery(value)
-  }
 
   return (
     <OnlyRenderIfPermissions
@@ -78,11 +61,11 @@ const SearchUsersPage: React.FC = () => {
             className={css`
               flex-grow: 1;
             `}
-            value={typedSearchQuery}
-            onChange={(e) => setTypedSearchQuery(e.target.value)}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                onSearch()
+                runImmediate()
               }
             }}
           />
@@ -96,7 +79,7 @@ const SearchUsersPage: React.FC = () => {
             <Button
               variant="primary"
               size="medium"
-              onClick={onSearch}
+              onClick={runImmediate}
               disabled={searchByEmailQuery.isFetching}
             >
               {t("button-text-search")}
@@ -105,7 +88,11 @@ const SearchUsersPage: React.FC = () => {
         </div>
       </div>
 
-      {trimmedSearchQuery !== "" && (
+      <VisuallyHidden aria-live="polite" aria-atomic>
+        {liveRegionMessage}
+      </VisuallyHidden>
+
+      {hasActiveSearch && (
         <SearchUsersResults
           searchByEmailQuery={searchByEmailQuery}
           searchByOtherDetailsQuery={searchByOtherDetailsQuery}

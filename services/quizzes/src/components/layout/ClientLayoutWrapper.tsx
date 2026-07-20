@@ -1,15 +1,13 @@
-"use client"
-
 import { injectGlobal } from "@emotion/css"
 import { OverlayProvider } from "@react-aria/overlays"
 import React, { useEffect } from "react"
 
-import useLanguage from "@/shared-module/common/hooks/useLanguage"
-import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
 import initI18n from "@/shared-module/common/utils/initI18n"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import GlobalStyles from "@/shared-module/exercise-react/react/components/GlobalStyles"
+import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"
+import useLanguage from "@/shared-module/exercise-react/react/hooks/useLanguage"
 
-// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+// oxlint-disable-next-line typescript/no-unused-expressions
 injectGlobal`
 html {
   overflow: hidden;
@@ -31,7 +29,7 @@ function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
-      jssStyles.parentElement?.removeChild(jssStyles)
+      jssStyles.remove()
     }
   }, [])
 

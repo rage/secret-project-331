@@ -3,13 +3,36 @@
 use models::chapters::ChapterLockPreview;
 use models::pages::{Page, PageVisibility, PageWithExercises};
 use models::user_chapter_locking_statuses::{self, ChapterLockingStatus};
+use utoipa::OpenApi;
 
 use crate::domain::authorization::authorize_access_to_course_material;
 use crate::prelude::*;
 
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_public_chapter_pages,
+    get_chapters_exercises,
+    get_chapters_pages_without_main_frontpage,
+    get_chapter_lock_preview,
+    lock_chapter
+))]
+pub(crate) struct CourseMaterialChaptersApiDoc;
+
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.
 */
+#[utoipa::path(
+    get,
+    path = "/{chapter_id}/pages",
+    operation_id = "getCourseMaterialChapterPages",
+    tag = "course-material-chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Public chapter pages", body = Vec<Page>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_public_chapter_pages(
     chapter_id: web::Path<Uuid>,
@@ -17,25 +40,44 @@ async fn get_public_chapter_pages(
     auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        auth.map(|u| u.id),
-        Res::Chapter(*chapter_id),
-    )
-    .await?;
+    let user_id = auth.map(|u| u.id);
+    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+    let token = authorize_access_to_course_material(&mut conn, user_id, chapter.course_id).await?;
+    if !models::chapters::is_open(&mut conn, *chapter_id).await? {
+        authorize(
+            &mut conn,
+            Act::ViewMaterial,
+            user_id,
+            Res::Course(chapter.course_id),
+        )
+        .await?;
+    }
     let chapter_pages: Vec<Page> = models::pages::get_course_pages_by_chapter_id_and_visibility(
         &mut conn,
         *chapter_id,
         PageVisibility::Public,
     )
     .await?;
+    let chapter_pages =
+        models::pages::filter_course_material_pages(&mut conn, user_id, chapter_pages).await?;
     token.authorized_ok(web::Json(chapter_pages))
 }
 
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.
 */
+#[utoipa::path(
+    get,
+    path = "/{chapter_id}/exercises",
+    operation_id = "getCourseMaterialChapterPagesWithExercises",
+    tag = "course-material-chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Chapter pages with exercises", body = Vec<PageWithExercises>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_chapters_exercises(
     chapter_id: web::Path<Uuid>,
@@ -43,22 +85,61 @@ async fn get_chapters_exercises(
     auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<PageWithExercises>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        auth.map(|u| u.id),
-        Res::Chapter(*chapter_id),
-    )
-    .await?;
+    let user_id = auth.map(|u| u.id);
+    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+    let token = authorize_access_to_course_material(&mut conn, user_id, chapter.course_id).await?;
+    if !models::chapters::is_open(&mut conn, *chapter_id).await? {
+        authorize(
+            &mut conn,
+            Act::ViewMaterial,
+            user_id,
+            Res::Course(chapter.course_id),
+        )
+        .await?;
+    }
+    let can_view_hidden_pages = if let Some(user_id) = user_id {
+        authorize(
+            &mut conn,
+            Act::ViewMaterial,
+            Some(user_id),
+            Res::Course(chapter.course_id),
+        )
+        .await
+        .is_ok()
+    } else {
+        false
+    };
 
     let chapter_pages_with_exercises =
         models::pages::get_chapters_pages_with_exercises(&mut conn, *chapter_id).await?;
+    let chapter_pages_with_exercises = chapter_pages_with_exercises
+        .into_iter()
+        .filter(|page_with_exercises| can_view_hidden_pages || !page_with_exercises.page.hidden)
+        .collect();
+    let chapter_pages_with_exercises = models::pages::filter_course_material_pages_with_exercises(
+        &mut conn,
+        user_id,
+        chapter_pages_with_exercises,
+    )
+    .await?;
     token.authorized_ok(web::Json(chapter_pages_with_exercises))
 }
 
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.
 */
+#[utoipa::path(
+    get,
+    path = "/{chapter_id}/pages-exclude-mainfrontpage",
+    operation_id = "getCourseMaterialChapterPagesExcludingFrontPage",
+    tag = "course-material-chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Visible chapter pages without main front page", body = Vec<Page>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_chapters_pages_without_main_frontpage(
     chapter_id: web::Path<Uuid>,
@@ -66,18 +147,23 @@ async fn get_chapters_pages_without_main_frontpage(
     auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        auth.map(|u| u.id),
-        Res::Chapter(*chapter_id),
-    )
-    .await?;
+    let user_id = auth.map(|u| u.id);
+    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+    let token = authorize_access_to_course_material(&mut conn, user_id, chapter.course_id).await?;
+    if !models::chapters::is_open(&mut conn, *chapter_id).await? {
+        authorize(
+            &mut conn,
+            Act::ViewMaterial,
+            user_id,
+            Res::Course(chapter.course_id),
+        )
+        .await?;
+    }
     let chapter_pages =
         models::pages::get_chapters_visible_pages_exclude_main_frontpage(&mut conn, *chapter_id)
-            .await?
-            .into_iter()
-            .collect();
+            .await?;
+    let chapter_pages =
+        models::pages::filter_course_material_pages(&mut conn, user_id, chapter_pages).await?;
     token.authorized_ok(web::Json(chapter_pages))
 }
 
@@ -86,6 +172,18 @@ GET `/api/v0/course-material/chapters/:chapter_id/lock-preview` - Preview lock c
 
 Returns information about unreturned exercises in the chapter before locking.
 **/
+#[utoipa::path(
+    get,
+    path = "/{chapter_id}/lock-preview",
+    operation_id = "getCourseMaterialChapterLockPreview",
+    tag = "course-material-chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Chapter lock preview", body = ChapterLockPreview)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_chapter_lock_preview(
     chapter_id: web::Path<Uuid>,
@@ -125,6 +223,18 @@ Validates that:
 - Moves all exercises to manual review
 - Unlocks next chapters for the user
 **/
+#[utoipa::path(
+    post,
+    path = "/{chapter_id}/lock",
+    operation_id = "lockCourseMaterialChapter",
+    tag = "course-material-chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Updated chapter locking status", body = user_chapter_locking_statuses::UserChapterLockingStatus)
+    )
+)]
 #[instrument(skip(pool))]
 async fn lock_chapter(
     chapter_id: web::Path<Uuid>,
@@ -217,7 +327,7 @@ async fn lock_chapter(
     )
     .await?;
 
-    let status = user_chapter_locking_statuses::complete_chapter(
+    let status = user_chapter_locking_statuses::complete_and_lock_chapter(
         &mut tx,
         user.id,
         *chapter_id,

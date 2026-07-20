@@ -7,22 +7,23 @@ import { useParams } from "next/navigation"
 import React, { useEffect, useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
-import CourseList from "@/components/page-specific/org/organizationSlug/CourseList"
-import ExamList from "@/components/page-specific/org/organizationSlug/ExamList"
 import useOrganizationQueryBySlug from "@/hooks/useOrganizationQueryBySlug"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { manageOrganizationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { viewParamsAtom } from "@/state/course-material/params"
+
+import CourseList from "./CourseList"
+import ExamList from "./ExamList"
 
 const Organization: React.FC = () => {
   const { t } = useTranslation()
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
   const organizationQuery = useOrganizationQueryBySlug(organizationSlug)
+  usePageTitle(organizationQuery.data?.name ?? null)
   const setViewParams = useSetAtom(viewParamsAtom)
 
   useEffect(() => {
@@ -33,57 +34,44 @@ const Organization: React.FC = () => {
   const examsSectionHeadingId = useId()
 
   return (
-    <>
-      <MainFrontendBreadCrumbs organizationSlug={organizationSlug} courseId={null} />
-      <div>
-        {organizationQuery.isSuccess && (
-          <h1
-            className={css`
-              font-size: clamp(26px, 3vw, 30px);
-              font-weight: 600;
-            `}
-          >
-            {organizationQuery.data.name}
-          </h1>
-        )}
-        {organizationQuery.isSuccess && (
-          <OnlyRenderIfPermissions
-            action={{
-              type: "edit",
-            }}
-            resource={{
-              type: "organization",
-              id: organizationQuery.data.id,
-            }}
-          >
-            <Link
-              href={manageOrganizationRoute(organizationQuery.data.id)}
-              aria-label={`${t("link-manage")}`}
-            >
-              {t("manage")}
-            </Link>
-          </OnlyRenderIfPermissions>
-        )}
-        {organizationQuery.isSuccess && (
+    <div>
+      <QueryResult query={organizationQuery}>
+        {(organization) => (
           <>
-            {organizationQuery.data.organization_image_url && (
+            <h1
+              className={css`
+                font-size: clamp(26px, 3vw, 30px);
+                font-weight: 600;
+              `}
+            >
+              {organization.name}
+            </h1>
+            <OnlyRenderIfPermissions
+              action={{
+                type: "edit",
+              }}
+              resource={{
+                type: "organization",
+                id: organization.id,
+              }}
+            >
+              <Link
+                href={manageOrganizationRoute(organization.id)}
+                aria-label={`${t("link-manage")}`}
+              >
+                {t("manage")}
+              </Link>
+            </OnlyRenderIfPermissions>
+            {organization.organization_image_url && (
               <img
                 className={css`
                   max-width: 20rem;
                   max-height: 20rem;
                 `}
-                src={organizationQuery.data.organization_image_url}
+                src={organization.organization_image_url}
                 alt={t("image-alt-what-to-display-on-organization")}
               />
             )}
-          </>
-        )}
-        {organizationQuery.isLoading && <Spinner variant={"medium"} />}
-        {organizationQuery.isError && (
-          <ErrorBanner variant={"readOnly"} error={organizationQuery.error} />
-        )}
-        {organizationQuery.isSuccess && (
-          <>
             <section aria-labelledby={coursesSectionHeadingId}>
               <h2
                 id={coursesSectionHeadingId}
@@ -95,31 +83,25 @@ const Organization: React.FC = () => {
                 {t("course-list")}
               </h2>
               {/* TODO: Implement perPage dropdown? */}
-              <CourseList
-                organizationId={organizationQuery.data.id}
-                organizationSlug={organizationSlug}
-              />
+              <CourseList organizationId={organization.id} organizationSlug={organizationSlug} />
             </section>
 
             {/* TODO: We should render ExamList once we can filter away exams etc. */}
             <OnlyRenderIfPermissions
               action={{ type: "create_courses_or_exams" }}
-              resource={{ id: organizationQuery.data.id, type: "organization" }}
+              resource={{ id: organization.id, type: "organization" }}
             >
               <section aria-labelledby={examsSectionHeadingId}>
                 <h2 id={examsSectionHeadingId}>{t("exam-list")}</h2>
-                <ExamList
-                  organizationId={organizationQuery.data.id}
-                  organizationSlug={organizationSlug}
-                />
+                <ExamList organizationId={organization.id} organizationSlug={organizationSlug} />
               </section>
             </OnlyRenderIfPermissions>
           </>
         )}
+      </QueryResult>
 
-        <DebugModal data={organizationQuery.data} />
-      </div>
-    </>
+      <DebugModal data={organizationQuery.data} />
+    </div>
   )
 }
 

@@ -1,5 +1,5 @@
 use crate::{
-    config::{self, ServerConfigBuilder},
+    config::{self, ServerConfigBuilder, ServerRuntimeConfig, set_server_runtime_config},
     setup_tracing,
 };
 use actix_session::{
@@ -12,28 +12,37 @@ use actix_web::{
     cookie::{Key, SameSite},
     middleware::Logger,
 };
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use listenfd::ListenFd;
-use std::env;
+use rustls::crypto::ring;
+use secrecy::ExposeSecret;
 
 /// The entrypoint to the server.
 pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     setup_tracing()?;
 
-    // read environment variables
-    let private_cookie_key =
-        env::var("PRIVATE_COOKIE_KEY").expect("PRIVATE_COOKIE_KEY must be defined");
-    let test_mode = env::var("TEST_MODE").is_ok();
-    let allow_no_https_for_development = env::var("ALLOW_NO_HTTPS_FOR_DEVELOPMENT").is_ok();
+    // Required by rustls 0.23 so kube-client can build TLS configs.
+    ring::default_provider()
+        .install_default()
+        .expect("failed to install rustls ring crypto provider");
+
+    let runtime_config = ServerRuntimeConfig::try_from_env()?;
+    let private_cookie_key = runtime_config.private_cookie_key.clone();
+    let test_mode = runtime_config.test_mode;
+    let allow_no_https_for_development = runtime_config.allow_no_https_for_development;
+    let host = runtime_config.host.clone();
+    let port = runtime_config.port.clone();
+    set_server_runtime_config(runtime_config.clone())?;
 
     if test_mode {
         info!("***********************************");
         info!("*  Starting backend in test mode  *");
         info!("***********************************");
     }
-    let server_config = ServerConfigBuilder::try_from_env()
-        .expect("Failed to create server config builder")
+    let server_config = ServerConfigBuilder::from_runtime_config(&runtime_config)
+        .await
+        .expect("Failed to create server config builder from runtime config")
         .build()
         .await
         .expect("Failed to create server config");
@@ -44,7 +53,7 @@ pub async fn main() -> anyhow::Result<()> {
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),
-                    Key::from(private_cookie_key.as_bytes()),
+                    Key::from(private_cookie_key.expose_secret().as_bytes()),
                 )
                 .cookie_name("session".to_string())
                 .cookie_secure(!allow_no_https_for_development)
@@ -69,8 +78,6 @@ pub async fn main() -> anyhow::Result<()> {
     server = match listenfd.take_tcp_listener(0)? {
         Some(listener) => server.listen(listener)?,
         None => {
-            let host = env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string());
-            let port = env::var("PORT").unwrap_or_else(|_| "3001".to_string());
             let bind_address = format!("{}:{}", host, port);
             info!("Binding to address: {}", bind_address);
             server.bind(bind_address)?

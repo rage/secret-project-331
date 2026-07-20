@@ -3,9 +3,8 @@
 import { css } from "@emotion/css"
 import Head from "next/head"
 import { useRouter } from "next/router"
-import React, { ReactNode } from "react"
-
-import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
+import type { ReactNode } from "react"
+import React from "react"
 
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
@@ -18,16 +17,17 @@ import {
   NavItem,
   NavItems,
 } from "@/shared-module/common/components/Navigation/NavBar"
-import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { DEFAULT_SITE_NAME } from "@/shared-module/common/utils/pageTitle"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+
+import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
 
 const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 export const SIDEBAR_WIDTH_PX = 350
 
-type LayoutProps = {
+interface LayoutProps {
   children: ReactNode
   hideBreadcrumbs?: boolean
 }
@@ -41,12 +41,10 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   hideBreadcrumbs = false,
 }) => {
   const router = useRouter()
-  // eslint-disable-next-line i18next/no-literal-string
-  const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>{DEFAULT_SITE_NAME}</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>

@@ -5,12 +5,13 @@ import { BlockIcon } from "@wordpress/block-editor"
 import { ColorPalette, Notice, PanelBody, Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React from "react"
-import { useTranslation } from "react-i18next"
-
-import BackgroundImageSection from "./BackgroundImageSection"
 
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme } from "@/shared-module/common/styles"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import BackgroundImageSection from "./BackgroundImageSection"
 
 const placeHolderFixHeightStyles = css`
   min-height: unset !important;
@@ -85,11 +86,11 @@ const BackgroundAndColorCustomizer: React.FC<
   React.PropsWithChildren<BackgroundAndColorCustomizerProps>
 > = ({ attributes, setAttributes, noAlign }) => {
   const { t } = useTranslation()
-  const alignCenter = attributes.alignCenter == undefined || attributes.alignCenter
+  const alignCenter = attributes.alignCenter === undefined || attributes.alignCenter
   const useDefaultTextForLabel =
-    attributes.useDefaultTextForLabel == undefined || attributes.useDefaultTextForLabel
+    attributes.useDefaultTextForLabel === undefined || attributes.useDefaultTextForLabel
   const partiallyTransparent =
-    attributes.partiallyTransparent == undefined || attributes.partiallyTransparent
+    attributes.partiallyTransparent === undefined || attributes.partiallyTransparent
 
   // Check if mobile background image is missing but other background images are set
   const hasOtherBackgroundImages =
@@ -102,7 +103,6 @@ const BackgroundAndColorCustomizer: React.FC<
     <>
       {/* Warning for missing mobile background image */}
       {isMissingMobileBackground && (
-        // eslint-disable-next-line i18next/no-literal-string
         <Notice status="warning" isDismissible={false}>
           {t("warning-mobile-background-missing")}
         </Notice>
@@ -155,7 +155,7 @@ const BackgroundAndColorCustomizer: React.FC<
       <PanelBody title={t("background-layout")} initialOpen={false}>
         <CheckBox
           label={t("label-repeat-background-x")}
-          checked={attributes.backgroundRepeatX}
+          {...omitUndefined({ checked: attributes.backgroundRepeatX })}
           onChange={() => setAttributes({ backgroundRepeatX: !attributes.backgroundRepeatX })}
         />
         {!noAlign && (
@@ -167,7 +167,7 @@ const BackgroundAndColorCustomizer: React.FC<
             />
             <CheckBox
               label={t("label-align-bottom")}
-              checked={attributes.alignBottom}
+              {...omitUndefined({ checked: attributes.alignBottom })}
               onChange={() => setAttributes({ alignBottom: !attributes.alignBottom })}
             />
           </>

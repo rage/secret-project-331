@@ -1,25 +1,37 @@
 "use client"
 
-import { QueryClient, useQuery } from "@tanstack/react-query"
+import type { QueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-import { getCourse as fetchCourse } from "../services/backend/courses"
-
-import { Course } from "@/shared-module/common/bindings"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-
-// eslint-disable-next-line i18next/no-literal-string
-export const formatCourseQueryKey = (courseId: string) => [`course`, courseId]
+import {
+  getCourseOptions,
+  getCourseQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 export const invalidateCourseQuery = (queryClient: QueryClient, courseId: string) => {
-  queryClient.invalidateQueries({ queryKey: formatCourseQueryKey(courseId) })
+  queryClient.invalidateQueries({
+    queryKey: getCourseQueryKey({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  })
 }
 
 export const useCourseQuery = (courseId: string | null) => {
-  const query = useQuery<Course>({
-    queryKey: formatCourseQueryKey(assertNotNullOrUndefined(courseId)),
-    queryFn: () => fetchCourse(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
+        getCourseOptions({
+          path: {
+            course_id: id,
+          },
+        }),
+    }),
+  )
 
   return query
 }

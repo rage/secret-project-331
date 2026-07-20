@@ -1,4 +1,5 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { answerExercise, fillPeerReview } from "./peer_review_utils"
 
@@ -62,6 +63,7 @@ test.describe("Students should be able to give extra peer reviews to receive pri
     await fillPeerReview(student1Page, ["Agree", "Agree"], false)
     await student1Page.getByText("2 / 3 Peer reviews given").waitFor()
     await fillPeerReview(student1Page, ["Agree", "Agree"], false)
+
     await test.step("User should be able to give an extra peer review to speed up the process", async () => {
       await student1Page.getByRole("button", { name: "Give extra peer review" }).click()
       await student1Page.getByText("3 / 3 Peer reviews given").waitFor()
@@ -82,13 +84,15 @@ test.describe("Students should be able to give extra peer reviews to receive pri
         .getByRole("row", { name: "02364d40-2aac-4763-8a06-" })
         .getByRole("button")
         .click()
-      await adminPage
+      const courseCard = adminPage
         .getByTestId("course-status-card")
         .filter({ hasText: "Peer review Course" })
         .filter({ hasNotText: "Accessibility" })
         .first()
-        .getByRole("button", { name: "Course status summary" })
-        .click()
+      // The card body (with the "Course status summary" link) is inside a collapsed Disclosure; expand it
+      // via its trigger (the course name leads its accessible name), then follow the now-visible link.
+      await courseCard.getByRole("button", { name: /Peer review Course/ }).click()
+      await courseCard.getByRole("link", { name: "Course status summary" }).click()
 
       const exerciseDetailsComponent = adminPage
         .getByTestId("exercise-status")
@@ -96,7 +100,7 @@ test.describe("Students should be able to give extra peer reviews to receive pri
 
       await exerciseDetailsComponent.getByRole("button", { name: "View details" }).click()
 
-      await expect(exerciseDetailsComponent).toContainText("Priority: 4")
+      await expect(exerciseDetailsComponent).toContainText(/Priority:\s*4(?!\d)/)
     })
   })
 })

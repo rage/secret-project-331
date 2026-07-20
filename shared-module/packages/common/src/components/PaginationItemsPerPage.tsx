@@ -4,30 +4,32 @@ import { css } from "@emotion/css"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PaginationInfo } from "../hooks/usePaginationInfo"
-
+import type { PaginationInfo } from "../hooks/usePaginationInfo"
 import SelectField from "./InputFields/SelectField"
+
+const DEFAULT_ITEMS_PER_PAGE_OPTIONS = [100, 1000, 10000]
 
 interface PaginationItemsPerPageProps {
   paginationInfo: PaginationInfo
+  itemsPerPageOptions?: number[]
 }
 
-const PaginationItemsPerPage: React.FC<PaginationItemsPerPageProps> = ({ paginationInfo }) => {
+const PaginationItemsPerPage: React.FC<PaginationItemsPerPageProps> = ({
+  paginationInfo,
+  itemsPerPageOptions,
+}) => {
   const { t } = useTranslation()
   const options = useMemo(() => {
-    const options = [
-      { value: "100", label: "100" },
-      { value: "1000", label: "1000" },
-      { value: "10000", label: "10000" },
-    ]
+    const base = itemsPerPageOptions ?? DEFAULT_ITEMS_PER_PAGE_OPTIONS
+    const mappedOptions = base.map((n) => ({ value: n.toString(), label: n.toString() }))
     const currentLimit = paginationInfo.limit.toString()
-    if (options.find((o) => o.value === currentLimit) === undefined) {
+    if (!mappedOptions.some((o) => o.value === currentLimit)) {
       // Someone edited a custom limit by changing the url. Let's support this use case by including this new option in the dropdown.
-      options.push({ value: currentLimit, label: currentLimit })
-      options.sort((o1, o2) => Number(o1.value) - Number(o2.value))
+      mappedOptions.push({ value: currentLimit, label: currentLimit })
+      mappedOptions.sort((o1, o2) => Number(o1.value) - Number(o2.value))
     }
-    return options
-  }, [paginationInfo.limit])
+    return mappedOptions
+  }, [paginationInfo.limit, itemsPerPageOptions])
   return (
     <div
       className={css`

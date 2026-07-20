@@ -2,31 +2,42 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { ChangeEvent, useEffect, useState } from "react"
+import type { ChangeEvent } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  deletePlaygroundExample,
-  fetchPlaygroundExamples,
-  savePlaygroundExample,
-  updatePlaygroundExample,
-} from "@/services/backend/playground-examples"
-import { PlaygroundExample } from "@/shared-module/common/bindings"
+  deletePlaygroundExampleMutation as deletePlaygroundExampleMutationOptions,
+  getPlaygroundExamplesOptions,
+  createPlaygroundExampleMutation as savePlaygroundExampleMutationOptions,
+  updatePlaygroundExampleMutation as updatePlaygroundExampleMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { PlaygroundExample } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
-import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
+import { includeIf } from "@/shared-module/common/utils/nullability"
+import { QueryResult } from "@/shared-module/components"
+import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
 
+const onMessage = (message: unknown, responsePort: MessagePort) => {
+  console.info(responsePort)
+
+  console.info("received message from iframe", message)
+}
+
 const Home: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-playground-exercise-iframe"))
+  const dialog = useDialog()
   const [exampleUrl, setExampleUrl] = useState<string>("")
   const [exampleWidth, setExampleWidth] = useState<number>(narrowContainerWidthPx)
   const [exampleData, setExampleData] = useState<string>("")
@@ -34,12 +45,9 @@ const Home: React.FC = () => {
   const [combinedUrl, setCombinedUrl] = useState<string>("")
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
-  const getPlaygroundExamples = useQuery({
-    queryKey: ["playground-examples"],
-    queryFn: () => fetchPlaygroundExamples(),
-  })
-  const saveMutation = useToastMutation(
-    savePlaygroundExample,
+  const getPlaygroundExamples = useQuery(getPlaygroundExamplesOptions())
+  const saveMutation = useToastMutationOptions(
+    savePlaygroundExampleMutationOptions(),
     {
       notify: true,
       method: "POST",
@@ -56,8 +64,8 @@ const Home: React.FC = () => {
       },
     },
   )
-  const updateMutation = useToastMutation(
-    updatePlaygroundExample,
+  const updateMutation = useToastMutationOptions(
+    updatePlaygroundExampleMutationOptions(),
     {
       notify: true,
       method: "PUT",
@@ -74,8 +82,8 @@ const Home: React.FC = () => {
       },
     },
   )
-  const deleteMutation = useToastMutation(
-    deletePlaygroundExample,
+  const deleteMutation = useToastMutationOptions(
+    deletePlaygroundExampleMutationOptions(),
     {
       notify: true,
       method: "DELETE",
@@ -93,12 +101,6 @@ const Home: React.FC = () => {
       },
     },
   )
-
-  const onMessage = (message: unknown, responsePort: MessagePort) => {
-    console.info(responsePort)
-
-    console.info("received message from iframe", message)
-  }
 
   useEffect(() => {
     setCombinedUrl("")
@@ -142,76 +144,84 @@ const Home: React.FC = () => {
     setSelectedExample(example)
   }
 
-  const handleExampleSave = async () => {
+  const handleExampleSave = () => {
     saveMutation.mutate({
-      name: exampleName,
-      url: exampleUrl,
-      width: exampleWidth,
-      data: JSON.parse(exampleData),
+      body: {
+        name: exampleName,
+        url: exampleUrl,
+        width: exampleWidth,
+        data: JSON.parse(exampleData),
+      },
     })
   }
 
-  const handleExampleUpdate = async () => {
+  const handleExampleUpdate = () => {
     if (!selectedExample) {
       return
     }
     updateMutation.mutate({
-      ...selectedExample,
-      name: exampleName,
-      url: exampleUrl,
-      width: exampleWidth,
-      data: JSON.parse(exampleData),
+      body: {
+        ...selectedExample,
+        name: exampleName,
+        url: exampleUrl,
+        width: exampleWidth,
+        data: JSON.parse(exampleData),
+      },
     })
   }
 
-  const handleExampleDeletion = async () => {
+  const handleExampleDeletion = () => {
     if (!selectedExample) {
       return
     }
-    deleteMutation.mutate(selectedExample.id)
+    deleteMutation.mutate({
+      path: {
+        playground_example_id: selectedExample.id,
+      },
+    })
   }
 
   return (
     <>
       <div>
         <h2>{t("title-playground-exercise-iframe")}</h2>
-        {getPlaygroundExamples.isError && (
-          <ErrorBanner variant={"readOnly"} error={getPlaygroundExamples.error} />
-        )}
-        {getPlaygroundExamples.isLoading && <Spinner variant={"medium"} />}
-        {getPlaygroundExamples.isSuccess && getPlaygroundExamples.data.length > 0 && (
-          <div>
-            <h3>{t("title-list-of-examples")}</h3>
-            <div
-              className={css`
-                margin-bottom: 1rem;
-                margin-top: 0.5rem;
-              `}
-            >
-              {}
-              <select
-                onChange={handleExampleChange}
-                name="playground-examples"
-                aria-label={t("playground-examples")}
+        <QueryResult query={getPlaygroundExamples}>
+          {(data) => (
+            <div>
+              <h3>{t("title-list-of-examples")}</h3>
+              <div
+                className={css`
+                  margin-bottom: 1rem;
+                  margin-top: 0.5rem;
+                `}
               >
-                <option selected disabled label={t("label-examples")} />
-                {getPlaygroundExamples.data.map((example) => (
-                  <option
-                    key={JSON.stringify(example)}
-                    value={JSON.stringify(example)}
-                    label={example.name}
-                  />
-                ))}
-              </select>
+                {}
+                <select
+                  onChange={handleExampleChange}
+                  name="playground-examples"
+                  aria-label={t("playground-examples")}
+                >
+                  {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label attr is the accessible name */}
+                  <option selected disabled label={t("label-examples")} />
+                  {data.map((example) => (
+                    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label attr is the accessible name
+                    <option
+                      key={JSON.stringify(example)}
+                      value={JSON.stringify(example)}
+                      label={example.name}
+                    />
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </QueryResult>
         <TextField
           value={exampleUrl || ""}
           placeholder={invalidUrl ? t("invalid-url") : t("label-url")}
           label={t("label-url")}
           onChangeByValue={(value) => handleUrlChange(value)}
-          error={invalidUrl ? t("invalid-url") : undefined}
+          {...includeIf(invalidUrl, { error: t("invalid-url") })}
           className={css`
             margin-bottom: 1rem !important;
           `}
@@ -293,10 +303,11 @@ const Home: React.FC = () => {
           `}
         >
           <MessageChannelIFrame
+            dialog={dialog}
             key={combinedUrl + exampleData}
             url={combinedUrl}
             postThisStateToIFrame={{
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               view_type: "answer-exercise",
               exercise_task_id: EXAMPLE_UUID,
               user_information: {

@@ -4,7 +4,7 @@ use crate::{
 };
 use actix_web::{FromRequest, http::header};
 use futures_util::{FutureExt, future::LocalBoxFuture};
-use headless_lms_utils::{cache::Cache, tmc::TmcClient};
+use headless_lms_utils::{cache::Cache, services::tmc::TmcClient};
 use models::users::User;
 use secrecy::{ExposeSecret, SecretString};
 use std::ops::{Deref, DerefMut};
@@ -92,9 +92,10 @@ impl FromRequest for UserFromTMCAccessToken {
                                 .map(|uuid| uuid.to_string())
                                 .unwrap_or_else(|| "None (will generate new UUID)".to_string())
                         );
-                        let user =
-                            get_or_create_user_from_tmc_mooc_fi_response(&mut conn, tmc_user)
-                                .await?;
+                        let user = get_or_create_user_from_tmc_mooc_fi_response(
+                            &mut conn, tmc_user, &token,
+                        )
+                        .await?;
                         info!(
                             "Successfully got user details from mooc.fi for user {}",
                             user.id

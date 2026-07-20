@@ -1,11 +1,17 @@
-import { expect, Page } from "@playwright/test"
+import type { Page } from "@playwright/test"
+import { expect } from "@playwright/test"
+
+import { ensureRedirectServer } from "./redirectServer"
 
 export class ConsentPage {
-  constructor(
-    private page: Page,
-    private scopes: string[],
-  ) {}
-  private esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  private page: Page
+  private scopes: string[]
+
+  public constructor(page: Page, scopes: string[]) {
+    this.page = page
+    this.scopes = scopes
+  }
+  private esc = (s: string) => s.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
   private get scopesRegex() {
     return new RegExp(`\\b(${this.scopes.map(this.esc).join("|")})\\b`, "i")
   }
@@ -22,7 +28,7 @@ export class ConsentPage {
     return this.container.locator("h2").first()
   }
 
-  async expectVisible(name: string | RegExp) {
+  public async expectVisible(name: string | RegExp) {
     await expect(this.ul).toBeVisible()
     await expect(this.title).toBeVisible()
     await expect(this.title).toContainText(name)
@@ -33,7 +39,8 @@ export class ConsentPage {
     }
   }
 
-  async approve() {
+  public async approve() {
+    await ensureRedirectServer()
     const approveButton = this.page.getByTestId("oauth-consent-approve-button")
     await approveButton.click()
     // Wait for redirect to callback or success indicator
@@ -46,7 +53,7 @@ export class ConsentPage {
     }
   }
 
-  async expectNotPresent() {
+  public async expectNotPresent() {
     await expect(this.title).toHaveCount(0)
   }
 }

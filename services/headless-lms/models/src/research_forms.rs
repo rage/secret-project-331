@@ -1,9 +1,10 @@
 use futures::Stream;
+use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ResearchForm {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -13,15 +14,15 @@ pub struct ResearchForm {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewResearchForm {
     pub course_id: Uuid,
     pub content: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ResearchFormQuestion {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -32,8 +33,8 @@ pub struct ResearchFormQuestion {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewResearchFormQuestion {
     pub question_id: Uuid,
     pub course_id: Uuid,
@@ -41,16 +42,16 @@ pub struct NewResearchFormQuestion {
     pub question: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewResearchFormQuestionAnswer {
     pub user_id: Uuid,
     pub research_form_question_id: Uuid,
     pub research_consent: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ResearchFormQuestionAnswer {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -179,6 +180,25 @@ AND deleted_at IS NULL
     Ok(form_res)
 }
 
+pub async fn get_question_by_id(
+    conn: &mut PgConnection,
+    question_id: Uuid,
+) -> ModelResult<ResearchFormQuestion> {
+    let res = sqlx::query_as!(
+        ResearchFormQuestion,
+        "
+SELECT *
+FROM course_specific_consent_form_questions
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        question_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub struct ExportedCourseResearchFormQustionAnswer {
     pub course_id: Uuid,
     pub research_consent_form_id: Uuid,
@@ -243,6 +263,43 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(form_res.id)
+}
+
+pub async fn upsert_answer_for_user_id_and_question_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    question_id: Uuid,
+    research_consent: bool,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO course_specific_consent_form_answers (
+    user_id,
+    course_id,
+    research_form_question_id,
+    research_consent
+)
+SELECT $1, q.course_id, q.id, $4
+FROM course_specific_consent_form_questions q
+WHERE q.id = $2
+  AND q.course_id = $3
+  AND q.deleted_at IS NULL
+ON CONFLICT (user_id, research_form_question_id)
+DO UPDATE SET
+  course_id = excluded.course_id,
+  research_consent = excluded.research_consent,
+  deleted_at = NULL
+RETURNING id
+        ",
+        user_id,
+        question_id,
+        course_id,
+        research_consent
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
 }
 
 pub async fn get_research_form_answers_with_user_id(

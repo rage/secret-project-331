@@ -1,18 +1,18 @@
 "use client"
 
-import { QueryClient, useQueryClient } from "@tanstack/react-query"
+import type { QueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { createCourseCopy, createNewCourse } from "../services/backend/courses"
+import { createCourse, createCourseCopy } from "@/generated/api/sdk.generated"
+import type { CopyCourseMode, Course, NewCourse } from "@/generated/api/types.generated"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
 
 import { invalidateCourseLanguageVersions } from "./useCourseLanguageVersions"
 import { invalidateCourseQuery } from "./useCourseQuery"
 import { invalidateOrganizationCourseCount } from "./useOrganizationCourseCount"
 import { invalidateOrganizationCourses } from "./useOrganizationCourses"
-
-import { CopyCourseMode, Course, NewCourse } from "@/shared-module/common/bindings"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
 
 export interface CreateCourseParams {
   organizationId: string
@@ -32,6 +32,7 @@ export const useCreateCourse = () => {
   const { t } = useTranslation()
 
   return useToastMutation<Course, unknown, CreateCourseParams>(
+    // oxlint-disable-next-line eslint/require-await -- kept async for the mutationFn Promise<Course> contract
     async (params) => {
       const {
         organizationId,
@@ -56,9 +57,14 @@ export const useCreateCourse = () => {
       if (isLanguageVersion && courseId) {
         const mode = createLanguageVersionMode(Boolean(useExistingLanguageGroup), targetCourseId)
 
-        return createCourseCopy(courseId, {
-          ...newCourse,
-          mode,
+        return createCourseCopy({
+          body: {
+            ...newCourse,
+            mode,
+          },
+          path: {
+            course_id: courseId,
+          },
         })
       }
 
@@ -66,20 +72,32 @@ export const useCreateCourse = () => {
         if (createAsLanguageVersion) {
           const mode = createLanguageVersionMode(Boolean(useExistingLanguageGroup), targetCourseId)
 
-          return createCourseCopy(courseId, {
-            ...newCourse,
-            mode,
+          return createCourseCopy({
+            body: {
+              ...newCourse,
+              mode,
+            },
+            path: {
+              course_id: courseId,
+            },
           })
         }
 
-        return createCourseCopy(courseId, {
-          ...newCourse,
-          // eslint-disable-next-line i18next/no-literal-string
-          mode: { mode: "duplicate" },
+        return createCourseCopy({
+          body: {
+            ...newCourse,
+            // oxlint-disable-next-line i18next/no-literal-string
+            mode: { mode: "duplicate" },
+          },
+          path: {
+            course_id: courseId,
+          },
         })
       }
 
-      return createNewCourse(newCourse)
+      return createCourse({
+        body: newCourse,
+      })
     },
     {
       notify: true,
@@ -88,6 +106,7 @@ export const useCreateCourse = () => {
       errorMessage: t("error-creating-course"),
     },
     {
+      // oxlint-disable-next-line eslint/require-await -- async; react-query awaits the onSuccess promise
       onSuccess: async (newCourse, params) => {
         invalidateCourseQueries(queryClient, newCourse.id, params.organizationId)
         if (params.onSuccess) {
@@ -114,10 +133,9 @@ function createLanguageVersionMode(
   targetCourseId?: string,
 ): CopyCourseMode {
   if (useExistingLanguageGroup && targetCourseId) {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     return { mode: "existing_language_group", target_course_id: targetCourseId }
-  } else {
-    // eslint-disable-next-line i18next/no-literal-string
-    return { mode: "same_language_group" }
   }
+  // oxlint-disable-next-line i18next/no-literal-string
+  return { mode: "same_language_group" }
 }

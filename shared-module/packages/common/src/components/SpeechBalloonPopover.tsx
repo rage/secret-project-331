@@ -1,8 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { Ref } from "react"
-import { Dialog, OverlayArrow, Popover, PopoverProps } from "react-aria-components"
+import type { Ref } from "react"
+import React from "react"
+import type { PopoverProps } from "react-aria-components"
+import { Dialog, OverlayArrow, Popover } from "react-aria-components"
 
 import { baseTheme } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
@@ -12,6 +14,7 @@ interface SpeechBalloonPopoverProps extends Omit<PopoverProps, "children"> {
   popoverLabel: string
   offset?: number
   popoverRef?: Ref<HTMLElement>
+  dataTestId?: string
 }
 
 const COLORS = {
@@ -100,10 +103,11 @@ const SpeechBalloonPopover = ({
   popoverLabel,
   offset = 0,
   popoverRef,
+  dataTestId,
   ...props
 }: SpeechBalloonPopoverProps) => {
   return (
-    <Popover offset={offset} className={popoverStyle} {...props}>
+    <Popover offset={offset} className={popoverStyle} data-testid={dataTestId} {...props}>
       <Dialog ref={popoverRef} aria-label={popoverLabel} className={speechBalloonStyle}>
         {children}
         <OverlayArrow>

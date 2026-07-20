@@ -1,8 +1,9 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
-import { formatLtr } from "@wordpress/icons"
+/* oxlint-disable i18next/no-literal-string */
+import { formatLTR } from "@wordpress/icons"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import InstructionBoxEditor from "./IngressEditor"
 import InstructionBoxSave from "./IngressSave"
@@ -29,7 +30,7 @@ const InstructionBoxConfiguration: BlockConfiguration<InstructionBoxAttributes> 
       selector: "p",
     },
   },
-  icon: formatLtr,
+  icon: formatLTR,
   edit: InstructionBoxEditor,
   save: InstructionBoxSave,
 }

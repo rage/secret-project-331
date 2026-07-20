@@ -2,9 +2,10 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
-import { useTranslation } from "react-i18next"
+
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockPlaceholderWrapper from "../../BlockPlaceholderWrapper"
 

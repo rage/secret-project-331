@@ -4,14 +4,14 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import ParsedText from "./ParsedText"
-
 import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import { respondToOrLarger } from "@/shared-module/common//styles/respond"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
 import { escapeUrlForCss } from "@/utils/course-material/sanitizeCourseMaterialHtml"
+
+import ParsedText from "./ParsedText"
 
 interface TextBoxProps {
   fontColor?: string
@@ -34,12 +34,12 @@ const TextBox = styled.div<TextBoxProps>`
 
   ${respondToOrLarger.md} {
     margin: ${({ direction }) =>
-      direction == "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_MEDIUM_SCREEN};
+      direction === "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_MEDIUM_SCREEN};
   }
 
   ${respondToOrLarger.lg} {
     margin: ${({ direction }) =>
-      direction == "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_LARGE_SCREEN};
+      direction === "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_LARGE_SCREEN};
   }
 
   h1 {
@@ -108,7 +108,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   const CENTER = "center"
   const LEFT = "left"
   const direction = alignCenter ? CENTER : LEFT
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
   const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
 
@@ -161,16 +161,16 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
           ${respondToOrLarger.md} {
             opacity: ${partiallyTransparent ? "1" : "0.4"};
             background-position: ${direction} ${backgroundVerticalAlignment};
-            background-size: ${direction == "center" ? "contain" : "22rem"};
-            left: ${direction == "center" ? "0" : "30px"};
+            background-size: ${direction === "center" ? "contain" : "22rem"};
+            left: ${direction === "center" ? "0" : "30px"};
             background-image: url("${escapeUrlForCss(getBackgroundImageUrl("medium"))}");
           }
 
           ${respondToOrLarger.lg} {
             opacity: ${partiallyTransparent ? "1" : "0.4"};
             background-position: ${direction} ${backgroundVerticalAlignment};
-            background-size: ${direction == "center" ? "contain" : "26rem"};
-            left: ${direction == "center" ? "0" : "40px"};
+            background-size: ${direction === "center" ? "contain" : "26rem"};
+            left: ${direction === "center" ? "0" : "40px"};
             background-image: url("${escapeUrlForCss(getBackgroundImageUrl("large"))}");
           }
 

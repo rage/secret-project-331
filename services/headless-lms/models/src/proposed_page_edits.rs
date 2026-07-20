@@ -4,6 +4,7 @@ use futures::future::BoxFuture;
 use headless_lms_utils::{document_schema_processor::GutenbergBlock, merge_edits};
 use serde_json::Value;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     SpecFetcher,
@@ -17,15 +18,27 @@ use crate::{
     },
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct NewProposedPageEdits {
     pub page_id: Uuid,
     pub block_edits: Vec<NewProposedBlockEdit>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct ProposedPageEdit {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub page_id: Uuid,
+    pub user_id: Option<Uuid>,
+    pub pending: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct PageProposal {
     pub id: Uuid,
     pub page_id: Uuid,
@@ -37,16 +50,16 @@ pub struct PageProposal {
     pub page_url_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct EditProposalInfo {
     pub page_id: Uuid,
     pub page_proposal_id: Uuid,
     pub block_proposals: Vec<BlockProposalInfo>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct ProposalCount {
     pub pending: u32,
     pub handled: u32,
@@ -60,11 +73,7 @@ pub async fn insert(
     edits: &NewProposedPageEdits,
 ) -> ModelResult<(Uuid, Vec<Uuid>)> {
     if edits.block_edits.is_empty() {
-        return Err(ModelError::new(
-            ModelErrorType::Generic,
-            "No block edits".to_string(),
-            None,
-        ));
+        return Err(model_err!(Generic, "No block edits".to_string()));
     }
 
     let mut tx = conn.begin().await?;
@@ -72,7 +81,7 @@ pub async fn insert(
         "
 INSERT INTO proposed_page_edits (id, course_id, page_id, user_id)
 VALUES ($1, $2, $3, $4)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         course_id,
@@ -94,7 +103,81 @@ INSERT INTO proposed_block_edits (
   changed_text
 )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id
+RETURNING *
+",
+            page_res.id,
+            block_edit.block_id,
+            block_edit.block_attribute,
+            block_edit.original_text,
+            block_edit.changed_text
+        )
+        .fetch_one(&mut *tx)
+        .await?;
+        block_ids.push(res.id);
+    }
+    tx.commit().await?;
+    Ok((page_res.id, block_ids))
+}
+
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ProposedPageEdit> {
+    let res = sqlx::query_as!(
+        ProposedPageEdit,
+        r#"
+SELECT *
+FROM proposed_page_edits
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn create_for_page_id_and_course_id(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+    course_id: Uuid,
+    user_id: Option<Uuid>,
+    edits: &NewProposedPageEdits,
+) -> ModelResult<(Uuid, Vec<Uuid>)> {
+    if edits.block_edits.is_empty() {
+        return Err(model_err!(Generic, "No block edits".to_string()));
+    }
+
+    let mut tx = conn.begin().await?;
+    let page_res = sqlx::query!(
+        r#"
+INSERT INTO proposed_page_edits (id, course_id, page_id, user_id)
+SELECT $1, $2, pages.id, $4
+FROM pages
+WHERE pages.id = $3
+  AND pages.course_id = $2
+  AND pages.deleted_at IS NULL
+RETURNING *
+        "#,
+        pkey_policy.into_uuid(),
+        course_id,
+        edits.page_id,
+        user_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    let mut block_ids = vec![];
+    for block_edit in &edits.block_edits {
+        let res = sqlx::query!(
+            "
+INSERT INTO proposed_block_edits (
+  proposal_id,
+  block_id,
+  block_attribute,
+  original_text,
+  changed_text
+)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING *
 ",
             page_res.id,
             block_edit.block_id,
@@ -127,7 +210,7 @@ SELECT proposed_page_edits.id AS "page_proposal_id!",
   changed_text,
   proposed_page_edits.pending as "pending!",
   block_attribute,
-  proposed_block_edits.status as "block_proposal_status: ProposalStatus",
+  proposed_block_edits.status AS "block_proposal_status",
   proposed_page_edits.created_at as "created_at!",
   pages.title as "page_title!",
   pages.url_path as "page_url_path!"
@@ -290,10 +373,9 @@ pub async fn process_proposal(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<()> {
     if block_proposals.is_empty() {
-        return Err(ModelError::new(
-            ModelErrorType::Generic,
-            "No block proposals to process".to_string(),
-            None,
+        return Err(model_err!(
+            Generic,
+            "No block proposals to process".to_string()
         ));
     }
 
@@ -308,10 +390,7 @@ pub async fn process_proposal(
 UPDATE proposed_block_edits
 SET status = 'accepted'
 WHERE id = $1
-RETURNING block_id,
-    block_attribute,
-    original_text,
-    changed_text
+RETURNING *
 ",
                     id
                 )
@@ -374,6 +453,7 @@ WHERE id = $1
         url_path: page_with_exercises.page.url_path,
         title: page_with_exercises.page.title,
         chapter_id: page_with_exercises.page.chapter_id,
+        hidden: page_with_exercises.page.hidden,
     };
     crate::pages::update_page(
         &mut tx,
@@ -396,10 +476,66 @@ WHERE id = $1
     Ok(())
 }
 
+pub async fn process_by_id_and_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    page_proposal_id: Uuid,
+    block_proposals: Vec<BlockProposalInfo>,
+    author: Uuid,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<()> {
+    if block_proposals.is_empty() {
+        return Err(model_err!(
+            Generic,
+            "No block proposals to process".to_string()
+        ));
+    }
+
+    let block_proposal_ids = block_proposals.iter().map(|bp| bp.id).collect::<Vec<_>>();
+    let matching_block_count = sqlx::query!(
+        r#"
+SELECT COUNT(*) AS count
+FROM proposed_page_edits ppe
+  JOIN proposed_block_edits pbe ON pbe.proposal_id = ppe.id
+WHERE ppe.id = $1
+  AND ppe.page_id = $2
+  AND ppe.deleted_at IS NULL
+  AND pbe.id = ANY($3)
+  AND pbe.deleted_at IS NULL
+        "#,
+        page_proposal_id,
+        page_id,
+        &block_proposal_ids
+    )
+    .fetch_one(&mut *conn)
+    .await?
+    .count
+    .unwrap_or(0);
+
+    if matching_block_count != block_proposal_ids.len() as i64 {
+        return Err(model_err!(
+            PreconditionFailed,
+            "Block proposals do not all belong to the requested page proposal".to_string()
+        ));
+    }
+
+    process_proposal(
+        conn,
+        page_id,
+        page_proposal_id,
+        block_proposals,
+        author,
+        spec_fetcher,
+        fetch_service_info,
+    )
+    .await
+}
+
 pub async fn update_page_edit_status(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     let block_proposals = sqlx::query!(
         r#"
-SELECT status AS "status: ProposalStatus"
+SELECT *
 FROM proposed_block_edits
 WHERE proposal_id = $1
 AND deleted_at IS NULL
@@ -457,6 +593,7 @@ mod test {
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
+            hidden: false,
         };
         crate::pages::update_page(
             conn,

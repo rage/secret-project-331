@@ -63,7 +63,7 @@ const AllSubmissionsList: React.FC<AllSubmissionsListProps> = ({
           `}
         >
           {submissions
-            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .toSorted((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
             .map((submission, index) => {
               const isCurrentSubmission = submission.id === currentSubmissionId
               const isLatestSubmission = index === 0

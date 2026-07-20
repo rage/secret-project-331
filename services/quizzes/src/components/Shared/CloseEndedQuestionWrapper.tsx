@@ -1,11 +1,9 @@
-"use client"
-
 import { css, cx } from "@emotion/css"
 import React from "react"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { ROW } from "@/util/constants"
-import { FlexDirection } from "@/util/css-sanitization"
+import type { FlexDirection } from "@/util/css-sanitization"
 
 const wrapperRowExtraStyles = css`
   ${respondToOrLarger.sm} {

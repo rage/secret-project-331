@@ -1,0 +1,15 @@
+{
+  "extends": "../common/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/shared-module/exercise-protocol/*": ["../exercise-protocol/src/*"]
+    },
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["jest", "node"],
+    "noEmit": true,
+    "jsxImportSource": "react"
+  },
+  "include": ["src", "tests"],
+  "exclude": ["node_modules", "dist"]
+}

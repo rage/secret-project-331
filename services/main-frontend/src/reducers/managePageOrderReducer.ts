@@ -1,8 +1,8 @@
-import { produce } from "immer"
-import { WritableDraft } from "immer/src/types/types-external"
-import { Dictionary, groupBy, mapValues, max, orderBy } from "lodash"
+import { produce, type WritableDraft } from "immer"
+import type { Dictionary } from "lodash"
+import { groupBy, max, orderBy } from "lodash"
 
-import { Chapter, CourseStructure, Page } from "@/shared-module/common/bindings"
+import type { Chapter, CourseStructure, Page } from "@/generated/api/types.generated"
 
 interface ManagePageOrderLoading {
   state: "loading"
@@ -55,9 +55,16 @@ export default function managePageOrderReducer(
         const chaptersWithFrontpages = action.payload.chapters.filter(
           (c) => c.front_page_id !== null,
         )
-        const chapters = action.payload.chapters.filter((c) => c.id !== null)
+        // Clone the chapters and pages before storing them in the state. The objects we get from
+        // react-query may be frozen (immer's autoFreeze freezes them once they end up in produced
+        // state, and react-query's structural sharing reuses the same frozen references across
+        // refetches). The order-number/chapter-number normalization below mutates these objects in
+        // place, and mutating a frozen object throws "Cannot assign to read only property", which
+        // previously left unsavedChanges unset and hid the "save the ordering" prompt (e.g. after
+        // deleting a page).
+        const chapters = action.payload.chapters.filter((c) => c.id !== null).map((c) => ({ ...c }))
         const orderedPages = orderBy(
-          [...action.payload.pages],
+          action.payload.pages.map((page) => ({ ...page })),
           [(page) => page.order_number, (page) => page.id],
           ["asc", "asc"],
         )
@@ -76,7 +83,15 @@ export default function managePageOrderReducer(
             chaptersWithFrontpages.some((c) => c.front_page_id === page.id),
         )
         const groupedOnlyFrontpages = groupBy(onlyFrontPages, (page) => page.chapter_id)
-        const chapterIdToFrontpage = mapValues(groupedOnlyFrontpages, (pages) => pages[0])
+        // groupBy only creates keys for non-empty arrays, so the first element always exists;
+        // skip any (impossible) empty group to keep the value type as Page rather than Page | undefined
+        const chapterIdToFrontpage: Dictionary<Page> = {}
+        for (const [chapterId, pages] of Object.entries(groupedOnlyFrontpages)) {
+          const frontPage = pages[0]
+          if (frontPage !== undefined) {
+            chapterIdToFrontpage[chapterId] = frontPage
+          }
+        }
 
         draftState.state = "ready"
         draftState.unsavedChanges = false
@@ -130,14 +145,15 @@ export default function managePageOrderReducer(
             // moving a page to a different chapter, the new location will be the last page of the new chapter
             const oldChapterPageList = draftState.chapterIdToPages?.[currentPageChapterId ?? "null"]
             const newChapterPageList = draftState.chapterIdToPages?.[chapterId ?? "null"]
-            const page = oldChapterPageList?.find((page) => page.id === pageId)
+            const page = oldChapterPageList?.find((p) => p.id === pageId)
 
-            if (!page) {
+            if (!page || !oldChapterPageList) {
               break
             }
 
-            draftState.chapterIdToPages[currentPageChapterId ?? "null"] =
-              oldChapterPageList?.filter((o) => o.id !== pageId)
+            draftState.chapterIdToPages[currentPageChapterId ?? "null"] = oldChapterPageList.filter(
+              (o) => o.id !== pageId,
+            )
             const largestOrderNumber = max(newChapterPageList?.map((p) => p.order_number)) ?? -1
             page.order_number = largestOrderNumber + 1
             page.chapter_id = chapterId
@@ -164,12 +180,12 @@ export default function managePageOrderReducer(
           // Front page is always index 0, so the first page in the chapter is index 1
           const expectedOrderNumber = index + 1
           if (page.order_number !== expectedOrderNumber) {
-            console.info(
-              `Updating page order number for ${page.id} from ${page.order_number} to ${expectedOrderNumber}`,
-            )
+            // setData clones pages so this assignment is safe, but stay defensive: a frozen page
+            // (e.g. via immer autoFreeze) must not crash the whole view. Mark unsaved changes
+            // regardless so the "save the page ordering" prompt is never silently skipped.
+            draftState.unsavedChanges = true
             try {
               page.order_number = expectedOrderNumber
-              draftState.unsavedChanges = true
             } catch (e) {
               console.warn(`Could not update page order number for ${page.id}`, e)
             }
@@ -179,11 +195,12 @@ export default function managePageOrderReducer(
       // Set front page order numbers to 0
       Object.values(draftState.chapterIdToFrontPage).forEach((page) => {
         if (page.order_number !== 0) {
-          console.info(
-            `Updating front page order number for ${page.id} from ${page.order_number} to 0`,
-          )
-          page.order_number = 0
           draftState.unsavedChanges = true
+          try {
+            page.order_number = 0
+          } catch (e) {
+            console.warn(`Could not update front page order number for ${page.id}`, e)
+          }
         }
       })
     }
@@ -193,15 +210,16 @@ export default function managePageOrderReducer(
     if (draftState.chapters) {
       const chapters = draftState.chapters
       chapters
-        .sort((c1, c2) => c1.chapter_number - c2.chapter_number)
+        .toSorted((c1, c2) => c1.chapter_number - c2.chapter_number)
         .forEach((chapter, index) => {
           const expectedChapterNumber = index + 1
           if (chapter.chapter_number !== expectedChapterNumber) {
-            console.info(
-              `Updating chapter number for ${chapter.id} from ${chapter.chapter_number} to ${expectedChapterNumber}`,
-            )
-            chapter.chapter_number = expectedChapterNumber
             draftState.unsavedChapterChanges = true
+            try {
+              chapter.chapter_number = expectedChapterNumber
+            } catch (e) {
+              console.warn(`Could not update chapter number for ${chapter.id}`, e)
+            }
           }
         })
     }
@@ -223,13 +241,19 @@ function movePageWithinPageList(
     return
   }
 
-  const temp = pages[currentIndex]
-  pages[currentIndex] = pages[targetIndex]
-  pages[targetIndex] = temp
+  // currentIndex is in range (!= -1) and targetIndex is validated to be within bounds
+  const currentPage = pages[currentIndex]
+  const targetPage = pages[targetIndex]
+  if (currentPage === undefined || targetPage === undefined) {
+    return
+  }
 
-  const tempOrderNumber = pages[currentIndex].order_number
-  pages[currentIndex].order_number = pages[targetIndex].order_number
-  pages[targetIndex].order_number = tempOrderNumber
+  pages[currentIndex] = targetPage
+  pages[targetIndex] = currentPage
+
+  const tempOrderNumber = currentPage.order_number
+  currentPage.order_number = targetPage.order_number
+  targetPage.order_number = tempOrderNumber
 
   draftState.unsavedChanges = true
 }
@@ -253,12 +277,18 @@ function moveChapterWithinChapterList(
     return
   }
 
-  const currentIndex = chapters.findIndex((c) => c.chapter_number == currentChapterNumber)
-  const targetIndex = chapters.findIndex((c) => c.chapter_number == targetChapterNumber)
+  const currentIndex = chapters.findIndex((c) => c.chapter_number === currentChapterNumber)
+  const targetIndex = chapters.findIndex((c) => c.chapter_number === targetChapterNumber)
+
+  const currentIndexChapter = chapters[currentIndex]
+  const targetIndexChapter = chapters[targetIndex]
+  if (currentIndexChapter === undefined || targetIndexChapter === undefined) {
+    return
+  }
 
   const temp = currentChapterNumber
-  chapters[currentIndex].chapter_number = targetChapterNumber
-  chapters[targetIndex].chapter_number = temp
+  currentIndexChapter.chapter_number = targetChapterNumber
+  targetIndexChapter.chapter_number = temp
 
   draftState.unsavedChapterChanges = true
 }

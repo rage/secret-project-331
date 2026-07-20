@@ -1,18 +1,16 @@
-"use client"
-
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
+import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"
+import withNoSsr from "@/shared-module/exercise-react/react/components/withNoSsr"
+import type { RunResult } from "@/tmc/cli"
+import type { ExerciseIframeState } from "@/util/stateInterfaces"
+
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
-import ViewSubmission from "./ViewSubmission"
-
-import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
-import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import withNoSsr from "@/shared-module/common/utils/withNoSsr"
-import { RunResult } from "@/tmc/cli"
-import { ExerciseIframeState } from "@/util/stateInterfaces"
+import ViewSubmission, { normalizeSubmission } from "./ViewSubmission"
 
 interface Props {
   state: ExerciseIframeState | null
@@ -61,6 +59,41 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
       </div>
     )
   } else if (state.view_type === "view-submission") {
+    const submission = normalizeSubmission(state.submission)
+    if (submission.type === "browser" && state.public_spec) {
+      const setStateForViewSubmission: typeof setState = (updater) => {
+        setState((prev) => {
+          if (prev?.view_type !== "view-submission") {
+            return updater(prev)
+          }
+          const fakePrev: ExerciseIframeState = {
+            // oxlint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
+            view_type: "answer-exercise",
+            public_spec: prev.public_spec,
+            user_answer: prev.submission,
+            previous_submission: null,
+          }
+          const result = updater(fakePrev)
+          if (result?.view_type === "answer-exercise") {
+            return { ...prev, submission: result.user_answer }
+          }
+          return result ?? prev
+        })
+      }
+      return (
+        <div id={EXERCISE_SERVICE_CONTENT_ID}>
+          <AnswerExercise
+            publicSpec={state.public_spec}
+            userAnswer={submission}
+            setState={setStateForViewSubmission}
+            testRequestResponse={null}
+            sendFileUploadMessage={sendFileUploadMessage}
+            fileUploadResponse={fileUploadResponse}
+            grading={state.grading}
+          />
+        </div>
+      )
+    }
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
         <ViewSubmission state={state} />

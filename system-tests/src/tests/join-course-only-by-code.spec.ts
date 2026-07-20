@@ -1,6 +1,8 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -56,11 +58,12 @@ test("Join course by code only", async ({}) => {
 
     const oldJoinCodeElement = teacherPage.getByRole("link", { name: "/join?code=" }).first()
     const oldJoinCodeHref = await oldJoinCodeElement.getAttribute("href")
-    // eslint-disable-next-line playwright/no-conditional-in-test
+
     const oldJoinCode = oldJoinCodeHref?.replace("/join?code=", "").trim() || ""
 
-    await teacherPage.getByRole("button", { name: "Generate join course link" }).click()
-    await teacherPage.getByText("Operation successful").waitFor()
+    await waitForSuccessNotification(teacherPage, async () => {
+      await teacherPage.getByRole("button", { name: "Generate join course link" }).click()
+    })
 
     await teacherPage.waitForFunction((oldCode) => {
       const link = document.querySelector('a[href^="/join?code="]') as HTMLAnchorElement
@@ -73,7 +76,7 @@ test("Join course by code only", async ({}) => {
 
     const joinCodeElement = teacherPage.getByRole("link", { name: "/join?code=" }).first()
     const joinCodeHref = await joinCodeElement.getAttribute("href")
-    // eslint-disable-next-line playwright/no-conditional-in-test
+
     joinCode = joinCodeHref?.replace("/join?code=", "").trim() || ""
     expect(joinCode).not.toBe("")
     expect(joinCode).not.toBe(oldJoinCode)
@@ -95,6 +98,10 @@ test("Join course by code only", async ({}) => {
     await student2Page.goto(
       "http://project-331.local/org/uh-mathstat/courses/joinable-by-code-only",
     )
-    await student2Page.getByText("Unauthorized").first().waitFor()
+    await student2Page.getByRole("heading", { name: /Forbidden|Unauthorized/i }).waitFor()
+    await student2Page
+      .getByText(/do not have permission|Unauthorized/i)
+      .first()
+      .waitFor()
   })
 })

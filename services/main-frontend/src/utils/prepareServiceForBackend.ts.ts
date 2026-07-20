@@ -1,4 +1,4 @@
-import { ExerciseService, ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
+import type { ExerciseService, ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import { validURL } from "@/shared-module/common/utils/validation"
 
 export const prepareExerciseServiceForBackend = (
@@ -6,7 +6,7 @@ export const prepareExerciseServiceForBackend = (
 ): ExerciseServiceNewOrUpdate | ExerciseService => {
   const preparedService = {
     ...service,
-    internal_url: validURL(service.internal_url) ? service.internal_url : null,
+    internal_url: validURL(service.internal_url ?? null) ? (service.internal_url ?? null) : null,
   }
   return preparedService
 }

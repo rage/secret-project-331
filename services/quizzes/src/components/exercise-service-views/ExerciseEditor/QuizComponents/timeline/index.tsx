@@ -1,16 +1,13 @@
-"use client"
-
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServiceOutputState"
+
+import type { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import ParsedTextField from "../common/ParsedTextField"
-
 import TimelineContent from "./TimelineContent"
-
-import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServiceOutputState"
 
 interface TimelineEditorProps {
   quizItemId: string
@@ -21,7 +18,7 @@ const TimelineEditor: React.FC<TimelineEditorProps> = ({ quizItemId }) => {
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemTimeline>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemTimeline>(quiz, quizItemId, "timeline")
     })
 

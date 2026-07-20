@@ -1,17 +1,14 @@
-"use client"
-
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
-import useQuizzesExerciseServiceOutputState from "../../../hooks/useQuizzesExerciseServiceOutputState"
-
-import ParsedTextField from "./QuizComponents/common/ParsedTextField"
-
 import Accordion from "@/shared-module/common/components/Accordion"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "../../../hooks/useQuizzesExerciseServiceOutputState"
+import ParsedTextField from "./QuizComponents/common/ParsedTextField"
 
 const AdvancedOptionsContainer = styled.div`
   padding: 8px;
@@ -59,7 +56,7 @@ const QuizCommonInfo: React.FC = () => {
   )
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (

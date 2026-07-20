@@ -1,7 +1,7 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Reviewer,
@@ -14,7 +14,7 @@ pub enum UserRole {
     StatsViewer,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 pub struct Role {
     pub is_global: bool,
     pub organization_id: Option<Uuid>,
@@ -68,8 +68,7 @@ impl Role {
     }
 }
 
-#[derive(Debug, Clone, Copy, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, Copy, Deserialize, ToSchema)]
 #[serde(tag = "tag", content = "id")]
 pub enum RoleDomain {
     Global,
@@ -79,16 +78,16 @@ pub enum RoleDomain {
     Exam(Uuid),
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct RoleInfo {
     pub email: String,
     pub role: UserRole,
     pub domain: RoleDomain,
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct RoleUser {
     pub user_id: Uuid,
     pub first_name: Option<String>,
@@ -107,7 +106,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role!: UserRole"
+  role AS "role!"
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -126,7 +125,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -146,7 +145,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -166,7 +165,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -186,7 +185,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -214,7 +213,7 @@ pub async fn insert(
                 "
 INSERT INTO roles (user_id, role, is_global)
 VALUES ($1, $2, True)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole
@@ -228,7 +227,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, organization_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,
@@ -243,7 +242,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, course_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,
@@ -258,7 +257,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, course_instance_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,
@@ -273,7 +272,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, exam_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,
@@ -390,13 +389,41 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
+  role,
   user_id
 FROM roles
 WHERE user_id = $1
 AND roles.deleted_at IS NULL
 "#,
         user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(roles)
+}
+
+pub async fn get_by_user_id_and_course_ids(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<Role>> {
+    let roles = sqlx::query_as!(
+        Role,
+        r#"
+SELECT is_global,
+  organization_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  role,
+  user_id
+FROM roles
+WHERE user_id = $1
+  AND course_id = ANY($2)
+  AND deleted_at IS NULL
+"#,
+        user_id,
+        course_ids
     )
     .fetch_all(conn)
     .await?;
@@ -427,7 +454,7 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
+  role,
   user_id
 FROM roles
 WHERE (
@@ -475,7 +502,7 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
+  role,
   user_id
 FROM roles
 WHERE (

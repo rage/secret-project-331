@@ -6,6 +6,7 @@ use crate::course_instances;
 use crate::course_instances::NewCourseInstance;
 use crate::course_language_groups;
 use crate::courses::Course;
+use crate::courses::CourseAiPolicy;
 use crate::courses::NewCourse;
 use crate::courses::get_course;
 use crate::exams;
@@ -28,7 +29,7 @@ pub async fn copy_course(
     let course_language_group_id = if same_language_group {
         parent_course.course_language_group_id
     } else {
-        course_language_groups::insert(&mut tx, PKeyPolicy::Generate).await?
+        course_language_groups::insert(&mut tx, PKeyPolicy::Generate, &new_course.slug).await?
     };
 
     let copied_course = copy_course_with_language_group(
@@ -76,7 +77,12 @@ INSERT INTO courses (
     join_code,
     ask_marketing_consent,
     description,
-    flagged_answers_threshold
+    flagged_answers_threshold,
+    flagged_answers_skip_manual_review_and_allow_retry,
+    cheater_detection_enabled,
+    chapter_locking_enabled,
+    ai_policy,
+    course_material_ai_instructions
   )
 VALUES (
     $1,
@@ -94,7 +100,12 @@ VALUES (
     $13,
     $14,
     $15,
-    $16
+    $16,
+    $17,
+    $18,
+    $19,
+    $20,
+    $21
   )
 RETURNING id,
   name,
@@ -117,10 +128,14 @@ RETURNING id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
         "#,
         new_course.name,
         new_course.organization_id,
@@ -137,7 +152,12 @@ RETURNING id,
         new_course.join_code,
         new_course.ask_marketing_consent,
         parent_course.description,
-        parent_course.flagged_answers_threshold
+        parent_course.flagged_answers_threshold,
+        parent_course.flagged_answers_skip_manual_review_and_allow_retry,
+        parent_course.cheater_detection_enabled,
+        parent_course.chapter_locking_enabled,
+        parent_course.ai_policy as CourseAiPolicy,
+        parent_course.course_material_ai_instructions
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -295,9 +315,7 @@ async fn copy_exam_content(
 
     let parent_exam_fields = sqlx::query!(
         "
-SELECT language,
-  organization_id,
-  minimum_points_treshold
+SELECT *
 FROM exams
 WHERE id = $1
         ",
@@ -385,12 +403,9 @@ WHERE id = $2;
     copy_exercise_slides(&mut *tx, copied_exam.id, parent_exam.id).await?;
     copy_exercise_tasks(&mut *tx, copied_exam.id, parent_exam.id).await?;
 
-    let get_page_id = sqlx::query!(
-        "SELECT id AS page_id FROM pages WHERE exam_id = $1;",
-        copied_exam.id
-    )
-    .fetch_one(&mut *tx)
-    .await?;
+    let get_page_id = sqlx::query!("SELECT id FROM pages WHERE exam_id = $1;", copied_exam.id)
+        .fetch_one(&mut *tx)
+        .await?;
 
     Ok(Exam {
         courses: vec![], // no related courses on newly copied exam
@@ -400,7 +415,7 @@ WHERE id = $2;
         instructions: copied_exam.instructions,
         name: copied_exam.name,
         time_minutes: copied_exam.time_minutes,
-        page_id: get_page_id.page_id,
+        page_id: get_page_id.id,
         minimum_points_treshold: copied_exam.minimum_points_treshold,
         language: copied_exam
             .language
@@ -659,7 +674,8 @@ ins_exercises AS (
       limit_number_of_tries,
       needs_peer_review,
       use_course_default_peer_or_self_review_config,
-      needs_self_review
+      needs_self_review,
+      teacher_reviews_answer_after_locking
     )
   SELECT uuid_generate_v5($1, src.id::text),
     $1,
@@ -675,7 +691,8 @@ ins_exercises AS (
     src.limit_number_of_tries,
     src.needs_peer_review,
     src.use_course_default_peer_or_self_review_config,
-    src.needs_self_review
+    src.needs_self_review,
+    src.teacher_reviews_answer_after_locking
   FROM src
   RETURNING id,
     copied_from
@@ -729,7 +746,8 @@ INSERT INTO exercises (
     limit_number_of_tries,
     needs_peer_review,
     use_course_default_peer_or_self_review_config,
-    needs_self_review
+    needs_self_review,
+    teacher_reviews_answer_after_locking
   )
 SELECT uuid_generate_v5($1, id::text),
   $1,
@@ -744,7 +762,8 @@ SELECT uuid_generate_v5($1, id::text),
   limit_number_of_tries,
   needs_peer_review,
   use_course_default_peer_or_self_review_config,
-  needs_self_review
+  needs_self_review,
+  teacher_reviews_answer_after_locking
 FROM exercises
 WHERE exam_id = $2
   AND deleted_at IS NULL
@@ -953,7 +972,7 @@ SELECT uuid_generate_v5($1, q.id::text),
   q.weight
 FROM peer_or_self_review_questions q
   JOIN peer_or_self_review_configs posrc ON (posrc.id = q.peer_or_self_review_config_id)
-  JOIN exercises e ON (e.id = posrc.exercise_id)
+  LEFT JOIN exercises e ON (e.id = posrc.exercise_id)
 WHERE peer_or_self_review_config_id IN (
     SELECT id
     FROM peer_or_self_review_configs
@@ -1159,13 +1178,12 @@ INSERT INTO chatbot_configurations (
     top_p,
     presence_penalty,
     frequency_penalty,
-    response_max_tokens,
+    max_output_tokens,
     daily_tokens_per_user,
     weekly_tokens_per_user,
     default_chatbot,
     enabled_to_students,
     model_id,
-    thinking_model,
     use_tools
   )
 SELECT
@@ -1182,13 +1200,12 @@ SELECT
   top_p,
   presence_penalty,
   frequency_penalty,
-  response_max_tokens,
+  max_output_tokens,
   daily_tokens_per_user,
   weekly_tokens_per_user,
   default_chatbot,
   enabled_to_students,
   model_id,
-  thinking_model,
   use_tools
 FROM chatbot_configurations
 WHERE course_id = $2
@@ -1424,9 +1441,10 @@ mod tests {
                      :chapter, :page, exercise: _e);
 
         // Pre-create a brand-new CLG that both copies will use
-        let reusable_clg = course_language_groups::insert(tx.as_mut(), PKeyPolicy::Generate)
-            .await
-            .unwrap();
+        let reusable_clg =
+            course_language_groups::insert(tx.as_mut(), PKeyPolicy::Generate, "reusable-clg")
+                .await
+                .unwrap();
 
         let meta1 = create_new_course(org, "en-US".into());
         let copy1 =

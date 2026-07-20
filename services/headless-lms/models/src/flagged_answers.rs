@@ -1,11 +1,12 @@
 use crate::{
-    courses, exercise_slide_submissions, peer_review_queue_entries,
+    courses, exercise_slide_submissions, exercises, peer_review_queue_entries,
     prelude::*,
     user_exercise_states::{self, ReviewingStage},
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct FlaggedAnswer {
     pub id: Uuid,
     pub submission_id: Uuid,
@@ -18,8 +19,7 @@ pub struct FlaggedAnswer {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "report_reason")]
 pub enum ReportReason {
     #[sqlx(rename = "flagging-reason-spam")]
@@ -31,7 +31,7 @@ pub enum ReportReason {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewFlaggedAnswer {
     pub submission_id: Uuid,
     pub flagged_user: Option<Uuid>,
@@ -40,8 +40,8 @@ pub struct NewFlaggedAnswer {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewFlaggedAnswerWithToken {
     pub submission_id: Uuid,
     pub flagged_user: Option<Uuid>,
@@ -78,10 +78,6 @@ pub async fn insert_flagged_answer_and_move_to_manual_review_if_needed(
     })?;
 
     let flagged_user = flagged_submission_data.user_id;
-    println!(
-        "Serialized ReportReason::Spam: {:?}",
-        serde_json::to_string(&flagged_answer.reason)?
-    );
 
     // Create a new flagged answer
     let new_flagged_answer = NewFlaggedAnswer {
@@ -106,11 +102,8 @@ pub async fn insert_flagged_answer_and_move_to_manual_review_if_needed(
     if let Some(flagged_answers_threshold) = course.flagged_answers_threshold
         && updated_flag_count >= flagged_answers_threshold
     {
-        // Ensure course id exists
-        let course_id = flagged_submission_data
-            .course_id
-            .map(CourseOrExamId::Course)
-            .ok_or_else(|| {
+        if course.flagged_answers_skip_manual_review_and_allow_retry {
+            let course_id = flagged_submission_data.course_id.ok_or_else(|| {
                 ModelError::new(
                     ModelErrorType::Generic,
                     "No course instance found for the submission.".to_string(),
@@ -118,26 +111,48 @@ pub async fn insert_flagged_answer_and_move_to_manual_review_if_needed(
                 )
             })?;
 
-        // Move the answer to manual review
-        let update_result = user_exercise_states::update_reviewing_stage(
-            &mut tx,
-            flagged_user,
-            course_id,
-            flagged_submission_data.exercise_id,
-            ReviewingStage::WaitingForManualGrading,
-        )
-        .await?;
-
-        // Remove from peer review queue so other students can't review an answers that is already in manual review
-        // Remove the answer from the peer review queue
-        if let Some(course_id) = update_result.course_id {
-            peer_review_queue_entries::remove_queue_entries_for_unusual_reason(
+            let _ = exercises::reset_exercises_for_selected_users(
                 &mut tx,
-                flagged_user,
-                flagged_submission_data.exercise_id,
+                &[(flagged_user, vec![flagged_submission_data.exercise_id])],
+                None,
                 course_id,
+                Some("flagged-answers-skip-manual-review-and-allow-retry".to_string()),
             )
             .await?;
+        } else {
+            // Ensure course id exists
+            let course_id = flagged_submission_data
+                .course_id
+                .map(CourseOrExamId::Course)
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "No course instance found for the submission.".to_string(),
+                        None,
+                    )
+                })?;
+
+            // Move the answer to manual review
+            let update_result = user_exercise_states::update_reviewing_stage(
+                &mut tx,
+                flagged_user,
+                course_id,
+                flagged_submission_data.exercise_id,
+                ReviewingStage::WaitingForManualGrading,
+            )
+            .await?;
+
+            // Remove from peer review queue so other students can't review an answers that is already in manual review
+            // Remove the answer from the peer review queue
+            if let Some(course_id) = update_result.course_id {
+                peer_review_queue_entries::remove_queue_entries_for_unusual_reason(
+                    &mut tx,
+                    flagged_user,
+                    flagged_submission_data.exercise_id,
+                    course_id,
+                )
+                .await?;
+            }
         }
     }
     // Make sure the user who flagged this is allowed to get a new answer to review
@@ -174,15 +189,7 @@ INSERT INTO flagged_answers (
     description
 )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id,
-  submission_id,
-  flagged_user,
-  flagged_by,
-  reason AS "reason: _",
-  description,
-  created_at,
-  updated_at,
-  deleted_at
+RETURNING *
         "#,
         flagged_answer.submission_id,
         flagged_answer.flagged_user,
@@ -204,7 +211,7 @@ pub async fn increment_flag_count(
         UPDATE exercise_slide_submissions
         SET flag_count = COALESCE(flag_count, 0) + 1
         WHERE id = $1
-        RETURNING flag_count
+        RETURNING *
         "#,
         submission_id
     )
@@ -221,16 +228,7 @@ pub async fn get_flagged_answers_by_submission_id(
     let results = sqlx::query_as!(
         FlaggedAnswer,
         r#"
-        SELECT
-            id,
-            submission_id,
-            flagged_user,
-            flagged_by,
-            reason AS "reason: _",
-            description,
-            created_at,
-            updated_at,
-            deleted_at
+        SELECT *
         FROM flagged_answers
         WHERE submission_id = $1
           AND deleted_at IS NULL
@@ -250,16 +248,7 @@ pub async fn get_flagged_answers_submission_ids_by_flaggers_id(
     let flagged_submissions = sqlx::query_as!(
         FlaggedAnswer,
         r#"
-        SELECT
-            id,
-            submission_id,
-            flagged_user,
-            flagged_by,
-            reason AS "reason: _",
-            description,
-            created_at,
-            updated_at,
-            deleted_at
+        SELECT *
         FROM flagged_answers
         WHERE flagged_by = $1
           AND deleted_at IS NULL

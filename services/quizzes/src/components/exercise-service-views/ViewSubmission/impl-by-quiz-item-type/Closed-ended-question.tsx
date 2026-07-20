@@ -1,18 +1,15 @@
-"use client"
-
 import { css, cx } from "@emotion/css"
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { QuizItemSubmissionComponentProps } from "."
+import type { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
 import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper"
-
-import { QuizItemSubmissionComponentProps } from "."
-
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const FEEDBACK_STYLES = `
   display: flex;
@@ -42,7 +39,7 @@ const ClosedEndedQuestionFeedback: React.FC<
   >
 > = ({ public_quiz_item, quiz_direction, quiz_item_answer_feedback, user_quiz_item_answer }) => {
   const { t } = useTranslation()
-  const correct = quiz_item_answer_feedback?.correctnessCoefficient == 1
+  const correct = quiz_item_answer_feedback?.correctnessCoefficient === 1
   const fieldId = useId()
   const item_feedback = quiz_item_answer_feedback?.quiz_item_feedback
   return (
@@ -94,7 +91,7 @@ const ClosedEndedQuestionFeedback: React.FC<
       >
         {item_feedback && item_feedback.trim() !== "" && (
           <div className={cx(correct ? correctAnswer : incorrectAnswer)}>
-            <p>{item_feedback}</p>
+            <ParsedText inline blockContainer parseLatex parseMarkdown text={item_feedback} />
           </div>
         )}
       </div>

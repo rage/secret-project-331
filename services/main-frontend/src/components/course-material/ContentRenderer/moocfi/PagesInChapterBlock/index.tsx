@@ -5,14 +5,13 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
-
-import PagesInChapter from "./PagesInChapter"
-
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentPageDataAtom, viewStatusAtom } from "@/state/course-material/selectors"
+
+import type { BlockRendererProps } from "../.."
+import PagesInChapter from "./PagesInChapter"
 
 const PagesInChapterBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()

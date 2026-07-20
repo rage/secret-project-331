@@ -4,23 +4,39 @@ use models::{
     CourseOrExamId,
     exercise_repositories::{ExerciseRepository, ExerciseRepositoryUpdate},
 };
+use secrecy::SecretString;
+use utoipa::{OpenApi, ToSchema};
 
 use crate::{domain, prelude::*};
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(OpenApi)]
+#[openapi(paths(new, get_for_course, get_for_exam, delete, update))]
+pub(crate) struct MainFrontendExerciseRepositoriesApiDoc;
+
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct NewExerciseRepository {
     course_id: Option<Uuid>,
     exam_id: Option<Uuid>,
     git_url: String,
     public_key: Option<String>,
-    deploy_key: Option<String>,
+    #[schema(value_type = Option<String>)]
+    deploy_key: Option<SecretString>,
 }
 
 /**
 POST `/api/v0/main-frontend/exercise-repositories/new
 */
-
+#[utoipa::path(
+    post,
+    path = "/new",
+    operation_id = "createExerciseRepository",
+    tag = "exercise_repositories",
+    request_body = NewExerciseRepository,
+    responses(
+        (status = 200, description = "Created exercise repository id", body = Uuid)
+    )
+)]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn new(
     pool: web::Data<PgPool>,
@@ -47,7 +63,7 @@ async fn new(
         course_or_exam_id,
         &repository.git_url,
         repository.public_key.as_deref(),
-        repository.deploy_key.as_deref(),
+        repository.deploy_key.as_ref(),
     )
     .await?;
     // processing a repository may take a while, so this is done in the background
@@ -58,7 +74,7 @@ async fn new(
             new_repository_id,
             &repository.git_url,
             repository.public_key.as_deref(),
-            repository.deploy_key.as_deref(),
+            repository.deploy_key.as_ref(),
             file_store.as_ref(),
             app_conf.as_ref(),
         )
@@ -73,20 +89,26 @@ async fn new(
 /**
 GET `/api/v0/main-frontend/exercise-repositories/course/:id`
 */
+#[utoipa::path(
+    get,
+    path = "/course/{course_id}",
+    operation_id = "getExerciseRepositoriesForCourse",
+    tag = "exercise_repositories",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Exercise repositories for course", body = Vec<ExerciseRepository>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_for_course(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
-    user: Option<AuthUser>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ExerciseRepository>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        user.map(|u| u.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let repos = models::exercise_repositories::get_for_course_or_exam(
         &mut conn,
         CourseOrExamId::Course(*course_id),
@@ -98,20 +120,26 @@ async fn get_for_course(
 /**
 GET `/api/v0/main-frontend/exercise-repositories/exam/:id`
 */
+#[utoipa::path(
+    get,
+    path = "/exam/{exam_id}",
+    operation_id = "getExerciseRepositoriesForExam",
+    tag = "exercise_repositories",
+    params(
+        ("exam_id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Exercise repositories for exam", body = Vec<ExerciseRepository>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_for_exam(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
-    user: Option<AuthUser>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ExerciseRepository>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        user.map(|u| u.id),
-        Res::Exam(*exam_id),
-    )
-    .await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
     let repos = models::exercise_repositories::get_for_course_or_exam(
         &mut conn,
         CourseOrExamId::Exam(*exam_id),
@@ -123,6 +151,18 @@ async fn get_for_exam(
 /**
 DELETE `/api/v0/main-frontend/exercise-repositories/:id`
 */
+#[utoipa::path(
+    delete,
+    path = "/{id}",
+    operation_id = "deleteExerciseRepository",
+    tag = "exercise_repositories",
+    params(
+        ("id" = Uuid, Path, description = "Exercise repository id")
+    ),
+    responses(
+        (status = 200, description = "Deleted exercise repository", body = bool)
+    )
+)]
 #[instrument(skip(pool))]
 async fn delete(
     pool: web::Data<PgPool>,
@@ -152,6 +192,19 @@ async fn delete(
 /**
 PUT `/api/v0/main-frontend/exercise-repositories/:id`
 */
+#[utoipa::path(
+    put,
+    path = "/{id}",
+    operation_id = "updateExerciseRepository",
+    tag = "exercise_repositories",
+    params(
+        ("id" = Uuid, Path, description = "Exercise repository id")
+    ),
+    request_body = ExerciseRepositoryUpdate,
+    responses(
+        (status = 200, description = "Updated exercise repository", body = bool)
+    )
+)]
 #[instrument(skip(pool))]
 async fn update(
     pool: web::Data<PgPool>,

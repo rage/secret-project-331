@@ -6,17 +6,17 @@ import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import Grid from "./Grid"
-
 import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "@/components/course-material/LandingPageHeroSection"
+import { getCourseMaterialChapters } from "@/generated/course-material-api/sdk.generated"
+import type { ChaptersWithStatus } from "@/generated/course-material-api/types.generated"
 import useTime from "@/hooks/course-material/useTime"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
-import { fetchChaptersInTheCourse } from "@/services/course-material/backend"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { stringToRandomNumber } from "@/shared-module/common/utils/strings"
+import { QueryResult } from "@/shared-module/components"
+
+import Grid from "./Grid"
 
 const COLORS_ARRAY = [
   "#215887",
@@ -37,7 +37,12 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
   const now = useTime()
   const getChaptersInCourse = useQuery({
     queryKey: [`course-${courseId}-chapters`],
-    queryFn: () => fetchChaptersInTheCourse(courseId),
+    queryFn: (): Promise<ChaptersWithStatus> =>
+      getCourseMaterialChapters({
+        path: {
+          course_id: courseId,
+        },
+      }),
   })
   const getUserLocks = useUserChapterLocks(courseId)
   const params = useParams<{ organizationSlug: string; courseSlug: string }>()
@@ -82,75 +87,75 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
       >
         {t("course-overview")}
       </h2>
-      {getChaptersInCourse.isError && (
-        <ErrorBanner variant={"readOnly"} error={getChaptersInCourse.error} />
-      )}
-      {getChaptersInCourse.isLoading && <Spinner variant={"medium"} />}
-      {getChaptersInCourse.isSuccess && courseSlug && organizationSlug && (
-        <>
-          {getChaptersInCourse.data.modules
-            .sort((a, b) => a.order_number - b.order_number)
-            .map((module) => {
-              const randomNumber = stringToRandomNumber(module.id) % COLORS_ARRAY.length
-              const randomizedColor = COLORS_ARRAY[randomNumber]
-              return (
-                <div key={module.id}>
-                  {!module.is_default && (
-                    <>
-                      <hr
-                        className={css`
-                          border: dashed 2px;
-                          margin: 4rem 0rem 2rem 0rem;
-                          color: #d8dadc;
-                          width: 85vw;
-                          text-align: center;
-                          margin-left: auto;
-                          margin-right: auto;
+      {courseSlug && organizationSlug && (
+        <QueryResult query={getChaptersInCourse}>
+          {(data) => (
+            <>
+              {[...data.modules]
+                .toSorted((a, b) => a.order_number - b.order_number)
+                .map((module) => {
+                  const randomNumber = stringToRandomNumber(module.id) % COLORS_ARRAY.length
+                  const randomizedColor = COLORS_ARRAY[randomNumber]
+                  return (
+                    <div key={module.id}>
+                      {!module.is_default && (
+                        <>
+                          <hr
+                            className={css`
+                              border: dashed 2px;
+                              margin: 4rem 0rem 2rem 0rem;
+                              color: #d8dadc;
+                              width: 85vw;
+                              text-align: center;
+                              margin-left: auto;
+                              margin-right: auto;
 
-                          ${respondToOrLarger.lg} {
-                            max-width: 1075px;
-                          }
-                        `}
+                              ${respondToOrLarger.lg} {
+                                max-width: 1075px;
+                              }
+                            `}
+                          />
+                          <div
+                            className={css`
+                              margin: 1rem 1rem 0 1rem;
+                              text-transform: uppercase;
+                              font-size: 1rem;
+                              font-weight: 500;
+                              text-align: center;
+                              font-family: ${secondaryFont};
+                            `}
+                          >
+                            {t("additional-module")}
+                          </div>
+                          <div
+                            className={css`
+                              margin-bottom: 2rem;
+                              color: ${randomizedColor};
+                              font-weight: 600;
+                              font-size: 2rem;
+                              text-align: center;
+                              opacity: 0.8;
+                              font-family: ${headingFont};
+                            `}
+                          >
+                            {module.name}
+                          </div>
+                        </>
+                      )}
+                      <Grid
+                        chapters={module.chapters}
+                        courseSlug={courseSlug}
+                        now={now}
+                        organizationSlug={organizationSlug}
+                        previewable={data.is_previewable}
+                        lockedChapterIds={lockedChapterIds}
                       />
-                      <div
-                        className={css`
-                          margin: 1rem 1rem 0 1rem;
-                          text-transform: uppercase;
-                          font-size: 1rem;
-                          font-weight: 500;
-                          text-align: center;
-                          font-family: ${secondaryFont};
-                        `}
-                      >
-                        {t("additional-module")}
-                      </div>
-                      <div
-                        className={css`
-                          margin-bottom: 2rem;
-                          color: ${randomizedColor};
-                          font-weight: 600;
-                          font-size: 2rem;
-                          text-align: center;
-                          opacity: 0.8;
-                          font-family: ${headingFont};
-                        `}
-                      >
-                        {module.name}
-                      </div>
-                    </>
-                  )}
-                  <Grid
-                    chapters={module.chapters}
-                    courseSlug={courseSlug}
-                    now={now}
-                    organizationSlug={organizationSlug}
-                    previewable={getChaptersInCourse.data.is_previewable}
-                    lockedChapterIds={lockedChapterIds}
-                  />
-                </div>
-              )
-            })}
-        </>
+                    </div>
+                  )
+                })}
+            </>
+          )}
+        </QueryResult>
       )}
     </div>
   )

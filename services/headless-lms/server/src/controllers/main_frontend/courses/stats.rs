@@ -8,7 +8,51 @@ use headless_lms_utils::prelude::{UtilError, UtilErrorType};
 use models::library::course_stats::{AverageMetric, CohortActivity, CountResult};
 use std::collections::HashMap;
 use std::time::Duration;
+use utoipa::OpenApi;
 use uuid::Uuid;
+
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        get_total_users_started_course,
+        get_total_users_completed_course,
+        get_total_users_returned_at_least_one_exercise,
+        get_avg_time_to_first_submission_history,
+        get_cohort_activity_history,
+        get_total_users_started_all_language_versions,
+        get_unique_users_starting_history_all_language_versions,
+        get_course_completions_history_all_language_versions,
+        get_course_completions_history,
+        get_users_returning_exercises_history,
+        get_first_exercise_submissions_history,
+        get_unique_users_starting_history,
+        get_total_users_started_course_by_instance,
+        get_total_users_completed_course_by_instance,
+        get_total_users_returned_at_least_one_exercise_by_instance,
+        get_course_completions_history_by_instance,
+        get_unique_users_starting_history_by_instance,
+        get_first_exercise_submissions_history_by_instance,
+        get_users_returning_exercises_history_by_instance,
+        get_student_enrollments_by_country,
+        get_student_completions_by_country,
+        get_students_by_country_totals,
+        get_first_exercise_submissions_by_module,
+        get_course_completions_history_by_custom_time_period,
+        get_unique_users_starting_history_custom_time_period,
+        get_total_users_started_course_custom_time_period,
+        get_total_users_completed_course_custom_time_period,
+        get_total_users_returned_exercises_custom_time_period
+    ),
+    components(schemas(
+        TimeGranularity,
+        CountResult,
+        AverageMetric,
+        CohortActivity,
+        StudentsByCountryTotalsResult
+    ))
+)]
+pub(crate) struct MainFrontendCourseStatsApiDoc;
+
 const CACHE_DURATION: Duration = Duration::from_secs(3600);
 
 /// Helper function to handle caching for stats endpoints
@@ -49,6 +93,14 @@ where
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/total-users-started-course`
+#[utoipa::path(
+    get,
+    path = "/total-users-started-course",
+    operation_id = "getTotalUsersStartedCourse",
+    tag = "course-stats",
+    params(("course_id" = Uuid, Path, description = "Course id")),
+    responses((status = 200, description = "Total users started course", body = CountResult))
+)]
 #[instrument(skip(pool))]
 async fn get_total_users_started_course(
     pool: web::Data<PgPool>,
@@ -82,6 +134,14 @@ async fn get_total_users_started_course(
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/total-users-completed`
+#[utoipa::path(
+    get,
+    path = "/total-users-completed",
+    operation_id = "getTotalUsersCompletedCourse",
+    tag = "course-stats",
+    params(("course_id" = Uuid, Path, description = "Course id")),
+    responses((status = 200, description = "Total users completed course", body = CountResult))
+)]
 #[instrument(skip(pool))]
 async fn get_total_users_completed_course(
     pool: web::Data<PgPool>,
@@ -115,6 +175,14 @@ async fn get_total_users_completed_course(
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/total-users-returned-exercises`
+#[utoipa::path(
+    get,
+    path = "/total-users-returned-exercises",
+    operation_id = "getTotalUsersReturnedExercises",
+    tag = "course-stats",
+    params(("course_id" = Uuid, Path, description = "Course id")),
+    responses((status = 200, description = "Total users returned exercises", body = CountResult))
+)]
 #[instrument(skip(pool))]
 async fn get_total_users_returned_at_least_one_exercise(
     pool: web::Data<PgPool>,
@@ -154,6 +222,18 @@ async fn get_total_users_returned_at_least_one_exercise(
 /// Returns average time to first submission statistics with specified time granularity and window.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/avg-time-to-first-submission/{granularity}/{time_window}",
+    operation_id = "getAvgTimeToFirstSubmissionHistory",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "Average time to first submission history", body = [AverageMetric]))
+)]
 #[instrument(skip(pool))]
 async fn get_avg_time_to_first_submission_history(
     pool: web::Data<PgPool>,
@@ -197,6 +277,19 @@ async fn get_avg_time_to_first_submission_history(
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/cohort-activity/{granularity}/{history_window}/{tracking_window}`
+#[utoipa::path(
+    get,
+    path = "/cohort-activity/{granularity}/{history_window}/{tracking_window}",
+    operation_id = "getCohortActivityHistory",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("history_window" = u16, Path, description = "History window"),
+        ("tracking_window" = u16, Path, description = "Tracking window")
+    ),
+    responses((status = 200, description = "Cohort activity history", body = [CohortActivity]))
+)]
 #[instrument(skip(pool))]
 async fn get_cohort_activity_history(
     pool: web::Data<PgPool>,
@@ -240,6 +333,14 @@ async fn get_cohort_activity_history(
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/total-users-started`
+#[utoipa::path(
+    get,
+    path = "/all-language-versions/total-users-started",
+    operation_id = "getTotalUsersStartedAllLanguageVersions",
+    tag = "course-stats",
+    params(("course_id" = Uuid, Path, description = "Course id")),
+    responses((status = 200, description = "Total users started across all language versions", body = CountResult))
+)]
 #[instrument(skip(pool))]
 async fn get_total_users_started_all_language_versions(
     pool: web::Data<PgPool>,
@@ -284,6 +385,18 @@ async fn get_total_users_started_all_language_versions(
 /// Returns unique users starting statistics for all language versions with specified time granularity and window.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/all-language-versions/users-starting-history/{granularity}/{time_window}",
+    operation_id = "getUniqueUsersStartingHistoryAllLanguageVersions",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "Unique users starting history across all language versions", body = [CountResult]))
+)]
 #[instrument(skip(pool))]
 async fn get_unique_users_starting_history_all_language_versions(
     pool: web::Data<PgPool>,
@@ -335,6 +448,81 @@ async fn get_unique_users_starting_history_all_language_versions(
 /// Returns completion statistics for all language versions with specified time granularity and window.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/all-language-versions/completions-history/{granularity}/{time_window}",
+    operation_id = "getCourseCompletionsHistoryAllLanguageVersions",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "Course completions history across all language versions", body = [CountResult]))
+)]
+#[instrument(skip(pool))]
+async fn get_course_completions_history_all_language_versions(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<Vec<CountResult>>> {
+    let (course_id, granularity, time_window) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let course = models::courses::get_course(&mut conn, course_id).await?;
+    let language_group_id = course.course_language_group_id;
+
+    let cache_key = format!(
+        "all-language-versions-completions-{}-{}",
+        granularity, time_window
+    );
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        language_group_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::course_completions_history_all_language_versions(
+                &mut conn,
+                language_group_id,
+                granularity,
+                time_window,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/completions-history/{granularity}/{time_window}`
+///
+/// Returns completion statistics for the course with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/completions-history/{granularity}/{time_window}",
+    operation_id = "getCourseCompletionsHistory",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "Course completions history", body = [CountResult]))
+)]
 #[instrument(skip(pool))]
 async fn get_course_completions_history(
     pool: web::Data<PgPool>,
@@ -380,6 +568,18 @@ async fn get_course_completions_history(
 /// Returns users returning exercises statistics with specified time granularity and window.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/users-returning-exercises-history/{granularity}/{time_window}",
+    operation_id = "getUsersReturningExercisesHistory",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "Users returning exercises history", body = [CountResult]))
+)]
 #[instrument(skip(pool))]
 async fn get_users_returning_exercises_history(
     pool: web::Data<PgPool>,
@@ -424,6 +624,18 @@ async fn get_users_returning_exercises_history(
 /// Returns first exercise submission statistics with specified time granularity and window.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/first-submissions-history/{granularity}/{time_window}",
+    operation_id = "getFirstExerciseSubmissionsHistory",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "First exercise submissions history", body = [CountResult]))
+)]
 #[instrument(skip(pool))]
 async fn get_first_exercise_submissions_history(
     pool: web::Data<PgPool>,
@@ -468,6 +680,18 @@ async fn get_first_exercise_submissions_history(
 /// Returns unique users starting statistics with specified time granularity and window.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/users-starting-history/{granularity}/{time_window}",
+    operation_id = "getUniqueUsersStartingHistory",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "Unique users starting history", body = [CountResult]))
+)]
 #[instrument(skip(pool))]
 async fn get_unique_users_starting_history(
     pool: web::Data<PgPool>,
@@ -508,6 +732,14 @@ async fn get_unique_users_starting_history(
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-started-course`
+#[utoipa::path(
+    get,
+    path = "/by-instance/total-users-started-course",
+    operation_id = "getTotalUsersStartedCourseByInstance",
+    tag = "course-stats",
+    params(("course_id" = Uuid, Path, description = "Course id")),
+    responses((status = 200, description = "Total users started course by instance", body = HashMap<Uuid, CountResult>))
+)]
 #[instrument(skip(pool))]
 async fn get_total_users_started_course_by_instance(
     pool: web::Data<PgPool>,
@@ -543,6 +775,14 @@ async fn get_total_users_started_course_by_instance(
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-completed`
+#[utoipa::path(
+    get,
+    path = "/by-instance/total-users-completed",
+    operation_id = "getTotalUsersCompletedCourseByInstance",
+    tag = "course-stats",
+    params(("course_id" = Uuid, Path, description = "Course id")),
+    responses((status = 200, description = "Total users completed course by instance", body = HashMap<Uuid, CountResult>))
+)]
 #[instrument(skip(pool))]
 async fn get_total_users_completed_course_by_instance(
     pool: web::Data<PgPool>,
@@ -578,6 +818,14 @@ async fn get_total_users_completed_course_by_instance(
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-returned-exercises`
+#[utoipa::path(
+    get,
+    path = "/by-instance/total-users-returned-exercises",
+    operation_id = "getTotalUsersReturnedExercisesByInstance",
+    tag = "course-stats",
+    params(("course_id" = Uuid, Path, description = "Course id")),
+    responses((status = 200, description = "Total users returned exercises by instance", body = HashMap<Uuid, CountResult>))
+)]
 #[instrument(skip(pool))]
 async fn get_total_users_returned_at_least_one_exercise_by_instance(
     pool: web::Data<PgPool>,
@@ -617,6 +865,18 @@ async fn get_total_users_returned_at_least_one_exercise_by_instance(
 /// Returns course completion statistics with specified time granularity and window, grouped by course instance.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/by-instance/completions-history/{granularity}/{time_window}",
+    operation_id = "getCourseCompletionsHistoryByInstance",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "Course completions history by instance", body = HashMap<Uuid, Vec<CountResult>>))
+)]
 #[instrument(skip(pool))]
 async fn get_course_completions_history_by_instance(
     pool: web::Data<PgPool>,
@@ -661,6 +921,18 @@ async fn get_course_completions_history_by_instance(
 /// Returns unique users starting statistics with specified time granularity and window, grouped by course instance.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/by-instance/users-starting-history/{granularity}/{time_window}",
+    operation_id = "getUniqueUsersStartingHistoryByInstance",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "Unique users starting history by instance", body = HashMap<Uuid, Vec<CountResult>>))
+)]
 #[instrument(skip(pool))]
 async fn get_unique_users_starting_history_by_instance(
     pool: web::Data<PgPool>,
@@ -705,6 +977,18 @@ async fn get_unique_users_starting_history_by_instance(
 /// Returns first exercise submission statistics with specified time granularity and window, grouped by course instance.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/by-instance/first-submissions-history/{granularity}/{time_window}",
+    operation_id = "getFirstExerciseSubmissionsHistoryByInstance",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "First exercise submissions history by instance", body = HashMap<Uuid, Vec<CountResult>>))
+)]
 #[instrument(skip(pool))]
 async fn get_first_exercise_submissions_history_by_instance(
     pool: web::Data<PgPool>,
@@ -752,6 +1036,18 @@ async fn get_first_exercise_submissions_history_by_instance(
 /// Returns users returning exercises statistics with specified time granularity and window, grouped by course instance.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/by-instance/users-returning-exercises-history/{granularity}/{time_window}",
+    operation_id = "getUsersReturningExercisesHistoryByInstance",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "Users returning exercises history by instance", body = HashMap<Uuid, Vec<CountResult>>))
+)]
 #[instrument(skip(pool))]
 async fn get_users_returning_exercises_history_by_instance(
     pool: web::Data<PgPool>,
@@ -799,6 +1095,19 @@ async fn get_users_returning_exercises_history_by_instance(
 /// Returns student signup statistics grouped by country with the specified time granularity.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/student-enrollments-by-country/{granularity}/{time_window}/{country}",
+    operation_id = "getStudentEnrollmentsByCountry",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window"),
+        ("country" = String, Path, description = "Country")
+    ),
+    responses((status = 200, description = "Student enrollments by country", body = [CountResult]))
+)]
 #[instrument(skip(pool))]
 async fn get_student_enrollments_by_country(
     pool: web::Data<PgPool>,
@@ -849,6 +1158,19 @@ async fn get_student_enrollments_by_country(
 /// Returns student completion statistics grouped by country with the specified time granularity.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/student-completions-by-country/{granularity}/{time_window}/{country}",
+    operation_id = "getStudentCompletionsByCountry",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window"),
+        ("country" = String, Path, description = "Country")
+    ),
+    responses((status = 200, description = "Student completions by country", body = [CountResult]))
+)]
 #[instrument(skip(pool))]
 async fn get_student_completions_by_country(
     pool: web::Data<PgPool>,
@@ -897,6 +1219,14 @@ async fn get_student_completions_by_country(
 /// GET `/api/v0/main-frontend/{course_id}/stats/students-by-country-totals`
 ///
 /// Returns all enrolled students grouped by country.
+#[utoipa::path(
+    get,
+    path = "/students-by-country-totals",
+    operation_id = "getStudentsByCountryTotals",
+    tag = "course-stats",
+    params(("course_id" = Uuid, Path, description = "Course id")),
+    responses((status = 200, description = "Students by country totals", body = [StudentsByCountryTotalsResult]))
+)]
 #[instrument(skip(pool))]
 async fn get_students_by_country_totals(
     pool: web::Data<PgPool>,
@@ -938,6 +1268,18 @@ async fn get_students_by_country_totals(
 /// grouped by module.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
+#[utoipa::path(
+    get,
+    path = "/by-module/first-submissions/{granularity}/{time_window}",
+    operation_id = "getFirstExerciseSubmissionsByModule",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
+        ("time_window" = u16, Path, description = "Time window")
+    ),
+    responses((status = 200, description = "First exercise submissions by module", body = HashMap<Uuid, Vec<CountResult>>))
+)]
 #[instrument(skip(pool))]
 async fn get_first_exercise_submissions_by_module(
     pool: web::Data<PgPool>,
@@ -988,6 +1330,18 @@ async fn get_first_exercise_submissions_by_module(
 /// Query parameters:
 /// - start_date: YYYY-MM-DD
 /// - end_date: YYYY-MM-DD
+#[utoipa::path(
+    get,
+    path = "/completions-history/custom-time-period/{start_date}/{end_date}",
+    operation_id = "getCourseCompletionsHistoryCustomTimePeriod",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("start_date" = String, Path, description = "Start date"),
+        ("end_date" = String, Path, description = "End date")
+    ),
+    responses((status = 200, description = "Course completions history for custom time period", body = [CountResult]))
+)]
 #[instrument(skip(pool))]
 async fn get_course_completions_history_by_custom_time_period(
     pool: web::Data<PgPool>,
@@ -1032,6 +1386,18 @@ async fn get_course_completions_history_by_custom_time_period(
 /// GET `/api/v0/main-frontend/{course_id}/stats/users-starting-history/custom-time-period/{start_date}/{end_date}`
 ///
 /// Returns unique users starting statistics with specified time period.
+#[utoipa::path(
+    get,
+    path = "/users-starting-history/custom-time-period/{start_date}/{end_date}",
+    operation_id = "getUniqueUsersStartingHistoryCustomTimePeriod",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("start_date" = String, Path, description = "Start date"),
+        ("end_date" = String, Path, description = "End date")
+    ),
+    responses((status = 200, description = "Unique users starting history for custom time period", body = [CountResult]))
+)]
 #[instrument(skip(pool))]
 async fn get_unique_users_starting_history_custom_time_period(
     pool: web::Data<PgPool>,
@@ -1072,6 +1438,18 @@ async fn get_unique_users_starting_history_custom_time_period(
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/total-users-started-course/custom-time-period/{start_date}/{end_date}`
+#[utoipa::path(
+    get,
+    path = "/total-users-started-course/custom-time-period/{start_date}/{end_date}",
+    operation_id = "getTotalUsersStartedCourseCustomTimePeriod",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("start_date" = String, Path, description = "Start date"),
+        ("end_date" = String, Path, description = "End date")
+    ),
+    responses((status = 200, description = "Total users started course for custom time period", body = CountResult))
+)]
 #[instrument(skip(pool))]
 async fn get_total_users_started_course_custom_time_period(
     pool: web::Data<PgPool>,
@@ -1112,6 +1490,18 @@ async fn get_total_users_started_course_custom_time_period(
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/total-users-completed/custom-time-period/{start_date}/{end_date}`
+#[utoipa::path(
+    get,
+    path = "/total-users-completed/custom-time-period/{start_date}/{end_date}",
+    operation_id = "getTotalUsersCompletedCourseCustomTimePeriod",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("start_date" = String, Path, description = "Start date"),
+        ("end_date" = String, Path, description = "End date")
+    ),
+    responses((status = 200, description = "Total users completed course for custom time period", body = CountResult))
+)]
 #[instrument(skip(pool))]
 async fn get_total_users_completed_course_custom_time_period(
     pool: web::Data<PgPool>,
@@ -1152,6 +1542,18 @@ async fn get_total_users_completed_course_custom_time_period(
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/total-users-returned-exercises/custom-time-period/{start_date}/{end_date}`
+#[utoipa::path(
+    get,
+    path = "/total-users-returned-exercises/custom-time-period/{start_date}/{end_date}",
+    operation_id = "getTotalUsersReturnedExercisesCustomTimePeriod",
+    tag = "course-stats",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("start_date" = String, Path, description = "Start date"),
+        ("end_date" = String, Path, description = "End date")
+    ),
+    responses((status = 200, description = "Total users returned exercises for custom time period", body = CountResult))
+)]
 #[instrument(skip(pool))]
 async fn get_total_users_returned_exercises_custom_time_period(
     pool: web::Data<PgPool>,
@@ -1263,6 +1665,10 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     .route(
         "/all-language-versions/users-starting-history/{granularity}/{time_window}",
         web::get().to(get_unique_users_starting_history_all_language_versions),
+    )
+    .route(
+        "/all-language-versions/completions-history/{granularity}/{time_window}",
+        web::get().to(get_course_completions_history_all_language_versions),
     )
     .route(
         "/completions-history/custom-time-period/{start_date}/{end_date}",

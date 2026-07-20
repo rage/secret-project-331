@@ -1,6 +1,6 @@
 "use client"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/react-vite"
 
 import Component from "../../../src/shared-module/common/components/InputFields/TimePickerField"
 
@@ -25,6 +25,9 @@ export const Example = {
     label: "Example",
     onChange: (event) => {
       console.log("Time changed to" + event.target.value)
+    },
+    onChangeByValue: (value) => {
+      console.log("Time changed to" + value)
     },
     value: undefined,
     defaultValue: undefined,

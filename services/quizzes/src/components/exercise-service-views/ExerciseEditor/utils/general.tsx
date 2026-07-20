@@ -1,9 +1,7 @@
-"use client"
-
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { v4 } from "uuid"
 
-import {
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
@@ -34,7 +32,7 @@ const findQuizItem = <T,>(
     return null
   }
 
-  const item = quiz.items.find((item) => item.id === quizItemId)
+  const item = quiz.items.find((quizItem) => quizItem.id === quizItemId)
   if (!item) {
     return null
   }

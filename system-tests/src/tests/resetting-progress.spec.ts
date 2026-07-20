@@ -1,11 +1,12 @@
-import { BrowserContext, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { test } from "@playwright/test"
+
+import { respondToConfirmDialog } from "@/utils/dialogs"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-
-import { respondToConfirmDialog } from "@/utils/dialogs"
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -106,7 +107,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
     await studentPage.getByText("1/1").waitFor({ state: "hidden" })
     await studentPage.getByRole("button", { name: "try again" }).waitFor({ state: "hidden" })
   } finally {
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (studentContext !== null) {
       await studentContext.close()
     }

@@ -4,18 +4,21 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { postPasswordReset } from "@/services/backend/users"
+import { resetUserPassword } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { isBoolean } from "@/shared-module/common/utils/fetching"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
-type ResetPasswordFormFields = {
+interface ResetPasswordFormFields {
   token: string
   new_password: string
   password_confirmation: string
 }
 
-type ResetPasswordFormProps = {
+interface ResetPasswordFormProps {
   token: string
 }
 
@@ -27,7 +30,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
     watch,
     formState: { errors },
   } = useForm<ResetPasswordFormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       token,
@@ -39,9 +42,16 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
 
   const postPasswordChangeMutation = useToastMutation<boolean, unknown, ResetPasswordFormFields>(
     async (data) => {
-      const { token, new_password } = data
-      const result = await postPasswordReset(token, new_password)
-      return result
+      const { token: formToken, new_password } = data
+      return validateGeneratedData(
+        await resetUserPassword({
+          body: {
+            token: formToken,
+            new_password,
+          },
+        }),
+        isBoolean,
+      )
     },
     {
       method: "POST",
@@ -49,7 +59,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
     },
     {
       onSuccess: () => {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         router.push("/login?return_to=%2F")
       },
     },
@@ -71,7 +81,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
               message: t("password-must-have-at-least-8-characters"),
             },
           })}
-          error={errors.new_password?.message}
+          {...omitUndefined({ error: errors.new_password?.message })}
           required
         />
 
@@ -83,7 +93,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
             required: t("required-field"),
             validate: (value) => value === newPassword || t("passwords-dont-match"),
           })}
-          error={errors.password_confirmation?.message}
+          {...omitUndefined({ error: errors.password_confirmation?.message })}
           required
         />
 

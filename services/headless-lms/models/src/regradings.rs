@@ -4,44 +4,47 @@ use crate::{
     exercises::GradingProgress,
     prelude::*,
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
+
 pub struct Regrading {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub regrading_started_at: Option<DateTime<Utc>>,
     pub regrading_completed_at: Option<DateTime<Utc>>,
     pub total_grading_progress: GradingProgress,
+    pub error_message: Option<String>,
     pub user_points_update_strategy: UserPointsUpdateStrategy,
     pub user_id: Option<Uuid>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
+
 pub struct NewRegrading {
     user_points_update_strategy: UserPointsUpdateStrategy,
     ids: Vec<Uuid>,
     id_type: NewRegradingIdType,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
+
 pub enum NewRegradingIdType {
     ExerciseTaskSubmissionId,
     ExerciseId,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
+
 pub struct RegradingInfo {
     pub regrading: Regrading,
     pub submission_infos: Vec<RegradingSubmissionInfo>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
+
 pub struct RegradingSubmissionInfo {
     pub exercise_task_submission_id: Uuid,
     pub grading_before_regrading: ExerciseTaskGrading,
@@ -56,7 +59,7 @@ pub async fn insert(
         "
 INSERT INTO regradings (user_points_update_strategy)
 VALUES ($1)
-RETURNING id
+RETURNING *
         ",
         user_points_update_strategy as UserPointsUpdateStrategy
     )
@@ -77,7 +80,7 @@ pub async fn insert_and_create_regradings(
         "
 INSERT INTO regradings (user_points_update_strategy, user_id)
 VALUES ($1, $2)
-RETURNING id
+RETURNING *
         ",
         new_regrading.user_points_update_strategy as UserPointsUpdateStrategy,
         user_id
@@ -190,14 +193,7 @@ pub async fn get_all_paginated(
     let res = sqlx::query_as!(
         Regrading,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  regrading_started_at,
-  regrading_completed_at,
-  total_grading_progress AS "total_grading_progress: _",
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  user_id
+SELECT *
 FROM regradings
 WHERE deleted_at IS NULL
 ORDER BY regradings.created_at
@@ -228,14 +224,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Regradi
     let res = sqlx::query_as!(
         Regrading,
         r#"
-SELECT id,
-  regrading_started_at,
-  regrading_completed_at,
-  created_at,
-  updated_at,
-  total_grading_progress AS "total_grading_progress: _",
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  user_id
+SELECT *
 FROM regradings
 WHERE id = $1
 "#,
@@ -258,7 +247,7 @@ SET regrading_started_at = CASE
   END
 WHERE regrading_completed_at IS NULL
   AND deleted_at IS NULL
-RETURNING id
+RETURNING *
 "#
     )
     .fetch_all(&mut *conn)

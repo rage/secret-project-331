@@ -2,8 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchCourseById } from "@/services/course-material/backend"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getCourseMaterialCourseOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface UseCourseOptions {
   enabled?: boolean
@@ -11,11 +11,20 @@ interface UseCourseOptions {
 
 const useCourse = (courseId: string | undefined | null, options: UseCourseOptions = {}) => {
   const { enabled = true } = options
-  const query = useQuery({
-    queryKey: ["courses", courseId],
-    queryFn: () => fetchCourseById(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId && enabled,
-  })
+
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      enabled,
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
+        getCourseMaterialCourseOptions({
+          path: {
+            course_id: id,
+          },
+        }),
+    }),
+  )
   return query
 }
 

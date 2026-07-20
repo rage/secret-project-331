@@ -1,8 +1,10 @@
 import { test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -14,14 +16,16 @@ test("Teachers can preview chapters that are not open yet", async ({ page, brows
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
   await page.getByRole("link", { name: "Manage course 'Preview unopened chapters'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
+  await waitForSpinnersToDisappear(page)
   await page
     .getByRole("heading", { name: "Chapter 1: The Basics Dropdown menu" })
     .getByRole("button", { name: "Dropdown menu" })
     .click()
   await page.getByRole("button", { name: "Edit", exact: true }).click()
   await page.getByPlaceholder("Opens at").fill("3200-04-17T19:13:24")
-  await page.getByRole("button", { name: "Update" }).click()
-  await page.getByText("Operation successful").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Update" }).click()
+  })
   await page
     .getByRole("row", { name: "Page One /chapter-1/page-1 Edit page Dropdown menu" })
     .getByRole("button", { name: "Edit page" })
@@ -43,7 +47,7 @@ test("Teachers can preview chapters that are not open yet", async ({ page, brows
   await page3.goto(
     "http://project-331.local/org/uh-mathstat/courses/preview-unopened-chapters/chapter-1/page-1",
   )
-  await page3.getByText("Chapter is not open yet.", { exact: true }).waitFor()
+  await page3.getByText("This chapter is not open yet.", { exact: true }).waitFor()
   await context2.close()
 })
 

@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
 import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -12,6 +13,7 @@ test("Can convert blocks", async ({ page }) => {
 
   await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
+  await waitForSpinnersToDisappear(page)
   await page.getByRole("button", { name: "New page" }).nth(2).click()
   await page.getByLabel("Title  *").fill("Test page")
   await page.getByRole("button", { name: "Create" }).click()
@@ -36,10 +38,10 @@ test("Can convert blocks", async ({ page }) => {
   await page.getByText("Test paragraph 1").click()
   await page.getByRole("button", { name: "Paragraph" }).click()
   await page.getByRole("menuitem", { name: "Heading" }).click()
-  await page.getByRole("button", { name: "Change level" }).click()
-  await page.getByRole("menuitemradio", { name: "Heading 3" }).click()
+  await page.getByRole("button", { name: "Heading 2" }).click()
+  await page.getByRole("menuitem", { name: "Heading 3" }).click()
   // There once was a regression where the page crashed here if we waited for a moment
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
   await page.getByLabel("Block: Paragraph").first().waitFor()
 })

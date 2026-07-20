@@ -8,9 +8,10 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { NewMaterialReference } from "@/shared-module/common/bindings"
+import type { NewMaterialReference } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface NewReferenceFormProps {
@@ -47,7 +48,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
     try {
       const rawCite = new Cite(data.references)
       const cite = new Cite(rawCite.get({ type: "string", style: "bibtex", lang: "en-US" }))
-      const references = cite.data.map((c: { id: string; "citation-key": string }) => {
+      const parsedReferences = cite.data.map((c: { id: string; "citation-key": string }) => {
         const ci = new Cite(c)
 
         return {
@@ -55,7 +56,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
           reference: ci.get({ type: "string", style: "bibtex", lang: "en-US" }),
         }
       })
-      onCreateNewReference(references)
+      onCreateNewReference(parsedReferences)
     } catch (error: unknown) {
       console.error(error)
       setErrorMessage(t("reference-parsing-error"))
@@ -101,7 +102,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
       <TextAreaField
         label={REFERENCE}
         id={"references"}
-        error={errors["references"]}
+        {...omitUndefined({ error: errors["references"] })}
         placeholder={REFERENCE}
         {...register("references", { required: t("required-field") })}
         rows={5}

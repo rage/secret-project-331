@@ -5,6 +5,7 @@ This documents all endpoints. Select a module below for a category.
 
 */
 
+pub mod ai_suggestions;
 pub mod chapters;
 pub mod code_giveaways;
 pub mod course_instances;
@@ -13,11 +14,30 @@ pub mod email_templates;
 pub mod exams;
 pub mod exercise_services;
 pub mod gutenberg;
+pub mod migration;
 pub mod organizations;
 pub mod pages;
 pub mod repository_exercises;
 
 use actix_web::web::{self, ServiceConfig};
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(
+    nest(
+        (path = "/ai-suggestions", api = ai_suggestions::CmsAiSuggestionsApiDoc),
+        (path = "/chapters", api = chapters::CmsChaptersApiDoc),
+        (path = "/course-instances", api = course_instances::CmsCourseInstancesApiDoc),
+        (path = "/courses", api = courses::CmsCoursesApiDoc),
+        (path = "/code-giveaways", api = code_giveaways::CmsCodeGiveawaysApiDoc),
+        (path = "/email-templates", api = email_templates::CmsEmailTemplatesApiDoc),
+        (path = "/exams", api = exams::CmsExamsApiDoc),
+        (path = "/exercise-services", api = exercise_services::CmsExerciseServicesApiDoc),
+        (path = "/pages", api = pages::CmsPagesApiDoc),
+        (path = "/repository-exercises", api = repository_exercises::CmsRepositoryExercisesApiDoc)
+    )
+)]
+pub struct CmsRoutesApiDoc;
 
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -31,5 +51,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/exams").configure(exams::_add_routes))
         .service(web::scope("/exercise-services").configure(exercise_services::_add_routes))
         .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes))
-        .service(web::scope("/repository-exercises").configure(repository_exercises::_add_routes));
+        .service(web::scope("/repository-exercises").configure(repository_exercises::_add_routes))
+        .service(web::scope("/migration").configure(migration::_add_routes))
+        .service(web::scope("/ai-suggestions").configure(ai_suggestions::_add_routes));
 }

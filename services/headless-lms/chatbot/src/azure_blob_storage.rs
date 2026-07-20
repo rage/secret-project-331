@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use secrecy::ExposeSecret;
+
 use crate::prelude::*;
 use anyhow::Context;
 use azure_core::prelude::Metadata;
@@ -7,7 +9,7 @@ use azure_storage::StorageCredentials;
 use azure_storage_blobs::prelude::*;
 use bytes::Bytes;
 use futures::StreamExt;
-use headless_lms_utils::{ApplicationConfiguration, AzureBlobStorageConfiguration};
+use headless_lms_base::config::{ApplicationConfiguration, AzureBlobStorageConfiguration};
 
 /// A client for interacting with Azure Blob Storage.
 pub struct AzureBlobClient {
@@ -34,7 +36,11 @@ impl AzureBlobClient {
 
         let container_name = container_name.to_string();
 
-        let storage_credentials = StorageCredentials::access_key(&storage_account, access_key);
+        // Azure SDK takes ownership of the key string; expose only here at the SDK boundary.
+        let storage_credentials = StorageCredentials::access_key(
+            &storage_account,
+            access_key.expose_secret().to_string(),
+        );
         let blob_service_client = BlobServiceClient::new(storage_account, storage_credentials);
         let container_client = blob_service_client.container_client(container_name.clone());
 

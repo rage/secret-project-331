@@ -2,91 +2,47 @@
 
 import { css } from "@emotion/css"
 import { ArrowRight } from "@vectopus/atlas-icons-react"
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { zStreamEventError } from "@/generated/course-material-api/zod.generated"
+import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 
 interface ErrorDisplayProps {
-  error: Error
+  /// An unknown error type, can also be StreamEventError
+  error: unknown
 }
 
-// Helper function to format error messages nicely
+/** Formats chatbot errors using normalized display metadata. */
 const formatErrorMessage = (
-  error: Error,
+  error: unknown,
   t: TFunction,
 ): { boldPart: string; normalPart: string; details: string[]; originalMessage: string } => {
-  const originalMessage = error.message
-
-  // Try to extract JSON from the error message
-  const jsonMatch = originalMessage.match(/\{.*\}/)
-  if (!jsonMatch) {
-    return {
-      boldPart: t("failed-to-send-message"),
-      normalPart: `: ${originalMessage}`,
-      details: [],
-      originalMessage,
-    }
+  const normalized = normalizeErrorForDisplay(error, t)
+  const details: string[] = []
+  if (normalized.status !== null) {
+    details.push(t("error-status", { status: normalized.status }))
+  }
+  if (normalized.code) {
+    details.push(t("error-type", { type: normalized.code }))
+  }
+  if (normalized.requestId) {
+    details.push(t("error-request-id", { requestId: normalized.requestId }))
+  }
+  if (normalized.retryAfterSeconds !== null) {
+    details.push(t("error-retry-after", { seconds: normalized.retryAfterSeconds }))
+  }
+  for (const issue of normalized.issues) {
+    details.push(`${issue.path ? `${issue.path}: ` : ""}${issue.message}`)
   }
 
-  try {
-    const jsonStr = jsonMatch[0]
-    const errorData = JSON.parse(jsonStr)
-
-    const details: string[] = []
-    let mainMessage = ""
-
-    // Extract common error fields
-    if (errorData.title) {
-      details.push(t("error-type", { type: errorData.title }))
-    }
-
-    if (errorData.message) {
-      // Try to parse nested error messages
-      const nestedJsonMatch = errorData.message.match(/Error: (\{.*\})/)
-      if (nestedJsonMatch) {
-        try {
-          const nestedError = JSON.parse(nestedJsonMatch[1])
-          if (nestedError.error?.message) {
-            mainMessage = nestedError.error.message
-            details.push(t("error-issue", { issue: nestedError.error.message }))
-          }
-          if (nestedError.error?.requestid) {
-            details.push(t("error-request-id", { requestId: nestedError.error.requestid }))
-          }
-        } catch {
-          mainMessage = errorData.message
-          details.push(t("error-message", { message: errorData.message }))
-        }
-      } else {
-        mainMessage = errorData.message
-        details.push(t("error-message", { message: errorData.message }))
-      }
-    }
-
-    // Extract status from the original message if present and add to details only
-    const statusMatch = originalMessage.match(/status (\d+)/i)
-    if (statusMatch) {
-      details.unshift(t("error-status", { status: statusMatch[1] }))
-    }
-
-    const boldPart = t("failed-to-send-message")
-    const normalPart = mainMessage ? `: ${mainMessage}` : ""
-
-    return {
-      boldPart,
-      normalPart,
-      details: details.length > 0 ? details : [originalMessage],
-      originalMessage,
-    }
-  } catch {
-    return {
-      boldPart: t("failed-to-send-message"),
-      normalPart: `: ${originalMessage}`,
-      details: [],
-      originalMessage,
-    }
+  return {
+    boldPart: t("failed-to-send-message"),
+    normalPart: normalized.messageKey ? `: ${normalized.messageKey}` : `: ${normalized.title}`,
+    details,
+    originalMessage: typeof normalized.raw === "string" ? normalized.raw : normalized.title,
   }
 }
 
@@ -104,7 +60,7 @@ const formatOriginalErrorMessage = (originalMessage: string): string => {
     const formatted = JSON.stringify(parsed, null, 2)
 
     // Replace the JSON part in the original message with the formatted version
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     return originalMessage.replace(jsonMatch[0], `\n${formatted}`)
   } catch {
     return originalMessage
@@ -115,7 +71,16 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
   const { t } = useTranslation()
   const [showDetails, setShowDetails] = useState(false)
 
-  const formattedError = formatErrorMessage(error, t)
+  const parsed = zStreamEventError.safeParse(error)
+
+  const formattedError = parsed.success
+    ? {
+        boldPart: t("failed-to-send-message"),
+        normalPart: parsed.data.message,
+        details: parsed.data.details ? [parsed.data.message] : [],
+        originalMessage: parsed.data.details ?? "",
+      }
+    : formatErrorMessage(error, t)
   const hasDetails = formattedError.details.length > 0
 
   return (
@@ -130,7 +95,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
           box-shadow:
             0 2px 8px ${baseTheme.colors.red[200]}60,
             0 1px 3px ${baseTheme.colors.red[300]}40;
-          overflow: hidden;
+          overflow: auto;
           backdrop-filter: blur(4px);
         `}
       >
@@ -147,6 +112,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
           <span
             className={css`
               font-weight: bold;
+              margin-right: 0.5rem;
             `}
           >
             {formattedError.boldPart}

@@ -1,18 +1,16 @@
-use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams};
+use crate::azure_chatbot::{InputItem, LLMRequest, LLMRequestParams, NonThinkingParams};
+
 use crate::llm_utils::{
-    APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
+    APIInputMessage, MessageContent, estimate_tokens, get_params_for_model,
+    make_blocking_llm_request, parse_text_completion,
 };
 use crate::prelude::*;
-use anyhow::Error;
-use headless_lms_models::chatbot_conversation_messages::MessageRole;
+use headless_lms_models::application_task_default_language_models::TaskLMSpec;
+use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
 use tracing::{debug, error, info, instrument, warn};
 
-/// Maximum context window size for LLM in tokens
-pub const MAX_CONTEXT_WINDOW: i32 = 16000;
-/// Maximum percentage of context window to use in a single request
-pub const MAX_CONTEXT_UTILIZATION: f32 = 0.75;
 /// Temperature for requests, low for deterministic results
 pub const REQUEST_TEMPERATURE: f32 = 0.1;
 
@@ -41,21 +39,23 @@ const USER_PROMPT_START: &str =
     "Convert this JSON content to clean markdown. Output only the markdown, nothing else.";
 
 /// Cleans content by converting the material blocks to clean markdown using an LLM
-#[instrument(skip(blocks, app_config), fields(num_blocks = blocks.len()))]
+#[instrument(skip(blocks, app_config, task_lm), fields(num_blocks = blocks.len()))]
 pub async fn convert_material_blocks_to_markdown_with_llm(
     blocks: &[GutenbergBlock],
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<String> {
+    task_lm: &TaskLMSpec,
+) -> ChatbotResult<String> {
     debug!("Starting content conversion with {} blocks", blocks.len());
-    let system_message = APIMessage {
-        role: MessageRole::System,
-        fields: APIMessageKind::Text(APIMessageText {
-            content: SYSTEM_PROMPT.to_string(),
-        }),
+    let system_message = APIInputMessage {
+        message_type: InputItem::Message {
+            role: MessageRole::System,
+            content: MessageContent::Text(SYSTEM_PROMPT.to_string()),
+        },
     };
 
     let system_message_tokens = estimate_tokens(SYSTEM_PROMPT);
-    let safe_token_limit = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
+    let safe_token_limit =
+        calculate_safe_token_limit(task_lm.context_size, task_lm.context_utilization);
     let max_content_tokens = (safe_token_limit - system_message_tokens).max(1);
 
     debug!(
@@ -65,7 +65,7 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
 
     let chunks = split_blocks_into_chunks(blocks, max_content_tokens)?;
     debug!("Split content into {} chunks", chunks.len());
-    process_chunks(&chunks, &system_message, app_config).await
+    process_chunks(&chunks, &system_message, app_config, task_lm).await
 }
 
 /// Calculate the safe token limit based on context window and utilization
@@ -92,14 +92,14 @@ fn remove_private_spec_recursive(value: &mut Value) {
 }
 
 /// Converts a block to JSON string, removing any private_spec fields recursively
-fn block_to_json_string(block: &GutenbergBlock) -> anyhow::Result<String> {
+fn block_to_json_string(block: &GutenbergBlock) -> ChatbotResult<String> {
     let mut json_value = serde_json::to_value(block)?;
     remove_private_spec_recursive(&mut json_value);
     Ok(serde_json::to_string(&json_value)?)
 }
 
 /// Converts a vector of blocks to JSON string, removing any private_spec fields recursively
-fn blocks_to_json_string(blocks: &[GutenbergBlock]) -> anyhow::Result<String> {
+fn blocks_to_json_string(blocks: &[GutenbergBlock]) -> ChatbotResult<String> {
     let mut json_value = serde_json::to_value(blocks)?;
     remove_private_spec_recursive(&mut json_value);
     Ok(serde_json::to_string(&json_value)?)
@@ -110,7 +110,7 @@ fn blocks_to_json_string(blocks: &[GutenbergBlock]) -> anyhow::Result<String> {
 pub fn split_blocks_into_chunks(
     blocks: &[GutenbergBlock],
     max_content_tokens: i32,
-) -> anyhow::Result<Vec<String>> {
+) -> ChatbotResult<Vec<String>> {
     debug!("Starting to split {} blocks into chunks", blocks.len());
     let mut chunks: Vec<String> = Vec::new();
     let mut current_chunk: Vec<GutenbergBlock> = Vec::new();
@@ -175,7 +175,7 @@ fn split_oversized_block(
     block_json: &str,
     max_tokens: i32,
     chunks: &mut Vec<String>,
-) -> anyhow::Result<()> {
+) -> ChatbotResult<()> {
     let total_tokens = estimate_tokens(block_json);
     debug!(
         "Splitting oversized block with {} tokens into chunks of max {} tokens",
@@ -206,9 +206,12 @@ fn split_oversized_block(
     while start < block_json.len() {
         iterations += 1;
         if iterations > MAX_ITERATIONS {
-            return Err(anyhow::anyhow!(
-                "Infinite loop protection: exceeded {} iterations in split_oversized_block",
-                MAX_ITERATIONS
+            return Err(chatbot_err!(
+                ContentCleaning,
+                format!(
+                    "Infinite loop protection: exceeded {} iterations in split_oversized_block",
+                    MAX_ITERATIONS
+                )
             ));
         }
 
@@ -242,9 +245,12 @@ fn split_oversized_block(
             while next_boundary < block_json.len() && !block_json.is_char_boundary(next_boundary) {
                 boundary_iterations += 1;
                 if boundary_iterations > MAX_BOUNDARY_ITERATIONS {
-                    return Err(anyhow::anyhow!(
-                        "Infinite loop protection: exceeded {} iterations finding character boundary",
-                        MAX_BOUNDARY_ITERATIONS
+                    return Err(chatbot_err!(
+                        ContentCleaning,
+                        format!(
+                            "Infinite loop protection: exceeded {} iterations finding character boundary",
+                            MAX_BOUNDARY_ITERATIONS
+                        )
                     ));
                 }
                 next_boundary = next_boundary
@@ -259,16 +265,21 @@ fn split_oversized_block(
         if end > start && end <= block_json.len() && start < block_json.len() {
             // Double-check bounds before slicing
             let chunk = block_json.get(start..end).ok_or_else(|| {
-                anyhow::anyhow!("Invalid string slice bounds: {}..{}", start, end)
+                chatbot_err!(
+                    ContentCleaning,
+                    format!("Invalid string slice bounds: {}..{}", start, end)
+                )
             })?;
             chunks.push(chunk.to_string());
             let new_start = end;
             // Safety check: ensure start always advances
             if new_start <= start {
-                return Err(anyhow::anyhow!(
-                    "Infinite loop protection: start did not advance ({} -> {})",
-                    start,
-                    new_start
+                return Err(chatbot_err!(
+                    ContentCleaning,
+                    format!(
+                        "Infinite loop protection: start did not advance ({} -> {})",
+                        start, new_start
+                    )
                 ));
             }
             start = new_start;
@@ -302,18 +313,20 @@ pub fn append_markdown_with_separator(result: &mut String, new_content: &str) {
 }
 
 /// Process all chunks and combine the results
-#[instrument(skip(chunks, system_message, app_config), fields(num_chunks = chunks.len()))]
+#[instrument(skip(chunks, system_message, app_config, task_lm), fields(num_chunks = chunks.len()))]
 async fn process_chunks(
     chunks: &[String],
-    system_message: &APIMessage,
+    system_message: &APIInputMessage,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<String> {
+    task_lm: &TaskLMSpec,
+) -> ChatbotResult<String> {
     debug!("Processing {} chunks", chunks.len());
     let mut result = String::new();
 
     for (i, chunk) in chunks.iter().enumerate() {
         debug!("Processing chunk {}/{}", i + 1, chunks.len());
-        let chunk_markdown = process_block_chunk(chunk, system_message, app_config).await?;
+        let chunk_markdown =
+            process_block_chunk(chunk, system_message, app_config, task_lm).await?;
         append_markdown_with_separator(&mut result, &chunk_markdown);
     }
 
@@ -322,24 +335,31 @@ async fn process_chunks(
 }
 
 /// Process a subset of blocks in a single LLM request
-#[instrument(skip(chunk, system_message, app_config), fields(chunk_tokens = estimate_tokens(chunk)))]
+#[instrument(skip(chunk, system_message, app_config, task_lm), fields(chunk_tokens = estimate_tokens(chunk)))]
 async fn process_block_chunk(
     chunk: &str,
-    system_message: &APIMessage,
+    system_message: &APIInputMessage,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<String> {
-    let messages = prepare_llm_messages(chunk, system_message)?;
-    let llm_base_request: LLMRequest = LLMRequest {
-        messages,
-        data_sources: vec![],
-        params: LLMRequestParams::NonThinking(NonThinkingParams {
+    task_lm: &TaskLMSpec,
+) -> ChatbotResult<String> {
+    let input = prepare_llm_messages(chunk, system_message);
+    let default_params = get_params_for_model(&task_lm.model, &task_lm.model_type, None);
+    let params = if let LLMRequestParams::GPTNonThinking(p) = default_params {
+        LLMRequestParams::GPTNonThinking(NonThinkingParams {
             temperature: Some(REQUEST_TEMPERATURE),
-            top_p: None,
-            frequency_penalty: None,
-            presence_penalty: None,
-            max_tokens: None,
-        }),
-        stop: None,
+            ..p
+        })
+    } else {
+        default_params
+    };
+    let llm_base_request = LLMRequest {
+        input,
+        max_output_tokens: None,
+        model: task_lm.model.to_owned(),
+        tools: vec![],
+        tool_choice: None,
+        params,
+        text: None,
     };
     info!(
         "Processing chunk of approximately {} tokens",
@@ -354,48 +374,31 @@ async fn process_block_chunk(
         }
     };
 
-    match &completion
-        .choices
-        .first()
-        .ok_or_else(|| {
-            error!("No content returned from LLM");
-            anyhow::anyhow!("No content returned from LLM")
-        })?
-        .message
-        .fields
-    {
-        APIMessageKind::Text(msg) => Ok(msg.content.clone()),
-        _ => Err(Error::msg(
-            "Didn't receive a text LLM response in content cleaner, this shouldn't happen!",
-        )),
-    }
+    parse_text_completion(completion)
 }
 
 /// Prepare messages for the LLM request
-pub fn prepare_llm_messages(
-    chunk: &str,
-    system_message: &APIMessage,
-) -> anyhow::Result<Vec<APIMessage>> {
+pub fn prepare_llm_messages(chunk: &str, system_message: &APIInputMessage) -> Vec<APIInputMessage> {
+    let content = format!(
+        "{}\n\n{}{}\n{}",
+        USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
+    );
     let messages = vec![
         system_message.clone(),
-        APIMessage {
-            role: MessageRole::User,
-            fields: APIMessageKind::Text(APIMessageText {
-                content: format!(
-                    "{}\n\n{}{}\n{}",
-                    USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
-                ),
-            }),
+        APIInputMessage {
+            message_type: InputItem::Message {
+                role: MessageRole::User,
+                content: MessageContent::Text(content),
+            },
         },
     ];
 
-    Ok(messages)
+    messages
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::llm_utils::{APIMessageKind, APIMessageText};
     use serde_json::json;
 
     const TEST_BLOCK_NAME: &str = "test/block";
@@ -427,7 +430,7 @@ mod tests {
     }
 
     #[test]
-    fn test_split_blocks_into_chunks() -> anyhow::Result<()> {
+    fn test_split_blocks_into_chunks() -> ChatbotResult<()> {
         // Use content strings of different lengths to influence token estimation
         let block1 = create_test_block("a "); // short
         let block2 = create_test_block("b b b b b b b b b b b b b b b b b b b b "); // longer
@@ -465,30 +468,36 @@ mod tests {
     }
 
     #[test]
-    fn test_prepare_llm_messages() -> anyhow::Result<()> {
+    fn test_prepare_llm_messages() -> ChatbotResult<()> {
         let blocks = vec![create_test_block("Test content")];
         let blocks_json = blocks_to_json_string(&blocks)?;
-        let system_message = APIMessage {
-            role: MessageRole::System,
-            fields: APIMessageKind::Text(APIMessageText {
-                content: "System prompt".to_string(),
-            }),
+        let system_message = APIInputMessage {
+            message_type: InputItem::Message {
+                role: MessageRole::System,
+                content: MessageContent::Text("System prompt".to_string()),
+            },
         };
 
-        let messages = prepare_llm_messages(&blocks_json, &system_message)?;
+        let messages = prepare_llm_messages(&blocks_json, &system_message);
 
         assert_eq!(messages.len(), 2);
-        let msg1_content = match &messages[0].fields {
-            APIMessageKind::Text(msg) => &msg.content,
-            _ => "",
-        };
-        let msg2_content = match &messages[1].fields {
-            APIMessageKind::Text(msg) => &msg.content,
-            _ => "",
-        };
-        assert_eq!(messages[0].role, MessageRole::System);
+        let (msg1_content, msg1_role): (&str, Option<&MessageRole>) =
+            match &messages[0].message_type {
+                InputItem::Message { role, content } => {
+                    (&content.to_owned().get_content_text(), Some(role))
+                }
+                _ => ("", None),
+            };
+        let (msg2_content, msg2_role): (&str, Option<&MessageRole>) =
+            match &messages[1].message_type {
+                InputItem::Message { role, content } => {
+                    (&content.to_owned().get_content_text(), Some(role))
+                }
+                _ => ("", None),
+            };
+        assert_eq!(msg1_role, Some(&MessageRole::System));
         assert_eq!(msg1_content, "System prompt");
-        assert_eq!(messages[1].role, MessageRole::User);
+        assert_eq!(msg2_role, Some(&MessageRole::User));
         assert!(msg2_content.contains(JSON_BEGIN_MARKER));
         assert!(msg2_content.contains("Test content"));
 

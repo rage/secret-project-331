@@ -4,15 +4,16 @@ import { css } from "@emotion/css"
 import { t } from "i18next"
 import React, { useState } from "react"
 
-import ContentRenderer, { BlockRendererProps } from "../.."
-
-import { Block } from "@/services/course-material/backend"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import type { Block } from "@/types/courseMaterialBlock"
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+import type { BlockRendererProps } from "../.."
+import ContentRenderer from "../.."
+
+// oxlint-disable-next-line typescript/no-empty-object-type
 interface RevealableContentProps {}
 
 const RevealableContentBlock: React.FC<
@@ -22,7 +23,7 @@ const RevealableContentBlock: React.FC<
 
   const reveleadContent: Block<RevealableContentProps>[] = []
   const hiddenContent: Block<RevealableContentProps>[] = []
-  props.data.innerBlocks.map((content) => {
+  props.data.innerBlocks.forEach((content) => {
     if (content.name === "moocfi/revealable-hidden-content") {
       hiddenContent.push(content as Block<RevealableContentProps>)
     } else {

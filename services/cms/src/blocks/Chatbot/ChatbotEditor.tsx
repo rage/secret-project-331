@@ -3,19 +3,18 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import React, { useContext } from "react"
-import { useTranslation } from "react-i18next"
 
+import { getCmsCourseNondefaultChatbotConfigurationsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ChatbotBlockAttributes } from "."
 import PageContext from "../../contexts/PageContext"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-import { ChatbotBlockAttributes } from "."
-
-import { fetchNondefaultChatbotConfigurationsForCourse } from "@/services/backend/courses"
-import ErrorAndLoadingWrapper from "@/shared-module/common/components/ErrorAndLoadingWrapper"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 const ALLOWED_NESTED_BLOCKS = [""]
 
@@ -27,12 +26,18 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
 
-  const chatbotConfigurations = useQuery({
-    queryKey: ["courses", courseId, "nondefault-chatbot-configurations"],
-    queryFn: () =>
-      fetchNondefaultChatbotConfigurationsForCourse(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const chatbotConfigurations = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
+        getCmsCourseNondefaultChatbotConfigurationsOptions({
+          path: {
+            course_id: id,
+          },
+        }),
+    }),
+  )
   const chatbotConfigurationSelectOptions: { label: string; value: string }[] = [
     ...(chatbotConfigurations.data?.map((c) => ({ label: c.chatbot_name, value: c.id })) ?? []),
   ]
@@ -59,33 +64,27 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
       title={t("chatbot-block-placeholder")}
       explanation={t("chatbot-block-placeholder-explanation")}
     >
-      <ErrorAndLoadingWrapper
-        queryResult={chatbotConfigurations}
-        render={(chatbotConfigurationsData) => {
-          return (
-            <>
-              {chatbotConfigurationsData && chatbotConfigurationsData.length > 0 ? (
-                <SelectField
-                  className={css`
-                    width: inherit;
-                  `}
-                  label={t("select-an-option")}
-                  options={chatbotConfigurationSelectOptions}
-                  defaultValue={initialSelected}
-                  onChangeByValue={(v) => {
-                    setAttributes({
-                      chatbotConfigurationId: v,
-                      courseId: courseId ?? undefined,
-                    })
-                  }}
-                />
-              ) : (
-                <p>{t("no-chatbots-for-course")}</p>
-              )}
-            </>
-          )
-        }}
-      />
+      <QueryResult
+        query={chatbotConfigurations}
+        emptyFallback={<p>{t("no-chatbots-for-course")}</p>}
+      >
+        {() => (
+          <SelectField
+            className={css`
+              width: inherit;
+            `}
+            label={t("select-an-option")}
+            options={chatbotConfigurationSelectOptions}
+            defaultValue={initialSelected}
+            onChangeByValue={(v) => {
+              setAttributes({
+                chatbotConfigurationId: v,
+                courseId: courseId ?? undefined,
+              })
+            }}
+          />
+        )}
+      </QueryResult>
 
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>

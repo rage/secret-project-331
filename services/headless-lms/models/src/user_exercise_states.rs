@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use futures::Stream;
 use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 use serde_json::Value;
+use utoipa::ToSchema;
 
 use crate::{
     course_modules::{self, CourseModule},
@@ -12,9 +13,8 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, Display)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, Display, ToSchema)]
 #[sqlx(type_name = "reviewing_stage", rename_all = "snake_case")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 /**
 Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
 */
@@ -47,10 +47,11 @@ pub enum ReviewingStage {
     If the teacher for some reasoon feels bad for the student and wants to give them a new chance, the answers for this exercise should be reset, the reason should be recorded somewhere in the database, and the value of this column should be set to `NotStarted`. Deleting the whole user_exercise_state may also be wise. However, if we end up doing this for a teacher, we should make sure that the teacher realizes that they should not give an unfair advantage to anyone.
     */
     ReviewedAndLocked,
+    /// In this stage the exercise has been locked due to chapter locking, but no review has been performed.
+    Locked,
 }
 
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct UserExerciseState {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -98,8 +99,8 @@ pub struct UserExerciseStateUpdate {
     pub grading_progress: GradingProgress,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct UserCourseProgress {
     pub course_module_id: Uuid,
     pub course_module_name: String,
@@ -112,8 +113,8 @@ pub struct UserCourseProgress {
     pub attempted_exercises_required: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct UserCourseChapterExerciseProgress {
     pub exercise_id: Uuid,
     pub score_given: f32,
@@ -145,19 +146,19 @@ pub struct CourseExerciseMetrics {
     score_maximum: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseUserCounts {
     exercise_name: String,
     exercise_order_number: i32,
     page_order_number: i32,
     chapter_number: i32,
     exercise_id: Uuid,
-    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+
     n_users_attempted: Option<i64>,
-    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+
     n_users_with_some_points: Option<i64>,
-    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+
     n_users_with_max_points: Option<i64>,
 }
 
@@ -503,20 +504,7 @@ pub async fn get_or_create_user_exercise_state(
     let existing = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_id = $3 OR exam_id = $4)
@@ -538,20 +526,7 @@ WHERE user_id = $1
             r#"
     INSERT INTO user_exercise_states (user_id, exercise_id, course_id, exam_id)
     VALUES ($1, $2, $3, $4)
-    RETURNING id,
-      user_id,
-      exercise_id,
-      course_id,
-      exam_id,
-      created_at,
-      updated_at,
-      deleted_at,
-      score_given,
-      grading_progress as "grading_progress: _",
-      activity_progress as "activity_progress: _",
-      reviewing_stage AS "reviewing_stage: _",
-      selected_exercise_slide_id
-      "#,
+    RETURNING *      "#,
             user_id,
             exercise_id,
             course_id,
@@ -573,20 +548,7 @@ pub async fn get_or_create_user_exercise_state_for_users(
     let existing = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE user_id IN (
     SELECT UNNEST($1::uuid [])
   )
@@ -618,20 +580,7 @@ WHERE user_id IN (
         r#"
     INSERT INTO user_exercise_states (user_id, exercise_id, course_id, exam_id)
     SELECT UNNEST($1::uuid []), $2, $3, $4
-    RETURNING id,
-      user_id,
-      exercise_id,
-      course_id,
-      exam_id,
-      created_at,
-      updated_at,
-      deleted_at,
-      score_given,
-      grading_progress as "grading_progress: _",
-      activity_progress as "activity_progress: _",
-      reviewing_stage AS "reviewing_stage: _",
-      selected_exercise_slide_id
-      "#,
+    RETURNING *      "#,
         &missing_user_ids,
         exercise_id,
         course_id,
@@ -646,24 +595,72 @@ WHERE user_id IN (
     Ok(res)
 }
 
+pub async fn get_by_user_ids_and_exercise_id(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+    exercise_id: Uuid,
+) -> ModelResult<Vec<UserExerciseState>> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT *FROM user_exercise_states
+WHERE user_id = ANY($1)
+  AND exercise_id = $2
+  AND deleted_at IS NULL
+        "#,
+        user_ids,
+        exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_course_id_and_user_ids_and_exercise_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_ids: &[Uuid],
+    exercise_ids: &[Uuid],
+) -> ModelResult<Vec<UserExerciseState>> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT ues.id,
+  ues.user_id,
+  ues.exercise_id,
+  ues.course_id,
+  ues.exam_id,
+  ues.created_at,
+  ues.updated_at,
+  ues.deleted_at,
+  ues.score_given,
+  ues.grading_progress,
+  ues.activity_progress,
+  ues.reviewing_stage,
+  ues.selected_exercise_slide_id
+FROM user_exercise_states ues
+  JOIN exercises e ON e.id = ues.exercise_id
+WHERE ues.course_id = $1
+  AND e.course_id = $1
+  AND ues.user_id = ANY($2)
+  AND ues.exercise_id = ANY($3)
+  AND ues.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+        "#,
+        course_id,
+        user_ids,
+        exercise_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<UserExerciseState> {
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE id = $1
   AND deleted_at IS NULL
         "#,
@@ -674,6 +671,28 @@ WHERE id = $1
     Ok(res)
 }
 
+pub async fn recalculate_by_id_and_exercise_id(
+    conn: &mut PgConnection,
+    state_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<UserExerciseState> {
+    sqlx::query!(
+        r#"
+SELECT id
+FROM user_exercise_states
+WHERE id = $1
+  AND exercise_id = $2
+  AND deleted_at IS NULL
+        "#,
+        state_id,
+        exercise_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    crate::library::user_exercise_state_updater::update_user_exercise_state(conn, state_id).await
+}
+
 pub async fn get_by_ids(
     conn: &mut PgConnection,
     ids: &[Uuid],
@@ -681,20 +700,7 @@ pub async fn get_by_ids(
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE id = ANY($1)
 AND deleted_at IS NULL
 "#,
@@ -759,20 +765,7 @@ pub async fn get_user_exercise_state_if_exists(
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_id = $3 OR exam_id = $4)
@@ -788,6 +781,77 @@ WHERE user_id = $1
     Ok(res)
 }
 
+/// Returns true when user has chapter exercises pending teacher review.
+pub async fn has_pending_manual_reviews_in_chapter(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    chapter_id: Uuid,
+) -> ModelResult<bool> {
+    struct PendingManualReviewsInChapterRow {
+        exists: bool,
+    }
+
+    let pending_manual_reviews = sqlx::query_as!(
+        PendingManualReviewsInChapterRow,
+        r#"
+SELECT EXISTS (
+    SELECT 1
+    FROM user_exercise_states ues
+    JOIN exercises e ON e.id = ues.exercise_id
+    WHERE ues.user_id = $1
+      AND e.chapter_id = $2
+      AND ues.reviewing_stage = 'waiting_for_manual_grading'::reviewing_stage
+      AND ues.deleted_at IS NULL
+      AND e.deleted_at IS NULL
+ ) as "exists!"
+        "#,
+        user_id,
+        chapter_id
+    )
+    .fetch_one(conn)
+    .await?
+    .exists;
+    Ok(pending_manual_reviews)
+}
+
+/// Returns true when the user has exercises in the given course module pending teacher review.
+pub async fn has_pending_manual_reviews_in_module(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    course_module_id: Uuid,
+) -> ModelResult<bool> {
+    struct PendingManualReviewsInModuleRow {
+        exists: bool,
+    }
+
+    let pending_manual_reviews = sqlx::query_as!(
+        PendingManualReviewsInModuleRow,
+        r#"
+SELECT EXISTS (
+    SELECT 1
+    FROM user_exercise_states ues
+    JOIN exercises e ON e.id = ues.exercise_id
+    JOIN chapters c ON c.id = e.chapter_id
+    WHERE ues.user_id = $1
+      AND ues.course_id = $2
+      AND c.course_module_id = $3
+      AND ues.reviewing_stage = 'waiting_for_manual_grading'::reviewing_stage
+      AND ues.deleted_at IS NULL
+      AND e.deleted_at IS NULL
+      AND c.deleted_at IS NULL
+ ) as "exists!"
+        "#,
+        user_id,
+        course_id,
+        course_module_id
+    )
+    .fetch_one(conn)
+    .await?
+    .exists;
+    Ok(pending_manual_reviews)
+}
+
 pub async fn get_all_for_user_and_course_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -797,20 +861,7 @@ pub async fn get_all_for_user_and_course_or_exam(
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE user_id = $1
   AND (course_id = $2 OR exam_id = $3)
   AND deleted_at IS NULL
@@ -905,20 +956,7 @@ SET score_given = $1,
   grading_progress = $4
 WHERE id = $5
   AND deleted_at IS NULL
-RETURNING id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-        "#,
+RETURNING *        "#,
         user_exercise_state_update.score_given,
         user_exercise_state_update.activity_progress as ActivityProgress,
         user_exercise_state_update.reviewing_stage as ReviewingStage,
@@ -946,20 +984,7 @@ SET reviewing_stage = $5
 WHERE user_id = $1
 AND (course_id = $2 OR exam_id = $3)
 AND exercise_id = $4
-RETURNING id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-        "#,
+RETURNING *        "#,
         user_id,
         course_id,
         exam_id,
@@ -984,20 +1009,7 @@ UPDATE user_exercise_states
 SET reviewing_stage = $1
 WHERE id = $2
   AND deleted_at IS NULL
-RETURNING id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-        "#,
+RETURNING *        "#,
         reviewing_stage as ReviewingStage,
         id
     )
@@ -1269,7 +1281,7 @@ WHERE exercises.deleted_at IS NULL
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExportedUserExerciseState {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -1298,9 +1310,9 @@ SELECT id,
   created_at,
   updated_at,
   score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
+  grading_progress,
+  activity_progress,
+  reviewing_stage,
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE course_id = ANY($1)
@@ -1318,20 +1330,7 @@ pub async fn get_all_for_course(
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE course_id = $1
   AND deleted_at IS NULL
 "#,
@@ -1493,6 +1492,7 @@ mod tests {
                 chapter_id: Some(new_chapter.id),
                 front_page_of_chapter_id: Some(new_chapter.id),
                 content_search_language: None,
+                hidden: false,
             },
             user,
             |_, _, _| unimplemented!(),
@@ -1558,6 +1558,7 @@ mod tests {
                 chapter_id: Some(new_chapter2.id),
                 front_page_of_chapter_id: Some(new_chapter2.id),
                 content_search_language: None,
+                hidden: false,
             },
             user,
             |_, _, _| unimplemented!(),
@@ -1648,6 +1649,7 @@ mod tests {
                 chapter_id: Some(new_chapter.id),
                 front_page_of_chapter_id: Some(new_chapter.id),
                 content_search_language: None,
+                hidden: false,
             },
             user,
             |_, _, _| unimplemented!(),
@@ -1685,5 +1687,104 @@ mod tests {
         assert_eq!(progress_all.len(), 2);
         assert_eq!(progress_open_chapters_modules.len(), 0);
         assert_eq!(progress_all[1].total_exercises, Some(1));
+    }
+
+    #[tokio::test]
+    async fn has_pending_manual_reviews_in_chapter_reflects_review_state() {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: chapter_id,
+            page: _page_id,
+            exercise: exercise_id,
+            slide: _exercise_slide_id,
+            task: _exercise_task_id
+        );
+
+        exercises::update_teacher_reviews_answer_after_locking(tx.as_mut(), exercise_id, true)
+            .await
+            .unwrap();
+        get_or_create_user_exercise_state(tx.as_mut(), user, exercise_id, Some(course), None)
+            .await
+            .unwrap();
+
+        update_reviewing_stage(
+            tx.as_mut(),
+            user,
+            CourseOrExamId::Course(course),
+            exercise_id,
+            ReviewingStage::WaitingForManualGrading,
+        )
+        .await
+        .unwrap();
+
+        let has_pending = has_pending_manual_reviews_in_chapter(tx.as_mut(), user, chapter_id)
+            .await
+            .unwrap();
+        assert!(has_pending);
+
+        update_reviewing_stage(
+            tx.as_mut(),
+            user,
+            CourseOrExamId::Course(course),
+            exercise_id,
+            ReviewingStage::ReviewedAndLocked,
+        )
+        .await
+        .unwrap();
+
+        let has_pending = has_pending_manual_reviews_in_chapter(tx.as_mut(), user, chapter_id)
+            .await
+            .unwrap();
+        assert!(!has_pending);
+    }
+
+    #[tokio::test]
+    async fn has_pending_manual_reviews_in_chapter_counts_self_review_manual_flows() {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: chapter_id,
+            page: _page_id,
+            exercise: exercise_id,
+            slide: _exercise_slide_id,
+            task: _exercise_task_id
+        );
+
+        exercises::set_exercise_to_use_exercise_specific_peer_or_self_review_config(
+            tx.as_mut(),
+            exercise_id,
+            false,
+            true,
+            false,
+        )
+        .await
+        .unwrap();
+        get_or_create_user_exercise_state(tx.as_mut(), user, exercise_id, Some(course), None)
+            .await
+            .unwrap();
+
+        update_reviewing_stage(
+            tx.as_mut(),
+            user,
+            CourseOrExamId::Course(course),
+            exercise_id,
+            ReviewingStage::WaitingForManualGrading,
+        )
+        .await
+        .unwrap();
+
+        let has_pending = has_pending_manual_reviews_in_chapter(tx.as_mut(), user, chapter_id)
+            .await
+            .unwrap();
+        assert!(has_pending);
     }
 }

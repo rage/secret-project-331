@@ -1,21 +1,22 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { JSX, memo, RefObject, useContext, useEffect, useRef, useState } from "react"
+import type { JSX, RefObject } from "react"
+import { memo, useContext, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-
-import ParsedTextRenderer from "./ParsedTextRenderer"
 
 import TooltipNTrigger from "@/components/course-material/TooltipNTrigger"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 
+import ParsedTextRenderer from "./ParsedTextRenderer"
+
 export type Tag = keyof JSX.IntrinsicElements
 
-export type ParsedTextPropsWithWrapperElement = {
+export interface ParsedTextPropsWithWrapperElement {
   useWrapperElement: true
 }
 
-export type ParsedTextPropsWithoutWrapperElement = {
+export interface ParsedTextPropsWithoutWrapperElement {
   useWrapperElement: false
   wrapperRef: RefObject<HTMLElement | null>
 }
@@ -47,7 +48,10 @@ const glossaryTermStyle = css`
   cursor: help;
 `
 
-type GlossaryTarget = { node: HTMLElement; glossaryId: string }
+interface GlossaryTarget {
+  node: HTMLElement
+  glossaryId: string
+}
 
 // https://github.com/facebook/react/issues/31600
 const RESCAN_DELAYS_MS = [0, 2000] as const
@@ -59,7 +63,7 @@ const scanGlossaryTargets = (container: HTMLElement | null): GlossaryTarget[] =>
   const glossaryNodes = Array.from(container.querySelectorAll<HTMLElement>("[data-glossary-id]"))
 
   return glossaryNodes.flatMap((node) => {
-    const glossaryId = node.getAttribute("data-glossary-id")
+    const glossaryId = node.dataset.glossaryId
     return glossaryId ? [{ node, glossaryId }] : []
   })
 }
@@ -69,7 +73,13 @@ const sameTargets = (a: GlossaryTarget[], b: GlossaryTarget[]) => {
     return false
   }
   for (let i = 0; i < a.length; i++) {
-    if (a[i].node !== b[i].node || a[i].glossaryId !== b[i].glossaryId) {
+    // i is bounded by a.length and a.length === b.length (checked above), so both are defined.
+    const aItem = a[i]
+    const bItem = b[i]
+    if (aItem === undefined || bItem === undefined) {
+      continue
+    }
+    if (aItem.node !== bItem.node || aItem.glossaryId !== bItem.glossaryId) {
       return false
     }
   }
@@ -154,7 +164,7 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
           {term.term}
         </TooltipNTrigger>,
         node,
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         `glossary-${glossaryId}-${idx}`,
       )
     })

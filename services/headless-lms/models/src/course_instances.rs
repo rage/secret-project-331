@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use utoipa::ToSchema;
 
 use crate::{
     chapters,
@@ -9,8 +10,8 @@ use crate::{
     users::{self, User},
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseInstance {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -32,8 +33,8 @@ impl CourseInstance {
     }
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct CourseInstanceForm {
     pub name: Option<String>,
     pub description: Option<String>,
@@ -74,18 +75,7 @@ INSERT INTO course_instances (
     support_email
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+RETURNING *
 "#,
         pkey_policy.into_uuid(),
         new_course_instance.course_id,
@@ -107,18 +97,7 @@ pub async fn get_course_instance(
     let course_instance = sqlx::query_as!(
         CourseInstance,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+SELECT *
 FROM course_instances
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -138,14 +117,14 @@ pub async fn get_course_instance_with_info(
         CourseInstanceWithCourseInfo,
         r#"
 SELECT
-    c.id AS course_id,
-    c.slug AS course_slug,
-    c.name AS course_name,
+    c.id AS "course_id!",
+    c.slug AS "course_slug!",
+    c.name AS "course_name!",
     c.description AS course_description,
     ci.id AS course_instance_id,
     ci.name AS course_instance_name,
     ci.description AS course_instance_description,
-    o.name AS organization_name
+    o.name AS "organization_name!"
 FROM course_instances AS ci
   LEFT JOIN courses AS c ON ci.course_id = c.id
   LEFT JOIN organizations AS o ON o.id = c.organization_id
@@ -276,18 +255,7 @@ pub async fn get_all_course_instances(conn: &mut PgConnection) -> ModelResult<Ve
     let course_instances = sqlx::query_as!(
         CourseInstance,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+SELECT *
 FROM course_instances
 WHERE deleted_at IS NULL
 "#
@@ -304,18 +272,7 @@ pub async fn get_course_instances_for_course(
     let course_instances = sqlx::query_as!(
         CourseInstance,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+SELECT *
 FROM course_instances
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -346,8 +303,8 @@ WHERE course_id = $1
     Ok(res)
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct ChapterScore {
     #[serde(flatten)]
     pub chapter: DatabaseChapter,
@@ -355,12 +312,12 @@ pub struct ChapterScore {
     pub score_total: i32,
 }
 
-#[derive(Debug, Default, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Default, Serialize, ToSchema)]
+
 pub struct PointMap(pub HashMap<Uuid, f32>);
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct Points {
     pub chapter_points: Vec<ChapterScore>,
     pub users: Vec<UserDetail>,
@@ -580,14 +537,14 @@ pub async fn get_enrolled_course_instances_for_user(
         CourseInstanceWithCourseInfo,
         r#"
 SELECT
-    c.id AS course_id,
-    c.slug AS course_slug,
-    c.name AS course_name,
+    c.id AS "course_id!",
+    c.slug AS "course_slug!",
+    c.name AS "course_name!",
     c.description AS course_description,
     ci.id AS course_instance_id,
     ci.name AS course_instance_name,
     ci.description AS course_instance_description,
-    o.name AS organization_name
+    o.name AS "organization_name!"
 FROM course_instances AS ci
   JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
   LEFT JOIN courses AS c ON ci.course_id = c.id
@@ -614,14 +571,14 @@ pub async fn get_enrolled_course_instances_for_user_with_exercise_type(
         CourseInstanceWithCourseInfo,
         r#"
 SELECT DISTINCT ON (ci.id)
-    c.id AS course_id,
-    c.slug AS course_slug,
-    c.name AS course_name,
+    c.id AS "course_id!",
+    c.slug AS "course_slug!",
+    c.name AS "course_name!",
     c.description AS course_description,
     ci.id AS course_instance_id,
     ci.name AS course_instance_name,
     ci.description AS course_instance_description,
-    o.name AS organization_name
+    o.name AS "organization_name!"
 FROM course_instances AS ci
   JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
   LEFT JOIN courses AS c ON ci.course_id = c.id

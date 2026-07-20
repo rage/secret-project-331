@@ -6,15 +6,16 @@ import React, { useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import BasicCourseInfo from "./BasicCourseInfo"
-import DuplicateOptions from "./DuplicateOptions"
-import LanguageSelection from "./LanguageSelection"
-
+import type { NewCourse } from "@/generated/api/types.generated"
 import { useCreateCourse } from "@/hooks/useCreateCourse"
-import { NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import BasicCourseInfo from "./BasicCourseInfo"
+import DuplicateOptions from "./DuplicateOptions"
+import LanguageSelection from "./LanguageSelection"
 
 export interface NewCourseFormProps {
   organizationId: string
@@ -33,6 +34,7 @@ export interface FormFields extends Omit<NewCourse, "organization_id" | "can_add
 
 export const ENGLISH_LANGUAGE_CODE = "en"
 export const FINNISH_LANGUAGE_CODE = "fi"
+export const NORWEGIAN_LANGUAGE_CODE = "no"
 export const SWEDISH_LANGUAGE_CODE = "sv"
 export const DEFAULT_LANGUAGE_CODE = ENGLISH_LANGUAGE_CODE
 
@@ -55,7 +57,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
       language_code: DEFAULT_LANGUAGE_CODE,
       copy_user_permissions: false,
       createDuplicate: false,
-      courseId: courseId,
+      ...omitUndefined({ courseId }),
       is_draft: true,
       is_test_mode: false,
       is_unlisted: false,
@@ -93,7 +95,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
             ...data,
           },
           language_code: data.language_code,
-          onSuccess,
+          ...omitUndefined({ onSuccess }),
         })
       })}
     >

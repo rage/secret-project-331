@@ -1,22 +1,20 @@
-"use client"
-
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/privateSpec"
+import Accordion from "@/shared-module/common/components/Accordion"
+import Button from "@/shared-module/common/components/Button"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import MultipleChoiceOption from "../common/MultipleChoiceOption"
 import ParsedTextField from "../common/ParsedTextField"
-
-import Accordion from "@/shared-module/common/components/Accordion"
-import Button from "@/shared-module/common/components/Button"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { primaryFont } from "@/shared-module/common/styles"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string
@@ -86,12 +84,12 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemChooseN>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemChooseN>(quiz, quizItemId, "choose-n")
     })
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (
@@ -117,7 +115,8 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               return
             }
             try {
-              draft.n = parseInt(value)
+              // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+              draft.n = parseInt(value, 10)
             } catch (_e) {
               /* NOP */
             }
@@ -142,16 +141,16 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               title,
               messageAfterSubmissionWhenThisOptionSelected,
               messageOnModelSolutionWhenThisOptionSelected,
-              correct,
+              correctValue,
             ) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
                 draft.options = draft.options.map((opt) => {
-                  if (opt.id == option.id) {
+                  if (opt.id === option.id) {
                     opt.title = title
-                    opt.correct = correct
+                    opt.correct = correctValue
                     opt.messageAfterSubmissionWhenSelected =
                       messageAfterSubmissionWhenThisOptionSelected
                     opt.additionalCorrectnessExplanationOnModelSolution =

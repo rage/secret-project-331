@@ -1,7 +1,8 @@
 "use client"
 
 import { InnerBlocks } from "@wordpress/block-editor"
-import { TemplateArray } from "@wordpress/blocks"
+
+import type { TemplateArray } from "@/utils/Gutenberg/types"
 
 import { gutenbergControlsHidden } from "../../../styles/EditorStyles"
 

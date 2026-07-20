@@ -1,17 +1,15 @@
-"use client"
-
 import { css } from "@emotion/css"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/publicSpec"
-import { quizTheme } from "../../../../styles/QuizStyles"
-
-import { QuizItemComponentProps } from "."
-
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemComponentProps } from "."
+import type { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/publicSpec"
+import { quizTheme } from "../../../../styles/QuizStyles"
 
 const SelectInputIcon = () => {
   return (
@@ -70,19 +68,17 @@ const MultipleChoiceDropdown: React.FunctionComponent<
           `}
         >
           {quizItem.title ? (
-            <>
-              <h2
-                className={css`
-                  font-size: ${quizTheme.quizTitleFontSize} !important;
-                  font-weight: 500;
-                  color: #4c5868;
-                  font-family: "Raleway", sans-serif;
-                  margin-bottom: 1rem;
-                `}
-              >
-                {quizItem.title}
-              </h2>
-            </>
+            <h2
+              className={css`
+                font-size: ${quizTheme.quizTitleFontSize} !important;
+                font-weight: 500;
+                color: #4c5868;
+                font-family: ${primaryFont};
+                margin-bottom: 1rem;
+              `}
+            >
+              {quizItem.title}
+            </h2>
           ) : null}
         </div>
         {quizItem.body && (
@@ -92,15 +88,13 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             `}
           >
             {quizItem.body ? (
-              <>
-                <h3
-                  className={css`
-                    font-size: 1.25rem !important;
-                  `}
-                >
-                  {quizItem.body}
-                </h3>
-              </>
+              <h3
+                className={css`
+                  font-size: 1.25rem !important;
+                `}
+              >
+                {quizItem.body}
+              </h3>
             ) : null}
           </div>
         )}

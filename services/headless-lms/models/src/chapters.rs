@@ -1,17 +1,23 @@
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
+use crate::CourseOrExamId;
+use crate::exercises;
+use crate::exercises::GradingProgress;
+use crate::library::user_exercise_state_updater;
+use crate::user_exercise_states::{self, ReviewingStage};
 use crate::{
     course_modules, courses,
     pages::{PageMetadata, PageWithExercises},
     prelude::*,
 };
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::{
-    ApplicationConfiguration, file_store::FileStore,
-    numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
+    file_store::FileStore, numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct DatabaseChapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -38,8 +44,8 @@ impl DatabaseChapter {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct Chapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -86,8 +92,7 @@ impl Chapter {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case")]
 #[derive(Default)]
 pub enum ChapterStatus {
@@ -109,8 +114,8 @@ pub struct ChapterPagesWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewChapter {
     pub name: String,
     pub color: Option<String>,
@@ -124,8 +129,8 @@ pub struct NewChapter {
     pub course_module_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ChapterUpdate {
     pub name: String,
     pub color: Option<String>,
@@ -317,8 +322,8 @@ RETURNING *;",
     Ok(updated_chapter)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ChapterWithStatus {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -330,9 +335,21 @@ pub struct ChapterWithStatus {
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
+    pub deadline: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
     pub chapter_image_url: Option<String>,
     pub course_module_id: Uuid,
+    pub exercise_deadline_override_count: i64,
+    pub exercise_deadline_override_distinct_count: i64,
+    pub earliest_exercise_deadline_override: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, Default)]
+
+pub struct ChapterExerciseDeadlineOverrideSummary {
+    pub earliest_exercise_deadline_override: Option<DateTime<Utc>>,
+    pub exercise_deadline_override_count: i64,
+    pub exercise_deadline_override_distinct_count: i64,
 }
 
 impl ChapterWithStatus {
@@ -340,6 +357,7 @@ impl ChapterWithStatus {
         database_chapter: DatabaseChapter,
         timestamp: DateTime<Utc>,
         chapter_image_url: Option<String>,
+        exercise_deadline_overrides: Option<ChapterExerciseDeadlineOverrideSummary>,
     ) -> Self {
         let open = database_chapter
             .opens_at
@@ -350,6 +368,7 @@ impl ChapterWithStatus {
         } else {
             ChapterStatus::Closed
         };
+        let exercise_deadline_overrides = exercise_deadline_overrides.unwrap_or_default();
         ChapterWithStatus {
             id: database_chapter.id,
             created_at: database_chapter.created_at,
@@ -361,15 +380,22 @@ impl ChapterWithStatus {
             chapter_number: database_chapter.chapter_number,
             front_page_id: database_chapter.front_page_id,
             opens_at: database_chapter.opens_at,
+            deadline: database_chapter.deadline,
             status,
             chapter_image_url,
             course_module_id: database_chapter.course_module_id,
+            exercise_deadline_override_count: exercise_deadline_overrides
+                .exercise_deadline_override_count,
+            exercise_deadline_override_distinct_count: exercise_deadline_overrides
+                .exercise_deadline_override_distinct_count,
+            earliest_exercise_deadline_override: exercise_deadline_overrides
+                .earliest_exercise_deadline_override,
         }
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema)]
+
 pub struct UserCourseInstanceChapterProgress {
     pub score_given: f32,
     pub score_maximum: i32,
@@ -407,6 +433,56 @@ WHERE course_id = $1
     .fetch_all(conn)
     .await?;
     Ok(chapters)
+}
+
+pub async fn exercise_deadline_overrides_by_chapter_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, ChapterExerciseDeadlineOverrideSummary>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT
+  e.chapter_id,
+  MIN(COALESCE(e.deadline, c.deadline)) FILTER (
+    WHERE COALESCE(e.deadline, c.deadline) IS NOT NULL
+  ) AS earliest_exercise_deadline_override,
+  COUNT(*) FILTER (
+    WHERE e.deadline IS NOT NULL
+      AND (c.deadline IS NULL OR e.deadline <> c.deadline)
+  ) AS exercise_deadline_override_count,
+  COUNT(DISTINCT COALESCE(e.deadline, c.deadline)) FILTER (
+    WHERE COALESCE(e.deadline, c.deadline) IS NOT NULL
+  ) AS exercise_deadline_override_distinct_count
+FROM exercises e
+JOIN chapters c ON c.id = e.chapter_id
+WHERE c.course_id = $1
+  AND c.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+GROUP BY e.chapter_id, c.deadline
+        "#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let mut summaries = HashMap::new();
+    for row in rows {
+        if let Some(chapter_id) = row.chapter_id {
+            summaries.insert(
+                chapter_id,
+                ChapterExerciseDeadlineOverrideSummary {
+                    earliest_exercise_deadline_override: row.earliest_exercise_deadline_override,
+                    exercise_deadline_override_count: row
+                        .exercise_deadline_override_count
+                        .unwrap_or(0),
+                    exercise_deadline_override_distinct_count: row
+                        .exercise_deadline_override_distinct_count
+                        .unwrap_or(0),
+                },
+            );
+        }
+    }
+    Ok(summaries)
 }
 
 pub async fn course_instance_chapters(
@@ -603,8 +679,8 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct UserChapterProgress {
     pub user_id: Uuid,
     pub chapter_id: Uuid,
@@ -614,8 +690,8 @@ pub struct UserChapterProgress {
     pub exercises_attempted: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ChapterAvailability {
     pub chapter_id: Uuid,
     pub chapter_number: i32,
@@ -624,8 +700,8 @@ pub struct ChapterAvailability {
     pub points_available: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseUserInfo {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
@@ -634,9 +710,12 @@ pub struct CourseUserInfo {
     pub course_instance: Option<String>,
 }
 
+/// Per-user chapter progress for a course. When `user_ids` is `Some`, only those users are included;
+/// when `None`, every user with progress in the course is returned.
 pub async fn fetch_user_chapter_progress(
     conn: &mut PgConnection,
     course_id: Uuid,
+    user_ids: Option<&[Uuid]>,
 ) -> ModelResult<Vec<UserChapterProgress>> {
     let rows = sqlx::query_as!(
         UserChapterProgress,
@@ -649,6 +728,7 @@ WITH base AS (
   FROM user_exercise_states ues
     JOIN exercises ex ON ex.id = ues.exercise_id
   WHERE ues.course_id = $1
+    AND ($2::uuid[] IS NULL OR ues.user_id = ANY($2::uuid[]))
     AND ues.deleted_at IS NULL
     AND ex.deleted_at IS NULL
 )
@@ -667,7 +747,8 @@ GROUP BY b.user_id,
 ORDER BY b.user_id,
   c.chapter_number
         "#,
-        course_id
+        course_id,
+        user_ids as Option<&[Uuid]>
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -755,15 +836,15 @@ pub async fn fetch_course_users(
     Ok(rows)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct UnreturnedExercise {
     pub id: Uuid,
     pub name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ChapterLockPreview {
     pub has_unreturned_exercises: bool,
     pub unreturned_exercises_count: i32,
@@ -847,31 +928,68 @@ pub async fn move_chapter_exercises_to_manual_review(
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<()> {
-    use crate::CourseOrExamId;
-    use crate::exercises;
-    use crate::user_exercise_states::{self, ReviewingStage};
-
     let exercises = exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
 
     for exercise in exercises {
         let user_exercise_state_result =
             user_exercise_states::get_users_current_by_exercise(conn, user_id, &exercise).await;
 
-        if let Ok(user_exercise_state) = user_exercise_state_result
-            && user_exercise_state.reviewing_stage != ReviewingStage::WaitingForManualGrading
-            && user_exercise_state.reviewing_stage != ReviewingStage::ReviewedAndLocked
-            && user_exercise_state.selected_exercise_slide_id.is_some()
+        let user_exercise_state = match user_exercise_state_result {
+            Ok(state) => state,
+            Err(e) => {
+                if matches!(
+                    e.error_type(),
+                    ModelErrorType::PreconditionFailed | ModelErrorType::RecordNotFound
+                ) {
+                    continue;
+                }
+                return Err(e);
+            }
+        };
+        if user_exercise_state.reviewing_stage == ReviewingStage::WaitingForManualGrading
+            || user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
+            || user_exercise_state.reviewing_stage == ReviewingStage::Locked
+            || user_exercise_state.selected_exercise_slide_id.is_none()
         {
-            let course_or_exam_id = CourseOrExamId::Course(course_id);
+            continue;
+        }
+
+        if exercise.needs_peer_review || exercise.needs_self_review {
             user_exercise_states::update_reviewing_stage(
                 conn,
                 user_id,
-                course_or_exam_id,
+                CourseOrExamId::Course(course_id),
                 exercise.id,
                 ReviewingStage::WaitingForManualGrading,
             )
             .await?;
+            continue;
         }
+
+        if !exercise.teacher_reviews_answer_after_locking
+            && user_exercise_state.grading_progress == GradingProgress::FullyGraded
+        {
+            user_exercise_states::update_reviewing_stage(
+                conn,
+                user_id,
+                CourseOrExamId::Course(course_id),
+                exercise.id,
+                ReviewingStage::Locked,
+            )
+            .await?;
+            user_exercise_state_updater::update_user_exercise_state(conn, user_exercise_state.id)
+                .await?;
+            continue;
+        }
+
+        user_exercise_states::update_reviewing_stage(
+            conn,
+            user_id,
+            CourseOrExamId::Course(course_id),
+            exercise.id,
+            ReviewingStage::WaitingForManualGrading,
+        )
+        .await?;
     }
 
     Ok(())
@@ -1093,6 +1211,98 @@ pub async fn unlock_next_chapters_for_user(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    mod move_chapter_exercises_to_manual_review {
+        use super::*;
+        use crate::{
+            exercises::ActivityProgress,
+            test_helper::*,
+            user_exercise_slide_states,
+            user_exercise_states::{self, UserExerciseStateUpdate},
+        };
+
+        #[tokio::test]
+        async fn fully_graded_auto_review_exercise_becomes_locked() {
+            insert_data!(
+                :tx,
+                :user,
+                :org,
+                :course,
+                instance: _instance,
+                :course_module,
+                :chapter,
+                :page,
+                :exercise,
+                :slide
+            );
+
+            exercises::update_teacher_reviews_answer_after_locking(tx.as_mut(), exercise, false)
+                .await
+                .unwrap();
+
+            user_exercise_states::upsert_selected_exercise_slide_id(
+                tx.as_mut(),
+                user,
+                exercise,
+                Some(course),
+                None,
+                Some(slide),
+            )
+            .await
+            .unwrap();
+
+            let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+                tx.as_mut(),
+                user,
+                exercise,
+                Some(course),
+                None,
+            )
+            .await
+            .unwrap();
+
+            let user_exercise_slide_state =
+                user_exercise_slide_states::get_or_insert_by_unique_index(
+                    tx.as_mut(),
+                    user_exercise_state.id,
+                    slide,
+                )
+                .await
+                .unwrap();
+            user_exercise_slide_states::update(
+                tx.as_mut(),
+                user_exercise_slide_state.id,
+                Some(1.0),
+                GradingProgress::FullyGraded,
+            )
+            .await
+            .unwrap();
+
+            user_exercise_states::update(
+                tx.as_mut(),
+                UserExerciseStateUpdate {
+                    id: user_exercise_state.id,
+                    score_given: Some(1.0),
+                    activity_progress: ActivityProgress::Completed,
+                    reviewing_stage: ReviewingStage::NotStarted,
+                    grading_progress: GradingProgress::FullyGraded,
+                },
+            )
+            .await
+            .unwrap();
+
+            move_chapter_exercises_to_manual_review(tx.as_mut(), chapter, user, course)
+                .await
+                .unwrap();
+
+            let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
+            let user_exercise_state =
+                user_exercise_states::get_users_current_by_exercise(tx.as_mut(), user, &exercise)
+                    .await
+                    .unwrap();
+            assert_eq!(user_exercise_state.reviewing_stage, ReviewingStage::Locked);
+        }
+    }
 
     mod constraints {
         use super::*;

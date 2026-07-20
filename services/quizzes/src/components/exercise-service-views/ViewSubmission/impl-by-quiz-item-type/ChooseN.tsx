@@ -1,23 +1,20 @@
-"use client"
-
 import { css } from "@emotion/css"
 import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
-import { ModelSolutionQuizItemChooseN } from "../../../../../types/quizTypes/modelSolutionSpec"
-import { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { QuizItemSubmissionComponentProps } from "."
+import type { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
+import type { ModelSolutionQuizItemChooseN } from "../../../../../types/quizTypes/modelSolutionSpec"
+import type { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
 import {
   QUIZ_TITLE_STYLE,
   TWO_DIMENSIONAL_BUTTON_STYLES,
 } from "../../AnswerExercise/impl-by-quiz-item-type/AnswerQuizStyles"
-
-import { QuizItemSubmissionComponentProps } from "."
-
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const MultipleChoiceClickableFeedback: React.FC<
   React.PropsWithChildren<

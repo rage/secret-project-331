@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
@@ -11,8 +12,7 @@ pub struct OAuthUserClientScopes {
     pub granted_at: DateTime<Utc>,
 }
 
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-#[derive(Debug, Clone, PartialEq, FromRow, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, FromRow, Serialize, Deserialize, ToSchema)]
 pub struct AuthorizedClientInfo {
     pub client_id: Uuid,     // oauth_clients.id
     pub client_name: String, // oauth_clients.client_id (display/name)
@@ -119,7 +119,7 @@ impl OAuthUserClientScopes {
               COALESCE(
                 array_agg(DISTINCT s.scope ORDER BY s.scope) FILTER (WHERE s.scope IS NOT NULL),
                 '{}'::text[]
-              ) AS "scopes!: Vec<String>"
+              ) AS "scopes!"
             FROM oauth_user_client_scopes ucs
             JOIN oauth_clients c ON c.id = ucs.client_id
             LEFT JOIN LATERAL unnest(ucs.scopes) AS s(scope) ON TRUE

@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -32,7 +32,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   // Have to wait until the submit is done
   await page.getByText(`Good job!`).waitFor()
 
-  await page.getByText("Automatic Completions").click()
+  await page.getByRole("link", { name: "Automatic Completions" }).click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
   await page.getByText("Congratulations!").waitFor()
   await expectScreenshotsToMatchSnapshots({
@@ -67,14 +67,12 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
-  await Promise.all([
-    page.getByRole("link", { name: "Manage course 'Automatic Completions'" }).click(),
-  ])
+  await page.getByRole("link", { name: "Manage course 'Automatic Completions'" }).click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/b39b64f3-7718-4556-ac2b-333f3ed4096f",
   )
 
-  await Promise.all([page.getByRole("tab", { name: "Modules" }).click()])
+  await page.getByRole("tab", { name: "Modules" }).click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/b39b64f3-7718-4556-ac2b-333f3ed4096f/modules",
   )

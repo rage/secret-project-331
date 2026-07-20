@@ -3,20 +3,21 @@
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import React, { useContext, useState } from "react"
-import { useTranslation } from "react-i18next"
-
-import PageContext from "../../contexts/PageContext"
-import { fetchCourseInstances } from "../../services/backend/course-instances"
-import { fetchCourseModulesByCourseId } from "../../services/backend/courses"
-import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-import { ConditionAttributes } from "."
 
 import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
+import {
+  getCmsCourseInstancesOptions,
+  getCmsCourseModulesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ConditionAttributes } from "."
+import PageContext from "../../contexts/PageContext"
+import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/heading",
@@ -77,17 +78,31 @@ const ConditionalBlockEditor: React.FC<
 > = ({ attributes, clientId, setAttributes }) => {
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
-  const courseModules = useQuery({
-    queryKey: [`/courses/${courseId}/modules`],
-    queryFn: () => fetchCourseModulesByCourseId(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const courseModules = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
+        getCmsCourseModulesOptions({
+          path: {
+            course_id: id,
+          },
+        }),
+    }),
+  )
 
-  const courseInstances = useQuery({
-    queryKey: [`/courses/${courseId}/course-instances`],
-    queryFn: () => fetchCourseInstances(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const courseInstances = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
+        getCmsCourseInstancesOptions({
+          path: {
+            course_id: id,
+          },
+        }),
+    }),
+  )
   const [requiredModules, setRequiredModules] = useState<string[]>(attributes.module_completion)
   const [requiredInstanceEnrollment, setRequiredInstanceEnrollment] = useState<string[]>(
     attributes.instance_enrollment,
@@ -109,15 +124,15 @@ const ConditionalBlockEditor: React.FC<
                   label={mod.name ?? t("label-default")}
                   value={mod.id}
                   onChange={() => {
-                    const previuoslyChecked = requiredModules.some((modId) => modId == mod.id)
-                    const newRequiredModules = requiredModules.filter((i) => i != mod.id)
+                    const previuoslyChecked = requiredModules.some((modId) => modId === mod.id)
+                    const newRequiredModules = requiredModules.filter((i) => i !== mod.id)
                     if (!previuoslyChecked) {
                       newRequiredModules.push(mod.id)
                     }
                     setAttributes({ module_completion: newRequiredModules })
                     setRequiredModules(newRequiredModules)
                   }}
-                  checked={requiredModules.some((modId) => modId == mod.id)}
+                  checked={requiredModules.some((modId) => modId === mod.id)}
                 ></CheckBox>
               )
             })}
@@ -134,10 +149,10 @@ const ConditionalBlockEditor: React.FC<
                   value={inst.id}
                   onChange={() => {
                     const previuoslyChecked = requiredInstanceEnrollment.some(
-                      (instId) => instId == inst.id,
+                      (instId) => instId === inst.id,
                     )
                     const newRequiredInstEnrl = requiredInstanceEnrollment.filter(
-                      (i) => i != inst.id,
+                      (i) => i !== inst.id,
                     )
                     if (!previuoslyChecked) {
                       newRequiredInstEnrl.push(inst.id)
@@ -145,7 +160,7 @@ const ConditionalBlockEditor: React.FC<
                     setAttributes({ instance_enrollment: newRequiredInstEnrl })
                     setRequiredInstanceEnrollment(newRequiredInstEnrl)
                   }}
-                  checked={requiredInstanceEnrollment.some((instId) => instId == inst.id)}
+                  checked={requiredInstanceEnrollment.some((instId) => instId === inst.id)}
                 ></CheckBox>
               )
             })}

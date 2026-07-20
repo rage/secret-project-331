@@ -1,14 +1,12 @@
-"use client"
-
 import styled from "@emotion/styled"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import { PrivateSpecQuiz, QuizItemType } from "../../../../../types/quizTypes/privateSpec"
+import { headingFont } from "@/shared-module/exercise-react/styles"
+
+import type { PrivateSpecQuiz, QuizItemType } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import { createEmptyQuizItem } from "../utils/general"
-
-import { headingFont } from "@/shared-module/common/styles"
 
 export interface QuizOption {
   type: QuizItemType
@@ -84,6 +82,7 @@ const QuizItemOption: React.FC<QuizOptionProps> = ({ quizOption }) => {
     <QuizCard
       disabled={disabled}
       onClick={createQuizItem}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- QuizCard is a styled component with role=button; no native button
       role="button"
       id={`quiz-option-card-${type}`}
     >

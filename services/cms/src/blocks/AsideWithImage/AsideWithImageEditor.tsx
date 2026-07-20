@@ -2,15 +2,14 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks, RichText } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
-import { useTranslation } from "react-i18next"
-
-import BlockWrapper from "../BlockWrapper"
-
-import { AsideWithImageBlockAttributes } from "."
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { AsideWithImageBlockAttributes } from "."
+import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image"]
 

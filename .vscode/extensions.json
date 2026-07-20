@@ -1,6 +1,7 @@
 {
   "recommendations": [
-    "dbaeumer.vscode-eslint",
+    "oxc.oxc-vscode",
+    "TypeScriptTeam.native-preview",
     "editorconfig.editorconfig",
     "rust-lang.rust-analyzer",
     "ms-kubernetes-tools.vscode-kubernetes-tools",
@@ -10,6 +11,7 @@
     "usernamehw.errorlens",
     "jebbs.plantuml",
     "wix.vscode-import-cost",
-    "ms-playwright.playwright"
+    "ms-playwright.playwright",
+    "mkhl.direnv"
   ]
 }

@@ -1,11 +1,14 @@
 use std::collections::HashMap;
 
 use futures::Stream;
+use utoipa::ToSchema;
 
 use crate::{prelude::*, users::User};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+const MIN_FUZZY_SEARCH_TERM_LENGTH: usize = 3;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+
 pub struct UserDetail {
     pub user_id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -25,7 +28,15 @@ pub async fn get_user_details_by_user_id(
     let res = sqlx::query_as!(
         UserDetail,
         "
-SELECT *
+SELECT user_id,
+  created_at,
+  updated_at,
+  email,
+  first_name,
+  last_name,
+  search_helper,
+  country,
+  email_communication_consent
 FROM user_details
 WHERE user_id = $1 ",
         user_id
@@ -43,7 +54,15 @@ pub async fn get_users_details_by_user_id_map(
     let details = sqlx::query_as!(
         UserDetail,
         "
-SELECT *
+SELECT user_id,
+  created_at,
+  updated_at,
+  email,
+  first_name,
+  last_name,
+  search_helper,
+  country,
+  email_communication_consent
 FROM user_details
 WHERE user_id IN (
     SELECT UNNEST($1::uuid [])
@@ -95,48 +114,12 @@ pub async fn search_for_user_details_by_email(
     conn: &mut PgConnection,
     email: &str,
 ) -> ModelResult<Vec<UserDetail>> {
-    let res = sqlx::query_as!(
-        UserDetail,
-        "
-SELECT *
-FROM user_details
-WHERE lower(email::text) LIKE '%' || lower($1) || '%'
-LIMIT 1000;
-",
-        email.trim(),
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
+    let email = normalize_email_search_term(email);
+    if !is_fuzzy_search_term_long_enough(email) {
+        return Ok(Vec::new());
+    }
 
-pub async fn search_for_user_details_by_other_details(
-    conn: &mut PgConnection,
-    search: &str,
-) -> ModelResult<Vec<UserDetail>> {
-    let res = sqlx::query_as!(
-        UserDetail,
-        "
-SELECT *
-FROM user_details
-WHERE lower(search_helper::text) LIKE '%' || lower($1) || '%'
-LIMIT 1000;
-",
-        search.trim(),
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn search_for_user_details_fuzzy_match(
-    conn: &mut PgConnection,
-    search: &str,
-) -> ModelResult<Vec<UserDetail>> {
-    // For email domains, the fuzzy match returns too much results that have the same domain
-    // To combat this, we omit the email domain from the fuzzy match
-    let search = search.split('@').next().unwrap_or(search);
-
+    // ORDER BY dist only so the GiST trigram index can serve KNN distance ordering.
     let res = sqlx::query_as!(
         UserDetail,
         "
@@ -150,19 +133,160 @@ SELECT user_id,
   country,
   email_communication_consent
 FROM (
-    SELECT *,
-      LOWER($1) <<->search_helper AS dist
+    SELECT user_id,
+      created_at,
+      updated_at,
+      email,
+      first_name,
+      last_name,
+      search_helper,
+      country,
+      email_communication_consent,
+      lower($1) <<-> email_search_helper AS dist
     FROM user_details
-    ORDER BY dist, LENGTH(search_helper)
+    ORDER BY dist
     LIMIT 100
   ) search
 WHERE dist < 0.7;
 ",
-        search.trim(),
+        email,
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// Searches user_details by exact user id.
+pub async fn search_for_user_details_by_other_details(
+    conn: &mut PgConnection,
+    search: &str,
+) -> ModelResult<Vec<UserDetail>> {
+    let Some(user_id) = parse_exact_user_id_search_term(search) else {
+        return Ok(Vec::new());
+    };
+
+    let res = sqlx::query_as!(
+        UserDetail,
+        "
+SELECT user_id,
+  created_at,
+  updated_at,
+  email,
+  first_name,
+  last_name,
+  search_helper,
+  country,
+  email_communication_consent
+FROM user_details
+WHERE user_id = $1;
+",
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn search_for_user_details_fuzzy_match(
+    conn: &mut PgConnection,
+    search: &str,
+) -> ModelResult<Vec<UserDetail>> {
+    // If a full email address reaches name search, compare only the local part against names.
+    let search = normalize_name_search_term(search);
+    if !is_fuzzy_search_term_long_enough(search) {
+        return Ok(Vec::new());
+    }
+
+    // ORDER BY dist only — no secondary tiebreaker. Adding one (e.g. user_id)
+    // would prevent the GiST trigram index from serving the distance ordering,
+    // forcing a full table scan+sort. Ties at exactly equal float distances are
+    // rare enough in practice that non-determinism in the LIMIT 100 is acceptable.
+    let res = sqlx::query_as!(
+        UserDetail,
+        "
+SELECT user_id,
+  created_at,
+  updated_at,
+  email,
+  first_name,
+  last_name,
+  search_helper,
+  country,
+  email_communication_consent
+FROM (
+    SELECT user_id,
+      created_at,
+      updated_at,
+      email,
+      first_name,
+      last_name,
+      search_helper,
+      country,
+      email_communication_consent,
+      lower($1) <<-> name_search_helper AS dist
+    FROM user_details
+    ORDER BY dist
+    LIMIT 100
+  ) search
+WHERE dist < 0.7;
+",
+        search,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+fn normalize_name_search_term(search: &str) -> &str {
+    search.split('@').next().unwrap_or(search).trim()
+}
+
+fn normalize_email_search_term(search: &str) -> &str {
+    search.trim()
+}
+
+fn is_fuzzy_search_term_long_enough(search: &str) -> bool {
+    search.chars().count() >= MIN_FUZZY_SEARCH_TERM_LENGTH
+}
+
+fn parse_exact_user_id_search_term(search: &str) -> Option<Uuid> {
+    search.trim().parse().ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn normalizes_name_search_term() {
+        assert_eq!(normalize_name_search_term("  alice@example.com  "), "alice");
+        assert_eq!(normalize_name_search_term("  alice  "), "alice");
+    }
+
+    #[test]
+    fn normalizes_email_search_term_without_removing_domain() {
+        assert_eq!(
+            normalize_email_search_term("  alice@example.com  "),
+            "alice@example.com"
+        );
+    }
+
+    #[test]
+    fn rejects_short_fuzzy_search_terms() {
+        assert!(!is_fuzzy_search_term_long_enough("al"));
+        assert!(is_fuzzy_search_term_long_enough("ali"));
+    }
+
+    #[test]
+    fn parses_exact_user_id_search_term() {
+        let user_id = Uuid::parse_str("5b177cc9-fbc3-43b5-8108-63481ff0b0e4").unwrap();
+
+        assert_eq!(
+            parse_exact_user_id_search_term("  5b177cc9-fbc3-43b5-8108-63481ff0b0e4  "),
+            Some(user_id)
+        );
+        assert_eq!(parse_exact_user_id_search_term("not-a-user-id"), None);
+    }
 }
 
 /// Retrieves all users enrolled in a specific course
@@ -203,7 +327,15 @@ pub async fn get_user_details_by_user_ids(
     let res = sqlx::query_as!(
         UserDetail,
         r#"
-SELECT *
+SELECT user_id,
+  created_at,
+  updated_at,
+  email,
+  first_name,
+  last_name,
+  search_helper,
+  country,
+  email_communication_consent
 FROM user_details
 WHERE user_id = ANY($1::uuid[])
         "#,
@@ -224,7 +356,15 @@ pub async fn get_user_details_by_user_ids_for_course(
     let res = sqlx::query_as!(
         UserDetail,
         r#"
-SELECT ud.*
+SELECT ud.user_id,
+  ud.created_at,
+  ud.updated_at,
+  ud.email,
+  ud.first_name,
+  ud.last_name,
+  ud.search_helper,
+  ud.country,
+  ud.email_communication_consent
 FROM user_details ud
 JOIN user_course_settings ucs ON ud.user_id = ucs.user_id
 WHERE ud.user_id = ANY($1::uuid[])
@@ -249,7 +389,15 @@ pub async fn get_user_details_by_user_id_for_course(
     let res = sqlx::query_as!(
         UserDetail,
         r#"
-SELECT ud.*
+SELECT ud.user_id,
+  ud.created_at,
+  ud.updated_at,
+  ud.email,
+  ud.first_name,
+  ud.last_name,
+  ud.search_helper,
+  ud.country,
+  ud.email_communication_consent
 FROM user_details ud
 JOIN user_course_settings ucs ON ud.user_id = ucs.user_id
 WHERE ud.user_id = $1
@@ -322,7 +470,15 @@ SET email = $1,
   country = $4,
   email_communication_consent = $5
 WHERE user_id = $6
-RETURNING *
+RETURNING user_id,
+  created_at,
+  updated_at,
+  email,
+  first_name,
+  last_name,
+  search_helper,
+  country,
+  email_communication_consent
 "#,
         email,
         first_name,

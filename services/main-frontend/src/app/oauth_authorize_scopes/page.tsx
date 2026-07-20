@@ -4,15 +4,14 @@ import { css } from "@emotion/css"
 import { useSearchParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import {
-  postOAuthConsent as approveConsent,
-  postOAuthDeny as denyConsent,
-} from "@/services/backend/users"
+import { approveOauthConsent, denyOauthConsent } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 
 export default function ConsentPage() {
   const searchParams = useSearchParams()
   const { t } = useTranslation("main-frontend")
+  usePageTitle(t("title-authorize-application"))
 
   const query = {
     client_id: String(searchParams.get("client_id") ?? ""),
@@ -40,16 +39,20 @@ export default function ConsentPage() {
   }
 
   const onApprove = async () => {
-    const res = await approveConsent(query)
+    const res = await approveOauthConsent({
+      body: query,
+    })
     if (res.redirect_uri) {
       window.location.assign(res.redirect_uri)
     }
   }
   const onDeny = async () => {
-    const res = await denyConsent({
-      client_id: query.client_id,
-      redirect_uri: query.redirect_uri,
-      state: query.state,
+    const res = await denyOauthConsent({
+      body: {
+        client_id: query.client_id,
+        redirect_uri: query.redirect_uri,
+        state: query.state,
+      },
     })
     if (res.redirect_uri) {
       window.location.assign(res.redirect_uri)

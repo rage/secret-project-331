@@ -1,12 +1,15 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { TabListState, useTabListState } from "@react-stately/tabs"
+import type { TabListState } from "@react-stately/tabs"
+import { useTabListState } from "@react-stately/tabs"
 import { usePathname, useRouter } from "next/navigation"
 import React, { createContext, useContext, useMemo, useRef } from "react"
 import { useTabList } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 
 interface TabsContextValue {
   state: TabListState<object>
@@ -31,11 +34,12 @@ interface TabsProps {
 const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => {
   const pathname = usePathname()
   const router = useRouter()
+  const { t } = useTranslation()
   const tabListRef = useRef<HTMLDivElement>(null)
 
   const basePath = useMemo(() => {
     const segments = pathname.split("/").filter(Boolean)
-    if (segments.length >= 1) {
+    if (segments.length > 0) {
       return `/${segments[0]}`
     }
     return pathname.replace(/\/$/, "") || "/"
@@ -92,8 +96,8 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
   )
 
   const state = useTabListState({
-    selectedKey: selectedKey ?? undefined,
-    defaultSelectedKey: tabNames[0] ?? undefined,
+    ...includeIf(selectedKey !== null, { selectedKey }),
+    ...omitUndefined({ defaultSelectedKey: tabNames[0] }),
     items,
     onSelectionChange: (key) => {
       router.replace(`${basePath}/${String(key)}`)
@@ -103,8 +107,7 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
   const { tabListProps } = useTabList(
     {
       orientation,
-      // eslint-disable-next-line i18next/no-literal-string
-      "aria-label": "Tabs",
+      "aria-label": t("tab-aria-label-default"),
     },
     state,
     tabListRef,

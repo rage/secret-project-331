@@ -49,7 +49,9 @@ export type Resource =
   | { type: "playground_example" }
   | { type: "exercise_service" }
 
-export type ErrorData = { block_id: string }
+export interface ErrorData {
+  block_id: string
+}
 
 export interface ErrorResponse {
   title: string
@@ -87,7 +89,7 @@ export interface ConsentDenyQuery {
 
 export interface CertificateAllRequirements {
   certificate_configuration_id: string
-  course_module_ids: Array<string>
+  course_module_ids: string[]
 }
 
 export interface CertificateConfiguration {
@@ -172,10 +174,51 @@ export interface ChapterWithStatus {
   chapter_number: number
   front_page_id: string | null
   opens_at: string | null
+  deadline: string | null
   status: ChapterStatus
   chapter_image_url: string | null
   course_module_id: string
+  exercise_deadline_override_count: number
+  exercise_deadline_override_distinct_count: number
+  earliest_exercise_deadline_override: string | null
 }
+
+export type ParagraphSuggestionAction =
+  | "moocfi/ai/generate-draft-from-notes"
+  | "moocfi/ai/generate-continue-paragraph"
+  | "moocfi/ai/generate-add-example"
+  | "moocfi/ai/generate-add-counterpoint"
+  | "moocfi/ai/generate-add-concluding-sentence"
+  | "moocfi/fix-spelling"
+  | "moocfi/ai/improve-clarity"
+  | "moocfi/ai/improve-flow"
+  | "moocfi/ai/improve-concise"
+  | "moocfi/ai/improve-expand-detail"
+  | "moocfi/ai/improve-academic-style"
+  | "moocfi/ai/structure-create-topic-sentence"
+  | "moocfi/ai/structure-reorder-sentences"
+  | "moocfi/ai/structure-split-into-paragraphs"
+  | "moocfi/ai/structure-combine-into-one"
+  | "moocfi/ai/structure-to-bullets"
+  | "moocfi/ai/structure-from-bullets"
+  | "moocfi/ai/learning-simplify-beginners"
+  | "moocfi/ai/learning-add-definitions"
+  | "moocfi/ai/learning-add-analogy"
+  | "moocfi/ai/learning-add-practice-question"
+  | "moocfi/ai/learning-add-check-understanding"
+  | "moocfi/ai/summaries-one-sentence"
+  | "moocfi/ai/summaries-two-three-sentences"
+  | "moocfi/ai/summaries-key-takeaway"
+  | "moocfi/ai/tone-academic-formal"
+  | "moocfi/ai/tone-friendly-conversational"
+  | "moocfi/ai/tone-encouraging-supportive"
+  | "moocfi/ai/tone-neutral-objective"
+  | "moocfi/ai/tone-confident"
+  | "moocfi/ai/tone-serious"
+  | "moocfi/ai/translate-english"
+  | "moocfi/ai/translate-finnish"
+  | "moocfi/ai/translate-norwegian"
+  | "moocfi/ai/translate-swedish"
 
 export interface DatabaseChapter {
   id: string
@@ -240,7 +283,7 @@ export interface CourseUserInfo {
 export interface ChapterLockPreview {
   has_unreturned_exercises: boolean
   unreturned_exercises_count: number
-  unreturned_exercises: Array<UnreturnedExercise>
+  unreturned_exercises: UnreturnedExercise[]
 }
 
 export interface UnreturnedExercise {
@@ -257,17 +300,15 @@ export interface ChatbotConfiguration {
   enabled_to_students: boolean
   chatbot_name: string
   model_id: string
-  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
-  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  max_completion_tokens: number
+  max_output_tokens: number
   verbosity: VerbosityLevel
   reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
@@ -276,6 +317,8 @@ export interface ChatbotConfiguration {
   use_semantic_reranking: boolean
   use_tools: boolean
   default_chatbot: boolean
+  suggest_next_messages: boolean
+  initial_suggested_messages: string[] | null
 }
 
 export interface NewChatbotConf {
@@ -283,17 +326,15 @@ export interface NewChatbotConf {
   enabled_to_students: boolean
   chatbot_name: string
   model_id: string
-  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
-  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  max_completion_tokens: number
+  max_output_tokens: number
   verbosity: VerbosityLevel
   reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
@@ -303,11 +344,13 @@ export interface NewChatbotConf {
   use_tools: boolean
   default_chatbot: boolean
   chatbotconf_id: string | null
+  suggest_next_messages: boolean
+  initial_suggested_messages: string[] | null
 }
 
 export type VerbosityLevel = "low" | "medium" | "high"
 
-export type ReasoningEffortLevel = "minimal" | "low" | "medium" | "high"
+export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
 
 export interface ChatbotConfigurationModel {
   id: string
@@ -315,10 +358,12 @@ export interface ChatbotConfigurationModel {
   updated_at: string
   deleted_at: string | null
   model: string
-  thinking: boolean
+  model_type: ModelType
   default_model: boolean
-  deployment_name: string
+  context_size: number
 }
+
+export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "Mistral"
 
 export interface ChatbotConversationMessage {
   id: string
@@ -326,16 +371,40 @@ export interface ChatbotConversationMessage {
   updated_at: string
   deleted_at: string | null
   conversation_id: string
-  message: string | null
+  order_number: number
+  message: Message
+}
+
+export type Message =
+  | ChatbotConversationMessageMessage
+  | ChatbotConversationMessageToolCall
+  | ChatbotConversationMessageToolOutput
+  | ChatbotConversationMessageReasoning
+
+export type MessageRole = "assistant" | "user" | "developer" | "system"
+
+export interface ChatbotConversationMessageMessage {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  chatbot_conversation_message_id: string
+  text: string
   message_role: MessageRole
   message_is_complete: boolean
   used_tokens: number
-  order_number: number
-  tool_output: ChatbotConversationMessageToolOutput | null
-  tool_call_fields: Array<ChatbotConversationMessageToolCall>
+  response_id: string | null
 }
 
-export type MessageRole = "assistant" | "user" | "tool" | "system"
+export interface ChatbotConversationMessageReasoning {
+  id: string
+  chatbot_conversation_message_id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  summary: string | null
+  response_id: string
+}
 
 export interface ChatbotConversationMessageCitation {
   id: string
@@ -356,21 +425,35 @@ export interface ChatbotConversationMessageToolCall {
   created_at: string
   updated_at: string
   deleted_at: string | null
-  message_id: string
+  chatbot_conversation_message_id: string
   tool_name: string
   tool_arguments: unknown
   tool_call_id: string
+  tool_kind: ToolKind
+  response_id: string
 }
+
+export type ToolKind = "function" | "azure_ai_search"
 
 export interface ChatbotConversationMessageToolOutput {
   id: string
   created_at: string
   updated_at: string
   deleted_at: string | null
-  message_id: string
-  tool_name: string
-  tool_output: string
+  chatbot_conversation_message_id: string
+  output: string
   tool_call_id: string
+  tool_kind: ToolKind
+  response_id: string
+}
+
+export interface ChatbotConversationSuggestedMessage {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  conversation_message_id: string
+  message: string
 }
 
 export interface ChatbotConversation {
@@ -385,10 +468,12 @@ export interface ChatbotConversation {
 
 export interface ChatbotConversationInfo {
   current_conversation: ChatbotConversation | null
-  current_conversation_messages: Array<ChatbotConversationMessage> | null
-  current_conversation_message_citations: Array<ChatbotConversationMessageCitation> | null
+  current_conversation_messages: ChatbotConversationMessage[] | null
+  current_conversation_message_citations: ChatbotConversationMessageCitation[] | null
   chatbot_name: string
+  course_name: string
   hide_citations: boolean
+  suggested_messages: ChatbotConversationSuggestedMessage[] | null
 }
 
 export interface CodeGiveawayCode {
@@ -427,6 +512,149 @@ export interface NewCodeGiveaway {
   require_course_specific_consent_form_question_id: string | null
 }
 
+export type CourseDesignerCourseSize = "small" | "medium" | "large"
+
+export interface CourseDesignerPlan {
+  id: string
+  created_at: string
+  updated_at: string
+  created_by_user_id: string
+  name: string | null
+  status: CourseDesignerPlanStatus
+  active_stage: CourseDesignerStage | null
+  last_weekly_stage_email_sent_at: string | null
+}
+
+export interface CourseDesignerPlanDetails {
+  plan: CourseDesignerPlan
+  members: CourseDesignerPlanMember[]
+  stages: CourseDesignerPlanStageWithTasks[]
+}
+
+export interface CourseDesignerPlanMember {
+  id: string
+  created_at: string
+  updated_at: string
+  user_id: string
+}
+
+export interface CourseDesignerPlanStage {
+  id: string
+  created_at: string
+  updated_at: string
+  stage: CourseDesignerStage
+  status: CourseDesignerPlanStageStatus
+  planned_starts_on: string
+  planned_ends_on: string
+  actual_started_at: string | null
+  actual_completed_at: string | null
+  workspace_data: unknown | null
+}
+
+export type CourseDesignerPlanStageStatus = "NotStarted" | "InProgress" | "Completed"
+
+export interface CourseDesignerPlanStageTask {
+  id: string
+  created_at: string
+  updated_at: string
+  course_designer_plan_stage_id: string
+  title: string
+  description: string | null
+  order_number: number
+  is_completed: boolean
+  completed_at: string | null
+  completed_by_user_id: string | null
+  is_auto_generated: boolean
+  created_by_user_id: string | null
+}
+
+export interface CourseDesignerPlanStageWithTasks {
+  id: string
+  created_at: string
+  updated_at: string
+  stage: CourseDesignerStage
+  status: CourseDesignerPlanStageStatus
+  planned_starts_on: string
+  planned_ends_on: string
+  actual_started_at: string | null
+  actual_completed_at: string | null
+  workspace_data: unknown | null
+  tasks: CourseDesignerPlanStageTask[]
+}
+
+export type AnalysisCourseType = "Compulsory" | "Elective"
+
+export interface AnalysisWorkspaceV1 {
+  course_title: string | null
+  credits: number | null
+  language: string | null
+  target_group: string | null
+  mode_synchronous: boolean
+  mode_asynchronous: boolean
+  open_period_i: boolean
+  open_period_ii: boolean
+  open_period_iii: boolean
+  open_period_iv: boolean
+  open_period_all: boolean
+  responsible_teachers: string | null
+  degree_programme: string | null
+  course_type: AnalysisCourseType | null
+  students_demographic_data: string | null
+  wishes_topics: string | null
+  wishes_content_format_text: boolean
+  wishes_content_format_video: boolean
+  wishes_content_format_podcast: boolean
+  wishes_content_format_xr: boolean
+  wishes_content_format_notes: string | null
+  wishes_assessment_text: string | null
+  wishes_other_suggestions: string | null
+  market_results: string | null
+  resources_university: string | null
+  resources_purchase_budget: string | null
+  contributors_instructional_designer: string | null
+  contributors_subject_matter_experts: string | null
+  contributors_editors: string | null
+  contributors_support_staff: string | null
+}
+
+export interface CourseDesignerStageWorkspace {
+  schema: "analysis_v1"
+  payload: AnalysisWorkspaceV1
+}
+
+export type CourseDesignerPlanStatus =
+  | "Draft"
+  | "Scheduling"
+  | "InProgress"
+  | "Completed"
+  | "Archived"
+
+export interface CourseDesignerPlanSummary {
+  id: string
+  created_at: string
+  updated_at: string
+  created_by_user_id: string
+  name: string | null
+  status: CourseDesignerPlanStatus
+  active_stage: CourseDesignerStage | null
+  last_weekly_stage_email_sent_at: string | null
+  member_count: number
+  stage_count: number
+}
+
+export interface CourseDesignerScheduleStageInput {
+  stage: CourseDesignerStage
+  planned_starts_on: string
+  planned_ends_on: string
+}
+
+export type CourseDesignerStage =
+  | "Analysis"
+  | "Design"
+  | "Development"
+  | "Implementation"
+  | "Evaluation"
+
 export interface CourseBackgroundQuestionAnswer {
   id: string
   created_at: string
@@ -456,8 +684,8 @@ export interface CourseBackgroundQuestion {
 export type CourseBackgroundQuestionType = "Checkbox" | "Text"
 
 export interface CourseBackgroundQuestionsAndAnswers {
-  background_questions: Array<CourseBackgroundQuestion>
-  answers: Array<CourseBackgroundQuestionAnswer>
+  background_questions: CourseBackgroundQuestion[]
+  answers: CourseBackgroundQuestionAnswer[]
 }
 
 export interface CourseCustomPrivacyPolicyCheckboxText {
@@ -470,6 +698,20 @@ export interface CourseCustomPrivacyPolicyCheckboxText {
   text_slug: string
 }
 
+export interface CourseEnrollmentInfo {
+  course_id: string
+  course: Course
+  course_instances: CourseInstance[]
+  user_course_settings: UserCourseSettings | null
+  course_module_completions: CourseModuleCompletion[]
+  first_enrolled_at: string
+  is_current: boolean
+}
+
+export interface CourseEnrollmentsInfo {
+  course_enrollments: CourseEnrollmentInfo[]
+}
+
 export interface CourseInstanceEnrollment {
   user_id: string
   course_id: string
@@ -480,11 +722,11 @@ export interface CourseInstanceEnrollment {
 }
 
 export interface CourseInstanceEnrollmentsInfo {
-  course_instance_enrollments: Array<CourseInstanceEnrollment>
-  course_instances: Array<CourseInstance>
-  courses: Array<Course>
-  user_course_settings: Array<UserCourseSettings>
-  course_module_completions: Array<CourseModuleCompletion>
+  course_instance_enrollments: CourseInstanceEnrollment[]
+  course_instances: CourseInstance[]
+  courses: Course[]
+  user_course_settings: UserCourseSettings[]
+  course_module_completions: CourseModuleCompletion[]
 }
 
 export interface ChapterScore {
@@ -534,8 +776,8 @@ export interface CourseInstanceForm {
 export type PointMap = Record<string, number>
 
 export interface Points {
-  chapter_points: Array<ChapterScore>
-  users: Array<UserDetail>
+  chapter_points: ChapterScore[]
+  users: UserDetail[]
   user_chapter_points: Record<string, PointMap>
 }
 
@@ -611,10 +853,10 @@ export interface ModifiedModule {
 }
 
 export interface ModuleUpdates {
-  new_modules: Array<NewModule>
-  deleted_modules: Array<string>
-  modified_modules: Array<ModifiedModule>
-  moved_chapters: Array<[string, string]>
+  new_modules: NewModule[]
+  deleted_modules: string[]
+  modified_modules: ModifiedModule[]
+  moved_chapters: [string, string][]
 }
 
 export interface NewCourseModule {
@@ -631,7 +873,7 @@ export interface NewCourseModule {
 export interface NewModule {
   name: string
   order_number: number
-  chapters: Array<string>
+  chapters: string[]
   uh_course_code: string | null
   ects_credits: number | null
   completion_policy: CompletionPolicy
@@ -661,6 +903,7 @@ export interface Course {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  flagged_answers_skip_manual_review_and_allow_retry: boolean
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
@@ -703,9 +946,9 @@ export interface CourseCount {
 
 export interface CourseStructure {
   course: Course
-  pages: Array<Page>
-  chapters: Array<Chapter>
-  modules: Array<CourseModule>
+  pages: Page[]
+  chapters: Chapter[]
+  modules: CourseModule[]
 }
 
 export interface CourseUpdate {
@@ -718,6 +961,7 @@ export interface CourseUpdate {
   is_joinable_by_code_only: boolean
   ask_marketing_consent: boolean
   flagged_answers_threshold: number
+  flagged_answers_skip_manual_review_and_allow_retry: boolean
   closed_at: string | null
   closed_additional_message: string | null
   closed_course_successor_id: string | null
@@ -800,7 +1044,7 @@ export interface Exam {
   name: string
   instructions: unknown
   page_id: string
-  courses: Array<Course>
+  courses: Course[]
   starts_at: string | null
   ends_at: string | null
   time_minutes: number
@@ -870,6 +1114,8 @@ export interface ExerciseServiceInfoApi {
   public_spec_endpoint_path: string
   model_solution_spec_endpoint_path: string
   has_custom_view?: boolean
+  csv_export_definitions_endpoint_path?: string
+  csv_export_answers_endpoint_path?: string
 }
 
 export interface ExerciseService {
@@ -945,7 +1191,7 @@ export interface ExerciseSlideSubmissionAndUserExerciseState {
 }
 
 export interface ExerciseSlideSubmissionAndUserExerciseStateList {
-  data: Array<ExerciseSlideSubmissionAndUserExerciseState>
+  data: ExerciseSlideSubmissionAndUserExerciseState[]
   total_pages: number
 }
 
@@ -967,7 +1213,7 @@ export interface ExerciseSlideSubmissionCountByWeekAndHour {
 }
 
 export interface ExerciseSlideSubmissionInfo {
-  tasks: Array<CourseMaterialExerciseTask>
+  tasks: CourseMaterialExerciseTask[]
   exercise: Exercise
   exercise_slide_submission: ExerciseSlideSubmission
   user_exercise_state: UserExerciseState | null
@@ -975,7 +1221,7 @@ export interface ExerciseSlideSubmissionInfo {
 
 export interface CourseMaterialExerciseSlide {
   id: string
-  exercise_tasks: Array<CourseMaterialExerciseTask>
+  exercise_tasks: CourseMaterialExerciseTask[]
 }
 
 export interface ExerciseSlide {
@@ -1035,9 +1281,9 @@ export interface ExerciseTaskSubmission {
 }
 
 export interface PeerOrSelfReviewsReceived {
-  peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
-  peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
-  peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
+  peer_or_self_review_questions: PeerOrSelfReviewQuestion[]
+  peer_or_self_review_question_submissions: PeerOrSelfReviewQuestionSubmission[]
+  peer_or_self_review_submissions: PeerOrSelfReviewSubmission[]
 }
 
 export interface CourseMaterialExerciseTask {
@@ -1080,7 +1326,7 @@ export interface CourseMaterialExercise {
   exercise_slide_submission_counts: Record<string, number>
   peer_or_self_review_config: CourseMaterialPeerOrSelfReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
-  user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
+  user_course_instance_exercise_service_variables: UserCourseExerciseServiceVariable[]
   should_show_reset_message: string | null
 }
 
@@ -1104,6 +1350,7 @@ export interface Exercise {
   needs_self_review: boolean
   use_course_default_peer_or_self_review_config: boolean
   exercise_language_group_id: string | null
+  teacher_reviews_answer_after_locking: boolean
 }
 
 export interface ExerciseGradingStatus {
@@ -1126,14 +1373,14 @@ export interface ExerciseStatus {
 export interface ExerciseStatusSummaryForUser {
   exercise: Exercise
   user_exercise_state: UserExerciseState | null
-  exercise_slide_submissions: Array<ExerciseSlideSubmission>
-  given_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
-  given_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
-  received_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
-  received_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
+  exercise_slide_submissions: ExerciseSlideSubmission[]
+  given_peer_or_self_review_submissions: PeerOrSelfReviewSubmissionWithSubmissionOwner[]
+  given_peer_or_self_review_question_submissions: PeerOrSelfReviewQuestionSubmission[]
+  received_peer_or_self_review_submissions: PeerOrSelfReviewSubmissionWithSubmissionOwner[]
+  received_peer_or_self_review_question_submissions: PeerOrSelfReviewQuestionSubmission[]
   peer_review_queue_entry: PeerReviewQueueEntry | null
   teacher_grading_decision: TeacherGradingDecision | null
-  peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
+  peer_or_self_review_questions: PeerOrSelfReviewQuestion[]
 }
 
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
@@ -1163,7 +1410,7 @@ export interface Feedback {
   selected_text: string | null
   marked_as_read: boolean
   created_at: string
-  blocks: Array<FeedbackBlock>
+  blocks: FeedbackBlock[]
   page_title: string
   page_url_path: string
 }
@@ -1182,7 +1429,7 @@ export interface FeedbackCount {
 export interface NewFeedback {
   feedback_given: string
   selected_text: string | null
-  related_blocks: Array<FeedbackBlock>
+  related_blocks: FeedbackBlock[]
   page_id: string
 }
 
@@ -1269,8 +1516,8 @@ export interface StudentsByCountryTotalsResult {
 
 export interface CustomViewExerciseSubmissions {
   exercise_tasks: CustomViewExerciseTasks
-  exercises: Array<Exercise>
-  user_variables: Array<UserCourseExerciseServiceVariable>
+  exercises: Exercise[]
+  user_variables: UserCourseExerciseServiceVariable[]
 }
 
 export interface CustomViewExerciseTaskGrading {
@@ -1299,9 +1546,9 @@ export interface CustomViewExerciseTaskSubmission {
 }
 
 export interface CustomViewExerciseTasks {
-  exercise_tasks: Array<CustomViewExerciseTaskSpec>
-  task_submissions: Array<CustomViewExerciseTaskSubmission>
-  task_gradings: Array<CustomViewExerciseTaskGrading>
+  exercise_tasks: CustomViewExerciseTaskSpec[]
+  task_submissions: CustomViewExerciseTaskSubmission[]
+  task_gradings: CustomViewExerciseTaskGrading[]
 }
 
 export interface CourseCompletionStats {
@@ -1366,27 +1613,27 @@ export interface AnswerRequiringAttentionWithTasks {
   score_given: number | null
   submission_id: string
   exercise_id: string
-  tasks: Array<CourseMaterialExerciseTask>
-  given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
-  received_peer_or_self_reviews: Array<PeerReviewWithQuestionsAndAnswers>
-  received_peer_review_flagging_reports: Array<FlaggedAnswer>
+  tasks: CourseMaterialExerciseTask[]
+  given_peer_reviews: PeerReviewWithQuestionsAndAnswers[]
+  received_peer_or_self_reviews: PeerReviewWithQuestionsAndAnswers[]
+  received_peer_review_flagging_reports: FlaggedAnswer[]
 }
 
 export interface AnswersRequiringAttention {
   exercise_max_points: number
-  data: Array<AnswerRequiringAttentionWithTasks>
+  data: AnswerRequiringAttentionWithTasks[]
   total_pages: number
 }
 
 export interface StudentExerciseSlideSubmission {
   exercise_slide_id: string
-  exercise_task_submissions: Array<StudentExerciseTaskSubmission>
+  exercise_task_submissions: StudentExerciseTaskSubmission[]
 }
 
 export interface StudentExerciseSlideSubmissionResult {
   exercise_status: ExerciseStatus | null
-  exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
-  user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
+  exercise_task_submission_results: StudentExerciseTaskSubmissionResult[]
+  user_course_instance_exercise_service_variables: UserCourseExerciseServiceVariable[]
 }
 
 export interface StudentExerciseTaskSubmission {
@@ -1404,13 +1651,13 @@ export interface StudentExerciseTaskSubmissionResult {
 export interface CourseMaterialPeerOrSelfReviewData {
   answer_to_review: CourseMaterialPeerOrSelfReviewDataAnswerToReview | null
   peer_or_self_review_config: PeerOrSelfReviewConfig
-  peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
+  peer_or_self_review_questions: PeerOrSelfReviewQuestion[]
   num_peer_reviews_given: number
 }
 
 export interface CourseMaterialPeerOrSelfReviewDataAnswerToReview {
   exercise_slide_submission_id: string
-  course_material_exercise_tasks: Array<CourseMaterialExerciseTask>
+  course_material_exercise_tasks: CourseMaterialExerciseTask[]
 }
 
 export interface CourseMaterialPeerOrSelfReviewQuestionAnswer {
@@ -1422,7 +1669,7 @@ export interface CourseMaterialPeerOrSelfReviewQuestionAnswer {
 export interface CourseMaterialPeerOrSelfReviewSubmission {
   exercise_slide_submission_id: string
   peer_or_self_review_config_id: string
-  peer_review_question_answers: Array<CourseMaterialPeerOrSelfReviewQuestionAnswer>
+  peer_review_question_answers: CourseMaterialPeerOrSelfReviewQuestionAnswer[]
   token: string
 }
 
@@ -1431,14 +1678,14 @@ export interface CompletionRegistrationLink {
 }
 
 export interface CourseInstanceCompletionSummary {
-  course_modules: Array<CourseModule>
-  users_with_course_module_completions: Array<UserWithModuleCompletions>
+  course_modules: CourseModule[]
+  users_with_course_module_completions: UserWithModuleCompletions[]
 }
 
 export interface ManualCompletionPreview {
-  already_completed_users: Array<ManualCompletionPreviewUser>
-  first_time_completing_users: Array<ManualCompletionPreviewUser>
-  non_enrolled_users: Array<ManualCompletionPreviewUser>
+  already_completed_users: ManualCompletionPreviewUser[]
+  first_time_completing_users: ManualCompletionPreviewUser[]
+  non_enrolled_users: ManualCompletionPreviewUser[]
 }
 
 export interface ManualCompletionPreviewUser {
@@ -1459,7 +1706,7 @@ export interface TeacherManualCompletion {
 
 export interface TeacherManualCompletionRequest {
   course_module_id: string
-  new_completions: Array<TeacherManualCompletion>
+  new_completions: TeacherManualCompletion[]
   skip_duplicate_completions: boolean
 }
 
@@ -1494,7 +1741,7 @@ export interface UserModuleCompletionStatus {
 }
 
 export interface UserWithModuleCompletions {
-  completed_modules: Array<CourseModuleCompletionWithRegistrationInfo>
+  completed_modules: CourseModuleCompletionWithRegistrationInfo[]
   email: string
   first_name: string | null
   last_name: string | null
@@ -1502,11 +1749,11 @@ export interface UserWithModuleCompletions {
 }
 
 export interface ProgressOverview {
-  user_details: Array<UserDetail>
-  chapters: Array<DatabaseChapter>
-  user_exercise_states: Array<UserExerciseState>
-  chapter_availability: Array<ChapterAvailability>
-  user_chapter_progress: Array<UserChapterProgress>
+  user_details: UserDetail[]
+  chapters: DatabaseChapter[]
+  user_exercise_states: UserExerciseState[]
+  chapter_availability: ChapterAvailability[]
+  user_chapter_progress: UserChapterProgress[]
 }
 
 export interface CompletionGridRow {
@@ -1569,7 +1816,7 @@ export interface Organization {
 export interface AuthorizedClientInfo {
   client_id: string
   client_name: string
-  scopes: Array<string>
+  scopes: string[]
 }
 
 export interface PageAudioFile {
@@ -1661,8 +1908,9 @@ export interface CmsPageExercise {
   needs_peer_review: boolean
   needs_self_review: boolean
   peer_or_self_review_config: CmsPeerOrSelfReviewConfig | null
-  peer_or_self_review_questions: Array<CmsPeerOrSelfReviewQuestion> | null
+  peer_or_self_review_questions: CmsPeerOrSelfReviewQuestion[] | null
   use_course_default_peer_or_self_review_config: boolean
+  teacher_reviews_answer_after_locking: boolean
 }
 
 export interface CmsPageExerciseSlide {
@@ -1681,10 +1929,10 @@ export interface CmsPageExerciseTask {
 }
 
 export interface CmsPageUpdate {
-  content: Array<GutenbergBlock>
-  exercises: Array<CmsPageExercise>
-  exercise_slides: Array<CmsPageExerciseSlide>
-  exercise_tasks: Array<CmsPageExerciseTask>
+  content: GutenbergBlock[]
+  exercises: CmsPageExercise[]
+  exercise_slides: CmsPageExerciseSlide[]
+  exercise_tasks: CmsPageExerciseTask[]
   url_path: string
   title: string
   chapter_id: string | null
@@ -1692,11 +1940,11 @@ export interface CmsPageUpdate {
 
 export interface ContentManagementPage {
   page: Page
-  exercises: Array<CmsPageExercise>
-  exercise_slides: Array<CmsPageExerciseSlide>
-  exercise_tasks: Array<CmsPageExerciseTask>
-  peer_or_self_review_configs: Array<CmsPeerOrSelfReviewConfig>
-  peer_or_self_review_questions: Array<CmsPeerOrSelfReviewQuestion>
+  exercises: CmsPageExercise[]
+  exercise_slides: CmsPageExerciseSlide[]
+  exercise_tasks: CmsPageExerciseTask[]
+  peer_or_self_review_configs: CmsPeerOrSelfReviewConfig[]
+  peer_or_self_review_questions: CmsPeerOrSelfReviewQuestion[]
   organization_id: string
 }
 
@@ -1719,7 +1967,7 @@ export interface ExerciseWithExerciseTasks {
   name: string
   deadline: string | null
   page_id: string
-  exercise_tasks: Array<ExerciseTask>
+  exercise_tasks: ExerciseTask[]
   score_maximum: number
 }
 
@@ -1732,10 +1980,10 @@ export interface IsChapterFrontPage {
 }
 
 export interface NewPage {
-  exercises: Array<CmsPageExercise>
-  exercise_slides: Array<CmsPageExerciseSlide>
-  exercise_tasks: Array<CmsPageExerciseTask>
-  content: Array<GutenbergBlock>
+  exercises: CmsPageExercise[]
+  exercise_slides: CmsPageExerciseSlide[]
+  exercise_tasks: CmsPageExerciseTask[]
+  content: GutenbergBlock[]
   url_path: string
   title: string
   course_id: string | null
@@ -1826,7 +2074,7 @@ export interface PageWithExercises {
   copied_from: string | null
   hidden: boolean
   page_language_group_id: string | null
-  exercises: Array<Exercise>
+  exercises: Exercise[]
 }
 
 export interface SearchRequest {
@@ -1862,7 +2110,7 @@ export interface CmsPeerOrSelfReviewConfig {
 
 export interface CmsPeerOrSelfReviewConfiguration {
   peer_or_self_review_config: CmsPeerOrSelfReviewConfig
-  peer_or_self_review_questions: Array<CmsPeerOrSelfReviewQuestion>
+  peer_or_self_review_questions: CmsPeerOrSelfReviewQuestion[]
 }
 
 export interface CourseMaterialPeerOrSelfReviewConfig {
@@ -1925,7 +2173,7 @@ export interface PeerOrSelfReviewQuestionSubmission {
 export interface PeerReviewWithQuestionsAndAnswers {
   peer_or_self_review_submission_id: string
   peer_review_giver_user_id: string
-  questions_and_answers: Array<PeerOrSelfReviewQuestionAndAnswer>
+  questions_and_answers: PeerOrSelfReviewQuestionAndAnswer[]
 }
 
 export interface CmsPeerOrSelfReviewQuestion {
@@ -1963,6 +2211,19 @@ export interface PeerOrSelfReviewSubmission {
   course_id: string
   peer_or_self_review_config_id: string
   exercise_slide_submission_id: string
+}
+
+export interface PeerOrSelfReviewSubmissionWithSubmissionOwner {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  user_id: string
+  exercise_id: string
+  course_id: string
+  peer_or_self_review_config_id: string
+  exercise_slide_submission_id: string
+  submission_owner_user_id: string | null
 }
 
 export interface PeerReviewQueueEntry {
@@ -2055,12 +2316,12 @@ export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
 export interface EditProposalInfo {
   page_id: string
   page_proposal_id: string
-  block_proposals: Array<BlockProposalInfo>
+  block_proposals: BlockProposalInfo[]
 }
 
 export interface NewProposedPageEdits {
   page_id: string
-  block_edits: Array<NewProposedBlockEdit>
+  block_edits: NewProposedBlockEdit[]
 }
 
 export interface PageProposal {
@@ -2069,7 +2330,7 @@ export interface PageProposal {
   user_id: string | null
   pending: boolean
   created_at: string
-  block_proposals: Array<BlockProposal>
+  block_proposals: BlockProposal[]
   page_title: string
   page_url_path: string
 }
@@ -2081,7 +2342,7 @@ export interface ProposalCount {
 
 export interface NewRegrading {
   user_points_update_strategy: UserPointsUpdateStrategy
-  ids: Array<string>
+  ids: string[]
   id_type: NewRegradingIdType
 }
 
@@ -2100,7 +2361,7 @@ export interface Regrading {
 
 export interface RegradingInfo {
   regrading: Regrading
-  submission_infos: Array<RegradingSubmissionInfo>
+  submission_infos: RegradingSubmissionInfo[]
 }
 
 export interface RegradingSubmissionInfo {
@@ -2115,7 +2376,7 @@ export interface RepositoryExercise {
   part: string
   name: string
   repository_url: string
-  checksum: Array<number>
+  checksum: number[]
   download_url: string
 }
 
@@ -2318,6 +2579,7 @@ export type ReviewingStage =
   | "WaitingForPeerReviews"
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
+  | "Locked"
 
 export interface UserCourseChapterExerciseProgress {
   exercise_id: string
@@ -2395,6 +2657,8 @@ export type LoginResponse =
   | { type: "requires_email_verification"; email_verification_token: string }
   | { type: "failed" }
 
+export type SignupResponse = { type: "success" } | { type: "email_already_exists" }
+
 export interface VerifyEmailRequest {
   email_verification_token: string
   code: string
@@ -2407,16 +2671,16 @@ export interface UserInfo {
 }
 
 export interface SaveCourseSettingsPayload {
-  background_question_answers: Array<NewCourseBackgroundQuestionAnswer>
+  background_question_answers: NewCourseBackgroundQuestionAnswer[]
 }
 
 export interface ChaptersWithStatus {
   is_previewable: boolean
-  modules: Array<CourseMaterialCourseModule>
+  modules: CourseMaterialCourseModule[]
 }
 
 export interface CourseMaterialCourseModule {
-  chapters: Array<ChapterWithStatus>
+  chapters: ChapterWithStatus[]
   id: string
   is_default: boolean
   name: string | null
@@ -2442,7 +2706,7 @@ export type ExamEnrollmentData =
   | { tag: "StudentTimeUp" }
   | {
       tag: "StudentCanViewGrading"
-      gradings: Array<[TeacherGradingDecision, Exercise]>
+      gradings: [TeacherGradingDecision, Exercise][]
       enrollment: ExamEnrollment
     }
 
@@ -2484,6 +2748,39 @@ export interface CertificateConfigurationUpdate {
   certificate_grade_font_size: string | null
   certificate_grade_text_color: string | null
   certificate_grade_text_anchor: CertificateTextAnchor | null
+}
+
+export interface CourseDesignerScheduleSuggestionRequest {
+  course_size: CourseDesignerCourseSize
+  starts_on: string
+}
+
+export interface CourseDesignerScheduleSuggestionResponse {
+  stages: CourseDesignerScheduleStageInput[]
+}
+
+export interface CreateCourseDesignerPlanRequest {
+  name: string | null
+}
+
+export interface CreateCourseDesignerStageTaskRequest {
+  title: string
+  description: string | null
+}
+
+export interface ExtendStageRequest {
+  months: number
+}
+
+export interface SaveCourseDesignerScheduleRequest {
+  name: string | null
+  stages: CourseDesignerScheduleStageInput[]
+}
+
+export interface UpdateCourseDesignerStageTaskRequest {
+  title: string | null
+  description: string | null
+  is_completed: boolean | null
 }
 
 export interface GetFeedbackQuery {
@@ -2535,8 +2832,16 @@ export interface ExerciseServiceWithError {
   service_info_error: string | null
 }
 
+export interface ExerciseCsvExportTaskOption {
+  exercise_task_id: string
+  exercise_type: string
+  order_number: number
+  supports_csv_export_definitions: boolean
+  supports_csv_export_answers: boolean
+}
+
 export interface ExerciseSubmissions {
-  data: Array<ExerciseSlideSubmission>
+  data: ExerciseSlideSubmission[]
   total_pages: number
 }
 
@@ -2564,13 +2869,13 @@ export interface RoleQuery {
 }
 
 export interface BulkUserDetailsRequest {
-  user_ids: Array<string>
+  user_ids: string[]
   course_id: string
 }
 
 export interface UserDetailsRequest {
   user_id: string
-  course_ids: Array<string>
+  course_ids: string[]
 }
 
 export interface UserInfoPayload {
@@ -2608,8 +2913,8 @@ export interface EventInfo {
 
 export interface IngressInfo {
   name: string
-  hosts: Array<string>
-  paths: Array<string>
+  hosts: string[]
+  paths: string[]
   class_name: string | null
 }
 
@@ -2639,7 +2944,7 @@ export interface PodInfo {
 export interface ServiceInfo {
   name: string
   cluster_ip: string | null
-  ports: Array<ServicePortInfo>
+  ports: ServicePortInfo[]
 }
 
 export interface ServicePortInfo {
@@ -2649,11 +2954,35 @@ export interface ServicePortInfo {
   protocol: string | null
 }
 
+export interface ParagraphSuggestionMeta {
+  tone: string | null
+  language: string | null
+  setting_type: string | null
+}
+
+export interface ParagraphSuggestionContext {
+  page_id: string | null
+  course_id: string | null
+  locale: string | null
+}
+
+export interface ParagraphSuggestionRequest {
+  action: ParagraphSuggestionAction
+  content: string
+  is_html: boolean
+  meta: ParagraphSuggestionMeta | null
+  context: ParagraphSuggestionContext | null
+}
+
+export interface ParagraphSuggestionResponse {
+  suggestions: string[]
+}
+
 export type HealthStatus = "healthy" | "warning" | "error"
 
 export interface SystemHealthStatus {
   status: HealthStatus
-  issues: Array<string>
+  issues: string[]
 }
 
 export interface Pagination {
@@ -2676,5 +3005,5 @@ export interface GutenbergBlock {
   name: string
   isValid: boolean
   attributes: Record<string, unknown>
-  innerBlocks: Array<GutenbergBlock>
+  innerBlocks: GutenbergBlock[]
 }

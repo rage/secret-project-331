@@ -1,19 +1,22 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { useContext } from "react"
-import { useTranslation } from "react-i18next"
 
-import PeerReviewEditor from "../../../components/PeerReviewEditor"
-import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
-import PageContext from "../../../contexts/PageContext"
-
+import { getCmsCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import PeerReviewEditor from "../../../components/PeerReviewEditor"
+import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
+import PageContext from "../../../contexts/PageContext"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 
@@ -21,6 +24,20 @@ const ExerciseSettingsEditor = () => {
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
   const { attributes, setAttributes } = useContext(ExerciseBlockContext)
+
+  const courseQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCmsCourseOptions({
+          path: {
+            course_id: value,
+          },
+        }),
+    }),
+  )
+  const chapterLockingEnabled = courseQuery.data?.chapter_locking_enabled ?? false
 
   if (!attributes) {
     return null
@@ -51,9 +68,11 @@ const ExerciseSettingsEditor = () => {
         value={attributes.score_maximum?.toString() ?? ""}
         type="number"
         onChangeByValue={(value) => {
-          const parsed = parseInt(value)
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+          const parsed = parseInt(value, 10)
           if (isNaN(parsed)) {
             // empty
+            // @ts-expect-error -- score_maximum is required on ExerciseAttributes (used in API payloads); resetting to undefined at runtime is intentional
             setAttributes({ score_maximum: undefined })
             return
           }
@@ -92,7 +111,8 @@ const ExerciseSettingsEditor = () => {
           disabled={!attributes.limit_number_of_tries}
           type="number"
           onChangeByValue={(value) => {
-            const parsed = parseInt(value)
+            // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+            const parsed = parseInt(value, 10)
             if (isNaN(parsed)) {
               // empty
               setAttributes({ max_tries_per_slide: undefined })
@@ -105,6 +125,18 @@ const ExerciseSettingsEditor = () => {
           `}
         />
       </div>
+      {courseId && chapterLockingEnabled && (
+        <CheckBox
+          label={t("teacher-reviews-answer-after-locking")}
+          checked={attributes.teacher_reviews_answer_after_locking ?? true}
+          onChangeByValue={(checked: boolean) => {
+            setAttributes({ teacher_reviews_answer_after_locking: checked })
+          }}
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        />
+      )}
       {courseId && (
         <Accordion>
           <details>

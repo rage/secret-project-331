@@ -1,14 +1,15 @@
+/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test.describe(() => {
+test.describe("Quizzes scale feedback", () => {
   // Chrome sometimes does not render the ui correctly after resizing the window without reloading the page.
   // This does not seem to be something we can fix, so we'll retry
   test.describe.configure({ retries: 4 })
@@ -41,7 +42,7 @@ test.describe(() => {
       .first()
       .waitFor()
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })

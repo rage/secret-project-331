@@ -4,6 +4,8 @@ import { css } from "@emotion/css"
 import React, { useContext } from "react"
 import { Button as AriaButton, OverlayTriggerStateContext } from "react-aria-components"
 
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
 import ClarificationTooltip from "../ClarificationTooltip"
 
 const Chevron: React.FC<{ open: boolean }> = ({ open }) => (
@@ -34,6 +36,7 @@ interface TopBarMenuButtonProps {
   ariaLabel: string
   tooltipText: string
   id?: string
+  dataTestId?: string
   className?: string
   onClick?: () => void
   showChevron?: boolean
@@ -46,6 +49,7 @@ const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
   ariaLabel,
   tooltipText,
   id,
+  dataTestId,
   className,
   onClick,
   showChevron = true,
@@ -57,11 +61,12 @@ const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
   return (
     <ClarificationTooltip text={tooltipText}>
       <AriaButton
-        id={id}
+        {...omitUndefined({ id })}
+        {...omitUndefined({ "data-testid": dataTestId })}
         aria-label={ariaLabel}
         aria-expanded={isOpen}
-        lang={lang}
-        dir={dir}
+        {...omitUndefined({ lang })}
+        {...omitUndefined({ dir })}
         className={css`
           display: inline-flex;
           align-items: center;
@@ -95,7 +100,7 @@ const TopBarMenuButton: React.FC<TopBarMenuButtonProps> = ({
 
           ${className}
         `}
-        onClick={onClick}
+        {...omitUndefined({ onClick })}
       >
         {children}
         {showChevron && <Chevron open={isOpen} />}

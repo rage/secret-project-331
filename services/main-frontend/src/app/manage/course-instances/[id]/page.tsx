@@ -7,20 +7,17 @@ import { useParams, useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewCourseInstanceForm from "@/components/page-specific/manage/courses/id/course-instances/NewCourseInstanceForm"
-import {
-  deleteCourseInstance,
-  editCourseInstance,
-  fetchCourseInstance,
-} from "@/services/backend/course-instances"
-import { CourseInstanceForm } from "@/shared-module/common/bindings"
+import NewCourseInstanceForm from "@/app/manage/courses/[id]/course-instances/NewCourseInstanceForm"
+import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { deleteCourseInstance, editCourseInstance } from "@/generated/api/sdk.generated"
+import type { CourseInstanceForm } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const ManageCourseInstances: React.FC = () => {
   const { t } = useTranslation()
@@ -28,13 +25,21 @@ const ManageCourseInstances: React.FC = () => {
   const router = useRouter()
 
   const getCourseInstances = useQuery({
-    queryKey: [`course-instance-${courseInstanceId}`],
-    queryFn: () => fetchCourseInstance(courseInstanceId),
+    ...getCourseInstanceOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
   })
   const [editing, setEditing] = useState(false)
   const mutation = useToastMutation(
     async (update: CourseInstanceForm) => {
-      await editCourseInstance(courseInstanceId, update)
+      await editCourseInstance({
+        body: update,
+        path: {
+          course_instance_id: courseInstanceId,
+        },
+      })
     },
     {
       notify: true,
@@ -48,7 +53,11 @@ const ManageCourseInstances: React.FC = () => {
   )
   const deleteMutation = useToastMutation(
     async (_courseId: string) => {
-      await deleteCourseInstance(courseInstanceId)
+      await deleteCourseInstance({
+        path: {
+          course_instance_id: courseInstanceId,
+        },
+      })
     },
     {
       notify: true,
@@ -60,83 +69,6 @@ const ManageCourseInstances: React.FC = () => {
       },
     },
   )
-
-  let instanceInfo
-  if (getCourseInstances.isSuccess) {
-    const data = getCourseInstances.data
-    if (editing) {
-      instanceInfo = (
-        <NewCourseInstanceForm
-          initialData={data}
-          onSubmit={(data) => {
-            mutation.mutate(data)
-            setEditing(false)
-          }}
-          onCancel={() => setEditing(false)}
-        />
-      )
-    } else {
-      const supportEmail = data.support_email ? (
-        <div>
-          {t("support-email")}: {data.support_email}
-        </div>
-      ) : (
-        <div>{t("no-support-email-set")}</div>
-      )
-      let schedule
-      if (data.ends_at && isPast(data.ends_at)) {
-        // instance is over
-        schedule = (
-          <div>{t("instance-ended-at-time", { time: parseISO(data.ends_at).toISOString() })}</div>
-        )
-      } else if (data.starts_at && isPast(data.starts_at)) {
-        // course is currently open
-        if (data.ends_at) {
-          schedule = (
-            <div>
-              {t("instance-is-open-and-ends-at-time", {
-                time: parseISO(data.ends_at).toISOString(),
-              })}
-            </div>
-          )
-        } else {
-          schedule = <div>{t("instance-is-currently-open-and-has-no-set-ending-time")}</div>
-        }
-      } else if (data.starts_at) {
-        // course is not open yet
-        schedule = (
-          <div>{t("instance-opens-at-time", { time: parseISO(data.starts_at).toISOString() })}</div>
-        )
-      } else {
-        schedule = <div>{t("instance-has-no-set-opening-time")}</div>
-      }
-      instanceInfo = (
-        <>
-          <div>{data.description}</div>
-          <hr />
-          <div>
-            {t("teacher-in-charge-name")}: {data.teacher_in_charge_name}
-          </div>
-          <div>
-            {t("teacher-in-charge-email")}: {data.teacher_in_charge_email}
-          </div>
-          {supportEmail}
-          <div>{t("support-email-description")}</div>
-          {schedule}
-          <Button variant="tertiary" size="medium" onClick={() => setEditing(true)}>
-            {t("edit")}
-          </Button>
-          <Button
-            variant="secondary"
-            size="medium"
-            onClick={() => deleteMutation.mutate(data.course_id)}
-          >
-            {t("button-text-delete")}
-          </Button>
-        </>
-      )
-    }
-  }
 
   return (
     <div
@@ -151,11 +83,85 @@ const ManageCourseInstances: React.FC = () => {
       </h1>
       {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
       {deleteMutation.isError && <ErrorBanner variant={"readOnly"} error={deleteMutation.error} />}
-      {getCourseInstances.isError && (
-        <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
-      )}
-      {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
-      {getCourseInstances.isSuccess && instanceInfo}
+      <QueryResult query={getCourseInstances}>
+        {(data) => {
+          if (editing) {
+            return (
+              <NewCourseInstanceForm
+                initialData={data}
+                onSubmit={(formData) => {
+                  mutation.mutate(formData)
+                  setEditing(false)
+                }}
+                onCancel={() => setEditing(false)}
+              />
+            )
+          }
+          const supportEmail = data.support_email ? (
+            <div>
+              {t("support-email")}: {data.support_email}
+            </div>
+          ) : (
+            <div>{t("no-support-email-set")}</div>
+          )
+          let schedule
+          if (data.ends_at && isPast(data.ends_at)) {
+            // instance is over
+            schedule = (
+              <div>
+                {t("instance-ended-at-time", { time: parseISO(data.ends_at).toISOString() })}
+              </div>
+            )
+          } else if (data.starts_at && isPast(data.starts_at)) {
+            // course is currently open
+            if (data.ends_at) {
+              schedule = (
+                <div>
+                  {t("instance-is-open-and-ends-at-time", {
+                    time: parseISO(data.ends_at).toISOString(),
+                  })}
+                </div>
+              )
+            } else {
+              schedule = <div>{t("instance-is-currently-open-and-has-no-set-ending-time")}</div>
+            }
+          } else if (data.starts_at) {
+            // course is not open yet
+            schedule = (
+              <div>
+                {t("instance-opens-at-time", { time: parseISO(data.starts_at).toISOString() })}
+              </div>
+            )
+          } else {
+            schedule = <div>{t("instance-has-no-set-opening-time")}</div>
+          }
+          return (
+            <>
+              <div>{data.description}</div>
+              <hr />
+              <div>
+                {t("teacher-in-charge-name")}: {data.teacher_in_charge_name}
+              </div>
+              <div>
+                {t("teacher-in-charge-email")}: {data.teacher_in_charge_email}
+              </div>
+              {supportEmail}
+              <div>{t("support-email-description")}</div>
+              {schedule}
+              <Button variant="tertiary" size="medium" onClick={() => setEditing(true)}>
+                {t("edit")}
+              </Button>
+              <Button
+                variant="secondary"
+                size="medium"
+                onClick={() => deleteMutation.mutate(data.course_id)}
+              >
+                {t("button-text-delete")}
+              </Button>
+            </>
+          )
+        }}
+      </QueryResult>
     </div>
   )
 }

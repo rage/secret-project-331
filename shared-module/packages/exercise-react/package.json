@@ -1,0 +1,52 @@
+{
+  "name": "@moocfi/exercise-react",
+  "version": "0.0.0",
+  "private": true,
+  "keywords": [],
+  "license": "Apache-2.0",
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
+  },
+  "dependencies": {
+    "@emotion/css": "^11.13.5",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource/space-mono": "^5.2.9",
+    "lodash": "^4.18.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
+    "@types/lodash": "^4.17.24",
+    "@types/node": "^26.0.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "i18next": "^26.3.0",
+    "immer": "^11.1.8",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "msw": "^2.14.6",
+    "next": "^16.2.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-i18next": "^17.0.8",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "i18next": ">=23.0.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-i18next": "^15.0.0 || ^16.0.0 || ^17.0.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "name": "secret-project-331",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+  "remoteUser": "vscode",
+  "init": true,
+  "containerEnv": {
+    "NIX_CONFIG": "experimental-features = nix-command flakes",
+    "NIX_INSTALLER_INIT": "none",
+    "PROJECT_331_DEVCONTAINER": "1",
+    "TILT_DISABLE_ANALYTICS": "1"
+  },
+  "mounts": [
+    "source=secret-project-pnpm-store,target=/home/vscode/.local/share/pnpm/store,type=volume",
+    "source=secret-project-cargo-registry,target=/home/vscode/.cargo/registry,type=volume",
+    "source=secret-project-cargo-git,target=/home/vscode/.cargo/git,type=volume",
+    "source=secret-project-playwright,target=/home/vscode/.cache/ms-playwright,type=volume"
+  ],
+  "forwardPorts": [80, 443, 54328, 63798, 6006],
+  "portsAttributes": {
+    "80": {
+      "label": "Kubernetes ingress HTTP"
+    },
+    "443": {
+      "label": "Kubernetes ingress HTTPS"
+    },
+    "54328": {
+      "label": "PostgreSQL"
+    },
+    "63798": {
+      "label": "Redis"
+    },
+    "6006": {
+      "label": "Storybook"
+    }
+  },
+  "onCreateCommand": ".devcontainer/scripts/ensure-nix.fish",
+  "postCreateCommand": ".devcontainer/scripts/post-create.fish",
+  "postStartCommand": ".devcontainer/scripts/post-start.fish",
+  "postAttachCommand": ".devcontainer/scripts/print-help.fish",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "jnoortheen.nix-ide",
+        "mkhl.direnv",
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "ms-playwright.playwright"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "fish"
+      }
+    }
+  }
+}

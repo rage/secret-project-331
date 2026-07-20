@@ -1,6 +1,7 @@
 "use client"
 
-import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from "react"
+import type { ReactNode } from "react"
+import { createContext, useCallback, useContext, useMemo, useState } from "react"
 
 export interface LanguageOption {
   code: string
@@ -12,7 +13,7 @@ interface LanguageOptionsContextValue {
   availableLanguages: LanguageOption[] | null
   setAvailableLanguages: (languages: LanguageOption[] | null) => void
   clearAvailableLanguages: () => void
-  onLanguageChange?: (languageCode: string) => Promise<void> | void
+  onLanguageChange?: ((languageCode: string) => Promise<void> | void) | undefined
   setOnLanguageChange?: (
     callback: ((languageCode: string) => Promise<void> | void) | undefined,
   ) => void

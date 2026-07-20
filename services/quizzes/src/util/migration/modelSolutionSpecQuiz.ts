@@ -1,8 +1,5 @@
-import {
-  OldModelSolutionQuiz as OldModelSolutionQuiz,
-  OldModelSolutionQuizItem as OldModelSolutionQuizItem,
-} from "../../../types/oldQuizTypes"
-import {
+import type { OldModelSolutionQuiz, OldModelSolutionQuizItem } from "../../../types/oldQuizTypes"
+import type {
   ModelSolutionQuiz,
   ModelSolutionQuizItem,
   ModelSolutionQuizItemCheckbox,
@@ -15,9 +12,8 @@ import {
   ModelSolutionQuizItemScale,
   ModelSolutionQuizItemTimeline,
 } from "../../../types/quizTypes/modelSolutionSpec"
-import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
+import type { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
 import { sanitizeQuizDirection } from "../css-sanitization"
-
 import { DEFAULT_N } from "./migrationSettings"
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
 const migrateModelSolutionSpecQuizItem = (

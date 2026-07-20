@@ -1,18 +1,17 @@
+import { handleModelSolution } from "@/server/modelSolution"
+import type { SpecRequest } from "@/utils/exerciseServiceApi"
+
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
-import { POST } from "../../src/app/api/model-solution/route"
-import {
+import type {
   ModelSolutionQuiz,
   ModelSolutionQuizItemClosedEndedQuestion,
 } from "../../types/quizTypes/modelSolutionSpec"
-
 import testClient from "./utils/appRouterTestClient"
 import { generatePrivateSpecWithOneClosedEndedQuestionQuizItem } from "./utils/privateSpecGenerator"
 
-import { SpecRequest } from "@/shared-module/common/bindings"
-
-const client = testClient(POST)
+const client = testClient(handleModelSolution)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/model-solution"
 
 describe("Model solution spec generation", () => {
@@ -34,7 +33,7 @@ describe("Model solution spec generation", () => {
     expect(closedEndedQuestionQuizItemModelSolution.validityRegex).toBeUndefined()
     // Should contain the message on model solution
     expect(closedEndedQuestionQuizItemModelSolution.messageOnModelSolution).toEqual(
-      privateSpec.items[0].messageOnModelSolution,
+      privateSpec.items[0]?.messageOnModelSolution,
     )
   })
 })

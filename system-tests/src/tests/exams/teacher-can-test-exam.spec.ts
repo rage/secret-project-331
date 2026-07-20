@@ -1,8 +1,9 @@
-/* eslint-disable playwright/no-wait-for-timeout */
+/* oxlint-disable playwright/no-wait-for-timeout */
 import { expect, test } from "@playwright/test"
 
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "@/utils/iframeLocators"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -10,7 +11,7 @@ test.use({
 })
 
 // TODO: Temporarily disabled
-// eslint-disable-next-line playwright/no-skipped-test
+// oxlint-disable-next-line playwright/no-skipped-test
 test.skip("Testing exam works", async ({ page }) => {
   await test.step("Create exam", async () => {
     await page.goto("http://project-331.local/organizations")
@@ -97,8 +98,9 @@ test.skip("Testing exam works", async ({ page }) => {
 
     await waitForViewType(quizzesIframe, "view-submission")
 
-    await page.getByRole("button", { name: "Reset exam progress" }).click()
-    await page.getByText("Operation successful!").waitFor()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Reset exam progress" }).click()
+    })
     await page.waitForTimeout(100)
     await waitForViewType(quizzesIframe, "answer-exercise")
 

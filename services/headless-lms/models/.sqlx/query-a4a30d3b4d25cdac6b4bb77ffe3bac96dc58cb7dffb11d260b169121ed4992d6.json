@@ -1,0 +1,179 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT exams.id,\n  exams.created_at,\n  exams.updated_at,\n  exams.deleted_at,\n  exams.organization_id,\n  exams.name,\n  exams.instructions,\n  pages.id AS page_id,\n  exams.starts_at,\n  exams.ends_at,\n  exams.time_minutes,\n  exams.minimum_points_treshold,\n  COALESCE(exams.language, 'en-US') AS \"language!\",\n  exams.grade_manually\nFROM exams\n  JOIN pages ON pages.exam_id = exams.id\nWHERE exams.id = $1\n  AND exams.deleted_at IS NULL\n  AND pages.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "organization_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "organization_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "instructions",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "instructions"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "starts_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "starts_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "ends_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "ends_at"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "time_minutes",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "time_minutes"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "minimum_points_treshold",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "minimum_points_treshold"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "language!",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 13,
+        "name": "grade_manually",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exams",
+            "name": "grade_manually"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      null,
+      false
+    ]
+  },
+  "hash": "a4a30d3b4d25cdac6b4bb77ffe3bac96dc58cb7dffb11d260b169121ed4992d6"
+}

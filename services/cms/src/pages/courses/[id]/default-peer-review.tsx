@@ -1,32 +1,30 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { BlockInstance } from "@wordpress/blocks"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
 
-import { ExerciseAttributes } from "../../../blocks/Exercise"
-import PeerReviewEditor from "../../../components/PeerReviewEditor"
-import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/PeerReviewAdditionalInstructionsEditor"
-import {
-  getCoursesDefaultCmsPeerOrSelfReviewConfiguration,
-  putCoursesDefaultCmsPeerOrSelfReviewConfiguration,
-} from "../../../services/backend/courses"
-import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
-import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
-
-import {
+import type {
   CmsPeerOrSelfReviewConfig,
   CmsPeerOrSelfReviewConfiguration,
   CmsPeerOrSelfReviewQuestion,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api"
+import { getCmsCourseDefaultPeerReviewOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { updateCmsCourseDefaultPeerReview } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ExerciseAttributes } from "../../../blocks/Exercise"
+import CmsPageTitle from "../../../components/CmsPageTitle"
+import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/PeerReviewAdditionalInstructionsEditor"
+import PeerReviewEditor from "../../../components/PeerReviewEditor"
+import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
+import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
 
 interface PeerReviewManagerProps {
   // courseId
@@ -37,25 +35,41 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   query,
 }) => {
   const { t } = useTranslation()
-  const [attributes, setAttributes] = useState<Partial<Readonly<ExerciseAttributes>>>({
+  const [attributes, setAttributesRaw] = useState<Partial<Readonly<ExerciseAttributes>>>({
     peer_or_self_review_config: "{}",
     peer_or_self_review_questions_config: "[]",
     needs_peer_review: true,
     use_course_default_peer_review: false,
   })
 
+  // PeerReviewEditor expects setAttributes to merge (Gutenberg semantics), writing only the changed
+  // fields. A raw useState setter replaces, which would drop needs_peer_review /
+  // use_course_default_peer_review on every edit and collapse the editor, so merge here.
+  const setAttributes = useCallback(
+    (attr: Partial<ExerciseAttributes>) => setAttributesRaw((prev) => ({ ...prev, ...attr })),
+    [],
+  )
+
   const { id } = query
 
-  const peerOrSelfReviewConfigurationQuery = useQuery({
-    queryKey: [`course-${id}-cms-peer-review-configuration`],
-    queryFn: () => getCoursesDefaultCmsPeerOrSelfReviewConfiguration(id),
-  })
+  const peerOrSelfReviewConfigurationQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: id,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseDefaultPeerReviewOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 
   useEffect(() => {
     if (!peerOrSelfReviewConfigurationQuery.data) {
       return
     }
-    setAttributes({
+    setAttributesRaw({
       peer_or_self_review_config: JSON.stringify(
         peerOrSelfReviewConfigurationQuery.data.peer_or_self_review_config,
       ),
@@ -82,7 +96,12 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
           peer_or_self_review_config: prc,
           peer_or_self_review_questions: prq,
         }
-        return putCoursesDefaultCmsPeerOrSelfReviewConfiguration(id, configuration)
+        return updateCmsCourseDefaultPeerReview({
+          path: {
+            course_id: id,
+          },
+          body: configuration,
+        })
       }
     },
     {
@@ -107,7 +126,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   }, [attributes.peer_or_self_review_config])
 
   const updateAdditionalInstructions = useCallback((newValue: BlockInstance[]) => {
-    setAttributes((prev) => {
+    setAttributesRaw((prev) => {
       const newConfig = JSON.parse(
         prev.peer_or_self_review_config ?? "{}",
       ) as CmsPeerOrSelfReviewConfig
@@ -119,36 +138,35 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     })
   }, [])
 
-  if (peerOrSelfReviewConfigurationQuery.isError) {
-    return <ErrorBanner error={peerOrSelfReviewConfigurationQuery.error} variant="text" />
-  }
-
-  if (peerOrSelfReviewConfigurationQuery.isLoading || !peerOrSelfReviewConfigurationQuery.data) {
-    return <Spinner variant="medium" />
-  }
-
   return (
     <>
-      <PeerReviewEditor
-        attributes={attributes}
-        setAttributes={setAttributes}
-        courseId={peerOrSelfReviewConfigurationQuery.data.peer_or_self_review_config.course_id}
-        courseGlobalEditor={true}
-        instructionsEditor={
-          <PeerReviewAdditionalInstructionsEditor
-            content={parsedAdditionalInstructions}
-            setContent={updateAdditionalInstructions}
-            courseId={peerOrSelfReviewConfigurationQuery.data.peer_or_self_review_config.course_id}
-          />
-        }
-      />
-      <Button
-        variant="primary"
-        size="medium"
-        onClick={() => mutateCourseDefaultPeerReview.mutate()}
-      >
-        {t("save")}
-      </Button>
+      <CmsPageTitle title={t("edit-default-peer-review")} />
+      <QueryResult query={peerOrSelfReviewConfigurationQuery}>
+        {(data) => (
+          <>
+            <PeerReviewEditor
+              attributes={attributes}
+              setAttributes={setAttributes}
+              courseId={data.peer_or_self_review_config.course_id}
+              courseGlobalEditor={true}
+              instructionsEditor={
+                <PeerReviewAdditionalInstructionsEditor
+                  content={parsedAdditionalInstructions}
+                  setContent={updateAdditionalInstructions}
+                  courseId={data.peer_or_self_review_config.course_id}
+                />
+              }
+            />
+            <Button
+              variant="primary"
+              size="medium"
+              onClick={() => mutateCourseDefaultPeerReview.mutate()}
+            >
+              {t("save")}
+            </Button>
+          </>
+        )}
+      </QueryResult>
     </>
   )
 }

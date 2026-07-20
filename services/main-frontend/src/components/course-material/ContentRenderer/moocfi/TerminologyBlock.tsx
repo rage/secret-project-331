@@ -3,13 +3,13 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { BlockRendererProps } from ".."
-
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import ParsedText from "@/components/course-material/ParsedText"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
 
 interface TerminnologyBlockAttributes {
   title: string

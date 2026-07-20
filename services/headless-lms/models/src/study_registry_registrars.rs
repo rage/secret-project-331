@@ -20,7 +20,7 @@ pub async fn insert(
         "
 INSERT INTO study_registry_registrars (id, name, secret_key)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
     ",
         pkey_policy.into_uuid(),
         name,

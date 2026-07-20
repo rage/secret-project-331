@@ -1,18 +1,18 @@
-"use client"
-
 import { css } from "@emotion/css"
-import React, { useMemo } from "react"
+import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
-
-import { QuizItemComponentProps } from "."
-
 import TextArea from "@/shared-module/common/components/InputFields/TextAreaField"
-import { headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { wordCount } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import useParentDialog from "@/shared-module/exercise-react/react/hooks/useParentDialog"
+import { headingFont, secondaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemComponentProps } from "."
+import type { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
+import QuizzesUserItemAnswerContext from "../../../../contexts/QuizzesUserItemAnswerContext"
+import { getEssayPasteWarning } from "./essayPaste"
 
 export const container = css`
   font-size: 0.563rem;
@@ -38,6 +38,8 @@ const Essay: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemEssay, UserItemAnswerEssay>
 > = ({ quizItemAnswerState, quizItem, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
+  const { port } = useContext(QuizzesUserItemAnswerContext)
+  const openDialog = useParentDialog(port)
   const text = quizItemAnswerState?.textData ?? ""
   const usersWordCount = useMemo(() => wordCount(text), [text])
 
@@ -80,6 +82,15 @@ const Essay: React.FunctionComponent<
         <TextArea
           key={"text-area-" + quizItem.id}
           id="essay"
+          onPaste={(e) => {
+            // Warn, but do not block: pasting your own draft is legitimate, so we never discard the
+            // student's text. The warning dialog is shown by the parent over the iframe protocol.
+            // oxlint-disable-next-line i18next/no-literal-string
+            const warning = getEssayPasteWarning(e.clipboardData.getData("text"), t)
+            if (warning) {
+              void openDialog(warning)
+            }
+          }}
           onChangeByValue={(newValue) => {
             let valid = true
             if (quizItem.minWords && quizItem.minWords > wordCount(newValue)) {

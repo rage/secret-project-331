@@ -3,14 +3,15 @@
 import { useAtomValue } from "jotai"
 import React, { useContext } from "react"
 
-import Congratulations from "./Congratulations"
-
+import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
 import useUserModuleCompletions from "@/hooks/course-material/useUserModuleCompletions"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
+
+import Congratulations from "./Congratulations"
 
 const CongratulationsBlock: React.FC = () => {
   const courseMaterialState = useAtomValue(courseMaterialAtom)
@@ -20,27 +21,23 @@ const CongratulationsBlock: React.FC = () => {
   if (!loginStateContext.signedIn) {
     return null
   }
+  // The query is disabled without a course instance id, so it would otherwise show an
+  // infinite loading skeleton.
+  if (!courseInstanceId) {
+    return null
+  }
 
   return (
-    <>
-      {getModuleCompletions.isError && (
-        <ErrorBanner error={getModuleCompletions.error} variant="readOnly" />
-      )}
-      {getModuleCompletions.isLoading && null}
-      {getModuleCompletions.isSuccess && (
-        <>
-          {/* This block is only visible after the default module is completed.*/}
-          {courseInstanceId &&
-            getModuleCompletions.data.some(
-              (x) => x.default && x.completed && !x.needs_to_be_reviewed,
-            ) && (
-              <BreakFromCentered sidebar={false}>
-                <Congratulations modules={getModuleCompletions.data} />
-              </BreakFromCentered>
-            )}
-        </>
-      )}
-    </>
+    <QueryResult query={getModuleCompletions} renderBlockingError={renderReadOnlyBlockingError}>
+      {(modules) =>
+        // This block is only visible after the default module is completed.
+        modules.some((x) => x.default && x.completed) ? (
+          <BreakFromCentered sidebar={false}>
+            <Congratulations modules={modules} />
+          </BreakFromCentered>
+        ) : null
+      }
+    </QueryResult>
   )
 }
 

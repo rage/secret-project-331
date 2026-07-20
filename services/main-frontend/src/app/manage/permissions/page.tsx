@@ -6,10 +6,12 @@ import { useTranslation } from "react-i18next"
 
 import { PermissionPage } from "@/components/PermissionPage"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const GlobalPermissions: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("global-permissions"))
 
   return (
     <div
@@ -23,7 +25,7 @@ const GlobalPermissions: React.FC = () => {
       <h1>{t("global-permissions")}</h1>
       <PermissionPage
         domain={{
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           tag: "Global",
         }}
       />

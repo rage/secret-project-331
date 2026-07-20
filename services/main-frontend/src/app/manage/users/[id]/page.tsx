@@ -1,94 +1,108 @@
 "use client"
 
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CourseInstanceEnrollmentsList from "@/components/page-specific/manage/user/id/CourseInstanceEnrollmentsList"
-import ExerciseResetLogList from "@/components/page-specific/manage/user/id/ExerciseResetLogList"
-import { useUserDetails } from "@/hooks/useUserDetails"
-import { getCourseInstanceEnrollmentsInfo } from "@/services/backend/users"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { getUserCourseEnrollmentsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  extractUserDetail,
+  formatUserName,
+  isUserDetailsNotFound,
+  useUserDetails,
+} from "@/hooks/useUserDetails"
+import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import { baseTheme, fontWeights } from "@/shared-module/common/styles"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResults } from "@/shared-module/components"
+
+import ActivityTimeline from "./components/ActivityTimeline"
+import CompletionReviewBanner from "./components/CompletionReviewBanner"
+import CompletionReviewSection from "./components/CompletionReviewSection"
+import CourseEnrollmentsSection from "./components/CourseEnrollmentsSection"
+import ExerciseResetLogSection from "./components/ExerciseResetLogSection"
+import UserIdentityHeader from "./components/UserIdentityHeader"
+import UserStatBar from "./components/UserStatBar"
+import { sectionHeadingCss } from "./lib/sectionHeading"
+
+const COMPLETION_REVIEW_ID = "completion-review"
 
 const Area = styled.div`
-  margin: 2rem 0;
+  margin: 3rem 0;
 `
 
 const UserPage: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
 
-  // Get course enrollments to find course contexts for user details
-  const courseInstanceEnrollmentsQuery = useQuery({
-    queryKey: ["course-instance-enrollments", id],
-    queryFn: () => getCourseInstanceEnrollmentsInfo(id),
+  const courseEnrollmentsQuery = useQuery({
+    ...getUserCourseEnrollmentsOptions({ path: { user_id: id } }),
   })
 
-  // Get all course IDs from enrollments to use for user details
-  const courseIds =
-    courseInstanceEnrollmentsQuery.data?.course_instance_enrollments.map(
-      (enrollment) => enrollment.course_id,
-    ) ?? []
+  const courseIds = courseEnrollmentsQuery.data?.course_enrollments.map((e) => e.course_id) ?? null
 
   const userDetailsQuery = useUserDetails(courseIds, id)
-
-  if (courseInstanceEnrollmentsQuery.isError) {
-    return <ErrorBanner error={courseInstanceEnrollmentsQuery.error} variant="readOnly" />
-  }
-  if (courseInstanceEnrollmentsQuery.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (userDetailsQuery.isError) {
-    return <ErrorBanner error={userDetailsQuery.error} variant="readOnly" />
-  }
-  if (userDetailsQuery.isLoading || !userDetailsQuery.data) {
-    return <Spinner variant="medium" />
-  }
+  const userDetail = userDetailsQuery.data ? extractUserDetail(userDetailsQuery.data) : null
+  // Use the user's name (not their email) as the title so no PII lands in document.title or the
+  // screen-reader route announcement; fall back to a generic label while details load / are absent.
+  const userDisplayName = formatUserName(userDetail)
+  usePageTitle(userDisplayName || t("header-user-details"))
 
   return (
-    <>
-      <Area>
-        <h1>{t("header-user-details")}</h1>
-        <p>
-          {t("label-user-id")}: {id}
-        </p>
-        <p>
-          {t("label-email")}: {userDetailsQuery.data.email}
-        </p>
-        <p>
-          {t("first-name")}: {userDetailsQuery.data.first_name}
-        </p>
-        <p>
-          {t("last-name")}: {userDetailsQuery.data.last_name}
-        </p>
-      </Area>
-      <Area>
-        <h2>{t("header-course-instance-enrollments")}</h2>
-        <CourseInstanceEnrollmentsList userId={id} />
-      </Area>
-      <OnlyRenderIfPermissions action={{ type: "teach" }} resource={{ type: "global_permissions" }}>
-        <Area>
-          <p
-            className={css`
-              font-size: ${baseTheme.fontSizes[3]}px;
-              font-weight: ${fontWeights.medium};
-            `}
-          >
-            {t("label-exercise-reset-log")}
-          </p>
-          <ExerciseResetLogList userId={id} />
-        </Area>
-      </OnlyRenderIfPermissions>
-    </>
+    <QueryResults
+      queries={[courseEnrollmentsQuery, userDetailsQuery] as const}
+      emptyFallback={
+        <DataLoadError
+          contextMessage={t("label-user-details-query-returned-no-data")}
+          onRetry={() => {
+            void userDetailsQuery.refetch()
+          }}
+        />
+      }
+      renderData={([enrollmentsResult, userDetailsResult]) => {
+        const userDetails = extractUserDetail(userDetailsResult)
+        const userDetailsNotFound = isUserDetailsNotFound(userDetailsResult)
+        const enrollments = enrollmentsResult.course_enrollments
+        return (
+          <>
+            <UserIdentityHeader
+              userId={id}
+              userDetails={userDetails}
+              userDetailsNotFound={userDetailsNotFound}
+            />
+            <CompletionReviewBanner enrollments={enrollments} targetId={COMPLETION_REVIEW_ID} />
+            <UserStatBar enrollments={enrollments} reviewTargetId={COMPLETION_REVIEW_ID} />
+            {enrollments.length > 0 ? (
+              <Area>
+                <h2 className={sectionHeadingCss}>{t("user-activity")}</h2>
+                <ActivityTimeline enrollments={enrollments} />
+              </Area>
+            ) : null}
+            <CompletionReviewSection
+              userId={id}
+              enrollments={enrollments}
+              id={COMPLETION_REVIEW_ID}
+            />
+            <Area>
+              <h2 className={sectionHeadingCss}>{t("header-course-enrollments")}</h2>
+              <CourseEnrollmentsSection enrollments={enrollments} userId={id} />
+            </Area>
+            <OnlyRenderIfPermissions
+              action={{ type: "teach" }}
+              resource={{ type: "global_permissions" }}
+            >
+              <Area>
+                <ExerciseResetLogSection userId={id} />
+              </Area>
+            </OnlyRenderIfPermissions>
+          </>
+        )
+      }}
+    />
   )
 }
 

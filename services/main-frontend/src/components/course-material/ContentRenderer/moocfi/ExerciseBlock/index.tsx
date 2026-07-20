@@ -3,49 +3,56 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
-import { CheckCircle, Padlock, PlusHeart } from "@vectopus/atlas-icons-react"
+import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
-
-import ExerciseTask from "./ExerciseTask"
-import GradingState from "./GradingState"
-import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
-import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
-import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
-
-import YellowBox from "@/components/course-material/YellowBox"
 import UserOnWrongCourseNotification from "@/components/course-material/notifications/UserOnWrongCourseNotification"
+import YellowBox from "@/components/course-material/YellowBox"
+import {
+  ExerciseCardHeader,
+  ExerciseCardPointsBadge,
+  ExerciseCardTriesBadge,
+  ExerciseCardWrapper,
+} from "@/components/exercise-card"
+import { exerciseCardPillShell } from "@/components/exercise-card/exerciseCardPillShell"
+import {
+  postStartPeerOrSelfReview,
+  postSubmission,
+} from "@/generated/course-material-api/sdk.generated"
+import type {
+  CourseMaterialExercise,
+  StudentExerciseSlideSubmission,
+} from "@/generated/course-material-api/types.generated"
 import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
-import { postStartPeerOrSelfReview, postSubmission } from "@/services/course-material/backend"
-import {
-  CourseMaterialExercise,
-  StudentExerciseSlideSubmission,
-} from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { useDateStringAsDateNullable } from "@/shared-module/common/hooks/useDateStringAsDate"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 
-const FORWARD_SLASH = "/"
+import type { BlockRendererProps } from "../.."
+import ExerciseStatusMessage from "./ExerciseStatusMessage"
+import ExerciseTask from "./ExerciseTask"
+import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
+import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
+import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -138,6 +145,74 @@ const DeadlineText = styled.div<DeadlineProps>`
 
 export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exerciseId
 
+/** Smaller type on narrow viewports so longer exercise names fit without crowding the header. */
+function exerciseBlockTitleHeadingStyles(exerciseNameIsLong: boolean) {
+  const long = exerciseNameIsLong
+  return {
+    heading: css`
+      font-size: ${long ? "1.03rem" : "1.08rem"};
+      font-weight: 500;
+      font-family: ${headingFont} !important;
+      overflow-wrap: anywhere;
+      min-width: 0;
+      margin-top: -2px;
+
+      ${respondToOrLarger.xxxs} {
+        font-size: ${long ? "1.06rem" : "1.14rem"};
+      }
+      ${respondToOrLarger.xxs} {
+        font-size: ${long ? "1.09rem" : "1.2rem"};
+      }
+      ${respondToOrLarger.xs} {
+        font-size: ${long ? "1.12rem" : "1.28rem"};
+      }
+      ${respondToOrLarger.sm} {
+        font-size: ${long ? "1.16rem" : "1.36rem"};
+      }
+      ${respondToOrLarger.md} {
+        font-size: ${long ? "1.2rem" : "1.46rem"};
+      }
+      ${respondToOrLarger.lg} {
+        font-size: ${long ? "1.3rem" : "1.58rem"};
+      }
+      ${respondToOrLarger.xl} {
+        font-size: ${long ? "1.4rem" : "1.7rem"};
+      }
+    `,
+    label: css`
+      font-weight: 600;
+      font-size: 0.8125rem;
+      margin-bottom: 0.25rem;
+
+      ${respondToOrLarger.xxxs} {
+        font-size: 0.875rem;
+      }
+      ${respondToOrLarger.xxs} {
+        font-size: 0.90625rem;
+      }
+      ${respondToOrLarger.xs} {
+        font-size: 0.9375rem;
+      }
+      ${respondToOrLarger.sm} {
+        font-size: 0.96875rem;
+      }
+      ${respondToOrLarger.md} {
+        font-size: 1rem;
+      }
+      ${respondToOrLarger.lg} {
+        font-size: 1.0625rem;
+      }
+      ${respondToOrLarger.xl} {
+        font-size: 1.125rem;
+      }
+    `,
+    nameLine: css`
+      line-height: 1.38;
+      padding-bottom: 0.2rem;
+    `,
+  }
+}
+
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<
@@ -158,6 +233,7 @@ const ExerciseBlock: React.FC<
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const showExercise =
     Boolean(courseMaterialState.examData?.id) ||
+    courseMaterialState.status === "loading" ||
     (loginState.signedIn ? !!courseMaterialState.settings : true)
   const [postThisStateToIFrame, dispatch] = useReducer(
     exerciseBlockPostThisStateToIFrameReducer,
@@ -180,15 +256,15 @@ const ExerciseBlock: React.FC<
     if (!getCourseMaterialExercise.data) {
       return
     }
-    if (getCourseMaterialExercise.data.exercise_status?.score_given) {
-      setPoints(getCourseMaterialExercise.data.exercise_status?.score_given)
+    if (getCourseMaterialExercise.data.exercise_status?.score_given !== undefined) {
+      setPoints(getCourseMaterialExercise.data.exercise_status?.score_given ?? null)
     }
-    const chapterId = getCourseMaterialExercise.data.exercise.chapter_id
-    const chapterStatus = chapterId
-      ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+    const exerciseChapterId = getCourseMaterialExercise.data.exercise.chapter_id
+    const chapterStatus = exerciseChapterId
+      ? getUserLocks.data?.find((status) => status.chapter_id === exerciseChapterId)
       : null
     const isChapterLocked =
-      chapterId &&
+      exerciseChapterId &&
       (chapterStatus?.status === "completed_and_locked" ||
         chapterStatus?.status === "not_unlocked_yet")
     dispatch({
@@ -198,7 +274,7 @@ const ExerciseBlock: React.FC<
       isChapterLocked: Boolean(isChapterLocked),
     })
     const a = new Map()
-    getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
+    getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
       if (et.previous_submission) {
         a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
       }
@@ -207,14 +283,20 @@ const ExerciseBlock: React.FC<
   }, [getCourseMaterialExercise.data, loginState.signedIn, getUserLocks.data])
 
   const postSubmissionMutation = useToastMutation(
-    (submission: StudentExerciseSlideSubmission) => postSubmission(id, submission),
+    (submission: StudentExerciseSlideSubmission) =>
+      postSubmission({
+        path: {
+          exercise_id: id,
+        },
+        body: submission,
+      }),
     {
       notify: false,
     },
     {
       onSuccess: async (data) => {
         if (data.exercise_status) {
-          setPoints(data.exercise_status.score_given)
+          setPoints(data.exercise_status.score_given ?? null)
         }
         dispatch({
           type: "submissionGraded",
@@ -233,12 +315,12 @@ const ExerciseBlock: React.FC<
       if (!data) {
         throw new Error("No data for the try again view")
       }
-      const chapterId = data.exercise.chapter_id
-      const chapterStatus = chapterId
-        ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+      const exerciseChapterId = data.exercise.chapter_id
+      const chapterStatus = exerciseChapterId
+        ? getUserLocks.data?.find((status) => status.chapter_id === exerciseChapterId)
         : null
       const isChapterLocked =
-        chapterId &&
+        exerciseChapterId &&
         chapterLockingEnabled &&
         (chapterStatus?.status === "completed_and_locked" ||
           chapterStatus?.status === "not_unlocked_yet")
@@ -257,7 +339,7 @@ const ExerciseBlock: React.FC<
       if (answers.size === 0 && courseMaterialState.settings?.user_id) {
         await getCourseMaterialExercise.refetch()
         const a = new Map()
-        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
+        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
           if (et.previous_submission) {
             a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
           }
@@ -275,7 +357,12 @@ const ExerciseBlock: React.FC<
   )
 
   const startPeerOrSelfReviewMutation = useToastMutation(
-    () => postStartPeerOrSelfReview(id),
+    () =>
+      postStartPeerOrSelfReview({
+        path: {
+          exercise_id: id,
+        },
+      }),
     { notify: false },
     {
       onSuccess: async () => {
@@ -291,586 +378,524 @@ const ExerciseBlock: React.FC<
     return getCourseMaterialExercise.data.exercise.name.length > 35
   }, [getCourseMaterialExercise.data])
 
+  const exerciseTitleStyles = exerciseBlockTitleHeadingStyles(exerciseNameIsLong)
+
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
   }
 
-  if (getCourseMaterialExercise.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
-  }
-  if (getCourseMaterialExercise.isLoading || !getCourseMaterialExercise.data) {
-    return <Spinner variant={"medium"} />
-  }
-
-  const courseInstanceId = courseMaterialState.instance?.id
-  const chapterStatus = chapterId
-    ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
-    : null
-  const isChapterCompleted =
-    chapterId && chapterLockingEnabled && chapterStatus?.status === "completed_and_locked"
-  const isChapterNotAccessible =
-    chapterId && chapterLockingEnabled && chapterStatus?.status === "not_unlocked_yet"
-  const isChapterLocked = isChapterCompleted || isChapterNotAccessible
-
-  const isExam = !!courseMaterialState.examData
-
-  const spentTries =
-    getCourseMaterialExercise.data.exercise_slide_submission_counts[
-      getCourseMaterialExercise.data.current_exercise_slide.id
-    ] ?? 0
-
-  const maxTries = getCourseMaterialExercise.data.exercise.max_tries_per_slide
-
-  const triesRemaining = maxTries && maxTries - spentTries
-
-  const limit_number_of_tries = getCourseMaterialExercise.data.exercise.limit_number_of_tries
-  const ranOutOfTries =
-    limit_number_of_tries && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
-
-  const exerciseSlideSubmissionId =
-    getCourseMaterialExercise.data.previous_exercise_slide_submission?.id
-
-  const dateInTwoDays = new Date()
-  dateInTwoDays.setDate(dateInTwoDays.getDate() + 2)
-
-  const lang = i18n.language
-
-  let deadlineAsString = ""
-  const DATESTYLE = "long"
-  const TIMESTYLE = "short"
-
-  if (exerciseDeadline) {
-    const sign = exerciseDeadline.getTimezoneOffset() > 0 ? "-" : "+"
-
-    deadlineAsString = exerciseDeadline.toLocaleString(lang, {
-      dateStyle: DATESTYLE,
-      timeStyle: TIMESTYLE,
-    })
-
-    const timezoneOffsetParts = (-exerciseDeadline.getTimezoneOffset() / 60).toString().split(".")
-    const start = timezoneOffsetParts[0].padStart(2, "0")
-    let end = ""
-    if (timezoneOffsetParts[1]) {
-      end = timezoneOffsetParts[1].padEnd(2, "0")
-    } else {
-      end = end.padEnd(2, "0")
-    }
-
-    // eslint-disable-next-line i18next/no-literal-string
-    const timezoneOffset = `(UTC${sign}${start}:${end})`
-    deadlineAsString = deadlineAsString + ` ${timezoneOffset}`
-  }
-
-  // These are now arrays so should be refactored
-  const inSubmissionView =
-    postThisStateToIFrame?.every((x) => x.view_type === "view-submission") ?? false
-  const needsPeerReview = getCourseMaterialExercise.data.exercise.needs_peer_review
-  const needsSelfReview = getCourseMaterialExercise.data.exercise.needs_self_review
-
-  const reviewingStage = getCourseMaterialExercise.data.exercise_status?.reviewing_stage
-  const gradingState = getCourseMaterialExercise.data.exercise_status?.grading_progress
   return (
-    <>
-      {/* Exercises are so important part of the pages that we will use section to make it easy-to-find
-      for screenreader users */}
-      <section
-        className={css`
-          width: 100%;
-          background: #f2f2f2;
-          border-radius: 1rem;
-          margin-bottom: 1rem;
-          padding-bottom: 1.25rem;
-          position: relative;
-        `}
-        id={getExerciseBlockBeginningScrollingId(id)}
-        aria-labelledby={exerciseTitleId}
-        ref={sectionRef}
-      >
+    <QueryResult
+      query={getCourseMaterialExercise}
+      emptyFallback={
         <div>
-          <div>
-            <div
-              className={css`
-                display: flex;
-                gap: 5px;
-                align-items: center;
-                margin-bottom: 1.5rem;
-                padding: 1.5rem 1.2rem;
-                background: #718dbf;
-                border-radius: 1rem 1rem 0 0;
-                color: white;
-                flex-direction: column;
+          <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+          <button
+            className={cx(exerciseButtonStyles)}
+            onClick={() => {
+              void getCourseMaterialExercise.refetch()
+            }}
+          >
+            {t("button-text-try-again")}
+          </button>
+        </div>
+      }
+    >
+      {(courseMaterialExercise) => {
+        const courseInstanceId = courseMaterialState.instance?.id
+        const chapterStatus = chapterId
+          ? getUserLocks.data?.find((status) => status.chapter_id === chapterId)
+          : null
+        const isChapterCompleted =
+          chapterId && chapterLockingEnabled && chapterStatus?.status === "completed_and_locked"
+        const isChapterNotAccessible =
+          chapterId && chapterLockingEnabled && chapterStatus?.status === "not_unlocked_yet"
+        const isChapterLocked = isChapterCompleted || isChapterNotAccessible
 
-                ${respondToOrLarger.xxs} {
-                  flex-direction: row;
-                }
-              `}
-            >
-              <h2
-                id={exerciseTitleId}
-                className={css`
-                  font-size: ${exerciseNameIsLong ? "1.4rem" : "1.7rem"};
-                  font-weight: 500;
-                  font-family: ${headingFont} !important;
-                  overflow-wrap: anywhere;
-                  overflow: hidden;
-                  margin-top: -2px;
-                `}
-              >
+        const isExam = !!courseMaterialState.examData
+
+        const spentTries =
+          courseMaterialExercise.exercise_slide_submission_counts[
+            courseMaterialExercise.current_exercise_slide.id
+          ] ?? 0
+
+        const maxTries = courseMaterialExercise.exercise.max_tries_per_slide
+        const triesRemaining =
+          maxTries === null || maxTries === undefined ? null : maxTries - spentTries
+
+        const limit_number_of_tries = courseMaterialExercise.exercise.limit_number_of_tries
+        const ranOutOfTries =
+          limit_number_of_tries &&
+          maxTries !== null &&
+          maxTries !== undefined &&
+          triesRemaining !== null &&
+          triesRemaining <= 0
+
+        const exerciseSlideSubmissionId =
+          courseMaterialExercise.previous_exercise_slide_submission?.id
+
+        const dateInTwoDays = new Date()
+        dateInTwoDays.setDate(dateInTwoDays.getDate() + 2)
+
+        const lang = i18n.language
+
+        let deadlineAsString = ""
+        const DATESTYLE = "long"
+        const TIMESTYLE = "short"
+
+        if (exerciseDeadline) {
+          const sign = exerciseDeadline.getTimezoneOffset() > 0 ? "-" : "+"
+
+          deadlineAsString = exerciseDeadline.toLocaleString(lang, {
+            dateStyle: DATESTYLE,
+            timeStyle: TIMESTYLE,
+          })
+
+          const timezoneOffsetParts = (-exerciseDeadline.getTimezoneOffset() / 60)
+            .toString()
+            .split(".")
+          // split always yields at least one element, so the fallback never applies.
+          const start = (timezoneOffsetParts[0] ?? "").padStart(2, "0")
+          let end = ""
+          if (timezoneOffsetParts[1]) {
+            end = timezoneOffsetParts[1].padEnd(2, "0")
+          } else {
+            end = end.padEnd(2, "0")
+          }
+
+          // oxlint-disable-next-line i18next/no-literal-string
+          const timezoneOffset = `(UTC${sign}${start}:${end})`
+          deadlineAsString = deadlineAsString + ` ${timezoneOffset}`
+        }
+
+        // These are now arrays so should be refactored
+        const inSubmissionView =
+          postThisStateToIFrame?.every((x) => x.view_type === "view-submission") ?? false
+        const needsPeerReview = courseMaterialExercise.exercise.needs_peer_review
+        const needsSelfReview = courseMaterialExercise.exercise.needs_self_review
+
+        const reviewingStage = courseMaterialExercise.exercise_status?.reviewing_stage
+        const gradingState = courseMaterialExercise.exercise_status?.grading_progress
+        return (
+          <ExerciseCardWrapper
+            ref={sectionRef}
+            id={getExerciseBlockBeginningScrollingId(id)}
+            ariaLabelledby={exerciseTitleId}
+          >
+            <ExerciseCardHeader
+              title={
+                <h2 id={exerciseTitleId} className={exerciseTitleStyles.heading}>
+                  <div className={exerciseTitleStyles.label}>{t("label-exercise")}:</div>
+                  <div className={exerciseTitleStyles.nameLine}>
+                    {courseMaterialExercise.exercise.name}
+                  </div>
+                </h2>
+              }
+              rightContent={
                 <div
                   className={css`
-                    font-weight: 600;
-                    font-size: 18px;
-                    margin-bottom: 0.25rem;
-                    color: #1b222c;
-                  `}
-                >
-                  {t("label-exercise")}:
-                </div>
-                <div
-                  className={css`
-                    line-height: 30px;
-                    overflow: hidden;
-                    max-height: 80px;
-                    /* Prevents some characters, like 3, from clipping */
-                    padding-bottom: 0.2rem;
-
-                    ${respondToOrLarger.xs} {
-                      max-height: 60px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 16px;
+                    flex-wrap: wrap;
+                    width: 100%;
+                    ${respondToOrLarger.xxs} {
+                      width: auto;
+                      justify-content: flex-end;
                     }
                   `}
                 >
-                  {getCourseMaterialExercise.data.exercise.name}
+                  {limit_number_of_tries &&
+                    maxTries !== null &&
+                    maxTries !== undefined &&
+                    triesRemaining !== null && (
+                      <ExerciseCardTriesBadge triesRemaining={triesRemaining} />
+                    )}
+                  {isExam && points === null ? (
+                    <div
+                      className={cx(
+                        exerciseCardPillShell,
+                        css`
+                          height: auto;
+                          min-height: 0;
+                          padding: 4px 10px 5px;
+                          box-sizing: border-box;
+                          justify-content: center;
+                          gap: 0;
+
+                          & > div {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 2px;
+                            min-width: 0;
+                            max-width: 100%;
+                          }
+
+                          .heading {
+                            color: #57606f;
+                            font-size: 10px;
+                            margin-bottom: 0;
+                            line-height: 1.15;
+                            text-align: center;
+                            overflow-wrap: anywhere;
+                            display: -webkit-box;
+                            -webkit-box-orient: vertical;
+                            -webkit-line-clamp: 2;
+                            overflow: hidden;
+
+                            ${respondToOrLarger.xs} {
+                              font-size: 12px;
+                            }
+
+                            ${respondToOrLarger.lg} {
+                              font-size: 13px;
+                            }
+                          }
+
+                          .value {
+                            font-size: 1rem;
+                            line-height: 1.2;
+                            margin-top: 0;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                          }
+                        `,
+                      )}
+                    >
+                      <div>
+                        <span className="heading">{t("max-points")}</span>
+                        <div className="value">{courseMaterialExercise.exercise.score_maximum}</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <ExerciseCardPointsBadge
+                      score={points ?? 0}
+                      maxScore={courseMaterialExercise.exercise.score_maximum ?? 0}
+                    />
+                  )}
                 </div>
-              </h2>
+              }
+            />
+
+            {chapterLockingEnabled &&
+              courseMaterialExercise &&
+              !isChapterLocked &&
+              courseMaterialExercise.exercise.teacher_reviews_answer_after_locking && (
+                <div
+                  className={css`
+                    padding: 0 1.5rem;
+                    margin-bottom: 1rem;
+                  `}
+                >
+                  <YellowBox>{t("exercises-done-through-locking-explanation")}</YellowBox>
+                </div>
+              )}
+
+            {!loginState.isLoading && !loginState.signedIn && (
               <div
                 className={css`
-                  flex-grow: 1;
-                `}
-              />
-              <div
-                className={css`
-                  font-size: 9px;
-                  text-align: center;
-                  font-family: ${secondaryFont} !important;
-                  text-transform: uppercase;
-                  border-radius: 10px;
-                  background: #f0f0f0;
-                  height: 60px;
-                  padding: 8px 16px 6px 16px;
-
-                  color: #57606f;
-                  display: flex;
-                  justify-content: center;
-                  flex-direction: columns;
-                  gap: 16px;
-                  box-shadow:
-                    rgba(45, 35, 66, 0) 0 2px 4px,
-                    rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                    #c4c4c4 0 -3px 0 inset;
-
-                  .points {
-                    line-height: 100%;
-                    color: #57606f;
-                    z-index: 999;
-                  }
-
-                  .heading {
-                    color: #57606f;
-                    font-size: 12px;
-                    display: inline-block;
-                    margin-bottom: 2px;
-                  }
-
-                  sup,
-                  sub {
-                    font-family: ${headingFont} !important;
-                    color: #57606f;
-                    font-size: 15px;
-                    font-weight: 500;
-                    margin: 0;
-                  }
-
-                  svg {
-                    margin-right: 4px;
-                  }
-
-                  .tries {
-                    font-family: ${headingFont} !important;
-                    display: flex;
-                    color: #57606f;
-                    font-size: 14px;
-                    font-weight: 500;
-                    line-height: 0.8;
-                  }
-
-                  p {
-                    font-size: 16px;
-                  }
-
-                  width: 100%;
-                  ${respondToOrLarger.xxs} {
-                    width: auto;
-                  }
+                  padding: 0 1rem;
+                  margin-bottom: 2rem;
                 `}
               >
-                {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
-                  <div
-                    className={css`
-                      display: block;
-                    `}
-                  >
-                    <span className="heading">{t("tries")}</span>
-                    <div className="tries">
-                      <PlusHeart size={16} weight="bold" color="#394F77" />
-                      <p>{triesRemaining}</p>
-                    </div>
-                  </div>
-                )}
-                {isExam && points === null ? (
-                  <div
-                    className={css`
-                      display: flex;
-                      flex-direction: column;
-                    `}
-                  >
-                    <div>{t("max-points")}</div>{" "}
-                    <div
-                      className={css`
-                        font-size: 1rem;
-                        margin-top: 3px;
-                      `}
-                    >
-                      {getCourseMaterialExercise.data.exercise.score_maximum}
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <span className="heading">{t("points-label")}</span>
-                    <div className="points">
-                      <CheckCircle size={16} weight="bold" color="#394F77" />
-                      <span data-testid="exercise-points">
-                        {}
-                        <sup>{points ?? 0}</sup>
-                        {FORWARD_SLASH}
-                        <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>
-                      </span>
-                    </div>
-                  </div>
-                )}
+                <YellowBox>{t("please-log-in-to-answer-exercise")}</YellowBox>
+
+                <AWithNoDecoration href={loginRoute(returnTo)}>
+                  <button className={cx(exerciseButtonStyles, makeExerciseButtonMutedStyles)}>
+                    {t("log-in")}
+                  </button>
+                </AWithNoDecoration>
+                <AWithNoDecoration href={signUpRoute(returnTo)}>
+                  <button className={cx(exerciseButtonStyles)}>{t("create-new-account")}</button>
+                </AWithNoDecoration>
               </div>
-            </div>
-          </div>
-        </div>
+            )}
 
-        {chapterLockingEnabled && getCourseMaterialExercise.data && !isChapterLocked && (
-          <div
-            className={css`
-              padding: 0 1.5rem;
-              margin-bottom: 1rem;
-            `}
-          >
-            <YellowBox>{t("exercises-done-through-locking-explanation")}</YellowBox>
-          </div>
-        )}
-
-        {!loginState.isLoading && !loginState.signedIn && (
-          <div
-            className={css`
-              padding: 0 1rem;
-              margin-bottom: 2rem;
-            `}
-          >
-            <YellowBox>{t("please-log-in-to-answer-exercise")}</YellowBox>
-
-            <AWithNoDecoration href={loginRoute(returnTo)}>
-              <button className={cx(exerciseButtonStyles, makeExerciseButtonMutedStyles)}>
-                {t("log-in")}
-              </button>
-            </AWithNoDecoration>
-            <AWithNoDecoration href={signUpRoute(returnTo)}>
-              <button className={cx(exerciseButtonStyles)}>{t("create-new-account")}</button>
-            </AWithNoDecoration>
-          </div>
-        )}
-
-        <div
-          className={css`
-            padding: 0 1rem;
-            ${!loginState.isLoading &&
-            !loginState.signedIn &&
-            `
+            <div
+              className={css`
+                padding: 0 1rem;
+                ${!loginState.isLoading &&
+                !loginState.signedIn &&
+                `
               pointer-events: none !important;
               user-select: none !important;
               filter: blur(2px);
               opacity: 0.9;
               `}
-          `}
-          {...{ inert: !loginState.isLoading && !loginState.signedIn }}
-        >
-          {exerciseDeadline &&
-            (Date.now() < exerciseDeadline.getTime() ? (
-              <DeadlineText closingSoon={dateInTwoDays.getTime() >= exerciseDeadline.getTime()}>
-                {t("deadline")}
-                <HideTextInSystemTests
-                  text={deadlineAsString}
-                  testPlaceholder="Time of the deadline"
-                />
-              </DeadlineText>
-            ) : (
-              <DeadlineText closingSoon={true}>
-                {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(exerciseDeadline) })}
-              </DeadlineText>
-            ))}
-          {(getCourseMaterialExercise.data.peer_or_self_review_config ||
-            getCourseMaterialExercise.data.should_show_reset_message ||
-            reviewingStage === "WaitingForManualGrading" ||
-            reviewingStage === "ReviewedAndLocked") &&
-            gradingState &&
-            reviewingStage && (
-              <GradingState
+              `}
+              {...{ inert: !loginState.isLoading && !loginState.signedIn }}
+            >
+              {exerciseDeadline &&
+                (Date.now() < exerciseDeadline.getTime() ? (
+                  <DeadlineText closingSoon={dateInTwoDays.getTime() >= exerciseDeadline.getTime()}>
+                    {t("deadline")}
+                    <HideTextInSystemTests
+                      text={deadlineAsString}
+                      testPlaceholder="Time of the deadline"
+                    />
+                  </DeadlineText>
+                ) : (
+                  <DeadlineText closingSoon={true}>
+                    {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(exerciseDeadline) })}
+                  </DeadlineText>
+                ))}
+              <ExerciseStatusMessage
                 gradingProgress={gradingState}
                 reviewingStage={reviewingStage}
-                peerOrSelfReviewConfig={getCourseMaterialExercise.data.peer_or_self_review_config}
-                exercise={getCourseMaterialExercise.data.exercise}
-                shouldSeeResetMessage={getCourseMaterialExercise.data.should_show_reset_message}
+                peerOrSelfReviewConfig={courseMaterialExercise.peer_or_self_review_config}
+                exercise={courseMaterialExercise.exercise}
+                shouldSeeResetMessage={courseMaterialExercise.should_show_reset_message ?? null}
               />
-            )}
-          {/* Reviewing stage seems to be undefined at least for exams */}
-          {reviewingStage !== "PeerReview" &&
-            reviewingStage !== "SelfReview" &&
-            getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks
-              .sort((a, b) => a.order_number - b.order_number)
-              .map((task) => (
-                <ExerciseTask
-                  key={task.id}
-                  exerciseTask={task}
-                  isExam={isExam}
-                  setAnswer={(answer) =>
-                    setAnswers((prev) => {
-                      const answers = new Map(prev)
-                      answers.set(task.id, answer)
-                      return answers
-                    })
-                  }
-                  postThisStateToIFrame={postThisStateToIFrame?.find(
-                    (x) => x.exercise_task_id === task.id,
-                  )}
-                  canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
-                  exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
-                  isChapterLocked={Boolean(isChapterLocked)}
+              {/* Reviewing stage seems to be undefined at least for exams */}
+              {reviewingStage !== "PeerReview" &&
+                reviewingStage !== "SelfReview" &&
+                courseMaterialExercise.current_exercise_slide.exercise_tasks
+                  .toSorted((a, b) => a.order_number - b.order_number)
+                  .map((task) => (
+                    <ExerciseTask
+                      key={task.id}
+                      exerciseTask={task}
+                      isExam={isExam}
+                      setAnswer={(answer) =>
+                        setAnswers((prev) => new Map([...prev, [task.id, answer]]))
+                      }
+                      postThisStateToIFrame={postThisStateToIFrame?.find(
+                        (x) => x.exercise_task_id === task.id,
+                      )}
+                      canPostSubmission={courseMaterialExercise.can_post_submission}
+                      exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}
+                      isChapterLocked={Boolean(isChapterLocked)}
+                    />
+                  ))}
+              {reviewingStage === "PeerReview" && (
+                <PeerOrSelfReviewView
+                  exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}
+                  exerciseId={id}
+                  parentExerciseQuery={getCourseMaterialExercise}
                 />
-              ))}
-          {reviewingStage === "PeerReview" && (
-            <PeerOrSelfReviewView
-              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
-              exerciseId={id}
-              parentExerciseQuery={getCourseMaterialExercise}
-            />
-          )}
-          {reviewingStage === "SelfReview" && (
-            <PeerOrSelfReviewView
-              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
-              exerciseId={id}
-              parentExerciseQuery={getCourseMaterialExercise}
-              selfReview
-            />
-          )}
-          {(reviewingStage === "WaitingForPeerReviews" ||
-            reviewingStage === "ReviewedAndLocked") && (
-            <div
-              className={css`
-                padding: 0.5rem 0.45rem;
-                background-color: white;
-                border-radius: 0.625rem;
-              `}
-            >
-              {reviewingStage === "WaitingForPeerReviews" && (
-                <WaitingForPeerReviews exerciseId={id} />
               )}
-              {inSubmissionView &&
-                getCourseMaterialExercise.data.exercise.needs_peer_review &&
-                exerciseSlideSubmissionId &&
-                (reviewingStage === "WaitingForPeerReviews" ||
-                  reviewingStage === "ReviewedAndLocked") && (
-                  <PeerOrSelfReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
-                )}
-            </div>
-          )}
-          {isChapterLocked && reviewingStage !== "ReviewedAndLocked" && (
-            <YellowBox>
-              <div
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  gap: 0.75rem;
-                `}
-              >
-                <Padlock size={24} />
-                <div>
-                  {isChapterNotAccessible
-                    ? t("chapter-locked-complete-previous")
-                    : t("chapter-locked-description")}
-                </div>
-              </div>
-            </YellowBox>
-          )}
-          <div>
-            {getCourseMaterialExercise.data.can_post_submission &&
-              !userOnWrongLanguageVersion &&
-              !inSubmissionView &&
-              !isChapterLocked && (
-                <button
-                  disabled={
-                    postSubmissionMutation.isPending ||
-                    answers.size < (postThisStateToIFrame?.length ?? 0) ||
-                    Array.from(answers.values()).some((x) => !x.valid)
-                  }
-                  className={cx(exerciseButtonStyles)}
-                  onClick={() => {
-                    if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
-                      return
-                    }
-                    postSubmissionMutation.mutate(
-                      {
-                        exercise_slide_id: getCourseMaterialExercise.data.current_exercise_slide.id,
-                        exercise_task_submissions:
-                          getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map(
-                            (task) => ({
-                              exercise_task_id: task.id,
-                              data_json: answers.get(task.id)?.data,
-                            }),
-                          ),
-                      },
-                      {
-                        onSuccess: (res) => {
-                          queryClient.setQueryData(
-                            courseMaterialExerciseQueryKey(id),
-                            (old: CourseMaterialExercise | undefined) => {
-                              if (!old) {
-                                throw new Error("No CourseMaterialExercise found")
-                              }
-                              return produce(old, (draft: CourseMaterialExercise) => {
-                                res.exercise_task_submission_results.forEach(
-                                  (et_submission_result) => {
-                                    // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
-                                    const receivedExerciseTaskSubmission =
-                                      et_submission_result.submission
-                                    const draftExerciseTask =
-                                      draft.current_exercise_slide.exercise_tasks.find((et) => {
-                                        return (
-                                          et.id === et_submission_result.submission.exercise_task_id
-                                        )
-                                      })
-                                    if (draftExerciseTask) {
-                                      draftExerciseTask.previous_submission =
-                                        receivedExerciseTaskSubmission
-                                    }
-                                    // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
-                                    if (isExam && et_submission_result.grading !== null) {
-                                      throw new Error("Exams should have hidden gradings")
-                                    }
-                                  },
-                                )
-                              })
-                            },
-                          )
-                        },
-                      },
-                    )
-                  }}
+              {reviewingStage === "SelfReview" && (
+                <PeerOrSelfReviewView
+                  exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}
+                  exerciseId={id}
+                  parentExerciseQuery={getCourseMaterialExercise}
+                  selfReview
+                />
+              )}
+              {(reviewingStage === "WaitingForPeerReviews" ||
+                reviewingStage === "ReviewedAndLocked" ||
+                reviewingStage === "Locked") && (
+                <div
+                  className={css`
+                    padding: 0.5rem 0.45rem;
+                    background-color: white;
+                    border-radius: 0.625rem;
+                  `}
                 >
-                  {t("submit-button")}
-                </button>
+                  {reviewingStage === "WaitingForPeerReviews" && (
+                    <WaitingForPeerReviews exerciseId={id} />
+                  )}
+                  {inSubmissionView &&
+                    courseMaterialExercise.exercise.needs_peer_review &&
+                    exerciseSlideSubmissionId &&
+                    (reviewingStage === "WaitingForPeerReviews" ||
+                      reviewingStage === "ReviewedAndLocked" ||
+                      reviewingStage === "Locked") && (
+                      <PeerOrSelfReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
+                    )}
+                </div>
               )}
-
-            {userOnWrongLanguageVersion &&
-              courseMaterialState.settings &&
-              courseMaterialState.organization && (
-                <UserOnWrongCourseNotification
-                  correctCourseId={courseMaterialState.settings.current_course_id}
-                  organizationSlug={courseMaterialState.organization?.slug}
-                  variant="compact"
-                />
-              )}
-
-            {inSubmissionView &&
-              (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
-                <div>
-                  {isExam && !courseMaterialState.examData?.ended && (
+              {isChapterLocked &&
+                reviewingStage !== "ReviewedAndLocked" &&
+                reviewingStage !== "Locked" &&
+                (isChapterNotAccessible ||
+                  courseMaterialExercise.exercise.teacher_reviews_answer_after_locking !==
+                    false) && (
+                  <YellowBox>
                     <div
                       className={css`
-                        background-color: ${baseTheme.colors.green[100]};
-                        color: ${baseTheme.colors.green[700]};
-                        padding: 0.7rem 1rem;
-                        margin: 1rem 0;
-                        border: 1px solid ${baseTheme.colors.green[300]};
                         display: flex;
                         align-items: center;
-
-                        svg {
-                          width: 80px;
-                          margin-right: 1rem;
-                        }
+                        gap: 0.75rem;
                       `}
                     >
-                      <CheckCircle size={30} />
+                      <Padlock size={24} />
+                      <div>
+                        {isChapterNotAccessible
+                          ? t("chapter-locked-complete-previous")
+                          : t("chapter-locked-description")}
+                      </div>
+                    </div>
+                  </YellowBox>
+                )}
+              <div>
+                {courseMaterialExercise.can_post_submission &&
+                  !userOnWrongLanguageVersion &&
+                  !inSubmissionView &&
+                  !isChapterLocked && (
+                    <button
+                      disabled={
+                        postSubmissionMutation.isPending ||
+                        answers.size < (postThisStateToIFrame?.length ?? 0) ||
+                        Array.from(answers.values()).some((x) => !x.valid)
+                      }
+                      className={cx(exerciseButtonStyles)}
+                      onClick={() => {
+                        if (!courseInstanceId && !courseMaterialExercise.exercise.exam_id) {
+                          return
+                        }
+                        postSubmissionMutation.mutate(
+                          {
+                            exercise_slide_id: courseMaterialExercise.current_exercise_slide.id,
+                            exercise_task_submissions:
+                              courseMaterialExercise.current_exercise_slide.exercise_tasks.map(
+                                (task) => ({
+                                  exercise_task_id: task.id,
+                                  data_json: answers.get(task.id)?.data,
+                                }),
+                              ),
+                          },
+                          {
+                            onSuccess: (res) => {
+                              queryClient.setQueryData(
+                                courseMaterialExerciseQueryKey(id),
+                                (old: CourseMaterialExercise | undefined) => {
+                                  if (!old) {
+                                    throw new Error("No CourseMaterialExercise found")
+                                  }
+                                  return produce(old, (draft: CourseMaterialExercise) => {
+                                    res.exercise_task_submission_results.forEach(
+                                      (et_submission_result) => {
+                                        // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
+                                        const receivedExerciseTaskSubmission =
+                                          et_submission_result.submission
+                                        const draftExerciseTask =
+                                          draft.current_exercise_slide.exercise_tasks.find((et) => {
+                                            return (
+                                              et.id ===
+                                              et_submission_result.submission.exercise_task_id
+                                            )
+                                          })
+                                        if (draftExerciseTask) {
+                                          draftExerciseTask.previous_submission =
+                                            receivedExerciseTaskSubmission
+                                        }
+                                        // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
+                                        if (isExam && et_submission_result.grading !== null) {
+                                          throw new Error("Exams should have hidden gradings")
+                                        }
+                                      },
+                                    )
+                                  })
+                                },
+                              )
+                            },
+                          },
+                        )
+                      }}
+                    >
+                      {t("submit-button")}
+                    </button>
+                  )}
 
-                      <div>{t("exam-submission-has-been-saved-help-text")}</div>
+                {userOnWrongLanguageVersion &&
+                  courseMaterialState.settings &&
+                  courseMaterialState.organization && (
+                    <UserOnWrongCourseNotification
+                      correctCourseId={courseMaterialState.settings.current_course_id}
+                      organizationSlug={courseMaterialState.organization?.slug}
+                      variant="compact"
+                    />
+                  )}
+
+                {inSubmissionView &&
+                  (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
+                    <div>
+                      {isExam && !courseMaterialState.examData?.ended && (
+                        <div
+                          className={css`
+                            background-color: ${baseTheme.colors.green[100]};
+                            color: ${baseTheme.colors.green[700]};
+                            padding: 0.7rem 1rem;
+                            margin: 1rem 0;
+                            border: 1px solid ${baseTheme.colors.green[300]};
+                            display: flex;
+                            align-items: center;
+
+                            svg {
+                              width: 80px;
+                              margin-right: 1rem;
+                            }
+                          `}
+                        >
+                          <CheckCircle size={30} />
+
+                          <div>{t("exam-submission-has-been-saved-help-text")}</div>
+                        </div>
+                      )}
+                      <div
+                        className={css`
+                          display: flex;
+                          justify-content: center;
+                          column-gap: 0.625rem;
+                          button {
+                            margin: 0 !important;
+                          }
+                        `}
+                      >
+                        {!ranOutOfTries && !(isExam && courseMaterialState.examData?.ended) && (
+                          <button
+                            className={cx(exerciseButtonStyles)}
+                            onClick={() => {
+                              tryAgainMutation.mutate()
+                            }}
+                            disabled={
+                              getCourseMaterialExercise.isRefetching ||
+                              !courseMaterialExercise.can_post_submission ||
+                              tryAgainMutation.isPending
+                            }
+                          >
+                            {t("try-again")}
+                          </button>
+                        )}
+                        {needsPeerReview && (
+                          <button
+                            className={cx(exerciseButtonStyles)}
+                            disabled={startPeerOrSelfReviewMutation.isPending}
+                            onClick={() => startPeerOrSelfReviewMutation.mutate()}
+                          >
+                            {t("start-peer-review")}
+                          </button>
+                        )}
+                        {!needsPeerReview && needsSelfReview && (
+                          <button
+                            className={cx(exerciseButtonStyles)}
+                            disabled={startPeerOrSelfReviewMutation.isPending}
+                            onClick={() => startPeerOrSelfReviewMutation.mutate()}
+                          >
+                            {t("start-self-review")}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )}
-                  <div
-                    className={css`
-                      display: flex;
-                      justify-content: center;
-                      column-gap: 0.625rem;
-                      button {
-                        margin: 0 !important;
-                      }
-                    `}
-                  >
-                    {!ranOutOfTries && !(isExam && courseMaterialState.examData?.ended) && (
-                      <button
-                        className={cx(exerciseButtonStyles)}
-                        onClick={() => {
-                          tryAgainMutation.mutate()
-                        }}
-                        disabled={
-                          getCourseMaterialExercise.isRefetching ||
-                          !getCourseMaterialExercise.data.can_post_submission ||
-                          tryAgainMutation.isPending
-                        }
-                      >
-                        {t("try-again")}
-                      </button>
-                    )}
-                    {needsPeerReview && (
-                      <button
-                        className={cx(exerciseButtonStyles)}
-                        disabled={startPeerOrSelfReviewMutation.isPending}
-                        onClick={() => startPeerOrSelfReviewMutation.mutate()}
-                      >
-                        {t("start-peer-review")}
-                      </button>
-                    )}
-                    {!needsPeerReview && needsSelfReview && (
-                      <button
-                        className={cx(exerciseButtonStyles)}
-                        disabled={startPeerOrSelfReviewMutation.isPending}
-                        onClick={() => startPeerOrSelfReviewMutation.mutate()}
-                      >
-                        {t("start-self-review")}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-            {postSubmissionMutation.isError && (
-              <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
-            )}
-          </div>
-        </div>
-      </section>
-    </>
+                {postSubmissionMutation.isError && (
+                  <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
+                )}
+              </div>
+            </div>
+          </ExerciseCardWrapper>
+        )
+      }}
+    </QueryResult>
   )
 }
 

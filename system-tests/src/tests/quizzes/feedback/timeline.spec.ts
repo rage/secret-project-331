@@ -3,13 +3,11 @@ import { test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
-import { getLocatorForNthExerciseServiceIframe } from "@/utils/iframeLocators"
-
 test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test.describe(() => {
+test.describe("Quizzes timeline feedback", () => {
   // Chrome sometimes does not render the ui correctly after resizing the window without reloading the page.
   // This does not seem to be something we can fix, so we'll retry
   test.describe.configure({ retries: 4 })
@@ -31,7 +29,7 @@ test.describe(() => {
 
     await page.frameLocator("iframe").getByText("1995").first().waitFor()
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })
@@ -53,7 +51,7 @@ test.describe(() => {
       label: "Finland joins the Economic and Monetary Union of the European Union",
     })
 
-    // eslint-disable-next-line playwright/no-wait-for-timeout
+    // oxlint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(100)
     await page.locator(`button:disabled:text("Submit")`).waitFor()
 

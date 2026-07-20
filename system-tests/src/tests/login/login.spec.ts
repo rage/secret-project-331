@@ -1,14 +1,15 @@
-import {
+/* oxlint-disable playwright/prefer-locator */
+import type {
   PlaywrightTestArgs,
   PlaywrightTestOptions,
   PlaywrightWorkerArgs,
   PlaywrightWorkerOptions,
-  test,
 } from "@playwright/test"
-
-import { logout } from "../../utils/logout"
+import { test } from "@playwright/test"
 
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { logout } from "../../utils/logout"
 
 test.describe("Login session with Playwright", () => {
   /// Login state to use
@@ -16,10 +17,6 @@ test.describe("Login session with Playwright", () => {
 
   test.beforeAll(async (_args: PlaywrightWorkerArgs & PlaywrightWorkerOptions) => {
     // Executed once before tests
-  })
-
-  test.afterAll(async (_args: PlaywrightWorkerArgs & PlaywrightWorkerOptions) => {
-    // Executed once after tests
   })
 
   test.beforeEach(
@@ -45,6 +42,10 @@ test.describe("Login session with Playwright", () => {
     },
   )
 
+  test.afterAll(async (_args: PlaywrightWorkerArgs & PlaywrightWorkerOptions) => {
+    // Executed once after tests
+  })
+
   test("is succesful", async ({ page }) => {
     await page.locator("id=topbar-user-menu").waitFor()
   })
@@ -69,9 +70,7 @@ test.describe("Login return_to", () => {
   )
 
   test("works after succesful login", async ({ page }) => {
-    await Promise.all([
-      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.waitForURL(/http:\/\/project-331\.local\/org\/.*/)
     const currentUrl = page.url()
 

@@ -6,11 +6,12 @@ import { LinesClipboard } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { createUserResearchConsent } from "@/generated/api/sdk.generated"
+import type { UserResearchConsent } from "@/generated/api/types.generated"
 import { refetchUserResearchConsent } from "@/hooks/useUserResearchConsentQuery"
-import { postUserResearchConsent } from "@/services/backend/users"
 import Button from "@/shared-module/common/components/Button"
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
@@ -34,8 +35,14 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
     setOptionSelected(false)
   }
 
-  const consentQuery = useToastMutation(
-    () => postUserResearchConsent(assertNotNullOrUndefined(consent)),
+  const consentQuery = useToastMutation<UserResearchConsent, unknown, void>(
+    // oxlint-disable-next-line require-await -- async for the mutation Promise contract
+    async () =>
+      createUserResearchConsent({
+        body: {
+          consent: assertNotNullOrUndefined(consent),
+        },
+      }),
     {
       notify: true,
       method: "POST",
@@ -55,7 +62,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   const handleOnSubmit = () => {
     setResearchConsentFormOpen(false)
     consentQuery.mutate()
-    if (afterSubmit != undefined) {
+    if (afterSubmit !== undefined) {
       afterSubmit()
     }
   }
@@ -76,6 +83,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             gap: 13px;
             line-height: 24px;
             align-items: center;
+            flex-shrink: 0;
             color: ${baseTheme.colors.gray[700]};
           `}
         >
@@ -94,6 +102,9 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
           className={css`
             display: flex;
             flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
             font-size: 16px;
             padding: 24px;
             border: ${baseTheme.colors.clear[700]};
@@ -131,14 +142,16 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             `}
           >
             {t("research-consent-responsible")}
+            {/* oxlint-disable-next-line next/no-html-link-for-pages -- external email address, not an internal route */}
             <a
               className={css`
                 color: ${baseTheme.colors.blue[700]} !important;
                 text-decoration: underline !important;
               `}
               href="mooc@cs.helsinki.fi"
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               mooc@cs.helsinki.fi
             </a>
             .
@@ -148,7 +161,6 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             <RadioButton
               id="researchConsent"
               label={t("research-consent-i-want-to-participate-in-educational-research")}
-              // eslint-disable-next-line i18next/no-literal-string
               name="researchConsent"
               onClick={() => handleConsentSelection(true)}
               checked={consent === true}
@@ -156,7 +168,6 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             <RadioButton
               id="noResearchConsent"
               label={t("research-consent-i-do-not-want-participate-in-educational-research")}
-              // eslint-disable-next-line i18next/no-literal-string
               name="researchConsent"
               onClick={() => handleConsentSelection(false)}
               checked={consent === false}
@@ -168,6 +179,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             display: flex;
             flex-direction: row;
             justify-content: flex-end;
+            flex-shrink: 0;
             padding: 16px 20px 16px 20px;
             height: 72px;
             font-family: ${headingFont};

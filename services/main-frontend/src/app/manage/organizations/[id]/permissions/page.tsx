@@ -7,20 +7,26 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PermissionPage } from "@/components/PermissionPage"
-import { fetchOrganization } from "@/services/backend/organizations"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { getOrganizationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const OrganizationPermissions: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const organization = useQuery({
-    queryKey: [`organization-${id}`],
-    queryFn: () => fetchOrganization(id),
+    ...getOrganizationOptions({
+      path: {
+        organization_id: id,
+      },
+    }),
   })
+
+  usePageTitle(joinTitleSegments([t("link-permissions"), organization.data?.name]))
 
   return (
     <div
@@ -31,22 +37,22 @@ const OrganizationPermissions: React.FC = () => {
         }
       `}
     >
-      {organization.isLoading && <Spinner variant="large" />}
-      {organization.isError && <ErrorBanner variant="readOnly" error={organization.error} />}
-      {organization.isSuccess && (
-        <>
-          <h1>
-            {t("roles-for-organization")} {organization.data.name}
-          </h1>
-          <PermissionPage
-            domain={{
-              // eslint-disable-next-line i18next/no-literal-string
-              tag: "Organization",
-              id: organization.data.id,
-            }}
-          />
-        </>
-      )}
+      <QueryResult query={organization}>
+        {(data) => (
+          <>
+            <h1>
+              {t("roles-for-organization")} {data.name}
+            </h1>
+            <PermissionPage
+              domain={{
+                // oxlint-disable-next-line i18next/no-literal-string
+                tag: "Organization",
+                id: data.id,
+              }}
+            />
+          </>
+        )}
+      </QueryResult>
     </div>
   )
 }

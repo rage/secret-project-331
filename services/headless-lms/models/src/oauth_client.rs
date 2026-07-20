@@ -62,7 +62,8 @@ pub struct OAuthClient {
     pub require_pkce: bool,
     pub pkce_methods_allowed: Vec<PkceMethod>,
 
-    pub origin: String,
+    /// Optional list of allowed origins (same validation as redirect URIs). If None or empty, origin check is not enforced.
+    pub allowed_origins: Option<Vec<String>>,
     pub bearer_allowed: bool,
 
     pub created_at: DateTime<Utc>,
@@ -115,7 +116,7 @@ pub struct NewClientParams<'a> {
     pub require_pkce: bool,
     pub pkce_methods_allowed: &'a [PkceMethod],
 
-    pub origin: &'a str,
+    pub allowed_origins: Option<&'a [String]>,
     pub bearer_allowed: bool,
 }
 
@@ -180,25 +181,7 @@ impl OAuthClient {
         let client = sqlx::query_as!(
             OAuthClient,
             r#"
-        SELECT
-          id,
-          client_id,
-          client_name,
-          application_type                AS "application_type: _",
-          token_endpoint_auth_method      AS "token_endpoint_auth_method: _",
-          client_secret                   AS "client_secret: _",
-          client_secret_expires_at,
-          redirect_uris,
-          post_logout_redirect_uris,
-          allowed_grant_types             AS "allowed_grant_types: _",
-          scopes,
-          require_pkce,
-          pkce_methods_allowed            AS "pkce_methods_allowed: _",
-          origin,
-          bearer_allowed,
-          created_at,
-          updated_at,
-          deleted_at
+        SELECT *
         FROM oauth_clients
         WHERE id = $1
           AND deleted_at IS NULL
@@ -224,25 +207,7 @@ impl OAuthClient {
         let client = sqlx::query_as!(
             OAuthClient,
             r#"
-    SELECT
-      id,
-      client_id,
-      client_name,
-      application_type                AS "application_type: _",
-      token_endpoint_auth_method      AS "token_endpoint_auth_method: _",
-      client_secret                   AS "client_secret: _",
-      client_secret_expires_at,
-      redirect_uris,
-      post_logout_redirect_uris,
-      allowed_grant_types             AS "allowed_grant_types: _",   -- or "grant_type[]"
-      scopes,
-      require_pkce,
-      pkce_methods_allowed            AS "pkce_methods_allowed: _",  -- or "pkce_method[]"
-      origin,
-      bearer_allowed,
-      created_at,
-      updated_at,
-      deleted_at
+    SELECT *
     FROM oauth_clients
     WHERE client_id = $1
       AND deleted_at IS NULL
@@ -282,7 +247,7 @@ impl OAuthClient {
         scopes,
         require_pkce,
         pkce_methods_allowed,
-        origin,
+        allowed_origins,
         bearer_allowed
     )
     VALUES (
@@ -294,24 +259,7 @@ impl OAuthClient {
         $13, $14
     )
     RETURNING
-      id,
-      client_id,
-      client_name,
-      application_type                AS "application_type: _",
-      token_endpoint_auth_method      AS "token_endpoint_auth_method: _",
-      client_secret                   AS "client_secret: _",
-      client_secret_expires_at,
-      redirect_uris,
-      post_logout_redirect_uris,
-      allowed_grant_types             AS "allowed_grant_types: _",
-      scopes,
-      require_pkce,
-      pkce_methods_allowed            AS "pkce_methods_allowed: _",
-      origin,
-      bearer_allowed,
-      created_at,
-      updated_at,
-      deleted_at
+      *
     "#,
             p.client_id,
             p.client_name,
@@ -325,7 +273,7 @@ impl OAuthClient {
             p.scopes,
             p.require_pkce,
             p.pkce_methods_allowed as &[PkceMethod],
-            p.origin,
+            p.allowed_origins,
             p.bearer_allowed
         )
         .fetch_one(conn)

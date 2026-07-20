@@ -6,8 +6,7 @@ import React, { Fragment } from "react"
 import { useTranslation } from "react-i18next"
 
 import TextAreaField from "../InputFields/TextAreaField"
-
-import { Item, Thread as StateProps } from "./Forum"
+import type { Item, Thread as StateProps } from "./Forum"
 
 const Wrapper = styled.div`
   width: 100%;

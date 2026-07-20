@@ -2,15 +2,17 @@ import * as cp from "child_process"
 import * as fs from "node:fs/promises"
 import path from "node:path"
 import * as readline from "readline"
+
 import { temporaryDirectory, temporaryFile } from "tempy"
 import kill from "tree-kill"
 
-import { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
+import type { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
 import { isCliOutput } from "./cli.guard"
 
+// oxlint-disable-next-line eslint/require-await -- async so sync throws surface as promise rejections
 const execute = async (
   cmd: string,
-  args: Array<string>,
+  args: string[],
   log: (message: string, ...optionalParams: unknown[]) => void,
 ): Promise<OutputData> => {
   const cliPath = "/app/tmc-langs-cli"
@@ -132,7 +134,7 @@ export const compressProject = async (
     ],
     log,
   )
-  if (output.data !== null && output.data["output-data-kind"] == "compressed-project-hash") {
+  if (output.data !== null && output.data["output-data-kind"] === "compressed-project-hash") {
     return output.data["output-data"]
   }
   throw new Error("Unexpected output data")
@@ -184,7 +186,7 @@ export const prepareSubmission = async (
     ],
     log,
   )
-  if (output.data !== null && output.data["output-data-kind"] == "submission-sandbox") {
+  if (output.data !== null && output.data["output-data-kind"] === "submission-sandbox") {
     return output.data["output-data"]
   }
   throw new Error("Unexpected output data")
@@ -201,21 +203,19 @@ export const getExercisePackagingConfiguration = async (
   )
   if (config.data?.["output-data-kind"] === "exercise-packaging-configuration") {
     return config.data["output-data"]
-  } else {
-    throw new Error("Unexpected data")
   }
+  throw new Error("Unexpected data")
 }
 
 export const fastAvailablePoints = async (
   exercisePath: string,
   log: (message: string, ...optionalParams: unknown[]) => void,
-): Promise<Array<string>> => {
+): Promise<string[]> => {
   const config = await execute("fast-available-points", ["--exercise-path", exercisePath], log)
   if (config.data?.["output-data-kind"] === "available-points") {
     return config.data["output-data"]
-  } else {
-    throw new Error("Unexpected data")
   }
+  throw new Error("Unexpected data")
 }
 
 export const runBrowserTest = async (

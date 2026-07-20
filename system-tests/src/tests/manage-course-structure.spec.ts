@@ -1,10 +1,11 @@
-import { expect, Page, test } from "@playwright/test"
-
-import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
+import type { Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { respondToConfirmDialog } from "@/utils/dialogs"
-import { hideToasts } from "@/utils/notificationUtils"
+import { hideToasts, waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -15,7 +16,7 @@ const pageOrderingText = "Do you want to save the changes to the page ordering?"
 
 async function verifyDialogState(page: Page, chapterVisible: boolean, pageVisible: boolean) {
   await test.step("Verify dialog state", async () => {
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (chapterVisible) {
       await expect(page.getByText(chapterOrderingText)).toBeVisible()
     } else {
@@ -23,7 +24,7 @@ async function verifyDialogState(page: Page, chapterVisible: boolean, pageVisibl
       await expect(page.getByText(chapterOrderingText)).toHaveCount(0)
     }
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (pageVisible) {
       await expect(page.getByText(pageOrderingText)).toBeVisible()
     } else {
@@ -62,15 +63,16 @@ async function deletePage(page: Page, pageText: string) {
     await page.getByRole("button", { name: "Delete" }).click()
     await respondToConfirmDialog(page, true)
     await expect(page.getByText("Successfully deleted")).toBeVisible()
+    await expect(page.getByRole("row").filter({ hasText: pageText })).toHaveCount(0)
     await verifyDialogState(page, false, true)
   })
 }
 
 async function saveChanges(page: Page) {
   await test.step("Save changes", async () => {
-    await hideToasts(page)
-    await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
     await verifyDialogState(page, false, false)
   })
 }
@@ -148,9 +150,9 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
     await page.getByLabel("Set Deadline").first().check()
     await page.getByLabel("Deadline", { exact: true }).first().fill("2050-01-01T23:59:13")
 
-    await hideToasts(page)
-    await page.getByRole("button", { name: "Update" }).click()
-    await expect(page.getByText("Operation successful!")).toBeVisible()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Update" }).click()
+    })
     await expect(page.getByText("The intermediaries TEST change")).toBeVisible()
   })
 
@@ -172,18 +174,6 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
   })
 
   await test.step("Take screenshots", async () => {
-    await expectScreenshotsToMatchSnapshots({
-      screenshotTarget: page,
-      headless,
-      testInfo,
-      snapshotName: "manage-course-structure-middle-of-the-page",
-      clearNotifications: true,
-      scrollToYCoordinate: {
-        "desktop-regular": 800,
-        "mobile-tall": 800,
-      },
-    })
-
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,

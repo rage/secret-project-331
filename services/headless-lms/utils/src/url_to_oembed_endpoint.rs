@@ -5,13 +5,10 @@ use url::Url;
 
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
-
 use crate::prelude::*;
 
 #[derive(Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct OEmbedResponse {
     pub author_name: String,
     pub author_url: String,

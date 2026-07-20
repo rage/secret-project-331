@@ -1,12 +1,12 @@
 /* stylelint-disable */
-import {
+import type {
   OldNormalizedQuizItemOption,
   OldQuiz,
   OldQuizItemOption,
   QuizItem,
 } from "../../../types/oldQuizTypes"
-import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
-import {
+import type { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
@@ -19,7 +19,6 @@ import {
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
 import { sanitizeQuizDirection } from "../css-sanitization"
-
 import { DEFAULT_N } from "./migrationSettings"
 
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N

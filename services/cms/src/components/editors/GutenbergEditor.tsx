@@ -3,80 +3,75 @@
 /**
  * WordPress dependencies
  */
-// This import is needed for bold, italics, ... formatting
-import "@wordpress/format-library"
-
 import "@wordpress/components/build-style/style.css"
 import "@wordpress/block-editor/build-style/style.css"
 import "@wordpress/block-library/build-style/style.css"
 import "@wordpress/block-library/build-style/theme.css"
 import "@wordpress/block-library/build-style/editor.css"
-import "@wordpress/format-library/build-style/style.css"
 import { css } from "@emotion/css"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
   BlockInspector,
-  // @ts-expect-error: no type definition
   __experimentalLibrary as BlockLibrary,
   BlockList,
+  BlockTools,
   ButtonBlockAppender,
-  EditorBlockListSettings,
-  EditorSettings,
-  // @ts-expect-error: no type definition
   __experimentalListView as ListView,
   ObserveTyping,
-  // @ts-expect-error: no type definition
   __unstableUseBlockSelectionClearer as useBlockSelectionClearer,
   WritingFlow,
 } from "@wordpress/block-editor"
-// @ts-expect-error: no type definition
-import { BlockTools } from "@wordpress/block-editor/build-module/components/"
-import { registerCoreBlocks } from "@wordpress/block-library"
-import {
-  BlockInstance,
-  getBlockType,
-  getBlockTypes,
-  registerBlockType,
-  setCategories,
-  unregisterBlockType,
-  unregisterBlockVariation,
-} from "@wordpress/blocks"
+// This import is needed for bold, italics, ... formatting
+import "@wordpress/format-library"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { useMergeRefs } from "@wordpress/compose"
 import { addFilter, removeFilter } from "@wordpress/hooks"
-// @ts-expect-error: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
-import React, { useEffect, useRef, useState } from "react"
-import toast from "react-hot-toast"
-import { useTranslation } from "react-i18next"
-
-import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
-import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
-import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
-import {
-  modifyEmbedBlockAttributes,
-  modifyImageBlockAttributes,
-} from "../../utils/Gutenberg/modifyBlockAttributes"
-import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
-import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenbergCategories"
-import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
-import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
-import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
-import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
+import React, { useEffect, useMemo, useRef, useState } from "react"
+import { toast } from "react-hot-toast"
 
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { primaryFont } from "@/shared-module/common/styles"
-import editBlockThemeJsonSettings from "@/utils/Gutenberg/editBlockThemeJsonSettings"
+import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
+import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
+import type { MediaUploadProps } from "../../services/mediaUpload"
+import {
+  ensureStandaloneGutenbergBootstrap,
+  getDefaultAllowedBlockTypes,
+} from "../../utils/Gutenberg/bootstrapStandaloneGutenberg"
+import {
+  createEditorHistoryEntry,
+  getCurrentEditorHistoryEntry,
+  type GutenbergEditorSelection,
+  initializeEditorHistory,
+  pushEditorHistoryEntry,
+  redoEditorHistory,
+  undoEditorHistory,
+  updateCurrentEditorHistoryEntry,
+} from "../../utils/Gutenberg/editorHistory"
+import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
+import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
+import withHeadingHierarchyWarnings from "../../utils/Gutenberg/withHeadingHierarchyWarnings"
+import withImageFocalPointReset from "../../utils/Gutenberg/withImageFocalPointReset"
+import withImageWarnings from "../../utils/Gutenberg/withImageWarnings"
+import withParagraphWarnings from "../../utils/Gutenberg/withParagraphWarnings"
+import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
+
+// oxlint-disable-next-line typescript/no-explicit-any
+type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]
 
 interface GutenbergEditorProps {
   content: BlockInstance[]
   onContentChange: React.Dispatch<BlockInstance[]>
   allowedBlocks?: string[]
   allowedBlockVariations?: Record<string, string[]>
-  customBlocks?: Array<Parameters<typeof registerBlockType>>
+  customBlocks?: CustomBlockDefinition[]
   mediaUpload: (props: MediaUploadProps) => void
   inspectorButtons?: JSX.Element
   /** This component has to run block migrations and validations once the Gutenberg editor and blocks have been loaded.
@@ -86,6 +81,10 @@ interface GutenbergEditorProps {
   needToRunMigrationsAndValidations: boolean
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
   showSidebar?: boolean
+}
+
+interface GutenbergEditorChangeOptions {
+  selection?: GutenbergEditorSelection
 }
 
 const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> = ({
@@ -103,112 +102,183 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   const { t } = useTranslation()
   useDisableBrowserDefaultDragFileBehavior()
   const clearerRef = useBlockSelectionClearer()
-  const localRef = useRef()
+  const localRef = useRef<HTMLDivElement>(null)
   const contentRef = useMergeRefs([clearerRef, localRef])
 
-  const [editorSettings, setEditorSettings] = useState<
-    Partial<
-      EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
-    >
-  >({
-    disableCustomColors: false,
-    disableCustomEditorFontSizes: false,
-    styles: [],
-    codeEditingEnabled: false,
-  })
+  const [isGutenbergBootstrapped, setIsGutenbergBootstrapped] = useState(false)
+  const historyRef = useRef(initializeEditorHistory(content))
+  const selectionRef = useRef<GutenbergEditorSelection | undefined>(undefined)
+  const localContentUpdateRef = useRef<BlockInstance[] | null>(null)
+  const [selection, setSelection] = useState<GutenbergEditorSelection | undefined>(undefined)
 
   const sideBarStartingYCoordinate = useSidebarStartingYCoodrinate()
 
   useEffect(() => {
-    setEditorSettings((prev) => ({ ...prev, mediaUpload }))
-  }, [mediaUpload])
+    ensureStandaloneGutenbergBootstrap({ allowedBlockVariations, customBlocks })
+    setIsGutenbergBootstrapped(true)
+  }, [allowedBlockVariations, customBlocks])
 
-  const handleChanges = (newContent: BlockInstance[]): void => {
+  const allowedBlockTypes = useMemo(() => {
+    if (!allowedBlocks && !customBlocks) {
+      if (!isGutenbergBootstrapped) {
+        return []
+      }
+
+      return getDefaultAllowedBlockTypes()
+    }
+
+    return Array.from(
+      new Set([...(allowedBlocks ?? []), ...(customBlocks?.map(([blockName]) => blockName) ?? [])]),
+    )
+  }, [allowedBlocks, customBlocks, isGutenbergBootstrapped])
+
+  const editorSettings = useMemo<
+    Partial<{ mediaUpload: (props: MediaUploadProps) => void; [key: string]: unknown }>
+  >(
+    () => ({
+      disableCustomColors: false,
+      disableCustomEditorFontSizes: false,
+      styles: [],
+      codeEditingEnabled: false,
+      mediaUpload,
+      allowedBlockTypes,
+    }),
+    [allowedBlockTypes, mediaUpload],
+  )
+
+  useEffect(() => {
+    if (localContentUpdateRef.current === content) {
+      localContentUpdateRef.current = null
+      return
+    }
+
+    historyRef.current = initializeEditorHistory(content)
+    selectionRef.current = undefined
+    setSelection(undefined)
+  }, [content])
+
+  const setSelectionState = (nextSelection?: GutenbergEditorSelection) => {
+    selectionRef.current = nextSelection
+    setSelection(nextSelection)
+  }
+
+  const dispatchContentChange = (newContent: BlockInstance[]) => {
+    localContentUpdateRef.current = newContent
     onContentChange(newContent)
   }
-  const handleInput = (newContent: BlockInstance[]): void => {
-    onContentChange(newContent)
+
+  const handleChanges = (
+    newContent: BlockInstance[],
+    options?: GutenbergEditorChangeOptions,
+  ): void => {
+    const nextSelection = options?.selection ?? selectionRef.current
+
+    setSelectionState(nextSelection)
+    historyRef.current = pushEditorHistoryEntry(
+      historyRef.current,
+      createEditorHistoryEntry(newContent, nextSelection),
+    )
+    dispatchContentChange(newContent)
+  }
+
+  const handleInput = (
+    newContent: BlockInstance[],
+    options?: GutenbergEditorChangeOptions,
+  ): void => {
+    const nextSelection = options?.selection ?? selectionRef.current
+
+    setSelectionState(nextSelection)
+    historyRef.current = updateCurrentEditorHistoryEntry(
+      historyRef.current,
+      createEditorHistoryEntry(newContent, nextSelection),
+    )
+    dispatchContentChange(newContent)
+  }
+
+  const handleUndo = () => {
+    const nextHistory = undoEditorHistory(historyRef.current)
+
+    if (nextHistory.index === historyRef.current.index) {
+      return
+    }
+
+    historyRef.current = nextHistory
+    const nextEntry = getCurrentEditorHistoryEntry(nextHistory)
+    setSelectionState(nextEntry?.selection)
+    if (nextEntry) {
+      dispatchContentChange(nextEntry.content)
+    }
+  }
+
+  const handleRedo = () => {
+    const nextHistory = redoEditorHistory(historyRef.current)
+
+    if (nextHistory.index === historyRef.current.index) {
+      return
+    }
+
+    historyRef.current = nextHistory
+    const nextEntry = getCurrentEditorHistoryEntry(nextHistory)
+    setSelectionState(nextEntry?.selection)
+    if (nextEntry) {
+      dispatchContentChange(nextEntry.content)
+    }
   }
 
   const [sidebarView, setSidebarView] = useState<
     "block-props" | "block-list" | "block-menu" | string
   >(
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     "block-props",
   )
+
   useEffect(() => {
-    setCategories(modifyGutenbergCategories())
+    addFilter(
+      "editor.BlockEdit",
+      "moocfi/cms/customHtmlParagraphWarning",
+      withCustomHtmlParagraphWarning,
+    )
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/customHtmlParagraphWarning")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter("editor.BlockEdit", "moocfi/cms/paragraphWarnings", withParagraphWarnings)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/paragraphWarnings")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter("editor.BlockEdit", "moocfi/cms/imageWarnings", withImageWarnings)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/imageWarnings")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter("editor.BlockEdit", "moocfi/cms/imageFocalPointReset", withImageFocalPointReset)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/imageFocalPointReset")
+    }
   }, [])
 
   useEffect(() => {
     addFilter(
-      "blockEditor.useSetting.before",
-      "moocfi/editBlockThemeJsonSettings",
-      editBlockThemeJsonSettings,
+      "editor.BlockEdit",
+      "moocfi/cms/headingHierarchyWarnings",
+      withHeadingHierarchyWarnings,
     )
-    // Register all core blocks
-    registerCoreBlocks()
-    // We register the BlockVariation and if it's not in allowedBlockVariations, it will be removed.
-    registerBlockVariations()
-
-    // Unregister unwanted blocks
-    if (allowedBlocks) {
-      getBlockTypes().forEach((block) => {
-        if (allowedBlocks.indexOf(block.name) === -1) {
-          unregisterBlockType(block.name)
-        }
-      })
-    }
-
-    // Unregister unwanted block variations
-    if (allowedBlockVariations) {
-      for (const [blockName, allowedVariations] of Object.entries(allowedBlockVariations)) {
-        /* @ts-expect-error: type signature incorrect */
-        getBlockType(blockName)?.variations?.forEach((variation) => {
-          if (allowedVariations.indexOf(variation.name) === -1) {
-            unregisterBlockVariation(blockName, variation.name)
-          }
-        })
-      }
-    }
-
-    // Register own blocks
-    if (customBlocks) {
-      customBlocks.forEach(([blockName, block]) => {
-        registerBlockType(blockName, block)
-      })
-    }
-
-    // Remove Gutenberg Default Button styles and add own
-    modifyBlockButton()
-
-    // core/image block crashes if there's no wp global. Setting it to null is enough fix the existing null checks
-    // in the core/image code.
-    // @ts-expect-error: setting a global
-    window.wp = null
-  }, [allowedBlockVariations, allowedBlocks, customBlocks])
-
-  addFilter("blocks.registerBlockType", "moocfi/modifyImageAttributes", modifyImageBlockAttributes)
-  addFilter("blocks.registerBlockType", "moocfi/modifyEmbedAttributes", modifyEmbedBlockAttributes)
-
-  // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
-  // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
-
-  /**
-   * editor.BlockEdit edits the edit function for a block
-   * Add the custom attributes for the Mentimeter to the sidebar.
-   */
-  useEffect(() => {
-    addFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector", withMentimeterInspector)
     return () => {
-      removeFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector")
+      removeFilter("editor.BlockEdit", "moocfi/cms/headingHierarchyWarnings")
     }
   }, [])
 
   // This **should** be the last useEffect as it supposes that Gutenberg is fully set up
   // Runs migrations and validations for the blocks
   useEffect(() => {
-    if (!needToRunMigrationsAndValidations) {
+    if (!isGutenbergBootstrapped || !needToRunMigrationsAndValidations) {
       return
     }
     const [updatedContent, numberOfBlocksMigrated] = runMigrationsAndValidations(content)
@@ -230,13 +300,14 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     }
   }, [
     content,
+    isGutenbergBootstrapped,
     needToRunMigrationsAndValidations,
     onContentChange,
     setNeedToRunMigrationsAndValidations,
     t,
   ])
 
-  if (needToRunMigrationsAndValidations) {
+  if (!isGutenbergBootstrapped || needToRunMigrationsAndValidations) {
     return <Spinner variant="large" />
   }
 
@@ -260,6 +331,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
             value={content}
             onInput={handleInput}
             onChange={handleChanges}
+            selection={selection}
+            onChangeSelection={(nextSelection: GutenbergEditorSelection | undefined) => {
+              setSelectionState(nextSelection)
+            }}
           >
             {showSidebar && (
               <div className="editor__sidebar">
@@ -336,11 +411,11 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                       value={sidebarView}
                       label={t("editor-select-sidebar-view")}
                       options={[
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-props", label: t("block-props") },
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-list", label: t("block-list") },
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-menu", label: t("block-menu") },
                       ]}
                       onChangeByValue={(val) => setSidebarView(val)}
@@ -362,15 +437,13 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
             <div className="editor__content">
               <BlockTools __unstableContentRef={localRef}>
                 <div className="editor-styles-wrapper">
-                  {/* @ts-expect-error: type signature incorrect */}
                   <BlockEditorKeyboardShortcuts.Register />
-                  <CommonKeyboardShortcuts />
+                  <CommonKeyboardShortcuts onUndo={handleUndo} onRedo={handleRedo} />
                   <WritingFlow
-                    // @ts-expect-error: Ref missing from type definitions
                     ref={contentRef}
                     className="editor-styles-wrapper"
                     tabIndex={-1}
-                    // eslint-disable-next-line react/forbid-component-props
+                    // oxlint-disable-next-line react/forbid-component-props
                     style={{
                       height: "100%",
                       width: "100%",
@@ -379,12 +452,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                     <ObserveTyping>
                       <BlockList />
 
-                      {content.length > 0 && (
-                        <ButtonBlockAppender
-                          // @ts-expect-error: Typically this component is used to insert innerblocks. However, we are using it to insert blocks at the root level.
-                          rootClientId={undefined}
-                        />
-                      )}
+                      {content.length > 0 && <ButtonBlockAppender rootClientId={undefined} />}
                     </ObserveTyping>
                   </WritingFlow>
                 </div>

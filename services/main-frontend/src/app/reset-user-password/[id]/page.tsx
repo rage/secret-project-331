@@ -5,34 +5,43 @@ import { useParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
 import ResetPasswordForm from "@/components/forms/ResetUserPasswordForm"
-import { fetchResetPasswordTokenStatus } from "@/services/backend/users"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { getResetPasswordTokenStatus } from "@/generated/api/sdk.generated"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { isBoolean } from "@/shared-module/common/utils/fetching"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
+import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 const ResetPassword: React.FC = () => {
   const { id: token } = useParams<{ id: string }>()
   const { t } = useTranslation()
+  usePageTitle(t("title-reset-password"))
 
   const isValid = useQuery({
     queryKey: ["reset-password-token-status", token],
-    queryFn: () => fetchResetPasswordTokenStatus(token),
+    queryFn: async () =>
+      validateGeneratedData(
+        await getResetPasswordTokenStatus({
+          body: {
+            token,
+          },
+        }),
+        isBoolean,
+      ),
   })
 
   return (
     <div>
-      {isValid.isError && <ErrorBanner variant="readOnly" error={isValid.error} />}
-      {isValid.isLoading && <Spinner variant="medium" />}
-      {isValid.isSuccess && (
-        <>
-          {isValid.data === true ? (
+      <QueryResult query={isValid}>
+        {(data) =>
+          data === true ? (
             <ResetPasswordForm token={token} />
           ) : (
             <GenericInfobox>{t("reset-link-has-expired")}</GenericInfobox>
-          )}
-        </>
-      )}
+          )
+        }
+      </QueryResult>
     </div>
   )
 }

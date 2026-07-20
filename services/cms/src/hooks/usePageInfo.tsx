@@ -3,19 +3,25 @@
 import { useQuery } from "@tanstack/react-query"
 import { validate } from "uuid"
 
-import { fetchPageInfo } from "../services/backend/pages"
+import { getCmsPageInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const usePageInfo = (pageId: string, prefix: string) => {
   // To prevent this to be called with '[id]' because the next.js router is not ready yet
   const isValid = validate(pageId)
 
-  const data = useQuery({
-    queryKey: [`page-info-id-${pageId}`],
-    queryFn: () => {
-      return fetchPageInfo(pageId)
-    },
-    enabled: !!pageId && isValid && prefix === "pages",
-  })
+  const data = useQuery(
+    optionalGeneratedQueryOptions({
+      value: pageId,
+      isReady: (id): id is string => Boolean(id) && isValid && prefix === "pages",
+      build: (id) =>
+        getCmsPageInfoOptions({
+          path: {
+            page_id: id,
+          },
+        }),
+    }),
+  )
   return data
 }
 

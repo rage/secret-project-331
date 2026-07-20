@@ -1,4 +1,4 @@
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 "use client"
 
 import { css } from "@emotion/css"
@@ -7,11 +7,11 @@ import React, { useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import TopBarMenuButton from "./TopBarMenuButton"
-import { useLanguageMenuItems } from "./hooks/useLanguageMenuItems"
-
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import { useLanguageMenuItems } from "./hooks/useLanguageMenuItems"
+import TopBarMenuButton from "./TopBarMenuButton"
 
 const triggerBtn = css`
   /* Keep DOM stable; structure changes via CSS only */
@@ -122,14 +122,16 @@ const footerMessage = css`
 interface LanguageMenuProps {
   placement?: "bottom-end" | "bottom-start"
   // Optional props for non-course pages
-  courseId?: string | null
-  currentPageId?: string | null
-  availableLanguages?: Array<{
-    code: string
-    name: string
-    isDraft?: boolean
-  }>
-  onLanguageChange?: (languageCode: string) => Promise<void>
+  courseId?: string | null | undefined
+  currentPageId?: string | null | undefined
+  availableLanguages?:
+    | {
+        code: string
+        name: string
+        isDraft?: boolean
+      }[]
+    | undefined
+  onLanguageChange?: ((languageCode: string) => Promise<void>) | undefined
 }
 
 // Helper component that handles the hook availability

@@ -188,6 +188,7 @@ pub struct ModuleBuilder {
     pub completion_policy: CompletionPolicy,
     pub completions: Vec<CompletionBuilder>,
     pub default_registrar_id: Option<Uuid>,
+    pub uh_course_code: Option<String>,
 }
 
 impl Default for ModuleBuilder {
@@ -207,6 +208,7 @@ impl ModuleBuilder {
             completion_policy: CompletionPolicy::Manual,
             completions: vec![],
             default_registrar_id: None,
+            uh_course_code: None,
         }
     }
     pub fn default_registrar(mut self, id: Uuid) -> Self {
@@ -233,6 +235,10 @@ impl ModuleBuilder {
     }
     pub fn ects(mut self, e: f32) -> Self {
         self.ects = Some(e);
+        self
+    }
+    pub fn uh_course_code(mut self, c: String) -> Self {
+        self.uh_course_code = Some(c);
         self
     }
     pub fn register_to_open_university(mut self, v: bool) -> Self {
@@ -285,7 +291,8 @@ impl ModuleBuilder {
             headless_lms_models::PKeyPolicy::Generate,
             &NewCourseModule::new(course_id, self.name, order)
                 .set_ects_credits(self.ects)
-                .set_completion_policy(self.completion_policy.clone()),
+                .set_completion_policy(self.completion_policy.clone())
+                .set_uh_course_code(self.uh_course_code),
         )
         .await
         .with_context(|| format!("inserting module (order {:?})", order))?;

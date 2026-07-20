@@ -1,9 +1,10 @@
+use crate::error::missing_model_error;
 use crate::prelude::*;
-use std::convert::TryFrom;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema, sqlx::Type)]
 #[serde(rename_all = "snake_case")]
+#[sqlx(type_name = "chapter_locking_status", rename_all = "snake_case")]
 pub enum ChapterLockingStatus {
     /// Chapter is unlocked and exercises can be submitted.
     Unlocked,
@@ -13,23 +14,8 @@ pub enum ChapterLockingStatus {
     NotUnlockedYet,
 }
 
-impl ChapterLockingStatus {
-    pub fn from_db(s: &str) -> ModelResult<Self> {
-        match s {
-            "unlocked" => Ok(ChapterLockingStatus::Unlocked),
-            "completed_and_locked" => Ok(ChapterLockingStatus::CompletedAndLocked),
-            "not_unlocked_yet" => Ok(ChapterLockingStatus::NotUnlockedYet),
-            _ => Err(ModelError::new(
-                ModelErrorType::Database,
-                format!("Invalid chapter locking status from database: {}", s),
-                None,
-            )),
-        }
-    }
-}
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema, sqlx::FromRow)]
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserChapterLockingStatus {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -41,36 +27,7 @@ pub struct UserChapterLockingStatus {
     pub status: ChapterLockingStatus,
 }
 
-struct DatabaseRow {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    deleted_at: Option<DateTime<Utc>>,
-    user_id: Uuid,
-    chapter_id: Uuid,
-    course_id: Uuid,
-    status: String,
-}
-
-impl TryFrom<DatabaseRow> for UserChapterLockingStatus {
-    type Error = ModelError;
-
-    fn try_from(row: DatabaseRow) -> Result<Self, Self::Error> {
-        let status = ChapterLockingStatus::from_db(&row.status)?;
-        Ok(UserChapterLockingStatus {
-            id: row.id,
-            created_at: row.created_at,
-            updated_at: row.updated_at,
-            deleted_at: row.deleted_at,
-            user_id: row.user_id,
-            chapter_id: row.chapter_id,
-            course_id: row.course_id,
-            status,
-        })
-    }
-}
-
-async fn get_status_row(
+async fn get_or_init_status_row(
     conn: &mut PgConnection,
     user_id: Uuid,
     chapter_id: Uuid,
@@ -78,9 +35,9 @@ async fn get_status_row(
     course_locking_enabled: Option<bool>,
 ) -> ModelResult<Option<UserChapterLockingStatus>> {
     let res = sqlx::query_as!(
-        DatabaseRow,
+        UserChapterLockingStatus,
         r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+SELECT *
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND chapter_id = $2
@@ -93,7 +50,7 @@ WHERE user_id = $1
     .await?;
 
     if let Some(row) = res {
-        return row.try_into().map(Some);
+        return Ok(Some(row));
     }
 
     if let (Some(course_id), Some(true)) = (course_id, course_locking_enabled) {
@@ -112,10 +69,11 @@ pub async fn get_or_init_status(
     course_id: Option<Uuid>,
     course_locking_enabled: Option<bool>,
 ) -> ModelResult<Option<ChapterLockingStatus>> {
-    get_status_row(conn, user_id, chapter_id, course_id, course_locking_enabled)
-        .await?
-        .map(|s| Ok(s.status))
-        .transpose()
+    Ok(
+        get_or_init_status_row(conn, user_id, chapter_id, course_id, course_locking_enabled)
+            .await?
+            .map(|s| s.status),
+    )
 }
 
 pub async fn is_chapter_accessible(
@@ -186,13 +144,13 @@ pub async fn unlock_chapter(
     course_id: Uuid,
 ) -> ModelResult<UserChapterLockingStatus> {
     let res = sqlx::query_as!(
-        DatabaseRow,
+        UserChapterLockingStatus,
         r#"
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
 VALUES ($1, $2, $3, 'unlocked'::chapter_locking_status, NULL)
 ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
 SET status = 'unlocked'::chapter_locking_status, deleted_at = NULL
-RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+RETURNING *
         "#,
         user_id,
         chapter_id,
@@ -201,25 +159,26 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     .fetch_optional(&mut *conn)
     .await?;
 
-    res.map(|s| s.try_into())
-        .transpose()?
-        .ok_or_else(|| ModelError::new(ModelErrorType::NotFound, "Failed to unlock chapter", None))
+    res.ok_or_else(missing_model_error(
+        ModelErrorType::NotFound,
+        "Failed to unlock chapter",
+    ))
 }
 
-pub async fn complete_chapter(
+pub async fn complete_and_lock_chapter(
     conn: &mut PgConnection,
     user_id: Uuid,
     chapter_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<UserChapterLockingStatus> {
     let res = sqlx::query_as!(
-        DatabaseRow,
+        UserChapterLockingStatus,
         r#"
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
 VALUES ($1, $2, $3, 'completed_and_locked'::chapter_locking_status, NULL)
 ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
 SET status = 'completed_and_locked'::chapter_locking_status, deleted_at = NULL
-RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+RETURNING *
         "#,
         user_id,
         chapter_id,
@@ -228,38 +187,49 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     .fetch_optional(&mut *conn)
     .await?;
 
-    res.map(|s| s.try_into()).transpose()?.ok_or_else(|| {
-        ModelError::new(ModelErrorType::NotFound, "Failed to complete chapter", None)
-    })
+    res.ok_or_else(missing_model_error(
+        ModelErrorType::NotFound,
+        "Failed to complete chapter",
+    ))
 }
 
-pub async fn get_by_user_and_chapter(
+pub async fn set_chapter_status(
     conn: &mut PgConnection,
     user_id: Uuid,
     chapter_id: Uuid,
-    course_id: Option<Uuid>,
-    course_locking_enabled: Option<bool>,
-) -> ModelResult<Option<UserChapterLockingStatus>> {
-    get_status_row(conn, user_id, chapter_id, course_id, course_locking_enabled).await
+    course_id: Uuid,
+    status: ChapterLockingStatus,
+) -> ModelResult<UserChapterLockingStatus> {
+    let res = sqlx::query_as!(
+        UserChapterLockingStatus,
+        r#"
+INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
+VALUES ($1, $2, $3, $4, NULL)
+ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
+SET status = $4, deleted_at = NULL
+RETURNING *
+        "#,
+        user_id,
+        chapter_id,
+        course_id,
+        status as ChapterLockingStatus,
+    )
+    .fetch_optional(&mut *conn)
+    .await?;
+
+    res.ok_or_else(missing_model_error(
+        ModelErrorType::NotFound,
+        "Failed to set chapter status",
+    ))
 }
 
-pub async fn get_by_user_and_course(
+pub async fn get_or_init_all_for_course(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<Vec<UserChapterLockingStatus>> {
-    let course_locking_enabled: bool = sqlx::query!(
-        r#"
-SELECT chapter_locking_enabled
-FROM courses
-WHERE id = $1
-        "#,
-        course_id
-    )
-    .fetch_optional(&mut *conn)
-    .await?
-    .map(|r| r.chapter_locking_enabled)
-    .unwrap_or(false);
+    let course = crate::courses::get_course(conn, course_id).await?;
+    let course_locking_enabled = course.chapter_locking_enabled;
 
     if course_locking_enabled {
         sqlx::query!(
@@ -285,24 +255,123 @@ ON CONFLICT (user_id, chapter_id, deleted_at) DO NOTHING
         .await?;
     }
 
-    let res = sqlx::query_as!(
-        DatabaseRow,
+    async fn get_statuses_for_user_and_course(
+        conn: &mut PgConnection,
+        user_id: Uuid,
+        course_id: Uuid,
+    ) -> ModelResult<Vec<UserChapterLockingStatus>> {
+        let rows = sqlx::query_as!(
+            UserChapterLockingStatus,
+            r#"
+SELECT *
+FROM user_chapter_locking_statuses
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id
+        )
+        .fetch_all(&mut *conn)
+        .await?;
+
+        Ok(rows)
+    }
+
+    let mut statuses = get_statuses_for_user_and_course(conn, user_id, course_id).await?;
+
+    if course_locking_enabled
+        && !statuses.is_empty()
+        && statuses
+            .iter()
+            .all(|s| matches!(s.status, ChapterLockingStatus::NotUnlockedYet))
+    {
+        crate::chapters::unlock_first_chapters_for_user(conn, user_id, course_id).await?;
+
+        statuses = get_statuses_for_user_and_course(conn, user_id, course_id).await?;
+    }
+
+    Ok(statuses)
+}
+
+pub async fn get_all_for_course(
+    conn: &mut PgConnection,
+    course: &crate::courses::Course,
+) -> ModelResult<Vec<UserChapterLockingStatus>> {
+    if !course.chapter_locking_enabled {
+        return Ok(Vec::new());
+    }
+
+    let rows = sqlx::query_as!(
+        UserChapterLockingStatus,
         r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+SELECT *
+FROM user_chapter_locking_statuses
+WHERE course_id = $1
+  AND deleted_at IS NULL
+        "#,
+        course.id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    Ok(rows)
+}
+
+/// Returns all chapter locking statuses for the given users in a course.
+pub async fn get_for_users_and_course(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+    course: &crate::courses::Course,
+) -> ModelResult<Vec<UserChapterLockingStatus>> {
+    if !course.chapter_locking_enabled {
+        return Ok(Vec::new());
+    }
+
+    let rows = sqlx::query_as!(
+        UserChapterLockingStatus,
+        r#"
+SELECT *
+FROM user_chapter_locking_statuses
+WHERE course_id = $1
+  AND user_id = ANY($2::uuid[])
+  AND deleted_at IS NULL
+        "#,
+        course.id,
+        user_ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    Ok(rows)
+}
+
+/// Returns all chapter locking statuses for a specific user in a course.
+pub async fn get_for_user_and_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course: &crate::courses::Course,
+) -> ModelResult<Vec<UserChapterLockingStatus>> {
+    if !course.chapter_locking_enabled {
+        return Ok(Vec::new());
+    }
+
+    let rows = sqlx::query_as!(
+        UserChapterLockingStatus,
+        r#"
+SELECT *
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND course_id = $2
   AND deleted_at IS NULL
         "#,
         user_id,
-        course_id
+        course.id
     )
     .fetch_all(&mut *conn)
     .await?;
 
-    res.into_iter()
-        .map(|r| r.try_into())
-        .collect::<ModelResult<Vec<_>>>()
+    Ok(rows)
 }
 
 /// Creates a status row with `not_unlocked_yet` status if one doesn't exist.
@@ -314,13 +383,13 @@ pub async fn ensure_not_unlocked_yet_status(
     chapter_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<UserChapterLockingStatus> {
-    let res: Option<DatabaseRow> = sqlx::query_as!(
-        DatabaseRow,
+    let res: Option<UserChapterLockingStatus> = sqlx::query_as!(
+        UserChapterLockingStatus,
         r#"
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
 VALUES ($1, $2, $3, 'not_unlocked_yet'::chapter_locking_status, NULL)
 ON CONFLICT (user_id, chapter_id, deleted_at) DO NOTHING
-RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+RETURNING *
         "#,
         user_id,
         chapter_id,
@@ -330,13 +399,13 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     .await?;
 
     if let Some(status) = res {
-        return status.try_into();
+        return Ok(status);
     }
 
     let retrieved = sqlx::query_as!(
-        DatabaseRow,
+        UserChapterLockingStatus,
         r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+SELECT *
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND chapter_id = $2
@@ -348,19 +417,105 @@ WHERE user_id = $1
     .fetch_optional(&mut *conn)
     .await?;
 
-    retrieved.map(|r| r.try_into()).transpose()?.ok_or_else(|| {
-        ModelError::new(
-            ModelErrorType::NotFound,
-            "Failed to ensure not_unlocked_yet status",
-            None,
+    retrieved.ok_or_else(missing_model_error(
+        ModelErrorType::NotFound,
+        "Failed to ensure not_unlocked_yet status",
+    ))
+}
+
+/// Unlocks the provided chapters for a user within a course.
+pub async fn unlock_chapters_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    chapter_ids: &[Uuid],
+) -> ModelResult<()> {
+    if chapter_ids.is_empty() {
+        return Ok(());
+    }
+
+    let course = crate::courses::get_course(conn, course_id).await?;
+    if !course.chapter_locking_enabled {
+        sqlx::query!(
+            r#"
+UPDATE user_chapter_locking_statuses
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND course_id = $2
+  AND chapter_id = ANY($3)
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            chapter_ids
         )
-    })
+        .execute(&mut *conn)
+        .await?;
+
+        return Ok(());
+    }
+
+    sqlx::query!(
+        r#"
+UPDATE user_chapter_locking_statuses
+SET status = 'unlocked'::chapter_locking_status, deleted_at = NULL
+WHERE user_id = $1
+  AND course_id = $2
+  AND chapter_id = ANY($3)
+  AND status = 'completed_and_locked'::chapter_locking_status
+  AND deleted_at IS NULL
+        "#,
+        user_id,
+        course_id,
+        chapter_ids
+    )
+    .execute(&mut *conn)
+    .await?;
+
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::test_helper::*;
+
+    /// Updates chapter locking on a course for test setup.
+    async fn set_course_chapter_locking_enabled(
+        tx: &mut PgConnection,
+        course_id: Uuid,
+        chapter_locking_enabled: bool,
+    ) {
+        let course_before_update = crate::courses::get_course(tx, course_id).await.unwrap();
+        crate::courses::update_course(
+            tx,
+            course_id,
+            crate::courses::CourseUpdate {
+                chapter_locking_enabled,
+                name: course_before_update.name,
+                description: course_before_update.description,
+                is_draft: course_before_update.is_draft,
+                is_test_mode: course_before_update.is_test_mode,
+                can_add_chatbot: course_before_update.can_add_chatbot,
+                is_unlisted: course_before_update.is_unlisted,
+                is_joinable_by_code_only: course_before_update.is_joinable_by_code_only,
+                ask_marketing_consent: course_before_update.ask_marketing_consent,
+                flagged_answers_threshold: course_before_update
+                    .flagged_answers_threshold
+                    .unwrap_or_default(),
+                flagged_answers_skip_manual_review_and_allow_retry: course_before_update
+                    .flagged_answers_skip_manual_review_and_allow_retry,
+                closed_at: course_before_update.closed_at,
+                closed_additional_message: course_before_update.closed_additional_message,
+                closed_course_successor_id: course_before_update.closed_course_successor_id,
+                ai_policy: course_before_update.ai_policy,
+                course_material_ai_instructions: course_before_update
+                    .course_material_ai_instructions,
+            },
+        )
+        .await
+        .unwrap();
+    }
 
     #[tokio::test]
     async fn get_status_returns_none_when_no_status_exists() {
@@ -422,7 +577,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn complete_chapter_creates_completed_status() {
+    async fn complete_and_lock_chapter_creates_completed_status() {
         insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module);
         let chapter = crate::chapters::insert(
             tx.as_mut(),
@@ -441,7 +596,7 @@ mod tests {
         .await
         .unwrap();
 
-        let status = complete_chapter(tx.as_mut(), user, chapter, course)
+        let status = complete_and_lock_chapter(tx.as_mut(), user, chapter, course)
             .await
             .unwrap();
         assert_eq!(status.status, ChapterLockingStatus::CompletedAndLocked);
@@ -477,6 +632,35 @@ mod tests {
         .await
         .unwrap();
 
+        let existing_course = crate::courses::get_course(tx.as_mut(), course)
+            .await
+            .unwrap();
+        crate::courses::update_course(
+            tx.as_mut(),
+            course,
+            crate::courses::CourseUpdate {
+                name: existing_course.name,
+                description: existing_course.description,
+                is_draft: existing_course.is_draft,
+                is_test_mode: existing_course.is_test_mode,
+                can_add_chatbot: existing_course.can_add_chatbot,
+                is_unlisted: existing_course.is_unlisted,
+                is_joinable_by_code_only: existing_course.is_joinable_by_code_only,
+                ask_marketing_consent: existing_course.ask_marketing_consent,
+                flagged_answers_threshold: existing_course.flagged_answers_threshold.unwrap_or(1),
+                flagged_answers_skip_manual_review_and_allow_retry: existing_course
+                    .flagged_answers_skip_manual_review_and_allow_retry,
+                closed_at: existing_course.closed_at,
+                closed_additional_message: existing_course.closed_additional_message,
+                closed_course_successor_id: existing_course.closed_course_successor_id,
+                chapter_locking_enabled: true,
+                ai_policy: existing_course.ai_policy,
+                course_material_ai_instructions: existing_course.course_material_ai_instructions,
+            },
+        )
+        .await
+        .unwrap();
+
         unlock_chapter(tx.as_mut(), user, chapter, course)
             .await
             .unwrap();
@@ -485,7 +669,7 @@ mod tests {
             .unwrap();
         assert_eq!(status, Some(ChapterLockingStatus::Unlocked));
 
-        complete_chapter(tx.as_mut(), user, chapter, course)
+        complete_and_lock_chapter(tx.as_mut(), user, chapter, course)
             .await
             .unwrap();
         let status = get_or_init_status(tx.as_mut(), user, chapter, Some(course), None)
@@ -495,8 +679,18 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn get_by_user_and_course_returns_all_statuses() {
-        insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module);
+    async fn get_or_init_all_for_course_returns_all_statuses() {
+        insert_data!(:tx, :user, :org, course: course);
+        // Use the base module (order_number == 0) so that the unlocking logic,
+        // which operates on the base module, affects these chapters.
+        let all_modules = crate::course_modules::get_by_course_id(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let base_module = all_modules
+            .into_iter()
+            .find(|m| m.order_number == 0)
+            .unwrap();
+
         let chapter1 = crate::chapters::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
@@ -508,7 +702,7 @@ mod tests {
                 front_page_id: None,
                 opens_at: None,
                 deadline: None,
-                course_module_id: Some(course_module.id),
+                course_module_id: Some(base_module.id),
             },
         )
         .await
@@ -524,7 +718,7 @@ mod tests {
                 front_page_id: None,
                 opens_at: None,
                 deadline: None,
-                course_module_id: Some(course_module.id),
+                course_module_id: Some(base_module.id),
             },
         )
         .await
@@ -533,11 +727,11 @@ mod tests {
         unlock_chapter(tx.as_mut(), user, chapter1, course)
             .await
             .unwrap();
-        complete_chapter(tx.as_mut(), user, chapter2, course)
+        complete_and_lock_chapter(tx.as_mut(), user, chapter2, course)
             .await
             .unwrap();
 
-        let statuses = get_by_user_and_course(tx.as_mut(), user, course)
+        let statuses = get_or_init_all_for_course(tx.as_mut(), user, course)
             .await
             .unwrap();
         assert_eq!(statuses.len(), 2);
@@ -550,5 +744,367 @@ mod tests {
             statuses.iter().any(|s| s.chapter_id == chapter2
                 && s.status == ChapterLockingStatus::CompletedAndLocked)
         );
+    }
+
+    #[tokio::test]
+    async fn get_or_init_all_for_course_unlocks_first_chapter_when_all_not_unlocked_yet() {
+        insert_data!(:tx, :user, :org, course: course);
+
+        let all_modules = crate::course_modules::get_by_course_id(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let base_module = all_modules
+            .into_iter()
+            .find(|m| m.order_number == 0)
+            .unwrap();
+
+        let chapter1 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 1".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(base_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        // insert a second chapter to ensure only the first is auto-unlocked
+        let chapter2 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 2".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 2,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(base_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        // Enable chapter locking for the course
+        let existing_course = crate::courses::get_course(tx.as_mut(), course)
+            .await
+            .unwrap();
+
+        crate::courses::update_course(
+            tx.as_mut(),
+            course,
+            crate::courses::CourseUpdate {
+                name: existing_course.name,
+                description: existing_course.description,
+                is_draft: existing_course.is_draft,
+                is_test_mode: existing_course.is_test_mode,
+                can_add_chatbot: existing_course.can_add_chatbot,
+                is_unlisted: existing_course.is_unlisted,
+                is_joinable_by_code_only: existing_course.is_joinable_by_code_only,
+                ask_marketing_consent: existing_course.ask_marketing_consent,
+                flagged_answers_threshold: existing_course.flagged_answers_threshold.unwrap_or(1),
+                flagged_answers_skip_manual_review_and_allow_retry: existing_course
+                    .flagged_answers_skip_manual_review_and_allow_retry,
+                closed_at: existing_course.closed_at,
+                closed_additional_message: existing_course.closed_additional_message,
+                closed_course_successor_id: existing_course.closed_course_successor_id,
+                chapter_locking_enabled: true,
+                ai_policy: existing_course.ai_policy,
+                course_material_ai_instructions: existing_course.course_material_ai_instructions,
+            },
+        )
+        .await
+        .unwrap();
+
+        // Ensure we start from a state where all chapters are not_unlocked_yet
+        let _ = ensure_not_unlocked_yet_status(tx.as_mut(), user, chapter1, course)
+            .await
+            .unwrap();
+        let _ = ensure_not_unlocked_yet_status(tx.as_mut(), user, chapter2, course)
+            .await
+            .unwrap();
+
+        let statuses = get_or_init_all_for_course(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+
+        assert!(!statuses.is_empty());
+        assert!(
+            statuses
+                .iter()
+                .any(|s| s.chapter_id == chapter1 && s.status == ChapterLockingStatus::Unlocked)
+        );
+    }
+
+    #[tokio::test]
+    async fn get_all_for_course_returns_existing_statuses_without_initializing_missing_rows() {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            course: course,
+            instance: _instance,
+            :course_module
+        );
+        set_course_chapter_locking_enabled(tx.as_mut(), course, true).await;
+        let user_2 = crate::users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &format!("{}@example.com", Uuid::new_v4()),
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let chapter = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 1".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(course_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        unlock_chapter(tx.as_mut(), user, chapter, course)
+            .await
+            .unwrap();
+
+        let course = crate::courses::get_course(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let statuses = get_all_for_course(tx.as_mut(), &course).await.unwrap();
+
+        assert_eq!(statuses.len(), 1);
+        assert_eq!(statuses[0].user_id, user);
+        assert_eq!(statuses[0].chapter_id, chapter);
+        assert_eq!(statuses[0].status, ChapterLockingStatus::Unlocked);
+        assert!(statuses.iter().all(|status| status.user_id != user_2));
+    }
+
+    #[tokio::test]
+    async fn unlock_chapters_for_user_only_updates_selected_chapters() {
+        insert_data!(:tx, :user, :org, course: course);
+        set_course_chapter_locking_enabled(tx.as_mut(), course, true).await;
+
+        let all_modules = crate::course_modules::get_by_course_id(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let base_module = all_modules
+            .into_iter()
+            .find(|m| m.order_number == 0)
+            .unwrap();
+
+        let chapter1 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 1".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(base_module.id),
+            },
+        )
+        .await
+        .unwrap();
+        let chapter2 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 2".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 2,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(base_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        complete_and_lock_chapter(tx.as_mut(), user, chapter1, course)
+            .await
+            .unwrap();
+        complete_and_lock_chapter(tx.as_mut(), user, chapter2, course)
+            .await
+            .unwrap();
+
+        unlock_chapters_for_user(tx.as_mut(), user, course, &[chapter1])
+            .await
+            .unwrap();
+
+        let chapter1_status = get_or_init_status(tx.as_mut(), user, chapter1, Some(course), None)
+            .await
+            .unwrap();
+        let chapter2_status = get_or_init_status(tx.as_mut(), user, chapter2, Some(course), None)
+            .await
+            .unwrap();
+
+        assert_eq!(chapter1_status, Some(ChapterLockingStatus::Unlocked));
+        assert_eq!(
+            chapter2_status,
+            Some(ChapterLockingStatus::CompletedAndLocked)
+        );
+    }
+
+    #[tokio::test]
+    async fn unlock_chapters_for_user_does_not_unlock_not_unlocked_yet_statuses() {
+        insert_data!(:tx, :user, :org, course: course);
+        set_course_chapter_locking_enabled(tx.as_mut(), course, true).await;
+
+        let all_modules = crate::course_modules::get_by_course_id(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let base_module = all_modules
+            .into_iter()
+            .find(|m| m.order_number == 0)
+            .unwrap();
+
+        let chapter1 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 1".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(base_module.id),
+            },
+        )
+        .await
+        .unwrap();
+        let chapter2 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 2".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 2,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(base_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        complete_and_lock_chapter(tx.as_mut(), user, chapter1, course)
+            .await
+            .unwrap();
+        ensure_not_unlocked_yet_status(tx.as_mut(), user, chapter2, course)
+            .await
+            .unwrap();
+
+        unlock_chapters_for_user(tx.as_mut(), user, course, &[chapter1, chapter2])
+            .await
+            .unwrap();
+
+        let chapter1_status = get_or_init_status(tx.as_mut(), user, chapter1, Some(course), None)
+            .await
+            .unwrap();
+        let chapter2_status = get_or_init_status(tx.as_mut(), user, chapter2, Some(course), None)
+            .await
+            .unwrap();
+
+        assert_eq!(chapter1_status, Some(ChapterLockingStatus::Unlocked));
+        assert_eq!(chapter2_status, Some(ChapterLockingStatus::NotUnlockedYet));
+    }
+
+    #[tokio::test]
+    async fn unlock_chapters_for_user_soft_deletes_rows_when_locking_is_disabled() {
+        insert_data!(:tx, :user, :org, course: course);
+        set_course_chapter_locking_enabled(tx.as_mut(), course, true).await;
+
+        let all_modules = crate::course_modules::get_by_course_id(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let base_module = all_modules
+            .into_iter()
+            .find(|m| m.order_number == 0)
+            .unwrap();
+
+        let chapter1 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 1".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(base_module.id),
+            },
+        )
+        .await
+        .unwrap();
+        let chapter2 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 2".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 2,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(base_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        complete_and_lock_chapter(tx.as_mut(), user, chapter1, course)
+            .await
+            .unwrap();
+        complete_and_lock_chapter(tx.as_mut(), user, chapter2, course)
+            .await
+            .unwrap();
+
+        set_course_chapter_locking_enabled(tx.as_mut(), course, false).await;
+
+        unlock_chapters_for_user(tx.as_mut(), user, course, &[chapter1])
+            .await
+            .unwrap();
+
+        set_course_chapter_locking_enabled(tx.as_mut(), course, true).await;
+        let enabled_course = crate::courses::get_course(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let statuses = get_for_user_and_course(tx.as_mut(), user, &enabled_course)
+            .await
+            .unwrap();
+
+        assert_eq!(statuses.len(), 1);
+        assert_eq!(statuses[0].chapter_id, chapter2);
+        assert_eq!(statuses[0].status, ChapterLockingStatus::CompletedAndLocked);
     }
 }

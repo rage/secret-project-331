@@ -1,9 +1,7 @@
-"use client"
-
 import { css } from "@emotion/css"
 
-import { baseTheme } from "@/shared-module/common/styles/theme"
-import { ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
+import { baseTheme } from "@/styles/theme"
+import type { ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
 
 interface Props {
   alternatives: PublicAlternative[]
@@ -39,10 +37,11 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
         // Background of the buttons
         const color = baseTheme.colors.blue[300]
         const chosenColor = baseTheme.colors.blue[700]
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         const border = model_solutions ? `4px solid ${correct ? green : red}` : `0`
         return (
           <button
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled button uses role=checkbox; an input would change styling
             role="checkbox"
             className={
               interactable
@@ -60,11 +59,9 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
                     margin-top: 0.5rem;
                     margin-bottom: 0.5rem;
                     &:hover {
-                      background-color: ${interactable
-                        ? selected
-                          ? "#330eb8"
-                          : "#507afb"
-                        : "#6188ff"};
+                      background-color: ${selected
+                        ? baseTheme.colors.blue[700]
+                        : baseTheme.colors.blue[500]};
                     }
                   `
                 : css`

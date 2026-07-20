@@ -1,10 +1,11 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration, createBlock } from "@wordpress/blocks"
+/* oxlint-disable i18next/no-literal-string */
+import { createBlock } from "@wordpress/blocks"
+
+import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
 import LearningObjectiveSectionEditor from "./LearningObjectiveSectionEditor"
 import LearningObjectiveSectionSave from "./LearningObjectiveSectionSave"
 
@@ -18,11 +19,10 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
   save: LearningObjectiveSectionSave,
   transforms: {
     from: [
-      // @ts-expect-error: transform example from the documentation
       {
         type: "block",
         blocks: ["core/list"],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         transform(attributes: any, innerBlocks: any) {
           return createBlock("moocfi/learning-objectives", {}, [
             createBlock("core/list", attributes, innerBlocks),
@@ -34,10 +34,9 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
       {
         type: "block",
         blocks: ["core/list"],
-        // @ts-expect-error: Transform example from documentation
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        transform(_attributes: any, innerBlocks: any[]) {
-          return innerBlocks[0]
+        transform(_attributes: unknown, innerBlocks: unknown) {
+          // safe: transform is only invoked when the list block has at least one inner block
+          return (innerBlocks as BlockInstance[])[0] as BlockInstance
         },
       },
     ],

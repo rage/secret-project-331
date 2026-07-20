@@ -1,4 +1,5 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 
@@ -54,6 +55,7 @@ test("Mark answer as spam in peer review", async () => {
       .click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
   })
+
   await test.step("Student2 submits answer and reports Student1's answer in peer review", async () => {
     await student2Page.goto(
       "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-4",

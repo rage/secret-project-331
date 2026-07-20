@@ -4,9 +4,9 @@ import { css } from "@emotion/css"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import MyCourses from "@/components/page-specific/index/MyCourses"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import {
   allOrganizationsRoute,
   domainStatsRoute,
@@ -18,8 +18,11 @@ import {
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
+import MyCourses from "./MyCourses"
+
 const FrontPage = () => {
   const { t } = useTranslation()
+  usePageTitle(t("home"))
 
   return (
     <div>
@@ -36,6 +39,18 @@ const FrontPage = () => {
       <h2>{t("heading-navigation")}</h2>
       <div>
         <a href="https://www.mooc.fi">{t("link-text-find-more-courses")}</a>
+      </div>
+      <div>
+        <Link
+          href="/manage/course-plans"
+          className={css`
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+          `}
+        >
+          {t("link-text-course-plans")}
+        </Link>
       </div>
       <div>
         <Link

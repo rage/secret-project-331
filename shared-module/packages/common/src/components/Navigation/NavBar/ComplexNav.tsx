@@ -4,16 +4,14 @@ import { css, cx, keyframes } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { NavigationProps } from "."
 import MOOCfi from "../../../img/moocfiLogo.svg"
 import { baseTheme } from "../../../styles"
 import { respondToOrLarger } from "../../../styles/respond"
 import { runCallbackIfEnterPressed } from "../../../utils/accessibility"
 import Button from "../../Button"
 import LoginControls from "../../LoginControls"
-
 import Hamburger from "./Menu/Hamburger/Hamburger"
-
-import { NavigationProps } from "."
 
 const swingHorizontal = keyframes`
 15% {
@@ -224,6 +222,7 @@ const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = () => {
   return (
     <nav role="navigation" className={cx(navbarItems)}>
       <div className={cx(navbarLogo)}>
+        {/* oxlint-disable-next-line next/no-html-link-for-pages -- intentional plain anchor; not a Next pages route */}
         <a href="/" aria-label={t("home-page")}>
           <MOOCfi />
         </a>
@@ -233,6 +232,7 @@ const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = () => {
         onClick={callback}
         onKeyDown={(e) => runCallbackIfEnterPressed(e, callback)}
         tabIndex={0}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled toggle div; native button changes styling/layout
         role="button"
         aria-label={t("open-menu")}
       >

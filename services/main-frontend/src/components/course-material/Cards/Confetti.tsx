@@ -1,9 +1,14 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
+import TsParticles, {
+  type ParticlesPluginRegistrar,
+  ParticlesProvider,
+  useParticlesProvider,
+} from "@tsparticles/react"
 import React from "react"
-import { Particles } from "react-tsparticles"
+import { loadFull } from "tsparticles"
 
 import Tick from "@/img/course-material/tick.svg"
 
@@ -19,10 +24,20 @@ const StyledDiv = styled.div`
   }
 `
 
-const Confetti: React.FC = () => {
+const initParticles: ParticlesPluginRegistrar = async (engine) => {
+  await loadFull(engine)
+}
+
+const ConfettiParticles: React.FC = () => {
+  const { loaded } = useParticlesProvider()
+
+  if (!loaded) {
+    return null
+  }
+
   return (
     <StyledDiv>
-      <Particles
+      <TsParticles
         id="tsparticles"
         options={{
           background: {
@@ -152,5 +167,11 @@ const Confetti: React.FC = () => {
     </StyledDiv>
   )
 }
+
+const Confetti: React.FC = () => (
+  <ParticlesProvider init={initParticles}>
+    <ConfettiParticles />
+  </ParticlesProvider>
+)
 
 export default Confetti

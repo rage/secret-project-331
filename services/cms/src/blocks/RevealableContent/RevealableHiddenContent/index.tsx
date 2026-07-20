@@ -1,15 +1,14 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
-import { BlockConfiguration } from "@wordpress/blocks"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
-
 import RevealableHiddenContentEditor from "./RevealableHiddenContentEditor"
 import RevealableHiddenContentSave from "./RevealableHiddenContentSave"
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// oxlint-disable-next-line typescript/no-empty-object-type
 export interface ConditionAttributes {}
 
 const RevealableHiddenContentConfiguration: BlockConfiguration<ConditionAttributes> = {

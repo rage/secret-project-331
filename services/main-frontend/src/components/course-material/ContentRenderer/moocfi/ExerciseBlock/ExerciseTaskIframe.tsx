@@ -3,13 +3,15 @@
 import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import ThrottledChildRenderer, {
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
-import { ExerciseIframeState } from "@/shared-module/common/exercise-service-protocol-types"
-import { isMessageFromIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
+import type { ExerciseIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import {
   EXERCISE_IFRAME_QUEUE_CONFIG,
   EXERCISE_IFRAME_QUEUE_ID,
@@ -33,9 +35,10 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
   headingBeforeIframe,
 }) => {
   const { t } = useTranslation()
+  const dialog = useDialog()
 
   const handleMessageFromIframe = useCallback(
-    async (messageContainer: unknown, _responsePort: MessagePort) => {
+    (messageContainer: unknown, _responsePort: MessagePort) => {
       if (!isMessageFromIframe(messageContainer)) {
         return
       }
@@ -54,7 +57,8 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
     (onReady: () => void) => {
       return (
         <MessageChannelIFrame
-          headingBeforeIframe={headingBeforeIframe}
+          dialog={dialog}
+          {...omitUndefined({ headingBeforeIframe })}
           url={url}
           postThisStateToIFrame={postThisStateToIFrame}
           onMessageFromIframe={handleMessageFromIframe}
@@ -63,7 +67,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
         />
       )
     },
-    [url, postThisStateToIFrame, handleMessageFromIframe, headingBeforeIframe, title],
+    [url, postThisStateToIFrame, handleMessageFromIframe, headingBeforeIframe, title, dialog],
   )
 
   if (!url || url.trim() === "") {

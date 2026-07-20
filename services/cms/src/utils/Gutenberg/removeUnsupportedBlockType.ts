@@ -1,12 +1,20 @@
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 export function removeUnsupportedBlockType(blocks: BlockInstance[]): BlockInstance[] {
-  const modifiedBlocks: BlockInstance[] = blocks.map((block) => {
+  return blocks.map((block) => {
+    const innerBlocks = block.innerBlocks ?? []
+
     if (block.name === "moocfi/unsupported-block-type") {
       return block.attributes.originalBlockJson
-    } else {
+    }
+
+    if (innerBlocks.length === 0) {
       return block
     }
+
+    return {
+      ...block,
+      innerBlocks: removeUnsupportedBlockType(innerBlocks),
+    }
   })
-  return modifiedBlocks
 }

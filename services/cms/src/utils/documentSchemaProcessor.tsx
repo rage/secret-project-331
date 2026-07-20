@@ -1,23 +1,23 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
-import { BlockInstance } from "@wordpress/blocks"
 import { v4, v5 } from "uuid"
 
-import { ExerciseAttributes } from "../blocks/Exercise"
-import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
-
-import { isGutenbergBlockArray } from "./Gutenberg/gutenbergBlocks"
-
-import {
+import type {
   CmsPageExercise,
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
   CmsPeerOrSelfReviewConfig,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api"
+import { includeIf } from "@/shared-module/common/utils/nullability"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+
+import type { ExerciseAttributes } from "../blocks/Exercise"
+import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+import { isGutenbergBlockArray } from "./Gutenberg/gutenbergBlocks"
 
 /**
  * Only id is allowed in normalized exercises. This is because:
@@ -34,6 +34,7 @@ export interface UnnormalizedDocument {
   title: string
   urlPath: string
   chapterId: string | null
+  hidden: boolean
 }
 
 /**
@@ -94,6 +95,8 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
           : JSON.parse(exerciseAttributes.peer_or_self_review_questions_config),
       use_course_default_peer_or_self_review_config:
         exerciseAttributes.use_course_default_peer_review,
+      teacher_reviews_answer_after_locking:
+        exerciseAttributes.teacher_reviews_answer_after_locking ?? true,
     })
     exerciseCount = exerciseCount + 1
     let exerciseSlideCount = 0
@@ -166,6 +169,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     exercise_tasks: exerciseTasks,
     title: args.title,
     url_path: args.urlPath,
+    hidden: args.hidden,
   }
 }
 
@@ -200,7 +204,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         },
         isValid: true,
         innerBlocks: tasks
-          .sort((a, b) => a.order_number - b.order_number)
+          .toSorted((a, b) => a.order_number - b.order_number)
           .map((task) => {
             const denormalizedTask: BlockInstance<ExerciseTaskAttributes> = {
               // Using task id in tests ensures that this operation is reversible
@@ -249,7 +253,10 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         id: normalizedBlock.attributes.id,
         name: exercise.name,
         score_maximum: exercise.score_maximum,
-        max_tries_per_slide: exercise.max_tries_per_slide ?? undefined,
+        ...includeIf(
+          exercise.max_tries_per_slide !== null && exercise.max_tries_per_slide !== undefined,
+          { max_tries_per_slide: exercise.max_tries_per_slide },
+        ),
         limit_number_of_tries: exercise.limit_number_of_tries,
         needs_peer_review: exercise.needs_peer_review,
         needs_self_review: exercise.needs_self_review,
@@ -264,6 +271,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
             ? JSON.stringify(exercise.peer_or_self_review_questions)
             : "null",
         use_course_default_peer_review: exercise.use_course_default_peer_or_self_review_config,
+        teacher_reviews_answer_after_locking: exercise.teacher_reviews_answer_after_locking,
       },
     }
 
@@ -274,7 +282,8 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
     content: contentBlocks,
     title: input.title,
     urlPath: input.url_path,
-    chapterId: input.chapter_id,
+    chapterId: input.chapter_id ?? null,
+    hidden: input.hidden,
   }
 
   return res

@@ -1,0 +1,173 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM email_templates\nWHERE email_template_type = $1\n  AND course_id IS NULL\n  AND deleted_at IS NULL\n  AND (\n    language = $2\n    OR language = 'en'\n    OR language IS NULL\n  )\nORDER BY CASE\n    WHEN language = $2 THEN 0\n    WHEN language = 'en' THEN 1\n    WHEN language IS NULL THEN 2\n    ELSE 3\n  END\nLIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "content",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "content"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "subject",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "subject"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "exercise_completions_threshold",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "exercise_completions_threshold"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "points_threshold",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "points_threshold"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "language",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "language"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "email_template_type",
+        "type_info": {
+          "Custom": {
+            "name": "email_template_type",
+            "kind": {
+              "Enum": [
+                "reset_password_email",
+                "delete_user_email",
+                "generic",
+                "confirm_email_code"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "email_template_type"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "email_template_type",
+            "kind": {
+              "Enum": [
+                "reset_password_email",
+                "delete_user_email",
+                "generic",
+                "confirm_email_code"
+              ]
+            }
+          }
+        },
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "45e776e0fa0baf486166a47ea10f156cda73f3403367d2a746a36973a3b689f9"
+}

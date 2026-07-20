@@ -2,45 +2,53 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { isServer, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { BellXmark, CheckCircle, MoveUpDownArrows } from "@vectopus/atlas-icons-react"
-import axios from "axios"
 import _ from "lodash"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import PlaygroundExerciseEditorIframe from "@/components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
-import PlaygroundExerciseIframe from "@/components/page-specific/playground-views/PlaygroundExerciseIframe"
-import PlaygroundViewSubmissionIframe from "@/components/page-specific/playground-views/PlaygroundViewSubmissionIframe"
-import {
-  ExerciseServiceInfoApi,
-  ExerciseTaskGradingResult,
-  PlaygroundViewsMessage,
-  SpecRequest,
-} from "@/shared-module/common/bindings"
-import { isExerciseServiceInfoApi } from "@/shared-module/common/bindings.guard"
+import type {
+  GetPlaygroundViewsWebsocketData,
+  ReceivePlaygroundGradingData,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import HideChildrenInSystemTests from "@/shared-module/common/components/system-tests/HideChildrenInSystemTests"
-import {
-  CurrentStateMessage,
-  IframeViewType,
-  UserInformation,
-} from "@/shared-module/common/exercise-service-protocol-types"
-import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import { QueryResult } from "@/shared-module/components"
+import type {
+  CurrentStateMessage,
+  IframeViewType,
+  UserInformation,
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
+import type {
+  ExerciseServiceInfoApi,
+  ExerciseTaskGradingResult,
+  SpecRequest,
+} from "@/utils/playgroundSchemas"
+import {
+  parseExerciseServiceInfoApi,
+  parseExerciseTaskGradingResult,
+  parsePlaygroundViewsMessage,
+} from "@/utils/playgroundSchemas"
+
+import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
+import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
+import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
 interface PlaygroundFields {
   url: string
@@ -57,6 +65,22 @@ const Area = styled.div`
 
 const FULL_WIDTH = "100vw"
 const HALF_WIDTH = "50vw"
+const PLAYGROUND_VIEWS_WEBSOCKET_PATH: GetPlaygroundViewsWebsocketData["url"] =
+  "/api/v0/main-frontend/playground-views/ws"
+const PLAYGROUND_VIEWS_GRADING_PATH: ReceivePlaygroundGradingData["url"] =
+  "/api/v0/main-frontend/playground-views/grading/{websocket_id}"
+
+async function readJsonResponse(res: Response): Promise<unknown> {
+  const text = await res.text()
+  if (!text) {
+    return null
+  }
+  try {
+    return JSON.parse(text) as unknown
+  } catch {
+    return text
+  }
+}
 
 const StyledPre = styled.pre<{ fullWidth: boolean }>`
   background-color: rgba(218, 230, 229, 0.4);
@@ -143,12 +167,13 @@ const ModelSolutionSpecArea = styled.div`
   grid-area: model-solution-spec;
 `
 
-const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
-const WEBSOCKET_ADDRESS = PUBLIC_ADDRESS?.replace("http://", "ws://").replace("https://", "wss://")
+const PUBLIC_ADDRESS =
+  typeof window === "undefined" ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service-info`
 
 const IframeViewPlayground: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-playground-views"))
 
   const SCROLL_TARGETS = [
     { name: t("title-playground-exercise-iframe"), id: "heading-playground-exercise-iframe" },
@@ -159,7 +184,7 @@ const IframeViewPlayground: React.FC = () => {
 
   const [currentStateReceivedFromIframe, setCurrentStateReceivedFromIframe] =
     useState<CurrentStateMessage | null>(null)
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [currentView, setCurrentView] = useState<IframeViewType>("exercise-editor")
   const [submissionViewSendModelsolutionSpec, setSubmissionViewSendModelsolutionSpec] =
     useState(true)
@@ -168,15 +193,15 @@ const IframeViewPlayground: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0)
 
   const { register, setValue, watch } = useForm<PlaygroundFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       url: localStorage.getItem("service-info-url") ?? DEFAULT_SERVICE_INFO_URL,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       private_spec: "null",
       showIframeBorders: true,
       disableSandbox: false,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       pseudonymousUserId: "78b62532-b836-4387-8f99-673cb023b903",
       signedIn: true,
     },
@@ -210,12 +235,16 @@ const IframeViewPlayground: React.FC = () => {
   const serviceInfoQuery = useQuery({
     queryKey: [`iframe-view-playground-service-info-${url}`],
     queryFn: async (): Promise<ExerciseServiceInfoApi> => {
-      const res = await axios.get(url)
-      return res.data
+      const res = await fetch(url)
+      if (!res.ok) {
+        throw new Error(`Failed to load service info (${res.status})`)
+      }
+      const data = await readJsonResponse(res)
+      return parseExerciseServiceInfoApi(data)
     },
   })
 
-  const isValidServiceInfo = isExerciseServiceInfoApi(serviceInfoQuery.data)
+  const isValidServiceInfo = serviceInfoQuery.isSuccess
 
   useEffect(() => {
     if (isValidServiceInfo) {
@@ -224,13 +253,13 @@ const IframeViewPlayground: React.FC = () => {
   }, [isValidServiceInfo, url])
 
   const publicSpecQuery = useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [
       `iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
       isValidServiceInfo,
       privateSpecValidJson,
       privateSpecParsed,
       exerciseServiceHost,
+      serviceInfoQuery.data?.public_spec_endpoint_path,
     ],
     queryFn: async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
@@ -241,11 +270,18 @@ const IframeViewPlayground: React.FC = () => {
         private_spec: privateSpecParsed,
         upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
       }
-      const res = await axios.post(
+      const res = await fetch(
         `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
-        payload,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
       )
-      return res.data
+      if (!res.ok) {
+        throw new Error(`Failed to load public spec (${res.status})`)
+      }
+      return readJsonResponse(res)
     },
     enabled:
       serviceInfoQuery.isSuccess &&
@@ -272,66 +308,87 @@ const IframeViewPlayground: React.FC = () => {
         if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
           throw new Error("Requirements for the mutation not satisfied.")
         }
+        if (!websocketId || !playgroundGradingCallbackClaim) {
+          throw new Error("Playground websocket is not registered.")
+        }
         const gradingRequest: GradingRequest = {
-          // eslint-disable-next-line i18next/no-literal-string
-          grading_update_url: `${PUBLIC_ADDRESS}/api/v0/main-frontend/playground-views/grading/${websocketId}`,
+          // oxlint-disable-next-line i18next/no-literal-string
+          grading_update_url: `${buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
+            websocket_id: websocketId,
+          })}?playground-grading-callback-claim=${encodeURIComponent(
+            playgroundGradingCallbackClaim,
+          )}`,
           exercise_spec: privateSpecParsed,
           submission_data: param.data,
         }
         setUserAnswer(param.data)
-        const res = await axios.post(
+        const res = await fetch(
           `${exerciseServiceHost}${serviceInfoQuery.data.grade_endpoint_path}`,
-          gradingRequest,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(gradingRequest),
+          },
         )
-        return res.data
+        if (!res.ok) {
+          throw new Error(`Grading request failed (${res.status})`)
+        }
+        const gradingJson = await readJsonResponse(res)
+        return parseExerciseTaskGradingResult(gradingJson)
       } else if (param.type === "fromWebsocket") {
         return param.data
-      } else {
-        throw new Error("unreachable")
       }
+      throw new Error("unreachable")
     },
     { notify: true, method: "POST" },
   )
 
   const [websocket, setWebsocket] = useState<WebSocket | null>(null)
   const [websocketId, setWebsocketId] = useState<string | null>(null)
+  const [playgroundGradingCallbackClaim, setPlaygroundGradingCallbackClaim] = useState<
+    string | null
+  >(null)
+  const isPlaygroundWebsocketReady = Boolean(websocketId && playgroundGradingCallbackClaim)
   useEffect(() => {
     // prevent creating unnecessary websocket connections
     if (websocket === null) {
-      // eslint-disable-next-line i18next/no-literal-string
-      setWebsocket(new WebSocket(`${WEBSOCKET_ADDRESS}/api/v0/main-frontend/playground-views/ws`))
+      setWebsocket(new WebSocket(buildGeneratedWebSocketUrl(PLAYGROUND_VIEWS_WEBSOCKET_PATH)))
       return
     }
     const ws = websocket
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     ws.onmessage = (ev) => {
-      const msg = JSON.parse(ev.data) as PlaygroundViewsMessage
-      if (msg.tag == "TimedOut") {
+      const msg = parsePlaygroundViewsMessage(JSON.parse(ev.data))
+      if (msg.tag === "TimedOut") {
         console.error("websocket timed out")
-      } else if (msg.tag == "Registered") {
+      } else if (msg.tag === "Registered") {
         console.info("Registered websocket", msg.data)
-        setWebsocketId(msg.data)
-      } else if (msg.tag == "ExerciseTaskGradingResult") {
+        setWebsocketId(msg.data.websocket_id)
+        setPlaygroundGradingCallbackClaim(msg.data.playground_grading_callback_claim)
+      } else if (msg.tag === "ExerciseTaskGradingResult") {
         submitAnswerMutation.mutate({ type: "fromWebsocket", data: msg.data })
       } else {
         throw new Error(`Unexpected websocket message: ${ev}`)
       }
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     ws.onclose = (ev) => {
       console.error("websocket closed unexpectedly", ev)
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     ws.onerror = (err) => {
       console.error("websocket error", err)
     }
   }, [websocket, submitAnswerMutation])
 
   const modelSolutionSpecQuery = useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [
       `iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
       isValidServiceInfo,
       privateSpecValidJson,
       privateSpecParsed,
       exerciseServiceHost,
+      serviceInfoQuery.data?.model_solution_spec_endpoint_path,
     ],
     queryFn: async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
@@ -343,11 +400,18 @@ const IframeViewPlayground: React.FC = () => {
 
         upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
       }
-      const res = await axios.post(
+      const res = await fetch(
         `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
-        payload,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
       )
-      return res.data
+      if (!res.ok) {
+        throw new Error(`Failed to load model solution spec (${res.status})`)
+      }
+      return readJsonResponse(res)
     },
     enabled:
       serviceInfoQuery.isSuccess &&
@@ -356,6 +420,12 @@ const IframeViewPlayground: React.FC = () => {
       privateSpecValidJson,
     retry: false,
   })
+
+  const specQueriesEnabled =
+    serviceInfoQuery.isSuccess &&
+    Boolean(serviceInfoQuery.data) &&
+    isValidServiceInfo &&
+    privateSpecValidJson
 
   const userInformation: UserInformation = {
     pseudonymous_id: pseudonymousUserId,
@@ -520,22 +590,18 @@ const IframeViewPlayground: React.FC = () => {
 
               <p>{t("public-spec-explanation")}</p>
 
-              {publicSpecQuery.isError && (
-                <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
-              )}
-              {publicSpecQuery.isLoading && publicSpecQuery.isFetching && (
-                <Spinner variant={"medium"} />
-              )}
-              {publicSpecQuery.isLoading && !publicSpecQuery.isFetching && (
+              {specQueriesEnabled ? (
+                <QueryResult query={publicSpecQuery}>
+                  {(data) => (
+                    <StyledPre fullWidth={false}>
+                      {/* oxlint-disable-next-line i18next/no-literal-string */}
+                      {JSON.stringify(data, undefined, 2).replaceAll("\\n", "\n")}
+                    </StyledPre>
+                  )}
+                </QueryResult>
+              ) : (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
-              {/* eslint-disable i18next/no-literal-string */}
-              {publicSpecQuery.isSuccess && (
-                <StyledPre fullWidth={false}>
-                  {JSON.stringify(publicSpecQuery.data, undefined, 2).replaceAll("\\n", "\n")}
-                </StyledPre>
-              )}
-              {/* eslint-enable i18next/no-literal-string */}
             </Area>
           </PublicSpecArea>
 
@@ -545,25 +611,18 @@ const IframeViewPlayground: React.FC = () => {
 
               <p>{t("model-solution-spec-explanation")}</p>
 
-              {modelSolutionSpecQuery.isError && (
-                <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
-              )}
-              {modelSolutionSpecQuery.isLoading && modelSolutionSpecQuery.isFetching && (
-                <Spinner variant={"medium"} />
-              )}
-              {modelSolutionSpecQuery.isLoading && !modelSolutionSpecQuery.isFetching && (
+              {specQueriesEnabled ? (
+                <QueryResult query={modelSolutionSpecQuery}>
+                  {(data) => (
+                    <StyledPre fullWidth={false}>
+                      {/* oxlint-disable-next-line i18next/no-literal-string */}
+                      {JSON.stringify(data, undefined, 2).replaceAll("\\n", "\n")}
+                    </StyledPre>
+                  )}
+                </QueryResult>
+              ) : (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
-              {/* eslint-disable i18next/no-literal-string */}
-              {modelSolutionSpecQuery.isSuccess && (
-                <StyledPre fullWidth={false}>
-                  {JSON.stringify(modelSolutionSpecQuery.data, undefined, 2).replaceAll(
-                    "\\n",
-                    "\n",
-                  )}
-                </StyledPre>
-              )}
-              {/* eslint-enable i18next/no-literal-string */}
             </Area>
           </ModelSolutionSpecArea>
         </GridContainer>
@@ -628,7 +687,7 @@ const IframeViewPlayground: React.FC = () => {
                 setCurrentStateReceivedFromIframe(null)
                 setCurrentView("exercise-editor")
               }}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
               exercise-editor
             </button>
@@ -638,7 +697,7 @@ const IframeViewPlayground: React.FC = () => {
                 setCurrentStateReceivedFromIframe(null)
                 setCurrentView("answer-exercise")
               }}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
               answer-exercise
             </button>
@@ -648,7 +707,7 @@ const IframeViewPlayground: React.FC = () => {
                 setCurrentStateReceivedFromIframe(null)
                 setCurrentView("view-submission")
               }}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
               view-submission
             </button>
@@ -667,36 +726,36 @@ const IframeViewPlayground: React.FC = () => {
                   userInformation={userInformation}
                   repositoryExercises={[
                     {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       id: "sample-exercise-1",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_id: "sample-repository-1",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       part: "part01",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       name: "ex01",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_url: "https://github.com/testmycode/tmc-testcourse",
                       checksum: [1, 2, 3, 4],
                       download_url:
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         `${PUBLIC_ADDRESS}/api/v0/files/playground-views/repository-exercise-1.tar.zst`,
                     },
                     {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       id: "sample-exercise-2",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_id: "sample-repository-1",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       part: "part01",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       name: "ex02",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_url: "https://github.com/testmycode/tmc-testcourse",
                       checksum: [5, 6, 7, 8],
 
                       download_url:
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         `${PUBLIC_ADDRESS}/api/v0/files/playground-views/repository-exercise-2.tar.zst`,
                     },
                   ]}
@@ -726,7 +785,9 @@ const IframeViewPlayground: React.FC = () => {
                     variant={"primary"}
                     size={"medium"}
                     disabled={
-                      currentStateReceivedFromIframe === null || submitAnswerMutation.isPending
+                      currentStateReceivedFromIframe === null ||
+                      !isPlaygroundWebsocketReady ||
+                      submitAnswerMutation.isPending
                     }
                     onClick={() => {
                       if (!currentStateReceivedFromIframe) {
@@ -807,7 +868,7 @@ const IframeViewPlayground: React.FC = () => {
                 setValue(
                   "private_spec",
                   JSON.stringify(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    // oxlint-disable-next-line typescript/no-explicit-any
                     (currentStateReceivedFromIframe?.data as any)?.private_spec,
                     undefined,
                     2,
@@ -824,11 +885,9 @@ const IframeViewPlayground: React.FC = () => {
         {currentStateReceivedFromIframe === null ? (
           <>{t("message-no-current-state-message-received-from-the-iframe-yet")}</>
         ) : (
-          <>
-            <StyledPre fullWidth>
-              {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
-            </StyledPre>
-          </>
+          <StyledPre fullWidth>
+            {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
+          </StyledPre>
         )}
       </Area>
 
@@ -885,6 +944,7 @@ const IframeViewPlayground: React.FC = () => {
               `}
               title={t("title-scroll-to-a-heading-in-this-page")}
               onChange={(event) => {
+                // oxlint-disable-next-line unicorn/prefer-query-selector -- id is dynamic; querySelector needs CSS.escape and may throw
                 const element = document.getElementById(event.target.value)
                 if (!element) {
                   console.error("Element to scroll to not found", event.target.value)

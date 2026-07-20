@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "semi": false,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "sortImports": true,
+  "sortPackageJson": true,
+  "ignorePatterns": [
+    "node_modules",
+    "target",
+    ".next",
+    "out",
+    "kubernetes",
+    "**/.sqlx/**/*.json",
+    "**/*.guard.ts"
+  ]
+}

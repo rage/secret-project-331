@@ -2,10 +2,10 @@
 
 import { css } from "@emotion/css"
 
-import StyledCard from "./StyledCard"
-
-import { ChapterWithStatus } from "@/shared-module/common/bindings"
+import type { ChapterWithStatus } from "@/generated/course-material-api/types.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import StyledCard from "./StyledCard"
 
 export interface GridProps {
   chapters: ChapterWithStatus[]
@@ -45,7 +45,7 @@ const Grid: React.FC<React.PropsWithChildren<GridProps>> = ({
       `}
     >
       {chapters
-        .sort((a, b) => a.chapter_number - b.chapter_number)
+        .toSorted((a, b) => a.chapter_number - b.chapter_number)
         .map((chapter) => (
           <StyledCard
             key={chapter.id}

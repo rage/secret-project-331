@@ -2,28 +2,41 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult } from "@tanstack/react-query"
 import { PencilBox, Trash } from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
 import { useParams, useRouter } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import AddUserPopup from "@/components/page-specific/organizations/[id]/AddUserPopup"
-import DeleteOrganizationPopup from "@/components/page-specific/organizations/[id]/DeleteOrganizationPopup"
-import EditUserPopup from "@/components/page-specific/organizations/[id]/EditUserPopup"
-import { fetchOrganization, updateOrganization } from "@/services/backend/organizations"
-import { fetchRoles, giveRole, removeRole } from "@/services/backend/roles"
-import { RoleDomain, RoleUser, UserRole } from "@/shared-module/common/bindings"
-import type { Organization } from "@/shared-module/common/bindings"
+import {
+  getOrganizationOptions,
+  getRolesOptions,
+  softDeleteOrganizationMutation as softDeleteOrganizationMutationOptions,
+  updateOrganizationMutation as updateOrganizationMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  addRole as addRoleFromApi,
+  removeRole as removeRoleFromApi,
+} from "@/generated/api/sdk.generated"
+import type { Options } from "@/generated/api/sdk.generated"
+import type {
+  Organization,
+  RoleUser,
+  SoftDeleteOrganizationData,
+  UpdateOrganizationData,
+  UserRole,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { allOrganizationsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import {
   actionButtonStyle,
   containerBase,
@@ -31,11 +44,16 @@ import {
   primaryButton,
 } from "@/styles/sharedStyles"
 
+import AddUserPopup from "./AddUserPopup"
+import DeleteOrganizationPopup from "./DeleteOrganizationPopup"
+import EditUserPopup from "./EditUserPopup"
+
 type NamedRoleUser = RoleUser & { name: string }
 
 const GENERAL_TAB = "general"
 const PERMISSIONS_TAB = "permissions"
 const DEFAULT_TAB = GENERAL_TAB
+const ORGANIZATION_ROLE_DOMAIN_TAG = "Organization" as const
 
 type TabKey = typeof GENERAL_TAB | typeof PERMISSIONS_TAB
 
@@ -58,8 +76,13 @@ const ManageOrganization: React.FC = () => {
 
   const addMutation = useToastMutation(
     (data: { email: string; role: string }) => {
-      // eslint-disable-next-line i18next/no-literal-string
-      return giveRole(data.email, data.role as UserRole, { tag: "Organization", id })
+      return addRoleFromApi({
+        body: {
+          email: data.email,
+          role: data.role as UserRole,
+          domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
+        },
+      })
     },
     { notify: true, method: "POST" },
     {
@@ -70,31 +93,38 @@ const ManageOrganization: React.FC = () => {
     },
   )
 
-  const deleteMutation = useToastMutation(
-    async () => {
-      const res = await fetch(`/api/v0/main-frontend/organizations/${id}`, {
-        method: "PATCH", // keep PATCH here — this is the real HTTP method
-        headers: {
-          "Content-Type": "application/json",
+  const editUserRoleMutation = useToastMutation(
+    async (data: { email: string; oldRole: UserRole; newRole: UserRole }) => {
+      await removeRoleFromApi({
+        body: {
+          email: data.email,
+          role: data.oldRole,
+          domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
         },
-        body: JSON.stringify({
-          deleted_at: new Date().toISOString(),
-        }),
       })
-
-      if (!res.ok) {
-        let json
-        try {
-          json = await res.json()
-        } catch {
-          throw new Error(`Soft delete failed: ${res.status}`)
-        }
-        throw json
-      }
-
-      return res
+      return addRoleFromApi({
+        body: {
+          email: data.email,
+          role: data.newRole,
+          domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
+        },
+      })
     },
     { notify: true, method: "PUT" },
+    {
+      onSuccess: () => {
+        roleQuery.refetch()
+        setShowEditPopup(false)
+      },
+      onError: (error) => {
+        console.error("Failed to update role", error)
+      },
+    },
+  )
+
+  const deleteMutation = useToastMutationOptions(
+    softDeleteOrganizationMutationOptions(),
+    { notify: true, method: "DELETE" },
     {
       onSuccess: () => {
         setTimeout(() => {
@@ -106,8 +136,13 @@ const ManageOrganization: React.FC = () => {
 
   const handleDelete = (userToDelete: NamedRoleUser) => {
     if (window.confirm(t("confirm-delete-user", { email: userToDelete.email }))) {
-      // eslint-disable-next-line i18next/no-literal-string
-      removeRole(userToDelete.email, userToDelete.role, { tag: "Organization", id })
+      removeRoleFromApi({
+        body: {
+          email: userToDelete.email,
+          role: userToDelete.role,
+          domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
+        },
+      })
         .then(() => {
           roleQuery.refetch()
         })
@@ -128,30 +163,15 @@ const ManageOrganization: React.FC = () => {
       setShowEditPopup(false)
       return
     }
-
-    // eslint-disable-next-line i18next/no-literal-string
-    void removeRole(editUser.email, editUser.role, { tag: "Organization", id })
-      .then(() =>
-        giveRole(editUser.email, editRole as UserRole, {
-          // eslint-disable-next-line i18next/no-literal-string
-          tag: "Organization",
-          id,
-        }),
-      )
-      .then(() => {
-        roleQuery.refetch()
-        setShowEditPopup(false)
-      })
-      .catch((error) => {
-        console.error("Failed to update role", error)
-      })
+    editUserRoleMutation.mutate({
+      email: editUser.email,
+      oldRole: editUser.role,
+      newRole: editRole as UserRole,
+    })
   }
 
-  const updateOrgMutation = useToastMutation(
-    (newData: { name: string; hidden: boolean; slug: string }) => {
-      console.log("Sending payload:", newData)
-      return updateOrganization(id, newData.name, newData.hidden, newData.slug)
-    },
+  const updateOrgMutation = useToastMutationOptions(
+    updateOrganizationMutationOptions(),
     { notify: true, method: "PUT" },
     {
       onSuccess: () => {
@@ -161,18 +181,21 @@ const ManageOrganization: React.FC = () => {
     },
   )
 
-  // eslint-disable-next-line i18next/no-literal-string
-  const domain: RoleDomain = { tag: "Organization", id }
-
   const roleQuery = useQuery({
-    queryKey: ["roles", domain, id],
-    queryFn: () => fetchRoles({ organization_id: id }),
+    ...getRolesOptions({
+      query: { organization_id: id },
+    }),
   })
 
-  const organization = useQuery<Organization>({
-    queryKey: [`organization-${id}`],
-    queryFn: () => fetchOrganization(id),
+  const organization = useQuery({
+    ...getOrganizationOptions({
+      path: {
+        organization_id: id,
+      },
+    }),
   })
+
+  usePageTitle(organization.data?.name ?? null)
 
   React.useEffect(() => {
     if (roleQuery.data) {
@@ -197,36 +220,6 @@ const ManageOrganization: React.FC = () => {
     }
   }, [organization.data])
 
-  let contents
-  if (organization.isLoading) {
-    contents = <Spinner variant={"medium"} />
-  } else if (organization.isError) {
-    contents = <ErrorBanner variant={"readOnly"} error={organization.error} />
-  } else {
-    contents = content(
-      t,
-      activeTab,
-      setActiveTab,
-      setShowAddUserPopup,
-      editMode,
-      setEditMode,
-      users,
-      handleDelete,
-      handleEdit,
-      editedName,
-      setEditedName,
-      hidden,
-      setHidden,
-      updateOrgMutation,
-      organization,
-      showDeletePopup,
-      setShowDeletePopup,
-      deleteMutation,
-      editedSlug,
-      setEditedSlug,
-    )
-  }
-
   return (
     <div
       className={css`
@@ -241,7 +234,33 @@ const ManageOrganization: React.FC = () => {
           width: 100%;
         `}
       >
-        {contents}
+        <QueryResult query={organization}>
+          {(organizationData) =>
+            content(
+              t,
+              activeTab,
+              setActiveTab,
+              setShowAddUserPopup,
+              editMode,
+              setEditMode,
+              users,
+              handleDelete,
+              handleEdit,
+              editedName,
+              setEditedName,
+              hidden,
+              setHidden,
+              updateOrgMutation,
+              id,
+              organizationData,
+              showDeletePopup,
+              setShowDeletePopup,
+              deleteMutation,
+              editedSlug,
+              setEditedSlug,
+            )
+          }
+        </QueryResult>
         <AddUserPopup
           show={showAddUserPopup}
           onClose={() => setShowAddUserPopup(false)}
@@ -278,16 +297,12 @@ const content = (
   setEditedName: React.Dispatch<React.SetStateAction<string>>,
   hidden: boolean,
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
-  updateOrgMutation: UseMutationResult<
-    void,
-    unknown,
-    { name: string; hidden: boolean; slug: string },
-    unknown
-  >,
-  organization: UseQueryResult<Organization>,
+  updateOrgMutation: UseMutationResult<unknown, Error, Options<UpdateOrganizationData>, unknown>,
+  id: string,
+  organization: Organization,
   showDeletePopup: boolean,
   setShowDeletePopup: React.Dispatch<React.SetStateAction<boolean>>,
-  deleteMutation: UseMutationResult<unknown, unknown, void, unknown>,
+  deleteMutation: UseMutationResult<unknown, Error, Options<SoftDeleteOrganizationData>, unknown>,
   editedSlug: string,
   setEditedSlug: React.Dispatch<React.SetStateAction<string>>,
 ) => (
@@ -304,7 +319,7 @@ const content = (
   >
     <div
       className={css`
-        font-family: "Inter", sans-serif;
+        font-family: ${primaryFont};
         color: #1a2333;
         font-size: 24px;
         ${respondToOrLarger.lg} {
@@ -312,7 +327,7 @@ const content = (
         }
       `}
     >
-      {t("link-manage-organization-with-name", { name: organization.data?.name ?? "" })}
+      {t("link-manage-organization-with-name", { name: organization.name ?? "" })}
     </div>
 
     <div
@@ -321,7 +336,7 @@ const content = (
         gap: 24px;
         margin: 20px 0 0 0px;
         border-bottom: 2px solid rgba(26, 35, 51, 0.2);
-        font-family: "Inter", sans-serif;
+        font-family: ${primaryFont};
 
         ${respondToOrLarger.lg} {
           margin: 40px 0 0 40px;
@@ -397,6 +412,7 @@ const content = (
           hidden,
           setHidden,
           updateOrgMutation,
+          id,
           showDeletePopup,
           setShowDeletePopup,
           deleteMutation,
@@ -420,15 +436,11 @@ const designContent = (
   setEditedName: React.Dispatch<React.SetStateAction<string>>,
   hidden: boolean,
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
-  updateOrgMutation: UseMutationResult<
-    void,
-    unknown,
-    { name: string; hidden: boolean; slug: string },
-    unknown
-  >,
+  updateOrgMutation: UseMutationResult<unknown, Error, Options<UpdateOrganizationData>, unknown>,
+  id: string,
   showDeletePopup: boolean,
   setShowDeletePopup: React.Dispatch<React.SetStateAction<boolean>>,
-  deleteMutation: UseMutationResult<unknown, unknown, void, unknown>,
+  deleteMutation: UseMutationResult<unknown, Error, Options<SoftDeleteOrganizationData>, unknown>,
   editedSlug: string,
   setEditedSlug: React.Dispatch<React.SetStateAction<string>>,
 ) => {
@@ -611,7 +623,7 @@ const designContent = (
             <span
               className={css`
                 font-size: 14px;
-                font-family: "Inter", sans-serif;
+                font-family: ${primaryFont};
                 line-height: 20px;
                 color: #1a2333;
               `}
@@ -631,7 +643,11 @@ const designContent = (
               show={showDeletePopup}
               setShow={setShowDeletePopup}
               handleDelete={() => {
-                deleteMutation.mutate()
+                deleteMutation.mutate({
+                  path: {
+                    organization_id: id,
+                  },
+                })
               }}
             />
           </div>
@@ -651,7 +667,16 @@ const designContent = (
               <button
                 className={primaryButton}
                 onClick={() => {
-                  updateOrgMutation.mutate({ name: editedName, hidden, slug: editedSlug })
+                  updateOrgMutation.mutate({
+                    body: {
+                      name: editedName,
+                      hidden,
+                      slug: editedSlug,
+                    },
+                    path: {
+                      organization_id: id,
+                    },
+                  })
                 }}
               >
                 {t("button-text-save")}

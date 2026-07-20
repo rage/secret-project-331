@@ -3,17 +3,25 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import StandardDialog from "./StandardDialog"
 import { ALERT_DIALOG_OK_BUTTON_TEST_ID, DIALOG_PROVIDER_DIALOG_TEST_ID } from "./dialogTestIds"
+import StandardDialog from "./StandardDialog"
 
 export interface AlertDialogProps {
   open: boolean
   title: string
   message: React.ReactNode
   onClose: () => void
+  /** Overrides the default localized "OK" acknowledge button label. */
+  okButtonLabel?: string
 }
 
-const AlertDialog: React.FC<AlertDialogProps> = ({ open, title, message, onClose }) => {
+const AlertDialog: React.FC<AlertDialogProps> = ({
+  open,
+  title,
+  message,
+  onClose,
+  okButtonLabel,
+}) => {
   const { t } = useTranslation()
   return (
     <StandardDialog
@@ -23,7 +31,7 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ open, title, message, onClose
       title={title}
       buttons={[
         {
-          children: t("button-ok"),
+          children: okButtonLabel ?? t("button-ok"),
           variant: "primary",
           onClick: onClose,
           "data-testid": ALERT_DIALOG_OK_BUTTON_TEST_ID,

@@ -1,31 +1,37 @@
 "use client"
 
-import React, { createContext, ReactNode, useCallback, useContext, useReducer, useRef } from "react"
+import type { ReactNode } from "react"
+import React, { createContext, useCallback, useContext, useMemo, useReducer, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
+import { omitUndefined } from "../../utils/nullability"
 import AlertDialog from "./AlertDialog"
 import ConfirmDialog from "./ConfirmDialog"
 import PromptDialog from "./PromptDialog"
 
-type DialogBase = {
+interface DialogBase {
   id: number
-  title?: string
+  title?: string | undefined
   message: React.ReactNode
 }
 
 type AlertDialogType = DialogBase & {
   type: "alert"
+  okButtonLabel?: string | undefined
   resolve: () => void
 }
 
 type ConfirmDialogType = DialogBase & {
   type: "confirm"
+  confirmDisabled?: boolean | undefined
+  yesButtonLabel?: string | undefined
+  noButtonLabel?: string | undefined
   resolve: (result: boolean) => void
 }
 
 type PromptDialogType = DialogBase & {
   type: "prompt"
-  defaultValue?: string
+  defaultValue?: string | undefined
   resolve: (result: string | null) => void
 }
 
@@ -34,6 +40,7 @@ type DialogType = AlertDialogType | ConfirmDialogType | PromptDialogType
 type DialogAction =
   | { type: "PUSH_DIALOG"; dialog: DialogType }
   | { type: "REMOVE_DIALOG"; id: number }
+  | { type: "SET_CONFIRM_DISABLED"; id: number; confirmDisabled: boolean }
 
 const dialogReducer = (state: DialogType[], action: DialogAction): DialogType[] => {
   switch (action.type) {
@@ -41,15 +48,45 @@ const dialogReducer = (state: DialogType[], action: DialogAction): DialogType[] 
       return [...state, action.dialog]
     case "REMOVE_DIALOG":
       return state.filter((dialog) => dialog.id !== action.id)
+    case "SET_CONFIRM_DISABLED":
+      return state.map((dialog) =>
+        dialog.id === action.id && dialog.type === "confirm"
+          ? { ...dialog, confirmDisabled: action.confirmDisabled }
+          : dialog,
+      )
     default:
       return state
   }
 }
 
+interface ConfirmDialogOptions {
+  confirmDisabled?: boolean
+  yesButtonLabel?: string
+  noButtonLabel?: string
+}
+
+interface AlertDialogOptions {
+  okButtonLabel?: string
+}
+
+interface ConfirmDialogControls {
+  setConfirmDisabled: (disabled: boolean) => void
+}
+
+const ConfirmDialogControlsContext = createContext<ConfirmDialogControls | undefined>(undefined)
+
 const DialogContext = createContext<
   | {
-      alert: (message: React.ReactNode, title?: string) => Promise<void>
-      confirm: (message: React.ReactNode, title?: string) => Promise<boolean>
+      alert: (
+        message: React.ReactNode,
+        title?: string,
+        options?: AlertDialogOptions,
+      ) => Promise<void>
+      confirm: (
+        message: React.ReactNode,
+        title?: string,
+        options?: ConfirmDialogOptions,
+      ) => Promise<boolean>
       prompt: (
         message: React.ReactNode,
         title?: string,
@@ -80,19 +117,41 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     dispatch({ type: "REMOVE_DIALOG", id })
   }, [])
 
+  const setConfirmDisabled = useCallback((id: number, confirmDisabled: boolean) => {
+    dispatch({ type: "SET_CONFIRM_DISABLED", id, confirmDisabled })
+  }, [])
+
   const alert = useCallback(
-    (message: React.ReactNode, title?: string): Promise<void> => {
+    (message: React.ReactNode, title?: string, options?: AlertDialogOptions): Promise<void> => {
       return new Promise((resolve) => {
-        pushDialog({ type: "alert", title, message, resolve })
+        pushDialog({
+          type: "alert",
+          title,
+          message,
+          resolve,
+          okButtonLabel: options?.okButtonLabel,
+        })
       })
     },
     [pushDialog],
   )
 
   const confirm = useCallback(
-    (message: React.ReactNode, title?: string): Promise<boolean> => {
+    (
+      message: React.ReactNode,
+      title?: string,
+      options?: ConfirmDialogOptions,
+    ): Promise<boolean> => {
       return new Promise((resolve) => {
-        pushDialog({ type: "confirm", title, message, resolve })
+        pushDialog({
+          type: "confirm",
+          title,
+          message,
+          resolve,
+          confirmDisabled: options?.confirmDisabled ?? false,
+          noButtonLabel: options?.noButtonLabel,
+          yesButtonLabel: options?.yesButtonLabel,
+        })
       })
     },
     [pushDialog],
@@ -121,6 +180,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 open
                 title={dialog.title ?? t("dialog-title-alert")}
                 message={dialog.message}
+                {...omitUndefined({ okButtonLabel: dialog.okButtonLabel })}
                 onClose={() => {
                   dialog.resolve()
                   removeDialog(dialog.id)
@@ -133,12 +193,25 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 key={dialog.id}
                 open
                 title={dialog.title ?? t("dialog-title-confirm")}
-                message={dialog.message}
+                message={
+                  <ConfirmDialogMessageProvider
+                    dialogId={dialog.id}
+                    setConfirmDisabled={setConfirmDisabled}
+                  >
+                    {dialog.message}
+                  </ConfirmDialogMessageProvider>
+                }
+                confirmDisabled={dialog.confirmDisabled ?? false}
+                {...omitUndefined({ noButtonLabel: dialog.noButtonLabel })}
+                {...omitUndefined({ yesButtonLabel: dialog.yesButtonLabel })}
                 onCancel={() => {
                   dialog.resolve(false)
                   removeDialog(dialog.id)
                 }}
                 onConfirm={() => {
+                  if (dialog.confirmDisabled) {
+                    return
+                  }
                   dialog.resolve(true)
                   removeDialog(dialog.id)
                 }}
@@ -151,7 +224,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 open
                 title={dialog.title ?? t("dialog-title-prompt")}
                 message={dialog.message}
-                defaultValue={dialog.defaultValue}
+                {...omitUndefined({ defaultValue: dialog.defaultValue })}
                 onCancel={() => {
                   dialog.resolve(null)
                   removeDialog(dialog.id)
@@ -163,6 +236,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
               />
             )
         }
+        return null
       })}
     </DialogContext.Provider>
   )
@@ -191,6 +265,31 @@ export const useDialog = () => {
     throw new Error("useDialog must be used within a DialogProvider")
   }
   return context
+}
+
+const ConfirmDialogMessageProvider: React.FC<{
+  dialogId: number
+  setConfirmDisabled: (id: number, confirmDisabled: boolean) => void
+  children: ReactNode
+}> = ({ dialogId, setConfirmDisabled, children }) => {
+  const value = useMemo(
+    () => ({
+      setConfirmDisabled: (disabled: boolean) => {
+        setConfirmDisabled(dialogId, disabled)
+      },
+    }),
+    [dialogId, setConfirmDisabled],
+  )
+
+  return (
+    <ConfirmDialogControlsContext.Provider value={value}>
+      {children}
+    </ConfirmDialogControlsContext.Provider>
+  )
+}
+
+export const useConfirmDialogControls = () => {
+  return useContext(ConfirmDialogControlsContext)
 }
 
 export default DialogProvider

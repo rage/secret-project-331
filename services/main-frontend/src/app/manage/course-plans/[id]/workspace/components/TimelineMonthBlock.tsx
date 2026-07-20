@@ -1,0 +1,62 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { format } from "date-fns"
+
+import { COURSE_PLAN_MONTH_ICONS } from "@/app/manage/course-plans/monthIcons"
+import { baseTheme } from "@/shared-module/common/styles"
+
+import type { StageMonth } from "../../schedule/scheduleMappers"
+
+const timelineMonthBlockStyles = css`
+  min-width: 84px;
+  border-radius: 12px;
+  border: 1px solid ${baseTheme.colors.gray[200]};
+  background: ${baseTheme.colors.primary[100]};
+  padding: 0.6rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+`
+
+const timelineMonthBlockMonthStyles = css`
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: ${baseTheme.colors.gray[600]};
+  line-height: 1.1;
+`
+
+const timelineMonthBlockYearStyles = css`
+  font-size: 0.72rem;
+  color: ${baseTheme.colors.gray[400]};
+  line-height: 1.1;
+`
+
+const timelineMonthBlockIconStyles = css`
+  width: 18px;
+  height: 18px;
+  color: ${baseTheme.colors.green[600]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+interface TimelineMonthBlockProps {
+  month: StageMonth
+}
+
+export default function TimelineMonthBlock({ month }: TimelineMonthBlockProps) {
+  const MonthIcon = COURSE_PLAN_MONTH_ICONS[month.date.getMonth()] ?? COURSE_PLAN_MONTH_ICONS[0]
+
+  return (
+    <div className={timelineMonthBlockStyles} title={month.label}>
+      <div className={timelineMonthBlockIconStyles}>
+        <MonthIcon />
+      </div>
+      <span className={timelineMonthBlockMonthStyles}>{format(month.date, "MMMM")}</span>
+      <span className={timelineMonthBlockYearStyles}>{format(month.date, "yyyy")}</span>
+    </div>
+  )
+}

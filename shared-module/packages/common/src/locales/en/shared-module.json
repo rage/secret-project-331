@@ -11,11 +11,16 @@
   "breadcrumb": "Breadcrumb",
   "button-cancel": "Cancel",
   "button-ok": "OK",
+  "button-text-try-again": "Try again",
+  "button.loading": "Loading",
   "chapter-chapter-number": "Chapter {{number}}",
   "chapter-front-page": "Chapter front page",
   "close": "Close",
   "close-heading-menu": "Close heading navigation",
   "closed": "Closed",
+  "comboBox.toggleOptions": "Toggle options",
+  "copy-button.copied": "Copied",
+  "copy-button.failed": "Copy failed",
   "could-not-find-requested-resource": "Could not find requested resource",
   "courses": "Courses",
   "create-new-account": "Create new account",
@@ -35,14 +40,124 @@
   "dialog-title-prompt": "Enter value",
   "download-csv": "Download CSV",
   "dropdown-menu": "Dropdown menu",
+  "dynamic-import-error-boundary-reload": "Reload page",
+  "dynamic-import-error-boundary-title": "Something went wrong loading this part of the page.",
+  "dynamic-loading-cause-client-boundary": "A Server/Client boundary issue (for example, a missing \"use client\" on a parent client component).",
+  "dynamic-loading-cause-export-mismatch": "The dynamically imported module doesn’t export what the loader expects (default vs named export mismatch).",
+  "dynamic-loading-cause-hydration-script": "The chunk downloaded but the client runtime did not finish running or hydrating (for example due to blocked scripts, extensions, or a strict Content Security Policy).",
+  "dynamic-loading-cause-runtime-error": "The component throws during initialization or mount (sometimes only visible in production logs).",
+  "dynamic-loading-cause-suspense-forever": "The component suspends forever (waiting on a promise or data fetch that never resolves), so the fallback stays on screen.",
+  "dynamic-loading-detected-import-rejected": "We tried to load this part of the app, but the import failed.",
+  "dynamic-loading-detected-invalid-export": "We loaded the module, but it did not export a usable React component.",
+  "dynamic-loading-detected-render-error": "The component code loaded, but an error occurred while rendering it.",
+  "dynamic-loading-detected-resolved-no-commit": "We loaded the code, but the component has not finished rendering yet.",
+  "dynamic-loading-detected-resolved-no-commit-details": "Import resolved; waiting for first React commit (mount).",
+  "dynamic-loading-fallback-reason": "Reason: {{reason}}",
+  "dynamic-loading-fallback-title": "We were unable to load this part of the page.",
+  "dynamic-loading-possible-causes-title": "If this keeps spinning, possible causes include:",
+  "dynamic-loading-reload": "Reload page",
+  "dynamic-loading-retrying": "Retrying to load this part of the app ({{attempt}}/{{max}})…",
+  "dynamic-loading-slow-warning": "Loading a part of the application is taking longer than expected.",
+  "dynamic-loading-very-slow-warning": "This may be due to network issues. If loading does not finish soon, please reload the page.",
   "editable": "Editable",
   "email": "Email",
   "email-templates": "Email templates",
   "error-cannot-render-dynamic-content-missing-url": "Cannot render dynamic content: missing url",
+  "error-code": "Code: {{code}}",
+  "error-issue-code": {
+    "missing_exercise_type": {
+      "message": "Missing exercise type for exercise task."
+    }
+  },
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Please sign in to view exam exercises.",
+      "title": "Sign in required"
+    },
+    "chapter_not_open_yet": {
+      "message": "This chapter is not open yet.",
+      "title": "Chapter is closed"
+    },
+    "forbidden": {
+      "message": "You do not have permission for this action.",
+      "title": "Forbidden"
+    },
+    "generic_sisu_error": {
+      "message": "Something went wrong in generating description",
+      "title": "Could not generate description"
+    },
+    "internal_error": {
+      "message": "Please try again in a moment.",
+      "title": "Something went wrong"
+    },
+    "invalid_course_code": {
+      "message": "Make sure that the given University of Helsinki course codes in modules are valid.",
+      "title": "Could not generate description"
+    },
+    "not_found": {
+      "message": "The requested resource could not be found.",
+      "title": "Not found"
+    },
+    "oauth_error": {
+      "message": "Please sign in again.",
+      "title": "Authentication failed"
+    },
+    "rate_limited": {
+      "message": "Please wait and try again.",
+      "title": "Too many requests"
+    },
+    "response_validation_error": {
+      "message": "The server responded successfully, but the data was not in the expected format.",
+      "title": "Could not display data"
+    },
+    "sisu_resource_not_found": {
+      "message": "Unable to find resources from Sisu.",
+      "title": "Resources not found"
+    },
+    "unauthorized": {
+      "message": "Please sign in and try again.",
+      "title": "Unauthorized"
+    },
+    "validation_error": {
+      "message": "Please check your input and try again.",
+      "title": "Invalid input"
+    },
+    "validation_error_with_metadata": {
+      "message": "Please check the highlighted content and try again.",
+      "title": "Invalid input"
+    }
+  },
+  "error-message-key-line": "Message key: {{messageKey}}",
+  "error-multiple-errors-occurred": "Multiple errors occurred",
   "error-part-of-page-has-crashed-error": "Part of page has crashed: {{error}}",
+  "error-request-cancelled": "Request was cancelled",
+  "error-request-failed": "Request failed",
+  "error-request-id": "Request ID: {{requestId}}",
+  "error-retry-after": "Retry after: {{seconds}}s",
+  "error-source-method": "Method: {{method}}",
+  "error-source-url": "URL: {{url}}",
+  "error-status": "Status: {{status}}",
   "error-title": "Error",
+  "error-too-many-requests": "Too many requests. Please try again later.",
+  "error-type": "Type: {{type}}",
+  "error-unexpected-error": "Unexpected error",
+  "error-zod-issue": {
+    "invalid_format": "Expected {{format}}",
+    "invalid_format_pattern": "Expected format matching {{pattern}}",
+    "invalid_type": "Expected {{expected}}, received {{received}}",
+    "too_big": "Must be {{comparator}} {{maximum}}",
+    "too_small": "Must be {{comparator}} {{minimum}}",
+    "unrecognized_keys": "Unrecognized keys: {{keys}}"
+  },
+  "error-zod-issue-prefix": "Validation issue at",
   "essay": "Essay",
+  "exercise-iframe-reload-exhausted-message": "Automatic reload attempts were exhausted. You can try reloading the exercise manually.",
+  "exercise-iframe-reload-exhausted-reload-button": "Reload exercise",
   "faq": "FAQ",
+  "fileField.chooseFile": "Choose file",
+  "fileField.empty": "No file selected",
+  "fileField.moreFiles": "+{{count}} more",
+  "fileField.unnamed": "Unnamed file",
   "go-to-error": "Go to error",
   "go-to-next-page": "Go to next page",
   "go-to-page-x": "Go to page {{number}}",
@@ -52,6 +167,7 @@
   "home-page": "Home page",
   "in-this-page": "In this page",
   "instruction": "Instruction",
+  "label-error-loading": "Error loading data.",
   "label-false": "False",
   "label-items-per-page": "Items per page",
   "label-search": "Search...",
@@ -65,6 +181,8 @@
   "likert-scale-neither-agree-nor-disagree": "Neither agree nor disagree",
   "likert-scale-strongly-agree": "Strongly agree",
   "likert-scale-strongly-disagree": "Strongly disagree",
+  "link.loading": "Loading",
+  "listBox.noResults": "No results found",
   "log-in": "Log in",
   "log-out": "Log out",
   "modules": "Modules",
@@ -78,6 +196,7 @@
   "open-menu": "Open menu",
   "opens-in": "Opens in",
   "opens-now": "Opens now!",
+  "otp.slotLabel": "Code character {{index}}",
   "partners": "Partners",
   "peer-reviews-given": "Peer reviews given",
   "please-choose-a-value": "Please choose a value",
@@ -86,6 +205,9 @@
   "previous-page": "Previous page",
   "privacy": "Privacy",
   "project-github": "Project Github",
+  "queryResult.loading": "Loading",
+  "queryResult.refreshing": "Refreshing",
+  "queryResult.retry": "Retry",
   "read-only": "Read only",
   "removed-text": "Removed text",
   "reply": "Reply",

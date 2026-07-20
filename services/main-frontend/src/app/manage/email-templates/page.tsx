@@ -6,31 +6,37 @@ import Link from "next/link"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getCourse } from "@/services/backend/courses"
-import { fetchAllEmailTemplates } from "@/services/backend/email-templates"
-import { Course, EmailTemplate, EmailTemplateType } from "@/shared-module/common/bindings"
+import { getEmailTemplatesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getCourse as getCourseFromApi } from "@/generated/api/sdk.generated"
+import type { Course, EmailTemplate, EmailTemplateType } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface GroupedTemplates {
   templateType: EmailTemplateType
   global: EmailTemplate[]
-  courseSpecific: Array<{
+  courseSpecific: {
     courseId: string
     courseName: string
     templates: EmailTemplate[]
-  }>
+  }[]
+}
+
+const formatDate = (date: Date | string): string => {
+  const d = typeof date === "string" ? new Date(date) : date
+  return d.toLocaleDateString()
 }
 
 const EmailTemplatesList: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("email-templates-title"))
 
   const templatesQuery = useQuery({
-    queryKey: ["all-email-templates"],
-    queryFn: () => fetchAllEmailTemplates(),
+    ...getEmailTemplatesOptions(),
   })
 
   const uniqueCourseIds = useMemo(() => {
@@ -50,7 +56,14 @@ const EmailTemplatesList: React.FC = () => {
     queryKey: ["courses", uniqueCourseIds],
     queryFn: async () => {
       const coursePromises = uniqueCourseIds.map((courseId) =>
-        getCourse(courseId).then((course) => ({ courseId, course })),
+        getCourseFromApi({
+          path: {
+            course_id: courseId,
+          },
+        }).then((course) => ({
+          courseId,
+          course,
+        })),
       )
       const results = await Promise.allSettled(coursePromises)
       const fulfilled = results
@@ -73,43 +86,45 @@ const EmailTemplatesList: React.FC = () => {
     const courseMap = coursesQueries.data || new Map<string, Course>()
 
     const templateTypes: EmailTemplateType[] = [
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "reset_password_email",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "delete_user_email",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "confirm_email_code",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "generic",
     ]
 
     return templateTypes.map((templateType) => {
-      const typeTemplates = templates.filter((t) => t.template_type === templateType)
+      const typeTemplates = templates.filter((template) => template.template_type === templateType)
 
-      const global = typeTemplates.filter((t) => !t.course_id)
+      const global = typeTemplates.filter((template) => !template.course_id)
       const courseSpecific = typeTemplates.filter(
-        (t) => t.course_id !== null && t.course_id !== undefined,
+        (template) => template.course_id !== null && template.course_id !== undefined,
       )
 
       const courseGroups = new Map<string, EmailTemplate[]>()
       courseSpecific.forEach((template) => {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- filtered above to items with non-null course_id
         const courseId = template.course_id!
         if (!courseGroups.has(courseId)) {
           courseGroups.set(courseId, [])
         }
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- courseId key was just inserted above when absent
         courseGroups.get(courseId)!.push(template)
       })
 
       const courseSpecificGrouped = Array.from(courseGroups.entries())
-        .map(([courseId, templates]) => {
+        .map(([courseId, courseTemplates]) => {
           const course = courseMap.get(courseId)
           return {
             courseId,
             courseName: course?.name || courseId,
-            templates,
+            templates: courseTemplates,
           }
         })
-        .sort((a, b) => a.courseName.localeCompare(b.courseName))
+        .toSorted((a, b) => a.courseName.localeCompare(b.courseName))
 
       return {
         templateType,
@@ -136,11 +151,11 @@ const EmailTemplatesList: React.FC = () => {
   )
 
   const allTemplates = useMemo(() => {
-    const templates: Array<{
+    const templates: {
       template: EmailTemplate
       templateTypeLabel: string
       courseName: string | null
-    }> = []
+    }[] = []
 
     groupedTemplates.forEach((group) => {
       group.global.forEach((template) => {
@@ -163,11 +178,6 @@ const EmailTemplatesList: React.FC = () => {
 
     return templates
   }, [groupedTemplates, getTemplateTypeLabel])
-
-  const formatDate = (date: Date | string): string => {
-    const d = typeof date === "string" ? new Date(date) : date
-    return d.toLocaleDateString()
-  }
 
   if (templatesQuery.isError) {
     return <ErrorBanner variant={"readOnly"} error={templatesQuery.error} />
@@ -244,6 +254,7 @@ const EmailTemplatesList: React.FC = () => {
               <th>{t("label-language")}</th>
               <th>{t("label-course") as string}</th>
               <th>{t("email-template-last-updated")}</th>
+              {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- intentionally empty header cell above the actions column */}
               <th></th>
             </tr>
           </thead>

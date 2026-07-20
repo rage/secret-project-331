@@ -8,11 +8,15 @@ import { useTranslation } from "react-i18next"
 import Tab from "@/components/Tabs/Tab"
 import TabPanel from "@/components/Tabs/TabPanel"
 import Tabs from "@/components/Tabs/Tabs"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const UserSettingsLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { t } = useTranslation()
+  // Low baseline order: nested pages (account, permissions) register a higher order and win, and
+  // this only shows for the section's redirect stub. Mirrors the course-material layout pattern.
+  usePageTitle(t("user-settings"), { order: 0 })
 
   return (
     <div
@@ -73,9 +77,9 @@ const UserSettingsLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
       </div>
 
       <Tabs>
-        {/* eslint-disable-next-line i18next/no-literal-string */}
+        {/* oxlint-disable-next-line i18next/no-literal-string */}
         <Tab tabName="account">{t("user-settings-account-tab")}</Tab>
-        {/* eslint-disable-next-line i18next/no-literal-string */}
+        {/* oxlint-disable-next-line i18next/no-literal-string */}
         <Tab tabName="permissions">{t("user-settings-permissions-tab")}</Tab>
         <TabPanel>{children}</TabPanel>
       </Tabs>

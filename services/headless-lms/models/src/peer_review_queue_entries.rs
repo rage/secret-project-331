@@ -5,9 +5,10 @@ use crate::{
     teacher_grading_decisions,
     user_exercise_states::{self, ReviewingStage},
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct PeerReviewQueueEntry {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -42,7 +43,7 @@ INSERT INTO peer_review_queue_entries (
     peer_review_priority
   )
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         user_id,

@@ -2,19 +2,18 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
-import { useTranslation } from "react-i18next"
-
-import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
-import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
-import BlockWrapper from "../BlockWrapper"
-
-import { InfoBoxComponentProps } from "."
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { InfoBoxComponentProps } from "."
+import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
+import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
+import BlockWrapper from "../BlockWrapper"
 
 const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComponentProps>>> = ({
   clientId,

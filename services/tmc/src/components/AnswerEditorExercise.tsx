@@ -1,11 +1,9 @@
-"use client"
-
 import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
-import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
-import { PublicSpec } from "@/util/stateInterfaces"
+import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { PublicSpec } from "@/util/stateInterfaces"
 
 interface Props {
   publicSpec: PublicSpec
@@ -39,13 +37,13 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
         <label>{t("upload-solution-instructions")}</label>
         <div>{t("select-file-for-submission")}</div>
         <br />
-        <Button variant="primary" size="medium">
+        <Button variant="primary" size="medium" aria-label={t("select-file-for-submission")}>
           <input
             type="file"
             ref={inputRef}
             onChange={(ev) => {
               if (ev.target && ev.target.files && ev.target.files.length > 0) {
-                setFileToUpload(ev.target.files[0])
+                setFileToUpload(ev.target.files[0] ?? null)
               }
             }}
           />
@@ -57,7 +55,7 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
           disabled={fileToUpload === null}
           onClick={() => {
             if (fileToUpload) {
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               sendFileUploadMessage(`submission-${publicSpec.archive_name}`, fileToUpload)
             }
           }}

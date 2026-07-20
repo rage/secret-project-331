@@ -16,36 +16,38 @@ export interface PaginationInfo {
   setLimit: (newValue: number) => void
 }
 
-function usePaginationInfo(): PaginationInfo {
+function usePaginationInfo(defaultLimit: number = DEFAULT_LIMIT): PaginationInfo {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const initialPage = useMemo(() => {
-    let initialPage: number
+    let parsedPage: number
     const pageParam = searchParams?.get("page")
     if (pageParam) {
-      initialPage = parseInt(pageParam)
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+      parsedPage = parseInt(pageParam, 10)
     } else {
-      initialPage = DEFAULT_PAGE
+      parsedPage = DEFAULT_PAGE
     }
-    if (isNaN(initialPage)) {
+    if (isNaN(parsedPage)) {
       return DEFAULT_PAGE
     }
-    return initialPage
+    return parsedPage
   }, [searchParams])
   const initialLimit = useMemo(() => {
-    let initialLimit: number
+    let parsedLimit: number
     const limitParam = searchParams?.get("limit")
     if (limitParam) {
-      initialLimit = parseInt(limitParam)
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+      parsedLimit = parseInt(limitParam, 10)
     } else {
-      initialLimit = DEFAULT_LIMIT
+      parsedLimit = defaultLimit
     }
-    if (isNaN(initialLimit)) {
-      return DEFAULT_LIMIT
+    if (isNaN(parsedLimit)) {
+      return defaultLimit
     }
-    return initialLimit
-  }, [searchParams])
+    return parsedLimit
+  }, [searchParams, defaultLimit])
 
   const [page, setPage] = useState(initialPage)
   const [limit, setLimit] = useState(initialLimit)
@@ -54,7 +56,7 @@ function usePaginationInfo(): PaginationInfo {
     page: Math.max(1, page),
     setPage: (newValue: number) => {
       const currentParams = new URLSearchParams(searchParams?.toString() || "")
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       currentParams.set("page", newValue.toString())
       const newUrl = `${window.location.pathname}?${currentParams.toString()}`
       router.replace(newUrl)
@@ -63,9 +65,9 @@ function usePaginationInfo(): PaginationInfo {
     limit: Math.max(1, Math.min(limit, MAX_LIMIT)),
     setLimit: (newValue: number) => {
       const currentParams = new URLSearchParams(searchParams?.toString() || "")
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       currentParams.set("limit", newValue.toString())
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       currentParams.set("page", "1")
       const newUrl = `${window.location.pathname}?${currentParams.toString()}`
       router.replace(newUrl)

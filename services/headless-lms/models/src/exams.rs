@@ -1,11 +1,12 @@
 use chrono::Duration;
 use std::collections::HashMap;
+use utoipa::ToSchema;
 
 use crate::{courses::Course, prelude::*};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct Exam {
     pub id: Uuid,
     pub name: String,
@@ -13,6 +14,24 @@ pub struct Exam {
     // TODO: page_id is not in the exams table, prevents from using select * with query_as!
     pub page_id: Uuid,
     pub courses: Vec<Course>,
+    pub starts_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<DateTime<Utc>>,
+    pub time_minutes: i32,
+    pub minimum_points_treshold: i32,
+    pub language: String,
+    pub grade_manually: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct ExamIdentity {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub organization_id: Uuid,
+    pub name: String,
+    pub instructions: serde_json::Value,
+    pub page_id: Uuid,
     pub starts_at: Option<DateTime<Utc>>,
     pub ends_at: Option<DateTime<Utc>>,
     pub time_minutes: i32,
@@ -41,19 +60,57 @@ impl Exam {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct OrgExam {
     pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub name: String,
     pub instructions: serde_json::Value,
     pub starts_at: Option<DateTime<Utc>>,
     pub ends_at: Option<DateTime<Utc>>,
+    pub language: Option<String>,
     pub time_minutes: i32,
     pub organization_id: Uuid,
     pub minimum_points_treshold: i32,
+    pub grade_manually: bool,
 }
 
+/// Returns exam identity metadata for a non-deleted exam id.
+pub async fn get_identity_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExamIdentity> {
+    let exam = sqlx::query_as!(
+        ExamIdentity,
+        r#"
+SELECT exams.id,
+  exams.created_at,
+  exams.updated_at,
+  exams.deleted_at,
+  exams.organization_id,
+  exams.name,
+  exams.instructions,
+  pages.id AS page_id,
+  exams.starts_at,
+  exams.ends_at,
+  exams.time_minutes,
+  exams.minimum_points_treshold,
+  COALESCE(exams.language, 'en-US') AS "language!",
+  exams.grade_manually
+FROM exams
+  JOIN pages ON pages.exam_id = exams.id
+WHERE exams.id = $1
+  AND exams.deleted_at IS NULL
+  AND pages.deleted_at IS NULL
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exam)
+}
+
+/// Returns exam details for a non-deleted exam id.
 pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exam> {
     let exam = sqlx::query!(
         "
@@ -78,7 +135,7 @@ WHERE exams.id = $1
 
     let courses = sqlx::query_as!(
         Course,
-        "
+        r#"
 SELECT id,
   slug,
   courses.created_at,
@@ -100,16 +157,20 @@ SELECT id,
   join_code,
   ask_marketing_consent,
   flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1
   AND courses.deleted_at IS NULL
   AND course_exams.deleted_at IS NULL
-",
+"#,
         id
     )
     .fetch_all(&mut *conn)
@@ -130,8 +191,8 @@ WHERE course_exams.exam_id = $1
     })
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseExam {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -139,8 +200,8 @@ pub struct CourseExam {
     pub name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewExam {
     pub name: String,
     pub starts_at: Option<DateTime<Utc>>,
@@ -151,15 +212,15 @@ pub struct NewExam {
     pub grade_manually: bool,
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct ExamInstructions {
     pub id: Uuid,
     pub instructions: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct ExamInstructionsUpdate {
     pub instructions: serde_json::Value,
 }
@@ -183,7 +244,7 @@ INSERT INTO exams (
     grade_manually
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         exam.name,
@@ -233,14 +294,7 @@ pub async fn get_exams_for_organization(
     let res = sqlx::query_as!(
         OrgExam,
         "
-SELECT id,
-  name,
-  instructions,
-  starts_at,
-  ends_at,
-  time_minutes,
-  organization_id,
-  minimum_points_treshold
+SELECT *
 FROM exams
 WHERE exams.organization_id = $1
   AND exams.deleted_at IS NULL
@@ -259,14 +313,7 @@ pub async fn get_organization_exam_with_exam_id(
     let res = sqlx::query_as!(
         OrgExam,
         "
-SELECT id,
-  name,
-  instructions,
-  starts_at,
-  ends_at,
-  time_minutes,
-  organization_id,
-  minimum_points_treshold
+SELECT *
 FROM exams
 WHERE exams.id = $1
   AND exams.deleted_at IS NULL
@@ -357,10 +404,9 @@ pub async fn verify_exam_submission_can_be_made(
     let enrollment = get_enrollment(conn, exam_id, user_id)
         .await?
         .ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::PreconditionFailed,
-                "User has no enrollment for the exam".to_string(),
-                None,
+            model_err!(
+                PreconditionFailed,
+                "User has no enrollment for the exam".to_string()
             )
         })?;
     let student_has_time =
@@ -369,8 +415,8 @@ pub async fn verify_exam_submission_can_be_made(
     Ok(student_has_time && exam_is_ongoing)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExamEnrollment {
     pub user_id: Uuid,
     pub exam_id: Uuid,
@@ -378,6 +424,9 @@ pub struct ExamEnrollment {
     pub ended_at: Option<DateTime<Utc>>,
     pub is_teacher_testing: bool,
     pub show_exercise_answers: Option<bool>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
 }
 
 pub async fn get_enrollment(
@@ -388,12 +437,7 @@ pub async fn get_enrollment(
     let res = sqlx::query_as!(
         ExamEnrollment,
         "
-SELECT user_id,
-  exam_id,
-  started_at,
-  ended_at,
-  is_teacher_testing,
-  show_exercise_answers
+SELECT *
 FROM exam_enrollments
 WHERE exam_id = $1
   AND user_id = $2
@@ -415,12 +459,7 @@ pub async fn get_exam_enrollments_for_users(
     let enrollments = sqlx::query_as!(
         ExamEnrollment,
         "
-SELECT user_id,
-  exam_id,
-  started_at,
-  ended_at,
-  is_teacher_testing,
-  show_exercise_answers
+SELECT *
 FROM exam_enrollments
 WHERE user_id IN (
     SELECT UNNEST($1::uuid [])
@@ -447,12 +486,7 @@ pub async fn get_ongoing_exam_enrollments(
     let enrollments = sqlx::query_as!(
         ExamEnrollment,
         "
-SELECT user_id,
-  exam_id,
-  started_at,
-  ended_at,
-  is_teacher_testing,
-  show_exercise_answers
+SELECT *
 FROM exam_enrollments
 WHERE
     ended_at IS NULL
@@ -468,14 +502,7 @@ pub async fn get_exams(conn: &mut PgConnection) -> ModelResult<HashMap<Uuid, Org
     let exams = sqlx::query_as!(
         OrgExam,
         "
-SELECT id,
-  name,
-  instructions,
-  starts_at,
-  ends_at,
-  time_minutes,
-  organization_id,
-  minimum_points_treshold
+SELECT *
 FROM exams
 WHERE deleted_at IS NULL
 "
@@ -561,6 +588,164 @@ WHERE user_id IN (
     Ok(())
 }
 
+pub async fn reset_progress_by_exam_id_and_user_id(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+
+    sqlx::query!(
+        r#"
+UPDATE peer_review_queue_entries
+SET deleted_at = NOW()
+WHERE user_id = $2
+  AND exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE exam_id = $1
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE exercise_task_gradings
+SET deleted_at = NOW()
+WHERE exercise_task_submission_id IN (
+    SELECT ets.id
+    FROM exercise_task_submissions ets
+      JOIN exercise_slide_submissions ess
+        ON ess.id = ets.exercise_slide_submission_id
+    WHERE ess.exam_id = $1
+      AND ess.user_id = $2
+      AND ess.deleted_at IS NULL
+      AND ets.deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE exercise_task_submissions
+SET deleted_at = NOW()
+WHERE exercise_slide_submission_id IN (
+    SELECT id
+    FROM exercise_slide_submissions
+    WHERE exam_id = $1
+      AND user_id = $2
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE teacher_grading_decisions
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE exam_id = $1
+      AND user_id = $2
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE user_exercise_task_states
+SET deleted_at = NOW()
+WHERE user_exercise_slide_state_id IN (
+    SELECT uess.id
+    FROM user_exercise_slide_states uess
+      JOIN user_exercise_states ues ON ues.id = uess.user_exercise_state_id
+    WHERE ues.exam_id = $1
+      AND ues.user_id = $2
+      AND ues.deleted_at IS NULL
+      AND uess.deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE exercise_slide_submissions
+SET deleted_at = NOW()
+WHERE exam_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE user_exercise_slide_states
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE exam_id = $1
+      AND user_id = $2
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE user_exercise_states
+SET deleted_at = NOW()
+WHERE exam_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+    Ok(())
+}
+
 pub async fn update_show_exercise_answers(
     conn: &mut PgConnection,
     exam_id: Uuid,
@@ -587,7 +772,7 @@ WHERE exam_id = $1
 pub async fn get_organization_id(conn: &mut PgConnection, exam_id: Uuid) -> ModelResult<Uuid> {
     let organization_id = sqlx::query!(
         "
-SELECT organization_id
+SELECT *
 FROM exams
 WHERE id = $1
 ",

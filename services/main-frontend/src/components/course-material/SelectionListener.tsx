@@ -3,10 +3,10 @@
 import { useSetAtom } from "jotai"
 import { useEffect } from "react"
 
-import { FEEDBACK_TOOLTIP_ID } from "./FeedbackTooltip"
-
 import { selectedBlockIdAtom, selectionAtom } from "@/stores/course-material/materialFeedbackStore"
 import { courseMaterialBlockClass } from "@/utils/course-material/constants"
+
+import { TEXT_SELECTION_TOOLTIP_ID } from "./TextSelectionTooltip"
 
 export const FEEDBACK_DIALOG_CONTENT_ID = "feedback-dialog-content"
 export const IGNORE_BLOCK_FEEDBACK_CLASS = "feedback-ignore-block"
@@ -47,8 +47,8 @@ const useSelectionTracking = (): void => {
       const isWithinIgnoredBlock = parentHasCssSelector(element, `.${IGNORE_BLOCK_FEEDBACK_CLASS}`)
       const isWithinFeedback = parentHasCssSelector(
         element,
-        // eslint-disable-next-line i18next/no-literal-string
-        `#${FEEDBACK_DIALOG_CONTENT_ID}, #${FEEDBACK_TOOLTIP_ID}`,
+        // oxlint-disable-next-line i18next/no-literal-string
+        `#${FEEDBACK_DIALOG_CONTENT_ID}, #${TEXT_SELECTION_TOOLTIP_ID}`,
       )
       return isWithinIgnoredBlock || isWithinFeedback
     }

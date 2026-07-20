@@ -7,32 +7,46 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import GradeExamAnswerForm from "@/components/forms/GradeExamAnswerForm"
-import SubmissionIFrame from "@/components/page-specific/submissions/id/SubmissionIFrame"
-import { fetchExam } from "@/services/backend/exams"
-import { Block } from "@/services/backend/exercises"
-import { fetchSubmissionInfo } from "@/services/backend/submissions"
-import { CourseMaterialExerciseTask } from "@/shared-module/common/bindings"
-import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import { getExerciseSlideSubmissionInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
+import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
+import type { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { fontWeights, headingFont } from "@/shared-module/common/styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
+
+import SubmissionIFrame from "./SubmissionIFrame"
+
+interface Block<T> {
+  name: string
+  isValid: boolean
+  clientId: string
+  attributes: T
+  innerBlocks: Block<unknown>[]
+}
 
 const Submission: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
+  usePageTitle(t("title-grading"))
 
   const getSubmissionInfo = useQuery({
-    queryKey: [`submission-${id}`],
-    queryFn: () => fetchSubmissionInfo(id),
+    ...getExerciseSlideSubmissionInfoOptions({
+      path: {
+        submission_id: id,
+      },
+    }),
   })
 
   const handleGetAssignments = (task: CourseMaterialExerciseTask) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const assignments = task.assignment as Block<any>[]
     return assignments.map((assignment) => assignment.attributes?.content)
   }
@@ -41,24 +55,31 @@ const Submission: React.FC = () => {
   const exerciseId = getSubmissionInfo.data?.exercise.id
 
   const getExam = useQuery({
-    queryKey: [`/exams/${examId}/`, examId],
-    queryFn: () => fetchExam(examId ?? ""),
+    queryKey: ["getExam", examId],
+    // oxlint-disable-next-line eslint/require-await -- async so the queryFn returns a normalized Promise
+    queryFn: async () =>
+      getExamFromApi({
+        path: {
+          id: assertNotNullOrUndefined(examId),
+        },
+      }),
+    enabled: !!examId,
   })
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
-    const pieces = [
-      // eslint-disable-next-line i18next/no-literal-string
+    const breadcrumbPieces = [
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("link-manage"), url: `/manage/exams/${examId}` },
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("questions"), url: `/manage/exams/${examId}/questions` },
       {
         text: t("header-submissions"),
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         url: `/manage/exercises/${exerciseId}/exam-submissions`,
       },
       { text: id, url: "" },
     ]
-    return pieces
+    return breadcrumbPieces
   }, [examId, exerciseId, id, t])
 
   return (
@@ -68,67 +89,65 @@ const Submission: React.FC = () => {
           <Breadcrumbs pieces={pieces} />
         </PageMarginOffset>
       </BreakFromCentered>
-      {getSubmissionInfo.isError && (
-        <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
-      )}
-      {getSubmissionInfo.isLoading && <Spinner variant={"medium"} />}
-      {getSubmissionInfo.isSuccess && getExam.isSuccess && (
-        <Centered variant="narrow">
-          <div>
-            <h1
-              className={css`
-                font-family: ${headingFont};
-                padding: 1.5rem 2rem;
-                font-size: 35px;
-                font-weight: ${fontWeights.semibold};
-                color: #333333;
-                opacity: 80%;
-              `}
-            >
-              {t("label-grade")} {getSubmissionInfo.data.exercise.name}
-            </h1>
-            {getSubmissionInfo.data.tasks
-              .sort((a, b) => a.order_number - b.order_number)
-              .map((task) => (
-                <div key={task.id}>
-                  <div
-                    className={css`
-                      padding: 1.5rem 2rem;
-                      display: flex;
-                    `}
-                  >
-                    {handleGetAssignments(task)}
-                  </div>
-                  <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
-                  {!getExam.data?.grade_manually && (
-                    <div
-                      className={css`
-                        padding: 1.5rem 2rem;
-                        display: flex;
-                      `}
-                    >
-                      {t("message-this-submission-has-been-graded-automatically")}:
+      <QueryResult query={getSubmissionInfo}>
+        {(submissionInfo) =>
+          getExam.isSuccess && (
+            <Centered variant="narrow">
+              <div>
+                <h1
+                  className={css`
+                    font-family: ${headingFont};
+                    padding: 1.5rem 2rem;
+                    font-size: 35px;
+                    font-weight: ${fontWeights.semibold};
+                    color: #333333;
+                    opacity: 80%;
+                  `}
+                >
+                  {t("label-grade")} {submissionInfo.exercise.name}
+                </h1>
+                {[...submissionInfo.tasks]
+                  .toSorted((a, b) => a.order_number - b.order_number)
+                  .map((task) => (
+                    <div key={task.id}>
                       <div
                         className={css`
-                          padding-left: 0.5rem;
+                          padding: 1.5rem 2rem;
+                          display: flex;
                         `}
                       >
-                        {task.previous_submission_grading?.score_given} /
-                        {task.previous_submission_grading?.unscaled_score_maximum}
+                        {handleGetAssignments(task)}
                       </div>
+                      <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
+                      {!getExam.data?.grade_manually && (
+                        <div
+                          className={css`
+                            padding: 1.5rem 2rem;
+                            display: flex;
+                          `}
+                        >
+                          {t("message-this-submission-has-been-graded-automatically")}:
+                          <div
+                            className={css`
+                              padding-left: 0.5rem;
+                            `}
+                          >
+                            {task.previous_submission_grading?.score_given} /
+                            {task.previous_submission_grading?.unscaled_score_maximum}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
-          </div>
+                  ))}
+              </div>
 
-          {getExam.data?.grade_manually && (
-            <GradeExamAnswerForm
-              submissionId={getSubmissionInfo.data.exercise_slide_submission.id}
-            />
-          )}
-        </Centered>
-      )}
+              {getExam.data?.grade_manually && (
+                <GradeExamAnswerForm submissionId={submissionInfo.exercise_slide_submission.id} />
+              )}
+            </Centered>
+          )
+        }
+      </QueryResult>
     </div>
   )
 }

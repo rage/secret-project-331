@@ -1,23 +1,6 @@
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
-use std::error::Error;
 use tokio::sync::Mutex;
-use tracing_error::ErrorLayer;
-use tracing_log::LogTracer;
-use tracing_subscriber::{EnvFilter, layer::SubscriberExt};
-
-pub fn setup_tracing() -> Result<(), Box<dyn Error>> {
-    let subscriber = tracing_subscriber::Registry::default()
-        .with(
-            tracing_subscriber::fmt::layer()
-                .event_format(tracing_subscriber::fmt::format().compact()),
-        )
-        .with(ErrorLayer::default())
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")));
-    tracing::subscriber::set_global_default(subscriber)?;
-    LogTracer::init()?;
-    Ok(())
-}
 
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
@@ -30,10 +13,10 @@ async fn get_or_init_db() -> String {
     }
 
     // initialize logging and db
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
     let db = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://headless-lms@localhost:54328/headless_lms_dev".to_string());
-    let _ = setup_tracing();
+    let _ = headless_lms_base::tracing::setup_tracing();
 
     // store initialized pool and return connection
     guard.replace(db.clone());
@@ -135,30 +118,33 @@ macro_rules! insert_data {
         let mut $tx = conn.begin().await;
     };
     (@inner tx: $tx:ident; user: $user:ident) => {
-        let rs = ::rand::Rng::sample_iter(::rand::rng(), &::rand::distr::Alphanumeric)
-            .take(8)
-            .map(char::from)
-            .collect::<String>();
+        let rs = <::rand::distr::Alphanumeric as ::rand::distr::SampleString>::sample_string(
+            &::rand::distr::Alphanumeric,
+            &mut ::rand::rng(),
+            8,
+        );
         let $user =
             $crate::users::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, &format!("{rs}@example.com"), None, None)
                 .await
                 .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident; org: $org:ident) => {
-        let rs = rand::Rng::sample_iter(rand::rng(), &::rand::distr::Alphanumeric)
-            .take(8)
-            .map(char::from)
-            .collect::<String>();
+        let rs = <::rand::distr::Alphanumeric as ::rand::distr::SampleString>::sample_string(
+            &::rand::distr::Alphanumeric,
+            &mut ::rand::rng(),
+            8,
+        );
         let $org =
             $crate::organizations::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, "", &rs, None, false)
                 .await
                 .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident; course: $course: ident) => {
-        let rs = ::rand::Rng::sample_iter(::rand::rng(), &::rand::distr::Alphanumeric)
-            .take(8)
-            .map(char::from)
-            .collect::<String>();
+        let rs = <::rand::distr::Alphanumeric as ::rand::distr::SampleString>::sample_string(
+            &::rand::distr::Alphanumeric,
+            &mut ::rand::rng(),
+            8,
+        );
         let $course = $crate::library::content_management::create_new_course(
             $tx.as_mut(),
             $crate::PKeyPolicy::Generate,
@@ -244,6 +230,7 @@ macro_rules! insert_data {
                 chapter_id: Some($chapter),
                 front_page_of_chapter_id: Some($chapter),
                 content_search_language: None,
+                hidden: false,
             },
             $user,
             |_, _, _| unimplemented!(),

@@ -1,0 +1,3 @@
+ALTER TABLE exercise_service_info
+ADD COLUMN csv_export_definitions_endpoint_path TEXT,
+ADD COLUMN csv_export_answers_endpoint_path TEXT;

@@ -6,30 +6,34 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CertificateForm, {
-  CertificateFields,
-} from "@/components/page-specific/manage/certificates/CertificateForm"
-import CertificateView from "@/components/page-specific/manage/certificates/CertificateView"
+import {
+  getCourseInstanceDefaultCertificateConfigurationsOptions,
+  getCourseInstanceOptions,
+  getCourseStructureOptions,
+  setCourseModuleCertificateGenerationMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
 import {
   deleteCertificateConfiguration,
+  setCourseModuleCertificateGeneration,
   updateCertificateConfiguration,
-} from "@/services/backend/certificates"
-import {
-  fetchCourseInstance,
-  fetchDefaultCertificateConfigurations,
-} from "@/services/backend/course-instances"
-import { setCertificationGeneration } from "@/services/backend/course-modules"
-import { fetchCourseStructure } from "@/services/backend/courses"
-import { CertificateConfigurationUpdate } from "@/shared-module/common/bindings"
+} from "@/generated/api/sdk.generated"
+import type { UpdateCertificateConfigurationData } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+
+import { createCertificateConfigurationFormData } from "./certificateConfigurationFormData"
+import type { CertificateFields } from "./CertificateForm"
+import CertificateForm from "./CertificateForm"
+import CertificateView from "./CertificateView"
 
 interface UpdateMutationArgs {
   courseModuleId: string
@@ -44,36 +48,39 @@ const CertificationsPage: React.FC = () => {
 
   const [editingConfiguration, setEditingConfiguration] = useState<string | null>(null)
   const getCourseInstance = useQuery({
-    queryKey: ["course-instance", courseInstanceId],
-    queryFn: () => {
-      return fetchCourseInstance(courseInstanceId)
-    },
+    ...getCourseInstanceOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
   })
   const courseId = getCourseInstance.data?.course_id
-  const getCourse = useQuery({
-    queryKey: ["course", courseId],
-    queryFn: () => {
-      if (courseId) {
-        return fetchCourseStructure(courseId)
-      } else {
-        throw new Error("Invalid state")
-      }
-    },
-    enabled: !!courseId,
-  })
+  const getCourse = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCourseStructureOptions({
+          path: {
+            course_id: value,
+          },
+        }),
+    }),
+  )
   const defaultCertificateConfigurationsQuery = useQuery({
-    queryKey: ["default-certificate-configurations-for-instance", courseInstanceId],
-    queryFn: () => {
-      return fetchDefaultCertificateConfigurations(courseInstanceId)
-    },
+    ...getCourseInstanceDefaultCertificateConfigurationsOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
   })
   const updateConfigurationMutation = useToastMutation(
-    ({ courseModuleId, courseInstanceId, fields }: UpdateMutationArgs) => {
+    ({ courseModuleId, courseInstanceId: instanceId, fields }: UpdateMutationArgs) => {
       const backgroundSvg = fields.backgroundSvg.item(0)
       const overlaySvg = fields.overlaySvg.item(0)
-      const update: CertificateConfigurationUpdate = {
+      const metadata: UpdateCertificateConfigurationData["body"]["metadata"] = {
         course_module_id: courseModuleId,
-        course_instance_id: courseInstanceId,
+        course_instance_id: instanceId,
         certificate_owner_name_y_pos: fields.ownerNamePosY,
         certificate_owner_name_x_pos: fields.ownerNamePosX,
         certificate_owner_name_font_size: fields.ownerNameFontSize,
@@ -102,7 +109,15 @@ const CertificationsPage: React.FC = () => {
         certificate_grade_text_anchor: fields.gradeTextAnchor,
       }
 
-      return updateCertificateConfiguration(update, backgroundSvg, overlaySvg)
+      const files = [overlaySvg, backgroundSvg].filter((file): file is File => file !== null)
+
+      return updateCertificateConfiguration({
+        body: {
+          metadata,
+          file: files,
+        },
+        bodySerializer: () => createCertificateConfigurationFormData(metadata, files),
+      })
     },
     { method: "POST", notify: true },
     {
@@ -114,8 +129,17 @@ const CertificationsPage: React.FC = () => {
   )
   const deleteConfigurationMutation = useToastMutation(
     ({ moduleId, configurationId }: { moduleId: string; configurationId: string }) => {
-      return setCertificationGeneration(moduleId, false).then(() =>
-        deleteCertificateConfiguration(configurationId),
+      return setCourseModuleCertificateGeneration({
+        path: {
+          course_module_id: moduleId,
+          enabled: false,
+        },
+      }).then(() =>
+        deleteCertificateConfiguration({
+          path: {
+            certificate_configuration_id: configurationId,
+          },
+        }),
       )
     },
     {
@@ -130,10 +154,8 @@ const CertificationsPage: React.FC = () => {
       },
     },
   )
-  const toggleCertificateGenerationEnabledMutation = useToastMutation(
-    ({ moduleId, enabled }: { moduleId: string; enabled: boolean }) => {
-      return setCertificationGeneration(moduleId, enabled)
-    },
+  const toggleCertificateGenerationEnabledMutation = useToastMutationOptions(
+    setCourseModuleCertificateGenerationMutation(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
@@ -152,125 +174,127 @@ const CertificationsPage: React.FC = () => {
       )}
       {defaultCertificateConfigurationsQuery.isLoading && <Spinner variant="medium" />}
       {getCourse.isSuccess && defaultCertificateConfigurationsQuery.isSuccess && (
-        <>
-          <ul
-            className={css`
-              padding-left: 0;
-            `}
-          >
-            {getCourse.data.modules
-              .sort((l, r) => l.order_number - r.order_number)
-              .map((m) => {
-                return {
-                  module: m,
-                  configuration:
-                    defaultCertificateConfigurationsQuery.data.find(
-                      (c) =>
-                        c.requirements.course_module_ids.length === 1 &&
-                        c.requirements.course_module_ids[0] === m.id,
-                    ) || null,
-                }
-              })
-              .map(({ module, configuration }) => (
-                <li
-                  key={module.id}
-                  className={css`
-                    list-style-type: none;
-                    margin: 2rem 0;
-                    border: 1px solid ${baseTheme.colors.clear[500]};
-                    padding: 1rem;
-                  `}
-                >
-                  <h2>
-                    {module.name ? `${t("module")}: ${module.name}` : t("default-module")}{" "}
-                    <HideTextInSystemTests text={module.id} testPlaceholder="module-id" />
-                  </h2>
-                  {module.id === editingConfiguration && (
-                    <CertificateForm
-                      generatingCertificatesEnabled={module.certification_enabled}
-                      configurationAndRequirements={configuration}
-                      onClickSave={(fields) => {
-                        updateConfigurationMutation.mutate({
-                          courseModuleId: module.id,
-                          courseInstanceId,
-                          fields,
-                        })
-                      }}
-                      onClickCancel={() => {
-                        setEditingConfiguration(null)
-                      }}
-                    />
-                  )}
-                  {module.id !== editingConfiguration &&
-                    (configuration ? (
-                      <>
-                        <div>
-                          {module.certification_enabled
-                            ? t("generating-new-certificates-enabled")
-                            : t("generating-new-certificates-disabled")}
-                        </div>
-                        {module.certification_enabled ? (
-                          <Button
-                            variant="primary"
-                            size="medium"
-                            onClick={async () => {
-                              if (await confirm(t("confirm-disable-generating-certificates"))) {
-                                toggleCertificateGenerationEnabledMutation.mutate({
-                                  moduleId: module.id,
-                                  enabled: false,
-                                })
-                              }
-                            }}
-                          >
-                            {t("disable-generating-certificates")}
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="primary"
-                            size="medium"
-                            onClick={async () => {
-                              if (await confirm(t("confirm-enable-generating-certificates"))) {
-                                toggleCertificateGenerationEnabledMutation.mutate({
-                                  moduleId: module.id,
-                                  enabled: true,
-                                })
-                              }
-                            }}
-                          >
-                            {t("enable-generating-certificates")}
-                          </Button>
-                        )}
-                        <CertificateView
-                          configurationAndRequirements={configuration}
-                          onClickEdit={() => {
-                            setEditingConfiguration(module.id)
-                          }}
-                          onClickDelete={async () => {
-                            if (await confirm(t("confirm-certification-configuration-deletion"))) {
-                              deleteConfigurationMutation.mutate({
-                                moduleId: module.id,
-                                configurationId: configuration.certificate_configuration.id,
-                              })
-                            }
-                          }}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <div>{t("no-certificate-configured")}</div>
+        <ul
+          className={css`
+            padding-left: 0;
+          `}
+        >
+          {getCourse.data.modules
+            .toSorted((l, r) => l.order_number - r.order_number)
+            .map((m) => {
+              return {
+                module: m,
+                configuration:
+                  defaultCertificateConfigurationsQuery.data.find(
+                    (c) =>
+                      c.requirements.course_module_ids.length === 1 &&
+                      c.requirements.course_module_ids[0] === m.id,
+                  ) || null,
+              }
+            })
+            .map(({ module, configuration }) => (
+              <li
+                key={module.id}
+                className={css`
+                  list-style-type: none;
+                  margin: 2rem 0;
+                  border: 1px solid ${baseTheme.colors.clear[500]};
+                  padding: 1rem;
+                `}
+              >
+                <h2>
+                  {module.name ? `${t("module")}: ${module.name}` : t("default-module")}{" "}
+                  <HideTextInSystemTests text={module.id} testPlaceholder="module-id" />
+                </h2>
+                {module.id === editingConfiguration && (
+                  <CertificateForm
+                    generatingCertificatesEnabled={module.certification_enabled}
+                    configurationAndRequirements={configuration}
+                    onClickSave={(fields) => {
+                      updateConfigurationMutation.mutate({
+                        courseModuleId: module.id,
+                        courseInstanceId,
+                        fields,
+                      })
+                    }}
+                    onClickCancel={() => {
+                      setEditingConfiguration(null)
+                    }}
+                  />
+                )}
+                {module.id !== editingConfiguration &&
+                  (configuration ? (
+                    <>
+                      <div>
+                        {module.certification_enabled
+                          ? t("generating-new-certificates-enabled")
+                          : t("generating-new-certificates-disabled")}
+                      </div>
+                      {module.certification_enabled ? (
                         <Button
                           variant="primary"
                           size="medium"
-                          onClick={() => setEditingConfiguration(module.id)}
+                          onClick={async () => {
+                            if (await confirm(t("confirm-disable-generating-certificates"))) {
+                              toggleCertificateGenerationEnabledMutation.mutate({
+                                path: {
+                                  course_module_id: module.id,
+                                  enabled: false,
+                                },
+                              })
+                            }
+                          }}
                         >
-                          {t("create-certificate-configuration")}
+                          {t("disable-generating-certificates")}
                         </Button>
-                      </>
-                    ))}
-                </li>
-              ))}
-          </ul>
-        </>
+                      ) : (
+                        <Button
+                          variant="primary"
+                          size="medium"
+                          onClick={async () => {
+                            if (await confirm(t("confirm-enable-generating-certificates"))) {
+                              toggleCertificateGenerationEnabledMutation.mutate({
+                                path: {
+                                  course_module_id: module.id,
+                                  enabled: true,
+                                },
+                              })
+                            }
+                          }}
+                        >
+                          {t("enable-generating-certificates")}
+                        </Button>
+                      )}
+                      <CertificateView
+                        configurationAndRequirements={configuration}
+                        onClickEdit={() => {
+                          setEditingConfiguration(module.id)
+                        }}
+                        onClickDelete={async () => {
+                          if (await confirm(t("confirm-certification-configuration-deletion"))) {
+                            deleteConfigurationMutation.mutate({
+                              moduleId: module.id,
+                              configurationId: configuration.certificate_configuration.id,
+                            })
+                          }
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <div>{t("no-certificate-configured")}</div>
+                      <Button
+                        variant="primary"
+                        size="medium"
+                        onClick={() => setEditingConfiguration(module.id)}
+                      >
+                        {t("create-certificate-configuration")}
+                      </Button>
+                    </>
+                  ))}
+              </li>
+            ))}
+        </ul>
       )}
     </>
   )

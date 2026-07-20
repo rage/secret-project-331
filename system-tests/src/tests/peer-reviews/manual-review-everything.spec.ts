@@ -1,10 +1,14 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
-import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
-
-import { answerExercise, fillPeerReview } from "./peer_review_utils"
-
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import {
+  getLocatorForNthExerciseServiceIframe,
+  waitForMessageChannelIframesToBeReady,
+} from "../../utils/iframeLocators"
+import { answerExercise, fillPeerReview } from "./peer_review_utils"
 
 const TEST_PAGE = "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-1"
 
@@ -30,6 +34,7 @@ test.describe("test ManualReviewEverything behavior", () => {
   test.afterEach(async () => {
     await Promise.all([context1.close(), context2.close(), context3.close(), context4.close()])
   })
+
   test("ManualReviewEverything", async () => {
     test.slow()
     const student1Page = await context1.newPage()
@@ -93,6 +98,8 @@ test.describe("test ManualReviewEverything behavior", () => {
       .first()
       .click()
 
+    await waitForMessageChannelIframesToBeReady(teacherPage)
+
     // Make sure the iframe above is loaded so that it does not cause scrolling
     await teacherPage.getByRole("button", { name: "Custom points" }).first().waitFor()
     const frame = await getLocatorForNthExerciseServiceIframe(teacherPage, "example-exercise", 1)
@@ -100,16 +107,19 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     await teacherPage.getByRole("button", { name: "Custom points" }).nth(0).click()
     await teacherPage.getByRole("spinbutton").fill("0.25")
-    await teacherPage.getByRole("button", { name: "Give custom points" }).click()
-    await teacherPage.getByText("Operation successful").waitFor()
+    await waitForSuccessNotification(teacherPage, async () => {
+      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+    })
     await teacherPage.getByRole("button", { name: "Custom points" }).nth(1).click()
     await teacherPage.getByRole("spinbutton").fill("0.25")
-    await teacherPage.getByRole("button", { name: "Give custom points" }).click()
-    await teacherPage.getByText("Operation successful").waitFor()
+    await waitForSuccessNotification(teacherPage, async () => {
+      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+    })
     await teacherPage.getByRole("button", { name: "Custom points" }).nth(2).click()
     await teacherPage.getByRole("spinbutton").fill("0.25")
-    await teacherPage.getByRole("button", { name: "Give custom points" }).click()
-    await teacherPage.getByText("Operation successful").waitFor()
+    await waitForSuccessNotification(teacherPage, async () => {
+      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+    })
 
     // Now all students should see their results.
     await student1Page.reload()

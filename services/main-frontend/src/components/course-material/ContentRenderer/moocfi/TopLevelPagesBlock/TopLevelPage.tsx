@@ -7,12 +7,11 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchTopLevelPages } from "@/services/course-material/backend"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { getCourseMaterialTopLevelPages } from "@/generated/course-material-api/sdk.generated"
 import TopLevelPage from "@/shared-module/common/components/TopLevelPage"
 import { headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { coursePageRoute } from "@/utils/course-material/routing"
 
 export interface TopLevelPagesProps {
@@ -29,52 +28,46 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
   const getTopLevelPages = useQuery({
     queryKey: [`courses-${courseId}-top-level-pages`],
     queryFn: () =>
-      fetchTopLevelPages(courseId).then((pages) =>
+      getCourseMaterialTopLevelPages({
+        path: {
+          course_id: courseId,
+        },
+      }).then((pages) =>
         pages.filter((x) => x.url_path !== "/").sort((a, b) => a.order_number - b.order_number),
       ),
   })
   const params = useParams<{ organizationSlug: string; courseSlug: string }>()
   const courseSlug = params?.courseSlug
   const organizationSlug = params?.organizationSlug
+  if (!courseSlug || !organizationSlug) {
+    return null
+  }
   return (
-    <>
-      {getTopLevelPages.isError && (
-        <ErrorBanner variant={"readOnly"} error={getTopLevelPages.error} />
+    <QueryResult query={getTopLevelPages} treatEmptyAsData>
+      {(data) => (
+        <Wrapper data-testid="top-level-pages-container">
+          <h2
+            className={css`
+              font-family: ${headingFont};
+              font-size: clamp(30px, 3.5vw, 46px);
+              font-weight: 700;
+              color: #1a2333;
+              text-align: center;
+              margin-bottom: 1.5rem;
+              opacity: 0.9;
+            `}
+          >
+            {t("information-pages")}
+          </h2>
+          {data.map((page, index) => {
+            const url = coursePageRoute(organizationSlug, courseSlug, page.url_path)
+            return (
+              <TopLevelPage title={page.title} url={url} key={page.id} index={Number(index) + 1} />
+            )
+          })}
+        </Wrapper>
       )}
-      {getTopLevelPages.isLoading && <Spinner variant={"medium"} />}
-      {getTopLevelPages.isSuccess && courseSlug && organizationSlug && (
-        <>
-          {getTopLevelPages.data && (
-            <Wrapper data-testid="top-level-pages-container">
-              <h2
-                className={css`
-                  font-family: ${headingFont};
-                  font-size: clamp(30px, 3.5vw, 46px);
-                  font-weight: 700;
-                  color: #1a2333;
-                  text-align: center;
-                  margin-bottom: 1.5rem;
-                  opacity: 0.9;
-                `}
-              >
-                {t("information-pages")}
-              </h2>
-              {getTopLevelPages.data.map((page, index) => {
-                const url = coursePageRoute(organizationSlug, courseSlug, page.url_path)
-                return (
-                  <TopLevelPage
-                    title={page.title}
-                    url={url}
-                    key={page.id}
-                    index={Number(index) + 1}
-                  />
-                )
-              })}
-            </Wrapper>
-          )}
-        </>
-      )}
-    </>
+    </QueryResult>
   )
 }
 export default withErrorBoundary(TopLevelPages)

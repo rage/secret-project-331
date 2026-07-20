@@ -6,7 +6,13 @@
       {
         "ordinal": 0,
         "name": "scopes",
-        "type_info": "TextArray"
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_user_client_scopes",
+            "name": "scopes"
+          }
+        }
       }
     ],
     "parameters": {

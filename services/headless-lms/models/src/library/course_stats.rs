@@ -1,11 +1,12 @@
 use crate::library::TimeGranularity;
 use crate::{prelude::*, roles::UserRole};
 use std::collections::HashMap;
+use utoipa::ToSchema;
 
 /// A generic result representing a count metric over a time period.
 /// When the time period is not applicable (for overall totals), `period` will be `None`.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CountResult {
     /// The start of the time period (e.g., day, week, month) associated with this count.
     /// For overall totals, this will be `None`.
@@ -16,8 +17,8 @@ pub struct CountResult {
 
 /// A generic result representing an average metric over a time period.
 /// The average value (e.g. average time in seconds) may be absent if no data is available.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct AverageMetric {
     /// The start of the time period (e.g., day, week, month) associated with this metric.
     pub period: Option<DateTime<Utc>>,
@@ -28,8 +29,8 @@ pub struct AverageMetric {
 /// Represents cohort activity metrics for both weekly and daily cohorts.
 /// For daily cohorts, `offset` will be populated (and `activity_period` may be computed from it);
 /// for weekly cohorts, `offset` will be `None` and `activity_period` indicates the week start.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CohortActivity {
     /// The start date of the cohort (either day or week).
     pub cohort_start: Option<DateTime<Utc>>,
@@ -438,7 +439,7 @@ cohort AS (
     first_active_at AS cohort_start
   FROM first_activity
 )
-SELECT c.cohort_start AS "cohort_start",
+SELECT c.cohort_start,
   DATE_TRUNC($6, s.created_at) AS "activity_period",
   CASE
     WHEN $6 = 'day' THEN EXTRACT(
@@ -1054,8 +1055,8 @@ ORDER BY "period"
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct StudentsByCountryTotalsResult {
     pub country: Option<String>,
     pub count: i64,

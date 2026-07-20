@@ -1,8 +1,10 @@
+/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { getImgByURLPrefixAndSuffix } from "@/utils/imageLocators"
 import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -16,6 +18,7 @@ test("partner block tests", async ({ page }) => {
 
   await page.getByLabel("Manage course 'Giveaway").click()
   await page.getByRole("tab", { name: "Pages" }).click()
+  await waitForSpinnersToDisappear(page)
   await page.getByText("Add Partners Section").click()
 
   await page.locator("button.components-button").click()
@@ -29,7 +32,9 @@ test("partner block tests", async ({ page }) => {
   ])
   await fileChooser.setFiles("src/fixtures/media/sample-logo.svg")
   // wait for image to upload
-  await getImgByURLPrefixAndSuffix(page, "http://project-331.local/api/v0/files/", ".svg").waitFor()
+  await getImgByURLPrefixAndSuffix(page, "http://project-331.local/api/v0/files/", ".svg")
+    .first()
+    .waitFor()
   await page.getByRole("button", { name: "Save", exact: true }).click()
   await page.getByText("Content saved successfully!").waitFor()
 

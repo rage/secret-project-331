@@ -1,7 +1,6 @@
 import "i18next"
-
-import ownTranslations from "@/shared-module/common/locales/en/cms.json"
-import sharedModule from "@/shared-module/common/locales/en/shared-module.json"
+import type ownTranslations from "@/shared-module/common/locales/en/cms.json"
+import type sharedModule from "@/shared-module/common/locales/en/shared-module.json"
 
 declare module "i18next" {
   interface CustomTypeOptions {

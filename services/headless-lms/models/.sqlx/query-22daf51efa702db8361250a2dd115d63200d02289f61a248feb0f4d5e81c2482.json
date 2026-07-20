@@ -1,0 +1,124 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n    a.id,\n    a.task,\n    a.context_utilization,\n    model.model,\n    model.model_type as \"model_type: ModelType\",\n    model.context_size\nFROM application_task_default_language_models AS a\nJOIN chatbot_configurations_models AS model ON model.id = a.model_id\nWHERE a.task = $1\nAND a.deleted_at IS NULL\nAND model.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "application_task_default_language_models",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "task",
+        "type_info": {
+          "Custom": {
+            "name": "application_task",
+            "kind": {
+              "Enum": [
+                "content-cleaning",
+                "message-suggestion",
+                "cms-paragraph-suggestion",
+                "sisu-description-summary"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "application_task_default_language_models",
+            "name": "task"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "context_utilization",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "application_task_default_language_models",
+            "name": "context_utilization"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "model",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations_models",
+            "name": "model"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "model_type: ModelType",
+        "type_info": {
+          "Custom": {
+            "name": "model_type",
+            "kind": {
+              "Enum": [
+                "gpt-thinking",
+                "gpt-non-thinking",
+                "gpt-hard-thinking",
+                "mistral"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations_models",
+            "name": "model_type"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "context_size",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations_models",
+            "name": "context_size"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "application_task",
+            "kind": {
+              "Enum": [
+                "content-cleaning",
+                "message-suggestion",
+                "cms-paragraph-suggestion",
+                "sisu-description-summary"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "22daf51efa702db8361250a2dd115d63200d02289f61a248feb0f4d5e81c2482"
+}

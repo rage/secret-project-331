@@ -11,11 +11,16 @@ import {
   usePopover,
 } from "react-aria"
 
-import ChatbotChat from "./ChatbotChat"
-import OpenChatbotButton from "./OpenChatbotButton"
+import OpenChatbotButton from "../Chatbot/OpenChatbotButton"
+import ChatbotChatBody from "../shared/ChatbotChatBody"
+import ChatbotChatHeader from "../shared/ChatbotChatHeader"
+import type { ChatbotStateAndData } from "../shared/hooks/useChatbotStateAndData"
 
-import { ChatbotProps } from "."
-
+interface ChatbotDialogProps {
+  chatbotStateAndData: ChatbotStateAndData
+  isOpen: boolean
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+}
 export const CHATBOX_WIDTH_PX = 500
 export const CHATBOX_HEIGHT_PX = 900
 
@@ -41,14 +46,14 @@ const closeAnimation = keyframes`
   }
 `
 
-const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
+const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
+  const { isOpen, setIsOpen } = props
   const chatbotTitleId = useId()
+  const [shouldRender, setShouldRender] = useState(false)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const popoverRef = useRef(null)
-  const [shouldRender, setShouldRender] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
 
-  let state = {
+  const state = {
     isOpen,
     setOpen: (o: boolean) => {
       setIsOpen(o)
@@ -94,7 +99,7 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   )
 
   const dialogRef = useRef(null)
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   let { dialogProps, titleProps } = useDialog({ role: "dialog" }, dialogRef)
   dialogProps = { ...dialogProps, "aria-labelledby": chatbotTitleId }
   titleProps = { ...titleProps, id: chatbotTitleId }
@@ -103,7 +108,7 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
     if (state?.isOpen) {
       setShouldRender(true)
     }
-  }, [state?.isOpen])
+  }, [state?.isOpen, setShouldRender])
 
   const handleAnimationEnd = () => {
     if (!state?.isOpen) {
@@ -124,7 +129,8 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
               right: 1rem;
               width: ${CHATBOX_WIDTH_PX}px;
               max-width: 90vw;
-              height: ${CHATBOX_HEIGHT_PX}px;
+              min-height: 60vh;
+              height: fit-content;
               max-height: 90vh;
               position: fixed;
               bottom: 4rem;
@@ -132,13 +138,32 @@ const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
             `}
             onAnimationEnd={handleAnimationEnd}
           >
-            <div ref={dialogRef} {...dialogProps}>
-              <ChatbotChat
-                chatbotConfigurationId={chatbotConfigurationId}
+            <div
+              ref={dialogRef}
+              className={css`
+                width: inherit;
+                max-width: inherit;
+                min-width: inherit;
+                height: inherit;
+                max-height: inherit;
+                min-height: inherit;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0px 4px 10px rgba(177, 179, 184, 0.6);
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+              `}
+              {...dialogProps}
+            >
+              <ChatbotChatHeader
+                currentConversationInfo={props.chatbotStateAndData.currentConversationInfo}
+                newConversationMutation={props.chatbotStateAndData.newConversationMutation}
+                titleProps={titleProps}
                 isCourseMaterialBlock={false}
                 closeChatbot={() => state.setOpen(false)}
-                titleProps={titleProps}
               />
+              <ChatbotChatBody {...props.chatbotStateAndData} />
             </div>
           </div>
         </FocusScope>

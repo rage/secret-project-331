@@ -1,8 +1,11 @@
 "use client"
 
 import { useBlockProps } from "@wordpress/block-editor"
-import { IconType, Placeholder } from "@wordpress/components"
+import type { IconType } from "@wordpress/components"
+import { Placeholder } from "@wordpress/components"
 import React from "react"
+
+import { includeIf } from "@/shared-module/common/utils/nullability"
 
 /**
  * PlaceholderWrapper used by blocks that do not allow editing directly, i.e. no nested blocks.
@@ -30,10 +33,10 @@ const BlockPlaceholderWrapper: React.FC<React.PropsWithChildren<BlockPlaceholder
   return (
     <div
       {...blockProps}
-      // eslint-disable-next-line i18next/no-literal-string
-      {...(id ? { id: `placeholder-block-${id}` } : {})}
+      // oxlint-disable-next-line i18next/no-literal-string
+      {...includeIf(id, { id: `placeholder-block-${id}` })}
     >
-      <Placeholder icon={icon} label={title} instructions={explanation}>
+      <Placeholder {...includeIf(icon, { icon })} label={title} instructions={explanation}>
         {children}
       </Placeholder>
     </div>

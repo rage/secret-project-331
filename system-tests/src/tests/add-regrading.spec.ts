@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -10,8 +12,9 @@ test("Regradings work", async ({ page }) => {
   await page.getByLabel("Ids, one per line").click()
   await page.getByLabel("Ids, one per line").click()
   await page.getByLabel("Ids, one per line").fill(" 9815985c-5123-5dbb-90a2-87b3693cc381")
-  await page.locator('button:has-text("Create")').click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.locator('button:has-text("Create")').click()
+  })
   await page.getByText("/ 1 Submissions regraded").waitFor()
   await expect(page).toHaveURL(/http:\/\/project-331\.local\/manage\/regradings\/.+/)
 

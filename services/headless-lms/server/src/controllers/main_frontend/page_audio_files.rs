@@ -4,8 +4,20 @@ use std::path::Path;
 
 use futures::StreamExt;
 use models::page_audio_files::PageAudioFile;
+use utoipa::{OpenApi, ToSchema};
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(set_page_audio, remove_page_audio, get_page_audio))]
+pub(crate) struct MainFrontendPageAudioApiDoc;
+
+#[allow(dead_code)]
+#[derive(Debug, ToSchema)]
+struct PageAudioUploadPayload {
+    #[schema(content_media_type = "application/octet-stream")]
+    file: Vec<u8>,
+}
 
 /**
 POST `/api/v0/main-frontend/page_audio/:page_id` - Sets or updates the page audio.
@@ -22,6 +34,19 @@ BINARY_DATA
 */
 
 #[instrument(skip(request, payload, pool, file_store))]
+#[utoipa::path(
+    post,
+    path = "/{page_id}",
+    operation_id = "createPageAudioFile",
+    tag = "page_audio",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    request_body(content = inline(PageAudioUploadPayload), content_type = "multipart/form-data"),
+    responses(
+        (status = 200, description = "Page audio uploaded", body = bool)
+    )
+)]
 async fn set_page_audio(
     request: HttpRequest,
     mut payload: Multipart,
@@ -110,21 +135,31 @@ DELETE /api/v0/main-frontend/page_audio/d332f3d9-39a5-4a18-80f4-251727693c37 HTT
 */
 
 #[instrument(skip(pool, file_store))]
+#[utoipa::path(
+    delete,
+    path = "/{file_id}",
+    operation_id = "deletePageAudioFile",
+    tag = "page_audio",
+    params(
+        ("file_id" = Uuid, Path, description = "Page audio file id")
+    ),
+    responses(
+        (status = 200, description = "Page audio deleted")
+    )
+)]
 async fn remove_page_audio(
-    page_audio_id: web::Path<Uuid>,
-    page_id: web::Path<Uuid>,
+    file_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    let audio =
-        models::page_audio_files::get_page_audio_files_by_id(&mut conn, *page_audio_id).await?;
+    let audio = models::page_audio_files::get_page_audio_files_by_id(&mut conn, *file_id).await?;
     let page = models::pages::get_page(&mut conn, audio.page_id).await?;
     if let Some(course_id) = page.course_id {
         let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-        let path = models::page_audio_files::delete_page_audio(&mut conn, *page_audio_id).await?;
+        let path = models::page_audio_files::delete_page_audio(&mut conn, *file_id).await?;
         file_store.delete(Path::new(&path)).await.map_err(|_| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
@@ -148,7 +183,18 @@ GET `/api/v0/main-fronted/page_audio/:page_id/files` - Get a page audio files
 Request: `GET /api/v0/cms/page_audio/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/files`
 */
 #[instrument(skip(app_conf))]
-
+#[utoipa::path(
+    get,
+    path = "/{page_id}/files",
+    operation_id = "getPageAudioFiles",
+    tag = "page_audio",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    responses(
+        (status = 200, description = "Page audio files", body = Vec<PageAudioFile>)
+    )
+)]
 async fn get_page_audio(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

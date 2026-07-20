@@ -1,9 +1,8 @@
-"use client"
-
 import { css } from "@emotion/css"
 import React from "react"
 
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 
 interface MessageDialogProps {
   title: string
@@ -14,7 +13,7 @@ interface MessageDialogProps {
 
 const MessageDialog: React.FC<MessageDialogProps> = ({ title, description, open, onClose }) => {
   return (
-    <StandardDialog open={open} onClose={onClose} title={title}>
+    <StandardDialog open={open} {...includeIf(onClose, { onClose })} title={title}>
       <div
         className={css`
           color: #535a66;

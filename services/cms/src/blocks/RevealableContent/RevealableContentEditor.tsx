@@ -1,13 +1,13 @@
 "use client"
 
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
-import { t } from "i18next"
 import React from "react"
 
-import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
-import { ConditionAttributes } from "."
+import type { ConditionAttributes } from "."
+import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/heading",
@@ -20,6 +20,8 @@ const ALLOWED_NESTED_BLOCKS = [
 const ConditionalBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
 > = ({ clientId }) => {
+  const { t } = useTranslation()
+
   return (
     <BlockPlaceholderWrapper
       id={clientId}

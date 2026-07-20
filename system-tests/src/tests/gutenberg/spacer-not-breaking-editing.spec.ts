@@ -1,27 +1,27 @@
-/* eslint-disable playwright/no-wait-for-timeout */
+/* oxlint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
-
 import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
+import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test.describe(() => {
+test.describe("Gutenberg spacer editing", () => {
   // Sometimes the location of the Gutenberg toolbar is nondeterministic
   test.describe.configure({ retries: 4 })
 
   test("Spacers should not break text editing under them, block inserter should not go on top of the typing caret", async ({
     page,
-    headless,
-  }, testInfo) => {
+  }) => {
     await page.goto("http://project-331.local/organizations")
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
     await page.getByRole("tab", { name: "Pages" }).click()
+    await waitForSpinnersToDisappear(page)
     await page
       .getByRole("row", { name: "The Basics /chapter-1" })
       .getByRole("button", { name: "Edit page" })
@@ -31,7 +31,7 @@ test.describe(() => {
     await page.getByRole("button", { name: "Add block" }).waitFor()
     await waitForFooterTranslationsToLoad(page)
 
-    // eslint-disable-next-line playwright/no-networkidle
+    // oxlint-disable-next-line playwright/no-networkidle
     await page.waitForLoadState("networkidle")
     await page.getByRole("button", { name: "Add block" }).click()
     await page.getByRole("option", { name: "Paragraph" }).click()

@@ -1,14 +1,16 @@
 const languages: Record<string, string> = {
   en: "English",
   fi: "Suomi",
+  no: "Norsk",
   sv: "Svenska",
+  uk: "Українська",
 }
 
 const getFallbackLanguageName = (ietfLanguageTag: string): string => {
   let nameNotSpecificToRegion = null
   if (ietfLanguageTag.indexOf("-") !== -1) {
     const [language, _region] = ietfLanguageTag.split("-")
-    const name = languages[language]
+    const name = language !== undefined ? languages[language] : undefined
     if (name) {
       nameNotSpecificToRegion = name
     }

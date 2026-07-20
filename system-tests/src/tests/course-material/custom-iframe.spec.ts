@@ -1,9 +1,11 @@
 import { test } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -21,6 +23,7 @@ test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
+  await waitForSpinnersToDisappear(page)
   await page.getByRole("button", { name: "New page" }).nth(1).click()
   await page.getByLabel("Title  *").click()
   await page.getByLabel("Title  *").fill("Iframe Page")
@@ -42,8 +45,9 @@ test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("button", { name: "Edit" }).waitFor()
   await page.getByText("https://example.com/iframe").waitFor()
-  await page.getByRole("button", { name: "Save", exact: true }).click()
-  await page.getByText("Operation successful!").waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Save", exact: true }).click()
+  })
   await page.goto(
     "http://project-331.local/org/uh-cs/courses/permission-management/chapter-1/iframe-page",
   )

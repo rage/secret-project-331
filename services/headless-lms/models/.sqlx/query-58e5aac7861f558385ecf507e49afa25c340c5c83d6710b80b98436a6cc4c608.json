@@ -6,97 +6,222 @@
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "created_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "created_at"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "updated_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "updated_at"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "course_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "course_id"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "deleted_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "deleted_at"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "name",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "name"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "deadline",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "deadline"
+          }
+        }
       },
       {
         "ordinal": 7,
         "name": "page_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "page_id"
+          }
+        }
       },
       {
         "ordinal": 8,
         "name": "score_maximum",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "score_maximum"
+          }
+        }
       },
       {
         "ordinal": 9,
         "name": "order_number",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "order_number"
+          }
+        }
       },
       {
         "ordinal": 10,
         "name": "chapter_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "chapter_id"
+          }
+        }
       },
       {
         "ordinal": 11,
         "name": "copied_from",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "copied_from"
+          }
+        }
       },
       {
         "ordinal": 12,
         "name": "exam_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "exam_id"
+          }
+        }
       },
       {
         "ordinal": 13,
         "name": "max_tries_per_slide",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "max_tries_per_slide"
+          }
+        }
       },
       {
         "ordinal": 14,
         "name": "limit_number_of_tries",
-        "type_info": "Bool"
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "limit_number_of_tries"
+          }
+        }
       },
       {
         "ordinal": 15,
         "name": "needs_peer_review",
-        "type_info": "Bool"
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "needs_peer_review"
+          }
+        }
       },
       {
         "ordinal": 16,
         "name": "use_course_default_peer_or_self_review_config",
-        "type_info": "Bool"
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "use_course_default_peer_or_self_review_config"
+          }
+        }
       },
       {
         "ordinal": 17,
         "name": "exercise_language_group_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "exercise_language_group_id"
+          }
+        }
       },
       {
         "ordinal": 18,
         "name": "needs_self_review",
-        "type_info": "Bool"
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "needs_self_review"
+          }
+        }
+      },
+      {
+        "ordinal": 19,
+        "name": "teacher_reviews_answer_after_locking",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "teacher_reviews_answer_after_locking"
+          }
+        }
       }
     ],
     "parameters": {
@@ -124,6 +249,7 @@
       false,
       false,
       true,
+      false,
       false
     ]
   },

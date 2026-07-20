@@ -1,0 +1,201 @@
+"use client"
+
+import { css } from "@emotion/css"
+import React from "react"
+import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+
+import {
+  createChapterMutation as createChapterMutationOptions,
+  updateChapterMutation as updateChapterMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { Chapter, NewChapter } from "@/generated/api/types.generated"
+import Button from "@/shared-module/common/components/Button"
+import CheckboxFieldWrapper from "@/shared-module/common/components/InputFields/CheckboxFieldWrapper"
+import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { includeIf } from "@/shared-module/common/utils/nullability"
+import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
+
+interface NewChapterFormProps {
+  courseId: string
+  onSubmitForm: () => void
+  chapterNumber: number
+  initialData: Chapter | null
+  newRecord: boolean
+}
+
+interface Fields {
+  name: string
+  color: string | null
+  opens_at: string | null
+  deadline: string | null
+  chapter_number: number
+}
+
+const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = ({
+  courseId,
+  onSubmitForm,
+  chapterNumber,
+  initialData,
+  newRecord,
+}) => {
+  const { t } = useTranslation()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isSubmitting },
+    setValue,
+    getValues,
+  } = useForm<Fields>({
+    // oxlint-disable-next-line i18next/no-literal-string
+    mode: "onChange",
+    defaultValues: {
+      name: "",
+      color: null,
+      chapter_number: chapterNumber,
+      opens_at: null,
+      deadline: null,
+      ...initialData,
+    },
+  })
+
+  const createChapterMutation = useToastMutationOptions(
+    createChapterMutationOptions(),
+    { notify: true, method: "POST" },
+    { onSuccess: () => onSubmitForm() },
+  )
+  const updateChapterMutation = useToastMutationOptions(
+    updateChapterMutationOptions(),
+    { notify: true, method: "PUT" },
+    { onSuccess: () => onSubmitForm() },
+  )
+  const isPending = createChapterMutation.isPending || updateChapterMutation.isPending
+
+  const submitForm = async (data: NewChapter) => {
+    if (newRecord) {
+      await createChapterMutation.mutateAsync({
+        body: {
+          ...data,
+          // Temp solution to retain module information without having a way to edit modules in frontend yet.
+          course_module_id: initialData?.course_module_id ?? null,
+        },
+      })
+      return
+    }
+
+    if (!initialData?.id) {
+      throw new Error("No id for chapter")
+    }
+
+    await updateChapterMutation.mutateAsync({
+      path: {
+        chapter_id: initialData.id,
+      },
+      body: {
+        ...data,
+        course_module_id: initialData.course_module_id,
+      },
+    })
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit(async (data) => {
+        await submitForm({
+          course_id: courseId,
+          name: data.name,
+          color: data.color,
+          chapter_number: chapterNumber,
+          front_page_id: null,
+          opens_at: data.opens_at ?? null,
+          deadline: data.deadline ?? null,
+          course_module_id: null,
+        })
+      })}
+      className={css`
+        padding: 1rem 0;
+      `}
+    >
+      <TextField
+        {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
+        placeholder={t("text-field-label-name")}
+        label={t("text-field-label-name")}
+        {...register("name", { required: "required-field" })}
+      />
+      <TextField
+        {...includeIf(errors["chapter_number"]?.message, {
+          error: errors["chapter_number"]?.message,
+        })}
+        placeholder={t("text-field-label-chapter-number")}
+        label={t("text-field-label-chapter-number")}
+        type="number"
+        {...register("chapter_number", {
+          required: t("required-field"),
+          valueAsNumber: true,
+          disabled: !newRecord,
+        })}
+      />
+      <CheckboxFieldWrapper
+        initialChecked={!!getValues("color")}
+        fieldName={t("input-field-chapter-color")}
+        onUncheck={() => setValue("color", null)}
+      >
+        <TextField
+          className={css`
+            height: 45px;
+            padding: 0px 0px 0px 0px !important;
+          `}
+          {...includeIf(errors["color"]?.message, { error: errors["color"]?.message })}
+          placeholder={t("input-field-chapter-color")}
+          label={t("input-field-chapter-color")}
+          {...register("color", { required: false })}
+          type="color"
+        />
+      </CheckboxFieldWrapper>
+      <CheckboxFieldWrapper
+        initialChecked={!!getValues("opens_at")}
+        fieldName={t("label-opens-at")}
+        onUncheck={() => setValue("opens_at", null)}
+      >
+        <DateTimeLocal
+          {...includeIf(errors["opens_at"]?.message, { error: errors["opens_at"]?.message })}
+          defaultValue={
+            initialData?.opens_at ? dateToDateTimeLocalString(initialData?.opens_at) : undefined
+          }
+          placeholder={t("label-opens-at")}
+          label={t("label-opens-at")}
+          {...register("opens_at", { valueAsDate: true, required: false })}
+        />
+      </CheckboxFieldWrapper>
+      <CheckboxFieldWrapper
+        initialChecked={!!getValues("deadline")}
+        fieldName={t("label-deadline")}
+        onUncheck={() => setValue("deadline", null)}
+      >
+        <DateTimeLocal
+          {...includeIf(errors["deadline"]?.message, { error: errors["deadline"]?.message })}
+          defaultValue={
+            initialData?.deadline ? dateToDateTimeLocalString(initialData?.deadline) : undefined
+          }
+          placeholder={t("label-deadline")}
+          label={t("label-deadline")}
+          {...register("deadline", { valueAsDate: true, required: false })}
+        />
+      </CheckboxFieldWrapper>
+      <div>
+        <Button
+          variant="primary"
+          size="medium"
+          fullWidth
+          disabled={!isValid || isSubmitting || isPending}
+        >
+          {newRecord ? t("button-text-create") : t("button-text-update")}
+        </Button>
+      </div>
+    </form>
+  )
+}
+
+export default NewChapterForm

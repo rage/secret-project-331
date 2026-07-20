@@ -1,5 +1,7 @@
-import { devices, LaunchOptions, PlaywrightTestConfig, ReporterDescription } from "@playwright/test"
 import { freemem } from "os"
+
+import type { LaunchOptions, PlaywrightTestConfig, ReporterDescription } from "@playwright/test"
+import { devices } from "@playwright/test"
 
 function envToNumber(env: string, defaultNumber: number) {
   try {
@@ -54,6 +56,9 @@ const config: PlaywrightTestConfig = {
     contextOptions: {
       locale: "en-US",
       timezoneId: "Europe/Helsinki",
+      // Disable animations so screenshots settle deterministically. CSS animations honor this via
+      // their prefers-reduced-motion guards; motion/react components must check useReducedMotion().
+      reducedMotion: "reduce",
     },
   },
   projects: [

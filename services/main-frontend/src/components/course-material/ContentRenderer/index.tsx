@@ -1,13 +1,23 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css, cx } from "@emotion/css"
 import DOMPurify from "dompurify"
 import { useSearchParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import DefaultBlock from "./DefaultBlock"
+import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { baseTheme } from "@/shared-module/common/styles"
+import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import type { Block } from "@/types/courseMaterialBlock"
+import {
+  COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
+  courseMaterialBlockClass,
+} from "@/utils/course-material/constants"
+
 import AudioBlock from "./core/common/Audio/AudioBlock"
 import FileBlock from "./core/common/File/FileBlock"
 import HeadingBlock from "./core/common/Heading/HeadingBlock"
@@ -28,6 +38,7 @@ import ColumnBlock from "./core/layout/ColumnBlock"
 import ColumnsBlock from "./core/layout/ColumnsBlock"
 import SeparatorBlock from "./core/layout/Separator"
 import SpacerBlock from "./core/layout/SpacerBlock"
+import DefaultBlock from "./DefaultBlock"
 import AsideBlock from "./moocfi/AsideBlock"
 import AsideWithImageBlock from "./moocfi/AsideWithImageBlock"
 import AudioPlayer from "./moocfi/AudioPlayer/index"
@@ -70,17 +81,6 @@ import TableBox from "./moocfi/TableBox"
 import TerminologyBlock from "./moocfi/TerminologyBlock"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
-import { Block } from "@/services/course-material/backend"
-import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { baseTheme } from "@/shared-module/common/styles"
-import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
-import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import {
-  COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
-  courseMaterialBlockClass,
-} from "@/utils/course-material/constants"
-
 /** The props that this component receives */
 export interface ContentRendererProps {
   data: Block<unknown>[]
@@ -104,8 +104,8 @@ export type BlockRendererProps<T> = {
 
 const LatexBlock = dynamicImport(() => import("./moocfi/LatexBlock"))
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const blockToRendererMap: { [blockName: string]: any } = {
+// oxlint-disable-next-line typescript/no-explicit-any
+export const blockToRendererMap: Record<string, any> = {
   "core/block": DefaultBlock,
 
   // core / common

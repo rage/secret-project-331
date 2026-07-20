@@ -1,20 +1,22 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 
-import CourseContext from "../../../contexts/CourseContext"
-
-import { fetchPartnersBlock, setPartnerBlockForCourse } from "@/services/backend/partners-block"
-import { PartnersBlock } from "@/shared-module/common/bindings"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import type { PartnersBlock } from "@/generated/api"
+import { getCmsCoursePartnersBlockOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { upsertCmsCoursePartnersBlock } from "@/generated/api/sdk.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useStateQuery from "@/shared-module/common/hooks/useStateQuery"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import CmsPageTitle from "../../../components/CmsPageTitle"
+import CourseContext from "../../../contexts/CourseContext"
 
 const PartnersBlockEditor = dynamicImport(
   () => import("../../../components/editors/PartnersBlockEditor"),
@@ -26,34 +28,45 @@ export interface PartnersBlockProps {
 
 const PartnersBlockEdit: React.FC<React.PropsWithChildren<PartnersBlockProps>> = ({ query }) => {
   // const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
+  const { t } = useTranslation()
   const courseId = query.id
-  // eslint-disable-next-line i18next/no-literal-string
-  const blockQuery = useStateQuery(["partners-block", courseId], (courseId) =>
-    fetchPartnersBlock(courseId),
+  const blockQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (resolvedCourseId): resolvedCourseId is string => Boolean(resolvedCourseId),
+      build: (resolvedCourseId) =>
+        getCmsCoursePartnersBlockOptions({
+          path: {
+            course_id: resolvedCourseId,
+          },
+        }),
+    }),
   )
 
-  if (blockQuery.state === "error") {
-    return (
-      <>
-        <ErrorBanner variant={"readOnly"} error={blockQuery.error} />
-      </>
-    )
-  }
-
-  if (blockQuery.state !== "ready") {
-    return <Spinner variant={"medium"} />
-  }
-
-  const handleSave = async (data: unknown): Promise<PartnersBlock> => {
-    const res = await setPartnerBlockForCourse(courseId, data ?? [])
-    await blockQuery.refetch()
-    return res
-  }
-
   return (
-    <CourseContext.Provider value={{ courseId: courseId }}>
-      <PartnersBlockEditor data={blockQuery.data} handleSave={handleSave} />
-    </CourseContext.Provider>
+    <>
+      <CmsPageTitle title={t("edit-partners-block")} />
+      <QueryResult query={blockQuery}>
+        {(data) => {
+          const handleSave = async (saveData: unknown): Promise<PartnersBlock> => {
+            const res = await upsertCmsCoursePartnersBlock({
+              path: {
+                course_id: courseId,
+              },
+              body: saveData ?? [],
+            })
+            await blockQuery.refetch()
+            return res as PartnersBlock
+          }
+
+          return (
+            <CourseContext.Provider value={{ courseId: courseId }}>
+              <PartnersBlockEditor data={data} handleSave={handleSave} />
+            </CourseContext.Provider>
+          )
+        }}
+      </QueryResult>
+    </>
   )
 }
 

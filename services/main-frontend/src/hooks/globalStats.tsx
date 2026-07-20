@@ -1,101 +1,79 @@
 "use client"
 
-import { useQuery, UseQueryResult } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
 import {
-  getCompletionStatsByEmailDomain,
-  getCourseCompletionStatsForEmailDomain,
-  getCourseModuleStatsByCompletionsRegisteredToStudyRegistry,
-  getNumberOfPeopleCompletedACourse,
-  getNumberOfPeopleDoneAtLeastOneExercise,
-  getNumberOfPeopleRegisteredCompletionToStudyRegistry,
-  getnumberOfPeopleStartedCourse,
-} from "../services/backend/global-stats"
+  getCompletionStatsByEmailDomainOptions,
+  getCourseCompletionStatsForEmailDomainOptions,
+  getCourseModuleStatsByCompletionsRegisteredToStudyRegistryOptions,
+  getNumberOfPeopleCompletedACourseOptions,
+  getNumberOfPeopleDoneAtLeastOneExerciseOptions,
+  getNumberOfPeopleRegisteredCompletionToStudyRegistryOptions,
+  getNumberOfPeopleStartedCourseOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { TimeGranularity } from "@/generated/api/types.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
-import { HookQueryOptions } from "."
-
-import {
-  CourseCompletionStats,
-  DomainCompletionStats,
-  GlobalCourseModuleStatEntry,
-  GlobalStatEntry,
-  TimeGranularity,
-} from "@/shared-module/common/bindings"
-
-export const useNumberOfPeopleCompletedACourseQuery = (
-  granularity: TimeGranularity,
-  options: HookQueryOptions<GlobalStatEntry[]> = {},
-): UseQueryResult<GlobalStatEntry[], Error> => {
+export const useNumberOfPeopleCompletedACourseQuery = (granularity: TimeGranularity) => {
   return useQuery({
-    queryKey: ["numberOfPeopleComplatedACourse", granularity],
-    queryFn: () => getNumberOfPeopleCompletedACourse(granularity),
-    ...options,
+    ...getNumberOfPeopleCompletedACourseOptions({
+      query: { granularity },
+    }),
   })
 }
 
 export const useNumberOfPeopleRegisteredCompletionToStudyRegistryQuery = (
   granularity: TimeGranularity,
-  options: HookQueryOptions<GlobalStatEntry[]> = {},
-): UseQueryResult<GlobalStatEntry[], Error> => {
+) => {
   return useQuery({
-    queryKey: ["numberOfPeopleRegisteredCompletionToStudyRegistry", granularity],
-    queryFn: () => getNumberOfPeopleRegisteredCompletionToStudyRegistry(granularity),
-    ...options,
+    ...getNumberOfPeopleRegisteredCompletionToStudyRegistryOptions({
+      query: { granularity },
+    }),
   })
 }
 
-export const useNumberOfPeopleDoneAtLeastOneExerciseQuery = (
-  granularity: TimeGranularity,
-  options: HookQueryOptions<GlobalStatEntry[]> = {},
-): UseQueryResult<GlobalStatEntry[], Error> => {
+export const useNumberOfPeopleDoneAtLeastOneExerciseQuery = (granularity: TimeGranularity) => {
   return useQuery({
-    queryKey: ["numberOfPeopleDoneAtLeastOneExercise", granularity],
-    queryFn: () => getNumberOfPeopleDoneAtLeastOneExercise(granularity),
-    ...options,
+    ...getNumberOfPeopleDoneAtLeastOneExerciseOptions({
+      query: { granularity },
+    }),
   })
 }
 
-export const useNumberOfPeopleStartedCourseQuery = (
-  granularity: TimeGranularity,
-  options: HookQueryOptions<GlobalStatEntry[]> = {},
-): UseQueryResult<GlobalStatEntry[], Error> => {
+export const useNumberOfPeopleStartedCourseQuery = (granularity: TimeGranularity) => {
   return useQuery({
-    queryKey: ["numberOfPeopleStartedCourse", granularity],
-    queryFn: () => getnumberOfPeopleStartedCourse(granularity),
-    ...options,
+    ...getNumberOfPeopleStartedCourseOptions({
+      query: { granularity },
+    }),
   })
 }
 
 export const useCourseModuleStatsByCompletionsRegisteredToStudyRegistryQuery = (
   granularity: TimeGranularity,
-  options: HookQueryOptions<GlobalCourseModuleStatEntry[]> = {},
-): UseQueryResult<GlobalCourseModuleStatEntry[], Error> => {
+) => {
   return useQuery({
-    queryKey: ["courseModuleStatsByCompletionsReqisteredToStudyRegistry", granularity],
-    queryFn: () => getCourseModuleStatsByCompletionsRegisteredToStudyRegistry(granularity),
-    ...options,
+    ...getCourseModuleStatsByCompletionsRegisteredToStudyRegistryOptions({
+      query: { granularity },
+    }),
   })
 }
 
-export const useCompletionStatsByEmailDomainQuery = (
-  year: number | undefined,
-  options: HookQueryOptions<DomainCompletionStats[]> = {},
-): UseQueryResult<DomainCompletionStats[], Error> => {
-  return useQuery<DomainCompletionStats[], Error>({
-    queryKey: ["global-stats", "completion-stats-by-email-domain", year],
-    queryFn: () => getCompletionStatsByEmailDomain(year),
-    ...options,
+export const useCompletionStatsByEmailDomainQuery = (year: number | undefined) => {
+  return useQuery({
+    ...getCompletionStatsByEmailDomainOptions(year === undefined ? undefined : { query: { year } }),
   })
 }
 
 export const useCourseCompletionStatsForEmailDomainQuery = (
   emailDomain: string,
   year: number | undefined,
-  options: HookQueryOptions<CourseCompletionStats[]> = {},
-): UseQueryResult<CourseCompletionStats[], Error> => {
-  return useQuery<CourseCompletionStats[], Error>({
-    queryKey: ["global-stats", "course-completion-stats-for-email-domain", emailDomain, year],
-    queryFn: () => getCourseCompletionStatsForEmailDomain(emailDomain, year),
-    ...options,
+) => {
+  return useQuery({
+    ...getCourseCompletionStatsForEmailDomainOptions({
+      query: {
+        email_domain: emailDomain,
+        ...omitUndefined({ year }),
+      },
+    }),
   })
 }

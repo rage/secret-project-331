@@ -1,4 +1,5 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query"
+import type { UseQueryOptions } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 
 interface DisabledState {
@@ -49,7 +50,7 @@ export default function useStateQuery<T, A1 = unknown, A2 = unknown, A3 = unknow
   const enabled = (options?.enabled ?? true) && compositeKey.every((x) => !!x)
   const [, a1, a2, a3, a4] = compositeKey
   const getQueryState = useQuery<T, Error, T>({
-    queryKey: [compositeKey, a1, a2, a3, a4],
+    queryKey: [compositeKey, a1, a2, a3, a4, query],
     queryFn: () =>
       query(
         a1 as NonNullable<typeof a1>,

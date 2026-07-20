@@ -1,14 +1,15 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
+/* oxlint-disable i18next/no-literal-string */
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import AsideEditor from "./AsideEditor"
 import AsideSave from "./AsideSave"
 import { Deprecated1 } from "./deprecated"
 
 export interface AsideComponentProps {
-  backgroundColor: string
+  backgroundColor: string | undefined
   separatorColor: string
 }
 

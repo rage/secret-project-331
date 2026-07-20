@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use futures::future::BoxFuture;
 use headless_lms_utils::numbers::f32_to_three_decimals;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId, exams,
@@ -16,8 +17,8 @@ use crate::{
     user_exercise_states::UserExerciseState,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseTaskGrading {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -46,8 +47,8 @@ pub struct ExerciseTaskGradingRequest<'a> {
     pub submission_data: &'a Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseTaskGradingResult {
     pub grading_progress: GradingProgress,
     pub score_given: f32,
@@ -58,8 +59,7 @@ pub struct ExerciseTaskGradingResult {
     pub set_user_variables: Option<HashMap<String, serde_json::Value>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "user_points_update_strategy", rename_all = "kebab-case")]
 pub enum UserPointsUpdateStrategy {
     CanAddPointsButCannotRemovePoints,
@@ -84,7 +84,7 @@ INSERT INTO exercise_task_gradings (
     exercise_task_id
   )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         submission_id,
@@ -101,24 +101,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercis
     let res = sqlx::query_as!(
         ExerciseTaskGrading,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress as "grading_progress: _",
-  unscaled_score_maximum,
-  unscaled_score_given,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+SELECT *
 FROM exercise_task_gradings
 WHERE id = $1
 "#,
@@ -136,24 +119,7 @@ pub async fn get_by_exercise_task_submission_id(
     let res = sqlx::query_as!(
         ExerciseTaskGrading,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress as "grading_progress: _",
-  unscaled_score_maximum,
-  unscaled_score_given,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+SELECT *
 FROM exercise_task_gradings
 WHERE exercise_task_submission_id = $1
   AND deleted_at IS NULL
@@ -163,6 +129,52 @@ WHERE exercise_task_submission_id = $1
     .fetch_optional(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn get_by_exercise_task_submission_ids(
+    conn: &mut PgConnection,
+    exercise_task_submission_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, ExerciseTaskGrading>> {
+    if exercise_task_submission_ids.is_empty() {
+        return Ok(HashMap::new());
+    }
+
+    let gradings = sqlx::query_as!(
+        ExerciseTaskGrading,
+        r#"
+SELECT etg.id,
+  etg.created_at,
+  etg.updated_at,
+  etg.exercise_task_submission_id,
+  etg.course_id,
+  etg.exam_id,
+  etg.exercise_id,
+  etg.exercise_task_id,
+  etg.grading_priority,
+  etg.score_given,
+  etg.grading_progress,
+  etg.unscaled_score_given,
+  etg.unscaled_score_maximum,
+  etg.grading_started_at,
+  etg.grading_completed_at,
+  etg.feedback_json,
+  etg.feedback_text,
+  etg.deleted_at
+FROM exercise_task_submissions ets
+  JOIN exercise_task_gradings etg ON etg.exercise_task_submission_id = ets.id
+WHERE ets.id = ANY($1)
+  AND ets.deleted_at IS NULL
+  AND etg.deleted_at IS NULL
+        "#,
+        exercise_task_submission_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(gradings
+        .into_iter()
+        .map(|grading| (grading.exercise_task_submission_id, grading))
+        .collect())
 }
 
 pub async fn get_total_score_given_for_exercise_slide_submission(
@@ -192,7 +204,7 @@ pub async fn get_point_update_strategy_from_gradings(
 ) -> ModelResult<GradingProgress> {
     let res = sqlx::query!(
         r#"
-SELECT etg.grading_progress as "grading_progress: GradingProgress"
+SELECT etg.grading_progress
 FROM exercise_task_gradings etg
   JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id
 WHERE ets.exercise_slide_submission_id = $1
@@ -210,7 +222,7 @@ LIMIT 1
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Option<Uuid>> {
     let course_id = sqlx::query!(
         "
-SELECT course_id
+SELECT *
 from exercise_task_gradings
 where id = $1
         ",
@@ -228,8 +240,7 @@ pub async fn get_course_or_exam_id(
 ) -> ModelResult<CourseOrExamId> {
     let res = sqlx::query!(
         "
-SELECT course_id,
-  exam_id
+SELECT *
 from exercise_task_gradings
 where id = $1
 ",
@@ -257,24 +268,7 @@ INSERT INTO exercise_task_gradings(
     grading_started_at
   )
 VALUES($1, $2, $3, $4, $5, now())
-RETURNING id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress as "grading_progress: _",
-  unscaled_score_given,
-  unscaled_score_maximum,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+RETURNING *
 "#,
         submission.id,
         exercise.course_id,
@@ -382,24 +376,7 @@ SET grading_progress = $2,
   grading_completed_at = $7,
   score_given = $8
 WHERE id = $1
-RETURNING id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress as "grading_progress: _",
-  unscaled_score_given,
-  unscaled_score_maximum,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+RETURNING *
 "#,
         grading.id,
         grading_result.grading_progress as GradingProgress,
@@ -466,7 +443,7 @@ exercise_id,
 exercise_task_id,
 grading_priority,
 score_given,
-grading_progress as "grading_progress: _",
+grading_progress,
 unscaled_score_given,
 unscaled_score_maximum,
 grading_started_at,
@@ -506,7 +483,7 @@ SELECT id,
   exercise_task_id,
   grading_priority,
   score_given,
-  grading_progress as "grading_progress: _",
+  grading_progress,
   unscaled_score_given,
   unscaled_score_maximum,
   grading_started_at,

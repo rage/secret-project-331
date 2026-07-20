@@ -1,10 +1,12 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { BlockDeprecation, createBlock } from "@wordpress/blocks"
+/* oxlint-disable i18next/no-literal-string */
+import { createBlock } from "@wordpress/blocks"
 import { omit } from "lodash"
 
-import { AsideComponentProps } from "."
+import type { BlockDeprecation } from "@/utils/Gutenberg/types"
+
+import type { AsideComponentProps } from "."
 
 interface Deprecated1AsideComponentProps {
   title: string
@@ -27,9 +29,9 @@ export const Deprecated1: BlockDeprecation<Deprecated1AsideComponentProps> = {
     },
   },
   save() {
-    return <></>
+    return null
   },
-  isEligible: (attributes) => attributes.title || attributes.bodyText,
+  isEligible: (attributes) => Boolean(attributes.title || attributes.bodyText),
   // @ts-expect-error: wat
   migrate: (attributes, innerBlocks) => {
     const newInnerBlocks = [...innerBlocks]

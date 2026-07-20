@@ -1,334 +1,239 @@
 # Development Environment Setup
 
-This document outlines the steps required to set up a development environment for Secret Project 331 on Linux, Windows, and macOS. Note that we use Linux for development at the University of Helsinki, so it may offer the best support and compatibility.
+> [!NOTE]
+> Linux is the primary development platform at the MOOC center. macOS should also work but it's less tested.
 
-## Table of Contents
+## Requirements
 
-1. [Setting Up the Environment](#setting-up-the-environment)
-   - [Linux Setup](#setting-up-on-linux)
-   - [Windows Setup](#setting-up-on-windows)
-   - [macOS Setup](#setting-up-on-macos)
-2. [Running the Development Environment](#running-the-development-environment)
-3. [Developer Resources](#developer-resources)
-4. [Troubleshoot](#troubleshoot)
+- 200 GB free disk space
+- Docker installed and your user in the `docker` group
 
----
+## 1. Install tools
 
-## Setting Up the Environment
+### Option A: Nix (recommended)
 
-### Setting Up on Linux
+Run the Nix installer, then allow direnv to load the project shell:
 
-**Recommended**: It is recommended to have 200GB free space before setting up the environment.
+```bash
+bin/install-nix
+direnv allow
+```
 
-**Note**: After installing all required tools, run `bin/print-versions` to confirm that dependencies are correctly installed.
+This provides Rust, Node, pnpm, kubectl, Skaffold, Minikube, Kustomize, SQLx CLI, PostgreSQL client, and all other required tools automatically.
 
-#### DevOps Tools
+Alternatively, enter the shell manually with `nix develop`.
 
-Install the following tools to manage the development environment:
+Verify the result:
 
-1. [Skaffold](https://skaffold.dev/docs/install/)
-2. [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-3. [Minikube](https://minikube.sigs.k8s.io/docs/start/)
-4. [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/)
+```bash
+bin/print-versions
+```
 
-#### Additional Dependencies
+<details>
+<summary>Option B: Manual install (without Nix)</summary>
 
-Install these packages on your Linux system:
+Note: After installing all tools manually, run `bin/print-versions` to confirm everything is in place.
 
-1. [Docker](https://docs.docker.com/engine/install/)
-2. [PostgreSQL](http://postgresguide.com/setup/install.html)
-3. [Actionlint](https://github.com/rhysd/actionlint#quick-start)
-4. [pnpm](https://pnpm.io/installation) - Package manager (can install and manage Node.js)
+### Linux
 
-Optional utilities:
+**DevOps tools**
 
-- [Stern](https://github.com/stern/stern) for logs aggregation
-- [Kubectx](https://github.com/ahmetb/kubectx) for easy Kubernetes context switching
-- [Kubens](https://github.com/ahmetb/kubectx) for easy Kubernetes namespace switching
+Install [Skaffold](https://skaffold.dev/docs/install/), [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/), [Minikube](https://minikube.sigs.k8s.io/docs/start/), and [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/).
 
-Other essential commands required by scripts (`bc`, `find`, `jq`, `rsync`, `sponge`):
+**System packages**
 
 ```bash
 # Ubuntu
-sudo apt install bc findutils jq rsync moreutils
+sudo apt install docker.io bc findutils jq rsync moreutils
 
 # Arch Linux
-sudo pacman -Syu bc find jq rsync moreutils
+sudo pacman -Syu docker bc find jq rsync moreutils
 ```
 
-#### Rust Development Tools
+Add your user to the docker group: `sudo usermod -aG docker $USER`
 
-1. Install [Rust](https://www.rust-lang.org/tools/install).
-2. Install `sqlx-cli`:
-   ```bash
-   cargo install sqlx-cli --no-default-features --features rustls,postgres
-   ```
-3. Install OpenSSL (`libssl-dev` on Ubuntu, `openssl-devel` on Fedora).
-4. Install `pkg-config` and `oxipng`:
-   ```bash
-   cargo install oxipng  # or sudo pacman -S oxipng on Arch
-   ```
+**Node and pnpm**
 
-### Setting Up on Windows
+Install [pnpm](https://pnpm.io/installation). The root `package.json` pins the pnpm version, and pnpm manages the Node runtime declared in `devEngines.runtime`.
 
-**DevOps Tools**
+**Rust tools**
+
+```bash
+# Install Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Install sqlx-cli and oxipng
+cargo install sqlx-cli --no-default-features --features rustls,postgres
+cargo install oxipng
+
+# Install OpenSSL dev headers (Ubuntu)
+sudo apt install libssl-dev pkg-config
+```
+
+Optional: [Stern](https://github.com/stern/stern), [Kubectx/Kubens](https://github.com/ahmetb/kubectx), [Actionlint](https://github.com/rhysd/actionlint)
+
+### macOS
+
+Install [Homebrew](https://brew.sh/) if not already installed, then:
+
+```bash
+brew install skaffold kubernetes-cli minikube kustomize docker postgresql actionlint
+brew install bc jq rsync coreutils kubectx stern
+```
+
+Install [pnpm](https://pnpm.io/installation). The root `package.json` pins the pnpm version, and pnpm manages the Node runtime declared in `devEngines.runtime`.
+
+```bash
+# Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+brew install openssl@3 pkg-config
+cargo install sqlx-cli --no-default-features --features rustls,postgres
+cargo install oxipng
+```
+
+### Windows
 
 1. Install [Chocolatey](https://docs.chocolatey.org/en-us/choco/setup).
-2. Use Chocolatey to install the required packages:
-   ```bash
-   choco install kubernetes-cli minikube postgresql kustomize skaffold stern kubectx
-   ```
-
-#### Node.js and pnpm
-
-1. Install [pnpm](https://pnpm.io/installation)
-2. pnpm will automatically manage Node.js versions as needed
-
-#### Rust Development Tools
-
-1. Install [Rust](https://www.rust-lang.org/tools/install).
-2. Install `sqlx-cli` and `oxipng`:
-   ```bash
-   cargo install sqlx-cli --no-default-features --features rustls,postgres
-   cargo install oxipng
-   ```
-
-#### Windows Terminal and Cygwin
-
-1. Install [Windows Terminal](https://aka.ms/terminal).
-2. Install [Cygwin](https://www.cygwin.com/), ensuring you include the `postgres-client` and `procps-ng` packages.
-3. To add Cygwin as a profile in Windows Terminal, include the following in your Windows Terminal settings:
-
-   ```json
-   {
-     "guid": "{00000000-0000-0000-0000-000000000001}",
-     "commandline": "C:/cygwin64/Cygwin.bat",
-     "icon": "C:/cygwin64/Cygwin-Terminal.ico",
-     "hidden": false,
-     "name": "Cygwin"
-   }
-   ```
-
-#### Configuring VSCode to Use Cygwin
-
-1. Install **Shell Launcher** in VSCode.
-2. In your `settings.json`, add the following to use Cygwin as a terminal shell:
-
-   ```json
-   "shellLauncher.shells.windows": [
-       {
-           "shell": "C:\\cygwin64\\bin\\bash.exe",
-           "args": ["--login"],
-           "label": "Cygwin Bash"
-       }
-   ]
-   ```
-
-3. Use `Ctrl+Shift+T` in VSCode to launch a Cygwin terminal.
-
-### Setting Up on macOS
-
-#### Required Tools (via Homebrew)
-
-Install [Homebrew](https://brew.sh/) if not already installed, then use it to install the required packages:
+2. Install required tools:
 
 ```bash
-brew install skaffold kubernetes-cli@1.22 minikube kustomize docker postgresql actionlint
+choco install kubernetes-cli minikube postgresql kustomize skaffold stern kubectx
 ```
 
-#### Node.js and pnpm
+3. Install [pnpm](https://pnpm.io/installation). The root `package.json` pins the pnpm version, and pnpm manages the Node runtime declared in `devEngines.runtime`.
 
-1. Install [pnpm](https://pnpm.io/installation)
-2. pnpm will automatically manage Node.js versions as needed
-
-Additional utilities:
+4. Install [Rust](https://www.rust-lang.org/tools/install), then:
 
 ```bash
-brew install bc jq rsync sponge coreutils kubectx stern
+cargo install sqlx-cli --no-default-features --features rustls,postgres
+cargo install oxipng
 ```
 
-#### Rust Development Tools
+5. Install [Windows Terminal](https://aka.ms/terminal) and [Cygwin](https://www.cygwin.com/) (include `postgres-client` and `procps-ng` packages).
 
-1. Install [Rust](https://www.rust-lang.org/tools/install).
-2. Install `sqlx-cli`:
-   ```bash
-   cargo install sqlx-cli --no-default-features --features rustls,postgres
-   ```
-3. Install OpenSSL, `pkg-config`, and `oxipng`:
-   ```bash
-   brew install openssl@3 pkg-config
-   cargo install oxipng
-   ```
+To add Cygwin as a profile in Windows Terminal, add this to your Windows Terminal settings:
 
----
+```json
+{
+  "guid": "{00000000-0000-0000-0000-000000000001}",
+  "commandline": "C:/cygwin64/Cygwin.bat",
+  "icon": "C:/cygwin64/Cygwin-Terminal.ico",
+  "hidden": false,
+  "name": "Cygwin"
+}
+```
 
-## Running the Development Environment
+To use Cygwin as a terminal shell in VSCode, install **Shell Launcher** and add to `settings.json`:
 
-### Installing Project Dependencies
+```json
+"shellLauncher.shells.windows": [
+  {
+    "shell": "C:\\cygwin64\\bin\\bash.exe",
+    "args": ["--login"],
+    "label": "Cygwin Bash"
+  }
+]
+```
 
-In the root directory, install the project dependencies:
+</details>
+
+## 2. Project setup
+
+From the repository root:
 
 ```bash
 pnpm install
 bin/pnpm-install-all
-```
-
-Make sure `TMC-Langs` is downloaded:
-
-```bash
 bin/tmc-langs-setup
-```
-
-Next, copy the shared module contents:
-
-```bash
 bin/copy-and-check-shared-module
-```
-
-### Configuring Environment Variables
-
-Set up the environment variables for `headless-lms`:
-
-```bash
 cp services/headless-lms/models/.env.example services/headless-lms/models/.env
 ```
 
-### Starting Minikube
-
-Before running Minikube, check for any setup issues:
+## 3. Check for environment problems
 
 ```bash
 bin/detect-dev-env-problems
 ```
 
-To start Minikube, use:
+Fix any reported issues before continuing.
+
+## 4. Start Minikube
 
 ```bash
 bin/minikube-start
 ```
 
-### Setting Up a Local Domain
+## 5. Set up local domain
 
-<details>
-<summary>Linux</summary>
-
-Retrieve the Minikube IP address:
+Add the Minikube IP to `/etc/hosts`:
 
 ```bash
-minikube ip
+echo "$(minikube ip)    project-331.local" | sudo tee -a /etc/hosts
 ```
-
-Add this IP to your `/etc/hosts` file:
-
-```plaintext
-<minikube-ip>    project-331.local
-```
-
-</details>
 
 <details>
 <summary>macOS</summary>
 
-Similar to Linux, use `minikube ip` to retrieve the IP, then add it to `/etc/hosts`.
-
-### Starting the Application
-
-Ensure Minikube is running, then:
+Same as Linux: use `minikube ip` and add the result to `/etc/hosts`.
 
 </details>
 
 <details>
 <summary>Windows</summary>
 
-Use the Minikube IP obtained from `minikube ip` and add a hosts entry:
+Get the IP with `minikube ip`, then add it to `C:\Windows\System32\drivers\etc\hosts`:
 
-```plaintext
+```text
 <minikube-ip>    project-331.local
 ```
 
-Hosts file location: `C:\Windows\System32\drivers\etc\hosts`
-
 </details>
 
-### Starting up the development environment
+## 6. Start the development environment
 
-<details>
-<summary>Linux</summary>
-
-In the root of the repository:
+From the repository root:
 
 ```bash
 bin/dev
 ```
 
-</details>
+## 7. Seed the database
 
-<details>
-<summary>macOS</summary>
-
-In the root of the repository:
-
-```bash
-bin/dev
-```
-
-</details>
-
-<details>
-<summary>Windows</summary>
-
-Use **Cygwin** in Windows Terminal, navigate to the root of the repository:
-
-```bash
-bin/dev
-```
-
-</details>
-
-### Seeding the database
-
-Populate the database with testing data:
+In a second terminal:
 
 ```bash
 bin/seed
 ```
 
-### Using the website
+> [!NOTE]
+> The first seed run compiles Rust code inside the pod and can take several minutes.
 
-You may now connect to the website using the following link (http://project-331.local/). In order to login, you can find them here: [Accounts](https://github.com/rage/secret-project-331/blob/894468ce4864b8c95208baf0f594f01fbd20d254/services/headless-lms/server/src/domain/authorization.rs#L966-L1000)
+## Logging in
 
-### Recommended Terminal Tools for Multi-Window Management
+Default accounts are defined in `services/headless-lms/server/src/programs/seed`.
 
-For efficient workflow, use a terminal with split-window support. Recommended options:
+## Editor setup
 
-- **Linux**: [Tilix](https://gnunn1.github.io/tilix-web/)
-- **Windows**: [Windows Terminal](https://aka.ms/terminal)
-- **macOS**: [iTerm2](https://iterm2.com/)
-
-Verify your setup with:
+To open the project in VS Code with recommended settings and extensions:
 
 ```bash
-bin/detect-dev-env-problems
+bin/code
 ```
 
-## Developer Resources
+Install the recommended extensions when prompted. They enable automatic code style checks and fixes on save.
 
-You can find a lot of useful information in [Index](https://github.com/rage/secret-project-331/tree/master/docs#readme)
+## Troubleshooting
 
-### Troubleshoot
+Run `bin/detect-dev-env-problems` to check the setup.
 
-```bash
-bin/dev
-```
-
-If postgres pod does not enter ready state, which you can find out this by using the following command:
-
-```bash
-bin/pods
-```
-
-In these cases it may help to run the command below, which sets up a new database:
+If the postgres pod does not become ready (check with `bin/pods`), run:
 
 ```bash
 bin/postgres-remove-data
 ```
+
+Then restart Minikube and re-run `bin/dev`.
+
+## Developer resources
+
+See the [docs index](https://github.com/rage/secret-project-331/tree/master/docs#readme).

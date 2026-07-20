@@ -4,6 +4,7 @@ use chrono::NaiveDate;
 use futures::future::BoxFuture;
 use rand::prelude::SliceRandom;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId,
@@ -19,7 +20,7 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct AnswerRequiringAttention {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -33,7 +34,7 @@ pub struct AnswerRequiringAttention {
     pub exercise_id: Uuid,
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub course_id: Option<Uuid>,
@@ -43,8 +44,8 @@ pub struct NewExerciseSlideSubmission {
     pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -71,8 +72,8 @@ impl ExerciseSlideSubmission {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseAnswersInCourseRequiringAttentionCount {
     pub id: Uuid,
     pub name: String,
@@ -82,31 +83,31 @@ pub struct ExerciseAnswersInCourseRequiringAttentionCount {
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionCount {
     pub date: Option<NaiveDate>,
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionCountByExercise {
     pub exercise_id: Uuid,
     pub count: Option<i32>,
     pub exercise_name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionCountByWeekAndHour {
     pub isodow: Option<i32>,
     pub hour: Option<i32>,
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionInfo {
     pub tasks: Vec<CourseMaterialExerciseTask>,
     pub exercise: Exercise,
@@ -114,8 +115,8 @@ pub struct ExerciseSlideSubmissionInfo {
     pub user_exercise_state: Option<UserExerciseState>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionAndUserExerciseState {
     pub exercise: Exercise,
     pub exercise_slide_submission: ExerciseSlideSubmission,
@@ -124,8 +125,8 @@ pub struct ExerciseSlideSubmissionAndUserExerciseState {
     pub user_exam_enrollment: ExamEnrollment,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionAndUserExerciseStateList {
     pub data: Vec<ExerciseSlideSubmissionAndUserExerciseState>,
     pub total_pages: u32,
@@ -147,17 +148,7 @@ INSERT INTO exercise_slide_submissions (
     user_points_update_strategy
   )
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+RETURNING *
         "#,
         exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
@@ -189,17 +180,7 @@ INSERT INTO exercise_slide_submissions (
     user_points_update_strategy
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+RETURNING *
         "#,
         id,
         exercise_slide_submission.exercise_slide_id,
@@ -218,17 +199,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercis
     let exercise_slide_submission = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-created_at,
-updated_at,
-deleted_at,
-exercise_slide_id,
-course_id,
-exam_id,
-exercise_id,
-user_id,
-user_points_update_strategy AS "user_points_update_strategy: _",
-flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -238,6 +209,66 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(exercise_slide_submission)
+}
+
+pub async fn get_by_course_id_and_user_ids_and_exercise_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_ids: &[Uuid],
+    exercise_ids: &[Uuid],
+) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT ess.id,
+  ess.created_at,
+  ess.updated_at,
+  ess.deleted_at,
+  ess.exercise_slide_id,
+  ess.course_id,
+  ess.exam_id,
+  ess.exercise_id,
+  ess.user_id,
+  ess.user_points_update_strategy,
+  ess.flag_count
+FROM exercise_slide_submissions ess
+  JOIN exercises e ON e.id = ess.exercise_id
+WHERE ess.course_id = $1
+  AND e.course_id = $1
+  AND ess.user_id = ANY($2)
+  AND ess.exercise_id = ANY($3)
+  AND ess.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+        "#,
+        course_id,
+        user_ids,
+        exercise_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
+/// Returns a map of exercise_slide_submission id -> user_id for the given submission ids.
+pub async fn get_user_ids_by_submission_ids(
+    conn: &mut PgConnection,
+    submission_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, Uuid>> {
+    if submission_ids.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let rows = sqlx::query!(
+        r#"
+SELECT *
+FROM exercise_slide_submissions
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        submission_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows.into_iter().map(|r| (r.id, r.user_id)).collect())
 }
 
 /// Attempts to find a single random `ExerciseSlideSubmission` that is not related to the provided user.
@@ -262,7 +293,7 @@ SELECT DISTINCT ON (user_id)
   ess.exam_id,
   ess.exercise_id,
   ess.user_id,
-  ess.user_points_update_strategy AS "user_points_update_strategy: _",
+  ess.user_points_update_strategy,
   ess.flag_count
 FROM exercise_slide_submissions AS ess
 JOIN courses AS c
@@ -294,17 +325,7 @@ pub async fn get_by_exercise_id(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -313,6 +334,48 @@ LIMIT $2 OFFSET $3;
         exercise_id,
         pagination.limit(),
         pagination.offset(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
+/// A single submission's time, its exercise, and the module that exercise sits in (via its chapter).
+/// Used to plot a user's submission activity within a course.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct UserCourseSubmissionTime {
+    pub created_at: DateTime<Utc>,
+    pub exercise_id: Uuid,
+    /// Module the exercise's chapter belongs to; `None` for exercises not placed in a chapter.
+    pub course_module_id: Option<Uuid>,
+}
+
+/// All of a user's submission times in a course, each tagged with its exercise and module, ordered
+/// chronologically. Excludes submissions to soft-deleted exercises/chapters so this per-course timeline
+/// agrees with the cross-course density view. Capped to a safe maximum, fetching one past the cap (5001)
+/// so the caller can tell a genuine overflow from an exact-cap result.
+pub async fn get_user_course_submission_times(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Vec<UserCourseSubmissionTime>> {
+    let submissions = sqlx::query_as!(
+        UserCourseSubmissionTime,
+        r#"
+SELECT ess.created_at,
+  ess.exercise_id,
+  c.course_module_id AS "course_module_id?"
+FROM exercise_slide_submissions ess
+  JOIN exercises e ON e.id = ess.exercise_id AND e.deleted_at IS NULL
+  LEFT JOIN chapters c ON c.id = e.chapter_id AND c.deleted_at IS NULL
+WHERE ess.user_id = $1
+  AND ess.course_id = $2
+  AND ess.deleted_at IS NULL
+ORDER BY ess.created_at
+LIMIT 5001
+        "#,
+        user_id,
+        course_id,
     )
     .fetch_all(conn)
     .await?;
@@ -328,17 +391,7 @@ pub async fn get_users_all_submissions_for_course_or_exam(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE user_id = $1
   AND (course_id = $2 OR exam_id = $3)
@@ -361,17 +414,7 @@ pub async fn get_users_submissions_for_exercise(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE user_id = $1
   AND exercise_id = $2
@@ -394,17 +437,7 @@ pub async fn get_users_latest_exercise_slide_submission(
     let res = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE exercise_slide_id = $1
   AND user_id = $2
@@ -436,8 +469,7 @@ pub async fn get_course_and_exam_id(
 ) -> ModelResult<CourseOrExamId> {
     let res = sqlx::query!(
         "
-SELECT course_id,
-  exam_id
+SELECT *
 FROM exercise_slide_submissions
 WHERE id = $1
   AND deleted_at IS NULL
@@ -475,17 +507,7 @@ pub async fn exercise_slide_submissions(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -555,7 +577,7 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
         exam_id,
         exercise_id,
         user_id,
-        user_points_update_strategy AS "user_points_update_strategy: _",
+        user_points_update_strategy,
   flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
@@ -759,17 +781,7 @@ pub async fn exercise_slide_submissions_for_answers_requiring_attention(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -797,7 +809,7 @@ pub async fn get_all_answers_requiring_attention(
         us_state.user_id,
         us_state.exercise_id,
         us_state.score_given,
-        us_state.grading_progress as "grading_progress: _",
+        us_state.grading_progress,
         t_submission.data_json,
         s_submission.created_at,
         s_submission.updated_at,

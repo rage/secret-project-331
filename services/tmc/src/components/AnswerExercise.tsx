@@ -1,14 +1,13 @@
-"use client"
-
 import _ from "lodash"
 import React from "react"
 
+import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { RunResult } from "@/tmc/cli"
+import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
+import type { ExerciseIframeState, PublicSpec, UserAnswer } from "@/util/stateInterfaces"
+
 import AnswerBrowserExercise from "./AnswerBrowserExercise"
 import AnswerEditorExercise from "./AnswerEditorExercise"
-
-import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
-import { RunResult } from "@/tmc/cli"
-import { ExerciseIframeState, PublicSpec, UserAnswer } from "@/util/stateInterfaces"
 
 interface Props {
   publicSpec: PublicSpec
@@ -17,6 +16,7 @@ interface Props {
   testRequestResponse: RunResult | null
   sendFileUploadMessage: (filename: string, file: File) => void
   fileUploadResponse: UploadResultMessage | null
+  grading?: ExerciseTaskGradingResult | null
 }
 
 const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
@@ -26,6 +26,7 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
   testRequestResponse,
   sendFileUploadMessage,
   fileUploadResponse,
+  grading,
 }) => {
   // student exercise view
   if (userAnswer.type === "browser") {
@@ -35,6 +36,8 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
         initialState={userAnswer.files}
         testRequestResponse={testRequestResponse}
         setState={setState}
+        grading={grading}
+        readOnly={grading !== null && grading !== undefined}
       />
     )
   } else if (userAnswer.type === "editor") {
@@ -45,9 +48,8 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
         fileUploadResponse={fileUploadResponse}
       />
     )
-  } else {
-    throw new Error("Unhandled exercise type")
   }
+  throw new Error("Unhandled exercise type")
 }
 
 export default AnswerExercise

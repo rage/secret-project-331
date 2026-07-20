@@ -1,47 +1,60 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewEmailTemplateForm from "@/components/page-specific/manage/course-instances/id/emails/NewEmailTemplateForm"
 import {
-  fetchCourseInstanceEmailTemplates,
-  postNewEmailTemplateForCourseInstance,
-} from "@/services/backend/course-instances"
-import { deleteEmailTemplate } from "@/services/backend/email-templates"
+  deleteEmailTemplateMutation as deleteEmailTemplateMutationOptions,
+  getCourseInstanceEmailTemplatesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { createCourseInstanceEmailTemplate } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
+
+import NewEmailTemplateForm from "./NewEmailTemplateForm"
 
 const CourseInstanceEmailTemplates: React.FC = () => {
   const { t } = useTranslation()
   const { id: courseInstanceId } = useParams<{ id: string }>()
   const getCourseInstanceEmailTemplates = useQuery({
-    queryKey: [`course-instance-${courseInstanceId}-emails`],
-    queryFn: () => fetchCourseInstanceEmailTemplates(courseInstanceId),
+    ...getCourseInstanceEmailTemplatesOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
   })
+  const deleteEmailTemplateMutation = useMutation(deleteEmailTemplateMutationOptions())
   const [showForm, setShowForm] = useState(false)
 
   const handleCreateEmailTemplate = async (emailTitle: string) => {
-    const result = await postNewEmailTemplateForCourseInstance(courseInstanceId, {
-      // eslint-disable-next-line i18next/no-literal-string
-      template_type: "generic",
-      language: null,
-      content: undefined,
-      subject: emailTitle || null,
+    const result = await createCourseInstanceEmailTemplate({
+      body: {
+        // oxlint-disable-next-line i18next/no-literal-string
+        template_type: "generic",
+        language: null,
+        content: undefined,
+        subject: emailTitle || null,
+      },
+      path: {
+        course_instance_id: courseInstanceId,
+      },
     })
     setShowForm(!showForm)
     window.location.assign(`/cms/email-templates/${result.id}/edit`)
   }
 
   const handleOnDelete = async (templateId: string) => {
-    await deleteEmailTemplate(templateId)
+    await deleteEmailTemplateMutation.mutateAsync({
+      path: {
+        email_template_id: templateId,
+      },
+    })
     await getCourseInstanceEmailTemplates.refetch()
   }
 
@@ -69,29 +82,27 @@ const CourseInstanceEmailTemplates: React.FC = () => {
           <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
         </div>
       </Dialog>
-      {getCourseInstanceEmailTemplates.isError && (
-        <ErrorBanner variant={"readOnly"} error={getCourseInstanceEmailTemplates.error} />
-      )}
-      {getCourseInstanceEmailTemplates.isLoading && <Spinner variant={"medium"} />}
-      {getCourseInstanceEmailTemplates.isSuccess && (
-        <ul>
-          {getCourseInstanceEmailTemplates.data.map((template) => {
-            return (
-              <li key={template.id}>
-                {template.subject || template.template_type}{" "}
-                <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
-                <Button
-                  size="medium"
-                  variant="secondary"
-                  onClick={async () => await handleOnDelete(template.id)}
-                >
-                  {t("button-text-delete")}
-                </Button>
-              </li>
-            )
-          })}
-        </ul>
-      )}
+      <QueryResult query={getCourseInstanceEmailTemplates} emptyFallback={<ul></ul>}>
+        {(data) => (
+          <ul>
+            {data.map((template) => {
+              return (
+                <li key={template.id}>
+                  {template.subject || template.template_type}{" "}
+                  <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
+                  <Button
+                    size="medium"
+                    variant="secondary"
+                    onClick={async () => await handleOnDelete(template.id)}
+                  >
+                    {t("button-text-delete")}
+                  </Button>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </QueryResult>
     </div>
   )
 }

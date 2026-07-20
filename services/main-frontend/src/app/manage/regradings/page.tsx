@@ -10,30 +10,30 @@ import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
-  createNewRegrading,
-  fetchAllRegradings,
-  fetchRegradingsCount,
-} from "@/services/backend/regradings"
-import {
-  NewRegrading,
+  createRegradingMutation as createNewRegradingMutationOptions,
+  getRegradingsCountOptions,
+  getRegradingsOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type {
   NewRegradingIdType,
+  Regrading,
   UserPointsUpdateStrategy,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Pagination from "@/shared-module/common/components/Pagination"
-import Spinner from "@/shared-module/common/components/Spinner"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isUuid } from "@/shared-module/common/utils/fetching"
 import { manageRegradingRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
+import { QueryResult } from "@/shared-module/components"
 
 interface Fields {
   ids: string
@@ -43,16 +43,18 @@ interface Fields {
 
 const RegradingsPage: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-regradings"))
   const router = useRouter()
   const paginationInfo = usePaginationInfo()
   const regradingsQuery = useQuery({
-    queryKey: ["all-regradings", JSON.stringify(paginationInfo)],
-    queryFn: () => fetchAllRegradings(paginationInfo),
+    ...getRegradingsOptions({
+      query: {
+        page: paginationInfo.page,
+        limit: paginationInfo.limit,
+      },
+    }),
   })
-  const regradingsCountQuery = useQuery({
-    queryKey: ["all-regradings-count"],
-    queryFn: () => fetchRegradingsCount(),
-  })
+  const regradingsCountQuery = useQuery(getRegradingsCountOptions())
   const [newRegradingDialogOpen, setNewRegradingDialogOpen] = useState(false)
   const {
     register,
@@ -60,38 +62,30 @@ const RegradingsPage: React.FC = () => {
     handleSubmit,
     formState: { isValid },
   } = useForm<Fields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       ids: "",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       userPointsUpdateStrategy: "CanAddPointsButCannotRemovePoints",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       idType: "ExerciseTaskSubmissionId",
     },
   })
-  const newRegradingMutation = useToastMutation(
-    (newRegrading: NewRegrading) => createNewRegrading(newRegrading),
+  const newRegradingMutation = useToastMutationOptions(
+    createNewRegradingMutationOptions(),
     { notify: true, method: "POST" },
     {
       onSuccess: (data) => {
         setNewRegradingDialogOpen(false)
         reset()
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         router.push(`/manage/regradings/${data}`)
       },
     },
   )
 
-  if (regradingsQuery.isError) {
-    return <ErrorBanner variant="readOnly" error={regradingsQuery.error} />
-  }
-
-  if (regradingsQuery.isLoading || !regradingsQuery.data) {
-    return <Spinner variant="medium" />
-  }
-
-  return (
+  const renderRegradings = (regradings: Regrading[]) => (
     <>
       <div
         className={css`
@@ -110,24 +104,24 @@ const RegradingsPage: React.FC = () => {
                 font-size: 13px;
               `}
             >
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>id</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>created_at</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>updated_at</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>regrading_started_at</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>regrading_completed_at</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>total_grading_progress</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <th>user_points_update_strategy</th>
             </tr>
           </thead>
           <tbody>
-            {regradingsQuery.data.map((regrading) => (
+            {regradings.map((regrading) => (
               <FullWidthTableRow key={regrading.id}>
                 <td>
                   <Link href={manageRegradingRoute(regrading.id)}>{regrading.id}</Link>
@@ -137,14 +131,14 @@ const RegradingsPage: React.FC = () => {
                 <td>
                   {regrading.regrading_started_at
                     ? dateToString(regrading.regrading_started_at)
-                    : // eslint-disable-next-line i18next/no-literal-string
+                    : // oxlint-disable-next-line i18next/no-literal-string
                       "null"}
                 </td>
                 <td>
                   {" "}
                   {regrading.regrading_completed_at
                     ? dateToString(regrading.regrading_completed_at)
-                    : // eslint-disable-next-line i18next/no-literal-string
+                    : // oxlint-disable-next-line i18next/no-literal-string
                       "null"}
                 </td>
                 <td>{regrading.total_grading_progress}</td>
@@ -178,13 +172,13 @@ const RegradingsPage: React.FC = () => {
           options={[
             {
               label: t("option-exercise-task-submission-id"),
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               value: "ExerciseTaskSubmissionId" satisfies NewRegradingIdType,
             },
 
             {
               label: t("option-exercise-id"),
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               value: "ExerciseId" satisfies NewRegradingIdType,
             },
           ]}
@@ -211,13 +205,13 @@ const RegradingsPage: React.FC = () => {
           options={[
             {
               label: t("option-can-add-points-but-cannot-remove-points"),
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               value: "CanAddPointsButCannotRemovePoints" satisfies UserPointsUpdateStrategy,
             },
 
             {
               label: t("option-can-add-points-and-can-remove-points"),
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               value: "CanAddPointsAndCanRemovePoints" satisfies UserPointsUpdateStrategy,
             },
           ]}
@@ -228,23 +222,31 @@ const RegradingsPage: React.FC = () => {
           variant="primary"
           size="medium"
           disabled={!isValid || newRegradingMutation.isPending}
-          onClick={handleSubmit(async (data) => {
+          onClick={handleSubmit((data) => {
             const lines = data.ids
               .trim()
               .split("\n")
               .map((line) => line.trim())
             newRegradingMutation.mutate({
-              ids: lines,
-              user_points_update_strategy: data.userPointsUpdateStrategy,
-              id_type: data.idType,
+              body: {
+                ids: lines,
+                user_points_update_strategy: data.userPointsUpdateStrategy,
+                id_type: data.idType,
+              },
             })
           })}
         >
           {t("button-text-create")}
         </Button>
       </Dialog>
-      <DebugModal data={regradingsQuery.data} />
+      <DebugModal data={regradings} />
     </>
+  )
+
+  return (
+    <QueryResult query={regradingsQuery} treatEmptyAsData>
+      {(regradings) => renderRegradings(regradings)}
+    </QueryResult>
   )
 }
 

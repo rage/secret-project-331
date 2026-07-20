@@ -5,18 +5,18 @@ import { useAtomValue } from "jotai"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
-
-import CourseProgress from "./CourseProgress"
-
-import { fetchUserCourseProgress } from "@/services/course-material/backend"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { getCourseMaterialUserCourseProgress } from "@/generated/course-material-api/sdk.generated"
+import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
+
+import type { BlockRendererProps } from "../.."
+import CourseProgress from "./CourseProgress"
 
 const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()
@@ -25,7 +25,12 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   const loginStateContext = useContext(LoginStateContext)
   const getUserCourseProgress = useQuery({
     queryKey: [`course-instance-${courseInstanceId}-progress`],
-    queryFn: () => fetchUserCourseProgress(assertNotNullOrUndefined(courseInstanceId)),
+    queryFn: (): Promise<UserCourseProgress[]> =>
+      getCourseMaterialUserCourseProgress({
+        path: {
+          course_instance_id: assertNotNullOrUndefined(courseInstanceId),
+        },
+      }),
     enabled: !!courseInstanceId && loginStateContext.signedIn === true,
   })
 
@@ -40,15 +45,12 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   }
 
   return (
-    <>
-      {getUserCourseProgress.isError && (
-        <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
-      )}
-      {getUserCourseProgress.isLoading && <Spinner variant={"medium"} />}
-      {getUserCourseProgress.isSuccess && (
-        <CourseProgress userCourseProgress={getUserCourseProgress.data} />
-      )}
-    </>
+    <QueryResult
+      query={getUserCourseProgress}
+      emptyFallback={<CourseProgress userCourseProgress={[]} />}
+    >
+      {(data) => <CourseProgress userCourseProgress={data} />}
+    </QueryResult>
   )
 }
 

@@ -1,20 +1,19 @@
-"use client"
-
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
-
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import ArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
 import ArrowUp from "@/shared-module/common/img/caret-arrow-up.svg"
-import { primaryFont } from "@/shared-module/common/styles"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
+import ParsedTextField from "./ParsedTextField"
 
 const OptionCard = styled.div`
   height: 50px;
@@ -77,7 +76,6 @@ const MessageDialogContainer = styled.div`
 const MessageDialogTextFieldContainer = styled.div`
   margin: 4px;
   color: #535a66;
-  height: 60px;
 `
 
 const MessageDialogTitle = styled.div`
@@ -178,9 +176,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
             </CheckboxContainer>
           </CenteredContainer>
         ) : (
-          <>
-            <ChoiceTitle>{option.title}</ChoiceTitle>
-          </>
+          <ChoiceTitle>{option.title}</ChoiceTitle>
         )}
         <OptionButtonGroup>
           {option.correct && !editMode && <CorrectTag> {t("label-correct")} </CorrectTag>}
@@ -281,67 +277,54 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
           </Button>
         </OptionButtonGroup>
       </OptionCard>
-      {!visible && (
-        <>
-          {!editMode ? (
-            <MultipleChoiceMessageDialogContainer>
-              <MessageDialogContainer>
-                <MessageDialogTitle>
-                  {t("message-after-submission-when-this-option-selected")}
-                </MessageDialogTitle>
-                <MessageDialogDescription
-                  isNull={option.messageAfterSubmissionWhenSelected === null}
-                >
-                  {option.messageAfterSubmissionWhenSelected ?? `(${t("label-null")})`}
-                </MessageDialogDescription>
-              </MessageDialogContainer>
-              <MessageDialogContainer>
-                <MessageDialogTitle>
-                  {t("message-on-model-solution-when-this-option-selected")}
-                </MessageDialogTitle>
-                <MessageDialogDescription
-                  isNull={option.additionalCorrectnessExplanationOnModelSolution === null}
-                >
-                  {option.additionalCorrectnessExplanationOnModelSolution ?? `(${t("label-null")})`}
-                </MessageDialogDescription>
-              </MessageDialogContainer>
-            </MultipleChoiceMessageDialogContainer>
-          ) : (
-            <MultipleChoiceMessageDialogContainer>
-              <MessageDialogContainer>
-                <MessageDialogTitle>
-                  {t("message-after-submission-when-this-option-selected")}
-                </MessageDialogTitle>
-                <MessageDialogTextFieldContainer>
-                  <TextField
-                    onChange={(event) =>
-                      setMessageAfterSubmissionWhenThisOptionSelected(
-                        nullIfEmptyString(event.target.value),
-                      )
-                    }
-                    value={messageAfterSubmissionWhenThisOptionSelected ?? undefined}
-                  />
-                </MessageDialogTextFieldContainer>
-              </MessageDialogContainer>
-              <MessageDialogContainer>
-                <MessageDialogTitle>
-                  {t("message-on-model-solution-when-this-option-selected")}
-                </MessageDialogTitle>
-                <MessageDialogTextFieldContainer>
-                  <TextField
-                    onChange={(event) =>
-                      setMessageOnModelSolutionWhenThisOptionSelected(
-                        nullIfEmptyString(event.target.value),
-                      )
-                    }
-                    value={messageOnModelSolutionWhenThisOptionSelected ?? undefined}
-                  />
-                </MessageDialogTextFieldContainer>
-              </MessageDialogContainer>
-            </MultipleChoiceMessageDialogContainer>
-          )}
-        </>
-      )}
+      {!visible &&
+        (!editMode ? (
+          <MultipleChoiceMessageDialogContainer>
+            <MessageDialogContainer>
+              <MessageDialogTitle>
+                {t("message-after-submission-when-this-option-selected")}
+              </MessageDialogTitle>
+              <MessageDialogDescription isNull={option.messageAfterSubmissionWhenSelected === null}>
+                {option.messageAfterSubmissionWhenSelected ?? `(${t("label-null")})`}
+              </MessageDialogDescription>
+            </MessageDialogContainer>
+            <MessageDialogContainer>
+              <MessageDialogTitle>
+                {t("message-on-model-solution-when-this-option-selected")}
+              </MessageDialogTitle>
+              <MessageDialogDescription
+                isNull={option.additionalCorrectnessExplanationOnModelSolution === null}
+              >
+                {option.additionalCorrectnessExplanationOnModelSolution ?? `(${t("label-null")})`}
+              </MessageDialogDescription>
+            </MessageDialogContainer>
+          </MultipleChoiceMessageDialogContainer>
+        ) : (
+          <MultipleChoiceMessageDialogContainer>
+            <MessageDialogContainer>
+              <MessageDialogTextFieldContainer>
+                <ParsedTextField
+                  label={t("message-after-submission-when-this-option-selected")}
+                  value={messageAfterSubmissionWhenThisOptionSelected ?? ""}
+                  onChange={(value) =>
+                    setMessageAfterSubmissionWhenThisOptionSelected(nullIfEmptyString(value))
+                  }
+                />
+              </MessageDialogTextFieldContainer>
+            </MessageDialogContainer>
+            <MessageDialogContainer>
+              <MessageDialogTextFieldContainer>
+                <ParsedTextField
+                  label={t("message-on-model-solution-when-this-option-selected")}
+                  value={messageOnModelSolutionWhenThisOptionSelected ?? ""}
+                  onChange={(value) =>
+                    setMessageOnModelSolutionWhenThisOptionSelected(nullIfEmptyString(value))
+                  }
+                />
+              </MessageDialogTextFieldContainer>
+            </MessageDialogContainer>
+          </MultipleChoiceMessageDialogContainer>
+        ))}
     </>
   )
 }

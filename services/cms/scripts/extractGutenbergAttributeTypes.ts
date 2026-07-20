@@ -1,12 +1,17 @@
 // Require imports needs to happen in a specific order.
-/* eslint-disable import/order */
+/* oxlint-disable import/order */
 
-import * as jsdom from "jsdom"
-import type { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
-import type { JSONSchema } from "json-schema-to-typescript"
-import type { Block } from "@wordpress/blocks"
 import fs from "fs"
+import { createRequire } from "module"
+import path from "path"
+
+import type { BlockType } from "@wordpress/blocks"
+import * as jsdom from "jsdom"
+import type { JSONSchema } from "json-schema-to-typescript"
 import { compile } from "json-schema-to-typescript"
+import type { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
+
+const require = createRequire(import.meta.url)
 
 // -------- Make the script (node) enviroment to look enough like a browser environment for the operation to succeed --------
 const { JSDOM } = jsdom
@@ -49,9 +54,9 @@ Object.defineProperty(global, "navigator", {
 
 const OriginalURL = global.URL
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 const urlThatDoesntCrashWithPaths = function (...args: any[]) {
-  if (args[0].startsWith("/")) {
+  if (typeof args[0] === "string" && args[0].startsWith("/")) {
     return new OriginalURL(`https://example.com${args[0]}`)
   }
   // @ts-expect-error: mirrors the function
@@ -62,7 +67,7 @@ urlThatDoesntCrashWithPaths.prototype = URL.prototype
 global.URL = urlThatDoesntCrashWithPaths
 
 class FakeMutationObserver {
-  observe() {
+  public observe() {
     // No op
   }
 }
@@ -70,38 +75,54 @@ class FakeMutationObserver {
 // @ts-expect-error: Just to prevent a crash, not used
 global.MutationObserver = FakeMutationObserver
 
+const sanitizeNames = (name: string) => {
+  const newName = name.replace("core/", "").replaceAll(/-./g, (x) => x.toUpperCase()[1] ?? "")
+  return newName.charAt(0).toUpperCase() + newName.slice(1) + "Attributes"
+}
+
 //** Extract Gutenberg block attribute types */
 async function main() {
+  const elementDir = path.dirname(require.resolve("@wordpress/element/package.json"))
+  const React = require(require.resolve("react", { paths: [elementDir] })) as {
+    isValidElement: (obj: unknown) => boolean
+  }
+  const origIsValidElement = React.isValidElement
+  React.isValidElement = (obj: unknown) =>
+    origIsValidElement(obj) ||
+    (typeof obj === "object" &&
+      obj !== null &&
+      "type" in (obj as object) &&
+      "props" in (obj as object))
+
+  const blockLibraryPath = path.dirname(require.resolve("@wordpress/block-library/package.json"))
+  const tableBlockJSONPath = path.join(blockLibraryPath, "src", "table", "block.json")
+  const tableBlockJSON = JSON.parse(await fs.promises.readFile(tableBlockJSONPath, "utf-8"))
+
   // We do these imports dynamically so that our patches above are applied before the imports are executed. (Normal imports would be hoisted.)
-  const [blocks, { addFilter }, blockLibrary, { default: tableBlockJSON }] = await Promise.all([
+  const [blocks, { addFilter: _addFilter }, blockLibrary] = await Promise.all([
     import("@wordpress/blocks"),
     import("@wordpress/hooks"),
     import("@wordpress/block-library"),
-    import("@wordpress/block-library/src/table/block.json"),
   ])
 
-  const { modifyEmbedBlockAttributes, modifyImageBlockAttributes } = await import(
-    "../src/utils/Gutenberg/modifyBlockAttributes"
-  )
+  const {
+    modifyEmbedBlockAttributes: _modifyEmbedBlockAttributes,
+    modifyImageBlockAttributes: _modifyImageBlockAttributes,
+  } = await import("../src/utils/Gutenberg/modifyBlockAttributes")
   const { supportedCoreBlocks } = await import("../src/blocks/supportedGutenbergBlocks")
 
   blockLibrary.registerCoreBlocks()
 
-  blocks.getBlockTypes().forEach((block: Block<Record<string, unknown>>) => {
+  blocks.getBlockTypes().forEach((block: BlockType<Record<string, unknown>>) => {
     if (supportedCoreBlocks.indexOf(block.name) === -1) {
       blocks.unregisterBlockType(block.name)
     }
   })
 
-  const sanitizeNames = (name: string) => {
-    const newName = name.replace("core/", "").replace(/-./g, (x) => x.toUpperCase()[1])
-    return newName.charAt(0).toUpperCase() + newName.slice(1) + "Attributes"
-  }
-
-  const blockTypes: Array<Block<Record<string, unknown>>> = blocks.getBlockTypes()
+  const blockTypes: BlockType<Record<string, unknown>>[] = blocks.getBlockTypes()
   const jsonSchemaTypes: JSONSchema[] = blockTypes
-    .reverse()
-    .map(addSupportsAttributes)
+    .toReversed()
+    .map((block) => addSupportsAttributes(block))
     .map((block) => {
       // Fetch core/table head, foot, body types
       if (block.name === "core/table") {
@@ -198,7 +219,7 @@ async function main() {
       .filter((o) => !!o)
       .filter((schema) => !schema.deprecated)
       // sort alphabetically
-      .sort((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
+      .toSorted((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
       .map(async (schema) => {
         const jsonSchema = schema as JSONSchema
         const title = jsonSchema.title ?? "SchemaWithoutName"
@@ -213,7 +234,7 @@ async function main() {
       .flat()
       .filter((o) => !!o)
       .filter((schema) => schema.deprecated)
-      .sort((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
+      .toSorted((a, b) => (a.title ?? "").localeCompare(b.title ?? ""))
       .map(async (schema) => {
         const jsonSchema = schema as JSONSchema
         const title = jsonSchema.title ?? "SchemaWithoutName"
@@ -237,19 +258,19 @@ import type { StringWithHTML } from "."
 `
 
   await fs.promises.writeFile(
-    "../course-material/types/GutenbergBlockAttributes.ts",
+    "../main-frontend/types/GutenbergBlockAttributes.ts",
     banner + typescriptTypes.join("\n"),
   )
   await fs.promises.writeFile(
-    "../course-material/types/DeprecatedGutenbergBlockAttributes.ts",
+    "../main-frontend/types/DeprecatedGutenbergBlockAttributes.ts",
     banner + deprecatedTypescriptTypes.join("\n"),
   )
   console.info("Done!")
   process.exit(0)
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function fixProperties(properties: { readonly [x: string]: any }) {
+// oxlint-disable-next-line typescript/no-explicit-any
+function fixProperties(properties: Readonly<Record<string, any>>) {
   const res = { ...properties }
   if (properties === null || properties === undefined) {
     return properties
@@ -262,7 +283,7 @@ function fixProperties(properties: { readonly [x: string]: any }) {
   return res
 }
 
-function addSupportsAttributes(block: Block): Block {
+function addSupportsAttributes(block: BlockType): BlockType {
   const attributes = block.attributes
   const supports = block.supports
 
@@ -271,7 +292,8 @@ function addSupportsAttributes(block: Block): Block {
   }
 
   if (supports.typography?.fontSize) {
-    // @ts-expect-error: adding a new attribute
+    // oxlint-disable-next-line typescript/ban-ts-comment
+    // @ts-ignore: adding a new attribute
     attributes["fontSize"] = {
       type: "string",
     }
@@ -280,4 +302,4 @@ function addSupportsAttributes(block: Block): Block {
   return { ...block, attributes: attributes }
 }
 
-main()
+await main()

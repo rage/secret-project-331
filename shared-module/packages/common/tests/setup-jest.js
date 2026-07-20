@@ -1,10 +1,13 @@
-import { jest } from "@jest/globals"
 import { ServerResponse } from "http"
+import { WritableStream } from "stream/web"
 import { TextEncoder } from "util"
+
+import { jest } from "@jest/globals"
 import "@testing-library/jest-dom"
 
 global.TextEncoder = TextEncoder
 global.Response = ServerResponse
+// oxlint-disable-next-line typescript/no-extraneous-class -- Web API polyfill; must be a class for new/instanceof
 global.Request = class Request {
   constructor(input, init = {}) {
     this.url = input
@@ -13,11 +16,16 @@ global.Request = class Request {
   }
 }
 
+// oxlint-disable-next-line typescript/no-extraneous-class, max-classes-per-file -- Web API polyfill; must be a class for new/instanceof; polyfill classes are colocated in this test setup file
 global.TransformStream = class TransformStream {
   constructor() {
     this.readable = {}
     this.writable = {}
   }
+}
+
+if (!global.WritableStream) {
+  global.WritableStream = WritableStream
 }
 
 global.BroadcastChannel = class BroadcastChannel {
@@ -52,7 +60,7 @@ class MockIntersectionObserver {
     this.rootMargin = options?.rootMargin ?? "0px 0px 0px 0px"
     this.scrollMargin = options?.scrollMargin ?? "0px 0px 0px 0px"
     this.thresholds = Array.isArray(options?.threshold)
-      ? options.threshold.slice().sort((a, b) => a - b)
+      ? options.threshold.slice().toSorted((a, b) => a - b)
       : [options?.threshold ?? 0]
     this.elements = new Set()
     instances.add(this)
@@ -82,6 +90,7 @@ class MockIntersectionObserver {
 global.IntersectionObserver = MockIntersectionObserver
 global.window.IntersectionObserver = MockIntersectionObserver
 
+// oxlint-disable-next-line unicorn/no-object-as-default-parameter -- object default supplies the isIntersecting:true fallback; refactoring would change the default behavior
 global.triggerIntersection = (el, opts = { isIntersecting: true, intersectionRatio: 1 }) => {
   const inst = elementToObserver.get(el)
   if (!inst) {

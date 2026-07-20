@@ -1,11 +1,11 @@
-/* eslint-disable playwright/no-wait-for-timeout */
+/* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 import { test } from "@playwright/test"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -76,7 +76,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page
     .locator('[aria-label="Empty block\\; start writing or type forward slash to choose a block"]')
-    // eslint-disable-next-line playwright/no-force-option
+    // oxlint-disable-next-line playwright/no-force-option
     .click({ force: true })
 
   await page
@@ -96,7 +96,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page.click(
     `[aria-label="Empty block; start writing or type forward slash to choose a block"]`,
-    // eslint-disable-next-line playwright/no-force-option
+    // oxlint-disable-next-line playwright/no-force-option
     { force: true },
   )
   await page.type(

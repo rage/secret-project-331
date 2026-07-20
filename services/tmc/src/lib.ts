@@ -1,16 +1,15 @@
-import * as k8s from "@kubernetes/client-node"
-import axios from "axios"
 import * as fs from "fs"
+import { Readable } from "stream"
+import { pipeline } from "stream/promises"
+import type { ReadableStream as WebReadableStream } from "stream/web"
 
-export const initKubeConfig = (): k8s.KubeConfig => {
-  const kc = new k8s.KubeConfig()
-  kc.loadFromDefault()
-  return kc
-}
+import * as k8s from "@kubernetes/client-node"
 
-export const initKubeApi = (): k8s.CoreV1Api => {
-  const k8sApi = initKubeConfig().makeApiClient(k8s.CoreV1Api)
-  return k8sApi
+export function initKube(): { config: k8s.KubeConfig; api: k8s.CoreV1Api } {
+  const config = new k8s.KubeConfig()
+  config.loadFromDefault()
+  const api = config.makeApiClient(k8s.CoreV1Api)
+  return { config, api }
 }
 
 export interface ClientErrorResponse {
@@ -24,15 +23,13 @@ export interface ExerciseFeedback {
 
 export const downloadStream = async (url: string, target: string) => {
   console.debug("downloading", url, "to", target)
-  const templateRes = await axios({
-    url,
-    method: "GET",
-    responseType: "stream",
-  })
+  const templateRes = await fetch(url)
+  if (!templateRes.ok) {
+    throw new Error(`Download failed: ${templateRes.status} ${templateRes.statusText}`)
+  }
+  if (!templateRes.body) {
+    throw new Error("Download failed: empty response body")
+  }
   const templateWriter = fs.createWriteStream(target)
-  templateRes.data.pipe(templateWriter)
-  await new Promise<void>((resolve, reject) => {
-    templateWriter.on("finish", resolve)
-    templateWriter.on("error", reject)
-  })
+  await pipeline(Readable.fromWeb(templateRes.body as unknown as WebReadableStream), templateWriter)
 }

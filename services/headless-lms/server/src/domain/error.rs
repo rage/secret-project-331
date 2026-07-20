@@ -2,6 +2,8 @@
 Contains error and result types for all the controllers.
 */
 
+use std::panic::Location;
+
 use crate::domain::authorization::AuthorizedResponse;
 use actix_web::{
     HttpResponse, HttpResponseBuilder, error,
@@ -10,15 +12,16 @@ use actix_web::{
 use backtrace::Backtrace;
 use derive_more::Display;
 use dpop_verifier::error::DpopError;
-use headless_lms_models::{ModelError, ModelErrorType};
-use headless_lms_utils::error::{
-    backend_error::BackendError, backtrace_formatter::format_backtrace, util_error::UtilError,
-};
+use headless_lms_base::error::{backend_error::BackendError, clean_format::ColorChoice};
+use headless_lms_chatbot::prelude::ChatbotError;
+use headless_lms_models::{ModelError, ModelErrorType, prelude::UtilErrorType};
+use headless_lms_utils::error::util_error::{SisuErrorVariant, UtilError};
 use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
+
 use uuid::Uuid;
+
+const MISSING_EXERCISE_TYPE_DESCRIPTION: &str = "Missing exercise type for exercise task.";
 
 /**
 Used as the result types for all controllers.
@@ -41,7 +44,7 @@ pub enum ControllerErrorType {
 
     /// HTTP status code 400.
     #[display("Bad request")]
-    BadRequestWithData(ErrorData),
+    BadRequestWithData(ErrorMetadata),
 
     /// HTTP status code 404.
     #[display("Not found")]
@@ -51,6 +54,10 @@ pub enum ControllerErrorType {
     #[display("Unauthorized")]
     Unauthorized,
 
+    /// HTTP status code 401 with a specific domain reason.
+    #[display("Unauthorized")]
+    UnauthorizedWithReason(UnauthorizedReason),
+
     /// HTTP status code 403. Is logged in but is not allowed to access the resource.
     #[display("Forbidden")]
     Forbidden,
@@ -58,6 +65,53 @@ pub enum ControllerErrorType {
     /// Varied response based on error
     #[display("OAuthError")]
     OAuthError(Box<OAuthErrorData>),
+
+    /// SISUERROR
+    #[display("SisuError")]
+    SisuError(SisuErrorType),
+}
+
+#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum UnauthorizedReason {
+    #[display("Chapter not open yet")]
+    ChapterNotOpenYet,
+    #[display("Authentication required for exam exercise")]
+    AuthenticationRequiredForExamExercise,
+}
+
+impl UnauthorizedReason {
+    /// Returns the stable message key for this unauthorized reason.
+    fn message_key(self) -> &'static str {
+        match self {
+            Self::ChapterNotOpenYet => "chapter_not_open_yet",
+            Self::AuthenticationRequiredForExamExercise => {
+                "authentication_required_for_exam_exercise"
+            }
+        }
+    }
+}
+
+#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum SisuErrorType {
+    #[display("invalid course code")]
+    InvalidCourseCode,
+    #[display("generic sisu error")]
+    GenericSisuError,
+    #[display("sisu resource not found")]
+    SisuResourceNotFound,
+}
+
+impl SisuErrorType {
+    /// Returns the stable message key for this unauthorized reason.
+    fn message_key(self) -> &'static str {
+        match self {
+            Self::InvalidCourseCode => "invalid_course_code",
+            Self::GenericSisuError => "generic_sisu_error",
+            Self::SisuResourceNotFound => "sisu_resource_not_found",
+        }
+    }
 }
 
 /**
@@ -132,30 +186,21 @@ pub struct ControllerError {
     span_trace: Box<SpanTrace>,
     /// Stack trace, generated automatically when the error is created.
     backtrace: Box<Backtrace>,
+    /// Source location where the error was raised.
+    location: Option<&'static Location<'static>>,
 }
 
-/// Custom formatter so that errors that get printed to the console are easy-to-read with proper context where the error is coming from.
-impl std::fmt::Debug for ControllerError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ControllerError")
-            .field("error_type", &self.error_type)
-            .field("message", &self.message)
-            .field("source", &self.source)
-            .finish()?;
-
-        f.write_str("\n\nOperating system thread stack backtrace:\n")?;
-        format_backtrace(&self.backtrace, f)?;
-
-        f.write_str("\n\nTokio tracing span trace:\n")?;
-        f.write_fmt(format_args!("{}\n", &self.span_trace))?;
-
-        Ok(())
-    }
-}
+// Generate the clean developer `Debug`/`clean_string` and a cause resolver.
+headless_lms_base::impl_clean_debug!(
+    ControllerError,
+    [ControllerError, ChatbotError, ModelError, UtilError]
+);
 
 impl std::error::Error for ControllerError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.source.as_ref().and_then(|o| o.source())
+        self.source
+            .as_deref()
+            .map(|e| e as &(dyn std::error::Error + 'static))
     }
 
     fn cause(&self) -> Option<&dyn std::error::Error> {
@@ -176,20 +221,6 @@ impl std::fmt::Display for ControllerError {
 impl BackendError for ControllerError {
     type ErrorType = ControllerErrorType;
 
-    fn new<M: Into<String>, S: Into<Option<anyhow::Error>>>(
-        error_type: Self::ErrorType,
-        message: M,
-        source_error: S,
-    ) -> Self {
-        Self::new_with_traces(
-            error_type,
-            message,
-            source_error,
-            Backtrace::new(),
-            SpanTrace::capture(),
-        )
-    }
-
     fn backtrace(&self) -> Option<&Backtrace> {
         Some(&self.backtrace)
     }
@@ -206,12 +237,17 @@ impl BackendError for ControllerError {
         &self.span_trace
     }
 
-    fn new_with_traces<M: Into<String>, S: Into<Option<anyhow::Error>>>(
+    fn location(&self) -> Option<&'static Location<'static>> {
+        self.location
+    }
+
+    fn new_with_traces_and_location<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
         message: M,
         source_error: S,
         backtrace: Backtrace,
         span_trace: SpanTrace,
+        location: Option<&'static Location<'static>>,
     ) -> Self {
         Self {
             error_type,
@@ -219,38 +255,112 @@ impl BackendError for ControllerError {
             source: source_error.into(),
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
+            location,
         }
     }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
-pub enum ErrorData {
+pub enum ErrorMetadata {
     BlockId(Uuid),
 }
 
-/// The format all error messages from the API is in
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ErrorResponse {
-    pub title: String,
+pub struct ApiErrorIssue {
+    pub path: Option<String>,
+    pub code: Option<String>,
     pub message: String,
-    pub source: Option<String>,
-    pub data: Option<ErrorData>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[serde(rename_all = "snake_case")]
+pub enum ValidationIssueCode {
+    MissingExerciseType,
+}
+
+impl ValidationIssueCode {
+    /// Returns stable API-facing code value for validation issues.
+    fn as_api_code(self) -> String {
+        serde_json::to_value(self)
+            .ok()
+            .and_then(|v| v.as_str().map(|code| code.to_string()))
+            .unwrap_or_else(|| "unknown_validation_issue".to_string())
+    }
+}
+
+/// Canonical API error envelope returned for controlled application errors.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ApiErrorResponse {
+    #[serde(rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message_key: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub errors: Vec<ApiErrorIssue>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
 }
 
 impl error::ResponseError for ControllerError {
     fn error_response(&self) -> HttpResponse {
         if let ControllerErrorType::InternalServerError = &self.error_type {
-            use std::fmt::Write as _;
-            let mut err_string = String::new();
-            let mut source = Some(self as &dyn std::error::Error);
-            while let Some(err) = source {
-                let _ = write!(err_string, "{}\n    ", err);
-                source = err.source();
+            // Clean format, colored only on a TTY (Auto); the DB report below stays plain.
+            error!(
+                "Internal server error:\n{}",
+                self.clean_string(ColorChoice::Auto)
+            );
+
+            if let Some(pool) = crate::domain::internal_error_reporting::error_reporting_pool() {
+                let pool = pool.clone();
+                let message = self.message.clone();
+                let stack_trace = format!("{:?}", self);
+                let details = serde_json::json!({
+                    "kind": "controller_error",
+                    "controller_error_type": self.error_type.to_string(),
+                });
+
+                // Uses the main DB pool intentionally for best-effort reporting; this can amplify outage pressure.
+                actix_web::rt::spawn(async move {
+                    let mut conn = match tokio::time::timeout(
+                        std::time::Duration::from_millis(250),
+                        pool.acquire(),
+                    )
+                    .await
+                    {
+                        Ok(Ok(conn)) => conn,
+                        Ok(Err(err)) => {
+                            warn!(
+                                "internal error reporting skipped: failed to acquire pool connection: {err}"
+                            );
+                            return;
+                        }
+                        Err(_) => {
+                            warn!(
+                                "internal error reporting skipped: timed out acquiring pool connection"
+                            );
+                            return;
+                        }
+                    };
+                    let report = headless_lms_models::errors::NewErrorReport {
+                        service: "headless-lms".to_string(),
+                        error_source: Some(headless_lms_models::errors::ErrorSource::Backend),
+                        message,
+                        stack_trace: Some(stack_trace),
+                        path: None,
+                        app_version: None,
+                        details: Some(details),
+                    };
+                    if let Err(err) =
+                        headless_lms_models::errors::insert(&mut conn, None, &report).await
+                    {
+                        debug!("internal error reporting insert failed: {err}");
+                    }
+                });
             }
-            error!("Internal server error: {}", err_string);
         }
         if let ControllerErrorType::OAuthError(data) = &self.error_type {
             if let Some(uri) = &data.redirect_uri
@@ -321,6 +431,8 @@ impl error::ResponseError for ControllerError {
             res.append_header(("Cache-Control", "no-store"))
                 .append_header(("Pragma", "no-cache"));
 
+            // OAuth token/introspection semantics are standardized around `error` and
+            // `error_description`; keep compatibility for protocol clients.
             return res.json(serde_json::json!({
                 "error": data.error,
                 "error_description": data.error_description
@@ -329,47 +441,88 @@ impl error::ResponseError for ControllerError {
 
         let status = self.status_code();
 
-        let error_data = match &self.error_type {
+        let metadata = match &self.error_type {
             ControllerErrorType::BadRequestWithData(data) => Some(data.clone()),
             _ => None,
         };
 
-        let source_message = self.source.as_ref().map(|anyhow_err| {
-            if let Some(controller_err) = anyhow_err.downcast_ref::<ControllerError>() {
-                controller_err.message.clone()
-            } else {
-                anyhow_err.to_string()
-            }
-        });
+        let metadata_json =
+            metadata.map(|ErrorMetadata::BlockId(id)| serde_json::json!({ "block_id": id }));
+        let (error_type, message_key) = self.error_type_and_message_key();
+        let errors = self.validation_issues();
+        let message = Some(self.message.clone());
 
-        let error_response = ErrorResponse {
-            title: status
-                .canonical_reason()
-                .map(str::to_string)
-                .unwrap_or_else(|| status.to_string()),
-            message: self.message.clone(),
-            source: source_message,
-            data: error_data,
+        let error_response = ApiErrorResponse {
+            error_type: Some(error_type.to_string()),
+            message_key: Some(message_key.to_string()),
+            message,
+            errors,
+            metadata: metadata_json,
         };
 
         HttpResponseBuilder::new(status)
             .append_header(ContentType::json())
-            .body(
-                serde_json::to_string(&error_response).unwrap_or_else(|_| {
-                    r#"{"title":"Internal Server Error","message":"Error occurred while formatting error message."}"#.to_string()
-                }),
-            )
+            .body(serde_json::to_string(&error_response).unwrap_or_else(|e| {
+                error!("Error while serialising error response: {e}");
+                r#"{"type":"internal_error","message_key":"internal_error"}"#.to_string()
+            }))
     }
 
     fn status_code(&self) -> StatusCode {
         match self.error_type {
             ControllerErrorType::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            ControllerErrorType::BadRequest => StatusCode::BAD_REQUEST,
-            ControllerErrorType::BadRequestWithData(_) => StatusCode::BAD_REQUEST,
+            ControllerErrorType::BadRequest => StatusCode::UNPROCESSABLE_ENTITY,
+            ControllerErrorType::BadRequestWithData(_) => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
+            ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
+            ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode) => {
+                StatusCode::BAD_REQUEST
+            }
+            ControllerErrorType::SisuError(SisuErrorType::GenericSisuError) => {
+                StatusCode::BAD_GATEWAY
+            }
+            ControllerErrorType::SisuError(SisuErrorType::SisuResourceNotFound) => {
+                StatusCode::NOT_FOUND
+            }
+        }
+    }
+}
+
+impl ControllerError {
+    fn error_type_and_message_key(&self) -> (&'static str, &'static str) {
+        match self.error_type {
+            ControllerErrorType::InternalServerError => ("internal_error", "internal_error"),
+            ControllerErrorType::BadRequest => ("validation_error", "validation_error"),
+            ControllerErrorType::BadRequestWithData(_) => {
+                ("validation_error", "validation_error_with_metadata")
+            }
+            ControllerErrorType::NotFound => ("not_found", "not_found"),
+            ControllerErrorType::Unauthorized => ("unauthorized", "unauthorized"),
+            ControllerErrorType::UnauthorizedWithReason(reason) => {
+                ("unauthorized", reason.message_key())
+            }
+            ControllerErrorType::Forbidden => ("forbidden", "forbidden"),
+            ControllerErrorType::OAuthError(_) => ("oauth_error", "oauth_error"),
+            ControllerErrorType::SisuError(error_type) => ("sisu_error", error_type.message_key()),
+        }
+    }
+
+    /// Derives issue-level validation details from known backend validation cases.
+    fn validation_issues(&self) -> Vec<ApiErrorIssue> {
+        match &self.error_type {
+            ControllerErrorType::BadRequestWithData(_)
+                if self.message == MISSING_EXERCISE_TYPE_DESCRIPTION =>
+            {
+                vec![ApiErrorIssue {
+                    path: Some("exercise_type".to_string()),
+                    code: Some(ValidationIssueCode::MissingExerciseType.as_api_code()),
+                    message: self.message.clone(),
+                }]
+            }
+            _ => Vec::new(),
         }
     }
 }
@@ -491,7 +644,7 @@ impl From<jsonwebtoken::errors::Error> for ControllerError {
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
         let backtrace: Backtrace =
-            match headless_lms_utils::error::backend_error::BackendError::backtrace(&err) {
+            match headless_lms_base::error::backend_error::BackendError::backtrace(&err) {
                 Some(backtrace) => backtrace.clone(),
                 _ => Backtrace::new(),
             };
@@ -520,7 +673,7 @@ impl From<ModelError> for ControllerError {
             ),
             ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { description, id } => {
                 Self::new_with_traces(
-                    ControllerErrorType::BadRequestWithData(ErrorData::BlockId(*id)),
+                    ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(*id)),
                     description.to_string(),
                     Some(err.into()),
                     backtrace,
@@ -555,18 +708,48 @@ impl From<ModelError> for ControllerError {
 impl From<UtilError> for ControllerError {
     fn from(err: UtilError) -> Self {
         let backtrace: Backtrace =
-            match headless_lms_utils::error::backend_error::BackendError::backtrace(&err) {
+            match headless_lms_base::error::backend_error::BackendError::backtrace(&err) {
                 Some(backtrace) => backtrace.clone(),
                 _ => Backtrace::new(),
             };
         let span_trace = err.span_trace().clone();
-        Self::new_with_traces(
-            ControllerErrorType::InternalServerError,
-            err.to_string(),
-            Some(err.into()),
-            backtrace,
-            span_trace,
-        )
+
+        match err.error_type() {
+            UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError) => {
+                Self::new_with_traces(
+                    ControllerErrorType::SisuError(SisuErrorType::GenericSisuError),
+                    err.to_string(),
+                    Some(err.into()),
+                    backtrace,
+                    span_trace,
+                )
+            }
+            UtilErrorType::SisuClientError(SisuErrorVariant::InvalidCourseCode) => {
+                Self::new_with_traces(
+                    ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode),
+                    err.to_string(),
+                    Some(err.into()),
+                    backtrace,
+                    span_trace,
+                )
+            }
+            UtilErrorType::SisuClientError(SisuErrorVariant::SisuResourceNotFound) => {
+                Self::new_with_traces(
+                    ControllerErrorType::SisuError(SisuErrorType::SisuResourceNotFound),
+                    err.to_string(),
+                    Some(err.into()),
+                    backtrace,
+                    span_trace,
+                )
+            }
+            _ => Self::new_with_traces(
+                ControllerErrorType::InternalServerError,
+                err.to_string(),
+                Some(err.into()),
+                backtrace,
+                span_trace,
+            ),
+        }
     }
 }
 
@@ -728,5 +911,293 @@ impl From<crate::domain::oauth::pkce::PkceError> for PkceFlowError {
 impl From<crate::domain::oauth::pkce::PkceError> for ControllerError {
     fn from(err: crate::domain::oauth::pkce::PkceError) -> Self {
         PkceFlowError::from(err).into()
+    }
+}
+
+impl From<ChatbotError> for ControllerError {
+    fn from(err: ChatbotError) -> Self {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            err.message().to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+// Generate error creation macros for ControllerError
+headless_lms_utils::define_err_macro!(
+    controller_err,
+    ControllerError,
+    ControllerErrorType,
+    ControllerErrorType,
+    "Create a ControllerError with less boilerplate."
+);
+
+/// Helper function for `.map_err()` chains to wrap any error as ControllerError.
+///
+/// This function creates a closure that converts any error into a `ControllerError`
+/// with the specified error type and message, including the original error as the source.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Instead of:
+/// .map_err(|e| ControllerError::new(ControllerErrorType::BadRequest, e.to_string(), Some(e.into())))?
+///
+/// // You can write:
+/// .map_err(as_controller_error(ControllerErrorType::BadRequest, "Failed to process".to_string()))?
+/// ```
+pub fn as_controller_error<E>(
+    error_type: ControllerErrorType,
+    message: impl Into<String>,
+) -> impl FnOnce(E) -> ControllerError
+where
+    E: Into<anyhow::Error>,
+{
+    let msg = message.into();
+    move |e| ControllerError::new(error_type, msg, Some(e.into()))
+}
+
+/// Helper function for `.ok_or_else()` to create ControllerError on None.
+///
+/// This function creates a closure that generates a `ControllerError` with the
+/// specified error type and message when called.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Instead of:
+/// .ok_or_else(|| ControllerError::new(ControllerErrorType::NotFound, "Item not found".to_string(), None))
+///
+/// // You can write:
+/// .ok_or_else(missing_controller_error(ControllerErrorType::NotFound, "Item not found".to_string()))
+/// ```
+pub fn missing_controller_error(
+    error_type: ControllerErrorType,
+    message: impl Into<String>,
+) -> impl FnOnce() -> ControllerError {
+    let msg = message.into();
+    move || ControllerError::new(error_type, msg, None)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::ResponseError;
+    use futures_util::FutureExt;
+
+    #[test]
+    fn test_controller_err_macro_without_source() {
+        let err = controller_err!(BadRequest, "Test error message".to_string());
+        assert_eq!(err.message(), "Test error message");
+        assert!(matches!(err.error_type(), ControllerErrorType::BadRequest));
+    }
+
+    #[test]
+    fn test_controller_err_macro_with_source() {
+        let source_err = std::io::Error::new(std::io::ErrorKind::NotFound, "file not found");
+        let err = controller_err!(InternalServerError, "Wrapped error".to_string(), source_err);
+        assert_eq!(err.message(), "Wrapped error");
+    }
+
+    #[test]
+    fn test_controller_err_macro_tuple_variant_with_source() {
+        let source_err = std::io::Error::other("source");
+        let err = controller_err!(
+            UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
+            "Wrapped error".to_string(),
+            source_err
+        );
+        assert!(matches!(
+            err.error_type(),
+            ControllerErrorType::UnauthorizedWithReason(_)
+        ));
+    }
+
+    #[test]
+    fn test_as_controller_error_helper() {
+        let result: Result<(), std::io::Error> = Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "test error",
+        ));
+        let controller_result = result.map_err(as_controller_error(
+            ControllerErrorType::BadRequest,
+            "Invalid input".to_string(),
+        ));
+
+        assert!(controller_result.is_err());
+        let err = controller_result.unwrap_err();
+        assert_eq!(err.message(), "Invalid input");
+        assert!(matches!(err.error_type(), ControllerErrorType::BadRequest));
+    }
+
+    #[test]
+    fn test_missing_controller_error_helper() {
+        let option: Option<String> = None;
+        let result = option.ok_or_else(missing_controller_error(
+            ControllerErrorType::NotFound,
+            "Resource not found".to_string(),
+        ));
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert_eq!(err.message(), "Resource not found");
+        assert!(matches!(err.error_type(), ControllerErrorType::NotFound));
+    }
+
+    #[test]
+    fn test_controller_err_with_format() {
+        let user_id = 42;
+        let err = controller_err!(Unauthorized, format!("User {} is not authorized", user_id));
+        assert_eq!(err.message(), "User 42 is not authorized");
+    }
+
+    #[test]
+    fn test_controller_err_all_variants() {
+        // Test that macros work with all standard error type variants
+        let _ = controller_err!(InternalServerError, "test".to_string());
+        let _ = controller_err!(BadRequest, "test".to_string());
+        let _ = controller_err!(NotFound, "test".to_string());
+        let _ = controller_err!(Unauthorized, "test".to_string());
+        let _ = controller_err!(
+            UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
+            "test".to_string()
+        );
+        let _ = controller_err!(
+            BadRequestWithData(ErrorMetadata::BlockId(Uuid::nil())),
+            "test".to_string()
+        );
+        let _ = controller_err!(Forbidden, "test".to_string());
+    }
+
+    #[test]
+    fn test_canonical_error_envelope_shape() {
+        let err = controller_err!(BadRequest, "Validation failed".to_string());
+        let response = err.error_response();
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+        assert_eq!(value["type"], "validation_error");
+        assert_eq!(value["message_key"], "validation_error");
+        assert_eq!(value["message"], "Validation failed");
+        assert!(value.get("status").is_none());
+        assert!(value.get("request_id").is_none());
+    }
+
+    #[test]
+    fn test_validation_issue_code_is_serialized_for_missing_exercise_type() {
+        let err = ControllerError::new(
+            ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(Uuid::nil())),
+            MISSING_EXERCISE_TYPE_DESCRIPTION.to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "validation_error");
+        assert_eq!(value["message_key"], "validation_error_with_metadata");
+        assert_eq!(value["errors"][0]["code"], "missing_exercise_type");
+        assert_eq!(value["errors"][0]["path"], "exercise_type");
+    }
+
+    #[test]
+    fn test_chapter_not_open_uses_dedicated_message_key() {
+        let err = ControllerError::new(
+            ControllerErrorType::UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
+            "Chapter is not open yet.".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "unauthorized");
+        assert_eq!(value["message_key"], "chapter_not_open_yet");
+        assert_eq!(value["message"], "Chapter is not open yet.");
+    }
+
+    #[test]
+    fn test_exam_exercise_auth_requirement_uses_dedicated_message_key() {
+        let err = ControllerError::new(
+            ControllerErrorType::UnauthorizedWithReason(
+                UnauthorizedReason::AuthenticationRequiredForExamExercise,
+            ),
+            "User must be authenticated to view exam exercises".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "unauthorized");
+        assert_eq!(
+            value["message_key"],
+            "authentication_required_for_exam_exercise"
+        );
+        assert_eq!(
+            value["message"],
+            "User must be authenticated to view exam exercises"
+        );
+    }
+
+    #[test]
+    fn test_generic_unauthorized_uses_unauthorized_message_key() {
+        let err = ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "Unauthorized".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "unauthorized");
+        assert_eq!(value["message_key"], "unauthorized");
+        assert_eq!(value["message"], "Unauthorized");
+    }
+
+    #[test]
+    fn debug_renders_clean_format() {
+        let err = controller_err!(InternalServerError, "database exploded".to_string());
+        let debug = format!("{err:?}");
+        assert!(
+            debug.contains("ControllerError · InternalServerError: database exploded"),
+            "got: {debug}"
+        );
+        // No error-infrastructure leakage in the raise line.
+        assert!(!debug.contains("backend_error.rs"), "got: {debug}");
+        assert!(!debug.contains("macros.rs"), "got: {debug}");
+    }
+
+    #[test]
+    fn debug_renders_wrapped_model_error_as_cause_node() {
+        let model_error = ModelError::new(ModelErrorType::Generic, "row missing".to_string(), None);
+        let err = ControllerError::from(model_error);
+
+        let debug = format!("{err:?}");
+        assert!(debug.contains("ControllerError ·"), "got: {debug}");
+        assert!(debug.contains("caused by:"), "got: {debug}");
+        assert!(
+            debug.contains("1. ModelError · Generic: row missing"),
+            "got: {debug}"
+        );
+        assert!(!debug.contains("(external)"), "got: {debug}");
     }
 }

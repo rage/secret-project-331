@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import GlobalStatTable from "@/components/page-specific/global-stats/GlobalStatTable"
+import type { TimeGranularity } from "@/generated/api/types.generated"
 import {
   useCourseModuleStatsByCompletionsRegisteredToStudyRegistryQuery,
   useNumberOfPeopleCompletedACourseQuery,
@@ -12,16 +12,19 @@ import {
   useNumberOfPeopleRegisteredCompletionToStudyRegistryQuery,
   useNumberOfPeopleStartedCourseQuery,
 } from "@/hooks/globalStats"
-import { TimeGranularity } from "@/shared-module/common/bindings"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import GlobalStatTable from "./GlobalStatTable"
 
 const YEAR_GRANULARITY = "Year"
 const MONTH_GRANULARITY = "Month"
 
 const StatsPage = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-statistics"))
   const [granularity, setGranularity] = useState<TimeGranularity>(YEAR_GRANULARITY)
 
   const numberOfPeopleComplatedACourseQuery = useNumberOfPeopleCompletedACourseQuery(granularity)

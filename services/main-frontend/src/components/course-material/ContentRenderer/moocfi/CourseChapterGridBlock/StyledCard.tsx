@@ -2,12 +2,13 @@
 
 import { css } from "@emotion/css"
 
-import ChapterGridCard from "./ChapterGridCard"
-
-import { ChapterWithStatus } from "@/shared-module/common/bindings"
+import type { ChapterWithStatus } from "@/generated/course-material-api/types.generated"
 import { cardMaxWidth } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { stringToRandomNumber } from "@/shared-module/common/utils/strings"
+
+import ChapterGridCard from "./ChapterGridCard"
 
 const COLORS_ARRAY = [
   "#215887",
@@ -21,7 +22,7 @@ const COLORS_ARRAY = [
   "#1A2333",
   "#065853",
   "#08457A",
-]
+] as const
 
 export interface StyledCardProps {
   chapter: ChapterWithStatus
@@ -45,7 +46,9 @@ const StyledCard: React.FC<React.PropsWithChildren<StyledCardProps>> = ({
   isLocked,
 }) => {
   const randomNumber = stringToRandomNumber(chapter.id) % COLORS_ARRAY.length
-  const randomizedColor = COLORS_ARRAY[randomNumber]
+  // randomNumber is a modulo of COLORS_ARRAY.length, so the index is always in range;
+  // the fallback keeps the type non-undefined without changing behavior.
+  const randomizedColor = COLORS_ARRAY[randomNumber] ?? COLORS_ARRAY[0]
   return (
     <div
       className={css`
@@ -64,7 +67,7 @@ const StyledCard: React.FC<React.PropsWithChildren<StyledCardProps>> = ({
       `}
     >
       <ChapterGridCard
-        backgroundImage={chapter.chapter_image_url}
+        {...omitUndefined({ backgroundImage: chapter.chapter_image_url })}
         bg={randomizedColor}
         now={now}
         chapter={chapter}

@@ -3,10 +3,9 @@ use std::sync::Arc;
 use headless_lms_models::{
     PKeyPolicy,
     chatbot_configurations::{self, NewChatbotConf},
-    chatbot_configurations_models::{self, NewChatbotConfigurationModel},
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
-    courses::NewCourse,
+    courses::{self, NewCourse},
     library::{self, content_management::CreateNewCourseFixedIds, copying::copy_course},
     organizations,
     roles::{self, RoleDomain, UserRole},
@@ -18,11 +17,13 @@ use sqlx::{Pool, Postgres};
 use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
+        seed_application_task_llms::SeedApplicationLLMsResult,
         seed_courses::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
-            seed_course_with_peer_review::seed_peer_review_course, seed_lock_chapter_course,
-            seed_peer_review_course_without_submissions, seed_sample_course,
-            seed_switching_course_instances_course,
+            seed_course_with_peer_review::seed_peer_review_course, seed_generated_description,
+            seed_introduction_to_codes::seed_introduction_to_codes, seed_lock_chapter_course,
+            seed_material_reference_course, seed_peer_review_course_without_submissions,
+            seed_sample_course, seed_switching_course_instances_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::get_seed_spec_fetcher,
@@ -34,6 +35,7 @@ use super::super::seed_users::SeedUsersResult;
 pub async fn seed_organization_uh_mathstat(
     db_pool: Pool<Postgres>,
     seed_users_result: SeedUsersResult,
+    seed_llm_result: SeedApplicationLLMsResult,
     base_url: String,
     jwt_key: Arc<JwtKey>,
     // Passed to this function to ensure the seed file storage has been ran before this. This function will not work is seed file storage has not been ran
@@ -59,6 +61,8 @@ pub async fn seed_organization_uh_mathstat(
         student_4_user_id: _,
         student_5_user_id: _,
         student_6_user_id: _,
+        student_7_user_id: _,
+        student_8_user_id: _,
         langs_user_id,
         sign_up_user: _,
     } = seed_users_result;
@@ -119,6 +123,7 @@ pub async fn seed_organization_uh_mathstat(
         models_requests::fetch_service_info,
     )
     .await?;
+    courses::set_cheater_detection_enabled(&mut conn, statistics_course.id, false).await?;
     let _statistics_course_instance = course_instances::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("c4a99a18-fd43-491a-9500-4673cb900be0")?),
@@ -153,7 +158,7 @@ pub async fn seed_organization_uh_mathstat(
         flagged_answers_threshold: Some(3),
         can_add_chatbot: false,
     };
-    library::content_management::create_new_course(
+    let (draft_course_created, _, _, _) = library::content_management::create_new_course(
         &mut conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
             course_id: Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
@@ -165,6 +170,7 @@ pub async fn seed_organization_uh_mathstat(
         models_requests::fetch_service_info,
     )
     .await?;
+    courses::set_cheater_detection_enabled(&mut conn, draft_course_created.id, false).await?;
 
     let (cody_only_course, _, _, _) = library::content_management::create_new_course(
         &mut conn,
@@ -197,6 +203,7 @@ pub async fn seed_organization_uh_mathstat(
         models_requests::fetch_service_info,
     )
     .await?;
+    courses::set_cheater_detection_enabled(&mut conn, cody_only_course.id, false).await?;
 
     roles::insert(
         &mut conn,
@@ -216,10 +223,18 @@ pub async fn seed_organization_uh_mathstat(
         jwt_key: Arc::clone(&jwt_key),
         base_url,
     };
-    let introduction_to_citations = seed_sample_course(
+    let _material_reference_course = seed_material_reference_course(
         Uuid::parse_str("049061ba-ac30-49f1-aa9d-b7566dc22b78")?,
-        "Introduction to citations",
-        "introduction-to-citations",
+        "Material references course",
+        "material-references-course",
+        uh_data.clone(),
+    )
+    .await?;
+
+    let change_language_course = seed_sample_course(
+        Uuid::parse_str("5c8b1f3e-d7a2-4e9f-b3c1-8a7f6d5e4c3b")?,
+        "Change language course",
+        "change-language-course",
         uh_data.clone(),
         false,
         seed_users_result,
@@ -228,10 +243,10 @@ pub async fn seed_organization_uh_mathstat(
 
     copy_course(
         &mut conn,
-        introduction_to_citations,
+        change_language_course,
         &NewCourse {
-            name: "Johdatus sitaatioihin".to_string(),
-            slug: "johdatus-sitaatioihin".to_string(),
+            name: "Vaihda kurssin kieli".to_string(),
+            slug: "vaihda-kurssin-kieli".to_string(),
             organization_id: uh_mathstat_id,
             language_code: "fi".to_string(),
             teacher_in_charge_name: "admin".to_string(),
@@ -302,6 +317,22 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let _generate_description_course = seed_generated_description(
+        Uuid::parse_str("84d392c8-3d44-4109-bff1-938fec5cd642")?,
+        "Description generation course",
+        "description-generation-course",
+        uh_data.clone(),
+    )
+    .await?;
+
+    let _introduction_to_codes = seed_introduction_to_codes(
+        Uuid::parse_str("da099841-4e90-4080-a6ae-48b7dd1f6e26")?,
+        "Introduction to codes",
+        "introduction-to-codes",
+        uh_data.clone(),
+    )
+    .await?;
+
     let suspected_cheaters_course_id = seed_sample_course(
         Uuid::parse_str("060c272f-8c68-4d90-946f-2d431114ed56")?,
         "Course for Suspected Cheaters",
@@ -311,6 +342,9 @@ pub async fn seed_organization_uh_mathstat(
         seed_users_result,
     )
     .await?;
+    // This course is the one the suspected-cheaters system-test spec relies on, so it keeps
+    // detection on (seed_sample_course disables it by default for every other seeded course).
+    courses::set_cheater_detection_enabled(&mut conn, suspected_cheaters_course_id, true).await?;
 
     // configure automatic completions
     let automatic_default_module =
@@ -343,18 +377,6 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    let llm = chatbot_configurations_models::insert(
-        &mut conn,
-        NewChatbotConfigurationModel {
-            id: Uuid::parse_str("f14d70bd-c228-4447-bddd-4f6f66705356")?,
-            model: "mock-gpt".to_string(),
-            thinking: false,
-            default_model: true,
-            deployment_name: "mock-gpt".to_string(),
-        },
-    )
-    .await?;
-
     chatbot_configurations::insert(
         &mut conn,
         PKeyPolicy::Generate,
@@ -366,8 +388,7 @@ pub async fn seed_organization_uh_mathstat(
             initial_message: "Oh... It's you.".to_string(),
             use_azure_search: true,
             default_chatbot: true,
-            model_id: llm.id,
-            thinking_model: llm.thinking,
+            model_id: seed_llm_result.llm_default_model_id,
             ..Default::default()
         },
     )
@@ -436,11 +457,24 @@ pub async fn seed_organization_uh_mathstat(
         "reject-and-reset-submission-with-peer-reviews-course",
         uh_data.clone(),
         seed_users_result,
+        false,
+        None,
+    )
+    .await?;
+
+    let _seed_spam_answers_skip_teacher_review_course = seed_peer_review_course(
+        Uuid::parse_str("e91eb0d0-1737-44e8-9554-a9492e69ddc7")?,
+        "Spam answers skip teacher review course",
+        "spam-answers-skip-teacher-review-course",
+        uh_data.clone(),
+        seed_users_result,
+        true,
+        Some(1),
     )
     .await?;
 
     let _accessibility_course_id = seed_accessibility_course(
-        Uuid::parse_str("f1a2b3c4-d5e6-7890-abcd-ef1234567890")?,
+        Uuid::parse_str("883c8ed0-08db-4cd1-a0a4-5cc79c69bdfe")?,
         "Accessibility course",
         "accessibility-course",
         uh_data.clone(),
@@ -448,7 +482,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _lock_chapter_course_id = seed_lock_chapter_course(
-        Uuid::parse_str("a1b2c3d4-e5f6-7890-abcd-ef1234567890")?,
+        Uuid::parse_str("1799a6d1-c1b1-4f51-a92f-e832554fc924")?,
         "Lock Chapter Test Course",
         "lock-chapter-test-course",
         uh_data.clone(),

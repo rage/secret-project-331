@@ -6,7 +6,7 @@ use headless_lms_models::{
     PKeyPolicy, course_exams,
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
-    courses::NewCourse,
+    courses::{self, NewCourse},
     library::{
         self,
         content_management::CreateNewCourseFixedIds,
@@ -65,6 +65,8 @@ pub async fn seed_organization_uh_cs(
         student_4_user_id: _,
         student_5_user_id: _,
         student_6_user_id: _,
+        student_7_user_id: _,
+        student_8_user_id: _,
         langs_user_id,
         sign_up_user: _,
     } = seed_users_result;
@@ -379,6 +381,13 @@ pub async fn seed_organization_uh_cs(
     .await?;
     roles::insert(
         &mut conn,
+        language_teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Organization(uh_cs_organization_id),
+    )
+    .await?;
+    roles::insert(
+        &mut conn,
         course_or_exam_creator_user_id,
         UserRole::CourseOrExamCreator,
         RoleDomain::Organization(uh_cs_organization_id),
@@ -534,6 +543,7 @@ pub async fn seed_organization_uh_cs(
             models_requests::fetch_service_info,
         )
         .await?;
+    courses::set_cheater_detection_enabled(&mut conn, cs_course.id, false).await?;
     let _cs_course_instance = course_instances::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("49c618d3-926d-4287-9159-b3af1f86082d")?),

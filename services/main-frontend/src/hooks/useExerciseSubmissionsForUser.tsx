@@ -2,22 +2,29 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchExerciseSubmissionsForUser } from "../services/backend/exercises"
-
-import { ExerciseSlideSubmission } from "@/shared-module/common/bindings"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getExerciseSubmissionsForUserOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 export const useExerciseSubmissionsForUser = (
   exerciseId: string | null | undefined,
   userId: string | null | undefined,
 ) => {
-  return useQuery<ExerciseSlideSubmission[]>({
-    queryKey: ["exercise-submissions-for-user", exerciseId, userId],
-    queryFn: () =>
-      fetchExerciseSubmissionsForUser(
-        assertNotNullOrUndefined(exerciseId),
-        assertNotNullOrUndefined(userId),
-      ),
-    enabled: !!exerciseId && !!userId,
-  })
+  return useQuery(
+    optionalGeneratedQueryOptions({
+      value: exerciseId && userId ? { exerciseId, userId } : null,
+      isReady: (
+        value,
+      ): value is {
+        exerciseId: string
+        userId: string
+      } => Boolean(value?.exerciseId && value?.userId),
+      build: (value) =>
+        getExerciseSubmissionsForUserOptions({
+          path: {
+            exercise_id: value.exerciseId,
+            user_id: value.userId,
+          },
+        }),
+    }),
+  )
 }

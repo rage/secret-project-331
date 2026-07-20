@@ -2,16 +2,17 @@
 
 import { css } from "@emotion/css"
 import { parseISO } from "date-fns"
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { Exam, NewExam } from "@/shared-module/common/bindings"
+import type { Exam, NewExam } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 
 interface EditExamFormProps {
@@ -39,18 +40,20 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
 }) => {
   const { t } = useTranslation()
 
+  const initialStartsAt = formatDateForDateTimeLocalInputs(initialData.starts_at)
+  const initialEndsAt = formatDateForDateTimeLocalInputs(initialData.ends_at)
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
   } = useForm<EditExamFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       name: initialData.name,
-      startsAt: formatDateForDateTimeLocalInputs(initialData.starts_at),
-      endsAt: formatDateForDateTimeLocalInputs(initialData.ends_at),
+      ...omitUndefined({ startsAt: initialStartsAt, endsAt: initialEndsAt }),
       timeMinutes: initialData.time_minutes,
       automaticCompletionEnabled: initialData.minimum_points_treshold !== 0,
       minimumPointsTreshold: initialData.minimum_points_treshold,
@@ -87,23 +90,23 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
         >
           <TextField
             id={"name"}
-            error={errors.name?.message}
+            {...omitUndefined({ error: errors.name?.message })}
             label={t("label-name")}
             {...register("name", { required: t("required-field") })}
           />
           <DateTimeLocal
-            error={errors.startsAt?.message}
+            {...omitUndefined({ error: errors.startsAt?.message })}
             label={t("label-starts-at")}
             {...register("startsAt", { required: t("required-field") })}
           />
           <DateTimeLocal
-            error={errors.endsAt?.message}
+            {...omitUndefined({ error: errors.endsAt?.message })}
             label={t("label-ends-at")}
             {...register("endsAt", { required: t("required-field"), validate: validateDates })}
           />
           <TextField
             id={"timeMinutes"}
-            error={errors.timeMinutes?.message}
+            {...omitUndefined({ error: errors.timeMinutes?.message })}
             label={t("label-time-minutes")}
             {...register("timeMinutes", { required: t("required-field") })}
           />
@@ -115,7 +118,7 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
           {automaticEnabled && (
             <TextField
               id={"minimumPointsTreshold"}
-              error={errors.minimumPointsTreshold?.message}
+              {...omitUndefined({ error: errors.minimumPointsTreshold?.message })}
               label={t("label-exam-minimum-points")}
               {...register("minimumPointsTreshold", { required: t("required-field") })}
             />

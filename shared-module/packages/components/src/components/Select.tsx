@@ -17,6 +17,7 @@ import {
   FocusScope,
 } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
@@ -121,6 +122,7 @@ function isHtmlUlistElement(
 export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
   props: SelectProps<T, N>,
 ) {
+  const { t } = useTranslation("shared-module")
   const {
     name,
     control,
@@ -139,7 +141,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     onKeyDown,
     onKeyUp,
     searchEnabled = false,
-    searchPlaceholder = "search",
+    searchPlaceholder = t("search"),
   } = props
 
   const [filterValue, setFilterValue] = useState("")

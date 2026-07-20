@@ -13,7 +13,7 @@ import ChatbotCommandCenter from "./ChatbotCommandCenter"
 
 const ChatbotCommandCenterPage: React.FC = () => {
   const { t } = useTranslation()
-  usePageTitle(t("chatbot-command-center-heading"))
+  usePageTitle(t("title-chatbot-command-center"))
 
   const chatbotQuery = useQuery({
     ...getChatbotCommandCenterDataOptions(),

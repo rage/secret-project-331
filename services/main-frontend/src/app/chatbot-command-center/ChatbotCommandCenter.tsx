@@ -1,18 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
+import type { ChatbotCommandCenterData } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Select } from "@/shared-module/components"
-
-interface ChatbotCommandCenterData {
-  configuration_id: string
-  chatbot_name: string
-  course_name: string
-}
 
 interface Props {
   chatbots: ChatbotCommandCenterData[]
@@ -22,23 +18,27 @@ const ChatbotCommandCenter = ({ chatbots }: Props) => {
   const { t } = useTranslation()
   const { control, watch } = useForm<ChatbotCommandCenterData>({})
   const configuration_id = watch("configuration_id")
-  function groupChatbotsByCourse() {
-    const distinctCourses = [...new Set(chatbots.map((chatbot) => chatbot.course_name))]
 
-    return distinctCourses.map((course) => {
-      return {
-        label: course,
-        options: chatbots
-          .filter((chatbot) => chatbot.course_name === course)
-          .map((chatbot) => {
-            return {
-              label: `${chatbot.chatbot_name}`,
-              value: chatbot.configuration_id,
-            }
-          }),
-      }
-    })
-  }
+  const chatbotOptions = useMemo(() => {
+    const grouped = chatbots.reduce(
+      (acc, chatbot) => {
+        if (!acc[chatbot.course_name]) {
+          acc[chatbot.course_name] = []
+        }
+        acc[chatbot.course_name]?.push({
+          label: chatbot.chatbot_name,
+          value: chatbot.configuration_id,
+        })
+        return acc
+      },
+      {} as Record<string, { label: string; value: string }[]>,
+    )
+
+    return Object.entries(grouped).map(([course, options]) => ({
+      label: course,
+      options,
+    }))
+  }, [chatbots])
 
   return (
     <div>
@@ -48,7 +48,7 @@ const ChatbotCommandCenter = ({ chatbots }: Props) => {
           control={control}
           name={"configuration_id"}
           label={t("select-chatbot")}
-          options={groupChatbotsByCourse()}
+          options={chatbotOptions}
           searchEnabled={true}
           searchPlaceholder={t("chatbot-search-placeholder")}
         />

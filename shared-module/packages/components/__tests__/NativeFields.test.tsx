@@ -43,35 +43,35 @@ describe("date and time fields", () => {
     expect(container.querySelector('input[type="hidden"]')).toHaveValue("2026-03-12")
   })
 
-  // test("TimeField renders segmented controls and keeps a synchronized hidden value", () => {
-  //   const { container } = renderWithForm<{ t: string }>(
-  //     (control) => <TimeField name="t" control={control} label="Time" />,
-  //     { defaultValues: { t: "12:30" } },
-  //   )
-  //   expect(screen.getByRole("group", { name: "Time" })).toBeInTheDocument()
-  //   expect(
-  //     within(screen.getByRole("group", { name: "Time" })).getAllByRole("spinbutton"),
-  //   ).not.toHaveLength(0)
-  //   expect(container.querySelector('input[type="time"]')).not.toBeInTheDocument()
-  //   expect(container.querySelector('input[type="hidden"]')).toHaveValue("12:30")
-  //   expect(screen.queryByRole("button")).not.toBeInTheDocument()
-  // })
+  test.skip("TimeField renders segmented controls and keeps a synchronized hidden value", () => {
+    const { container } = renderWithForm<{ t: string }>(
+      (control) => <TimeField name="t" control={control} label="Time" />,
+      { defaultValues: { t: "12:30" } },
+    )
+    expect(screen.getByRole("group", { name: "Time" })).toBeInTheDocument()
+    expect(
+      within(screen.getByRole("group", { name: "Time" })).getAllByRole("spinbutton"),
+    ).not.toHaveLength(0)
+    expect(container.querySelector('input[type="time"]')).not.toBeInTheDocument()
+    expect(container.querySelector('input[type="hidden"]')).toHaveValue("12:30")
+    expect(screen.queryByRole("button")).not.toBeInTheDocument()
+  })
 
-  // test("TimeField updates the hidden value when the value prop changes", () => {
-  //   const { container, rerender } = render(
-  //     <FormHarness<{ t: string }> key="a" defaultValues={{ t: "12:30" }}>
-  //       {(control) => <TimeField name="t" control={control} label="Time" />}
-  //     </FormHarness>,
-  //   )
-  //   expect(container.querySelector('input[type="hidden"]')).toHaveValue("12:30")
+  test("TimeField updates the hidden value when the value prop changes", () => {
+    const { container, rerender } = render(
+      <FormHarness<{ t: string }> key="a" defaultValues={{ t: "12:30" }}>
+        {(control) => <TimeField name="t" control={control} label="Time" />}
+      </FormHarness>,
+    )
+    expect(container.querySelector('input[type="hidden"]')).toHaveValue("12:30")
 
-  //   rerender(
-  //     <FormHarness<{ t: string }> key="b" defaultValues={{ t: "11:00" }}>
-  //       {(control) => <TimeField name="t" control={control} label="Time" />}
-  //     </FormHarness>,
-  //   )
-  //   expect(container.querySelector('input[type="hidden"]')).toHaveValue("11:00")
-  // })
+    rerender(
+      <FormHarness<{ t: string }> key="b" defaultValues={{ t: "11:00" }}>
+        {(control) => <TimeField name="t" control={control} label="Time" />}
+      </FormHarness>,
+    )
+    expect(container.querySelector('input[type="hidden"]')).toHaveValue("11:00")
+  })
 
   test("opens a calendar dialog for date fields", () => {
     renderWithForm<{ d: string }>(
@@ -91,29 +91,29 @@ describe("date and time fields", () => {
     expect(screen.getByRole("button", { name: "Next week" })).toBeInTheDocument()
   })
 
-  // test("lets users change the visible month from the inline month and year pickers", () => {
-  //   renderWithForm<{ d: string }>(
-  //     (control) => <DateField name="d" control={control} label="Date" />,
-  //     { defaultValues: { d: "2026-03-11" } },
-  //   )
+  test.skip("lets users change the visible month from the inline month and year pickers", () => {
+    renderWithForm<{ d: string }>(
+      (control) => <DateField name="d" control={control} label="Date" />,
+      { defaultValues: { d: "2026-03-11" } },
+    )
 
-  //   fireEvent.click(within(screen.getByRole("group", { name: "Date" })).getByRole("button"))
-  //   fireEvent.click(screen.getByRole("button", { name: /Choose month and year: 2026/ }))
+    fireEvent.click(within(screen.getByRole("group", { name: "Date" })).getByRole("button"))
+    fireEvent.click(screen.getByRole("button", { name: /Choose month and year: 2026/ }))
 
-  //   expect(screen.queryByRole("grid")).not.toBeInTheDocument()
-  //   expect(screen.getByRole("group", { name: "Year" })).toBeInTheDocument()
+    expect(screen.queryByRole("grid")).not.toBeInTheDocument()
+    expect(screen.getByRole("group", { name: "Year" })).toBeInTheDocument()
 
-  //   fireEvent.click(screen.getByRole("button", { name: "2027" }))
-  //   expect(screen.getByRole("grid")).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "2027" }))
+    expect(screen.getByRole("grid")).toBeInTheDocument()
 
-  //   fireEvent.click(screen.getByRole("button", { name: /Choose month and year: March/ }))
-  //   expect(screen.queryByRole("grid")).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: /Choose month and year: March/ }))
+    expect(screen.queryByRole("grid")).not.toBeInTheDocument()
 
-  //   fireEvent.click(screen.getByRole("button", { name: "April" }))
-  //   expect(screen.getByRole("grid")).toBeInTheDocument()
-  //   expect(screen.getByRole("button", { name: /Choose month and year: April/ })).toBeInTheDocument()
-  //   expect(screen.getByRole("button", { name: /Choose month and year: 2027/ })).toBeInTheDocument()
-  // })
+    fireEvent.click(screen.getByRole("button", { name: "April" }))
+    expect(screen.getByRole("grid")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Choose month and year: April/ })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Choose month and year: 2027/ })).toBeInTheDocument()
+  })
 
   test("supports description and invalid wiring", () => {
     const { container } = renderWithForm<{ dt: string }>((control) => (

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n    SELECT co.chatbot_name, co.id AS configuration_id, c.name AS course_name\n    FROM chatbot_configurations AS co INNER JOIN courses AS c ON co.course_id = c.id\n        ",
+  "query": "\n    SELECT co.chatbot_name, co.id AS configuration_id, c.name AS course_name\n    FROM chatbot_configurations AS co INNER JOIN courses AS c ON co.course_id = c.id\n    WHERE co.deleted_at IS NULL AND c.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -46,5 +46,5 @@
       false
     ]
   },
-  "hash": "2e3c492fbb8d0f8e47e147894bf80250b0c4834b260c90637b1e7bad22c8f32c"
+  "hash": "f30fbf29a207ad7389660bfc96a45572165b4750029b5d9992f33df8c4ac6fe7"
 }

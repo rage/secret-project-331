@@ -9,7 +9,7 @@ test.describe("Chatbot command center testing", () => {
     await page.goto("http://project-331.local/chatbot-command-center")
     await page.getByText("Chatbot command center").waitFor()
     await page.getByText("Chatbot to test").waitFor()
-    await page.getByRole("button", { name: "Suggestions" }).click({ delay: 50 })
+    await page.getByRole("button", { name: "Chatbot to test" }).click({ delay: 50 })
   })
 
   test("Search field for searching chatbots is visible", async ({ page }) => {

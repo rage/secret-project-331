@@ -112,7 +112,7 @@ const searchfieldCss = css`
   }
 `
 
-function isHtmlUlistElement(
+function isRefObjectHTMLUListElementOrNull(
   ref: RefObject<HTMLElement | null>,
 ): ref is RefObject<HTMLUListElement | null> {
   return ref.current === null || ref.current instanceof HTMLUListElement
@@ -366,7 +366,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
                   <input className={searchfieldCss} {...inputProps} ref={searchRef} />
                 </div>
               )}
-              {isHtmlUlistElement(mergedCollectionRef) && (
+              {isRefObjectHTMLUListElementOrNull(mergedCollectionRef) && (
                 <ListBox
                   {...mergeProps(menuProps, collectionProps)}
                   state={state}

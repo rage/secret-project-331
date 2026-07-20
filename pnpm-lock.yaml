@@ -24,9 +24,6 @@ importers:
       '@tanstack/eslint-plugin-query':
         specifier: 5.101.2
         version: 5.101.2(@typescript/typescript6@6.0.2)(eslint@10.6.0(jiti@2.7.0))
-      '@types/lodash':
-        specifier: ^4.17.24
-        version: 4.17.24
       '@types/node':
         specifier: ^26.0.1
         version: 26.0.1
@@ -872,9 +869,6 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
-
-  '@types/lodash@4.17.24':
-    resolution: {integrity: sha512-gIW7lQLZbue7lRSWEFql49QJJWThrTFFeIMJdp3eH4tKoxm1OvEPg02rm4wCCSHS0cL3/Fizimb35b7k8atwsQ==}
 
   '@types/node@26.0.1':
     resolution: {integrity: sha512-fc3KiUoBt6kie0N9bIW3E47vZsuaMf0PM2AaUpLCLT0s/LvX1nxAim6Fc049cNxODPpGm6qRAuUOB86SkRuPQw==}
@@ -2909,8 +2903,6 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/lodash@4.17.24': {}
-
   '@types/node@26.0.1':
     dependencies:
       undici-types: 8.3.0
@@ -4277,7 +4269,6 @@ snapshots:
 time:
   '@hey-api/openapi-ts@0.99.0': '2026-06-22T06:38:34.730Z'
   '@tanstack/eslint-plugin-query@5.101.2': '2026-06-27T20:31:35.475Z'
-  '@types/lodash@4.17.24': '2026-02-23T05:30:28.313Z'
   '@types/node@26.0.1': '2026-06-24T20:33:01.352Z'
   '@typescript/typescript6@6.0.2': '2026-07-06T18:06:47.459Z'
   concurrently@10.0.3: '2026-06-02T04:31:54.180Z'

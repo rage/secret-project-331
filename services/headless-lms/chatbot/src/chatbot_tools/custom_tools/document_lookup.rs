@@ -68,7 +68,7 @@ impl ChatbotTool for DocumentLookupTool {
         let page_id = if let Some(id) = &arguments.page_id {
             id.to_owned()
         } else if let Some(f) = &arguments.filepath {
-            let res = parse_document_filepath(&f);
+            let res = parse_document_filepath(f);
             match res {
                 Ok(d) => d.page_id,
                 Err(e) => Err(chatbot_err!(

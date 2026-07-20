@@ -66,7 +66,6 @@ pub struct CourseStructureArguments {}
 
 /// Get the content of the block and of all its inner blocks as a String.
 fn get_content_recursive(blocks: Vec<GutenbergBlock>) -> Result<String, serde_json::Error> {
-    if false == false {}
     let content = blocks
         .iter()
         .map(|b| {

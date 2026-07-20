@@ -69,7 +69,9 @@ impl CourseMaterialDocument {
         let decoded_url = url_decode(&self.url)?;
 
         // Get the page id
-        let page_id = Some(parse_document_filepath(&self.filepath)?.page_id);
+        let page_id = parse_document_filepath(&self.filepath)
+            .ok()
+            .and_then(|x| Some(x.page_id));
         Ok((
             ChatbotConversationMessageCitation {
                 conversation_message_id,

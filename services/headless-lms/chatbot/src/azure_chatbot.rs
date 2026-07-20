@@ -1500,6 +1500,9 @@ pub async fn send_chat_request_and_parse_stream(
                         error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.lock().await, e);
                         should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
+                            if let Err(e2) = clean_up_unfinished_tool_calls(&mut conn, conversation_id).await {
+                                error!("Error in chatbot streaming and couldn't clean up tool calls: {e2}. Response id: {}", response_id.lock().await);
+                            };
                             return Err(e)?;
                         };
                         let event_string = error_event_string_from_message(None, Some(&e))?;
@@ -1566,9 +1569,9 @@ pub async fn send_chat_request_and_parse_stream(
                     Err(e) => {
                         error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.to_string(), e);
                         let full_response_as_string = full_response_text.lock().await.join("");
+                        let mut conn = pool.acquire().await?;
                         if !full_response_as_string.is_empty() {
                             // save the incomplete response received
-                            let mut conn = pool.acquire().await?;
                             let estimated_cost = estimate_tokens(&full_response_as_string);
                             models::chatbot_conversation_messages::update(
                                 &mut conn,
@@ -1580,6 +1583,9 @@ pub async fn send_chat_request_and_parse_stream(
                         };
                         should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
+                            if let Err(e2) = clean_up_unfinished_tool_calls(&mut conn, conversation_id).await {
+                                error!("Error in chatbot streaming and couldn't clean up tool calls: {e2}. Response id: {}", response_id.to_string());
+                            };
                             return Err(e)?;
                         };
                         let event_string = error_event_string_from_message(None, Some(&e))?;

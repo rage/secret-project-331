@@ -1535,7 +1535,6 @@
   "search": "Search",
   "search-field-placeholder": "Search...",
   "search-pages-container": "Search pages container",
-  "search-placeholder": "search",
   "search-result-placeholder-course-id": "default",
   "search-result-placeholder-phrase": "Search result for \"{{query}}\" (phrase)",
   "search-result-placeholder-url-1": "/search-result-1",

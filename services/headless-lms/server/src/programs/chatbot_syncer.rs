@@ -422,8 +422,7 @@ async fn sync_pages_batch(
         )
         .await
         {
-            let error_msg = format!("Failed to save converted page content in DB: {}", e);
-            warn!(error_msg);
+            warn!("Failed to save converted page content in DB: {}", e);
         };
 
         let blob_path = generate_blob_path(page)?;

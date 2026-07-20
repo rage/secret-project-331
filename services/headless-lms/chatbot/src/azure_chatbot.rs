@@ -777,14 +777,14 @@ pub async fn process_output_item(
                 message_type: OutputItem::AzureAiSearchCallOutput {
                     call_id,
                     output,
-                    response_id,
+                    response_id: response_id.to_owned(),
                 },
             }
             .to_chatbot_conversation_message(conversation_id)?;
 
             let conversation_message = chatbot_conversation_messages::insert(conn, message).await?;
 
-            chatbot_cited_documents_to_citations(
+            let res = chatbot_cited_documents_to_citations(
                 conn,
                 app_config.test_chatbot,
                 get_urls,
@@ -792,7 +792,13 @@ pub async fn process_output_item(
                 conversation_message.id,
                 conversation_id,
             )
-            .await?;
+            .await;
+
+            if let Err(e) = res {
+                error!(
+                    "Failed to save cited documents in the DB. Response id: {response_id} Error: {e}"
+                );
+            };
 
             ChatbotResult::Ok(conversation_message)
         }

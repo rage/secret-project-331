@@ -63,7 +63,7 @@ WHERE course_id = ANY($1)
 
 pub async fn save_markdown_content(
     conn: &mut PgConnection,
-    content: &String,
+    content: &str,
     page_id: Uuid,
 ) -> ModelResult<()> {
     sqlx::query!(
@@ -174,8 +174,8 @@ pub struct PageSyncedVersionContent {
 pub async fn get_latest_synced_page_content_by_page_id(
     conn: &mut PgConnection,
     page_id: Uuid,
-) -> ModelResult<PageSyncedVersionContent> {
-    let sync_status: PageSyncedVersionContent = sqlx::query_as!(
+) -> ModelResult<Option<PageSyncedVersionContent>> {
+    let sync_status = sqlx::query_as!(
         PageSyncedVersionContent,
         r#"
 SELECT ph.content AS json_content,
@@ -199,7 +199,7 @@ WHERE ph.id IN (
     "#,
         page_id,
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
 
     Ok(sync_status)

@@ -238,6 +238,7 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotCon
 UPDATE chatbot_conversation_messages
 SET deleted_at = NOW()
 WHERE id = $1
+  AND deleted_at IS NULL
 RETURNING *
         "#,
         id
@@ -282,6 +283,7 @@ pub async fn delete_hanging_tool_call_messages_for_conversation(
 UPDATE chatbot_conversation_messages
 SET deleted_at = NOW()
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
+  AND deleted_at IS NULL
 RETURNING *
         "#,
             &ids
@@ -309,6 +311,7 @@ pub async fn update(
 UPDATE chatbot_conversation_messages
 SET updated_at = NOW()
 WHERE id = $1
+  AND deleted_at IS NULL
 RETURNING *
         "#,
         id

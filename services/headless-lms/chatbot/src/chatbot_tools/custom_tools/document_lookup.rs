@@ -89,9 +89,9 @@ impl ChatbotTool for DocumentLookupTool {
         let page_title = url_decode(&arguments.title)?;
         arguments.title = page_title;
 
-        let page = headless_lms_models::chatbot_page_sync_statuses::get_latest_synced_page_content_by_page_id(conn, page_id).await?;
+        let page_option = headless_lms_models::chatbot_page_sync_statuses::get_latest_synced_page_content_by_page_id(conn, page_id).await?;
 
-        let document =
+        let document = if let Some(page) = page_option {
             // Check if the titles match and the page is part of the same course as
             // the one the user is on.
             if page.title == arguments.title && page.course_id == course_id {
@@ -100,10 +100,15 @@ impl ChatbotTool for DocumentLookupTool {
                     Some(content)
                 } else if let Some(json) = page.json_content {
                     Some(serde_json::to_string(&json)?)
-                } else { None }
+                } else {
+                    None
+                }
             } else {
                 None
-            };
+            }
+        } else {
+            None
+        };
 
         Ok(DocumentLookupTool {
             state: DocumentLookupState { document },

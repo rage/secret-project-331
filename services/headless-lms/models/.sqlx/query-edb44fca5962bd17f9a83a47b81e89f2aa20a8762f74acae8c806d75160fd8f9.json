@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_conversation_messages\nSET deleted_at = NOW()\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\nRETURNING *\n        ",
+  "query": "\nUPDATE chatbot_conversation_messages\nSET deleted_at = NOW()\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  AND deleted_at IS NULL\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -84,5 +84,5 @@
       false
     ]
   },
-  "hash": "33c5bcd0967d4d0fe526bc276e2b57363fc96c092f5f801f749dcfd1cf3c05ce"
+  "hash": "edb44fca5962bd17f9a83a47b81e89f2aa20a8762f74acae8c806d75160fd8f9"
 }

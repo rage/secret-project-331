@@ -1043,6 +1043,8 @@ pub async fn get_page_info_special_for_course(
         ON m.id = c.course_module_id
     WHERE p.course_id = $1
     AND p.deleted_at IS NULL
+    AND c.deleted_at IS NULL
+    AND m.deleted_at IS NULL
     AND p.hidden IS DISTINCT FROM $2
         "#,
         course_id,

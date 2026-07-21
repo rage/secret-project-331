@@ -23,6 +23,18 @@ bin/create-exercise-service
 
 It generates a standalone TanStack Start (rsbuild bundler) service from `services/example-exercise`, with the shared exercise code vendored into `src/shared-module/`. See `shared-module/packages/create-exercise-service/README.md` for the prompts and what gets generated. The rest of this document explains the protocol the generated service implements.
 
+### Shared packages on npm
+
+The exercise-service helper packages are published to npm under the `@moocfi` scope, so a plugin developed outside this repo can depend on them directly instead of copying source:
+
+- `@moocfi/exercise-protocol` - protocol types, guards, and constants (zero dependencies)
+- `@moocfi/exercise-client` - framework-agnostic iframe runtime engines
+- `@moocfi/exercise-react` - React hooks, contexts, components, and styles
+- `@moocfi/exercise-iframe-host` - host-side `MessageChannelIFrame` (for embedders)
+- `@moocfi/exercise-service-test-utils` - host emulator and Playwright helpers for tests
+
+They ship ESM and expose the same deep import paths the in-repo code uses (for example `@moocfi/exercise-react/react/hooks/useFileUpload`). See `shared-module/Readme.md` for how these are built and released.
+
 ## Overview
 
 Plugins add new exercise types to the system. Each plugin is an independent web application hosted on a separate server and must implement the following:

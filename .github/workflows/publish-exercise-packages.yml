@@ -1,0 +1,103 @@
+name: publish-exercise-packages
+
+# Publishes the @moocfi/exercise-* packages to npm for external exercise-plugin authors. The repo's
+# own services keep vendoring the source via shared-module/sync.ts and are unaffected by this.
+#
+# Trigger: push a tag named `exercise-packages-vX.Y.Z` (the keyword prefix distinguishes these
+# releases from application deploy tags). All published packages release together at that version.
+#
+# Auth: npm trusted publishing via OIDC (no NPM_TOKEN). Before the first run, each package must be
+# published once manually and then have a trusted publisher configured on npmjs.com pointing at this
+# repo + this workflow filename + the `npm-publish` environment. See docs/plugin-system.md.
+
+on:
+  push:
+    tags:
+      - "exercise-packages-v*"
+
+# Least privilege. id-token:write lets the job mint the short-lived OIDC token npm exchanges for
+# publish access; it is the only credential used.
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    # Gated environment: mirror this name in each package's npm trusted-publisher config so npm only
+    # accepts tokens minted from this context. Add required reviewers on the environment for a manual
+    # approval gate before anything is published.
+    environment: npm-publish
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # Keep in sync with package.json devEngines.runtime.
+          node-version: "24.18.0"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Setup pnpm
+        run: |
+          corepack enable
+          # Keep in sync with the root packageManager field (>= a fixed pnpm 11.x for OIDC publish).
+          corepack prepare pnpm@11.9.0 --activate
+          echo "node $(node -v), pnpm $(pnpm -v), npm $(npm -v)"
+
+      - name: Derive release version from tag
+        id: version
+        run: |
+          version="${GITHUB_REF_NAME#exercise-packages-v}"
+          if ! echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "Tag '$GITHUB_REF_NAME' did not yield a semver version (got '$version')." >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Releasing @moocfi/exercise-* at $version"
+
+      # Install + build BEFORE stamping the manifests: the build externalizes sibling packages, so it
+      # does not need them installed, and building first keeps package.json in sync with each frozen
+      # lockfile (avoids verifyDepsBeforeRun trying to install the not-yet-published siblings).
+      - name: Install and build each package
+        run: |
+          set -euo pipefail
+          for pkg in exercise-protocol exercise-client exercise-iframe-host exercise-service-test-utils exercise-react; do
+            dir="shared-module/packages/$pkg"
+            echo "::group::build $pkg"
+            pnpm -C "$dir" install --frozen-lockfile
+            # exercise-protocol ships generated type guards — regenerate and fail if they drifted.
+            if [ "$pkg" = "exercise-protocol" ]; then
+              pnpm -C "$dir" run generate-guards
+              if ! git diff --quiet -- "$dir/src"; then
+                echo "Generated guards are stale; run 'pnpm run generate-guards' and commit." >&2
+                exit 1
+              fi
+            fi
+            pnpm -C "$dir" build
+            echo "::endgroup::"
+          done
+
+      - name: Install shared-module tooling
+        run: pnpm -C shared-module install --frozen-lockfile
+
+      - name: Stamp version and inject inter-package dependencies
+        run: pnpm -C shared-module exec tsx scripts/prepare-npm-release.ts "${{ steps.version.outputs.version }}"
+
+      # Publish in dependency order so a consumer never sees a package whose @moocfi/* dependency
+      # version is not on the registry yet. OIDC provides auth; provenance is emitted automatically
+      # (publishConfig.provenance is also set as a belt-and-suspenders default).
+      - name: Publish each package
+        env:
+          NPM_CONFIG_PROVENANCE: "true"
+          # The manifests now list injected sibling deps that are intentionally absent from
+          # node_modules (the build already externalized them); do not re-verify before publishing.
+          npm_config_verify_deps_before_run: "false"
+        run: |
+          set -euo pipefail
+          for pkg in exercise-protocol exercise-client exercise-iframe-host exercise-service-test-utils exercise-react; do
+            dir="shared-module/packages/$pkg"
+            echo "::group::publish $pkg"
+            pnpm -C "$dir" publish --no-git-checks --access public
+            echo "::endgroup::"
+          done

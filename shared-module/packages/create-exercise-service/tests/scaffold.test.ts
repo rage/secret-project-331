@@ -88,6 +88,8 @@ describe("scaffoldReactProject", () => {
     assert.equal(pkg.name, PROJECT_NAME)
     assert.equal(pkg.version, "0.1.0")
     assert.match(pkg.scripts.dev, new RegExp(`--port ${PORT}\\b`))
+    // Standalone projects have no monorepo-wide tsc-check-all, so the scaffolder adds a typecheck script.
+    assert.equal(pkg.scripts.typecheck, "tsc --noEmit")
     // Dependencies pulled in from the vendored shared packages.
     assert.ok(pkg.dependencies.immer, "immer should be merged in from exercise-client")
     assert.ok(pkg.dependencies["@emotion/react"], "emotion should be merged in from exercise-react")

@@ -244,6 +244,12 @@ async function buildPackageJson(
     pkg.scripts.dev = pkg.scripts.dev.replace(/--port\s+\d+/, `--port ${port}`)
   }
 
+  // A standalone project has no monorepo-wide `bin/tsc-check-all`, so give it a one-command type
+  // check. The template already ships `typescript` and a `tsconfig.json` with `noEmit`.
+  if (pkg.scripts) {
+    pkg.scripts.typecheck = "tsc --noEmit"
+  }
+
   await writeFile(join(projectPath, "package.json"), JSON.stringify(pkg, null, 2) + "\n")
 }
 

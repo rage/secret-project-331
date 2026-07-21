@@ -22,6 +22,9 @@ export type StudentsSortColumn = "last_name" | "first_name" | "email"
 /** Detail subtabs (Completions/Progress/Certificates) only render the Student column as sortable. */
 export const DETAIL_SORT_COLUMNS: StudentsSortColumn[] = ["last_name"]
 
+/** Users tab: Student column sorts by last_name, Email column by email. */
+export const USERS_SORT_COLUMNS: StudentsSortColumn[] = ["last_name", "email"]
+
 export interface StudentsListParams {
   page: number
   limit: number

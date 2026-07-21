@@ -1,5 +1,13 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { type Dispatch, type SetStateAction, useCallback, useEffect, useRef, useState } from "react"
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react"
 
 import useDebouncedValue from "./useDebouncedValue"
 
@@ -13,6 +21,7 @@ export interface UseUrlSyncedDebouncedQueryResult {
   setInputValue: Dispatch<SetStateAction<string>>
   queryValue: string
   runImmediate: () => void
+  isPending: boolean
 }
 
 /** Owns debounced input and URL-backed query state for a single search param. */
@@ -34,6 +43,8 @@ const useUrlSyncedDebouncedQuery = ({
 
   const [inputValue, setInputValue] = useState(urlInputValue)
   const [queryValue, setQueryValue] = useState(urlQueryValue)
+  // Drives `isPending` for the debounced-typing path so the search spinner shows while it commits.
+  const [isPending, startQueryTransition] = useTransition()
 
   const trimmedInputValue = inputValue.trim()
   const debouncedInputValue = useDebouncedValue(trimmedInputValue, delayMs)
@@ -67,7 +78,9 @@ const useUrlSyncedDebouncedQuery = ({
       return
     }
     if (debouncedInputValue !== queryValue) {
-      setQueryValue(debouncedInputValue)
+      startQueryTransition(() => {
+        setQueryValue(debouncedInputValue)
+      })
     }
   }, [debouncedInputValue, queryValue, trimmedInputValue, urlInputValueChanged])
 
@@ -91,7 +104,10 @@ const useUrlSyncedDebouncedQuery = ({
     router.replace(newUrl)
   }, [paramName, pathname, queryValue, router, searchParams, urlInputValueChanged])
 
-  /** Applies the current trimmed input as the executed query without waiting for debounce. */
+  /**
+   * Applies the current trimmed input as the query without waiting for the debounce. Committed urgently
+   * (not in a transition) so Enter runs the search promptly and is never deferred behind other updates.
+   */
   const runImmediate = useCallback(() => {
     if (trimmedInputValue === queryValue) {
       return
@@ -99,7 +115,7 @@ const useUrlSyncedDebouncedQuery = ({
     setQueryValue(trimmedInputValue)
   }, [queryValue, trimmedInputValue])
 
-  return { inputValue, setInputValue, queryValue, runImmediate }
+  return { inputValue, setInputValue, queryValue, runImmediate, isPending }
 }
 
 export default useUrlSyncedDebouncedQuery

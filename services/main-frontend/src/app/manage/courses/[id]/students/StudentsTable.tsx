@@ -3,14 +3,17 @@
 import { css, cx } from "@emotion/css"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import type { ColumnDef, OnChangeFn, SortingState } from "@tanstack/react-table"
-import { useVirtualizer } from "@tanstack/react-virtual"
-import React, { useCallback, useRef } from "react"
+import { useWindowVirtualizer } from "@tanstack/react-virtual"
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 import { colorPairs } from "./studentsTableColors"
 import {
+  floatingHeaderInnerCss,
+  floatingHeaderShellCss,
+  floatingHeaderShellDynamic,
   headerRowStyle,
   headerUnderlineCss,
   lastRowTdStyle,
@@ -19,7 +22,6 @@ import {
   PAD,
   rowStyle,
   sortableThCss,
-  stickyTheadCss,
   tableEmptyCell,
   tableStyle,
   tableViewportCss,
@@ -95,18 +97,190 @@ export function StudentsTable<T extends object>({
   const rows = table.getRowModel().rows
   const leafCount = table.getVisibleLeafColumns().length
 
-  const scrollRef = useRef<HTMLDivElement | null>(null)
-  const rowVirtualizer = useVirtualizer({
+  // No longer a scroll container: rows virtualize against the window's scroll position, so this
+  // ref is only a measurement anchor (offsetTop for scrollMargin, getBoundingClientRect for the
+  // floating header).
+  const tableWrapperRef = useRef<HTMLDivElement | null>(null)
+  const scrollMarginRef = useRef(0)
+  const [, forceRemeasure] = useState(0)
+
+  const measureScrollMargin = useCallback(() => {
+    const wrapper = tableWrapperRef.current
+    // Document-absolute top (getBoundingClientRect + scrollY), not offsetTop: the window virtualizer
+    // measures from the document top, but offsetTop is relative to the nearest positioned ancestor
+    // (layout.tsx's position: relative BreakFromCentered), which would place virtualized rows too high.
+    scrollMarginRef.current = wrapper ? wrapper.getBoundingClientRect().top + window.scrollY : 0
+  }, [])
+
+  useLayoutEffect(() => {
+    measureScrollMargin()
+    // Bump state so useWindowVirtualizer picks up the freshly measured scrollMargin on this same
+    // paint, instead of waiting for the next scroll event.
+    forceRemeasure((n) => n + 1)
+  }, [data, measureScrollMargin])
+
+  const rowVirtualizer = useWindowVirtualizer({
     count: rows.length,
-    getScrollElement: () => scrollRef.current,
     estimateSize: () => ESTIMATED_ROW_HEIGHT,
     overscan: 12,
+    scrollMargin: scrollMarginRef.current,
   })
 
   const virtualItems = rowVirtualizer.getVirtualItems()
-  const paddingTop = virtualItems[0]?.start ?? 0
+  const scrollMargin = rowVirtualizer.options.scrollMargin
+  const paddingTop = (virtualItems[0]?.start ?? 0) - scrollMargin
   const lastVirtualItem = virtualItems[virtualItems.length - 1]
-  const paddingBottom = lastVirtualItem ? rowVirtualizer.getTotalSize() - lastVirtualItem.end : 0
+  // getTotalSize() already has scrollMargin subtracted out (it's the list's local size), while
+  // virtualItem.start/.end are document-absolute (they include scrollMargin) -- add scrollMargin
+  // back so both sides of the subtraction are in the same (local) coordinate space.
+  const paddingBottom = lastVirtualItem
+    ? rowVirtualizer.getTotalSize() + scrollMargin - lastVirtualItem.end
+    : 0
+
+  // Floating header: a second copy of the <thead>, rendered from the same react-table state so
+  // sort/ARIA state can never drift out of sync, shown as position: fixed once the real header
+  // scrolls above the viewport. Needed because tableSection (layout.tsx) keeps overflow-x: auto
+  // for wide-table horizontal scroll on narrow viewports, and CSS auto-promotes overflow-y to
+  // auto whenever overflow-x isn't visible -- which would silently break a plain CSS
+  // `position: sticky` header's ability to track the *window's* scroll instead of that
+  // ancestor's (permanently-zero) scroll offset.
+  const realTableRef = useRef<HTMLTableElement | null>(null)
+  const theadRef = useRef<HTMLTableSectionElement | null>(null)
+  const floatingInnerRef = useRef<HTMLDivElement | null>(null)
+  const horizontalScrollElRef = useRef<HTMLElement | null>(null)
+  const horizontalRafRef = useRef<number | null>(null)
+  const showHeaderRafRef = useRef<number | null>(null)
+
+  const [showFloatingHeader, setShowFloatingHeader] = useState(false)
+  const [floatingRect, setFloatingRect] = useState({ left: 0, width: 0 })
+  const [headerMeasurements, setHeaderMeasurements] = useState<{
+    widths: Record<string, number>
+    tableWidth: number
+  }>({ widths: {}, tableWidth: 0 })
+
+  const measureHeader = useCallback(() => {
+    const theadEl = theadRef.current
+    const tableEl = realTableRef.current
+    if (!theadEl || !tableEl) {
+      return
+    }
+    const widths: Record<string, number> = {}
+    theadEl.querySelectorAll<HTMLTableCellElement>("th[data-header-id]").forEach((th) => {
+      const id = th.getAttribute("data-header-id")
+      if (id) {
+        widths[id] = th.getBoundingClientRect().width
+      }
+    })
+    setHeaderMeasurements({ widths, tableWidth: tableEl.getBoundingClientRect().width })
+  }, [])
+
+  const measureFloatingRect = useCallback(() => {
+    const wrapper = tableWrapperRef.current
+    if (!wrapper) {
+      return
+    }
+    const rect = wrapper.getBoundingClientRect()
+    setFloatingRect({ left: rect.left, width: rect.width })
+  }, [])
+
+  const updateShowFloatingHeader = useCallback(() => {
+    const wrapper = tableWrapperRef.current
+    const theadEl = theadRef.current
+    if (!wrapper || !theadEl) {
+      return
+    }
+    const rect = wrapper.getBoundingClientRect()
+    const headerHeight = theadEl.getBoundingClientRect().height
+    setShowFloatingHeader(rect.top < 0 && rect.bottom > headerHeight)
+  }, [])
+
+  // Re-measure header cell widths whenever the rendered content could change column widths, and
+  // re-check pin state since a shorter/taller page can push the table above/below the threshold.
+  useLayoutEffect(() => {
+    measureHeader()
+    updateShowFloatingHeader()
+  }, [data, columns, measureHeader, updateShowFloatingHeader])
+
+  // The floating header's inner wrapper is a fresh DOM node each time it mounts (it only exists
+  // while showFloatingHeader is true), so it starts untransformed -- sync it to the current
+  // horizontal scroll position immediately, otherwise it renders misaligned until the next
+  // horizontal scroll event.
+  useLayoutEffect(() => {
+    if (showFloatingHeader && floatingInnerRef.current) {
+      const x = horizontalScrollElRef.current?.scrollLeft ?? 0
+      floatingInnerRef.current.style.transform = `translateX(-${x}px)`
+    }
+  }, [showFloatingHeader])
+
+  useEffect(() => {
+    // Header cell widths and pin state are already measured before paint by the useLayoutEffect
+    // above (on mount and on every data/columns change); only the floating rect is measured here.
+    measureFloatingRect()
+
+    const wrapper = tableWrapperRef.current
+    horizontalScrollElRef.current =
+      wrapper?.closest<HTMLElement>("[data-students-horizontal-scroll]") ?? null
+
+    // rAF-throttle the pin check so a scroll burst does at most one pair of layout reads per frame,
+    // matching the horizontal-scroll handler below.
+    const onWindowScroll = () => {
+      if (showHeaderRafRef.current !== null) {
+        return
+      }
+      showHeaderRafRef.current = requestAnimationFrame(() => {
+        showHeaderRafRef.current = null
+        updateShowFloatingHeader()
+      })
+    }
+    window.addEventListener("scroll", onWindowScroll, { passive: true })
+
+    const onWindowResize = () => {
+      measureFloatingRect()
+      measureHeader()
+      measureScrollMargin()
+    }
+    window.addEventListener("resize", onWindowResize)
+
+    const ro = new ResizeObserver(() => {
+      measureFloatingRect()
+      measureHeader()
+      measureScrollMargin()
+    })
+    if (wrapper) {
+      ro.observe(wrapper)
+    }
+
+    const applyHorizontalTransform = (x: number) => {
+      if (floatingInnerRef.current) {
+        floatingInnerRef.current.style.transform = `translateX(-${x}px)`
+      }
+    }
+    const onHorizontalScroll = () => {
+      if (horizontalRafRef.current !== null) {
+        return
+      }
+      horizontalRafRef.current = requestAnimationFrame(() => {
+        horizontalRafRef.current = null
+        applyHorizontalTransform(horizontalScrollElRef.current?.scrollLeft ?? 0)
+      })
+    }
+    const horizontalScrollEl = horizontalScrollElRef.current
+    horizontalScrollEl?.addEventListener("scroll", onHorizontalScroll, { passive: true })
+    applyHorizontalTransform(horizontalScrollEl?.scrollLeft ?? 0)
+
+    return () => {
+      window.removeEventListener("scroll", onWindowScroll)
+      window.removeEventListener("resize", onWindowResize)
+      ro.disconnect()
+      horizontalScrollEl?.removeEventListener("scroll", onHorizontalScroll)
+      if (horizontalRafRef.current !== null) {
+        cancelAnimationFrame(horizontalRafRef.current)
+      }
+      if (showHeaderRafRef.current !== null) {
+        cancelAnimationFrame(showHeaderRafRef.current)
+      }
+    }
+  }, [measureFloatingRect, measureHeader, measureScrollMargin, updateShowFloatingHeader])
 
   interface HeaderBgArg {
     colSpan: number
@@ -136,8 +310,8 @@ export function StudentsTable<T extends object>({
   const headerGroups = table.getHeaderGroups()
   const headerRowCount = headerGroups.length
 
-  const renderTableHead = () => (
-    <thead className={stickyTheadCss}>
+  const renderTableHead = (floating: boolean) => (
+    <thead ref={floating ? undefined : theadRef}>
       {headerGroups.map((headerGroup, rowIdx) => {
         let chapterCount = 0
         return (
@@ -194,10 +368,12 @@ export function StudentsTable<T extends object>({
 
               const canSort = header.column.getCanSort()
               const sortDirection = header.column.getIsSorted()
+              const measuredWidth = headerMeasurements.widths[header.id]
 
               return (
                 <th
                   key={header.id}
+                  data-header-id={header.id}
                   aria-sort={
                     sortDirection === "asc"
                       ? "ascending"
@@ -209,7 +385,7 @@ export function StudentsTable<T extends object>({
                   }
                   onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                   onKeyDown={
-                    canSort
+                    !floating && canSort
                       ? (e) => {
                           if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault()
@@ -218,7 +394,15 @@ export function StudentsTable<T extends object>({
                         }
                       : undefined
                   }
-                  tabIndex={canSort ? 0 : undefined}
+                  tabIndex={!floating && canSort ? 0 : undefined}
+                  /* oxlint-disable-next-line react/forbid-dom-props -- freezes the floating
+                  header's column widths to match the real (measured) header so they stay
+                  pixel-aligned. */
+                  style={
+                    floating && typeof measuredWidth === "number"
+                      ? { width: measuredWidth, minWidth: measuredWidth, maxWidth: measuredWidth }
+                      : undefined
+                  }
                   className={cx(
                     thStyle,
                     canSort && sortableThCss,
@@ -436,9 +620,26 @@ export function StudentsTable<T extends object>({
   }
 
   return (
-    <div className={tableViewportCss} ref={scrollRef}>
-      <table className={tableStyle}>
-        {renderTableHead()}
+    <div className={tableViewportCss} ref={tableWrapperRef}>
+      {showFloatingHeader && (
+        <div
+          aria-hidden="true"
+          className={cx(
+            floatingHeaderShellCss,
+            floatingHeaderShellDynamic(floatingRect.left, floatingRect.width),
+          )}
+        >
+          <div ref={floatingInnerRef} className={floatingHeaderInnerCss}>
+            {/* oxlint-disable-next-line react/forbid-dom-props -- freezes the floating table's
+            overall width to match the real (measured) table so columns stay pixel-aligned. */}
+            <table className={tableStyle} style={{ width: headerMeasurements.tableWidth }}>
+              {renderTableHead(true)}
+            </table>
+          </div>
+        </div>
+      )}
+      <table className={tableStyle} ref={realTableRef}>
+        {renderTableHead(false)}
         {renderTableBody()}
       </table>
     </div>

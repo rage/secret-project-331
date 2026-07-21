@@ -40,6 +40,17 @@ fi
 
 echo ""
 
+echo "Checking if certificate seed fonts are hydrated"
+SEED_FONTS_PATH="services/headless-lms/server/src/programs/seed/data"
+GIT_ROOT="$(git -C "$BASEDIR" rev-parse --show-toplevel)"
+if (cd "$GIT_ROOT" && git grep -I -l -m 1 "version https://git-lfs.github.com/spec/v1" -- "$SEED_FONTS_PATH") > /dev/null 2>&1; then
+  echo "Certificate seed fonts are git-lfs pointer files, please run: git lfs pull --include=\"$SEED_FONTS_PATH\""
+  exit 255
+fi
+echo "Certificate seed fonts are hydrated"
+
+echo ""
+
 DOMAIN="project-331.local"
 HOSTS_FILE="/etc/hosts"
 

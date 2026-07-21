@@ -3,7 +3,7 @@
 
 import { css } from "@emotion/css"
 import type { ColumnDef } from "@tanstack/react-table"
-import React, { useMemo } from "react"
+import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -21,12 +21,17 @@ import {
   useCourseStudentsProgressStructure,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
+import { StaleTableWrapper } from "./StaleTableWrapper"
+import { StudentPillCell } from "./StudentPillCell"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
 type ProgressRow = {
   user_id: string
   student: string
+  first_name?: string | null | undefined
+  last_name?: string | null | undefined
+  email?: string | null | undefined
   total_points: number
   total_attempted: number
 } & Partial<Record<ChapterCellKey, number | string | React.ReactNode | undefined>>
@@ -46,9 +51,20 @@ export const ProgressTabContent: React.FC = () => {
   const structureQuery = useCourseStudentsProgressStructure(courseId)
   const detailQuery = useCourseStudentsProgressDetail(courseId, userIds)
 
+  // Deferred *after* userIds/detailQuery are derived so a search/sort/page commit still fires the
+  // detail request promptly -- only the expensive per-user/per-chapter aggregation below is
+  // deprioritized.
+  const deferredIdentityRows = useDeferredValue(identityRows)
+  const deferredStructureData = useDeferredValue(structureQuery.data)
+  const deferredDetailData = useDeferredValue(detailQuery.data)
+  const isStale =
+    deferredIdentityRows !== identityRows ||
+    deferredStructureData !== structureQuery.data ||
+    deferredDetailData !== detailQuery.data
+
   const { allRows, dynamicColumns } = useMemo(() => {
-    const structure = structureQuery.data
-    const detail = detailQuery.data
+    const structure = deferredStructureData
+    const detail = deferredDetailData
     if (!structure || !detail) {
       return {
         allRows: [] as ProgressRow[],
@@ -85,8 +101,14 @@ export const ProgressTabContent: React.FC = () => {
         // oxlint-disable-next-line i18next/no-literal-string
         id: "last_name",
         header: t("label-student"),
-        // oxlint-disable-next-line i18next/no-literal-string
-        accessorKey: "student",
+        cell: ({ row }) => (
+          <StudentPillCell
+            userId={row.original.user_id}
+            firstName={row.original.first_name}
+            lastName={row.original.last_name}
+            email={row.original.email}
+          />
+        ),
       },
       {
         header: t("total"),
@@ -159,11 +181,14 @@ export const ProgressTabContent: React.FC = () => {
     }
 
     // --- rows (identity provides the student list + order)
-    const rows: ProgressRow[] = identityRows.map((u) => {
+    const rows: ProgressRow[] = deferredIdentityRows.map((u) => {
       const totals = totalsByUser[u.user_id] ?? { total_points: 0, total_attempted: 0 }
       const row: ProgressRow = {
         user_id: u.user_id,
         student: formatStudentName(u, t),
+        first_name: u.first_name,
+        last_name: u.last_name,
+        email: u.email,
         total_points: totals.total_points,
         total_attempted: totals.total_attempted,
       }
@@ -207,7 +232,7 @@ export const ProgressTabContent: React.FC = () => {
     })
 
     return { allRows: rows, dynamicColumns: cols }
-  }, [structureQuery.data, detailQuery.data, identityRows, t])
+  }, [deferredStructureData, deferredDetailData, deferredIdentityRows, t])
 
   if (identityQuery.isError) {
     return <ErrorBanner error={identityQuery.error} />
@@ -227,15 +252,17 @@ export const ProgressTabContent: React.FC = () => {
   }
 
   return (
-    <StudentsTable
-      columns={dynamicColumns}
-      data={allRows}
-      colorHeaders
-      colorColumns
-      colorHeaderUnderline
-      progressMode
-      sorting={sorting}
-      onSortingChange={onSortingChange}
-    />
+    <StaleTableWrapper isStale={isStale}>
+      <StudentsTable
+        columns={dynamicColumns}
+        data={allRows}
+        colorHeaders
+        colorColumns
+        colorHeaderUnderline
+        progressMode
+        sorting={sorting}
+        onSortingChange={onSortingChange}
+      />
+    </StaleTableWrapper>
   )
 }

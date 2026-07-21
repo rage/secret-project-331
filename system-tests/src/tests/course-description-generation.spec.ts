@@ -130,8 +130,9 @@ test.describe("Course metadata generation", () => {
 
   test.describe("Course prerequisites generation", () => {
     test("Teacher can generate and add suggested prerequisites", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
@@ -149,8 +150,9 @@ test.describe("Course metadata generation", () => {
     })
 
     test("Teacher can add new prerequisite", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await page.getByRole("button", { name: "Add new prerequisite" }).click()
       await page.getByRole("textbox", { name: "Prerequisite 3" }).fill("this should be visible")
@@ -164,8 +166,9 @@ test.describe("Course metadata generation", () => {
     })
 
     test("Teacher can remove suggested prerequisite", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await page
         .getByRole("textbox", { name: "Prerequisite 2" })
@@ -179,8 +182,9 @@ test.describe("Course metadata generation", () => {
     })
 
     test("No duplicate prerequisites added", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
@@ -195,8 +199,9 @@ test.describe("Course metadata generation", () => {
     })
 
     test("Prerequisites not added if use suggested unticked", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await page.getByRole("textbox", { name: "Prerequisite 1" }).click()
       await page.getByRole("textbox", { name: "Prerequisite 1" }).fill("should not be added")
@@ -214,8 +219,9 @@ test.describe("Course metadata generation", () => {
     })
 
     test("Old prerequisites are replaced", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
@@ -243,20 +249,22 @@ test.describe("Course metadata generation", () => {
 
   test.describe("Course audience generation", () => {
     test("Teacher can generate and add suggested audiences", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
       })
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await waitForSpinnersToDisappear(page)
-      await expect(page.getByRole("listitem").filter({ hasText: "students" })).toBeVisible()
+      await expect(page.getByRole("listitem").filter({ hasText: "everyone" })).toBeVisible()
     })
 
     test("Teacher can add new audience", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await page.getByRole("button", { name: "Add new audience" }).click()
       await page.getByRole("textbox", { name: "Audience 2" }).fill("this should be visible")
@@ -270,8 +278,9 @@ test.describe("Course metadata generation", () => {
     })
 
     test("Teacher can remove suggested audience", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await page.getByRole("textbox", { name: "Audience 1" }).fill("this should be not be visible")
       await page.getByRole("button", { name: "Remove" }).nth(2).click()
@@ -286,8 +295,9 @@ test.describe("Course metadata generation", () => {
     })
 
     test("No duplicate audiences added", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
@@ -298,12 +308,13 @@ test.describe("Course metadata generation", () => {
       })
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await waitForSpinnersToDisappear(page)
-      await expect(page.getByRole("listitem").filter({ hasText: "students" })).toHaveCount(1)
+      await expect(page.getByRole("listitem").filter({ hasText: "everyone" })).toHaveCount(1)
     })
 
     test("Audiences not added if use suggested unticked", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await page.getByRole("textbox", { name: "Audience" }).click()
       await page.getByRole("textbox", { name: "Audience" }).fill("not here")
@@ -321,8 +332,9 @@ test.describe("Course metadata generation", () => {
     })
 
     test("Old audiences are replaced", async ({ page }) => {
-      await page.goto("http://project-331.local/")
-      await page.getByRole("link", { name: "Manage course 'Description" }).click()
+      await page.goto(
+        "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
+      )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
@@ -336,7 +348,7 @@ test.describe("Course metadata generation", () => {
       })
       await page.getByRole("button", { name: "Suggest metadata" }).click()
       await waitForSpinnersToDisappear(page)
-      await expect(page.getByRole("listitem").filter({ hasText: "students" })).toHaveCount(0)
+      await expect(page.getByRole("listitem").filter({ hasText: "everyone" })).toHaveCount(0)
       await expect(page.getByText("this replaces")).toBeVisible()
     })
   })

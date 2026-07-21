@@ -9871,6 +9871,37 @@
         }
       }
     },
+    "/api/v0/main-frontend/shared-submissions/{token}": {
+      "get": {
+        "tags": ["shared_submissions"],
+        "summary": "\nGET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed\nto render a shared submission.\n\nThe `token` is the unguessable share id minted by the exercise-services client\nshare endpoint. Login is required, but any authenticated user who holds the token\nmay view the submission — no teacher or course role is needed. Rendering reuses\nthe ordinary submission-info payload and `view-submission` iframe contract; for\neditor (native-client) submissions that currently means a download link rather\nthan inline code.",
+        "operationId": "getSharedSubmissionInfo",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Submission share token",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data needed to render the shared submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseSlideSubmissionInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/status/cronjobs": {
       "get": {
         "tags": ["status"],

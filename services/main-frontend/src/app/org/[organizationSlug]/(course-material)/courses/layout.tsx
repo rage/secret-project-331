@@ -30,9 +30,9 @@ function CourseMaterialLayout({
   })
 
   const jsonLd = {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     "@context": "https://schema.org",
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     "@type": "Course",
     name: metadataQuery.data?.course.name,
     description: metadataQuery.data?.course.description,
@@ -41,38 +41,38 @@ function CourseMaterialLayout({
       (prerequisite) => prerequisite.prerequisite,
     ),
     audience: metadataQuery.data?.course_audiences.map((audience) => ({
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "@type": "EducationalAudience",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       educationalRole: "student",
       audienceType: audience.audience,
     })),
     numberOfCredits: metadataQuery.data?.default_module.ects_credits,
     publisher: {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "@type": "Organization",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       name: metadataQuery.data?.course_organization.name,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
     },
     inLanguage: {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "@type": "Language",
       alternateName: metadataQuery.data?.course.language_code,
     },
     provider: {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "@type": "Organization",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       name: "MOOC.fi",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       sameAs: "https://www.mooc.fi/",
     },
     hasCourseInstance: metadataQuery.data?.course_instances.map((instance) => ({
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "@type": "CourseInstance",
       name: instance.name,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       courseMode: ["MOOC", "online"],
       startDate: instance.starts_at,
       endDate: instance.ends_at,

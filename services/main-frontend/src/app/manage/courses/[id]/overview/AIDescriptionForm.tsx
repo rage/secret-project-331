@@ -136,7 +136,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
         })),
       )
       if (sisuQuery.data.modules[0] === undefined) {
-        console.log("WHAT THE HELLY")
+        throw new Error("Encountered a course without modules")
       } else {
         setValue(
           "course_prerequisites",

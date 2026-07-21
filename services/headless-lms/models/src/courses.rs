@@ -1522,22 +1522,32 @@ pub async fn set_metadata(
     crate::course_audiences::delete_batch(conn, audiences_to_delete).await?;
     let audiences =
         crate::course_audiences::insert_course_audiences(conn, course_id, audiences_to_add).await?;
-    let course = sqlx::query_as!(
-        CourseDescription,
-        r#"
-UPDATE courses
-SET description = $1
-WHERE id = $2
-  AND deleted_at IS NULL
-    RETURNING id, description
-    "#,
-        course_metadata.course_description,
-        course_id
-    )
-    .fetch_one(conn)
-    .await?;
+
+    let course = get_course(conn, course_id).await?;
+
+    let update_payload = CourseUpdate {
+        name: course.name,
+        description: course_metadata.course_description,
+        is_draft: course.is_draft,
+        is_test_mode: course.is_test_mode,
+        can_add_chatbot: course.can_add_chatbot,
+        is_unlisted: course.is_unlisted,
+        is_joinable_by_code_only: course.is_joinable_by_code_only,
+        ask_marketing_consent: course.ask_marketing_consent,
+        flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or(0),
+        flagged_answers_skip_manual_review_and_allow_retry: course
+            .flagged_answers_skip_manual_review_and_allow_retry,
+        closed_at: course.closed_at,
+        closed_additional_message: course.closed_additional_message,
+        closed_course_successor_id: course.closed_course_successor_id,
+        chapter_locking_enabled: course.chapter_locking_enabled,
+        ai_policy: course.ai_policy,
+        course_material_ai_instructions: course.course_material_ai_instructions,
+    };
+    let updated_course = update_course(conn, course_id, update_payload).await?;
+
     let res = CourseMetadata {
-        course_description: course.description,
+        course_description: updated_course.description,
         course_audiences: audiences,
         course_prerequisites: prerequisites,
     };

@@ -3,6 +3,7 @@ import type { Locator, Page } from "@playwright/test"
 import { test } from "@playwright/test"
 
 import { selectOrganization } from "@/utils/organizationUtils"
+import { addQuizFeedbackMessage } from "@/utils/quizFeedbackMessages"
 
 import expectUrlPathWithRandomUuid from "../../utils/expect"
 import {
@@ -151,22 +152,19 @@ const createMultipleChoice = async (frame: Locator) => {
     await frame
       .getByRole("combobox", { name: "Multiple options grading policy" })
       .selectOption("points-off-incorrect-options")
-    await frame
-      .getByRole("group")
-      .filter({
-        hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
-      })
-      .getByLabel("Success message", { exact: true })
-      .click()
-    await frame
-      .getByRole("group")
-      .filter({
-        hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
-      })
-      .getByLabel("Success message", { exact: true })
-      .fill("Success message for feedback")
-    await frame.getByLabel("Failure message", { exact: true }).click()
-    await frame.getByLabel("Failure message", { exact: true }).fill("Failure message for feedback")
+    const advancedOptions = frame.getByRole("group").filter({
+      hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
+    })
+    await addQuizFeedbackMessage(
+      advancedOptions,
+      "After a correct answer",
+      "Success message for feedback",
+    )
+    await addQuizFeedbackMessage(
+      advancedOptions,
+      "After an incorrect answer",
+      "Failure message for feedback",
+    )
   })
 }
 
@@ -197,22 +195,19 @@ const createMultipleChoiceDropdown = async (frame: Locator) => {
       .locator("summary")
       .click()
 
-    await frame
-      .getByRole("group")
-      .filter({
-        hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
-      })
-      .getByLabel("Success message", { exact: true })
-      .click()
-    await frame
-      .getByRole("group")
-      .filter({
-        hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
-      })
-      .getByLabel("Success message", { exact: true })
-      .fill("success message for feedback")
-    await frame.getByLabel("Failure message", { exact: true }).click()
-    await frame.getByLabel("Failure message", { exact: true }).fill("failure message for feedback")
+    const advancedOptions = frame.getByRole("group").filter({
+      hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
+    })
+    await addQuizFeedbackMessage(
+      advancedOptions,
+      "After a correct answer",
+      "success message for feedback",
+    )
+    await addQuizFeedbackMessage(
+      advancedOptions,
+      "After an incorrect answer",
+      "failure message for feedback",
+    )
   })
 }
 
@@ -245,14 +240,16 @@ const createChooseN = async (frame: Locator) => {
       .first()
     await advancedOptionsAccordion.locator("summary").click()
     await scrollElementInsideIframeToView(advancedOptionsAccordion)
-    await advancedOptionsAccordion.getByLabel("Success message", { exact: true }).click()
-    await advancedOptionsAccordion
-      .getByLabel("Success message", { exact: true })
-      .fill("Success message for feedback")
-    await advancedOptionsAccordion.getByLabel("Failure message", { exact: true }).click()
-    await advancedOptionsAccordion
-      .getByLabel("Failure message", { exact: true })
-      .fill("Failure message for feedback")
+    await addQuizFeedbackMessage(
+      advancedOptionsAccordion,
+      "After a correct answer",
+      "Success message for feedback",
+    )
+    await addQuizFeedbackMessage(
+      advancedOptionsAccordion,
+      "After an incorrect answer",
+      "Failure message for feedback",
+    )
   })
 }
 

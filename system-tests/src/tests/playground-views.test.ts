@@ -37,23 +37,25 @@ test("Playground views works", async ({ page }) => {
   await page
     .getByText(
       `{
-  "private_spec": [
-    {
-      "name": "a",
-      "correct": true,`,
+  "private_spec": {
+    "version": "1",
+    "alternatives": [
+      {
+        "name": "a",
+        "correct": true,`,
     )
     .waitFor()
   await page.getByRole("button", { name: "Set as private spec input" }).click()
   await page
     .getByText(
-      `"name": "b"
-  }
-]`,
+      `"name": "b",
+        "correct": false,`,
     )
     .waitFor()
   await page
     .getByText(
       `{
+  "version": "1",
   "correctOptionIds": [`,
     )
     .waitFor()

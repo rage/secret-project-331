@@ -19,6 +19,7 @@
   "files": [
     "dist"
   ],
+  "type": "module",
   "sideEffects": false,
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
@@ -40,7 +41,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
+    "test": "vitest run"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
@@ -50,23 +51,22 @@
     "@arethetypeswrong/cli": "0.18.5",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
-    "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.24",
     "@types/node": "^26.0.1",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "@typescript/native": "npm:typescript@^7.0.2",
+    "@vitejs/plugin-react": "^6.0.3",
     "i18next": "^26.3.0",
-    "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1",
+    "jsdom": "^27.0.0",
     "msw": "^2.14.6",
-    "next": "^16.2.6",
     "publint": "0.3.21",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-i18next": "^17.0.8",
     "tsdown": "0.22.7",
-    "typescript": "npm:@typescript/typescript6@^6.0.2"
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vitest": "^4.1.9"
   },
   "peerDependencies": {
     "i18next": ">=23.0.0",

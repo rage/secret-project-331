@@ -4,10 +4,13 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { getAllChatbotsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getAllChatbotsOptions,
+  getAllCoursesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResults } from "@/shared-module/components"
 
 import ChatbotCommandCenter from "./ChatbotCommandCenter"
 
@@ -15,16 +18,23 @@ const ChatbotCommandCenterPage: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("link-text-chatbot-command-center"))
 
-  const chatbotQuery = useQuery({
+  const chatbotsQuery = useQuery({
     ...getAllChatbotsOptions(),
+  })
+
+  const coursesQuery = useQuery({
+    ...getAllCoursesOptions(),
   })
 
   return (
     <>
       <h1>{t("link-text-chatbot-command-center")}</h1>
-      <QueryResult query={chatbotQuery}>
-        {(data) => <ChatbotCommandCenter chatbots={data} />}
-      </QueryResult>
+      <QueryResults
+        queries={[chatbotsQuery, coursesQuery] as const}
+        renderData={([chatbotsData, coursesData]) => (
+          <ChatbotCommandCenter chatbots={chatbotsData} courses={coursesData} />
+        )}
+      />
     </>
   )
 }

@@ -1,45 +1,34 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
-import { getAllCoursesOptions } from "@/generated/api/@tanstack/react-query.generated"
-import type { ChatbotConfiguration } from "@/generated/api/types.generated"
+import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Select } from "@/shared-module/components"
 
-interface Props {
+interface ChatbotCommandCenterProps {
   chatbots: ChatbotConfiguration[]
+  courses: Course[]
 }
 
-const ChatbotCommandCenter = ({ chatbots }: Props) => {
+const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) => {
   const { t } = useTranslation()
   const { control, watch } = useForm<ChatbotConfiguration>({})
   const configuration_id = watch("id")
 
-  const courseQuery = useQuery({
-    ...getAllCoursesOptions(),
-  })
-
-  const chatbotsCoursesMerged = chatbots.map((chatbot) => {
-    const matched = courseQuery.data?.find((course) => course.id === chatbot.course_id)
-    return {
-      ...chatbot,
-      course_name: matched !== undefined ? matched.name : "",
-    }
-  })
-
   const chatbotOptions = useMemo(() => {
-    const grouped = chatbotsCoursesMerged.reduce(
+    const grouped = chatbots.reduce(
       (acc, chatbot) => {
-        if (!acc[chatbot.course_name]) {
-          acc[chatbot.course_name] = []
+        const matched = courses.find((course) => course.id === chatbot.course_id)
+        const courseName = matched !== undefined ? matched.name : ""
+        if (!acc[courseName]) {
+          acc[courseName] = []
         }
-        acc[chatbot.course_name]?.push({
+        acc[courseName]?.push({
           label: chatbot.chatbot_name,
           value: chatbot.id,
         })
@@ -52,7 +41,7 @@ const ChatbotCommandCenter = ({ chatbots }: Props) => {
       label: course,
       options,
     }))
-  }, [chatbotsCoursesMerged])
+  }, [chatbots, courses])
 
   return (
     <div>

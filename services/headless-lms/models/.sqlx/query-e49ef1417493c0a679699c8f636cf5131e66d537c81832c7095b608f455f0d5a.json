@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n    SELECT *\n    FROM chatbot_configurations\n    ",
+  "query": "\n    SELECT *\n    FROM chatbot_configurations\n    WHERE deleted_at IS NULL\n    ",
   "describe": {
     "columns": [
       {
@@ -359,5 +359,5 @@
       false
     ]
   },
-  "hash": "9392da60d79251184936d65c0dd32a3a617d5c8333de6eb7e073d0c5f3f478dc"
+  "hash": "e49ef1417493c0a679699c8f636cf5131e66d537c81832c7095b608f455f0d5a"
 }

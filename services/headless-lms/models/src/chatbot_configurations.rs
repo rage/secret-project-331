@@ -430,6 +430,7 @@ pub async fn get_all_chatbots(conn: &mut PgConnection) -> ModelResult<Vec<Chatbo
         r#"
     SELECT *
     FROM chatbot_configurations
+    WHERE deleted_at IS NULL
     "#,
     )
     .fetch_all(conn)

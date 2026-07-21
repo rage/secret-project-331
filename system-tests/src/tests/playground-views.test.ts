@@ -65,11 +65,11 @@ test("Playground views works", async ({ page }) => {
     page.frameLocator('iframe[title="PLAYGROUND"]').getByRole("checkbox", { name: "a" }),
   )
   await page.frameLocator('iframe[title="PLAYGROUND"]').getByRole("checkbox", { name: "a" }).click()
-  await page.getByText('{ "selectedOptionId": ').waitFor()
+  await page.getByText('{ "version": "1", "selectedOptionId": ').waitFor()
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Submit" }).click()
   })
-  await page.getByText('{ "selectedOptionId": ').first().waitFor()
+  await page.getByText('{ "version": "1", "selectedOptionId": ').first().waitFor()
   await page
     .getByText(
       `{

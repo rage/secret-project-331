@@ -34,11 +34,13 @@ export function postCurrentStateMessage(
   nextState: unknown,
   valid: boolean,
   wrapper?: string,
+  validityMessages?: string[],
 ): void {
   const message: CurrentStateMessage = {
     data: wrapper ? { [wrapper]: nextState } : nextState,
     message: "current-state",
     valid,
+    ...(validityMessages && validityMessages.length > 0 ? { validityMessages } : {}),
   }
   port.postMessage(message)
 }
@@ -64,6 +66,8 @@ export interface OutputStateEngine<OutputType> {
 export interface OutputStateEngineOptions<OutputType> {
   port?: MessagePort | null
   validate: (state: OutputType | null) => boolean
+  /** Optional already-localized reasons the state is not yet submittable; sent with `current-state`. */
+  getValidityMessages?: (state: OutputType | null) => string[]
   initialState?: OutputType | null
   /** Notified whenever the state changes (lets adapters mirror it into their own store). */
   onState?: (state: OutputType | null) => void
@@ -93,7 +97,13 @@ export function createOutputStateEngine<OutputType>(
         return state
       }
       const nextState = applyOutputStateUpdate(state, selector, func)
-      postCurrentStateMessage(port, nextState, options.validate(nextState), updateOptions?.wrapper)
+      postCurrentStateMessage(
+        port,
+        nextState,
+        options.validate(nextState),
+        updateOptions?.wrapper,
+        options.getValidityMessages?.(nextState),
+      )
       state = nextState
       options.onState?.(nextState)
       return nextState

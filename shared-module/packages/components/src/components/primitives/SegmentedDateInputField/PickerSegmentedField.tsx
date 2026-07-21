@@ -2,7 +2,9 @@
 
 import { cx } from "@emotion/css"
 import type { DateFieldState, useDatePickerState } from "@react-stately/datepicker"
+import { useRef } from "react"
 import type React from "react"
+import { mergeProps, useFocusWithin } from "react-aria"
 import type { DateFieldAria, DatePickerAria, DateValue, TimeValue } from "react-aria"
 
 import { composeRefs } from "../../../lib/utils/compositeField"
@@ -131,6 +133,34 @@ export function PickerSegmentedField({
     pickerState.isOpen,
   )
 
+  // The calendar popover is portaled outside this group, so focus moving into it reads as
+  // "leaving" the group. Keep the latest open-state in a ref so the blur handler can suppress
+  // committing blur (RHF touched / validate-on-blur) while the user interacts with the popover.
+  const isPopoverOpenRef = useRef(pickerState.isOpen)
+  isPopoverOpenRef.current = pickerState.isOpen
+
+  // Track focus entering/leaving the whole group with react-aria's focus-within helper instead of
+  // hand-rolled relatedTarget/contains checks (which mishandle relatedTarget === null and Safari,
+  // and previously fired twice via the nested field + group handlers).
+  const { focusWithinProps } = useFocusWithin({
+    onFocusWithin: () => {
+      emitSyntheticFocus(
+        hiddenInputRef.current,
+        externalOnFocus as React.FocusEventHandler<HTMLInputElement> | undefined,
+      )
+      setIsFocused(true)
+    },
+    onBlurWithin: () => {
+      setIsFocused(false)
+      if (!isPopoverOpenRef.current) {
+        emitSyntheticBlur(
+          hiddenInputRef.current,
+          externalOnBlur as React.FocusEventHandler<HTMLInputElement> | undefined,
+        )
+      }
+    },
+  })
+
   return (
     <FieldShell
       controlClassName={cx(resolveControlSurfaceCss(fieldSize, layout === "floating"))}
@@ -162,7 +192,7 @@ export function PickerSegmentedField({
       isInvalid={pickerState.isInvalid}
     >
       <div
-        {...pickerAria.groupProps}
+        {...mergeProps(pickerAria.groupProps, focusWithinProps)}
         ref={groupRef}
         className={segmentedPickerGroupCss}
         aria-describedby={describedBy}
@@ -170,30 +200,6 @@ export function PickerSegmentedField({
         aria-invalid={pickerState.isInvalid ? dataStateTrue : undefined}
         aria-readonly={resolvedState.isReadOnly ? dataStateTrue : undefined}
         aria-required={resolvedState.isRequired ? dataStateTrue : undefined}
-        onBlur={(event) => {
-          const isLeavingGroup = !groupRef.current?.contains(event.relatedTarget as Node | null)
-
-          if (isLeavingGroup) {
-            setIsFocused(false)
-            emitSyntheticBlur(
-              hiddenInputRef.current,
-              externalOnBlur as React.FocusEventHandler<HTMLInputElement> | undefined,
-            )
-          }
-
-          pickerAria.groupProps.onBlur?.(event)
-        }}
-        onFocus={(event) => {
-          if (!isFocused) {
-            emitSyntheticFocus(
-              hiddenInputRef.current,
-              externalOnFocus as React.FocusEventHandler<HTMLInputElement> | undefined,
-            )
-          }
-
-          setIsFocused(true)
-          pickerAria.groupProps.onFocus?.(event)
-        }}
       >
         {iconStart ? <span className={inlineAffixCss}>{iconStart}</span> : null}
         <div className={segmentedPickerFieldCss}>
@@ -212,17 +218,6 @@ export function PickerSegmentedField({
               resolvedState.isReadOnly ? segmentedFieldReadOnlyCss : undefined,
             )}
             aria-describedby={describedBy}
-            onBlur={(event) => {
-              if (!groupRef.current?.contains(event.relatedTarget as Node | null)) {
-                setIsFocused(false)
-              }
-
-              dateFieldAria.fieldProps.onBlur?.(event)
-            }}
-            onFocus={(event) => {
-              setIsFocused(true)
-              dateFieldAria.fieldProps.onFocus?.(event)
-            }}
           >
             <div
               className={cx(

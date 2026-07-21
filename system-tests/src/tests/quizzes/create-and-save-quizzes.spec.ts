@@ -26,7 +26,7 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
     await page.click('input[type="radio"]')
 
     // Fill input[type="text"]
-    await page.getByRole("textbox", { name: "Name (Required)", exact: true }).fill("exercise test")
+    await page.getByRole("textbox", { name: "Name *", exact: true }).fill("exercise test")
 
     await page.fill("text=Teacher in charge name", "teacher")
     await page.fill("text=Teacher in charge email", "teacher@example.com")
@@ -295,8 +295,8 @@ const createClosedEndedQuestion = async (frame: Locator) => {
       })
       .locator("button")
       .click()
-    await frame.getByLabel("Test string").nth(3).click()
-    await frame.getByLabel("Test string").nth(3).fill("20.20.2020")
+    await frame.getByLabel("Test string").nth(1).click()
+    await frame.getByLabel("Test string").nth(1).fill("20.20.2020")
     await frame.getByRole("combobox", { name: "Format regular expression" }).selectOption("\\d+")
     await frame
       .getByRole("combobox", { name: "Format regular expression" })

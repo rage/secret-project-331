@@ -118,10 +118,13 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
           <div
             className={css`
               display: flex;
+              flex-wrap: wrap;
               justify-content: space-between;
               font-family: ${headingFont};
               padding-bottom: 1rem;
               align-items: center;
+              gap: 0.5rem;
+              max-width: 100%;
             `}
           >
             <label
@@ -142,6 +145,8 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
                 align-items: center;
                 gap: 0.5rem;
                 height: 37px;
+                min-width: 0;
+                max-width: 100%;
               `}
             >
               <LanguageTranslation size={18} />
@@ -151,6 +156,9 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
                   background: #ffffff;
                   border: 2px solid ${baseTheme.colors.gray[200]};
                   width: 119px;
+                  max-width: 100%;
+                  min-width: 0;
+                  flex-shrink: 1;
                   height: 100%;
                 `}
                 id="changeLanguage"
@@ -161,6 +169,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
                   <option
                     key={courseLanguageVersionNavigationInfo.course_id}
                     value={courseLanguageVersionNavigationInfo.course_id}
+                    lang={courseLanguageVersionNavigationInfo.language_code}
                   >
                     {getLanguageName(courseLanguageVersionNavigationInfo.language_code)}
                   </option>

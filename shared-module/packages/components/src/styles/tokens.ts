@@ -224,7 +224,7 @@ export const tokensGlobal = injectGlobal`
     /* field */
     --field-bg: #ffffff;
     --field-bg-disabled: var(--color-gray-50);
-    --field-border-color: var(--color-gray-300);
+    --field-border-color: var(--color-gray-400);
     --field-border-color-focus: var(--color-green-500);
     --field-border-color-invalid: var(--color-crimson-600);
     --field-text-color: var(--color-gray-800);

@@ -20,7 +20,7 @@ test("Changing course instance preserves completions and points", async ({ page 
   })
 
   await test.step("Open course and navigate to first exercise", async () => {
-    await page.getByRole("link", { name: "Navigate to course 'Changing course instance'" }).click()
+    await page.getByRole("link", { name: "Changing course instance", exact: true }).click()
     await selectCourseInstanceIfPrompted(page)
     const chapterSelector = new ChapterSelector(page)
     await chapterSelector.clickChapter(1)

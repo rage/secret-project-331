@@ -5,6 +5,7 @@ import styled from "@emotion/styled"
 import { MagnifyingGlass, XmarkCircle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import React, { useEffect, useMemo, useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 import { useDebounce } from "use-debounce"
 
@@ -20,6 +21,8 @@ import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normaliz
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { coursePageRoute } from "@/shared-module/common/utils/routes"
+
+import useSearchPagesLiveRegion from "./useSearchPagesLiveRegion"
 
 const HeaderBar = styled.div`
   display: flex;
@@ -72,10 +75,9 @@ const EmptyState = styled.div`
   transition: padding 0.2s ease;
 `
 
-const ResultCard = styled(Link)`
-  text-decoration: none;
-  color: unset;
-  display: block;
+const ResultCard = styled.div`
+  /* Positioning context for the stretched heading link, which makes the whole card clickable. */
+  position: relative;
   background: #ffffff;
   margin-bottom: 0.5rem;
   padding: 1rem;
@@ -83,7 +85,8 @@ const ResultCard = styled(Link)`
   transition: all 0.2s ease;
   border: 1px solid ${baseTheme.colors.gray[100]};
 
-  &:hover {
+  &:hover,
+  &:focus-within {
     background: ${baseTheme.colors.green[100]};
     border-color: ${baseTheme.colors.green[200]};
     transform: translateY(-1px);
@@ -116,6 +119,25 @@ const ResultCard = styled(Link)`
     ${respondToOrLarger.md} {
       font-size: 0.875rem;
     }
+  }
+`
+
+const ResultHeadingLink = styled(Link)`
+  text-decoration: none;
+  color: unset;
+  display: block;
+
+  /* Stretched link: extends the hit area over the whole card while the accessible name stays the
+     heading text. Safe only because the card has no other interactive elements to shadow. */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${baseTheme.colors.green[500]};
+    outline-offset: 2px;
   }
 `
 
@@ -225,6 +247,13 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
       isLoading || !!error || debouncedQuery.trim() !== "" || (combinedResults?.length ?? 0) > 0
     )
   }, [isLoading, error, debouncedQuery, combinedResults])
+
+  const liveRegionMessage = useSearchPagesLiveRegion({
+    searchQuery: debouncedQuery,
+    isLoading,
+    isError: error !== null,
+    resultCount: combinedResults?.length ?? null,
+  })
 
   useEffect(() => {
     async function innerFunction() {
@@ -344,6 +373,10 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
         aria-label={t("title-search-dialog")}
       >
         <SearchContainer $hasContent={hasContent}>
+          {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- VisuallyHidden wrapper with role=status; <output> drops the styling */}
+          <VisuallyHidden aria-live="polite" aria-atomic role="status">
+            {liveRegionMessage}
+          </VisuallyHidden>
           <SearchInputContainer>
             <HeaderBar>
               <SearchIcon size={20} weight="bold" />
@@ -402,11 +435,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                 const relativePathWithSlash =
                   pathSegments.length > 1 ? `/${pathSegments.slice(1).join("/")}` : "/"
                 return (
-                  <ResultCard
-                    href={coursePageRoute(organizationSlug, courseSlug, relativePathWithSlash)}
-                    key={result.id}
-                    onClick={handleResultClick}
-                  >
+                  <ResultCard key={result.id}>
                     <h2
                       className={css`
                         font-size: 1.5rem;
@@ -414,10 +443,15 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                           text-decoration: underline;
                         }
                       `}
-                      dangerouslySetInnerHTML={{
-                        __html: result.title_headline ?? "",
-                      }}
-                    />
+                    >
+                      <ResultHeadingLink
+                        href={coursePageRoute(organizationSlug, courseSlug, relativePathWithSlash)}
+                        onClick={handleResultClick}
+                        dangerouslySetInnerHTML={{
+                          __html: result.title_headline ?? "",
+                        }}
+                      />
+                    </h2>
                     {result.chapter_name !== null &&
                       result.chapter_name !== undefined &&
                       result.chapter_name !== "" && (

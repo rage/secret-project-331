@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import _ from "lodash"
-import React from "react"
+import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -35,6 +35,13 @@ const optionButtonSelected = css`
   ${TWO_DIMENSIONAL_BUTTON_SELECTED}
 `
 
+const selectedCheckmark = css`
+  margin-right: 0.4rem;
+  font-weight: 700;
+`
+
+const CHECKMARK_SYMBOL = "✓"
+
 export interface LeftBorderedDivProps {
   correct: boolean | undefined
   direction?: string
@@ -45,6 +52,8 @@ const MultipleChoice: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemMultiplechoice, UserItemAnswerMultiplechoice>
 > = ({ quizItemAnswerState, quizItem, user_information, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
+  const titleId = useId()
+  const bodyId = useId()
   // Column means that all the options are always diplayed on top of each other, regardless of the
   // device width.
   const direction = sanitizeFlexDirection(quizItem.optionDisplayDirection, ROW)
@@ -93,6 +102,7 @@ const MultipleChoice: React.FunctionComponent<
       `}
     >
       <div
+        id={titleId}
         className={css`
           ${QUIZ_TITLE_STYLE}
         `}
@@ -100,6 +110,7 @@ const MultipleChoice: React.FunctionComponent<
         <ParsedText parseLatex parseMarkdown inline text={quizItem.title} />
       </div>
       <div
+        id={bodyId}
         className={css`
           color: ${quizTheme.quizBodyColor};
           font-size: ${quizTheme.quizBodyFontSize};
@@ -109,6 +120,12 @@ const MultipleChoice: React.FunctionComponent<
         <ParsedText parseLatex parseMarkdown inline text={quizItem.body} />
       </div>
       <div
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=group on a styled div; fieldset alters layout
+        role="group"
+        // Fall back to body, then a generic label, when there's no title.
+        aria-labelledby={quizItem.title ? titleId : quizItem.body ? bodyId : undefined}
+        aria-label={!quizItem.title && !quizItem.body ? t("answer") : undefined}
+        aria-describedby={quizItem.title && quizItem.body ? bodyId : undefined}
         className={css`
           display: flex;
           flex-direction: column;
@@ -123,20 +140,31 @@ const MultipleChoice: React.FunctionComponent<
         `}
       >
         {quiz_options.map((qo) => {
-          const selected = quizItemAnswerState?.selectedOptionIds?.includes(qo.id)
+          const selected = quizItemAnswerState?.selectedOptionIds?.includes(qo.id) ?? false
+          // In single-select mode an option cannot be toggled off (choosing another option moves the
+          // selection), so aria-pressed is the wrong semantic. Expose the chosen option with
+          // aria-current instead and omit the attribute on the others. Multi-select options are true
+          // toggles, so they keep aria-pressed.
+          const multiSelect = quizItem.allowSelectingMultipleOptions
 
           return (
             <button
               key={qo.id}
               value={qo.id}
               onClick={handleOptionSelect}
-              aria-pressed={selected ?? false}
+              aria-pressed={multiSelect ? selected : undefined}
+              aria-current={!multiSelect && selected ? "true" : undefined}
               className={cx(
                 optionButton,
                 selected && optionButtonSelected,
                 direction === COLUMN && optionButtonColumn,
               )}
             >
+              {selected && (
+                <span aria-hidden="true" className={selectedCheckmark}>
+                  {CHECKMARK_SYMBOL}
+                </span>
+              )}
               <ParsedText parseMarkdown parseLatex inline text={qo.title || qo.body || ""} />
             </button>
           )

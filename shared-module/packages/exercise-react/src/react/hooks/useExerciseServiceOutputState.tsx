@@ -28,7 +28,8 @@ const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
   selector: (arg: OutputType | null) => SelectorReturnType | null,
   wrapper?: string,
 ): UseExerciseServiceOutputStateReturn<SelectorReturnType> => {
-  const { outputState, port, _rawSetOutputState, validate } = useContext(context)
+  const { outputState, port, _rawSetOutputState, validate, getValidityMessages } =
+    useContext(context)
 
   const updateState = useCallback(
     (func: UpdateFunction<SelectorReturnType>) => {
@@ -41,10 +42,16 @@ const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
       }
 
       const nextState = applyOutputStateUpdate(outputState, selector, func)
-      postCurrentStateMessage(port, nextState, validate(nextState), wrapper)
+      postCurrentStateMessage(
+        port,
+        nextState,
+        validate(nextState),
+        wrapper,
+        getValidityMessages?.(nextState),
+      )
       _rawSetOutputState(nextState)
     },
-    [_rawSetOutputState, outputState, port, selector, validate, wrapper],
+    [_rawSetOutputState, outputState, port, selector, validate, getValidityMessages, wrapper],
   )
 
   const selected = useMemo(() => selector(outputState), [outputState, selector])

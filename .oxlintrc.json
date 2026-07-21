@@ -571,6 +571,7 @@
                 "aria-labelledby",
                 "aria-describedby",
                 "aria-live",
+                "aria-sort",
                 "url",
                 "labelId",
                 "defaultLanguage",

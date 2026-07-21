@@ -1,13 +1,16 @@
 "use client"
 
-/* oxlint-disable i18next/no-literal-string */
-
 import { fireEvent, render } from "@testing-library/react"
 import type React from "react"
 import type { Control, DefaultValues, FieldValues, UseFormReturn } from "react-hook-form"
 import { useForm } from "react-hook-form"
 
 import "../tests/test-i18n"
+
+const ENTER_KEY = "Enter"
+const ARROW_DOWN_KEY = "ArrowDown"
+const ARROW_UP_KEY = "ArrowUp"
+const TAB_KEY = "Tab"
 
 export function renderUi(ui: React.ReactElement) {
   return render(ui)
@@ -95,8 +98,8 @@ export function domClick(element: Element) {
 }
 
 export function pressEnter(element: Element) {
-  fireEvent.keyDown(element, { key: "Enter" })
-  fireEvent.keyUp(element, { key: "Enter" })
+  fireEvent.keyDown(element, { key: ENTER_KEY })
+  fireEvent.keyUp(element, { key: ENTER_KEY })
 }
 
 export function pressSpace(element: Element) {
@@ -114,15 +117,15 @@ export function pointerPress(element: Element) {
 }
 
 export function pressArrowDown(element: Element) {
-  fireEvent.keyDown(element, { key: "ArrowDown" })
+  fireEvent.keyDown(element, { key: ARROW_DOWN_KEY })
 }
 
 export function pressArrowUp(element: Element) {
-  fireEvent.keyDown(element, { key: "ArrowUp" })
+  fireEvent.keyDown(element, { key: ARROW_UP_KEY })
 }
 
 export function pressTab(element: Element) {
-  fireEvent.keyDown(element, { key: "Tab" })
+  fireEvent.keyDown(element, { key: TAB_KEY })
 }
 
 export function pasteText(element: Element, text: string) {
@@ -134,6 +137,7 @@ export function pasteText(element: Element, text: string) {
 }
 
 export function changeFiles(input: HTMLInputElement, files: File[]) {
+  // oxlint-disable-next-line i18next/no-literal-string -- DOM property name, not user-facing text
   Object.defineProperty(input, "files", {
     configurable: true,
     value: files,

@@ -16,7 +16,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
-  await page.getByRole("link", { name: "Navigate to course 'Change language course'" }).click()
+  await page.getByRole("link", { name: "Change language course", exact: true }).click()
   await selectCourseInstanceIfPrompted(page)
 
   await openCourseSettingsFromQuickActions(page)

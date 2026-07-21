@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
-import { useMemo } from "react"
+import { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { primaryFont } from "@/shared-module/exercise-react/styles"
+import { baseTheme, primaryFont } from "@/shared-module/exercise-react/styles"
 
 import type { QuizItemComponentProps } from "."
 import type { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
@@ -32,6 +32,8 @@ const MultipleChoiceDropdown: React.FunctionComponent<
   >
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
+  const selectId = useId()
+  const bodyId = useId()
   const handleOptionSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedOptionId = event.currentTarget.value
     if (!quizItemAnswerState) {
@@ -68,8 +70,10 @@ const MultipleChoiceDropdown: React.FunctionComponent<
           `}
         >
           {quizItem.title ? (
-            <h2
+            <label
+              htmlFor={selectId}
               className={css`
+                display: block;
                 font-size: ${quizTheme.quizTitleFontSize} !important;
                 font-weight: 500;
                 color: #4c5868;
@@ -78,7 +82,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
               `}
             >
               {quizItem.title}
-            </h2>
+            </label>
           ) : null}
         </div>
         {quizItem.body && (
@@ -88,13 +92,14 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             `}
           >
             {quizItem.body ? (
-              <h3
+              <p
+                id={bodyId}
                 className={css`
                   font-size: 1.25rem !important;
                 `}
               >
                 {quizItem.body}
-              </h3>
+              </p>
             ) : null}
           </div>
         )}
@@ -121,8 +126,10 @@ const MultipleChoiceDropdown: React.FunctionComponent<
         `}
       >
         <select
+          id={selectId}
           onChange={handleOptionSelect}
-          aria-label={t("answer")}
+          aria-labelledby={!quizItem.title && quizItem.body ? bodyId : undefined}
+          aria-label={!quizItem.title && !quizItem.body ? t("answer") : undefined}
           className={css`
             display: grid;
             width: 100%;
@@ -131,7 +138,8 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             padding: 0.5rem 2rem 0.5rem 0.625rem;
             font-size: 1.125rem;
             cursor: pointer;
-            border: 0.188rem solid #dfe1e6;
+            /* gray[400] for sufficient contrast against white */
+            border: 0.188rem solid ${baseTheme.colors.gray[400]};
             background: none;
             min-height: 2.5rem;
             grid-template-areas: "select";

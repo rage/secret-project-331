@@ -4,6 +4,8 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { baseTheme } from "../styles"
+
 interface SelectOption<T> {
   value: T
   label: string
@@ -66,7 +68,8 @@ const SelectMenu = <T extends string = string>({
             padding: 8px 10px;
             font-size: 18px;
             cursor: pointer;
-            border: 3px solid #dfe1e6;
+            /* Gray 400 from the design system: >= 3:1 contrast against white (WCAG 1.4.11) */
+            border: 3px solid ${baseTheme.colors.gray[400]};
             background: none;
             min-height: 40px;
             grid-template-areas: "select";

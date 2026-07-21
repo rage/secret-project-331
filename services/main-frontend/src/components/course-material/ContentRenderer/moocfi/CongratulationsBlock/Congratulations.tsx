@@ -14,7 +14,7 @@ import ModuleCard from "./ModuleCard"
 
 const Wrapper = styled.div`
   font-family: ${headingFont};
-  background: #6ba578;
+  background: #1f6964;
   width: 100%;
   border-radius: 4px;
   min-height: 100vh;
@@ -33,7 +33,7 @@ const Content = styled.div`
   z-index: 99;
 
   .heading {
-    color: #ffff;
+    color: #fff;
     font-weight: 800;
     font-size: clamp(30px, 5vw, 70px) !important;
   }
@@ -123,7 +123,7 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
       <StyledBackground />
       <Content>
         <StyledSVG />
-        <h1 className="heading">{t("congratulations")}!</h1>
+        <h2 className="heading">{t("congratulations")}!</h2>
         <span className="subtitle">{getSubtitleText()}</span>
 
         <ModuleWrapper>

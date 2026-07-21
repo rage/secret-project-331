@@ -144,7 +144,7 @@
               }
             }
           },
-          "400": {
+          "422": {
             "description": "The user is not enrolled to this exercise's course"
           }
         },

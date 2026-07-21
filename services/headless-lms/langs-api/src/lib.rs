@@ -100,3 +100,57 @@ pub struct ExerciseUpdates {
     pub updated_exercises: Vec<Uuid>,
     pub deleted_exercises: Vec<Uuid>,
 }
+
+#[cfg(test)]
+mod test {
+    #![allow(clippy::unwrap_used)]
+    use super::*;
+    use serde_json::json;
+
+    // `ExerciseTaskSubmissionStatus` is an externally-tagged serde enum: the
+    // unit variant is the bare string `"NoGradingYet"`, the data variant is
+    // `{"Grading": {...}}`. The OpenAPI spec (langs.openapi.generated.json) must
+    // document it as a `oneOf` of exactly those two shapes; this guards against
+    // utoipa/serde drift.
+    #[test]
+    fn submission_status_serializes_externally_tagged() {
+        assert_eq!(
+            serde_json::to_value(ExerciseTaskSubmissionStatus::NoGradingYet).unwrap(),
+            json!("NoGradingYet"),
+        );
+
+        let graded = ExerciseTaskSubmissionStatus::Grading {
+            grading_progress: GradingProgress::FullyGraded,
+            score_given: Some(1.0),
+            grading_started_at: None,
+            grading_completed_at: None,
+            feedback_json: None,
+            feedback_text: Some("ok".to_string()),
+        };
+        assert_eq!(
+            serde_json::to_value(&graded).unwrap(),
+            json!({
+                "Grading": {
+                    "grading_progress": "FullyGraded",
+                    "score_given": 1.0,
+                    "grading_started_at": null,
+                    "grading_completed_at": null,
+                    "feedback_json": null,
+                    "feedback_text": "ok",
+                }
+            }),
+        );
+    }
+
+    #[test]
+    fn grading_progress_serializes_as_plain_strings() {
+        assert_eq!(
+            serde_json::to_value(GradingProgress::FullyGraded).unwrap(),
+            json!("FullyGraded"),
+        );
+        assert_eq!(
+            serde_json::to_value(GradingProgress::PendingManual).unwrap(),
+            json!("PendingManual"),
+        );
+    }
+}

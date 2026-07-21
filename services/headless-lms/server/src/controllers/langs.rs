@@ -224,7 +224,7 @@ async fn get_course_exercises(
     ),
     responses(
         (status = 200, description = "An exercise slide for the user", body = api::ExerciseSlide),
-        (status = 400, description = "The user is not enrolled to this exercise's course")
+        (status = 422, description = "The user is not enrolled to this exercise's course")
     )
 )]
 #[instrument(skip(pool))]

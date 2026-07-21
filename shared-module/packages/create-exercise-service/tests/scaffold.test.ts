@@ -88,6 +88,8 @@ describe("scaffoldReactProject", () => {
     assert.equal(pkg.name, PROJECT_NAME)
     assert.equal(pkg.version, "0.1.0")
     assert.match(pkg.scripts.dev, new RegExp(`--port ${PORT}\\b`))
+    // Standalone projects have no monorepo-wide tsc-check-all, so the scaffolder adds a typecheck script.
+    assert.equal(pkg.scripts.typecheck, "tsc --noEmit")
     // Dependencies pulled in from the vendored shared packages.
     assert.ok(pkg.dependencies.immer, "immer should be merged in from exercise-client")
     assert.ok(pkg.dependencies["@emotion/react"], "emotion should be merged in from exercise-react")
@@ -157,6 +159,39 @@ describe("scaffoldReactProject", () => {
     // SKIP_DIRS excludes the vendored shared-module, so this checks only the project's own code.
     const offenders = await findFilesMatching(projectPath, /from ["']next\/|require\(["']next\//)
     assert.deepEqual(offenders, [], `next imports still present in: ${offenders.join(", ")}`)
+  })
+})
+
+describe("scaffoldReactProject (project name contains the template slug)", () => {
+  // A project named after the example (containing "example-exercise") used to get a doubled name
+  // ("my-example-exercise" -> "my-my-example-exercise") because the blind slug sweep ran after
+  // buildPackageJson had already set the name. Guard the exact-match here.
+  const SLUG_NAME = "my-example-exercise"
+  let base: string
+  let projectPath: string
+
+  before(async () => {
+    base = await mkdtemp(join(tmpdir(), "ces-slug-test-"))
+    projectPath = join(base, SLUG_NAME)
+    await scaffoldReactProject({
+      projectName: SLUG_NAME,
+      absoluteProjectPath: projectPath,
+      port: PORT,
+    })
+  })
+
+  after(async () => {
+    await rm(base, { recursive: true, force: true })
+  })
+
+  test("sets package.json name to the project name verbatim (no doubled slug)", async () => {
+    const pkg = JSON.parse(await readFile(join(projectPath, "package.json"), "utf8"))
+    assert.equal(pkg.name, SLUG_NAME)
+  })
+
+  test("renames the locale namespace files to the exact project name", async () => {
+    await assert.doesNotReject(stat(join(projectPath, `src/locales/en/${SLUG_NAME}.json`)))
+    await assert.doesNotReject(stat(join(projectPath, `src/locales/fi/${SLUG_NAME}.json`)))
   })
 })
 

@@ -157,7 +157,7 @@ generically). **Keep it in sync with `reference/07`** whenever the data-model do
 
 ## Test
 
-The CLI's own suite scaffolds into a temp dir and asserts the output (10 tests):
+The CLI's own suite scaffolds into a temp dir and asserts the output (15 tests):
 
 ```bash
 pnpm --dir shared-module/packages/create-exercise-service test

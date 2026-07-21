@@ -90,6 +90,8 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAllChatbots,
+  getAllCourses,
   getAvgTimeToFirstSubmissionHistory,
   getBulkUserDetails,
   getCertificateByConfigurationId,
@@ -449,6 +451,10 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAllChatbotsData,
+  GetAllChatbotsResponse,
+  GetAllCoursesData,
+  GetAllCoursesResponse,
   GetAvgTimeToFirstSubmissionHistoryData,
   GetAvgTimeToFirstSubmissionHistoryResponse,
   GetBulkUserDetailsData,
@@ -1336,6 +1342,29 @@ export const getChatbotModelOptions = (options: Options<GetChatbotModelData>) =>
         throwOnError: true,
       }),
     queryKey: getChatbotModelQueryKey(options),
+  })
+
+export const getAllChatbotsQueryKey = (options?: Options<GetAllChatbotsData>) =>
+  createQueryKey("getAllChatbots", options)
+
+/**
+ * GET `/api/v0/main-frontend/chatbots`
+ */
+export const getAllChatbotsOptions = (options?: Options<GetAllChatbotsData>) =>
+  queryOptions<
+    GetAllChatbotsResponse,
+    DefaultError,
+    GetAllChatbotsResponse,
+    ReturnType<typeof getAllChatbotsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAllChatbots({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAllChatbotsQueryKey(options),
   })
 
 /**
@@ -2554,6 +2583,32 @@ export const createCourseMutation = (
   }
   return mutationOptions
 }
+
+export const getAllCoursesQueryKey = (options?: Options<GetAllCoursesData>) =>
+  createQueryKey("getAllCourses", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses` - Get all courses
+ *
+ * Returns all courses.
+ */
+export const getAllCoursesOptions = (options?: Options<GetAllCoursesData>) =>
+  queryOptions<
+    GetAllCoursesResponse,
+    DefaultError,
+    GetAllCoursesResponse,
+    ReturnType<typeof getAllCoursesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAllCourses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAllCoursesQueryKey(options),
+  })
 
 export const getCourseByJoinCodeQueryKey = (options: Options<GetCourseByJoinCodeData>) =>
   createQueryKey("getCourseByJoinCode", options)

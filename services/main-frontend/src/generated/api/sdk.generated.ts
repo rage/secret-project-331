@@ -169,6 +169,10 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAllChatbotsData,
+  GetAllChatbotsResponses,
+  GetAllCoursesData,
+  GetAllCoursesResponses,
   GetAvgTimeToFirstSubmissionHistoryData,
   GetAvgTimeToFirstSubmissionHistoryResponses,
   GetBulkUserDetailsData,
@@ -680,6 +684,8 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAllChatbotsResponse,
+  zGetAllCoursesResponse,
   zGetAvgTimeToFirstSubmissionHistoryResponse,
   zGetBulkUserDetailsResponse,
   zGetCertificateByConfigurationIdResponse,
@@ -1227,6 +1233,19 @@ export const getChatbotModel = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/chatbots`
+ */
+export const getAllChatbots = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAllChatbotsData, ThrowOnError>,
+): RequestResult<GetAllChatbotsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAllChatbotsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAllChatbotsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/chatbots/",
+    ...options,
   })
 
 /**
@@ -2075,6 +2094,22 @@ export const createCourse = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses` - Get all courses
+ *
+ * Returns all courses.
+ */
+export const getAllCourses = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAllCoursesData, ThrowOnError>,
+): RequestResult<GetAllCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAllCoursesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAllCoursesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/",
+    ...options,
   })
 
 /**

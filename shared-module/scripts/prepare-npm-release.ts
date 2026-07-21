@@ -20,7 +20,6 @@
 
 import { readFile, writeFile } from "fs/promises"
 import path from "path"
-import { fileURLToPath } from "url"
 
 const PACKAGES_DIR = path.resolve(import.meta.dirname, "../packages")
 
@@ -32,6 +31,9 @@ const SIBLING_DEPENDENCIES: Record<string, string[]> = {
   "exercise-react": ["@moocfi/exercise-client", "@moocfi/exercise-protocol"],
   "exercise-iframe-host": ["@moocfi/exercise-protocol"],
   "exercise-service-test-utils": ["@moocfi/exercise-protocol"],
+  // The scaffolder has no @moocfi/* deps of its own; it only needs its version stamped so the
+  // projects it generates pin @moocfi/exercise-* to this same release (see readCliVersion in its src).
+  "create-exercise-service": [],
 }
 
 const SEMVER = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/
@@ -72,6 +74,9 @@ function sortKeys(record: Record<string, string>): Record<string, string> {
   return Object.fromEntries(Object.entries(record).toSorted(([a], [b]) => a.localeCompare(b)))
 }
 
+// tsx runs this script as CommonJS (shared-module has no "type": "module"), where top-level await is
+// unsupported, so error handling goes through a promise chain instead.
+// oxlint-disable-next-line unicorn/prefer-top-level-await
 main().catch((error) => {
   console.error(error)
   process.exit(1)

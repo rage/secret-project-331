@@ -62,7 +62,7 @@ jobs:
       - name: Install and build each package
         run: |
           set -euo pipefail
-          for pkg in exercise-protocol exercise-client exercise-iframe-host exercise-service-test-utils exercise-react; do
+          for pkg in exercise-protocol exercise-client exercise-iframe-host exercise-service-test-utils exercise-react create-exercise-service; do
             dir="shared-module/packages/$pkg"
             echo "::group::build $pkg"
             pnpm -C "$dir" install --frozen-lockfile
@@ -95,7 +95,7 @@ jobs:
           npm_config_verify_deps_before_run: "false"
         run: |
           set -euo pipefail
-          for pkg in exercise-protocol exercise-client exercise-iframe-host exercise-service-test-utils exercise-react; do
+          for pkg in exercise-protocol exercise-client exercise-iframe-host exercise-service-test-utils exercise-react create-exercise-service; do
             dir="shared-module/packages/$pkg"
             echo "::group::publish $pkg"
             pnpm -C "$dir" publish --no-git-checks --access public

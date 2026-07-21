@@ -159,3 +159,65 @@ describe("scaffoldReactProject", () => {
     assert.deepEqual(offenders, [], `next imports still present in: ${offenders.join(", ")}`)
   })
 })
+
+// tests -> create-exercise-service -> packages -> shared-module -> repo root
+const MONOREPO_TEMPLATE_DIR = join(
+  import.meta.dirname,
+  "../../../..",
+  "services",
+  "example-exercise",
+)
+const NPM_VERSION = "9.9.9"
+
+describe("scaffoldReactProject (npm strategy)", () => {
+  let base: string
+  let projectPath: string
+
+  before(async () => {
+    base = await mkdtemp(join(tmpdir(), "ces-npm-test-"))
+    projectPath = join(base, PROJECT_NAME)
+    // Force npm mode against the monorepo template so the test needs no built dist/template.
+    await scaffoldReactProject({
+      projectName: PROJECT_NAME,
+      absoluteProjectPath: projectPath,
+      port: PORT,
+      sharedModule: "npm",
+      templateDir: MONOREPO_TEMPLATE_DIR,
+      exercisePackagesVersion: NPM_VERSION,
+    })
+  })
+
+  after(async () => {
+    await rm(base, { recursive: true, force: true })
+  })
+
+  test("does not vendor the shared-module source", async () => {
+    await assert.rejects(
+      stat(join(projectPath, "src/shared-module")),
+      "src/shared-module should not exist in npm mode",
+    )
+  })
+
+  test("depends on the published @moocfi/exercise-* packages", async () => {
+    const pkg = JSON.parse(await readFile(join(projectPath, "package.json"), "utf8"))
+    for (const dep of [
+      "@moocfi/exercise-protocol",
+      "@moocfi/exercise-client",
+      "@moocfi/exercise-react",
+    ]) {
+      assert.equal(pkg.dependencies[dep], `^${NPM_VERSION}`, `${dep} should be a runtime dep`)
+    }
+    assert.equal(
+      pkg.devDependencies["@moocfi/exercise-service-test-utils"],
+      `^${NPM_VERSION}`,
+      "test-utils should be a dev dep",
+    )
+  })
+
+  test("rewrites @/shared-module/exercise-* imports to @moocfi/exercise-*", async () => {
+    const stillAliased = await findFilesMatching(projectPath, /@\/shared-module\/exercise-/)
+    assert.deepEqual(stillAliased, [], `unrewritten alias imports in: ${stillAliased.join(", ")}`)
+    const npmImports = await findFilesMatching(projectPath, /@moocfi\/exercise-/)
+    assert.ok(npmImports.length > 0, "expected @moocfi/exercise-* imports in the generated project")
+  })
+})

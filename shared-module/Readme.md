@@ -22,6 +22,7 @@ published to npm under the `@moocfi` scope:
 - `@moocfi/exercise-react`
 - `@moocfi/exercise-iframe-host`
 - `@moocfi/exercise-service-test-utils`
+- `@moocfi/create-exercise-service` (the `pnpm create @moocfi/exercise-service` scaffolder)
 
 The repo's own services never consume these from npm. Publishing and internal vendoring are fully
 decoupled: services import the shared code through `@/shared-module/...` tsconfig path aliases that
@@ -46,6 +47,12 @@ Each package builds with [tsdown](https://tsdown.dev) (`pnpm build`), configured
 `exercise-react` and `exercise-iframe-host` use a build-only `tsconfig.build.json` that switches JSX
 to the React automatic runtime (the dev tsconfig keeps `jsx: preserve` for the services' Next.js
 build). `exercise-service-test-utils` copies its `src/browser/hostEmulator.js` into `dist` verbatim.
+
+`create-exercise-service` is a Node CLI, not a library: its build bundles a single executable
+`dist/index.mjs` and (via `scripts/bundle-template.ts`) snapshots `services/example-exercise` into
+`dist/template`. Detecting that bundled template at runtime is how it switches from the in-repo
+vendoring path to the standalone path (depend on the published `@moocfi/exercise-*` packages and
+rewrite the template's `@/shared-module/exercise-*` imports to them).
 
 ### Releasing
 

@@ -15,13 +15,21 @@ External examples:
 
 ## Creating a new exercise service
 
-The fastest way to start a new plugin is the scaffolding CLI. From a checkout of this repo, run:
+The fastest way to start a new plugin is the scaffolding CLI. Outside this repo, run:
+
+```bash
+pnpm create @moocfi/exercise-service
+```
+
+This generates a standalone TanStack Start (rsbuild bundler) service that depends on the published `@moocfi/exercise-*` packages from npm.
+
+From a checkout of this repo, run the in-tree variant instead:
 
 ```bash
 bin/create-exercise-service
 ```
 
-It generates a standalone TanStack Start (rsbuild bundler) service from `services/example-exercise`, with the shared exercise code vendored into `src/shared-module/`. See `shared-module/packages/create-exercise-service/README.md` for the prompts and what gets generated. The rest of this document explains the protocol the generated service implements.
+Run inside the monorepo it vendors the shared exercise code into `src/shared-module/` (so you can scaffold against local, unpublished shared-module changes); run from the published package it wires the project to the `@moocfi/exercise-*` npm packages. See `shared-module/packages/create-exercise-service/README.md` for the prompts and what gets generated. The rest of this document explains the protocol the generated service implements.
 
 ### Shared packages on npm
 

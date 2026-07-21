@@ -21,7 +21,7 @@
   ],
   "type": "module",
   "sideEffects": [
-    "**/GlobalStyles.js"
+    "**/GlobalStyles.mjs"
   ],
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",

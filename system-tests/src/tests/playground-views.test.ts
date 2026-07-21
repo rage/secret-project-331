@@ -78,6 +78,7 @@ test("Playground views works", async ({ page }) => {
   "score_maximum": 1,
   "feedback_text": "Good job!",
   "feedback_json": {
+    "version": "1",
     "selectedOptionIsCorrect": true
   }
 }`,

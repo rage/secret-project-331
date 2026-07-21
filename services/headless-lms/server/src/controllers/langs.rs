@@ -16,12 +16,37 @@ use models::chapters::DatabaseChapter;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
 use mooc_langs_api as api;
 use std::collections::HashSet;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        get_courses,
+        get_course,
+        get_course_exercises,
+        get_exercise,
+        submit_exercise,
+        get_submission_grading
+    ),
+    components(schemas(api::ExerciseSlideSubmission))
+)]
+pub(crate) struct LangsRoutesApiDoc;
 
 /**
  * GET /api/v0/langs/courses
  *
  * Returns the courses that the user is currently enrolled on that contain TMC exercises.
  */
+#[utoipa::path(
+    get,
+    path = "/courses",
+    operation_id = "getLangsCourses",
+    tag = "langs",
+    security(("bearer_auth" = [])),
+    responses(
+        (status = 200, description = "The courses the user is enrolled on that contain TMC exercises", body = Vec<api::Course>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_courses(
     pool: web::Data<PgPool>,
@@ -54,6 +79,19 @@ async fn get_courses(
  *
  * Returns the course with the given id.
  */
+#[utoipa::path(
+    get,
+    path = "/courses/{id}",
+    operation_id = "getLangsCourse",
+    tag = "langs",
+    security(("bearer_auth" = [])),
+    params(
+        ("id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "The requested course", body = api::Course)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course(
     pool: web::Data<PgPool>,
@@ -84,6 +122,19 @@ async fn get_course(
  * Selects slides for exercises with no slide selected yet.
  * Only returns slides which have tasks that are compatible with langs.
  */
+#[utoipa::path(
+    get,
+    path = "/courses/{id}/exercises",
+    operation_id = "getLangsCourseExercises",
+    tag = "langs",
+    security(("bearer_auth" = [])),
+    params(
+        ("id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "The user's TMC-compatible exercise slides for open chapters", body = Vec<api::ExerciseSlide>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course_exercises(
     pool: web::Data<PgPool>,
@@ -162,6 +213,20 @@ async fn get_course_exercises(
  *
  * Only returns slides
  */
+#[utoipa::path(
+    get,
+    path = "/exercises/{id}",
+    operation_id = "getLangsExercise",
+    tag = "langs",
+    security(("bearer_auth" = [])),
+    params(
+        ("id" = Uuid, Path, description = "Exercise id")
+    ),
+    responses(
+        (status = 200, description = "An exercise slide for the user", body = api::ExerciseSlide),
+        (status = 400, description = "The user is not enrolled to this exercise's course")
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
@@ -228,6 +293,24 @@ struct SubmissionForm {
  *
  * Accepts an exercise submission from the user.
  */
+#[utoipa::path(
+    post,
+    path = "/exercises/{id}/submit",
+    operation_id = "submitLangsExercise",
+    tag = "langs",
+    security(("bearer_auth" = [])),
+    params(
+        ("id" = Uuid, Path, description = "Exercise id")
+    ),
+    request_body(
+        content = String,
+        content_type = "multipart/form-data",
+        description = "Multipart form with a `submission` part containing a JSON `ExerciseSlideSubmission` and a `file` part containing the exercise archive"
+    ),
+    responses(
+        (status = 200, description = "The created submission", body = api::ExerciseTaskSubmissionResult)
+    )
+)]
 async fn submit_exercise(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
@@ -322,6 +405,26 @@ async fn submit_exercise(
     token.authorized_ok(web::Json(result))
 }
 
+/**
+ * GET /api/v0/langs/submissions/:id/grading
+ *
+ * Returns the grading status of the given submission.
+ */
+#[utoipa::path(
+    get,
+    path = "/submissions/{id}/grading",
+    operation_id = "getLangsSubmissionGrading",
+    tag = "langs",
+    security(("bearer_auth" = [])),
+    params(
+        ("id" = Uuid, Path, description = "Submission id")
+    ),
+    responses(
+        (status = 200, description = "The grading status of the submission", body = api::ExerciseTaskSubmissionStatus),
+        (status = 401, description = "Cannot view another user's submission grading")
+    )
+)]
+#[instrument(skip(pool))]
 async fn get_submission_grading(
     pool: web::Data<PgPool>,
     submission_id: web::Path<Uuid>,

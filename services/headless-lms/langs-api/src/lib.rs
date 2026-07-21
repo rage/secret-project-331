@@ -1,5 +1,4 @@
 mod error;
-pub mod exercise_services;
 
 use chrono::{DateTime, Utc};
 pub use error::ErrorResponse;
@@ -11,6 +10,7 @@ pub type Token =
     oauth2::StandardTokenResponse<oauth2::EmptyExtraTokenFields, oauth2::basic::BasicTokenType>;
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Course {
     pub id: Uuid,
     pub slug: String,
@@ -20,6 +20,7 @@ pub struct Course {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseSlide {
     pub slide_id: Uuid,
     pub exercise_id: Uuid,
@@ -30,6 +31,7 @@ pub struct ExerciseSlide {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseTask {
     pub task_id: Uuid,
     pub order_number: i32,
@@ -40,6 +42,7 @@ pub struct ExerciseTask {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub exercise_task_id: Uuid,
@@ -47,11 +50,13 @@ pub struct ExerciseSlideSubmission {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseTaskSubmissionResult {
     pub submission_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub enum ExerciseTaskSubmissionStatus {
     NoGradingYet,
     Grading {
@@ -65,6 +70,7 @@ pub enum ExerciseTaskSubmissionStatus {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub enum GradingProgress {
     /// The grading could not complete.
     Failed,

@@ -1,4 +1,7 @@
-use utoipa::OpenApi;
+use utoipa::{
+    Modify, OpenApi,
+    openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme},
+};
 
 #[derive(OpenApi)]
 #[openapi(
@@ -69,3 +72,38 @@ pub struct AuthApiDoc;
     )
 )]
 pub struct ErrorsApiDoc;
+
+/// Adds the bearer-token security scheme used by every `/api/v0/langs` endpoint.
+///
+/// The langs endpoints authenticate via `Authorization: Bearer <token>`, so the
+/// spec declares a single `bearer_auth` HTTP bearer scheme that each operation
+/// references.
+struct LangsSecurityAddon;
+
+impl Modify for LangsSecurityAddon {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        let components = openapi.components.get_or_insert_with(Default::default);
+        components.add_security_scheme(
+            "bearer_auth",
+            SecurityScheme::Http(
+                HttpBuilder::new()
+                    .scheme(HttpAuthScheme::Bearer)
+                    .description(Some(
+                        "Access token passed as an HTTP bearer token in the Authorization header.",
+                    ))
+                    .build(),
+            ),
+        );
+    }
+}
+
+#[derive(OpenApi)]
+#[openapi(
+    nest((path = "/api/v0/langs", api = crate::controllers::langs::LangsRoutesApiDoc)),
+    modifiers(&LangsSecurityAddon),
+    info(
+        title = "Langs API",
+        version = "0.1.0"
+    )
+)]
+pub struct LangsApiDoc;

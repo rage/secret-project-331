@@ -1,0 +1,397 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Langs API",
+    "description": "",
+    "contact": {
+      "name": "University of Helsinki",
+      "email": "mooc@cs.helsinki.fi"
+    },
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v0/langs/courses": {
+      "get": {
+        "tags": ["langs"],
+        "summary": "\n * GET /api/v0/langs/courses\n *\n * Returns the courses that the user is currently enrolled on that contain TMC exercises.",
+        "operationId": "getLangsCourses",
+        "responses": {
+          "200": {
+            "description": "The courses the user is enrolled on that contain TMC exercises",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Course"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/langs/courses/{id}": {
+      "get": {
+        "tags": ["langs"],
+        "summary": "\n * GET /api/v0/langs/courses/:id\n *\n * Returns the course with the given id.",
+        "operationId": "getLangsCourse",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Course"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/langs/courses/{id}/exercises": {
+      "get": {
+        "tags": ["langs"],
+        "summary": "\n * GET /api/v0/langs/courses/:id/exercises\n *\n * Returns the user's exercise slides for the given course.\n * Does not return anything for chapters which are not open yet.\n * Selects slides for exercises with no slide selected yet.\n * Only returns slides which have tasks that are compatible with langs.",
+        "operationId": "getLangsCourseExercises",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user's TMC-compatible exercise slides for open chapters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseSlide"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/langs/exercises/{id}": {
+      "get": {
+        "tags": ["langs"],
+        "summary": "\n * GET /api/v0/langs/exercises/:id\n *\n * Returns an exercise slide for the user for the given exercise.\n *\n * Only returns slides",
+        "operationId": "getLangsExercise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An exercise slide for the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseSlide"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The user is not enrolled to this exercise's course"
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/langs/exercises/{id}/submit": {
+      "post": {
+        "tags": ["langs"],
+        "summary": "\n * POST /api/v0/langs/exercises/:id/submit\n *\n * Accepts an exercise submission from the user.",
+        "operationId": "submitLangsExercise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Multipart form with a `submission` part containing a JSON `ExerciseSlideSubmission` and a `file` part containing the exercise archive",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The created submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTaskSubmissionResult"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/langs/submissions/{id}/grading": {
+      "get": {
+        "tags": ["langs"],
+        "summary": "\n * GET /api/v0/langs/submissions/:id/grading\n *\n * Returns the grading status of the given submission.",
+        "operationId": "getLangsSubmissionGrading",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Submission id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The grading status of the submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTaskSubmissionStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cannot view another user's submission grading"
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Course": {
+        "type": "object",
+        "required": ["id", "slug", "name", "organization_name"],
+        "properties": {
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "ExerciseSlide": {
+        "type": "object",
+        "required": ["slide_id", "exercise_id", "exercise_name", "exercise_order_number", "tasks"],
+        "properties": {
+          "deadline": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_name": {
+            "type": "string"
+          },
+          "exercise_order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "slide_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseTask"
+            }
+          }
+        }
+      },
+      "ExerciseSlideSubmission": {
+        "type": "object",
+        "required": ["exercise_slide_id", "exercise_task_id", "data_json"],
+        "properties": {
+          "data_json": {},
+          "exercise_slide_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ExerciseTask": {
+        "type": "object",
+        "required": ["task_id", "order_number", "assignment", "exercise_service_slug"],
+        "properties": {
+          "assignment": {},
+          "exercise_service_slug": {
+            "type": "string"
+          },
+          "model_solution_spec": {},
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "public_spec": {},
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ExerciseTaskSubmissionResult": {
+        "type": "object",
+        "required": ["submission_id"],
+        "properties": {
+          "submission_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ExerciseTaskSubmissionStatus": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": ["NoGradingYet"]
+          },
+          {
+            "type": "object",
+            "required": ["Grading"],
+            "properties": {
+              "Grading": {
+                "type": "object",
+                "required": ["grading_progress"],
+                "properties": {
+                  "feedback_json": {},
+                  "feedback_text": {
+                    "type": ["string", "null"]
+                  },
+                  "grading_completed_at": {
+                    "type": ["string", "null"],
+                    "format": "date-time"
+                  },
+                  "grading_progress": {
+                    "$ref": "#/components/schemas/GradingProgress"
+                  },
+                  "grading_started_at": {
+                    "type": ["string", "null"],
+                    "format": "date-time"
+                  },
+                  "score_given": {
+                    "type": ["number", "null"],
+                    "format": "float"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GradingProgress": {
+        "type": "string",
+        "enum": ["Failed", "NotReady", "PendingManual", "Pending", "FullyGraded"]
+      }
+    },
+    "securitySchemes": {
+      "bearer_auth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Access token passed as an HTTP bearer token in the Authorization header."
+      }
+    }
+  }
+}

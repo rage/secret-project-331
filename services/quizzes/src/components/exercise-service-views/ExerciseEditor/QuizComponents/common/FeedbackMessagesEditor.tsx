@@ -37,29 +37,38 @@ const Title = styled.div`
   margin-top: 12px;
 `
 
-const FeedbackRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  gap: 8px;
-  margin-bottom: 8px;
+// Each message is its own bordered card so the two stacked fields read as one group. The delete
+// button sits in the top-right corner (absolutely positioned), so the card reserves padding on the
+// right to keep the fields clear of it.
+const FeedbackCard = styled.div`
+  position: relative;
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+  padding: 16px;
+  padding-right: 48px;
+  margin-bottom: 12px;
+`
+
+const DeleteButtonContainer = styled.div`
+  position: absolute;
+  top: 8px;
+  right: 8px;
 `
 
 const VisibilityContainer = styled.div`
   width: 260px;
-  flex-shrink: 0;
+  max-width: 100%;
+  margin-bottom: 12px;
 `
 
 const MessageContainer = styled.div`
-  flex-grow: 1;
   min-width: 0;
 `
 
 const EmptyMessageError = styled.div`
   color: #a84835;
   font-size: 14px;
-  margin-top: -4px;
-  margin-bottom: 8px;
+  margin-top: 4px;
 `
 
 // Five-level item/quiz visibility list, translated. The tag decides which channel the message
@@ -110,35 +119,8 @@ const FeedbackMessagesEditor = <V extends string>({
     <div>
       <Title> {t("feedback-messages")} </Title>
       {value.map((message, index) => (
-        <React.Fragment key={index}>
-          <FeedbackRow>
-            <VisibilityContainer>
-              <SelectField
-                id={`${idPrefix}-visibility-${index}`}
-                className={css`
-                  margin-bottom: 0;
-                `}
-                value={message.visibility}
-                options={visibilityOptions}
-                label={t("feedback-message-visibility")}
-                onChangeByValue={(newVisibility) => {
-                  onChange(
-                    value.map((m, i) =>
-                      i === index ? { ...m, visibility: newVisibility as V } : m,
-                    ),
-                  )
-                }}
-              />
-            </VisibilityContainer>
-            <MessageContainer>
-              <ParsedTextField
-                label={t("feedback-message-text")}
-                value={message.message}
-                onChange={(newMessage) => {
-                  onChange(value.map((m, i) => (i === index ? { ...m, message: newMessage } : m)))
-                }}
-              />
-            </MessageContainer>
+        <FeedbackCard key={index}>
+          <DeleteButtonContainer>
             <Button
               aria-label={t("remove")}
               variant="icon"
@@ -149,13 +131,38 @@ const FeedbackMessagesEditor = <V extends string>({
             >
               <Trash size={16} />
             </Button>
-          </FeedbackRow>
+          </DeleteButtonContainer>
+          <VisibilityContainer>
+            <SelectField
+              id={`${idPrefix}-visibility-${index}`}
+              className={css`
+                margin-bottom: 0;
+              `}
+              value={message.visibility}
+              options={visibilityOptions}
+              label={t("feedback-message-visibility")}
+              onChangeByValue={(newVisibility) => {
+                onChange(
+                  value.map((m, i) => (i === index ? { ...m, visibility: newVisibility as V } : m)),
+                )
+              }}
+            />
+          </VisibilityContainer>
+          <MessageContainer>
+            <ParsedTextField
+              label={t("feedback-message-text")}
+              value={message.message}
+              onChange={(newMessage) => {
+                onChange(value.map((m, i) => (i === index ? { ...m, message: newMessage } : m)))
+              }}
+            />
+          </MessageContainer>
           {message.message.trim() === "" && (
-            // An empty row blocks saving (validatePrivateSpec rejects it); point at the row so the
+            // An empty row blocks saving (validatePrivateSpec rejects it); point at the card so the
             // save-block is not invisible.
             <EmptyMessageError>{t("feedback-message-cannot-be-empty")}</EmptyMessageError>
           )}
-        </React.Fragment>
+        </FeedbackCard>
       ))}
       <Button
         variant="tertiary"

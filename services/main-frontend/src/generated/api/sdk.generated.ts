@@ -424,6 +424,8 @@ import type {
   GetResetPasswordTokenStatusResponses,
   GetRolesData,
   GetRolesResponses,
+  GetSharedSubmissionInfoData,
+  GetSharedSubmissionInfoResponses,
   GetSisuCourseLlmDescriptionsData,
   GetSisuCourseLlmDescriptionsResponses,
   GetStatusCronjobsData,
@@ -797,6 +799,7 @@ import {
   zGetRegradingsResponse,
   zGetResetPasswordTokenStatusResponse,
   zGetRolesResponse,
+  zGetSharedSubmissionInfoResponse,
   zGetSisuCourseLlmDescriptionsResponse,
   zGetStatusCronjobsResponse,
   zGetStatusDeploymentsResponse,
@@ -6220,6 +6223,28 @@ export const removeRole = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed
+ * to render a shared submission.
+ *
+ * The `token` is the unguessable share id minted by the exercise-services client
+ * share endpoint. Login is required, but any authenticated user who holds the token
+ * may view the submission — no teacher or course role is needed. Rendering reuses
+ * the ordinary submission-info payload and `view-submission` iframe contract; for
+ * editor (native-client) submissions that currently means a download link rather
+ * than inline code.
+ */
+export const getSharedSubmissionInfo = <ThrowOnError extends boolean = true>(
+  options: Options<GetSharedSubmissionInfoData, ThrowOnError>,
+): RequestResult<GetSharedSubmissionInfoResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetSharedSubmissionInfoResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetSharedSubmissionInfoResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions/{token}",
+    ...options,
   })
 
 /**

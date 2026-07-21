@@ -115,6 +115,29 @@ pub struct ExerciseSlideSubmissionInfo {
     pub user_exercise_state: Option<UserExerciseState>,
 }
 
+impl ExerciseSlideSubmissionInfo {
+    /// Redacts fields that must never be exposed through a share-token viewer.
+    ///
+    /// A share link is a bare capability: any logged-in holder of the (forwardable)
+    /// token may view the submission, with no teacher or course role. The role-gated
+    /// teacher and course-material paths can afford to show more, but the shared view
+    /// must ALWAYS hide:
+    ///
+    /// - the model solution spec of every task — otherwise "submit → share → open my
+    ///   own link" would be the cheapest path to an exercise's model solution before
+    ///   earning it. Unlike the course-material path, which only reveals it once the
+    ///   student has full points or is out of tries, this strip is unconditional.
+    /// - the submitter's internal `user_id` — a stable, cross-referenceable identifier
+    ///   the token holder has no business learning. It is nulled rather than removed so
+    ///   the wire shape (shared by other consumers of this type) is unchanged.
+    pub fn strip_for_shared_view(&mut self) {
+        for task in &mut self.tasks {
+            task.model_solution_spec = None;
+        }
+        self.exercise_slide_submission.user_id = Uuid::nil();
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct ExerciseSlideSubmissionAndUserExerciseState {
@@ -972,4 +995,122 @@ AND deleted_at IS NULL
     .execute(&mut *conn)
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::exercise_tasks::CourseMaterialExerciseTask;
+
+    fn dummy_exercise() -> Exercise {
+        Exercise {
+            id: Uuid::new_v4(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            name: "Test exercise".to_string(),
+            course_id: Some(Uuid::new_v4()),
+            exam_id: None,
+            page_id: Uuid::new_v4(),
+            chapter_id: None,
+            deadline: None,
+            deleted_at: None,
+            score_maximum: 1,
+            order_number: 0,
+            copied_from: None,
+            max_tries_per_slide: None,
+            limit_number_of_tries: false,
+            needs_peer_review: false,
+            needs_self_review: false,
+            use_course_default_peer_or_self_review_config: false,
+            exercise_language_group_id: None,
+            teacher_reviews_answer_after_locking: false,
+        }
+    }
+
+    fn dummy_slide_submission(user_id: Uuid) -> ExerciseSlideSubmission {
+        ExerciseSlideSubmission {
+            id: Uuid::new_v4(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            exercise_slide_id: Uuid::new_v4(),
+            course_id: Some(Uuid::new_v4()),
+            exam_id: None,
+            exercise_id: Uuid::new_v4(),
+            user_id,
+            user_points_update_strategy:
+                UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+            flag_count: None,
+        }
+    }
+
+    fn dummy_task_with_model_solution() -> CourseMaterialExerciseTask {
+        CourseMaterialExerciseTask {
+            id: Uuid::new_v4(),
+            exercise_service_slug: "tmc".to_string(),
+            exercise_slide_id: Uuid::new_v4(),
+            exercise_iframe_url: None,
+            pseudonumous_user_id: None,
+            assignment: serde_json::json!([]),
+            public_spec: Some(serde_json::json!({ "public": true })),
+            model_solution_spec: Some(serde_json::json!({ "solution": "the answer" })),
+            previous_submission: None,
+            previous_submission_grading: None,
+            order_number: 0,
+            deleted_at: None,
+        }
+    }
+
+    /// A shared-submission link must never leak the model solution or the submitter's
+    /// internal user id, regardless of grading state (unconditional strip).
+    #[test]
+    fn strip_for_shared_view_removes_model_solution_and_user_id() {
+        let user_id = Uuid::new_v4();
+        let mut info = ExerciseSlideSubmissionInfo {
+            tasks: vec![
+                dummy_task_with_model_solution(),
+                dummy_task_with_model_solution(),
+            ],
+            exercise: dummy_exercise(),
+            exercise_slide_submission: dummy_slide_submission(user_id),
+            user_exercise_state: None,
+        };
+
+        // Preconditions: the raw payload carries both secrets.
+        assert!(
+            info.tasks.iter().all(|t| t.model_solution_spec.is_some()),
+            "test fixture should start with model solutions present"
+        );
+        assert_eq!(info.exercise_slide_submission.user_id, user_id);
+
+        info.strip_for_shared_view();
+
+        assert!(
+            info.tasks.iter().all(|t| t.model_solution_spec.is_none()),
+            "model_solution_spec must be absent from every task in the shared view"
+        );
+        assert_eq!(
+            info.exercise_slide_submission.user_id,
+            Uuid::nil(),
+            "submitter user_id must not be exposed in the shared view"
+        );
+    }
+
+    /// Non-secret fields (public spec, grading-related state) are left untouched.
+    #[test]
+    fn strip_for_shared_view_keeps_public_spec() {
+        let mut info = ExerciseSlideSubmissionInfo {
+            tasks: vec![dummy_task_with_model_solution()],
+            exercise: dummy_exercise(),
+            exercise_slide_submission: dummy_slide_submission(Uuid::new_v4()),
+            user_exercise_state: None,
+        };
+
+        info.strip_for_shared_view();
+
+        assert!(
+            info.tasks[0].public_spec.is_some(),
+            "public_spec should remain available in the shared view"
+        );
+    }
 }

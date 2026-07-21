@@ -5535,6 +5535,15 @@ export const zGetPendingRolesResponse = z.array(zPendingRole)
 
 export const zRemoveRoleBody = zRoleInfo
 
+export const zGetSharedSubmissionInfoPath = z.object({
+  token: z.uuid(),
+})
+
+/**
+ * Data needed to render the shared submission
+ */
+export const zGetSharedSubmissionInfoResponse = zExerciseSlideSubmissionInfo
+
 /**
  * Cronjobs
  */

@@ -46,7 +46,7 @@ async fn get_shared_submission_info(
         share.exercise_slide_submission_id,
     )
     .await?;
-    let res = models::exercise_slide_submissions::get_exercise_slide_submission_info(
+    let mut res = models::exercise_slide_submissions::get_exercise_slide_submission_info(
         &mut conn,
         share.exercise_slide_submission_id,
         submission.user_id,
@@ -54,6 +54,11 @@ async fn get_shared_submission_info(
         true,
     )
     .await?;
+
+    // A share link is a bare, forwardable capability with no course/teacher role, so
+    // it must never be the cheapest path to a model solution, nor leak the submitter's
+    // internal user id. Strip both unconditionally before serializing.
+    res.strip_for_shared_view();
 
     auth_token.authorized_ok(web::Json(res))
 }

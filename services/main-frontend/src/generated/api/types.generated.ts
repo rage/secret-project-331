@@ -8523,6 +8523,28 @@ export type RemoveRoleResponses = {
   200: unknown
 }
 
+export type GetSharedSubmissionInfoData = {
+  body?: never
+  path: {
+    /**
+     * Submission share token
+     */
+    token: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/shared-submissions/{token}"
+}
+
+export type GetSharedSubmissionInfoResponses = {
+  /**
+   * Data needed to render the shared submission
+   */
+  200: ExerciseSlideSubmissionInfo
+}
+
+export type GetSharedSubmissionInfoResponse =
+  GetSharedSubmissionInfoResponses[keyof GetSharedSubmissionInfoResponses]
+
 export type GetStatusCronjobsData = {
   body?: never
   path?: never

@@ -217,6 +217,7 @@ import {
   getRegradingsCount,
   getResetPasswordTokenStatus,
   getRoles,
+  getSharedSubmissionInfo,
   getSisuCourseLlmDescriptions,
   getStatusCronjobs,
   getStatusDeployments,
@@ -693,6 +694,8 @@ import type {
   GetResetPasswordTokenStatusResponse,
   GetRolesData,
   GetRolesResponse,
+  GetSharedSubmissionInfoData,
+  GetSharedSubmissionInfoResponse,
   GetSisuCourseLlmDescriptionsData,
   GetSisuCourseLlmDescriptionsResponse,
   GetStatusCronjobsData,
@@ -8551,6 +8554,38 @@ export const removeRoleMutation = (
   }
   return mutationOptions
 }
+
+export const getSharedSubmissionInfoQueryKey = (options: Options<GetSharedSubmissionInfoData>) =>
+  createQueryKey("getSharedSubmissionInfo", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed
+ * to render a shared submission.
+ *
+ * The `token` is the unguessable share id minted by the exercise-services client
+ * share endpoint. Login is required, but any authenticated user who holds the token
+ * may view the submission — no teacher or course role is needed. Rendering reuses
+ * the ordinary submission-info payload and `view-submission` iframe contract; for
+ * editor (native-client) submissions that currently means a download link rather
+ * than inline code.
+ */
+export const getSharedSubmissionInfoOptions = (options: Options<GetSharedSubmissionInfoData>) =>
+  queryOptions<
+    GetSharedSubmissionInfoResponse,
+    DefaultError,
+    GetSharedSubmissionInfoResponse,
+    ReturnType<typeof getSharedSubmissionInfoQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getSharedSubmissionInfo({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getSharedSubmissionInfoQueryKey(options),
+  })
 
 export const getStatusCronjobsQueryKey = (options?: Options<GetStatusCronjobsData>) =>
   createQueryKey("getStatusCronjobs", options)

@@ -1,11 +1,34 @@
+import { existsSync } from "node:fs"
 import { cp, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises"
 import { dirname, extname, join, relative, resolve, sep } from "node:path"
 
 const SCRIPT_DIR = import.meta.dirname
 // src -> create-exercise-service -> packages -> shared-module -> repository root
 const REPO_ROOT = resolve(SCRIPT_DIR, "../../../..")
-const TEMPLATE_DIR = join(REPO_ROOT, "services", "example-exercise")
+const MONOREPO_TEMPLATE_DIR = join(REPO_ROOT, "services", "example-exercise")
 const SHARED_PACKAGES_DIR = join(REPO_ROOT, "shared-module", "packages")
+
+// The published package ships a snapshot of the template next to the built CLI (dist/template),
+// produced by scripts/bundle-template.ts. Its presence is how we tell "running from npm" (standalone
+// mode) apart from "running inside the monorepo" (dev mode).
+const BUNDLED_TEMPLATE_DIR = join(SCRIPT_DIR, "template")
+
+/**
+ * How the generated project gets the shared exercise code:
+ * - "vendor": copy each package's `src` into `src/shared-module/` (monorepo dev; lets you scaffold
+ *   against local, unpublished shared-module changes).
+ * - "npm": depend on the published `@moocfi/exercise-*` packages and rewrite the template's
+ *   `@/shared-module/exercise-*` imports to them (what a standalone `pnpm create` produces).
+ */
+export type SharedModuleStrategy = "vendor" | "npm"
+
+/** The @moocfi/exercise-* packages a standalone (npm-mode) project depends on. */
+const NPM_RUNTIME_PACKAGES = [
+  "@moocfi/exercise-protocol",
+  "@moocfi/exercise-client",
+  "@moocfi/exercise-react",
+]
+const NPM_DEV_PACKAGES = ["@moocfi/exercise-service-test-utils"]
 
 /** The literal service name used throughout the example-exercise template. */
 const TEMPLATE_SERVICE_NAME = "example-exercise"
@@ -14,13 +37,20 @@ const TEMPLATE_SERVICE_NAME = "example-exercise"
  * Shared-module packages vendored into the generated project's `src/shared-module/`, mirroring
  * `shared-module/sync.ts` so the template's `@/shared-module/<pkg>/...` imports resolve. The
  * exercise-service code is a layered set — exercise-protocol ← exercise-client ← exercise-react
- * (the iframe child's React adapter) — and the template imports nothing from common/components or
- * the host-side exercise-iframe-host, so only these three are vendored.
+ * (the iframe child's React adapter); the template imports nothing from common/components or the
+ * host-side exercise-iframe-host. exercise-service-test-utils is vendored for the inherited e2e
+ * suite (`e2e/protocol.spec.ts`); it declares no runtime deps, so it adds nothing to the generated
+ * package.json (its `@playwright/test` comes from the template's devDependencies).
  */
-const VENDORED_PACKAGES = ["exercise-protocol", "exercise-client", "exercise-react"]
+const VENDORED_PACKAGES = [
+  "exercise-protocol",
+  "exercise-client",
+  "exercise-react",
+  "exercise-service-test-utils",
+]
 
 /** Top-level entries in the template that must never be copied into a generated project. */
-const COPY_EXCLUDES = new Set([
+export const COPY_EXCLUDES = new Set([
   "node_modules",
   "dist",
   "build",
@@ -31,6 +61,13 @@ const COPY_EXCLUDES = new Set([
   "pnpm-workspace.yaml",
   "tsconfig.tsbuildinfo",
   ".vscode",
+  // Playwright outputs from running the template's e2e suite; git-ignored, but the copier doesn't
+  // read .gitignore, so exclude them explicitly (they also hold binaries that name replacement would
+  // corrupt).
+  "test-results",
+  "playwright-report",
+  "blob-report",
+  ".playwright-cli",
   // moocfi-internal deployment files (private GCR base images + pnpm workspace); broken in a
   // standalone project, so not generated.
   "Dockerfile",
@@ -92,7 +129,7 @@ async function replaceInFile(path: string, replacements: [string, string][]): Pr
  * Copy the template tree, skipping COPY_EXCLUDES entries and the synced shared-module (re-vendored
  * fresh).
  */
-async function copyTemplate(src: string, dest: string): Promise<void> {
+export async function copyTemplate(src: string, dest: string): Promise<void> {
   const sharedModuleDir = join(src, "src", "shared-module")
   await cp(src, dest, {
     recursive: true,
@@ -126,23 +163,63 @@ async function vendorSharedModules(projectPath: string): Promise<void> {
 }
 
 /**
- * Build the generated package.json. The vendored shared code needs deps the lean template doesn't
- * declare, so merge in the shared packages' dep sets; the template's own pins win on conflict.
+ * Rewrite the template's internal shared-module alias to the published npm package names. The
+ * template imports siblings as `@/shared-module/exercise-<pkg>/...`; standalone projects get that
+ * code from npm, so those become `@moocfi/exercise-<pkg>/...` (the published packages expose the
+ * same deep paths). This is the npm-mode counterpart to vendorSharedModules.
+ */
+async function rewriteSharedModuleImportsToNpm(projectPath: string): Promise<void> {
+  await replaceNameInAllFiles(projectPath, [["@/shared-module/exercise-", "@moocfi/exercise-"]])
+}
+
+/** Auto-detect the strategy from whether the CLI is running from the published package. */
+function resolveSharedModuleStrategy(): SharedModuleStrategy {
+  return existsSync(BUNDLED_TEMPLATE_DIR) ? "npm" : "vendor"
+}
+
+/** This CLI's own version, used to pin the generated project's `@moocfi/exercise-*` deps. */
+async function readCliVersion(): Promise<string> {
+  const pkg = await readJson<PackageJson>(join(SCRIPT_DIR, "..", "package.json"))
+  return pkg.version ?? "0.0.0"
+}
+
+/**
+ * Build the generated package.json.
+ *
+ * - "vendor": the vendored shared code needs deps the lean template doesn't declare, so merge in the
+ *   shared packages' dep sets (the template's own pins win on conflict).
+ * - "npm": add the published `@moocfi/exercise-*` packages (pinned to this CLI's version). Their own
+ *   deps (emotion, immer, fontsource, ...) come transitively from npm, so nothing else is merged.
  */
 async function buildPackageJson(
   projectPath: string,
   projectName: string,
   port: number,
+  strategy: SharedModuleStrategy,
+  exercisePackagesVersion: string,
 ): Promise<void> {
   const pkg = await readJson<PackageJson>(join(projectPath, "package.json"))
 
   const merged: Record<string, string> = {}
-  // Start from the shared packages, then let the template override.
-  for (const sharedPkg of VENDORED_PACKAGES) {
-    const shared = await readJson<PackageJson>(join(SHARED_PACKAGES_DIR, sharedPkg, "package.json"))
-    Object.assign(merged, shared.dependencies, shared.peerDependencies)
+  if (strategy === "vendor") {
+    // Start from the shared packages, then let the template override.
+    for (const sharedPkg of VENDORED_PACKAGES) {
+      const shared = await readJson<PackageJson>(
+        join(SHARED_PACKAGES_DIR, sharedPkg, "package.json"),
+      )
+      Object.assign(merged, shared.dependencies, shared.peerDependencies)
+    }
   }
   Object.assign(merged, pkg.dependencies)
+  if (strategy === "npm") {
+    for (const npmPkg of NPM_RUNTIME_PACKAGES) {
+      merged[npmPkg] = `^${exercisePackagesVersion}`
+    }
+    pkg.devDependencies = { ...pkg.devDependencies }
+    for (const npmPkg of NPM_DEV_PACKAGES) {
+      pkg.devDependencies[npmPkg] = `^${exercisePackagesVersion}`
+    }
+  }
 
   pkg.name = projectName
   pkg.version = "0.1.0"
@@ -198,6 +275,9 @@ const BINARY_EXTENSIONS = new Set([
   ".gif",
   ".avif",
   ".pdf",
+  // Playwright trace/video artifacts, in case any escape COPY_EXCLUDES.
+  ".zip",
+  ".webm",
 ])
 
 /**
@@ -244,8 +324,10 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
   // Standalone .editorconfig (the template's delegates to the monorepo root).
   await writeFile(join(projectPath, ".editorconfig"), STANDALONE_EDITORCONFIG)
 
-  // Standalone pnpm-workspace.yaml (the template's is excluded from the copy). Allows the build
-  // scripts the generated project needs so `pnpm install` succeeds.
+  // Standalone pnpm-workspace.yaml (the template's is excluded from the copy). pnpm skips a dep's
+  // build script unless allow-listed, so this lets `pnpm install` build esbuild. Always emitted:
+  // npm and yarn ignore the file, and this repo is a pnpm shop, so a `pnpm install` in a project
+  // scaffolded with npm/yarn still works instead of failing on esbuild's skipped build script.
   await writeFile(join(projectPath, "pnpm-workspace.yaml"), STANDALONE_PNPM_WORKSPACE)
 
   // Track the vendored shared-module snapshot instead of ignoring it (it is real source now).
@@ -257,16 +339,33 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
   await writeFile(gitignorePath, gitignore)
 }
 
+export type PackageManager = "npm" | "yarn" | "pnpm"
+
 export interface ScaffoldOptions {
   projectName: string
   /** Absolute path the project will be created at. */
   absoluteProjectPath: string
   port: number
+  /** Package manager the generated project targets; used only for the printed "next steps". */
+  packageManager?: PackageManager
+  /**
+   * How to supply the shared exercise code. Defaults to auto-detect: "npm" when running from the
+   * published package, "vendor" when running inside the monorepo.
+   */
+  sharedModule?: SharedModuleStrategy
+  /** Override the template directory (defaults to the bundled snapshot or the monorepo template). */
+  templateDir?: string
+  /** Version to pin the generated `@moocfi/exercise-*` deps to (npm mode). Defaults to the CLI's. */
+  exercisePackagesVersion?: string
 }
 
 /** Create a standalone React exercise service from the example-exercise template. */
 export async function scaffoldReactProject(options: ScaffoldOptions): Promise<void> {
   const { projectName, absoluteProjectPath, port } = options
+  const strategy = options.sharedModule ?? resolveSharedModuleStrategy()
+  const templateDir =
+    options.templateDir ?? (strategy === "npm" ? BUNDLED_TEMPLATE_DIR : MONOREPO_TEMPLATE_DIR)
+  const exercisePackagesVersion = options.exercisePackagesVersion ?? (await readCliVersion())
 
   if (await isNonEmptyDir(absoluteProjectPath)) {
     throw new Error(
@@ -275,13 +374,18 @@ export async function scaffoldReactProject(options: ScaffoldOptions): Promise<vo
   }
 
   console.log("Copying template...")
-  await copyTemplate(TEMPLATE_DIR, absoluteProjectPath)
+  await copyTemplate(templateDir, absoluteProjectPath)
 
-  console.log("Vendoring shared modules...")
-  await vendorSharedModules(absoluteProjectPath)
+  if (strategy === "vendor") {
+    console.log("Vendoring shared modules...")
+    await vendorSharedModules(absoluteProjectPath)
+  } else {
+    console.log("Wiring up @moocfi/exercise-* packages...")
+    await rewriteSharedModuleImportsToNpm(absoluteProjectPath)
+  }
 
   console.log("Generating package.json...")
-  await buildPackageJson(absoluteProjectPath, projectName, port)
+  await buildPackageJson(absoluteProjectPath, projectName, port, strategy, exercisePackagesVersion)
 
   console.log("Parameterizing project...")
   await parameterize(absoluteProjectPath, projectName)
@@ -323,12 +427,15 @@ async function main() {
       },
     ],
   })
-  const packageManager = await select({
+  const packageManager: PackageManager = await select({
     message: "Package manager",
+    // pnpm is the repo's package manager and the only one that needs the generated
+    // pnpm-workspace.yaml, so it's the default.
+    default: "pnpm",
     choices: [
+      { name: "pnpm", value: "pnpm" },
       { name: "npm", value: "npm" },
       { name: "yarn", value: "yarn" },
-      { name: "pnpm", value: "pnpm" },
     ],
   })
   const port = await input({
@@ -356,12 +463,23 @@ async function main() {
   }
 
   try {
-    await scaffoldReactProject({ projectName, absoluteProjectPath, port: Number(port) })
+    await scaffoldReactProject({
+      projectName,
+      absoluteProjectPath,
+      port: Number(port),
+      packageManager,
+    })
   } catch (error) {
     console.error(error instanceof Error ? error.message : error)
     process.exitCode = 1
     return
   }
+
+  const sharedModuleNote =
+    resolveSharedModuleStrategy() === "npm"
+      ? `Note: the exercise SDK comes from the @moocfi/exercise-* npm packages (see package.json).`
+      : `Note: src/shared-module/ is a vendored snapshot of the @moocfi shared code. Re-run
+create-exercise-service (or copy the packages over manually) to update it.`
 
   console.log(`
 Done! Created exercise service "${projectName}" in ${absoluteProjectPath}
@@ -371,8 +489,7 @@ Next steps:
   ${packageManager} install
   ${packageManager} run dev    # → http://localhost:${port}
 
-Note: src/shared-module/ is a vendored snapshot of the @moocfi shared code. Re-run
-create-exercise-service (or copy the packages over manually) to update it.
+${sharedModuleNote}
 `)
 }
 

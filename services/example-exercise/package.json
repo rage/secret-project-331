@@ -24,6 +24,7 @@
     "react-i18next": "^17.0.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@rsbuild/core": "^2.1.1",
     "@rsbuild/plugin-react": "^2.1.0",
     "@rsbuild/plugin-svgr": "^2.0.4",

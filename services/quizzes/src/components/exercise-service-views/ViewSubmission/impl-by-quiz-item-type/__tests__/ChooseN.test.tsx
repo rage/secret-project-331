@@ -14,8 +14,7 @@ const makeModelSolutionOption = (id: string, title: string, correct: boolean): Q
   correct,
   title,
   body: null,
-  messageAfterSubmissionWhenSelected: null,
-  additionalCorrectnessExplanationOnModelSolution: null,
+  messagesOnModelSolution: [],
 })
 
 const publicItem: PublicSpecQuizItemChooseN = {
@@ -39,9 +38,7 @@ const modelSolution: ModelSolutionQuizItemChooseN = {
   n: 2,
   title: "Pick the fruits",
   body: null,
-  successMessage: null,
-  failureMessage: null,
-  messageOnModelSolution: null,
+  messagesOnModelSolution: [],
   options: [
     makeModelSolutionOption("o-1", "Apple", true),
     makeModelSolutionOption("o-2", "Carrot", false),

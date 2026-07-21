@@ -1,0 +1,69 @@
+{
+  "name": "@moocfi/exercise-service-test-utils",
+  "version": "0.0.0",
+  "description": "Testing utilities that play the host/parent side of the moocfi exercise-plugin iframe protocol: a browser host emulator and Playwright helpers to drive a plugin's views and assert its messages.",
+  "keywords": [
+    "exercise-service",
+    "moocfi",
+    "playwright",
+    "testing"
+  ],
+  "homepage": "https://github.com/rage/secret-project-331#readme",
+  "license": "Apache-2.0",
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rage/secret-project-331.git",
+    "directory": "shared-module/packages/exercise-service-test-utils"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./*": {
+      "types": "./dist/*.d.mts",
+      "default": "./dist/*.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
+    "@playwright/test": "^1.61.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "next": "^16.2.6",
+    "publint": "0.3.21",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "tsdown": "0.22.7",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "@playwright/test": ">=1.40.0"
+  },
+  "peerDependenciesMeta": {
+    "@playwright/test": {
+      "optional": true
+    }
+  }
+}

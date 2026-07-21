@@ -1,26 +1,61 @@
 {
   "name": "@moocfi/exercise-client",
   "version": "0.0.0",
-  "private": true,
-  "keywords": [],
+  "description": "Framework-agnostic browser runtime for moocfi exercise-service iframes: parent-connection, height-observer, and output-state engines plus the createExerciseClient facade.",
+  "keywords": [
+    "exercise-service",
+    "iframe",
+    "moocfi"
+  ],
+  "homepage": "https://github.com/rage/secret-project-331#readme",
   "license": "Apache-2.0",
   "author": "Henrik Nygren <nygrenh@gmail.com>",
-  "main": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rage/secret-project-331.git",
+    "directory": "shared-module/packages/exercise-client"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./*": {
+      "types": "./dist/*.d.mts",
+      "default": "./dist/*.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
+    "build": "tsdown",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
   "dependencies": {
     "immer": "^11.1.8"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.0.1",
     "@typescript/native": "npm:typescript@^7.0.2",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "next": "^16.2.6",
+    "publint": "0.3.21",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "tsdown": "0.22.7",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "devEngines": {

@@ -7,7 +7,9 @@
  *
  *   1. forbidden KEYS   — no object anywhere in the projection uses one of these property names.
  *   2. forbidden VALUES — none of the private spec's answer-revealing strings survive into the
- *                         serialized projection (substring match against the JSON).
+ *                         projection as a serialized JSON string token (a key, element, or value).
+ *                         Matching the quoted token rather than a bare substring avoids false
+ *                         positives where a short value coincides with the hex of a legitimate id.
  *
  * It is meant to run right before a projection is served, and to FAIL CLOSED: on any suspected leak
  * it throws, so the endpoint returns an error instead of shipping the leak (see `jsonRoute`, which
@@ -60,7 +62,13 @@ export function assertNoLeak(projection: unknown, options: LeakGuardOptions): vo
 
   const serialized = JSON.stringify(projection) ?? ""
   for (const forbidden of options.forbiddenValues) {
-    if (forbidden !== "" && serialized.includes(JSON.stringify(forbidden).slice(1, -1))) {
+    // Match the forbidden value as a complete JSON string token (quotes included), not a bare
+    // substring. A short value — e.g. a single-character option name like "a" — would otherwise
+    // collide with the hex of a legitimately-present id (correct-option UUIDs contain a/b/c/...) and
+    // make the guard fail closed on valid input. A genuine leak surfaces the value as its own
+    // serialized string (a key, array element, or property value), which the quoted form still
+    // catches; `JSON.stringify` on both sides also keeps escaping consistent.
+    if (forbidden !== "" && serialized.includes(JSON.stringify(forbidden))) {
       throw new LeakError(`Projection leaked a forbidden value: "${forbidden}"`)
     }
   }

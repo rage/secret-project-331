@@ -45,6 +45,18 @@ describe("assertNoLeak", () => {
       }),
     ).toThrow(LeakError)
   })
+
+  it("does not false-positive when a short forbidden value is only hex inside a legitimate id", () => {
+    // Regression: single-character option names ("a"/"b"/"c") must not be treated as leaked just
+    // because those letters appear as hex digits inside a correct-option UUID that legitimately
+    // ships in the model solution. The forbidden value must survive as its own JSON string to count.
+    expect(() =>
+      assertNoLeak(
+        { version: "1", correctOptionIds: ["8a75cd7a-cb06-5867-a2d3-70a6ab992339"] },
+        { forbiddenKeys: ["correct", "name"], forbiddenValues: ["a", "b", "c"] },
+      ),
+    ).not.toThrow()
+  })
 })
 
 describe("leak regression over a representative private spec", () => {

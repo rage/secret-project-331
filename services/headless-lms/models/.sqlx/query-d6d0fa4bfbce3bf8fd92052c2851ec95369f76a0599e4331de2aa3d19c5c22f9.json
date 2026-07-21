@@ -145,6 +145,17 @@
             "name": "updated_at"
           }
         }
+      },
+      {
+        "ordinal": 13,
+        "name": "rotated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "rotated_at"
+          }
+        }
       }
     ],
     "parameters": {
@@ -166,7 +177,8 @@
       false,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "d6d0fa4bfbce3bf8fd92052c2851ec95369f76a0599e4331de2aa3d19c5c22f9"

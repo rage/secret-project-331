@@ -1,0 +1,111 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            WITH current AS (\n                SELECT device_code_digest, last_polled_at\n                FROM oauth_device_codes\n                WHERE device_code_digest = $1\n                FOR UPDATE\n            )\n            UPDATE oauth_device_codes d\n               SET last_polled_at = now()\n              FROM current c\n             WHERE d.device_code_digest = c.device_code_digest\n            RETURNING\n                c.last_polled_at AS \"previous_polled_at\",\n                d.status AS \"status: DeviceCodeStatus\",\n                d.expires_at AS \"expires_at!\",\n                d.interval_seconds AS \"interval_seconds!\",\n                d.user_id,\n                d.client_id AS \"client_id!\",\n                d.scopes AS \"scopes!\"\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "previous_polled_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "last_polled_at"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "status: DeviceCodeStatus",
+        "type_info": {
+          "Custom": {
+            "name": "device_code_status",
+            "kind": {
+              "Enum": [
+                "pending",
+                "approved",
+                "denied"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "status"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "expires_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "expires_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "interval_seconds!",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "interval_seconds"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "client_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "client_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "scopes!",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "scopes"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "41b9f7e2fac5bfeac1d2e5ff0917d7ed3ae6b7a22dc8961a19df8576f65bb4ff"
+}

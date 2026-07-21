@@ -1050,17 +1050,38 @@ pub async fn authenticate_test_user(
     Ok(true)
 }
 
-// Only used for testing, not to use in production.
+/// Maps a fixed, well-known test token to a seeded user. **Test/dev mode only.**
+///
+/// The exercise-services client API's `UserFromOAuthToken` extractor calls this
+/// before the real OAuth-token path when `test_mode` is on, so tests can drive
+/// the API with a stable token instead of running a full device-authorization
+/// flow. Returns:
+///  - `Ok(Some(user))` when the token is a recognised fixed test token;
+///  - `Ok(None)` when it is not, so the caller falls through to real OAuth-token
+///    validation (this keeps genuine device-flow tokens working under test_mode);
+///  - `Err(..)` only if a recognised token's seeded user is unexpectedly missing.
+///
+/// Keep the mapping small and deterministic. The token strings are intentionally
+/// obvious and carry no security value — they only work while `test_mode` is on.
 pub async fn authenticate_test_token(
     conn: &mut PgConnection,
-    _token: &SecretString,
+    token: &SecretString,
     application_configuration: &ApplicationConfiguration,
-) -> anyhow::Result<User> {
+) -> anyhow::Result<Option<User>> {
     // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
     assert!(application_configuration.test_mode);
-    // TODO: this has never worked
-    let user = models::users::get_by_email(conn, "TODO").await?;
-    Ok(user)
+
+    // Exposed only here to compare against the fixed test-token table; the value
+    // is a well-known constant, not a secret.
+    let email = match token.expose_secret() {
+        "test-token-langs" => "langs@example.com",
+        "test-token-student1" => "student1@example.com",
+        "test-token-student2" => "student2@example.com",
+        _ => return Ok(None),
+    };
+    let user = models::users::get_by_email(conn, email).await?;
+    info!("Test mode: mapped fixed test token to seeded user {email}");
+    Ok(Some(user))
 }
 
 /**

@@ -1,5 +1,5 @@
 [package]
-name = "mooc-langs-api"
+name = "exercise-services-api"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -17,8 +17,17 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.150"
 # derive(Error)
 thiserror = "2.0.18"
+# Optional OpenAPI schema derives, enabled by the `openapi` feature. Kept
+# optional so downstream consumers of this crate (e.g. tmc-langs-rust) do not
+# pull in utoipa.
+utoipa = { version = "5.5.0", features = ["chrono", "uuid"], optional = true }
 # A library to generate and parse UUIDs.
 uuid = { version = "1.23.4", features = ["serde"] }
+
+[features]
+# Derives `utoipa::ToSchema` on the API types so the server can emit an OpenAPI
+# spec for the `/api/v0/exercise-services/client` surface. Off by default; enabled by the server.
+openapi = ["dep:utoipa"]
 
 [lints.clippy]
 unwrap_used = "deny"

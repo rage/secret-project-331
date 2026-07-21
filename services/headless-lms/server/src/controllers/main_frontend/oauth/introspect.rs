@@ -141,6 +141,7 @@ pub async fn introspect(
                         iss: None,
                         jti: None,
                         token_type: None,
+                        upstream_id: None,
                     }),
             );
         }
@@ -183,6 +184,7 @@ pub async fn introspect(
                     iss: None,
                     jti: None,
                     token_type: None,
+                    upstream_id: None,
                 }),
         );
     }
@@ -213,6 +215,7 @@ pub async fn introspect(
                         iss: None,
                         jti: None,
                         token_type: None,
+                        upstream_id: None,
                     }),
             );
         }
@@ -224,6 +227,10 @@ pub async fn introspect(
 
     // Fetch the client that originally issued the token (not the introspecting client)
     let token_client = OAuthClient::find_by_id(&mut conn, access_token.client_id).await?;
+
+    // Resolve the token owner's legacy TMC upstream_id, gated to confidential
+    // callers (see `resolve_gated_upstream_id`).
+    let upstream_id = resolve_gated_upstream_id(&mut conn, &client, access_token.user_id).await;
 
     // Build response with token metadata
     let base_url = app_conf.base_url.trim_end_matches('/');
@@ -244,6 +251,7 @@ pub async fn introspect(
             TokenType::Bearer => "Bearer".to_string(),
             TokenType::DPoP => "DPoP".to_string(),
         }),
+        upstream_id,
     };
 
     server_token.authorized_ok(
@@ -253,6 +261,126 @@ pub async fn introspect(
     )
 }
 
+/// Resolve the token owner's legacy TMC `upstream_id` for the introspection
+/// response — a privileged, non-standard claim consumed by tmc-server.
+///
+/// It is only exposed to a caller that authenticated as a **confidential**
+/// client (its secret was verified before this point). Public clients present
+/// no secret, so they never receive it and we skip the user lookup entirely. A
+/// missing/erroring user row must not break introspection, so a lookup failure
+/// just omits the claim.
+async fn resolve_gated_upstream_id(
+    conn: &mut sqlx::PgConnection,
+    introspecting_client: &OAuthClient,
+    token_user_id: Option<uuid::Uuid>,
+) -> Option<i32> {
+    if !introspecting_client.is_confidential() {
+        return None;
+    }
+    match token_user_id {
+        Some(user_id) => match models::users::get_by_id(conn, user_id).await {
+            Ok(user) => user.upstream_id,
+            Err(e) => {
+                tracing::warn!(err = %e, "OAuth introspect: token user lookup failed; omitting upstream_id");
+                None
+            }
+        },
+        None => None,
+    }
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("/introspect", web::post().to(introspect));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_helper::*;
+    use headless_lms_models::{
+        library::oauth::{GrantTypeName, generate_access_token, token_digest_sha256},
+        oauth_client::{ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod},
+    };
+    use secrecy::SecretString;
+    use sqlx::PgConnection;
+    use uuid::Uuid;
+
+    fn hmac_key() -> SecretString {
+        SecretString::new("test-introspect-hmac-key".to_string().into())
+    }
+
+    async fn insert_client(
+        conn: &mut PgConnection,
+        auth_method: TokenEndpointAuthMethod,
+    ) -> OAuthClient {
+        let client_id = format!("cli-{}", &generate_access_token()[..12]);
+        let secret = token_digest_sha256("introspect-test-secret", &hmac_key());
+        let (client_secret, require_pkce) = match auth_method {
+            TokenEndpointAuthMethod::ClientSecretPost => (Some(&secret), false),
+            TokenEndpointAuthMethod::None => (None, true),
+        };
+        OAuthClient::insert(
+            conn,
+            NewClientParams {
+                client_id: &client_id,
+                client_name: "Introspect test client",
+                application_type: ApplicationType::Service,
+                token_endpoint_auth_method: auth_method,
+                client_secret,
+                client_secret_expires_at: None,
+                redirect_uris: &["https://example.com/callback".to_string()],
+                post_logout_redirect_uris: None,
+                allowed_grant_types: &[GrantTypeName::RefreshToken],
+                scopes: &["exercise-services".to_string()],
+                require_pkce,
+                pkce_methods_allowed: &[],
+                allowed_origins: None,
+                bearer_allowed: true,
+            },
+        )
+        .await
+        .unwrap()
+    }
+
+    /// A confidential caller (secret verified) receives the privileged
+    /// `upstream_id` claim.
+    #[actix_web::test]
+    async fn upstream_id_exposed_to_confidential_client() {
+        insert_data!(:tx);
+        let user = headless_lms_models::users::insert_with_upstream_id_and_moocfi_id(
+            tx.as_mut(),
+            "introspect-confidential@example.com",
+            None,
+            None,
+            424242,
+            Uuid::new_v4(),
+        )
+        .await
+        .unwrap();
+        let client = insert_client(tx.as_mut(), TokenEndpointAuthMethod::ClientSecretPost).await;
+
+        let upstream_id = resolve_gated_upstream_id(tx.as_mut(), &client, Some(user.id)).await;
+        assert_eq!(upstream_id, Some(424242));
+    }
+
+    /// A public caller (no secret) never receives `upstream_id`, even for a token
+    /// whose owner has one.
+    #[actix_web::test]
+    async fn upstream_id_hidden_from_public_client() {
+        insert_data!(:tx);
+        let user = headless_lms_models::users::insert_with_upstream_id_and_moocfi_id(
+            tx.as_mut(),
+            "introspect-public@example.com",
+            None,
+            None,
+            515151,
+            Uuid::new_v4(),
+        )
+        .await
+        .unwrap();
+        let client = insert_client(tx.as_mut(), TokenEndpointAuthMethod::None).await;
+
+        let upstream_id = resolve_gated_upstream_id(tx.as_mut(), &client, Some(user.id)).await;
+        assert_eq!(upstream_id, None);
+    }
 }

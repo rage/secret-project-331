@@ -76,6 +76,13 @@ pub async fn test_config() -> ServerConfig {
     .unwrap()
 }
 
+/// The Redis URL for tests that need a real Redis, or `None` when it isn't configured (such tests
+/// no-op instead of failing). Lives here because `env_guard::env_var_reads_are_centralized` only
+/// permits direct env reads in the central config modules and in this test helper.
+pub fn test_redis_url() -> Option<String> {
+    env::var("REDIS_URL").ok()
+}
+
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
 

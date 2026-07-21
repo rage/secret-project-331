@@ -27,7 +27,12 @@ pub enum UtilErrorType {
     Other,
     Unavailable,
     DeserializationError,
+    /// The request to TMC never completed (connection error, timeout): a transport
+    /// failure with no upstream HTTP status.
     TmcHttpError,
+    /// TMC responded with a non-success HTTP status. Carries the status so callers can
+    /// tell an upstream auth rejection (401/403) from an upstream server error (5xx).
+    TmcHttpStatusError(u16),
     TmcErrorResponse,
     SisuClientError(SisuErrorVariant),
 }

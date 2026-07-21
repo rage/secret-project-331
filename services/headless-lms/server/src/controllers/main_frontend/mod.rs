@@ -33,6 +33,7 @@ pub mod playground_views;
 pub mod proposed_edits;
 pub mod regradings;
 pub mod roles;
+pub mod shared_submissions;
 pub mod status;
 pub mod teacher_grading_decisions;
 pub mod time;
@@ -73,6 +74,7 @@ use utoipa::OpenApi;
         (path = "/proposed-edits", api = proposed_edits::MainFrontendProposedEditsApiDoc),
         (path = "/regradings", api = regradings::MainFrontendRegradingsApiDoc),
         (path = "/roles", api = roles::MainFrontendRolesApiDoc),
+        (path = "/shared-submissions", api = shared_submissions::MainFrontendSharedSubmissionsApiDoc),
         (path = "/status", api = status::MainFrontendStatusApiDoc),
         (path = "/teacher-grading-decisions", api = teacher_grading_decisions::MainFrontendTeacherGradingDecisionsApiDoc),
         (path = "/time", api = time::MainFrontendTimeApiDoc),
@@ -122,5 +124,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/chatbots").configure(chatbots::_add_routes))
         .service(web::scope("/chatbot-models").configure(chatbot_models::_add_routes))
         .service(web::scope("/time").configure(time::_add_routes))
+        .service(web::scope("/shared-submissions").configure(shared_submissions::_add_routes))
         .service(web::scope("/status").configure(status::_add_routes));
 }

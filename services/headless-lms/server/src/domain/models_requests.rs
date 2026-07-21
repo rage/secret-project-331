@@ -794,3 +794,266 @@ where
         )
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::ResponseError;
+    use actix_web::http::StatusCode;
+    use actix_web::http::header::{HeaderName, HeaderValue};
+    use actix_web::test::TestRequest;
+    use base64::Engine;
+    use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+    use serde_json::json;
+
+    fn other_key() -> JwtKey {
+        JwtKey::new(&SecretString::new(
+            "a-completely-different-jwt-secret-0123456789"
+                .to_string()
+                .into(),
+        ))
+        .expect("test key")
+    }
+
+    /// Signs an arbitrary JSON payload with the same HS256 helper the production claims use, so
+    /// tests can produce claims (expired, wrong shape, legacy) the public constructors can't.
+    fn sign_json(payload: serde_json::Value, key: &JwtKey) -> String {
+        sign_hs256_claim(&payload, key).expect("signing should succeed")
+    }
+
+    fn past_timestamp(seconds_ago: i64) -> i64 {
+        (Utc::now() - Duration::seconds(seconds_ago)).timestamp()
+    }
+
+    fn future_timestamp(seconds_ahead: i64) -> i64 {
+        (Utc::now() + Duration::seconds(seconds_ahead)).timestamp()
+    }
+
+    #[test]
+    fn grading_update_claim_round_trips() {
+        let key = JwtKey::test_key();
+        let submission_id = Uuid::new_v4();
+        let token = GradingUpdateClaim::expiring_in_1_day(submission_id)
+            .sign(&key)
+            .expect("signing should succeed");
+        let claim = GradingUpdateClaim::validate(&token, &key).expect("the claim should validate");
+        assert_eq!(claim.submission_id(), submission_id);
+    }
+
+    /// An expired claim must not keep authorizing grading updates.
+    #[test]
+    fn expired_grading_update_claim_is_rejected() {
+        let key = JwtKey::test_key();
+        // Well past the default 60s leeway jsonwebtoken allows for clock skew.
+        let token = sign_json(
+            json!({
+                "submission_id": Uuid::new_v4(),
+                "exp": past_timestamp(3600),
+                "iat": past_timestamp(7200),
+            }),
+            &key,
+        );
+        let err = GradingUpdateClaim::validate(&token, &key)
+            .expect_err("an expired claim must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// A claim signed with some other secret must not validate: this is the only thing standing
+    /// between an unauthenticated caller and writing grading results.
+    #[test]
+    fn grading_update_claim_signed_with_another_key_is_rejected() {
+        let token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&other_key())
+            .expect("signing should succeed");
+        GradingUpdateClaim::validate(&token, &JwtKey::test_key())
+            .expect_err("a claim signed with a foreign key must be rejected");
+    }
+
+    /// Rewriting the payload of a validly signed claim (e.g. to point at another submission)
+    /// must invalidate the signature.
+    #[test]
+    fn tampered_grading_update_claim_is_rejected() {
+        let key = JwtKey::test_key();
+        let token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&key)
+            .expect("signing should succeed");
+        let mut parts = token.split('.');
+        let header = parts.next().expect("header");
+        let _original_payload = parts.next().expect("payload");
+        let signature = parts.next().expect("signature");
+        // Swap in a payload naming a different submission, keeping the original signature.
+        let forged_payload = URL_SAFE_NO_PAD.encode(
+            serde_json::to_vec(&json!({
+                "submission_id": Uuid::new_v4(),
+                "exp": future_timestamp(3600),
+                "iat": Utc::now().timestamp(),
+            }))
+            .expect("json"),
+        );
+        let tampered = format!("{header}.{forged_payload}.{signature}");
+        GradingUpdateClaim::validate(&tampered, &key)
+            .expect_err("a tampered claim must be rejected");
+    }
+
+    /// The classic JWT bypass: an unsigned token declaring `alg: none` must not be accepted.
+    #[test]
+    fn unsigned_grading_update_claim_is_rejected() {
+        let header = URL_SAFE_NO_PAD.encode(br#"{"alg":"none","typ":"JWT"}"#);
+        let payload = URL_SAFE_NO_PAD.encode(
+            serde_json::to_vec(&json!({
+                "submission_id": Uuid::new_v4(),
+                "exp": future_timestamp(3600),
+                "iat": Utc::now().timestamp(),
+            }))
+            .expect("json"),
+        );
+        let token = format!("{header}.{payload}.");
+        GradingUpdateClaim::validate(&token, &JwtKey::test_key())
+            .expect_err("an unsigned (alg=none) claim must be rejected");
+    }
+
+    /// The claim types share one signing key, so a token minted for one purpose must not be
+    /// usable for another. An upload claim carries no `submission_id`, so it must not deserialize
+    /// into a grading update claim (and vice versa).
+    #[test]
+    fn claims_do_not_cross_validate_between_types() {
+        let key = JwtKey::test_key();
+        let upload_token = UploadClaim::expiring_in_1_day("tmc")
+            .sign(&key)
+            .expect("signing should succeed");
+        GradingUpdateClaim::validate(&upload_token, &key)
+            .expect_err("an upload claim must not validate as a grading update claim");
+
+        let grading_token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&key)
+            .expect("signing should succeed");
+        UploadClaim::validate(&grading_token, &key)
+            .expect_err("a grading update claim must not validate as an upload claim");
+    }
+
+    /// Documents that the `validate_*_with_legacy_fallback` compatibility path is **unreachable**
+    /// as written: it only fires on `ErrorKind::MissingRequiredClaim("exp")`, but jsonwebtoken
+    /// deserializes into the claim struct before checking required spec claims, so a legacy claim
+    /// (`expiration_time` instead of `exp`) fails with a JSON error and never reaches the
+    /// fallback. Nothing depends on legacy claims any more — they expired within a day of the
+    /// jsonwebtoken upgrade — so the safe behavior is rejection, and the three
+    /// `Legacy*Claim` structs plus their fallbacks are dead code that can be deleted. This test
+    /// pins the current behavior so a revival of the path is deliberate rather than accidental.
+    #[test]
+    fn legacy_grading_update_claim_shape_is_rejected() {
+        let key = JwtKey::test_key();
+        let submission_id = Uuid::new_v4();
+
+        // An *unexpired* legacy claim: still rejected, because the fallback never runs.
+        let legacy = sign_json(
+            json!({
+                "submission_id": submission_id,
+                "expiration_time": Utc::now() + Duration::hours(1),
+            }),
+            &key,
+        );
+        let err = GradingUpdateClaim::validate(&legacy, &key)
+            .expect_err("a claim without `exp` must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+
+        // An expired legacy claim is likewise rejected; whichever branch handles it, a claim
+        // whose expiry has passed must never authorize a grading update.
+        let expired_legacy = sign_json(
+            json!({
+                "submission_id": submission_id,
+                "expiration_time": Utc::now() - Duration::hours(1),
+            }),
+            &key,
+        );
+        GradingUpdateClaim::validate(&expired_legacy, &key)
+            .expect_err("an expired legacy claim must be rejected");
+    }
+
+    /// A claim missing `exp` entirely must never be treated as non-expiring.
+    #[test]
+    fn grading_update_claim_without_an_expiry_is_rejected() {
+        let key = JwtKey::test_key();
+        let token = sign_json(
+            json!({ "submission_id": Uuid::new_v4(), "iat": Utc::now().timestamp() }),
+            &key,
+        );
+        GradingUpdateClaim::validate(&token, &key)
+            .expect_err("a claim without an expiry must be rejected");
+    }
+
+    fn extract_grading_update_claim(
+        req: actix_web::HttpRequest,
+        mut payload: Payload,
+    ) -> Result<GradingUpdateClaim, ControllerError> {
+        GradingUpdateClaim::from_request(&req, &mut payload)
+            .now_or_never()
+            .expect("the extractor resolves immediately")
+    }
+
+    #[test]
+    fn extractor_accepts_a_valid_claim_header() {
+        let key = JwtKey::test_key();
+        let submission_id = Uuid::new_v4();
+        let token = GradingUpdateClaim::expiring_in_1_day(submission_id)
+            .sign(&key)
+            .expect("signing should succeed");
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(key))
+            .insert_header((EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER, token.as_str()))
+            .to_http_parts();
+        let claim = extract_grading_update_claim(req, payload).expect("should extract");
+        assert_eq!(claim.submission_id(), submission_id);
+    }
+
+    #[test]
+    fn extractor_rejects_a_missing_claim_header() {
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(JwtKey::test_key()))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a request without the claim header must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// A non-UTF-8 header value must be a client error, not a panic.
+    #[test]
+    fn extractor_rejects_an_invalid_utf8_claim_header() {
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(JwtKey::test_key()))
+            .insert_header((
+                HeaderName::from_static(EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER),
+                HeaderValue::from_bytes(&[0xff, 0xfe, 0x80]).expect("header value"),
+            ))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a non-UTF-8 claim header must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// Without the signing key in app data the server cannot verify anything; that is a server
+    /// misconfiguration (500), and must never be mistaken for a valid claim.
+    #[test]
+    fn extractor_reports_a_missing_jwt_key_as_a_server_error() {
+        let token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&JwtKey::test_key())
+            .expect("signing should succeed");
+        let (req, payload) = TestRequest::default()
+            .insert_header((EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER, token.as_str()))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a missing JwtKey must not yield a claim");
+        assert_eq!(err.status_code(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    /// A request carrying a garbage header value must be rejected before any DB work.
+    #[test]
+    fn extractor_rejects_a_non_jwt_claim_header() {
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(JwtKey::test_key()))
+            .insert_header((EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER, "not-a-jwt"))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a non-JWT claim header must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+}

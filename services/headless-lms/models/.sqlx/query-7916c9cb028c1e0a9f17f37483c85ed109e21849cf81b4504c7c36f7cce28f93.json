@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE oauth_refresh_tokens\n               SET rotated_at = now()\n             WHERE digest = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7916c9cb028c1e0a9f17f37483c85ed109e21849cf81b4504c7c36f7cce28f93"
+}

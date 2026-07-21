@@ -264,6 +264,14 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             Some(err.into()),
                         ),
+                        "uq_oauth_device_codes_user_code_pending" => ModelError::new(
+                            ModelErrorType::DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "A pending device authorization already uses this user_code.",
+                            },
+                            err.to_string(),
+                            Some(err.into()),
+                        ),
                         "unique_chatbot_names_within_course" => ModelError::new(
                             ModelErrorType::DatabaseConstraint {
                                 constraint: constraint.to_string(),

@@ -15,7 +15,7 @@ headless-lms-certificates = { path = "../certificates" }
 headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
 headless-lms-chatbot = { path = "../chatbot" }
-mooc-langs-api = { path = "../langs-api" }
+exercise-services-api = { path = "../exercise-services-api", features = ["openapi"] }
 doc-macro = { path = "../doc-macro" }
 rustls.workspace = true
 

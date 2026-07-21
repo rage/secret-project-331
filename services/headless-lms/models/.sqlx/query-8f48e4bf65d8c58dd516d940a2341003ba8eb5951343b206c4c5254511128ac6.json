@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE oauth_refresh_tokens\n               SET revoked = true,\n                   rotated_at = NULL\n             WHERE user_id = $1 AND client_id = $2\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8f48e4bf65d8c58dd516d940a2341003ba8eb5951343b206c4c5254511128ac6"
+}

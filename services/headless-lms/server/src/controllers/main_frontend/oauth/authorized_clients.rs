@@ -33,6 +33,14 @@ pub async fn get_authorized_clients(
     token.authorized_ok(HttpResponse::Ok().json(rows))
 }
 
+// KNOWN GAP: unlike `POST /revoke`, this doesn't evict the exercise-services
+// bearer-token cache (`domain::exercise_services::token`), which is keyed by each
+// token's plaintext. `revoke_user_client_everything` below only has one-way DB
+// digests, which can't be turned back into that plaintext. A real fix means
+// re-keying the cache by digest, or a parallel per-(user_id, client_id)
+// invalidation marker -- both touch the validation hot path, so left as
+// separate, larger work. Until then, a token revoked here can keep
+// authenticating from a stale cache entry for up to `MAX_CACHE_TTL` (1h).
 #[instrument(skip(pool, auth_user))]
 #[utoipa::path(
     delete,

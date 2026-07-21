@@ -1,8 +1,10 @@
+use crate::domain::exercise_services::token::invalidate_cached_user;
 use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::domain::oauth::revoke_query::RevokeQuery;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_utils::cache::Cache;
 use models::{
     error::ModelErrorType, library::oauth::token_digest_sha256,
     oauth_access_token::OAuthAccessToken, oauth_client::OAuthClient,
@@ -45,7 +47,7 @@ pub(crate) struct MainFrontendOauthRevokeApiDoc;
 /// ```http
 /// HTTP/1.1 200 OK
 /// ```
-#[instrument(skip(pool, form, app_conf))]
+#[instrument(skip(pool, form, app_conf, cache))]
 #[utoipa::path(
     post,
     path = "/revoke",
@@ -63,6 +65,7 @@ pub async fn revoke(
     pool: web::Data<PgPool>,
     OAuthValidated(form): OAuthValidated<RevokeQuery>,
     app_conf: web::Data<ApplicationConfiguration>,
+    cache: web::Data<Cache>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
@@ -158,6 +161,8 @@ pub async fn revoke(
                         let token_digest =
                             token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                         OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
+                        // Keeps the DB delete above from leaving a stale cache hit.
+                        invalidate_cached_user(&cache, &form.token).await;
                     }
                     true
                 }
@@ -251,6 +256,8 @@ pub async fn revoke(
                             let token_digest =
                                 token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                             OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
+                            // Keeps the DB delete above from leaving a stale cache hit.
+                            invalidate_cached_user(&cache, &form.token).await;
                         }
                     }
                     Err(err) => {
@@ -286,6 +293,8 @@ pub async fn revoke(
                         let token_digest =
                             token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                         OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
+                        // Keeps the DB delete above from leaving a stale cache hit.
+                        invalidate_cached_user(&cache, &form.token).await;
                     }
                     true
                 }

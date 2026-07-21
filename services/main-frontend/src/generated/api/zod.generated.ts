@@ -210,12 +210,6 @@ export const zChapterUpdate = z.object({
   opens_at: z.iso.datetime().nullish(),
 })
 
-export const zChatbotCommandCenterData = z.object({
-  chatbot_name: z.string(),
-  configuration_id: z.string(),
-  course_name: z.string(),
-})
-
 export const zCmsPageExerciseSlide = z.object({
   exercise_id: z.uuid(),
   id: z.uuid(),
@@ -3036,9 +3030,9 @@ export const zGetChatbotModelPath = z.object({
 export const zGetChatbotModelResponse = zChatbotConfigurationModel
 
 /**
- * Chatbot command center data
+ * All chatbots
  */
-export const zGetChatbotCommandCenterDataResponse = z.array(zChatbotCommandCenterData)
+export const zGetAllChatbotsResponse = z.array(zChatbotConfiguration)
 
 export const zDeleteChatbotConfigurationPath = z.object({
   chatbot_configuration_id: z.uuid(),
@@ -3474,6 +3468,11 @@ export const zCreateCourseBody = zNewCourse
  * Created course
  */
 export const zCreateCourseResponse = zCourse
+
+/**
+ * All courses
+ */
+export const zGetAllCoursesResponse = z.array(zCourse)
 
 export const zGetCourseByJoinCodePath = z.object({
   join_code: z.string(),

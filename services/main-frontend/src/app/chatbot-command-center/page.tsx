@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { getChatbotCommandCenterDataOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getAllChatbotsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -16,7 +16,7 @@ const ChatbotCommandCenterPage: React.FC = () => {
   usePageTitle(t("link-text-chatbot-command-center"))
 
   const chatbotQuery = useQuery({
-    ...getChatbotCommandCenterDataOptions(),
+    ...getAllChatbotsOptions(),
   })
 
   return (

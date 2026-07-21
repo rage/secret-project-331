@@ -90,11 +90,12 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAllChatbots,
+  getAllCourses,
   getAvgTimeToFirstSubmissionHistory,
   getBulkUserDetails,
   getCertificateByConfigurationId,
   getCertificateByVerificationId,
-  getChatbotCommandCenterData,
   getChatbotConfiguration,
   getChatbotModel,
   getChatbotModels,
@@ -449,6 +450,10 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAllChatbotsData,
+  GetAllChatbotsResponse,
+  GetAllCoursesData,
+  GetAllCoursesResponse,
   GetAvgTimeToFirstSubmissionHistoryData,
   GetAvgTimeToFirstSubmissionHistoryResponse,
   GetBulkUserDetailsData,
@@ -456,8 +461,6 @@ import type {
   GetCertificateByConfigurationIdData,
   GetCertificateByConfigurationIdResponse,
   GetCertificateByVerificationIdData,
-  GetChatbotCommandCenterDataData,
-  GetChatbotCommandCenterDataResponse,
   GetChatbotConfigurationData,
   GetChatbotConfigurationResponse,
   GetChatbotModelData,
@@ -1338,30 +1341,27 @@ export const getChatbotModelOptions = (options: Options<GetChatbotModelData>) =>
     queryKey: getChatbotModelQueryKey(options),
   })
 
-export const getChatbotCommandCenterDataQueryKey = (
-  options?: Options<GetChatbotCommandCenterDataData>,
-) => createQueryKey("getChatbotCommandCenterData", options)
+export const getAllChatbotsQueryKey = (options?: Options<GetAllChatbotsData>) =>
+  createQueryKey("getAllChatbots", options)
 
 /**
  * GET `/api/v0/main-frontend/chatbots`
  */
-export const getChatbotCommandCenterDataOptions = (
-  options?: Options<GetChatbotCommandCenterDataData>,
-) =>
+export const getAllChatbotsOptions = (options?: Options<GetAllChatbotsData>) =>
   queryOptions<
-    GetChatbotCommandCenterDataResponse,
+    GetAllChatbotsResponse,
     DefaultError,
-    GetChatbotCommandCenterDataResponse,
-    ReturnType<typeof getChatbotCommandCenterDataQueryKey>
+    GetAllChatbotsResponse,
+    ReturnType<typeof getAllChatbotsQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) =>
-      await getChatbotCommandCenterData({
+      await getAllChatbots({
         ...options,
         ...queryKey[0],
         signal,
         throwOnError: true,
       }),
-    queryKey: getChatbotCommandCenterDataQueryKey(options),
+    queryKey: getAllChatbotsQueryKey(options),
   })
 
 /**
@@ -2580,6 +2580,32 @@ export const createCourseMutation = (
   }
   return mutationOptions
 }
+
+export const getAllCoursesQueryKey = (options?: Options<GetAllCoursesData>) =>
+  createQueryKey("getAllCourses", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses` - Get all courses
+ *
+ * Returns all courses.
+ */
+export const getAllCoursesOptions = (options?: Options<GetAllCoursesData>) =>
+  queryOptions<
+    GetAllCoursesResponse,
+    DefaultError,
+    GetAllCoursesResponse,
+    ReturnType<typeof getAllCoursesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAllCourses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAllCoursesQueryKey(options),
+  })
 
 export const getCourseByJoinCodeQueryKey = (options: Options<GetCourseByJoinCodeData>) =>
   createQueryKey("getCourseByJoinCode", options)

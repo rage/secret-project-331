@@ -424,23 +424,13 @@ RETURNING *
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct ChatbotCommandCenterData {
-    pub configuration_id: String,
-    pub chatbot_name: String,
-    pub course_name: String,
-}
-
-pub async fn get_chatbot_command_center_data(
-    conn: &mut PgConnection,
-) -> ModelResult<Vec<ChatbotCommandCenterData>> {
+pub async fn get_all_chatbots(conn: &mut PgConnection) -> ModelResult<Vec<ChatbotConfiguration>> {
     let res = sqlx::query_as!(
-        ChatbotCommandCenterData,
+        ChatbotConfiguration,
         r#"
-    SELECT co.chatbot_name, co.id AS configuration_id, c.name AS course_name
-    FROM chatbot_configurations AS co INNER JOIN courses AS c ON co.course_id = c.id
-    WHERE co.deleted_at IS NULL AND c.deleted_at IS NULL
-        "#
+    SELECT *
+    FROM chatbot_configurations
+    "#,
     )
     .fetch_all(conn)
     .await?;

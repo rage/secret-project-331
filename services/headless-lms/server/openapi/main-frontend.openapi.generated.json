@@ -581,16 +581,16 @@
       "get": {
         "tags": ["chatbots"],
         "summary": "GET `/api/v0/main-frontend/chatbots`",
-        "operationId": "getChatbotCommandCenterData",
+        "operationId": "getAllChatbots",
         "responses": {
           "200": {
-            "description": "Chatbot command center data",
+            "description": "All chatbots",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ChatbotCommandCenterData"
+                    "$ref": "#/components/schemas/ChatbotConfiguration"
                   }
                 }
               }
@@ -2253,6 +2253,28 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Course"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nGET `/api/v0/main-frontend/courses` - Get all courses\n\nReturns all courses.",
+        "operationId": "getAllCourses",
+        "responses": {
+          "200": {
+            "description": "All courses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Course"
+                  }
                 }
               }
             }
@@ -11741,21 +11763,6 @@
           "opens_at": {
             "type": ["string", "null"],
             "format": "date-time"
-          }
-        }
-      },
-      "ChatbotCommandCenterData": {
-        "type": "object",
-        "required": ["configuration_id", "chatbot_name", "course_name"],
-        "properties": {
-          "chatbot_name": {
-            "type": "string"
-          },
-          "configuration_id": {
-            "type": "string"
-          },
-          "course_name": {
-            "type": "string"
           }
         }
       },

@@ -291,12 +291,6 @@ export type ChapterUpdate = {
   opens_at?: string | null
 }
 
-export type ChatbotCommandCenterData = {
-  chatbot_name: string
-  configuration_id: string
-  course_name: string
-}
-
 export type ChatbotConfiguration = {
   chatbot_name: string
   course_id: string
@@ -2734,22 +2728,21 @@ export type GetChatbotModelResponses = {
 
 export type GetChatbotModelResponse = GetChatbotModelResponses[keyof GetChatbotModelResponses]
 
-export type GetChatbotCommandCenterDataData = {
+export type GetAllChatbotsData = {
   body?: never
   path?: never
   query?: never
   url: "/api/v0/main-frontend/chatbots/"
 }
 
-export type GetChatbotCommandCenterDataResponses = {
+export type GetAllChatbotsResponses = {
   /**
-   * Chatbot command center data
+   * All chatbots
    */
-  200: Array<ChatbotCommandCenterData>
+  200: Array<ChatbotConfiguration>
 }
 
-export type GetChatbotCommandCenterDataResponse =
-  GetChatbotCommandCenterDataResponses[keyof GetChatbotCommandCenterDataResponses]
+export type GetAllChatbotsResponse = GetAllChatbotsResponses[keyof GetAllChatbotsResponses]
 
 export type DeleteChatbotConfigurationData = {
   body?: never
@@ -3805,6 +3798,22 @@ export type CreateCourseResponses = {
 }
 
 export type CreateCourseResponse = CreateCourseResponses[keyof CreateCourseResponses]
+
+export type GetAllCoursesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/courses/"
+}
+
+export type GetAllCoursesResponses = {
+  /**
+   * All courses
+   */
+  200: Array<Course>
+}
+
+export type GetAllCoursesResponse = GetAllCoursesResponses[keyof GetAllCoursesResponses]
 
 export type GetCourseByJoinCodeData = {
   body?: never

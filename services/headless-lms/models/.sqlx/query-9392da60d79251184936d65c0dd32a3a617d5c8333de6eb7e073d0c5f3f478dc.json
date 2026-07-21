@@ -1,0 +1,363 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    SELECT *\n    FROM chatbot_configurations\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "enabled_to_students",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "enabled_to_students"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "chatbot_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "chatbot_name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "prompt",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "prompt"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "initial_message",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "initial_message"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "weekly_tokens_per_user",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "weekly_tokens_per_user"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "daily_tokens_per_user",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "daily_tokens_per_user"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "temperature",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "temperature"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "top_p",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "top_p"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "frequency_penalty",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "frequency_penalty"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "presence_penalty",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "presence_penalty"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "use_azure_search",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "use_azure_search"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "maintain_azure_search_index",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "maintain_azure_search_index"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "use_semantic_reranking",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "use_semantic_reranking"
+          }
+        }
+      },
+      {
+        "ordinal": 18,
+        "name": "hide_citations",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "hide_citations"
+          }
+        }
+      },
+      {
+        "ordinal": 19,
+        "name": "default_chatbot",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "default_chatbot"
+          }
+        }
+      },
+      {
+        "ordinal": 20,
+        "name": "model_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "model_id"
+          }
+        }
+      },
+      {
+        "ordinal": 21,
+        "name": "verbosity",
+        "type_info": {
+          "Custom": {
+            "name": "verbosity_level",
+            "kind": {
+              "Enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "verbosity"
+          }
+        }
+      },
+      {
+        "ordinal": 22,
+        "name": "reasoning_effort",
+        "type_info": {
+          "Custom": {
+            "name": "reasoning_effort_level",
+            "kind": {
+              "Enum": [
+                "none",
+                "minimal",
+                "low",
+                "medium",
+                "high",
+                "xhigh"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "reasoning_effort"
+          }
+        }
+      },
+      {
+        "ordinal": 23,
+        "name": "use_tools",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "use_tools"
+          }
+        }
+      },
+      {
+        "ordinal": 24,
+        "name": "suggest_next_messages",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "suggest_next_messages"
+          }
+        }
+      },
+      {
+        "ordinal": 25,
+        "name": "initial_suggested_messages",
+        "type_info": "VarcharArray",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "initial_suggested_messages"
+          }
+        }
+      },
+      {
+        "ordinal": 26,
+        "name": "max_output_tokens",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "max_output_tokens"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "9392da60d79251184936d65c0dd32a3a617d5c8333de6eb7e073d0c5f3f478dc"
+}

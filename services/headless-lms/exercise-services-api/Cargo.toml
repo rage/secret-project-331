@@ -1,5 +1,5 @@
 [package]
-name = "mooc-langs-api"
+name = "exercise-services-api"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -26,7 +26,7 @@ uuid = { version = "1.23.4", features = ["serde"] }
 
 [features]
 # Derives `utoipa::ToSchema` on the API types so the server can emit an OpenAPI
-# spec for the `/api/v0/langs` surface. Off by default; enabled by the server.
+# spec for the `/api/v0/exercise-services/client` surface. Off by default; enabled by the server.
 openapi = ["dep:utoipa"]
 
 [lints.clippy]

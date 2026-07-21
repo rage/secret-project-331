@@ -1,7 +1,4 @@
-mod error;
-
 use chrono::{DateTime, Utc};
-pub use error::ErrorResponse;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use uuid::Uuid;
@@ -24,12 +21,20 @@ pub struct Course {
 pub struct ExerciseSlide {
     pub slide_id: Uuid,
     pub exercise_id: Uuid,
+    /// The course the exercise belongs to. Lets a client locate an exercise's
+    /// course without a separate lookup or an enrolled-course scan.
+    pub course_id: Uuid,
     pub exercise_name: String,
     pub exercise_order_number: i32,
     pub deadline: Option<DateTime<Utc>>,
     pub tasks: Vec<ExerciseTask>,
 }
 
+// `public_spec` / `model_solution_spec` are plugin-owned blobs (the `tmc`
+// exercise service produces them and is the only component that interprets their
+// internal shape). Per the plugin architecture the host forwards them verbatim as
+// opaque JSON, so they stay `serde_json::Value` here; the langs client keeps its
+// own typed copy of the tmc shape.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseTask {
@@ -46,7 +51,6 @@ pub struct ExerciseTask {
 pub struct ExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub exercise_task_id: Uuid,
-    pub data_json: serde_json::Value,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -84,21 +88,35 @@ pub enum GradingProgress {
     FullyGraded,
 }
 
-#[derive(Debug, Clone, Serialize)]
-pub struct ExerciseUpdatesRequest<'a> {
-    pub exercises: &'a [ExerciseUpdateData<'a>],
-}
-
-#[derive(Debug, Clone, Serialize)]
-pub struct ExerciseUpdateData<'a> {
+/// A single past submission of the current user to an exercise, as returned by
+/// `GET /api/v0/exercise-services/client/exercises/{id}/submissions`. `id` is the
+/// exercise-slide-submission id and is the value passed to
+/// `GET /api/v0/exercise-services/client/submissions/{id}/download`.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct ExerciseSlideSubmissionListItem {
     pub id: Uuid,
-    pub checksum: &'a str,
+    pub exercise_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub score_given: Option<f32>,
+    pub grading_progress: Option<GradingProgress>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ExerciseUpdates {
-    pub updated_exercises: Vec<Uuid>,
-    pub deleted_exercises: Vec<Uuid>,
+/// Response of `GET /api/v0/exercise-services/client/submissions/{id}/download`: the file-store URL
+/// of the archive that was submitted, which the client downloads directly.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct SubmissionArchiveDownloadUrl {
+    pub archive_download_url: String,
+}
+
+/// Response of `POST /api/v0/exercise-services/client/submissions/{id}/share`: a shareable URL for
+/// the submission. The public viewer page the URL points at is a separate unit
+/// and may not exist yet.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct PasteResult {
+    pub paste_url: String,
 }
 
 #[cfg(test)]
@@ -109,7 +127,8 @@ mod test {
 
     // `ExerciseTaskSubmissionStatus` is an externally-tagged serde enum: the
     // unit variant is the bare string `"NoGradingYet"`, the data variant is
-    // `{"Grading": {...}}`. The OpenAPI spec (langs.openapi.generated.json) must
+    // `{"Grading": {...}}`. The OpenAPI spec
+    // (exercise-services-client.openapi.generated.json) must
     // document it as a `oneOf` of exactly those two shapes; this guards against
     // utoipa/serde drift.
     #[test]
@@ -152,5 +171,37 @@ mod test {
             serde_json::to_value(GradingProgress::PendingManual).unwrap(),
             json!("PendingManual"),
         );
+    }
+
+    #[test]
+    fn exercise_slide_submission_has_no_data_json() {
+        // The submit multipart `submission` part is just the two ids now; the
+        // server derives `data_json` itself.
+        let value = serde_json::to_value(ExerciseSlideSubmission {
+            exercise_slide_id: Uuid::nil(),
+            exercise_task_id: Uuid::nil(),
+        })
+        .unwrap();
+        let obj = value.as_object().unwrap();
+        assert!(obj.contains_key("exercise_slide_id"));
+        assert!(obj.contains_key("exercise_task_id"));
+        assert!(!obj.contains_key("data_json"));
+    }
+
+    #[test]
+    fn submission_list_item_shape() {
+        let value = json!({
+            "id": Uuid::nil(),
+            "exercise_id": Uuid::nil(),
+            "created_at": "2026-07-21T00:00:00Z",
+            "score_given": 1.0,
+            "grading_progress": "FullyGraded"
+        });
+        let item: ExerciseSlideSubmissionListItem = serde_json::from_value(value).unwrap();
+        assert_eq!(item.score_given, Some(1.0));
+        assert!(matches!(
+            item.grading_progress,
+            Some(GradingProgress::FullyGraded)
+        ));
     }
 }

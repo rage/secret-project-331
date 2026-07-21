@@ -73,14 +73,15 @@ pub struct AuthApiDoc;
 )]
 pub struct ErrorsApiDoc;
 
-/// Adds the bearer-token security scheme used by every `/api/v0/langs` endpoint.
+/// Adds the bearer-token security scheme used by every
+/// `/api/v0/exercise-services/client` endpoint.
 ///
-/// The langs endpoints authenticate via `Authorization: Bearer <token>`, so the
+/// The client endpoints authenticate via `Authorization: Bearer <token>`, so the
 /// spec declares a single `bearer_auth` HTTP bearer scheme that each operation
 /// references.
-struct LangsSecurityAddon;
+struct ExerciseServicesClientSecurityAddon;
 
-impl Modify for LangsSecurityAddon {
+impl Modify for ExerciseServicesClientSecurityAddon {
     fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
         let components = openapi.components.get_or_insert_with(Default::default);
         components.add_security_scheme(
@@ -99,11 +100,11 @@ impl Modify for LangsSecurityAddon {
 
 #[derive(OpenApi)]
 #[openapi(
-    nest((path = "/api/v0/langs", api = crate::controllers::langs::LangsRoutesApiDoc)),
-    modifiers(&LangsSecurityAddon),
+    nest((path = "/api/v0/exercise-services/client", api = crate::controllers::exercise_services::client::ExerciseServicesClientRoutesApiDoc)),
+    modifiers(&ExerciseServicesClientSecurityAddon),
     info(
-        title = "Langs API",
+        title = "Exercise Services Client API",
         version = "0.1.0"
     )
 )]
-pub struct LangsApiDoc;
+pub struct ExerciseServicesClientApiDoc;

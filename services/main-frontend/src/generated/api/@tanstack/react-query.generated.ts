@@ -154,6 +154,7 @@ import {
   getCourseStudentsCertificates,
   getCourseStudentsCompletions,
   getCourseStudentsProgress,
+  getCourseStudentsProgressStructure,
   getCourseStudentsUsers,
   getCourseSubmissionCountsByExercise,
   getCourseSuspectedCheaters,
@@ -570,6 +571,8 @@ import type {
   GetCourseStudentsCompletionsResponse,
   GetCourseStudentsProgressData,
   GetCourseStudentsProgressResponse,
+  GetCourseStudentsProgressStructureData,
+  GetCourseStudentsProgressStructureResponse,
   GetCourseStudentsUsersData,
   GetCourseStudentsUsersResponse,
   GetCourseSubmissionCountsByExerciseData,
@@ -4735,80 +4738,105 @@ export const getCourseStructureOptions = (options: Options<GetCourseStructureDat
     queryKey: getCourseStructureQueryKey(options),
   })
 
-export const getCourseStudentsCertificatesQueryKey = (
-  options: Options<GetCourseStudentsCertificatesData>,
-) => createQueryKey("getCourseStudentsCertificates", options)
-
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/certificates`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/certificates`
  */
-export const getCourseStudentsCertificatesOptions = (
-  options: Options<GetCourseStudentsCertificatesData>,
-) =>
-  queryOptions<
+export const getCourseStudentsCertificatesMutation = (
+  options?: Partial<Options<GetCourseStudentsCertificatesData>>,
+): UseMutationOptions<
+  GetCourseStudentsCertificatesResponse,
+  DefaultError,
+  Options<GetCourseStudentsCertificatesData>
+> => {
+  const mutationOptions: UseMutationOptions<
     GetCourseStudentsCertificatesResponse,
     DefaultError,
-    GetCourseStudentsCertificatesResponse,
-    ReturnType<typeof getCourseStudentsCertificatesQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
+    Options<GetCourseStudentsCertificatesData>
+  > = {
+    mutationFn: async (fnOptions) =>
       await getCourseStudentsCertificates({
         ...options,
-        ...queryKey[0],
-        signal,
+        ...fnOptions,
         throwOnError: true,
       }),
-    queryKey: getCourseStudentsCertificatesQueryKey(options),
-  })
-
-export const getCourseStudentsCompletionsQueryKey = (
-  options: Options<GetCourseStudentsCompletionsData>,
-) => createQueryKey("getCourseStudentsCompletions", options)
+  }
+  return mutationOptions
+}
 
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/completions`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/completions`
  */
-export const getCourseStudentsCompletionsOptions = (
-  options: Options<GetCourseStudentsCompletionsData>,
-) =>
-  queryOptions<
+export const getCourseStudentsCompletionsMutation = (
+  options?: Partial<Options<GetCourseStudentsCompletionsData>>,
+): UseMutationOptions<
+  GetCourseStudentsCompletionsResponse,
+  DefaultError,
+  Options<GetCourseStudentsCompletionsData>
+> => {
+  const mutationOptions: UseMutationOptions<
     GetCourseStudentsCompletionsResponse,
     DefaultError,
-    GetCourseStudentsCompletionsResponse,
-    ReturnType<typeof getCourseStudentsCompletionsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
+    Options<GetCourseStudentsCompletionsData>
+  > = {
+    mutationFn: async (fnOptions) =>
       await getCourseStudentsCompletions({
         ...options,
-        ...queryKey[0],
-        signal,
+        ...fnOptions,
         throwOnError: true,
       }),
-    queryKey: getCourseStudentsCompletionsQueryKey(options),
-  })
-
-export const getCourseStudentsProgressQueryKey = (
-  options: Options<GetCourseStudentsProgressData>,
-) => createQueryKey("getCourseStudentsProgress", options)
+  }
+  return mutationOptions
+}
 
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/progress`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/progress`
  */
-export const getCourseStudentsProgressOptions = (options: Options<GetCourseStudentsProgressData>) =>
-  queryOptions<
+export const getCourseStudentsProgressMutation = (
+  options?: Partial<Options<GetCourseStudentsProgressData>>,
+): UseMutationOptions<
+  GetCourseStudentsProgressResponse,
+  DefaultError,
+  Options<GetCourseStudentsProgressData>
+> => {
+  const mutationOptions: UseMutationOptions<
     GetCourseStudentsProgressResponse,
     DefaultError,
-    GetCourseStudentsProgressResponse,
-    ReturnType<typeof getCourseStudentsProgressQueryKey>
+    Options<GetCourseStudentsProgressData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await getCourseStudentsProgress({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseStudentsProgressStructureQueryKey = (
+  options: Options<GetCourseStudentsProgressStructureData>,
+) => createQueryKey("getCourseStudentsProgressStructure", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/students/progress-structure`
+ */
+export const getCourseStudentsProgressStructureOptions = (
+  options: Options<GetCourseStudentsProgressStructureData>,
+) =>
+  queryOptions<
+    GetCourseStudentsProgressStructureResponse,
+    DefaultError,
+    GetCourseStudentsProgressStructureResponse,
+    ReturnType<typeof getCourseStudentsProgressStructureQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) =>
-      await getCourseStudentsProgress({
+      await getCourseStudentsProgressStructure({
         ...options,
         ...queryKey[0],
         signal,
         throwOnError: true,
       }),
-    queryKey: getCourseStudentsProgressQueryKey(options),
+    queryKey: getCourseStudentsProgressStructureQueryKey(options),
   })
 
 export const getCourseStudentsUsersQueryKey = (options: Options<GetCourseStudentsUsersData>) =>
@@ -4833,6 +4861,54 @@ export const getCourseStudentsUsersOptions = (options: Options<GetCourseStudents
       }),
     queryKey: getCourseStudentsUsersQueryKey(options),
   })
+
+export const getCourseStudentsUsersInfiniteQueryKey = (
+  options: Options<GetCourseStudentsUsersData>,
+): QueryKey<Options<GetCourseStudentsUsersData>> =>
+  createQueryKey("getCourseStudentsUsers", options, true)
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/students/users`
+ */
+export const getCourseStudentsUsersInfiniteOptions = (
+  options: Options<GetCourseStudentsUsersData>,
+) => {
+  const opts = infiniteQueryOptions<
+    GetCourseStudentsUsersResponse,
+    DefaultError,
+    InfiniteData<GetCourseStudentsUsersResponse>,
+    QueryKey<Options<GetCourseStudentsUsersData>>,
+    | number
+    | Pick<QueryKey<Options<GetCourseStudentsUsersData>>[0], "body" | "headers" | "path" | "query">
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetCourseStudentsUsersData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await getCourseStudentsUsers({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: getCourseStudentsUsersInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getCourseStudentChapterLockingStatusesQueryKey = (
   options: Options<GetCourseStudentChapterLockingStatusesData>,

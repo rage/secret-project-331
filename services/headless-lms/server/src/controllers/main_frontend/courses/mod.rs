@@ -2787,7 +2787,7 @@ async fn get_course_audiences(
 }
 
 /**
-get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.
+get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.
 
 */
 #[utoipa::path(

@@ -195,7 +195,6 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
       course_prerequisites: coursePrerequisites,
       course_audiences: courseAudiences,
     })
-    console.log("DATA IN onSubmit: ", data)
   })
 
   return (

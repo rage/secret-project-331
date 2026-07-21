@@ -328,7 +328,7 @@ test.describe("Course metadata generation", () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
       })
       await page.getByRole("button", { name: "Suggest metadata" }).click()
-      await page.getByRole("textbox", { name: "Prerequisite 1" }).click()
+      await page.getByRole("textbox", { name: "Audience 1" }).click()
       await page.getByRole("textbox", { name: "Audience 1" }).press("ControlOrMeta+a")
       await page.getByRole("textbox", { name: "Audience 1" }).fill("this replaces")
       await waitForSuccessNotification(page, async () => {

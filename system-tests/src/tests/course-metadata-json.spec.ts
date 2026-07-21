@@ -40,7 +40,6 @@ test("Teacher setting metadata suggestions changes jsonLd", async ({ page }) => 
   })
   await page.getByRole("button", { name: "Open course front page" }).click()
   await selectCourseInstanceIfPrompted(page)
-  await selectCourseInstanceIfPrompted(page)
   const jsonLdLocator = page.locator("script[type='application/ld+json']")
   const rawJSON = await jsonLdLocator.textContent()
   const metadata = JSON.parse(rawJSON!)

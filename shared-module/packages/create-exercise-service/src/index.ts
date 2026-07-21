@@ -384,11 +384,16 @@ export async function scaffoldReactProject(options: ScaffoldOptions): Promise<vo
     await rewriteSharedModuleImportsToNpm(absoluteProjectPath)
   }
 
-  console.log("Generating package.json...")
-  await buildPackageJson(absoluteProjectPath, projectName, port, strategy, exercisePackagesVersion)
-
+  // Parameterize before generating package.json: parameterize() runs a blind whole-tree slug sweep
+  // (TEMPLATE_SERVICE_NAME -> projectName). If it ran after buildPackageJson set `name` to a
+  // projectName that itself contains the template slug (e.g. "my-example-exercise"), the sweep would
+  // rewrite the slug again and yield "my-my-example-exercise". Running buildPackageJson last makes
+  // its explicit `name`/`version`/deps the authoritative final write, immune to the sweep.
   console.log("Parameterizing project...")
   await parameterize(absoluteProjectPath, projectName)
+
+  console.log("Generating package.json...")
+  await buildPackageJson(absoluteProjectPath, projectName, port, strategy, exercisePackagesVersion)
 }
 
 async function main() {

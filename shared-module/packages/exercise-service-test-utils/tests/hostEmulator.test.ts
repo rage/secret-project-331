@@ -29,12 +29,19 @@ interface Installed {
   received: RecordedMessage[]
 }
 
+/** Sends a message to the emulator through the mock iframe port. */
+function postToEmulator(port: MockPort, message: unknown): void {
+  // oxlint-disable-next-line require-post-message-target-origin -- MockPort emulates a MessagePort, not window; there is no targetOrigin
+  port.postMessage(message)
+}
+
 function installEmulator(options: Record<string, unknown> = {}): Installed {
   const channel = createMockChannel()
   const makeEmulator = new Function(`return (${HOST_EMULATOR_SOURCE})`)() as (o: unknown) => string
   makeEmulator({ ...options, createChannel: () => channel, transferPort: () => undefined })
   const host = (window as unknown as { __host: HostApi }).__host
   const received: RecordedMessage[] = []
+  // oxlint-disable-next-line prefer-add-event-listener -- MockPort only models the `onmessage` setter, not addEventListener
   channel.port2.onmessage = (event) => received.push(event.data as RecordedMessage)
   return { host, iframePort: channel.port2, received }
 }
@@ -47,13 +54,13 @@ describe("host emulator", () => {
   test("auto-answers file-upload with a Map of fake URLs echoing requestId", () => {
     const { host, iframePort, received } = installEmulator()
     const files = new Map<string, string>([["essay.txt", "content"]])
-    iframePort.postMessage({ message: "file-upload", requestId: "r1", files })
+    postToEmulator(iframePort, { message: "file-upload", requestId: "r1", files })
 
     const result = findMessage(received, "upload-result")
     expect(result?.success).toBe(true)
     expect(result?.requestId).toBe("r1")
     expect(result?.urls instanceof Map).toBe(true)
-    expect((result?.urls as Map<string, string>).get("essay.txt")).toBe(
+    expect((result?.urls as Map<string, string> | undefined)?.get("essay.txt")).toBe(
       "https://uploads.example/essay.txt",
     )
     expect(host.last("file-upload")).toMatchObject({ message: "file-upload", requestId: "r1" })
@@ -61,7 +68,7 @@ describe("host emulator", () => {
 
   test("auto-confirms open-dialog echoing requestId", () => {
     const { iframePort, received } = installEmulator()
-    iframePort.postMessage({
+    postToEmulator(iframePort, {
       message: "open-dialog",
       requestId: "d1",
       dialogType: "confirm",
@@ -77,13 +84,13 @@ describe("host emulator", () => {
 
   test("records history; last() survives height-changed spam; waitFor resolves", async () => {
     const { host, iframePort } = installEmulator()
-    iframePort.postMessage({ message: "height-changed", data: 100 })
-    iframePort.postMessage({
+    postToEmulator(iframePort, { message: "height-changed", data: 100 })
+    postToEmulator(iframePort, {
       message: "current-state",
       data: { selectedOptionId: "x" },
       valid: true,
     })
-    iframePort.postMessage({ message: "height-changed", data: 120 })
+    postToEmulator(iframePort, { message: "height-changed", data: 120 })
 
     expect(host.last("current-state")).toMatchObject({ data: { selectedOptionId: "x" } })
     expect(host.messages("height-changed")).toHaveLength(2)
@@ -105,7 +112,7 @@ describe("host emulator", () => {
 
   test("autoUpload:false suppresses auto-answer; sendUploadResult drives success and error", () => {
     const { host, iframePort, received } = installEmulator({ autoUpload: false })
-    iframePort.postMessage({
+    postToEmulator(iframePort, {
       message: "file-upload",
       requestId: "r2",
       files: new Map<string, string>([["a.txt", "x"]]),
@@ -115,7 +122,7 @@ describe("host emulator", () => {
     host.sendUploadResult("r2", { urls: { "a.txt": "https://cdn/x" } })
     const ok = findMessage(received, "upload-result")
     expect(ok).toMatchObject({ requestId: "r2", success: true })
-    expect((ok?.urls as Map<string, string>).get("a.txt")).toBe("https://cdn/x")
+    expect((ok?.urls as Map<string, string> | undefined)?.get("a.txt")).toBe("https://cdn/x")
 
     host.sendUploadResult("r2", { error: "boom" })
     const uploadResults = received.filter((message) => message.message === "upload-result")

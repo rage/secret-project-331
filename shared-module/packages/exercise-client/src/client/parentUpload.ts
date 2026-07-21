@@ -1,4 +1,4 @@
-import { FileUploadMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { FileUploadMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isUploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 
 /**
@@ -7,9 +7,9 @@ import { isUploadResultMessage } from "@/shared-module/exercise-protocol/core/ex
  * `MessagePort` is structurally assignable to this.
  */
 export interface UploadCapableMessagePort {
-  postMessage(message: unknown): void
-  addEventListener(type: "message", listener: (event: MessageEvent) => void): void
-  removeEventListener(type: "message", listener: (event: MessageEvent) => void): void
+  postMessage: (message: unknown) => void
+  addEventListener: (type: "message", listener: (event: MessageEvent) => void) => void
+  removeEventListener: (type: "message", listener: (event: MessageEvent) => void) => void
 }
 
 /** Thrown when the parent reports an upload failure (or the client is disposed mid-upload). */
@@ -44,6 +44,7 @@ const DEFAULT_UPLOAD_TIMEOUT_MS = 120_000
  * so the extra `message` listener registered here also receives messages — both a `MessagePort`'s
  * `onmessage` handler and its `addEventListener` listeners fire for each message.
  */
+// oxlint-disable-next-line max-classes-per-file -- FileUploadError is the tiny error this client throws; they belong together
 export class ParentUploadClient {
   private readonly port: UploadCapableMessagePort
   private readonly timeoutMs: number
@@ -59,7 +60,7 @@ export class ParentUploadClient {
   private nextId = 0
   private disposed = false
 
-  constructor(port: UploadCapableMessagePort, options: ParentUploadClientOptions = {}) {
+  public constructor(port: UploadCapableMessagePort, options: ParentUploadClientOptions = {}) {
     this.port = port
     this.timeoutMs = options.timeoutMs ?? DEFAULT_UPLOAD_TIMEOUT_MS
     this.listener = (event) => this.handleMessage(event.data)
@@ -71,7 +72,7 @@ export class ParentUploadClient {
    * `Map` of name -> stored URL on success, rejects with a {@link FileUploadError} if the parent
    * reports failure or the client is disposed before the reply arrives.
    */
-  uploadFiles(files: Map<string, string | Blob>): Promise<Map<string, string>> {
+  public uploadFiles(files: Map<string, string | Blob>): Promise<Map<string, string>> {
     if (this.disposed) {
       return Promise.reject(new FileUploadError("Upload client has been disposed"))
     }
@@ -91,12 +92,13 @@ export class ParentUploadClient {
       }, this.timeoutMs)
       // Register the resolver before posting so a response can never race ahead of it.
       this.pending.set(requestId, { resolve, reject, timer })
+      // oxlint-disable-next-line require-post-message-target-origin -- MessagePort.postMessage takes no targetOrigin (that arg is window-only)
       this.port.postMessage(message)
     })
   }
 
   /** Removes the message listener and rejects any still-pending uploads. */
-  dispose(): void {
+  public dispose(): void {
     if (this.disposed) {
       return
     }
@@ -119,6 +121,7 @@ export class ParentUploadClient {
     // (matching the wrong upload would resolve it with another's URLs), so it's dropped and each
     // upload's timeout settles its promise instead.
     const entry =
+      // oxlint-disable-next-line eqeqeq -- `!= null` intentionally matches both null and undefined (requestId is `string | null | undefined`)
       data.requestId != null
         ? this.pending.get(data.requestId)
         : this.pending.size === 1
@@ -129,6 +132,7 @@ export class ParentUploadClient {
       return
     }
     clearTimeout(entry.timer)
+    // oxlint-disable-next-line eqeqeq -- `!= null` intentionally matches both null and undefined (requestId is `string | null | undefined`)
     if (data.requestId != null) {
       this.pending.delete(data.requestId)
     } else {

@@ -1017,6 +1017,70 @@ export type DeploymentInfo = {
   }
 }
 
+/**
+ * Form body for `POST /device_authorization` (RFC 8628 §3.1).
+ */
+export type DeviceAuthorizationForm = {
+  client_id: string
+  /**
+   * Space-delimited requested scopes. Optional; when absent the client's
+   * registered scopes are used.
+   */
+  scope?: string | null
+}
+
+/**
+ * Success body for `POST /device_authorization` (RFC 8628 §3.2).
+ */
+export type DeviceAuthorizationResponse = {
+  device_code: string
+  expires_in: number
+  interval: number
+  user_code: string
+  verification_uri: string
+  verification_uri_complete: string
+}
+
+/**
+ * Body for the approve/deny verification actions.
+ */
+export type DeviceDecisionBody = {
+  user_code: string
+}
+
+/**
+ * Result of an approve/deny action.
+ */
+export type DeviceDecisionResponse = {
+  /**
+   * `"approved"` or `"denied"`.
+   */
+  status: string
+}
+
+/**
+ * Render data returned to the verification page so it can show the user what
+ * they are about to authorize.
+ */
+export type DeviceVerificationInfo = {
+  /**
+   * Public client identifier (the `client_id` string, not the internal UUID).
+   */
+  client_id: string
+  /**
+   * Human-readable client name for display.
+   */
+  client_name: string
+  /**
+   * Scopes the client is requesting.
+   */
+  scopes: Array<string>
+  /**
+   * The normalized `user_code` (`XXXX-XXXX`), echoed back for display.
+   */
+  user_code: string
+}
+
 export type DomainCompletionStats = {
   email_domain: string
   not_registered_completions: number
@@ -7465,6 +7529,111 @@ export type DenyOauthConsentResponses = {
 }
 
 export type DenyOauthConsentResponse = DenyOauthConsentResponses[keyof DenyOauthConsentResponses]
+
+export type DeviceAuthorizationOauthData = {
+  body: DeviceAuthorizationForm
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/oauth/device_authorization"
+}
+
+export type DeviceAuthorizationOauthErrors = {
+  /**
+   * OAuth error (invalid_scope, unauthorized_client)
+   */
+  400: unknown
+  /**
+   * OAuth error (invalid_client)
+   */
+  401: unknown
+}
+
+export type DeviceAuthorizationOauthResponses = {
+  /**
+   * Device authorization response
+   */
+  200: DeviceAuthorizationResponse
+}
+
+export type DeviceAuthorizationOauthResponse =
+  DeviceAuthorizationOauthResponses[keyof DeviceAuthorizationOauthResponses]
+
+export type GetOauthDeviceVerificationData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+     * The user_code shown to the user by the device
+     */
+    user_code: string
+  }
+  url: "/api/v0/main-frontend/oauth/device_verification"
+}
+
+export type GetOauthDeviceVerificationErrors = {
+  /**
+   * No pending device authorization for this user_code
+   */
+  404: unknown
+}
+
+export type GetOauthDeviceVerificationResponses = {
+  /**
+   * Pending device authorization render data
+   */
+  200: DeviceVerificationInfo
+}
+
+export type GetOauthDeviceVerificationResponse =
+  GetOauthDeviceVerificationResponses[keyof GetOauthDeviceVerificationResponses]
+
+export type ApproveOauthDeviceVerificationData = {
+  body: DeviceDecisionBody
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/oauth/device_verification/approve"
+}
+
+export type ApproveOauthDeviceVerificationErrors = {
+  /**
+   * No pending device authorization for this user_code
+   */
+  404: unknown
+}
+
+export type ApproveOauthDeviceVerificationResponses = {
+  /**
+   * Device authorization approved
+   */
+  200: DeviceDecisionResponse
+}
+
+export type ApproveOauthDeviceVerificationResponse =
+  ApproveOauthDeviceVerificationResponses[keyof ApproveOauthDeviceVerificationResponses]
+
+export type DenyOauthDeviceVerificationData = {
+  body: DeviceDecisionBody
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/oauth/device_verification/deny"
+}
+
+export type DenyOauthDeviceVerificationErrors = {
+  /**
+   * No pending device authorization for this user_code
+   */
+  404: unknown
+}
+
+export type DenyOauthDeviceVerificationResponses = {
+  /**
+   * Device authorization denied
+   */
+  200: DeviceDecisionResponse
+}
+
+export type DenyOauthDeviceVerificationResponse =
+  DenyOauthDeviceVerificationResponses[keyof DenyOauthDeviceVerificationResponses]
 
 export type IntrospectOauthTokenData = {
   body: unknown

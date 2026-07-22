@@ -26,6 +26,9 @@ import type {
   AdvanceCourseDesignerStageResponses,
   ApproveOauthConsentData,
   ApproveOauthConsentResponses,
+  ApproveOauthDeviceVerificationData,
+  ApproveOauthDeviceVerificationErrors,
+  ApproveOauthDeviceVerificationResponses,
   AuthorizeOauthGetData,
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
@@ -126,6 +129,12 @@ import type {
   DeletePlaygroundExampleResponses,
   DenyOauthConsentData,
   DenyOauthConsentResponses,
+  DenyOauthDeviceVerificationData,
+  DenyOauthDeviceVerificationErrors,
+  DenyOauthDeviceVerificationResponses,
+  DeviceAuthorizationOauthData,
+  DeviceAuthorizationOauthErrors,
+  DeviceAuthorizationOauthResponses,
   DismissCourseSuspectedCheaterData,
   DismissCourseSuspectedCheaterResponses,
   DownloadCodeGiveawayCodesCsvData,
@@ -372,6 +381,9 @@ import type {
   GetNumberOfPeopleStartedCourseResponses,
   GetOauthAuthorizedClientsData,
   GetOauthAuthorizedClientsResponses,
+  GetOauthDeviceVerificationData,
+  GetOauthDeviceVerificationErrors,
+  GetOauthDeviceVerificationResponses,
   GetOauthJwksData,
   GetOauthJwksResponses,
   GetOauthOpenidConfigurationData,
@@ -634,6 +646,7 @@ import {
   zAddTeacherGradingForExamSubmissionResponse,
   zAdvanceCourseDesignerStageResponse,
   zApproveOauthConsentResponse,
+  zApproveOauthDeviceVerificationResponse,
   zChangeUserPasswordResponse,
   zConfigureChatbotResponse,
   zCreateChapterResponse,
@@ -665,6 +678,8 @@ import {
   zDeletePageResponse,
   zDeletePlaygroundExampleResponse,
   zDenyOauthConsentResponse,
+  zDenyOauthDeviceVerificationResponse,
+  zDeviceAuthorizationOauthResponse,
   zDownloadCodeGiveawayCodesCsvResponse,
   zDuplicateExamResponse,
   zExportCourseExerciseTasksCsvResponse,
@@ -777,6 +792,7 @@ import {
   zGetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse,
   zGetNumberOfPeopleStartedCourseResponse,
   zGetOauthAuthorizedClientsResponse,
+  zGetOauthDeviceVerificationResponse,
   zGetOrganizationActiveCourseCountResponse,
   zGetOrganizationActiveCoursesResponse,
   zGetOrganizationBySlugResponse,
@@ -5144,6 +5160,158 @@ export const denyOauthConsent = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zDenyOauthConsentResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/oauth/consent/deny",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Handles `POST /device_authorization` — the RFC 8628 device authorization
+ * endpoint.
+ *
+ * Public, form-encoded, no session required (rate-limited like `/token`).
+ * Validates the client, checks it is allowed the device-code grant, validates
+ * requested scopes against the client's registered scopes, then issues an
+ * opaque `device_code` (stored only as an HMAC digest) plus a human-typable
+ * `user_code`.
+ *
+ * Follows [RFC 8628 §3.1–§3.2](https://datatracker.ietf.org/doc/html/rfc8628#section-3.1).
+ *
+ * # Example
+ * ```http
+ * POST /api/v0/main-frontend/oauth/device_authorization HTTP/1.1
+ * Content-Type: application/x-www-form-urlencoded
+ *
+ * client_id=tmc-cli-vscode&scope=exercise-services
+ * ```
+ *
+ * Successful response:
+ * ```http
+ * HTTP/1.1 200 OK
+ * Content-Type: application/json
+ *
+ * {
+ * "device_code": "GmRhmhcxhwAzkoEqiMEg_DnyEysNkuNhszIySk9eS",
+ * "user_code": "WDJB-MJHT",
+ * "verification_uri": "https://courses.mooc.fi/oauth_device",
+ * "verification_uri_complete": "https://courses.mooc.fi/oauth_device?user_code=WDJB-MJHT",
+ * "expires_in": 900,
+ * "interval": 5
+ * }
+ * ```
+ */
+export const deviceAuthorizationOauth = <ThrowOnError extends boolean = true>(
+  options: Options<DeviceAuthorizationOauthData, ThrowOnError>,
+): RequestResult<
+  DeviceAuthorizationOauthResponses,
+  DeviceAuthorizationOauthErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    DeviceAuthorizationOauthResponses,
+    DeviceAuthorizationOauthErrors,
+    ThrowOnError,
+    "data"
+  >({
+    ...urlSearchParamsBodySerializer,
+    responseValidator: async (data) => await zDeviceAuthorizationOauthResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_authorization",
+    ...options,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Handles `GET /device_verification` — render data for the browser consent page.
+ *
+ * Session-authed. Looks up the still-pending, unexpired grant for the given
+ * `user_code` (normalizing the input first) and returns the client name and
+ * requested scopes so the page can ask the user to approve. A code that is
+ * unknown, expired, or no longer pending yields `404 Not Found` so the page can
+ * show a distinguishable "invalid or expired code" message.
+ */
+export const getOauthDeviceVerification = <ThrowOnError extends boolean = true>(
+  options: Options<GetOauthDeviceVerificationData, ThrowOnError>,
+): RequestResult<
+  GetOauthDeviceVerificationResponses,
+  GetOauthDeviceVerificationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetOauthDeviceVerificationResponses,
+    GetOauthDeviceVerificationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetOauthDeviceVerificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_verification",
+    ...options,
+  })
+
+/**
+ * Handles `POST /device_verification/approve`.
+ *
+ * Session-authed. Persists the user's consent via the same
+ * `OAuthUserClientScopes::insert` the web consent flow uses (consent is always
+ * recorded — never short-circuited on a pre-existing grant), then marks the
+ * device code approved and bound to the signed-in user.
+ */
+export const approveOauthDeviceVerification = <ThrowOnError extends boolean = true>(
+  options: Options<ApproveOauthDeviceVerificationData, ThrowOnError>,
+): RequestResult<
+  ApproveOauthDeviceVerificationResponses,
+  ApproveOauthDeviceVerificationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    ApproveOauthDeviceVerificationResponses,
+    ApproveOauthDeviceVerificationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zApproveOauthDeviceVerificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_verification/approve",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Handles `POST /device_verification/deny`.
+ *
+ * Session-authed. Marks the pending device code denied; the polling client then
+ * receives `access_denied` at the token endpoint.
+ */
+export const denyOauthDeviceVerification = <ThrowOnError extends boolean = true>(
+  options: Options<DenyOauthDeviceVerificationData, ThrowOnError>,
+): RequestResult<
+  DenyOauthDeviceVerificationResponses,
+  DenyOauthDeviceVerificationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    DenyOauthDeviceVerificationResponses,
+    DenyOauthDeviceVerificationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zDenyOauthDeviceVerificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_verification/deny",
     ...options,
     headers: {
       "Content-Type": "application/json",

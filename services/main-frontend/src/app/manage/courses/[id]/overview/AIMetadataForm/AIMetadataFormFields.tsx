@@ -1,5 +1,7 @@
 "use client"
 
+"use client"
+
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"

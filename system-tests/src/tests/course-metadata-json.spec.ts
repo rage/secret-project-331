@@ -9,16 +9,14 @@ test.use({
 
 test.describe("Course jsonLd generation", () => {
   test("Metadata jsonLd exist", async ({ page }) => {
-    await page.goto("http://project-331.local/")
-    await page.getByRole("link", { name: "Navigate to course 'Metadata course'" }).click()
+    await page.goto("http://project-331.local/org/uh-mathstat/courses/metadata-course/")
     await selectCourseInstanceIfPrompted(page)
     const jsonLdLocator = page.locator("script[type='application/ld+json']")
     await expect(jsonLdLocator).toBeAttached()
   })
 
   test("Metadata has correct fields set fields", async ({ page }) => {
-    await page.goto("http://project-331.local/")
-    await page.getByRole("link", { name: "Navigate to course 'Metadata course'" }).click()
+    await page.goto("http://project-331.local/org/uh-mathstat/courses/metadata-course/")
     await selectCourseInstanceIfPrompted(page)
     const jsonLdLocator = page.locator("script[type='application/ld+json']")
     const rawJSON = await jsonLdLocator.textContent()

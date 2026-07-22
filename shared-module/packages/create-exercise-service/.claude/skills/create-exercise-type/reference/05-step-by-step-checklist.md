@@ -16,7 +16,7 @@ or git repo), so "own repo" is a first-class target — scaffold straight to the
 The placement is the user's call — **ask it explicitly** (it is not implied by the slug/port
 question), and confirm which of the chosen track's obligations are in scope for the session.
 
-> Before any step below: SKILL.md's Part B design gates — scope/features, the five data types, and
+> Before any step below: SKILL.md's Part A design gates — scope/features, the five data types, and
 > the three views, each explicitly confirmed by the user — must be passed first. This file picks up
 > after that sign-off.
 

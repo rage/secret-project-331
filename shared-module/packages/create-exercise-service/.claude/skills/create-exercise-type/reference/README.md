@@ -6,7 +6,7 @@ implementation `services/example-exercise`, the scaffolding CLI, the `headless-l
 kubernetes/skaffold/Tilt infra, and the master's thesis behind the design (see
 `06-design-rationale-thesis.md`).
 
-This reference ships inside the `run-create-exercise-service` skill (see `../SKILL.md`); read it
+This reference ships inside the `create-exercise-type` skill (see `../SKILL.md`); read it
 alongside the shipped protocol doc `docs/plugin-system.md`.
 
 ## The one-paragraph answer

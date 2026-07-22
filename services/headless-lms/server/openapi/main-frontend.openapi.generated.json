@@ -8190,6 +8190,142 @@
         }
       }
     },
+    "/api/v0/main-frontend/oauth/device_authorization": {
+      "post": {
+        "tags": ["oauth"],
+        "summary": "Handles `POST /device_authorization` — the RFC 8628 device authorization\nendpoint.",
+        "description": "Public, form-encoded, no session required (rate-limited like `/token`).\nValidates the client, checks it is allowed the device-code grant, validates\nrequested scopes against the client's registered scopes, then issues an\nopaque `device_code` (stored only as an HMAC digest) plus a human-typable\n`user_code`.\n\nFollows [RFC 8628 §3.1–§3.2](https://datatracker.ietf.org/doc/html/rfc8628#section-3.1).\n\n# Example\n```http\nPOST /api/v0/main-frontend/oauth/device_authorization HTTP/1.1\nContent-Type: application/x-www-form-urlencoded\n\nclient_id=tmc-cli-vscode&scope=exercise-services\n```\n\nSuccessful response:\n```http\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  \"device_code\": \"GmRhmhcxhwAzkoEqiMEg_DnyEysNkuNhszIySk9eS\",\n  \"user_code\": \"WDJB-MJHT\",\n  \"verification_uri\": \"https://courses.mooc.fi/oauth_device\",\n  \"verification_uri_complete\": \"https://courses.mooc.fi/oauth_device?user_code=WDJB-MJHT\",\n  \"expires_in\": 900,\n  \"interval\": 5\n}\n```",
+        "operationId": "deviceAuthorizationOauth",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceAuthorizationForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Device authorization response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceAuthorizationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "OAuth error (invalid_scope, unauthorized_client)"
+          },
+          "401": {
+            "description": "OAuth error (invalid_client)"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/oauth/device_verification": {
+      "get": {
+        "tags": ["oauth"],
+        "summary": "Handles `GET /device_verification` — render data for the browser consent page.",
+        "description": "Session-authed. Looks up the still-pending, unexpired grant for the given\n`user_code` (normalizing the input first) and returns the client name and\nrequested scopes so the page can ask the user to approve. A code that is\nunknown, expired, or no longer pending yields `404 Not Found` so the page can\nshow a distinguishable \"invalid or expired code\" message.",
+        "operationId": "getOauthDeviceVerification",
+        "parameters": [
+          {
+            "name": "user_code",
+            "in": "query",
+            "description": "The user_code shown to the user by the device",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending device authorization render data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceVerificationInfo"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No pending device authorization for this user_code"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/oauth/device_verification/approve": {
+      "post": {
+        "tags": ["oauth"],
+        "summary": "Handles `POST /device_verification/approve`.",
+        "description": "Session-authed. Persists the user's consent via the same\n`OAuthUserClientScopes::insert` the web consent flow uses (consent is always\nrecorded — never short-circuited on a pre-existing grant), then marks the\ndevice code approved and bound to the signed-in user.",
+        "operationId": "approveOauthDeviceVerification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceDecisionBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Device authorization approved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceDecisionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No pending device authorization for this user_code"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/oauth/device_verification/deny": {
+      "post": {
+        "tags": ["oauth"],
+        "summary": "Handles `POST /device_verification/deny`.",
+        "description": "Session-authed. Marks the pending device code denied; the polling client then\nreceives `access_denied` at the token endpoint.",
+        "operationId": "denyOauthDeviceVerification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceDecisionBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Device authorization denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceDecisionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No pending device authorization for this user_code"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/oauth/introspect": {
       "post": {
         "tags": ["oauth"],
@@ -13985,6 +14121,101 @@
             "propertyNames": {
               "type": "string"
             }
+          }
+        }
+      },
+      "DeviceAuthorizationForm": {
+        "type": "object",
+        "description": "Form body for `POST /device_authorization` (RFC 8628 §3.1).",
+        "required": ["client_id"],
+        "properties": {
+          "client_id": {
+            "type": "string"
+          },
+          "scope": {
+            "type": ["string", "null"],
+            "description": "Space-delimited requested scopes. Optional; when absent the client's\nregistered scopes are used."
+          }
+        }
+      },
+      "DeviceAuthorizationResponse": {
+        "type": "object",
+        "description": "Success body for `POST /device_authorization` (RFC 8628 §3.2).",
+        "required": [
+          "device_code",
+          "user_code",
+          "verification_uri",
+          "verification_uri_complete",
+          "expires_in",
+          "interval"
+        ],
+        "properties": {
+          "device_code": {
+            "type": "string"
+          },
+          "expires_in": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "interval": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "user_code": {
+            "type": "string"
+          },
+          "verification_uri": {
+            "type": "string"
+          },
+          "verification_uri_complete": {
+            "type": "string"
+          }
+        }
+      },
+      "DeviceDecisionBody": {
+        "type": "object",
+        "description": "Body for the approve/deny verification actions.",
+        "required": ["user_code"],
+        "properties": {
+          "user_code": {
+            "type": "string"
+          }
+        }
+      },
+      "DeviceDecisionResponse": {
+        "type": "object",
+        "description": "Result of an approve/deny action.",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "`\"approved\"` or `\"denied\"`."
+          }
+        }
+      },
+      "DeviceVerificationInfo": {
+        "type": "object",
+        "description": "Render data returned to the verification page so it can show the user what\nthey are about to authorize.",
+        "required": ["client_id", "client_name", "scopes", "user_code"],
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "description": "Public client identifier (the `client_id` string, not the internal UUID)."
+          },
+          "client_name": {
+            "type": "string",
+            "description": "Human-readable client name for display."
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Scopes the client is requesting."
+          },
+          "user_code": {
+            "type": "string",
+            "description": "The normalized `user_code` (`XXXX-XXXX`), echoed back for display."
           }
         }
       },

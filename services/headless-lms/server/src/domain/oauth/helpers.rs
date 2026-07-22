@@ -37,6 +37,19 @@ pub fn oauth_invalid_client(desc: &'static str) -> ControllerError {
     oauth_error(OAuthErrorCode::InvalidClient.as_str(), desc, None, None)
 }
 
+pub fn oauth_invalid_scope(desc: &'static str) -> ControllerError {
+    oauth_error(OAuthErrorCode::InvalidScope.as_str(), desc, None, None)
+}
+
+pub fn oauth_unauthorized_client(desc: &'static str) -> ControllerError {
+    oauth_error(
+        OAuthErrorCode::UnauthorizedClient.as_str(),
+        desc,
+        None,
+        None,
+    )
+}
+
 pub fn oauth_invalid_grant(desc: &'static str) -> ControllerError {
     oauth_error(OAuthErrorCode::InvalidGrant.as_str(), desc, None, None)
 }

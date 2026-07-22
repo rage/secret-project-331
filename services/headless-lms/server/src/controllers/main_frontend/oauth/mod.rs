@@ -30,6 +30,7 @@ use utoipa::OpenApi;
 mod authorize;
 mod authorized_clients;
 mod consent;
+mod device;
 mod discovery;
 mod introspect;
 mod revoke;
@@ -48,6 +49,10 @@ mod userinfo;
     revoke::revoke,
     consent::approve_consent,
     consent::deny_consent,
+    device::device_authorization,
+    device::device_verification,
+    device::approve_device_verification,
+    device::deny_device_verification,
     authorized_clients::get_authorized_clients,
     authorized_clients::delete_authorized_client,
     introspect::introspect
@@ -61,6 +66,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     discovery::_add_routes(cfg);
     revoke::_add_routes(cfg);
     consent::_add_routes(cfg);
+    device::_add_routes(cfg);
     authorized_clients::_add_routes(cfg);
     introspect::_add_routes(cfg);
 }

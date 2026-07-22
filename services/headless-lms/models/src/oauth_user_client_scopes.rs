@@ -161,7 +161,7 @@ impl OAuthUserClientScopes {
         .await?;
 
         sqlx::query!(
-            r#"UPDATE oauth_refresh_tokens SET revoked = true WHERE user_id = $1 AND client_id = $2"#,
+            r#"UPDATE oauth_refresh_tokens SET revoked = true, rotated_at = NULL WHERE user_id = $1 AND client_id = $2"#,
             user_id,
             client_id
         )

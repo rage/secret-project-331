@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            UPDATE oauth_refresh_tokens\n               SET revoked = true\n             WHERE digest = $1\n               AND client_id = $2\n               AND revoked = false\n               AND expires_at > now()\n            RETURNING *\n            ",
+  "query": "\n            SELECT *\n            FROM oauth_refresh_tokens\n            WHERE digest = $1\n              AND client_id = $2\n              AND revoked = true\n              AND rotated_at IS NOT NULL\n              AND rotated_at > $3\n              AND expires_at > now()\n            ",
   "describe": {
     "columns": [
       {
@@ -161,7 +161,8 @@
     "parameters": {
       "Left": [
         "Bytea",
-        "Uuid"
+        "Uuid",
+        "Timestamptz"
       ]
     },
     "nullable": [
@@ -181,5 +182,5 @@
       true
     ]
   },
-  "hash": "d6d0fa4bfbce3bf8fd92052c2851ec95369f76a0599e4331de2aa3d19c5c22f9"
+  "hash": "5636c6d9dbf4326d3e4297d263c2c156937dec0d9f1ad145e66265f625a2ba1b"
 }

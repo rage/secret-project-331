@@ -10,6 +10,7 @@
 'course_designer_plan_stage_status' = "crate::course_designer_plans::CourseDesignerPlanStageStatus"
 'course_designer_plan_status' = "crate::course_designer_plans::CourseDesignerPlanStatus"
 'course_designer_stage' = "crate::course_designer_plans::CourseDesignerStage"
+'device_code_status' = "crate::oauth_device_codes::DeviceCodeStatus"
 'email_template_type' = "crate::email_templates::EmailTemplateType"
 'error_source' = "crate::errors::ErrorSource"
 'exercise_repository_status' = "crate::exercise_repositories::ExerciseRepositoryStatus"
@@ -51,6 +52,9 @@
 
 [macros.table-overrides.'oauth_auth_codes']
 'digest' = "crate::library::oauth::Digest"
+
+[macros.table-overrides.'oauth_device_codes']
+'device_code_digest' = "crate::library::oauth::Digest"
 
 [macros.table-overrides.'oauth_access_tokens']
 'digest' = "crate::library::oauth::Digest"

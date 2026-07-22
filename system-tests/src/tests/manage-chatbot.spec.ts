@@ -4,7 +4,7 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
-test.describe("Chatbot settings testing", () => {
+test.describe.only("Chatbot settings testing", () => {
   test.use({
     storageState: "src/states/admin@example.com.json",
   })
@@ -110,6 +110,10 @@ test.describe("Chatbot settings testing", () => {
 
     await test.step("send message", async () => {
       await expect(page.getByRole("heading", { level: 1, name: "Chatbot 2 edited" })).toBeVisible()
+
+      await expect(page.getByText("Hello! How can I assist you today?")).toHaveCount(0, {
+        timeout: 15000,
+      })
 
       await page.getByPlaceholder("Message").click()
       await page.getByPlaceholder("Message").fill("Hello, pls help me!")

@@ -128,7 +128,7 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         update_metadata,
         get_course_prerequisites,
         get_course_audiences,
-        get_course_metadata
+        get_course_metadata,
         get_all_courses
     ),
     nest(
@@ -3076,6 +3076,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/get-course-metadata",
             web::get().to(get_course_metadata),
-        );
+        )
         .route("/", web::get().to(get_all_courses));
 }

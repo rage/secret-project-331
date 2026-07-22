@@ -31,7 +31,7 @@ backend needs **no per-type Rust code**, only one seed row plus infra manifests.
 | **[04-backend-and-infra-integration.md](04-backend-and-infra-integration.md)**       | `headless-lms` seed + generic protocol plumbing + endpoint discovery, and the kubernetes/skaffold/Tilt manifests.                                                                                                                              |
 | **[05-step-by-step-checklist.md](05-step-by-step-checklist.md)**                     | The actionable end-to-end sequence (Track A standalone vs. Track B first-party).                                                                                                                                                               |
 | **[06-design-rationale-thesis.md](06-design-rationale-thesis.md)**                   | The "why", from the thesis: needs, goals, isolation model, and why the design is shaped this way.                                                                                                                                              |
-| **[07-key-design-decisions.md](07-key-design-decisions.md)**                         | The decisions that matter when designing a plugin: data modelling (versioning, derivation, leaks, ids, answers, validity) and how to test the data models/forms. **This is the source of the SKILL's mandatory data-model confirmation step.** |
+| **[07-key-design-decisions.md](07-key-design-decisions.md)**                         | The decisions that matter when designing a plugin: data modelling (versioning, derivation, leaks, ids, answers, validity) and how to test the data models/forms. **This is the source of the SKILL's mandatory data-model design gate (Gate 2).** |
 
 ## Key facts worth internalizing
 

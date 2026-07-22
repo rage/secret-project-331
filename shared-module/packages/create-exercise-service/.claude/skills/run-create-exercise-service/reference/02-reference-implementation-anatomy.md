@@ -259,15 +259,21 @@ Library): `serviceInfo.test.ts`, `publicSpec.test.ts`, `modelSolution.test.ts`, 
 `exportAnswers.test.ts`, `exportDefinitions.test.ts`, `status.test.ts`, `IframeView.test.tsx`,
 `router.test.ts`, plus the doctrine tests from `reference/07 Part II`: `leakGuard.test.ts` (leak
 regression), `roundTrip.test.ts` (an answer built only from the public spec grades against the
-private spec), and `stateInterfaces.test.ts` (validity + the migration anchor: a legacy no-version
-blob lifts to v1, a v1 blob passes through unchanged). A new plugin should keep this pattern — the
-endpoint tests double as a spec of the request/response envelopes.
+private spec), `stateInterfaces.test.ts` (validity), and
+`src/util/migration/migrateToLatest.test.ts` (the migration suite anchored at v1: a legacy
+no-version blob lifts to latest, a v1 blob passes through unchanged, an unknown/future version fails
+loud, with frozen per-version fixtures). A new plugin should keep this pattern — the endpoint tests
+double as a spec of the request/response envelopes.
 
 ## What a new plugin must change vs. keep
 
 **Change (the exercise-specific ~20%):**
 
-- `src/util/stateInterfaces.ts` — your five (versioned) data types + forgiving parsers/migration.
+- `src/util/stateInterfaces.ts` — your five (versioned) data types + guards/validity.
+- `src/util/migration/{versions,migrateToLatest}.ts` — **keep the chain structure, retype it**: one
+  version source + per-kind step registries (empty at v1) + `migrate*ToLatest` per stored type, with
+  the forgiving `parse*` wrappers for the iframe. Every door routes through it; adding v2 later must
+  stay a one-line registry addition per kind.
 - `src/server/{publicSpec,modelSolution,grade}.ts` — your spec-derivation and grading logic. Keep the
   checker (normalization/acceptance) under `src/server/`, **never** in a view-imported util: public
   source maps ship, so grading code reachable from a view module can leak the algorithm to students

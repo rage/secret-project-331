@@ -203,10 +203,50 @@ pnpm --dir shared-module/packages/create-exercise-service test
 # Part B — Author a new exercise type
 
 The scaffold is a **complete multiple-choice exercise**, not a blank skeleton — you turn it into your
-exercise type by editing the ~20% that is exercise-specific and reusing the rest. But before you
-touch any code, lock the data model down **with the user**.
+exercise type by editing the ~20% that is exercise-specific and reusing the rest.
 
-## Step 0 — Confirm the data model with the user (mandatory; do not write code until signed off)
+Authoring runs through **three design gates with the user** (scope → data model → views), then
+implementation, then verification. The gates are **conversations, not forms**: propose something
+concrete, ask targeted questions, iterate on the answers, and proceed only on the user's **explicit
+confirmation of the exact artifact shown**. Silence is not sign-off; an answer that changes anything
+means you revise and **re-present the revised artifact** before moving on. `AskUserQuestion` caps at
+4 questions per call — run as many rounds as the design needs rather than cramming; decompose
+compound decisions (mechanism vs. catalogue vs. defaults vs. limits are *separate* questions), and
+mix in free-form discussion whenever the option space is too rich for multiple choice.
+
+**Headless / subagent context.** If `AskUserQuestion` is unavailable (you are running as a subagent,
+or without an interactive user), do **not** skip a gate or sign off on your own behalf. Present the
+full proposal for the gate you are at — every open question with your recommended default — as your
+response, and **stop** until a human relays sign-off (possibly with tweaks). The gates are the point;
+a proposed-artifact-then-stop turn is how you honor them without an interactive prompt.
+
+## Gate 1 — Scope: where the plugin lives, and its full feature set
+
+**Where will the project live? Ask — never assume.** The slug/port question does not answer this;
+placement is its own decision with its own consequences, so put it to the user explicitly:
+
+- **Own repository** (reference/05's Track A): scaffold to a path *outside* the monorepo. The output
+  is genuinely standalone (verified: fresh `pnpm install`, `tsc`, vitest, and dev-server boot all
+  work with no enclosing workspace or git repo) and keeps a point-in-time vendored shared-module.
+  Registered with the host later by URL (reference/05 step 9).
+- **Inside this monorepo as a first-party service** (`services/<slug>`, Track B): commits you to the
+  full reference/05 sequence — vendored-module sync targets (step 5), backend seed (step 6), infra
+  manifests (step 7). Do only part of it and the service rots quietly.
+
+Confirm with the user which it is *and* which of the track's obligations are in scope for this
+session — "scaffold now, wire the host later" is fine, but say so out loud rather than silently
+stopping early.
+
+**Then broaden the feature list before designing anything.** The user's first message is rarely the
+whole exercise. Propose the additional features this exercise class typically wants — as concrete
+suggestions the user can accept or reject, not "any other requirements?" — and fold the accepted
+ones into the design inputs. A feature discovered *after* the data model is locked is a migration;
+five minutes of brainstorming here is the cheap alternative. Also settle scope of the template's
+optional machinery now: **ask whether CSV export is wanted** (keeping it means rewriting both
+handlers + tests for your data; dropping it means deleting files per reference/05 step 3 — neither
+is free).
+
+## Gate 2 — Data model: design the five types with the user (no code until confirmed)
 
 An exercise plugin's five data types are **stored forever in a host database you cannot migrate** —
 old blobs keep replaying into your endpoints and views indefinitely (a 3-year-old answer re-POSTed to
@@ -215,44 +255,115 @@ just don't get `ALTER TABLE`._ And the derivation from private → public spec i
 boundary: a field you forget to drop leaks answers into every student's browser **irreversibly** — the
 spec was already served. These are the most expensive-to-get-wrong decisions in the whole task.
 
-So: read **`reference/07-key-design-decisions.md`** in full, then work through **its one-screen
-checklist** (versioned specs, the two projections + leak catalogue, visibility under peer
-review/exam mode, the answer shape, validity invariants, grading model, migration doors) _with the
-user_. Present a concrete _proposed_ model and get explicit sign-off on each item via
-`AskUserQuestion` — propose a recommended shape, don't ask open-ended questions. **Only implement
-once the user has signed off.**
+Read **`reference/07-key-design-decisions.md`** (at minimum Part I in full plus the one-screen
+checklist at the end; Part II when you design the tests), then design **each of the five types in
+turn** — private spec, public spec, model solution spec, answer, feedback — as its own short
+conversation round:
 
-**Headless / subagent context.** If `AskUserQuestion` is unavailable (you are running as a subagent,
-or without an interactive user), do **not** skip the gate or sign off on your own behalf. Instead,
-present the full proposed model — every one-screen-checklist item, plus each open question with your
-recommended default — as your response, and **stop**. Do not write exercise code until a human relays
-sign-off (possibly with tweaks). The gate is the point; a proposed-model-then-stop turn is how you
-honor it without an interactive prompt.
+- **Propose actual TypeScript type definitions**, not prose. Sign-off applies to the exact types
+  shown; if a later answer changes them, the changed types go back to the user.
+- **Doctrine-fixed items need no question** — versioning from day one, explicit-pick projections,
+  migrate-on-read through one chain, server-only grading. State them as givens.
+- **Real choices each need explicit confirmation**, notably: the grading model (sync/async, score
+  semantics, partial credit); what the model solution shows — *including "nothing" (`null`)*, since
+  peer reviewers receive it unconditionally; the answer's exact shape and what a peer reviewer will
+  see in it; the validity invariants; what happens to **already-stored answers when the teacher
+  later tightens the spec** (regrade policy — the doctrine's replay problem in its most concrete
+  form); and how the design behaves under peer review and exam mode.
+- **Every quantitative limit gets a concrete number put to the user** — file-size caps, item-count
+  ceilings, character limits. "Add limits" from the user + a number you invented is not a confirmed
+  design; propose the value, let them confirm or change it.
+- **Delegation is not sign-off.** When the user says "you come up with X," draft X, then present the
+  draft for confirmation before implementing it. Same for anything you invent post-gate.
 
-## Then implement the confirmed model
+## Gate 3 — Views: design the three UIs with the user (no view code until confirmed)
 
-`reference/05-step-by-step-checklist.md` is the end-to-end sequence; follow it. In short: encode the
-five types in `src/util/stateInterfaces.ts` → implement the three server transforms
-(`src/server/{publicSpec,modelSolution,grade}.ts`; grade **server-side only**) → update the three
-views (`src/components/{ExerciseEditor,AnswerExercise,ViewSubmission}.tsx`, keeping the
-`IframeView`/`Renderer` skeleton). You change ~20% and keep ~80% verbatim — see the change-vs-keep
-split in `reference/05`.
+The three views are the product the teacher and students actually touch — design them deliberately,
+per view, before implementing:
 
-Verify as you go with `drive-view.mjs` (Part A). For committed tests, adapt the inherited
-`e2e/protocol.spec.ts` (every generated project ships it) — it uses the typed `createHostEmulator`
-wrapper and `set-state` builders. Run it against your own service (`services/<your-slug>`), or against
-the reference to sanity-check the harness (Playwright boots the dev server via `webServer`):
+- **`exercise-editor`** — which control edits which private-spec field, layout, how validation
+  errors surface. (Every control that affects the saved result must write to a spec field — see
+  reference/07 §10.)
+- **`answer-exercise`** — the answering interaction, client-side constraint feedback (what happens
+  on each rejected input), and what a returning student sees seeded from `previous_submission`.
+- **`view-submission`** — read-only, but triple-duty: the student's own review, **the teacher's
+  preview surface, and what peer reviewers see**. Decide what renders inline vs. links out, and
+  whether/how the grading result and feedback are shown.
+
+For each view present **2–3 concrete layout options** (ASCII mockups in `AskUserQuestion` option
+previews work well), state what information appears in which state (empty, filled, error, graded),
+and iterate until the user explicitly confirms one. Behavior you invent during implementation that
+wasn't in the confirmed design (a preview-file-types list, an inline-vs-download rule) goes back for
+a quick confirm — it's part of the design, not an implementation detail.
+
+## Implement the confirmed design
+
+**Now read `reference/05-step-by-step-checklist.md` and follow it for your track** — it is the
+mandatory sequence, not optional background: it routes the five types (`src/util/stateInterfaces.ts`)
+→ the three server transforms (`src/server/{publicSpec,modelSolution,grade}.ts`; grade
+**server-side only**) → the three views (keep the `IframeView`/`Renderer` skeleton) → and, for
+Track B, the steps that are silently missable and rot the service if skipped (**`shared-module/
+sync.ts` targets**, backend seed, infra). You change ~20% and keep ~80% verbatim — the file-by-file
+change-vs-keep list is in `reference/02`; don't re-derive the layout by hand.
+
+Authoring gotchas (each cost a real session a debugging round-trip):
+
+- **Open files with the Read tool before editing them** — surveying via `cat` doesn't register the
+  file as read, so your first `Write`/`Edit` will be rejected and you'll re-read everything.
+- **Keep the template's guard rails wired, don't just keep their files**: `publicSpec.ts` /
+  `modelSolution.ts` must keep *calling* `assertNoLeak` on what they serve, and every stored-blob
+  door goes through the `migrate*ToLatest` chain (`src/util/migration/` in the template) — adapt
+  these to your types; deleting the call sites silently disarms them.
+- **Locales** live at `src/locales/<lang>/<slug>.json` (per-language dirs, file named after your
+  slug); keep en/fi key sets identical.
+- **The scaffold is ESM** (`type: module`): in e2e/test files use
+  `path.dirname(fileURLToPath(import.meta.url))`, never `__dirname`. The tsconfig has
+  `noUncheckedIndexedAccess`, so `array[0]` is `T | undefined` — index with `?.`/`!` deliberately.
+- **File-upload exercises**: plugins never store files. The `useFileUpload(port)` hook
+  (`@/shared-module/exercise-react/react/hooks/useFileUpload`) sends `file-upload` to the host and
+  resolves to a `Map<name, url>` — the answer records the URLs. In tests the host emulator
+  auto-answers uploads (`driveFileUpload` + a small committed fixture file).
+- **If the answer view seeds state from `previous_submission`, emit a `current-state` for it** —
+  otherwise the host's `valid` gate stays unset and a student can't resubmit unchanged prior work.
+
+## Verify
+
+Unit layer: `pnpm test` + `tsc --noEmit`, with the suites reference/07 Part II prescribes — envelope
+tests, **leak regression gates** (including one that proves the *endpoints* invoke the guard, not
+just that the guard works), round-trips, grading tables fed garbage, and a migration suite anchored
+at v1.
+
+E2E layer: adapt the inherited `e2e/protocol.spec.ts` (typed `createHostEmulator` + `set-state`
+builders). **The e2e suite must be comprehensive — this is not a user preference to ask about**
+(discuss test *strategy* if useful; never whether to test thoroughly). Three happy-path tests is a
+smoke test, not a suite. Cover at least:
+
+- editor: every control emits the right spec, plus the `valid` transitions (including into invalid);
+- answer: the happy path *and every client-side rejection* the design defines (wrong type, over
+  count/size limits, duplicates — whatever applies), removal/undo, multi-item answers,
+  `previous_submission` seeding on retry;
+- view-submission: rendering with answer + grading + feedback, and the degenerate cases (empty
+  answer, unknown ids);
+- an old-version spec fed via `set-state` emits the migrated current version.
+
+Run it against your service (Playwright boots the dev server via `webServer`); locators must target
+**rendered translated strings** ("Video files"), not i18n keys — the dev server loads real locales:
 
 ```bash
-PLAYWRIGHT_CHROMIUM_PATH="$(command -v chromium)" pnpm --dir services/example-exercise exec playwright test
+PLAYWRIGHT_CHROMIUM_PATH="$(command -v chromium)" pnpm --dir services/<your-slug> exec playwright test
 ```
+
+(`drive-view.mjs` from Part A is a quick-look tool for the *example* exercise and screenshots; it is
+hardcoded to the multiple-choice types, so for authoring verification the committed e2e suite above
+is the loop — don't bend drive-view to your types.)
 
 ## Reference material
 
 Bundled in **`reference/`** (start at `reference/README.md`), alongside the shipped protocol doc
 `docs/plugin-system.md`:
 
-- `01` protocol (a delta over `docs/plugin-system.md`), `02` the template's file-by-file anatomy,
-  `03` the scaffolder internals, `04` backend/infra wiring (first-party plugins).
-- `05` the end-to-end checklist (the actionable spine), `06` the design rationale.
-- `07` the data-modelling + leak + testing deep dive — the source of the Step-0 gate above.
+- `01` protocol (a delta over `docs/plugin-system.md`), `02` the template's file-by-file anatomy +
+  change-vs-keep list, `03` the scaffolder internals, `04` backend/infra wiring (first-party plugins).
+- `05` the end-to-end checklist — **mandatory reading at the implementation step above**.
+- `06` the design rationale.
+- `07` the data-modelling + leak + testing deep dive — the source of the Gate-2 doctrine above.

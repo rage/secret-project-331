@@ -57,6 +57,9 @@ Adding v4 later is: bump `LATEST_QUIZ_VERSION`, snapshot the changed types, writ
 functions, and add _one line per registry_. No door ever changes. That property — "a new migration
 is a one-line registry addition" — is the point of centralizing; design for it before you have two
 versions, because retrofitting it across scattered call sites is the expensive part.
+`example-exercise` (and therefore every scaffolded project) ships this chain scaffolded **at v1**
+with empty registries — `src/util/migration/{versions,migrateToLatest}.ts` — so a new plugin retypes
+it rather than building it from scratch.
 
 **On an unknown/typo'd item type during migration, fail loud — never fabricate.** Quizzes' old v1
 migrator returned a hardcoded placeholder essay (with literal-string content) for unknown types,
@@ -87,6 +90,15 @@ three types; design **one master type and two projections**:
 Anti-pattern to avoid: letting editor convenience shape the private spec (e.g. storing derived/
 denormalized UI state in it). The private spec is the persisted contract; the editor can hold
 whatever transient state it wants _outside_ the spec.
+
+**Exercise types with no answer key** (file submission, essays, "upload your work" — anything where
+assessment is human) still follow this design, with two shifts. First, the leak surface doesn't
+disappear — it becomes *future private-only fields*, so the projections stay explicit-pick and the
+leak gate asserts the public spec carries **exactly** the allowlisted keys (an exact-key-set test,
+since there is no `correct` to grep for). Second, the model solution is typically `null` — a
+legitimate shape, but a real decision: peer reviewers receive the model solution unconditionally, so
+"nothing to show them" must be a *confirmed* choice, not a default. Keep the endpoint (the
+service-info contract needs it); return `null` from it.
 
 ### 3. Data classification: what each type may contain, who sees it when, and the leak catalogue
 
@@ -195,7 +207,12 @@ Three host behaviors worth internalizing:
 1. **Allowlist projections** (kills L1, L2-metadata, L9): construct public/model-solution objects
    field by field; never spread-then-delete.
 2. **Leak tests as regression gates** (Part II #4): walk the serialized public spec and assert
-   forbidden keys/values absent — a new leaked field fails CI instead of shipping.
+   forbidden keys/values absent — a new leaked field fails CI instead of shipping. Check forbidden
+   **values** too, not just keys (answer strings, validator patterns can leak under any field name);
+   quote-delimit short values when matching serialized JSON so a forbidden `"a"` doesn't
+   false-positive inside a UUID. And gate the **endpoint output**, not only the guard function: a
+   perfectly unit-tested `assertNoLeak` that no handler calls protects nothing — at least one test
+   must POST the real endpoint and assert its response carries only the allowlisted content.
 3. **Server-only module discipline** (kills L8): grading and derivation code lives in `src/server/`;
    no view file imports it. Lint-able if you want (`no-restricted-imports`).
 4. **Assume peer review is on** (kills L5 surprises): classify answer/feedback/model-solution as
@@ -241,8 +258,11 @@ The answer is stored per-submission forever and is the input to grading and to v
   changed or was randomized (see #5) — then record the variant/seed in the answer.
 - **Grade must work from `private_spec + answer` alone** — no session, no DB, no fetches. If grading
   needs something, it belongs in one of those two.
-- **Version the answer type too** (quizzes: `isOldUserAnswer`). Old answers replay through grading
-  during regrades and through view-submission indefinitely.
+- **Version the answer type too** (quizzes: `isOldUserAnswer`) — and make the parser actually **read
+  the incoming version** and dispatch through the migration chain. A "versioned" parser that ignores
+  `value.version` and stamps the current version onto whatever arrives silently *relabels* future
+  blobs instead of migrating them. Old answers replay through grading during regrades and through
+  view-submission indefinitely.
 
 ### 7. Represent drafts: the `valid` flag is your validity model, parsing is not
 
@@ -263,6 +283,19 @@ easy to forget and bite grading later: **id uniqueness** (duplicate item ids dou
 and orphan stored answers on re-save) and **finite, in-range numeric weights** (an editor's
 `Number(input)` happily yields `NaN`/`Infinity`/negatives/fractions — `score_maximum` must stay a
 sane positive number).
+
+Two related patterns worth copying:
+
+- **Platform hard caps, enforced at both write and read.** When a teacher-configurable number must
+  never exceed a platform ceiling (a max upload size, an item-count cap), enforce the ceiling in
+  `validate()` *and* clamp it in the parse/migration layer — a spec stored before the cap existed
+  (or written by another client) then can't smuggle an out-of-range value past the editor. The
+  invariant becomes structural: a teacher *cannot* demand a 5 GB upload, regardless of what blob
+  arrives.
+- **The `valid` flag must reflect seeded state.** If the answer view seeds itself from
+  `previous_submission` on a retry, emit a `current-state` for the seeded answer — a view that only
+  emits on user interaction leaves `valid` unset, and a student who wants to resubmit their prior
+  answer unchanged is silently blocked until they touch the form.
 
 ### 8. Choose your grading model consciously
 
@@ -293,6 +326,14 @@ the correct posture differs:
   grade should distinguish _malformed request envelope_ (400) from _unexpected-but-old spec/answer
   shapes_ (migrate, then grade) — regrading replays history at you, and a 500 mid-regrade is your
   bug (`Failed` grading_progress exists for genuinely ungradeable submissions).
+
+One policy question hides inside this: **what happens to already-stored answers when the teacher
+later tightens the spec?** A regrade replays an answer that was valid when submitted against the
+_current_ private spec — if grading re-checks answering-time constraints (allowed types, counts,
+limits) against the new spec, narrowing the spec retroactively fails historical answers. Usually the
+right policy is that answering-time constraints are answer-view UI concerns and grading does *not*
+re-check them; but it is a real fairness/anti-cheating tradeoff — decide it explicitly (and with the
+user), and write the decision down next to the grade function.
 
 ### 10. Every editor control must map to a spec field; model a mode/strategy as a tagged union
 
@@ -468,7 +509,10 @@ tests/
   on anything the sandbox denies (popups, top-navigation, downloads).
 - **Feedback text vs feedback json.** `feedback_text` is host-rendered plain text; `feedback_json`
   is yours to render in view-submission. Put human summary in text, structure in json — don't smuggle
-  markup through `feedback_text`.
+  markup through `feedback_text`. And mind the locale: the `GradingRequest` carries **no language**,
+  so any string you put in `feedback_text` ships untranslated to every course. Learner-facing
+  feedback that must be localized belongs in `feedback_json`, rendered by view-submission (which
+  follows `set-language`); keep `feedback_text` minimal or language-neutral.
 
 ## The one-screen checklist
 

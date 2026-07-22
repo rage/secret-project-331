@@ -77,12 +77,15 @@ Consequences, all enforced in this template already (`src/util/stateInterfaces.t
 - **Migrate-on-read at every entry door, persist-on-save.** Old blobs enter through _four_ doors and
   all must normalize old → current: the editor's `set-state` handler (`IframeView.tsx`), the
   public-spec endpoint, the model-solution endpoint, and grade. You can't rewrite stored blobs, but
-  the upgraded shape you return gets persisted on the next save.
+  the upgraded shape you return gets persisted on the next save. Parsers must actually **read the
+  incoming `version`** and dispatch on it — a parser that stamps the current version onto whatever
+  arrives silently *relabels* future blobs instead of migrating them.
 - **Route all four doors through ONE migration chain, built for extension.** Keep a per-blob-kind
   registry keyed by the version each step accepts and a loop that runs steps up to the latest
   version; each door calls one `migrate*ToLatest`. Adding the next version must be a _one-line
-  registry addition_ + a type snapshot — no door changes. (See quizzes'
-  `src/util/migration/migrateToLatest.ts` + `versions.ts` for the reference implementation.)
+  registry addition_ + a type snapshot — no door changes. **This template ships the chain at
+  `src/util/migration/{versions,migrateToLatest}.ts`** (scaffolded at v1, registries empty) — retype
+  it for your data types instead of replacing it with inline version checks.
 - **On an unknown/typo'd item type while migrating, throw — never fabricate a placeholder**, which
   would get persisted on the next save and corrupt data.
 - **Never delete old types or their migration code**, and snapshot the shape you leave behind when
@@ -126,7 +129,11 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 
 ### `model_solution_spec` — shown at full points / out of tries (and to peer reviewers early)
 
-- **May contain:** what a finished student should learn — _a_ correct answer, explanations.
+- **May contain:** what a finished student should learn — _a_ correct answer, explanations. For
+  exercise types with no answer key (file submission, essays) `null` is a legitimate shape — but
+  peer reviewers receive the model solution unconditionally, so "nothing to show them" is a real
+  design decision, not a default; keep the endpoint (the service-info contract needs it) and return
+  `null` from it.
 - **Must NOT contain:** the **acceptance rule** when it is broader than the shown answer — regex
   validators, numeric tolerance windows, hidden test cases, alternative accepted answers you don't
   want circulated. Show _a_ correct answer, not the checker. Assume it will be screenshotted and
@@ -150,7 +157,9 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   know whether the student gets another try — so feedback must be safe assuming retries remain.
   "Reveal everything" content belongs in `model_solution_spec`, whose _timing_ the host gates.
   (`feedback_text` is host-rendered plain text; `feedback_json` is yours to render — don't smuggle
-  markup through the text field.)
+  markup through the text field. The `GradingRequest` also carries **no language**: strings in
+  `feedback_text` ship untranslated to every course, so localized learner-facing feedback belongs in
+  `feedback_json`, rendered by view-submission under `set-language`.)
 
 ### `set_user_variables` — benign per-user-per-course state (visible to the student themselves)
 
@@ -195,6 +204,12 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 5. **Leak regression tests.** For every private-spec fixture, run the real derivation, serialize the
    result, and assert forbidden keys/values are absent (walk the whole tree). A newly-leaked field
    then fails CI instead of shipping — this is the one class of bug you cannot fix retroactively.
+6. **Keep the guard wired, and test the endpoints, not just the guard.** `publicSpec.ts` /
+   `modelSolution.ts` must keep *calling* `assertNoLeak` on what they serve (adapt its forbidden
+   keys/values to your types — don't delete the call site), and at least one test must POST the real
+   endpoint and assert its response carries only the allowlisted content. If your exercise has no
+   answer key, the leak surface is *future private-only fields*: assert the public spec carries
+   **exactly** the allowlisted key set.
 
 ---
 
@@ -224,7 +239,19 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   type must represent half-finished exercises. "Safe to save/derive/grade" is a _separate_ judgement
   reported as the `valid` flag. Encode all invariants in one `validatePrivateSpec()` (this template
   has it). Two invariants that bite grading later: **id uniqueness** and **finite, in-range numeric
-  weights** (an editor's `Number(input)` happily yields `NaN`/`Infinity`/negatives).
+  weights** (an editor's `Number(input)` happily yields `NaN`/`Infinity`/negatives). Platform hard
+  caps (a max upload size, an item-count ceiling) belong in **both** `validate()` and the
+  parse/migration layer (clamp on read), so no stored or foreign blob can smuggle an out-of-range
+  value past the editor.
+- **The `valid` flag must reflect seeded state.** If AnswerExercise seeds itself from
+  `previous_submission` on a retry, emit a `current-state` for the seeded answer — emitting only on
+  user interaction leaves `valid` unset and silently blocks resubmitting unchanged prior work.
+- **Decide the regrade-after-narrowing policy explicitly.** A regrade replays an answer that was
+  valid when submitted against the _current_ private spec; if grading re-checks answering-time
+  constraints (allowed types, counts, limits), a teacher tightening the spec retroactively fails
+  historical answers. Usually those constraints are answer-view UI concerns and grading should not
+  re-check them — but it's a fairness/anti-cheating tradeoff: decide it consciously and document it
+  next to the grade function.
 - **Trust boundary: forgiving in the iframe, strict on the server.** Both `postMessage` data and JSON
   bodies arrive as `unknown`, but parse `set-state` _forgivingly_ (a student mid-exam must not lose
   work to a strict guard — return empty/default on malformed fields) and validate server endpoints
@@ -238,6 +265,21 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   "Correct!") lives in your locale files and follows `set-language`. Don't mix them.
 
 ---
+
+## Practical gotchas (each has cost a real session a debugging round-trip)
+
+- **Locales** live at `src/locales/<lang>/<slug>.json` — per-language directories, file named after
+  the service slug. Keep the language files' key sets identical.
+- **This project is ESM** (`type: module`): in e2e/test files use
+  `path.dirname(fileURLToPath(import.meta.url))`, never `__dirname`.
+- **The tsconfig has `noUncheckedIndexedAccess`**: `array[0]` is `T | undefined` — index with
+  `?.`/`!` deliberately.
+- **Playwright locators must target rendered translated strings** ("Video files"), not i18n keys
+  ("file-category-video") — the dev server loads real locale files.
+- **File uploads**: plugins never store files. The `useFileUpload(port)` hook
+  (`src/shared-module/exercise-react/react/hooks/useFileUpload`) sends `file-upload` to the host and
+  resolves to a `Map<name, url>`; the answer records only the URLs. The test-utils host emulator
+  auto-answers uploads (`driveFileUpload` + a small committed fixture file).
 
 ## Where each concern lives
 

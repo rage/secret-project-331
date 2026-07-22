@@ -263,8 +263,11 @@ impl TmcClient {
 
             let error_message = parse_tmc_error_response(&error_text, Some(status));
 
+            // Carry the upstream status so callers can tell an auth rejection (401/403)
+            // from a server error (5xx); the send failure above stays a statusless
+            // `TmcHttpError` transport failure.
             Err(UtilError::new(
-                UtilErrorType::TmcHttpError,
+                UtilErrorType::TmcHttpStatusError(status.as_u16()),
                 error_message,
                 None,
             ))

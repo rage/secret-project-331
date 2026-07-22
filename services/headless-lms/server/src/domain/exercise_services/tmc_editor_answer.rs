@@ -1,19 +1,16 @@
 //! The `tmc` exercise service's editor answer shape.
 //!
-//! A submission's `data_json` is a plugin-owned blob that the host normally
-//! forwards verbatim (see `docs/plugin-system.md`). The langs controller is the
-//! `tmc` exercise type's native (VSCode/editor) client, so it is the one place in
-//! the host that both writes and reads this specific tmc shape: `submit_exercise`
-//! builds it, and `download_submission` reads the archive URL back out of it. This
-//! module owns that shape in one typed place so the two sides cannot drift from
-//! each other or from `services/tmc/src/util/stateInterfaces.ts`
-//! (`EditorUserAnswer`).
+//! A submission's `data_json` is a plugin-owned blob the host normally forwards
+//! verbatim, but the client controller is the one place in the host that both writes
+//! this tmc shape (`submit_exercise`) and reads the archive URL back out of it
+//! (`download_submission`). Owning it in one typed place keeps those two sides in sync
+//! with each other and with `EditorUserAnswer` in
+//! `services/tmc/src/util/stateInterfaces.ts`.
 
 use serde::{Deserialize, Serialize};
 
-/// Discriminant of the `tmc` plugin's editor answer. Serializes as `"editor"`.
-/// A browser answer (`"browser"`) is a different variant and deliberately fails
-/// to deserialize into [`EditorAnswer`].
+/// Discriminant of the `tmc` plugin's editor answer; serializes as `"editor"`. A
+/// browser answer (`"browser"`) deliberately fails to deserialize into [`EditorAnswer`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EditorAnswerType {

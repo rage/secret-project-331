@@ -8560,15 +8560,12 @@ export const getSharedSubmissionInfoQueryKey = (options: Options<GetSharedSubmis
 
 /**
  *
- * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed
- * to render a shared submission.
+ * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
+ * render a shared submission.
  *
- * The `token` is the unguessable share id minted by the exercise-services client
- * share endpoint. Login is required, but any authenticated user who holds the token
- * may view the submission — no teacher or course role is needed. Rendering reuses
- * the ordinary submission-info payload and `view-submission` iframe contract; for
- * editor (native-client) submissions that currently means a download link rather
- * than inline code.
+ * The `token` is the unguessable share id minted by the client share endpoint. Login is
+ * required, but holding the token is the only capability needed to view the submission —
+ * no teacher or course role.
  */
 export const getSharedSubmissionInfoOptions = (options: Options<GetSharedSubmissionInfoData>) =>
   queryOptions<

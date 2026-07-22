@@ -21,8 +21,7 @@ pub struct Course {
 pub struct ExerciseSlide {
     pub slide_id: Uuid,
     pub exercise_id: Uuid,
-    /// The course the exercise belongs to. Lets a client locate an exercise's
-    /// course without a separate lookup or an enrolled-course scan.
+    /// The course the exercise belongs to, so a client need not resolve it separately.
     pub course_id: Uuid,
     pub exercise_name: String,
     pub exercise_order_number: i32,
@@ -30,11 +29,9 @@ pub struct ExerciseSlide {
     pub tasks: Vec<ExerciseTask>,
 }
 
-// `public_spec` / `model_solution_spec` are plugin-owned blobs (the `tmc`
-// exercise service produces them and is the only component that interprets their
-// internal shape). Per the plugin architecture the host forwards them verbatim as
-// opaque JSON, so they stay `serde_json::Value` here; the langs client keeps its
-// own typed copy of the tmc shape.
+// `public_spec` / `model_solution_spec` are plugin-owned blobs: the exercise service
+// that produces them is the only component that interprets their shape, so the host
+// forwards them verbatim and they stay opaque `serde_json::Value` here.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseTask {
@@ -88,10 +85,8 @@ pub enum GradingProgress {
     FullyGraded,
 }
 
-/// A single past submission of the current user to an exercise, as returned by
-/// `GET /api/v0/exercise-services/client/exercises/{id}/submissions`. `id` is the
-/// exercise-slide-submission id and is the value passed to
-/// `GET /api/v0/exercise-services/client/submissions/{id}/download`.
+/// A past submission of the current user to an exercise. `id` is the
+/// exercise-slide-submission id, which is what `submissions/{id}/download` takes.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseSlideSubmissionListItem {
@@ -102,17 +97,14 @@ pub struct ExerciseSlideSubmissionListItem {
     pub grading_progress: Option<GradingProgress>,
 }
 
-/// Response of `GET /api/v0/exercise-services/client/submissions/{id}/download`: the file-store URL
-/// of the archive that was submitted, which the client downloads directly.
+/// The file-store URL of a submitted archive, which the client downloads directly.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct SubmissionArchiveDownloadUrl {
     pub archive_download_url: String,
 }
 
-/// Response of `POST /api/v0/exercise-services/client/submissions/{id}/share`: a shareable URL for
-/// the submission. The public viewer page the URL points at is a separate unit
-/// and may not exist yet.
+/// A shareable URL for a submission.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct PasteResult {
@@ -125,12 +117,9 @@ mod test {
     use super::*;
     use serde_json::json;
 
-    // `ExerciseTaskSubmissionStatus` is an externally-tagged serde enum: the
-    // unit variant is the bare string `"NoGradingYet"`, the data variant is
-    // `{"Grading": {...}}`. The OpenAPI spec
-    // (exercise-services-client.openapi.generated.json) must
-    // document it as a `oneOf` of exactly those two shapes; this guards against
-    // utoipa/serde drift.
+    // Guards against utoipa/serde drift: the externally-tagged enum must stay the bare
+    // string `"NoGradingYet"` and `{"Grading": {...}}`, which the OpenAPI spec documents
+    // as a `oneOf` of exactly those two shapes.
     #[test]
     fn submission_status_serializes_externally_tagged() {
         assert_eq!(
@@ -175,8 +164,8 @@ mod test {
 
     #[test]
     fn exercise_slide_submission_has_no_data_json() {
-        // The submit multipart `submission` part is just the two ids now; the
-        // server derives `data_json` itself.
+        // The submit `submission` part is just the two ids; the server derives
+        // `data_json` itself.
         let value = serde_json::to_value(ExerciseSlideSubmission {
             exercise_slide_id: Uuid::nil(),
             exercise_task_id: Uuid::nil(),

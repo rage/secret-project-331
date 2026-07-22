@@ -110,12 +110,9 @@ jobs:
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo build --verbose
 
-      # OpenAPI drift gate: the committed specs under server/openapi are
-      # generated (bin/generate-bindings runs export-openapi then oxfmt). Nothing
-      # else in CI regenerates and diffs them, so an annotation change that is not
-      # re-exported, or a hand-edit of a generated spec, would go unnoticed. Re-run
-      # the exact generate-bindings sequence and fail if the result differs from
-      # what is committed. Reuses the target compiled by the Build step above.
+      # OpenAPI drift gate: re-export the committed specs under server/openapi (the
+      # generate-bindings sequence) and fail if they differ from what is committed,
+      # catching annotation changes that were never re-exported or hand-edited specs.
       - name: Export OpenAPI specs
         run: |
           docker run --rm \
@@ -132,8 +129,8 @@ jobs:
       - name: Install pnpm dependencies
         run: pnpm install --frozen-lockfile
 
-      # The raw export is pretty-printed but not oxfmt-formatted; the committed
-      # specs are, so this step is required for the diff to be meaningful.
+      # The committed specs are oxfmt-formatted; the raw export is not, so format it
+      # before diffing.
       - name: Format exported OpenAPI specs
         run: pnpm exec oxfmt services/headless-lms/server/openapi/*.json
 

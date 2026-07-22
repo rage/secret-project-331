@@ -7,15 +7,12 @@ use utoipa::OpenApi;
 pub(crate) struct MainFrontendSharedSubmissionsApiDoc;
 
 /**
-GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed
-to render a shared submission.
+GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
+render a shared submission.
 
-The `token` is the unguessable share id minted by the exercise-services client
-share endpoint. Login is required, but any authenticated user who holds the token
-may view the submission — no teacher or course role is needed. Rendering reuses
-the ordinary submission-info payload and `view-submission` iframe contract; for
-editor (native-client) submissions that currently means a download link rather
-than inline code.
+The `token` is the unguessable share id minted by the client share endpoint. Login is
+required, but holding the token is the only capability needed to view the submission —
+no teacher or course role.
 */
 #[utoipa::path(
     get,
@@ -36,8 +33,7 @@ async fn get_shared_submission_info(
     _user: AuthUser,
 ) -> ControllerResult<web::Json<ExerciseSlideSubmissionInfo>> {
     let mut conn = pool.acquire().await?;
-    // Login is required (the `AuthUser` extractor), but possession of the share
-    // token is the capability — any authenticated user may view it.
+    // Possession of the share token is the capability; any logged-in user may view it.
     let auth_token = skip_authorize();
 
     let share = models::exercise_slide_submission_shares::get_by_id(&mut conn, *token).await?;
@@ -55,9 +51,8 @@ async fn get_shared_submission_info(
     )
     .await?;
 
-    // A share link is a bare, forwardable capability with no course/teacher role, so
-    // it must never be the cheapest path to a model solution, nor leak the submitter's
-    // internal user id. Strip both unconditionally before serializing.
+    // A forwardable share link must never leak the model solution or the submitter's
+    // user id; see `strip_for_shared_view`.
     res.strip_for_shared_view();
 
     auth_token.authorized_ok(web::Json(res))

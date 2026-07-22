@@ -1,19 +1,16 @@
 //! Sharing exercise-slide submissions via unguessable-token links.
 //!
-//! A "paste" in the legacy sense is modelled here as a share capability on an
-//! existing `exercise_slide_submission` (the submission the client already made),
-//! not as a separate stored copy of the answer. Minting a share hands back an
-//! unguessable token that a viewer endpoint resolves back to the submission.
+//! A legacy "paste" is modelled as a share capability on an existing
+//! `exercise_slide_submission`, not as a separate stored copy of the answer.
 
 use crate::prelude::*;
 use models::exercise_slide_submission_shares::ExerciseSlideSubmissionShare;
 
-/// Mints a new share for the given submission and returns it. The share `id` is
-/// the unguessable token embedded in the shareable URL.
+/// Mints a new share for the given submission; the returned `id` is the unguessable
+/// token embedded in the shareable URL.
 ///
-/// Not idempotent: minting twice creates two independent (individually revocable)
-/// shares. Callers are expected to have verified that the submission belongs to
-/// the current user.
+/// Not idempotent: minting twice creates two independent, individually revocable
+/// shares. Callers must have verified that the submission belongs to the user.
 pub async fn share_submission(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,

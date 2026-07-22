@@ -116,20 +116,15 @@ pub struct ExerciseSlideSubmissionInfo {
 }
 
 impl ExerciseSlideSubmissionInfo {
-    /// Redacts fields that must never be exposed through a share-token viewer.
+    /// Redacts fields that must never reach a holder of a share token, who has no
+    /// teacher or course role. Unlike the role-gated paths, the shared view ALWAYS hides:
     ///
-    /// A share link is a bare capability: any logged-in holder of the (forwardable)
-    /// token may view the submission, with no teacher or course role. The role-gated
-    /// teacher and course-material paths can afford to show more, but the shared view
-    /// must ALWAYS hide:
-    ///
-    /// - the model solution spec of every task — otherwise "submit → share → open my
-    ///   own link" would be the cheapest path to an exercise's model solution before
-    ///   earning it. Unlike the course-material path, which only reveals it once the
-    ///   student has full points or is out of tries, this strip is unconditional.
-    /// - the submitter's internal `user_id` — a stable, cross-referenceable identifier
-    ///   the token holder has no business learning. It is nulled rather than removed so
-    ///   the wire shape (shared by other consumers of this type) is unchanged.
+    /// - every task's model solution spec, unconditionally — otherwise "submit → share →
+    ///   open my own link" is the cheapest path to a solution before earning it. (The
+    ///   course-material path instead reveals it once the student has full points or is
+    ///   out of tries.)
+    /// - the submitter's internal `user_id`, nulled rather than removed so the wire shape
+    ///   stays the same for other consumers of this type.
     pub fn strip_for_shared_view(&mut self) {
         for task in &mut self.tasks {
             task.model_solution_spec = None;
@@ -442,7 +437,7 @@ FROM exercise_slide_submissions
 WHERE user_id = $1
   AND exercise_id = $2
   AND deleted_at IS NULL
-ORDER BY created_at DESC
+ORDER BY created_at DESC, id DESC
         "#,
         user_id,
         exercise_id,
@@ -1061,8 +1056,7 @@ mod tests {
         }
     }
 
-    /// A shared-submission link must never leak the model solution or the submitter's
-    /// internal user id, regardless of grading state (unconditional strip).
+    /// The strip is unconditional, i.e. independent of grading state.
     #[test]
     fn strip_for_shared_view_removes_model_solution_and_user_id() {
         let user_id = Uuid::new_v4();
@@ -1076,7 +1070,6 @@ mod tests {
             user_exercise_state: None,
         };
 
-        // Preconditions: the raw payload carries both secrets.
         assert!(
             info.tasks.iter().all(|t| t.model_solution_spec.is_some()),
             "test fixture should start with model solutions present"
@@ -1096,7 +1089,6 @@ mod tests {
         );
     }
 
-    /// Non-secret fields (public spec, grading-related state) are left untouched.
     #[test]
     fn strip_for_shared_view_keeps_public_spec() {
         let mut info = ExerciseSlideSubmissionInfo {

@@ -44,6 +44,16 @@
               }
             }
           },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "426": {
             "description": "The client is obsolete and must be upgraded",
             "content": {
@@ -95,6 +105,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Course"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No course with the given id exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
                 }
               }
             }
@@ -157,6 +187,26 @@
               }
             }
           },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No course with the given id exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "426": {
             "description": "The client is obsolete and must be upgraded",
             "content": {
@@ -208,6 +258,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ExerciseSlide"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No exercise with the given id exists, or it belongs to an exam (not served by this API)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
                 }
               }
             }
@@ -280,6 +350,16 @@
               }
             }
           },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "426": {
             "description": "The client is obsolete and must be upgraded",
             "content": {
@@ -346,6 +426,26 @@
               }
             }
           },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No exercise with the given id exists, or the referenced slide/task does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "426": {
             "description": "The client is obsolete and must be upgraded",
             "content": {
@@ -401,6 +501,16 @@
               }
             }
           },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Cannot download another user's submission",
             "content": {
@@ -412,7 +522,7 @@
             }
           },
           "404": {
-            "description": "The submission has no downloadable archive",
+            "description": "No submission with the given id exists, or it has no downloadable archive",
             "content": {
               "application/json": {
                 "schema": {
@@ -476,8 +586,28 @@
               }
             }
           },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Cannot view another user's submission grading",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No submission with the given id exists",
             "content": {
               "application/json": {
                 "schema": {
@@ -507,7 +637,7 @@
     "/api/v0/exercise-services/client/submissions/{id}/share": {
       "post": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * POST /api/v0/exercise-services/client/submissions/:id/share\n *\n * Mints a shareable link to an existing submission of the current user and\n * returns its URL. The public viewer page the URL points at is a separate unit\n * and may not exist yet.",
+        "summary": "\n * POST /api/v0/exercise-services/client/submissions/:id/share\n *\n * Mints a shareable link to an existing submission of the current user and returns\n * its URL.",
         "operationId": "shareClientSubmission",
         "parameters": [
           {
@@ -541,8 +671,28 @@
               }
             }
           },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Cannot share another user's submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No submission with the given id exists",
             "content": {
               "application/json": {
                 "schema": {
@@ -645,7 +795,7 @@
           "course_id": {
             "type": "string",
             "format": "uuid",
-            "description": "The course the exercise belongs to. Lets a client locate an exercise's\ncourse without a separate lookup or an enrolled-course scan."
+            "description": "The course the exercise belongs to, so a client need not resolve it separately."
           },
           "deadline": {
             "type": ["string", "null"],
@@ -690,7 +840,7 @@
       },
       "ExerciseSlideSubmissionListItem": {
         "type": "object",
-        "description": "A single past submission of the current user to an exercise, as returned by\n`GET /api/v0/exercise-services/client/exercises/{id}/submissions`. `id` is the\nexercise-slide-submission id and is the value passed to\n`GET /api/v0/exercise-services/client/submissions/{id}/download`.",
+        "description": "A past submission of the current user to an exercise. `id` is the\nexercise-slide-submission id, which is what `submissions/{id}/download` takes.",
         "required": ["id", "exercise_id", "created_at"],
         "properties": {
           "created_at": {
@@ -796,7 +946,7 @@
       },
       "PasteResult": {
         "type": "object",
-        "description": "Response of `POST /api/v0/exercise-services/client/submissions/{id}/share`: a shareable URL for\nthe submission. The public viewer page the URL points at is a separate unit\nand may not exist yet.",
+        "description": "A shareable URL for a submission.",
         "required": ["paste_url"],
         "properties": {
           "paste_url": {
@@ -806,7 +956,7 @@
       },
       "SubmissionArchiveDownloadUrl": {
         "type": "object",
-        "description": "Response of `GET /api/v0/exercise-services/client/submissions/{id}/download`: the file-store URL\nof the archive that was submitted, which the client downloads directly.",
+        "description": "The file-store URL of a submitted archive, which the client downloads directly.",
         "required": ["archive_download_url"],
         "properties": {
           "archive_download_url": {

@@ -82,7 +82,8 @@ impl FromRequest for UserFromTMCAccessToken {
                     None => {
                         let tmc_user = tmc_client
                             .get_user_from_tmc_mooc_fi_by_tmc_access_token(&token.clone())
-                            .await?;
+                            .await
+                            .map_err(map_tmc_token_validation_error)?;
 
                         debug!(
                             "Creating or fetching user with TMC id {} and mooc.fi UUID {}",
@@ -109,6 +110,27 @@ impl FromRequest for UserFromTMCAccessToken {
             Ok(Self(user))
         }
         .boxed_local()
+    }
+}
+
+/// Maps a TMC-access-token validation error to a controller error.
+///
+/// An upstream 401/403 means the token is invalid or expired, so we answer 401 and the
+/// client clears its credentials and re-logs in. Anything else (TMC unreachable, an
+/// upstream 5xx, a deserialization failure) is a transport/server problem, not a bad
+/// token, and must stay a 5xx so a network blip does not silently log the user out.
+fn map_tmc_token_validation_error(err: UtilError) -> ControllerError {
+    let upstream_status = match err.error_type() {
+        UtilErrorType::TmcHttpStatusError(status) => Some(*status),
+        _ => None,
+    };
+    match upstream_status {
+        Some(401) | Some(403) => ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "The TMC access token was rejected; it is invalid or expired.".to_string(),
+            Some(err.into()),
+        ),
+        _ => err.into(),
     }
 }
 
@@ -139,4 +161,60 @@ pub async fn cache_user(cache: &Cache, token: &SecretString, user: &User) {
 
 pub async fn load_user(cache: &Cache, token: &SecretString) -> Option<User> {
     cache.get_json(token_to_cache_key(token)).await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::{ResponseError, http::StatusCode};
+
+    fn map(error_type: UtilErrorType) -> StatusCode {
+        let err = UtilError::new(error_type, "test error".to_string(), None);
+        map_tmc_token_validation_error(err).status_code()
+    }
+
+    #[test]
+    fn upstream_401_maps_to_unauthorized() {
+        assert_eq!(
+            map(UtilErrorType::TmcHttpStatusError(401)),
+            StatusCode::UNAUTHORIZED
+        );
+    }
+
+    #[test]
+    fn upstream_403_maps_to_unauthorized() {
+        assert_eq!(
+            map(UtilErrorType::TmcHttpStatusError(403)),
+            StatusCode::UNAUTHORIZED
+        );
+    }
+
+    #[test]
+    fn upstream_500_stays_internal_server_error() {
+        assert_eq!(
+            map(UtilErrorType::TmcHttpStatusError(500)),
+            StatusCode::INTERNAL_SERVER_ERROR
+        );
+        assert_eq!(
+            map(UtilErrorType::TmcHttpStatusError(503)),
+            StatusCode::INTERNAL_SERVER_ERROR
+        );
+    }
+
+    #[test]
+    fn transport_failure_stays_internal_server_error() {
+        assert_eq!(
+            map(UtilErrorType::TmcHttpError),
+            StatusCode::INTERNAL_SERVER_ERROR
+        );
+    }
+
+    #[test]
+    fn other_errors_stay_internal_server_error() {
+        assert_eq!(
+            map(UtilErrorType::DeserializationError),
+            StatusCode::INTERNAL_SERVER_ERROR
+        );
+        assert_eq!(map(UtilErrorType::Other), StatusCode::INTERNAL_SERVER_ERROR);
+    }
 }

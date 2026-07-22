@@ -1,16 +1,14 @@
 /*!
-Handlers for HTTP requests to `/api/v0/exercise-services/client`.
+Handlers for `/api/v0/exercise-services/client`.
 
-This is the generic native-client API for exercise services: it plays, over
-plain HTTP for a native (VSCode/editor) client, the role an exercise service's
-in-browser IFrame plays on the web (download a stub, edit locally, submit, poll
-grading, review old submissions). Exercise specs and answers stay opaque here —
-they are plugin-owned blobs the host only forwards.
+A generic native-client API for exercise services: over plain HTTP it plays the role an
+exercise service's in-browser IFrame plays on the web (download a stub, edit locally,
+submit, poll grading, review old submissions). Specs and answers stay opaque plugin-owned
+blobs the host only forwards.
 
-Currently the only exercise service served through this API is `tmc`: the
-course/exercise queries filter to `exercise_service_slug == "tmc"`, because the
-download→edit→submit archive loop is intrinsic to the programming-exercise (tmc)
-type. The API surface itself is service-neutral.
+The surface is service-neutral, but the only service served today is `tmc`: the
+course/exercise queries filter to `exercise_service_slug == "tmc"`, since the
+download→edit→submit archive loop is intrinsic to the programming-exercise type.
 */
 use crate::controllers::helpers::file_uploading;
 use crate::domain::error::BadRequestReason;
@@ -58,9 +56,8 @@ pub(crate) struct ExerciseServicesClientRoutesApiDoc;
 /// Header a client sends to advertise its version, e.g. `0.39.4`.
 const CLIENT_VERSION_HEADER: &str = "X-Client-Version";
 
-/// Minimum client version the backend accepts. `None` disables the check (the
-/// default on this WIP branch); set it to a `"major.minor.patch"` string to start
-/// rejecting older clients with `426 Upgrade Required`.
+/// Minimum client version the backend accepts. `None` disables the check; a
+/// `"major.minor.patch"` string rejects older clients with `426 Upgrade Required`.
 const MINIMUM_CLIENT_VERSION: Option<&str> = None;
 
 /// Parses a `major.minor.patch` version string into a comparable tuple. Missing
@@ -73,10 +70,9 @@ fn parse_version(version: &str) -> Option<(u64, u64, u64)> {
     Some((major, minor, patch))
 }
 
-/// Rejects clients older than `minimum` with `426 Upgrade Required`. A `None`
-/// minimum, or a client whose version parses and is at least `minimum`, passes.
-/// When a minimum is configured, a missing or unparseable client version is
-/// treated as obsolete.
+/// Rejects clients older than `minimum` with `426 Upgrade Required`; a `None` minimum
+/// passes everything. When a minimum is set, a missing or unparseable client version
+/// counts as obsolete.
 fn check_client_version(
     client_version: Option<&str>,
     minimum: Option<&str>,
@@ -97,9 +93,8 @@ fn check_client_version(
     ))
 }
 
-/// Extractor guarding every client route: reads the optional `X-Client-Version`
-/// header and rejects obsolete clients before the handler runs. Yields no data;
-/// presence in the argument list applies the check.
+/// Extractor guarding every client route: reads `X-Client-Version` and rejects obsolete
+/// clients before the handler runs. Yields no data; its presence applies the check.
 #[derive(Debug)]
 pub struct SupportedClient;
 
@@ -135,6 +130,7 @@ impl FromRequest for SupportedClient {
     ),
     responses(
         (status = 200, description = "The courses the user is enrolled on that contain TMC exercises", body = Vec<api::Course>),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -161,7 +157,7 @@ async fn get_courses(
         })
         .collect();
 
-    // if the user is enrolled on the course, they should be able to view it regardless of permissions
+    // enrolled users may view their courses regardless of role permissions
     let token = skip_authorize();
     token.authorized_ok(web::Json(courses))
 }
@@ -183,6 +179,8 @@ async fn get_courses(
     ),
     responses(
         (status = 200, description = "The requested course", body = api::Course),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No course with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -229,6 +227,8 @@ async fn get_course(
     ),
     responses(
         (status = 200, description = "The user's TMC-compatible exercise slides for open chapters", body = Vec<api::ExerciseSlide>),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No course with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -243,7 +243,6 @@ async fn get_course_exercises(
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course)).await?;
 
     let mut slides = Vec::new();
-    // process only exercises of open chapters
     let open_chapter_ids = models::chapters::course_chapters(&mut conn, *course)
         .await?
         .into_iter()
@@ -272,7 +271,6 @@ async fn get_course_exercises(
         let tasks: Vec<api::ExerciseTask> = slide
             .exercise_tasks
             .into_iter()
-            // filter out all non-tmc tasks
             .filter(|et| et.exercise_service_slug == "tmc")
             // TODO: hide model solutions for unsolved tasks
             .map(|mut et| {
@@ -288,7 +286,6 @@ async fn get_course_exercises(
                 exercise_service_slug: et.exercise_service_slug,
             })
             .collect();
-        // do not include slides with no tmc tasks
         if !tasks.is_empty() {
             slides.push(api::ExerciseSlide {
                 slide_id: slide.id,
@@ -322,6 +319,8 @@ async fn get_course_exercises(
     ),
     responses(
         (status = 200, description = "An exercise slide for the user", body = api::ExerciseSlide),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No exercise with the given id exists, or it belongs to an exam (not served by this API)", body = crate::domain::error::ApiErrorResponse),
         (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
@@ -350,9 +349,19 @@ async fn get_exercise(
         models_requests::fetch_service_info,
     )
     .await?;
+    // `get_by_id` above already 404s an unknown id, so the exercise exists here.
     let course_id = match course_or_exam_id {
         Some(CourseOrExamId::Course(course_id)) => course_id,
-        _ => {
+        Some(CourseOrExamId::Exam(_)) => {
+            // Exam exercises are out of scope for this API; report not found rather than
+            // misdescribing it as an enrollment problem.
+            return Err(controller_err!(
+                NotFound,
+                "This exercise belongs to an exam, which the client API does not serve".to_string()
+            ));
+        }
+        None => {
+            // No resolvable course context for this signed-in user: not enrolled.
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequestWithReason(BadRequestReason::NotEnrolled),
                 "User is not enrolled to this exercise's course".to_string(),
@@ -411,6 +420,8 @@ struct SubmissionForm {
     ),
     responses(
         (status = 200, description = "The created submission", body = api::ExerciseTaskSubmissionResult),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No exercise with the given id exists, or the referenced slide/task does not exist", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -434,7 +445,6 @@ async fn submit_exercise(
     )
     .await?;
 
-    // first get all the relevant data
     let submission_form = submission.into_inner();
     let submission = submission_form.submission.into_inner();
     let temp_file = submission_form.file;
@@ -449,7 +459,6 @@ async fn submit_exercise(
         models::exercise_tasks::get_exercise_task_by_id(&mut conn, submission.exercise_task_id)
             .await?;
 
-    // upload the exercise file
     let file = temp_file.file.into_file();
     let mime = temp_file
         .content_type
@@ -470,7 +479,7 @@ async fn submit_exercise(
     )
     .await?;
 
-    // build the tmc editor answer that the tmc exercise service expects
+    // wrap the uploaded archive URL in the editor answer the tmc service expects
     let download_url = file_store.get_download_url(&upload_path, app_conf.as_ref());
     let data_json = serde_json::to_value(EditorAnswer::new(download_url))?;
     let result = domain::exercises::process_submission(
@@ -488,7 +497,7 @@ async fn submit_exercise(
     )
     .await?;
 
-    // the input only contains one task submission, so the task results should only contain one result as well
+    // one task submission in, so exactly one result out
     let submission = result
         .exercise_task_submission_results
         .into_iter()
@@ -523,7 +532,9 @@ async fn submit_exercise(
     ),
     responses(
         (status = 200, description = "The grading status of the submission", body = api::ExerciseTaskSubmissionStatus),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot view another user's submission grading", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No submission with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -598,6 +609,7 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
     ),
     responses(
         (status = 200, description = "The current user's submissions to the exercise, newest first", body = Vec<api::ExerciseSlideSubmissionListItem>),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -621,8 +633,7 @@ async fn get_exercise_submissions(
 
     let mut items = Vec::with_capacity(submissions.len());
     for submission in submissions {
-        // editor exercises have a single task per slide; the grading of that task
-        // submission is the grading of the whole slide submission.
+        // an editor slide has a single task, so its grading is the slide's grading
         let task_submissions =
             models::exercise_task_submissions::get_by_exercise_slide_submission_id(
                 &mut conn,
@@ -670,8 +681,9 @@ async fn get_exercise_submissions(
     ),
     responses(
         (status = 200, description = "The download URL of the submitted archive", body = api::SubmissionArchiveDownloadUrl),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot download another user's submission", body = crate::domain::error::ApiErrorResponse),
-        (status = 404, description = "The submission has no downloadable archive", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No submission with the given id exists, or it has no downloadable archive", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -698,8 +710,8 @@ async fn download_submission(
         *submission_id,
     )
     .await?;
-    // For editor answers the submitted archive URL lives in the task submission's
-    // `data_json` as the tmc plugin's editor answer, written by `submit_exercise`.
+    // the archive URL lives in the task submission's `data_json` as the editor answer
+    // written by `submit_exercise`
     let archive_download_url = task_submissions
         .into_iter()
         .find_map(|task_submission| {
@@ -723,9 +735,8 @@ async fn download_submission(
 /**
  * POST /api/v0/exercise-services/client/submissions/:id/share
  *
- * Mints a shareable link to an existing submission of the current user and
- * returns its URL. The public viewer page the URL points at is a separate unit
- * and may not exist yet.
+ * Mints a shareable link to an existing submission of the current user and returns
+ * its URL.
  */
 #[utoipa::path(
     post,
@@ -739,7 +750,9 @@ async fn download_submission(
     ),
     responses(
         (status = 200, description = "The shareable URL for the submission", body = api::PasteResult),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot share another user's submission", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No submission with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]

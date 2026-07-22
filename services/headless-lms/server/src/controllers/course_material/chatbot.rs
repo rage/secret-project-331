@@ -18,7 +18,10 @@ use rand::seq::IndexedRandom;
 use utoipa::OpenApi;
 
 use crate::domain::error::{OAuthErrorCode, OAuthErrorData};
-use crate::{domain::authorization::authorize_access_to_course_material, prelude::*};
+use crate::{
+    domain::authorization::{authorize, authorize_access_to_course_material},
+    prelude::*,
+};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -297,24 +300,11 @@ async fn current_conversation_info(
     let mut conn = pool.acquire().await?;
     let chatbot_configuration =
         models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
-    let token = authorize_access_to_course_material(
-        &mut conn,
-        Some(user.id),
-        chatbot_configuration.course_id.ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                    error_description: "course id must not be empty when provided".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "Empty course_id",
-                None::<anyhow::Error>,
-            )
-        })?,
-    )
-    .await?;
+    let token = if let Some(course_id) = chatbot_configuration.course_id {
+        authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?
+    } else {
+        authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?
+    };
     let res = chatbot_conversations::get_current_conversation_info(
         &mut conn,
         user.id,
@@ -346,18 +336,13 @@ async fn current_conversation_info(
             }
         } else {
             // for other messages, generate suggested messages
-            let course_description = models::courses::get_course(
-                &mut conn,
-                chatbot_configuration.course_id.ok_or_else(|| {
-                    ControllerError::new(
-                        ControllerErrorType::BadRequest,
-                        "Chatbot course id is missing.".to_string(),
-                        None,
-                    )
-                })?,
-            )
-            .await?
-            .description;
+            let course_description = if let Some(course_id) = chatbot_configuration.course_id {
+                models::courses::get_course(&mut conn, course_id)
+                    .await?
+                    .description
+            } else {
+                None
+            };
             let message_suggest_llm =
                 models::application_task_default_language_models::get_for_task(
                     &mut conn,

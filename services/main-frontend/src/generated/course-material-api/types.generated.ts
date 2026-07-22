@@ -100,7 +100,7 @@ export type ChatbotConversation = {
  */
 export type ChatbotConversationInfo = {
   chatbot_name: string
-  course_name: string
+  course_name?: string | null
   current_conversation?: null | ChatbotConversation
   current_conversation_message_citations?: Array<ChatbotConversationMessageCitation> | null
   current_conversation_messages?: Array<ChatbotConversationMessage> | null

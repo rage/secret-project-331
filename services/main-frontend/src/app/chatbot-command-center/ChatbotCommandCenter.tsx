@@ -36,6 +36,7 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
       },
       {} as Record<string, { label: string; value: string }[]>,
     )
+    console.log(grouped)
     return Object.entries(grouped).map(([group, options]) => ({
       label: group,
       options,

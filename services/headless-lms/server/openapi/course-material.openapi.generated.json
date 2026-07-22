@@ -3167,13 +3167,13 @@
       "ChatbotConversationInfo": {
         "type": "object",
         "description": "Should contain all information required to display the chatbot to the user.",
-        "required": ["chatbot_name", "course_name", "hide_citations"],
+        "required": ["chatbot_name", "hide_citations"],
         "properties": {
           "chatbot_name": {
             "type": "string"
           },
           "course_name": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "current_conversation": {
             "oneOf": [

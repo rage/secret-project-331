@@ -48,4 +48,11 @@ pub struct IntrospectResponse {
     /// Token type: "Bearer" or "DPoP" (optional, only if active).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub token_type: Option<String>,
+
+    /// The token owner's legacy TMC `upstream_id`, when the token has a user and
+    /// that user has one. A non-standard claim consumed by tmc-server: it lets
+    /// tmc-server resolve a courses.mooc.fi token to a local user by upstream id
+    /// while the `courses_mooc_fi_user_id` backfill is still incomplete.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub upstream_id: Option<i32>,
 }

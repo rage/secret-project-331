@@ -141,6 +141,7 @@ pub async fn introspect(
                         iss: None,
                         jti: None,
                         token_type: None,
+                        upstream_id: None,
                     }),
             );
         }
@@ -183,6 +184,7 @@ pub async fn introspect(
                     iss: None,
                     jti: None,
                     token_type: None,
+                    upstream_id: None,
                 }),
         );
     }
@@ -213,6 +215,7 @@ pub async fn introspect(
                         iss: None,
                         jti: None,
                         token_type: None,
+                        upstream_id: None,
                     }),
             );
         }
@@ -224,6 +227,20 @@ pub async fn introspect(
 
     // Fetch the client that originally issued the token (not the introspecting client)
     let token_client = OAuthClient::find_by_id(&mut conn, access_token.client_id).await?;
+
+    // Resolve the token owner's legacy TMC upstream_id (non-standard claim for
+    // tmc-server). A missing user row must not break introspection, so a lookup
+    // failure just omits the claim.
+    let upstream_id = match access_token.user_id {
+        Some(user_id) => match models::users::get_by_id(&mut conn, user_id).await {
+            Ok(user) => user.upstream_id,
+            Err(e) => {
+                tracing::warn!(err = %e, "OAuth introspect: token user lookup failed; omitting upstream_id");
+                None
+            }
+        },
+        None => None,
+    };
 
     // Build response with token metadata
     let base_url = app_conf.base_url.trim_end_matches('/');
@@ -244,6 +261,7 @@ pub async fn introspect(
             TokenType::Bearer => "Bearer".to_string(),
             TokenType::DPoP => "DPoP".to_string(),
         }),
+        upstream_id,
     };
 
     server_token.authorized_ok(

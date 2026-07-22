@@ -24,7 +24,7 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     const grouped = chatbots.reduce(
       (acc, chatbot) => {
         const matched = courses.find((course) => course.id === chatbot.course_id)
-        const courseName = matched !== undefined ? matched.name : ""
+        const courseName = matched !== undefined ? matched.name : "Global chatbots"
         if (!acc[courseName]) {
           acc[courseName] = []
         }
@@ -36,9 +36,8 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
       },
       {} as Record<string, { label: string; value: string }[]>,
     )
-
-    return Object.entries(grouped).map(([course, options]) => ({
-      label: course,
+    return Object.entries(grouped).map(([group, options]) => ({
+      label: group,
       options,
     }))
   }, [chatbots, courses])

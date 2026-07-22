@@ -2850,7 +2850,7 @@ export const zVerbosityLevel = z.enum(["low", "medium", "high"])
 
 export const zChatbotConfiguration = z.object({
   chatbot_name: z.string(),
-  course_id: z.uuid(),
+  course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   daily_tokens_per_user: z
     .int()
@@ -2890,7 +2890,7 @@ export const zChatbotConfiguration = z.object({
 export const zNewChatbotConf = z.object({
   chatbot_name: z.string(),
   chatbotconf_id: z.uuid().nullish(),
-  course_id: z.uuid(),
+  course_id: z.uuid().nullish(),
   daily_tokens_per_user: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })

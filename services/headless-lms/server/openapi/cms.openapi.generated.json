@@ -1091,7 +1091,6 @@
           "id",
           "created_at",
           "updated_at",
-          "course_id",
           "enabled_to_students",
           "chatbot_name",
           "model_id",
@@ -1119,7 +1118,7 @@
             "type": "string"
           },
           "course_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "created_at": {

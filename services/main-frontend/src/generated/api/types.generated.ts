@@ -292,7 +292,7 @@ export type ChapterUpdate = {
 
 export type ChatbotConfiguration = {
   chatbot_name: string
-  course_id: string
+  course_id?: string | null
   created_at: string
   daily_tokens_per_user: number
   default_chatbot: boolean
@@ -1543,7 +1543,7 @@ export type NewChapter = {
 export type NewChatbotConf = {
   chatbot_name: string
   chatbotconf_id?: string | null
-  course_id: string
+  course_id?: string | null
   daily_tokens_per_user: number
   default_chatbot: boolean
   enabled_to_students: boolean

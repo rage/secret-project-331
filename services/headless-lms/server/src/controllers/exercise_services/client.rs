@@ -422,6 +422,7 @@ struct SubmissionForm {
         (status = 200, description = "The created submission", body = api::ExerciseTaskSubmissionResult),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists, or the referenced slide/task does not exist", body = crate::domain::error::ApiErrorResponse),
+        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -452,6 +453,22 @@ async fn submit_exercise(
     let course_id = exercise
         .course_id
         .ok_or_else(|| anyhow::anyhow!("Cannot answer non-course exercises"))?;
+    // Mirror get_exercise's enrollment check here. The shared submit domain fn reports a
+    // not-enrolled user as 401 Unauthorized, but the editor client treats 401 as an invalid
+    // token and deletes the stored credentials, logging the student out on their first submit.
+    // Returning 422 `not_enrolled` (as get_exercise does) lets the client prompt for enrollment.
+    if models::user_course_settings::get_user_course_settings_by_course_id(
+        &mut conn, user.id, course_id,
+    )
+    .await?
+    .is_none()
+    {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequestWithReason(BadRequestReason::NotEnrolled),
+            "User is not enrolled to this exercise's course".to_string(),
+            None,
+        ));
+    }
     let exercise_slide =
         models::exercise_slides::get_exercise_slide(&mut conn, submission.exercise_slide_id)
             .await?;
@@ -845,5 +862,30 @@ mod tests {
         assert_eq!(parse_version("1.2"), Some((1, 2, 0)));
         assert_eq!(parse_version("1.2.3"), Some((1, 2, 3)));
         assert_eq!(parse_version("x"), None);
+    }
+
+    // submit_exercise builds this exact error for a not-enrolled user; assert it produces the
+    // same 422 `not_enrolled` shape get_exercise returns, so the client never sees a 401 here.
+    #[test]
+    fn not_enrolled_submit_error_maps_to_422_not_enrolled() {
+        use actix_web::ResponseError;
+        use actix_web::http::StatusCode;
+        use futures_util::FutureExt;
+
+        let err = ControllerError::new(
+            ControllerErrorType::BadRequestWithReason(BadRequestReason::NotEnrolled),
+            "User is not enrolled to this exercise's course".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+        assert_eq!(value["type"], "validation_error");
+        assert_eq!(value["message_key"], "not_enrolled");
     }
 }

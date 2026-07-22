@@ -446,6 +446,16 @@
               }
             }
           },
+          "422": {
+            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "426": {
             "description": "The client is obsolete and must be upgraded",
             "content": {

@@ -163,6 +163,14 @@ Fix any reported issues before continuing.
 bin/minikube-start
 ```
 
+> [!NOTE]
+> **macOS:** the `docker` driver runs the cluster inside Docker Desktop's VM, and
+> Docker Desktop's default memory limit is too low for this project. Raise it before
+> starting: Docker Desktop → Settings → Resources → Advanced → set Memory to at least
+> half your host RAM (a few GB more is safer), then Apply & restart.
+> `bin/minikube-start` also checks this and stops with instructions if the limit is
+> too low.
+
 ## 5. Set up local domain
 
 Add the Minikube IP to `/etc/hosts`:
@@ -174,7 +182,29 @@ echo "$(minikube ip)    project-331.local" | sudo tee -a /etc/hosts
 <details>
 <summary>macOS</summary>
 
-Same as Linux: use `minikube ip` and add the result to `/etc/hosts`.
+Minikube's default driver on macOS is `docker`, which runs the cluster inside Docker
+Desktop's VM. That VM's network is **not** reachable from the host, so the `minikube ip`
+address does not work. Instead, point the domain at `127.0.0.1`:
+
+```bash
+echo "127.0.0.1    project-331.local" | sudo tee -a /etc/hosts
+```
+
+Then expose the cluster's ingress on `127.0.0.1` by running `minikube tunnel` in a
+separate terminal that stays open the whole time you develop:
+
+```bash
+minikube tunnel
+```
+
+`minikube tunnel` forwards ports 80 and 443 from the ingress to `127.0.0.1`. It runs
+independently of `bin/dev` (or `bin/test`), so the two can be started in any order, but
+**both must be running** for the site to load.
+
+> [!IMPORTANT]
+> `minikube tunnel` needs `sudo` and will prompt for your password in that terminal.
+> Until you enter it, nothing is forwarded and the browser shows "Unable to connect".
+> Keep an eye on the tunnel terminal after starting it.
 
 </details>
 
@@ -233,6 +263,21 @@ bin/postgres-remove-data
 ```
 
 Then restart Minikube and re-run `bin/dev`.
+
+### The browser cannot reach `project-331.local` (macOS)
+
+On macOS with the `docker` driver, the `minikube ip` is not reachable from the host, so
+the site is only reachable through `minikube tunnel`. See
+[Set up local domain](#5-set-up-local-domain). The two symptoms tell you where the
+problem is:
+
+- **"Unable to connect"** — nothing is listening on `127.0.0.1:80/443`, i.e. the tunnel
+  is not up. Check that `minikube tunnel` is running and has not stalled waiting for your
+  `sudo` password. Also confirm `/etc/hosts` points `project-331.local` at `127.0.0.1`
+  (not the `minikube ip`).
+- **"503 Service Temporarily Unavailable"** — the tunnel is working and you reached the
+  ingress, but the backend is not ready yet (app still starting or mid-redeploy). Wait
+  for the pods to become ready (`bin/pods`) and retry.
 
 ## Developer resources
 

@@ -52,5 +52,8 @@ run_command bash -c "cd shared-module/packages/exercise-react && pnpm install ${
 echo "Installing dependencies for shared-module-create-exercise-service..."
 run_command bash -c "cd shared-module/packages/create-exercise-service && pnpm install ${INSTALL_ARGS[*]}"
 
+echo "Installing dependencies for shared-module-exercise-iframe-host..."
+run_command bash -c "cd shared-module/packages/exercise-iframe-host && pnpm install ${INSTALL_ARGS[*]}"
+
 
 echo "finished"

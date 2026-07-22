@@ -21,9 +21,51 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
+        # The nixpkgs Node crashes under pnpm on macOS; use the official upstream
+        # binaries there instead (keeps node and pnpm's embedded nodejs-slim stable).
+        # Bump version+hash together:
+        # nix-prefetch-url https://nodejs.org/dist/v<VER>/node-v<VER>-darwin-arm64.tar.xz
+        nodeVersion = "24.18.0";
+        officialNodeSrcs = {
+          aarch64-darwin = {
+            url = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-arm64.tar.xz";
+            sha256 = "19lml03vjp7km4zykd1qdd36dfjdb7ls0mzbym678xzvivvvjxs4";
+          };
+          # x86_64-darwin = { url = "…darwin-x64.tar.xz"; sha256 = "…"; };  # add if Intel Macs are supported
+        };
+        officialNodeOverlay = final: prev:
+          prev.lib.optionalAttrs (prev.stdenv.isDarwin && officialNodeSrcs ? ${system}) (
+            let
+              officialNode = prev.stdenvNoCC.mkDerivation {
+                pname = "nodejs-official";
+                version = nodeVersion;
+                src = prev.fetchurl officialNodeSrcs.${system};
+                dontStrip = true;
+                dontFixup = true;
+                installPhase = ''
+                  runHook preInstall
+                  mkdir -p "$out"
+                  cp -R ./* "$out/"
+                  runHook postInstall
+                '';
+                passthru = { inherit (prev.nodejs) pkgs; };
+                meta.mainProgram = "node";
+              };
+            in
+            {
+              nodejs = officialNode;
+              nodejs_24 = officialNode;
+              nodejs-slim = officialNode;
+              nodejs-slim_24 = officialNode;
+            }
+          );
+
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ rust-overlay.overlays.default ];
+          overlays = [
+            rust-overlay.overlays.default
+            officialNodeOverlay
+          ];
         };
 
         lib = pkgs.lib;
@@ -174,12 +216,12 @@
         localClusterPackages = [
           pkgs.ctlptl
           pkgs.kind
+          pkgs.minikube
           pkgs.tilt
         ];
         linuxOnlyPackages = lib.optionals pkgs.stdenv.isLinux [
           getentCompat
           playwrightCli
-          pkgs.minikube
           pkgs.mold
         ];
         pathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [
@@ -248,6 +290,15 @@
 
               if [ -z "''${RUSTFLAGS:-}" ] && command -v mold >/dev/null 2>&1; then
                 export RUSTFLAGS="-C link-arg=-fuse-ld=mold"
+              fi
+
+              # Base images are amd64-only, so on arm64 hosts (Apple Silicon) build for
+              # linux/amd64 under emulation — else skaffold fails with "no match for platform".
+              # Only sets it when the user hasn't.
+              if [ -z "''${SKAFFOLD_PLATFORM:-}" ]; then
+                case "$(uname -m)" in
+                  arm64 | aarch64) export SKAFFOLD_PLATFORM="linux/amd64" ;;
+                esac
               fi
             '';
           }

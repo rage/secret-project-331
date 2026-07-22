@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import { InfoCircle } from "@vectopus/atlas-icons-react"
+import { CheckCircle, InfoCircle } from "@vectopus/atlas-icons-react"
 import _ from "lodash"
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
@@ -13,6 +13,7 @@ import { orderArrayWithId } from "@/util/randomizer"
 import type { QuizItemComponentProps } from "."
 import type { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
 import type { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
+import Check from "../../../../assets/check.svg"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
 import {
@@ -39,8 +40,6 @@ const selectedCheckmark = css`
   margin-right: 0.4rem;
   font-weight: 700;
 `
-
-const CHECKMARK_SYMBOL = "✓"
 
 export interface LeftBorderedDivProps {
   correct: boolean | undefined
@@ -162,7 +161,12 @@ const MultipleChoice: React.FunctionComponent<
             >
               {selected && (
                 <span aria-hidden="true" className={selectedCheckmark}>
-                  {CHECKMARK_SYMBOL}
+                  <Check
+                    className={css`
+                      width: 1rem;
+                      height: auto;
+                    `}
+                  />
                 </span>
               )}
               <ParsedText parseMarkdown parseLatex inline text={qo.title || qo.body || ""} />

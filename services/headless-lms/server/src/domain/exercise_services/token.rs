@@ -1,32 +1,128 @@
-use crate::{
-    domain::authorization::{self, get_or_create_user_from_tmc_mooc_fi_response},
-    prelude::*,
-};
+use crate::{domain::authorization, prelude::*};
 use actix_web::{FromRequest, http::header};
 use futures_util::{FutureExt, future::LocalBoxFuture};
-use headless_lms_utils::{cache::Cache, services::tmc::TmcClient};
-use models::users::User;
+use headless_lms_utils::cache::Cache;
+use models::{
+    library::oauth::{EXERCISE_SERVICES_SCOPE, token_digest_sha256},
+    oauth_access_token::{OAuthAccessToken, TokenType},
+    oauth_client::OAuthClient,
+    users::User,
+};
 use secrecy::{ExposeSecret, SecretString};
+use sqlx::PgConnection;
 use std::ops::{Deref, DerefMut};
 use std::time::Duration;
 
+/// Authenticated user extracted from a courses.mooc.fi OAuth 2.0 access token.
+///
+/// The client sends an opaque access token issued by this backend's own OAuth
+/// provider (via the device-authorization flow) as `Authorization: Bearer <token>`.
+/// The token is hashed to a digest, looked up in `oauth_access_tokens`, gated on
+/// the `exercise-services` scope, and mapped to the local user that owns it.
+///
+/// This replaced the earlier `UserFromTMCAccessToken`, which validated a TMC
+/// access token against tmc.mooc.fi. The error bodies and status codes are kept
+/// byte-for-byte identical to that extractor so the tmc-langs client's error
+/// mapping keeps working:
+///  - a missing / invalid / expired / revoked token, a token whose client may
+///    not use Bearer tokens, a sender-constrained (DPoP) token, or a token whose
+///    user no longer exists all yield `401` with an `unauthorized` body;
+///  - a valid token that lacks the `exercise-services` scope yields `403` with a
+///    `forbidden` body.
 #[derive(Debug, Clone)]
-pub struct UserFromTMCAccessToken(User);
+pub struct UserFromOAuthToken(User);
 
-impl Deref for UserFromTMCAccessToken {
+impl Deref for UserFromOAuthToken {
     type Target = User;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl DerefMut for UserFromTMCAccessToken {
+impl DerefMut for UserFromOAuthToken {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl FromRequest for UserFromTMCAccessToken {
+/// Builds the `401 unauthorized` error the langs client expects for any rejected token.
+fn unauthorized(message: &str) -> ControllerError {
+    ControllerError::new(
+        ControllerErrorType::Unauthorized,
+        message.to_string(),
+        None::<anyhow::Error>,
+    )
+}
+
+/// Builds the `403 forbidden` error the langs client expects for a token missing the scope.
+fn forbidden(message: &str) -> ControllerError {
+    ControllerError::new(
+        ControllerErrorType::Forbidden,
+        message.to_string(),
+        None::<anyhow::Error>,
+    )
+}
+
+/// Resolve an opaque Bearer access token to the local user that owns it.
+///
+/// Pure DB work (no actix, no cache) so it can be unit-tested directly. Flow:
+/// digest the token → look up a still-valid `oauth_access_tokens` row → reject
+/// sender-constrained (DPoP) tokens (this API is Bearer-only, so
+/// `find_valid_for_sender` is deliberately not used) → require the issuing
+/// client to allow Bearer tokens → require the `exercise-services` scope → load
+/// the user.
+async fn resolve_oauth_user(
+    conn: &mut PgConnection,
+    token: &SecretString,
+    token_hmac_key: &SecretString,
+) -> Result<User, ControllerError> {
+    let digest = token_digest_sha256(token.expose_secret(), token_hmac_key);
+    let access_token = OAuthAccessToken::find_valid(conn, digest)
+        .await
+        .map_err(|_| unauthorized("The access token is missing, invalid, or expired."))?;
+
+    // Bearer-only: a DPoP (sender-constrained) token must be presented with a
+    // proof, which this API does not verify, so reject it rather than accept it
+    // unbound.
+    if access_token.token_type != TokenType::Bearer {
+        return Err(unauthorized(
+            "This API accepts only Bearer tokens; the presented token is sender-constrained.",
+        ));
+    }
+
+    // The issuing client must be allowed to use Bearer tokens.
+    let client = OAuthClient::find_by_id(conn, access_token.client_id)
+        .await
+        .map_err(|_| unauthorized("The access token's client could not be found."))?;
+    if !client.allows_bearer() {
+        return Err(unauthorized(
+            "The access token's client is not permitted to use Bearer tokens.",
+        ));
+    }
+
+    // Scope gate: the token must carry the exercise-services scope.
+    if !access_token
+        .scopes
+        .iter()
+        .any(|scope| scope == EXERCISE_SERVICES_SCOPE)
+    {
+        return Err(forbidden(
+            "The access token does not grant the required exercise-services scope.",
+        ));
+    }
+
+    let user_id = access_token
+        .user_id
+        .ok_or_else(|| unauthorized("The access token is not associated with a user."))?;
+
+    let user = models::users::get_by_id(conn, user_id)
+        .await
+        .map_err(|_| unauthorized("The access token's user could not be found."))?;
+
+    Ok(user)
+}
+
+impl FromRequest for UserFromOAuthToken {
     type Error = ControllerError;
     type Future = LocalBoxFuture<'static, Result<Self, ControllerError>>;
 
@@ -51,59 +147,41 @@ impl FromRequest for UserFromTMCAccessToken {
             .and_then(|h| h.strip_prefix("Bearer ").map(str::to_string))
             .map(|o| SecretString::new(o.into()));
 
-        let tmc_client: web::Data<TmcClient> = req
-            .app_data::<web::Data<TmcClient>>()
-            .expect("Missing TMC client")
-            .clone();
         async move {
             let Some(token) = auth_header else {
-                return Err(ControllerError::new(
-                    ControllerErrorType::Unauthorized,
-                    "Missing bearer token".to_string(),
-                    None,
-                ));
+                return Err(unauthorized("Missing bearer token"));
             };
             let mut conn = pool.acquire().await?;
 
-            let user = if app_conf.test_mode {
-                warn!("Using test credentials. Normal accounts won't work.");
-                authorization::authenticate_test_token(&mut conn, &token, &app_conf)
-                    .await
-                    .map_err(|err| {
-                        ControllerError::new(
-                            ControllerErrorType::Unauthorized,
-                            "Could not find user".to_string(),
-                            Some(err),
-                        )
-                    })?
-            } else {
-                match load_user(&cache, &token).await {
-                    Some(user) => user,
-                    None => {
-                        let tmc_user = tmc_client
-                            .get_user_from_tmc_mooc_fi_by_tmc_access_token(&token.clone())
-                            .await
-                            .map_err(map_tmc_token_validation_error)?;
+            // In test/dev mode a small set of fixed tokens map straight to seeded
+            // users so tests can call the API without running a full device flow.
+            // Any token that is not one of those falls through to the real
+            // OAuth-token path below, so genuine device-flow tokens (and their
+            // 401/403 rejections) are still exercised end-to-end even here.
+            if app_conf.test_mode {
+                warn!("Test mode is on: fixed test tokens map directly to seeded users.");
+                if let Some(user) =
+                    authorization::authenticate_test_token(&mut conn, &token, &app_conf)
+                        .await
+                        .map_err(|err| {
+                            ControllerError::new(
+                                ControllerErrorType::Unauthorized,
+                                "Could not find user for test token".to_string(),
+                                Some(err),
+                            )
+                        })?
+                {
+                    return Ok(Self(user));
+                }
+            }
 
-                        debug!(
-                            "Creating or fetching user with TMC id {} and mooc.fi UUID {}",
-                            tmc_user.id,
-                            tmc_user
-                                .courses_mooc_fi_user_id
-                                .map(|uuid| uuid.to_string())
-                                .unwrap_or_else(|| "None (will generate new UUID)".to_string())
-                        );
-                        let user = get_or_create_user_from_tmc_mooc_fi_response(
-                            &mut conn, tmc_user, &token,
-                        )
-                        .await?;
-                        info!(
-                            "Successfully got user details from mooc.fi for user {}",
-                            user.id
-                        );
-                        cache_user(&cache, &token, &user).await;
-                        user
-                    }
+            let user = match load_user(&cache, &token).await {
+                Some(user) => user,
+                None => {
+                    let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
+                    let user = resolve_oauth_user(&mut conn, &token, token_hmac_key).await?;
+                    cache_user(&cache, &token, &user).await;
+                    user
                 }
             };
 
@@ -111,36 +189,6 @@ impl FromRequest for UserFromTMCAccessToken {
         }
         .boxed_local()
     }
-}
-
-/// Maps a TMC-access-token validation error to a controller error.
-///
-/// An upstream 401/403 means the token is invalid or expired, so we answer 401 and the
-/// client clears its credentials and re-logs in. Anything else (TMC unreachable, an
-/// upstream 5xx, a deserialization failure) is a transport/server problem, not a bad
-/// token, and must stay a 5xx so a network blip does not silently log the user out.
-fn map_tmc_token_validation_error(err: UtilError) -> ControllerError {
-    let upstream_status = match err.error_type() {
-        UtilErrorType::TmcHttpStatusError(status) => Some(*status),
-        _ => None,
-    };
-    match upstream_status {
-        Some(401) | Some(403) => ControllerError::new(
-            ControllerErrorType::Unauthorized,
-            "The TMC access token was rejected; it is invalid or expired.".to_string(),
-            Some(err.into()),
-        ),
-        _ => err.into(),
-    }
-}
-
-#[derive(Debug, Deserialize)]
-#[allow(unused)]
-struct TmcUser {
-    id: i32,
-    username: String,
-    email: String,
-    administrator: bool,
 }
 
 fn token_to_cache_key(token: &SecretString) -> String {
@@ -166,55 +214,225 @@ pub async fn load_user(cache: &Cache, token: &SecretString) -> Option<User> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use actix_web::{ResponseError, http::StatusCode};
+    use crate::test_helper::*;
+    use actix_web::ResponseError;
+    use actix_web::http::StatusCode;
+    use chrono::{Duration as ChronoDuration, Utc};
+    use headless_lms_models::library::oauth::pkce::PkceMethod;
+    use headless_lms_models::library::oauth::{GrantTypeName, generate_access_token};
+    use headless_lms_models::oauth_access_token::NewAccessTokenParams;
+    use headless_lms_models::oauth_client::{
+        ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,
+    };
 
-    fn map(error_type: UtilErrorType) -> StatusCode {
-        let err = UtilError::new(error_type, "test error".to_string(), None);
-        map_tmc_token_validation_error(err).status_code()
+    fn hmac_key() -> SecretString {
+        SecretString::new("test-exercise-services-hmac-key".to_string().into())
     }
 
-    #[test]
-    fn upstream_401_maps_to_unauthorized() {
-        assert_eq!(
-            map(UtilErrorType::TmcHttpStatusError(401)),
-            StatusCode::UNAUTHORIZED
-        );
+    async fn insert_client(
+        conn: &mut PgConnection,
+        scopes: &[String],
+        bearer_allowed: bool,
+    ) -> OAuthClient {
+        let client_id = format!("cli-{}", &generate_access_token()[..12]);
+        OAuthClient::insert(
+            conn,
+            NewClientParams {
+                client_id: &client_id,
+                client_name: "Exercise services token test client",
+                application_type: ApplicationType::Native,
+                token_endpoint_auth_method: TokenEndpointAuthMethod::None,
+                client_secret: None,
+                client_secret_expires_at: None,
+                redirect_uris: &["urn:ietf:wg:oauth:2.0:oob".to_string()],
+                post_logout_redirect_uris: None,
+                allowed_grant_types: &[GrantTypeName::DeviceCode, GrantTypeName::RefreshToken],
+                scopes,
+                require_pkce: true,
+                pkce_methods_allowed: &[PkceMethod::S256],
+                allowed_origins: None,
+                bearer_allowed,
+            },
+        )
+        .await
+        .unwrap()
     }
 
-    #[test]
-    fn upstream_403_maps_to_unauthorized() {
-        assert_eq!(
-            map(UtilErrorType::TmcHttpStatusError(403)),
-            StatusCode::UNAUTHORIZED
-        );
+    /// Insert an access token for the given user/client and return its plaintext.
+    async fn insert_token(
+        conn: &mut PgConnection,
+        client: &OAuthClient,
+        user_id: uuid::Uuid,
+        scopes: &[String],
+        token_type: TokenType,
+        expires_at: chrono::DateTime<Utc>,
+    ) -> String {
+        let plaintext = generate_access_token();
+        let digest = token_digest_sha256(&plaintext, &hmac_key());
+        let dpop_jkt = match token_type {
+            TokenType::Bearer => None,
+            // A JWK SHA-256 thumbprint is 43 base64url chars (DB CHECK requires 43..=128).
+            TokenType::DPoP => Some("0123456789abcdefghijklmnopqrstuvwxyzABCDEFG"),
+        };
+        OAuthAccessToken::insert(
+            conn,
+            NewAccessTokenParams {
+                digest: &digest,
+                user_id: Some(user_id),
+                client_id: client.id,
+                scopes,
+                audience: None,
+                token_type,
+                dpop_jkt,
+                metadata: serde_json::Map::new(),
+                expires_at,
+            },
+        )
+        .await
+        .unwrap();
+        plaintext
     }
 
-    #[test]
-    fn upstream_500_stays_internal_server_error() {
-        assert_eq!(
-            map(UtilErrorType::TmcHttpStatusError(500)),
-            StatusCode::INTERNAL_SERVER_ERROR
-        );
-        assert_eq!(
-            map(UtilErrorType::TmcHttpStatusError(503)),
-            StatusCode::INTERNAL_SERVER_ERROR
-        );
+    fn secret(s: &str) -> SecretString {
+        SecretString::new(s.to_string().into())
     }
 
-    #[test]
-    fn transport_failure_stays_internal_server_error() {
-        assert_eq!(
-            map(UtilErrorType::TmcHttpError),
-            StatusCode::INTERNAL_SERVER_ERROR
-        );
+    #[actix_web::test]
+    async fn happy_path_returns_the_token_owner() {
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        let resolved = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect("valid token should resolve");
+        assert_eq!(resolved.id, user);
     }
 
-    #[test]
-    fn other_errors_stay_internal_server_error() {
-        assert_eq!(
-            map(UtilErrorType::DeserializationError),
-            StatusCode::INTERNAL_SERVER_ERROR
-        );
-        assert_eq!(map(UtilErrorType::Other), StatusCode::INTERNAL_SERVER_ERROR);
+    #[actix_web::test]
+    async fn unknown_token_is_unauthorized() {
+        insert_data!(:tx);
+        let err = resolve_oauth_user(tx.as_mut(), &secret("not-a-real-token"), &hmac_key())
+            .await
+            .expect_err("unknown token should be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+        assert_unauthorized_body(err);
+    }
+
+    #[actix_web::test]
+    async fn expired_token_is_unauthorized() {
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() - ChronoDuration::minutes(1),
+        )
+        .await;
+
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("expired token should be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn missing_scope_is_forbidden() {
+        insert_data!(:tx, :user);
+        // Client and token both carry a non-exercise-services scope.
+        let client = insert_client(tx.as_mut(), &["openid".to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &["openid".to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("token without the scope should be forbidden");
+        assert_eq!(err.status_code(), StatusCode::FORBIDDEN);
+        assert_forbidden_body(err);
+    }
+
+    #[actix_web::test]
+    async fn client_without_bearer_allowed_is_unauthorized() {
+        insert_data!(:tx, :user);
+        let client =
+            insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], false).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("bearer_allowed=false client should be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn dpop_bound_token_is_rejected() {
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::DPoP,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("DPoP-bound token should be rejected on this Bearer-only API");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+    }
+
+    /// Assert the exact 401 body shape the langs client depends on.
+    fn assert_unauthorized_body(err: ControllerError) {
+        let response = err.error_response();
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("body resolves immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+        assert_eq!(value["type"], "unauthorized");
+        assert_eq!(value["message_key"], "unauthorized");
+    }
+
+    /// Assert the exact 403 body shape the langs client depends on.
+    fn assert_forbidden_body(err: ControllerError) {
+        let response = err.error_response();
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("body resolves immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+        assert_eq!(value["type"], "forbidden");
+        assert_eq!(value["message_key"], "forbidden");
     }
 }

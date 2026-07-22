@@ -13,7 +13,7 @@ download→edit→submit archive loop is intrinsic to the programming-exercise t
 use crate::controllers::helpers::file_uploading;
 use crate::domain::error::BadRequestReason;
 use crate::domain::exercise_services::tmc_editor_answer::EditorAnswer;
-use crate::domain::exercise_services::token::UserFromTMCAccessToken;
+use crate::domain::exercise_services::token::UserFromOAuthToken;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
 use actix_multipart::form::MultipartForm;
@@ -137,7 +137,7 @@ impl FromRequest for SupportedClient {
 #[instrument(skip(pool))]
 async fn get_courses(
     pool: web::Data<PgPool>,
-    user: UserFromTMCAccessToken,
+    user: UserFromOAuthToken,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<Vec<api::Course>>> {
     let mut conn = pool.acquire().await?;
@@ -187,7 +187,7 @@ async fn get_courses(
 #[instrument(skip(pool))]
 async fn get_course(
     pool: web::Data<PgPool>,
-    user: UserFromTMCAccessToken,
+    user: UserFromOAuthToken,
     course: web::Path<Uuid>,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::Course>> {
@@ -235,7 +235,7 @@ async fn get_course(
 #[instrument(skip(pool))]
 async fn get_course_exercises(
     pool: web::Data<PgPool>,
-    user: UserFromTMCAccessToken,
+    user: UserFromOAuthToken,
     course: web::Path<Uuid>,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<Vec<api::ExerciseSlide>>> {
@@ -328,7 +328,7 @@ async fn get_course_exercises(
 #[instrument(skip(pool))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
-    user: UserFromTMCAccessToken,
+    user: UserFromOAuthToken,
     exercise_id: web::Path<Uuid>,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::ExerciseSlide>> {
@@ -433,7 +433,7 @@ async fn submit_exercise(
     jwt_key: web::Data<JwtKey>,
     exercise_id: web::Path<Uuid>,
     submission: MultipartForm<SubmissionForm>,
-    user: UserFromTMCAccessToken,
+    user: UserFromOAuthToken,
     app_conf: web::Data<ApplicationConfiguration>,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::ExerciseTaskSubmissionResult>> {
@@ -559,7 +559,7 @@ async fn submit_exercise(
 async fn get_submission_grading(
     pool: web::Data<PgPool>,
     submission_id: web::Path<Uuid>,
-    user: UserFromTMCAccessToken,
+    user: UserFromOAuthToken,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::ExerciseTaskSubmissionStatus>> {
     let mut conn = pool.acquire().await?;
@@ -634,7 +634,7 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
 async fn get_exercise_submissions(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
-    user: UserFromTMCAccessToken,
+    user: UserFromOAuthToken,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<Vec<api::ExerciseSlideSubmissionListItem>>> {
     let mut conn = pool.acquire().await?;
@@ -708,7 +708,7 @@ async fn get_exercise_submissions(
 async fn download_submission(
     pool: web::Data<PgPool>,
     submission_id: web::Path<Uuid>,
-    user: UserFromTMCAccessToken,
+    user: UserFromOAuthToken,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::SubmissionArchiveDownloadUrl>> {
     let mut conn = pool.acquire().await?;
@@ -777,7 +777,7 @@ async fn download_submission(
 async fn share_submission(
     pool: web::Data<PgPool>,
     submission_id: web::Path<Uuid>,
-    user: UserFromTMCAccessToken,
+    user: UserFromOAuthToken,
     app_conf: web::Data<ApplicationConfiguration>,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::PasteResult>> {

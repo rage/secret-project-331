@@ -1,5 +1,8 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chatbots/`.
-use crate::prelude::*;
+use crate::{
+    domain::error::{OAuthErrorCode, OAuthErrorData},
+    prelude::*,
+};
 use utoipa::OpenApi;
 
 use models::chatbot_configurations::{ChatbotConfiguration, NewChatbotConf};
@@ -34,7 +37,19 @@ async fn get_chatbot(
         &mut conn,
         Act::Edit,
         Some(user.id),
-        Res::Course(configuration.course_id),
+        Res::Course(configuration.course_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                    error_description: "course id must not be empty when provided".into(),
+                    redirect_uri: None,
+                    state: None,
+                    nonce: None,
+                })),
+                "Empty course_id",
+                None::<anyhow::Error>,
+            )
+        })?),
     )
     .await?;
 
@@ -69,7 +84,19 @@ async fn edit_chatbot(
         &mut conn,
         Act::Edit,
         Some(user.id),
-        Res::Course(chatbot.course_id),
+        Res::Course(chatbot.course_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                    error_description: "course id must not be empty when provided".into(),
+                    redirect_uri: None,
+                    state: None,
+                    nonce: None,
+                })),
+                "Empty course_id",
+                None::<anyhow::Error>,
+            )
+        })?),
     )
     .await?;
 
@@ -108,7 +135,19 @@ async fn delete_chatbot(
         &mut conn,
         Act::Edit,
         Some(user.id),
-        Res::Course(chatbot.course_id),
+        Res::Course(chatbot.course_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                    error_description: "course id must not be empty when provided".into(),
+                    redirect_uri: None,
+                    state: None,
+                    nonce: None,
+                })),
+                "Empty course_id",
+                None::<anyhow::Error>,
+            )
+        })?),
     )
     .await?;
     models::chatbot_configurations::delete(&mut conn, *chatbot_configuration_id).await?;

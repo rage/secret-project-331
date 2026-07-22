@@ -63,7 +63,7 @@ pub async fn seed_chatbot_course(
             instance_id: Some(cx.v5(b"instance:default")),
         })
         .chatbot_config(NewChatbotConf {
-            course_id,
+            course_id: Some(course_id),
             chatbotconf_id: Some(cx.v5(b"chatbot_config:default")),
             enabled_to_students: true,
             chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
@@ -76,7 +76,7 @@ pub async fn seed_chatbot_course(
             ..Default::default()
         })
         .chatbot_config(NewChatbotConf {
-            course_id,
+            course_id: Some(course_id),
             chatbotconf_id: Some(cx.v5(b"chatbot_config:block")),
             enabled_to_students: true,
             chatbot_name: "Test bot".to_string(),
@@ -87,7 +87,7 @@ pub async fn seed_chatbot_course(
             model_id: llm.id,
             ..Default::default()})
         .chatbot_config(NewChatbotConf {
-            course_id,
+            course_id: Some(course_id),
             chatbotconf_id: Some(cx.v5(b"chatbot_config:extra")),
             enabled_to_students: true,
             chatbot_name: "Suggestions bot".to_string(),

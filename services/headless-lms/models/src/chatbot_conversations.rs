@@ -134,7 +134,16 @@ pub async fn get_current_conversation_info(
 ) -> ModelResult<ChatbotConversationInfo> {
     let chatbot_configuration =
         crate::chatbot_configurations::get_by_id(tx, chatbot_configuration_id).await?;
-    let course = crate::courses::get_course(tx, chatbot_configuration.course_id).await?;
+    let course = crate::courses::get_course(
+        tx,
+        chatbot_configuration.course_id.ok_or_else(|| {
+            model_err!(
+                InvalidRequest,
+                "Course id is missing from the chatbot configuration"
+            )
+        })?,
+    )
+    .await?;
     let current_conversation =
         get_latest_conversation_for_user(tx, user_id, chatbot_configuration_id)
             .await

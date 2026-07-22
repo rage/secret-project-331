@@ -580,6 +580,12 @@ pub enum OAuthErrorCode {
     ServerError,
     InvalidDpopProof,
     UseDpopNonce,
+    // RFC 8628 Device Authorization Grant token-endpoint errors. All map to
+    // HTTP 400 (the default in `error_response`), which is RFC-compliant.
+    AuthorizationPending,
+    SlowDown,
+    ExpiredToken,
+    AccessDenied,
 }
 
 impl OAuthErrorCode {
@@ -595,6 +601,10 @@ impl OAuthErrorCode {
             Self::ServerError => "server_error",
             Self::InvalidDpopProof => "invalid_dpop_proof",
             Self::UseDpopNonce => "use_dpop_nonce",
+            Self::AuthorizationPending => "authorization_pending",
+            Self::SlowDown => "slow_down",
+            Self::ExpiredToken => "expired_token",
+            Self::AccessDenied => "access_denied",
         }
     }
 }

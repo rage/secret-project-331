@@ -26,6 +26,23 @@ pub enum TokenGrantError {
     #[error("DPoP JKT mismatch")]
     DpopMismatch,
 
+    /// RFC 8628: the authorization request is still pending (user has not yet
+    /// approved or denied the device code).
+    #[error("Authorization pending")]
+    AuthorizationPending,
+
+    /// RFC 8628: the client is polling faster than the permitted interval.
+    #[error("Slow down")]
+    SlowDown,
+
+    /// RFC 8628: the device code has expired.
+    #[error("Device code expired")]
+    ExpiredToken,
+
+    /// RFC 8628: the user denied the authorization request.
+    #[error("Access denied")]
+    AccessDenied,
+
     /// Server error (database or other internal error)
     #[error("Server error: {0}")]
     ServerError(String),
@@ -65,6 +82,34 @@ impl From<TokenGrantError> for ControllerError {
             TokenGrantError::DpopMismatch => OAuthErrorData {
                 error: OAuthErrorCode::InvalidToken.as_str().into(),
                 error_description: "DPoP JKT mismatch".into(),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            },
+            TokenGrantError::AuthorizationPending => OAuthErrorData {
+                error: OAuthErrorCode::AuthorizationPending.as_str().into(),
+                error_description: "authorization request is still pending".into(),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            },
+            TokenGrantError::SlowDown => OAuthErrorData {
+                error: OAuthErrorCode::SlowDown.as_str().into(),
+                error_description: "polling too frequently; slow down".into(),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            },
+            TokenGrantError::ExpiredToken => OAuthErrorData {
+                error: OAuthErrorCode::ExpiredToken.as_str().into(),
+                error_description: "device code has expired".into(),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            },
+            TokenGrantError::AccessDenied => OAuthErrorData {
+                error: OAuthErrorCode::AccessDenied.as_str().into(),
+                error_description: "authorization request was denied".into(),
                 redirect_uri: None,
                 state: None,
                 nonce: None,

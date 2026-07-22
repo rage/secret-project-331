@@ -1,20 +1,20 @@
 # Step-by-step: creating a new exercise service, end to end
 
-The actionable sequence, tying together the protocol (`01`), the reference impl (`02`), the
-scaffolder (`03`), and backend/infra (`04`). Two tracks depending on where the plugin will live.
+The actionable sequence tying together the protocol (`01`), the reference impl (`02`), the
+scaffolder (`03`), and backend/infra (`04`). Two tracks, depending on where the plugin will live.
 
 ## Decide the track first — with the user, not by default
 
 - **Track A — external / standalone plugin** (own repo, own infra; like `rage/language-exercise-
 service`). Only steps 1–4 + step 9 (register by URL). No monorepo/skaffold/k8s work. The scaffold
 output is genuinely standalone (fresh install, tsc, tests, and boot all work outside any workspace
-or git repo), so "own repo" is a first-class target — scaffold straight to the external path.
+or git repo) — so scaffold "own repo" straight to the external path.
 - **Track B — first-party plugin shipped inside this monorepo** (`services/<slug>`; like
-  `example-exercise`, `quizzes`, `tmc`). All steps — including the silently-missable ones (5–8): a
+  `example-exercise`, `quizzes`, `tmc`). All steps — including the silently-missable 5–8: a
   service scaffolded into `services/` without them rots quietly.
 
-The placement is the user's call — **ask it explicitly** (it is not implied by the slug/port
-question), and confirm which of the chosen track's obligations are in scope for the session.
+Placement is the user's call — **ask it explicitly** (the slug/port question does not imply it),
+and confirm which of the chosen track's obligations are in scope for the session.
 
 > Before any step below: SKILL.md's Part A design gates — scope/features, the five data types, and
 > the three views, each explicitly confirmed by the user — must be passed first. This file picks up
@@ -75,7 +75,7 @@ blobs instead of migrating them.
 - `src/server/publicSpec.ts` — derive `public_spec` from `private_spec`, **dropping anything that
   would leak answers**. This is the security boundary. Keep the template's `assertNoLeak` **call**
   in the handler (adapted to your forbidden keys/values) — a leak guard that exists but is no longer
-  invoked by the endpoint protects nothing, and add a test that the endpoint output itself carries
+  invoked by the endpoint protects nothing — and add a test that the endpoint output itself carries
   only the allowlisted keys.
 - `src/server/modelSolution.ts` — derive `model_solution_spec` from `private_spec` (same
   `assertNoLeak` rule). If your exercise type genuinely has no model solution, return `null` —

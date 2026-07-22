@@ -7,22 +7,21 @@ allowed-tools: Read, Edit, Write, AskUserQuestion, Bash(node *), Bash(pnpm *), B
 # create-exercise-type
 
 An exercise type on this platform is a standalone **exercise-service plugin**: five JSON data types,
-five REST endpoints, three iframe views. This skill takes you from an idea to a working, tested
-plugin. The `create-exercise-service` CLI (an interactive Node CLI that copies
-`services/example-exercise` and vendors the shared exercise packages) generates ~80% of the code;
-the valuable — and dangerous — 20% is the design, which is why design comes first.
+five REST endpoints, three iframe views. The `create-exercise-service` CLI (an interactive Node CLI
+that copies `services/example-exercise` and vendors the shared exercise packages) generates ~80% of
+the code; the valuable — and dangerous — 20% is the design, which is why design comes first.
 
-This skill has two parts. **Part A — Author a new exercise type**: three design gates with the user,
-then scaffold, implement, verify. **Part B — Maintainer path**: run and smoke-test the CLI and the
-template themselves. Part B's drivers also serve Part A's implement/verify steps.
+Two parts. **Part A — Author a new exercise type**: three design gates with the user, then scaffold,
+implement, verify. **Part B — Maintainer path**: run and smoke-test the CLI and template themselves.
+Part B's drivers also serve Part A's implement/verify steps.
 
 ## Which part? (read this before doing anything)
 
-**Default: Part A — authoring.** Whenever this skill is invoked, assume the user wants to create a
-new exercise type. This includes bare invocations ("run it", "use the skill", the skill name alone):
-start the Gate 1 conversation — ask what exercise they want to build — and run **no commands at
-all** first. Not even prerequisite version checks; the first shell command of an authoring session
-belongs in the "Implement" step, after all three gates are signed off.
+**Default: Part A — authoring.** Assume every invocation — including bare ones ("run it", "use the
+skill", the skill name alone) — means the user wants to create a new exercise type. Start the Gate 1
+conversation — ask what exercise they want to build — and run **no commands at all** first, not even
+prerequisite version checks: the first shell command of an authoring session belongs in the
+"Implement" step, after all three gates are signed off.
 
 **Hard rule for Part A:** until the user has explicitly confirmed all three design gates, do NOT
 scaffold a project, run the `create-exercise-service` CLI or `scaffold-to.ts`, boot a dev server,
@@ -43,7 +42,7 @@ however phrased — never routes to Part B.
 
 The scaffold is a **complete multiple-choice exercise**, not a blank skeleton — you turn it into your
 exercise type by editing the ~20% that is exercise-specific and reusing the rest. But no scaffold
-exists yet at this point, and none is created until the gates below are done.
+exists yet, and none is created until the gates below are done.
 
 Authoring runs through **three design gates with the user** (scope → data model → views), then
 implementation, then verification. The gates are **conversations, not forms**: propose something
@@ -58,16 +57,16 @@ mix in free-form discussion whenever the option space is too rich for multiple c
 or without an interactive user), do **not** skip a gate or sign off on your own behalf. Present the
 full proposal for the gate you are at — every open question with your recommended default — as your
 response, and **stop** until a human relays sign-off (possibly with tweaks). The gates are the point;
-a proposed-artifact-then-stop turn is how you honor them without an interactive prompt.
+a proposed-artifact-then-stop turn honors them without an interactive prompt.
 
 ## Gate 1 — Scope: where the plugin lives, and its full feature set
 
 **Where will the project live? Ask — never assume.** The slug/port question does not answer this;
-placement is its own decision with its own consequences, so put it to the user explicitly:
+placement is its own decision, so put it to the user explicitly:
 
 - **Own repository** (reference/05's Track A): scaffold to a path *outside* the monorepo. The output
-  is genuinely standalone (verified: fresh `pnpm install`, `tsc`, vitest, and dev-server boot all
-  work with no enclosing workspace or git repo) and keeps a point-in-time vendored shared-module.
+  is standalone (verified: fresh `pnpm install`, `tsc`, vitest, and dev-server boot all work with no
+  enclosing workspace or git repo) and keeps a point-in-time vendored shared-module.
   Registered with the host later by URL (reference/05 step 9).
 - **Inside this monorepo as a first-party service** (`services/<slug>`, Track B): commits you to the
   full reference/05 sequence — vendored-module sync targets (step 5), backend seed (step 6), infra
@@ -93,7 +92,7 @@ old blobs keep replaying into your endpoints and views indefinitely (a 3-year-ol
 `/api/grade`, an old private spec re-opened in the editor). _The private spec is your schema; you
 just don't get `ALTER TABLE`._ And the derivation from private → public spec is the anti-cheating
 boundary: a field you forget to drop leaks answers into every student's browser **irreversibly** — the
-spec was already served. These are the most expensive-to-get-wrong decisions in the whole task.
+spec was already served. These are the most expensive-to-get-wrong decisions in the task.
 
 Read **`reference/07-key-design-decisions.md`** (at minimum Part I in full plus the one-screen
 checklist at the end; Part II when you design the tests), then design **each of the five types in
@@ -146,10 +145,10 @@ pnpm --dir shared-module/packages/create-exercise-service exec tsx scripts/scaff
 ```
 
 Immediately after scaffolding, **ship the plugin guide into the project** (do this every time). The
-generated project carries no plugin/data-model documentation of its own, so drop in the
-self-contained guide, so any agent (Claude Code, or any `AGENTS.md`-aware tool) that later opens the
-project loads the protocol and — most importantly — the **per-data-type allowed/disallowed rules**
-automatically. From this skill dir:
+generated project carries no plugin/data-model documentation of its own; drop in the self-contained
+guide so any agent (Claude Code, or any `AGENTS.md`-aware tool) that later opens the project
+automatically loads the protocol and — most importantly — the **per-data-type allowed/disallowed
+rules**. From this skill dir:
 
 ```bash
 cp AGENTS_TEMPLATE.md <project>/AGENTS.md    # verbatim — the guide is service-name-agnostic

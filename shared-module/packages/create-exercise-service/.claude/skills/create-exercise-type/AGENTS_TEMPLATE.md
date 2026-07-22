@@ -1,15 +1,15 @@
 # Agent guide — moocfi exercise-service plugin
 
-This project is a **moocfi exercise-service plugin**: a standalone web app that the moocfi host
-(the `headless-lms` backend + the course-material / CMS frontend) integrates with. It was scaffolded
-from the `example-exercise` template by `create-exercise-service`, so most of it is shared plumbing
-you keep verbatim — you build your exercise type by editing a small, well-marked slice (the five
-data types, the three server transforms, the three views).
+This project is a **moocfi exercise-service plugin**: a standalone web app the moocfi host
+(the `headless-lms` backend + the course-material / CMS frontend) integrates with. Scaffolded from
+the `example-exercise` template by `create-exercise-service`, most of it is shared plumbing you keep
+verbatim — you build your exercise type by editing a small, well-marked slice (five data types,
+three server transforms, three views).
 
 **Read this file before you touch the data model.** The data-type rules below are the
-highest-stakes decisions in the project, and several are **irreversible in production**: a leaked
-answer key or a badly-shaped spec was _already served / already stored_, and you cannot un-serve or
-migrate it. Everything else in the codebase is recoverable; these are not.
+highest-stakes decisions here, and several are **irreversible in production**: a leaked answer key
+or a badly-shaped spec was _already served / already stored_, and you cannot un-serve or migrate it.
+Everything else is recoverable; these are not.
 
 ---
 
@@ -26,12 +26,12 @@ in-process; it integrates over two seams only:
 2. **REST endpoints the backend calls server-to-server.** The host stores everything and calls your
    endpoints to derive specs and to grade.
 
-The host owns all storage and common chrome (exercise name, points, instructions, the submit
-button). You own only the exercise-specific portion.
+The host owns all storage and common chrome (exercise name, points, instructions, submit button).
+You own only the exercise-specific portion.
 
-**The five data types.** Your plugin defines its own JSON shape for each of these. The host treats
-them as **opaque blobs** — it stores them and hands them back but never inspects their contents.
-Only the _envelopes_ (the request/response wrappers) are standardized.
+**The five data types.** Your plugin defines its own JSON shape for each. The host treats them as
+**opaque blobs** — it stores them and hands them back but never inspects their contents. Only the
+_envelopes_ (the request/response wrappers) are standardized.
 
 **The three IFrame views**, all served from one URL (`/{base}/iframe`) and switched by
 `set-state.view_type`:
@@ -42,7 +42,7 @@ Only the _envelopes_ (the request/response wrappers) are standardized.
 | Answer exercise | `answer-exercise` | `public_spec`, optional prior `answer`                      | `answer`                    |
 | View submission | `view-submission` | `public_spec`, `answer`, optional feedback + model solution | none (read-only)            |
 
-`current-state`'s **`valid`** boolean gates whether the host will let the user save/submit.
+`current-state`'s **`valid`** boolean gates whether the host lets the user save/submit.
 
 **The REST endpoints** (backend → plugin):
 
@@ -56,7 +56,7 @@ Only the _envelopes_ (the request/response wrappers) are standardized.
 
 **The anti-cheating construct.** `public_spec` and `model_solution_spec` are **derived from**
 `private_spec` on every save (the backend re-runs both generators). This is deliberate: the plugin
-author controls exactly what ever reaches a browser, and correctness checking stays server-side.
+author controls exactly what reaches a browser, and correctness checking stays server-side.
 Design **one master type (the private spec) and two projections**, not three independent types.
 
 ---
@@ -95,8 +95,8 @@ Consequences, all enforced in this template already (`src/util/stateInterfaces.t
 
 ## What each data type MAY and MUST NOT contain
 
-This is the core of the plugin. **Anything that reaches a browser is readable from devtools**, no
-matter how you render it. Classify every field _before_ you add it. The template's worked example:
+**Anything that reaches a browser is readable from devtools**, no matter how you render it. Classify
+every field _before_ you add it. The template's worked example:
 `Alternative { id, name, correct }[]` → public strips `correct` → model solution keeps only
 `{ correctOptionIds }` → feedback reveals only `{ selectedOptionIsCorrect }`.
 
@@ -217,9 +217,8 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 
 - **Every editor control that affects the saved/graded result must write to a private-spec field —
   never to component-local React state.** A control kept in `useState` is silently lost on reopen
-  (quizzes' closed-ended "grading strategy" radio did exactly this and reset on every open). If it
-  changes the saved result, it belongs in the spec; transient view-only state (preview toggles) may
-  stay local.
+  (quizzes' closed-ended "grading strategy" radio did this and reset on every open). Transient
+  view-only state (preview toggles) may stay local.
 - **Model a mode/strategy selector as a discriminated union on a tag field, with an exhaustive
   `switch` in grading and every derivation** — don't overload one free-form field with two meanings.
   (Quizzes stored a closed-ended answer as one `validityRegex` and faked an "exact string" mode by

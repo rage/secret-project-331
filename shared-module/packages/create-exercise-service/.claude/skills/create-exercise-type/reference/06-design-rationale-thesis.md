@@ -1,8 +1,8 @@
 # Design rationale (from the master's thesis)
 
 Source: the master's thesis behind this plugin system (an external document, not part of this repo).
-This is the "why" behind the "how" in the other files — only the parts that change what a plugin
-author decides. Quotes are verbatim (original typos preserved).
+This is the "why" behind the "how" in the other files, covering only the parts that change what a
+plugin author decides. Quotes are verbatim (original typos preserved).
 
 ## The two needs that drive everything
 
@@ -12,7 +12,7 @@ The UH MOOC Center built its own LMS and needs more exercise types than the core
 - **"Need 2: A misbehaving plugin should not break or disrupt the system it is running on."**
 
 The old architecture is the foil: each exercise was a self-contained service owning its own editing
-UI, grading, _and_ data — so every cross-cutting feature (peer review, points) was re-implemented per
+UI, grading, _and_ data, so every cross-cutting feature (peer review, points) was re-implemented per
 service. The fix is a plugin system where the host owns storage and all common functionality, and
 plugins are sandboxed iframes on separate servers (Need 2's two-layer isolation: a crash/leak is
 contained by both the process boundary and the iframe `sandbox`).

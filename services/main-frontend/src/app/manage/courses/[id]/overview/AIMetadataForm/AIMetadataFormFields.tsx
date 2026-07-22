@@ -1,7 +1,5 @@
 "use client"
 
-"use client"
-
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
@@ -15,7 +13,6 @@ import type {
   CoursePrerequisite,
   CourseAudience,
 } from "@/generated/api/types.generated"
-// import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { undefinedToNull } from "@/shared-module/common/utils/nullability"
 import { TextArea, TextField } from "@/shared-module/components"
@@ -88,9 +85,6 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
       useSuggestedAudiences: true,
     },
   })
-  console.log("SISUDATA PROPS: " + sisuData)
-  console.log("PREREQUISITES PROPS: " + prerequisites)
-  console.log("AUDIENCES PROPS: " + audiences)
   const { control, handleSubmit } = methods
 
   const {

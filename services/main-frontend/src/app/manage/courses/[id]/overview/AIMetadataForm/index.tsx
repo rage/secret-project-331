@@ -95,9 +95,6 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
     },
     { method: "POST", notify: true },
   )
-  console.log("SISU QUERY: ", sisuQuery.data)
-  console.log("PREREQUISITES QUERY: ", prerequisitesQuery.data)
-  console.log("AUDIENCES QUERY: ", audiencesQuery.data)
 
   return (
     <StandardDialog
@@ -125,7 +122,6 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
           queries={[sisuQuery, prerequisitesQuery, audiencesQuery] as const}
           treatEmptyAsData
           renderData={([sisuData, prerequisitesData, audiencesData]) => {
-            console.log("RENDERDATA: " + sisuData, prerequisitesData, audiencesData)
             return (
               <AIMetadataFormFields
                 course={course}

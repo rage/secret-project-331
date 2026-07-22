@@ -8,6 +8,9 @@ import type { PrivateSpecQuizItemEssay } from "../../../../../../types/quizTypes
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import FeedbackMessagesEditor, {
+  useItemFeedbackVisibilityOptions,
+} from "../common/FeedbackMessagesEditor"
 import ParsedTextField from "../common/ParsedTextField"
 
 interface EssayEditorProps {
@@ -25,6 +28,7 @@ const TextFieldWrapper = styled.div`
 
 const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
+  const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemEssay>(
     (quiz) => {
@@ -96,6 +100,18 @@ const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
           />
         </TextFieldWrapper>
       </TextFieldContainer>
+      <FeedbackMessagesEditor
+        value={selected.feedbackMessages}
+        visibilityOptions={itemFeedbackVisibilityOptions}
+        onChange={(feedbackMessages) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            draft.feedbackMessages = feedbackMessages
+          })
+        }}
+      />
     </EditorCard>
   )
 }

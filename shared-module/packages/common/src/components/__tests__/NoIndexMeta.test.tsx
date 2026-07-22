@@ -2,7 +2,7 @@
 
 import { render } from "@testing-library/react"
 
-const { default: NoIndexMeta } = await import("../NoIndexMeta")
+import NoIndexMeta from "../NoIndexMeta"
 
 /** The robots meta is hoisted into <head> by React, so query it there rather than in the container. */
 const robotsMeta = () => document.head.querySelector('meta[name="robots"]')

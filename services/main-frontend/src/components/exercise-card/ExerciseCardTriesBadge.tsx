@@ -55,7 +55,9 @@ const ExerciseCardTriesBadge: React.FC<React.PropsWithChildren<ExerciseCardTries
       <div>
         <span className="heading">{t("tries")}</span>
         <div className="tries">
-          <PlusHeart size={16} weight="bold" color="#394F77" />
+          <span aria-hidden="true">
+            <PlusHeart size={16} weight="bold" color="#394F77" />
+          </span>
           <p>{triesRemaining}</p>
         </div>
       </div>

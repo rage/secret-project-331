@@ -577,6 +577,28 @@
         }
       }
     },
+    "/api/v0/main-frontend/chatbots/": {
+      "get": {
+        "tags": ["chatbots"],
+        "summary": "GET `/api/v0/main-frontend/chatbots`",
+        "operationId": "getAllChatbots",
+        "responses": {
+          "200": {
+            "description": "All chatbots",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatbotConfiguration"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}": {
       "get": {
         "tags": ["chatbots"],
@@ -2231,6 +2253,28 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Course"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nGET `/api/v0/main-frontend/courses` - Get all courses\n\nReturns all courses.",
+        "operationId": "getAllCourses",
+        "responses": {
+          "200": {
+            "description": "All courses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Course"
+                  }
                 }
               }
             }

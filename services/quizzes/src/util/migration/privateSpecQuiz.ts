@@ -7,17 +7,19 @@ import type {
 } from "../../../types/oldQuizTypes"
 import type { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
 import type {
-  PrivateSpecQuiz,
-  PrivateSpecQuizItemCheckbox,
-  PrivateSpecQuizItemChooseN,
-  PrivateSpecQuizItemClosedEndedQuestion,
-  PrivateSpecQuizItemEssay,
-  PrivateSpecQuizItemMatrix,
-  PrivateSpecQuizItemMultiplechoice,
-  PrivateSpecQuizItemMultiplechoiceDropdown,
-  PrivateSpecQuizItemScale,
-  PrivateSpecQuizItemTimeline,
-} from "../../../types/quizTypes/privateSpec"
+  PrivateSpecQuizItemClosedEndedQuestionV2,
+  PrivateSpecQuizV2,
+} from "../../../types/quizTypes/v2"
+import type {
+  PrivateSpecQuizItemCheckboxV3,
+  PrivateSpecQuizItemChooseNV3,
+  PrivateSpecQuizItemEssayV3,
+  PrivateSpecQuizItemMatrixV3,
+  PrivateSpecQuizItemMultiplechoiceV3,
+  PrivateSpecQuizItemMultiplechoiceDropdownV3,
+  PrivateSpecQuizItemScaleV3,
+  PrivateSpecQuizItemTimelineV3,
+} from "../../../types/quizTypes/v3"
 import { sanitizeQuizDirection } from "../css-sanitization"
 import { DEFAULT_N } from "./migrationSettings"
 
@@ -55,7 +57,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         successMessage: quizItem.successMessage,
         title: quizItem.title,
         messageOnModelSolution: null,
-      } satisfies PrivateSpecQuizItemCheckbox
+      } satisfies PrivateSpecQuizItemCheckboxV3
     case "essay":
       return {
         id: quizItem.id,
@@ -68,7 +70,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         minWords: quizItem.minWords,
         successMessage: quizItem.successMessage,
         messageOnModelSolution: null,
-      } satisfies PrivateSpecQuizItemEssay
+      } satisfies PrivateSpecQuizItemEssayV3
     case "matrix":
       return {
         id: quizItem.id,
@@ -78,7 +80,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         optionCells: quizItem.optionCells,
         successMessage: quizItem.successMessage,
         messageOnModelSolution: null,
-      } satisfies PrivateSpecQuizItemMatrix
+      } satisfies PrivateSpecQuizItemMatrixV3
     case "multiple-choice":
       return {
         id: quizItem.id,
@@ -97,7 +99,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         shuffleOptions: quizItem.shuffleOptions,
         fogOfWar: false,
         messageOnModelSolution: null,
-      } satisfies PrivateSpecQuizItemMultiplechoice
+      } satisfies PrivateSpecQuizItemMultiplechoiceV3
     case "open":
       return {
         id: quizItem.id,
@@ -110,7 +112,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         successMessage: quizItem.successMessage,
         failureMessage: quizItem.failureMessage,
         messageOnModelSolution: null,
-      } satisfies PrivateSpecQuizItemClosedEndedQuestion
+      } satisfies PrivateSpecQuizItemClosedEndedQuestionV2
     case "scale":
       return {
         id: quizItem.id,
@@ -125,7 +127,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         maxValue: quizItem.maxValue,
         minValue: quizItem.minValue,
         messageOnModelSolution: null,
-      } satisfies PrivateSpecQuizItemScale
+      } satisfies PrivateSpecQuizItemScaleV3
     case "timeline":
       return {
         id: quizItem.id,
@@ -135,7 +137,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         successMessage: quizItem.successMessage,
         timelineItems: quizItem.timelineItems,
         messageOnModelSolution: null,
-      } satisfies PrivateSpecQuizItemTimeline
+      } satisfies PrivateSpecQuizItemTimelineV3
     case "clickable-multiple-choice":
       return {
         id: quizItem.id,
@@ -148,7 +150,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         options: quizItem.options,
         n: CHOOSE_N_DEFAULT_VALUE,
         messageOnModelSolution: null,
-      } satisfies PrivateSpecQuizItemChooseN
+      } satisfies PrivateSpecQuizItemChooseNV3
     case "multiple-choice-dropdown":
       return {
         id: quizItem.id,
@@ -160,24 +162,12 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         successMessage: quizItem.successMessage,
         options: quizItem.options,
         messageOnModelSolution: null,
-      } satisfies PrivateSpecQuizItemMultiplechoiceDropdown
+      } satisfies PrivateSpecQuizItemMultiplechoiceDropdownV3
     default:
-      console.error(`Unknown type: '${quizItem.type}'`)
+      // The v1 item-type set is closed and historical, so an unknown type means corrupt data.
+      // Fail loud rather than fabricating a placeholder item that would be persisted on next save.
+      throw new Error(`Unknown quiz item type: '${quizItem.type}'`)
   }
-
-  // TODO: Unsupported quiz, can be cause due to typos
-  return {
-    id: quizItem.id,
-    type: "essay",
-    order: 100,
-    title: "quizItem.title",
-    body: "quizItem.body",
-    failureMessage: "quizItem.failureMessage",
-    maxWords: 100,
-    minWords: 0,
-    successMessage: "quizItem.successMessage",
-    messageOnModelSolution: null,
-  } satisfies PrivateSpecQuizItemEssay
 }
 
 /**
@@ -185,11 +175,11 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
  *
  * @param oldQuiz Older version of Quiz
  * @see OldQuiz
- * @see PrivateSpecQuiz
- * @returns New version of Quiz
+ * @see PrivateSpecQuizV2
+ * @returns The v2 version of the quiz (later lifted to the latest version by the migration chain)
  */
-export const migratePrivateSpecQuiz = (oldQuiz: OldQuiz): PrivateSpecQuiz => {
-  const privateSpecQuiz: PrivateSpecQuiz = {
+export const migratePrivateSpecQuiz = (oldQuiz: OldQuiz): PrivateSpecQuizV2 => {
+  const privateSpecQuiz: PrivateSpecQuizV2 = {
     version: "2",
     title: oldQuiz.title,
     body: oldQuiz.body,

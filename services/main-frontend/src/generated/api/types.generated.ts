@@ -2824,6 +2824,22 @@ export type GetChatbotModelResponses = {
 
 export type GetChatbotModelResponse = GetChatbotModelResponses[keyof GetChatbotModelResponses]
 
+export type GetAllChatbotsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/chatbots/"
+}
+
+export type GetAllChatbotsResponses = {
+  /**
+   * All chatbots
+   */
+  200: Array<ChatbotConfiguration>
+}
+
+export type GetAllChatbotsResponse = GetAllChatbotsResponses[keyof GetAllChatbotsResponses]
+
 export type DeleteChatbotConfigurationData = {
   body?: never
   path: {
@@ -3878,6 +3894,22 @@ export type CreateCourseResponses = {
 }
 
 export type CreateCourseResponse = CreateCourseResponses[keyof CreateCourseResponses]
+
+export type GetAllCoursesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/courses/"
+}
+
+export type GetAllCoursesResponses = {
+  /**
+   * All courses
+   */
+  200: Array<Course>
+}
+
+export type GetAllCoursesResponse = GetAllCoursesResponses[keyof GetAllCoursesResponses]
 
 export type GetCourseByJoinCodeData = {
   body?: never

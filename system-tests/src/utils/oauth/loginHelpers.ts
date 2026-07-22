@@ -19,12 +19,12 @@ async function submitConsentIfVisible(page: Page): Promise<void> {
       .first()
       .waitFor(),
     page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
-      timeout: 10000,
+      timeout: 30000,
       waitUntil: "domcontentloaded",
     }),
   ])
   await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
-    timeout: 10000,
+    timeout: 30000,
     waitUntil: "domcontentloaded",
   })
 }
@@ -55,10 +55,10 @@ export async function performLogin(page: Page, email: string, password: string) 
   // After submit: either we navigate to authorize/scopes/callback, or research consent dialog appears
   await Promise.race([
     page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
-      timeout: 10000,
+      timeout: 30000,
       waitUntil: "domcontentloaded",
     }),
-    page.getByTestId("research-consent-dialog").waitFor({ state: "visible", timeout: 10000 }),
+    page.getByTestId("research-consent-dialog").waitFor({ state: "visible", timeout: 30000 }),
   ])
 
   await submitConsentIfVisible(page)

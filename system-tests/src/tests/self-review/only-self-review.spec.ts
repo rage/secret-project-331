@@ -45,10 +45,13 @@ test.describe("An exercise that has self review but no peer review works", () =>
       // Defocus the rich text editor
       await teacherPage.getByRole("heading", { name: "Configure review answers" }).click()
       await teacherPage.getByRole("button", { name: "Add peer review question" }).click()
-      await teacherPage.getByLabel("Peer review questionInsert").fill("General feedback")
+      await teacherPage.getByLabel("Peer review question", { exact: true }).fill("General feedback")
       await teacherPage.getByRole("button", { name: "Add peer review question" }).click()
       await teacherPage.getByLabel("Peer review question type").nth(1).selectOption("Scale")
-      await teacherPage.getByLabel("Peer review questionInsert").fill("The answer was correct")
+      await teacherPage
+        .getByLabel("Peer review question", { exact: true })
+        .nth(1)
+        .fill("The answer was correct")
       await waitForSuccessNotification(teacherPage, async () => {
         await teacherPage.getByRole("button", { name: "Save", exact: true }).click()
       })

@@ -95,10 +95,17 @@ const Likert: React.FC<LikertProps> = ({ question, content, index }) => {
     },
   ]
 
+  const questionLabel = `${t("question")} ${index + 1}: ${question}`
+  const selectedOption = content !== null ? arr[content - 1] : undefined
+  const selectedAnswerText = selectedOption
+    ? t("likert-scale-selected-answer", { answer: selectedOption.text })
+    : t("likert-scale-no-answer")
+
   return (
     <Wrapper>
-      <Question>{`${t("question")} ${index + 1}: ${question}`}</Question>
-      <IconContainer>
+      <Question>{questionLabel}</Question>
+      {/* role="img" makes this a leaf in the a11y tree so the decorative icon grid isn't exposed. */}
+      <IconContainer role="img" aria-label={`${questionLabel}. ${selectedAnswerText}`}>
         {arr.map((option, n) => (
           <Icon key={n} active={content === n + 1}>
             {<option.svg />}

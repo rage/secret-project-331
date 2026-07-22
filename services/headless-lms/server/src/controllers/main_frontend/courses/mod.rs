@@ -129,6 +129,7 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_course_prerequisites,
         get_course_audiences,
         get_course_metadata
+        get_all_courses
     ),
     nest(
         (path = "/{course_id}/chatbots", api = chatbots::MainFrontendCourseChatbotsApiDoc),
@@ -2815,6 +2816,31 @@ async fn get_course_metadata(
     token.authorized_ok(web::Json(metadata))
 }
 /**
+GET `/api/v0/main-frontend/courses` - Get all courses
+
+Returns all courses.
+*/
+#[utoipa::path(
+    get,
+    path = "/",
+    operation_id = "getAllCourses",
+    tag = "courses",
+    responses(
+        (status = 200, description = "All courses", body = Vec<Course>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_all_courses(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
+    let all_courses = models::courses::all_courses(&mut conn).await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?;
+    token.authorized_ok(web::Json(all_courses))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -3051,4 +3077,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/get-course-metadata",
             web::get().to(get_course_metadata),
         );
+        .route("/", web::get().to(get_all_courses));
 }

@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
+import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import type { QuizItemComponentProps } from ".."
@@ -14,7 +15,8 @@ const MatrixTableContainer = styled.table`
   background-color: #e2e4e6;
   border-collapse: collapse;
   td {
-    border: 0.125rem solid #e1e1e199;
+    /* gray[400] for sufficient contrast against the cell background */
+    border: 0.125rem solid ${baseTheme.colors.gray[400]};
   }
 
   td {

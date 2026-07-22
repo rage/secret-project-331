@@ -4,13 +4,19 @@ import type {
   GradingResult,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import type { Alternative, Answer, ExerciseFeedback } from "@/util/stateInterfaces"
+import {
+  alternativesFromStored,
+  parseAnswer,
+  toVersionedFeedback,
+  type VersionedExerciseFeedback,
+} from "@/util/stateInterfaces"
 
-type ExampleExerciseGradingResult = GradingResult<ExerciseFeedback | null>
-type ServiceGradingRequest = GradingRequest<Alternative[], Answer>
+type ExampleExerciseGradingResult = GradingResult<VersionedExerciseFeedback | null>
 
-function grade(gradingRequest: ServiceGradingRequest): Response {
-  const selectedOptionId = gradingRequest.submission_data?.selectedOptionId
+// `exercise_spec` is the stored private spec and `submission_data` the stored answer, either of
+// which may arrive in a legacy or versioned shape (regrades replay old blobs) — migrate both on read.
+function grade(gradingRequest: GradingRequest<unknown, unknown>): Response {
+  const selectedOptionId = parseAnswer(gradingRequest.submission_data).selectedOptionId
   if (!selectedOptionId) {
     return Response.json({
       grading_progress: "FullyGraded",
@@ -21,16 +27,15 @@ function grade(gradingRequest: ServiceGradingRequest): Response {
     } satisfies ExampleExerciseGradingResult)
   }
 
-  const selectedOption = gradingRequest.exercise_spec.find(
-    (option) => option.id === selectedOptionId,
-  )
+  const alternatives = alternativesFromStored(gradingRequest.exercise_spec) ?? []
+  const selectedOption = alternatives.find((option) => option.id === selectedOptionId)
   if (!selectedOption || !selectedOption.correct) {
     return Response.json({
       grading_progress: "FullyGraded",
       score_given: 0,
       score_maximum: 1,
       feedback_text: "Your answer was not correct",
-      feedback_json: { selectedOptionIsCorrect: false },
+      feedback_json: toVersionedFeedback(false),
     } satisfies ExampleExerciseGradingResult)
   }
 
@@ -39,7 +44,7 @@ function grade(gradingRequest: ServiceGradingRequest): Response {
     score_given: 1,
     score_maximum: 1,
     feedback_text: "Good job!",
-    feedback_json: { selectedOptionIsCorrect: true },
+    feedback_json: toVersionedFeedback(true),
   } satisfies ExampleExerciseGradingResult)
 }
 
@@ -48,5 +53,5 @@ export const handleGrade = jsonRoute(async (request) => {
   if (!isNonGenericGradingRequest(body)) {
     throw new BadRequestError("Invalid grading request")
   }
-  return grade(body as ServiceGradingRequest)
+  return grade(body as GradingRequest<unknown, unknown>)
 })

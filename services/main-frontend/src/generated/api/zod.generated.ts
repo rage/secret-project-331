@@ -3125,6 +3125,11 @@ export const zGetChatbotModelPath = z.object({
  */
 export const zGetChatbotModelResponse = zChatbotConfigurationModel
 
+/**
+ * All chatbots
+ */
+export const zGetAllChatbotsResponse = z.array(zChatbotConfiguration)
+
 export const zDeleteChatbotConfigurationPath = z.object({
   chatbot_configuration_id: z.uuid(),
 })
@@ -3559,6 +3564,11 @@ export const zCreateCourseBody = zNewCourse
  * Created course
  */
 export const zCreateCourseResponse = zCourse
+
+/**
+ * All courses
+ */
+export const zGetAllCoursesResponse = z.array(zCourse)
 
 export const zGetCourseByJoinCodePath = z.object({
   join_code: z.string(),

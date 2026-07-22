@@ -15,11 +15,13 @@ const LinearProgress = styled.div<LinearProgressProps>`
   overflow: hidden;
   align-items: center;
   height: ${({ height }) => (height === "small" ? "16px" : "20px")};
-  width: 290px;
+  width: 100%;
+  max-width: 290px;
 
   ${respondToOrLarger.sm} {
     height: ${({ height }) => (height === "small" ? "16px" : "28px")};
     width: 100%;
+    max-width: none;
   }
 `
 interface LinearProgressFillProps {

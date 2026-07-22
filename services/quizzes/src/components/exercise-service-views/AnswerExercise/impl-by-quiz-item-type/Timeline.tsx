@@ -52,10 +52,18 @@ const container = css`
     position: relative;
   }
 
+  /* Stack into a single column so content still fits a 320px wide viewport. */
   @media (max-width: 767.98px) {
     width: 100%;
-    padding-left: 7.5rem;
-    padding-right: 0px;
+    padding-left: 0;
+    padding-right: 0;
+
+    .date {
+      position: static;
+      display: block;
+      text-align: left;
+      margin-bottom: 0.25rem;
+    }
   }
 `
 const left = css`
@@ -65,19 +73,13 @@ const left = css`
     right: -4.688rem;
     @media (max-width: 767.98px) {
       right: auto;
-      left: 0.938rem;
-    }
-  }
-
-  &::after {
-    @media (max-width: 767.98px) {
-      left: 4.063rem;
+      left: auto;
     }
   }
 
   .content {
     @media (max-width: 767.98px) {
-      padding: 1.875rem 0rem 1.875rem 0.625rem;
+      padding: 0 0 1rem 0;
     }
   }
 `
@@ -92,22 +94,19 @@ const right = css`
     left: -4.688rem;
     @media (max-width: 767.98px) {
       right: auto;
-      left: 0.938rem;
+      left: auto;
     }
   }
 
   .content {
     padding: 1.875rem;
     @media (max-width: 767.98px) {
-      padding: 1.875rem 0px 1.875rem 0.625rem;
+      padding: 0 0 1rem 0;
     }
   }
 
   &::after {
     left: -0.938rem;
-    @media (max-width: 767.98px) {
-      left: 4.063rem;
-    }
   }
 `
 const StyledTime = styled.div`
@@ -142,6 +141,8 @@ const Timeline: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemTimeline, UserItemAnswerTimeline>
 > = ({ quizItemAnswerState, quizItem, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
+  const chosenEventIds = (quizItemAnswerState?.timelineChoices ?? []).map((tc) => tc.chosenEventId)
+  const hasDuplicateAnswers = chosenEventIds.length !== new Set(chosenEventIds).size
   return (
     <TimelineWrapper>
       {quizItem.timelineItems
@@ -177,6 +178,11 @@ const Timeline: React.FunctionComponent<
                   border-radius: 1.563rem;
                   transition: all 200ms linear;
                   z-index: 1;
+
+                  /* Hidden in the narrow single-column layout to keep content within 320px. */
+                  @media (max-width: 767.98px) {
+                    display: none;
+                  }
                 }
 
                 .select-wrapper {
@@ -198,7 +204,7 @@ const Timeline: React.FunctionComponent<
                   border-radius: 6.188rem;
                   margin-left: 0.375rem;
                   @media (max-width: 767.98px) {
-                    left: 5rem;
+                    display: none;
                   }
                 }
               `}`}
@@ -267,7 +273,7 @@ const Timeline: React.FunctionComponent<
                       {selectedTimelineEventDetails?.name ?? t("deleted-option")}
                     </p>
                     <StyledButton
-                      aria-label={t("remove")}
+                      aria-label={t("remove-answer-for-year", { year: timelineItem.year })}
                       onClick={() => {
                         if (!quizItemAnswerState) {
                           return
@@ -291,6 +297,30 @@ const Timeline: React.FunctionComponent<
             </div>
           )
         })}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className={css`
+          margin-top: 1rem;
+        `}
+      >
+        {hasDuplicateAnswers ? (
+          <div
+            className={css`
+              padding: 0.875rem;
+              border-radius: 0.5rem;
+              background-color: #fff4e6;
+              border: 2px solid #cc7a00;
+              color: #b83900;
+              font-size: 1rem;
+              line-height: 1.5;
+            `}
+          >
+            {t("timeline-duplicate-answer-error")}
+          </div>
+        ) : null}
+      </div>
     </TimelineWrapper>
   )
 }

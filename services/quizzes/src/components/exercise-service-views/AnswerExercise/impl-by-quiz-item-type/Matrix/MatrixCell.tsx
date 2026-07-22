@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { primaryFont } from "@/shared-module/exercise-react/styles"
 
@@ -23,8 +24,14 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     width: 3.125rem;
     height: 3.125rem;
     border: 0;
-    outline: none;
     text-align: center;
+
+    &:focus-visible {
+      outline: 3px solid #2d4a7f;
+      outline-offset: -3px;
+      z-index: 2;
+    }
+
     resize: none;
     background: #FBFBFC;
     ${
@@ -66,6 +73,7 @@ const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProp
   matrixSize,
 }) => {
   const [isActive, setIsActive] = useState(false)
+  const { t } = useTranslation()
 
   return (
     <td
@@ -87,8 +95,8 @@ const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProp
       >
         <BorderDiv column={column} row={row} matrixSize={matrixSize}></BorderDiv>
         <CellInputContainer
-          // oxlint-disable-next-line i18next/no-literal-string
-          aria-label={`row: ${row}, column: ${column}`}
+          // 1-based so the label matches how screen readers announce the table cells (WCAG 1.3.1)
+          aria-label={t("matrix-cell-aria-label", { row: row + 1, column: column + 1 })}
           column={column}
           row={row}
           name={cellText}

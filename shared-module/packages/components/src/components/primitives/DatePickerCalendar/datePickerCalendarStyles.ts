@@ -31,6 +31,12 @@ export const pickerLayoutWithTimeCss = css`
   grid-template-columns: minmax(0, 1fr) minmax(200px, 240px);
   align-items: stretch;
   column-gap: var(--space-3);
+
+  /* On narrow (mobile) viewports the calendar + time panel can't fit side by side, so stack them. */
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-3);
+  }
 `
 
 export const calendarPanelCss = css`
@@ -161,6 +167,8 @@ export const calendarCellButtonCss = css`
   justify-content: center;
   width: 36px;
   height: 36px;
+  /* Let the seven fixed-width day cells shrink to fit a very narrow (mobile) calendar column. */
+  max-width: 100%;
   padding: 0;
   border: 0;
   border-radius: var(--control-radius);
@@ -405,6 +413,13 @@ export const timePanelCss = css`
   padding: 0 0 0 var(--space-3);
   border-left: 1px solid rgba(31, 105, 100, 0.12);
   background: transparent;
+
+  /* When stacked below the calendar on mobile, the divider becomes a top border. */
+  @media (max-width: 480px) {
+    padding: var(--space-3) 0 0 0;
+    border-left: 0;
+    border-top: 1px solid rgba(31, 105, 100, 0.12);
+  }
 `
 
 export const timePanelHeadingCss = css`

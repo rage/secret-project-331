@@ -4,7 +4,7 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
-test.describe.only("Chatbot settings testing", () => {
+test.describe("Chatbot settings testing", () => {
   test.use({
     storageState: "src/states/admin@example.com.json",
   })

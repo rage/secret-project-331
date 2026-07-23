@@ -11,11 +11,34 @@ pub struct SeedOAuthClientsResult {
     pub client_db_id: Uuid,
 }
 
+/// The dev/CI HMAC key used to derive every stored client-secret digest below.
+///
+/// `base/src/config.rs` loads `OAUTH_TOKEN_HMAC_KEY` **raw** (it is NOT
+/// base64-decoded), and `kubernetes/{dev,test}/headless-lms/env.yml` set
+/// `OAUTH_TOKEN_HMAC_KEY: cGlwcHVyaQ==`, so the runtime key is the literal
+/// string `cGlwcHVyaQ==`. The seeded digests must therefore be
+/// `HMAC-SHA-256(key = "cGlwcHVyaQ==", <secret>)` or client-secret validation
+/// (`token_digest_sha256` in the token/introspection endpoints) can never match.
+/// The `seeded_secret_digests_match_dev_hmac_key` test pins these to that exact
+/// derivation via the real `token_digest_sha256`.
+// Consumed by the pinning test below; documents the runtime key for the digests.
+#[cfg_attr(not(test), allow(dead_code))]
+const DEV_OAUTH_TOKEN_HMAC_KEY: &str = "cGlwcHVyaQ==";
+
+/// Digest of the shared "Test Client" family secret (plaintext `very-secret`),
+/// derived under [`DEV_OAUTH_TOKEN_HMAC_KEY`].
+const TEST_CLIENT_SECRET_DIGEST_HEX: &str =
+    "4b23ad6c1a2e9d91a4b9ab75bebb3619659cd2ee1f9c49dfaee548106ac74622";
+
+/// Digest of the `tmc-server-introspection-dev` client secret (plaintext
+/// `for local development only, intentionally public`), derived under
+/// [`DEV_OAUTH_TOKEN_HMAC_KEY`].
+const INTROSPECTION_SECRET_DIGEST_HEX: &str =
+    "30d29726ab19c31e346bddebe2f8f7a102b5a6ce72a1a6f7850d0b432343b770";
+
 pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedOAuthClientsResult> {
     info!("Inserting OAuth Clients");
-    let secret =
-        Digest::from_str("396b544a35b29f7d613452a165dcaebf4d71b80e981e687e91ce6d9ba9679cb2")
-            .unwrap(); // "very-secret"
+    let secret = Digest::from_str(TEST_CLIENT_SECRET_DIGEST_HEX).unwrap(); // "very-secret"
     let mut conn = db_pool.acquire().await?;
     // One redirect URI per Playwright worker (ports 8765..8784) so each worker has its own callback server.
     // Must match system-tests getRedirectUri(): http://127.0.0.1:{port}/callback
@@ -143,12 +166,11 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
     // 5) tmc-server-introspection-dev: confidential client tmc-server uses to introspect our
     //    tokens locally. The dev client_id/secret intentionally differ from prod and match
     //    tmc-server's config/secrets.yml dev defaults: id `tmc-server-introspection-dev`,
-    //    secret `for local development only, intentionally public`. The stored digest below is
-    //    HMAC-SHA-256(oauth_token_hmac_key="pippuri", <that secret>) — the dev/CI HMAC key
-    //    (OAUTH_TOKEN_HMAC_KEY=cGlwcHVyaQ== in kubernetes/{dev,test}/headless-lms/env.yml).
-    let introspection_secret =
-        Digest::from_str("aca61813af4f1b77f72cc2db856aa9ff4ea4080c188359b1edc51393c824abd5")
-            .unwrap(); // "for local development only, intentionally public"
+    //    secret `for local development only, intentionally public`. The stored digest is
+    //    HMAC-SHA-256(key = "cGlwcHVyaQ==", <that secret>): the runtime HMAC key is the RAW
+    //    value of OAUTH_TOKEN_HMAC_KEY (config.rs does not base64-decode it), and dev/CI set
+    //    OAUTH_TOKEN_HMAC_KEY=cGlwcHVyaQ== in kubernetes/{dev,test}/headless-lms/env.yml.
+    let introspection_secret = Digest::from_str(INTROSPECTION_SECRET_DIGEST_HEX).unwrap(); // "for local development only, intentionally public"
     let no_grants: Vec<GrantTypeName> = vec![];
     let no_scopes: Vec<String> = vec![];
     let introspection_params = oauth_client::NewClientParams {
@@ -212,4 +234,46 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
     Ok(SeedOAuthClientsResult {
         client_db_id: client.id,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use headless_lms_models::library::oauth::{Digest, token_digest_sha256};
+    use secrecy::SecretString;
+
+    use super::{
+        DEV_OAUTH_TOKEN_HMAC_KEY, INTROSPECTION_SECRET_DIGEST_HEX, TEST_CLIENT_SECRET_DIGEST_HEX,
+    };
+
+    /// Pin the seeded client-secret digests to the real derivation used at
+    /// runtime: `token_digest_sha256(secret, key = "cGlwcHVyaQ==")`. This guards
+    /// against the regression where the digests were computed with the wrong key
+    /// (`pippuri`, the base64-*decoded* value) and could never validate, since
+    /// config.rs loads OAUTH_TOKEN_HMAC_KEY raw. Recompute through the real code
+    /// path rather than trust an offline HMAC.
+    #[test]
+    fn seeded_secret_digests_match_dev_hmac_key() {
+        let key = SecretString::new(DEV_OAUTH_TOKEN_HMAC_KEY.to_string().into());
+
+        let test_client = token_digest_sha256("very-secret", &key);
+        assert_eq!(
+            test_client.as_slice(),
+            Digest::from_str(TEST_CLIENT_SECRET_DIGEST_HEX)
+                .unwrap()
+                .as_slice(),
+            "Test Client secret digest must be HMAC-SHA-256(cGlwcHVyaQ==, \"very-secret\")"
+        );
+
+        let introspection =
+            token_digest_sha256("for local development only, intentionally public", &key);
+        assert_eq!(
+            introspection.as_slice(),
+            Digest::from_str(INTROSPECTION_SECRET_DIGEST_HEX)
+                .unwrap()
+                .as_slice(),
+            "introspection secret digest must be HMAC-SHA-256(cGlwcHVyaQ==, <dev secret>)"
+        );
+    }
 }

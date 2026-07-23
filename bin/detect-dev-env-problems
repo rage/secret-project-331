@@ -6,15 +6,19 @@ enforce_inotify_watches_limit_sufficient
 
 ensure_program_in_path docker
 
-if { id -Gn 2> /dev/null || true; } | tr ' ' '\n' | grep -xq docker; then
-    echo "Current user is in the docker group."
-else
-    echo 'Error: you are not in the docker group. Please follow the instructions from https://docs.docker.com/engine/install/linux-postinstall/'
-    exit 255
+# The docker group is a Linux-only concept.
+if [ "$(uname -s)" = "Linux" ]; then
+  if { id -Gn 2> /dev/null || true; } | tr ' ' '\n' | grep -xq docker; then
+      echo "Current user is in the docker group."
+  else
+      echo 'Error: you are not in the docker group. Please follow the instructions from https://docs.docker.com/engine/install/linux-postinstall/'
+      exit 255
+  fi
 fi
 echo "Testing if docker works"
 
-if [ "$(docker context inspect | grep '"Name"' | grep -c "desktop-linux")" -eq "1" ]; then
+# The "switch to native Docker Engine" advice below only applies on Linux.
+if [ "$(uname -s)" = "Linux" ] && [ "$(docker context inspect | grep '"Name"' | grep -c "desktop-linux")" -eq "1" ]; then
   echo -e "$RED"
   echo "Warning: You are using the docker desktop docker context. Other developers have reported problems with this setup."
   echo "If you encounter problems with running docker try the following:"
@@ -96,7 +100,15 @@ function run_as_root() {
 
 function resolve_domain_ip() {
   local domain="$1"
-  getent hosts "$domain" | awk '{ print $1; exit }'
+  # macOS has no getent; use dscacheutil there, getent elsewhere. Non-zero = unresolved.
+  if [ "$(uname -s)" = "Darwin" ]; then
+    local ip
+    ip=$(dscacheutil -q host -a name "$domain" | awk '/^ip_address:/{ print $2; exit }')
+    [ -n "$ip" ] || return 2
+    printf '%s\n' "$ip"
+  else
+    getent hosts "$domain" | awk '{ print $1; exit }'
+  fi
 }
 
 function create_proposed_hosts_file() {
@@ -233,7 +245,10 @@ function ask_to_update_hosts() {
 }
 
 ensure_program_in_path minikube
-ensure_program_in_path getent
+# getent is Linux-only.
+if [ "$(uname -s)" = "Linux" ]; then
+  ensure_program_in_path getent
+fi
 
 if [ "$(minikube status --format '{{.APIServer}}')" = "Running" ]; then
   echo "Minikube is running."
@@ -248,9 +263,23 @@ echo ""
 MINIKUBE_IP=$(minikube ip)
 echo "Minikube ip: $MINIKUBE_IP"
 
+# On macOS the docker driver's IP isn't routable from the host, so the domain
+# must point at 127.0.0.1 via `minikube tunnel`; use that as the expected IP.
+EXPECTED_IP="$MINIKUBE_IP"
+if [ "$(uname -s)" = "Darwin" ]; then
+  MINIKUBE_DRIVER=$(minikube profile list -o json 2>/dev/null | grep -o '"Driver":"[^"]*"' | head -n1 | cut -d'"' -f4)
+  if [ "$MINIKUBE_DRIVER" = "docker" ]; then
+    EXPECTED_IP="127.0.0.1"
+    echo "Detected the docker driver on macOS: $DOMAIN should point at $EXPECTED_IP, served via 'minikube tunnel' (not the minikube IP, which is unreachable from the host)."
+    if command -v pgrep > /dev/null 2>&1 && ! pgrep -f "minikube tunnel" > /dev/null 2>&1; then
+      echo -e "${RED}Warning: 'minikube tunnel' does not appear to be running. Start it in a separate terminal that stays open (it needs sudo), otherwise the site is unreachable even with a correct $HOSTS_FILE entry.${RESET_EVERYTHING}"
+    fi
+  fi
+fi
+
 if ! PROJECT_DOMAIN_IP=$(resolve_domain_ip "$DOMAIN"); then
   echo "Error: cannot resolve an ip for $DOMAIN."
-  ask_to_update_hosts "$DOMAIN" "$MINIKUBE_IP"
+  ask_to_update_hosts "$DOMAIN" "$EXPECTED_IP"
 fi
 
 if ! PROJECT_DOMAIN_IP=$(resolve_domain_ip "$DOMAIN"); then
@@ -259,12 +288,12 @@ if ! PROJECT_DOMAIN_IP=$(resolve_domain_ip "$DOMAIN"); then
 fi
 echo "Resolved ip for $DOMAIN: $PROJECT_DOMAIN_IP"
 
-if [ "$PROJECT_DOMAIN_IP" = "$MINIKUBE_IP" ]; then
+if [ "$PROJECT_DOMAIN_IP" = "$EXPECTED_IP" ]; then
   echo "The ips match."
   echo ""
 else
   echo "The ips don't match."
-  ask_to_update_hosts "$DOMAIN" "$MINIKUBE_IP"
+  ask_to_update_hosts "$DOMAIN" "$EXPECTED_IP"
 
   if ! PROJECT_DOMAIN_IP=$(resolve_domain_ip "$DOMAIN"); then
     echo "Error: cannot resolve an ip for $DOMAIN after updating $HOSTS_FILE. Please check it manually."
@@ -272,7 +301,7 @@ else
   fi
   echo "Resolved ip for $DOMAIN after updating $HOSTS_FILE: $PROJECT_DOMAIN_IP"
 
-  if [ "$PROJECT_DOMAIN_IP" != "$MINIKUBE_IP" ]; then
+  if [ "$PROJECT_DOMAIN_IP" != "$EXPECTED_IP" ]; then
     echo "The ips still don't match. Please check $HOSTS_FILE manually."
     exit 255
   fi

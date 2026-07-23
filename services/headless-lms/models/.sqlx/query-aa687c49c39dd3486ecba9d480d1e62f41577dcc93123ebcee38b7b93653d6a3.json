@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH targets AS (\n  SELECT DISTINCT user_id\n  FROM course_instance_enrollments\n  WHERE course_id = $1\n    AND deleted_at IS NULL\n    AND user_id = ANY($2::uuid[])\n),\nuser_certs AS (\n  -- one latest certificate per user for this course\n  SELECT DISTINCT ON (gc.user_id)\n    gc.user_id,\n    gc.id,\n    gc.created_at AS latest_issued_at,\n    gc.verification_id,\n    gc.name_on_certificate\n  FROM generated_certificates gc\n  JOIN certificate_configuration_to_requirements cctr\n    ON gc.certificate_configuration_id = cctr.certificate_configuration_id\n   AND cctr.deleted_at IS NULL\n  JOIN course_modules cm\n    ON cm.id = cctr.course_module_id\n   AND cm.deleted_at IS NULL\n  WHERE cm.course_id = $1\n    AND gc.deleted_at IS NULL\n    AND gc.user_id = ANY($2::uuid[])\n  ORDER BY gc.user_id, gc.created_at DESC\n)\nSELECT\n  e.user_id AS \"user_id!\",\n  uc.latest_issued_at AS \"date_issued?\",\n  uc.verification_id AS \"verification_id?\",\n  uc.id AS \"certificate_id?\",\n  uc.name_on_certificate AS \"name_on_certificate?\"\nFROM targets e\nLEFT JOIN user_certs uc ON uc.user_id = e.user_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_instance_enrollments",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "date_issued?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "verification_id?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "verification_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "certificate_id?",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "name_on_certificate?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "name_on_certificate"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "aa687c49c39dd3486ecba9d480d1e62f41577dcc93123ebcee38b7b93653d6a3"
+}

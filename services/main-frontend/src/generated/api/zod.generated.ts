@@ -123,11 +123,10 @@ export const zCertificateGenerationRequest = z.object({
 })
 
 export const zCertificateGridRow = z.object({
-  certificate: z.string(),
   certificate_id: z.uuid().nullish(),
   date_issued: z.iso.datetime().nullish(),
   name_on_certificate: z.string().nullish(),
-  student: z.string(),
+  user_id: z.uuid(),
   verification_id: z.string().nullish(),
 })
 
@@ -278,11 +277,17 @@ export const zCohortActivity = z.object({
 })
 
 export const zCompletionGridRow = z.object({
-  grade: z.string(),
+  grade: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
   module: z.string().nullish(),
+  module_id: z.uuid(),
   needs_to_be_reviewed: z.boolean(),
-  status: z.string(),
-  student: z.string(),
+  passed: z.boolean().nullish(),
+  registered: z.boolean(),
+  user_id: z.uuid(),
 })
 
 export const zCompletionPolicy = z.union([
@@ -747,6 +752,18 @@ export const zCourseModuleThresholdInfo = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
+/**
+ * One row of the paginated student identity list (one row per distinct enrolled user).
+ */
+export const zCourseStudentListRow = z.object({
+  course_instances: z.array(z.string()),
+  email: z.string().nullish(),
+  first_name: z.string().nullish(),
+  has_active_instance: z.boolean(),
+  last_name: z.string().nullish(),
+  user_id: z.uuid(),
+})
+
 export const zCourseUpdate = z.object({
   ai_policy: zCourseAiPolicy,
   ask_marketing_consent: z.boolean(),
@@ -767,14 +784,6 @@ export const zCourseUpdate = z.object({
   is_test_mode: z.boolean(),
   is_unlisted: z.boolean(),
   name: z.string(),
-})
-
-export const zCourseUserInfo = z.object({
-  course_instance: z.string().nullish(),
-  email: z.string().nullish(),
-  first_name: z.string().nullish(),
-  last_name: z.string().nullish(),
-  user_id: z.uuid(),
 })
 
 export const zCreateCourseDesignerPlanRequest = z.object({
@@ -852,6 +861,16 @@ export const zChapterScore = zDatabaseChapter.and(
       .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   }),
 )
+
+/**
+ * Course-level progress structure for the Progress tab. Does not depend on which students are on
+ * the current page, so it is fetched once and cached per course (not per identity page).
+ */
+export const zCourseStudentsProgressStructure = z.object({
+  chapter_availability: z.array(zChapterAvailability),
+  chapter_locking_enabled: z.boolean(),
+  chapters: z.array(zDatabaseChapter),
+})
 
 export const zDeploymentInfo = z.object({
   name: z.string(),
@@ -2356,6 +2375,17 @@ export const zStudentsByCountryTotalsResult = z.object({
 })
 
 /**
+ * A page of the student identity list plus the total number of pages for the current filters.
+ */
+export const zStudentsListPage = z.object({
+  data: z.array(zCourseStudentListRow),
+  total_pages: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+/**
  * Review state of a suspected cheater.
  */
 export const zSuspectedCheaterStatus = z.enum(["Flagged", "ConfirmedCheating", "Dismissed"])
@@ -2512,6 +2542,14 @@ export const zUserChapterProgress = z.object({
   user_id: z.uuid(),
 })
 
+/**
+ * Per-user progress detail for the Progress tab, scoped to the requested `user_ids`.
+ */
+export const zCourseStudentsProgressUsers = z.object({
+  user_chapter_locking_statuses: z.array(zUserChapterLockingStatus),
+  user_chapter_progress: z.array(zUserChapterProgress),
+})
+
 export const zUserCompletionInformation = z.object({
   course_module_completion_id: z.uuid(),
   course_name: z.string(),
@@ -2634,14 +2672,11 @@ export const zUserExerciseState = z.object({
   user_id: z.uuid(),
 })
 
-export const zProgressOverview = z.object({
-  chapter_availability: z.array(zChapterAvailability),
-  chapter_locking_enabled: z.boolean(),
-  chapters: z.array(zDatabaseChapter),
-  user_chapter_locking_statuses: z.array(zUserChapterLockingStatus),
-  user_chapter_progress: z.array(zUserChapterProgress),
-  user_details: z.array(zUserDetail),
-  user_exercise_states: z.array(zUserExerciseState),
+/**
+ * Body for the batch detail endpoints: the users of the current identity-list page.
+ */
+export const zUserIdsPayload = z.object({
+  user_ids: z.array(z.uuid()),
 })
 
 export const zUserInfoPayload = z.object({
@@ -3052,6 +3087,11 @@ export const zGetChatbotModelPath = z.object({
  * Chatbot model
  */
 export const zGetChatbotModelResponse = zChatbotConfigurationModel
+
+/**
+ * All chatbots
+ */
+export const zGetAllChatbotsResponse = z.array(zChatbotConfiguration)
 
 export const zDeleteChatbotConfigurationPath = z.object({
   chatbot_configuration_id: z.uuid(),
@@ -3503,6 +3543,11 @@ export const zCreateCourseBody = zNewCourse
  * Created course
  */
 export const zCreateCourseResponse = zCourse
+
+/**
+ * All courses
+ */
+export const zGetAllCoursesResponse = z.array(zCourse)
 
 export const zGetCourseByJoinCodePath = z.object({
   join_code: z.string(),
@@ -4325,41 +4370,73 @@ export const zGetCourseStructurePath = z.object({
  */
 export const zGetCourseStructureResponse = zCourseStructure
 
+export const zGetCourseStudentsCertificatesBody = zUserIdsPayload
+
 export const zGetCourseStudentsCertificatesPath = z.object({
   course_id: z.uuid(),
 })
 
 /**
- * Course certificates
+ * Course certificates for the given users
  */
 export const zGetCourseStudentsCertificatesResponse = z.array(zCertificateGridRow)
+
+export const zGetCourseStudentsCompletionsBody = zUserIdsPayload
 
 export const zGetCourseStudentsCompletionsPath = z.object({
   course_id: z.uuid(),
 })
 
 /**
- * Course completions
+ * Course completions for the given users
  */
 export const zGetCourseStudentsCompletionsResponse = z.array(zCompletionGridRow)
+
+export const zGetCourseStudentsProgressBody = zUserIdsPayload
 
 export const zGetCourseStudentsProgressPath = z.object({
   course_id: z.uuid(),
 })
 
 /**
- * Course student progress overview
+ * Per-user course progress for the given users
  */
-export const zGetCourseStudentsProgressResponse = zProgressOverview
+export const zGetCourseStudentsProgressResponse = zCourseStudentsProgressUsers
+
+export const zGetCourseStudentsProgressStructurePath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Course-level progress structure
+ */
+export const zGetCourseStudentsProgressStructureResponse = zCourseStudentsProgressStructure
 
 export const zGetCourseStudentsUsersPath = z.object({
   course_id: z.uuid(),
 })
 
+export const zGetCourseStudentsUsersQuery = z.object({
+  page: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .optional(),
+  limit: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .optional(),
+  search: z.string().optional(),
+  sort_column: z.string().optional(),
+  sort_direction: z.string().optional(),
+  course_instance_id: z.uuid().optional(),
+})
+
 /**
- * Course users
+ * A page of enrolled students
  */
-export const zGetCourseStudentsUsersResponse = z.array(zCourseUserInfo)
+export const zGetCourseStudentsUsersResponse = zStudentsListPage
 
 export const zGetCourseStudentChapterLockingStatusesPath = z.object({
   course_id: z.uuid(),

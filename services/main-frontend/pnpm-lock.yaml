@@ -89,6 +89,9 @@ importers:
       '@react-aria/utils':
         specifier: ^3.34.1
         version: 3.34.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@react-stately/autocomplete':
+        specifier: 3.0.0-beta.6
+        version: 3.0.0-beta.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@react-stately/calendar':
         specifier: ^3.10.1
         version: 3.10.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -110,6 +113,9 @@ importers:
       '@react-stately/radio':
         specifier: ^3.12.1
         version: 3.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@react-stately/searchfield':
+        specifier: ^3.6.1
+        version: 3.6.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@react-stately/select':
         specifier: ^3.10.1
         version: 3.10.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -128,6 +134,9 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@tanstack/react-virtual':
+        specifier: ^3.14.5
+        version: 3.14.5(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tsparticles/engine':
         specifier: ^4.3.0
         version: 4.3.0
@@ -1894,6 +1903,12 @@ packages:
       react-zdog: '>=1.0'
       zdog: '>=1.0'
 
+  '@react-stately/autocomplete@3.0.0-beta.6':
+    resolution: {integrity: sha512-LJFvrVT4aTfEBiqngfDIU3BGAZ/Cr0MAUoVaHXeBfhmz7p+NUCILniRnm7veIATdkdq9OPK6bpGt8cVdfuhGwg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
   '@react-stately/calendar@3.10.1':
     resolution: {integrity: sha512-nKluH+UT9xJlAimOW6ZrXgQNDiFUfbdtQwQ6rmq5mXs7yD8hGpOOLxJ0ZtT+cyWkbOAYR19j/6xyRPzGQxRL9g==}
     peerDependencies:
@@ -1932,6 +1947,12 @@ packages:
 
   '@react-stately/radio@3.12.1':
     resolution: {integrity: sha512-sx83ffwQMRhUuMbbRIS4O/FMDyp9DfY1P3bbcSdSgOfglCb6aILJj3ExRJcXSUZdzm79g7cKADNtqzIlW5n6pg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  '@react-stately/searchfield@3.6.1':
+    resolution: {integrity: sha512-5POKE91Tc5E2nCL9CP8+cVFb1xxHI6M7RkMTbJ0kahQuBlF8EQVN9gjCH7CwnCey5T73TLouS+pdZ3OlkrlqtA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
@@ -2129,9 +2150,18 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
+  '@tanstack/react-virtual@3.14.5':
+    resolution: {integrity: sha512-4EKRXh7zBLkbKbFmG3AUVkircuHd+7OdT1pocJSepxtfBd3qnrJgJ5rtPkRYyo9fmyVb2+pI2xPy5oYvMLQy6A==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   '@tanstack/table-core@8.21.3':
     resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
     engines: {node: '>=12'}
+
+  '@tanstack/virtual-core@3.17.3':
+    resolution: {integrity: sha512-8Np/TFELpI0ySuJoVmjvOrQYXH/8sTX0Biv9szhFhY39xOdAAY+smrMxjxOum/ux3eM8MUJQsEJ0/R0UpvC8dw==}
 
   '@testing-library/dom@10.4.1':
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
@@ -7679,6 +7709,13 @@ snapshots:
       react-zdog: 1.2.2
       zdog: 1.1.3
 
+  '@react-stately/autocomplete@3.0.0-beta.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@swc/helpers': 0.5.23
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+      react-stately: 3.48.0(react@19.2.7)
+
   '@react-stately/calendar@3.10.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@swc/helpers': 0.5.23
@@ -7722,6 +7759,13 @@ snapshots:
       react-stately: 3.48.0(react@19.2.7)
 
   '@react-stately/radio@3.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@swc/helpers': 0.5.23
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+      react-stately: 3.48.0(react@19.2.7)
+
+  '@react-stately/searchfield@3.6.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@swc/helpers': 0.5.23
       react: 19.2.7
@@ -7937,7 +7981,15 @@ snapshots:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
 
+  '@tanstack/react-virtual@3.14.5(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@tanstack/virtual-core': 3.17.3
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+
   '@tanstack/table-core@8.21.3': {}
+
+  '@tanstack/virtual-core@3.17.3': {}
 
   '@testing-library/dom@10.4.1':
     dependencies:
@@ -11897,6 +11949,7 @@ time:
   '@react-aria/live-announcer@3.5.1': '2026-05-28T17:28:41.548Z'
   '@react-aria/overlays@3.32.1': '2026-05-28T17:28:41.787Z'
   '@react-aria/utils@3.34.1': '2026-05-28T17:28:44.337Z'
+  '@react-stately/autocomplete@3.0.0-beta.6': '2026-05-28T17:28:34.678Z'
   '@react-stately/calendar@3.10.1': '2026-05-28T17:28:34.723Z'
   '@react-stately/collections@3.13.1': '2026-05-28T17:28:34.530Z'
   '@react-stately/combobox@3.14.1': '2026-05-28T17:28:34.384Z'
@@ -11904,6 +11957,7 @@ time:
   '@react-stately/list@3.14.1': '2026-05-28T17:28:34.351Z'
   '@react-stately/overlays@3.7.1': '2026-05-28T17:28:35.658Z'
   '@react-stately/radio@3.12.1': '2026-05-28T17:28:35.669Z'
+  '@react-stately/searchfield@3.6.1': '2026-05-28T17:28:35.996Z'
   '@react-stately/select@3.10.1': '2026-05-28T17:28:35.917Z'
   '@react-stately/tabs@3.9.1': '2026-05-28T17:28:36.045Z'
   '@react-stately/toggle@3.10.1': '2026-05-28T17:28:36.333Z'
@@ -11911,6 +11965,7 @@ time:
   '@svgr/webpack@8.1.0': '2023-08-15T06:46:24.158Z'
   '@tanstack/react-query@5.101.2': '2026-06-27T20:31:41.595Z'
   '@tanstack/react-table@8.21.3': '2025-04-14T20:20:18.966Z'
+  '@tanstack/react-virtual@3.14.5': '2026-06-30T15:22:33.210Z'
   '@testing-library/jest-dom@6.9.1': '2025-10-01T20:04:22.720Z'
   '@testing-library/react@16.3.2': '2026-01-19T10:59:08.185Z'
   '@tsparticles/engine@4.3.0': '2026-06-27T19:22:43.174Z'

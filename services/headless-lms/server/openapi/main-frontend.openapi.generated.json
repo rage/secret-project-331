@@ -577,6 +577,28 @@
         }
       }
     },
+    "/api/v0/main-frontend/chatbots/": {
+      "get": {
+        "tags": ["chatbots"],
+        "summary": "GET `/api/v0/main-frontend/chatbots`",
+        "operationId": "getAllChatbots",
+        "responses": {
+          "200": {
+            "description": "All chatbots",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatbotConfiguration"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}": {
       "get": {
         "tags": ["chatbots"],
@@ -2294,6 +2316,28 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Course"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nGET `/api/v0/main-frontend/courses` - Get all courses\n\nReturns all courses.",
+        "operationId": "getAllCourses",
+        "responses": {
+          "200": {
+            "description": "All courses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Course"
+                  }
                 }
               }
             }
@@ -5501,9 +5545,9 @@
       }
     },
     "/api/v0/main-frontend/courses/{course_id}/students/certificates": {
-      "get": {
+      "post": {
         "tags": ["course-students"],
-        "summary": "GET `/api/v0/main-frontend/courses/{course_id}/students/certificates`",
+        "summary": "POST `/api/v0/main-frontend/courses/{course_id}/students/certificates`",
         "operationId": "getCourseStudentsCertificates",
         "parameters": [
           {
@@ -5517,9 +5561,19 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserIdsPayload"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "Course certificates",
+            "description": "Course certificates for the given users",
             "content": {
               "application/json": {
                 "schema": {
@@ -5535,9 +5589,9 @@
       }
     },
     "/api/v0/main-frontend/courses/{course_id}/students/completions": {
-      "get": {
+      "post": {
         "tags": ["course-students"],
-        "summary": "GET `/api/v0/main-frontend/courses/{course_id}/students/completions`",
+        "summary": "POST `/api/v0/main-frontend/courses/{course_id}/students/completions`",
         "operationId": "getCourseStudentsCompletions",
         "parameters": [
           {
@@ -5551,9 +5605,19 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserIdsPayload"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "Course completions",
+            "description": "Course completions for the given users",
             "content": {
               "application/json": {
                 "schema": {
@@ -5569,10 +5633,51 @@
       }
     },
     "/api/v0/main-frontend/courses/{course_id}/students/progress": {
+      "post": {
+        "tags": ["course-students"],
+        "summary": "POST `/api/v0/main-frontend/courses/{course_id}/students/progress`",
+        "operationId": "getCourseStudentsProgress",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserIdsPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Per-user course progress for the given users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseStudentsProgressUsers"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/students/progress-structure": {
       "get": {
         "tags": ["course-students"],
-        "summary": "GET `/api/v0/main-frontend/courses/{course_id}/students/progress`",
-        "operationId": "getCourseStudentsProgress",
+        "summary": "GET `/api/v0/main-frontend/courses/{course_id}/students/progress-structure`",
+        "operationId": "getCourseStudentsProgressStructure",
         "parameters": [
           {
             "name": "course_id",
@@ -5587,11 +5692,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Course student progress overview",
+            "description": "Course-level progress structure",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProgressOverview"
+                  "$ref": "#/components/schemas/CourseStudentsProgressStructure"
                 }
               }
             }
@@ -5614,18 +5719,74 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-based)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page size (1-10000)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Filter by name/email substring or exact user id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_column",
+            "in": "query",
+            "description": "last_name | first_name | email",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_direction",
+            "in": "query",
+            "description": "asc | desc",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "course_instance_id",
+            "in": "query",
+            "description": "Filter to a single course instance",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Course users",
+            "description": "A page of enrolled students",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CourseUserInfo"
-                  }
+                  "$ref": "#/components/schemas/StudentsListPage"
                 }
               }
             }
@@ -11570,11 +11731,8 @@
       },
       "CertificateGridRow": {
         "type": "object",
-        "required": ["student", "certificate"],
+        "required": ["user_id"],
         "properties": {
-          "certificate": {
-            "type": "string"
-          },
           "certificate_id": {
             "type": ["string", "null"],
             "format": "uuid"
@@ -11586,8 +11744,9 @@
           "name_on_certificate": {
             "type": ["string", "null"]
           },
-          "student": {
-            "type": "string"
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           },
           "verification_id": {
             "type": ["string", "null"]
@@ -12269,22 +12428,31 @@
       },
       "CompletionGridRow": {
         "type": "object",
-        "required": ["student", "grade", "status", "needs_to_be_reviewed"],
+        "required": ["user_id", "module_id", "registered", "needs_to_be_reviewed"],
         "properties": {
           "grade": {
-            "type": "string"
+            "type": ["integer", "null"],
+            "format": "int32"
           },
           "module": {
             "type": ["string", "null"]
           },
+          "module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "needs_to_be_reviewed": {
             "type": "boolean"
           },
-          "status": {
-            "type": "string"
+          "passed": {
+            "type": ["boolean", "null"]
           },
-          "student": {
-            "type": "string"
+          "registered": {
+            "type": "boolean"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -13702,6 +13870,78 @@
           }
         }
       },
+      "CourseStudentListRow": {
+        "type": "object",
+        "description": "One row of the paginated student identity list (one row per distinct enrolled user).",
+        "required": ["user_id", "course_instances", "has_active_instance"],
+        "properties": {
+          "course_instances": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Names of the non-deleted course instances the user is enrolled in for this course."
+          },
+          "email": {
+            "type": ["string", "null"]
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "has_active_instance": {
+            "type": "boolean",
+            "description": "Whether the user has any enrollment into a non-deleted instance. Separates the unnamed default\ninstance (true) from a since-deleted instance (false) when `course_instances` is empty."
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CourseStudentsProgressStructure": {
+        "type": "object",
+        "description": "Course-level progress structure for the Progress tab. Does not depend on which students are on\nthe current page, so it is fetched once and cached per course (not per identity page).",
+        "required": ["chapter_locking_enabled", "chapters", "chapter_availability"],
+        "properties": {
+          "chapter_availability": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterAvailability"
+            }
+          },
+          "chapter_locking_enabled": {
+            "type": "boolean"
+          },
+          "chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatabaseChapter"
+            }
+          }
+        }
+      },
+      "CourseStudentsProgressUsers": {
+        "type": "object",
+        "description": "Per-user progress detail for the Progress tab, scoped to the requested `user_ids`.",
+        "required": ["user_chapter_progress", "user_chapter_locking_statuses"],
+        "properties": {
+          "user_chapter_locking_statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserChapterLockingStatus"
+            }
+          },
+          "user_chapter_progress": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserChapterProgress"
+            }
+          }
+        }
+      },
       "CourseUpdate": {
         "type": "object",
         "required": [
@@ -13768,28 +14008,6 @@
           },
           "name": {
             "type": "string"
-          }
-        }
-      },
-      "CourseUserInfo": {
-        "type": "object",
-        "required": ["user_id"],
-        "properties": {
-          "course_instance": {
-            "type": ["string", "null"]
-          },
-          "email": {
-            "type": ["string", "null"]
-          },
-          "first_name": {
-            "type": ["string", "null"]
-          },
-          "last_name": {
-            "type": ["string", "null"]
-          },
-          "user_id": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
@@ -17275,59 +17493,6 @@
           }
         }
       },
-      "ProgressOverview": {
-        "type": "object",
-        "required": [
-          "chapter_locking_enabled",
-          "user_details",
-          "chapters",
-          "user_exercise_states",
-          "chapter_availability",
-          "user_chapter_progress",
-          "user_chapter_locking_statuses"
-        ],
-        "properties": {
-          "chapter_availability": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ChapterAvailability"
-            }
-          },
-          "chapter_locking_enabled": {
-            "type": "boolean"
-          },
-          "chapters": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DatabaseChapter"
-            }
-          },
-          "user_chapter_locking_statuses": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserChapterLockingStatus"
-            }
-          },
-          "user_chapter_progress": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserChapterProgress"
-            }
-          },
-          "user_details": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserDetail"
-            }
-          },
-          "user_exercise_states": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserExerciseState"
-            }
-          }
-        }
-      },
       "ProposalCount": {
         "type": "object",
         "required": ["pending", "handled"],
@@ -17782,6 +17947,24 @@
           },
           "country": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "StudentsListPage": {
+        "type": "object",
+        "description": "A page of the student identity list plus the total number of pages for the current filters.",
+        "required": ["data", "total_pages"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseStudentListRow"
+            }
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           }
         }
       },
@@ -18398,6 +18581,20 @@
           "user_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "UserIdsPayload": {
+        "type": "object",
+        "description": "Body for the batch detail endpoints: the users of the current identity-list page.",
+        "required": ["user_ids"],
+        "properties": {
+          "user_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         }
       },

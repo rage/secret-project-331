@@ -2,6 +2,7 @@ import React, { useState } from "react"
 
 import type { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
 import QuizzesExerciseServiceContext from "../../../contexts/QuizzesExerciseServiceContext"
+import { validatePrivateSpec } from "../../../util/validatePrivateSpec"
 import QuizCommonInfo from "./QuizCommonInfo"
 import QuizItemsV2 from "./QuizCreation"
 
@@ -18,7 +19,7 @@ const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, priv
         outputState,
         port: port,
         _rawSetOutputState: setOutputState,
-        validate: () => true,
+        validate: validatePrivateSpec,
       }}
     >
       <QuizItemsV2 />

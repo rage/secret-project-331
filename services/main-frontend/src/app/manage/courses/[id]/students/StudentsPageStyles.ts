@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export const headerTopRow = css`
@@ -20,35 +20,6 @@ export const headerTopRow = css`
 export const headerTitleWrap = css`
   flex: 1 1 auto;
   min-width: 0;
-`
-
-export const dropdownTop = css`
-  background: #fff;
-  border: 1px solid #e4e5e8;
-  border-radius: 2px;
-  width: 100%;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  font-size: 12px;
-  color: #1a2333;
-  cursor: pointer;
-  margin-left: 0;
-  margin-top: 0;
-  white-space: nowrap;
-
-  ${respondToOrLarger.md} {
-    width: 170px;
-    font-size: 14px;
-    padding: 0 14px;
-    margin-left: 24px;
-  }
-`
-
-export const pageHeader = css`
-  width: 1124px;
-  margin: 32px auto 0 auto;
 `
 
 export const headerTopSection = css`
@@ -98,7 +69,7 @@ export const title = css`
   font-weight: 500;
   font-size: 20px;
   line-height: 24px;
-  color: #1a2333;
+  color: ${baseTheme.colors.gray[700]};
   margin-bottom: 6px;
 
   ${respondToOrLarger.md} {
@@ -113,7 +84,7 @@ export const chatbotInfo = css`
   font-size: 12px;
   font-weight: 400;
   line-height: 140%;
-  color: #1a2333;
+  color: ${baseTheme.colors.gray[700]};
   opacity: 0.9;
   margin-bottom: 16px;
   max-width: 100%;
@@ -159,13 +130,6 @@ export const controlsRow = css`
   }
 `
 
-export const dropdownIcon = css`
-  margin-left: auto;
-  color: #4e5562;
-  font-size: 18px;
-  transform: rotate(180deg);
-`
-
 export const searchBoxWrap = css`
   position: relative;
   width: 100%;
@@ -189,9 +153,12 @@ export const searchInput = css`
   border: 1px solid #dbdbdb;
   border-radius: 4px;
   padding-left: 36px;
+  /* Right gutter reserves room for the absolute pending spinner (right: 10px) so long search text
+     is never obscured by it. */
+  padding-right: 36px;
   font-size: 14px;
   font-family: ${primaryFont};
-  color: #1a2333;
+  color: ${baseTheme.colors.gray[700]};
   background: #fff;
 `
 
@@ -203,73 +170,15 @@ export const searchIcon = css`
   color: #5c5f64;
   font-size: 16px;
   opacity: 0.8;
-`
 
-export const tabsWrap = css`
-  display: flex;
-  align-items: center;
-  background: rgba(6, 88, 83, 0.05);
-  border-radius: 2px;
-  height: 36px;
-  border: 1px solid #dbdbdb;
-  overflow-x: auto;
-  overflow-y: hidden;
-  min-width: 0;
-  -webkit-overflow-scrolling: touch;
-
-  ${respondToOrLarger.md} {
-    overflow: hidden;
+  &::before {
+    content: "🔍";
   }
 `
 
-export const tab = css`
-  padding: 0 12px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-  font-family: ${primaryFont};
-  font-weight: 400;
-  color: #1a2333;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s;
-  border-right: 1px solid #dbdbdb;
-  white-space: nowrap;
-  flex-shrink: 0;
-
-  ${respondToOrLarger.md} {
-    padding: 0 16px;
-    font-size: 14px;
-  }
-
-  ${respondToOrLarger.lg} {
-    padding: 0 20px;
-  }
-`
-
-export const tabLast = css`
-  border-right: none;
-`
-
-export const tabActive = css`
-  color: #065853;
-  background: #fff;
-`
-
-export const tabCompletions = css`
-  color: #065853;
-`
-
-export const container = css`
-  width: 1124px;
-  margin: 0 auto 0 auto;
-  background: #fff;
-  border: 1px solid #ced1d7;
-  border-radius: 8px 8px 0 0;
-  font-family: ${primaryFont};
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
+export const searchPendingSpinner = css`
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
 `

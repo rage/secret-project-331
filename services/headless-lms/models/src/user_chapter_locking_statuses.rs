@@ -318,6 +318,34 @@ WHERE course_id = $1
     Ok(rows)
 }
 
+/// Returns all chapter locking statuses for the given users in a course.
+pub async fn get_for_users_and_course(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+    course: &crate::courses::Course,
+) -> ModelResult<Vec<UserChapterLockingStatus>> {
+    if !course.chapter_locking_enabled {
+        return Ok(Vec::new());
+    }
+
+    let rows = sqlx::query_as!(
+        UserChapterLockingStatus,
+        r#"
+SELECT *
+FROM user_chapter_locking_statuses
+WHERE course_id = $1
+  AND user_id = ANY($2::uuid[])
+  AND deleted_at IS NULL
+        "#,
+        course.id,
+        user_ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    Ok(rows)
+}
+
 /// Returns all chapter locking statuses for a specific user in a course.
 pub async fn get_for_user_and_course(
     conn: &mut PgConnection,

@@ -77,7 +77,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
   await page
     .frameLocator("iframe")
     .first()
-    .locator("role=button[pressed]")
+    .locator('button[aria-current="true"]')
     .getByText("cargo")
     .waitFor({ state: "visible" })
 
@@ -90,7 +90,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
   await page
     .frameLocator("iframe")
     .first()
-    .locator("role=button[pressed]")
+    .locator('button[aria-current="true"]')
     .getByText("cargo")
     .waitFor({ state: "visible" })
 })

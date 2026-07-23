@@ -46,7 +46,8 @@ const CardContentWrapper = styled.div`
     filter: brightness(1.1) contrast(0.9);
   }
 
-  h2 {
+  span.chapter-title {
+    display: block;
     z-index: 20;
     color: #fff;
     font-weight: 500;
@@ -266,7 +267,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
                   >
                     {t("chapter-chapter-number", { number: chapterNumber })}
                   </span>
-                  <h2>{title}</h2>
+                  <span className="chapter-title">{title}</span>
                 </PseudoContentLink>
               ) : (
                 <>
@@ -277,7 +278,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
                   >
                     {t("chapter-chapter-number", { number: chapterNumber })}
                   </span>
-                  <h2>{title}</h2>
+                  <span className="chapter-title">{title}</span>
                 </>
               )}
             </div>

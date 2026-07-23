@@ -1,23 +1,21 @@
 "use client"
 
+import { css } from "@emotion/css"
 import i18n from "i18next"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { sendResetPasswordEmail } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
-import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button, TextField } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface SubmitEmailFormFields {
@@ -30,11 +28,14 @@ const ResetPassword: React.FC = () => {
   const uncheckedReturnTo = useQueryParameter("return_to")
   const [emailSent, setEmailSent] = useState(false)
   const [sentEmail, setSentEmail] = useState<string>("")
-  const {
-    handleSubmit,
-    formState: { errors },
-    register,
-  } = useForm<SubmitEmailFormFields>()
+  const { control, handleSubmit, setFocus } = useForm<SubmitEmailFormFields>({
+    defaultValues: { email: "" },
+  })
+
+  useEffect(() => {
+    // oxlint-disable-next-line i18next/no-literal-string
+    setFocus("email")
+  }, [setFocus])
 
   const postResetPassword = useToastMutation(
     async (data: SubmitEmailFormFields) =>
@@ -77,45 +78,66 @@ const ResetPassword: React.FC = () => {
 
   return (
     <>
-      <h3>{t("enter-email-for-password-reset-link")}</h3>
+      <h3
+        className={css`
+          margin-bottom: 1.5rem;
+        `}
+      >
+        {t("enter-email-for-password-reset-link")}
+      </h3>
       {postResetPassword.isError && (
         <ErrorBanner error={postResetPassword.error} variant={"readOnly"} />
       )}
-      {postResetPassword.isPending && <Spinner />}
 
-      <form onSubmit={handleSubmit((data) => postResetPassword.mutate(data))}>
+      <form
+        onSubmit={handleSubmit((data) => postResetPassword.mutate(data))}
+        className={css`
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        `}
+      >
         <TextField
+          name="email"
+          control={control}
           label={t("email")}
-          placeholder={t("email")}
-          {...register("email", {
+          type="email"
+          autoComplete="email"
+          isRequired
+          rules={{
             required: t("required-field"),
             pattern: {
               value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
               message: t("enter-a-valid-email"),
             },
-          })}
-          required
-          {...includeIf(errors.email, { error: errors.email })}
-        />
-        <Button
-          variant="primary"
-          size="medium"
-          type="submit"
-          disabled={postResetPassword.isPending}
-        >
-          {t("button-text-send")}
-        </Button>
-        <Button
-          variant="primary"
-          size="medium"
-          type="button"
-          onClick={() => {
-            const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
-            router.push(returnTo)
           }}
+        />
+        <div
+          className={css`
+            display: flex;
+            gap: 0.75rem;
+          `}
         >
-          {t("button-text-cancel")}
-        </Button>
+          <Button
+            variant="primary"
+            size="medium"
+            type="submit"
+            isLoading={postResetPassword.isPending}
+          >
+            {t("button-text-send")}
+          </Button>
+          <Button
+            variant="secondary"
+            size="medium"
+            type="button"
+            onClick={() => {
+              const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
+              router.push(returnTo)
+            }}
+          >
+            {t("button-text-cancel")}
+          </Button>
+        </div>
       </form>
     </>
   )

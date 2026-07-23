@@ -20,7 +20,7 @@ use super::token_query::TokenGrant;
 /// How long, in seconds, an already-rotated refresh token may still be redeemed
 /// (once more, without family-wide revocation) so two clients racing a refresh
 /// don't immediately log each other out. See [`process_token_grant`] refresh
-/// handling and `OAuthRefreshTokens::find_reusable_after_rotation`.
+/// handling and `OAuthRefreshTokens::claim_reusable_after_rotation`.
 const REFRESH_TOKEN_REUSE_GRACE_SECONDS: i64 = 60;
 
 /// A pair of access and refresh tokens with their digests.
@@ -216,7 +216,11 @@ pub async fn process_token_grant(
                         token_digest_sha256(refresh_token.expose_secret(), request.token_hmac_key);
                     let rotated_after =
                         Utc::now() - Duration::seconds(REFRESH_TOKEN_REUSE_GRACE_SECONDS);
-                    let reused = OAuthRefreshTokens::find_reusable_after_rotation(
+                    // Atomically claim the just-rotated token: this both finds it
+                    // and clears its `rotated_at` so it can be reused at most once.
+                    // A second reuse within the window (or a racing concurrent
+                    // redemption) matches zero rows and fails as invalid_grant.
+                    let reused = OAuthRefreshTokens::claim_reusable_after_rotation(
                         &mut tx,
                         presented,
                         request.client.id,
@@ -735,6 +739,76 @@ mod tests {
                 .await
                 .is_ok(),
             "RT3 (grace-reuse chain) must be valid"
+        );
+
+        tx.rollback().await;
+    }
+
+    #[actix_web::test]
+    async fn refresh_second_reuse_within_grace_window_fails_with_invalid_grant() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let user = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "refresh-grace-twice@example.com",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let client = insert_device_client(tx.as_mut()).await;
+
+        // RT1 -> RT2 (normal rotation; marks RT1 rotated).
+        let rt1 = insert_refresh_token(tx.as_mut(), user, client.id).await;
+        let pair2 = generate_token_pair(&key);
+        let rt2 = pair2.refresh_token.clone();
+        process_token_grant(
+            tx.as_mut(),
+            build_request_with_pair(&refresh_grant(&rt1), &client, &key, pair2),
+        )
+        .await
+        .expect("initial rotation should succeed");
+
+        // First reuse of RT1 within the grace window -> RT3, WITHOUT family revoke.
+        let pair3 = generate_token_pair(&key);
+        let rt3 = pair3.refresh_token.clone();
+        process_token_grant(
+            tx.as_mut(),
+            build_request_with_pair(&refresh_grant(&rt1), &client, &key, pair3),
+        )
+        .await
+        .expect("first reuse within grace window should branch");
+
+        // Second reuse of the SAME rotated token, still inside the window, must
+        // fail: the claim cleared RT1's rotated_at, so it is single-use.
+        let err = process_token_grant(
+            tx.as_mut(),
+            build_request_with_pair(
+                &refresh_grant(&rt1),
+                &client,
+                &key,
+                generate_token_pair(&key),
+            ),
+        )
+        .await
+        .expect_err("a second reuse of the same rotated token must fail");
+        assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
+
+        // Neither sibling chain from the single allowed branch was revoked.
+        assert!(
+            OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&rt2, &key))
+                .await
+                .is_ok(),
+            "RT2 must stay valid after the rejected second reuse"
+        );
+        assert!(
+            OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&rt3, &key))
+                .await
+                .is_ok(),
+            "RT3 (the single allowed grace branch) must stay valid"
         );
 
         tx.rollback().await;

@@ -371,13 +371,26 @@ impl OAuthRefreshTokens {
         Ok(())
     }
 
-    /// Find a refresh token that was superseded by rotation and is still within
-    /// the reuse grace window.
+    /// Atomically claim a refresh token that was superseded by rotation and is
+    /// still within the reuse grace window, so it can be redeemed exactly once.
+    ///
+    /// This is an `UPDATE ... RETURNING` that clears `rotated_at` (unmatching the
+    /// row) in the same statement that matches on `rotated_at IS NOT NULL`.
+    /// Because the match and the clear happen atomically under a row lock, two
+    /// concurrent grace redemptions of the same token are serialized: exactly one
+    /// observes `rotated_at IS NOT NULL` and claims the row; every other
+    /// redemption updates zero rows and gets `RowNotFound` (which the caller maps
+    /// to `invalid_grant`). This bounds the grace window to a single extra branch
+    /// instead of the N parallel chains a plain lookup-then-insert would allow.
     ///
     /// Matches only tokens that were rotated (`rotated_at IS NOT NULL`) at or
     /// after `rotated_after`, are not expired, and belong to `client_id`.
     /// Hard-revoked tokens clear `rotated_at`, so they are never matched here.
-    pub async fn find_reusable_after_rotation(
+    ///
+    /// # Transaction Requirements
+    /// Must be called within the same transaction as the subsequent token
+    /// issuance so the claim and the new chain commit (or roll back) atomically.
+    pub async fn claim_reusable_after_rotation(
         conn: &mut PgConnection,
         digest: Digest,
         client_id: Uuid,
@@ -386,14 +399,15 @@ impl OAuthRefreshTokens {
         let token = sqlx::query_as!(
             OAuthRefreshTokens,
             r#"
-            SELECT *
-            FROM oauth_refresh_tokens
-            WHERE digest = $1
-              AND client_id = $2
-              AND revoked = true
-              AND rotated_at IS NOT NULL
-              AND rotated_at > $3
-              AND expires_at > now()
+            UPDATE oauth_refresh_tokens
+               SET rotated_at = NULL
+             WHERE digest = $1
+               AND client_id = $2
+               AND revoked = true
+               AND rotated_at IS NOT NULL
+               AND rotated_at > $3
+               AND expires_at > now()
+            RETURNING *
             "#,
             digest.as_bytes(),
             client_id,
@@ -413,7 +427,9 @@ impl OAuthRefreshTokens {
     /// Unlike [`Self::complete_refresh_token_rotation_in_transaction`], this does
     /// not revoke the (user, client) family: the already-rotated token is being
     /// reused by a racing client, so the sibling chain must stay valid (bounded
-    /// temporary branching). The reused token is left as-is (already revoked).
+    /// temporary branching). The reused token's `rotated_at` was already cleared
+    /// when [`Self::claim_reusable_after_rotation`] claimed it, so it stays
+    /// revoked and cannot be redeemed again within the window.
     pub async fn issue_tokens_reused_within_grace_in_transaction(
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         reused_token: &OAuthRefreshTokens,

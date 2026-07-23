@@ -29,19 +29,20 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
           acc[courseName] = []
         }
         acc[courseName]?.push({
+          isGlobalChatbot: matched === undefined,
           label: chatbot.chatbot_name,
           value: chatbot.id,
         })
         return acc
       },
-      {} as Record<string, { label: string; value: string }[]>,
+      {} as Record<string, { isGlobalChatbot: boolean; label: string; value: string }[]>,
     )
     const groupedSorted = Object.fromEntries(
-      Object.entries(grouped).toSorted(([aKey, _aValue], [bKey, _bValue]) => {
-        if (aKey === t("select-chatbot-globals-title")) {
+      Object.entries(grouped).toSorted(([aKey, aValue], [bKey, bValue]) => {
+        if (aValue.map((value) => value.isGlobalChatbot)) {
           return -1
         }
-        if (bKey === t("select-chatbot-globals-title")) {
+        if (bValue.map((value) => value.isGlobalChatbot)) {
           return 1
         }
         return aKey.localeCompare(bKey)

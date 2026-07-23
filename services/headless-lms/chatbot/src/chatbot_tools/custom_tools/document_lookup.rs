@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use headless_lms_utils::url_encoding::url_decode;
+use headless_lms_utils::{strings::truncate_utf8_at_boundary, url_encoding::url_decode};
 use serde::{Deserialize, Deserializer};
 use sqlx::PgConnection;
 use uuid::Uuid;
@@ -13,6 +13,7 @@ use crate::{
         LLMToolParams, LLMToolType, ToolProperties,
     },
     citations::parse_document_filepath,
+    llm_utils::estimate_tokens,
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
 };
 
@@ -43,6 +44,18 @@ where
         .ok()
         .and_then(|s| Uuid::from_str(&s).ok());
     Ok(res)
+}
+
+fn shorten_page_content(content: String) -> String {
+    let page_tokens = estimate_tokens(&content);
+    if page_tokens <= 25000 {
+        return content.to_string();
+    }
+    // a token is ~4 chars and a char is ~4 bytes
+    let max_bytes = ((page_tokens - 1000) * 4 * 4) as usize;
+
+    let shortened = truncate_utf8_at_boundary(&content, max_bytes);
+    shorten_page_content(shortened.to_string())
 }
 
 /// Look up a document (page) from the course the chatbot is on.
@@ -97,9 +110,11 @@ impl ChatbotTool for DocumentLookupTool {
             if page.title == arguments.title && page.course_id == course_id {
                 // use markdown content if there is any. else use json as string
                 if let Some(content) = page.markdown_content {
-                    Some(content)
+                    let s = shorten_page_content(content);
+                    Some(s)
                 } else if let Some(json) = page.json_content {
-                    Some(serde_json::to_string(&json)?)
+                    let s = shorten_page_content(serde_json::to_string(&json)?);
+                    Some(s)
                 } else {
                     None
                 }

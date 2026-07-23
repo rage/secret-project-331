@@ -72,7 +72,8 @@ sudo apt install libssl-dev pkg-config
 
 Optional: [Stern](https://github.com/stern/stern), [Kubectx/Kubens](https://github.com/ahmetb/kubectx), [Actionlint](https://github.com/rhysd/actionlint)
 
-### macOS
+<details>
+<summary>macOS</summary>
 
 Install [Homebrew](https://brew.sh/) if not already installed, then:
 
@@ -90,6 +91,8 @@ brew install openssl@3 pkg-config
 cargo install sqlx-cli --no-default-features --features rustls,postgres
 cargo install oxipng
 ```
+
+</details>
 
 ### Windows
 
@@ -163,13 +166,16 @@ Fix any reported issues before continuing.
 bin/minikube-start
 ```
 
-> [!NOTE]
-> **macOS:** the `docker` driver runs the cluster inside Docker Desktop's VM, and
-> Docker Desktop's default memory limit is too low for this project. Raise it before
-> starting: Docker Desktop → Settings → Resources → Advanced → set Memory to at least
-> half your host RAM (a few GB more is safer), then Apply & restart.
-> `bin/minikube-start` also checks this and stops with instructions if the limit is
-> too low.
+<details>
+<summary>macOS: raise Docker Desktop's memory limit first</summary>
+
+The `docker` driver runs the cluster inside Docker Desktop's VM, and Docker Desktop's
+default memory limit is too low for this project. Raise it before starting: Docker
+Desktop → Settings → Resources → Advanced → set Memory to at least half your host RAM
+(a few GB more is safer), then Apply & restart. `bin/minikube-start` also checks this
+and stops with instructions if the limit is too low.
+
+</details>
 
 ## 5. Set up local domain
 
@@ -209,10 +215,9 @@ the site to load:
 minikube tunnel
 ```
 
-> [!IMPORTANT]
-> `minikube tunnel` needs `sudo` and will prompt for your password in that terminal.
-> Until you enter it, nothing is forwarded and the browser shows "Unable to connect".
-> Keep an eye on the tunnel terminal after starting it.
+> **❗ Important:** `minikube tunnel` needs `sudo` and will prompt for your password in
+> that terminal. Until you enter it, nothing is forwarded and the browser shows
+> "Unable to connect". Keep an eye on the tunnel terminal after starting it.
 
 </details>
 
@@ -272,7 +277,8 @@ bin/postgres-remove-data
 
 Then restart Minikube and re-run `bin/dev`.
 
-### The browser cannot reach `project-331.local` (macOS)
+<details>
+<summary>macOS: The browser cannot reach <code>project-331.local</code></summary>
 
 On macOS with the `docker` driver, the `minikube ip` is not reachable from the host, so
 the site is only reachable through `minikube tunnel`. See
@@ -286,6 +292,8 @@ problem is:
 - **"503 Service Temporarily Unavailable"** — the tunnel is working and you reached the
   ingress, but the backend is not ready yet (app still starting or mid-redeploy). Wait
   for the pods to become ready (`bin/pods`) and retry.
+
+</details>
 
 ## Developer resources
 

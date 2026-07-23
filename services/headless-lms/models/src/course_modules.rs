@@ -725,14 +725,14 @@ pub struct NewModule {
 #[derive(Debug, Deserialize, ToSchema)]
 
 pub struct ModifiedModule {
-    id: Uuid,
-    name: Option<String>,
-    order_number: i32,
-    uh_course_code: Option<String>,
-    ects_credits: Option<f32>,
-    completion_policy: CompletionPolicy,
-    completion_registration_link_override: Option<String>,
-    enable_registering_completion_to_uh_open_university: bool,
+    pub id: Uuid,
+    pub name: Option<String>,
+    pub order_number: i32,
+    pub uh_course_code: Option<String>,
+    pub ects_credits: Option<f32>,
+    pub completion_policy: CompletionPolicy,
+    pub completion_registration_link_override: Option<String>,
+    pub enable_registering_completion_to_uh_open_university: bool,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]

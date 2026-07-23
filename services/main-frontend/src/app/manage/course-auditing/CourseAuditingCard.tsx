@@ -11,12 +11,15 @@ import {
 } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
 import { useState } from "react"
-import { FormProvider, useForm } from "react-hook-form"
+import { FormProvider, useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { updateCourseAfterAuditingMutation } from "@/generated/api/@tanstack/react-query.generated"
-import type { CourseToAudit, CourseToAuditUpdate } from "@/generated/api/types.generated"
-import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
+import type {
+  CourseAuditingData,
+  CourseAuditingDataUpdate,
+  ModifiedModule,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
@@ -26,17 +29,18 @@ import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-
 import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import { Link, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
+import { Link, nullIfEmpty, TextArea } from "@/shared-module/components"
 
-import ClosedSectionFields from "./ClosedSectionFields"
 import ContentDisplayBox from "./ContentDisplayBox"
-import CourseDescription from "./CourseDescription"
+import ClosedSectionFields from "./EditClosedFields"
+import EditModuleFields from "./EditModuleFields"
+//import CourseDescription from "./CourseDescription"
 import { contentRowStyles } from "./page"
 
 interface CourseAuditingCardProps {
   id: string
-  courseToAudit: CourseToAudit
-  refetch: () => Promise<QueryObserverResult<CourseToAudit[], unknown>>
+  courseAuditingData: CourseAuditingData
+  refetch: () => Promise<QueryObserverResult<CourseAuditingData[], unknown>>
 }
 
 enum UpdateStatus {
@@ -45,24 +49,29 @@ enum UpdateStatus {
   failed = 2,
 }
 
-export type EditCourseToAudit = CourseToAuditUpdate & { set_course_closed_at: boolean }
+export interface EditModuleData extends ModifiedModule {
+  override_completion_link: boolean
+}
 
-const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardProps>> = ({
+export interface EditCourseAuditingData extends CourseAuditingDataUpdate {
+  set_course_closed_at: boolean
+  modules: EditModuleData[]
+}
+
+const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
   id,
-  courseToAudit,
+  courseAuditingData,
   refetch,
 }) => {
   const { t } = useTranslation()
 
   const [editing, setEditing] = useState<boolean>(false)
-  const [course, setCourse] = useState<CourseToAudit>(courseToAudit)
+  const [course, setCourse] = useState<CourseAuditingData>(courseAuditingData)
   const [status, setStatus] = useState<UpdateStatus>(UpdateStatus.none)
-  const courseBreadcrumbInfoQuery = useCourseBreadcrumbInfoQuery(course.id)
-  const organizationSlug = courseBreadcrumbInfoQuery.data?.organization_slug
 
-  const methods = useForm<EditCourseToAudit>({
+  const methods = useForm<EditCourseAuditingData>({
     defaultValues: {
-      ...course,
+      ...courseAuditingData,
       closed_at: course.closed_at
         ? (formatDateForDateTimeLocalInputs(course.closed_at) ?? null)
         : null,
@@ -70,8 +79,14 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
     },
   })
 
-  const { control, handleSubmit, reset } = methods
+  const { control, handleSubmit, reset, watch } = methods
 
+  //const formValues = watch()
+
+  // oxlint-disable-next-line i18next/no-literal-string
+  const { fields } = useFieldArray({ control, name: "modules" })
+
+  console.log(fields)
   const toggleEdit = () => {
     setEditing(!editing)
   }
@@ -85,7 +100,7 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
     updateMutation.mutateAsync({
       body: {
         ...data,
-        uh_course_code: nullIfEmptyString(data.uh_course_code),
+        // uh_course_code: nullIfEmptyString(data.uh_course_code),
         closed_at: data.set_course_closed_at
           ? data.closed_at
             ? parseISO(data.closed_at).toISOString()
@@ -106,6 +121,7 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
     {
       onSuccess: (updated) => {
         setCourse(updated)
+        refetch()
         setStatus(UpdateStatus.saved)
         setEditing(false)
         setStatus(UpdateStatus.none)
@@ -122,7 +138,7 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
     },
   )
 
-  const uhLinkStyles = css`
+  const linkStyles = css`
     color: ${baseTheme.colors.green[700]};
     text-decoration: underline;
   `
@@ -143,7 +159,7 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               display: flex;
               flex-direction: row;
               justify-content: space-between;
-              line-height: 1.5;
+              line-height: 2rem;
               padding-bottom: 1.5rem;
               align-items: baseline;
             `}
@@ -151,7 +167,6 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
             <div>
               <h1
                 className={css`
-                  margin: 0;
                   font-weight: 400;
                   font-size: 1.5rem;
                 `}
@@ -161,14 +176,13 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               <div
                 className={css`
                   color: ${baseTheme.colors.gray[600]};
-                  font-size: 0.95rem;
+                  font-size: 1rem;
                   display: flex;
                   flex-wrap: wrap;
-                  gap: 1rem;
                   margin-top: 0.5rem;
                 `}
               >
-                <span>{courseBreadcrumbInfoQuery.data?.organization_name}</span>
+                {course.organization_name}
               </div>
             </div>
 
@@ -232,13 +246,12 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
                 autoResize={true}
               />
               {/* <CourseDescription course={course} refetch={refetch} /> */}
-              <TextField
-                control={control}
-                label={t("title-default-module-uh-course-code")}
-                name={"uh_course_code"}
-                rules={nullIfEmpty}
-              />
+
               <ClosedSectionFields />
+
+              {fields.map((module, idx) => (
+                <EditModuleFields key={module.id} module={module} idx={idx} />
+              ))}
             </div>
           ) : (
             <div
@@ -254,11 +267,13 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               />
 
               {course.closed_at ? (
-                <div>
-                  <ContentDisplayBox
-                    label={t("title-default-module-uh-course-code")}
-                    content={course.uh_course_code}
-                  />
+                <div
+                  className={css`
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                  `}
+                >
                   <div className={contentRowStyles}>
                     <ContentDisplayBox
                       label={t("closed-at")}
@@ -275,14 +290,41 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
                   />
                 </div>
               ) : (
-                <div className={contentRowStyles}>
-                  <ContentDisplayBox
-                    label={t("title-default-module-uh-course-code")}
-                    content={course.uh_course_code}
-                  />
-                  <ContentDisplayBox label={t("closed-at")} />
-                </div>
+                <ContentDisplayBox label={t("closed-at")} />
               )}
+
+              {course.modules.map((module) => (
+                <div
+                  key={module.id}
+                  className={css`
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                  `}
+                >
+                  <div
+                    className={css`
+                      font-size: 1.15rem;
+                      font-weight: 600;
+                      color: ${baseTheme.colors.gray[900]};
+                      margin: 0.5rem 0rem;
+                    `}
+                  >
+                    {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
+                  </div>
+                  <ContentDisplayBox
+                    label={t("completion-registration-link")}
+                    content={module.completion_registration_link_override}
+                  />
+                  <div className={contentRowStyles}>
+                    <ContentDisplayBox
+                      label={t("uh-course-code")}
+                      content={module.uh_course_code}
+                    />
+                    <ContentDisplayBox label={t("ects-credits")} content={module.ects_credits} />
+                  </div>
+                </div>
+              ))}
             </div>
           )}
           <div
@@ -304,15 +346,13 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               right={true}
               boldLabel
             />
-            {organizationSlug && (
-              <Link
-                className={uhLinkStyles}
-                href={courseMaterialFrontPageHref(organizationSlug, course.slug)}
-              >
-                {t("course-auditing-card-open-course-front-page")}
-              </Link>
-            )}
-            <Link className={uhLinkStyles} href={manageCourseByIdRoute(courseToAudit.id)}>
+            <Link
+              className={linkStyles}
+              href={courseMaterialFrontPageHref(course.organization_slug, course.slug)}
+            >
+              {t("course-auditing-card-open-course-front-page")}
+            </Link>
+            <Link className={linkStyles} href={manageCourseByIdRoute(courseAuditingData.id)}>
               {t("course-auditing-card-open-course-overview")}
             </Link>
           </div>

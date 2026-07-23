@@ -12,42 +12,37 @@ interface ContentDisplayBoxProps {
   content?: ReactNode
 }
 
-const ContentDisplayBox: React.FC<React.PropsWithChildren<ContentDisplayBoxProps>> = ({
-  label,
-  content,
-}) => {
+const ContentDisplayBox: React.FC<ContentDisplayBoxProps> = ({ label, content }) => {
   const { t } = useTranslation()
   return (
     <div
       className={css`
-        margin-top: 0.5rem;
         border-radius: 0.5rem;
         border: 1px solid ${baseTheme.colors.blue[200]};
         background: ${baseTheme.colors.blue[25]};
-        padding: 0.85rem 1rem;
+        padding: 0.75rem 1rem;
         flex-grow: 1;
       `}
     >
-      <p
+      <div
         className={css`
-          font-size: 0.9rem;
+          font-size: 1rem;
           font-weight: 600;
           color: ${baseTheme.colors.gray[800]};
           margin: 0 0 0.5rem 0;
         `}
       >
         {label}
-      </p>
-      <p
+      </div>
+      <div
         className={css`
           font-size: 0.85rem;
           color: ${baseTheme.colors.gray[700]};
           margin: 0.35rem 0;
-          line-height: 1.5;
         `}
       >
         {content ? content : t("label-null")}
-      </p>
+      </div>
     </div>
   )
 }

@@ -1,11 +1,12 @@
+use std::collections::HashMap;
+
 use headless_lms_utils::{file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME};
 use utoipa::ToSchema;
 
 use crate::{
     chapters::{Chapter, course_chapters},
-    course_modules::CourseModule,
-    pages::Page,
-    pages::{PageVisibility, get_all_by_course_id_and_visibility},
+    course_modules::{CourseModule, ModifiedModule},
+    pages::{Page, PageVisibility, get_all_by_course_id_and_visibility},
     prelude::*,
 };
 
@@ -231,6 +232,44 @@ pub struct CourseToAuditUpdate {
     pub closed_course_successor_id: Option<Uuid>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
+pub struct CourseAuditingData {
+    pub id: Uuid,
+    pub name: String,
+    pub slug: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub description: Option<String>,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_course_successor_id: Option<Uuid>,
+    pub organization_id: Uuid,
+    pub organization_name: String,
+    pub organization_slug: String,
+    pub modules: Vec<CourseModule>,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+
+pub struct CourseAuditingDataUpdate {
+    pub description: Option<String>,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_course_successor_id: Option<Uuid>,
+    pub modules: Vec<ModifiedModule>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
+pub struct CourseAuditingModuleUpdate {
+    pub uh_course_code: Option<String>,
+    /// If set, use this link rather than the default one when registering course completions.
+    pub completion_registration_link_override: Option<String>,
+    pub ects_credits: Option<f32>,
+    pub enable_registering_completion_to_uh_open_university: bool,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
@@ -364,14 +403,13 @@ WHERE c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;
     Ok(courses)
 }
 
-pub async fn get_course_for_auditing(
+pub async fn get_all_course_data_for_auditing(
     conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<CourseToAudit> {
-    let course = sqlx::query_as!(
-        CourseToAudit,
+) -> ModelResult<Vec<CourseAuditingData>> {
+    let courses_data = sqlx::query!(
         r#"
-SELECT c.id,
+SELECT
+  c.id,
   c.name,
   c.slug,
   c.created_at,
@@ -381,27 +419,118 @@ SELECT c.id,
   c.closed_at,
   c.closed_additional_message,
   c.closed_course_successor_id,
-  cm.uh_course_code
-FROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id
-WHERE c.id = $1 AND c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;
+  o.name as organization_name,
+  o.slug as organization_slug
+FROM courses c JOIN organizations o ON o.id = c.organization_id
+WHERE c.deleted_at IS NULL and o.deleted_at IS NULL
+GROUP BY
+  c.id,
+  c.name,
+  o.name,
+  o.slug;
+"#
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    let course_ids: Vec<Uuid> = courses_data.iter().map(|c| c.id).collect();
+    let modules_data = crate::course_modules::get_by_course_ids(conn, &course_ids).await?;
+
+    let mut modules_by_course_id: HashMap<Uuid, Vec<CourseModule>> = HashMap::new();
+    for module in modules_data {
+        modules_by_course_id
+            .entry(module.course_id)
+            .or_default()
+            .push(module);
+    }
+
+    for course_modules in modules_by_course_id.values_mut() {
+        course_modules.sort_by_key(|c| c.order_number);
+    }
+
+    let data: Vec<CourseAuditingData> = courses_data
+        .into_iter()
+        .map(|c| CourseAuditingData {
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            created_at: c.created_at,
+            updated_at: c.updated_at,
+            organization_id: c.organization_id,
+            description: c.description,
+            closed_at: c.closed_at,
+            closed_additional_message: c.closed_additional_message,
+            closed_course_successor_id: c.closed_course_successor_id,
+            organization_name: c.organization_name,
+            organization_slug: c.organization_slug,
+            modules: modules_by_course_id.remove(&c.id).unwrap_or_default(),
+        })
+        .collect();
+    Ok(data)
+}
+
+pub async fn get_course_for_auditing(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CourseAuditingData> {
+    let course_data = sqlx::query!(
+        r#"
+SELECT
+  c.id,
+  c.name,
+  c.slug,
+  c.created_at,
+  c.updated_at,
+  c.organization_id,
+  c.description,
+  c.closed_at,
+  c.closed_additional_message,
+  c.closed_course_successor_id,
+  o.name as organization_name,
+  o.slug as organization_slug
+FROM courses c JOIN organizations o ON o.id = c.organization_id
+WHERE c.id = $1 AND c.deleted_at IS NULL and o.deleted_at IS NULL
+GROUP BY
+  c.id,
+  c.name,
+  o.name,
+  o.slug;
 "#,
         course_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *conn)
     .await?;
-    Ok(course)
+
+    let modules_data = crate::course_modules::get_by_course_id(conn, course_id).await?;
+
+    let data: CourseAuditingData = CourseAuditingData {
+        id: course_data.id,
+        name: course_data.name,
+        slug: course_data.slug,
+        created_at: course_data.created_at,
+        updated_at: course_data.updated_at,
+        organization_id: course_data.organization_id,
+        description: course_data.description,
+        closed_at: course_data.closed_at,
+        closed_additional_message: course_data.closed_additional_message,
+        closed_course_successor_id: course_data.closed_course_successor_id,
+        organization_name: course_data.organization_name,
+        organization_slug: course_data.organization_slug,
+        modules: modules_data,
+    };
+
+    Ok(data)
 }
 
-// Add returning?
 pub async fn update_course_after_auditing(
     conn: &mut PgConnection,
     course_id: Uuid,
-    course_update: CourseToAuditUpdate,
+    data_update: CourseAuditingDataUpdate,
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
 
     sqlx::query_as!(
-        CourseToAuditUpdate,
+        CourseAuditingDataUpdate,
         r#"
 UPDATE courses
 SET description = $2,
@@ -411,25 +540,34 @@ SET description = $2,
 WHERE id = $1
   AND deleted_at IS NULL"#,
         course_id,
-        course_update.description,
-        course_update.closed_at,
-        course_update.closed_additional_message,
-        course_update.closed_course_successor_id
+        data_update.description,
+        data_update.closed_at,
+        data_update.closed_additional_message,
+        data_update.closed_course_successor_id
     )
     .execute(&mut *tx)
     .await?;
 
-    sqlx::query_as!(
-        CourseToAuditUpdate,
-        r#"
+    for module in data_update.modules {
+        sqlx::query_as!(
+            ModifiedModule,
+            r#"
 UPDATE course_modules
-SET uh_course_code = $2 WHERE course_id = $1 AND order_number = 0
+SET uh_course_code = $2,
+  completion_registration_link_override = $3,
+  ects_credits = $4,
+  enable_registering_completion_to_uh_open_university = $5
+WHERE course_id = $1 AND order_number = 0
   AND deleted_at IS NULL"#,
-        course_id,
-        course_update.uh_course_code,
-    )
-    .execute(&mut *tx)
-    .await?;
+            course_id,
+            module.uh_course_code,
+            module.completion_registration_link_override,
+            module.ects_credits,
+            module.enable_registering_completion_to_uh_open_university,
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
 
     tx.commit().await?;
     Ok(())

@@ -15,9 +15,9 @@ import {
   TextField,
 } from "@/shared-module/components"
 
-import type { EditCourseToAudit } from "./CourseAuditingCard"
+import type { EditCourseAuditingData } from "./CourseAuditingCard"
 
-const ClosedSectionFields = (): React.ReactElement => {
+const EditClosedFields = (): React.ReactElement => {
   const { t } = useTranslation()
   const {
     register,
@@ -25,18 +25,21 @@ const ClosedSectionFields = (): React.ReactElement => {
     getValues,
     formState: { errors },
     control,
-  } = useFormContext<EditCourseToAudit>()
+  } = useFormContext<EditCourseAuditingData>()
 
   // oxlint-disable-next-line i18next/no-literal-string
   const isClosed = useWatch({ name: "set_course_closed_at", control })
 
   return (
-    <div>
-      <div
-        className={css`
-          margin-bottom: 1rem;
-        `}
-      >
+    <div
+      className={css`
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 1rem;
+      `}
+    >
+      <div>
         <Checkbox
           control={control}
           label={t("set-course-closed-at")}
@@ -57,14 +60,20 @@ const ClosedSectionFields = (): React.ReactElement => {
         />
       </div>
       {isClosed && (
-        <>
+        <div
+          className={css`
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 1rem;
+          `}
+        >
           <div
             className={css`
               display: flex;
               align-items: flex-start;
               justify-content: space-between;
-              gap: 0.5rem;
-              margin-bottom: 0.75rem;
+              gap: 1rem;
             `}
           >
             <DateTimeLocalField
@@ -99,10 +108,10 @@ const ClosedSectionFields = (): React.ReactElement => {
             autoResize={true}
             rules={nullIfEmpty}
           />
-        </>
+        </div>
       )}
     </div>
   )
 }
 
-export default ClosedSectionFields
+export default EditClosedFields

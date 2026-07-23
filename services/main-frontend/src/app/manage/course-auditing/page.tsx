@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { getCoursesForAuditingOptions } from "@/generated/api/@tanstack/react-query.generated"
-import type { CourseToAudit } from "@/generated/api/types.generated"
+import type { CourseAuditingData } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -29,7 +29,7 @@ export const contentRowStyles = css`
   display: flex;
   align-items: normal;
   justify-content: space-between;
-  margin-bottom: 0.75rem;
+  gap: 1rem;
 `
 
 const CourseAuditing = () => {
@@ -59,7 +59,7 @@ const CourseAuditing = () => {
   const filteredCourses = useMemo(
     () =>
       [...(courseData ?? [])]
-        .filter((course: CourseToAudit) => {
+        .filter((course: CourseAuditingData) => {
           if (
             !course.name.toLocaleLowerCase().includes(searchCourse?.toLocaleLowerCase()) &&
             !course.description?.toLocaleLowerCase().includes(searchCourse?.toLocaleLowerCase())
@@ -181,7 +181,6 @@ const CourseAuditing = () => {
                 font-size: 1.15rem;
                 font-weight: 600;
                 color: ${baseTheme.colors.gray[900]};
-                margin: 0;
               `}
             >
               {expanded ? t("course-auditing-collapse-filter") : t("course-auditing-expand-filter")}
@@ -238,7 +237,7 @@ const CourseAuditing = () => {
             className={css`
               display: flex;
               flex-direction: column;
-              gap: 1rem;
+              gap: 2rem;
             `}
           >
             {t("course-auditing-showing-courses", { count: filteredCourses.length })}
@@ -246,7 +245,7 @@ const CourseAuditing = () => {
               <CourseAuditingCard
                 key={course.id}
                 id={course.id}
-                courseToAudit={course}
+                courseAuditingData={course}
                 refetch={getCoursesForAuditing.refetch}
               />
             ))}

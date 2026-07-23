@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_modules\nSET uh_course_code = $2,\n  completion_registration_link_override = $3,\n  ects_credits = $4,\n  enable_registering_completion_to_uh_open_university = $5\nWHERE course_id = $1 AND order_number = 0\n  AND deleted_at IS NULL",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Float4",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6c16d66cbc6aacfedc112a2a306f2655dde4353bd782d8d028a7a0cc3bc78dca"
+}

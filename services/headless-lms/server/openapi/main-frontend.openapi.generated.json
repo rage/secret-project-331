@@ -920,7 +920,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/CourseToAudit"
+                    "$ref": "#/components/schemas/CourseAuditingData"
                   }
                 }
               }
@@ -950,7 +950,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CourseToAuditUpdate"
+                "$ref": "#/components/schemas/CourseAuditingDataUpdate"
               }
             }
           },
@@ -962,7 +962,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CourseToAudit"
+                  "$ref": "#/components/schemas/CourseAuditingData"
                 }
               }
             }
@@ -12605,6 +12605,96 @@
         "description": "The AI policy a teacher has selected for a course. Drives which variant of the student-facing\nAI usage notice is shown; `NotSet` (the default) keeps the generic default message.",
         "enum": ["NotSet", "NoAi", "PlanningOnly", "Limited", "FullUse", "Required"]
       },
+      "CourseAuditingData": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "created_at",
+          "updated_at",
+          "organization_id",
+          "organization_name",
+          "organization_slug",
+          "modules"
+        ],
+        "properties": {
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModule"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organization_name": {
+            "type": "string"
+          },
+          "organization_slug": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseAuditingDataUpdate": {
+        "type": "object",
+        "required": ["modules"],
+        "properties": {
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModifiedModule"
+            }
+          }
+        }
+      },
       "CourseBreadcrumbInfo": {
         "type": "object",
         "required": [
@@ -13609,73 +13699,6 @@
             "items": {
               "$ref": "#/components/schemas/Page"
             }
-          }
-        }
-      },
-      "CourseToAudit": {
-        "type": "object",
-        "required": ["id", "slug", "organization_id", "created_at", "updated_at", "name"],
-        "properties": {
-          "closed_additional_message": {
-            "type": ["string", "null"]
-          },
-          "closed_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "closed_course_successor_id": {
-            "type": ["string", "null"],
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "description": {
-            "type": ["string", "null"]
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "organization_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "slug": {
-            "type": "string"
-          },
-          "uh_course_code": {
-            "type": ["string", "null"]
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "CourseToAuditUpdate": {
-        "type": "object",
-        "properties": {
-          "closed_additional_message": {
-            "type": ["string", "null"]
-          },
-          "closed_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "closed_course_successor_id": {
-            "type": ["string", "null"],
-            "format": "uuid"
-          },
-          "description": {
-            "type": ["string", "null"]
-          },
-          "uh_course_code": {
-            "type": ["string", "null"]
           }
         }
       },

@@ -551,6 +551,30 @@ export type Course = {
  */
 export type CourseAiPolicy = "NotSet" | "NoAi" | "PlanningOnly" | "Limited" | "FullUse" | "Required"
 
+export type CourseAuditingData = {
+  closed_additional_message?: string | null
+  closed_at?: string | null
+  closed_course_successor_id?: string | null
+  created_at: string
+  description?: string | null
+  id: string
+  modules: Array<CourseModule>
+  name: string
+  organization_id: string
+  organization_name: string
+  organization_slug: string
+  slug: string
+  updated_at: string
+}
+
+export type CourseAuditingDataUpdate = {
+  closed_additional_message?: string | null
+  closed_at?: string | null
+  closed_course_successor_id?: string | null
+  description?: string | null
+  modules: Array<ModifiedModule>
+}
+
 export type CourseBreadcrumbInfo = {
   course_id: string
   course_name: string
@@ -908,28 +932,6 @@ export type CourseStructure = {
   course: Course
   modules: Array<CourseModule>
   pages: Array<Page>
-}
-
-export type CourseToAudit = {
-  closed_additional_message?: string | null
-  closed_at?: string | null
-  closed_course_successor_id?: string | null
-  created_at: string
-  description?: string | null
-  id: string
-  name: string
-  organization_id: string
-  slug: string
-  uh_course_code?: string | null
-  updated_at: string
-}
-
-export type CourseToAuditUpdate = {
-  closed_additional_message?: string | null
-  closed_at?: string | null
-  closed_course_successor_id?: string | null
-  description?: string | null
-  uh_course_code?: string | null
 }
 
 export type CourseUpdate = {
@@ -2973,14 +2975,14 @@ export type GetCoursesForAuditingResponses = {
   /**
    * Courses for auditing
    */
-  200: Array<CourseToAudit>
+  200: Array<CourseAuditingData>
 }
 
 export type GetCoursesForAuditingResponse =
   GetCoursesForAuditingResponses[keyof GetCoursesForAuditingResponses]
 
 export type UpdateCourseAfterAuditingData = {
-  body: CourseToAuditUpdate
+  body: CourseAuditingDataUpdate
   path: {
     /**
      * Course to audit id
@@ -2995,7 +2997,7 @@ export type UpdateCourseAfterAuditingResponses = {
   /**
    * Updated course
    */
-  200: CourseToAudit
+  200: CourseAuditingData
 }
 
 export type UpdateCourseAfterAuditingResponse =

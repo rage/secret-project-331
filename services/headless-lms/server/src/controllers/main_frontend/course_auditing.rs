@@ -1,4 +1,5 @@
-use models::courses::{CourseToAudit, CourseToAuditUpdate};
+use headless_lms_models::courses::CourseAuditingData;
+use models::courses::CourseAuditingDataUpdate;
 use utoipa::OpenApi;
 
 use crate::prelude::*;
@@ -16,19 +17,21 @@ GET `/api/v0/main-frontend/course-auditing`
     operation_id = "getCoursesForAuditing",
     tag = "course_auditing",
     responses(
-        (status = 200, description = "Courses for auditing", body = Vec<CourseToAudit>)
+        (status = 200, description = "Courses for auditing", body = Vec<CourseAuditingData>)
     )
 )]
 #[instrument(skip(pool))]
 async fn get_courses_for_auditing(
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<CourseToAudit>>> {
+) -> ControllerResult<web::Json<Vec<CourseAuditingData>>> {
     let mut conn = pool.acquire().await?;
-    let courses_for_auditing = models::courses::get_all_courses_for_auditing(&mut conn).await?;
+
+    let data = models::courses::get_all_course_data_for_auditing(&mut conn).await?;
+    // let courses_for_auditing = models::courses::get_all_courses_for_auditing(&mut conn).await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?;
-    token.authorized_ok(web::Json(courses_for_auditing))
+    token.authorized_ok(web::Json(data))
 }
 
 /**
@@ -42,18 +45,18 @@ PUT `/api/v0/main-frontend/course-auditing/:id`
     params(
         ("course_to_audit_id" = Uuid, Path, description = "Course to audit id")
     ),
-    request_body = CourseToAuditUpdate,
+    request_body = CourseAuditingDataUpdate,
     responses(
-        (status = 200, description = "Updated course", body = CourseToAudit)
+        (status = 200, description = "Updated course", body = CourseAuditingData)
     )
 )]
 #[instrument(skip(pool))]
 async fn update_course_after_auditing(
-    payload: web::Json<CourseToAuditUpdate>,
+    payload: web::Json<CourseAuditingDataUpdate>,
     course_to_audit_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<CourseToAudit>> {
+) -> ControllerResult<web::Json<CourseAuditingData>> {
     let mut conn = pool.acquire().await?;
     models::courses::update_course_after_auditing(&mut conn, *course_to_audit_id, payload.0)
         .await?;

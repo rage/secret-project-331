@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT c.id,\n  c.name,\n  c.slug,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description,\n  c.closed_at,\n  c.closed_additional_message,\n  c.closed_course_successor_id,\n  cm.uh_course_code\nFROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id\nWHERE c.id = $1 AND c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;\n",
+  "query": "\nSELECT\n  c.id,\n  c.name,\n  c.slug,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description,\n  c.closed_at,\n  c.closed_additional_message,\n  c.closed_course_successor_id,\n  o.name as organization_name,\n  o.slug as organization_slug\nFROM courses c JOIN organizations o ON o.id = c.organization_id\nWHERE c.id = $1 AND c.deleted_at IS NULL and o.deleted_at IS NULL\nGROUP BY\n  c.id,\n  c.name,\n  o.name,\n  o.slug;\n",
   "describe": {
     "columns": [
       {
@@ -115,12 +115,23 @@
       },
       {
         "ordinal": 10,
-        "name": "uh_course_code",
+        "name": "organization_name",
         "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "course_modules",
-            "name": "uh_course_code"
+            "table": "organizations",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "organization_slug",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "organizations",
+            "name": "slug"
           }
         }
       }
@@ -141,8 +152,9 @@
       true,
       true,
       true,
-      true
+      false,
+      false
     ]
   },
-  "hash": "e315d7b98801247f28c95f18a3d28f2a2cb78b77f41571ec128a554a51e8777e"
+  "hash": "e9256402695fe0f1bd0fb03e64dee13cdbe92d267896ba0d119bb7000aa6e1b2"
 }

@@ -1449,6 +1449,7 @@
   "seconds": "sekuntia",
   "select-LLM": "käytettävä kielimalli",
   "select-a-country": "Valitse maa",
+  "select-chatbot-globals-title": "Globaalit keskustelurobotit",
   "select-course-instance-explanation": "Valitsemasi kurssiversion opettajat ja tukihenkilöt pystyvät näkemään sinun pisteesi, palautuksesi, läpipääsyn tilan ja muut tiedot kurssin edistymisestä.",
   "select-course-module": "Valitse kurssimoduuli",
   "select-course-version-to-see-your-progress": "Nähdäksesi edistymisesi, valitse kurssiversio",

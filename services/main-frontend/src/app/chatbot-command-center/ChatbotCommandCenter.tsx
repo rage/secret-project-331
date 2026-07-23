@@ -36,8 +36,18 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
       },
       {} as Record<string, { label: string; value: string }[]>,
     )
-    console.log(grouped)
-    return Object.entries(grouped).map(([group, options]) => ({
+    const groupedSorted = Object.fromEntries(
+      Object.entries(grouped).toSorted(([aKey, _aValue], [bKey, _bValue]) => {
+        if (aKey === "Global chatbots") {
+          return -1
+        }
+        if (bKey === "Global chatbots") {
+          return 1
+        }
+        return aKey.localeCompare(bKey)
+      }),
+    )
+    return Object.entries(groupedSorted).map(([group, options]) => ({
       label: group,
       options,
     }))

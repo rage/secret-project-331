@@ -63,6 +63,36 @@ fn forbidden(message: &str) -> ControllerError {
     )
 }
 
+/// Classify a model lookup error raised while resolving a Bearer token.
+///
+/// A genuinely absent row — the token, its client, or its user does not exist
+/// (or the user is soft-deleted) — is an authentication failure and maps to
+/// `401` with the `unauthorized` body the langs client keys on. Any other error
+/// is an infrastructure failure (a sqlx connection/statement error surfaces as
+/// `ModelErrorType::Database`) and must propagate as a `500`.
+///
+/// This distinction is load-bearing: langs turns a `401` into
+/// refresh-then-DELETE-credentials, so collapsing a transient DB blip into `401`
+/// (as the previous blanket `.map_err(|_| unauthorized(...))` did) would
+/// force-log-out every user during the outage. The removed TMC extractor kept
+/// transport errors as `5xx` for exactly this reason.
+fn lookup_error(err: models::ModelError, unauthorized_message: &str) -> ControllerError {
+    use headless_lms_base::error::backend_error::BackendError;
+    match err.error_type() {
+        models::ModelErrorType::RecordNotFound | models::ModelErrorType::NotFound => {
+            unauthorized(unauthorized_message)
+        }
+        _ => {
+            let source: anyhow::Error = err.into();
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "A database error occurred while validating the access token.".to_string(),
+                Some(source),
+            )
+        }
+    }
+}
+
 /// Resolve an opaque Bearer access token to the local user that owns it.
 ///
 /// Pure DB work (no actix, no cache) so it can be unit-tested directly. Flow:
@@ -79,7 +109,7 @@ async fn resolve_oauth_user(
     let digest = token_digest_sha256(token.expose_secret(), token_hmac_key);
     let access_token = OAuthAccessToken::find_valid(conn, digest)
         .await
-        .map_err(|_| unauthorized("The access token is missing, invalid, or expired."))?;
+        .map_err(|e| lookup_error(e, "The access token is missing, invalid, or expired."))?;
 
     // Bearer-only: a DPoP (sender-constrained) token must be presented with a
     // proof, which this API does not verify, so reject it rather than accept it
@@ -93,7 +123,7 @@ async fn resolve_oauth_user(
     // The issuing client must be allowed to use Bearer tokens.
     let client = OAuthClient::find_by_id(conn, access_token.client_id)
         .await
-        .map_err(|_| unauthorized("The access token's client could not be found."))?;
+        .map_err(|e| lookup_error(e, "The access token's client could not be found."))?;
     if !client.allows_bearer() {
         return Err(unauthorized(
             "The access token's client is not permitted to use Bearer tokens.",
@@ -115,9 +145,12 @@ async fn resolve_oauth_user(
         .user_id
         .ok_or_else(|| unauthorized("The access token is not associated with a user."))?;
 
-    let user = models::users::get_by_id(conn, user_id)
+    // `get_active_by_id` filters `deleted_at IS NULL`, so a soft-deleted
+    // (banned/removed) user resolves to RecordNotFound -> 401, rather than
+    // continuing to authenticate until the token expires.
+    let user = models::users::get_active_by_id(conn, user_id)
         .await
-        .map_err(|_| unauthorized("The access token's user could not be found."))?;
+        .map_err(|e| lookup_error(e, "The access token's user could not be found."))?;
 
     Ok(user)
 }
@@ -175,6 +208,11 @@ impl FromRequest for UserFromOAuthToken {
                 }
             }
 
+            // A cached user (keyed by the token) skips the DB re-resolution — and
+            // therefore the soft-delete/revocation checks in `resolve_oauth_user`
+            // — for up to the 1h cache TTL. That staleness is the accepted
+            // revocation-latency window for this API (same order as the access
+            // token lifetime); a hard cutoff still happens when the token expires.
             let user = match load_user(&cache, &token).await {
                 Some(user) => user,
                 None => {
@@ -408,6 +446,70 @@ mod tests {
             .await
             .expect_err("DPoP-bound token should be rejected on this Bearer-only API");
         assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn soft_deleted_user_is_unauthorized() {
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        // Soft-delete the token owner. Their still-valid access token must stop
+        // authenticating rather than working until it expires.
+        sqlx::query("UPDATE users SET deleted_at = now() WHERE id = $1")
+            .bind(user)
+            .execute(&mut **tx.as_mut())
+            .await
+            .unwrap();
+
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("a soft-deleted user's token must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+        assert_unauthorized_body(err);
+    }
+
+    #[actix_web::test]
+    async fn lookup_error_maps_not_found_to_401_and_db_errors_to_500() {
+        use headless_lms_models::{ModelError, ModelErrorType};
+
+        // A missing row (token/client/user absent or soft-deleted) -> 401 with the
+        // exact unauthorized body the langs client keys on.
+        let not_found = lookup_error(
+            ModelError::new(
+                ModelErrorType::RecordNotFound,
+                "no such row".to_string(),
+                None::<anyhow::Error>,
+            ),
+            "missing",
+        );
+        assert_eq!(not_found.status_code(), StatusCode::UNAUTHORIZED);
+        assert_unauthorized_body(not_found);
+
+        // An infrastructure error (sqlx surfaces connection/statement failures as
+        // ModelErrorType::Database) -> 500, so a DB blip never masquerades as an
+        // invalid token and forces the client to drop its credentials.
+        let db_error = lookup_error(
+            ModelError::new(
+                ModelErrorType::Database,
+                "connection reset".to_string(),
+                None::<anyhow::Error>,
+            ),
+            "missing",
+        );
+        assert_eq!(
+            db_error.status_code(),
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "transient DB errors must not collapse into 401"
+        );
     }
 
     /// Assert the exact 401 body shape the langs client depends on.

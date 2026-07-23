@@ -123,6 +123,30 @@ WHERE id = $1
     Ok(user)
 }
 
+/// Like [`get_by_id`], but only returns a user that is not soft-deleted.
+///
+/// A soft-deleted (banned/removed) user yields `RowNotFound`
+/// (`ModelErrorType::RecordNotFound`), the same as a nonexistent id, so callers
+/// that must reject deleted accounts can treat both cases identically. Unlike
+/// [`get_by_id`] — which some callers use to fetch a user's own (possibly
+/// deleted) row — this filters `deleted_at IS NULL`, mirroring the other lookups
+/// in this module.
+pub async fn get_active_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<User> {
+    let user = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(user)
+}
+
 pub async fn find_by_upstream_id(
     conn: &mut PgConnection,
     upstream_id: i32,

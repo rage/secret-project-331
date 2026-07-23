@@ -414,6 +414,15 @@ export const zCourse = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zCourseAudience = z.object({
+  audience: z.string(),
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  updated_at: z.iso.datetime(),
+})
+
 export const zCourseBreadcrumbInfo = z.object({
   course_id: z.uuid(),
   course_name: z.string(),
@@ -736,6 +745,21 @@ export const zCourseModuleThresholdInfo = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
+export const zCoursePrerequisite = z.object({
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  prerequisite: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCourseMetadata = z.object({
+  course_audiences: z.array(zCourseAudience),
+  course_description: z.string().nullish(),
+  course_prerequisites: z.array(zCoursePrerequisite),
+})
+
 /**
  * One row of the paginated student identity list (one row per distinct enrolled user).
  */
@@ -854,6 +878,27 @@ export const zCourseStudentsProgressStructure = z.object({
   chapter_availability: z.array(zChapterAvailability),
   chapter_locking_enabled: z.boolean(),
   chapters: z.array(zDatabaseChapter),
+})
+
+export const zDatabaseOrganization = z.object({
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  description: z.string().nullish(),
+  hidden: z.boolean(),
+  id: z.uuid(),
+  name: z.string(),
+  organization_image_path: z.string().nullish(),
+  slug: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCompleteCourseMetadata = z.object({
+  course: zCourse,
+  course_audiences: z.array(zCourseAudience),
+  course_instances: z.array(zCourseInstance),
+  course_organization: zDatabaseOrganization,
+  course_prerequisites: z.array(zCoursePrerequisite),
+  default_module: zCourseModule,
 })
 
 export const zDeploymentInfo = z.object({
@@ -1527,6 +1572,7 @@ export const zModifiedModule = z.object({
 export const zModule = z.object({
   course_code: z.string(),
   description: z.string(),
+  prerequisites: z.array(z.string()),
 })
 
 export const zNewChapter = z.object({
@@ -1581,6 +1627,20 @@ export const zCopyCourseRequest = zNewCourse.and(
     mode: zCopyCourseMode,
   }),
 )
+
+export const zNewCourseAudience = z.object({
+  audience: z.string(),
+})
+
+export const zNewCoursePrerequisite = z.object({
+  prerequisite: z.string(),
+})
+
+export const zCourseMetadataUpdate = z.object({
+  course_audiences: z.array(zNewCourseAudience),
+  course_description: z.string().nullish(),
+  course_prerequisites: z.array(zNewCoursePrerequisite),
+})
 
 export const zNewExam = z.object({
   ends_at: z.iso.datetime().nullish(),
@@ -2334,6 +2394,7 @@ export const zServiceInfo = z.object({
 })
 
 export const zSisuDescriptionResponse = z.object({
+  audience: z.array(z.string()),
   course_description: z.string(),
   modules: z.array(zModule),
 })
@@ -3777,6 +3838,33 @@ export const zGetCourseFeedbackCountPath = z.object({
  */
 export const zGetCourseFeedbackCountResponse = zFeedbackCount
 
+export const zGetCourseAudiencesPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Course audiences
+ */
+export const zGetCourseAudiencesResponse = z.array(zCourseAudience)
+
+export const zGetCourseMetadataPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Course metadata
+ */
+export const zGetCourseMetadataResponse = zCompleteCourseMetadata
+
+export const zGetCoursePrerequisitesPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Course prerequisites
+ */
+export const zGetCoursePrerequisitesResponse = z.array(zCoursePrerequisite)
+
 export const zGetCourseGlossaryPath = z.object({
   course_id: z.uuid(),
 })
@@ -4519,6 +4607,17 @@ export const zGetCourseThresholdsPath = z.object({
  * Course thresholds
  */
 export const zGetCourseThresholdsResponse = z.array(zCourseModuleThresholdInfo)
+
+export const zUpdateMetadataBody = zCourseMetadataUpdate
+
+export const zUpdateMetadataPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Updated metadata
+ */
+export const zUpdateMetadataResponse = zCourseMetadata
 
 export const zUpdateCoursePeerReviewQueueReviewsReceivedPath = z.object({
   course_id: z.uuid(),

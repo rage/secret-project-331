@@ -6,6 +6,16 @@ export function assertNotNullOrUndefined<T>(value: T | null | undefined): T {
 }
 
 /**
+ * Returns the same object without | undefined
+ */
+export function undefinedToNull<T>(value: T | null | undefined): T | null {
+  if (value === undefined) {
+    return null
+  }
+  return value
+}
+
+/**
  * `obj` with every `undefined`-valued key dropped, and those keys made optional in the result type.
  *
  * Under `exactOptionalPropertyTypes` an optional prop `key?: T` rejects an explicit `undefined`, so

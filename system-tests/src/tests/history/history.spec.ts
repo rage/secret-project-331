@@ -51,7 +51,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await page.getByText("Pages").click()
+  await page.getByRole("tab", { name: "Pages" }).click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
   // The sub-tab title composes the section name with the course name so different tabs (and the
   // same tab across different courses) can be told apart from the browser tab.
@@ -98,7 +98,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await page.getByText("Pages").click()
+  await page.getByRole("tab", { name: "Pages" }).click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)

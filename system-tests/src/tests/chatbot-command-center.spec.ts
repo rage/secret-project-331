@@ -7,7 +7,7 @@ test.describe("Chatbot command center testing", () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto("http://project-331.local/chatbot-command-center")
-    await page.getByText("Chatbot command center").waitFor()
+    await page.getByRole("heading", { name: "Chatbot command center" }).waitFor()
     await page.getByText("Chatbot to test").waitFor()
     await page.getByRole("button", { name: "Chatbot to test" }).click({ delay: 50 })
   })

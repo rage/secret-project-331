@@ -1,11 +1,20 @@
 {
+  "correct": "Correct",
   "could-not-find-requested-resource": "Could not find requested resource",
+  "delete-option": "Delete option",
   "feedback-text": "feedback",
+  "incorrect": "Incorrect",
   "input-placeholder-option-text": "Option text",
+  "mark-option-correct": "Mark option as correct",
   "new": "New",
   "not-found": "Not Found",
+  "option-n": "Option {{n}}",
   "score-given": "score given",
   "something-went-wrong": "Something went wrong: {{error}}",
+  "validation-error-empty-option-name": "Every option needs a name.",
+  "validation-error-no-correct-option": "Mark at least one option as correct.",
+  "validation-error-no-options": "Add at least one option.",
+  "validation-errors-heading": "Fix the following before saving:",
   "waiting-for-content": "Waiting for content...",
   "waiting-for-port": "Waiting for port..."
 }

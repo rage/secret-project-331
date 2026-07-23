@@ -6,16 +6,13 @@ import { useQuery } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
-import { Controller, useForm } from "react-hook-form"
+import { useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import PasswordField from "@/components/forms/PasswordField"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import SearchableSelect from "@/shared-module/common/components/InputFields/SearchableSelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import type { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
@@ -24,12 +21,12 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 import "@/shared-module/common/init/registerAuthApiClients"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { Button, Checkbox, ComboBox, TextField } from "@/shared-module/components"
 
 interface CreateUserErrorResponse {
   message?: string
@@ -74,7 +71,8 @@ const Wrapper = styled.div`
     a {
       color: #065853;
       font-weight: 600;
-      text-decoration: none;
+      /* Underline links so they are distinguishable by more than colour alone (WCAG 1.4.1). */
+      text-decoration: underline;
     }
   }
 
@@ -84,29 +82,9 @@ const Wrapper = styled.div`
     padding: 0;
   }
 
-  input[type="submit"] {
-    height: 60px;
-    background: #46749b;
-    color: #fff;
-    font-weight: bold;
-    font-size: 22px;
-    padding: 15px 10px;
-    line-height: 1.2;
-    font-family: ${headingFont} !important;
-    justify-content: center;
-    align-items: center;
-    border: none;
+  .submit-button {
     width: 100%;
     margin: 1rem 0;
-
-    &:hover {
-      background: #215887;
-    }
-  }
-
-  input[type="submit"]:disabled {
-    background: #ebedee;
-    color: #989ca3;
   }
 
   .signin-link {
@@ -115,9 +93,9 @@ const Wrapper = styled.div`
     margin: 0 auto;
 
     a {
-      text-decoration: none;
+      text-decoration: underline;
       font-size: 20px;
-      color: ${baseTheme.colors.gray[700]};
+      color: ${baseTheme.colors.blue[600]};
 
       &:hover {
         color: ${baseTheme.colors.blue[700]};
@@ -127,19 +105,46 @@ const Wrapper = styled.div`
 `
 
 const CreateAccountForm: React.FC = () => {
-  const { register, formState, watch, reset, handleSubmit, trigger, control, setError } =
-    useForm<FormFields>({
-      // oxlint-disable-next-line i18next/no-literal-string
-      mode: "onChange",
-    })
+  const {
+    formState,
+    watch,
+    reset,
+    handleSubmit,
+    trigger,
+    control,
+    setError,
+    setValue,
+    setFocus,
+    getValues,
+  } = useForm<FormFields>({
+    // oxlint-disable-next-line i18next/no-literal-string
+    mode: "onChange",
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
+      country: "",
+      email_communication_consent: false,
+    },
+  })
 
   const preFillCountry = useQuery(getUsersIpCountryOptions())
+  const { dirtyFields } = useFormState({ control })
 
   useEffect(() => {
-    if (preFillCountry.data) {
-      reset({ country: preFillCountry.data })
+    // oxlint-disable-next-line i18next/no-literal-string
+    setFocus("first_name")
+  }, [setFocus])
+
+  useEffect(() => {
+    // Only prefill while the field is untouched and empty so a late-resolving
+    // geolocation query never overwrites a country the user has already chosen.
+    if (preFillCountry.data && !dirtyFields.country && !getValues("country")) {
+      setValue("country", preFillCountry.data)
     }
-  }, [preFillCountry.data, reset])
+  }, [preFillCountry.data, dirtyFields.country, getValues, setValue])
 
   const loginStateContext = useContext(LoginStateContext)
   const router = useRouter()
@@ -150,7 +155,7 @@ const CreateAccountForm: React.FC = () => {
     ? `${pathname}?${searchParams.toString()}`
     : pathname
   const returnToForLinkToLoginPage = useCurrentPagePathForReturnTo(currentAsPath)
-  const { errors, isValid, isSubmitting } = formState
+  const { isSubmitting } = formState
 
   const [confirmEmailPageVisible, setConfirmEmailPageVisible] = useState(false)
   const [emailAlreadyTakenError, setEmailAlreadyTakenError] = useState<string | null>(null)
@@ -298,7 +303,7 @@ const CreateAccountForm: React.FC = () => {
 
   return (
     <Wrapper>
-      <h1>{t("create-new-account")}</h1>
+      <h1 id="create-account-heading">{t("create-new-account")}</h1>
       <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
       <form
         onSubmit={handleSubmit(async (data, event) => {
@@ -332,106 +337,123 @@ const CreateAccountForm: React.FC = () => {
           }
         })}
       >
-        <fieldset disabled={isSubmitting}>
-          <TextField
-            label={t("first-name")}
-            placeholder={t("enter-first-name")}
-            {...register("first_name", {
-              required: t("required-field"),
-            })}
-            required={true}
-            {...includeIf(errors.first_name, { error: errors.first_name })}
-          />
-
-          <TextField
-            label={t("last-name")}
-            placeholder={t("enter-last-name")}
-            {...register("last_name", {
-              required: t("required-field"),
-            })}
-            required={true}
-            {...includeIf(errors.last_name, { error: errors.last_name })}
-          />
-
-          <Controller
-            name="country"
-            control={control}
-            rules={{ required: t("required-field") }}
-            render={({ field }) => (
-              <SearchableSelect
-                className={css`
-                  margin-bottom: 10px;
-                `}
-                label={t("enter-country-question")}
-                options={countriesNames}
-                onChangeByValue={(value) => field.onChange(value)}
-                value={field.value}
-                {...includeIf(errors.country?.message, { error: errors.country?.message })}
-              />
-            )}
-          />
-
-          <TextField
-            label={t("email")}
-            type="email"
-            placeholder={t("enter-your-email")}
-            {...register("email", {
-              required: t("required-field"),
-              validate: {
-                isValidEmail: (value) =>
-                  value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
-              },
-            })}
-            required={true}
-            {...includeIf(errors.email, { error: errors.email })}
-          />
-          <TextField
-            label={t("password")}
-            type="password"
-            placeholder={t("enter-your-password")}
-            {...register("password", {
-              required: t("required-field"),
-              minLength: {
-                value: 8,
-                message: t("password-must-have-at-least-8-characters"),
-              },
-            })}
-            required={true}
-            {...includeIf(errors.password, { error: errors.password })}
-          />
-
-          <TextField
-            label={t("confirm-password")}
-            type="password"
-            placeholder={t("confirm-your-password")}
-            {...register("password_confirmation", {
-              required: t("required-field"),
-              minLength: {
-                value: 8,
-                message: t("password-must-have-at-least-8-characters"),
-              },
-              validate: {
-                passwordMatch: (value) => value === password || t("passwords-dont-match"),
-              },
-            })}
-            required={true}
-            {...includeIf(errors.password_confirmation, { error: errors.password_confirmation })}
-          />
-
-          <CheckBox
+        <p
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        >
+          {t("all-fields-are-required")}
+        </p>
+        <fieldset disabled={isSubmitting} aria-labelledby="create-account-heading">
+          <div
             className={css`
-              margin-top: 1rem;
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
             `}
-            defaultChecked={false}
-            label={t("email-communication-consent-checkbox-text")}
-            {...register("email_communication_consent")}
-          ></CheckBox>
+          >
+            <TextField
+              name="first_name"
+              control={control}
+              label={t("first-name")}
+              autoComplete="given-name"
+              isRequired
+              rules={{
+                required: t("required-field"),
+              }}
+            />
+
+            <TextField
+              name="last_name"
+              control={control}
+              label={t("last-name")}
+              autoComplete="family-name"
+              isRequired
+              rules={{
+                required: t("required-field"),
+              }}
+            />
+
+            <ComboBox
+              name="country"
+              control={control}
+              label={t("enter-country-question")}
+              items={countriesNames}
+              getItemKey={(item) => item.value}
+              getItemTextValue={(item) => item.label}
+              isRequired
+              rules={{ required: t("required-field") }}
+            >
+              {(item) => item.label}
+            </ComboBox>
+
+            <TextField
+              name="email"
+              control={control}
+              label={t("email")}
+              type="email"
+              autoComplete="email"
+              isRequired
+              rules={{
+                required: t("required-field"),
+                validate: {
+                  isValidEmail: (value) =>
+                    value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
+                },
+              }}
+            />
+            <PasswordField
+              name="password"
+              control={control}
+              label={t("password")}
+              autoComplete="new-password"
+              isRequired
+              rules={{
+                required: t("required-field"),
+                minLength: {
+                  value: 8,
+                  message: t("password-must-have-at-least-8-characters"),
+                },
+              }}
+            />
+
+            <PasswordField
+              name="password_confirmation"
+              control={control}
+              label={t("confirm-password")}
+              autoComplete="new-password"
+              isRequired
+              rules={{
+                required: t("required-field"),
+                minLength: {
+                  value: 8,
+                  message: t("password-must-have-at-least-8-characters"),
+                },
+                validate: {
+                  passwordMatch: (value: string) => value === password || t("passwords-dont-match"),
+                },
+              }}
+            />
+
+            <Checkbox
+              className={css`
+                margin-top: 1rem;
+              `}
+              name="email_communication_consent"
+              control={control}
+              label={t("email-communication-consent-checkbox-text")}
+            />
+          </div>
         </fieldset>
-        <input
-          disabled={!isValid || createAccountMutation.isPending}
-          value={t("create-an-account")}
+        <Button
+          className="submit-button"
+          variant="primary"
+          size="medium"
           type="submit"
-        />
+          isLoading={createAccountMutation.isPending}
+        >
+          {t("create-an-account")}
+        </Button>
       </form>
       <span className="signin-link">
         <a href={`/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`}>
@@ -463,11 +485,8 @@ const CreateAccountForm: React.FC = () => {
               display: inline-block;
               margin-top: 0.5rem;
               color: ${baseTheme.colors.blue[600]};
-              text-decoration: none;
+              text-decoration: underline;
               font-weight: 500;
-              &:hover {
-                text-decoration: underline;
-              }
             `}
           >
             {t("sign-in-if-you-have-an-account")}

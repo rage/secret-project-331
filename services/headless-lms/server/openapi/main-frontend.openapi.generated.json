@@ -577,6 +577,28 @@
         }
       }
     },
+    "/api/v0/main-frontend/chatbots/": {
+      "get": {
+        "tags": ["chatbots"],
+        "summary": "GET `/api/v0/main-frontend/chatbots`",
+        "operationId": "getAllChatbots",
+        "responses": {
+          "200": {
+            "description": "All chatbots",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatbotConfiguration"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}": {
       "get": {
         "tags": ["chatbots"],
@@ -2238,6 +2260,28 @@
         }
       }
     },
+    "/api/v0/main-frontend/courses/": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nGET `/api/v0/main-frontend/courses` - Get all courses\n\nReturns all courses.",
+        "operationId": "getAllCourses",
+        "responses": {
+          "200": {
+            "description": "All courses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Course"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/courses/join/{join_code}": {
       "get": {
         "tags": ["courses"],
@@ -3168,6 +3212,105 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/FeedbackCount"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/get-course-audiences": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nget `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.",
+        "operationId": "getCourseAudiences",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course audiences",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseAudience"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/get-course-metadata": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nget `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.",
+        "operationId": "getCourseMetadata",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompleteCourseMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/get-course-prerequisites": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nget `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.",
+        "operationId": "getCoursePrerequisites",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course prerequisites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CoursePrerequisite"
+                  }
                 }
               }
             }
@@ -6160,6 +6303,47 @@
                   "items": {
                     "$ref": "#/components/schemas/CourseModuleThresholdInfo"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/update-metadata": {
+      "post": {
+        "tags": ["courses"],
+        "summary": "\nPOST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.",
+        "operationId": "updateMetadata",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseMetadataUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseMetadata"
                 }
               }
             }
@@ -12319,6 +12503,46 @@
           }
         }
       },
+      "CompleteCourseMetadata": {
+        "type": "object",
+        "required": [
+          "course",
+          "course_instances",
+          "default_module",
+          "course_prerequisites",
+          "course_audiences",
+          "course_organization"
+        ],
+        "properties": {
+          "course": {
+            "$ref": "#/components/schemas/Course"
+          },
+          "course_audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseAudience"
+            }
+          },
+          "course_instances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseInstance"
+            }
+          },
+          "course_organization": {
+            "$ref": "#/components/schemas/DatabaseOrganization"
+          },
+          "course_prerequisites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CoursePrerequisite"
+            }
+          },
+          "default_module": {
+            "$ref": "#/components/schemas/CourseModule"
+          }
+        }
+      },
       "CompletionGridRow": {
         "type": "object",
         "required": ["user_id", "module_id", "registered", "needs_to_be_reviewed"],
@@ -12665,6 +12889,35 @@
         "type": "string",
         "description": "The AI policy a teacher has selected for a course. Drives which variant of the student-facing\nAI usage notice is shown; `NotSet` (the default) keeps the generic default message.",
         "enum": ["NotSet", "NoAi", "PlanningOnly", "Limited", "FullUse", "Required"]
+      },
+      "CourseAudience": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "course_id", "audience"],
+        "properties": {
+          "audience": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       },
       "CourseBreadcrumbInfo": {
         "type": "object",
@@ -13376,6 +13629,48 @@
           "public_spec": {}
         }
       },
+      "CourseMetadata": {
+        "type": "object",
+        "required": ["course_audiences", "course_prerequisites"],
+        "properties": {
+          "course_audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseAudience"
+            }
+          },
+          "course_description": {
+            "type": ["string", "null"]
+          },
+          "course_prerequisites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CoursePrerequisite"
+            }
+          }
+        }
+      },
+      "CourseMetadataUpdate": {
+        "type": "object",
+        "required": ["course_audiences", "course_prerequisites"],
+        "properties": {
+          "course_audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewCourseAudience"
+            }
+          },
+          "course_description": {
+            "type": ["string", "null"]
+          },
+          "course_prerequisites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewCoursePrerequisite"
+            }
+          }
+        }
+      },
       "CourseModule": {
         "type": "object",
         "description": "\n * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).",
@@ -13643,6 +13938,35 @@
             "type": "integer",
             "format": "int32",
             "description": "The smallest threshold a teacher may save for this module: `0` for small (exempt) modules,\notherwise [`MINIMUM_CHEATER_THRESHOLD_SECONDS`]."
+          }
+        }
+      },
+      "CoursePrerequisite": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "course_id", "prerequisite"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "prerequisite": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -13924,6 +14248,43 @@
           "opens_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DatabaseOrganization": {
+        "type": "object",
+        "required": ["id", "slug", "created_at", "updated_at", "name", "hidden"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_image_path": {
+            "type": ["string", "null"]
+          },
+          "slug": {
+            "type": "string"
           },
           "updated_at": {
             "type": "string",
@@ -15647,13 +16008,19 @@
       },
       "Module": {
         "type": "object",
-        "required": ["course_code", "description"],
+        "required": ["course_code", "description", "prerequisites"],
         "properties": {
           "course_code": {
             "type": "string"
           },
           "description": {
             "type": "string"
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -15943,6 +16310,24 @@
           "teacher_in_charge_name": {
             "type": "string",
             "description": "Name of the teacher who is responsible for the course. Must be a valid name."
+          }
+        }
+      },
+      "NewCourseAudience": {
+        "type": "object",
+        "required": ["audience"],
+        "properties": {
+          "audience": {
+            "type": "string"
+          }
+        }
+      },
+      "NewCoursePrerequisite": {
+        "type": "object",
+        "required": ["prerequisite"],
+        "properties": {
+          "prerequisite": {
+            "type": "string"
           }
         }
       },
@@ -17727,8 +18112,14 @@
       },
       "SisuDescriptionResponse": {
         "type": "object",
-        "required": ["course_description", "modules"],
+        "required": ["course_description", "audience", "modules"],
         "properties": {
+          "audience": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "course_description": {
             "type": "string"
           },

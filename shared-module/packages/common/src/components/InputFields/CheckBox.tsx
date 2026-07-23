@@ -52,8 +52,8 @@ const Label = styled.label<LabelExtraProps>`
   }
 
   input[type="checkbox"]:checked {
-    border-color: #37bc9b;
-    background: #37bc9b;
+    border-color: ${baseTheme.colors.green[600]};
+    background: ${baseTheme.colors.green[600]};
   }
   input[type="checkbox"]:checked::before {
     transform: scale(1);

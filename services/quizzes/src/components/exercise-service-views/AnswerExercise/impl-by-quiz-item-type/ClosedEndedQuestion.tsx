@@ -6,7 +6,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { stripNonPrintableCharacters } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { primaryFont } from "@/shared-module/exercise-react/styles"
+import { baseTheme, primaryFont } from "@/shared-module/exercise-react/styles"
 
 import type { QuizItemComponentProps } from "."
 import type { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
@@ -19,6 +19,11 @@ const ClosedEndedQuestion: React.FC<
 > = ({ quizDirection, quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   const fieldId = useId()
+  const titleId = useId()
+  const bodyId = useId()
+  // Fall back to body as the accessible name when there's no title.
+  const labelledBy = quizItem.title ? titleId : quizItem.body ? bodyId : undefined
+  const describedBy = quizItem.title && quizItem.body ? bodyId : undefined
 
   const validateAnswer = useCallback(
     (answer: string) => {
@@ -55,17 +60,18 @@ const ClosedEndedQuestion: React.FC<
 
   return (
     <CloseEndedQuestionWrapper wideScreenDirection={quizDirection}>
-      <div>
+      <div id={titleId}>
         {quizItem.title && <ParsedText inline parseLatex parseMarkdown text={quizItem.title} />}
       </div>
-      <div>
+      <div id={bodyId}>
         {quizItem.body && <ParsedText inline parseLatex parseMarkdown text={quizItem.body} />}
       </div>
       <div>
         <TextField
           id={fieldId}
-          aria-label={t("answer")}
-          label={t("answer")}
+          aria-labelledby={labelledBy}
+          aria-label={labelledBy ? undefined : t("answer")}
+          aria-describedby={describedBy}
           type="text"
           className={css`
             label {
@@ -78,7 +84,8 @@ const ClosedEndedQuestion: React.FC<
             input {
               background: #f4f5f7 !important;
               border-radius: 0.25rem;
-              border: 0.188rem solid #dfe1e6 !important;
+              /* gray[400] for sufficient contrast against the field background */
+              border: 0.188rem solid ${baseTheme.colors.gray[400]} !important;
             }
           `}
           value={quizItemAnswerState?.textData ?? ""}

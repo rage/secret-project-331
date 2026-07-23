@@ -155,6 +155,8 @@ const TableBlock: React.FC<
                         text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
                         tag="th"
                         tagProps={{
+                          // oxlint-disable-next-line i18next/no-literal-string
+                          scope: "col",
                           className: fetchAlignment(cell.align),
                           colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
                           rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
@@ -177,8 +179,12 @@ const TableBlock: React.FC<
                       key={i}
                       // oxlint-disable-next-line i18next/no-literal-string
                       text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
-                      tag="td"
+                      tag={cell.tag === "th" ? "th" : "td"}
                       tagProps={{
+                        ...(cell.tag === "th"
+                          ? // oxlint-disable-next-line i18next/no-literal-string
+                            { scope: cell.scope ?? "row" }
+                          : {}),
                         className: fetchAlignment(cell.align),
                         colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
                         rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
@@ -201,8 +207,10 @@ const TableBlock: React.FC<
                         key={i}
                         // oxlint-disable-next-line i18next/no-literal-string
                         text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
-                        tag="td"
+                        tag="th"
                         tagProps={{
+                          // oxlint-disable-next-line i18next/no-literal-string
+                          scope: "col",
                           className: fetchAlignment(cell.align),
                           colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
                           rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),

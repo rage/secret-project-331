@@ -3,7 +3,12 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import type { Alternative } from "@/util/stateInterfaces"
+import { baseTheme } from "@/styles/theme"
+import {
+  toVersionedPrivateSpec,
+  validatePrivateSpec,
+  type Alternative,
+} from "@/util/stateInterfaces"
 import { generateUuid } from "@/util/uuid"
 
 import ButtonEditor from "./ButtonEditor"
@@ -35,23 +40,43 @@ const NewButton = styled.button`
   }
 `
 
+const ErrorList = styled.ul`
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem 0.75rem 2rem;
+  border-radius: 0.25rem;
+  background-color: ${baseTheme.semantic.error.background};
+  color: ${baseTheme.semantic.error.text};
+`
+
 const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, port }) => {
   const { t } = useTranslation()
+
+  // `validatePrivateSpec` is the single validity authority: its result drives both the `valid` flag
+  // the host uses to gate saving AND the errors shown to the author below.
+  const validation = validatePrivateSpec(state)
 
   useEffect(() => {
     if (!port) {
       return
     }
     const message: CurrentStateMessage = {
-      data: { private_spec: state },
+      // persist-on-save: emit the current versioned envelope so the next save stores it.
+      data: { private_spec: toVersionedPrivateSpec(state) },
       message: CURRENT_STATE,
-      valid: true,
+      valid: validatePrivateSpec(state).valid,
     }
     port.postMessage(message)
   }, [state, port])
 
   return (
     <ButtonWrapper>
+      {validation.errors.length > 0 && (
+        <ErrorList role="alert" aria-label={t("validation-errors-heading")}>
+          {validation.errors.map((error) => (
+            <li key={error}>{t(error)}</li>
+          ))}
+        </ErrorList>
+      )}
       {state.map((o) => (
         <ButtonEditor
           key={o.id}

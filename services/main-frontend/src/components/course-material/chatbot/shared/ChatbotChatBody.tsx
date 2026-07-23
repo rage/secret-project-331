@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, { Fragment, useCallback, useEffect, useMemo, useRef } from "react"
+import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -82,6 +82,12 @@ export interface ChatbotConversationMessageWithStatus {
   optimistic: boolean
 }
 
+// Full-width flex column so the bubble can align itself to the start or end of the row.
+const messageListItemStyle = css`
+  display: flex;
+  flex-direction: column;
+`
+
 const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   currentConversationInfo,
   newConversationMutation,
@@ -92,7 +98,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   chatbotMessageAnnouncement,
   newMessageMutation,
 }) => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLUListElement>(null)
   const { t } = useTranslation()
 
   const citations = useMemo(() => {
@@ -212,20 +218,26 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         overflow: hidden;
       `}
     >
-      <div
+      <ul
         className={css`
           flex-grow: 1;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
           padding: 1rem;
+          margin: 0;
+          list-style: none;
         `}
         ref={scrollContainerRef}
       >
         {[...messagesMap.entries(), ...messagesMap2.entries()].map(([message, items]) => {
           if (message === null && items !== null && items[0] !== undefined) {
             const key = items[0].message.id
-            return <ToolCallReasoningBubble key={key} messages={items} />
+            return (
+              <li key={key} className={messageListItemStyle}>
+                <ToolCallReasoningBubble messages={items} />
+              </li>
+            )
           }
           if (message === null) {
             return null
@@ -233,7 +245,16 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
           if (m.success) {
             return (
-              <Fragment key={`chatbot-status-message-${message.message.id}`}>
+              <li
+                key={`chatbot-status-message-${message.message.id}`}
+                className={messageListItemStyle}
+                // role=generic (the bubble div) can't be named, so the label lives here (aria-prohibited-attr).
+                aria-label={
+                  m.data.message_role === "assistant"
+                    ? t("message-from-chatbot")
+                    : t("message-from-you")
+                }
+              >
                 {items !== null && <ToolCallReasoningBubble messages={items} />}
                 <MessageBubble
                   message={m.data.text ?? ""}
@@ -241,7 +262,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
                   isFromChatbot={m.data.message_role === "assistant"}
                   isPending={!m.data.message_is_complete && newMessageMutation.isPending}
                 />
-              </Fragment>
+              </li>
             )
           }
           return null
@@ -249,7 +270,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         {newMessageMutation.isPending && messageState.messages.length === 0 && (
           <MessageBubble message={""} citations={undefined} isFromChatbot={true} isPending={true} />
         )}
-        <div
+        <li
           className={css`
             display: flex;
             flex-flow: column nowrap;
@@ -274,8 +295,8 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
                 }}
               />
             ))}
-        </div>
-      </div>
+        </li>
+      </ul>
       {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- VisuallyHidden wrapper with role=status; <output> drops the styling */}
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}

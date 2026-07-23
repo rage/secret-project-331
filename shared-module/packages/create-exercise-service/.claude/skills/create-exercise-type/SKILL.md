@@ -53,6 +53,27 @@ means you revise and **re-present the revised artifact** before moving on. `AskU
 compound decisions (mechanism vs. catalogue vs. defaults vs. limits are *separate* questions), and
 mix in free-form discussion whenever the option space is too rich for multiple choice.
 
+**A gate is where you push back, not just elicit and confirm.** When a requested feature is
+expensive, risky, or architecturally costly — it forces async grading, a new stored field + a
+migration, a server-side fetch / SSRF surface, cross-request state, a durable queue — say so plainly,
+lay out the cheaper or safer alternatives and their tradeoffs, and let the user choose with the cost
+visible. Never silently absorb the complexity, and never pad scope to please.
+
+**And never agree to do the impossible.** Some asks the plugin contract simply forbids; name *why*
+and propose the nearest feasible design rather than attempting it. Grounded in the doctrine: a grader
+that needs a live DB, a session, or a network call to another course service can't exist — grade runs
+from `private_spec + answer` alone (reference/07 §6), and the *only* sanctioned grading I/O is
+fetching a client-supplied URL, which is hostile input to be guarded, not a data source (§8). The
+plugin cannot store the uploaded files themselves — it only holds their URLs (see the file-upload
+gotcha below). You cannot mutate a stored blob's shape in place without a version bump + a migration
+step (migrate-on-read, reference/07 §1); you cannot make view-submission depend on server-only data
+it is never sent; and nothing you build may require the host to migrate its database. When an ask
+lands here, refuse the impossible part explicitly and redesign around it.
+
+**Sign-off is its own final round.** Never bundle the confirmation/sign-off question with open
+substantive questions; ask for sign-off only after a full round in which the presented artifact did
+not change.
+
 **Headless / subagent context.** If `AskUserQuestion` is unavailable (you are running as a subagent,
 or without an interactive user), do **not** skip a gate or sign off on your own behalf. Present the
 full proposal for the gate you are at — every open question with your recommended default — as your
@@ -67,7 +88,11 @@ placement is its own decision, so put it to the user explicitly:
 - **Own repository** (reference/05's Track A): scaffold to a path *outside* the monorepo. The output
   is standalone (verified: fresh `pnpm install`, `tsc`, vitest, and dev-server boot all work with no
   enclosing workspace or git repo) and keeps a point-in-time vendored shared-module.
-  Registered with the host later by URL (reference/05 step 9).
+  Registered with the host later by URL (reference/05 step 9). It is its **own git root**, unrelated
+  to this monorepo — a fresh scaffold isn't even a git repo yet (`git init` it if you want version
+  control from the start), and any subagent, `git worktree`, or CWD-relative command defaults to the
+  *monorepo*, not the plugin, so it will strand the work in the wrong repo (see the delegation gotcha
+  in Implement).
 - **Inside this monorepo as a first-party service** (`services/<slug>`, Track B): commits you to the
   full reference/05 sequence — vendored-module sync targets (step 5), backend seed (step 6), infra
   manifests (step 7). Do only part of it and the service rots quietly.
@@ -79,11 +104,24 @@ stopping early.
 **Then broaden the feature list before designing anything.** The user's first message is rarely the
 whole exercise. Propose the additional features this exercise class typically wants — as concrete
 suggestions the user can accept or reject, not "any other requirements?" — and fold the accepted
-ones into the design inputs. A feature discovered *after* the data model is locked is a migration;
-five minutes of brainstorming here is the cheap alternative. Also settle scope of the template's
+ones into the design inputs. The deliverable of this gate is an explicit **v1 scope line plus a
+"deferred to a later version" list**: decide what ships now and what waits. Because every stored type
+is versioned from day one and adding a version is a one-line registry addition (reference/07 §1),
+deferring a feature is cheap and safe — the risk to manage here is *scope*, not migration count. So
+on any surface-enlarging proposal (a server-side fetch, async grading, an external scanner, a new
+stored field), default to *"great for v2 — here's the v1 that ships without it; want it deferred?"*
+and fold it into v1 only on explicit confirmation it's needed now. Also settle scope of the template's
 optional machinery now: **ask whether CSV export is wanted** (keeping it means rewriting both
 handlers + tests for your data; dropping it means deleting files per reference/05 step 3 — neither
 is free).
+
+**For any exercise that ingests user content or files, settle the abuse/threat surface here in
+Gate 1**, not Gate 2: malicious, oversized, or executable content; whether grading must *fetch and
+scan* the bytes (which forces async grading **and** an SSRF surface — reference/07 §6/§8); PII in
+filenames; and what a peer reviewer's browser will *render* from the answer (injection — leak L11).
+These reshape the data model and the grading mode, so discovering them after Gate 2 is exactly the
+expensive path this gate exists to avoid — and they feed the Gate 2 grading-mode and leak decisions
+directly.
 
 ## Gate 2 — Data model: design the five types with the user (no code until confirmed)
 
@@ -111,7 +149,9 @@ conversation round:
   form); and how the design behaves under peer review and exam mode.
 - **Every quantitative limit gets a concrete number put to the user** — file-size caps, item-count
   ceilings, character limits. "Add limits" from the user + a number you invented is not a confirmed
-  design; propose the value, let them confirm or change it.
+  design; propose the value, let them confirm or change it. Limits invented *mid-design* (a character
+  cap, a retry count, a timeout) are still limits — surface each as its own number, not folded into a
+  bulk "confirm the invariants" or an option label.
 - **Delegation is not sign-off.** When the user says "you come up with X," draft X, then present the
   draft for confirmation before implementing it. Same for anything you invent post-gate.
 
@@ -136,6 +176,10 @@ wasn't in the confirmed design (a preview-file-types list, an inline-vs-download
 a quick confirm — it's part of the design, not an implementation detail.
 
 ## Implement the confirmed design
+
+**Hard rule: never `cat` a file you intend to edit — the editor requires a prior `Read`.** A `cat`
+survey doesn't register the file as read, so your first `Write`/`Edit` is rejected and you re-read
+everything.
 
 **Scaffold now — and only now.** Check the prerequisites and run the Setup install (Part B), then
 scaffold non-interactively with the scriptable path, using the name/path/port confirmed in Gate 1:
@@ -170,8 +214,11 @@ change-vs-keep list is in `reference/02`; don't re-derive the layout by hand.
 
 Authoring gotchas (each cost a real session a debugging round-trip):
 
-- **Open files with the Read tool before editing them** — surveying via `cat` doesn't register the
-  file as read, so your first `Write`/`Edit` will be rejected and you'll re-read everything.
+- **Delegating standalone (Track A) work to subagents: do not use `isolation:worktree`.** A worktree
+  is cut from the *monorepo* (the CWD repo), not the plugin's separate git root, so the agent sees
+  none of the plugin's files — it will stall, or worse, fabricate fixes to code it can't see. Spawn
+  plain agents with the plugin's absolute path and run them sequentially (they share one working
+  tree).
 - **Keep the template's guard rails wired, don't just keep their files**: `publicSpec.ts` /
   `modelSolution.ts` must keep *calling* `assertNoLeak` on what they serve, and every stored-blob
   door goes through the `migrate*ToLatest` chain (`src/util/migration/` in the template) — adapt
@@ -184,7 +231,8 @@ Authoring gotchas (each cost a real session a debugging round-trip):
 - **File-upload exercises**: plugins never store files. The `useFileUpload(port)` hook
   (`@/shared-module/exercise-react/react/hooks/useFileUpload`) sends `file-upload` to the host and
   resolves to a `Map<name, url>` — the answer records the URLs. In tests the host emulator
-  auto-answers uploads (`driveFileUpload` + a small committed fixture file).
+  auto-answers uploads (`driveFileUpload` + a small committed fixture file). If your grader downloads
+  these URLs, they are attacker-controlled input — SSRF-guard every fetch and see reference/07 §8.
 - **If the answer view seeds state from `previous_submission`, emit a `current-state` for it** —
   otherwise the host's `valid` gate stays unset and a student can't resubmit unchanged prior work.
 
@@ -194,6 +242,21 @@ Unit layer: `pnpm test` + `tsc --noEmit`, with the suites reference/07 Part II p
 tests, **leak regression gates** (including one that proves the *endpoints* invoke the guard, not
 just that the guard works), round-trips, grading tables fed garbage, and a migration suite anchored
 at v1.
+
+**Hostile client data — mandatory whenever the answer or spec is fetched server-side, or rendered as
+`href`/`src`/markup.** A green `tsc`/vitest/playwright run does **not** make these surfaces safe: do
+not call them "verified"/"fully verified" without this test class, because every one of them passes
+with the bug present.
+
+- an SSRF target (loopback / private-range / cloud-metadata URL) is **refused and never fetched** —
+  assert with a *recording* fake that the forbidden host received no request; a score-0 assertion
+  alone cannot detect an SSRF regression (the fetch still happened);
+- a `javascript:` / `data:` URL is neutralized **at the answer parse boundary** — feed the payload,
+  assert it is dropped (so every downstream render site is safe by construction);
+- if grading is async: a job whose I/O throws mid-run still delivers a terminal result **exactly
+  once** (fake callback; POST-fails-then-succeeds to prove retry recovery — a lost delivery leaves
+  the submission stuck `Pending` forever);
+- any adapter with wire framing (a byte scanner, an HTTP client) gets its own test.
 
 E2E layer: adapt the inherited `e2e/protocol.spec.ts` (typed `createHostEmulator` + `set-state`
 builders). **The e2e suite must be comprehensive — this is not a user preference to ask about**
@@ -304,8 +367,9 @@ node drive-view.mjs --base http://localhost:3998   # attach to an already-runnin
 PASS
 ```
 
-To drive _your_ generated service, boot it and pass `--base`; edit the pushed `public_spec` in the
-script to match your data types. The emulator it injects
+To drive _your_ generated service, boot it and pass `--base`; editing the pushed `public_spec` in
+the script to match your data types is for **maintainer smoke-checks only** — authors verify with the
+committed e2e suite, not by hand-editing drive-view (see Part A's Verify step). The emulator it injects
 (`@moocfi/exercise-service-test-utils`, `src/browser/hostEmulator.js`) plays the parent: transfers
 the port, auto-answers `file-upload`/`open-dialog`, and records the iframe's full message history
 (so `current-state` survives the `height-changed` spam). For committed tests, use the typed

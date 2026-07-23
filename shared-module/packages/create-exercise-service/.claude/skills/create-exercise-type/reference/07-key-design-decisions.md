@@ -200,6 +200,15 @@ Three host behaviors worth internalizing:
 - **L10 — Error/log echoes.** 400/500 bodies or server logs that echo spec fragments back; be
   deliberate about what error messages contain (the iframe already logs all port messages to the
   console by design — that's fine, it's client-visible data by definition).
+- **L11 — Injection from rendered answer content.** The answer is attacker-controlled and is
+  rendered to peer reviewers, so treat every answer field as untrusted input *in the view*, not just
+  in classification: scheme-check any URL before using it as `href`/`src` (`http(s)` only), never
+  `dangerouslySetInnerHTML` answer content, and prefer sanitizing at the answer parse boundary so
+  every render site is safe by construction. A crafted `javascript:` URL rendered as an `<a href>`
+  executes in a peer reviewer's iframe (a real session bug) — a stored-XSS hole general to any type
+  that renders free-form answer content: essay text, filenames, URLs. Unlike L1–L10 this is an
+  *inbound* injection, not an outbound information leak, but it lives in the same untrusted-boundary
+  discipline.
 
 #### 3d. Rules that make leaks structurally hard
 
@@ -220,6 +229,10 @@ Three host behaviors worth internalizing:
    reveals go in the model solution, whose timing the host gates.
 6. **Public spec = public** : on an open MOOC, derive as if publishing to the internet — because you
    are.
+7. **Render answer content as untrusted** (kills L11): scheme-check URLs before using them as
+   `href`/`src`, never `dangerouslySetInnerHTML` answer fields, and sanitize at the answer parse
+   boundary so every render site is safe by construction. The answer is attacker-controlled, and
+   peer reviewers render it.
 
 ### 4. Mint IDs at authoring time; keep derivation deterministic
 
@@ -255,8 +268,12 @@ The answer is stored per-submission forever and is the input to grading and to v
   teacher edits the exercise, and bloat every submission row.
 - ...**except** what's needed to reconstruct the student's experience when the spec has since changed
   or was randomized (see #5) — then record the variant/seed in the answer.
-- **Grade must work from `private_spec + answer` alone** — no session, no DB, no fetches. If grading
-  needs something, it belongs in one of those two.
+- **Grade must work from `private_spec + answer` alone for answer-key grading** — no session, no DB,
+  no fetches; if grading needs something, it belongs in one of those two. The one exception is a
+  grader that must dereference a *client-supplied* URL (file submission: download the uploaded bytes
+  to scan them). That fetch is unavoidable, but the URL is attacker-controlled — treat it as hostile
+  and guard it (§8, "When grading must fetch"), and expect it to force async delivery (§8), since
+  network I/O rarely completes in-request.
 - **Version the answer type too** (quizzes: `isOldUserAnswer`) — and make the parser actually **read
   the incoming version** and dispatch through the migration chain. A "versioned" parser that ignores
   `value.version` and stamps the current version onto whatever arrives silently *relabels* future
@@ -301,7 +318,19 @@ Two related patterns worth copying:
   `"Pending"` and later POST the result to the `grading_update_url` callback (the JWT-authorized
   URL in the `GradingRequest`; the tmc pattern for sandboxed test runs). Async costs you callback
   handling, retries, and a "grading in progress" state in view-submission — take it only if grading
-  genuinely can't complete in-request.
+  genuinely can't complete in-request. If you go async, satisfy this **delivery contract**, because
+  the default "grade is a pure function that returns its result" no longer holds:
+  1. `/api/grade` returns `Pending` immediately — no result in the response.
+  2. **Exactly one terminal POST** to `grading_update_url` per job — *including when the job body
+     throws*. Wrap the worker so any rejection becomes a *delivered* `Failed` result, never a
+     silently-logged one: a `.catch` that builds a `Failed` and only logs it leaves the submission
+     stuck.
+  3. Assume the POST is retried and idempotent host-side; a retry must deliver the same terminal
+     result.
+  4. Design against this failure mode: a `Pending` with **no** terminal POST hangs the submission
+     until a manual regrade — no host-side timeout rescues it.
+  5. An in-memory retry queue is **not durable across restarts** — surface that tradeoff in Gate 1
+     when async is chosen, rather than absorbing it silently.
 - **Score semantics**: `score_given / score_maximum` is a ratio the host scales to the exercise's
   points. Keep `score_maximum` stable per exercise; decide partial-credit policy per item type
   (quizzes' choose-N vs multiple-choice differ) and encode the policy _in the private spec_ if
@@ -309,6 +338,24 @@ Two related patterns worth copying:
 - **`set_user_variables`**: grading can persist per-user-per-course variables the host passes back
   to your iframe views later. Powerful (e.g. remembering a student's name across exercises) but it's
   cross-exercise hidden state — use sparingly and document each one.
+
+**When grading must fetch (the SSRF sink).** A grader that dereferences a client-supplied URL — the
+file-submission pattern, where the answer holds upload URLs and the grader downloads the bytes to
+scan them — is a server-side request forgery sink: *the answer is attacker-controlled, so the URL
+is too.* This is the one sanctioned exception to §6's "no fetches"; everything else grading needs
+still comes from `private_spec + answer`. Guard every such fetch:
+
+- **Validate the scheme** (`http(s)` only) before fetching.
+- **Resolve the hostname and reject private/loopback/link-local ranges** and cloud-metadata
+  addresses (`169.254.169.254`) — including their `::ffff:`-mapped and numeric (decimal/hex/octal)
+  forms, not just the literal strings. Resolve DNS yourself and check the resolved IP; don't trust
+  the name.
+- **Set `redirect: "manual"` and re-validate every hop.** A permitted host can 302 you to a private
+  address; following redirects unchecked defeats the guard (this was a real session bug — the check
+  validated only the initial URL).
+- **Cap the bytes you read** (a hard ceiling, streamed) — the same cap bounds OOM / zip-bomb
+  exposure. Note that a client-claimed file size cannot be trusted; enforce the cap on bytes actually
+  read.
 
 ### 9. Trust boundaries: forgiving in the iframe, strict on the server
 
@@ -423,6 +470,14 @@ fabricated placeholder), and — when you add a version — every _other_ item t
 prior shape (the pass-through guarantee). Quizzes: `tests/util/migrationTests/migrateToLatest.test.ts`
 and `closedEndedV2ToV3.test.ts`.
 
+Two coverage anchors a v1 suite otherwise misses. **Exercise the chain loop even at v1:** inject a
+no-op (or 2-step) registry into `runChain` and assert its "did not advance the version" guard throws
+— the loop body is 0% covered until you add v2, yet it is the machinery every future migration relies
+on. **Test clamp-on-read for every platform hard cap (§7):** an over-cap value in a *stored* blob
+must be clamped as it passes through the parse/migration layer, not merely rejected by `validate()` —
+foreign or pre-cap blobs never go through `validate()`, so a cap enforced only there is not enforced
+on replay.
+
 ### 4. Leak regression tests (the anti-cheating tests)
 
 Mechanize the leak analysis from Part I #3: for every private-spec generator case, run the real
@@ -468,6 +523,27 @@ type — test it at that boundary. Pattern per `IframeView.test.tsx` (Testing Li
   version — the editor is one of the four migration doors (#1).
 - Same approach for AnswerExercise (interactions → emitted answer) and ViewSubmission (given
   spec+answer+feedback fixtures → renders correct/incorrect states; wrong-id answer doesn't crash).
+
+### 7b. Hostile client data — when grading fetches, or a view renders untrusted input
+
+The tests above are derivation-shaped; these are adversarial. A green suite reaches "verified"
+*without* them while the bug is still live — so this class is **required** whenever the answer/spec
+is (a) fetched server-side or (b) rendered as `href`/`src`/markup, and you may not call those
+surfaces "verified"/"fully verified" on a green `tsc`/vitest/playwright run alone.
+
+- **SSRF is refused _and never fetched_.** Point grading at a loopback/private/metadata URL and
+  assert with a *recording* fake HTTP client that the forbidden host received **no request** — a
+  score-0 assertion cannot distinguish "refused" from "fetched, then failed," so it does not detect
+  an SSRF regression. Cover a redirect to a private address too (permitted host → 302 →
+  `169.254.169.254`).
+- **Injection is neutralized at the parse boundary.** Feed the answer parser a `javascript:` /
+  `data:` URL (and, if you render free text, a markup payload) and assert it is dropped/escaped
+  there — so every render site is safe by construction (L11).
+- **Async delivers exactly once, even on failure.** A job whose I/O throws mid-run still POSTs one
+  terminal `Failed` (not a silent log); a POST that fails then succeeds recovers via retry without a
+  second delivery. Assert against a fake `grading_update_url` callback.
+- **Every wire-framing adapter gets its own test** — a byte scanner, an HTTP client: the framing is
+  where the silent bugs hide.
 
 ### 8. Manual/E2E layer
 

@@ -54,10 +54,24 @@ _envelopes_ (the request/response wrappers) are standardized.
 | `grade`          | `GradingRequest { exercise_spec=private_spec, submission_data=answer }` | `GradingResult`       |
 | csv export       | teacher data export                                                     | optional              |
 
+**Grading is server-side and normally pure.** `grade` derives its result from `exercise_spec`
+(= the private spec) + `submission_data` (= the answer) alone — no DB, no network. The one exception
+is a grader that must download a *client-supplied* URL (file scanning): that fetch is an SSRF sink
+(see the file-upload gotcha), and such grading usually runs async — `grade` returns `Pending` and a
+worker later POSTs the result to `grading_update_url`, exactly once per job.
+
 **The anti-cheating construct.** `public_spec` and `model_solution_spec` are **derived from**
 `private_spec` on every save (the backend re-runs both generators). This is deliberate: the plugin
 author controls exactly what reaches a browser, and correctness checking stays server-side.
 Design **one master type (the private spec) and two projections**, not three independent types.
+
+**Don't attempt what the plugin contract forbids.** Some asks aren't hard, they're impossible here —
+name why and redesign around them rather than trying. Impossible under this contract: grading that
+needs a live DB, a session, or a call to another course service (grade runs from `private_spec +
+answer` alone, save the one client-URL-fetch exception above); storing the uploaded files themselves
+(the plugin only holds their URLs); changing a stored blob's shape in place without a version bump +
+a migration step (see "your specs are stored forever" below); making view-submission depend on
+server-only data it is never sent; or anything that would require the host to migrate its database.
 
 ---
 
@@ -143,8 +157,10 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 
 - **May contain:** the student's choices/inputs **by id** (store `selectedOptionId`, not the option
   text — copies go stale and bloat every row), plus whatever is needed to reconstruct their variant
-  (a seed) if the exercise is randomized. Grade must work from `private_spec + answer` alone — no
-  session, no DB, no fetches.
+  (a seed) if the exercise is randomized. Grade is normally a pure function of `private_spec + answer`
+  alone — no session, no DB, no fetches; **if yours fetches a client-supplied URL** (e.g. downloading
+  an uploaded file to scan it) **treat it as hostile input — SSRF-guard the fetch, and expect async
+  delivery** (see the file-upload gotcha and the grade note under "How the plugin system works").
 - **Must NOT contain:** client-computed correctness (never trusted, and it leaks grading paths);
   copied spec content; PII or hidden fields — **peer reviewers render this object**, so anything in
   it is shown to another student.
@@ -210,6 +226,11 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
    endpoint and assert its response carries only the allowlisted content. If your exercise has no
    answer key, the leak surface is *future private-only fields*: assert the public spec carries
    **exactly** the allowlisted key set.
+7. **Render answer content as untrusted (inbound injection).** The answer is attacker-controlled and
+   peer reviewers render it, so treat every answer field as untrusted *in the view*: scheme-check any
+   URL before using it as `href`/`src` (`http(s)` only — a `javascript:` URL rendered as an `<a href>`
+   executes in a peer reviewer's iframe), never `dangerouslySetInnerHTML` answer content, and
+   sanitize at the answer parse boundary so every render site is safe by construction.
 
 ---
 
@@ -275,10 +296,24 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   `?.`/`!` deliberately.
 - **Playwright locators must target rendered translated strings** ("Video files"), not i18n keys
   ("file-category-video") — the dev server loads real locale files.
+- **The e2e host emulator's messages are index-signatured.** `createHostEmulator`'s `messages()` /
+  `waitForCurrentState` (from `exercise-service-test-utils`) return `RecordedMessage`
+  (`{ message: string; [key: string]: unknown }`), so there is no typed `.data` — read the payload as
+  `(msg as { data: MyType }).data`. And `noUncheckedIndexedAccess` makes `messages()[n]`
+  possibly-`undefined`, so index it with `!`/`?.`.
 - **File uploads**: plugins never store files. The `useFileUpload(port)` hook
   (`src/shared-module/exercise-react/react/hooks/useFileUpload`) sends `file-upload` to the host and
   resolves to a `Map<name, url>`; the answer records only the URLs. The test-utils host emulator
-  auto-answers uploads (`driveFileUpload` + a small committed fixture file).
+  auto-answers uploads (`driveFileUpload` + a small committed fixture file). **If your grader
+  downloads those URLs, they are attacker-controlled — an SSRF sink.** Validate the scheme
+  (`http(s)` only); resolve the hostname and reject private/loopback/link-local and metadata
+  (`169.254.169.254`) addresses, including `::ffff:`-mapped and numeric forms; set
+  `redirect: "manual"` and re-validate every hop; cap the bytes you read (bounds OOM/zip-bomb too —
+  never trust a client-claimed size). Such grading usually runs **async** (`grade` returns
+  `Pending`; a worker later POSTs the result to `grading_update_url`): deliver **exactly one**
+  terminal POST per job — including when the job throws (turn a rejection into a delivered `Failed`,
+  never a silent log) — or the submission hangs `Pending` forever. An in-memory retry queue does not
+  survive a restart.
 
 ## Where each concern lives
 

@@ -8,7 +8,13 @@ scaffolder (`03`), and backend/infra (`04`). Two tracks, depending on where the 
 - **Track A — external / standalone plugin** (own repo, own infra; like `rage/language-exercise-
 service`). Only steps 1–4 + step 9 (register by URL). No monorepo/skaffold/k8s work. The scaffold
 output is genuinely standalone (fresh install, tsc, tests, and boot all work outside any workspace
-or git repo) — so scaffold "own repo" straight to the external path.
+or git repo) — so scaffold "own repo" straight to the external path. It is its **own git root**,
+unrelated to this monorepo — a fresh scaffold isn't even a git repo yet (`git init` it if you want
+version control from the start). When delegating fixes on a standalone plugin to subagents, do
+**not** use `isolation:worktree`: the worktree is cut from the *monorepo*, not the plugin, so the
+agent lands in the wrong repo and sees none of the plugin's files (it will stall, or fabricate fixes
+to code it can't see). Spawn plain agents with the plugin's absolute path and run them sequentially
+(they share one working tree).
 - **Track B — first-party plugin shipped inside this monorepo** (`services/<slug>`; like
   `example-exercise`, `quizzes`, `tmc`). All steps — including the silently-missable 5–8: a
   service scaffolded into `services/` without them rots quietly.
@@ -56,6 +62,13 @@ pnpm run dev         # http://localhost:<port>
 (See `03-scaffolding-cli.md` for exactly what gets generated/renamed.)
 
 ## Step 2 — Define your 5 data types
+
+**Delete the template's exercise-specific test files up front** (`stateInterfaces.test.ts`,
+`migrateToLatest.test.ts`, `publicSpec`/`modelSolution`/`grade`/`roundTrip`/`export*` `.test.ts`, the
+component `*.test.tsx`) — they assert the multiple-choice model and will fail `tsc`/vitest until you
+rewrite them, so removing them first avoids editing under a wall of unrelated errors. Keep only the
+generic ones (`leakGuard`, `status`, `router`), then rewrite the deleted suites for your data types
+as you implement (Verify / `07` Part II is the bar).
 
 Edit `src/util/stateInterfaces.ts`: replace `Alternative`/`PublicAlternative`/`Answer`/
 `ModelSolutionApi`/`ExerciseFeedback` with your `private_spec` / `public_spec` / `model_solution_spec`

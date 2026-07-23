@@ -21,6 +21,7 @@ use utoipa::{OpenApi, ToSchema};
     get_research_consent_by_user_id,
     get_all_research_form_answers_with_user_id,
     get_my_courses,
+    hide_course_from_my_courses,
     get_user_reset_exercise_logs,
     get_user_course_submission_times,
     send_reset_password_email,
@@ -218,7 +219,10 @@ async fn get_my_courses(
     let courses_with_roles =
         models::courses::all_courses_with_roles_for_user(&mut conn, user.id).await?;
 
-    let combined = courses_enrolled_to
+    let hidden_course_ids =
+        models::hidden_courses::get_hidden_course_ids(&mut conn, user.id).await?;
+
+    let mut combined: Vec<Course> = courses_enrolled_to
         .clone()
         .into_iter()
         .chain(
@@ -226,9 +230,43 @@ async fn get_my_courses(
                 .into_iter()
                 .filter(|c| !courses_enrolled_to.iter().any(|c2| c.id == c2.id)),
         )
+        .filter(|c| !hidden_course_ids.contains(&c.id))
         .collect();
 
+    // Stable ordering so the "My courses" grid does not reshuffle between requests.
+    combined.sort_by(|a, b| a.name.cmp(&b.name).then(a.id.cmp(&b.id)));
+
     token.authorized_ok(web::Json(combined))
+}
+
+/**
+POST `/api/v0/main-frontend/users/my-courses/:course_id/hide` - Hides a course from the
+authenticated user's "My courses" list.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/my-courses/{course_id}/hide",
+    operation_id = "hideCourseFromMyCourses",
+    tag = "users",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course hidden from the user's my-courses list")
+    )
+)]
+async fn hide_course_from_my_courses(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    models::hidden_courses::hide_course(&mut conn, user.id, *course_id).await?;
+
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -586,6 +624,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_all_research_form_answers_with_user_id),
     )
     .route("/my-courses", web::get().to(get_my_courses))
+    .route(
+        "/my-courses/{course_id}/hide",
+        web::post().to(hide_course_from_my_courses),
+    )
     .route(
         "/get-user-research-consent",
         web::get().to(get_research_consent_by_user_id),

@@ -10625,6 +10625,30 @@
         }
       }
     },
+    "/api/v0/main-frontend/users/my-courses/{course_id}/hide": {
+      "post": {
+        "tags": ["users"],
+        "summary": "\nPOST `/api/v0/main-frontend/users/my-courses/:course_id/hide` - Hides a course from the\nauthenticated user's \"My courses\" list.",
+        "operationId": "hideCourseFromMyCourses",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course hidden from the user's my-courses list"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/users/reset-password": {
       "post": {
         "tags": ["users"],

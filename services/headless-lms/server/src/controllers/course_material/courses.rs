@@ -194,6 +194,12 @@ async fn get_course_page_by_path(
     )
     .await?;
 
+    // Visiting a course's material makes it visible again in the user's "My courses" list if they
+    // had previously hidden it.
+    if let (Some(user_id), Some(course_id)) = (user_id, page_with_user_data.page.course_id) {
+        models::hidden_courses::unhide_course(&mut conn, user_id, course_id).await?;
+    }
+
     let temp_request_information =
         derive_information_from_requester(req, ip_to_country_mapper).await?;
 

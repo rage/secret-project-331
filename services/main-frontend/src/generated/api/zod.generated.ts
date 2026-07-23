@@ -5715,6 +5715,10 @@ export const zGetUserResearchConsentResponse = zUserResearchConsent
  */
 export const zGetMyCoursesResponse = z.array(zCourse)
 
+export const zHideCourseFromMyCoursesPath = z.object({
+  course_id: z.uuid(),
+})
+
 export const zResetUserPasswordBody = zResetPasswordData
 
 /**

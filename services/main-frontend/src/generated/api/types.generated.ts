@@ -9029,6 +9029,25 @@ export type GetMyCoursesResponses = {
 
 export type GetMyCoursesResponse = GetMyCoursesResponses[keyof GetMyCoursesResponses]
 
+export type HideCourseFromMyCoursesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/my-courses/{course_id}/hide"
+}
+
+export type HideCourseFromMyCoursesResponses = {
+  /**
+   * Course hidden from the user's my-courses list
+   */
+  200: unknown
+}
+
 export type ResetUserPasswordData = {
   body: ResetPasswordData
   path?: never

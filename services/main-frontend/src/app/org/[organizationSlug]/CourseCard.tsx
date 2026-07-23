@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { LanguageTranslation } from "@vectopus/atlas-icons-react"
+import { LanguageTranslation, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -122,6 +122,8 @@ interface CourseCardProps {
   navigateToCourseHref: string
   id: string
   showManageButton: boolean
+  /** When provided, a control to hide the course from the list is shown. */
+  onHide?: () => void
 }
 
 const capitalizeFirstLetter: (language: string) => string = (language) => {
@@ -140,6 +142,7 @@ const CourseCard: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
   manageHref,
   navigateToCourseHref,
   showManageButton,
+  onHide,
 }) => {
   const loginStateContext = useContext(LoginStateContext)
   const { t } = useTranslation()
@@ -147,6 +150,40 @@ const CourseCard: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
 
   return (
     <StyledCourseCard>
+      {onHide && (
+        <button
+          type="button"
+          className={css`
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 110;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            border: none;
+            background: transparent;
+            color: #1a2333;
+            opacity: 0.6;
+            border-radius: 4px;
+
+            :hover {
+              cursor: pointer;
+              opacity: 1;
+            }
+
+            :focus-visible {
+              outline: 2px solid ${baseTheme.colors.green[500]};
+              outline-offset: 2px;
+            }
+          `}
+          aria-label={t("hide-course", { title })}
+          onClick={onHide}
+        >
+          <XmarkCircle size={20} aria-hidden="true" />
+        </button>
+      )}
       {loginStateContext.signedIn && showManageButton && (
         <a
           className={css`

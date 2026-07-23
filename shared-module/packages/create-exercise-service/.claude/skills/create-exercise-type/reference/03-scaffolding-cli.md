@@ -1,10 +1,9 @@
 # Scaffolding a new service: `bin/create-exercise-service` + shared-module vendoring
 
-The fastest way to start a new plugin is the scaffolding CLI. It generates a **standalone** TanStack
-Start (rsbuild) React exercise service from the `services/example-exercise` template, with the
-shared exercise packages vendored in as real source. **The CLI produces a runnable project; it does
-NOT wire the plugin into the running LMS** — that second tier is manual (see `04-backend-and-infra-
-integration.md` and the checklist).
+The scaffolding CLI generates a **standalone** TanStack Start (rsbuild) React exercise service from
+the `services/example-exercise` template, with the shared exercise packages vendored in as real
+source. **The CLI produces a runnable project; it does NOT wire the plugin into the running LMS** —
+that second tier is manual (see `04-backend-and-infra-integration.md` and the checklist).
 
 ## Running it
 
@@ -22,9 +21,9 @@ published as a standalone `pnpm create` package.
 
 1. **Project name** — non-empty. Becomes the package name and the base for the display name.
 2. **Path to the project** — default is the project name. ⚠️ Resolved relative to the CLI package's
-   own directory (because the launcher `cd`s there first), so the default lands _inside_
+   own directory (the launcher `cd`s there first), so the default lands _inside_
    `shared-module/packages/create-exercise-service/<name>`, **not** under `services/`. For real LMS
-   integration you must pass an explicit path like `services/<slug>` (see the standalone-vs-in-monorepo
+   integration, pass an explicit path like `services/<slug>` (see the standalone-vs-in-monorepo
    decision below).
 3. **Project type** — `React` (only one implemented). `Svelte` and `No framework` are shown as
    disabled placeholders in the picker and cannot be selected (arrow-key navigation skips them).
@@ -91,12 +90,12 @@ Layering: protocol ← client ← react (the iframe-child React adapter); test-u
 `e2e/protocol.spec.ts` suite and declares no runtime deps. Host-side `exercise-iframe-host` and
 `common`/`components` are intentionally not vendored (the template imports nothing from them). The
 generated project tracks this snapshot as real source; **there is no sync script in a generated
-standalone project** — to update it you re-run the CLI into a fresh dir or copy the packages over
+standalone project** — to update it, re-run the CLI into a fresh dir or copy the packages over
 manually (all four, or the inherited e2e suite silently drifts out of date).
 
 ## Decision: standalone vs. in-monorepo
 
-This is the key branch a new-plugin author faces:
+The key branch a new-plugin author faces:
 
 - **External / standalone plugin** (like the two GitHub examples `language-exercise-service`,
   `factor-analysis-exercise-service`): scaffold anywhere, keep the vendored snapshot, deploy on your

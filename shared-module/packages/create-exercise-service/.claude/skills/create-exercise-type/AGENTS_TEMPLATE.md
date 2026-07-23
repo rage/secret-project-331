@@ -1,15 +1,15 @@
 # Agent guide — moocfi exercise-service plugin
 
-This project is a **moocfi exercise-service plugin**: a standalone web app that the moocfi host
-(the `headless-lms` backend + the course-material / CMS frontend) integrates with. It was scaffolded
-from the `example-exercise` template by `create-exercise-service`, so most of it is shared plumbing
-you keep verbatim — you build your exercise type by editing a small, well-marked slice (the five
-data types, the three server transforms, the three views).
+This project is a **moocfi exercise-service plugin**: a standalone web app the moocfi host
+(the `headless-lms` backend + the course-material / CMS frontend) integrates with. Scaffolded from
+the `example-exercise` template by `create-exercise-service`, most of it is shared plumbing you keep
+verbatim — you build your exercise type by editing a small, well-marked slice (five data types,
+three server transforms, three views).
 
 **Read this file before you touch the data model.** The data-type rules below are the
-highest-stakes decisions in the project, and several are **irreversible in production**: a leaked
-answer key or a badly-shaped spec was _already served / already stored_, and you cannot un-serve or
-migrate it. Everything else in the codebase is recoverable; these are not.
+highest-stakes decisions here, and several are **irreversible in production**: a leaked answer key
+or a badly-shaped spec was _already served / already stored_, and you cannot un-serve or migrate it.
+Everything else is recoverable; these are not.
 
 ---
 
@@ -26,12 +26,12 @@ in-process; it integrates over two seams only:
 2. **REST endpoints the backend calls server-to-server.** The host stores everything and calls your
    endpoints to derive specs and to grade.
 
-The host owns all storage and common chrome (exercise name, points, instructions, the submit
-button). You own only the exercise-specific portion.
+The host owns all storage and common chrome (exercise name, points, instructions, submit button).
+You own only the exercise-specific portion.
 
-**The five data types.** Your plugin defines its own JSON shape for each of these. The host treats
-them as **opaque blobs** — it stores them and hands them back but never inspects their contents.
-Only the _envelopes_ (the request/response wrappers) are standardized.
+**The five data types.** Your plugin defines its own JSON shape for each. The host treats them as
+**opaque blobs** — it stores them and hands them back but never inspects their contents. Only the
+_envelopes_ (the request/response wrappers) are standardized.
 
 **The three IFrame views**, all served from one URL (`/{base}/iframe`) and switched by
 `set-state.view_type`:
@@ -42,7 +42,7 @@ Only the _envelopes_ (the request/response wrappers) are standardized.
 | Answer exercise | `answer-exercise` | `public_spec`, optional prior `answer`                      | `answer`                    |
 | View submission | `view-submission` | `public_spec`, `answer`, optional feedback + model solution | none (read-only)            |
 
-`current-state`'s **`valid`** boolean gates whether the host will let the user save/submit.
+`current-state`'s **`valid`** boolean gates whether the host lets the user save/submit.
 
 **The REST endpoints** (backend → plugin):
 
@@ -54,10 +54,24 @@ Only the _envelopes_ (the request/response wrappers) are standardized.
 | `grade`          | `GradingRequest { exercise_spec=private_spec, submission_data=answer }` | `GradingResult`       |
 | csv export       | teacher data export                                                     | optional              |
 
+**Grading is server-side and normally pure.** `grade` derives its result from `exercise_spec`
+(= the private spec) + `submission_data` (= the answer) alone — no DB, no network. The one exception
+is a grader that must download a *client-supplied* URL (file scanning): that fetch is an SSRF sink
+(see the file-upload gotcha), and such grading usually runs async — `grade` returns `Pending` and a
+worker later POSTs the result to `grading_update_url`, exactly once per job.
+
 **The anti-cheating construct.** `public_spec` and `model_solution_spec` are **derived from**
 `private_spec` on every save (the backend re-runs both generators). This is deliberate: the plugin
-author controls exactly what ever reaches a browser, and correctness checking stays server-side.
+author controls exactly what reaches a browser, and correctness checking stays server-side.
 Design **one master type (the private spec) and two projections**, not three independent types.
+
+**Don't attempt what the plugin contract forbids.** Some asks aren't hard, they're impossible here —
+name why and redesign around them rather than trying. Impossible under this contract: grading that
+needs a live DB, a session, or a call to another course service (grade runs from `private_spec +
+answer` alone, save the one client-URL-fetch exception above); storing the uploaded files themselves
+(the plugin only holds their URLs); changing a stored blob's shape in place without a version bump +
+a migration step (see "your specs are stored forever" below); making view-submission depend on
+server-only data it is never sent; or anything that would require the host to migrate its database.
 
 ---
 
@@ -77,12 +91,15 @@ Consequences, all enforced in this template already (`src/util/stateInterfaces.t
 - **Migrate-on-read at every entry door, persist-on-save.** Old blobs enter through _four_ doors and
   all must normalize old → current: the editor's `set-state` handler (`IframeView.tsx`), the
   public-spec endpoint, the model-solution endpoint, and grade. You can't rewrite stored blobs, but
-  the upgraded shape you return gets persisted on the next save.
+  the upgraded shape you return gets persisted on the next save. Parsers must actually **read the
+  incoming `version`** and dispatch on it — a parser that stamps the current version onto whatever
+  arrives silently *relabels* future blobs instead of migrating them.
 - **Route all four doors through ONE migration chain, built for extension.** Keep a per-blob-kind
   registry keyed by the version each step accepts and a loop that runs steps up to the latest
   version; each door calls one `migrate*ToLatest`. Adding the next version must be a _one-line
-  registry addition_ + a type snapshot — no door changes. (See quizzes'
-  `src/util/migration/migrateToLatest.ts` + `versions.ts` for the reference implementation.)
+  registry addition_ + a type snapshot — no door changes. **This template ships the chain at
+  `src/util/migration/{versions,migrateToLatest}.ts`** (scaffolded at v1, registries empty) — retype
+  it for your data types instead of replacing it with inline version checks.
 - **On an unknown/typo'd item type while migrating, throw — never fabricate a placeholder**, which
   would get persisted on the next save and corrupt data.
 - **Never delete old types or their migration code**, and snapshot the shape you leave behind when
@@ -92,8 +109,8 @@ Consequences, all enforced in this template already (`src/util/stateInterfaces.t
 
 ## What each data type MAY and MUST NOT contain
 
-This is the core of the plugin. **Anything that reaches a browser is readable from devtools**, no
-matter how you render it. Classify every field _before_ you add it. The template's worked example:
+**Anything that reaches a browser is readable from devtools**, no matter how you render it. Classify
+every field _before_ you add it. The template's worked example:
 `Alternative { id, name, correct }[]` → public strips `correct` → model solution keeps only
 `{ correctOptionIds }` → feedback reveals only `{ selectedOptionIsCorrect }`.
 
@@ -126,7 +143,11 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 
 ### `model_solution_spec` — shown at full points / out of tries (and to peer reviewers early)
 
-- **May contain:** what a finished student should learn — _a_ correct answer, explanations.
+- **May contain:** what a finished student should learn — _a_ correct answer, explanations. For
+  exercise types with no answer key (file submission, essays) `null` is a legitimate shape — but
+  peer reviewers receive the model solution unconditionally, so "nothing to show them" is a real
+  design decision, not a default; keep the endpoint (the service-info contract needs it) and return
+  `null` from it.
 - **Must NOT contain:** the **acceptance rule** when it is broader than the shown answer — regex
   validators, numeric tolerance windows, hidden test cases, alternative accepted answers you don't
   want circulated. Show _a_ correct answer, not the checker. Assume it will be screenshotted and
@@ -136,8 +157,10 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 
 - **May contain:** the student's choices/inputs **by id** (store `selectedOptionId`, not the option
   text — copies go stale and bloat every row), plus whatever is needed to reconstruct their variant
-  (a seed) if the exercise is randomized. Grade must work from `private_spec + answer` alone — no
-  session, no DB, no fetches.
+  (a seed) if the exercise is randomized. Grade is normally a pure function of `private_spec + answer`
+  alone — no session, no DB, no fetches; **if yours fetches a client-supplied URL** (e.g. downloading
+  an uploaded file to scan it) **treat it as hostile input — SSRF-guard the fetch, and expect async
+  delivery** (see the file-upload gotcha and the grade note under "How the plugin system works").
 - **Must NOT contain:** client-computed correctness (never trusted, and it leaks grading paths);
   copied spec content; PII or hidden fields — **peer reviewers render this object**, so anything in
   it is shown to another student.
@@ -150,7 +173,9 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   know whether the student gets another try — so feedback must be safe assuming retries remain.
   "Reveal everything" content belongs in `model_solution_spec`, whose _timing_ the host gates.
   (`feedback_text` is host-rendered plain text; `feedback_json` is yours to render — don't smuggle
-  markup through the text field.)
+  markup through the text field. The `GradingRequest` also carries **no language**: strings in
+  `feedback_text` ship untranslated to every course, so localized learner-facing feedback belongs in
+  `feedback_json`, rendered by view-submission under `set-language`.)
 
 ### `set_user_variables` — benign per-user-per-course state (visible to the student themselves)
 
@@ -195,6 +220,17 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 5. **Leak regression tests.** For every private-spec fixture, run the real derivation, serialize the
    result, and assert forbidden keys/values are absent (walk the whole tree). A newly-leaked field
    then fails CI instead of shipping — this is the one class of bug you cannot fix retroactively.
+6. **Keep the guard wired, and test the endpoints, not just the guard.** `publicSpec.ts` /
+   `modelSolution.ts` must keep *calling* `assertNoLeak` on what they serve (adapt its forbidden
+   keys/values to your types — don't delete the call site), and at least one test must POST the real
+   endpoint and assert its response carries only the allowlisted content. If your exercise has no
+   answer key, the leak surface is *future private-only fields*: assert the public spec carries
+   **exactly** the allowlisted key set.
+7. **Render answer content as untrusted (inbound injection).** The answer is attacker-controlled and
+   peer reviewers render it, so treat every answer field as untrusted *in the view*: scheme-check any
+   URL before using it as `href`/`src` (`http(s)` only — a `javascript:` URL rendered as an `<a href>`
+   executes in a peer reviewer's iframe), never `dangerouslySetInnerHTML` answer content, and
+   sanitize at the answer parse boundary so every render site is safe by construction.
 
 ---
 
@@ -202,9 +238,8 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 
 - **Every editor control that affects the saved/graded result must write to a private-spec field —
   never to component-local React state.** A control kept in `useState` is silently lost on reopen
-  (quizzes' closed-ended "grading strategy" radio did exactly this and reset on every open). If it
-  changes the saved result, it belongs in the spec; transient view-only state (preview toggles) may
-  stay local.
+  (quizzes' closed-ended "grading strategy" radio did this and reset on every open). Transient
+  view-only state (preview toggles) may stay local.
 - **Model a mode/strategy selector as a discriminated union on a tag field, with an exhaustive
   `switch` in grading and every derivation** — don't overload one free-form field with two meanings.
   (Quizzes stored a closed-ended answer as one `validityRegex` and faked an "exact string" mode by
@@ -224,7 +259,19 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   type must represent half-finished exercises. "Safe to save/derive/grade" is a _separate_ judgement
   reported as the `valid` flag. Encode all invariants in one `validatePrivateSpec()` (this template
   has it). Two invariants that bite grading later: **id uniqueness** and **finite, in-range numeric
-  weights** (an editor's `Number(input)` happily yields `NaN`/`Infinity`/negatives).
+  weights** (an editor's `Number(input)` happily yields `NaN`/`Infinity`/negatives). Platform hard
+  caps (a max upload size, an item-count ceiling) belong in **both** `validate()` and the
+  parse/migration layer (clamp on read), so no stored or foreign blob can smuggle an out-of-range
+  value past the editor.
+- **The `valid` flag must reflect seeded state.** If AnswerExercise seeds itself from
+  `previous_submission` on a retry, emit a `current-state` for the seeded answer — emitting only on
+  user interaction leaves `valid` unset and silently blocks resubmitting unchanged prior work.
+- **Decide the regrade-after-narrowing policy explicitly.** A regrade replays an answer that was
+  valid when submitted against the _current_ private spec; if grading re-checks answering-time
+  constraints (allowed types, counts, limits), a teacher tightening the spec retroactively fails
+  historical answers. Usually those constraints are answer-view UI concerns and grading should not
+  re-check them — but it's a fairness/anti-cheating tradeoff: decide it consciously and document it
+  next to the grade function.
 - **Trust boundary: forgiving in the iframe, strict on the server.** Both `postMessage` data and JSON
   bodies arrive as `unknown`, but parse `set-state` _forgivingly_ (a student mid-exam must not lose
   work to a strict guard — return empty/default on malformed fields) and validate server endpoints
@@ -238,6 +285,35 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   "Correct!") lives in your locale files and follows `set-language`. Don't mix them.
 
 ---
+
+## Practical gotchas (each has cost a real session a debugging round-trip)
+
+- **Locales** live at `src/locales/<lang>/<slug>.json` — per-language directories, file named after
+  the service slug. Keep the language files' key sets identical.
+- **This project is ESM** (`type: module`): in e2e/test files use
+  `path.dirname(fileURLToPath(import.meta.url))`, never `__dirname`.
+- **The tsconfig has `noUncheckedIndexedAccess`**: `array[0]` is `T | undefined` — index with
+  `?.`/`!` deliberately.
+- **Playwright locators must target rendered translated strings** ("Video files"), not i18n keys
+  ("file-category-video") — the dev server loads real locale files.
+- **The e2e host emulator's messages are index-signatured.** `createHostEmulator`'s `messages()` /
+  `waitForCurrentState` (from `exercise-service-test-utils`) return `RecordedMessage`
+  (`{ message: string; [key: string]: unknown }`), so there is no typed `.data` — read the payload as
+  `(msg as { data: MyType }).data`. And `noUncheckedIndexedAccess` makes `messages()[n]`
+  possibly-`undefined`, so index it with `!`/`?.`.
+- **File uploads**: plugins never store files. The `useFileUpload(port)` hook
+  (`src/shared-module/exercise-react/react/hooks/useFileUpload`) sends `file-upload` to the host and
+  resolves to a `Map<name, url>`; the answer records only the URLs. The test-utils host emulator
+  auto-answers uploads (`driveFileUpload` + a small committed fixture file). **If your grader
+  downloads those URLs, they are attacker-controlled — an SSRF sink.** Validate the scheme
+  (`http(s)` only); resolve the hostname and reject private/loopback/link-local and metadata
+  (`169.254.169.254`) addresses, including `::ffff:`-mapped and numeric forms; set
+  `redirect: "manual"` and re-validate every hop; cap the bytes you read (bounds OOM/zip-bomb too —
+  never trust a client-claimed size). Such grading usually runs **async** (`grade` returns
+  `Pending`; a worker later POSTs the result to `grading_update_url`): deliver **exactly one**
+  terminal POST per job — including when the job throws (turn a rejection into a delivered `Failed`,
+  never a silent log) — or the submission hangs `Pending` forever. An in-memory retry queue does not
+  survive a restart.
 
 ## Where each concern lives
 

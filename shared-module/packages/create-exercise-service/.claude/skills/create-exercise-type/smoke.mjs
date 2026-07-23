@@ -23,7 +23,7 @@ import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const SKILL_DIR = dirname(fileURLToPath(import.meta.url))
-// skill dir: <pkg>/.claude/skills/run-create-exercise-service  ->  <pkg> is three levels up.
+// skill dir: <pkg>/.claude/skills/create-exercise-type  ->  <pkg> is three levels up.
 const PKG_ROOT = resolve(SKILL_DIR, "../../..")
 
 const args = new Set(process.argv.slice(2))

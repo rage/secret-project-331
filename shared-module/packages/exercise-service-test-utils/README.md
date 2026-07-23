@@ -54,4 +54,4 @@ transfer, container resize from `height-changed`); those are the host's concern 
 `pnpm test` runs jest unit tests (state builders + the emulator driven through a mock
 `MessageChannel`, no browser). The Playwright wrapper is exercised by
 `services/example-exercise/e2e/protocol.spec.ts` (run locally / by the
-`run-create-exercise-service` skill, not in CI).
+`create-exercise-type` skill, not in CI).

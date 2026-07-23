@@ -28,7 +28,7 @@ pub struct DocumentProperties {
 }
 
 /// Parse the filepath of a document from the Azure search index and return the page_id of
-/// the document. The page id is the same as the id of the pagek in our DB.
+/// the document. The page id is the same as the id of the page in our DB.
 pub fn parse_document_filepath(filepath: &str) -> ChatbotResult<DocumentProperties> {
     let mut page_path = PathBuf::from(filepath);
     page_path.set_extension("");

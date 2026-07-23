@@ -1024,7 +1024,7 @@ pub async fn get_page_info_special_for_course(
     course_id: Uuid,
 ) -> ModelResult<Vec<PageInfoSpecial>> {
     let inverse_visibility_filter = PageVisibility::Public.get_inverse_visibility_filter();
-    // if chapter_id is null then chanpter_number and title should be null
+    // if chapter_id is null then chapter_number and title should be null
     let res = sqlx::query_as!(
         PageInfoSpecial,
         r#"

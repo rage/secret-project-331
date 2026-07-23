@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use headless_lms_models::pages;
-use headless_lms_utils::document_schema_processor::GutenbergBlock;
+use headless_lms_utils::document_schema_processor::get_learning_objectives;
 use sqlx::PgConnection;
 
 use crate::{
@@ -64,44 +64,6 @@ pub struct PageDocumentInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct CourseStructureArguments {}
 
-/// Get the content of the block and of all its inner blocks as a String.
-fn get_content_recursive(blocks: Vec<GutenbergBlock>) -> Result<String, serde_json::Error> {
-    let content = blocks
-        .iter()
-        .map(|b| {
-            let c = b.attributes.get("content");
-            let c2 = if let Some(v) = c {
-                serde_json::to_string(v)?
-            } else {
-                "".to_string()
-            };
-            let inner = b.inner_blocks.to_owned();
-            let c3 = get_content_recursive(inner)?;
-            Ok(c2 + &c3)
-        })
-        .collect::<Result<Vec<String>, serde_json::Error>>()?;
-
-    Ok(content.join(""))
-}
-
-/// Get learning objectives from a vec of Gutenberg blocks. Works recursively and
-/// inspects the inner blocks. Returns an empty string if no objectives are found.
-/// Returns the objectives of the whole Vec argument, joined together into a String.
-fn get_objectives(blocks: Vec<GutenbergBlock>) -> Result<String, serde_json::Error> {
-    let lol = blocks
-        .iter()
-        .map(|x| {
-            if x.name == "moocfi/learning-objectives" || x.name == "moocfi/course-objective-section"
-            {
-                get_content_recursive(vec![x.to_owned()])
-            } else {
-                get_objectives(x.inner_blocks.to_owned())
-            }
-        })
-        .collect::<Result<Vec<String>, serde_json::Error>>()?;
-    Ok(lol.join(""))
-}
-
 impl ChatbotTool for CourseStructureTool {
     type State = CourseStructureState;
     type Arguments = CourseStructureArguments;
@@ -149,7 +111,7 @@ impl ChatbotTool for CourseStructureTool {
                         module_name: p.module_name,
                     };
                 };
-                let learning_objectives = get_objectives(b).ok();
+                let learning_objectives = get_learning_objectives(b).ok();
                 PageDocumentInfo {
                     page_title: p.page_title,
                     page_type: PageType::determine(
@@ -189,7 +151,7 @@ impl ChatbotTool for CourseStructureTool {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
             name: "course_structure".to_string(),
-            description: "Get the course structure as an ordered list of all course pages. Each page is listed with its title, its place in the course structure, and its learning objectives, if any. Information about the course pages' content can be found with the document_lookup tool.".to_string(),
+            description: "Get the course structure as an ordered list of all course pages. The structure lists all pages, chapters and modules that are part of the course. Each page is listed with its title, its place in the course structure (which chapter it is inside of, if any), and its learning objectives, if any. Information about the course pages' content can be found with the document_lookup tool.".to_string(),
             parameters: LLMToolParams {
                 tool_type: LLMToolParamType::Object,
                 properties: HashMap::new(),

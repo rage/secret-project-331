@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use headless_lms_utils::{strings::truncate_utf8_at_boundary, url_encoding::url_decode};
+use headless_lms_utils::strings::truncate_utf8_at_boundary;
 use serde::{Deserialize, Deserializer};
 use sqlx::PgConnection;
 use uuid::Uuid;
@@ -27,7 +27,7 @@ pub struct DocumentLookupState {
 pub struct DocumentLookupArguments {
     title: String,
     filepath: Option<String>,
-    #[serde(deserialize_with = "parse_uuid_permissibly_optional")]
+    #[serde(deserialize_with = "deserialize_to_optional_uuid_and_errors_to_none")]
     page_id: Option<Uuid>,
 }
 
@@ -36,7 +36,9 @@ pub struct DocumentLookupArguments {
 /// desired for the page_id field in DocumentLookupArguments, which is generated
 /// by an LLM and can be None or a non-Uuid string in some cases. If any errors
 /// should occur, they are emitted in ChatbotTools's from_db_and_arguments.
-fn parse_uuid_permissibly_optional<'de, D>(deserializer: D) -> Result<Option<Uuid>, D::Error>
+fn deserialize_to_optional_uuid_and_errors_to_none<'de, D>(
+    deserializer: D,
+) -> Result<Option<Uuid>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -99,15 +101,13 @@ impl ChatbotTool for DocumentLookupTool {
             ));
         };
         let course_id = user_context.course_id;
-        let page_title = url_decode(&arguments.title)?;
-        arguments.title = page_title;
-
         let page_option = headless_lms_models::chatbot_page_sync_statuses::get_latest_synced_page_content_by_page_id(conn, page_id).await?;
 
         let document = if let Some(page) = page_option {
             // Check if the titles match and the page is part of the same course as
             // the one the user is on.
-            if page.title == arguments.title && page.course_id == course_id {
+            if page.course_id == course_id {
+                arguments.title = page.title;
                 // use markdown content if there is any. else use json as string
                 if let Some(content) = page.markdown_content {
                     let s = shorten_page_content(content);
@@ -166,7 +166,7 @@ impl ChatbotTool for DocumentLookupTool {
                         "title".to_string(),
                         LLMToolParamProperties {
                             param_type: "string".to_string(),
-                            description: "The title of the document to look up, as returned from Azure search.".to_string(),
+                            description: "The title of the document to look up, as returned from Azure search. Optional.".to_string(),
                         },
                     ),
                     (

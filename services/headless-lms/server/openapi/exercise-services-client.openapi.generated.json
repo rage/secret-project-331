@@ -225,6 +225,81 @@
         ]
       }
     },
+    "/api/v0/exercise-services/client/courses/{id}/progress": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * GET /api/v0/exercise-services/client/courses/:id/progress\n *\n * Returns the current user's progress on every exercise of the course that lives in an\n * open chapter (the same visibility as `courses/:id/exercises`): its awarded and maximum\n * points and completed/attempted signals. One round-trip; course totals are derivable by\n * summing the returned entries.",
+        "operationId": "getClientCourseProgress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user's per-exercise progress for the course's open chapters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseProgress"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No course with the given id exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
     "/api/v0/exercise-services/client/exercises/{id}": {
       "get": {
         "tags": ["exercise-services-client"],
@@ -788,6 +863,53 @@
           },
           "slug": {
             "type": "string"
+          }
+        }
+      },
+      "CourseProgress": {
+        "type": "object",
+        "description": "The current user's progress across every exercise they can see in a course, returned\nby `courses/{id}/progress` in a single round-trip. Course-level totals are not sent\nseparately; the client derives them by summing over `exercises` (e.g. total awarded =\n`sum(score_given)`, total available = `sum(score_maximum)`).",
+        "required": ["course_id", "exercises"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course these progress entries belong to; echoes the path id."
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseProgress"
+            }
+          }
+        }
+      },
+      "ExerciseProgress": {
+        "type": "object",
+        "description": "The current user's progress on a single exercise.\n\nA client derives a boolean \"passed\" from these fields. The authoritative signal is\n`completed` (the exercise reached the `Completed` activity stage). A client that\ninstead treats \"full points\" as passing can use `score_given >= score_maximum` when\n`score_maximum > 0`.",
+        "required": ["exercise_id", "score_given", "score_maximum", "completed", "attempted"],
+        "properties": {
+          "attempted": {
+            "type": "boolean",
+            "description": "`true` once the user has started or submitted the exercise (any activity stage past\nthe initial one), regardless of whether it is completed."
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "`true` once the exercise has reached the `Completed` activity stage. The primary\n\"passed\" signal."
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float",
+            "description": "Points the user has been awarded, `0.0` when the user has no state for the exercise."
+          },
+          "score_maximum": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The maximum points obtainable from the exercise."
           }
         }
       },

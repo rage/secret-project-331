@@ -21,7 +21,8 @@ use actix_multipart::form::json::Json as MultipartJson;
 use actix_multipart::form::tempfile::TempFile;
 use actix_web::FromRequest;
 use exercise_services_api as api;
-use headless_lms_models::exercises::GradingProgress;
+use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
+use headless_lms_models::user_exercise_states::UserExerciseState;
 use headless_lms_utils::file_store::file_utils;
 use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
@@ -36,6 +37,7 @@ use utoipa::OpenApi;
         get_courses,
         get_course,
         get_course_exercises,
+        get_course_progress,
         get_exercise,
         submit_exercise,
         get_submission_grading,
@@ -47,6 +49,8 @@ use utoipa::OpenApi;
         api::ExerciseSlideSubmission,
         api::ExerciseSlideSubmissionListItem,
         api::SubmissionArchiveDownloadUrl,
+        api::CourseProgress,
+        api::ExerciseProgress,
         api::PasteResult,
         crate::domain::error::ApiErrorResponse
     ))
@@ -300,6 +304,98 @@ async fn get_course_exercises(
     }
 
     token.authorized_ok(web::Json(slides))
+}
+
+/// Derives the client-facing per-exercise progress from an exercise's maximum score and
+/// the user's exercise state (absent when the user has never touched the exercise).
+fn derive_exercise_progress(
+    exercise_id: Uuid,
+    score_maximum: i32,
+    state: Option<&UserExerciseState>,
+) -> api::ExerciseProgress {
+    let score_given = state.and_then(|s| s.score_given).unwrap_or(0.0);
+    let activity_progress = state.map(|s| s.activity_progress).unwrap_or_default();
+    api::ExerciseProgress {
+        exercise_id,
+        score_given,
+        score_maximum,
+        completed: activity_progress == ActivityProgress::Completed,
+        attempted: activity_progress != ActivityProgress::Initialized,
+    }
+}
+
+/**
+ * GET /api/v0/exercise-services/client/courses/:id/progress
+ *
+ * Returns the current user's progress on every exercise of the course that lives in an
+ * open chapter (the same visibility as `courses/:id/exercises`): its awarded and maximum
+ * points and completed/attempted signals. One round-trip; course totals are derivable by
+ * summing the returned entries.
+ */
+#[utoipa::path(
+    get,
+    path = "/courses/{id}/progress",
+    operation_id = "getClientCourseProgress",
+    tag = "exercise-services-client",
+    security(("bearer_auth" = [])),
+    params(
+        ("id" = Uuid, Path, description = "Course id"),
+        ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
+    ),
+    responses(
+        (status = 200, description = "The user's per-exercise progress for the course's open chapters", body = api::CourseProgress),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No course with the given id exists", body = crate::domain::error::ApiErrorResponse),
+        (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_progress(
+    pool: web::Data<PgPool>,
+    user: UserFromOAuthToken,
+    course: web::Path<Uuid>,
+    _client: SupportedClient,
+) -> ControllerResult<web::Json<api::CourseProgress>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course)).await?;
+
+    let course = models::courses::get_course(&mut conn, *course).await?;
+    let open_chapter_ids = models::chapters::course_chapters(&mut conn, course.id)
+        .await?
+        .into_iter()
+        .filter(DatabaseChapter::has_opened)
+        .map(|c| c.id)
+        .collect::<HashSet<_>>();
+
+    // one read of every exercise state the user has in this course, keyed by exercise
+    let states = models::user_exercise_states::get_all_for_user_and_course_or_exam(
+        &mut conn,
+        user.id,
+        CourseOrExamId::Course(course.id),
+    )
+    .await?;
+    let mut state_by_exercise = std::collections::HashMap::new();
+    for state in &states {
+        state_by_exercise.insert(state.exercise_id, state);
+    }
+
+    let exercises = models::exercises::get_exercises_by_course_id(&mut conn, course.id)
+        .await?
+        .into_iter()
+        .filter(|e| {
+            e.chapter_id
+                .map(|ci| open_chapter_ids.contains(&ci))
+                .unwrap_or_default()
+        })
+        .map(|e| {
+            derive_exercise_progress(e.id, e.score_maximum, state_by_exercise.get(&e.id).copied())
+        })
+        .collect();
+
+    token.authorized_ok(web::Json(api::CourseProgress {
+        course_id: course.id,
+        exercises,
+    }))
 }
 
 /**
@@ -814,6 +910,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/courses/{id}/exercises",
             web::get().to(get_course_exercises),
         )
+        .route("/courses/{id}/progress", web::get().to(get_course_progress))
         .route("/exercises/{id}", web::get().to(get_exercise))
         .route("/exercises/{id}/submit", web::post().to(submit_exercise))
         .route(
@@ -834,6 +931,66 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    use chrono::Utc;
+    use headless_lms_models::user_exercise_states::ReviewingStage;
+
+    fn state_with(
+        score_given: Option<f32>,
+        activity_progress: ActivityProgress,
+    ) -> UserExerciseState {
+        let now = Utc::now();
+        UserExerciseState {
+            id: Uuid::new_v4(),
+            user_id: Uuid::new_v4(),
+            exercise_id: Uuid::new_v4(),
+            course_id: Some(Uuid::new_v4()),
+            exam_id: None,
+            created_at: now,
+            updated_at: now,
+            deleted_at: None,
+            score_given,
+            grading_progress: GradingProgress::FullyGraded,
+            activity_progress,
+            reviewing_stage: ReviewingStage::NotStarted,
+            selected_exercise_slide_id: None,
+        }
+    }
+
+    #[test]
+    fn progress_without_state_is_zero_and_untouched() {
+        let p = derive_exercise_progress(Uuid::nil(), 5, None);
+        assert_eq!(p.score_given, 0.0);
+        assert_eq!(p.score_maximum, 5);
+        assert!(!p.completed);
+        assert!(!p.attempted);
+    }
+
+    #[test]
+    fn progress_started_is_attempted_not_completed() {
+        let state = state_with(Some(0.0), ActivityProgress::Started);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state));
+        assert!(p.attempted);
+        assert!(!p.completed);
+    }
+
+    #[test]
+    fn progress_completed_reports_points_and_flags() {
+        let state = state_with(Some(5.0), ActivityProgress::Completed);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state));
+        assert_eq!(p.score_given, 5.0);
+        assert!(p.completed);
+        assert!(p.attempted);
+    }
+
+    #[test]
+    fn progress_initialized_state_is_not_attempted() {
+        let state = state_with(None, ActivityProgress::Initialized);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state));
+        assert_eq!(p.score_given, 0.0);
+        assert!(!p.attempted);
+        assert!(!p.completed);
+    }
 
     #[test]
     fn version_check_is_disabled_when_no_minimum() {

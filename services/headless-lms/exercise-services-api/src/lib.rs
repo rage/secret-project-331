@@ -104,6 +104,40 @@ pub struct SubmissionArchiveDownloadUrl {
     pub archive_download_url: String,
 }
 
+/// The current user's progress across every exercise they can see in a course, returned
+/// by `courses/{id}/progress` in a single round-trip. Course-level totals are not sent
+/// separately; the client derives them by summing over `exercises` (e.g. total awarded =
+/// `sum(score_given)`, total available = `sum(score_maximum)`).
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct CourseProgress {
+    /// The course these progress entries belong to; echoes the path id.
+    pub course_id: Uuid,
+    pub exercises: Vec<ExerciseProgress>,
+}
+
+/// The current user's progress on a single exercise.
+///
+/// A client derives a boolean "passed" from these fields. The authoritative signal is
+/// `completed` (the exercise reached the `Completed` activity stage). A client that
+/// instead treats "full points" as passing can use `score_given >= score_maximum` when
+/// `score_maximum > 0`.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct ExerciseProgress {
+    pub exercise_id: Uuid,
+    /// Points the user has been awarded, `0.0` when the user has no state for the exercise.
+    pub score_given: f32,
+    /// The maximum points obtainable from the exercise.
+    pub score_maximum: i32,
+    /// `true` once the exercise has reached the `Completed` activity stage. The primary
+    /// "passed" signal.
+    pub completed: bool,
+    /// `true` once the user has started or submitted the exercise (any activity stage past
+    /// the initial one), regardless of whether it is completed.
+    pub attempted: bool,
+}
+
 /// A shareable URL for a submission.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
@@ -175,6 +209,29 @@ mod test {
         assert!(obj.contains_key("exercise_slide_id"));
         assert!(obj.contains_key("exercise_task_id"));
         assert!(!obj.contains_key("data_json"));
+    }
+
+    #[test]
+    fn course_progress_shape() {
+        let value = serde_json::to_value(CourseProgress {
+            course_id: Uuid::nil(),
+            exercises: vec![ExerciseProgress {
+                exercise_id: Uuid::nil(),
+                score_given: 1.5,
+                score_maximum: 3,
+                completed: false,
+                attempted: true,
+            }],
+        })
+        .unwrap();
+        let obj = value.as_object().unwrap();
+        assert!(obj.contains_key("course_id"));
+        let exercises = obj["exercises"].as_array().unwrap();
+        let ex = exercises[0].as_object().unwrap();
+        assert_eq!(ex["score_given"], json!(1.5));
+        assert_eq!(ex["score_maximum"], json!(3));
+        assert_eq!(ex["completed"], json!(false));
+        assert_eq!(ex["attempted"], json!(true));
     }
 
     #[test]

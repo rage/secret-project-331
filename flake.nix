@@ -222,6 +222,7 @@
           pkgs.which
           pkgs.zlib
           pkgs.zstd
+          pkgs.svgo
         ];
 
         pathPriorityBinPath = lib.makeBinPath pathPriorityPackages;

@@ -9,6 +9,9 @@ use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOpe
 use headless_lms_chatbot::course_description_summary::SisuDescriptionResponse;
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
+    course_audiences::CourseAudience,
+    course_prerequisites::CoursePrerequisite,
+    courses::CompleteCourseMetadata,
     partner_block::PartnersBlock,
     suspected_cheaters::{CourseModuleThresholdInfo, SuspectedCheaterStatus, SuspectedCheaters},
 };
@@ -21,7 +24,10 @@ use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
     course_module_completions::CourseModuleCompletion,
     course_modules::ModuleUpdates,
-    courses::{Course, CourseBreadcrumbInfo, CourseStructure, CourseUpdate, NewCourse},
+    courses::{
+        Course, CourseBreadcrumbInfo, CourseMetadata, CourseMetadataUpdate, CourseStructure,
+        CourseUpdate, NewCourse,
+    },
     exercise_slide_submissions::{
         self, ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmissionCount,
         ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
@@ -119,6 +125,10 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_partners_block,
         delete_partners_block,
         get_sisu_course_llm_descriptions,
+        update_metadata,
+        get_course_prerequisites,
+        get_course_audiences,
+        get_course_metadata,
         get_all_courses
     ),
     nest(
@@ -2687,6 +2697,125 @@ async fn get_sisu_course_llm_descriptions(
 }
 
 /**
+POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
+
+*/
+#[utoipa::path(
+    post,
+    path = "/{course_id}/update-metadata",
+    operation_id = "updateMetadata",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = CourseMetadataUpdate,
+    responses(
+        (status = 200, description = "Updated metadata", body = CourseMetadata)
+    )
+)]
+#[instrument(skip(pool))]
+async fn update_metadata(
+    payload: web::Json<CourseMetadataUpdate>,
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseMetadata>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let metadata_update = payload.0;
+    let course = models::courses::set_metadata(&mut conn, *course_id, metadata_update).await?;
+
+    token.authorized_ok(web::Json(course))
+}
+
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-prerequisites",
+    operation_id= "getCoursePrerequisites",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course prerequisites", body = Vec<CoursePrerequisite>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_prerequisites(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CoursePrerequisite>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let prerequisites =
+        models::course_prerequisites::get_by_course_id(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(prerequisites))
+}
+
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-audiences",
+    operation_id= "getCourseAudiences",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course audiences", body = Vec<CourseAudience>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_audiences(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CourseAudience>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let audiences = models::course_audiences::get_by_course_id(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(audiences))
+}
+
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-metadata",
+    operation_id= "getCourseMetadata",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course metadata", body = CompleteCourseMetadata)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_metadata(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CompleteCourseMetadata>> {
+    let mut conn: sqlx::pool::PoolConnection<Postgres> = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let metadata = models::courses::get_metadata(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(metadata))
+}
+/**
 GET `/api/v0/main-frontend/courses` - Get all courses
 
 Returns all courses.
@@ -2931,6 +3060,22 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/sisu-course-llm-descriptions",
             web::get().to(get_sisu_course_llm_descriptions),
+        )
+        .route(
+            "/{course_id}/update-metadata",
+            web::post().to(update_metadata),
+        )
+        .route(
+            "/{course_id}/get-course-prerequisites",
+            web::get().to(get_course_prerequisites),
+        )
+        .route(
+            "/{course_id}/get-course-audiences",
+            web::get().to(get_course_audiences),
+        )
+        .route(
+            "/{course_id}/get-course-metadata",
+            web::get().to(get_course_metadata),
         )
         .route("/", web::get().to(get_all_courses));
 }

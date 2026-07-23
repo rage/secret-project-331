@@ -197,6 +197,8 @@ import type {
   GetCohortActivityHistoryResponses,
   GetCompletionStatsByEmailDomainData,
   GetCompletionStatsByEmailDomainResponses,
+  GetCourseAudiencesData,
+  GetCourseAudiencesResponses,
   GetCourseBreadcrumbInfoData,
   GetCourseBreadcrumbInfoResponses,
   GetCourseByJoinCodeData,
@@ -261,6 +263,8 @@ import type {
   GetCourseInstanceUserProgressResponses,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponses,
+  GetCourseMetadataData,
+  GetCourseMetadataResponses,
   GetCourseModuleCompletionData,
   GetCourseModuleCompletionRegistrationLinkData,
   GetCourseModuleCompletionRegistrationLinkResponses,
@@ -287,6 +291,8 @@ import type {
   GetCoursePartnersBlockResponses,
   GetCoursePlanMembersData,
   GetCoursePlanMembersResponses,
+  GetCoursePrerequisitesData,
+  GetCoursePrerequisitesResponses,
   GetCourseProgressForUserData,
   GetCourseProgressForUserResponses,
   GetCourseReferencesData,
@@ -617,6 +623,8 @@ import type {
   UpdateGlossaryTermData,
   UpdateGlossaryTermErrors,
   UpdateGlossaryTermResponses,
+  UpdateMetadataData,
+  UpdateMetadataResponses,
   UpdateOrganizationData,
   UpdateOrganizationImageData,
   UpdateOrganizationImageResponses,
@@ -701,6 +709,7 @@ import {
   zGetCodeGiveawaysByCourseResponse,
   zGetCohortActivityHistoryResponse,
   zGetCompletionStatsByEmailDomainResponse,
+  zGetCourseAudiencesResponse,
   zGetCourseBreadcrumbInfoResponse,
   zGetCourseByJoinCodeResponse,
   zGetCourseChaptersResponse,
@@ -728,6 +737,7 @@ import {
   zGetCourseInstanceResponse,
   zGetCourseInstancesResponse,
   zGetCourseLanguageVersionsResponse,
+  zGetCourseMetadataResponse,
   zGetCourseModuleCompletionRegistrationLinkResponse,
   zGetCourseModuleCompletionResponse,
   zGetCourseModuleCompletionsForUserResponse,
@@ -740,6 +750,7 @@ import {
   zGetCoursePageVisitDatumSummaryByPagesResponse,
   zGetCoursePageVisitDatumSummaryResponse,
   zGetCoursePlanMembersResponse,
+  zGetCoursePrerequisitesResponse,
   zGetCourseProgressForUserResponse,
   zGetCourseReferencesResponse,
   zGetCourseResponse,
@@ -883,6 +894,7 @@ import {
   zUpdateExerciseRepositoryResponse,
   zUpdateExerciseServiceResponse,
   zUpdateGeneratedCertificateResponse,
+  zUpdateMetadataResponse,
   zUpdatePageDetailsResponse,
   zUpdatePlaygroundExampleResponse,
   zUpdateUserInfoResponse,
@@ -2678,6 +2690,48 @@ export const getCourseFeedbackCount = <ThrowOnError extends boolean = true>(
     ...options,
   })
 
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
+ */
+export const getCourseAudiences = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseAudiencesData, ThrowOnError>,
+): RequestResult<GetCourseAudiencesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseAudiencesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseAudiencesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-audiences",
+    ...options,
+  })
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.
+ */
+export const getCourseMetadata = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseMetadataData, ThrowOnError>,
+): RequestResult<GetCourseMetadataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseMetadataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseMetadataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-metadata",
+    ...options,
+  })
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
+ */
+export const getCoursePrerequisites = <ThrowOnError extends boolean = true>(
+  options: Options<GetCoursePrerequisitesData, ThrowOnError>,
+): RequestResult<GetCoursePrerequisitesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCoursePrerequisitesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCoursePrerequisitesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-prerequisites",
+    ...options,
+  })
+
 export const getCourseGlossary = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseGlossaryData, ThrowOnError>,
 ): RequestResult<GetCourseGlossaryResponses, GetCourseGlossaryErrors, ThrowOnError, "data"> =>
@@ -4126,6 +4180,24 @@ export const getCourseThresholds = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/thresholds",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
+ */
+export const updateMetadata = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateMetadataData, ThrowOnError>,
+): RequestResult<UpdateMetadataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<UpdateMetadataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateMetadataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/update-metadata",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

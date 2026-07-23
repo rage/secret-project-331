@@ -173,33 +173,41 @@ bin/minikube-start
 
 ## 5. Set up local domain
 
+Point `project-331.local` at the cluster in your hosts file. Open the block for your
+platform:
+
+<details>
+<summary>Linux</summary>
+
 Add the Minikube IP to `/etc/hosts`:
 
 ```bash
 echo "$(minikube ip)    project-331.local" | sudo tee -a /etc/hosts
 ```
 
+</details>
+
 <details>
 <summary>macOS</summary>
 
-Minikube's default driver on macOS is `docker`, which runs the cluster inside Docker
-Desktop's VM. That VM's network is **not** reachable from the host, so the `minikube ip`
-address does not work. Instead, point the domain at `127.0.0.1`:
+Minikube's `docker` driver runs the cluster inside Docker Desktop's VM, whose network
+is **not** reachable from the host, so the Minikube IP does not work. Point the domain
+at `127.0.0.1` instead — replacing any existing `project-331.local` entry so the
+`127.0.0.1` mapping is the effective one:
 
 ```bash
+sudo sed -i '' '/project-331.local/d' /etc/hosts
 echo "127.0.0.1    project-331.local" | sudo tee -a /etc/hosts
 ```
 
-Then expose the cluster's ingress on `127.0.0.1` by running `minikube tunnel` in a
-separate terminal that stays open the whole time you develop:
+Then run `minikube tunnel` in a separate terminal that stays open while you develop; it
+forwards the ingress's ports 80 and 443 to `127.0.0.1`. It runs independently of
+`bin/dev` (or `bin/test`), so start them in any order — but **both must be running** for
+the site to load:
 
 ```bash
 minikube tunnel
 ```
-
-`minikube tunnel` forwards ports 80 and 443 from the ingress to `127.0.0.1`. It runs
-independently of `bin/dev` (or `bin/test`), so the two can be started in any order, but
-**both must be running** for the site to load.
 
 > [!IMPORTANT]
 > `minikube tunnel` needs `sudo` and will prompt for your password in that terminal.

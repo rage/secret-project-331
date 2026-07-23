@@ -31,7 +31,10 @@
             url = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-arm64.tar.xz";
             sha256 = "19lml03vjp7km4zykd1qdd36dfjdb7ls0mzbym678xzvivvvjxs4";
           };
-          # x86_64-darwin = { url = "…darwin-x64.tar.xz"; sha256 = "…"; };  # add if Intel Macs are supported
+          x86_64-darwin = {
+            url = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-x64.tar.xz";
+            sha256 = "0vxbs6gmgxvfa1759085v7l69cz8g6idja2ih8q485a22p46nfsa";
+          };
         };
         officialNodeOverlay = final: prev:
           prev.lib.optionalAttrs (prev.stdenv.isDarwin && officialNodeSrcs ? ${system}) (

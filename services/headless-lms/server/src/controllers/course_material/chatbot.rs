@@ -17,7 +17,6 @@ use headless_lms_models::{chatbot_configurations, courses};
 use rand::seq::IndexedRandom;
 use utoipa::OpenApi;
 
-use crate::domain::error::{OAuthErrorCode, OAuthErrorData};
 use crate::{
     domain::authorization::{authorize, authorize_access_to_course_material},
     prelude::*,
@@ -110,35 +109,16 @@ async fn send_message(
     let mut conn = pool.acquire().await?;
     let chatbot_configuration =
         chatbot_configurations::get_by_id(&mut conn, chatbot_configuration_id).await?;
-    let token = authorize_access_to_course_material(
-        &mut conn,
-        Some(user.id),
-        chatbot_configuration.course_id.ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                    error_description: "course id must not be empty when provided".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "Empty course_id",
-                None::<anyhow::Error>,
-            )
-        })?,
-    )
-    .await?;
+    let token = if let Some(course_id) = chatbot_configuration.course_id {
+        authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?
+    } else {
+        authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?
+    };
+
     let conversation = chatbot_conversations::get_by_id(&mut conn, conversation_id).await?;
     if conversation.user_id != user.id
         || conversation.chatbot_configuration_id != chatbot_configuration_id
-        || conversation.course_id
-            != chatbot_configuration.course_id.ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "Chatbot course id is missing.".to_string(),
-                    None,
-                )
-            })?
+        || conversation.course_id != chatbot_configuration.course_id
     {
         return Err(controller_err!(
             Forbidden,
@@ -147,28 +127,22 @@ async fn send_message(
         ));
     }
 
-    let course_name = courses::get_course(
-        &mut conn,
-        chatbot_configuration.course_id.ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Chatbot course id is missing.".to_string(),
-                None,
-            )
-        })?,
-    )
-    .await?
-    .name;
-    let chatbot_user = ChatbotUserContext {
-        user_id: user.id.to_owned(),
-        course_id: chatbot_configuration.course_id.ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Chatbot course id is missing.".to_string(),
-                None,
-            )
-        })?,
-        course_name,
+    let course_name = if let Some(course_id) = chatbot_configuration.course_id {
+        Some(courses::get_course(&mut conn, course_id).await?.name)
+    } else {
+        None
+    };
+
+    let chatbot_user = if let (Some(course_id), Some(course_name)) =
+        ((chatbot_configuration.course_id), course_name)
+    {
+        Some(ChatbotUserContext {
+            user_id: user.id.to_owned(),
+            course_id: course_id,
+            course_name,
+        })
+    } else {
+        None
     };
 
     let response_stream = send_chat_request_and_parse_stream(
@@ -215,24 +189,11 @@ async fn new_conversation(
     let mut conn = pool.acquire().await?;
 
     let configuration = models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
-    let token = authorize_access_to_course_material(
-        &mut conn,
-        Some(user.id),
-        configuration.course_id.ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                    error_description: "course id must not be empty when provided".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "Empty course_id",
-                None::<anyhow::Error>,
-            )
-        })?,
-    )
-    .await?;
+    let token = if let Some(course_id) = configuration.course_id {
+        authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?
+    } else {
+        authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?
+    };
 
     let conversation = models::chatbot_conversations::create_for_user_and_configuration(
         &mut conn,

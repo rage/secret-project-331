@@ -14,7 +14,7 @@ pub struct ChatbotConversation {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
     pub user_id: Uuid,
     pub chatbot_configuration_id: Uuid,
 }

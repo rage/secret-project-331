@@ -87,7 +87,7 @@ export type ChatbotChatStreamEvent =
 
 export type ChatbotConversation = {
   chatbot_configuration_id: string
-  course_id: string
+  course_id?: string | null
   created_at: string
   deleted_at?: string | null
   id: string

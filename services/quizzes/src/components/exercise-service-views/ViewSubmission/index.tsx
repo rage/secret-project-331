@@ -10,6 +10,7 @@ import { baseTheme } from "@/shared-module/exercise-react/styles"
 import { COLUMN } from "@/util/constants"
 import type { FlexDirection } from "@/util/css-sanitization"
 import { sanitizeFlexDirection } from "@/util/css-sanitization"
+import { resolveDisplayedFeedback } from "@/util/feedbackMessages"
 
 import type {
   UserAnswer,
@@ -165,21 +166,12 @@ const SubmissionFeedback: React.FC<{
     if (!showScore || !itemFeedback) {
       return null
     }
-    const trimmedItemFeedback = itemFeedback.quiz_item_feedback?.trim()
-    // If feedback on model solution is defined, this feedback takes precedence as the user is allowed to see the model solution and the teacher wants to show a custom message on the model solution
-    const messageOnModelSolution = itemModelSolution?.messageOnModelSolution ?? null
-    if (messageOnModelSolution !== null && messageOnModelSolution.trim() !== "") {
-      return messageOnModelSolution.trim()
-    }
-    if (
-      trimmedItemFeedback === "" ||
-      trimmedItemFeedback === null ||
-      trimmedItemFeedback === undefined
-    ) {
-      return null
-    }
-    return trimmedItemFeedback
-  }, [itemFeedback, itemModelSolution?.messageOnModelSolution, showScore])
+    // Visible on-model-solution messages take precedence over the after-answer feedback.
+    return resolveDisplayedFeedback(
+      itemFeedback.quiz_item_feedback,
+      itemModelSolution?.messagesOnModelSolution,
+    )
+  }, [itemFeedback, itemModelSolution?.messagesOnModelSolution, showScore])
 
   const combinedFeedback = useMemo(() => {
     const trimmedSubmitMessage = submitMessage?.trim()
@@ -250,14 +242,12 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
 }) => {
   const { t } = useTranslation()
   const submitMessage = useMemo(() => {
-    if (!feedback_json) {
-      return null
-    }
-    const entry = feedback_json.find(
-      (item) => item.quiz_item_id === null && item.quiz_item_feedback?.trim(),
-    )
-    return entry?.quiz_item_feedback?.trim() ?? null
-  }, [feedback_json])
+    const gradedSubmitMessage =
+      feedback_json?.find((item) => item.quiz_item_id === null && item.quiz_item_feedback?.trim())
+        ?.quiz_item_feedback ?? null
+    // Visible quiz-level on-model-solution messages override the graded submit message.
+    return resolveDisplayedFeedback(gradedSubmitMessage, modelSolutions?.messagesOnModelSolution)
+  }, [feedback_json, modelSolutions?.messagesOnModelSolution])
 
   // set wide screen direction to row if there is multiple-choice item
   // in quiz items

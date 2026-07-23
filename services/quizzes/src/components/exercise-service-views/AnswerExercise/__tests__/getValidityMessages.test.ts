@@ -8,7 +8,7 @@ const timelineAnswer = (
   choices: { timelineItemId: string; chosenEventId: string }[],
   valid: boolean,
 ): UserAnswer => ({
-  version: "2",
+  version: "4",
   itemAnswers: [{ type: "timeline", quizItemId: "t1", valid, timelineChoices: choices }],
 })
 
@@ -19,7 +19,7 @@ describe("getQuizValidityMessages", () => {
   })
 
   it("asks the student to answer all parts when some items are unanswered", () => {
-    const state: UserAnswer = { version: "2", itemAnswers: [] }
+    const state: UserAnswer = { version: "4", itemAnswers: [] }
     expect(getQuizValidityMessages(state, 2, t)).toContain("answer-all-parts-of-the-exercise")
   })
 
@@ -36,7 +36,7 @@ describe("getQuizValidityMessages", () => {
 
   it("falls back to a generic reason for other invalid answers", () => {
     const state: UserAnswer = {
-      version: "2",
+      version: "4",
       itemAnswers: [
         { type: "multiple-choice", quizItemId: "m1", valid: false, selectedOptionIds: [] },
       ],
@@ -46,7 +46,7 @@ describe("getQuizValidityMessages", () => {
 
   it("de-duplicates repeated reasons", () => {
     const state: UserAnswer = {
-      version: "2",
+      version: "4",
       itemAnswers: [
         { type: "multiple-choice", quizItemId: "m1", valid: false, selectedOptionIds: [] },
         { type: "multiple-choice", quizItemId: "m2", valid: false, selectedOptionIds: [] },

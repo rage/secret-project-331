@@ -5,8 +5,8 @@
       "@/*": ["./src/*"],
       "@/shared-module/exercise-protocol/*": ["../exercise-protocol/src/*"]
     },
-    "typeRoots": ["./node_modules/@types"],
-    "types": ["jest", "node"],
+    "typeRoots": ["./node_modules/@types", "./node_modules"],
+    "types": ["vitest/globals", "node"],
     "noEmit": true
   },
   "include": ["src", "tests"],

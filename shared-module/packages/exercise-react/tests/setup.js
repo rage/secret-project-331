@@ -2,8 +2,8 @@ import { ServerResponse } from "http"
 import { WritableStream } from "stream/web"
 import { TextEncoder } from "util"
 
-import { jest } from "@jest/globals"
-import "@testing-library/jest-dom"
+import { vi } from "vitest"
+import "@testing-library/jest-dom/vitest"
 
 global.TextEncoder = TextEncoder
 global.Response = ServerResponse
@@ -46,7 +46,7 @@ global.BroadcastChannel = class BroadcastChannel {
   }
 }
 
-global.jest = jest
+globalThis.jest = vi
 
 // Mock IntersectionObserver for tests
 const instances = new Set()

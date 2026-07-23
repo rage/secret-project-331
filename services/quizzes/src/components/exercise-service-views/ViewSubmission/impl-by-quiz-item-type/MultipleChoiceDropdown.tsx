@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { baseTheme, primaryFont } from "@/shared-module/exercise-react/styles"
+import { resolveDisplayedFeedback } from "@/util/feedbackMessages"
 
 import type { QuizItemSubmissionComponentProps } from "."
 import type { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
@@ -276,11 +277,10 @@ const SubmissionFeedbackMessage: React.FC<
     }
     let feedBackForOption: string | null = null
     if (answerSelectedThisOption) {
-      feedBackForOption = feedbackForThisOption?.option_feedback ?? null
-      if (modelSolutionForThisOption?.additionalCorrectnessExplanationOnModelSolution) {
-        feedBackForOption =
-          modelSolutionForThisOption.additionalCorrectnessExplanationOnModelSolution
-      }
+      feedBackForOption = resolveDisplayedFeedback(
+        feedbackForThisOption?.option_feedback,
+        modelSolutionForThisOption?.messagesOnModelSolution,
+      )
     }
     return feedBackForOption ? (
       <div

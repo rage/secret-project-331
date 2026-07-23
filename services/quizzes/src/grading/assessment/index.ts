@@ -41,6 +41,13 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
           allAvailableIds.join(", "),
       )
     }
+    // The answer's type is student-supplied; grade by the quiz item's real type or a crafted
+    // answer could route e.g. a multiple-choice item to the always-correct checkbox branch.
+    if (quizItem.type !== itemAnswer.type) {
+      throw new Error(
+        `Answer type '${itemAnswer.type}' does not match quiz item type '${quizItem.type}' for item ${quizItem.id}`,
+      )
+    }
     switch (itemAnswer.type) {
       case "multiple-choice":
         return assessMultipleChoice(itemAnswer, quizItem as PrivateSpecQuizItemMultiplechoice)

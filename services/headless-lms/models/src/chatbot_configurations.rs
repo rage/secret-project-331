@@ -423,3 +423,17 @@ RETURNING *
     .await?;
     Ok(res)
 }
+
+pub async fn get_all_chatbots(conn: &mut PgConnection) -> ModelResult<Vec<ChatbotConfiguration>> {
+    let res = sqlx::query_as!(
+        ChatbotConfiguration,
+        r#"
+    SELECT *
+    FROM chatbot_configurations
+    WHERE deleted_at IS NULL
+    "#,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

@@ -316,6 +316,16 @@ async fn process_device_code_grant(
         .await
         .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?;
 
+    // RFC 8628 §3.4: the device_code is bound to the client it was issued to; a
+    // different client must not redeem it even if it, too, is allowed the device
+    // grant. Fail as invalid_grant without revealing whether the code or the
+    // presenting client was the mismatch.
+    if poll.client_id != request.client.id {
+        return Err(TokenGrantError::InvalidGrant(
+            "Given grant is invalid".to_string(),
+        ));
+    }
+
     let now = Utc::now();
 
     if poll.status == DeviceCodeStatus::Denied {
@@ -683,6 +693,54 @@ mod tests {
             .await
             .expect_err("unknown device code should fail");
         assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
+
+        tx.rollback().await;
+    }
+
+    #[actix_web::test]
+    async fn device_grant_rejects_mismatched_client() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let user = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "device-mismatch@example.com",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        // Two distinct clients, both allowed the device_code grant.
+        let client_a = insert_device_client(tx.as_mut()).await;
+        let client_b = insert_device_client(tx.as_mut()).await;
+
+        // The device code is issued to (and approved for) client A.
+        let (device_code, user_code) =
+            insert_device_code(tx.as_mut(), client_a.id, Utc::now() + Duration::minutes(15)).await;
+        OAuthDeviceCode::approve(tx.as_mut(), &user_code, user)
+            .await
+            .unwrap();
+
+        // Client B presenting A's device code must be rejected (RFC 8628 §3.4).
+        let grant_b = TokenGrant::DeviceCode {
+            device_code: device_code.clone().into(),
+        };
+        let err = process_token_grant(tx.as_mut(), build_request(&grant_b, &client_b, &key))
+            .await
+            .expect_err("cross-client device code redemption must fail");
+        assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
+
+        // The binding check does not consume the code, so the original client
+        // (A) can still redeem it successfully.
+        let grant_a = TokenGrant::DeviceCode {
+            device_code: device_code.into(),
+        };
+        let ok = process_token_grant(tx.as_mut(), build_request(&grant_a, &client_a, &key))
+            .await
+            .expect("the client the code was issued to should still succeed");
+        assert_eq!(ok.user_id, user);
 
         tx.rollback().await;
     }

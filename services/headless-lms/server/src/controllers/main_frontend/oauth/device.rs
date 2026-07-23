@@ -26,7 +26,7 @@ use chrono::{Duration, Utc};
 use headless_lms_base::config::ApplicationConfiguration;
 use models::{
     library::oauth::{
-        GrantTypeName, generate_access_token, generate_user_code, token_digest_sha256,
+        Digest, GrantTypeName, generate_access_token, generate_user_code, token_digest_sha256,
     },
     oauth_client::OAuthClient,
     oauth_device_codes::{NewDeviceCodeParams, OAuthDeviceCode},
@@ -34,7 +34,7 @@ use models::{
 };
 use secrecy::SecretString;
 use serde::{Deserialize, Serialize};
-use sqlx::{PgConnection, PgPool};
+use sqlx::{Connection, PgConnection, PgPool};
 use utoipa::{OpenApi, ToSchema};
 use uuid::Uuid;
 
@@ -156,6 +156,74 @@ fn resolve_device_scopes(
     Ok(requested)
 }
 
+/// Number of times a colliding `user_code` is regenerated before giving up.
+const DEVICE_USER_CODE_MAX_ATTEMPTS: usize = 3;
+
+/// True when `err` is the pending-`user_code` unique-index violation (the
+/// generated code clashed with another still-pending grant). Keyed on the mapped
+/// constraint name rather than string-matching the raw DB message.
+fn is_pending_user_code_collision(err: &models::ModelError) -> bool {
+    matches!(
+        err.error_type(),
+        models::ModelErrorType::DatabaseConstraint { constraint, .. }
+            if constraint == "uq_oauth_device_codes_user_code_pending"
+    )
+}
+
+/// Insert a pending device code, regenerating the `user_code` on the rare
+/// collision with another still-pending grant. The `user_code` space is large
+/// (~2^40), so a clash is vanishingly unlikely — but when it happens it must
+/// retry rather than surface a 500.
+///
+/// Each attempt runs inside its own savepoint so a unique-violation rolls back
+/// cleanly and leaves the surrounding connection usable for the next try.
+/// Returns the `user_code` that was successfully stored.
+async fn insert_device_code_retrying_user_code(
+    conn: &mut PgConnection,
+    device_code_digest: &Digest,
+    client_id: Uuid,
+    scopes: &[String],
+    expires_at: chrono::DateTime<Utc>,
+    mut next_user_code: impl FnMut() -> String,
+) -> Result<String, ControllerError> {
+    let mut last_err = None;
+    for _ in 0..DEVICE_USER_CODE_MAX_ATTEMPTS {
+        let user_code = next_user_code();
+        let mut savepoint = conn.begin().await?;
+        let result = OAuthDeviceCode::insert(
+            &mut savepoint,
+            NewDeviceCodeParams {
+                device_code_digest,
+                user_code: &user_code,
+                client_id,
+                scopes,
+                interval_seconds: DEVICE_CODE_INTERVAL_SECONDS,
+                expires_at,
+                metadata: serde_json::Map::new(),
+            },
+        )
+        .await;
+        match result {
+            Ok(()) => {
+                savepoint.commit().await?;
+                return Ok(user_code);
+            }
+            Err(e) if is_pending_user_code_collision(&e) => {
+                savepoint.rollback().await?;
+                last_err = Some(e);
+            }
+            Err(e) => {
+                savepoint.rollback().await?;
+                return Err(e.into());
+            }
+        }
+    }
+    // Every attempt collided (astronomically unlikely). Surface the last error.
+    Err(last_err
+        .expect("the retry loop records the collision error on every attempt")
+        .into())
+}
+
 /// Core of `POST /device_authorization`: look up the client, gate on the
 /// device-code grant, validate scopes, generate + store the codes, and build the
 /// RFC 8628 response. `verification_uri` is derived as `{base_url}/oauth_device`.
@@ -182,20 +250,15 @@ async fn create_device_authorization(
 
     let device_code = generate_access_token();
     let device_code_digest = token_digest_sha256(&device_code, token_hmac_key);
-    let user_code = generate_user_code();
     let expires_at = Utc::now() + Duration::minutes(DEVICE_CODE_TTL_MINUTES);
 
-    OAuthDeviceCode::insert(
+    let user_code = insert_device_code_retrying_user_code(
         conn,
-        NewDeviceCodeParams {
-            device_code_digest: &device_code_digest,
-            user_code: &user_code,
-            client_id: client.id,
-            scopes: &requested_scopes,
-            interval_seconds: DEVICE_CODE_INTERVAL_SECONDS,
-            expires_at,
-            metadata: serde_json::Map::new(),
-        },
+        &device_code_digest,
+        client.id,
+        &requested_scopes,
+        expires_at,
+        generate_user_code,
     )
     .await?;
 
@@ -433,25 +496,37 @@ pub async fn deny_device_verification(
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
+    // Modest per-IP limit shared by every device endpoint, mirroring `/token`.
+    // The verification endpoints are session-authed, so this is defense-in-depth
+    // against user_code guessing/enumeration rather than the primary gate.
+    let device_rate_limit = || {
+        RateLimit::new(RateLimitConfig {
+            per_minute: Some(100),
+            per_hour: Some(500),
+            per_day: Some(2000),
+            per_month: None,
+            ..Default::default()
+        })
+    };
     cfg.service(
         web::resource("/device_authorization")
-            .wrap(RateLimit::new(RateLimitConfig {
-                per_minute: Some(100),
-                per_hour: Some(500),
-                per_day: Some(2000),
-                per_month: None,
-                ..Default::default()
-            }))
+            .wrap(device_rate_limit())
             .route(web::post().to(device_authorization)),
     )
-    .route("/device_verification", web::get().to(device_verification))
-    .route(
-        "/device_verification/approve",
-        web::post().to(approve_device_verification),
+    .service(
+        web::resource("/device_verification")
+            .wrap(device_rate_limit())
+            .route(web::get().to(device_verification)),
     )
-    .route(
-        "/device_verification/deny",
-        web::post().to(deny_device_verification),
+    .service(
+        web::resource("/device_verification/approve")
+            .wrap(device_rate_limit())
+            .route(web::post().to(approve_device_verification)),
+    )
+    .service(
+        web::resource("/device_verification/deny")
+            .wrap(device_rate_limit())
+            .route(web::post().to(deny_device_verification)),
     );
 }
 
@@ -694,6 +769,157 @@ mod tests {
             .await
             .expect_err("re-approving a non-pending code should fail");
         assert!(matches!(err.error_type(), ControllerErrorType::NotFound));
+    }
+
+    #[actix_web::test]
+    async fn insert_device_code_retries_past_user_code_collision() {
+        insert_data!(:tx);
+        let client = insert_client(
+            tx.as_mut(),
+            &[GrantTypeName::DeviceCode],
+            &["exercise-services".to_string()],
+        )
+        .await;
+
+        // Pre-seed a pending grant so its user_code is taken.
+        let taken = create_device_authorization(
+            tx.as_mut(),
+            &form(&client.client_id, None),
+            &hmac_key(),
+            BASE_URL,
+        )
+        .await
+        .unwrap();
+
+        // The generator hands out the already-taken code first (forcing a
+        // collision + retry), then a fresh code that must succeed.
+        let fresh = generate_user_code();
+        // pop() drains from the end, so order it [fresh, taken] => taken first.
+        let mut codes = vec![fresh.clone(), taken.user_code.clone()];
+        let digest = token_digest_sha256(&generate_access_token(), &hmac_key());
+        let scopes = vec!["exercise-services".to_string()];
+
+        let stored = insert_device_code_retrying_user_code(
+            tx.as_mut(),
+            &digest,
+            client.id,
+            &scopes,
+            Utc::now() + Duration::minutes(DEVICE_CODE_TTL_MINUTES),
+            || codes.pop().expect("generator ran more than expected"),
+        )
+        .await
+        .expect("a colliding user_code must be regenerated, not surfaced as an error");
+
+        assert_eq!(stored, fresh);
+        // The regenerated code is now the retrievable pending grant.
+        let info = load_device_verification_info(tx.as_mut(), &fresh)
+            .await
+            .expect("the retried grant should be pending");
+        assert_eq!(info.client_id, client.client_id);
+    }
+
+    #[actix_web::test]
+    async fn insert_device_code_gives_up_after_repeated_collisions() {
+        insert_data!(:tx);
+        let client = insert_client(
+            tx.as_mut(),
+            &[GrantTypeName::DeviceCode],
+            &["exercise-services".to_string()],
+        )
+        .await;
+
+        let taken = create_device_authorization(
+            tx.as_mut(),
+            &form(&client.client_id, None),
+            &hmac_key(),
+            BASE_URL,
+        )
+        .await
+        .unwrap();
+        let taken_code = taken.user_code.clone();
+
+        let digest = token_digest_sha256(&generate_access_token(), &hmac_key());
+        let scopes = vec!["exercise-services".to_string()];
+
+        // Always return the taken code: every attempt collides, so the bounded
+        // retry eventually surfaces the error instead of looping forever.
+        let err = insert_device_code_retrying_user_code(
+            tx.as_mut(),
+            &digest,
+            client.id,
+            &scopes,
+            Utc::now() + Duration::minutes(DEVICE_CODE_TTL_MINUTES),
+            || taken_code.clone(),
+        )
+        .await
+        .expect_err("exhausting the retries should surface an error");
+        assert!(matches!(err.error_type(), ControllerErrorType::BadRequest));
+    }
+
+    /// Review M8: the provisioned `tmc-cli-vscode` client has `require_pkce=true`
+    /// (forced for public clients). RFC 8628 defines no PKCE binding, so the
+    /// device grant must ignore it end-to-end: device authorization carries no
+    /// code_challenge (the form has no such field) and the approved code redeems
+    /// at the token endpoint with no PKCE verifier. This pins that no-op so a
+    /// regression that started honoring require_pkce on the device path would
+    /// fail here rather than silently break the prod client.
+    #[actix_web::test]
+    async fn require_pkce_is_a_noop_for_the_device_grant_end_to_end() {
+        use crate::domain::oauth::token_query::TokenGrant;
+        use crate::domain::oauth::token_service::{
+            TokenGrantRequest, generate_token_pair, process_token_grant,
+        };
+        use headless_lms_models::oauth_access_token::TokenType;
+
+        insert_data!(:tx, :user);
+        let client = insert_client(
+            tx.as_mut(),
+            &[GrantTypeName::DeviceCode, GrantTypeName::RefreshToken],
+            &["exercise-services".to_string()],
+        )
+        .await;
+        assert!(
+            client.require_pkce,
+            "this test only means something if the client forces require_pkce"
+        );
+
+        let key = hmac_key();
+        // Device authorization has no code_challenge parameter at all.
+        let res = create_device_authorization(
+            tx.as_mut(),
+            &form(&client.client_id, None),
+            &key,
+            BASE_URL,
+        )
+        .await
+        .expect("device authorization should succeed with no PKCE input");
+
+        // User approves in the browser.
+        approve_device(tx.as_mut(), &res.user_code, user)
+            .await
+            .expect("approve should succeed");
+
+        // Redeem the approved device code with NO PKCE verifier.
+        let grant = TokenGrant::DeviceCode {
+            device_code: res.device_code.clone().into(),
+        };
+        let request = TokenGrantRequest {
+            grant: &grant,
+            client: &client,
+            token_pair: generate_token_pair(&key),
+            access_expires_at: Utc::now() + Duration::hours(1),
+            refresh_expires_at: Utc::now() + Duration::days(30),
+            issued_token_type: TokenType::Bearer,
+            dpop_jkt: None,
+            token_hmac_key: &key,
+        };
+        let result = process_token_grant(tx.as_mut(), request)
+            .await
+            .expect("device grant must succeed without a PKCE verifier despite require_pkce=true");
+        assert_eq!(result.user_id, user);
+        assert_eq!(result.scopes, vec!["exercise-services".to_string()]);
+
+        tx.rollback().await;
     }
 
     #[actix_web::test]

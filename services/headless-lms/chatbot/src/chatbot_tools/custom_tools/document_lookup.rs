@@ -29,6 +29,7 @@ pub struct DocumentLookupArguments {
     filepath: Option<String>,
     #[serde(deserialize_with = "deserialize_to_optional_uuid_and_errors_to_none")]
     page_id: Option<Uuid>,
+    format: String,
 }
 
 /// Deserializes an optional string field and parses it into an Uuid, doing this
@@ -101,33 +102,35 @@ impl ChatbotTool for DocumentLookupTool {
             ));
         };
         let course_id = user_context.course_id;
-        let page_option =
+        let page_content =
             headless_lms_models::course_page_markdown_content::get_course_page_content_by_page_id(
                 conn, page_id,
             )
             .await?;
 
-        let document = if let Some(page) = page_option {
+        let document =
             // Check if the titles match and the page is part of the same course as
             // the one the user is on.
-            if page.course_id == course_id {
-                arguments.title = page.title;
-                // use markdown content if there is any. else use json as string
-                if let Some(content) = page.markdown_content {
-                    let s = shorten_page_content(content);
-                    Some(s)
-                } else if let Some(json) = page.json_content {
-                    let s = shorten_page_content(serde_json::to_string(&json)?);
+            if page_content.course_id == course_id {
+                arguments.title = page_content.title;
+                if arguments.format == "json" {
+                    let s = shorten_page_content(serde_json::to_string(&page_content.json_content)?);
                     Some(s)
                 } else {
-                    None
+                // use markdown content if there is any. else use json as string
+                if let Some(content) = page_content.markdown_content {
+                    let s = shorten_page_content(content);
+                    Some(s)
+                } else {
+                    let base = "Markdown content not found. Page JSON content:\n\n".to_string();
+                    let s = shorten_page_content(serde_json::to_string(&page_content.json_content)?);
+                    Some(base + &s)
                 }
+                }
+
             } else {
                 None
-            }
-        } else {
-            None
-        };
+            };
 
         Ok(DocumentLookupTool {
             state: DocumentLookupState { document },
@@ -155,7 +158,7 @@ impl ChatbotTool for DocumentLookupTool {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
             name: "document_lookup".to_string(),
-            description: "Look up the full content of a specific document by the title and filepath or id (page_id). The needed arguments can be found from Azure search results or by using the course_structure tool. Either a filepath or a page_id is required to find the correct document, in addition to the document title.".to_string(),
+            description: "Look up the full content of a specific document by the title and filepath or id (page_id). The needed arguments can be found from Azure search results or by using the course_structure tool. Either a filepath or a page_id is required to find the correct document, in addition to the document title. The document can be returned in Markdown or JSON format. The Markdown format is cleaner and preferred, but might have errors: if you suspect it's erroneous, you can request the JSON version.".to_string(),
             parameters: LLMToolParams {
                 tool_type: LLMToolParamType::Object,
                 properties: HashMap::from([
@@ -179,9 +182,16 @@ impl ChatbotTool for DocumentLookupTool {
                             param_type: "string".to_string(),
                             description: "The page_id of the document to look up. Either page_id or the filepath is required.".to_string(),
                         },
+                    ),
+                    (
+                        "format".to_string(),
+                        LLMToolParamProperties {
+                            param_type: "string".to_string(),
+                            description: "The format of the document. Optional. Valid values are 'json' and 'markdown'. Markdown content is human readable, but might have errors. ".to_string(),
+                        },
                     )
                 ]),
-                required: vec!["title".to_string(), "page_id".to_string(), "filepath".to_string()],
+                required: vec!["title".to_string(), "page_id".to_string(), "filepath".to_string(), "format".to_string()],
                 additional_properties: false,
             },
             strict: true,

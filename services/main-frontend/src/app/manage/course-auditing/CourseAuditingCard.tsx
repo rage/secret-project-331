@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import type { QueryObserverResult } from "@tanstack/react-query"
+import { useQueryClient, type QueryObserverResult } from "@tanstack/react-query"
 import {
   BellXmark,
   CheckCircle,
@@ -14,7 +14,10 @@ import { useState } from "react"
 import { FormProvider, useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { updateCourseAfterAuditingMutation } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCoursesForAuditingQueryKey,
+  updateCourseAuditingDataMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
 import type {
   CourseAuditingData,
   CourseAuditingDataUpdate,
@@ -66,27 +69,31 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
   const { t } = useTranslation()
 
   const [editing, setEditing] = useState<boolean>(false)
-  const [course, setCourse] = useState<CourseAuditingData>(courseAuditingData)
   const [status, setStatus] = useState<UpdateStatus>(UpdateStatus.none)
+  const queryClient = useQueryClient()
+
+  const defaultValues = {
+    ...courseAuditingData,
+    closed_at: courseAuditingData.closed_at
+      ? (formatDateForDateTimeLocalInputs(courseAuditingData.closed_at) ?? null)
+      : null,
+    set_course_closed_at: Boolean(courseAuditingData.closed_at),
+    modules: courseAuditingData.modules.map((m) => ({
+      ...m,
+      override_completion_link: Boolean(m.completion_registration_link_override),
+    })),
+  }
 
   const methods = useForm<EditCourseAuditingData>({
-    defaultValues: {
-      ...courseAuditingData,
-      closed_at: course.closed_at
-        ? (formatDateForDateTimeLocalInputs(course.closed_at) ?? null)
-        : null,
-      set_course_closed_at: Boolean(course.closed_at),
-    },
+    defaultValues,
   })
+  const [readOnly, setReadOnly] = useState<CourseAuditingData>(defaultValues)
 
-  const { control, handleSubmit, reset, watch } = methods
-
-  //const formValues = watch()
+  const { control, handleSubmit, reset, getValues } = methods
 
   // oxlint-disable-next-line i18next/no-literal-string
   const { fields } = useFieldArray({ control, name: "modules" })
 
-  console.log(fields)
   const toggleEdit = () => {
     setEditing(!editing)
   }
@@ -96,11 +103,19 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
     setEditing(!editing)
   }
 
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = handleSubmit((data: EditCourseAuditingData) => {
+    const modules = data.modules.map((module) => ({
+      ...module,
+      uh_course_code: nullIfEmptyString(module.uh_course_code),
+      completion_registration_link_override: module.override_completion_link
+        ? nullIfEmptyString(module.completion_registration_link_override)
+        : null,
+    }))
+
     updateMutation.mutateAsync({
       body: {
         ...data,
-        // uh_course_code: nullIfEmptyString(data.uh_course_code),
+        description: nullIfEmptyString(data.description),
         closed_at: data.set_course_closed_at
           ? data.closed_at
             ? parseISO(data.closed_at).toISOString()
@@ -108,20 +123,31 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
           : null,
         closed_additional_message: nullIfEmptyString(data.closed_additional_message),
         closed_course_successor_id: nullIfEmptyString(data.closed_course_successor_id),
+        modules: modules,
       },
       path: {
-        course_to_audit_id: course.id,
+        course_id: readOnly.id,
       },
     })
   })
 
   const updateMutation = useToastMutationOptions(
-    updateCourseAfterAuditingMutation(),
+    updateCourseAuditingDataMutation(),
     { method: "PUT", notify: true },
     {
-      onSuccess: (updated) => {
-        setCourse(updated)
-        refetch()
+      onSuccess: (updated: CourseAuditingData) => {
+        const currentValues = getValues()
+        reset({ ...updated, ...currentValues })
+        setReadOnly(updated)
+        //refetch()
+
+        queryClient.setQueryData(getCoursesForAuditingQueryKey(), (old: CourseAuditingData[]) => {
+          if (!old) {
+            return []
+          }
+          return old.map((o) => (o.id === updated.id ? updated : o))
+        })
+
         setStatus(UpdateStatus.saved)
         setEditing(false)
         setStatus(UpdateStatus.none)
@@ -171,7 +197,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                   font-size: 1.5rem;
                 `}
               >
-                {course.name}
+                {readOnly.name}
               </h1>
               <div
                 className={css`
@@ -182,7 +208,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                   margin-top: 0.5rem;
                 `}
               >
-                {course.organization_name}
+                {readOnly.organization_name}
               </div>
             </div>
 
@@ -249,8 +275,9 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
 
               <ClosedSectionFields />
 
+              {/* .toSorted((l, r) => l.order_number - r.order_number) */}
               {fields.map((module, idx) => (
-                <EditModuleFields key={module.id} module={module} idx={idx} />
+                <EditModuleFields key={module.id} control={control} module={module} idx={idx} />
               ))}
             </div>
           ) : (
@@ -263,10 +290,10 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
             >
               <ContentDisplayBox
                 label={t("text-field-label-description")}
-                content={course.description}
+                content={readOnly.description}
               />
 
-              {course.closed_at ? (
+              {readOnly.closed_at ? (
                 <div
                   className={css`
                     display: flex;
@@ -277,23 +304,23 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                   <div className={contentRowStyles}>
                     <ContentDisplayBox
                       label={t("closed-at")}
-                      content={<TimeComponent date={parseISO(course.closed_at)} />}
+                      content={<TimeComponent date={parseISO(readOnly.closed_at)} />}
                     />
                     <ContentDisplayBox
                       label={t("closed-course-successor-id")}
-                      content={course.closed_course_successor_id}
+                      content={readOnly.closed_course_successor_id}
                     />
                   </div>
                   <ContentDisplayBox
                     label={t("closed-additional-message")}
-                    content={course.closed_additional_message}
+                    content={readOnly.closed_additional_message}
                   />
                 </div>
               ) : (
                 <ContentDisplayBox label={t("closed-at")} />
               )}
 
-              {course.modules.map((module) => (
+              {readOnly.modules.map((module) => (
                 <div
                   key={module.id}
                   className={css`
@@ -336,19 +363,19 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
           >
             <TimeComponent
               label={t("label-created")}
-              date={parseISO(course.created_at)}
+              date={parseISO(readOnly.created_at)}
               right={false}
               boldLabel
             />
             <TimeComponent
               label={t("label-updated")}
-              date={parseISO(course.updated_at)}
+              date={parseISO(readOnly.updated_at)}
               right={true}
               boldLabel
             />
             <Link
               className={linkStyles}
-              href={courseMaterialFrontPageHref(course.organization_slug, course.slug)}
+              href={courseMaterialFrontPageHref(readOnly.organization_slug, readOnly.slug)}
             >
               {t("course-auditing-card-open-course-front-page")}
             </Link>

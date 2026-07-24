@@ -138,6 +138,7 @@ export default function AnalysisWorkspaceForm(props: {
                 name={FIELD_CREDITS}
                 control={control}
                 rules={creditsFieldRules}
+                type="number"
                 label={t("course-plans-analysis-field-credits")}
                 description={t("course-plans-analysis-description-credits")}
                 inputMode={INPUT_MODE_DECIMAL}

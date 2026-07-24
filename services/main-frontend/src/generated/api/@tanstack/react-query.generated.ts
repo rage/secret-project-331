@@ -304,7 +304,7 @@ import {
   updateChapter,
   updateChapterImage,
   updateCourse,
-  updateCourseAfterAuditing,
+  updateCourseAuditingData,
   updateCourseChapterOrdering,
   updateCourseDesignerStageTask,
   updateCourseDesignerStageWorkspace,
@@ -859,8 +859,8 @@ import type {
   UpdateChapterImageData,
   UpdateChapterImageResponse,
   UpdateChapterResponse,
-  UpdateCourseAfterAuditingData,
-  UpdateCourseAfterAuditingResponse,
+  UpdateCourseAuditingDataData,
+  UpdateCourseAuditingDataResponse,
   UpdateCourseChapterOrderingData,
   UpdateCourseData,
   UpdateCourseDesignerStageTaskData,
@@ -1651,20 +1651,20 @@ export const getCoursesForAuditingOptions = (options?: Options<GetCoursesForAudi
  *
  * PUT `/api/v0/main-frontend/course-auditing/:id`
  */
-export const updateCourseAfterAuditingMutation = (
-  options?: Partial<Options<UpdateCourseAfterAuditingData>>,
+export const updateCourseAuditingDataMutation = (
+  options?: Partial<Options<UpdateCourseAuditingDataData>>,
 ): UseMutationOptions<
-  UpdateCourseAfterAuditingResponse,
+  UpdateCourseAuditingDataResponse,
   DefaultError,
-  Options<UpdateCourseAfterAuditingData>
+  Options<UpdateCourseAuditingDataData>
 > => {
   const mutationOptions: UseMutationOptions<
-    UpdateCourseAfterAuditingResponse,
+    UpdateCourseAuditingDataResponse,
     DefaultError,
-    Options<UpdateCourseAfterAuditingData>
+    Options<UpdateCourseAuditingDataData>
   > = {
     mutationFn: async (fnOptions) =>
-      await updateCourseAfterAuditing({
+      await updateCourseAuditingData({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -3480,7 +3480,7 @@ export const getCourseMetadataQueryKey = (options: Options<GetCourseMetadataData
 
 /**
  *
- * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.
  */
 export const getCourseMetadataOptions = (options: Options<GetCourseMetadataData>) =>
   queryOptions<

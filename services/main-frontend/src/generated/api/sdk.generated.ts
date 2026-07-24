@@ -596,8 +596,8 @@ import type {
   UpdateChapterImageData,
   UpdateChapterImageResponses,
   UpdateChapterResponses,
-  UpdateCourseAfterAuditingData,
-  UpdateCourseAfterAuditingResponses,
+  UpdateCourseAuditingDataData,
+  UpdateCourseAuditingDataResponses,
   UpdateCourseChapterOrderingData,
   UpdateCourseChapterOrderingResponses,
   UpdateCourseData,
@@ -886,7 +886,7 @@ import {
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
   zUpdateChapterResponse,
-  zUpdateCourseAfterAuditingResponse,
+  zUpdateCourseAuditingDataResponse,
   zUpdateCourseDesignerStageTaskResponse,
   zUpdateCourseDesignerStageWorkspaceResponse,
   zUpdateCoursePeerReviewQueueReviewsReceivedResponse,
@@ -1443,21 +1443,19 @@ export const getCoursesForAuditing = <ThrowOnError extends boolean = true>(
  *
  * PUT `/api/v0/main-frontend/course-auditing/:id`
  */
-export const updateCourseAfterAuditing = <ThrowOnError extends boolean = true>(
-  options: Options<UpdateCourseAfterAuditingData, ThrowOnError>,
-): RequestResult<UpdateCourseAfterAuditingResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).put<UpdateCourseAfterAuditingResponses, unknown, ThrowOnError, "data">(
-    {
-      responseValidator: async (data) => await zUpdateCourseAfterAuditingResponse.parseAsync(data),
-      responseStyle: "data",
-      url: "/api/v0/main-frontend/course-auditing/{course_to_audit_id}",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
+export const updateCourseAuditingData = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateCourseAuditingDataData, ThrowOnError>,
+): RequestResult<UpdateCourseAuditingDataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdateCourseAuditingDataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateCourseAuditingDataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-auditing/{course_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
     },
-  )
+  })
 
 /**
  *
@@ -2706,7 +2704,7 @@ export const getCourseAudiences = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.
  */
 export const getCourseMetadata = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseMetadataData, ThrowOnError>,

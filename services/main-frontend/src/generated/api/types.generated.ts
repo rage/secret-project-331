@@ -570,6 +570,30 @@ export type CourseAudience = {
   updated_at: string
 }
 
+export type CourseAuditingData = {
+  closed_additional_message?: string | null
+  closed_at?: string | null
+  closed_course_successor_id?: string | null
+  created_at: string
+  description?: string | null
+  id: string
+  modules: Array<CourseModule>
+  name: string
+  organization_id: string
+  organization_name: string
+  organization_slug: string
+  slug: string
+  updated_at: string
+}
+
+export type CourseAuditingDataUpdate = {
+  closed_additional_message?: string | null
+  closed_at?: string | null
+  closed_course_successor_id?: string | null
+  description?: string | null
+  modules: Array<ModifiedModule>
+}
+
 export type CourseBreadcrumbInfo = {
   course_id: string
   course_name: string
@@ -3069,27 +3093,27 @@ export type GetCoursesForAuditingResponses = {
 export type GetCoursesForAuditingResponse =
   GetCoursesForAuditingResponses[keyof GetCoursesForAuditingResponses]
 
-export type UpdateCourseAfterAuditingData = {
+export type UpdateCourseAuditingDataData = {
   body: CourseAuditingDataUpdate
   path: {
     /**
-     * Course to audit id
+     * Course id
      */
-    course_to_audit_id: string
+    course_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/course-auditing/{course_to_audit_id}"
+  url: "/api/v0/main-frontend/course-auditing/{course_id}"
 }
 
-export type UpdateCourseAfterAuditingResponses = {
+export type UpdateCourseAuditingDataResponses = {
   /**
    * Updated course
    */
   200: CourseAuditingData
 }
 
-export type UpdateCourseAfterAuditingResponse =
-  UpdateCourseAfterAuditingResponses[keyof UpdateCourseAfterAuditingResponses]
+export type UpdateCourseAuditingDataResponse =
+  UpdateCourseAuditingDataResponses[keyof UpdateCourseAuditingDataResponses]
 
 export type GetCourseInstanceData = {
   body?: never

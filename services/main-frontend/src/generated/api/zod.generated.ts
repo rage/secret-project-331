@@ -3242,16 +3242,16 @@ export const zDeleteCodeGiveawayCodePath = z.object({
  */
 export const zGetCoursesForAuditingResponse = z.array(zCourseAuditingData)
 
-export const zUpdateCourseAfterAuditingBody = zCourseAuditingDataUpdate
+export const zUpdateCourseAuditingDataBody = zCourseAuditingDataUpdate
 
-export const zUpdateCourseAfterAuditingPath = z.object({
-  course_to_audit_id: z.uuid(),
+export const zUpdateCourseAuditingDataPath = z.object({
+  course_id: z.uuid(),
 })
 
 /**
  * Updated course
  */
-export const zUpdateCourseAfterAuditingResponse = zCourseAuditingData
+export const zUpdateCourseAuditingDataResponse = zCourseAuditingData
 
 export const zGetCourseInstancePath = z.object({
   course_instance_id: z.uuid(),

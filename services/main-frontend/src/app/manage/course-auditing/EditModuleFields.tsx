@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import React from "react"
-import { useWatch, useFormContext } from "react-hook-form"
+import { useWatch, type Control } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
@@ -13,25 +13,19 @@ import type { EditCourseAuditingData, EditModuleData } from "./CourseAuditingCar
 //use getvalues, no passing
 
 interface Props {
+  control: Control<EditCourseAuditingData>
   module: EditModuleData
   idx: number
 }
 
-const EditModuleFields: React.FC<Props> = ({ module, idx }) => {
+const EditModuleFields: React.FC<Props> = ({ control, module, idx }) => {
   const { t } = useTranslation()
-  const {
-    register,
-    setValue,
-    getValues,
-    formState: { errors },
-    control,
-  } = useFormContext<EditCourseAuditingData>()
 
-  // oxlint-disable-next-line i18next/no-literal-string
-  //const isClosed = useWatch({ name: "set_course_closed_at", control })
+  const override = useWatch({ name: `modules.${idx}.override_completion_link`, control })
 
   return (
     <div
+      key={module.id}
       className={css`
         display: flex;
         flex-wrap: wrap;
@@ -59,6 +53,7 @@ const EditModuleFields: React.FC<Props> = ({ module, idx }) => {
         label={t("completion-registration-link")}
         name={`modules.${idx}.completion_registration_link_override`}
         rules={nullIfEmpty}
+        isDisabled={!override}
       />
       <Checkbox
         control={control}
@@ -66,6 +61,7 @@ const EditModuleFields: React.FC<Props> = ({ module, idx }) => {
         name={`modules.${idx}.enable_registering_completion_to_uh_open_university`}
       />
       <div
+        key={module.id}
         className={css`
           display: flex;
           align-items: flex-start;
@@ -83,7 +79,21 @@ const EditModuleFields: React.FC<Props> = ({ module, idx }) => {
           control={control}
           label={t("ects-credits")}
           name={`modules.${idx}.ects_credits`}
-          rules={nullIfEmpty}
+          // oxlint-disable-next-line i18next/no-literal-string
+          inputMode="decimal"
+          type="number"
+          rules={{
+            //...stringToNumberOrNull,
+            valueAsNumber: true,
+            // validate: (v) => {
+            //   return (
+            //     v === null ||
+            //     v === undefined ||
+            //     (typeof v === "number" && Number.isFinite(v)) ||
+            //     t("course-plans-analysis-error-credits-invalid")
+            //   )
+            // },
+          }}
         />
       </div>
     </div>

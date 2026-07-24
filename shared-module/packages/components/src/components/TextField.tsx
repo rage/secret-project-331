@@ -134,7 +134,11 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
   } = useTextField(ariaProps, inputRef)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    field.onChange(e.target.value)
+    if (type === "number") {
+      field.onChange(e.target.valueAsNumber)
+    } else {
+      field.onChange(e.target.value)
+    }
   }
 
   const handleFocus = () => {

@@ -1,8 +1,10 @@
+use std::collections::HashMap;
+
 use crate::{
     chapters::{Chapter, course_chapters},
     course_audiences::{CourseAudience, NewCourseAudience},
     course_instances::CourseInstance,
-    course_modules::CourseModule,
+    course_modules::{CourseModule, ModifiedModule},
     course_prerequisites::{
         CoursePrerequisite, NewCoursePrerequisite, insert_course_prerequisites,
     },
@@ -385,33 +387,7 @@ WHERE deleted_at IS NULL;
     Ok(courses)
 }
 
-pub async fn get_all_courses_for_auditing(
-    conn: &mut PgConnection,
-) -> ModelResult<Vec<CourseToAudit>> {
-    let courses = sqlx::query_as!(
-        CourseToAudit,
-        r#"
-SELECT c.id,
-  c.name,
-  c.slug,
-  c.created_at,
-  c.updated_at,
-  c.organization_id,
-  c.description,
-  c.closed_at,
-  c.closed_additional_message,
-  c.closed_course_successor_id,
-  cm.uh_course_code
-FROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id
-WHERE c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;
-"#
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(courses)
-}
-
-pub async fn get_all_course_data_for_auditing(
+pub async fn all_courses_for_auditing(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<CourseAuditingData>> {
     let courses_data = sqlx::query!(
@@ -477,7 +453,7 @@ GROUP BY
     Ok(data)
 }
 
-pub async fn get_course_for_auditing(
+pub async fn course_auditing_data_by_id(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<CourseAuditingData> {
@@ -509,7 +485,9 @@ GROUP BY
     .fetch_one(&mut *conn)
     .await?;
 
-    let modules_data = crate::course_modules::get_by_course_id(conn, course_id).await?;
+    let mut modules_data = crate::course_modules::get_by_course_id(conn, course_id).await?;
+
+    modules_data.sort_by_key(|c| c.order_number);
 
     let data: CourseAuditingData = CourseAuditingData {
         id: course_data.id,
@@ -530,7 +508,7 @@ GROUP BY
     Ok(data)
 }
 
-pub async fn update_course_after_auditing(
+pub async fn update_course_auditing_data(
     conn: &mut PgConnection,
     course_id: Uuid,
     data_update: CourseAuditingDataUpdate,
@@ -565,9 +543,9 @@ SET uh_course_code = $2,
   completion_registration_link_override = $3,
   ects_credits = $4,
   enable_registering_completion_to_uh_open_university = $5
-WHERE course_id = $1 AND order_number = 0
+WHERE id = $1
   AND deleted_at IS NULL"#,
-            course_id,
+            module.id,
             module.uh_course_code,
             module.completion_registration_link_override,
             module.ects_credits,

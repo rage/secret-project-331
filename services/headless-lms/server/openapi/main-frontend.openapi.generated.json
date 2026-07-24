@@ -951,16 +951,16 @@
         }
       }
     },
-    "/api/v0/main-frontend/course-auditing/{course_to_audit_id}": {
+    "/api/v0/main-frontend/course-auditing/{course_id}": {
       "put": {
         "tags": ["course_auditing"],
         "summary": "\nPUT `/api/v0/main-frontend/course-auditing/:id`",
-        "operationId": "updateCourseAfterAuditing",
+        "operationId": "updateCourseAuditingData",
         "parameters": [
           {
-            "name": "course_to_audit_id",
+            "name": "course_id",
             "in": "path",
-            "description": "Course to audit id",
+            "description": "Course id",
             "required": true,
             "schema": {
               "type": "string",
@@ -3319,7 +3319,7 @@
     "/api/v0/main-frontend/courses/{course_id}/get-course-metadata": {
       "get": {
         "tags": ["courses"],
-        "summary": "\nget `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.",
+        "summary": "\nget `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.",
         "operationId": "getCourseMetadata",
         "parameters": [
           {
@@ -12979,6 +12979,96 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "CourseAuditingData": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "created_at",
+          "updated_at",
+          "organization_id",
+          "organization_name",
+          "organization_slug",
+          "modules"
+        ],
+        "properties": {
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModule"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organization_name": {
+            "type": "string"
+          },
+          "organization_slug": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseAuditingDataUpdate": {
+        "type": "object",
+        "required": ["modules"],
+        "properties": {
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModifiedModule"
+            }
           }
         }
       },

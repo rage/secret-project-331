@@ -5,7 +5,7 @@ use utoipa::OpenApi;
 use crate::prelude::*;
 
 #[derive(OpenApi)]
-#[openapi(paths(get_courses_for_auditing, update_course_after_auditing))]
+#[openapi(paths(get_courses_for_auditing, update_course_auditing_data))]
 pub(crate) struct MainFrontendCourseAuditingApiDoc;
 
 /**
@@ -27,8 +27,7 @@ async fn get_courses_for_auditing(
 ) -> ControllerResult<web::Json<Vec<CourseAuditingData>>> {
     let mut conn = pool.acquire().await?;
 
-    let data = models::courses::get_all_course_data_for_auditing(&mut conn).await?;
-    // let courses_for_auditing = models::courses::get_all_courses_for_auditing(&mut conn).await?;
+    let data = models::courses::all_courses_for_auditing(&mut conn).await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?;
     token.authorized_ok(web::Json(data))
@@ -39,11 +38,11 @@ PUT `/api/v0/main-frontend/course-auditing/:id`
 */
 #[utoipa::path(
     put,
-    path = "/{course_to_audit_id}",
-    operation_id = "updateCourseAfterAuditing",
+    path = "/{course_id}",
+    operation_id = "updateCourseAuditingData",
     tag = "course_auditing",
     params(
-        ("course_to_audit_id" = Uuid, Path, description = "Course to audit id")
+        ("course_id" = Uuid, Path, description = "Course id")
     ),
     request_body = CourseAuditingDataUpdate,
     responses(
@@ -51,18 +50,17 @@ PUT `/api/v0/main-frontend/course-auditing/:id`
     )
 )]
 #[instrument(skip(pool))]
-async fn update_course_after_auditing(
+async fn update_course_auditing_data(
     payload: web::Json<CourseAuditingDataUpdate>,
-    course_to_audit_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseAuditingData>> {
     let mut conn = pool.acquire().await?;
-    models::courses::update_course_after_auditing(&mut conn, *course_to_audit_id, payload.0)
-        .await?;
 
-    let updated_course =
-        models::courses::get_course_for_auditing(&mut conn, *course_to_audit_id).await?;
+    models::courses::update_course_auditing_data(&mut conn, *course_id, payload.0).await?;
+
+    let updated_course = models::courses::course_auditing_data_by_id(&mut conn, *course_id).await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
 
@@ -78,8 +76,5 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/", web::get().to(get_courses_for_auditing))
-        .route(
-            "/{course_to_audit_id}",
-            web::put().to(update_course_after_auditing),
-        );
+        .route("/{course_id}", web::put().to(update_course_auditing_data));
 }

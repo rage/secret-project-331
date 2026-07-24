@@ -102,7 +102,7 @@ impl ChatbotTool for DocumentLookupTool {
         };
         let course_id = user_context.course_id;
         let page_option =
-            headless_lms_models::course_page_markdown_content::get_latest_page_content_by_page_id(
+            headless_lms_models::course_page_markdown_content::get_course_page_content_by_page_id(
                 conn, page_id,
             )
             .await?;

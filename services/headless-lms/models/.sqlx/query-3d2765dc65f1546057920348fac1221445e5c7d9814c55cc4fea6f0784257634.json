@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT ph.content AS json_content,\n  ph.title,\n  ph.id AS page_revision_id,\n  ph.page_id,\n  cpmc.markdown_content,\n  cps.course_id\nFROM page_history AS ph\n  JOIN chatbot_page_sync_statuses AS cps ON ph.page_id = cps.page_id\n  JOIN course_page_markdown_content AS cpmc ON cps.converted_markdown_content_id = cpmc.id\nWHERE ph.id IN (\n    SELECT synced_page_revision_id\n    FROM chatbot_page_sync_statuses\n    WHERE page_id = $1\n      AND deleted_at IS NULL\n    ORDER BY updated_at DESC\n    LIMIT 1\n  )\n  AND ph.deleted_at IS NULL\n  AND cps.deleted_at IS NULL\n  AND cpmc.deleted_at IS NULL\n    ",
+  "query": "\nSELECT pages.content AS json_content,\n  pages.title,\n  pages.id AS page_id,\n  cpmc.markdown_content,\n  cps.course_id\nFROM pages\n  JOIN page_history AS ph ON pages.id = ph.page_id\n  JOIN chatbot_page_sync_statuses AS cps ON pages.id = cps.page_id\n  JOIN course_page_markdown_content AS cpmc ON cps.converted_markdown_content_id = cpmc.id\nWHERE ph.id IN (\n    SELECT synced_page_revision_id\n    FROM chatbot_page_sync_statuses\n    WHERE page_id = $1\n      AND deleted_at IS NULL\n    ORDER BY updated_at DESC\n    LIMIT 1\n  )\n  AND pages.id = $1\n  AND pages.deleted_at IS NULL\n  AND ph.deleted_at IS NULL\n  AND cps.deleted_at IS NULL\n  AND cpmc.deleted_at IS NULL\n    ",
   "describe": {
     "columns": [
       {
@@ -9,7 +9,7 @@
         "type_info": "Jsonb",
         "origin": {
           "Table": {
-            "table": "page_history",
+            "table": "pages",
             "name": "content"
           }
         }
@@ -20,35 +20,24 @@
         "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "page_history",
+            "table": "pages",
             "name": "title"
           }
         }
       },
       {
         "ordinal": 2,
-        "name": "page_revision_id",
+        "name": "page_id",
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "page_history",
+            "table": "pages",
             "name": "id"
           }
         }
       },
       {
         "ordinal": 3,
-        "name": "page_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "page_history",
-            "name": "page_id"
-          }
-        }
-      },
-      {
-        "ordinal": 4,
         "name": "markdown_content",
         "type_info": "Text",
         "origin": {
@@ -59,7 +48,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 4,
         "name": "course_id",
         "type_info": "Uuid",
         "origin": {
@@ -80,9 +69,8 @@
       false,
       false,
       false,
-      false,
       false
     ]
   },
-  "hash": "178ee25cf04d7b69feddd24b79f1a090160b9b4e9402c464be3706277e5b8510"
+  "hash": "3d2765dc65f1546057920348fac1221445e5c7d9814c55cc4fea6f0784257634"
 }

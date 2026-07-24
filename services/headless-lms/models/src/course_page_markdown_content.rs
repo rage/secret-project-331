@@ -12,12 +12,12 @@ pub struct CoursePageMarkdownContent {
 }
 
 // stuff for the tool
-pub struct PageSyncedVersionContent {
+pub struct CoursePageContent {
     pub page_id: Uuid,
-    pub page_revision_id: Uuid,
     pub course_id: Uuid,
     pub title: String,
-    pub json_content: Option<Value>,
+    pub json_content: Value,
+    /// Latest LLM-generated Markdown that has been synced to Azure.
     pub markdown_content: Option<String>,
 }
 
@@ -40,22 +40,22 @@ pub async fn insert(
     Ok(res)
 }
 
-/// Get latest page content that has been synced, either Markdown or json format.
-pub async fn get_latest_page_content_by_page_id(
+/// Get latest page content, either latest Markdown that has been synced or json format.
+pub async fn get_course_page_content_by_page_id(
     conn: &mut PgConnection,
     page_id: Uuid,
-) -> ModelResult<Option<PageSyncedVersionContent>> {
-    let sync_status = sqlx::query_as!(
-        PageSyncedVersionContent,
+) -> ModelResult<CoursePageContent> {
+    let content = sqlx::query_as!(
+        CoursePageContent,
         r#"
-SELECT ph.content AS json_content,
-  ph.title,
-  ph.id AS page_revision_id,
-  ph.page_id,
+SELECT pages.content AS json_content,
+  pages.title,
+  pages.id AS page_id,
   cpmc.markdown_content,
   cps.course_id
-FROM page_history AS ph
-  JOIN chatbot_page_sync_statuses AS cps ON ph.page_id = cps.page_id
+FROM pages
+  JOIN page_history AS ph ON pages.id = ph.page_id
+  JOIN chatbot_page_sync_statuses AS cps ON pages.id = cps.page_id
   JOIN course_page_markdown_content AS cpmc ON cps.converted_markdown_content_id = cpmc.id
 WHERE ph.id IN (
     SELECT synced_page_revision_id
@@ -65,14 +65,40 @@ WHERE ph.id IN (
     ORDER BY updated_at DESC
     LIMIT 1
   )
+  AND pages.id = $1
+  AND pages.deleted_at IS NULL
   AND ph.deleted_at IS NULL
   AND cps.deleted_at IS NULL
   AND cpmc.deleted_at IS NULL
     "#,
         page_id,
     )
-    .fetch_optional(conn)
+    .fetch_optional(&mut *conn)
     .await?;
 
-    Ok(sync_status)
+    if let Some(s) = content {
+        Ok(s)
+    } else {
+        // Get fall back page content as json. The course_id should not be null
+        // because this result is for course page content look up.
+        let fallback_content = sqlx::query_as!(
+            CoursePageContent,
+            r#"
+SELECT pages.content AS json_content,
+  pages.title,
+  pages.id AS page_id,
+  null as markdown_content,
+  pages.course_id as "course_id!"
+FROM pages
+  WHERE pages.course_id IS NOT NULL
+  AND pages.id = $1
+  AND pages.deleted_at IS NULL
+    "#,
+            page_id,
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+
+        Ok(fallback_content)
+    }
 }

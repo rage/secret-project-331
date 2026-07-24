@@ -79,3 +79,20 @@ RETURNING *
     .await?;
     Ok(res)
 }
+
+pub async fn get_course_ids_by_audience(
+    conn: &mut PgConnection,
+    audiences: &[String],
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT DISTINCT course_id
+FROM course_audiences
+WHERE audience = ANY($1::text [])
+        "#,
+        &audiences
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

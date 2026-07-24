@@ -108,9 +108,9 @@ impl ParsedResponseLine {
 /// Context about the user and course for a chatbot interaction.
 /// Passed to tool implementations so they can access user-specific data.
 pub struct ChatbotUserContext {
-    pub user_id: Uuid,
-    pub course_id: Uuid,
-    pub course_name: String,
+    pub user_id: Option<Uuid>,
+    pub course_id: Option<Uuid>,
+    pub course_name: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -437,6 +437,8 @@ pub struct Schema {
     pub required: Vec<String>,
     /// additionalProperties should always be 'false'
     pub additional_properties: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -452,6 +454,8 @@ pub struct ArrayProperty {
     #[serde(rename = "type")]
     pub type_field: JSONType,
     pub items: ArrayItem,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -465,6 +469,8 @@ pub enum ArrayItem {
 pub struct JsonItem {
     #[serde(rename = "type")]
     pub type_field: JSONType,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

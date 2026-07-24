@@ -79,3 +79,20 @@ RETURNING *
     .await?;
     Ok(res)
 }
+
+pub async fn get_course_ids_by_prerequisite(
+    conn: &mut PgConnection,
+    prerequisites: &[String],
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT DISTINCT course_id
+FROM course_prerequisites
+WHERE prerequisite = ANY($1::text [])
+        "#,
+        &prerequisites
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

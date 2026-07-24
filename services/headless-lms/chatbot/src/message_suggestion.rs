@@ -140,12 +140,15 @@ pub async fn generate_suggested_messages(
                 name: "ChatbotNextMessageSuggestionResponse".to_string(),
                 schema: Schema {
                     type_field: JSONType::Object,
+                    description: None,
                     properties: HashMap::from([(
                         "suggestions".to_string(),
                         SchemaPropertyType::ArrayProperty(ArrayProperty {
                             type_field: JSONType::Array,
+                            description: None,
                             items: ArrayItem::JsonItem(JsonItem {
                                 type_field: JSONType::String,
+                                description: None,
                             }),
                         }),
                     )]),

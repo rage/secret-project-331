@@ -130,19 +130,23 @@ pub async fn generate_description(
                 name: "LLMDescriptionResponse".to_string(),
                 schema: Schema {
                     type_field: JSONType::Object,
+                    description: None,
                     properties: HashMap::from([
                         (
                             "course_description".to_string(),
                             SchemaPropertyType::Item(JsonItem {
                                 type_field: JSONType::String,
+                                description: None,
                             }),
                         ),
                         (
                             "audience".to_string(),
                             SchemaPropertyType::ArrayProperty(ArrayProperty {
                                 type_field: JSONType::Array,
+                                description: None,
                                 items: ArrayItem::JsonItem(JsonItem {
                                     type_field: JSONType::String,
+                                    description: None,
                                 }),
                             }),
                         ),
@@ -150,27 +154,33 @@ pub async fn generate_description(
                             "modules".to_string(),
                             SchemaPropertyType::ArrayProperty(ArrayProperty {
                                 type_field: JSONType::Array,
+                                description: None,
                                 items: ArrayItem::Schema(Schema {
                                     type_field: JSONType::Object,
+                                    description: None,
                                     properties: HashMap::from([
                                         (
                                             "course_code".to_string(),
                                             SchemaPropertyType::Item(JsonItem {
                                                 type_field: JSONType::String,
+                                                description: None,
                                             }),
                                         ),
                                         (
                                             "description".to_string(),
                                             SchemaPropertyType::Item(JsonItem {
                                                 type_field: JSONType::String,
+                                                description: None,
                                             }),
                                         ),
                                         (
                                             "prerequisites".to_string(),
                                             SchemaPropertyType::ArrayProperty(ArrayProperty {
                                                 type_field: JSONType::Array,
+                                                description: None,
                                                 items: ArrayItem::JsonItem(JsonItem {
                                                     type_field: JSONType::String,
+                                                    description: None,
                                                 }),
                                             }),
                                         ),

@@ -1103,10 +1103,7 @@ WHERE id = $1
     Ok(res.is_joinable_by_code_only)
 }
 
-pub(crate) async fn get_by_ids(
-    conn: &mut PgConnection,
-    course_ids: &[Uuid],
-) -> ModelResult<Vec<Course>> {
+pub async fn get_by_ids(conn: &mut PgConnection, course_ids: &[Uuid]) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
         r#"
@@ -1589,4 +1586,22 @@ pub async fn get_metadata(
         course_organization: organization,
     };
     Ok(metadata)
+}
+
+pub async fn get_by_description_keywords(
+    conn: &mut PgConnection,
+    query_string: String,
+) -> ModelResult<Vec<Uuid>> {
+    let courses = sqlx::query_scalar!(
+        r#"
+SELECT id
+FROM courses
+WHERE to_tsvector('english', description)
+@@ websearch_to_tsquery('english', $1)
+        "#,
+        query_string
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
 }

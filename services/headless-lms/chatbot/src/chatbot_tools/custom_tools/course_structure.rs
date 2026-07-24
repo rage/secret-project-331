@@ -6,11 +6,12 @@ use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
+    chatbot_error::chatbot_err,
     chatbot_tools::{
         AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
         ToolProperties,
     },
-    prelude::{ChatbotError, ChatbotResult},
+    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 
 pub type CourseStructureTool = ToolProperties<CourseStructureState, CourseStructureArguments>;
@@ -80,7 +81,13 @@ impl ChatbotTool for CourseStructureTool {
     where
         Self: Sized,
     {
-        let mut pages_info = pages::get_page_info_special_for_course(conn, user_context.course_id)
+        let Some(course_id) = user_context.course_id else {
+            return Err(chatbot_err!(
+                ToolUseError,
+                "Course id is missing.".to_string()
+            ));
+        };
+        let mut pages_info = pages::get_page_info_special_for_course(conn, course_id)
             .await
             .map_err(ChatbotError::from)?;
         pages_info.sort_by_key(|x| {

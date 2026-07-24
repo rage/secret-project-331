@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT course_id\nFROM course_audiences\nWHERE audience = ANY($1::text [])\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_audiences",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "5f6f84f08a35a0d5b5f7e5d648a226f275d9f42f74a1d241117b6cda6b1f2d27"
+}

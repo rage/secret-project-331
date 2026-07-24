@@ -7,10 +7,10 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use crate::{
-    azure_chatbot::ChatbotUserContext,
+    azure_chatbot::{ChatbotUserContext, JSONType, JsonItem, SchemaPropertyType},
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamProperties, LLMToolParamType,
-        LLMToolParams, LLMToolType, ToolProperties,
+        AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
+        ToolProperties,
     },
     citations::parse_document_filepath,
     llm_utils::estimate_tokens,
@@ -81,6 +81,12 @@ impl ChatbotTool for DocumentLookupTool {
         mut arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
+        let Some(course_id) = user_context.course_id else {
+            return Err(chatbot_err!(
+                ToolUseError,
+                "User id is missing.".to_string()
+            ));
+        };
         let page_id = if let Some(id) = &arguments.page_id {
             id.to_owned()
         } else if let Some(f) = &arguments.filepath {
@@ -101,7 +107,6 @@ impl ChatbotTool for DocumentLookupTool {
                 )
             ));
         };
-        let course_id = user_context.course_id;
         let page_content =
             headless_lms_models::course_page_markdown_content::get_course_page_content_by_page_id(
                 conn, page_id,
@@ -164,31 +169,31 @@ impl ChatbotTool for DocumentLookupTool {
                 properties: HashMap::from([
                     (
                         "filepath".to_string(),
-                        LLMToolParamProperties {
-                            param_type: "string".to_string(),
-                            description: "The filepath of the document to look up, as returned from Azure search. Either the filepath or page_id is required.".to_string(),
-                        },
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The filepath of the document to look up, as returned from Azure search. Either the filepath or page_id is required.".to_string()),
+                        }),
                     ),
                     (
                         "title".to_string(),
-                        LLMToolParamProperties {
-                            param_type: "string".to_string(),
-                            description: "The title of the document to look up, as returned from Azure search. Optional.".to_string(),
-                        },
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The title of the document to look up, as returned from Azure search. Optional.".to_string()),
+                        }),
                     ),
                     (
                         "page_id".to_string(),
-                        LLMToolParamProperties {
-                            param_type: "string".to_string(),
-                            description: "The page_id of the document to look up. Either page_id or the filepath is required.".to_string(),
-                        },
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The page_id of the document to look up. Either page_id or the filepath is required.".to_string()),
+                        }),
                     ),
                     (
                         "format".to_string(),
-                        LLMToolParamProperties {
-                            param_type: "string".to_string(),
-                            description: "The format of the document. Optional. Valid values are 'json' and 'markdown'. Markdown content is human readable, but might have errors. ".to_string(),
-                        },
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The format of the document. Optional. Valid values are 'json' and 'markdown'. Markdown content is human readable, but might have errors. ".to_string()),
+                        }),
                     )
                 ]),
                 required: vec!["title".to_string(), "page_id".to_string(), "filepath".to_string(), "format".to_string()],

@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT course_id\nFROM course_prerequisites\nWHERE prerequisite = ANY($1::text [])\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_prerequisites",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "4552761bb8e6aa75ca3be5d840b85c76ddcbb44bf4ccfa34e452843fa12ec070"
+}

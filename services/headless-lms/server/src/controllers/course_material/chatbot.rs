@@ -128,9 +128,9 @@ async fn send_message(
         .await?
         .name;
     let chatbot_user = ChatbotUserContext {
-        user_id: user.id.to_owned(),
-        course_id: chatbot_configuration.course_id,
-        course_name,
+        user_id: Some(user.id.to_owned()),
+        course_id: Some(chatbot_configuration.course_id),
+        course_name: Some(course_name),
     };
 
     let response_stream = send_chat_request_and_parse_stream(

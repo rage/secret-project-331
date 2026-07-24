@@ -4,12 +4,12 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 
 use crate::{
-    azure_chatbot::ChatbotUserContext,
+    azure_chatbot::{ChatbotUserContext, SchemaPropertyType},
     chatbot_error::chatbot_err,
     chatbot_tools::{
         custom_tools::{
-            course_progress::CourseProgressTool, course_structure::CourseStructureTool,
-            document_lookup::DocumentLookupTool,
+            course_finder::CourseFinderTool, course_progress::CourseProgressTool,
+            course_structure::CourseStructureTool, document_lookup::DocumentLookupTool,
         },
         provider_tools::azure_ai_search::AzureAISearchToolDefinition,
     },
@@ -110,18 +110,18 @@ pub struct AzureLLMFunctionToolDefinition {
 pub struct LLMToolParams {
     #[serde(rename = "type")]
     pub tool_type: LLMToolParamType,
-    pub properties: HashMap<String, LLMToolParamProperties>,
+    pub properties: HashMap<String, SchemaPropertyType>,
     pub required: Vec<String>,
     /// required to be false
     pub additional_properties: bool,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct LLMToolParamProperties {
-    #[serde(rename = "type")]
-    pub param_type: String,
-    pub description: String,
-}
+// #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+// pub struct LLMToolParamProperties {
+//     #[serde(rename = "type")]
+//     pub param_type: JSONType,
+//     pub description: String,
+// }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -141,6 +141,7 @@ pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
         AzureLLMToolDefinition::Function(CourseProgressTool::get_tool_definition()),
         AzureLLMToolDefinition::Function(DocumentLookupTool::get_tool_definition()),
         AzureLLMToolDefinition::Function(CourseStructureTool::get_tool_definition()),
+        AzureLLMToolDefinition::Function(CourseFinderTool::get_tool_definition()),
     ]
 }
 
@@ -170,6 +171,11 @@ pub async fn call_chatbot_tool(
         }
         "course_structure" => {
             let tool = CourseStructureTool::new(conn, fn_args, user_context).await?;
+            let args = tool.get_arguments();
+            (serde_json::to_string(args)?, tool.output())
+        }
+        "course_finder" => {
+            let tool = CourseFinderTool::new(conn, fn_args, user_context).await?;
             let args = tool.get_arguments();
             (serde_json::to_string(args)?, tool.output())
         }

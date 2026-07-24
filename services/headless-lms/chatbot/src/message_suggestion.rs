@@ -77,7 +77,7 @@ pub async fn generate_suggested_messages(
         + &(if let Some(course_name) = course_name {
             format!("The course is: {}\n\n", course_name)
         } else {
-            format!("The chatbot is global")
+            "The chatbot is global".to_string()
         })
         //+ &format!("The course is: {}\n\n", course_name)
         // if there are initial suggested messages, then include <=5 of them as examples

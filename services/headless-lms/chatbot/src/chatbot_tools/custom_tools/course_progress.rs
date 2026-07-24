@@ -56,7 +56,7 @@ impl ChatbotTool for CourseProgressTool {
         .await?;
         let modules =
             headless_lms_models::course_modules::get_by_course_id(conn, course_id).await?;
-        let progress = progress_info(user_progress, modules, &course_name)?;
+        let progress = progress_info(user_progress, modules, course_name)?;
         Result::Ok(CourseProgressTool {
             state: CourseProgressState {
                 course_name: course_name.clone(),

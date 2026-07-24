@@ -22,8 +22,7 @@ const makeModelSolutionOption = (id: string, title: string, correct: boolean): Q
   correct,
   title,
   body: null,
-  messageAfterSubmissionWhenSelected: null,
-  additionalCorrectnessExplanationOnModelSolution: null,
+  messagesOnModelSolution: [],
 })
 
 const publicItem: PublicSpecQuizItemMultiplechoiceDropdown = {
@@ -44,9 +43,7 @@ const modelSolution: ModelSolutionQuizItemMultiplechoiceDropdown = {
   order: 0,
   title: "Which planet is closest to the sun?",
   body: null,
-  successMessage: null,
-  failureMessage: null,
-  messageOnModelSolution: null,
+  messagesOnModelSolution: [],
   options: [
     makeModelSolutionOption("o-mercury", "Mercury", true),
     makeModelSolutionOption("o-venus", "Venus", false),

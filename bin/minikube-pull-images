@@ -4,8 +4,17 @@ source "$(dirname "$0")/.common"
 
 echo -e "${BLUE}Downloading baseimages to minikube. Baseimages are special docker images that are used as a starting point when building the different services in this project."
 echo -e "$RESET_EVERYTHING"
-run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base
-run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-node-base
-run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-headless-lms-production-base
-run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-node-cache
+
+# Base images are amd64-only, so on arm64 nodes (Apple Silicon) pull for linux/amd64.
+# The ${PLATFORM_ARGS[@]+...} form is safe for an empty array on bash 3.2.
+NODE_ARCH=$(minikube ssh "$@" -- uname -m 2>/dev/null | tr -d '[:space:]' || true)
+PLATFORM_ARGS=()
+case "$NODE_ARCH" in
+  aarch64 | arm64) PLATFORM_ARGS=(--platform linux/amd64) ;;
+esac
+
+run_command minikube ssh "$@" -- docker pull "${PLATFORM_ARGS[@]+"${PLATFORM_ARGS[@]}"}" eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base
+run_command minikube ssh "$@" -- docker pull "${PLATFORM_ARGS[@]+"${PLATFORM_ARGS[@]}"}" eu.gcr.io/moocfi-public/project-331-node-base
+run_command minikube ssh "$@" -- docker pull "${PLATFORM_ARGS[@]+"${PLATFORM_ARGS[@]}"}" eu.gcr.io/moocfi-public/project-331-headless-lms-production-base
+run_command minikube ssh "$@" -- docker pull "${PLATFORM_ARGS[@]+"${PLATFORM_ARGS[@]}"}" eu.gcr.io/moocfi-public/project-331-node-cache
 

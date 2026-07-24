@@ -1,17 +1,21 @@
-import { isOldQuiz } from "../../../src/util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
+import { detectQuizVersion } from "../../../src/util/migration/versions"
 import type { OldQuiz, OldQuizItemTimelineItem, QuizItem } from "../../../types/oldQuizTypes"
 import type {
-  PrivateSpecQuiz,
-  PrivateSpecQuizItemCheckbox,
-  PrivateSpecQuizItemChooseN,
-  PrivateSpecQuizItemClosedEndedQuestion,
-  PrivateSpecQuizItemEssay,
-  PrivateSpecQuizItemMatrix,
-  PrivateSpecQuizItemMultiplechoice,
-  PrivateSpecQuizItemScale,
-  PrivateSpecQuizItemTimeline,
-} from "../../../types/quizTypes/privateSpec"
+  PrivateSpecQuizItemClosedEndedQuestionV2,
+  PrivateSpecQuizV2,
+} from "../../../types/quizTypes/v2"
+// migratePrivateSpecQuiz produces the frozen v2 shape (which re-uses the v3 item types for
+// everything except closed-ended), so the migrated items are annotated with the v3 snapshot types.
+import type {
+  PrivateSpecQuizItemCheckboxV3 as PrivateSpecQuizItemCheckbox,
+  PrivateSpecQuizItemChooseNV3 as PrivateSpecQuizItemChooseN,
+  PrivateSpecQuizItemEssayV3 as PrivateSpecQuizItemEssay,
+  PrivateSpecQuizItemMatrixV3 as PrivateSpecQuizItemMatrix,
+  PrivateSpecQuizItemMultiplechoiceV3 as PrivateSpecQuizItemMultiplechoice,
+  PrivateSpecQuizItemScaleV3 as PrivateSpecQuizItemScale,
+  PrivateSpecQuizItemTimelineV3 as PrivateSpecQuizItemTimeline,
+} from "../../../types/quizTypes/v3"
 import { oldGenerateQuiz } from "../../api/utils/oldQuizGenerator"
 import { comparePrivateSpecQuizItem, expectPrivateSpecMetadataToMatch } from "./utils/comparison"
 import {
@@ -31,9 +35,9 @@ describe("private spec", () => {
     const oldQuiz: OldQuiz = oldGenerateQuiz({
       id: "example-quiz",
     })
-    const newQuiz: PrivateSpecQuiz = migratePrivateSpecQuiz(oldQuiz)!
-    expect(isOldQuiz(oldQuiz))
-    expect(!isOldQuiz(newQuiz))
+    const newQuiz: PrivateSpecQuizV2 = migratePrivateSpecQuiz(oldQuiz)!
+    expect(detectQuizVersion(oldQuiz)).toBe("1")
+    expect(detectQuizVersion(newQuiz)).toBe("2")
   })
 
   test("migrates multiple-choice exercises", () => {
@@ -108,8 +112,8 @@ describe("private spec", () => {
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
-    const newQuizItem: PrivateSpecQuizItemClosedEndedQuestion = newQuiz
-      .items[0] as PrivateSpecQuizItemClosedEndedQuestion
+    const newQuizItem: PrivateSpecQuizItemClosedEndedQuestionV2 = newQuiz
+      .items[0] as PrivateSpecQuizItemClosedEndedQuestionV2
 
     expect(newQuizItem.type).toBe("closed-ended-question")
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)

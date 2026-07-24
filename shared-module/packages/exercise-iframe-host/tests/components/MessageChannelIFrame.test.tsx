@@ -60,9 +60,9 @@ describe("MessageChannelIFrame", () => {
   })
 
   test("It renders", async () => {
-    window.MessageChannel = jest
-      .fn()
-      .mockReturnValue({ port1: { postMessage: jest.fn() }, port2: {} })
+    window.MessageChannel = jest.fn().mockImplementation(function () {
+      return { port1: { postMessage: jest.fn() }, port2: {} }
+    })
 
     const res = render(
       <I18nextProvider i18n={i18nTest}>
@@ -95,7 +95,9 @@ describe("MessageChannelIFrame", () => {
     it("creates MessageChannel synchronously", () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       render(
         <I18nextProvider i18n={i18nTest}>
@@ -115,7 +117,9 @@ describe("MessageChannelIFrame", () => {
     it("sets up listener for ready messages", () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       render(
         <I18nextProvider i18n={i18nTest}>
@@ -135,7 +139,9 @@ describe("MessageChannelIFrame", () => {
     it("sends port when ready message is received", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
@@ -179,7 +185,7 @@ describe("MessageChannelIFrame", () => {
     it("queues ready messages received before messageChannel is available", async () => {
       let channelCreated = false
       const mockChannel = createMockMessageChannel()
-      window.MessageChannel = jest.fn().mockImplementation(() => {
+      window.MessageChannel = jest.fn().mockImplementation(function () {
         channelCreated = true
         return mockChannel
       })
@@ -226,7 +232,9 @@ describe("MessageChannelIFrame", () => {
     it("only sends port once", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
@@ -280,7 +288,7 @@ describe("MessageChannelIFrame", () => {
         createMockMessageChannel(),
       ]
       let channelIndex = 0
-      window.MessageChannel = jest.fn().mockImplementation(() => {
+      window.MessageChannel = jest.fn().mockImplementation(function () {
         const channel = mockChannels[channelIndex]
         channelIndex += 1
         return channel
@@ -420,7 +428,7 @@ describe("MessageChannelIFrame", () => {
         createMockMessageChannel(),
       ]
       let channelIndex = 0
-      window.MessageChannel = jest.fn().mockImplementation(() => {
+      window.MessageChannel = jest.fn().mockImplementation(function () {
         const channel = mockChannels[channelIndex]
         channelIndex += 1
         return channel
@@ -527,7 +535,7 @@ describe("MessageChannelIFrame", () => {
       jest.useFakeTimers()
       const mockChannels = Array.from({ length: 6 }, () => createMockMessageChannel())
       let channelIndex = 0
-      window.MessageChannel = jest.fn().mockImplementation(() => {
+      window.MessageChannel = jest.fn().mockImplementation(function () {
         const channel = mockChannels[channelIndex]
         channelIndex += 1
         return channel
@@ -645,7 +653,9 @@ describe("MessageChannelIFrame", () => {
     it("accepts messages from null origin (opaque sandboxed origin)", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
@@ -683,7 +693,9 @@ describe("MessageChannelIFrame", () => {
     it("accepts messages from window.location.origin (same-origin embed)", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
@@ -721,7 +733,9 @@ describe("MessageChannelIFrame", () => {
     it("accepts messages from iframe src origin (cross-origin embed with allow-same-origin)", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
@@ -759,7 +773,9 @@ describe("MessageChannelIFrame", () => {
     it("rejects messages from invalid origin", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {})
 
@@ -803,7 +819,9 @@ describe("MessageChannelIFrame", () => {
     it("doesn't crash when contentWindow is null", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {})
 
@@ -843,7 +861,9 @@ describe("MessageChannelIFrame", () => {
     it("resets portSentRef when URL changes", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const { container, rerender } = render(
         <I18nextProvider i18n={i18nTest}>
@@ -918,7 +938,9 @@ describe("MessageChannelIFrame", () => {
     it("handles height-changed messages", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
@@ -950,7 +972,9 @@ describe("MessageChannelIFrame", () => {
     it("calls onMessageFromIframe for custom messages", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const onMessageFromIframe = jest.fn()
 
@@ -989,7 +1013,9 @@ describe("MessageChannelIFrame", () => {
       const mockChannel = createMockMessageChannel()
       const onMessageFromIframe = jest.fn()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       render(
         <I18nextProvider i18n={i18nTest}>
@@ -1017,7 +1043,9 @@ describe("MessageChannelIFrame", () => {
     it("posts set-state messages via port", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const stateToPost = {
         view_type: "answer-exercise" as const,
@@ -1056,7 +1084,9 @@ describe("MessageChannelIFrame", () => {
     it("doesn't repost same state", async () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const stateToPost = {
         view_type: "answer-exercise" as const,
@@ -1103,7 +1133,9 @@ describe("MessageChannelIFrame", () => {
     it("removes listeners on unmount", () => {
       const mockChannel = createMockMessageChannel()
 
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const { unmount } = render(
         <I18nextProvider i18n={i18nTest}>
@@ -1136,7 +1168,7 @@ describe("MessageChannelIFrame", () => {
       const mockChannel1 = createMockMessageChannel()
       const mockChannel2 = createMockMessageChannel()
       let channelCallCount = 0
-      window.MessageChannel = jest.fn().mockImplementation(() => {
+      window.MessageChannel = jest.fn().mockImplementation(function () {
         channelCallCount++
         return channelCallCount === 1 ? mockChannel1 : mockChannel2
       })
@@ -1200,7 +1232,9 @@ describe("MessageChannelIFrame", () => {
 
     it("doesn't trigger recovery if ready arrives within 5 seconds", async () => {
       const mockChannel = createMockMessageChannel()
-      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
@@ -1258,7 +1292,7 @@ describe("MessageChannelIFrame", () => {
         createMockMessageChannel(),
       ]
       let channelCallCount = 0
-      window.MessageChannel = jest.fn().mockImplementation(() => {
+      window.MessageChannel = jest.fn().mockImplementation(function () {
         const channel = mockChannels[channelCallCount]
         channelCallCount++
         return channel
@@ -1316,7 +1350,7 @@ describe("MessageChannelIFrame", () => {
       const mockChannel1 = createMockMessageChannel()
       const mockChannel2 = createMockMessageChannel()
       let channelCallCount = 0
-      window.MessageChannel = jest.fn().mockImplementation(() => {
+      window.MessageChannel = jest.fn().mockImplementation(function () {
         channelCallCount++
         return channelCallCount === 1 ? mockChannel1 : mockChannel2
       })

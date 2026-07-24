@@ -22,8 +22,7 @@ const makeModelSolutionOption = (id: string, title: string, correct: boolean): Q
   correct,
   title,
   body: null,
-  messageAfterSubmissionWhenSelected: null,
-  additionalCorrectnessExplanationOnModelSolution: null,
+  messagesOnModelSolution: [],
 })
 
 const publicItem: PublicSpecQuizItemMultiplechoice = {
@@ -54,10 +53,7 @@ const modelSolution: ModelSolutionQuizItemMultiplechoice = {
 
   optionDisplayDirection: "vertical",
   shuffleOptions: false,
-  successMessage: null,
-  failureMessage: null,
-  messageOnModelSolution: null,
-  sharedOptionFeedbackMessage: null,
+  messagesOnModelSolution: [],
   options: [
     makeModelSolutionOption("o-1", "Yes", true),
     makeModelSolutionOption("o-2", "No", false),

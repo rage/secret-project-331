@@ -432,6 +432,15 @@ export type CohortActivity = {
   offset?: number | null
 }
 
+export type CompleteCourseMetadata = {
+  course: Course
+  course_audiences: Array<CourseAudience>
+  course_instances: Array<CourseInstance>
+  course_organization: DatabaseOrganization
+  course_prerequisites: Array<CoursePrerequisite>
+  default_module: CourseModule
+}
+
 export type CompletionGridRow = {
   grade?: number | null
   module?: string | null
@@ -551,6 +560,15 @@ export type Course = {
  * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
  */
 export type CourseAiPolicy = "NotSet" | "NoAi" | "PlanningOnly" | "Limited" | "FullUse" | "Required"
+
+export type CourseAudience = {
+  audience: string
+  course_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  updated_at: string
+}
 
 export type CourseBreadcrumbInfo = {
   course_id: string
@@ -773,6 +791,18 @@ export type CourseMaterialExerciseTask = {
   public_spec?: unknown
 }
 
+export type CourseMetadata = {
+  course_audiences: Array<CourseAudience>
+  course_description?: string | null
+  course_prerequisites: Array<CoursePrerequisite>
+}
+
+export type CourseMetadataUpdate = {
+  course_audiences: Array<NewCourseAudience>
+  course_description?: string | null
+  course_prerequisites: Array<NewCoursePrerequisite>
+}
+
 /**
  *
  * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
@@ -904,6 +934,15 @@ export type CourseModuleThresholdInfo = {
   minimum_duration_seconds: number
 }
 
+export type CoursePrerequisite = {
+  course_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  prerequisite: string
+  updated_at: string
+}
+
 export type CourseStructure = {
   chapters: Array<Chapter>
   course: Course
@@ -1005,6 +1044,18 @@ export type DatabaseChapter = {
   id: string
   name: string
   opens_at?: string | null
+  updated_at: string
+}
+
+export type DatabaseOrganization = {
+  created_at: string
+  deleted_at?: string | null
+  description?: string | null
+  hidden: boolean
+  id: string
+  name: string
+  organization_image_path?: string | null
+  slug: string
   updated_at: string
 }
 
@@ -1516,6 +1567,7 @@ export type ModifiedModule = {
 export type Module = {
   course_code: string
   description: string
+  prerequisites: Array<string>
 }
 
 export type ModuleUpdates = {
@@ -1603,6 +1655,14 @@ export type NewCourse = {
    * Name of the teacher who is responsible for the course. Must be a valid name.
    */
   teacher_in_charge_name: string
+}
+
+export type NewCourseAudience = {
+  audience: string
+}
+
+export type NewCoursePrerequisite = {
+  prerequisite: string
 }
 
 export type NewExam = {
@@ -2160,6 +2220,7 @@ export type ServicePortInfo = {
 }
 
 export type SisuDescriptionResponse = {
+  audience: Array<string>
   course_description: string
   modules: Array<Module>
 }
@@ -4458,6 +4519,71 @@ export type GetCourseFeedbackCountResponses = {
 export type GetCourseFeedbackCountResponse =
   GetCourseFeedbackCountResponses[keyof GetCourseFeedbackCountResponses]
 
+export type GetCourseAudiencesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/get-course-audiences"
+}
+
+export type GetCourseAudiencesResponses = {
+  /**
+   * Course audiences
+   */
+  200: Array<CourseAudience>
+}
+
+export type GetCourseAudiencesResponse =
+  GetCourseAudiencesResponses[keyof GetCourseAudiencesResponses]
+
+export type GetCourseMetadataData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/get-course-metadata"
+}
+
+export type GetCourseMetadataResponses = {
+  /**
+   * Course metadata
+   */
+  200: CompleteCourseMetadata
+}
+
+export type GetCourseMetadataResponse = GetCourseMetadataResponses[keyof GetCourseMetadataResponses]
+
+export type GetCoursePrerequisitesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/get-course-prerequisites"
+}
+
+export type GetCoursePrerequisitesResponses = {
+  /**
+   * Course prerequisites
+   */
+  200: Array<CoursePrerequisite>
+}
+
+export type GetCoursePrerequisitesResponse =
+  GetCoursePrerequisitesResponses[keyof GetCoursePrerequisitesResponses]
+
 export type GetCourseGlossaryData = {
   body?: never
   path: {
@@ -6233,6 +6359,27 @@ export type GetCourseThresholdsResponses = {
 
 export type GetCourseThresholdsResponse =
   GetCourseThresholdsResponses[keyof GetCourseThresholdsResponses]
+
+export type UpdateMetadataData = {
+  body: CourseMetadataUpdate
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/update-metadata"
+}
+
+export type UpdateMetadataResponses = {
+  /**
+   * Updated metadata
+   */
+  200: CourseMetadata
+}
+
+export type UpdateMetadataResponse = UpdateMetadataResponses[keyof UpdateMetadataResponses]
 
 export type UpdateCoursePeerReviewQueueReviewsReceivedData = {
   body?: never

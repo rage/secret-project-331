@@ -12,31 +12,84 @@ import type {
   PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
+  QuizFeedbackMessage,
   QuizItemOption,
+  QuizOptionFeedbackMessage,
 } from "../../../types/quizTypes/privateSpec"
 
-export const MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS = "You should see this after a submission"
-export const ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS =
-  "This spoils the answer, and you should only see it in the model solution."
-export const SUCCESS_MESSAGE_CANARY_FOR_TESTS =
-  "You got it right! This spoils the answer, and should only be visible when you answer correctly."
-export const SHARED_OPTION_FEEDBACK_MESSAGE_CANARY_FOR_TESTS = "This may spoil the answer"
-export const FAILURE_MESSAGE_CANARY_FOR_TESTS =
-  "You got it wrong! But this might also spoil something"
+// One canary per feedback-message channel. A canary must never leak into a spec/model solution that
+// its visibility does not permit; the leak tests stringify the output and assert absence.
+
+// Item-level, one per visibility.
+export const ITEM_AFTER_ANY_ANSWER_CANARY = "canary: item feedback shown after any answer"
+export const ITEM_AFTER_CORRECT_CANARY =
+  "canary: item feedback shown after a correct answer, spoils it"
+export const ITEM_AFTER_PARTIALLY_CORRECT_CANARY =
+  "canary: item feedback shown after a partially correct answer"
+export const ITEM_AFTER_INCORRECT_CANARY = "canary: item feedback shown after an incorrect answer"
+export const ITEM_ON_MODEL_SOLUTION_CANARY =
+  "canary: item feedback shown only on the model solution"
+
+// Option-level, one per visibility.
+export const OPTION_WHEN_SELECTED_CANARY = "canary: option feedback shown when this option selected"
+export const OPTION_ON_MODEL_SOLUTION_CANARY =
+  "canary: option explanation shown only on the model solution"
+
+// Quiz-level, one per exercised visibility.
+export const QUIZ_AFTER_ANY_ANSWER_CANARY = "canary: quiz-level feedback shown after any answer"
+export const QUIZ_ON_MODEL_SOLUTION_CANARY =
+  "canary: quiz-level feedback shown only on the model solution"
+
 export const VALIDITY_REGEX_CANARY_FOR_TESTS = "^This one spoils the correct answer$"
 export const OPTION_CELLS_CANARY_FOR_TESTS = "234223523"
-export const MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS = "This message is the model solution."
+
+// Every after-answer canary plus the acceptance-rule canary: none of these may appear in a public
+// spec, and none may appear in a model solution either.
+export const AFTER_ANSWER_AND_ACCEPTANCE_CANARIES = [
+  ITEM_AFTER_ANY_ANSWER_CANARY,
+  ITEM_AFTER_CORRECT_CANARY,
+  ITEM_AFTER_PARTIALLY_CORRECT_CANARY,
+  ITEM_AFTER_INCORRECT_CANARY,
+  OPTION_WHEN_SELECTED_CANARY,
+  QUIZ_AFTER_ANY_ANSWER_CANARY,
+  VALIDITY_REGEX_CANARY_FOR_TESTS,
+]
+
+// The on-model-solution canaries: allowed in the model solution, never in the public spec.
+export const ON_MODEL_SOLUTION_CANARIES = [
+  ITEM_ON_MODEL_SOLUTION_CANARY,
+  OPTION_ON_MODEL_SOLUTION_CANARY,
+  QUIZ_ON_MODEL_SOLUTION_CANARY,
+]
+
+const itemFeedbackMessages = (): QuizFeedbackMessage[] => [
+  { visibility: "after-any-answer", message: ITEM_AFTER_ANY_ANSWER_CANARY },
+  { visibility: "after-correct-answer", message: ITEM_AFTER_CORRECT_CANARY },
+  { visibility: "after-partially-correct-answer", message: ITEM_AFTER_PARTIALLY_CORRECT_CANARY },
+  { visibility: "after-incorrect-answer", message: ITEM_AFTER_INCORRECT_CANARY },
+  { visibility: "on-model-solution", message: ITEM_ON_MODEL_SOLUTION_CANARY },
+]
+
+const optionFeedbackMessages = (): QuizOptionFeedbackMessage[] => [
+  { visibility: "when-selected-after-answer", message: OPTION_WHEN_SELECTED_CANARY },
+  { visibility: "on-model-solution", message: OPTION_ON_MODEL_SOLUTION_CANARY },
+]
+
+const quizFeedbackMessages = (): QuizFeedbackMessage[] => [
+  { visibility: "after-any-answer", message: QUIZ_AFTER_ANY_ANSWER_CANARY },
+  { visibility: "on-model-solution", message: QUIZ_ON_MODEL_SOLUTION_CANARY },
+]
 
 export function generateEmptyPrivateSpecQuiz(): PrivateSpecQuiz {
   return {
-    version: "2",
+    version: "4",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [],
     title: null,
     body: null,
     quizItemDisplayDirection: "vertical",
-    submitMessage: "This might also spoil something",
+    feedbackMessages: quizFeedbackMessages(),
   }
 }
 
@@ -46,20 +99,24 @@ export function generatePrivateSpecWithOneClosedEndedQuestionQuizItem(): Private
     type: "closed-ended-question",
     id: "988b9c17-9f03-4062-b5ff-c6071d3c6f06",
     order: 0,
-    validityRegex: VALIDITY_REGEX_CANARY_FOR_TESTS,
+    gradingStrategy: {
+      strategy: "regex",
+      pattern: VALIDITY_REGEX_CANARY_FOR_TESTS,
+      caseSensitive: true,
+      matchWholeAnswer: false,
+      exampleCorrectAnswer: null,
+    },
     formatRegex: "[a-z]+",
     title: "What color is the sky?",
     body: null,
-    successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-    failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+    feedbackMessages: itemFeedbackMessages(),
   }
   return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
 }
 
 export function generatePrivateSpecWithOneMultipleChoiceQuizItem(): PrivateSpecQuiz {
   const emptyQuiz = generateEmptyPrivateSpecQuiz()
-  const closedEndedQuestionQuizItem: PrivateSpecQuizItemMultiplechoice = {
+  const multipleChoiceQuizItem: PrivateSpecQuizItemMultiplechoice = {
     type: "multiple-choice",
     shuffleOptions: false,
     id: "988b9c17-9f03-4062-b5ff-c6071d3c6f06",
@@ -72,9 +129,7 @@ export function generatePrivateSpecWithOneMultipleChoiceQuizItem(): PrivateSpecQ
         correct: true,
         title: "Positive",
         body: null,
-        messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
-        additionalCorrectnessExplanationOnModelSolution:
-          ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+        feedbackMessages: optionFeedbackMessages(),
       },
       {
         id: "id-2",
@@ -82,46 +137,39 @@ export function generatePrivateSpecWithOneMultipleChoiceQuizItem(): PrivateSpecQ
         correct: false,
         title: "Just no",
         body: null,
-        messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
-        additionalCorrectnessExplanationOnModelSolution:
-          ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+        feedbackMessages: optionFeedbackMessages(),
       },
     ],
     title: null,
     body: null,
-    successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-    failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
-    sharedOptionFeedbackMessage: SHARED_OPTION_FEEDBACK_MESSAGE_CANARY_FOR_TESTS,
+    feedbackMessages: itemFeedbackMessages(),
     optionDisplayDirection: "vertical",
     multipleChoiceMultipleOptionsGradingPolicy: "default",
     fogOfWar: false,
   }
 
-  return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
+  return { ...emptyQuiz, items: [multipleChoiceQuizItem] }
 }
 
 export function generatePrivateSpecWithOneEssayQuizItem(): PrivateSpecQuiz {
   const emptyQuiz = generateEmptyPrivateSpecQuiz()
-  const closedEndedQuestionQuizItem: PrivateSpecQuizItemEssay = {
+  const essayQuizItem: PrivateSpecQuizItemEssay = {
     type: "essay",
     id: "988b9c17-9f03-4062-b5ff-c6071d3c6f06",
     order: 0,
     title: "What color is the sky?",
     body: null,
-    successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-    failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+    feedbackMessages: itemFeedbackMessages(),
     minWords: 20,
     maxWords: 100,
   }
 
-  return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
+  return { ...emptyQuiz, items: [essayQuizItem] }
 }
 
 export function generatePrivateSpecWithOneScaleQuizItem(): PrivateSpecQuiz {
   const emptyQuiz = generateEmptyPrivateSpecQuiz()
-  const closedEndedQuestionQuizItem: PrivateSpecQuizItemScale = {
+  const scaleQuizItem: PrivateSpecQuizItemScale = {
     type: "scale",
     id: "988b9c17-9f03-4062-b5ff-c6071d3c6f06",
     order: 0,
@@ -131,57 +179,49 @@ export function generatePrivateSpecWithOneScaleQuizItem(): PrivateSpecQuiz {
     minLabel: "Min label",
     title: null,
     body: null,
-    successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-    failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+    feedbackMessages: itemFeedbackMessages(),
   }
 
-  return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
+  return { ...emptyQuiz, items: [scaleQuizItem] }
 }
 
 export function generatePrivateSpecWithOneCheckboxQuizItem(): PrivateSpecQuiz {
   const emptyQuiz = generateEmptyPrivateSpecQuiz()
-  const closedEndedQuestionQuizItem: PrivateSpecQuizItemCheckbox = {
+  const checkboxQuizItem: PrivateSpecQuizItemCheckbox = {
     type: "checkbox",
     id: "988b9c17-9f03-4062-b5ff-c6071d3c6f06",
     order: 0,
     title: "Will you check this box?",
     body: null,
-    successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-    failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+    feedbackMessages: itemFeedbackMessages(),
   }
 
-  return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
+  return { ...emptyQuiz, items: [checkboxQuizItem] }
 }
 
 export function generatePrivateSpecWithOneMatrixQuizItem(): PrivateSpecQuiz {
   const emptyQuiz = generateEmptyPrivateSpecQuiz()
-  const closedEndedQuestionQuizItem: PrivateSpecQuizItemMatrix = {
+  const matrixQuizItem: PrivateSpecQuizItemMatrix = {
     type: "matrix",
     id: "988b9c17-9f03-4062-b5ff-c6071d3c6f06",
     order: 0,
-    successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-    failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+    feedbackMessages: itemFeedbackMessages(),
     optionCells: [
       ["1", "2"],
       ["3", OPTION_CELLS_CANARY_FOR_TESTS],
     ],
   }
 
-  return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
+  return { ...emptyQuiz, items: [matrixQuizItem] }
 }
 
 export function generatePrivateSpecWithOneTimelineQuizItem(): PrivateSpecQuiz {
   const emptyQuiz = generateEmptyPrivateSpecQuiz()
-  const closedEndedQuestionQuizItem: PrivateSpecQuizItemTimeline = {
+  const timelineQuizItem: PrivateSpecQuizItemTimeline = {
     type: "timeline",
     id: "988b9c17-9f03-4062-b5ff-c6071d3c6f06",
     order: 0,
-    successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-    failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+    feedbackMessages: itemFeedbackMessages(),
     timelineItems: [
       {
         id: "1",
@@ -192,18 +232,16 @@ export function generatePrivateSpecWithOneTimelineQuizItem(): PrivateSpecQuiz {
     ],
   }
 
-  return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
+  return { ...emptyQuiz, items: [timelineQuizItem] }
 }
 
 export function generatePrivateSpecWithOneChooseNQuizItem(): PrivateSpecQuiz {
   const emptyQuiz = generateEmptyPrivateSpecQuiz()
-  const closedEndedQuestionQuizItem: PrivateSpecQuizItemChooseN = {
+  const chooseNQuizItem: PrivateSpecQuizItemChooseN = {
     type: "choose-n",
     id: "988b9c17-9f03-4062-b5ff-c6071d3c6f06",
     order: 0,
-    successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-    failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+    feedbackMessages: itemFeedbackMessages(),
     n: 10,
     options: [
       {
@@ -212,9 +250,7 @@ export function generatePrivateSpecWithOneChooseNQuizItem(): PrivateSpecQuiz {
         correct: true,
         title: "Positive",
         body: null,
-        messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
-        additionalCorrectnessExplanationOnModelSolution:
-          ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+        feedbackMessages: optionFeedbackMessages(),
       },
       {
         id: "id-2",
@@ -222,27 +258,23 @@ export function generatePrivateSpecWithOneChooseNQuizItem(): PrivateSpecQuiz {
         correct: false,
         title: "Just no",
         body: null,
-        messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
-        additionalCorrectnessExplanationOnModelSolution:
-          ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+        feedbackMessages: optionFeedbackMessages(),
       },
     ],
     title: null,
     body: null,
   }
 
-  return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
+  return { ...emptyQuiz, items: [chooseNQuizItem] }
 }
 
 export function generatePrivateSpecWithOneMultipleChoiceDropdownQuizItem(): PrivateSpecQuiz {
   const emptyQuiz = generateEmptyPrivateSpecQuiz()
-  const closedEndedQuestionQuizItem: PrivateSpecQuizItemMultiplechoiceDropdown = {
+  const dropdownQuizItem: PrivateSpecQuizItemMultiplechoiceDropdown = {
     type: "multiple-choice-dropdown",
     id: "988b9c17-9f03-4062-b5ff-c6071d3c6f06",
     order: 0,
-    successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-    failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+    feedbackMessages: itemFeedbackMessages(),
     options: [
       {
         id: "id-1",
@@ -250,9 +282,7 @@ export function generatePrivateSpecWithOneMultipleChoiceDropdownQuizItem(): Priv
         correct: true,
         title: "Positive",
         body: null,
-        messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
-        additionalCorrectnessExplanationOnModelSolution:
-          ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+        feedbackMessages: optionFeedbackMessages(),
       },
       {
         id: "id-2",
@@ -260,16 +290,14 @@ export function generatePrivateSpecWithOneMultipleChoiceDropdownQuizItem(): Priv
         correct: false,
         title: "Just no",
         body: null,
-        messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
-        additionalCorrectnessExplanationOnModelSolution:
-          ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+        feedbackMessages: optionFeedbackMessages(),
       },
     ],
     title: null,
     body: null,
   }
 
-  return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
+  return { ...emptyQuiz, items: [dropdownQuizItem] }
 }
 
 /**
@@ -305,8 +333,7 @@ export function generateMultipleChoiceGradingRequest(
       correct: i < numberOfCorrectOptions,
       title: `Option ${i + 1}`,
       body: null,
-      messageAfterSubmissionWhenSelected: null,
-      additionalCorrectnessExplanationOnModelSolution: null,
+      feedbackMessages: [],
     })
   }
 
@@ -319,24 +346,21 @@ export function generateMultipleChoiceGradingRequest(
     options: quizOptions,
     title: "Test Multiple Choice",
     body: null,
-    successMessage: null,
-    failureMessage: null,
-    messageOnModelSolution: null,
-    sharedOptionFeedbackMessage: null,
+    feedbackMessages: [],
     optionDisplayDirection: "vertical",
     multipleChoiceMultipleOptionsGradingPolicy,
     fogOfWar: false,
   }
 
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "2",
+    version: "4",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [multipleChoiceItem],
     title: "Generated Multiple Choice Test",
     body: null,
     quizItemDisplayDirection: "vertical",
-    submitMessage: null,
+    feedbackMessages: [],
   }
 
   const userItemAnswer: UserItemAnswerMultiplechoice = {
@@ -347,7 +371,7 @@ export function generateMultipleChoiceGradingRequest(
   }
 
   const userAnswer: UserAnswer = {
-    version: "2",
+    version: "4",
     itemAnswers: [userItemAnswer],
   }
 
@@ -372,14 +396,12 @@ export function generateChooseNGradingRequest(
       correct: i <= correctOptions,
       title: `Option ${i}`,
       body: null,
-      messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
-      additionalCorrectnessExplanationOnModelSolution:
-        ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+      feedbackMessages: [],
     })
   }
 
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "2",
+    version: "4",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [
@@ -391,15 +413,13 @@ export function generateChooseNGradingRequest(
         options,
         title: "Choose N Test",
         body: null,
-        successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-        failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-        messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+        feedbackMessages: [],
       },
     ],
     title: "Choose N Quiz",
     body: null,
     quizItemDisplayDirection: "vertical",
-    submitMessage: "Submit message",
+    feedbackMessages: [],
   }
 
   const userItemAnswer = {
@@ -410,7 +430,7 @@ export function generateChooseNGradingRequest(
   }
 
   const userAnswer: UserAnswer = {
-    version: "2",
+    version: "4",
     itemAnswers: [userItemAnswer],
   }
 
@@ -431,7 +451,7 @@ export function generateTimelineGradingRequest(
   timelineChoices: { timelineItemId: string; chosenEventId: string }[],
 ) {
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "2",
+    version: "4",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [
@@ -441,15 +461,13 @@ export function generateTimelineGradingRequest(
         order: 0,
         timelineItems,
         title: "Timeline Test",
-        successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-        failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-        messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+        feedbackMessages: [],
       },
     ],
     title: "Timeline Quiz",
     body: null,
     quizItemDisplayDirection: "vertical",
-    submitMessage: "Submit message",
+    feedbackMessages: [],
   }
 
   const userItemAnswer = {
@@ -460,7 +478,7 @@ export function generateTimelineGradingRequest(
   }
 
   const userAnswer: UserAnswer = {
-    version: "2",
+    version: "4",
     itemAnswers: [userItemAnswer],
   }
 
@@ -473,7 +491,7 @@ export function generateTimelineGradingRequest(
 
 export function generateUnknownItemTypeGradingRequest() {
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "2",
+    version: "4",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [
@@ -490,17 +508,12 @@ export function generateUnknownItemTypeGradingRequest() {
             correct: true,
             title: "Correct Option",
             body: null,
-            messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
-            additionalCorrectnessExplanationOnModelSolution:
-              ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+            feedbackMessages: [],
           },
         ],
         title: "Test Item",
         body: null,
-        successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
-        failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
-        messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
-        sharedOptionFeedbackMessage: SHARED_OPTION_FEEDBACK_MESSAGE_CANARY_FOR_TESTS,
+        feedbackMessages: [],
         optionDisplayDirection: "vertical",
         multipleChoiceMultipleOptionsGradingPolicy: "default",
         fogOfWar: false,
@@ -509,7 +522,7 @@ export function generateUnknownItemTypeGradingRequest() {
     title: "Test Quiz",
     body: null,
     quizItemDisplayDirection: "vertical",
-    submitMessage: "Submit message",
+    feedbackMessages: [],
   }
 
   // Create a user answer with an unknown type to test error handling
@@ -520,7 +533,7 @@ export function generateUnknownItemTypeGradingRequest() {
   }
 
   const userAnswer = {
-    version: "2",
+    version: "4",
     itemAnswers: [userItemAnswer],
   } as UserAnswer
 

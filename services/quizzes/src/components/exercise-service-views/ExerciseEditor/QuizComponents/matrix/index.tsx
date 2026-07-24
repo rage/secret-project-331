@@ -6,6 +6,9 @@ import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServ
 import type { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import FeedbackMessagesEditor, {
+  useItemFeedbackVisibilityOptions,
+} from "../common/FeedbackMessagesEditor"
 import ParsedTextField from "../common/ParsedTextField"
 import TableContent from "./TableContent"
 
@@ -15,6 +18,7 @@ interface MatrixEditorProps {
 
 const MatrixEditor: React.FC<MatrixEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
+  const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMatrix>(
     (quiz) => {
@@ -53,6 +57,18 @@ const MatrixEditor: React.FC<MatrixEditorProps> = ({ quizItemId }) => {
         />
       )}
       <TableContent quizItemId={quizItemId} />
+      <FeedbackMessagesEditor
+        value={selected.feedbackMessages}
+        visibilityOptions={itemFeedbackVisibilityOptions}
+        onChange={(feedbackMessages) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            draft.feedbackMessages = feedbackMessages
+          })
+        }}
+      />
     </EditorCard>
   )
 }

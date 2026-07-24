@@ -1,17 +1,26 @@
-use headless_lms_utils::{file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME};
-use utoipa::ToSchema;
-
 use crate::{
     chapters::{Chapter, course_chapters},
+    course_audiences::{CourseAudience, NewCourseAudience},
+    course_instances::CourseInstance,
     course_modules::CourseModule,
-    pages::Page,
-    pages::{PageVisibility, get_all_by_course_id_and_visibility},
+    course_prerequisites::{
+        CoursePrerequisite, NewCoursePrerequisite, insert_course_prerequisites,
+    },
+    organizations::DatabaseOrganization,
+    pages::{Page, PageVisibility, get_all_by_course_id_and_visibility},
     prelude::*,
 };
+use headless_lms_utils::{file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME};
+use utoipa::ToSchema;
 
 pub struct CourseInfo {
     pub id: Uuid,
     pub is_draft: bool,
+}
+
+pub struct CourseDescription {
+    pub id: Uuid,
+    pub description: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
@@ -1437,4 +1446,147 @@ mod test {
             assert_eq!(reread.course_material_ai_instructions, Some(true));
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct CourseMetadataUpdate {
+    course_description: Option<String>,
+    course_audiences: Vec<NewCourseAudience>,
+    course_prerequisites: Vec<NewCoursePrerequisite>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct CourseMetadata {
+    course_description: Option<String>,
+    course_audiences: Vec<CourseAudience>,
+    course_prerequisites: Vec<CoursePrerequisite>,
+}
+
+pub async fn set_metadata(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    course_metadata: CourseMetadataUpdate,
+) -> ModelResult<CourseMetadata> {
+    let old_prerequisites: Vec<CoursePrerequisite> =
+        crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    let new_prerequisites: Vec<String> = course_metadata
+        .course_prerequisites
+        .iter()
+        .map(|x| x.prerequisite.to_owned())
+        .collect();
+
+    let prerequisite_old_strings: Vec<String> = old_prerequisites
+        .iter()
+        .map(|x| x.prerequisite.to_owned())
+        .collect();
+
+    let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
+        .iter()
+        .filter(|x| !new_prerequisites.contains(&x.prerequisite))
+        .map(|x| x.id.to_owned())
+        .collect();
+
+    let prerequisites_to_add: Vec<String> = new_prerequisites
+        .into_iter()
+        .filter(|x| !prerequisite_old_strings.contains(x))
+        .collect();
+
+    crate::course_prerequisites::delete_batch(conn, prerequisites_to_delete).await?;
+
+    let prerequisites = insert_course_prerequisites(conn, course_id, prerequisites_to_add).await?;
+
+    let old_audiences: Vec<CourseAudience> =
+        crate::course_audiences::get_by_course_id(conn, course_id).await?;
+    let new_audiences: Vec<String> = course_metadata
+        .course_audiences
+        .iter()
+        .map(|x| x.audience.to_owned())
+        .collect();
+
+    let audience_old_strings: Vec<String> = old_audiences
+        .iter()
+        .map(|x| x.audience.to_owned())
+        .collect();
+
+    let audiences_to_delete: Vec<Uuid> = old_audiences
+        .iter()
+        .filter(|x| !new_audiences.contains(&x.audience))
+        .map(|x| x.id.to_owned())
+        .collect();
+
+    let audiences_to_add: Vec<String> = new_audiences
+        .into_iter()
+        .filter(|x| !audience_old_strings.contains(x))
+        .collect();
+
+    crate::course_audiences::delete_batch(conn, audiences_to_delete).await?;
+    let audiences =
+        crate::course_audiences::insert_course_audiences(conn, course_id, audiences_to_add).await?;
+
+    let course = get_course(conn, course_id).await?;
+
+    let update_payload = CourseUpdate {
+        name: course.name,
+        description: course_metadata.course_description,
+        is_draft: course.is_draft,
+        is_test_mode: course.is_test_mode,
+        can_add_chatbot: course.can_add_chatbot,
+        is_unlisted: course.is_unlisted,
+        is_joinable_by_code_only: course.is_joinable_by_code_only,
+        ask_marketing_consent: course.ask_marketing_consent,
+        flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or(0),
+        flagged_answers_skip_manual_review_and_allow_retry: course
+            .flagged_answers_skip_manual_review_and_allow_retry,
+        closed_at: course.closed_at,
+        closed_additional_message: course.closed_additional_message,
+        closed_course_successor_id: course.closed_course_successor_id,
+        chapter_locking_enabled: course.chapter_locking_enabled,
+        ai_policy: course.ai_policy,
+        course_material_ai_instructions: course.course_material_ai_instructions,
+    };
+    let updated_course = update_course(conn, course_id, update_payload).await?;
+
+    let res = CourseMetadata {
+        course_description: updated_course.description,
+        course_audiences: audiences,
+        course_prerequisites: prerequisites,
+    };
+    Ok(res)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CompleteCourseMetadata {
+    course: Course,
+    course_instances: Vec<CourseInstance>,
+    default_module: CourseModule,
+    course_prerequisites: Vec<CoursePrerequisite>,
+    course_audiences: Vec<CourseAudience>,
+    course_organization: DatabaseOrganization,
+}
+
+pub async fn get_metadata(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CompleteCourseMetadata> {
+    let prerequisites: Vec<CoursePrerequisite> =
+        crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    let audiences: Vec<CourseAudience> =
+        crate::course_audiences::get_by_course_id(conn, course_id).await?;
+    let course_data = get_course(conn, course_id).await?;
+    let instances =
+        crate::course_instances::get_course_instances_for_course(conn, course_id).await?;
+    let module = crate::course_modules::get_default_by_course_id(conn, course_id).await?;
+
+    let organization =
+        crate::organizations::get_organization(conn, course_data.organization_id).await?;
+
+    let metadata = CompleteCourseMetadata {
+        course: course_data,
+        course_instances: instances,
+        default_module: module,
+        course_prerequisites: prerequisites,
+        course_audiences: audiences,
+        course_organization: organization,
+    };
+    Ok(metadata)
 }

@@ -61,6 +61,9 @@ export function isFileUploadMessage(obj: unknown): obj is FileUploadMessage {
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
         typedObj["message"] === "file-upload" &&
+        (typeof typedObj["requestId"] === "undefined" ||
+            typedObj["requestId"] === null ||
+            typeof typedObj["requestId"] === "string") &&
         typedObj["files"] instanceof Map
     )
 }
@@ -137,6 +140,9 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
             typedObj["message"] === "upload-result" &&
+            (typeof typedObj["requestId"] === "undefined" ||
+                typedObj["requestId"] === null ||
+                typeof typedObj["requestId"] === "string") &&
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
@@ -146,6 +152,9 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
             typedObj["message"] === "upload-result" &&
+            (typeof typedObj["requestId"] === "undefined" ||
+                typedObj["requestId"] === null ||
+                typeof typedObj["requestId"] === "string") &&
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
@@ -201,6 +210,9 @@ export function isUploadResultMessage(obj: unknown): obj is UploadResultMessage 
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
             typedObj["message"] === "upload-result" &&
+            (typeof typedObj["requestId"] === "undefined" ||
+                typedObj["requestId"] === null ||
+                typeof typedObj["requestId"] === "string") &&
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
@@ -210,6 +222,9 @@ export function isUploadResultMessage(obj: unknown): obj is UploadResultMessage 
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
             typedObj["message"] === "upload-result" &&
+            (typeof typedObj["requestId"] === "undefined" ||
+                typedObj["requestId"] === null ||
+                typeof typedObj["requestId"] === "string") &&
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&

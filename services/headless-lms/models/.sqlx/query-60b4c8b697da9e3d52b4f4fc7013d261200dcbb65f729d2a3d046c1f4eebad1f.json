@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_conversation_messages\nSET deleted_at = NOW()\nWHERE id = $1\nRETURNING *\n        ",
+  "query": "\n    INSERT INTO course_page_markdown_content (markdown_content)\n    VALUES ($1)\n    RETURNING *\n    ",
   "describe": {
     "columns": [
       {
@@ -9,7 +9,7 @@
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_messages",
+            "table": "course_page_markdown_content",
             "name": "id"
           }
         }
@@ -20,7 +20,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_messages",
+            "table": "course_page_markdown_content",
             "name": "created_at"
           }
         }
@@ -31,7 +31,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_messages",
+            "table": "course_page_markdown_content",
             "name": "updated_at"
           }
         }
@@ -42,37 +42,26 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_messages",
+            "table": "course_page_markdown_content",
             "name": "deleted_at"
           }
         }
       },
       {
         "ordinal": 4,
-        "name": "conversation_id",
-        "type_info": "Uuid",
+        "name": "markdown_content",
+        "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_messages",
-            "name": "conversation_id"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
-        "name": "order_number",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_messages",
-            "name": "order_number"
+            "table": "course_page_markdown_content",
+            "name": "markdown_content"
           }
         }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Text"
       ]
     },
     "nullable": [
@@ -80,9 +69,8 @@
       false,
       false,
       true,
-      false,
       false
     ]
   },
-  "hash": "a656b7b4ce41dddd968961e01f9e8dfe5fd9bed95e86f2863cd11e47f19ee5c3"
+  "hash": "60b4c8b697da9e3d52b4f4fc7013d261200dcbb65f729d2a3d046c1f4eebad1f"
 }

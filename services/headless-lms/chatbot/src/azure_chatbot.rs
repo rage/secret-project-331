@@ -109,9 +109,9 @@ impl ParsedResponseLine {
 /// Context about the user and course for a chatbot interaction.
 /// Passed to tool implementations so they can access user-specific data.
 pub struct ChatbotUserContext {
-    pub user_id: Uuid,
-    pub course_id: Uuid,
-    pub course_name: String,
+    pub user_id: Option<Uuid>,
+    pub course_id: Option<Uuid>,
+    pub course_name: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -839,7 +839,7 @@ async fn parse_tool<'a>(
     conn: &'a mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
     conversation_id: Uuid,
-    user_context: &'a Option<ChatbotUserContext>,
+    user_context: &'a ChatbotUserContext,
 ) -> BoxStream<'a, ChatbotResult<StreamEvent<'a>>> {
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
     let mut messages = vec![];
@@ -924,12 +924,7 @@ async fn parse_tool<'a>(
             let mut tool_msgs = Vec::new();
 
             for (name, id, args) in function_name_id_args.iter() {
-                let tool = if let Some(user_context) = &user_context {
-
-                    get_chatbot_tool(conn, name, args, user_context).await?
-                } else {
-                    todo!()
-                };
+                let tool = get_chatbot_tool(conn, name, args, user_context).await?;
                 let output = tool.get_tool_output();
 
                 tool_msgs.push(APIOutputMessage {
@@ -1368,7 +1363,7 @@ pub async fn send_chat_request_and_parse_stream(
     chatbot_configuration_id: Uuid,
     conversation_id: Uuid,
     message: &str,
-    user_context: Option<ChatbotUserContext>,
+    user_context: ChatbotUserContext,
 ) -> ChatbotResult<Pin<Box<dyn Stream<Item = ChatbotResult<Bytes>> + Send>>> {
     let mut conn = pool.acquire().await?;
     let app_config = app_configuration.to_owned();

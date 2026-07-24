@@ -136,13 +136,17 @@ async fn send_message(
     let chatbot_user = if let (Some(course_id), Some(course_name)) =
         ((chatbot_configuration.course_id), course_name)
     {
-        Some(ChatbotUserContext {
-            user_id: user.id.to_owned(),
-            course_id: course_id,
-            course_name,
-        })
+        ChatbotUserContext {
+            user_id: Some(user.id.to_owned()),
+            course_id: Some(course_id),
+            course_name: Some(course_name),
+        }
     } else {
-        None
+        ChatbotUserContext {
+            user_id: None,
+            course_id: None,
+            course_name: None,
+        }
     };
 
     let response_stream = send_chat_request_and_parse_stream(

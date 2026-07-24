@@ -314,12 +314,15 @@ async fn current_conversation_info(
                     ApplicationTask::MessageSuggestion,
                 )
                 .await?;
+
             headless_lms_chatbot::message_suggestion::generate_suggested_messages(
                 &app_conf,
                 message_suggest_llm,
                 current_conversation_messages,
                 chatbot_configuration.initial_suggested_messages,
-                &res.course_name,
+                &res.course_name.ok_or_else(|| {
+                    controller_err!(Forbidden, "Course name is missing.".to_string())
+                })?,
                 course_description,
             )
             .await?

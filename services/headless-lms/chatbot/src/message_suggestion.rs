@@ -70,16 +70,11 @@ pub async fn generate_suggested_messages(
     task_lm: TaskLMSpec,
     conversation_messages: &[ChatbotConversationMessage],
     initial_suggested_messages: Option<Vec<String>>,
-    course_name: &Option<String>,
+    course_name: &str,
     course_desc: Option<String>,
 ) -> ChatbotResult<Vec<String>> {
     let prompt = SYSTEM_PROMPT.to_owned()
-        + &(if let Some(course_name) = course_name {
-            format!("The course is: {}\n\n", course_name)
-        } else {
-            "The chatbot is global".to_string()
-        })
-        //+ &format!("The course is: {}\n\n", course_name)
+        + &format!("The course is: {}\n\n", course_name)
         // if there are initial suggested messages, then include <=5 of them as examples
         + &(if let Some(ism) = initial_suggested_messages {
             let mut rng = rand::rng();

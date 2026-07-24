@@ -3256,7 +3256,7 @@
     "/api/v0/main-frontend/courses/{course_id}/get-course-metadata": {
       "get": {
         "tags": ["courses"],
-        "summary": "\nget `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.",
+        "summary": "\nget `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.",
         "operationId": "getCourseMetadata",
         "parameters": [
           {

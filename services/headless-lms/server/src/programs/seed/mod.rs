@@ -8,6 +8,7 @@ pub mod seed_courses;
 pub mod seed_exercise_services;
 pub mod seed_file_storage;
 pub mod seed_generic_emails;
+pub mod seed_global_chatbots;
 pub mod seed_helpers;
 pub mod seed_oauth_clients;
 pub mod seed_organizations;
@@ -101,7 +102,7 @@ pub async fn main() -> anyhow::Result<()> {
         )),
         run_parallelly(seed_oauth_clients(db_pool.clone()))
     )?;
-
+    seed_global_chatbots::seed_global_chatbots(db_pool.clone()).await?;
     Ok(())
 }
 

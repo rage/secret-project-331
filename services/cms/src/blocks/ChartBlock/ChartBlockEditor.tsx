@@ -10,10 +10,11 @@ import {
 import { Placeholder, ResizableBox, ToolbarButton, ToolbarGroup } from "@wordpress/components"
 import { useDispatch } from "@wordpress/data"
 import { image as icon } from "@wordpress/icons"
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 
-import Button from "@/shared-module/common/components/Button"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { Button } from "@/shared-module/components/components/Button"
+import { TextField } from "@/shared-module/components/components/TextField"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -21,6 +22,7 @@ import type { ChartBlockAttributes } from "."
 import BlockWrapper from "../BlockWrapper"
 import ChartBlockEditModal from "./ChartBlockEditModal"
 import ChartPreview, { chartCaptionStyle } from "./ChartPreview"
+import { DEFAULT_CHART_HEIGHT, isMultiViewSpec, resolveChartLayout } from "./chartSpec"
 
 const MIN_CHART_HEIGHT = 120
 
@@ -37,11 +39,40 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { spec, caption, height } = attributes
 
-  // Local text state so the field can be cleared/edited freely; only valid values commit, reset on blur.
-  const [heightInput, setHeightInput] = useState(String(height))
+  // The chart's natural (unscaled) rendered height, reported by ChartPreview. For multi-view
+  // charts `height` can't size the spec, so the preview is scaled with CSS instead; this drives
+  // the box height and lets the drag handle / inspector field resize a multi-view chart.
+  const [naturalHeight, setNaturalHeight] = useState<number | null>(null)
+  const handleNaturalHeightChange = useCallback((px: number) => setNaturalHeight(px), [])
+
+  const isMultiView = useMemo(() => {
+    try {
+      return isMultiViewSpec(JSON.parse(spec))
+    } catch {
+      return false
+    }
+  }, [spec])
+
+  // The displayed box height: the set height for single-view charts, or (for multi-view) the
+  // scaled-to-fit height, defaulting to the chart's full natural size until it's resized.
+  const { boxHeightPx } = resolveChartLayout({
+    heightAttr: height,
+    autoHeightSentinel: DEFAULT_CHART_HEIGHT,
+    naturalHeightPx: naturalHeight,
+    isMultiView,
+  })
+
+  // The new shared TextField is react-hook-form based. The field mirrors the displayed box height
+  // (which may differ from the stored `height` while a multi-view chart is at its auto size), and
+  // only a user edit — not this programmatic mirroring — commits a new height.
+  const { control, watch, getValues, setValue } = useForm<{ height: string }>({
+    defaultValues: { height: String(boxHeightPx) },
+  })
   useEffect(() => {
-    setHeightInput(String(height))
-  }, [height])
+    if (String(boxHeightPx) !== getValues("height")) {
+      setValue("height", String(boxHeightPx))
+    }
+  }, [boxHeightPx, getValues, setValue])
 
   const openModal = () => setIsModalOpen(true)
 
@@ -49,13 +80,19 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
     setAttributes({ height: Math.max(MIN_CHART_HEIGHT, Math.round(value)) })
   }
 
-  const handleHeightInputChange = (value: string) => {
-    setHeightInput(value)
-    const parsed = Math.trunc(Number(value))
-    if (!Number.isNaN(parsed) && parsed >= MIN_CHART_HEIGHT) {
-      setHeight(parsed)
-    }
-  }
+  useEffect(() => {
+    const subscription = watch((values, { name }) => {
+      if (name !== "height") {
+        return
+      }
+      const parsed = Math.trunc(Number(values.height))
+      // Ignore the echo from mirroring boxHeightPx into the field; only commit real user edits.
+      if (!Number.isNaN(parsed) && parsed >= MIN_CHART_HEIGHT && parsed !== boxHeightPx) {
+        setHeight(parsed)
+      }
+    })
+    return () => subscription.unsubscribe()
+  })
 
   const modal = (
     <ChartBlockEditModal
@@ -98,11 +135,20 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
               `}
             >
               <TextField
+                name="height"
+                control={control}
                 type="number"
                 label={t("chart-height-px")}
-                value={heightInput}
-                onChangeByValue={handleHeightInputChange}
-                onBlur={() => setHeightInput(String(height))}
+                min={MIN_CHART_HEIGHT}
+                rules={{
+                  validate: (value) => {
+                    const parsed = Math.trunc(Number(value))
+                    return (
+                      (!Number.isNaN(parsed) && parsed >= MIN_CHART_HEIGHT) ||
+                      t("chart-height-min", { min: MIN_CHART_HEIGHT })
+                    )
+                  },
+                }}
               />
               <Button variant="secondary" size="medium" onClick={openModal}>
                 {t("edit-chart")}
@@ -110,7 +156,9 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
             </div>
           </InspectorControls>
           <ResizableBox
-            size={{ width: "100%", height }}
+            // Sized to the displayed chart so nothing overlaps the blocks below; dragging sets a
+            // new height relative to what's actually shown (which scales a multi-view chart).
+            size={{ width: "100%", height: boxHeightPx }}
             minHeight={MIN_CHART_HEIGHT}
             showHandle={isSelected}
             enable={{
@@ -126,10 +174,15 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
             onResizeStart={() => toggleSelection(false)}
             onResizeStop={(_event, _direction, _elt, delta) => {
               toggleSelection(true)
-              setHeight(height + delta.height)
+              setHeight(boxHeightPx + delta.height)
             }}
           >
-            <ChartPreview spec={spec} height={height} caption={caption} />
+            <ChartPreview
+              spec={spec}
+              height={height}
+              caption={caption}
+              onNaturalHeightChange={handleNaturalHeightChange}
+            />
           </ResizableBox>
           {caption?.trim() && <div className={chartCaptionStyle}>{caption}</div>}
         </>

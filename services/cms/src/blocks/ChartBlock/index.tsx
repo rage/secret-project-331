@@ -7,7 +7,7 @@ import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import ChartBlockEditor from "./ChartBlockEditor"
 import ChartBlockSave from "./ChartBlockSave"
-import { VEGA_LITE_SCHEMA_URL } from "./chartSpec"
+import { DEFAULT_CHART_HEIGHT, VEGA_LITE_SCHEMA_URL } from "./chartSpec"
 
 export interface ChartBlockAttributes {
   spec: string
@@ -16,7 +16,7 @@ export interface ChartBlockAttributes {
   height: number
 }
 
-export const DEFAULT_CHART_HEIGHT = 300
+export { DEFAULT_CHART_HEIGHT }
 
 // Served from main-frontend's public/ at the site root, so both the cms editor and the
 // course-material renderer can load it by this URL.

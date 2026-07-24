@@ -88,6 +88,7 @@
   "chart-data-file": "Kaavion datatiedosto (CSV tai JSON)",
   "chart-data-file-instructions": "Lataa CSV- tai JSON-tiedosto, joka sisältää kaavion datan.",
   "chart-data-file-ok-but-spec-invalid": "Datatiedoston lataus onnistui, eikä ongelma ole tiedostossa. Tiedostoa ei voitu liittää kaavioon, koska kaavion Vega-Lite-määrittely ei ole kelvollista JSONia. Korjaa määrittely ja lisää tiedosto uudelleen.",
+  "chart-height-min": "Syötä korkeudeksi vähintään {{min}} px.",
   "chart-height-px": "Korkeus (px)",
   "chatbot-block-placeholder": "Keskustelurobotin lohko.",
   "chatbot-block-placeholder-explanation": "Keskustelurobotti joka sijoitetaan kurssimateriaaliin. Ei voi olla kurssin oletuskeskustelurobotti. Oletuskeskustelurobotti on saatavilla kaikilla kurssin sivuilla sivun alalaidassa olevasta napista.",

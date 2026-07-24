@@ -9,6 +9,53 @@ const TEXT_MIME = "text/plain"
 
 export const VEGA_LITE_SCHEMA_URL = "https://vega.github.io/schema/vega-lite/v6.json"
 
+/** Default block height in px. For multi-view charts this doubles as the "no size chosen yet"
+ * sentinel, so the chart is shown at full natural size until the teacher resizes it. */
+export const DEFAULT_CHART_HEIGHT = 300
+
+const MULTI_VIEW_KEYS = ["vconcat", "hconcat", "concat", "facet", "repeat"] as const
+
+/**
+ * Whether the spec composes multiple views (concat/facet/repeat). Vega-Lite ignores a top-level
+ * `height` on such specs, so they can't be resized through the spec — the render layer scales
+ * them with CSS instead.
+ */
+export const isMultiViewSpec = (parsed: unknown): boolean =>
+  typeof parsed === "object" &&
+  parsed !== null &&
+  MULTI_VIEW_KEYS.some((key) => key in (parsed as Record<string, unknown>))
+
+export interface ChartLayout {
+  /** Height of the chart's box in px — the dimension the resizable bottom edge controls. */
+  boxHeightPx: number
+  /** Uniform CSS scale that fits a multi-view chart into boxHeightPx; always 1 for single-view. */
+  scale: number
+}
+
+/**
+ * Resolves the chart's box height and CSS scale.
+ *
+ * Single-view specs size themselves via the injected height, so the box is `heightAttr` and no
+ * scaling is needed. Multi-view specs render at their natural height (`naturalHeightPx`); we scale
+ * them uniformly to the requested height. `heightAttr === autoHeightSentinel` means the teacher
+ * hasn't chosen a size yet, so the chart shows at full natural size.
+ */
+export const resolveChartLayout = (args: {
+  heightAttr: number
+  autoHeightSentinel: number
+  naturalHeightPx: number | null
+  isMultiView: boolean
+}): ChartLayout => {
+  const { heightAttr, autoHeightSentinel, naturalHeightPx, isMultiView } = args
+  if (!isMultiView || !naturalHeightPx || naturalHeightPx <= 0) {
+    return { boxHeightPx: heightAttr, scale: 1 }
+  }
+  const target = heightAttr === autoHeightSentinel ? naturalHeightPx : heightAttr
+  // Cap at 1: shrinking scales the chart down; growing past natural size just adds space below
+  // rather than magnifying (which would blur text and force horizontal scrolling).
+  return { boxHeightPx: target, scale: Math.min(1, target / naturalHeightPx) }
+}
+
 export interface ExtractedData {
   specWithoutData: Record<string, unknown>
   contents: string

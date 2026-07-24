@@ -6,17 +6,18 @@ import { BlockIcon, MediaPlaceholder } from "@wordpress/block-editor"
 import { Modal, Placeholder } from "@wordpress/components"
 import { image as icon } from "@wordpress/icons"
 import React, { useContext, useEffect, useRef, useState } from "react"
+import { useForm } from "react-hook-form"
 
 import CourseContext from "@/contexts/CourseContext"
 import PageContext from "@/contexts/PageContext"
 import { requestChartSpecGeneration } from "@/generated/api/sdk.generated"
 import { uploadFileFromPage } from "@/services/mediaUpload"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import MonacoEditor from "@/shared-module/common/components/monaco/MonacoEditor"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
+import { Button } from "@/shared-module/components/components/Button"
+import { TextArea } from "@/shared-module/components/components/TextArea"
+import { TextField } from "@/shared-module/components/components/TextField"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { ChartBlockAttributes } from "."
@@ -95,9 +96,16 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   const [extractedDataUrl, setExtractedDataUrl] = useState<string | undefined>(undefined)
   const [isExtractingData, setIsExtractingData] = useState(false)
   const [showAiPanel, setShowAiPanel] = useState(false)
-  const [aiPrompt, setAiPrompt] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [aiError, setAiError] = useState<unknown>(undefined)
+
+  // The new shared TextField/TextArea are react-hook-form based. The caption also changes
+  // outside the form (spec edits sync `description` into it), so the form is kept in sync
+  // with the attribute in both directions below.
+  const { control, watch, getValues, setValue } = useForm<{ aiPrompt: string; caption: string }>({
+    defaultValues: { aiPrompt: "", caption },
+  })
+  const aiPrompt = watch("aiPrompt")
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   // Latest spec, so an in-flight upload can bail if the teacher kept editing.
@@ -180,7 +188,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   // Ask the AI to write or edit the spec; the result flows through handleSpecChange so the
   // caption sync and inline-data extraction behave the same as for a hand-written spec.
   const handleAiGenerate = async () => {
-    const prompt = aiPrompt.trim()
+    const prompt = getValues("aiPrompt").trim()
     if (!prompt || isGenerating) {
       return
     }
@@ -241,6 +249,24 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     }
     setAttributes(attrs)
   }
+
+  // Attribute -> form: spec edits sync the spec's `description` into the caption attribute.
+  useEffect(() => {
+    if (caption !== getValues("caption")) {
+      setValue("caption", caption)
+    }
+  }, [caption, getValues, setValue])
+
+  // Form -> attribute: the teacher typing in the caption field. Re-subscribed every render
+  // so the callback never closes over a stale handleCaptionChange.
+  useEffect(() => {
+    const subscription = watch((values, { name }) => {
+      if (name === "caption") {
+        handleCaptionChange(values.caption ?? "")
+      }
+    })
+    return () => subscription.unsubscribe()
+  })
 
   const handleDataFileSelect = (media: MediaObject) => {
     setExtractedDataUrl(undefined)
@@ -347,8 +373,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                 variant="secondary"
                 size="small"
                 onClick={() => setShowAiPanel((open) => !open)}
-                aria-expanded={showAiPanel}
-                aria-controls={AI_PANEL_ID}
+                domProps={{ "aria-expanded": showAiPanel, "aria-controls": AI_PANEL_ID }}
               >
                 {t("ai-generate-chart")}
               </Button>
@@ -369,21 +394,13 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                 margin-bottom: 0.75rem;
               `}
             >
-              <TextAreaField
+              <TextArea
+                name="aiPrompt"
+                control={control}
                 label={t("ai-chart-prompt-label")}
-                value={aiPrompt}
-                onChangeByValue={setAiPrompt}
                 placeholder={t("ai-chart-prompt-placeholder")}
                 rows={3}
-                disabled={isGenerating}
-                className={css`
-                  /* Same focus treatment as the shared TextField; TextAreaField has none,
-                     which lets the browser's default focus ring show through. */
-                  textarea:focus {
-                    outline: none;
-                    border-color: #55b3f5;
-                  }
-                `}
+                isDisabled={isGenerating}
               />
               <div
                 className={css`
@@ -397,7 +414,8 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                   variant="primary"
                   size="small"
                   onClick={() => void handleAiGenerate()}
-                  disabled={isGenerating || !aiPrompt.trim()}
+                  isLoading={isGenerating}
+                  disabled={!aiPrompt.trim()}
                 >
                   {t("generate")}
                 </Button>
@@ -534,12 +552,12 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
             `}
           >
             <TextField
+              name="caption"
+              control={control}
               label={t("caption")}
-              required
-              value={caption}
-              onChangeByValue={handleCaptionChange}
+              isRequired
               placeholder={t("describe-the-chart")}
-              {...(caption.trim() ? {} : { error: t("required") })}
+              {...(caption.trim() ? {} : { errorMessage: t("required") })}
             />
           </div>
         </div>

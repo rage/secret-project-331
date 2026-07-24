@@ -71,7 +71,9 @@ const MyCourses: React.FC = () => {
                 )}
                 id={course.id}
                 showManageButton={canMangeCourse.data?.[n] === true}
-                onHide={() => handleHideCourse(course.id, course.name)}
+                {...(course.can_hide
+                  ? { onHide: () => handleHideCourse(course.id, course.name) }
+                  : {})}
               />
             )
           })}

@@ -64,7 +64,6 @@ pub mod file_uploads;
 pub mod flagged_answers;
 pub mod generated_certificates;
 pub mod glossary;
-pub mod hidden_courses;
 pub mod join_code_uses;
 pub mod library;
 pub mod marketing_consents;

@@ -1525,6 +1525,14 @@ export type ModuleUpdates = {
   new_modules: Array<NewModule>
 }
 
+export type MyCourse = Course & {
+  /**
+   * Whether the course can be hidden from the "My courses" list. Only courses the user has
+   * enrolled in (and thus have user course settings) can be hidden.
+   */
+  can_hide: boolean
+}
+
 export type NewChapter = {
   chapter_number: number
   color?: string | null
@@ -2327,6 +2335,11 @@ export type UserCourseSettings = {
   current_course_id: string
   current_course_instance_id: string
   deleted_at?: string | null
+  /**
+   * Whether the user has hidden this course from their personal "My courses" list. Does not
+   * affect course progress.
+   */
+  hidden: boolean
   updated_at: string
   user_id: string
 }
@@ -9024,7 +9037,7 @@ export type GetMyCoursesResponses = {
   /**
    * Courses for authenticated user
    */
-  200: Array<Course>
+  200: Array<MyCourse>
 }
 
 export type GetMyCoursesResponse = GetMyCoursesResponses[keyof GetMyCoursesResponses]

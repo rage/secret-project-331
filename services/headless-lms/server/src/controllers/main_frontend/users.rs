@@ -9,6 +9,7 @@ use models::{
     users::User,
 };
 use secrecy::{ExposeSecret, SecretString};
+use std::collections::HashSet;
 use utoipa::{OpenApi, ToSchema};
 
 #[derive(OpenApi)]
@@ -193,6 +194,15 @@ async fn get_all_research_form_answers_with_user_id(
     token.authorized_ok(web::Json(res))
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct MyCourse {
+    #[serde(flatten)]
+    pub course: Course,
+    /// Whether the course can be hidden from the "My courses" list. False for courses the user has
+    /// not enrolled in or has a role in.
+    pub can_hide: bool,
+}
+
 /**
 GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has either started or gotten a permission to.
 */
@@ -203,13 +213,13 @@ GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has
     operation_id = "getMyCourses",
     tag = "users",
     responses(
-        (status = 200, description = "Courses for authenticated user", body = [Course])
+        (status = 200, description = "Courses for authenticated user", body = [MyCourse])
     )
 )]
 async fn get_my_courses(
     user: AuthUser,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<Course>>> {
+) -> ControllerResult<web::Json<Vec<MyCourse>>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
@@ -219,8 +229,14 @@ async fn get_my_courses(
     let courses_with_roles =
         models::courses::all_courses_with_roles_for_user(&mut conn, user.id).await?;
 
-    let hidden_course_ids =
-        models::hidden_courses::get_hidden_course_ids(&mut conn, user.id).await?;
+    let settings = models::user_course_settings::get_all_by_user_id(&mut conn, user.id).await?;
+    let hidden_course_ids: HashSet<Uuid> = settings
+        .iter()
+        .filter(|s| s.hidden)
+        .map(|s| s.current_course_id)
+        .collect();
+    let enrolled_course_ids: HashSet<Uuid> = settings.iter().map(|s| s.current_course_id).collect();
+    let role_course_ids: HashSet<Uuid> = courses_with_roles.iter().map(|c| c.id).collect();
 
     let mut combined: Vec<Course> = courses_enrolled_to
         .clone()
@@ -230,13 +246,23 @@ async fn get_my_courses(
                 .into_iter()
                 .filter(|c| !courses_enrolled_to.iter().any(|c2| c.id == c2.id)),
         )
-        .filter(|c| !hidden_course_ids.contains(&c.id))
+        // A course the user has a role in always stays visible and can't be hidden.
+        .filter(|c| !hidden_course_ids.contains(&c.id) || role_course_ids.contains(&c.id))
         .collect();
 
     // Stable ordering so the "My courses" grid does not reshuffle between requests.
     combined.sort_by(|a, b| a.name.cmp(&b.name).then(a.id.cmp(&b.id)));
 
-    token.authorized_ok(web::Json(combined))
+    let my_courses = combined
+        .into_iter()
+        .map(|course| {
+            let can_hide =
+                enrolled_course_ids.contains(&course.id) && !role_course_ids.contains(&course.id);
+            MyCourse { course, can_hide }
+        })
+        .collect();
+
+    token.authorized_ok(web::Json(my_courses))
 }
 
 /**
@@ -264,7 +290,14 @@ async fn hide_course_from_my_courses(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    models::hidden_courses::hide_course(&mut conn, user.id, *course_id).await?;
+    // A course the user has a role in can't be hidden.
+    let has_role = models::courses::all_courses_with_roles_for_user(&mut conn, user.id)
+        .await?
+        .iter()
+        .any(|c| c.id == *course_id);
+    if !has_role {
+        models::user_course_settings::set_hidden(&mut conn, user.id, *course_id, true).await?;
+    }
 
     token.authorized_ok(web::Json(()))
 }

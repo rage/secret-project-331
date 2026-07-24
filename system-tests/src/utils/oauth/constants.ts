@@ -7,6 +7,18 @@ export const WELL_KNOWN = `${BASE}/api/v0/main-frontend/oauth/.well-known/openid
 export const JWKS_URI = `${BASE}/api/v0/main-frontend/oauth/jwks.json`
 export const REVOKE = `${BASE}/api/v0/main-frontend/oauth/revoke`
 export const INTROSPECT = `${BASE}/api/v0/main-frontend/oauth/introspect`
+export const DEVICE_AUTHORIZATION = `${BASE}/api/v0/main-frontend/oauth/device_authorization`
+
+// Exercise-services client API (authenticated with our own OAuth Bearer tokens).
+export const EXERCISE_SERVICES_CLIENT = `${BASE}/api/v0/exercise-services/client`
+
+// Device-authorization (RFC 8628) clients seeded for the device-flow spec.
+export const DEVICE_CODE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:device_code"
+export const EXERCISE_SERVICES_SCOPE = "exercise-services"
+// Public native client; carries the exercise-services scope (mirrors the prod client).
+export const TMC_CLI_VSCODE_CLIENT_ID = "tmc-cli-vscode"
+// Test/dev-only device client whose scope is NOT exercise-services, used to exercise the 403 scope gate.
+export const TMC_CLI_VSCODE_NOSCOPE_CLIENT_ID = "tmc-cli-vscode-noscope-test"
 
 // Test client constants
 export const TEST_CLIENT_ID = "test-client-id"

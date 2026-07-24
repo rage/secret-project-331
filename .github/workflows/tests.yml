@@ -110,6 +110,33 @@ jobs:
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo build --verbose
 
+      # OpenAPI drift gate: re-export the committed specs under server/openapi (the
+      # generate-bindings sequence) and fail if they differ from what is committed,
+      # catching annotation changes that were never re-exported or hand-edited specs.
+      - name: Export OpenAPI specs
+        run: |
+          docker run --rm \
+            --network "${{ steps.get_network.outputs.network }}" \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace/services/headless-lms \
+            -e CARGO_TERM_COLOR=always \
+            -e SQLX_OFFLINE=1 \
+            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
+            cargo run -p headless-lms-entrypoint -- export-openapi
+
+      - uses: ./.github/actions/setup-node-pnpm
+
+      - name: Install pnpm dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The committed specs are oxfmt-formatted; the raw export is not, so format it
+      # before diffing.
+      - name: Format exported OpenAPI specs
+        run: pnpm exec oxfmt services/headless-lms/server/openapi/*.json
+
+      - name: Assert committed OpenAPI specs are up to date
+        run: git diff --exit-code services/headless-lms/server/openapi/
+
       - name: Set up unit test database
         run: |
           docker run --rm \

@@ -1,6 +1,7 @@
 use anyhow::Result;
 use headless_lms_server::openapi::{
-    AuthApiDoc, CmsApiDoc, CourseMaterialApiDoc, ErrorsApiDoc, MainFrontendApiDoc,
+    AuthApiDoc, CmsApiDoc, CourseMaterialApiDoc, ErrorsApiDoc, ExerciseServicesClientApiDoc,
+    MainFrontendApiDoc,
 };
 use headless_lms_server::programs;
 use std::future::Future;
@@ -170,6 +171,10 @@ fn export_openapi_specs() -> Result<()> {
     write_spec(
         &output_dir.join("errors.openapi.generated.json"),
         ErrorsApiDoc::openapi(),
+    )?;
+    write_spec(
+        &output_dir.join("exercise-services-client.openapi.generated.json"),
+        ExerciseServicesClientApiDoc::openapi(),
     )?;
     Ok(())
 }

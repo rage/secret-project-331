@@ -1873,6 +1873,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "exercise-services-api"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "oauth2",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "utoipa",
+ "uuid",
+]
+
+[[package]]
 name = "fastrand"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2820,6 +2833,7 @@ dependencies = [
  "doc-macro",
  "dotenvy",
  "dpop-verifier",
+ "exercise-services-api",
  "flate2",
  "futures",
  "futures-util",
@@ -2840,7 +2854,6 @@ dependencies = [
  "listenfd",
  "mime",
  "mockito",
- "mooc-langs-api",
  "oauth2",
  "once_cell",
  "p256 0.14.0",
@@ -4328,18 +4341,6 @@ dependencies = [
  "serde_urlencoded",
  "similar",
  "tokio",
-]
-
-[[package]]
-name = "mooc-langs-api"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "oauth2",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "uuid",
 ]
 
 [[package]]

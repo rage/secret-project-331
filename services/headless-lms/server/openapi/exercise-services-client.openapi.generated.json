@@ -1,0 +1,1108 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Exercise Services Client API",
+    "description": "",
+    "contact": {
+      "name": "University of Helsinki",
+      "email": "mooc@cs.helsinki.fi"
+    },
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v0/exercise-services/client/courses": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * GET /api/v0/exercise-services/client/courses\n *\n * Returns the courses that the user is currently enrolled on that contain TMC exercises.",
+        "operationId": "getClientCourses",
+        "parameters": [
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The courses the user is enrolled on that contain TMC exercises",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Course"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/courses/{id}": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * GET /api/v0/exercise-services/client/courses/:id\n *\n * Returns the course with the given id.",
+        "operationId": "getClientCourse",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Course"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No course with the given id exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/courses/{id}/exercises": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * GET /api/v0/exercise-services/client/courses/:id/exercises\n *\n * Returns the user's exercise slides for the given course.\n * Does not return anything for chapters which are not open yet.\n * Selects slides for exercises with no slide selected yet.\n * Only returns slides which have tasks that are compatible with the client (tmc).",
+        "operationId": "getClientCourseExercises",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user's TMC-compatible exercise slides for open chapters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseSlide"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No course with the given id exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/courses/{id}/progress": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * GET /api/v0/exercise-services/client/courses/:id/progress\n *\n * Returns the current user's progress on every exercise of the course that lives in an\n * open chapter (the same visibility as `courses/:id/exercises`): its awarded and maximum\n * points and completed/attempted signals. One round-trip; course totals are derivable by\n * summing the returned entries.",
+        "operationId": "getClientCourseProgress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user's per-exercise progress for the course's open chapters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseProgress"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No course with the given id exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/exercises/{id}": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * GET /api/v0/exercise-services/client/exercises/:id\n *\n * Returns an exercise slide for the user for the given exercise.",
+        "operationId": "getClientExercise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An exercise slide for the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseSlide"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No exercise with the given id exists, or it belongs to an exam (not served by this API)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/exercises/{id}/submissions": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * GET /api/v0/exercise-services/client/exercises/:id/submissions\n *\n * Returns the current user's past submissions to the given exercise, newest\n * first, each annotated with its grading score and progress if graded.",
+        "operationId": "getClientExerciseSubmissions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The current user's submissions to the exercise, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseSlideSubmissionListItem"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/exercises/{id}/submit": {
+      "post": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/submit\n *\n * Accepts an exercise submission from the user.",
+        "operationId": "submitClientExercise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Multipart form with a `submission` part containing a JSON `ExerciseSlideSubmission` and a `file` part containing the exercise archive",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The created submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTaskSubmissionResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No exercise with the given id exists, or the referenced slide/task does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/submissions/{id}/download": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * GET /api/v0/exercise-services/client/submissions/:id/download\n *\n * Resolves an exercise-slide submission (by the id returned from the submissions\n * list) to the file-store URL of the archive that was submitted, so the client\n * can re-download an old submission.",
+        "operationId": "downloadClientSubmission",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise-slide-submission id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The download URL of the submitted archive",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionArchiveDownloadUrl"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Cannot download another user's submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No submission with the given id exists, or it has no downloadable archive",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/submissions/{id}/grading": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * GET /api/v0/exercise-services/client/submissions/:id/grading\n *\n * Returns the grading status of the given submission.",
+        "operationId": "getClientSubmissionGrading",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Submission id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The grading status of the submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTaskSubmissionStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Cannot view another user's submission grading",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No submission with the given id exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/submissions/{id}/share": {
+      "post": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * POST /api/v0/exercise-services/client/submissions/:id/share\n *\n * Mints a shareable link to an existing submission of the current user and returns\n * its URL.",
+        "operationId": "shareClientSubmission",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise-slide-submission id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The shareable URL for the submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasteResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Cannot share another user's submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No submission with the given id exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiErrorIssue": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "code": {
+            "type": ["string", "null"]
+          },
+          "message": {
+            "type": "string"
+          },
+          "path": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "ApiErrorResponse": {
+        "type": "object",
+        "description": "Canonical API error envelope returned for controlled application errors.",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiErrorIssue"
+            }
+          },
+          "message": {
+            "type": ["string", "null"]
+          },
+          "message_key": {
+            "type": ["string", "null"]
+          },
+          "metadata": {},
+          "type": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "Course": {
+        "type": "object",
+        "required": ["id", "slug", "name", "organization_name"],
+        "properties": {
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "CourseProgress": {
+        "type": "object",
+        "description": "The current user's progress across every exercise they can see in a course, returned\nby `courses/{id}/progress` in a single round-trip. Course-level totals are not sent\nseparately; the client derives them by summing over `exercises` (e.g. total awarded =\n`sum(score_given)`, total available = `sum(score_maximum)`).",
+        "required": ["course_id", "exercises"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course these progress entries belong to; echoes the path id."
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseProgress"
+            }
+          }
+        }
+      },
+      "ExerciseProgress": {
+        "type": "object",
+        "description": "The current user's progress on a single exercise.\n\nA client derives a boolean \"passed\" from these fields. The authoritative signal is\n`completed` (the exercise reached the `Completed` activity stage). A client that\ninstead treats \"full points\" as passing can use `score_given >= score_maximum` when\n`score_maximum > 0`.",
+        "required": ["exercise_id", "score_given", "score_maximum", "completed", "attempted"],
+        "properties": {
+          "attempted": {
+            "type": "boolean",
+            "description": "`true` once the user has started or submitted the exercise (any activity stage past\nthe initial one), regardless of whether it is completed."
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "`true` once the exercise has reached the `Completed` activity stage. The primary\n\"passed\" signal."
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float",
+            "description": "Points the user has been awarded, `0.0` when the user has no state for the exercise."
+          },
+          "score_maximum": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The maximum points obtainable from the exercise."
+          }
+        }
+      },
+      "ExerciseSlide": {
+        "type": "object",
+        "required": [
+          "slide_id",
+          "exercise_id",
+          "course_id",
+          "exercise_name",
+          "exercise_order_number",
+          "tasks"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course the exercise belongs to, so a client need not resolve it separately."
+          },
+          "deadline": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_name": {
+            "type": "string"
+          },
+          "exercise_order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "slide_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseTask"
+            }
+          }
+        }
+      },
+      "ExerciseSlideSubmission": {
+        "type": "object",
+        "required": ["exercise_slide_id", "exercise_task_id"],
+        "properties": {
+          "exercise_slide_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ExerciseSlideSubmissionListItem": {
+        "type": "object",
+        "description": "A past submission of the current user to an exercise. `id` is the\nexercise-slide-submission id, which is what `submissions/{id}/download` takes.",
+        "required": ["id", "exercise_id", "created_at"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grading_progress": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/GradingProgress"
+              }
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score_given": {
+            "type": ["number", "null"],
+            "format": "float"
+          }
+        }
+      },
+      "ExerciseTask": {
+        "type": "object",
+        "required": ["task_id", "order_number", "assignment", "exercise_service_slug"],
+        "properties": {
+          "assignment": {},
+          "exercise_service_slug": {
+            "type": "string"
+          },
+          "model_solution_spec": {},
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "public_spec": {},
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ExerciseTaskSubmissionResult": {
+        "type": "object",
+        "required": ["submission_id"],
+        "properties": {
+          "submission_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ExerciseTaskSubmissionStatus": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": ["NoGradingYet"]
+          },
+          {
+            "type": "object",
+            "required": ["Grading"],
+            "properties": {
+              "Grading": {
+                "type": "object",
+                "required": ["grading_progress"],
+                "properties": {
+                  "feedback_json": {},
+                  "feedback_text": {
+                    "type": ["string", "null"]
+                  },
+                  "grading_completed_at": {
+                    "type": ["string", "null"],
+                    "format": "date-time"
+                  },
+                  "grading_progress": {
+                    "$ref": "#/components/schemas/GradingProgress"
+                  },
+                  "grading_started_at": {
+                    "type": ["string", "null"],
+                    "format": "date-time"
+                  },
+                  "score_given": {
+                    "type": ["number", "null"],
+                    "format": "float"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GradingProgress": {
+        "type": "string",
+        "enum": ["Failed", "NotReady", "PendingManual", "Pending", "FullyGraded"]
+      },
+      "PasteResult": {
+        "type": "object",
+        "description": "A shareable URL for a submission.",
+        "required": ["paste_url"],
+        "properties": {
+          "paste_url": {
+            "type": "string"
+          }
+        }
+      },
+      "SubmissionArchiveDownloadUrl": {
+        "type": "object",
+        "description": "The file-store URL of a submitted archive, which the client downloads directly.",
+        "required": ["archive_download_url"],
+        "properties": {
+          "archive_download_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearer_auth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Access token passed as an HTTP bearer token in the Authorization header."
+      }
+    }
+  }
+}

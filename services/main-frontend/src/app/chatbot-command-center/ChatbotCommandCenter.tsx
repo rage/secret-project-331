@@ -39,11 +39,10 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     )
     const groupedSorted = Object.fromEntries(
       Object.entries(grouped).toSorted(([aKey, aValue], [bKey, bValue]) => {
-        if (aValue.map((value) => value.isGlobalChatbot)) {
-          return -1
-        }
-        if (bValue.map((value) => value.isGlobalChatbot)) {
-          return 1
+        const aIsGlobal = aValue.some((value) => value.isGlobalChatbot)
+        const bIsGlobal = bValue.some((value) => value.isGlobalChatbot)
+        if (aIsGlobal !== bIsGlobal) {
+          return aIsGlobal ? -1 : 1
         }
         return aKey.localeCompare(bKey)
       }),

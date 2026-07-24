@@ -26,8 +26,6 @@ const ChatbotCommandCenterPage: React.FC = () => {
     ...getAllCoursesOptions(),
   })
 
-  console.log(chatbotsQuery)
-
   return (
     <>
       <h1>{t("link-text-chatbot-command-center")}</h1>

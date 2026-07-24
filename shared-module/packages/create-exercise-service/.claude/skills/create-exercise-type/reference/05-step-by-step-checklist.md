@@ -1,17 +1,29 @@
 # Step-by-step: creating a new exercise service, end to end
 
-The actionable sequence, tying together the protocol (`01`), the reference impl (`02`), the
-scaffolder (`03`), and backend/infra (`04`). Two tracks depending on where the plugin will live.
+The actionable sequence tying together the protocol (`01`), the reference impl (`02`), the
+scaffolder (`03`), and backend/infra (`04`). Two tracks, depending on where the plugin will live.
 
-## Decide the track first
+## Decide the track first — with the user, not by default
 
 - **Track A — external / standalone plugin** (own repo, own infra; like `rage/language-exercise-
-service`). Only steps 1–4 + step 9 (register by URL). No monorepo/skaffold/k8s work.
-- **Track B — first-party plugin shipped inside this monorepo** (like `example-exercise`, `quizzes`,
-  `tmc`). All steps.
+service`). Only steps 1–4 + step 9 (register by URL). No monorepo/skaffold/k8s work. The scaffold
+output is genuinely standalone (fresh install, tsc, tests, and boot all work outside any workspace
+or git repo) — so scaffold "own repo" straight to the external path. It is its **own git root**,
+unrelated to this monorepo — a fresh scaffold isn't even a git repo yet (`git init` it if you want
+version control from the start). When delegating fixes on a standalone plugin to subagents, do
+**not** use `isolation:worktree`: the worktree is cut from the *monorepo*, not the plugin, so the
+agent lands in the wrong repo and sees none of the plugin's files (it will stall, or fabricate fixes
+to code it can't see). Spawn plain agents with the plugin's absolute path and run them sequentially
+(they share one working tree).
+- **Track B — first-party plugin shipped inside this monorepo** (`services/<slug>`; like
+  `example-exercise`, `quizzes`, `tmc`). All steps — including the silently-missable 5–8: a
+  service scaffolded into `services/` without them rots quietly.
 
-> Before any step below: SKILL.md's mandatory Step 0 — confirming the data model with the user (see
-> `07-key-design-decisions.md`'s one-screen checklist) — must be signed off first. This file picks up
+Placement is the user's call — **ask it explicitly** (the slug/port question does not imply it),
+and confirm which of the chosen track's obligations are in scope for the session.
+
+> Before any step below: SKILL.md's Part A design gates — scope/features, the five data types, and
+> the three views, each explicitly confirmed by the user — must be passed first. This file picks up
 > after that sign-off.
 
 ## Pick identity
@@ -25,12 +37,21 @@ service`). Only steps 1–4 + step 9 (register by URL). No monorepo/skaffold/k8s
 
 ## Step 1 — Scaffold
 
+Interactively:
+
 ```bash
 bin/create-exercise-service
 ```
 
-Answer: project name = slug; **path = `services/<slug>` for Track B** (the CLI default lands in the
-wrong place — see `03`); type = React; port = your free port. Then:
+or non-interactively (agents, CI — same `scaffoldReactProject()`, explicit absolute path, no TTY):
+
+```bash
+pnpm --dir shared-module/packages/create-exercise-service exec tsx scripts/scaffold-to.ts <abs-path> <slug> <port>
+```
+
+Answer/pass: project name = slug; **path = `services/<slug>` for Track B, your external repo path
+for Track A** (the CLI default lands in the wrong place — see `03`); type = React; port = your free
+port. Then:
 
 ```bash
 cd services/<slug>   # (or your standalone path)
@@ -42,17 +63,37 @@ pnpm run dev         # http://localhost:<port>
 
 ## Step 2 — Define your 5 data types
 
+**Delete the template's exercise-specific test files up front** (`stateInterfaces.test.ts`,
+`migrateToLatest.test.ts`, `publicSpec`/`modelSolution`/`grade`/`roundTrip`/`export*` `.test.ts`, the
+component `*.test.tsx`) — they assert the multiple-choice model and will fail `tsc`/vitest until you
+rewrite them, so removing them first avoids editing under a wall of unrelated errors. Keep only the
+generic ones (`leakGuard`, `status`, `router`), then rewrite the deleted suites for your data types
+as you implement (Verify / `07` Part II is the bar).
+
 Edit `src/util/stateInterfaces.ts`: replace `Alternative`/`PublicAlternative`/`Answer`/
 `ModelSolutionApi`/`ExerciseFeedback` with your `private_spec` / `public_spec` / `model_solution_spec`
 / `answer` / `grading_feedback` shapes, and rewrite the defensive parsers/guards (keep them
 forgiving — the iframe receives untyped `postMessage` data). Parameterize the grading generics in
 your grade handler: `GradingRequest<YourPrivateSpec, YourAnswer>`, `GradingResult<YourFeedback>`.
 
+Adapt the template's **migration chain** to your types rather than replacing it with inline version
+checks: the per-type version registry + `migrate*ToLatest` functions the template ships are what
+every stored-blob door must route through, and adding v2 later must stay a one-line registry
+addition (see `07` §1). Version gates apply to **every** stored type — including the answer: a
+parser that stamps the current version without reading the incoming one silently relabels future
+blobs instead of migrating them.
+
 ## Step 3 — Implement the 3 server transforms
 
 - `src/server/publicSpec.ts` — derive `public_spec` from `private_spec`, **dropping anything that
-  would leak answers**. This is the security boundary.
-- `src/server/modelSolution.ts` — derive `model_solution_spec` from `private_spec`.
+  would leak answers**. This is the security boundary. Keep the template's `assertNoLeak` **call**
+  in the handler (adapted to your forbidden keys/values) — a leak guard that exists but is no longer
+  invoked by the endpoint protects nothing — and add a test that the endpoint output itself carries
+  only the allowlisted keys.
+- `src/server/modelSolution.ts` — derive `model_solution_spec` from `private_spec` (same
+  `assertNoLeak` rule). If your exercise type genuinely has no model solution, return `null` —
+  keep the endpoint (the service-info contract needs it) and confirm the "nothing to show peer
+  reviewers" choice with the user.
 - `src/server/grade.ts` — grade `submission_data` against `exercise_spec` (the private spec); return
   `grading_progress` + `score_given`/`score_maximum` + `feedback_text` + `feedback_json`. Grade
   **server-side only** — never trust the client.
@@ -68,11 +109,15 @@ your grade handler: `GradingRequest<YourPrivateSpec, YourAnswer>`, `GradingResul
 - `src/components/ExerciseEditor.tsx` — teacher UI editing the private spec; post `current-state`
   `{ data: { private_spec }, valid }` on every change.
 - `src/components/AnswerExercise.tsx` — student UI over the public spec; post `current-state`
-  `{ data: answer, valid }` on interaction.
+  `{ data: answer, valid }` on interaction. If it seeds state from `previous_submission`, also emit
+  a `current-state` for the seeded answer — otherwise the host's `valid` gate stays unset and a
+  student cannot resubmit unchanged prior work.
 - `src/components/ViewSubmission.tsx` — read-only render of public_spec + answer +
   model_solution_spec + grading_feedback.
 - Keep `IframeView.tsx`'s state-machine skeleton and `Renderer.tsx`'s dispatcher; just update the
-  parsing/props to your types. Update `serviceInfo.ts` `service_name`, locale files, and page title.
+  parsing/props to your types. Update `serviceInfo.ts` `service_name`, the locale files (they live
+  at `src/locales/<lang>/<slug>.json` — per-language dirs, file named after the slug; keep en/fi key
+  sets identical), and the page title.
 
 Verify against the **Playground** (courses.mooc.fi/playground-tabs): point it at your
 `http://localhost:<port>/<base-path>/api/service-info` and exercise all views + spec generation +
@@ -139,12 +184,21 @@ immediately fetches its service-info. No monorepo changes.
 
 - [ ] All 3 views render correctly in the Playground for representative specs.
 - [ ] public-spec leaks nothing that enables cheating; model-solution is appropriately narrower than
-      the private spec.
+      the private spec — and a test proves the **endpoints'** output carries only allowlisted keys
+      (the guard being unit-tested is not enough if no handler calls it).
 - [ ] grade returns correct scores server-side; `valid` flag set correctly in `current-state`.
+- [ ] All stored-blob doors route through the shared `migrate*ToLatest` chain; migration test suite
+      exists and is anchored at v1 (see `07` Part II #3).
 - [ ] `set-language` respected (BCP 47, English fallback); height reported correctly.
 - [ ] `pnpm test` green; endpoint tests cover the request/response envelopes.
-- [ ] (Track B) seed row present; `exercise_service_info` populated; CMS can add the exercise;
-      answering + grading + view-submission work end to end in a seeded course.
+- [ ] The e2e protocol suite (`e2e/protocol.spec.ts`) is **comprehensive**, not a smoke test: every
+      editor control + `valid` transitions, the answer flow's happy path and every client-side
+      rejection the design defines, `previous_submission` seeding, view-submission incl. degenerate
+      cases, and an old-version spec emitting the migrated version. This bar is unconditional — test
+      *strategy* may be discussed with the user, test thoroughness is not.
+- [ ] (Track B) `shared-module/sync.ts` targets updated (step 5) — including `TEST_UTIL_TARGETS` if
+      the e2e suite is kept; seed row present; `exercise_service_info` populated; CMS can add the
+      exercise; answering + grading + view-submission work end to end in a seeded course.
 
 ## The 80/20 to remember
 

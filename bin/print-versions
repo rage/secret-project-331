@@ -83,9 +83,6 @@ print_is_installed "Cargo sqlx" cargo-sqlx
 print_version "Pkg-config" pkg-config --version
 
 echo -e "\n--------[ Node ]--------"
-if [ "$(echo "$PATH" | grep -c nvm)" -ne 1 ]; then
-  echo -e "${RED}Warning: cannot find nvm${RESET_EVERYTHING}"
-fi
 print_version "Node" node --version
 print_version "Pnpm" pnpm --version
 

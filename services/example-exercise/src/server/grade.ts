@@ -4,12 +4,8 @@ import type {
   GradingResult,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import {
-  alternativesFromStored,
-  parseAnswer,
-  toVersionedFeedback,
-  type VersionedExerciseFeedback,
-} from "@/util/stateInterfaces"
+import { migratePrivateSpecToLatest, parseAnswer } from "@/util/migration/migrateToLatest"
+import { toVersionedFeedback, type VersionedExerciseFeedback } from "@/util/stateInterfaces"
 
 type ExampleExerciseGradingResult = GradingResult<VersionedExerciseFeedback | null>
 
@@ -27,7 +23,7 @@ function grade(gradingRequest: GradingRequest<unknown, unknown>): Response {
     } satisfies ExampleExerciseGradingResult)
   }
 
-  const alternatives = alternativesFromStored(gradingRequest.exercise_spec) ?? []
+  const alternatives = migratePrivateSpecToLatest(gradingRequest.exercise_spec) ?? []
   const selectedOption = alternatives.find((option) => option.id === selectedOptionId)
   if (!selectedOption || !selectedOption.correct) {
     return Response.json({

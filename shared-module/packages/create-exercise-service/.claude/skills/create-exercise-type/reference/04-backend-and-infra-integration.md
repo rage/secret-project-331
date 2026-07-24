@@ -1,10 +1,10 @@
 # Backend & infra integration (headless-lms + kubernetes/skaffold)
 
-The scaffolding CLI produces a runnable plugin but does **not** wire it into the LMS. This file
-documents everything the Rust backend (`services/headless-lms`) and the infra need in order to
-discover, deploy, and route to a new exercise service. Good news: **the backend is fully generic** —
-no new Rust types or migrations are needed per exercise type. You add a **seed row + infra
-manifests**, and the plugin's own `service-info` response does the rest.
+The scaffolding CLI produces a runnable plugin but does not wire it into the LMS. This file
+documents what the Rust backend (`services/headless-lms`) and the infra need to discover, deploy,
+and route to a new exercise service. The backend is fully generic: no new Rust types or migrations
+are needed per exercise type. You add a **seed row + infra manifests**, and the plugin's own
+`service-info` response does the rest.
 
 ## The data model (already exists — do not add migrations)
 
@@ -23,8 +23,8 @@ migrations:
 | `internal_url` nullable                                 | full URL of service-info, in-cluster; falls back to `public_url`                                                             |
 | `max_reprocessing_submissions_at_once` INTEGER NOT NULL | regrader batch size                                                                                                          |
 
-**`exercise_service_info`** — the discovered endpoint paths. **Not seeded** — populated at runtime by
-a background fetcher (see discovery below). Columns: `user_interface_iframe_path`,
+**`exercise_service_info`** — the discovered endpoint paths. Not seeded; populated at runtime by a
+background fetcher (see discovery below). Columns: `user_interface_iframe_path`,
 `grade_endpoint_path`, `public_spec_endpoint_path`, `model_solution_spec_endpoint_path`,
 `has_custom_view` (bool), and nullable `csv_export_definitions_endpoint_path` /
 `csv_export_answers_endpoint_path`.
@@ -38,8 +38,8 @@ a background fetcher (see discovery below). Columns: `user_interface_iframe_path
    service's service-info URL (prefers `internal_url`, 10 concurrent).
 2. `exercise_service_info.rs::fetch_and_upsert_service_info` parses the returned
    `ExerciseServiceInfoApi` and upserts the **relative paths** into `exercise_service_info`.
-3. When the backend needs to call an endpoint, it takes the stored base URL, **strips the path**, and
-   appends the discovered relative path (`get_internal_grade_url` / `get_internal_public_spec_url` /
+3. To call an endpoint, the backend takes the stored base URL, **strips the path**, and appends the
+   discovered relative path (`get_internal_grade_url` / `get_internal_public_spec_url` /
    `get_model_solution_url` in `exercise_services.rs:176-204`). The comment there explains: "all
    relative urls in service info assume that the base url prefix has no path."
 4. On-demand fallback if the worker hasn't populated it yet:
@@ -101,8 +101,8 @@ building per-`exercise_type` public-spec + model-solution URLs and calling the f
 fires from `server/src/domain/exercises.rs` and the `regrader`. The `SpecFetcher` trait alias is in
 `models/src/lib.rs:293-310`.
 
-The point: **as long as `exercise_tasks.exercise_type == exercise_services.slug`, spec generation and
-grading route to your plugin automatically.** No per-type Rust code.
+As long as `exercise_tasks.exercise_type == exercise_services.slug`, spec generation and grading
+route to your plugin automatically. No per-type Rust code.
 
 ## Infra manifests to add
 

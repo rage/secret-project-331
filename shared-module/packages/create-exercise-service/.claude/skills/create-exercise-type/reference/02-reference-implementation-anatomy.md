@@ -1,9 +1,9 @@
 # Reference implementation anatomy: `services/example-exercise`
 
-`services/example-exercise` is the canonical, minimal exercise plugin and the template the
+`services/example-exercise` is the canonical minimal exercise plugin and the template the
 scaffolding CLI copies from. It implements a trivial single-choice exercise ("pick the correct
-alternative"). Reading it top to bottom is the fastest way to understand the concrete shape of a
-plugin. This file walks the whole service, grouped by responsibility.
+alternative"); reading it top to bottom is the fastest way to understand a plugin's concrete shape.
+This file walks it by responsibility.
 
 Stack (from `package.json`): **TanStack Start** on the **rsbuild** bundler, **React 19**,
 `react-i18next`, `@emotion` for styling. It runs in **SPA mode** — route components are not
@@ -21,19 +21,19 @@ Every plugin defines its own internal types. For example-exercise:
 | `answer`              | `Answer`              | `{ selectedOptionId: string }`             |
 | `grading_feedback`    | `ExerciseFeedback`    | `{ selectedOptionIsCorrect: boolean }`     |
 
-Key idea: the plugin is free to choose _any_ JSON shape for each of these. The host system treats
-them as opaque blobs — it stores them and passes them back, but never inspects their contents. The
-only contract the host cares about is the _envelope_ types (below), not the inner spec/answer JSON.
+The plugin may choose _any_ JSON shape for each of these. The host treats them as opaque blobs —
+it stores them and passes them back, never inspecting their contents. The only contract the host
+cares about is the _envelope_ types (below), not the inner spec/answer JSON.
 
 Because the iframe receives its state as untyped `data` over `postMessage`, the file also exports
 **defensive parsers** (`parsePublicSpec`, `parsePrivateSpec`, `parseAnswer`, `parseModelSolution`)
 and type guards (`isAlternative`, `isPublicAlternative`, `isExerciseFeedback`). These are
-deliberately forgiving — a missing/malformed field yields an empty/default value rather than a
-crash. A new plugin should follow the same pattern: never trust the incoming blob's shape.
+deliberately forgiving: a missing/malformed field yields an empty/default value rather than a
+crash. A new plugin should follow the same pattern — never trust the incoming blob's shape.
 
 The file also demonstrates the two durability patterns from `reference/07`: **versioning** (a
 `SPEC_VERSION` discriminant + `Versioned*` stored shapes + `alternativesFromStored`, which migrates
-the legacy bare-`Alternative[]` blob and the versioned envelope on read) and a single
+both the legacy bare-`Alternative[]` blob and the versioned envelope on read) and a single
 **`validatePrivateSpec(spec) → { valid, errors }`** authority (invariants: ≥1 option, ≥1 correct,
 non-empty names; errors are i18n keys) that the editor uses to both set `valid` and render errors.
 
@@ -75,9 +75,9 @@ type ServiceGradingRequest = GradingRequest<Alternative[], Answer>
 
 ## 3. Server side — the REST endpoints the backend calls
 
-Business logic lives in `src/server/*.ts` (plain functions returning `Response`), thin TanStack
+Business logic lives in `src/server/*.ts` (plain functions returning `Response`); thin TanStack
 file-routes in `src/routes/api/*.ts` wire them to HTTP verbs. This split keeps the handlers unit-
-testable (see the `*.test.ts` next to each).
+testable (see the colocated `*.test.ts`).
 
 ### `src/server/serviceInfo.ts` → `GET /api/service-info`
 
@@ -98,7 +98,7 @@ const data: ExerciseServiceInfoApi = {
 ```
 
 `ExerciseServiceInfoApi` (in `src/util/exerciseServiceApi.ts`) makes the two CSV export paths
-optional/nullable — the grade/public-spec/model-solution trio is mandatory.
+optional/nullable; the grade/public-spec/model-solution trio is mandatory.
 
 ### `src/server/publicSpec.ts` → `POST /api/public-spec`
 
@@ -143,7 +143,7 @@ The whole UI is served at one route, `/{base}/iframe`, which switches views base
 
 ### `src/routes/iframe.tsx`
 
-The route: renders `IframeView` wrapped in an error boundary. Client-only.
+Renders `IframeView` wrapped in an error boundary. Client-only.
 
 ### `src/components/IframeView.tsx` — the state machine
 
@@ -153,7 +153,7 @@ The route: renders `IframeView` wrapped in an error boundary. Client-only.
   local `State` union with the defensive parsers. Wrapped in `ReactDOM.flushSync` so height is
   reported synchronously.
 - On `set-language`, calls `i18n.changeLanguage`.
-- Wraps children in `HeightTrackingContainer` (vendored) which auto-sends `height-changed`.
+- Wraps children in `HeightTrackingContainer` (vendored), which auto-sends `height-changed`.
 
 The `State` union it maintains:
 
@@ -259,15 +259,21 @@ Library): `serviceInfo.test.ts`, `publicSpec.test.ts`, `modelSolution.test.ts`, 
 `exportAnswers.test.ts`, `exportDefinitions.test.ts`, `status.test.ts`, `IframeView.test.tsx`,
 `router.test.ts`, plus the doctrine tests from `reference/07 Part II`: `leakGuard.test.ts` (leak
 regression), `roundTrip.test.ts` (an answer built only from the public spec grades against the
-private spec), and `stateInterfaces.test.ts` (validity + the migration anchor: a legacy no-version
-blob lifts to v1, a v1 blob passes through unchanged). A new plugin should keep this pattern — the
-endpoint tests double as a spec of the request/response envelopes.
+private spec), `stateInterfaces.test.ts` (validity), and
+`src/util/migration/migrateToLatest.test.ts` (the migration suite anchored at v1: a legacy
+no-version blob lifts to latest, a v1 blob passes through unchanged, an unknown/future version fails
+loud, with frozen per-version fixtures). A new plugin should keep this pattern — the endpoint tests
+double as a spec of the request/response envelopes.
 
 ## What a new plugin must change vs. keep
 
 **Change (the exercise-specific ~20%):**
 
-- `src/util/stateInterfaces.ts` — your five (versioned) data types + forgiving parsers/migration.
+- `src/util/stateInterfaces.ts` — your five (versioned) data types + guards/validity.
+- `src/util/migration/{versions,migrateToLatest}.ts` — **keep the chain structure, retype it**: one
+  version source + per-kind step registries (empty at v1) + `migrate*ToLatest` per stored type, with
+  the forgiving `parse*` wrappers for the iframe. Every door routes through it; adding v2 later must
+  stay a one-line registry addition per kind.
 - `src/server/{publicSpec,modelSolution,grade}.ts` — your spec-derivation and grading logic. Keep the
   checker (normalization/acceptance) under `src/server/`, **never** in a view-imported util: public
   source maps ship, so grading code reachable from a view module can leak the algorithm to students

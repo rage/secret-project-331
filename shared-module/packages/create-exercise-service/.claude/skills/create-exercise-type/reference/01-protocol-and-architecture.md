@@ -2,10 +2,9 @@
 
 **This file is a delta over the shipped `docs/plugin-system.md`.** That doc is the canonical prose
 description of the protocol (message summary, the three views, the REST endpoints, example
-scenarios); read it first. This file adds what it omits and an agent needs: the architecture at a
-glance, the handshake mechanics, the **code locations** of each contract, and the **exact TypeScript
-shapes** of the envelopes/specs/grading. Where the two overlap, `docs/plugin-system.md` wins — don't
-treat the summaries here as a second source of truth.
+scenarios); read it first. This file adds the architecture at a glance, the handshake mechanics, the
+**code locations** of each contract, and the **exact TypeScript shapes** of the envelopes/specs/grading.
+Where the two overlap, `docs/plugin-system.md` wins.
 
 A plugin is an **independent web application** on its own server that the host integrates with by
 (a) embedding its UIs in **sandboxed IFrames** over the **Channel Messaging API**, and (b) calling
@@ -106,9 +105,9 @@ its own spec/answer/feedback types.
 ## Lifecycles
 
 The two end-to-end sequences (edit & save; answer & grade) are in `docs/plugin-system.md`'s "Example
-Scenarios". The one non-obvious beat: on save the backend re-derives
-**both** the public spec and the model solution from the private spec and stores them, so those
-generators run on every save — keep them pure and total (`07` §2).
+Scenarios". The one non-obvious beat: on save the backend re-derives **both** the public spec and the
+model solution from the private spec and stores them, so those generators run on every save — keep
+them pure and total (`07` §2).
 
 ## What "implementing a new exercise type" means, in one line
 

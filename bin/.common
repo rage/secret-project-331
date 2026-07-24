@@ -5,17 +5,22 @@ set -euo pipefail
 export BLUE='\033[0;34m'
 export RED='\033[0;31m'
 export GREEN='\033[0;32m'
-export BOLD='\e[1m'
-export CURSIVE='\e[3m'
-export RESET_EVERYTHING='\e[0m'
+export BOLD='\033[1m'
+export CURSIVE='\033[3m'
+export RESET_EVERYTHING='\033[0m'
 export SYSTEM_TEST_SCREENSHOTS_PATH="system-tests/src/__screenshots__"
 
 function run_command() {
   command=$1
   shift
   args=("$@")
-  echo -e "${CURSIVE}> $command" "$(printf "%q " "${args[@]}" )${RESET_EVERYTHING}"
-  "$command" "${args[@]}"
+  if [ "${#args[@]}" -gt 0 ]; then
+    echo -e "${CURSIVE}> $command" "$(printf "%q " "${args[@]}")${RESET_EVERYTHING}"
+    "$command" "${args[@]}"
+  else
+    echo -e "${CURSIVE}> $command ${RESET_EVERYTHING}"
+    "$command"
+  fi
 }
 
 function eval_command() {

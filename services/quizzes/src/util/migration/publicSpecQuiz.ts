@@ -2,7 +2,6 @@ import type { OldPublicQuiz, OldPublicQuizItem } from "../../../types/oldQuizTyp
 import type { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
 import type {
   PublicQuizItemOption,
-  PublicSpecQuiz,
   PublicSpecQuizItem,
   PublicSpecQuizItemCheckbox,
   PublicSpecQuizItemChooseN,
@@ -14,6 +13,7 @@ import type {
   PublicSpecQuizItemScale,
   PublicSpecQuizItemTimeline,
 } from "../../../types/quizTypes/publicSpec"
+import type { PublicSpecQuizV2 } from "../../../types/quizTypes/v2"
 import { sanitizeQuizDirection } from "../css-sanitization"
 import { DEFAULT_N } from "./migrationSettings"
 
@@ -132,11 +132,13 @@ const migratePublicSpecQuizItem = (quizItem: OldPublicQuizItem): PublicSpecQuizI
           title: option.title ?? "",
         })),
       } satisfies PublicSpecQuizItemMultiplechoiceDropdown
+    default:
+      throw new Error(`Unknown quiz item type: '${quizItem.type}'`)
   }
 }
 
-const migratePublicSpecQuiz = (oldPublicSpecQuiz: OldPublicQuiz): PublicSpecQuiz => {
-  const PublicSpecQuiz: PublicSpecQuiz = {
+const migratePublicSpecQuiz = (oldPublicSpecQuiz: OldPublicQuiz): PublicSpecQuizV2 => {
+  const PublicSpecQuiz: PublicSpecQuizV2 = {
     version: "2",
     body: oldPublicSpecQuiz.body,
     items: [],

@@ -90,6 +90,8 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAllChatbots,
+  getAllCourses,
   getAvgTimeToFirstSubmissionHistory,
   getBulkUserDetails,
   getCertificateByConfigurationId,
@@ -103,6 +105,7 @@ import {
   getCohortActivityHistory,
   getCompletionStatsByEmailDomain,
   getCourse,
+  getCourseAudiences,
   getCourseBreadcrumbInfo,
   getCourseByJoinCode,
   getCourseChapters,
@@ -134,6 +137,7 @@ import {
   getCourseInstances,
   getCourseInstanceUserProgress,
   getCourseLanguageVersions,
+  getCourseMetadata,
   getCourseModule,
   getCourseModuleCompletion,
   getCourseModuleCompletionRegistrationLink,
@@ -147,6 +151,7 @@ import {
   getCoursePageVisitDatumSummaryByPages,
   getCoursePartnersBlock,
   getCoursePlanMembers,
+  getCoursePrerequisites,
   getCourseProgressForUser,
   getCourseReferences,
   getCourseStructure,
@@ -261,6 +266,7 @@ import {
   getUsersReturningExercisesHistory,
   getUsersReturningExercisesHistoryByInstance,
   getUserSuspectedCheaters,
+  hideCourseFromMyCourses,
   introspectOauthToken,
   joinCourseWithJoinCode,
   markFeedbackAsRead,
@@ -309,6 +315,7 @@ import {
   updateExerciseService,
   updateGeneratedCertificate,
   updateGlossaryTerm,
+  updateMetadata,
   updateOrganization,
   updateOrganizationImage,
   updatePageDetails,
@@ -449,6 +456,10 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAllChatbotsData,
+  GetAllChatbotsResponse,
+  GetAllCoursesData,
+  GetAllCoursesResponse,
   GetAvgTimeToFirstSubmissionHistoryData,
   GetAvgTimeToFirstSubmissionHistoryResponse,
   GetBulkUserDetailsData,
@@ -472,6 +483,8 @@ import type {
   GetCohortActivityHistoryResponse,
   GetCompletionStatsByEmailDomainData,
   GetCompletionStatsByEmailDomainResponse,
+  GetCourseAudiencesData,
+  GetCourseAudiencesResponse,
   GetCourseBreadcrumbInfoData,
   GetCourseBreadcrumbInfoResponse,
   GetCourseByJoinCodeData,
@@ -531,6 +544,8 @@ import type {
   GetCourseInstanceUserProgressData,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponse,
+  GetCourseMetadataData,
+  GetCourseMetadataResponse,
   GetCourseModuleCompletionData,
   GetCourseModuleCompletionRegistrationLinkData,
   GetCourseModuleCompletionRegistrationLinkResponse,
@@ -556,6 +571,8 @@ import type {
   GetCoursePartnersBlockData,
   GetCoursePlanMembersData,
   GetCoursePlanMembersResponse,
+  GetCoursePrerequisitesData,
+  GetCoursePrerequisitesResponse,
   GetCourseProgressForUserData,
   GetCourseProgressForUserResponse,
   GetCourseReferencesData,
@@ -781,6 +798,7 @@ import type {
   GetUsersReturningExercisesHistoryResponse,
   GetUserSuspectedCheatersData,
   GetUserSuspectedCheatersResponse,
+  HideCourseFromMyCoursesData,
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
@@ -858,6 +876,8 @@ import type {
   UpdateGeneratedCertificateData,
   UpdateGeneratedCertificateResponse,
   UpdateGlossaryTermData,
+  UpdateMetadataData,
+  UpdateMetadataResponse,
   UpdateOrganizationData,
   UpdateOrganizationImageData,
   UpdatePageDetailsData,
@@ -1336,6 +1356,29 @@ export const getChatbotModelOptions = (options: Options<GetChatbotModelData>) =>
         throwOnError: true,
       }),
     queryKey: getChatbotModelQueryKey(options),
+  })
+
+export const getAllChatbotsQueryKey = (options?: Options<GetAllChatbotsData>) =>
+  createQueryKey("getAllChatbots", options)
+
+/**
+ * GET `/api/v0/main-frontend/chatbots`
+ */
+export const getAllChatbotsOptions = (options?: Options<GetAllChatbotsData>) =>
+  queryOptions<
+    GetAllChatbotsResponse,
+    DefaultError,
+    GetAllChatbotsResponse,
+    ReturnType<typeof getAllChatbotsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAllChatbots({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAllChatbotsQueryKey(options),
   })
 
 /**
@@ -2555,6 +2598,32 @@ export const createCourseMutation = (
   return mutationOptions
 }
 
+export const getAllCoursesQueryKey = (options?: Options<GetAllCoursesData>) =>
+  createQueryKey("getAllCourses", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses` - Get all courses
+ *
+ * Returns all courses.
+ */
+export const getAllCoursesOptions = (options?: Options<GetAllCoursesData>) =>
+  queryOptions<
+    GetAllCoursesResponse,
+    DefaultError,
+    GetAllCoursesResponse,
+    ReturnType<typeof getAllCoursesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAllCourses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAllCoursesQueryKey(options),
+  })
+
 export const getCourseByJoinCodeQueryKey = (options: Options<GetCourseByJoinCodeData>) =>
   createQueryKey("getCourseByJoinCode", options)
 
@@ -3326,6 +3395,78 @@ export const getCourseFeedbackCountOptions = (options: Options<GetCourseFeedback
         throwOnError: true,
       }),
     queryKey: getCourseFeedbackCountQueryKey(options),
+  })
+
+export const getCourseAudiencesQueryKey = (options: Options<GetCourseAudiencesData>) =>
+  createQueryKey("getCourseAudiences", options)
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
+ */
+export const getCourseAudiencesOptions = (options: Options<GetCourseAudiencesData>) =>
+  queryOptions<
+    GetCourseAudiencesResponse,
+    DefaultError,
+    GetCourseAudiencesResponse,
+    ReturnType<typeof getCourseAudiencesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseAudiences({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseAudiencesQueryKey(options),
+  })
+
+export const getCourseMetadataQueryKey = (options: Options<GetCourseMetadataData>) =>
+  createQueryKey("getCourseMetadata", options)
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.
+ */
+export const getCourseMetadataOptions = (options: Options<GetCourseMetadataData>) =>
+  queryOptions<
+    GetCourseMetadataResponse,
+    DefaultError,
+    GetCourseMetadataResponse,
+    ReturnType<typeof getCourseMetadataQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseMetadata({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseMetadataQueryKey(options),
+  })
+
+export const getCoursePrerequisitesQueryKey = (options: Options<GetCoursePrerequisitesData>) =>
+  createQueryKey("getCoursePrerequisites", options)
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
+ */
+export const getCoursePrerequisitesOptions = (options: Options<GetCoursePrerequisitesData>) =>
+  queryOptions<
+    GetCoursePrerequisitesResponse,
+    DefaultError,
+    GetCoursePrerequisitesResponse,
+    ReturnType<typeof getCoursePrerequisitesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCoursePrerequisites({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCoursePrerequisitesQueryKey(options),
   })
 
 export const getCourseGlossaryQueryKey = (options: Options<GetCourseGlossaryData>) =>
@@ -5215,6 +5356,28 @@ export const getCourseThresholdsOptions = (options: Options<GetCourseThresholdsD
       }),
     queryKey: getCourseThresholdsQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
+ */
+export const updateMetadataMutation = (
+  options?: Partial<Options<UpdateMetadataData>>,
+): UseMutationOptions<UpdateMetadataResponse, DefaultError, Options<UpdateMetadataData>> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateMetadataResponse,
+    DefaultError,
+    Options<UpdateMetadataData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateMetadata({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *
@@ -9224,6 +9387,29 @@ export const getMyCoursesOptions = (options?: Options<GetMyCoursesData>) =>
       }),
     queryKey: getMyCoursesQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/users/my-courses/:course_id/hide` - Hides a course from the
+ * authenticated user's "My courses" list.
+ */
+export const hideCourseFromMyCoursesMutation = (
+  options?: Partial<Options<HideCourseFromMyCoursesData>>,
+): UseMutationOptions<unknown, DefaultError, Options<HideCourseFromMyCoursesData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<HideCourseFromMyCoursesData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await hideCourseFromMyCourses({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const resetUserPasswordMutation = (
   options?: Partial<Options<ResetUserPasswordData>>,

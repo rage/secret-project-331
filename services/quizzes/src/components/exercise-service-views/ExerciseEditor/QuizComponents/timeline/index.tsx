@@ -6,6 +6,9 @@ import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServ
 import type { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import FeedbackMessagesEditor, {
+  useItemFeedbackVisibilityOptions,
+} from "../common/FeedbackMessagesEditor"
 import ParsedTextField from "../common/ParsedTextField"
 import TimelineContent from "./TimelineContent"
 
@@ -15,6 +18,7 @@ interface TimelineEditorProps {
 
 const TimelineEditor: React.FC<TimelineEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
+  const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemTimeline>((quiz) => {
@@ -52,6 +56,18 @@ const TimelineEditor: React.FC<TimelineEditorProps> = ({ quizItemId }) => {
         />
       )}
       <TimelineContent quizItemId={quizItemId} />
+      <FeedbackMessagesEditor
+        value={selected.feedbackMessages}
+        visibilityOptions={itemFeedbackVisibilityOptions}
+        onChange={(feedbackMessages) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            draft.feedbackMessages = feedbackMessages
+          })
+        }}
+      />
     </EditorCard>
   )
 }

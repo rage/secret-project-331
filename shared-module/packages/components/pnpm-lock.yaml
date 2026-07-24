@@ -19,6 +19,9 @@ importers:
       '@internationalized/date':
         specifier: ^3.12.2
         version: 3.12.2
+      '@react-stately/autocomplete':
+        specifier: 3.0.0-beta.6
+        version: 3.0.0-beta.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@react-stately/calendar':
         specifier: ^3.10.1
         version: 3.10.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -40,6 +43,9 @@ importers:
       '@react-stately/radio':
         specifier: ^3.12.1
         version: 3.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@react-stately/searchfield':
+        specifier: ^3.6.1
+        version: 3.6.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@react-stately/select':
         specifier: ^3.10.1
         version: 3.10.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -49,6 +55,9 @@ importers:
       '@react-types/shared':
         specifier: ^3.36.0
         version: 3.36.0(react@19.2.7)
+      '@vectopus/atlas-icons-react':
+        specifier: github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b
+        version: https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b
       react-aria:
         specifier: ^3.50.0
         version: 3.50.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -62,6 +71,9 @@ importers:
       '@testing-library/react':
         specifier: ^16.3.2
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@testing-library/user-event':
+        specifier: ^14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.1)
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
@@ -817,6 +829,12 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
+  '@react-stately/autocomplete@3.0.0-beta.6':
+    resolution: {integrity: sha512-LJFvrVT4aTfEBiqngfDIU3BGAZ/Cr0MAUoVaHXeBfhmz7p+NUCILniRnm7veIATdkdq9OPK6bpGt8cVdfuhGwg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
   '@react-stately/calendar@3.10.1':
     resolution: {integrity: sha512-nKluH+UT9xJlAimOW6ZrXgQNDiFUfbdtQwQ6rmq5mXs7yD8hGpOOLxJ0ZtT+cyWkbOAYR19j/6xyRPzGQxRL9g==}
     peerDependencies:
@@ -855,6 +873,12 @@ packages:
 
   '@react-stately/radio@3.12.1':
     resolution: {integrity: sha512-sx83ffwQMRhUuMbbRIS4O/FMDyp9DfY1P3bbcSdSgOfglCb6aILJj3ExRJcXSUZdzm79g7cKADNtqzIlW5n6pg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  '@react-stately/searchfield@3.6.1':
+    resolution: {integrity: sha512-5POKE91Tc5E2nCL9CP8+cVFb1xxHI6M7RkMTbJ0kahQuBlF8EQVN9gjCH7CwnCey5T73TLouS+pdZ3OlkrlqtA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
@@ -924,6 +948,12 @@ packages:
         optional: true
       '@types/react-dom':
         optional: true
+
+  '@testing-library/user-event@14.6.1':
+    resolution: {integrity: sha512-vq7fv0rnt+QTXgPxr5Hjc210p6YKq2kmdziLgnsZGgLJ9e6VAShx1pACLuRjd/AS/sr7phAR58OIIpf0LlmQNw==}
+    engines: {node: '>=12', npm: '>=6'}
+    peerDependencies:
+      '@testing-library/dom': '>=7.21.4'
 
   '@tybys/wasm-util@0.10.2':
     resolution: {integrity: sha512-RoBvJ2X0wuKlWFIjrwffGw1IqZHKQqzIchKaadZZfnNpsAYp2mM0h36JtPCjNDAHGgYez/15uMBpfGwchhiMgg==}
@@ -1230,6 +1260,10 @@ packages:
     resolution: {integrity: sha512-nAB74NfSNKknqQ1RrYj6uz8FcXEomu/MATJZxh/x+BArzN2U3JbOYC0APYzUIGhVY3m5hRxA8VPNdPBoG8txlA==}
     cpu: [x64]
     os: [win32]
+
+  '@vectopus/atlas-icons-react@https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b':
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b}
+    version: 0.0.10
 
   agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
@@ -3459,6 +3493,13 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
+  '@react-stately/autocomplete@3.0.0-beta.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@swc/helpers': 0.5.23
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+      react-stately: 3.48.0(react@19.2.7)
+
   '@react-stately/calendar@3.10.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@swc/helpers': 0.5.23
@@ -3502,6 +3543,13 @@ snapshots:
       react-stately: 3.48.0(react@19.2.7)
 
   '@react-stately/radio@3.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@swc/helpers': 0.5.23
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+      react-stately: 3.48.0(react@19.2.7)
+
+  '@react-stately/searchfield@3.6.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@swc/helpers': 0.5.23
       react: 19.2.7
@@ -3582,6 +3630,10 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.17
       '@types/react-dom': 19.2.3(@types/react@19.2.17)
+
+  '@testing-library/user-event@14.6.1(@testing-library/dom@10.4.1)':
+    dependencies:
+      '@testing-library/dom': 10.4.1
 
   '@tybys/wasm-util@0.10.2':
     dependencies:
@@ -3791,6 +3843,8 @@ snapshots:
 
   '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
     optional: true
+
+  '@vectopus/atlas-icons-react@https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b': {}
 
   agent-base@7.1.4: {}
 
@@ -5257,6 +5311,7 @@ snapshots:
 time:
   '@emotion/css@11.13.5': '2024-11-20T07:58:27.802Z'
   '@internationalized/date@3.12.2': '2026-05-28T17:28:31.256Z'
+  '@react-stately/autocomplete@3.0.0-beta.6': '2026-05-28T17:28:34.678Z'
   '@react-stately/calendar@3.10.1': '2026-05-28T17:28:34.723Z'
   '@react-stately/collections@3.13.1': '2026-05-28T17:28:34.530Z'
   '@react-stately/combobox@3.14.1': '2026-05-28T17:28:34.384Z'
@@ -5264,12 +5319,14 @@ time:
   '@react-stately/list@3.14.1': '2026-05-28T17:28:34.351Z'
   '@react-stately/overlays@3.7.1': '2026-05-28T17:28:35.658Z'
   '@react-stately/radio@3.12.1': '2026-05-28T17:28:35.669Z'
+  '@react-stately/searchfield@3.6.1': '2026-05-28T17:28:35.996Z'
   '@react-stately/select@3.10.1': '2026-05-28T17:28:35.917Z'
   '@react-stately/toggle@3.10.1': '2026-05-28T17:28:36.333Z'
   '@react-types/shared@3.36.0': '2026-06-18T15:48:08.299Z'
   '@tanstack/react-query@5.101.2': '2026-06-27T20:31:41.595Z'
   '@testing-library/jest-dom@6.9.1': '2025-10-01T20:04:22.720Z'
   '@testing-library/react@16.3.2': '2026-01-19T10:59:08.185Z'
+  '@testing-library/user-event@14.6.1': '2025-01-21T17:35:55.574Z'
   '@types/jest@30.0.0': '2025-06-16T07:35:50.850Z'
   '@types/node@26.1.0': '2026-07-01T11:04:10.429Z'
   '@types/react-dom@19.2.3': '2025-11-12T04:37:39.524Z'

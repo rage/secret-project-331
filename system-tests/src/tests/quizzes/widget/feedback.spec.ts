@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
 
+import { addQuizFeedbackMessage } from "@/utils/quizFeedbackMessages"
+
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -18,14 +20,15 @@ test("Feedback messages can contain markdown", async ({ page }) => {
   await frameLocator.getByRole("button", { name: "Add option" }).click()
   await frameLocator.getByLabel("Option title", { exact: true }).fill("Incorrect")
   await frameLocator.getByRole("button", { name: "Add option" }).click()
-  await frameLocator
+  const advancedOptions = frameLocator
     .locator("details")
     .filter({ hasText: "Advanced options Layout" })
-    .locator("summary")
-    .click()
-  await frameLocator
-    .getByLabel("Failure message", { exact: true })
-    .fill("You're a [markdown]**failure**[/markdown].")
+  await advancedOptions.locator("summary").click()
+  await addQuizFeedbackMessage(
+    advancedOptions,
+    "After an incorrect answer",
+    "You're a [markdown]**failure**[/markdown].",
+  )
   await page.getByRole("button", { name: "Set as private spec input" }).click()
   await page.getByText("exercise-editoranswer-").click()
   await page.getByRole("button", { name: "answer-exercise" }).click()

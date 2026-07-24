@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import TextArea from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -15,17 +14,13 @@ const EssayPeerOrSelfReviewQuestion: React.FC<
   peerOrSelfReviewQuestionAnswer,
 }) => {
   const { t } = useTranslation()
+  const label = `${peerOrSelfReviewQuestion.question}${
+    peerOrSelfReviewQuestion.answer_required ? " *" : ""
+  }`
   return (
     <div>
-      <div
-        className={css`
-          margin-bottom: 1rem;
-        `}
-      >
-        {peerOrSelfReviewQuestion.question}
-        {peerOrSelfReviewQuestion.answer_required && " *"}
-      </div>
       <TextArea
+        label={label}
         rows={4}
         autoResize
         placeholder={t("write-a-review")}

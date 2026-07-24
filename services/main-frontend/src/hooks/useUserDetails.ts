@@ -10,6 +10,7 @@ export interface UseUserDetailsOptions {
   staleTime?: number
   gcTime?: number
   refetchOnWindowFocus?: boolean
+  enabled?: boolean
 }
 
 export type UserDetailsResult =
@@ -112,6 +113,8 @@ export const useUserDetails = (
   return useQuery({
     ...optionalGeneratedQueryOptions({
       value: courseIds && userId ? { courseIds, userId } : null,
+      // Combined with the readiness gate below: the query only runs when both are true.
+      enabled: options?.enabled ?? true,
       isReady: (
         value,
       ): value is {

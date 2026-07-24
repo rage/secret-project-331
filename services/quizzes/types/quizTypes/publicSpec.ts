@@ -1,7 +1,7 @@
 import type { DisplayDirection, multipleChoiceMultipleOptionsGradingPolicy } from "./privateSpec"
 
 export interface PublicSpecQuiz {
-  version: "2"
+  version: "4"
   items: PublicSpecQuizItem[]
   title: string | null
   body: string | null

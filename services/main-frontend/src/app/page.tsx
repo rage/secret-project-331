@@ -9,6 +9,7 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import {
   allOrganizationsRoute,
+  chatbotCommandCenterRoute,
   domainStatsRoute,
   globalPermissionsRoute,
   globalStatsRoute,
@@ -64,7 +65,6 @@ const FrontPage = () => {
           {t("link-text-all-organizations")}
         </Link>
       </div>
-
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
         <div>
           <Link
@@ -154,6 +154,20 @@ const FrontPage = () => {
             `}
           >
             {t("title-regradings")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions action={{ type: "view" }} resource={{ type: "global_permissions" }}>
+        <div>
+          <Link
+            href={chatbotCommandCenterRoute()}
+            className={css`
+              cursor: pointer;
+              color: blue;
+              text-decoration: underline;
+            `}
+          >
+            {t("link-text-chatbot-command-center")}
           </Link>
         </div>
       </OnlyRenderIfPermissions>

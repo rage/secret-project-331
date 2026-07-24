@@ -23,6 +23,13 @@ export interface CurrentStateMessage {
   message: "current-state"
   data: unknown // { private_spec: unknown } | { public_spec: unknown } ?
   valid: boolean
+  /**
+   * Optional, already-localized reasons the current answer is not yet submittable
+   * (e.g. "Each option can be chosen only once."). The exercise service localizes them; the parent
+   * renders them verbatim next to the disabled submit button. Absent/empty when the answer is valid
+   * or the service supplies no reasons.
+   */
+  validityMessages?: string[]
 }
 
 export interface HeightChangedMessage {
@@ -35,8 +42,26 @@ export interface OpenLinkMessage {
   data: string
 }
 
+/**
+ * Asks the parent to upload files on the exercise's behalf (plugins never store data themselves —
+ * the host owns storage). The parent answers with an `UploadResultMessage` carrying the same
+ * `requestId`; the exercise then records the returned URLs in its `answer`. This mirrors the
+ * `OpenDialogMessage`/`DialogResponseMessage` request/response pattern, so several uploads can be in
+ * flight at once. Prefer the `ParentUploadClient` engine (`exercise-client`) or the `useFileUpload`
+ * hook (`exercise-react`) over hand-rolling it.
+ *
+ * Note: unrelated to `SpecRequest.upload_url`, which is a server-side upload URL used by the
+ * spec-generator endpoints, not this client-side message flow.
+ */
 export interface FileUploadMessage {
   message: "file-upload"
+  /**
+   * Correlation id the parent echoes back in the matching `UploadResultMessage`. Optional for
+   * backward compatibility with callers that predate correlation (they can only have one upload in
+   * flight at a time).
+   */
+  requestId?: string | null
+  /** Files to upload, keyed by name. Sent as a JS `Map` (structured-clone), not a plain object. */
   files: Map<string, string | Blob>
 }
 
@@ -95,8 +120,15 @@ export type SetStateMessage = {
   message: "set-state"
 } & ExtendedIframeState
 
+/**
+ * The parent's reply to a `FileUploadMessage`, correlated by `requestId`. On success carries the
+ * stored files as a JS `Map<name, url>` (structured-clone, not a plain object); on failure an error
+ * string.
+ */
 export type UploadResultMessage = {
   message: "upload-result"
+  /** Matches the `requestId` of the `FileUploadMessage` this responds to (when the caller sent one). */
+  requestId?: string | null
 } & (
   | {
       success: true

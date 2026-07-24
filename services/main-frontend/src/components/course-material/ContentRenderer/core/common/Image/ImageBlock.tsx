@@ -45,6 +45,7 @@ const ImageBlock: React.FC<
 > = ({ data }) => {
   const { disableInteractivity } = useImageInteractivity()
   const imageRef = useRef<HTMLImageElement>(null)
+  const figcaptionRef = useRef<HTMLElement>(null)
   // SVGs without intrinsic dimensions (only a viewBox, or width/height="100%") report naturalWidth
   // 0 and collapse to nothing inside the shrink-wrapped containers below. We fall back to the
   // column width on load. It must be a concrete pixel value; a percentage would collapse too.
@@ -193,21 +194,24 @@ const ImageBlock: React.FC<
         >
           {disableInteractivity ? renderImage() : <>{renderImage()}</>}
         </div>
+        {caption ? (
+          <ParsedText
+            text={caption}
+            tag="figcaption"
+            tagProps={{
+              className: css`
+                caption-side: bottom;
+                text-align: center;
+                font-size: 0.8125rem;
+                margin-top: 0.5rem;
+                margin-bottom: 0.8125rem;
+              `,
+            }}
+            useWrapperElement={false}
+            wrapperRef={figcaptionRef}
+          />
+        ) : null}
       </figure>
-      <ParsedText
-        text={caption ?? ""}
-        tag="figcaption"
-        tagProps={{
-          className: css`
-            caption-side: bottom;
-            text-align: center;
-            font-size: 0.8125rem;
-            margin-top: 0.5rem;
-            margin-bottom: 0.8125rem;
-          `,
-        }}
-        useWrapperElement={true}
-      />
     </div>
   )
 

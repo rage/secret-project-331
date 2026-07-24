@@ -1,0 +1,184 @@
+import { css } from "@emotion/css"
+import styled from "@emotion/styled"
+import { Trash } from "@vectopus/atlas-icons-react"
+import React, { useId } from "react"
+import { useTranslation } from "react-i18next"
+
+import Button from "@/shared-module/common/components/Button"
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type {
+  QuizFeedbackVisibility,
+  QuizOptionFeedbackVisibility,
+} from "../../../../../../types/quizTypes/privateSpec"
+import ParsedTextField from "./ParsedTextField"
+
+export interface FeedbackVisibilityOption<V extends string> {
+  value: V
+  label: string
+}
+
+interface FeedbackMessage<V extends string> {
+  visibility: V
+  message: string
+}
+
+interface FeedbackMessagesEditorProps<V extends string> {
+  value: FeedbackMessage<V>[]
+  visibilityOptions: FeedbackVisibilityOption<V>[]
+  onChange: (value: FeedbackMessage<V>[]) => void
+}
+
+const Title = styled.div`
+  font-size: 20px;
+  font-family: ${primaryFont};
+  font-weight: bold;
+  margin-top: 12px;
+`
+
+// Each message is its own bordered card so the two stacked fields read as one group. The delete
+// button sits in the top-right corner (absolutely positioned), so the card reserves padding on the
+// right to keep the fields clear of it.
+const FeedbackCard = styled.div`
+  position: relative;
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+  padding: 16px;
+  padding-right: 48px;
+  margin-bottom: 12px;
+`
+
+const DeleteButtonContainer = styled.div`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+`
+
+const VisibilityContainer = styled.div`
+  width: 260px;
+  max-width: 100%;
+  margin-bottom: 12px;
+`
+
+const MessageContainer = styled.div`
+  min-width: 0;
+`
+
+const EmptyMessageError = styled.div`
+  color: #a84835;
+  font-size: 14px;
+  margin-top: 4px;
+`
+
+// Five-level item/quiz visibility list, translated. The tag decides which channel the message
+// flows through at grading time.
+export const useItemFeedbackVisibilityOptions =
+  (): FeedbackVisibilityOption<QuizFeedbackVisibility>[] => {
+    const { t } = useTranslation()
+    const OPTIONS: FeedbackVisibilityOption<QuizFeedbackVisibility>[] = [
+      { value: "after-any-answer", label: t("feedback-visibility-after-any-answer") },
+      { value: "after-correct-answer", label: t("feedback-visibility-after-correct-answer") },
+      {
+        value: "after-partially-correct-answer",
+        label: t("feedback-visibility-after-partially-correct-answer"),
+      },
+      { value: "after-incorrect-answer", label: t("feedback-visibility-after-incorrect-answer") },
+      { value: "on-model-solution", label: t("feedback-visibility-on-model-solution") },
+    ]
+    return OPTIONS
+  }
+
+// Two-level option visibility list (today's semantics), translated.
+export const useOptionFeedbackVisibilityOptions =
+  (): FeedbackVisibilityOption<QuizOptionFeedbackVisibility>[] => {
+    const { t } = useTranslation()
+    const OPTIONS: FeedbackVisibilityOption<QuizOptionFeedbackVisibility>[] = [
+      {
+        value: "when-selected-after-answer",
+        label: t("feedback-visibility-when-selected-after-answer"),
+      },
+      { value: "on-model-solution", label: t("feedback-visibility-on-model-solution") },
+    ]
+    return OPTIONS
+  }
+
+// Controlled editor: an array of { visibility, message } rows plus an add button. Generic over the
+// visibility union so item/quiz (5 levels) and option (2 levels) scopes share one implementation.
+const FeedbackMessagesEditor = <V extends string>({
+  value,
+  visibilityOptions,
+  onChange,
+}: FeedbackMessagesEditorProps<V>): React.ReactElement => {
+  const { t } = useTranslation()
+  // Several editor instances render on one page (quiz level + every item + expanded options), so
+  // the row ids must be unique per instance or labels would target another instance's dropdown.
+  const idPrefix = useId()
+
+  return (
+    <div>
+      <Title> {t("feedback-messages")} </Title>
+      {value.map((message, index) => (
+        <FeedbackCard key={index}>
+          <DeleteButtonContainer>
+            <Button
+              aria-label={t("remove")}
+              variant="icon"
+              size="small"
+              onClick={() => {
+                onChange(value.filter((_, i) => i !== index))
+              }}
+            >
+              <Trash size={16} />
+            </Button>
+          </DeleteButtonContainer>
+          <VisibilityContainer>
+            <SelectField
+              id={`${idPrefix}-visibility-${index}`}
+              className={css`
+                margin-bottom: 0;
+              `}
+              value={message.visibility}
+              options={visibilityOptions}
+              label={t("feedback-message-visibility")}
+              onChangeByValue={(newVisibility) => {
+                onChange(
+                  value.map((m, i) => (i === index ? { ...m, visibility: newVisibility as V } : m)),
+                )
+              }}
+            />
+          </VisibilityContainer>
+          <MessageContainer>
+            <ParsedTextField
+              label={t("feedback-message-text")}
+              value={message.message}
+              onChange={(newMessage) => {
+                onChange(value.map((m, i) => (i === index ? { ...m, message: newMessage } : m)))
+              }}
+            />
+          </MessageContainer>
+          {message.message.trim() === "" && (
+            // An empty row blocks saving (validatePrivateSpec rejects it); point at the card so the
+            // save-block is not invisible.
+            <EmptyMessageError>{t("feedback-message-cannot-be-empty")}</EmptyMessageError>
+          )}
+        </FeedbackCard>
+      ))}
+      <Button
+        variant="tertiary"
+        size="medium"
+        onClick={() => {
+          const firstVisibility = visibilityOptions[0]
+          if (!firstVisibility) {
+            return
+          }
+          onChange([...value, { visibility: firstVisibility.value, message: "" }])
+        }}
+      >
+        {t("add-feedback-message")}
+      </Button>
+    </div>
+  )
+}
+
+export default FeedbackMessagesEditor

@@ -15,7 +15,12 @@ ensure_git_lfs_installed
 COMMAND="minikube"
 CORES=$(nproc)
 # This is rounded to the nearest integer e.g. 32.8 gb will show up as 33. This is fine for the calculations we're going to do.
-TOTAL_MEM_GB=$(free --giga | grep Mem | sed 's/  */ /g' | cut -d ' ' -f 2)
+# macOS has no free(1); read total RAM from sysctl there.
+if [[ "$OSTYPE" == darwin* ]]; then
+  TOTAL_MEM_GB=$(( ($(sysctl -n hw.memsize) + 500000000) / 1000000000 ))
+else
+  TOTAL_MEM_GB=$(free --giga | grep Mem | sed 's/  */ /g' | cut -d ' ' -f 2)
+fi
 # By default, use 1/2 of the hosts memory for minikube
 AMOUNT_OF_MEMORY_TO_USE_GB=$((TOTAL_MEM_GB/2))
 if [ "$AMOUNT_OF_MEMORY_TO_USE_GB" -lt "9" ]; then
@@ -33,6 +38,39 @@ if [ "$AMOUNT_OF_MEMORY_TO_USE_GB" = "max" ]; then
   MEMORY_TO_USE="max"
 else
   MEMORY_TO_USE="${AMOUNT_OF_MEMORY_TO_USE_GB}g"
+fi
+
+# On macOS the docker driver runs in Docker Desktop's VM, which caps memory below
+# host RAM; if our target exceeds that cap, fail early with guidance. Skipped for
+# "max" or a caller-set --memory.
+user_set_memory=0
+for arg in "$@"; do
+  case "$arg" in
+    --memory | --memory=*) user_set_memory=1 ;;
+  esac
+done
+if [[ "$OSTYPE" == "darwin"* ]] && [ "$MEMORY_TO_USE" != "max" ] && [ "$user_set_memory" -eq 0 ]; then
+  DOCKER_VM_MEM_BYTES=$(docker info --format '{{.MemTotal}}' 2>/dev/null || echo 0)
+  DOCKER_VM_MEM_GB=$((DOCKER_VM_MEM_BYTES / 1000000000))
+  if [ "$DOCKER_VM_MEM_GB" -gt 0 ] && [ "$AMOUNT_OF_MEMORY_TO_USE_GB" -gt "$DOCKER_VM_MEM_GB" ]; then
+    trap - ERR
+    echo -e "${RED}"
+    echo "Error: minikube needs ${AMOUNT_OF_MEMORY_TO_USE_GB}GB (half of your ${TOTAL_MEM_GB}GB host RAM), but"
+    echo "Docker Desktop's VM is capped at ${DOCKER_VM_MEM_GB}GB. On macOS the docker driver runs"
+    echo "inside Docker Desktop's VM, so minikube cannot use more memory than that cap."
+    echo ""
+    echo "Raise Docker Desktop's memory limit, then re-run this script:"
+    echo "  1. Open Docker Desktop"
+    echo "  2. Go to Settings (gear icon) -> Resources -> Advanced"
+    echo "  3. Set the Memory limit to at least ${AMOUNT_OF_MEMORY_TO_USE_GB}GB (a few GB more is safer)"
+    echo "  4. Click 'Apply & restart' and wait for Docker to finish restarting"
+    echo "  5. Re-run: bin/minikube-start"
+    echo ""
+    echo "Alternatively, use less memory (not recommended for this project):"
+    echo "  bin/minikube-start --memory <N>g   # N must be <= ${DOCKER_VM_MEM_GB}"
+    echo -e "${RESET_EVERYTHING}"
+    exit 1
+  fi
 fi
 
 echo -e "${BLUE}Hint: you can append options to the command by giving this script extra arguments."

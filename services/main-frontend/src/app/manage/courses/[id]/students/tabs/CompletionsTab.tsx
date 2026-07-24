@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import type { ColumnDef } from "@tanstack/react-table"
 import type { TFunction } from "i18next"
-import React, { useMemo } from "react"
+import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
@@ -20,10 +20,18 @@ import {
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
 import { COMPLETIONS_LEAF_MIN_WIDTH } from "../studentsTableStyles"
+import { StaleTableWrapper } from "./StaleTableWrapper"
+import { StudentPillCell } from "./StudentPillCell"
 
 const PLACEHOLDER = "-"
 
-type CompletionRow = Record<string, unknown> & { user_id: string; student: string }
+type CompletionRow = Record<string, unknown> & {
+  user_id: string
+  student: string
+  first_name?: string | null | undefined
+  last_name?: string | null | undefined
+  email?: string | null | undefined
+}
 
 /** One completion column group: keyed by the module's id (names are not unique), labelled by name. */
 interface ModuleColumn {
@@ -41,7 +49,12 @@ const needsReviewKeyOf = (moduleId: string) => `${moduleId}__needsReview`
  * `module_id` (names are not unique) so modules with identical names never collide onto the same cells.
  */
 const pivotCompletions = (
-  identityRows: { user_id: string; first_name?: string | null; last_name?: string | null }[],
+  identityRows: {
+    user_id: string
+    first_name?: string | null
+    last_name?: string | null
+    email?: string | null
+  }[],
   completions: CompletionGridRow[],
   t: TFunction,
 ) => {
@@ -66,6 +79,9 @@ const pivotCompletions = (
   const data: CompletionRow[] = identityRows.map((u) => ({
     user_id: u.user_id,
     student: formatStudentName(u, t),
+    first_name: u.first_name,
+    last_name: u.last_name,
+    email: u.email,
     ...byUser.get(u.user_id),
   }))
   return { modulesInOrder, data }
@@ -83,13 +99,6 @@ const gradeLabel = (grade: unknown, passed: unknown, t: TFunction): string => {
   }
   return PLACEHOLDER
 }
-
-const studentEllipsis = css`
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`
 
 const statusCellClass = css`
   display: flex;
@@ -122,10 +131,15 @@ const buildColumns = (
       // oxlint-disable-next-line i18next/no-literal-string
       id: "last_name",
       header: t("label-student"),
-      // oxlint-disable-next-line i18next/no-literal-string
-      accessorKey: "student",
       meta: { minWidth: 80 },
-      cell: ({ getValue }) => <span className={studentEllipsis}>{String(getValue() ?? "")}</span>,
+      cell: ({ row }) => (
+        <StudentPillCell
+          userId={row.original.user_id}
+          firstName={row.original.first_name}
+          lastName={row.original.last_name}
+          email={row.original.email}
+        />
+      ),
     },
   ]
 
@@ -175,9 +189,15 @@ export const CompletionsTabContent: React.FC = () => {
   const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
   const detailQuery = useCourseStudentsCompletionsDetail(courseId, userIds)
 
+  // Deferred *after* userIds/detailQuery are derived so a search/sort/page commit still fires the
+  // detail request promptly -- only the expensive pivot below is deprioritized.
+  const deferredIdentityRows = useDeferredValue(identityRows)
+  const deferredDetailData = useDeferredValue(detailQuery.data)
+  const isStale = deferredIdentityRows !== identityRows || deferredDetailData !== detailQuery.data
+
   const { modulesInOrder, data } = useMemo(
-    () => pivotCompletions(identityRows, detailQuery.data ?? [], t),
-    [identityRows, detailQuery.data, t],
+    () => pivotCompletions(deferredIdentityRows, deferredDetailData ?? [], t),
+    [deferredIdentityRows, deferredDetailData, t],
   )
   const columns = useMemo(() => buildColumns(modulesInOrder, t), [modulesInOrder, t])
 
@@ -192,14 +212,16 @@ export const CompletionsTabContent: React.FC = () => {
   }
 
   return (
-    <StudentsTable
-      columns={columns}
-      data={data}
-      colorHeaders
-      colorColumns
-      colorHeaderUnderline
-      sorting={sorting}
-      onSortingChange={onSortingChange}
-    />
+    <StaleTableWrapper isStale={isStale}>
+      <StudentsTable
+        columns={columns}
+        data={data}
+        colorHeaders
+        colorColumns
+        colorHeaderUnderline
+        sorting={sorting}
+        onSortingChange={onSortingChange}
+      />
+    </StaleTableWrapper>
   )
 }

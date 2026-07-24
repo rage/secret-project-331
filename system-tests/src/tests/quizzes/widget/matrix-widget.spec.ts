@@ -28,15 +28,15 @@ test("widget, matrix screenshot test", async ({ page, headless }, testInfo) => {
     screenshotTarget: frame,
   })
 
-  await frame.locator('[aria-label="row: 0, column: 0"]').click()
-
-  // Fill [aria-label="row: 0, column: 0"]
-  await frame.locator('[aria-label="row: 0, column: 0"]').fill("1")
-
   await frame.locator('[aria-label="row: 1, column: 1"]').click()
 
   // Fill [aria-label="row: 1, column: 1"]
-  await frame.locator('[aria-label="row: 1, column: 1"]').fill("2")
+  await frame.locator('[aria-label="row: 1, column: 1"]').fill("1")
+
+  await frame.locator('[aria-label="row: 2, column: 2"]').click()
+
+  // Fill [aria-label="row: 2, column: 2"]
+  await frame.locator('[aria-label="row: 2, column: 2"]').fill("2")
 
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -49,15 +49,15 @@ test("widget, matrix screenshot test", async ({ page, headless }, testInfo) => {
     screenshotTarget: frame,
   })
 
-  await frame.locator('[aria-label="row: 0, column: 2"]').click()
+  await frame.locator('[aria-label="row: 1, column: 3"]').click()
 
-  // Fill [aria-label="row: 0, column: 2"]
-  await frame.locator('[aria-label="row: 0, column: 2"]').fill("5")
+  // Fill [aria-label="row: 1, column: 3"]
+  await frame.locator('[aria-label="row: 1, column: 3"]').fill("5")
 
-  await frame.locator('[aria-label="row: 5, column: 5"]').click()
+  await frame.locator('[aria-label="row: 6, column: 6"]').click()
 
-  // Fill [aria-label="row: 5, column: 5"]
-  await frame.locator('[aria-label="row: 5, column: 5"]').fill("6")
+  // Fill [aria-label="row: 6, column: 6"]
+  await frame.locator('[aria-label="row: 6, column: 6"]').fill("6")
 
   await expectScreenshotsToMatchSnapshots({
     headless,

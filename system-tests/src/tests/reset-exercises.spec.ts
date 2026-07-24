@@ -86,7 +86,7 @@ test("Can manually reset exercises", async () => {
   await student1Page
     .locator('iframe[title="Exercise 2\\, task 1 content"]')
     .contentFrame()
-    .getByRole("textbox", { name: "Answer" })
+    .getByRole("textbox", { name: "write an essay" })
     .fill("a a a a a a a a a a a")
   await student1Page.getByRole("button", { name: "Submit" }).click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })

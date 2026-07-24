@@ -21,10 +21,47 @@ function hasName(value: string | null | undefined): boolean {
   return !!value && value.trim().length > 0
 }
 
+interface Identity {
+  firstName?: string | null | undefined
+  lastName?: string | null | undefined
+  email?: string | null | undefined
+}
+
+/** Badge text ("First Last", else email, else userId) and avatar initial from an identity. */
+function computeLabel(
+  identity: Identity,
+  userId: string,
+): { displayText: string; initial: string } {
+  const firstName = identity.firstName?.trim() ?? ""
+  const lastName = identity.lastName?.trim() ?? ""
+  const email = identity.email?.trim() ?? ""
+
+  const displayText =
+    hasName(firstName) || hasName(lastName)
+      ? [firstName, lastName].filter(Boolean).join(" ")
+      : email || userId
+
+  const initial = hasName(firstName)
+    ? (firstName[0]?.toUpperCase() ?? "?")
+    : hasName(lastName)
+      ? (lastName[0]?.toUpperCase() ?? "?")
+      : email
+        ? (email[0]?.toUpperCase() ?? "?")
+        : "?"
+
+  return { displayText, initial }
+}
+
 /** Props: userId (required), courseId (optional). */
 export interface UserDisplayProps {
   userId: string
   courseId: string | null | undefined
+  /**
+   * When supplied (e.g. from a table row that already has the identity), the badge renders from it
+   * immediately and the user-details fetch is deferred until the popover opens — avoiding one request
+   * per row. Omit it to fetch details on mount (the default the manual-review call sites rely on).
+   */
+  prefetchedIdentity?: Identity
 }
 
 const popEnterKeyframes = keyframes`
@@ -78,7 +115,7 @@ const badgeStyle = css`
 `
 
 /** Renders user avatar (first letter) and display name or email. */
-const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
+const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId, prefetchedIdentity }) => {
   const { t } = useTranslation()
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const state = useOverlayTriggerState({})
@@ -88,6 +125,8 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
     staleTime: 30 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
+    // With a prefetched identity the badge needs no fetch, so defer details until the popover opens.
+    ...(prefetchedIdentity ? { enabled: state.isOpen } : {}),
   })
 
   const { buttonProps } = useButton(
@@ -115,101 +154,91 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
     return userIdFallback
   }
 
+  const renderBadgeAndPopover = (displayText: string, initial: string) => (
+    <>
+      <button
+        ref={triggerRef}
+        {...buttonProps}
+        type="button"
+        aria-label={t("view-details")}
+        className={badgeStyle}
+      >
+        <span
+          className={css`
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background: ${baseTheme.colors.green[200]};
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: ${baseTheme.colors.gray[700]};
+          `}
+          aria-hidden
+        >
+          {initial}
+        </span>
+        {displayText}
+      </button>
+      {state.isOpen && (
+        <UserDetailsPopover
+          state={state}
+          triggerRef={triggerRef}
+          overlayProps={overlayProps}
+          className={popoverStyle}
+          aria-label={t("header-user-details")}
+        >
+          <QueryResult query={userDetailsQuery}>
+            {(data) => {
+              const user = extractUserDetail(data)
+              return user ? <UserDetailsContent data={user} userId={userId} /> : userIdFallback
+            }}
+          </QueryResult>
+          <CourseProgressSection courseId={courseId} userId={userId} />
+          <div
+            className={css`
+              margin-top: 0.75rem;
+              display: flex;
+              justify-content: center;
+            `}
+          >
+            <Link
+              href={courseUserStatusSummaryRoute(courseId, userId)}
+              className={css`
+                text-decoration: none;
+              `}
+            >
+              <Button variant="tertiary" size="small">
+                {t("course-status-summary")}
+              </Button>
+            </Link>
+          </div>
+        </UserDetailsPopover>
+      )}
+    </>
+  )
+
+  // Prefetched: render the badge from row data immediately; details load when the popover opens.
+  if (prefetchedIdentity) {
+    const { displayText, initial } = computeLabel(prefetchedIdentity, userId)
+    return renderBadgeAndPopover(displayText, initial)
+  }
+
+  // No prefetched identity: the badge label comes from the fetched user, so gate on the query.
   return (
     <QueryResult query={userDetailsQuery}>
       {(data) => {
         const user = extractUserDetail(data)
-
         if (!user) {
           return userIdFallback
         }
-
-        const firstName = user.first_name?.trim() ?? ""
-        const lastName = user.last_name?.trim() ?? ""
-        const email = user.email?.trim() ?? ""
-
-        const displayText =
-          hasName(firstName) || hasName(lastName)
-            ? [firstName, lastName].filter(Boolean).join(" ")
-            : email || userId
-
-        const initial = hasName(firstName)
-          ? // safe: hasName ensures non-empty string
-            (firstName[0]?.toUpperCase() ?? "?")
-          : hasName(lastName)
-            ? (lastName[0]?.toUpperCase() ?? "?")
-            : email
-              ? (email[0]?.toUpperCase() ?? "?")
-              : "?"
-
-        const badgeContent = (
-          <>
-            <span
-              className={css`
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 1.5rem;
-                height: 1.5rem;
-                border-radius: 50%;
-                background: ${baseTheme.colors.green[200]};
-                font-size: 0.8rem;
-                font-weight: 600;
-                color: ${baseTheme.colors.gray[700]};
-              `}
-              aria-hidden
-            >
-              {initial}
-            </span>
-            {displayText}
-          </>
+        const { displayText, initial } = computeLabel(
+          { firstName: user.first_name, lastName: user.last_name, email: user.email },
+          userId,
         )
-
-        return (
-          <>
-            <button
-              ref={triggerRef}
-              {...buttonProps}
-              type="button"
-              aria-label={t("view-details")}
-              className={badgeStyle}
-            >
-              {badgeContent}
-            </button>
-            {state.isOpen && (
-              <UserDetailsPopover
-                state={state}
-                triggerRef={triggerRef}
-                overlayProps={overlayProps}
-                className={popoverStyle}
-                aria-label={t("header-user-details")}
-              >
-                <UserDetailsContent data={user} userId={userId} />
-                {courseId && <CourseProgressSection courseId={courseId} userId={userId} />}
-                {courseId && (
-                  <div
-                    className={css`
-                      margin-top: 0.75rem;
-                      display: flex;
-                      justify-content: center;
-                    `}
-                  >
-                    <Link
-                      href={courseUserStatusSummaryRoute(courseId, userId)}
-                      className={css`
-                        text-decoration: none;
-                      `}
-                    >
-                      <Button variant="tertiary" size="small">
-                        {t("course-status-summary")}
-                      </Button>
-                    </Link>
-                  </div>
-                )}
-              </UserDetailsPopover>
-            )}
-          </>
-        )
+        return renderBadgeAndPopover(displayText, initial)
       }}
     </QueryResult>
   )

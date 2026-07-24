@@ -303,12 +303,23 @@ export function getScaleMaxLabel(item: PrivateSpecQuizItem): string | null {
   return item.maxLabel ?? null
 }
 
-/** Returns validityRegex for closed-ended-question, else null. */
+/**
+ * Returns a human-readable description of the closed-ended grading rule for the teacher-facing
+ * definitions export (regex pattern, accepted answers, or the numeric target), else null.
+ */
 export function getValidityRegex(item: PrivateSpecQuizItem): string | null {
-  if (item.type !== "closed-ended-question") {
+  if (item.type !== "closed-ended-question" || item.gradingStrategy === null) {
     return null
   }
-  return item.validityRegex ?? null
+  const strategy = item.gradingStrategy
+  switch (strategy.strategy) {
+    case "exact-match":
+      return strategy.acceptedAnswers.join(" | ")
+    case "regex":
+      return strategy.pattern
+    case "numeric":
+      return `${strategy.correctValue} ± ${strategy.tolerance}`
+  }
 }
 
 /** Returns formatRegex for closed-ended-question, else null. */

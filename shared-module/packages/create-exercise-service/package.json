@@ -2,11 +2,38 @@
   "name": "@moocfi/create-exercise-service",
   "version": "0.0.0",
   "description": "Scaffolding CLI for creating new moocfi exercise services",
+  "keywords": [
+    "create",
+    "exercise-service",
+    "moocfi",
+    "scaffolding"
+  ],
+  "homepage": "https://github.com/rage/secret-project-331#readme",
   "license": "Apache-2.0",
   "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rage/secret-project-331.git",
+    "directory": "shared-module/packages/create-exercise-service"
+  },
+  "bin": {
+    "create-exercise-service": "./dist/index.mjs"
+  },
+  "files": [
+    "dist"
+  ],
   "type": "module",
-  "main": "src/index.ts",
+  "main": "./dist/index.mjs",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
+    "build": "tsdown && tsx scripts/bundle-template.ts",
     "start": "tsx src/index.ts",
     "test": "node --import tsx --test tests/*.test.ts"
   },
@@ -16,6 +43,8 @@
   "devDependencies": {
     "@types/node": "^26.0.1",
     "@typescript/native": "npm:typescript@^7.0.2",
+    "publint": "0.3.21",
+    "tsdown": "0.22.7",
     "tsx": "^4.22.4",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },

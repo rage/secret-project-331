@@ -169,6 +169,10 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAllChatbotsData,
+  GetAllChatbotsResponses,
+  GetAllCoursesData,
+  GetAllCoursesResponses,
   GetAvgTimeToFirstSubmissionHistoryData,
   GetAvgTimeToFirstSubmissionHistoryResponses,
   GetBulkUserDetailsData,
@@ -193,6 +197,8 @@ import type {
   GetCohortActivityHistoryResponses,
   GetCompletionStatsByEmailDomainData,
   GetCompletionStatsByEmailDomainResponses,
+  GetCourseAudiencesData,
+  GetCourseAudiencesResponses,
   GetCourseBreadcrumbInfoData,
   GetCourseBreadcrumbInfoResponses,
   GetCourseByJoinCodeData,
@@ -257,6 +263,8 @@ import type {
   GetCourseInstanceUserProgressResponses,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponses,
+  GetCourseMetadataData,
+  GetCourseMetadataResponses,
   GetCourseModuleCompletionData,
   GetCourseModuleCompletionRegistrationLinkData,
   GetCourseModuleCompletionRegistrationLinkResponses,
@@ -283,6 +291,8 @@ import type {
   GetCoursePartnersBlockResponses,
   GetCoursePlanMembersData,
   GetCoursePlanMembersResponses,
+  GetCoursePrerequisitesData,
+  GetCoursePrerequisitesResponses,
   GetCourseProgressForUserData,
   GetCourseProgressForUserResponses,
   GetCourseReferencesData,
@@ -513,6 +523,8 @@ import type {
   GetUsersReturningExercisesHistoryResponses,
   GetUserSuspectedCheatersData,
   GetUserSuspectedCheatersResponses,
+  HideCourseFromMyCoursesData,
+  HideCourseFromMyCoursesResponses,
   IntrospectOauthTokenData,
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
@@ -609,6 +621,8 @@ import type {
   UpdateGlossaryTermData,
   UpdateGlossaryTermErrors,
   UpdateGlossaryTermResponses,
+  UpdateMetadataData,
+  UpdateMetadataResponses,
   UpdateOrganizationData,
   UpdateOrganizationImageData,
   UpdateOrganizationImageResponses,
@@ -680,6 +694,8 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAllChatbotsResponse,
+  zGetAllCoursesResponse,
   zGetAvgTimeToFirstSubmissionHistoryResponse,
   zGetBulkUserDetailsResponse,
   zGetCertificateByConfigurationIdResponse,
@@ -691,6 +707,7 @@ import {
   zGetCodeGiveawaysByCourseResponse,
   zGetCohortActivityHistoryResponse,
   zGetCompletionStatsByEmailDomainResponse,
+  zGetCourseAudiencesResponse,
   zGetCourseBreadcrumbInfoResponse,
   zGetCourseByJoinCodeResponse,
   zGetCourseChaptersResponse,
@@ -718,6 +735,7 @@ import {
   zGetCourseInstanceResponse,
   zGetCourseInstancesResponse,
   zGetCourseLanguageVersionsResponse,
+  zGetCourseMetadataResponse,
   zGetCourseModuleCompletionRegistrationLinkResponse,
   zGetCourseModuleCompletionResponse,
   zGetCourseModuleCompletionsForUserResponse,
@@ -730,6 +748,7 @@ import {
   zGetCoursePageVisitDatumSummaryByPagesResponse,
   zGetCoursePageVisitDatumSummaryResponse,
   zGetCoursePlanMembersResponse,
+  zGetCoursePrerequisitesResponse,
   zGetCourseProgressForUserResponse,
   zGetCourseReferencesResponse,
   zGetCourseResponse,
@@ -871,6 +890,7 @@ import {
   zUpdateExerciseRepositoryResponse,
   zUpdateExerciseServiceResponse,
   zUpdateGeneratedCertificateResponse,
+  zUpdateMetadataResponse,
   zUpdatePageDetailsResponse,
   zUpdatePlaygroundExampleResponse,
   zUpdateUserInfoResponse,
@@ -1227,6 +1247,19 @@ export const getChatbotModel = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/chatbots`
+ */
+export const getAllChatbots = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAllChatbotsData, ThrowOnError>,
+): RequestResult<GetAllChatbotsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAllChatbotsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAllChatbotsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/chatbots/",
+    ...options,
   })
 
 /**
@@ -2079,6 +2112,22 @@ export const createCourse = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * GET `/api/v0/main-frontend/courses` - Get all courses
+ *
+ * Returns all courses.
+ */
+export const getAllCourses = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAllCoursesData, ThrowOnError>,
+): RequestResult<GetAllCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAllCoursesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAllCoursesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/",
+    ...options,
+  })
+
+/**
+ *
  * GET /courses/join/:join_code - Gets the course related to join code
  */
 export const getCourseByJoinCode = <ThrowOnError extends boolean = true>(
@@ -2600,6 +2649,48 @@ export const getCourseFeedbackCount = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCourseFeedbackCountResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/feedback-count",
+    ...options,
+  })
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
+ */
+export const getCourseAudiences = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseAudiencesData, ThrowOnError>,
+): RequestResult<GetCourseAudiencesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseAudiencesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseAudiencesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-audiences",
+    ...options,
+  })
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.
+ */
+export const getCourseMetadata = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseMetadataData, ThrowOnError>,
+): RequestResult<GetCourseMetadataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseMetadataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseMetadataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-metadata",
+    ...options,
+  })
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
+ */
+export const getCoursePrerequisites = <ThrowOnError extends boolean = true>(
+  options: Options<GetCoursePrerequisitesData, ThrowOnError>,
+): RequestResult<GetCoursePrerequisitesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCoursePrerequisitesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCoursePrerequisitesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-prerequisites",
     ...options,
   })
 
@@ -4051,6 +4142,24 @@ export const getCourseThresholds = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/thresholds",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
+ */
+export const updateMetadata = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateMetadataData, ThrowOnError>,
+): RequestResult<UpdateMetadataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<UpdateMetadataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateMetadataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/update-metadata",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -6692,6 +6801,20 @@ export const getMyCourses = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetMyCoursesResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/my-courses",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/users/my-courses/:course_id/hide` - Hides a course from the
+ * authenticated user's "My courses" list.
+ */
+export const hideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
+  options: Options<HideCourseFromMyCoursesData, ThrowOnError>,
+): RequestResult<HideCourseFromMyCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<HideCourseFromMyCoursesResponses, unknown, ThrowOnError, "data">({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-courses/{course_id}/hide",
     ...options,
   })
 

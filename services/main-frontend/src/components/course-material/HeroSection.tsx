@@ -18,6 +18,14 @@ interface TextBoxProps {
   direction: string
 }
 
+// Keeps hero text legible over arbitrary author background images (WCAG 1.4.3).
+const TEXT_READABILITY_SHADOW = `
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.55),
+    0 0 6px rgba(0, 0, 0, 0.4);
+  paint-order: stroke fill;
+`
+
 const CENTERED_MARGIN = "0 auto"
 const DEFAULT_MARGIN_MEDIUM_SCREEN = "0 0 0 45%"
 const DEFAULT_MARGIN_LARGE_SCREEN = "0 0 0 35%"
@@ -48,6 +56,7 @@ const TextBox = styled.div<TextBoxProps>`
     margin-bottom: 0.5rem;
     line-height: 120%;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
+    ${TEXT_READABILITY_SHADOW}
   }
 
   .chapter {
@@ -59,6 +68,7 @@ const TextBox = styled.div<TextBoxProps>`
     font-family: ${headingFont};
     margin-bottom: 0.2rem;
     text-transform: capitalize;
+    ${TEXT_READABILITY_SHADOW}
   }
 
   span {
@@ -66,6 +76,7 @@ const TextBox = styled.div<TextBoxProps>`
     font-size: 18px;
     opacity: 0.9;
     z-index: 20;
+    ${TEXT_READABILITY_SHADOW}
   }
 `
 export interface HeroSectionProps {

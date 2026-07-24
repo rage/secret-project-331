@@ -15,13 +15,33 @@ External examples:
 
 ## Creating a new exercise service
 
-The fastest way to start a new plugin is the scaffolding CLI. From a checkout of this repo, run:
+The fastest way to start a new plugin is the scaffolding CLI. Outside this repo, run:
+
+```bash
+pnpm create @moocfi/exercise-service
+```
+
+This generates a standalone TanStack Start (rsbuild bundler) service that depends on the published `@moocfi/exercise-*` packages from npm.
+
+From a checkout of this repo, run the in-tree variant instead:
 
 ```bash
 bin/create-exercise-service
 ```
 
-It generates a standalone Next.js service from `services/example-exercise`, with the shared exercise code vendored into `src/shared-module/`. See `shared-module/packages/create-exercise-service/README.md` for the prompts and what gets generated. The rest of this document explains the protocol the generated service implements.
+Run inside the monorepo it vendors the shared exercise code into `src/shared-module/` (so you can scaffold against local, unpublished shared-module changes); run from the published package it wires the project to the `@moocfi/exercise-*` npm packages. See `shared-module/packages/create-exercise-service/README.md` for the prompts and what gets generated. The rest of this document explains the protocol the generated service implements.
+
+### Shared packages on npm
+
+The exercise-service helper packages are published to npm under the `@moocfi` scope, so a plugin developed outside this repo can depend on them directly instead of copying source:
+
+- `@moocfi/exercise-protocol` - protocol types, guards, and constants (zero dependencies)
+- `@moocfi/exercise-client` - framework-agnostic iframe runtime engines
+- `@moocfi/exercise-react` - React hooks, contexts, components, and styles
+- `@moocfi/exercise-iframe-host` - host-side `MessageChannelIFrame` (for embedders)
+- `@moocfi/exercise-service-test-utils` - host emulator and Playwright helpers for tests
+
+They ship ESM and expose the same deep import paths the in-repo code uses (for example `@moocfi/exercise-react/react/hooks/useFileUpload`). See `shared-module/Readme.md` for how these are built and released.
 
 ## Overview
 
@@ -71,14 +91,30 @@ Communication between the parent page and the IFrame is restricted to specific m
 
 #### Message Summary
 
-| Message                 | From   | To     | Description                                                                                                               |
-| ----------------------- | ------ | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `set-state`             | Parent | IFrame | Sets the view and state of the IFrame. The IFrame discards its own state and switches to the specified view.              |
-| `current-state`         | IFrame | Parent | Informs the parent that the IFrame's state has changed. Includes data and validity status.                                |
-| `height-changed`        | IFrame | Parent | Notifies the parent that the content height has changed, allowing the parent to resize the IFrame.                        |
-| `set-language`          | Parent | IFrame | Informs the IFrame of the user's preferred language using IETF BCP 47 language tags.                                      |
-| `open-link`             | Iframe | Parent | The IFrame requests a link to be opened in the browser's main browsing context.                                           |
-| `request-iframe-reload` | Iframe | Parent | The IFrame encountered a serious client-side problem (for example, a failed chunk load) and asks the parent to reload it. |
+| Message                        | From   | To     | Description                                                                                                                                                    |
+| ------------------------------ | ------ | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `set-state`                    | Parent | IFrame | Sets the view and state of the IFrame. The IFrame discards its own state and switches to the specified view.                                                   |
+| `current-state`                | IFrame | Parent | Informs the parent that the IFrame's state has changed. Includes data and validity status.                                                                     |
+| `height-changed`               | IFrame | Parent | Notifies the parent that the content height has changed, allowing the parent to resize the IFrame.                                                             |
+| `set-language`                 | Parent | IFrame | Informs the IFrame of the user's preferred language using IETF BCP 47 language tags.                                                                           |
+| `open-link`                    | Iframe | Parent | The IFrame requests a link to be opened in the browser's main browsing context.                                                                                |
+| `request-iframe-reload`        | Iframe | Parent | The IFrame encountered a serious client-side problem (for example, a failed chunk load) and asks the parent to reload it.                                      |
+| `file-upload`                  | Iframe | Parent | The IFrame asks the parent to upload files on its behalf (plugins never store data themselves). Carries a `requestId` and a `Map<name, File/Blob>`. See below. |
+| `upload-result`                | Parent | IFrame | The parent's reply to `file-upload`, echoing the `requestId`; on success carries a `Map<name, url>` of the stored files, on failure an error.                  |
+| `open-dialog`                  | Iframe | Parent | The IFrame asks the parent to show a confirm/warning dialog and awaits the choice. Carries a `requestId` echoed back in `dialog-response`.                     |
+| `dialog-response`              | Parent | IFrame | The parent's reply to `open-dialog` (whether the user confirmed), correlated by `requestId`.                                                                   |
+| `request-repository-exercises` | Iframe | Parent | Programming-exercise (TMC) extension: the IFrame requests the list of repository exercises.                                                                    |
+| `repository-exercises`         | Parent | Iframe | Programming-exercise (TMC) extension: the parent's reply, carrying the list of repository exercises.                                                           |
+| `test-results`                 | Parent | IFrame | Programming-exercise (TMC) extension: delivers test-run results to the IFrame.                                                                                 |
+
+> **File uploads.** Plugins do not store files themselves — the host does. To let a student attach
+> files, the IFrame sends a `file-upload` message and the parent replies with an `upload-result`
+> carrying the stored URLs; the plugin then records those URLs in its `answer`. Both messages carry a
+> `requestId` so several uploads can be in flight at once. Don't hand-roll this: use the
+> `useFileUpload(port)` hook (`exercise-react`) or the `ParentUploadClient` engine
+> (`exercise-client`), which mirror the `useParentDialog` / `ParentDialogClient` request/response
+> helpers. Note this is unrelated to `SpecRequest.upload_url`, which is a server-side upload URL used
+> by the spec-generator endpoints.
 
 ### Views
 
@@ -110,7 +146,7 @@ Plugins must define the following data types for their internal operations:
 2. **`public_spec`**: Information needed to render the exercise for students without revealing the correct answers.
 3. **`model_solution_spec`**: Information needed to display the model solution to students.
 4. **`answer`**: Represents what a student has answered in an exercise.
-5. **`grading_feedback`**: Data used to display feedback about the graded answer.
+5. **`grading_feedback`**: Data used to display feedback about the graded answer. On the wire this is the `feedback_json` field of the Grade endpoint's `GradingResult` (see below), which the host passes back to the View Submission view.
 
 ## REST API Endpoints (Consumed by the Backend)
 
@@ -165,7 +201,9 @@ The backend communicates with the plugin via REST to grade answers and generate 
 | **Service Info**                  | None                     | Metadata              |
 | **Public Spec Generator**         | `private_spec`           | `public_spec`         |
 | **Model Solution Spec Generator** | `private_spec`           | `model_solution_spec` |
-| **Grade Endpoint**                | `private_spec`, `answer` | `grading_feedback`    |
+| **Grade Endpoint**                | `private_spec`, `answer` | `GradingResult`       |
+
+The Grade endpoint returns a `GradingResult`: `grading_progress` (`FullyGraded` \| `Pending` \| `PendingManual` \| `Failed`), `score_given`/`score_maximum`, `feedback_text`, and `feedback_json` (the plugin-defined `grading_feedback`).
 
 ## Example Scenarios
 
@@ -187,7 +225,7 @@ The backend communicates with the plugin via REST to grade answers and generate 
 4. Student interacts with the exercise. Plugin sends `current-state` with the updated `answer`.
 5. Student submits. Course material sends the `answer` to the backend.
 6. Backend retrieves `private_spec` and calls the Grade endpoint with `private_spec` and `answer`.
-7. Plugin returns `correctness_coefficient` and `grading_feedback`. Backend stores this.
+7. Plugin returns a `GradingResult` (`grading_progress`, `score_given`/`score_maximum`, `feedback_text`, `feedback_json`). Backend stores this.
 8. Course material sends `set-state` to switch the IFrame to the View Submission view with `public_spec`, `answer`, `grading_feedback`, and optionally `model_solution_spec`.
 
 ## Developer Tool: Playground

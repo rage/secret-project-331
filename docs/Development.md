@@ -72,7 +72,8 @@ sudo apt install libssl-dev pkg-config
 
 Optional: [Stern](https://github.com/stern/stern), [Kubectx/Kubens](https://github.com/ahmetb/kubectx), [Actionlint](https://github.com/rhysd/actionlint)
 
-### macOS
+<details>
+<summary>macOS</summary>
 
 Install [Homebrew](https://brew.sh/) if not already installed, then:
 
@@ -90,6 +91,8 @@ brew install openssl@3 pkg-config
 cargo install sqlx-cli --no-default-features --features rustls,postgres
 cargo install oxipng
 ```
+
+</details>
 
 ### Windows
 
@@ -163,7 +166,24 @@ Fix any reported issues before continuing.
 bin/minikube-start
 ```
 
+<details>
+<summary>macOS: raise Docker Desktop's memory limit first</summary>
+
+The `docker` driver runs the cluster inside Docker Desktop's VM, and Docker Desktop's
+default memory limit is too low for this project. Raise it before starting: Docker
+Desktop → Settings → Resources → Advanced → set Memory to at least half your host RAM
+(a few GB more is safer), then Apply & restart. `bin/minikube-start` also checks this
+and stops with instructions if the limit is too low.
+
+</details>
+
 ## 5. Set up local domain
+
+Point `project-331.local` at the cluster in your hosts file. Open the block for your
+platform:
+
+<details>
+<summary>Linux</summary>
 
 Add the Minikube IP to `/etc/hosts`:
 
@@ -171,10 +191,33 @@ Add the Minikube IP to `/etc/hosts`:
 echo "$(minikube ip)    project-331.local" | sudo tee -a /etc/hosts
 ```
 
+</details>
+
 <details>
 <summary>macOS</summary>
 
-Same as Linux: use `minikube ip` and add the result to `/etc/hosts`.
+Minikube's `docker` driver runs the cluster inside Docker Desktop's VM, whose network
+is **not** reachable from the host, so the Minikube IP does not work. Point the domain
+at `127.0.0.1` instead — replacing any existing `project-331.local` entry so the
+`127.0.0.1` mapping is the effective one:
+
+```bash
+sudo sed -i '' '/project-331.local/d' /etc/hosts
+echo "127.0.0.1    project-331.local" | sudo tee -a /etc/hosts
+```
+
+Then run `minikube tunnel` in a separate terminal that stays open while you develop; it
+forwards the ingress's ports 80 and 443 to `127.0.0.1`. It runs independently of
+`bin/dev` (or `bin/test`), so start them in any order — but **both must be running** for
+the site to load:
+
+```bash
+minikube tunnel
+```
+
+> **❗ Important:** `minikube tunnel` needs `sudo` and will prompt for your password in
+> that terminal. Until you enter it, nothing is forwarded and the browser shows
+> "Unable to connect". Keep an eye on the tunnel terminal after starting it.
 
 </details>
 
@@ -233,6 +276,24 @@ bin/postgres-remove-data
 ```
 
 Then restart Minikube and re-run `bin/dev`.
+
+<details>
+<summary>macOS: The browser cannot reach <code>project-331.local</code></summary>
+
+On macOS with the `docker` driver, the `minikube ip` is not reachable from the host, so
+the site is only reachable through `minikube tunnel`. See
+[Set up local domain](#5-set-up-local-domain). The two symptoms tell you where the
+problem is:
+
+- **"Unable to connect"** — nothing is listening on `127.0.0.1:80/443`, i.e. the tunnel
+  is not up. Check that `minikube tunnel` is running and has not stalled waiting for your
+  `sudo` password. Also confirm `/etc/hosts` points `project-331.local` at `127.0.0.1`
+  (not the `minikube ip`).
+- **"503 Service Temporarily Unavailable"** — the tunnel is working and you reached the
+  ingress, but the backend is not ready yet (app still starting or mid-redeploy). Wait
+  for the pods to become ready (`bin/pods`) and retry.
+
+</details>
 
 ## Developer resources
 

@@ -9,8 +9,10 @@ export const quizTheme = {
   gradingWrongItemBackground: "#fbeef0",
   gradingCorrectItemColor: "#4c5868",
   gradingSelectedItemBorderColor: "#d8d8d8",
-  gradingWrongItemBorderColor: "#f5d0d3",
-  gradingCorrectItemBorderColor: "#69af8a",
+  // Darkened for >= 3:1 non-text contrast (WCAG 1.4.11) against the white page and the
+  // light fill; matches the green[700]/red[700] icons in the submission view.
+  gradingWrongItemBorderColor: baseTheme.colors.red[700],
+  gradingCorrectItemBorderColor: baseTheme.colors.green[700],
   gradingSelectedItemBackground: "#f4f4f4",
   gradingSelectedItemColor: baseTheme.colors.clear[200],
   errorItemForegroundColor: baseTheme.colors.clear[200],

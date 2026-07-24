@@ -22,8 +22,9 @@ use crate::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
             seed_course_with_peer_review::seed_peer_review_course, seed_generated_description,
             seed_introduction_to_codes::seed_introduction_to_codes, seed_lock_chapter_course,
-            seed_material_reference_course, seed_peer_review_course_without_submissions,
-            seed_sample_course, seed_switching_course_instances_course,
+            seed_material_reference_course, seed_metadata_course::seed_metadata_course,
+            seed_peer_review_course_without_submissions, seed_sample_course,
+            seed_switching_course_instances_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::get_seed_spec_fetcher,
@@ -329,6 +330,14 @@ pub async fn seed_organization_uh_mathstat(
         Uuid::parse_str("da099841-4e90-4080-a6ae-48b7dd1f6e26")?,
         "Introduction to codes",
         "introduction-to-codes",
+        uh_data.clone(),
+    )
+    .await?;
+
+    let _metadata_course = seed_metadata_course(
+        Uuid::parse_str("6237f9a6-15d5-46f6-89fb-d9d59bdc7b65")?,
+        "Metadata course",
+        "metadata-course",
         uh_data.clone(),
     )
     .await?;

@@ -13,6 +13,8 @@
     "out",
     "kubernetes",
     "**/.sqlx/**/*.json",
-    "**/*.guard.ts"
+    "**/*.guard.ts",
+    "**/.claude/**",
+    "**/hostEmulator.js"
   ]
 }

@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 import { Topbar } from "@/utils/components/Topbar"
 import { UserSettingsPage } from "@/utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { selectSignupCountry } from "@/utils/flows/signup.flow"
 import { logoutViaTopbar } from "@/utils/flows/topbar.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
@@ -11,10 +12,10 @@ test("User can add missing country information", async ({ page }) => {
     await page.goto(
       "http://project-331.local/login?return_to=%2Forg%2Fuh-mathstat%2Fcourses%2Faccessibility-course",
     )
+    await page.getByRole("textbox", { name: "Email" }).fill("student-without-country@example.com")
     await page
-      .getByRole("textbox", { name: "Email (Required)" })
-      .fill("student-without-country@example.com")
-    await page.getByRole("textbox", { name: "Password (Required)" }).fill("student-without-country")
+      .getByRole("textbox", { name: "Password", exact: true })
+      .fill("student-without-country")
     await page.getByRole("button", { name: "Log in" }).click()
     await page.waitForURL(/\/org\/uh-mathstat\/courses\/accessibility-course/, { timeout: 10_000 })
 
@@ -53,14 +54,13 @@ test("User can add missing country information", async ({ page }) => {
     await page.goto(
       "http://project-331.local/signup?return_to=%2Forg%2Fuh-mathstat%2Fcourses%2Faccessibility-course&lang=en-US",
     )
-    await page.getByRole("textbox", { name: "First name (Required)" }).fill("Test")
-    await page.getByRole("textbox", { name: "Last name (Required)" }).fill("User")
-    await page.getByRole("button", { name: "Select an item Where do you" }).click()
-    await page.getByRole("option", { name: "Andorra" }).click()
-    await page.getByRole("textbox", { name: "Email (Required)" }).fill("test-user@example.com")
-    await page.getByRole("textbox", { name: "Password (Required)", exact: true }).fill("test-user")
-    await page.getByRole("textbox", { name: "Confirm password (Required)" }).fill("test-user")
-    await page.getByText("I consent to receiving email communication").click()
+    await page.getByRole("textbox", { name: "First name" }).fill("Test")
+    await page.getByRole("textbox", { name: "Last name" }).fill("User")
+    await selectSignupCountry(page, "Andorra")
+    await page.getByRole("textbox", { name: "Email" }).fill("test-user@example.com")
+    await page.getByRole("textbox", { name: "Password", exact: true }).fill("test-user")
+    await page.getByRole("textbox", { name: "Confirm password" }).fill("test-user")
+    await page.getByRole("checkbox", { name: "I consent to receiving email communication" }).click()
 
     await page.getByRole("button", { name: "Create an account" }).click()
 

@@ -2,25 +2,19 @@
 
 import { act, renderHook } from "@testing-library/react"
 
+import useUrlSyncedDebouncedQuery from "../useUrlSyncedDebouncedQuery"
+
 const mockNavigation = {
   pathname: "/manage/search-users",
   replace: jest.fn(),
   search: "",
 }
 
-type JestWithMockModule = typeof jest & {
-  unstable_mockModule: (moduleName: string, moduleFactory: () => unknown) => typeof jest
-}
-
-const jestWithMockModule = jest as JestWithMockModule
-
-jestWithMockModule.unstable_mockModule("next/navigation", () => ({
+jest.mock("next/navigation", () => ({
   usePathname: () => mockNavigation.pathname,
   useRouter: () => ({ replace: mockNavigation.replace }),
   useSearchParams: () => new URLSearchParams(mockNavigation.search),
 }))
-
-const { default: useUrlSyncedDebouncedQuery } = await import("../useUrlSyncedDebouncedQuery")
 
 const renderDebouncedQueryHook = () =>
   renderHook(() =>

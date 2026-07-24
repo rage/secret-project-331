@@ -21,6 +21,8 @@ interface TerminnologyBlockAttributes {
 const TerminologyBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<TerminnologyBlockAttributes>>
 > = (props) => {
+  const title = props.data.attributes.title
+  const hasTitle = Boolean(title && title.trim() !== "")
   return (
     <div
       className={css`
@@ -59,7 +61,7 @@ const TerminologyBlock: React.FC<
       >
         {props.data.attributes.blockName}
       </span>
-      <ParsedText text={props.data.attributes.title} tag="h2" useWrapperElement={true} />
+      {hasTitle && <ParsedText text={title} tag="h2" useWrapperElement={true} />}
       <Centered variant="narrow">
         <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       </Centered>

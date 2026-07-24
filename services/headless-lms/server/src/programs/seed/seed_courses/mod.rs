@@ -7,6 +7,7 @@ pub mod seed_material_reference_course;
 pub use seed_material_reference_course::seed_material_reference_course;
 pub mod seed_course_with_peer_review;
 pub mod seed_graded;
+pub mod seed_metadata_course;
 pub use seed_graded::seed_graded_course;
 pub mod seed_generated_description;
 pub mod seed_glossary;

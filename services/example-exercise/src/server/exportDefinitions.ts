@@ -1,6 +1,12 @@
 import { jsonRoute, readJsonBody } from "@/lib/apiRoutes"
-import type { CsvExportColumn, CsvExportResponse } from "@/server/csvExportUtils"
-import { parseItemsRequest, parsePrivateSpecStrict } from "@/server/csvExportUtils"
+import {
+  parseItemsRequest,
+  parseSpecArrayStrict,
+  type CsvExportColumn,
+  type CsvExportResponse,
+} from "@/server/csvExportUtils"
+import { migratePrivateSpecToLatest } from "@/util/migration/migrateToLatest"
+import { isAlternative } from "@/util/stateInterfaces"
 
 interface CsvExportDefinitionsRequestItem {
   private_spec: unknown
@@ -21,7 +27,12 @@ export const handleExportDefinitions = jsonRoute(async (request) => {
   const response: CsvExportResponse = {
     columns: COLUMNS,
     results: parsed.items.map((item) => {
-      const privateSpec = parsePrivateSpecStrict(item.private_spec)
+      const privateSpec = parseSpecArrayStrict(
+        // migrate to latest, then validate strictly.
+        migratePrivateSpecToLatest(item.private_spec),
+        isAlternative,
+        "Invalid private_spec: expected an array of alternatives",
+      )
       return {
         rows: privateSpec.map((alternative, index) => ({
           option_index: index,

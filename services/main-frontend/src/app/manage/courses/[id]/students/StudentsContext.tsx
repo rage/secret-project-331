@@ -30,6 +30,7 @@ interface StudentsContextValue {
   setSearchInput: Dispatch<SetStateAction<string>>
   search: string
   runImmediateSearch: () => void
+  isSearchPending: boolean
   // Pagination (URL-synced).
   page: number
   limit: number
@@ -66,6 +67,7 @@ export function StudentsContextProvider({
     setInputValue: setSearchInput,
     queryValue: search,
     runImmediate: runImmediateSearch,
+    isPending: isSearchPending,
   } = useUrlSyncedDebouncedQuery({ paramName: SEARCH_PARAM, delayMs: SEARCH_DEBOUNCE_MS })
 
   const { page, limit, setPage, setLimit } = usePaginationInfo(DEFAULT_LIMIT)
@@ -87,6 +89,8 @@ export function StudentsContextProvider({
       return
     }
     previousSignature.current = filterSignature
+    // Reset urgently, together with the filter change, so the identity query never fires for the
+    // old page against the new filter (which would flash an empty page before snapping back).
     if (page !== 1) {
       setPage(1)
     }
@@ -98,6 +102,7 @@ export function StudentsContextProvider({
     setSearchInput,
     search,
     runImmediateSearch,
+    isSearchPending,
     page,
     limit,
     setPage,

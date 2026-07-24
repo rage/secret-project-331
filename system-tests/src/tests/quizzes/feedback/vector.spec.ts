@@ -21,8 +21,7 @@ test.describe("Quizzes vector feedback", () => {
 
     await page
       .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByText("Answer")
-      .first()
+      .getByLabel("X", { exact: true })
       .waitFor()
 
     // oxlint-disable-next-line playwright/no-conditional-in-test
@@ -31,8 +30,7 @@ test.describe("Quizzes vector feedback", () => {
       await page.getByText("Try again").waitFor({ state: "hidden" })
       await page
         .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-        .getByText("Answer")
-        .first()
+        .getByLabel("X", { exact: true })
         .waitFor()
     }
 
@@ -46,18 +44,15 @@ test.describe("Quizzes vector feedback", () => {
 
     await page
       .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByLabel("Answer", { exact: true })
-      .nth(0)
+      .getByLabel("X", { exact: true })
       .fill("a")
     await page
       .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByLabel("Answer", { exact: true })
-      .nth(1)
+      .getByLabel("Y", { exact: true })
       .fill("4")
     await page
       .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByLabel("Answer", { exact: true })
-      .nth(2)
+      .getByLabel("Z", { exact: true })
       .fill("5")
 
     await expectScreenshotsToMatchSnapshots({
@@ -82,7 +77,7 @@ test.describe("Quizzes vector feedback", () => {
 
     await page.getByRole("button", { name: "try again" }).click()
 
-    await page.frameLocator("iframe").getByLabel("Answer").first().fill("3")
+    await page.frameLocator("iframe").getByLabel("X", { exact: true }).first().fill("3")
 
     await page.getByRole("button", { name: "Submit" }).click()
 
@@ -98,7 +93,7 @@ test.describe("Quizzes vector feedback", () => {
 
     await page.getByRole("button", { name: "try again" }).click()
 
-    await page.frameLocator("iframe").getByLabel("Answer").first().fill("a")
+    await page.frameLocator("iframe").getByLabel("X", { exact: true }).first().fill("a")
 
     await page.getByRole("button", { name: "Submit" }).click()
 

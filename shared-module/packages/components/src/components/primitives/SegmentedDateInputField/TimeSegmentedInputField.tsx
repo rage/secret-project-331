@@ -23,9 +23,12 @@ export function TimeSegmentedInputField(
 ) {
   const base = useSegmentedFieldBase(props, forwardedRef)
   const granularity = minuteGranularity
-  const parsedValue = parseTimeOnlyValue(base.value)
-  const parsedMinValue = parseTimeOnlyValue(base.min)
-  const parsedMaxValue = parseTimeOnlyValue(base.max)
+  // react-aria's useTimeField enters an infinite render loop when the controlled `value` is a fresh
+  // object identity on every render (useDateField, used by the date/datetime paths, tolerates it).
+  // Memoize the parsed values so their identity stays stable while the underlying string is unchanged.
+  const parsedValue = React.useMemo(() => parseTimeOnlyValue(base.value), [base.value])
+  const parsedMinValue = React.useMemo(() => parseTimeOnlyValue(base.min), [base.min])
+  const parsedMaxValue = React.useMemo(() => parseTimeOnlyValue(base.max), [base.max])
 
   const fieldProps = {
     id: base.id,

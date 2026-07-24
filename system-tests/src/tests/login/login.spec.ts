@@ -1,4 +1,3 @@
-/* oxlint-disable playwright/prefer-locator */
 import type {
   PlaywrightTestArgs,
   PlaywrightTestOptions,
@@ -76,16 +75,11 @@ test.describe("Login return_to", () => {
 
     const returnTo = encodeURIComponent(currentUrl)
     await page.goto(`http://project-331.local/login?return_to=${returnTo}`)
-    await page.locator(`label:has-text("Password")`).waitFor()
+    await page.getByRole("textbox", { name: "Password", exact: true }).waitFor()
     await page.waitForURL(/http:\/\/project-331\.local\/login\?return_to=.*/)
 
-    await page.click(`label:has-text("Email")`)
-    // Fill input[name="email"]
-    await page.fill(`label:has-text("Email")`, "admin@example.com")
-
-    await page.click(`label:has-text("Password")`)
-    // Fill input[name="password"]
-    await page.fill(`label:has-text("Password")`, "admin")
+    await page.getByRole("textbox", { name: "Email" }).fill("admin@example.com")
+    await page.getByRole("textbox", { name: "Password", exact: true }).fill("admin")
 
     await Promise.all([
       page.locator("id=login-button").click(),

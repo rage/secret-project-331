@@ -69,7 +69,7 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
                 exercisesTotal={data.total_exercises ?? null}
                 label={t("exercises-attempted")}
               />
-              <ColorsIdentifier />
+              <ColorsIdentifier studentPoints={data.score_given} maxPoints={data.score_maximum} />
             </div>
           </div>
         )}

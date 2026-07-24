@@ -1,14 +1,16 @@
 import migrateModelSolutionSpecQuiz from "../../../src/util/migration/modelSolutionSpecQuiz"
 import type { OldModelSolutionQuizItem, OldQuizItemTimelineItem } from "../../../types/oldQuizTypes"
+import type { ModelSolutionQuizItemClosedEndedQuestionV2 } from "../../../types/quizTypes/v2"
+// migrateModelSolutionSpecQuiz produces the frozen v2 shape (which re-uses the v3 item types for
+// everything except closed-ended), so the migrated items are annotated with the v3 snapshot types.
 import type {
-  ModelSolutionQuizItemCheckbox,
-  ModelSolutionQuizItemChooseN,
-  ModelSolutionQuizItemClosedEndedQuestion,
-  ModelSolutionQuizItemEssay,
-  ModelSolutionQuizItemMatrix,
-  ModelSolutionQuizItemScale,
-  ModelSolutionQuizItemTimeline,
-} from "../../../types/quizTypes/modelSolutionSpec"
+  ModelSolutionQuizItemCheckboxV3 as ModelSolutionQuizItemCheckbox,
+  ModelSolutionQuizItemChooseNV3 as ModelSolutionQuizItemChooseN,
+  ModelSolutionQuizItemEssayV3 as ModelSolutionQuizItemEssay,
+  ModelSolutionQuizItemMatrixV3 as ModelSolutionQuizItemMatrix,
+  ModelSolutionQuizItemScaleV3 as ModelSolutionQuizItemScale,
+  ModelSolutionQuizItemTimelineV3 as ModelSolutionQuizItemTimeline,
+} from "../../../types/quizTypes/v3"
 import {
   compareModelSolutionSpecQuizItem,
   expectModelSolutionSpecMetadataToMatch,
@@ -86,8 +88,8 @@ describe("model solution spec migration of quizzes", () => {
     const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)!
 
     const oldQuizItem: OldModelSolutionQuizItem = oldQuiz.items[0]! // safe: quiz packed with exactly one item
-    const newQuizItem: ModelSolutionQuizItemClosedEndedQuestion = newQuiz
-      .items[0] as ModelSolutionQuizItemClosedEndedQuestion
+    const newQuizItem: ModelSolutionQuizItemClosedEndedQuestionV2 = newQuiz
+      .items[0] as ModelSolutionQuizItemClosedEndedQuestionV2
 
     expect(newQuizItem.type).toBe("closed-ended-question")
     expectModelSolutionSpecMetadataToMatch(oldQuiz, newQuiz)

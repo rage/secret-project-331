@@ -1,4 +1,3 @@
-/* oxlint-disable playwright/prefer-locator */
 import type { Page } from "playwright"
 
 export async function login(
@@ -11,11 +10,8 @@ export async function login(
   await page.waitForLoadState()
 
   await page.getByRole("link", { name: "Log in" }).click()
-  await page.click(`label:has-text("Email")`)
-  await page.fill(`label:has-text("Email")`, user)
-
-  await page.click(`label:has-text("Password")`)
-  await page.fill(`label:has-text("Password")`, password)
+  await page.getByRole("textbox", { name: "Email" }).fill(user)
+  await page.getByRole("textbox", { name: "Password", exact: true }).fill(password)
 
   const loginButton = page.locator("id=login-button")
   await loginButton.click()

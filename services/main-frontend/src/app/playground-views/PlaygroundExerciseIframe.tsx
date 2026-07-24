@@ -104,12 +104,14 @@ const PlaygroundExerciseIframe: React.FC<
             if (msg.message === "current-state") {
               setCurrentStateReceivedFromIframe(msg)
             } else if (msg.message === "file-upload") {
-              const files = await uploadFilesFromIframe(msg.files)
               let response: MessageToIframe
               try {
+                const files = await uploadFilesFromIframe(msg.files)
                 response = {
                   // oxlint-disable-next-line i18next/no-literal-string
                   message: "upload-result",
+                  // Echo the correlation id back so clients can match concurrent uploads.
+                  requestId: msg.requestId ?? null,
                   success: true,
                   urls: files,
                 }
@@ -117,8 +119,9 @@ const PlaygroundExerciseIframe: React.FC<
                 response = {
                   // oxlint-disable-next-line i18next/no-literal-string
                   message: "upload-result",
+                  requestId: msg.requestId ?? null,
                   success: false,
-                  error: JSON.stringify(e, null, 2),
+                  error: e instanceof Error ? e.message : String(e),
                 }
               }
               // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin

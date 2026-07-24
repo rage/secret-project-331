@@ -28,7 +28,7 @@ describe("POST /api/grade", () => {
     const result = (await res.json()) as Record<string, unknown>
     expect(result.score_given).toBe(1)
     expect(result.grading_progress).toBe("FullyGraded")
-    expect(result.feedback_json).toEqual({ selectedOptionIsCorrect: true })
+    expect(result.feedback_json).toEqual({ version: "1", selectedOptionIsCorrect: true })
   })
 
   it("gives zero for an incorrect option", async () => {
@@ -41,7 +41,7 @@ describe("POST /api/grade", () => {
     )
     const result = (await res.json()) as Record<string, unknown>
     expect(result.score_given).toBe(0)
-    expect(result.feedback_json).toEqual({ selectedOptionIsCorrect: false })
+    expect(result.feedback_json).toEqual({ version: "1", selectedOptionIsCorrect: false })
   })
 
   it("gives zero and a null feedback when nothing was selected", async () => {
@@ -51,6 +51,20 @@ describe("POST /api/grade", () => {
     const result = (await res.json()) as Record<string, unknown>
     expect(result.score_given).toBe(0)
     expect(result.feedback_json).toBeNull()
+  })
+
+  it("grades a versioned exercise_spec envelope and versioned answer (migrate-on-read)", async () => {
+    const res = await handleGrade(
+      post({
+        grading_update_url: "http://x",
+        exercise_spec: { version: "1", alternatives: SPEC },
+        submission_data: { version: "1", selectedOptionId: "a" },
+      }),
+    )
+    expect(res.status).toBe(200)
+    const result = (await res.json()) as Record<string, unknown>
+    expect(result.score_given).toBe(1)
+    expect(result.feedback_json).toEqual({ version: "1", selectedOptionIsCorrect: true })
   })
 
   it("rejects a malformed grading request with 400", async () => {

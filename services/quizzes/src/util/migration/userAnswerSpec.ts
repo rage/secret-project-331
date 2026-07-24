@@ -1,6 +1,5 @@
 import type { OldQuizAnswer, OldQuizItemAnswer } from "../../../types/oldQuizTypes"
 import type {
-  UserAnswer,
   UserItemAnswer,
   UserItemAnswerCheckbox,
   UserItemAnswerChooseN,
@@ -14,6 +13,7 @@ import type {
 } from "../../../types/quizTypes/answer"
 import type { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTypes/privateSpec"
 import type { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
+import type { UserAnswerV2 } from "../../../types/quizTypes/v2"
 
 const convertIntDataForScale = (quizItemAnswer: OldQuizItemAnswer) => {
   if (
@@ -115,11 +115,11 @@ const migrateQuizItemAnswer = (
 const migrateQuizAnswer = (
   quizAnswer: OldQuizAnswer | null,
   privateSpecQuiz: PrivateSpecQuiz | PublicSpecQuiz | null,
-): UserAnswer | null => {
+): UserAnswerV2 | null => {
   if (quizAnswer === null || privateSpecQuiz === null) {
     return null
   }
-  const userAnswer: UserAnswer = {
+  const userAnswer: UserAnswerV2 = {
     itemAnswers: [],
     version: "2",
   }

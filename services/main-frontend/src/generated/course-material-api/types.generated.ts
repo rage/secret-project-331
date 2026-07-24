@@ -1106,6 +1106,11 @@ export type UserCourseSettings = {
   current_course_id: string
   current_course_instance_id: string
   deleted_at?: string | null
+  /**
+   * Whether the user has hidden this course from their personal "My courses" list. Does not
+   * affect course progress.
+   */
+  hidden: boolean
   updated_at: string
   user_id: string
 }

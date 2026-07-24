@@ -6,7 +6,7 @@ import type {
   CustomSeriesRenderItemReturn,
   EChartsOption,
 } from "echarts"
-import React from "react"
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/app/manage/courses/[id]/stats/Echarts"
@@ -36,7 +36,7 @@ import {
 
 import { clipRect } from "../lib/clipRect"
 import { completedModuleCount } from "../lib/completions"
-import { packLanes } from "../lib/lanePacking"
+import { computeLaneBoxes, packLanes } from "../lib/lanePacking"
 import { buildCourseDensity, courseSpan, maxStackedPerExercise } from "../lib/violinDensity"
 
 export interface ActivityTimelineProps {
@@ -51,9 +51,27 @@ const REVIEW_DOT_FILL = "#c4281b" // off-palette review red; no baseTheme token 
 const REVIEW_DOT_BORDER = "#ffffff"
 // Vertical pixels per lane row; the chart height scales with the lane count.
 const LANE_ROW_PX = 90
-// A lane is only reused for a later course once the previous one ended at least this fraction of the
-// timeline span earlier, so back-to-back courses get their own lane instead of crowding one.
-const LANE_GAP_FRACTION = 0.04
+// Lane packing runs on rendered pixel footprints (marker overhang + measured label width), not raw data
+// spans, so two courses sharing a lane can never collide on screen. Constants: minimum horizontal gap
+// between two items in a lane; cap on a reserved label width; marker overhang reserved past the span end
+// (cluster dot radius + border); padding added to each measured label width.
+const LANE_GAP_PX = 16
+const MAX_LABEL_PX = 220
+const MARKER_PAD_PX = 12
+const LABEL_PAD_PX = 6
+// Fixed echarts grid paddings (px); the y-axis labels are hidden so containLabel adds nothing material,
+// making the plot area width = container width − GRID_LEFT − GRID_RIGHT.
+const GRID_LEFT = 12
+const GRID_RIGHT = 24
+// Container width (px) assumed before the ResizeObserver reports the real one on mount.
+const DEFAULT_WIDTH_PX = 1000
+// Font used for offscreen canvas label measurement; must match the 12px label drawn in renderItem.
+const LABEL_FONT = "12px sans-serif"
+const CANVAS_TAG = "canvas"
+// oxlint-disable-next-line i18next/no-literal-string -- Canvas 2D context id, not user-facing text.
+const CANVAS_CONTEXT_2D = "2d"
+// Fallback per-character width (px) when no canvas 2D context is available (e.g. SSR / jsdom).
+const FALLBACK_CHAR_PX = 7
 // Layout within a lane band: the violin rises from a baseline this far down the band (0 = top, 1 =
 // bottom), capped at VIOLIN_MAX_FRACTION of the band so it never touches the top; the course name is
 // written below the baseline. TRACK_PX is the thickness of the faint span line at the baseline.
@@ -62,7 +80,6 @@ const VIOLIN_MAX_FRACTION = 0.5
 const TRACK_PX = 5
 const LABEL_GAP = 3
 const LABEL_FILL = baseTheme.colors.gray[500] // course name under the baseline
-const NO_ACTIVITY_LABEL_WIDTH = 140
 // Completion dots / per-day hit-targets sit at the lane centre; nudge them down onto the baseline.
 const BASELINE_OFFSET_PX = (BASELINE_FROM_TOP - 0.5) * LANE_ROW_PX
 const DIAMOND_FRACTION = 0.55
@@ -82,6 +99,22 @@ const MIN_CLUSTER_MS = 60 * 60 * 1000
 // Separator between the stacked completions listed in a merged tooltip.
 const TOOLTIP_DIVIDER = '<div style="border-top:1px solid rgba(0,0,0,0.15);margin:5px 0"></div>'
 
+// Lazily created, module-level offscreen 2D context reused for label width measurement. `undefined` = not
+// yet attempted; `null` = unavailable (SSR / jsdom), in which case callers fall back to a per-char estimate.
+let labelMeasureCtx: CanvasRenderingContext2D | null | undefined
+const measureLabelPx = (text: string): number => {
+  if (labelMeasureCtx === undefined) {
+    labelMeasureCtx =
+      typeof document === "undefined"
+        ? null
+        : document.createElement(CANVAS_TAG).getContext(CANVAS_CONTEXT_2D)
+    if (labelMeasureCtx) {
+      labelMeasureCtx.font = LABEL_FONT
+    }
+  }
+  return labelMeasureCtx ? labelMeasureCtx.measureText(text).width : text.length * FALLBACK_CHAR_PX
+}
+
 interface CourseBar {
   courseId: string
   name: string
@@ -95,8 +128,9 @@ interface CourseBar {
 }
 
 /**
- * Cross-course engagement as a lane-packed timeline. Each course is a lane spanning enrollment → last
- * activity (overlapping courses get separate lanes; a lane is reused only after a clear gap). Above a
+ * Cross-course engagement as a lane-packed timeline. Each course spans enrollment → last activity; lanes
+ * are packed on rendered pixel footprints (marker overhang + measured label width) at the measured
+ * container width, so two courses sharing a lane never collide on screen at any zoom level. Above a
  * faint span track, submissions rise from the baseline as a one-sided, module-stacked density on a shared
  * per-exercise scale, so lane heights are comparable; the course name sits just below the baseline. A
  * course with no activity shows a single diamond at enrollment. Module completions overlay as dots (red
@@ -105,48 +139,128 @@ interface CourseBar {
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   const { t } = useTranslation()
 
+  // Container width drives the pixel-aware lane packing below; the ResizeObserver fires on attach and on
+  // every resize, re-packing purely in render (integer width avoids sub-pixel churn).
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(DEFAULT_WIDTH_PX)
+  useLayoutEffect(() => {
+    const el = wrapperRef.current
+    if (!el) {
+      return
+    }
+    // Measure synchronously before paint so the first packing uses the real width, not DEFAULT_WIDTH_PX
+    // (which would mis-flip / overlap labels on narrow viewports until the observer fired).
+    setWidth(Math.round(el.getBoundingClientRect().width))
+    if (typeof ResizeObserver === "undefined") {
+      return
+    }
+    const observer = new ResizeObserver((entries) => {
+      const observed = entries[0]?.contentRect.width
+      if (observed) {
+        setWidth(Math.round(observed))
+      }
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   const moduleName = (enrollment: CourseEnrollmentInfo, courseModuleId: string): string =>
     enrollment.course_modules.find((m) => m.id === courseModuleId)?.name ?? t("default-module")
 
-  const bars: CourseBar[] = enrollments.map((enrollment, index) => {
-    const { enrolledMs, lastActivityMs, hasActivity } = courseSpan(enrollment)
-    return {
-      courseId: enrollment.course_id,
-      name: enrollment.course.name,
-      colorIndex: index,
-      enrolledMs,
-      lastActivityMs,
-      hasActivity,
-      completedCount: completedModuleCount(enrollment),
-      totalModules: enrollment.course_modules.length,
-      reviewCount: enrollment.course_module_completions_needing_review,
-    }
-  })
+  const bars: CourseBar[] = useMemo(
+    () =>
+      enrollments.map((enrollment, index) => {
+        const { enrolledMs, lastActivityMs, hasActivity } = courseSpan(enrollment)
+        return {
+          courseId: enrollment.course_id,
+          name: enrollment.course.name,
+          colorIndex: index,
+          enrolledMs,
+          lastActivityMs,
+          hasActivity,
+          completedCount: completedModuleCount(enrollment),
+          totalModules: enrollment.course_modules.length,
+          reviewCount: enrollment.course_module_completions_needing_review,
+        }
+      }),
+    [enrollments],
+  )
 
-  // Total time the chart spans; drives the min lane gap and the completion-cluster threshold.
+  // Total time the chart spans; drives the completion-cluster threshold.
   const spanMs =
     Math.max(...bars.map((b) => b.lastActivityMs)) - Math.min(...bars.map((b) => b.enrolledMs))
 
-  const { packed, laneCount } = packLanes(
-    bars.map((bar) => ({ start: bar.enrolledMs, end: bar.lastActivityMs, item: bar })),
-    spanMs * LANE_GAP_FRACTION,
+  // Shared time-axis bounds, used both for the x-axis and for the packing scale below.
+  const { min, max } = useMemo(
+    () => timeAxisBounds([...bars.map((b) => b.enrolledMs), ...bars.map((b) => b.lastActivityMs)]),
+    [bars],
   )
-  const laneByCourseId = new Map(packed.map((p) => [p.item.courseId, p.lane]))
+
+  // Pack on rendered pixel footprints (marker overhang + measured label), not data spans, so labels
+  // never collide. Memoized on bars + axis bounds + width: a resize re-packs (canvas measureText +
+  // lane packing), but unrelated re-renders reuse the result. Boxes also carry label placement for
+  // renderItem.
+  const { packed, laneCount, laneByCourseId, boxByCourseId } = useMemo(() => {
+    // Linear full-range time→pixel scale over the plot area. Packing at the full range is the worst
+    // case: zooming in only grows px/ms, so a full-range-valid packing stays overlap-free at every
+    // zoom level. A degenerate single-instant range collapses every point onto the left edge.
+    const plotLeft = GRID_LEFT
+    const plotRight = width - GRID_RIGHT
+    const plotWidth = plotRight - plotLeft
+    const msToPx = (ms: number): number =>
+      max === min ? plotLeft : plotLeft + ((ms - min) / (max - min)) * plotWidth
+    const laneBoxes = computeLaneBoxes(
+      bars.map((bar) => ({
+        key: bar.courseId,
+        startMs: bar.enrolledMs,
+        endMs: bar.lastActivityMs,
+        label: bar.name,
+        item: bar,
+      })),
+      {
+        msToPx,
+        plotRightPx: plotRight,
+        measureLabelPx,
+        maxLabelPx: MAX_LABEL_PX,
+        markerPadPx: MARKER_PAD_PX,
+        labelPadPx: LABEL_PAD_PX,
+      },
+    )
+    const packResult = packLanes(laneBoxes, LANE_GAP_PX)
+    return {
+      packed: packResult.packed,
+      laneCount: packResult.laneCount,
+      laneByCourseId: new Map(packResult.packed.map((p) => [p.item.courseId, p.lane])),
+      // Label placement per course (packLanes preserves the box fields at runtime, but its return
+      // type widens to the base period, so look the boxes back up here for the typed extra fields).
+      boxByCourseId: new Map(laneBoxes.map((b) => [b.key, b])),
+    }
+  }, [bars, min, max, width])
 
   // Per-course submission-density geometry + the shared vertical scale (submissions per exercise) that
   // makes lane heights comparable. `null` = no submissions → the course keeps its faint track / diamond.
-  const densityByCourse = new Map(enrollments.map((e) => [e.course_id, buildCourseDensity(e)]))
-  const globalMaxDensity = maxStackedPerExercise([...densityByCourse.values()])
+  const { densityByCourse, globalMaxDensity } = useMemo(() => {
+    const byCourse = new Map(enrollments.map((e) => [e.course_id, buildCourseDensity(e)]))
+    return {
+      densityByCourse: byCourse,
+      globalMaxDensity: maxStackedPerExercise([...byCourse.values()]),
+    }
+  }, [enrollments])
 
   // Per-module rows per course (for the table) and a flat module→row lookup (for completion tooltips).
-  const moduleRowsByCourse = enrollments.map((e) => ({
-    courseId: e.course_id,
-    name: e.course.name,
-    rows: computeModuleRows(e),
-  }))
-  const rowByModuleId = new Map(
-    moduleRowsByCourse.flatMap((c) => c.rows.map((r) => [r.moduleId, r] as const)),
-  )
+  const { moduleRowsByCourse, rowByModuleId } = useMemo(() => {
+    const rowsByCourse = enrollments.map((e) => ({
+      courseId: e.course_id,
+      name: e.course.name,
+      rows: computeModuleRows(e),
+    }))
+    return {
+      moduleRowsByCourse: rowsByCourse,
+      rowByModuleId: new Map(
+        rowsByCourse.flatMap((c) => c.rows.map((r) => [r.moduleId, r] as const)),
+      ),
+    }
+  }, [enrollments])
 
   const barTip = (bar: CourseBar): string => {
     const lines = [
@@ -175,7 +289,11 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     return lines.join(LINE_BREAK)
   }
 
-  const barData = packed.map((p) => ({ value: [p.lane, p.start, p.end], _tip: barTip(p.item) }))
+  // `p.start`/`p.end` are pixel boxes now, so the x values come straight from the course data ms.
+  const barData = packed.map((p) => ({
+    value: [p.lane, p.item.enrolledMs, p.item.lastActivityMs],
+    _tip: barTip(p.item),
+  }))
 
   // One completion tooltip per completion, grouped by course so nearby ones can be merged below. Keyed
   // by course (not lane): back-to-back courses can share a lane, and completions from different courses
@@ -329,8 +447,19 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     const baselineY = cy - laneHeight / 2 + laneHeight * BASELINE_FROM_TOP
     const maxViolinPx = laneHeight * VIOLIN_MAX_FRACTION
 
+    // Reserved label placement decided at pack time (full-range scale); the anchor x below is the live
+    // (zoomed) marker position, but the reserved width and flip direction come from packing.
+    const box = boxByCourseId.get(bar.courseId)
+    const labelWidthPx = box?.labelWidthPx ?? MAX_LABEL_PX
+    const labelFlipped = box?.labelFlipped ?? false
+
     // Course name written just below the baseline (the violin rises above it, leaving the underside free).
-    const underLabel = (x: number, width: number) => ({
+    // Left-aligned from the span start by default; when flipped it right-aligns to end at the marker so a
+    // course near the right edge stays inside the plot instead of clipping.
+    const underLabel = (
+      x: number,
+      align: typeof ECHARTS.ALIGN_LEFT | typeof ECHARTS.ALIGN_RIGHT,
+    ) => ({
       type: "text" as const,
       style: {
         text: bar.name,
@@ -339,8 +468,8 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
         fill: LABEL_FILL,
         fontSize: 12,
         verticalAlign: ECHARTS.VALIGN_TOP,
-        align: ECHARTS.ALIGN_LEFT,
-        width,
+        align,
+        width: labelWidthPx,
         overflow: ECHARTS.OVERFLOW_TRUNCATE,
       },
     })
@@ -371,15 +500,18 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
               lineWidth: 1,
             },
           },
-          underLabel(cx - h, NO_ACTIVITY_LABEL_WIDTH),
+          labelFlipped
+            ? underLabel(cx + h, ECHARTS.ALIGN_RIGHT)
+            : underLabel(cx - h, ECHARTS.ALIGN_LEFT),
         ],
       }
     }
 
-    // Faint span track (enrollment → last activity) along the baseline the density rises from.
-    const width = Math.max(endX - startX, 3)
+    // Faint span track (enrollment → last activity) along the baseline the density rises from. The minimum
+    // width keeps single-day courses visible instead of reading as empty lanes.
+    const trackWidth = Math.max(endX - startX, 6)
     const rect = clipRect(
-      { x: startX, y: baselineY - TRACK_PX / 2, width, height: TRACK_PX },
+      { x: startX, y: baselineY - TRACK_PX / 2, width: trackWidth, height: TRACK_PX },
       { x: coordSys.x, y: coordSys.y, width: coordSys.width, height: coordSys.height },
     )
     if (!rect) {
@@ -425,15 +557,13 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
           style: { fill: TRACK_FILL },
         },
         ...violins,
-        underLabel(rect.x + 2, Math.max(rect.width - 4, 20)),
+        labelFlipped
+          ? underLabel(endX, ECHARTS.ALIGN_RIGHT)
+          : underLabel(startX, ECHARTS.ALIGN_LEFT),
       ],
     }
   }
 
-  const { min, max } = timeAxisBounds([
-    ...bars.map((b) => b.enrolledMs),
-    ...bars.map((b) => b.lastActivityMs),
-  ])
   const laneLabels = Array.from({ length: laneCount }, (_, i) => String(i))
 
   const options: EChartsOption = {
@@ -441,7 +571,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
       trigger: ECHARTS.TRIGGER_ITEM,
       formatter: (params) => (params as unknown as { data?: { _tip?: string } }).data?._tip ?? "",
     },
-    grid: { left: 12, right: 24, top: 16, bottom: 56, containLabel: true },
+    grid: { left: GRID_LEFT, right: GRID_RIGHT, top: 16, bottom: 56, containLabel: true },
     xAxis: {
       type: "time",
       min,
@@ -492,7 +622,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   }
 
   return (
-    <div>
+    <div ref={wrapperRef}>
       <Echarts options={options} height={Math.max(160, laneCount * LANE_ROW_PX + 70)} />
       <p className={moduleTimingLegendCss}>{t("density-legend")}</p>
       <Disclosure title={t("show-underlying-data")}>

@@ -7,7 +7,7 @@
 // framework adapters can build on it.
 //
 // How the connection establishment works and which messages are allowed is documented at:
-// https://github.com/rage/secret-project-331/blob/master/docs/iframes.md
+// https://github.com/rage/secret-project-331/blob/master/docs/plugin-system.md
 
 export interface ParentConnection {
   /** The received `MessagePort`, or `null` until the handshake completes. */

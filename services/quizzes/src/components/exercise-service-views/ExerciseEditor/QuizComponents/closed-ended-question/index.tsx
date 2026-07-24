@@ -1,20 +1,28 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { PlusCircle } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import { PlusCircle, Trash } from "@vectopus/atlas-icons-react"
+import React, { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { checkClosedEndedQuestionCorrectness } from "@/grading/assessment/closed-ended-question"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
 
-import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/privateSpec"
+import type {
+  ClosedEndedQuestionGradingStrategy,
+  PrivateSpecQuizItemClosedEndedQuestion,
+} from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import FeedbackMessagesEditor, {
+  useItemFeedbackVisibilityOptions,
+} from "../common/FeedbackMessagesEditor"
 import ParsedTextField from "../common/ParsedTextField"
 
 interface ClosedEndedQuestionEditorProps {
@@ -30,6 +38,7 @@ const OptionTitle = styled.div`
   font-size: 20px;
   font-family: ${primaryFont};
   font-weight: bold;
+  margin-top: 12px;
 `
 
 const RadioButtonContainer = styled.div`
@@ -38,36 +47,54 @@ const RadioButtonContainer = styled.div`
   gap: 4px;
 `
 
+const StrategyFields = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`
+
+const AcceptedAnswerRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+`
+
 const convertToString = (regexInput: string | null) => {
   return regexInput ? regexInput : ""
 }
 
-const REGEX_PATTERNS = [
-  {
-    label: "String",
-    value: "\\S+",
-  },
-  {
-    label: "Date (mm/dd/YYYY)",
-    value: "\\d{2}\\/\\d{2}\\/\\d{4}",
-  },
-  {
-    label: "Date (YYYY-mm-dd)",
-    value: "\\d{2}\\-\\d{2}\\-\\d{4}",
-  },
-  {
-    label: "Date (dd.mm.YYYY)",
-    value: "\\d{2}\\.\\d{2}\\.\\d{4}",
-  },
-  {
-    label: "Whole number",
-    value: "\\d+",
-  },
-  {
-    label: "Decimal",
-    value: "\\d+\\,\\d+",
-  },
+// Presets for the optional input-format regex. This is UX validation only (public-safe) and is
+// intentionally separate from the grading strategy, which decides correctness.
+const FORMAT_PRESETS = [
+  { label: "String", value: "\\S+" },
+  { label: "Date (mm/dd/YYYY)", value: "\\d{2}\\/\\d{2}\\/\\d{4}" },
+  { label: "Date (YYYY-mm-dd)", value: "\\d{2}\\-\\d{2}\\-\\d{4}" },
+  { label: "Date (dd.mm.YYYY)", value: "\\d{2}\\.\\d{2}\\.\\d{4}" },
+  { label: "Whole number", value: "\\d+" },
+  { label: "Decimal", value: "\\d+\\,\\d+" },
 ]
+const FORMAT_NONE = ""
+const FORMAT_CUSTOM = "__custom__"
+
+const defaultStrategyFor = (
+  strategy: ClosedEndedQuestionGradingStrategy["strategy"],
+): ClosedEndedQuestionGradingStrategy => {
+  switch (strategy) {
+    case "exact-match":
+      return { strategy, acceptedAnswers: [""], caseSensitive: false, trimWhitespace: true }
+    case "regex":
+      return {
+        strategy,
+        pattern: "",
+        caseSensitive: true,
+        matchWholeAnswer: true,
+        exampleCorrectAnswer: null,
+      }
+    case "numeric":
+      return { strategy, correctValue: 0, tolerance: 0, acceptCommaAsDecimalSeparator: true }
+  }
+}
 
 const TestButtonContainer = styled.div`
   * {
@@ -119,35 +146,55 @@ const AddNewRowContainer = styled.div`
   gap: 6px;
 `
 
+interface NumericFieldProps {
+  value: number
+  label: string
+  onCommit: (value: number) => void
+}
+
+// Numeric input backed by local text state so intermediate entries ("1.", "-", "") aren't snapped
+// by a String()/Number() round-trip mid-keystroke; only parseable values reach the spec, and the
+// field normalizes back to the committed value on blur.
+const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit }) => {
+  const [text, setText] = useState(String(value))
+  return (
+    <TextField
+      value={text}
+      label={label}
+      name={label}
+      onChangeByValue={(next) => {
+        setText(next)
+        const parsed = Number(next.trim().replace(",", "."))
+        if (next.trim() !== "" && Number.isFinite(parsed)) {
+          onCommit(parsed)
+        }
+      }}
+      onBlur={() => setText(String(value))}
+    />
+  )
+}
+
+const formatMatches = (formatRegex: string | null, value: string): boolean => {
+  if (!formatRegex) {
+    return true
+  }
+  try {
+    return new RegExp(formatRegex).test(value)
+  } catch (_e) {
+    return false
+  }
+}
+
+// Shows, per test string, whether it passes the input-format check and whether the grading strategy
+// would mark it correct. Correctness reuses the exact function students are graded by.
 const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => {
   const { t } = useTranslation()
 
-  const validateStrings = () => {
-    try {
-      const validationRegExp = new RegExp(convertToString(quizItem.validityRegex))
-      const formatRegExp = new RegExp(convertToString(quizItem.formatRegex))
-
-      return testStrings.map((string) => {
-        return {
-          string,
-          validation: validationRegExp.test(string),
-          format: formatRegExp.test(string),
-        }
-      })
-    } catch (_e) {
-      /* NOP */
-      /* This occurs when there's incomplete regex */
-    }
-    return testStrings.map((string) => {
-      return {
-        string,
-        validation: false,
-        format: false,
-      }
-    })
-  }
-
-  const result = validateStrings()
+  const result = testStrings.map((string) => ({
+    string,
+    format: formatMatches(quizItem.formatRegex, string),
+    validation: checkClosedEndedQuestionCorrectness(quizItem.gradingStrategy, string),
+  }))
 
   return (
     <TestTable>
@@ -177,8 +224,9 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
 
 const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
-  const [method, setMethod] = useState(0)
+  const formatPresetSelectId = useId()
   const [testStrings, setTestStrings] = useState([""])
+  const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemClosedEndedQuestion>((quiz) => {
@@ -203,20 +251,33 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
   const showTitleEditor =
     (totalNumberOfQuizItems && totalNumberOfQuizItems > 1) || !!selected?.title
 
+  const strategy = selected.gradingStrategy
+
+  const selectStrategy = (nextStrategy: ClosedEndedQuestionGradingStrategy["strategy"]) => {
+    updateState((draft) => {
+      // Re-clicking the already-selected radio must not wipe the configured strategy fields.
+      if (!draft || draft.gradingStrategy?.strategy === nextStrategy) {
+        return
+      }
+      // Persist the chosen strategy in the spec. This is the whole point of the redesign: the choice
+      // used to live in component-local React state and was silently lost on reopen.
+      draft.gradingStrategy = defaultStrategyFor(nextStrategy)
+    })
+  }
+
   const handleTestStringChange = (updatedIdx: number) => (value: string) => {
-    setTestStrings(
-      testStrings.map((content, idx) => {
-        if (idx === updatedIdx) {
-          return value
-        }
-        return content
-      }),
-    )
+    setTestStrings(testStrings.map((content, idx) => (idx === updatedIdx ? value : content)))
   }
 
   const addNewString = () => {
     setTestStrings([...testStrings, ""])
   }
+
+  const currentFormatPreset =
+    selected.formatRegex === null || selected.formatRegex === ""
+      ? FORMAT_NONE
+      : (FORMAT_PRESETS.find((preset) => preset.value === selected.formatRegex)?.value ??
+        FORMAT_CUSTOM)
 
   return (
     <EditorCard quizItemId={quizItemId} title={t("quiz-open-name")}>
@@ -234,80 +295,239 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
           label={t("title")}
         />
       )}
+
       <OptionTitle> {t("grading-strategy")} </OptionTitle>
       <RadioButtonContainer>
         <RadioButton
-          checked={method === 0}
-          onClick={() => setMethod(0)}
+          checked={strategy?.strategy === "exact-match"}
+          // oxlint-disable-next-line i18next/no-literal-string -- internal strategy identifier
+          onClick={() => selectStrategy("exact-match")}
           label={t("exact-string")}
-        ></RadioButton>
+        />
         <RadioButton
-          checked={method === 1}
-          onClick={() => setMethod(1)}
+          checked={strategy?.strategy === "regex"}
+          // oxlint-disable-next-line i18next/no-literal-string -- internal strategy identifier
+          onClick={() => selectStrategy("regex")}
           label={t("regex")}
-        ></RadioButton>
+        />
+        <RadioButton
+          checked={strategy?.strategy === "numeric"}
+          // oxlint-disable-next-line i18next/no-literal-string -- internal strategy identifier
+          onClick={() => selectStrategy("numeric")}
+          label={t("numeric")}
+        />
       </RadioButtonContainer>
 
-      {method === 0 && (
-        <>
-          <SelectField
-            id="regex-pattern-select"
-            label={t("format-regular-expression")}
-            options={REGEX_PATTERNS}
-            onChangeByValue={(value) => {
+      {strategy?.strategy === "exact-match" && (
+        <StrategyFields>
+          <OptionTitle> {t("accepted-answers")} </OptionTitle>
+          {strategy.acceptedAnswers.map((answer, idx) => (
+            <AcceptedAnswerRow key={`accepted-answer-${idx}`}>
+              <TextField
+                value={answer}
+                label={t("correct-answer")}
+                name={t("correct-answer")}
+                onChangeByValue={(value) => {
+                  updateState((draft) => {
+                    if (draft?.gradingStrategy?.strategy !== "exact-match") {
+                      return
+                    }
+                    draft.gradingStrategy.acceptedAnswers[idx] = value
+                  })
+                }}
+              />
+              <Button
+                aria-label={t("remove")}
+                size="small"
+                variant="icon"
+                onClick={() => {
+                  updateState((draft) => {
+                    if (draft?.gradingStrategy?.strategy !== "exact-match") {
+                      return
+                    }
+                    draft.gradingStrategy.acceptedAnswers.splice(idx, 1)
+                  })
+                }}
+              >
+                <Trash size={16} />
+              </Button>
+            </AcceptedAnswerRow>
+          ))}
+          <AddNewRowContainer>
+            <Button
+              aria-label={t("add-accepted-answer")}
+              size="small"
+              variant="icon"
+              onClick={() => {
+                updateState((draft) => {
+                  if (draft?.gradingStrategy?.strategy !== "exact-match") {
+                    return
+                  }
+                  draft.gradingStrategy.acceptedAnswers.push("")
+                })
+              }}
+            >
+              <PlusCircle size={18} />
+            </Button>
+            <p> {t("add-accepted-answer")}</p>
+          </AddNewRowContainer>
+          <CheckBox
+            label={t("case-sensitive")}
+            checked={strategy.caseSensitive}
+            onChangeByValue={(checked) => {
               updateState((draft) => {
-                if (!draft) {
+                if (draft?.gradingStrategy?.strategy !== "exact-match") {
                   return
                 }
-                draft.formatRegex = value
+                draft.gradingStrategy.caseSensitive = checked
               })
             }}
           />
-          <TextField
-            value={convertToString(selected.validityRegex)}
-            onChangeByValue={(value) => {
+          <CheckBox
+            label={t("ignore-extra-whitespace")}
+            checked={strategy.trimWhitespace}
+            onChangeByValue={(checked) => {
               updateState((draft) => {
-                if (!draft) {
+                if (draft?.gradingStrategy?.strategy !== "exact-match") {
                   return
                 }
-                draft.validityRegex = value
+                draft.gradingStrategy.trimWhitespace = checked
               })
             }}
-            label={t("correct-answer")}
-            name={t("correct-answer")}
           />
-        </>
+        </StrategyFields>
       )}
-      {method === 1 && (
-        <>
+
+      {strategy?.strategy === "regex" && (
+        <StrategyFields>
           <TextField
-            value={convertToString(selected.validityRegex)}
+            value={strategy.pattern}
+            label={t("regex-pattern")}
+            name={t("regex-pattern")}
             onChangeByValue={(value) => {
               updateState((draft) => {
-                if (!draft) {
+                if (draft?.gradingStrategy?.strategy !== "regex") {
                   return
                 }
-                draft.validityRegex = value
+                draft.gradingStrategy.pattern = value
               })
             }}
-            label={t("validity-regular-expression")}
-            name={t("validity-regular-expression")}
+          />
+          <CheckBox
+            label={t("case-sensitive")}
+            checked={strategy.caseSensitive}
+            onChangeByValue={(checked) => {
+              updateState((draft) => {
+                if (draft?.gradingStrategy?.strategy !== "regex") {
+                  return
+                }
+                draft.gradingStrategy.caseSensitive = checked
+              })
+            }}
+          />
+          <CheckBox
+            label={t("match-whole-answer")}
+            checked={strategy.matchWholeAnswer}
+            onChangeByValue={(checked) => {
+              updateState((draft) => {
+                if (draft?.gradingStrategy?.strategy !== "regex") {
+                  return
+                }
+                draft.gradingStrategy.matchWholeAnswer = checked
+              })
+            }}
           />
           <TextField
-            value={convertToString(selected.formatRegex)}
+            value={convertToString(strategy.exampleCorrectAnswer)}
+            label={t("example-correct-answer")}
+            name={t("example-correct-answer")}
             onChangeByValue={(value) => {
               updateState((draft) => {
-                if (!draft) {
+                if (draft?.gradingStrategy?.strategy !== "regex") {
                   return
                 }
-                draft.formatRegex = value
+                draft.gradingStrategy.exampleCorrectAnswer = value === "" ? null : value
               })
             }}
-            label={t("format-regular-expression")}
-            name={t("format-regular-expression")}
           />
-        </>
+        </StrategyFields>
       )}
+
+      {strategy?.strategy === "numeric" && (
+        <StrategyFields>
+          <NumericField
+            value={strategy.correctValue}
+            label={t("numeric-correct-value")}
+            onCommit={(value) => {
+              updateState((draft) => {
+                if (draft?.gradingStrategy?.strategy !== "numeric") {
+                  return
+                }
+                draft.gradingStrategy.correctValue = value
+              })
+            }}
+          />
+          <NumericField
+            value={strategy.tolerance}
+            label={t("numeric-tolerance")}
+            onCommit={(value) => {
+              updateState((draft) => {
+                if (draft?.gradingStrategy?.strategy !== "numeric") {
+                  return
+                }
+                draft.gradingStrategy.tolerance = value
+              })
+            }}
+          />
+          <CheckBox
+            label={t("accept-comma-as-decimal-separator")}
+            checked={strategy.acceptCommaAsDecimalSeparator}
+            onChangeByValue={(checked) => {
+              updateState((draft) => {
+                if (draft?.gradingStrategy?.strategy !== "numeric") {
+                  return
+                }
+                draft.gradingStrategy.acceptCommaAsDecimalSeparator = checked
+              })
+            }}
+          />
+        </StrategyFields>
+      )}
+
+      <OptionTitle> {t("answer-format-optional")} </OptionTitle>
+      <SelectField
+        id={formatPresetSelectId}
+        label={t("format")}
+        value={currentFormatPreset}
+        options={[
+          { label: t("answer-format-none"), value: FORMAT_NONE },
+          ...FORMAT_PRESETS,
+          ...(currentFormatPreset === FORMAT_CUSTOM
+            ? [{ label: t("answer-format-custom"), value: FORMAT_CUSTOM, disabled: true }]
+            : []),
+        ]}
+        onChangeByValue={(value) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            draft.formatRegex = value === FORMAT_NONE ? null : value
+          })
+        }}
+      />
+      <TextField
+        value={convertToString(selected.formatRegex)}
+        label={t("format-regular-expression")}
+        name={t("format-regular-expression")}
+        onChangeByValue={(value) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            draft.formatRegex = value === "" ? null : value
+          })
+        }}
+      />
 
       <Accordion title={t("advanced-options")}>
         <details>
@@ -324,7 +544,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
             ))}
             <AddNewRowContainer>
               <Button
-                area-aria-label={t("button-add-example")}
+                aria-label={t("button-add-example")}
                 className={css`
                   cursor: pointer;
                   padding-right: 2px !important;
@@ -354,17 +574,17 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
           <RegexTestTableContainer>
             <RegexTestTable quizItem={selected} testStrings={testStrings} />
           </RegexTestTableContainer>
-          <ParsedTextField
-            value={selected.messageOnModelSolution ?? ""}
-            onChange={(newValue) => {
+          <FeedbackMessagesEditor
+            value={selected.feedbackMessages}
+            visibilityOptions={itemFeedbackVisibilityOptions}
+            onChange={(feedbackMessages) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
-                draft.messageOnModelSolution = newValue
+                draft.feedbackMessages = feedbackMessages
               })
             }}
-            label={t("label-message-on-model-solution")}
           />
         </details>
       </Accordion>

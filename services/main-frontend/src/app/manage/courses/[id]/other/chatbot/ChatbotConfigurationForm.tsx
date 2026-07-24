@@ -173,7 +173,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     }
     await configureChatbotMutation.mutateAsync({
       body: {
-        course_id: oldChatbotConf.course_id, // keep the old course id
+        course_id: oldChatbotConf.course_id !== undefined ? oldChatbotConf.course_id : null, // keep the old course id
         chatbot_name: data.chatbot_name,
         model_id: data.model_id,
         enabled_to_students: data.enabled_to_students,

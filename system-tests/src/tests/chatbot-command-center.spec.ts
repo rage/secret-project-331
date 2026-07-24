@@ -16,7 +16,12 @@ test.describe("Chatbot command center testing", () => {
     await expect(page.getByRole("searchbox", { name: "Search chatbot" })).toBeVisible()
   })
 
-  test("Chatbots are grouped by course", async ({ page }) => {
+  test("Chatbots are grouped under courses and global chatbots", async ({ page }) => {
+    await expect(
+      page
+        .getByLabel("Global chatbots", { exact: true })
+        .getByRole("option", { name: "Global chatbot" }),
+    ).toBeVisible()
     await expect(
       page
         .getByLabel("Chatbot", { exact: true })
@@ -37,6 +42,11 @@ test.describe("Chatbot command center testing", () => {
         .getByLabel("Advanced Chatbot course", { exact: true })
         .getByRole("option", { name: "Suggestions  bot" }),
     ).toBeVisible()
+  })
+
+  test("Global chatbots come first in in the dropdown menu", async ({ page }) => {
+    const dropdown = page.getByRole("listbox", { name: "Chatbot to test" })
+    await expect(dropdown.getByRole("option").first()).toHaveText("Global chatbot")
   })
 
   test("Chatbot is used after selecting it from the dropdown menu", async ({ page }) => {

@@ -14,7 +14,7 @@ pub struct ChatbotConversation {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
     pub user_id: Uuid,
     pub chatbot_configuration_id: Uuid,
 }
@@ -27,7 +27,7 @@ pub struct ChatbotConversationInfo {
     pub current_conversation_messages: Option<Vec<ChatbotConversationMessage>>,
     pub current_conversation_message_citations: Option<Vec<ChatbotConversationMessageCitation>>,
     pub chatbot_name: String,
-    pub course_name: String,
+    pub course_name: Option<String>,
     pub hide_citations: bool,
     pub suggested_messages: Option<Vec<ChatbotConversationSuggestedMessage>>,
 }
@@ -134,7 +134,12 @@ pub async fn get_current_conversation_info(
 ) -> ModelResult<ChatbotConversationInfo> {
     let chatbot_configuration =
         crate::chatbot_configurations::get_by_id(tx, chatbot_configuration_id).await?;
-    let course = crate::courses::get_course(tx, chatbot_configuration.course_id).await?;
+    let course = if let Some(course_id) = chatbot_configuration.course_id {
+        Some(crate::courses::get_course(tx, course_id).await?)
+    } else {
+        None
+    };
+
     let current_conversation =
         get_latest_conversation_for_user(tx, user_id, chatbot_configuration_id)
             .await
@@ -170,14 +175,27 @@ pub async fn get_current_conversation_info(
         None
     };
 
-    Ok(ChatbotConversationInfo {
-        current_conversation,
-        current_conversation_messages,
-        current_conversation_message_citations,
-        suggested_messages,
-        // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
-        chatbot_name: chatbot_configuration.chatbot_name,
-        course_name: course.name,
-        hide_citations: chatbot_configuration.hide_citations,
-    })
+    if let Some(course) = course {
+        Ok(ChatbotConversationInfo {
+            current_conversation,
+            current_conversation_messages,
+            current_conversation_message_citations,
+            suggested_messages,
+            // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
+            chatbot_name: chatbot_configuration.chatbot_name,
+            course_name: Some(course.name),
+            hide_citations: chatbot_configuration.hide_citations,
+        })
+    } else {
+        Ok(ChatbotConversationInfo {
+            current_conversation,
+            current_conversation_messages,
+            current_conversation_message_citations,
+            suggested_messages,
+            // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
+            chatbot_name: chatbot_configuration.chatbot_name,
+            course_name: None,
+            hide_citations: chatbot_configuration.hide_citations,
+        })
+    }
 }

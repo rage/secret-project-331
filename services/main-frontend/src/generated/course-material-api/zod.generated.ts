@@ -66,7 +66,7 @@ export const zChapterWithStatus = z.object({
 
 export const zChatbotConversation = z.object({
   chatbot_configuration_id: z.uuid(),
-  course_id: z.uuid(),
+  course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
@@ -1105,7 +1105,7 @@ export const zChatbotConversationMessage = z.object({
  */
 export const zChatbotConversationInfo = z.object({
   chatbot_name: z.string(),
-  course_name: z.string(),
+  course_name: z.string().nullish(),
   current_conversation: zChatbotConversation.nullish(),
   current_conversation_message_citations: z.array(zChatbotConversationMessageCitation).nullish(),
   current_conversation_messages: z.array(zChatbotConversationMessage).nullish(),

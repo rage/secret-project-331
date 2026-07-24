@@ -521,7 +521,7 @@ export const zVerbosityLevel = z.enum(["low", "medium", "high"])
 
 export const zChatbotConfiguration = z.object({
   chatbot_name: z.string(),
-  course_id: z.uuid(),
+  course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   daily_tokens_per_user: z
     .int()

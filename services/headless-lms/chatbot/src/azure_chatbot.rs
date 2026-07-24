@@ -108,9 +108,9 @@ impl ParsedResponseLine {
 /// Context about the user and course for a chatbot interaction.
 /// Passed to tool implementations so they can access user-specific data.
 pub struct ChatbotUserContext {
-    pub user_id: Uuid,
-    pub course_id: Uuid,
-    pub course_name: String,
+    pub user_id: Option<Uuid>,
+    pub course_id: Option<Uuid>,
+    pub course_name: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -578,7 +578,9 @@ impl LLMRequest {
             tools.extend(vec![AzureLLMToolDefinition::Search(
                 get_azure_ai_search_tool_definition(
                     app_config,
-                    configuration.course_id,
+                    configuration.course_id.ok_or_else(|| {
+                        chatbot_err!(Other, "Course id is missing from the chatbot configuration")
+                    })?,
                     configuration.use_semantic_reranking,
                 )?,
             )]);

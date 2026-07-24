@@ -266,6 +266,7 @@ import {
   getUsersReturningExercisesHistory,
   getUsersReturningExercisesHistoryByInstance,
   getUserSuspectedCheaters,
+  hideCourseFromMyCourses,
   introspectOauthToken,
   joinCourseWithJoinCode,
   markFeedbackAsRead,
@@ -797,6 +798,7 @@ import type {
   GetUsersReturningExercisesHistoryResponse,
   GetUserSuspectedCheatersData,
   GetUserSuspectedCheatersResponse,
+  HideCourseFromMyCoursesData,
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
@@ -9385,6 +9387,29 @@ export const getMyCoursesOptions = (options?: Options<GetMyCoursesData>) =>
       }),
     queryKey: getMyCoursesQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/users/my-courses/:course_id/hide` - Hides a course from the
+ * authenticated user's "My courses" list.
+ */
+export const hideCourseFromMyCoursesMutation = (
+  options?: Partial<Options<HideCourseFromMyCoursesData>>,
+): UseMutationOptions<unknown, DefaultError, Options<HideCourseFromMyCoursesData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<HideCourseFromMyCoursesData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await hideCourseFromMyCourses({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const resetUserPasswordMutation = (
   options?: Partial<Options<ResetUserPasswordData>>,

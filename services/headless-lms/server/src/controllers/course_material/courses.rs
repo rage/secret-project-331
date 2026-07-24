@@ -153,7 +153,7 @@ async fn get_course_page_by_path(
     };
     let user_id = user.map(|u| u.id);
     let course_data = get_nondeleted_course_id_by_slug(&mut conn, &course_slug).await?;
-    let page_with_user_data = models::pages::get_page_with_user_data_by_path(
+    let mut page_with_user_data = models::pages::get_page_with_user_data_by_path(
         &mut conn,
         user_id,
         &course_data,
@@ -193,6 +193,16 @@ async fn get_course_page_by_path(
         })?,
     )
     .await?;
+
+    // Visiting a course's material makes it visible again in the user's "My courses" list if they
+    // had previously hidden it.
+    if let (Some(user_id), Some(course_id)) = (user_id, page_with_user_data.page.course_id)
+        && let Some(settings) = page_with_user_data.settings.as_mut()
+        && settings.hidden
+    {
+        models::user_course_settings::set_hidden(&mut conn, user_id, course_id, false).await?;
+        settings.hidden = false;
+    }
 
     let temp_request_information =
         derive_information_from_requester(req, ip_to_country_mapper).await?;

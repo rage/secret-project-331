@@ -20,7 +20,6 @@ use headless_lms_models::chatbot_conversation_messages::{
 };
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use sqlx::PgPool;
 use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_stream::wrappers::LinesStream;
@@ -32,7 +31,7 @@ use utoipa::ToSchema;
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::provider_tools::azure_ai_search::get_azure_ai_search_tool_definition;
 use crate::chatbot_tools::{
-    AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
+    AzureLLMToolDefinition, call_chatbot_tool, get_chatbot_tool_definitions,
 };
 use crate::citations::chatbot_cited_documents_to_citations;
 use crate::llm_utils::{
@@ -72,7 +71,7 @@ const ALL_EXPECTED_EVENTS: &[&str] = &[
 
 /// Appended to the system prompt when course-material search is enabled, to ground answers
 /// in retrieved course material.
-const SEARCH_GROUNDING_INSTRUCTION: &str = "\n\nSearch the course material with the azure_ai_search tool before answering, and ground your answer in the results with citations. Put only what you want to find in the query; the search is already limited to this course, so don't include the course name. Searching more than once is fine when it helps — to cover distinct sub-questions or angles, to refine when the first results don't answer, or when a follow-up or new instruction needs material you don't already have. When one search already answers, stop there. Skip searching only for messages that don't need course material, like greetings or thanks.";
+const SEARCH_GROUNDING_INSTRUCTION: &str = "\n\nSearch the course material with the azure_ai_search tool before answering, and ground your answer in the results with citations. Put only what you want to find in the query; the search is already limited to this course, so don't include the course name. Searching more than once is fine when it helps — to cover distinct sub-questions or angles, to refine when the first results don't answer, or when a follow-up or new instruction needs material you don't already have. When one search already answers, stop there. If you need more information about a specific document or a topic covered in it, use the document_lookup tool to retrieve the full document. Skip searching only for messages that don't need course material, like greetings or thanks. If you need more information about the course, like what pages and chapters are in it, use the course_structure tool.";
 
 enum ParsedResponseLine {
     Event(String),
@@ -285,12 +284,12 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                         call_id,
                         ..
                     },
-                finished,
+                ..
             } => ChatbotChatStreamEvent::ToolCall {
                 tool_name: Some(tool_name),
                 arguments: Some(arguments),
                 tool_call_id: call_id,
-                finished,
+                finished: false,
             },
             StreamItem {
                 item: OutputItem::AzureAiSearchCallOutput { call_id, .. },
@@ -486,6 +485,8 @@ pub struct LLMRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<LLMToolChoice>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub parallel_tool_calls: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_output_tokens: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<RequestTextOptions>,
@@ -603,6 +604,7 @@ impl LLMRequest {
                 max_output_tokens: Some(configuration.max_output_tokens),
                 tools,
                 tool_choice,
+                parallel_tool_calls: Some(true),
                 text: Some(RequestTextOptions {
                     verbosity: Some(configuration.verbosity),
                     format: None,
@@ -777,14 +779,14 @@ pub async fn process_output_item(
                 message_type: OutputItem::AzureAiSearchCallOutput {
                     call_id,
                     output,
-                    response_id,
+                    response_id: response_id.to_owned(),
                 },
             }
             .to_chatbot_conversation_message(conversation_id)?;
 
             let conversation_message = chatbot_conversation_messages::insert(conn, message).await?;
 
-            chatbot_cited_documents_to_citations(
+            let res = chatbot_cited_documents_to_citations(
                 conn,
                 app_config.test_chatbot,
                 get_urls,
@@ -792,7 +794,13 @@ pub async fn process_output_item(
                 conversation_message.id,
                 conversation_id,
             )
-            .await?;
+            .await;
+
+            if let Err(e) = res {
+                error!(
+                    "Failed to save cited documents in the DB. Response id: {response_id} Error: {e}"
+                );
+            };
 
             ChatbotResult::Ok(conversation_message)
         }
@@ -841,7 +849,7 @@ async fn parse_tool<'a>(
     conversation_id: Uuid,
     user_context: &'a ChatbotUserContext,
 ) -> BoxStream<'a, ChatbotResult<StreamEvent<'a>>> {
-    let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
+    let mut function_name_id_args: Vec<(String, String, String)> = vec![];
     let mut messages = vec![];
     let mut common_response_id: Option<String> = None;
     let mut response_received = false;
@@ -921,45 +929,48 @@ async fn parse_tool<'a>(
                     "Received tool response but response id not found, this shouldn't happen."
                 ))?
             };
-            let mut tool_msgs = Vec::new();
 
-            for (name, id, args) in function_name_id_args.iter() {
-                let tool = get_chatbot_tool(conn, name, args, user_context).await?;
-                let output = tool.get_tool_output();
+            for (name, id, args) in function_name_id_args.into_iter() {
+                let mut tx = conn.begin().await.map_err(ChatbotError::from)?;
+                let tool_result = call_chatbot_tool(&mut tx, &name, args, user_context).await?;
 
-                tool_msgs.push(APIOutputMessage {
+                let tool_call_message = APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
                         response_id: response_id.to_owned(),
                         call_id: id.to_owned(),
                         tool_name: name.to_owned(),
-                        arguments: serde_json::to_string(tool.get_arguments())?,
+                        arguments: tool_result.arguments,
                     },
-                });
+                };
+                chatbot_conversation_messages::insert(
+                    &mut tx,
+                    tool_call_message.to_chatbot_conversation_message(conversation_id)?,
+                )
+                .await?;
+
                 let function_call_output = OutputItem::FunctionCallOutput {
                         call_id: id.to_owned(),
-                        output,
+                        output: tool_result.output,
                         response_id: response_id.to_owned(),
                     };
-                tool_msgs.push(APIOutputMessage {
+                let output_message = APIOutputMessage {
                     message_type: function_call_output.to_owned(),
-                });
+                };
+                chatbot_conversation_messages::insert(
+                    &mut tx,
+                    output_message.to_chatbot_conversation_message(conversation_id)?,
+                )
+                .await?;
+                tx.commit().await.map_err(ChatbotError::from)?;
+
+                messages.extend([tool_call_message, output_message]);
+
                 yield StreamEvent::Item(StreamItem {
                     item: function_call_output,
                     finished: true,
                 });
             }
-            // save tool_msgs to the db
-            let mut tx = conn.begin().await.map_err(ChatbotError::from)?;
-            for m in &tool_msgs {
-                chatbot_conversation_messages::insert(
-                    &mut tx,
-                    m.to_chatbot_conversation_message(conversation_id)?,
-                )
-                .await?;
-            }
-            tx.commit().await.map_err(ChatbotError::from)?;
 
-            messages.extend(tool_msgs);
             let input_messages = messages.into_iter().map(APIInputMessage::from).collect::<Vec<APIInputMessage>>();
             yield StreamEvent::Messages(input_messages);
             break;
@@ -975,7 +986,7 @@ async fn parse_tool<'a>(
                     function_name_id_args.push((
                         tool_name,
                         call_id,
-                        serde_json::from_str::<Value>(&arguments)?,
+                        arguments,
                     ));
                     yield StreamEvent::Item(StreamItem { item, finished: false });
                 }
@@ -1355,6 +1366,24 @@ fn check_error_should_terminate_stream(err: &ChatbotErrorType) -> bool {
     )
 }
 
+async fn clean_up_unfinished_tool_calls(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+) -> ChatbotResult<()> {
+    trace!(
+        "Cleaning up unfinished tool calls for conversation {}",
+        conversation_id
+    );
+    let res = headless_lms_models::chatbot_conversation_messages::delete_hanging_tool_call_messages_for_conversation(
+        conn,
+        conversation_id,
+    )
+    .await
+    .map_err(ChatbotError::from)?;
+    trace!("Cleaned {} tool calls", res.len());
+    Ok(())
+}
+
 /// Send and parse a Chatbot message and response and stream it to the user.
 /// Controls the whole operation.
 pub async fn send_chat_request_and_parse_stream(
@@ -1384,6 +1413,7 @@ pub async fn send_chat_request_and_parse_stream(
     let response_id = Arc::new(Mutex::new(String::new()));
 
     let done = Arc::new(AtomicBool::new(false));
+    let mut should_clean_tool_calls = false;
     let full_response_text = Arc::new(Mutex::new(Vec::new()));
     let response_message_id = Arc::new(Mutex::new(Uuid::nil()));
 
@@ -1421,7 +1451,6 @@ pub async fn send_chat_request_and_parse_stream(
                     yield Bytes::from("\n");
                     done.store(true, atomic::Ordering::Relaxed);
                     break 'outer;
-
                 },
             };
             let mut response_stream = stream_and_detect_response_stream_type(lines);
@@ -1471,7 +1500,11 @@ pub async fn send_chat_request_and_parse_stream(
                     },
                     Err(e) => {
                         error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.lock().await, e);
+                        should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
+                            if let Err(e2) = clean_up_unfinished_tool_calls(&mut conn, conversation_id).await {
+                                error!("Error in chatbot streaming and couldn't clean up tool calls: {e2}. Response id: {}", response_id.lock().await);
+                            };
                             return Err(e)?;
                         };
                         let event_string = error_event_string_from_message(None, Some(&e))?;
@@ -1537,7 +1570,24 @@ pub async fn send_chat_request_and_parse_stream(
                     Ok(val) => val,
                     Err(e) => {
                         error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.to_string(), e);
+                        let full_response_as_string = full_response_text.lock().await.join("");
+                        let mut conn = pool.acquire().await?;
+                        if !full_response_as_string.is_empty() {
+                            // save the incomplete response received
+                            let estimated_cost = estimate_tokens(&full_response_as_string);
+                            models::chatbot_conversation_messages::update(
+                                &mut conn,
+                                message_id,
+                                &full_response_as_string,
+                                true,
+                                request_estimated_tokens + estimated_cost,
+                            ).await?;
+                        };
+                        should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
+                            if let Err(e2) = clean_up_unfinished_tool_calls(&mut conn, conversation_id).await {
+                                error!("Error in chatbot streaming and couldn't clean up tool calls: {e2}. Response id: {}", response_id.to_string());
+                            };
                             return Err(e)?;
                         };
                         let event_string = error_event_string_from_message(None, Some(&e))?;
@@ -1549,9 +1599,9 @@ pub async fn send_chat_request_and_parse_stream(
                 };
                 match val {
                     StreamEvent::Delta(text) | StreamEvent::Refusal(text) => {
-                        let response = ChatbotChatStreamEvent::Delta { text, message_id };
-                        let response_as_string = serde_json::to_string(&response)?;
-                        yield Bytes::from(response_as_string);
+                        let delta = ChatbotChatStreamEvent::Delta { text, message_id };
+                        let delta_as_string = serde_json::to_string(&delta)?;
+                        yield Bytes::from(delta_as_string);
                         yield Bytes::from("\n");
                     },
                     StreamEvent::Item(stream_item) => {
@@ -1592,6 +1642,8 @@ pub async fn send_chat_request_and_parse_stream(
                 }
             }
         }
+        if should_clean_tool_calls { clean_up_unfinished_tool_calls(&mut conn, conversation_id).await?;}
+
         if !done.load(atomic::Ordering::Relaxed) {
             let id = response_id.lock().await;
             let event_string = error_event_string_from_message(Some(format!("Stream ended unexpectedly. Response id: {id}").as_str()), None)?;

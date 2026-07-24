@@ -370,7 +370,7 @@ async fn sync_pages_batch(
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let sanitized_blocks = remove_sensitive_attributes(parsed_content);
 
-        let content_to_upload = match convert_material_blocks_to_markdown_with_llm(
+        let content_as_markdown = match convert_material_blocks_to_markdown_with_llm(
             &sanitized_blocks,
             app_config,
             &task_lm,
@@ -410,6 +410,19 @@ async fn sync_pages_batch(
                 // Fallback to original content
                 serde_json::to_string(&sanitized_blocks)?
             }
+        };
+
+        // save markdown content
+        // if there is an error saving it to blobs, we can try uploading the same content
+        // if the page hasn't been changed between tries.
+        if let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
+            conn,
+            &content_as_markdown,
+            page.id,
+        )
+        .await
+        {
+            warn!("Failed to save converted page content in DB: {}", e);
         };
 
         let blob_path = generate_blob_path(page)?;
@@ -460,7 +473,7 @@ async fn sync_pages_batch(
         }
 
         if let Err(e) = blob_client
-            .upload_file(&blob_path, content_to_upload.as_bytes(), Some(metadata))
+            .upload_file(&blob_path, content_as_markdown.as_bytes(), Some(metadata))
             .await
         {
             let error_msg = format!("Sync failed: Upload error: {}", e);

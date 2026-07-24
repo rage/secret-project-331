@@ -147,10 +147,16 @@ fn parse_and_validate_spec(
         .iter_errors(&spec)
         .take(MAX_REPORTED_VALIDATION_ERRORS)
         .map(|error| {
-            format!("{} (at instance path \"{}\")", error, error.instance_path())
-                .chars()
-                .take(MAX_VALIDATION_ERROR_CHARS)
-                .collect()
+            // `masked()` omits the failing instance from the message; the raw Display
+            // would start with the whole (possibly huge) spec and truncate the reason away.
+            format!(
+                "{} (at instance path \"{}\")",
+                error.masked(),
+                error.instance_path()
+            )
+            .chars()
+            .take(MAX_VALIDATION_ERROR_CHARS)
+            .collect()
         })
         .collect();
     if errors.is_empty() {
@@ -333,6 +339,17 @@ mod tests {
     fn rejects_an_invalid_spec() {
         let spec = serde_json::json!({"mark": 123, "encoding": "not an object"});
         assert!(validator().iter_errors(&spec).next().is_some());
+    }
+
+    #[test]
+    fn validation_errors_do_not_echo_the_spec() {
+        let spec = serde_json::json!({"mark": 123, "sentinel": "sentinel-value-xyz"});
+        let content = serde_json::json!({ "spec": spec.to_string() }).to_string();
+        let err = parse_and_validate_spec(&content, validator()).expect_err("should be rejected");
+        assert!(
+            !err.contains("sentinel-value-xyz"),
+            "error echoed the spec: {err}"
+        );
     }
 
     #[test]

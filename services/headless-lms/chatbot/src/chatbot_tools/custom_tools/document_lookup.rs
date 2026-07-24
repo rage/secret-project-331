@@ -101,7 +101,11 @@ impl ChatbotTool for DocumentLookupTool {
             ));
         };
         let course_id = user_context.course_id;
-        let page_option = headless_lms_models::chatbot_page_sync_statuses::get_latest_synced_page_content_by_page_id(conn, page_id).await?;
+        let page_option =
+            headless_lms_models::course_page_markdown_content::get_latest_page_content_by_page_id(
+                conn, page_id,
+            )
+            .await?;
 
         let document = if let Some(page) = page_option {
             // Check if the titles match and the page is part of the same course as

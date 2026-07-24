@@ -1,1 +1,3 @@
-ALTER TABLE chatbot_page_sync_statuses DROP COLUMN converted_markdown_content;
+ALTER TABLE chatbot_page_sync_statuses DROP COLUMN converted_markdown_content_id;
+
+DROP TABLE course_page_markdown_content;

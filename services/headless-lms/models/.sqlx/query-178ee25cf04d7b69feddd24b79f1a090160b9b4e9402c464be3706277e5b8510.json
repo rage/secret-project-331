@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT ph.content AS json_content,\n  ph.title,\n  ph.id AS page_revision_id,\n  ph.page_id,\n  cps.converted_markdown_content AS markdown_content,\n  cps.course_id\nFROM page_history AS ph\n  JOIN chatbot_page_sync_statuses AS cps ON ph.page_id = cps.page_id\nWHERE ph.id IN (\n    SELECT synced_page_revision_id\n    FROM chatbot_page_sync_statuses\n    WHERE page_id = $1\n      AND deleted_at IS NULL\n    ORDER BY updated_at DESC\n    LIMIT 1\n  )\n  AND ph.deleted_at IS NULL\n  AND cps.deleted_at IS NULL\n    ",
+  "query": "\nSELECT ph.content AS json_content,\n  ph.title,\n  ph.id AS page_revision_id,\n  ph.page_id,\n  cpmc.markdown_content,\n  cps.course_id\nFROM page_history AS ph\n  JOIN chatbot_page_sync_statuses AS cps ON ph.page_id = cps.page_id\n  JOIN course_page_markdown_content AS cpmc ON cps.converted_markdown_content_id = cpmc.id\nWHERE ph.id IN (\n    SELECT synced_page_revision_id\n    FROM chatbot_page_sync_statuses\n    WHERE page_id = $1\n      AND deleted_at IS NULL\n    ORDER BY updated_at DESC\n    LIMIT 1\n  )\n  AND ph.deleted_at IS NULL\n  AND cps.deleted_at IS NULL\n  AND cpmc.deleted_at IS NULL\n    ",
   "describe": {
     "columns": [
       {
@@ -53,8 +53,8 @@
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "chatbot_page_sync_statuses",
-            "name": "converted_markdown_content"
+            "table": "course_page_markdown_content",
+            "name": "markdown_content"
           }
         }
       },
@@ -80,9 +80,9 @@
       false,
       false,
       false,
-      true,
+      false,
       false
     ]
   },
-  "hash": "0fa7555c58a3c97cd8c24086aa73c0698d959652f3ef9f339617470c2fdb50ca"
+  "hash": "178ee25cf04d7b69feddd24b79f1a090160b9b4e9402c464be3706277e5b8510"
 }

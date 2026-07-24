@@ -104,12 +104,12 @@
       },
       {
         "ordinal": 9,
-        "name": "converted_markdown_content",
-        "type_info": "Text",
+        "name": "converted_markdown_content_id",
+        "type_info": "Uuid",
         "origin": {
           "Table": {
             "table": "chatbot_page_sync_statuses",
-            "name": "converted_markdown_content"
+            "name": "converted_markdown_content_id"
           }
         }
       }

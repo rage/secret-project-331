@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
-use serde_json::Value;
-
-use crate::prelude::*;
+use crate::{course_page_markdown_content, prelude::*};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 
@@ -16,7 +14,7 @@ pub struct ChatbotPageSyncStatus {
     pub error_message: Option<String>,
     pub synced_page_revision_id: Option<Uuid>,
     pub consecutive_failures: i32,
-    pub converted_markdown_content: Option<String>,
+    pub converted_markdown_content_id: Option<Uuid>,
 }
 
 pub async fn ensure_sync_statuses_exist(
@@ -66,18 +64,24 @@ pub async fn save_markdown_content(
     content: &str,
     page_id: Uuid,
 ) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+
+    let res = course_page_markdown_content::insert(&mut tx, content).await?;
+
     sqlx::query!(
         r#"
 UPDATE chatbot_page_sync_statuses AS cps
-SET converted_markdown_content = $1
+SET converted_markdown_content_id = $1
 WHERE cps.page_id = $2
-AND cps.deleted_at IS NULL
+  AND cps.deleted_at IS NULL
     "#,
-        &content,
+        res.id,
         &page_id
     )
-    .execute(conn)
+    .execute(&mut *tx)
     .await?;
+
+    tx.commit().await?;
 
     Ok(())
 }
@@ -160,47 +164,4 @@ AND deleted_at IS NULL
     .await?;
 
     Ok(())
-}
-
-pub struct PageSyncedVersionContent {
-    pub page_id: Uuid,
-    pub page_revision_id: Uuid,
-    pub course_id: Uuid,
-    pub title: String,
-    pub json_content: Option<Value>,
-    pub markdown_content: Option<String>,
-}
-
-pub async fn get_latest_synced_page_content_by_page_id(
-    conn: &mut PgConnection,
-    page_id: Uuid,
-) -> ModelResult<Option<PageSyncedVersionContent>> {
-    let sync_status = sqlx::query_as!(
-        PageSyncedVersionContent,
-        r#"
-SELECT ph.content AS json_content,
-  ph.title,
-  ph.id AS page_revision_id,
-  ph.page_id,
-  cps.converted_markdown_content AS markdown_content,
-  cps.course_id
-FROM page_history AS ph
-  JOIN chatbot_page_sync_statuses AS cps ON ph.page_id = cps.page_id
-WHERE ph.id IN (
-    SELECT synced_page_revision_id
-    FROM chatbot_page_sync_statuses
-    WHERE page_id = $1
-      AND deleted_at IS NULL
-    ORDER BY updated_at DESC
-    LIMIT 1
-  )
-  AND ph.deleted_at IS NULL
-  AND cps.deleted_at IS NULL
-    "#,
-        page_id,
-    )
-    .fetch_optional(conn)
-    .await?;
-
-    Ok(sync_status)
 }

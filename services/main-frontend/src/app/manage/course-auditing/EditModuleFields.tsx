@@ -10,8 +10,6 @@ import { Checkbox, nullIfEmpty, TextField } from "@/shared-module/components"
 
 import type { EditCourseAuditingData, EditModuleData } from "./CourseAuditingCard"
 
-//use getvalues, no passing
-
 interface Props {
   control: Control<EditCourseAuditingData>
   module: EditModuleData

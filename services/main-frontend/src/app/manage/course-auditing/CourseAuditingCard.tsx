@@ -61,6 +61,18 @@ export interface EditCourseAuditingData extends CourseAuditingDataUpdate {
   modules: EditModuleData[]
 }
 
+const initDefaultValues = (data: CourseAuditingData) => {
+  return {
+    ...data,
+    closed_at: data.closed_at ? (formatDateForDateTimeLocalInputs(data.closed_at) ?? null) : null,
+    set_course_closed_at: Boolean(data.closed_at),
+    modules: data.modules.map((module) => ({
+      ...module,
+      override_completion_link: Boolean(module.completion_registration_link_override),
+    })),
+  }
+}
+
 const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
   id,
   courseAuditingData,
@@ -72,22 +84,12 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
   const [status, setStatus] = useState<UpdateStatus>(UpdateStatus.none)
   const queryClient = useQueryClient()
 
-  const defaultValues = {
-    ...courseAuditingData,
-    closed_at: courseAuditingData.closed_at
-      ? (formatDateForDateTimeLocalInputs(courseAuditingData.closed_at) ?? null)
-      : null,
-    set_course_closed_at: Boolean(courseAuditingData.closed_at),
-    modules: courseAuditingData.modules.map((m) => ({
-      ...m,
-      override_completion_link: Boolean(m.completion_registration_link_override),
-    })),
-  }
-
   const methods = useForm<EditCourseAuditingData>({
-    defaultValues,
+    defaultValues: initDefaultValues(courseAuditingData),
   })
-  const [readOnly, setReadOnly] = useState<CourseAuditingData>(defaultValues)
+  const [readOnly, setReadOnly] = useState<CourseAuditingData>(
+    initDefaultValues(courseAuditingData),
+  )
 
   const { control, handleSubmit, reset, getValues } = methods
 
@@ -104,14 +106,6 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
   }
 
   const onSubmit = handleSubmit((data: EditCourseAuditingData) => {
-    const modules = data.modules.map((module) => ({
-      ...module,
-      uh_course_code: nullIfEmptyString(module.uh_course_code),
-      completion_registration_link_override: module.override_completion_link
-        ? nullIfEmptyString(module.completion_registration_link_override)
-        : null,
-    }))
-
     updateMutation.mutateAsync({
       body: {
         ...data,
@@ -123,7 +117,13 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
           : null,
         closed_additional_message: nullIfEmptyString(data.closed_additional_message),
         closed_course_successor_id: nullIfEmptyString(data.closed_course_successor_id),
-        modules: modules,
+        modules: data.modules.map((module) => ({
+          ...module,
+          uh_course_code: nullIfEmptyString(module.uh_course_code),
+          completion_registration_link_override: module.override_completion_link
+            ? nullIfEmptyString(module.completion_registration_link_override)
+            : null,
+        })),
       },
       path: {
         course_id: readOnly.id,
@@ -136,8 +136,8 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
     { method: "PUT", notify: true },
     {
       onSuccess: (updated: CourseAuditingData) => {
-        const currentValues = getValues()
-        reset({ ...updated, ...currentValues })
+        reset(initDefaultValues(updated))
+
         setReadOnly(updated)
         //refetch()
 

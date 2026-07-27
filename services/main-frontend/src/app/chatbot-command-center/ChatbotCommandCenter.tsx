@@ -21,36 +21,52 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
   const configuration_id = watch("id")
 
   const chatbotOptions = useMemo(() => {
-    const grouped = chatbots.reduce(
-      (acc, chatbot) => {
-        const matched = courses.find((course) => course.id === chatbot.course_id)
-        const courseName = matched !== undefined ? matched.name : t("select-chatbot-globals-title")
-        if (!acc[courseName]) {
-          acc[courseName] = []
-        }
-        acc[courseName]?.push({
-          isGlobalChatbot: matched === undefined,
-          label: chatbot.chatbot_name,
-          value: chatbot.id,
-        })
-        return acc
-      },
-      {} as Record<string, { isGlobalChatbot: boolean; label: string; value: string }[]>,
+    const grouped = Object.values(
+      chatbots.reduce(
+        (acc, chatbot) => {
+          const matched = courses.find((course) => course.id === chatbot.course_id)
+          const courseName =
+            matched !== undefined ? matched.name : t("select-chatbot-globals-title")
+
+          // oxlint-disable-next-line i18next/no-literal-string
+          const groupId = chatbot.course_id ?? "globals"
+
+          if (!acc[groupId]) {
+            acc[groupId] = {
+              label: courseName,
+              courseId: chatbot.course_id,
+              options: [],
+            }
+          }
+          acc[groupId].options.push({
+            label: chatbot.chatbot_name,
+            value: chatbot.id,
+          })
+
+          return acc
+        },
+        {} as Record<
+          string,
+          {
+            label: string
+            courseId: string | null | undefined
+            options: { label: string; value: string }[]
+          }
+        >,
+      ),
     )
-    const groupedSorted = Object.fromEntries(
-      Object.entries(grouped).toSorted(([aKey, aValue], [bKey, bValue]) => {
-        const aIsGlobal = aValue.some((value) => value.isGlobalChatbot)
-        const bIsGlobal = bValue.some((value) => value.isGlobalChatbot)
-        if (aIsGlobal !== bIsGlobal) {
-          return aIsGlobal ? -1 : 1
-        }
-        return aKey.localeCompare(bKey)
-      }),
-    )
-    return Object.entries(groupedSorted).map(([group, options]) => ({
-      label: group,
-      options,
-    }))
+
+    const groupedSorted = grouped.toSorted((a, b) => {
+      if (!a.courseId && b.courseId) {
+        return -1
+      }
+      if (a.courseId && !b.courseId) {
+        return 1
+      }
+      return a.label.localeCompare(b.label)
+    })
+
+    return groupedSorted
   }, [chatbots, courses, t])
 
   return (

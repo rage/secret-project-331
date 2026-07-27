@@ -28,7 +28,6 @@ use headless_lms_chatbot::{
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
     chapters::DatabaseChapter,
-    page_history,
     pages::{Page, PageVisibility},
 };
 use headless_lms_utils::{
@@ -184,10 +183,7 @@ async fn sync_pages(
     let mut any_changes = false;
 
     for (course_id, statuses) in sync_statuses.iter() {
-        let (page_ids, md_ids): (Vec<Uuid>, Vec<Option<Uuid>>) = statuses
-            .iter()
-            .map(|s| (s.page_id, s.converted_markdown_content_id))
-            .collect();
+        let page_ids: Vec<Uuid> = statuses.iter().map(|s| s.page_id).collect();
         let public_pages_set: HashSet<Uuid> =
             headless_lms_models::pages::get_by_ids_and_visibility(
                 conn,

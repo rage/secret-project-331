@@ -1,20 +1,46 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import CourseCard, { CourseGrid } from "@/app/org/[organizationSlug]/CourseCard"
-import { getMyCoursesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getMyCoursesOptions,
+  getMyCoursesQueryKey,
+  hideCourseFromMyCoursesMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
 import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { manageCourseByIdRoute, navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import { QueryResults } from "@/shared-module/components"
 
 const MyCourses: React.FC = () => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
+  const queryClient = useQueryClient()
   const myCoursesQuery = useQuery({
     ...getMyCoursesOptions(),
   })
+  const hideCourseMutation = useToastMutationOptions(
+    hideCourseFromMyCoursesMutation(),
+    { notify: true, method: "POST" },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getMyCoursesQueryKey() })
+      },
+    },
+  )
+  const handleHideCourse = async (courseId: string, courseName: string) => {
+    const confirmed = await confirm(
+      t("hide-course-confirmation-message", { name: courseName }),
+      t("hide-course-confirmation-title"),
+    )
+    if (confirmed) {
+      hideCourseMutation.mutate({ path: { course_id: courseId } })
+    }
+  }
   const allOrganizationsQuery = useAllOrganizationsQuery()
   const canMangeCourse = useAuthorizeMultiple(
     myCoursesQuery.data?.map((course) => {
@@ -45,6 +71,9 @@ const MyCourses: React.FC = () => {
                 )}
                 id={course.id}
                 showManageButton={canMangeCourse.data?.[n] === true}
+                {...(course.can_hide
+                  ? { onHide: () => handleHideCourse(course.id, course.name) }
+                  : {})}
               />
             )
           })}

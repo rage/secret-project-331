@@ -523,6 +523,8 @@ import type {
   GetUsersReturningExercisesHistoryResponses,
   GetUserSuspectedCheatersData,
   GetUserSuspectedCheatersResponses,
+  HideCourseFromMyCoursesData,
+  HideCourseFromMyCoursesResponses,
   IntrospectOauthTokenData,
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
@@ -6799,6 +6801,20 @@ export const getMyCourses = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetMyCoursesResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/my-courses",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/users/my-courses/:course_id/hide` - Hides a course from the
+ * authenticated user's "My courses" list.
+ */
+export const hideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
+  options: Options<HideCourseFromMyCoursesData, ThrowOnError>,
+): RequestResult<HideCourseFromMyCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<HideCourseFromMyCoursesResponses, unknown, ThrowOnError, "data">({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-courses/{course_id}/hide",
     ...options,
   })
 

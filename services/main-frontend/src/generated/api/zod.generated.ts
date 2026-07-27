@@ -1575,6 +1575,12 @@ export const zModule = z.object({
   prerequisites: z.array(z.string()),
 })
 
+export const zMyCourse = zCourse.and(
+  z.object({
+    can_hide: z.boolean(),
+  }),
+)
+
 export const zNewChapter = z.object({
   chapter_number: z
     .int()
@@ -2637,6 +2643,7 @@ export const zUserCourseSettings = z.object({
   current_course_id: z.uuid(),
   current_course_instance_id: z.uuid(),
   deleted_at: z.iso.datetime().nullish(),
+  hidden: z.boolean(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
@@ -5812,7 +5819,11 @@ export const zGetUserResearchConsentResponse = zUserResearchConsent
 /**
  * Courses for authenticated user
  */
-export const zGetMyCoursesResponse = z.array(zCourse)
+export const zGetMyCoursesResponse = z.array(zMyCourse)
+
+export const zHideCourseFromMyCoursesPath = z.object({
+  course_id: z.uuid(),
+})
 
 export const zResetUserPasswordBody = zResetPasswordData
 

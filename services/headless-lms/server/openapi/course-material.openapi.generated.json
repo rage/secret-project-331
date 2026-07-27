@@ -6561,7 +6561,8 @@
           "created_at",
           "updated_at",
           "current_course_id",
-          "current_course_instance_id"
+          "current_course_instance_id",
+          "hidden"
         ],
         "properties": {
           "course_language_group_id": {
@@ -6583,6 +6584,10 @@
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "hidden": {
+            "type": "boolean",
+            "description": "Whether the user has hidden this course from their personal \"My courses\" list. Does not\naffect course progress."
           },
           "updated_at": {
             "type": "string",

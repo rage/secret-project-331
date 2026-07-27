@@ -378,8 +378,7 @@ async fn sync_pages_batch(
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let sanitized_blocks = remove_sensitive_attributes(parsed_content);
 
-        let page_md_content_id: Option<Uuid> =
-            page_md_ids.get(&page.id).map(|x| x.to_owned()).flatten();
+        let page_md_content_id: Option<Uuid> = page_md_ids.get(&page.id).and_then(|x| x.to_owned());
 
         let content_as_markdown = if let Some(id) = page_md_content_id {
             let content = headless_lms_models::course_page_markdown_content::get(conn, id).await?;

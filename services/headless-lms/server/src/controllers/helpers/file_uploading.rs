@@ -18,8 +18,30 @@ use models::exercises::Exercise;
 use models::organizations::DatabaseOrganization;
 use rand::distr::Alphanumeric;
 use rand::distr::SampleString;
-use std::{collections::HashMap, path::Path};
-use std::{path::PathBuf, sync::Arc};
+use std::{collections::HashSet, path::Path};
+use std::{
+    path::PathBuf,
+    sync::{
+        Arc,
+        atomic::{AtomicU64, Ordering},
+    },
+};
+use utoipa::ToSchema;
+
+const EXERCISE_UPLOAD_MAX_FILES: usize = 10;
+const EXERCISE_UPLOAD_MAX_FILE_BYTES: u64 = 100 * 1024 * 1024;
+const EXERCISE_UPLOAD_MAX_BATCH_BYTES: u64 = 100 * 1024 * 1024;
+
+#[derive(Debug, Clone, Serialize, ToSchema)]
+pub struct ExerciseServiceUploadResultEntry {
+    pub id: String,
+    pub url: String,
+}
+
+/** Tracks uploaded object paths; the enclosing database transaction rolls metadata back on failure. */
+pub struct ExerciseServiceUploadCleanup {
+    pub path: String,
+}
 
 /// Processes an upload from an exercise service or an exercise iframe.
 /// This function assumes that any permission checks have already been made.
@@ -28,19 +50,23 @@ pub async fn process_exercise_service_upload(
     exercise_service_slug: &str,
     mut payload: Multipart,
     file_store: &dyn FileStore,
-    paths: &mut HashMap<String, String>,
+    uploaded_paths: &mut Vec<ExerciseServiceUploadCleanup>,
     uploader: Option<AuthUser>,
     base_url: &str,
-) -> Result<(), ControllerError> {
+) -> Result<Vec<ExerciseServiceUploadResultEntry>, ControllerError> {
+    let mut results = Vec::new();
+    let mut ids = HashSet::new();
+    let batch_bytes = Arc::new(AtomicU64::new(0));
     let mut tx = conn.begin().await?;
     while let Some(item) = payload.next().await {
         let field = item.map_err(|err| {
             ControllerError::new(
-                ControllerErrorType::InternalServerError,
+                ControllerErrorType::BadRequest,
                 format!("Failed to read multipart field: {}", err),
                 Some(anyhow::anyhow!("Multipart error: {}", err)),
             )
         })?;
+        validate_exercise_upload_file_count(results.len())?;
         let field_name = {
             let name_ref = field.name().ok_or_else(|| {
                 ControllerError::new(
@@ -52,15 +78,184 @@ pub async fn process_exercise_service_upload(
             name_ref.to_string()
         };
 
+        validate_exercise_upload_id(&field_name, &mut ids)?;
+        let filename = validate_exercise_upload_filename(
+            field
+                .content_disposition()
+                .and_then(|disposition| disposition.get_filename()),
+        )?
+        .to_string();
+
         let random_filename = generate_random_string(32);
         let path = format!("{exercise_service_slug}/{random_filename}");
-
-        upload_field_to_storage(&mut tx, Path::new(&path), field, file_store, uploader).await?;
+        uploaded_paths.push(ExerciseServiceUploadCleanup { path: path.clone() });
+        let mime_type = field
+            .content_type()
+            .map(ToString::to_string)
+            .unwrap_or_default();
+        let stream = limited_exercise_upload_stream(field, batch_bytes.clone());
+        upload_file_to_storage_in_existing_transaction(
+            &mut tx,
+            Path::new(&path),
+            &filename,
+            &mime_type,
+            stream,
+            file_store,
+            uploader.map(|u| u.id),
+        )
+        .await?;
         let url = format!("{base_url}/api/v0/files/{path}");
-        paths.insert(field_name, url);
+        results.push(ExerciseServiceUploadResultEntry {
+            id: field_name,
+            url,
+        });
     }
+    validate_exercise_upload_not_empty(results.len())?;
     tx.commit().await?;
-    Ok(())
+    Ok(results)
+}
+
+fn limited_exercise_upload_stream(field: mp::Field, batch_bytes: Arc<AtomicU64>) -> GenericPayload {
+    let per_file_bytes = Arc::new(AtomicU64::new(0));
+    Box::pin(futures::stream::try_unfold(
+        (field, per_file_bytes, batch_bytes),
+        |(mut field, per_file_bytes, batch_bytes)| async move {
+            let Some(chunk) = field.next().await else {
+                return Ok(None);
+            };
+            let chunk = chunk.map_err(|error| anyhow::Error::msg(error.to_string()))?;
+            consume_exercise_upload_bytes(&per_file_bytes, &batch_bytes, chunk.len())?;
+            Ok(Some((chunk, (field, per_file_bytes, batch_bytes))))
+        },
+    ))
+}
+
+fn validate_exercise_upload_file_count(files_received: usize) -> Result<(), ControllerError> {
+    if files_received < EXERCISE_UPLOAD_MAX_FILES {
+        return Ok(());
+    }
+    Err(ControllerError::new(
+        ControllerErrorType::BadRequest,
+        format!("A maximum of {EXERCISE_UPLOAD_MAX_FILES} files can be uploaded at once"),
+        None,
+    ))
+}
+
+fn validate_exercise_upload_id(
+    field_name: &str,
+    ids: &mut HashSet<String>,
+) -> Result<(), ControllerError> {
+    Uuid::parse_str(field_name).map_err(|_| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Each exercise upload field name must be a UUID".to_string(),
+            None,
+        )
+    })?;
+    if ids.insert(field_name.to_string()) {
+        return Ok(());
+    }
+    Err(ControllerError::new(
+        ControllerErrorType::BadRequest,
+        "Duplicate exercise upload field id".to_string(),
+        None,
+    ))
+}
+
+fn validate_exercise_upload_filename(filename: Option<&str>) -> Result<&str, ControllerError> {
+    filename
+        .filter(|filename| !filename.is_empty())
+        .ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Every exercise upload part must be a file with a filename".to_string(),
+                None,
+            )
+        })
+}
+
+fn validate_exercise_upload_not_empty(files_received: usize) -> Result<(), ControllerError> {
+    if files_received > 0 {
+        return Ok(());
+    }
+    Err(ControllerError::new(
+        ControllerErrorType::BadRequest,
+        "At least one file must be uploaded".to_string(),
+        None,
+    ))
+}
+
+fn consume_exercise_upload_bytes(
+    per_file_bytes: &AtomicU64,
+    batch_bytes: &AtomicU64,
+    chunk_len: usize,
+) -> anyhow::Result<()> {
+    let chunk_len = u64::try_from(chunk_len).context("exercise upload chunk length overflow")?;
+    let file_total = per_file_bytes.fetch_add(chunk_len, Ordering::Relaxed) + chunk_len;
+    let batch_total = batch_bytes.fetch_add(chunk_len, Ordering::Relaxed) + chunk_len;
+    if file_total <= EXERCISE_UPLOAD_MAX_FILE_BYTES
+        && batch_total <= EXERCISE_UPLOAD_MAX_BATCH_BYTES
+    {
+        return Ok(());
+    }
+    Err(anyhow::Error::msg(
+        "Exercise upload exceeds the 100 MiB per-file or batch limit",
+    ))
+}
+
+#[cfg(test)]
+mod exercise_upload_tests {
+    use super::*;
+
+    #[test]
+    fn exercise_upload_ids_must_be_unique_uuids() {
+        let id = Uuid::new_v4().to_string();
+        let mut ids = HashSet::new();
+
+        assert!(validate_exercise_upload_id(&id, &mut ids).is_ok());
+        assert!(
+            validate_exercise_upload_id(&id, &mut ids)
+                .unwrap_err()
+                .to_string()
+                .contains("Duplicate")
+        );
+        assert!(
+            validate_exercise_upload_id("filename.pdf", &mut ids)
+                .unwrap_err()
+                .to_string()
+                .contains("must be a UUID")
+        );
+    }
+
+    #[test]
+    fn exercise_upload_limits_are_enforced_from_streamed_bytes() {
+        let per_file = AtomicU64::new(EXERCISE_UPLOAD_MAX_FILE_BYTES - 1);
+        let batch = AtomicU64::new(EXERCISE_UPLOAD_MAX_BATCH_BYTES - 1);
+        assert!(consume_exercise_upload_bytes(&per_file, &batch, 1).is_ok());
+        assert!(consume_exercise_upload_bytes(&per_file, &batch, 1).is_err());
+
+        let per_file = AtomicU64::new(0);
+        let batch = AtomicU64::new(EXERCISE_UPLOAD_MAX_BATCH_BYTES);
+        assert!(consume_exercise_upload_bytes(&per_file, &batch, 1).is_err());
+    }
+
+    #[test]
+    fn exercise_upload_rejects_an_eleventh_file() {
+        assert!(validate_exercise_upload_file_count(EXERCISE_UPLOAD_MAX_FILES - 1).is_ok());
+        assert!(validate_exercise_upload_file_count(EXERCISE_UPLOAD_MAX_FILES).is_err());
+    }
+
+    #[test]
+    fn exercise_upload_rejects_empty_and_non_file_parts() {
+        assert!(validate_exercise_upload_not_empty(0).is_err());
+        assert!(validate_exercise_upload_not_empty(1).is_ok());
+        assert!(validate_exercise_upload_filename(None).is_err());
+        assert!(validate_exercise_upload_filename(Some("")).is_err());
+        assert_eq!(
+            validate_exercise_upload_filename(Some("report.pdf")).unwrap(),
+            "report.pdf"
+        );
+    }
 }
 
 #[derive(Debug, Clone, Copy, Deserialize)]
@@ -321,11 +516,27 @@ async fn upload_file_to_storage(
     uploader: Option<Uuid>,
 ) -> Result<Uuid, ControllerError> {
     let mut tx = conn.begin().await?;
+    let id = upload_file_to_storage_in_existing_transaction(
+        &mut tx, path, file_name, mime_type, file, file_store, uploader,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(id)
+}
+
+async fn upload_file_to_storage_in_existing_transaction(
+    conn: &mut PgConnection,
+    path: &Path,
+    file_name: &str,
+    mime_type: &str,
+    file: GenericPayload,
+    file_store: &dyn FileStore,
+    uploader: Option<Uuid>,
+) -> Result<Uuid, ControllerError> {
     let path_string = path.to_str().context("invalid path")?.to_string();
     let id =
-        models::file_uploads::insert(&mut tx, file_name, &path_string, mime_type, uploader).await?;
+        models::file_uploads::insert(conn, file_name, &path_string, mime_type, uploader).await?;
     file_store.upload_stream(path, file, mime_type).await?;
-    tx.commit().await?;
     Ok(id)
 }
 

@@ -44,13 +44,12 @@ function childHtml(): string {
         const port = event.ports[0]
         port.addEventListener("message", ({ data }) => {
           if (data?.message !== "upload-result") return
-          const urlsAreMap = data.urls instanceof Map
-          const url = urlsAreMap ? data.urls.get("sample.bin") : null
+          const uploadedFile = Array.isArray(data.files) ? data.files[0] : null
           document.querySelector("#result").textContent = JSON.stringify({
             requestId: data.requestId,
             success: data.success,
-            urlsAreMap,
-            url,
+            id: uploadedFile?.id ?? null,
+            url: uploadedFile?.url ?? null,
           })
         })
         port.start()
@@ -61,7 +60,7 @@ function childHtml(): string {
         port.postMessage({
           message: "file-upload",
           requestId: "browser-request-1",
-          files: new Map([["sample.bin", file]]),
+          files: [file],
         })
       })
     </script></body></html>`
@@ -90,7 +89,7 @@ async function buildBrowserHarness(): Promise<string> {
       const onMessageFromIframe = (message, responsePort) => {
         if (message.message !== "file-upload") return
         void (async () => {
-          const value = message.files instanceof Map ? message.files.get("sample.bin") : null
+          const value = Array.isArray(message.files) ? message.files[0] : null
           const bytes = value instanceof Blob
             ? [...new Uint8Array(await value.arrayBuffer())]
             : null
@@ -101,7 +100,7 @@ async function buildBrowserHarness(): Promise<string> {
             : null
           globalThis.transportSnapshot = {
             requestId: message.requestId ?? null,
-            filesAreMap: message.files instanceof Map,
+            filesAreArray: Array.isArray(message.files),
             valueIsFile: value instanceof File,
             name: value instanceof File ? value.name : null,
             type: value instanceof Blob ? value.type : null,
@@ -114,7 +113,7 @@ async function buildBrowserHarness(): Promise<string> {
             message: "upload-result",
             requestId: message.requestId,
             success: true,
-            urls: new Map([["sample.bin", "https://files.example/sample.bin"]]),
+            files: [{ id: "host-file-1", url: "https://files.example/sample.bin" }],
           })
         })()
       }
@@ -221,7 +220,7 @@ test("MessageChannelIFrame preserves File bytes across a sandboxed cross-origin 
   })
   expect(await snapshot.jsonValue()).toEqual({
     requestId: "browser-request-1",
-    filesAreMap: true,
+    filesAreArray: true,
     valueIsFile: true,
     name: "sample.bin",
     type: "application/octet-stream",
@@ -237,7 +236,7 @@ test("MessageChannelIFrame preserves File bytes across a sandboxed cross-origin 
   expect(childResult).toEqual({
     requestId: "browser-request-1",
     success: true,
-    urlsAreMap: true,
+    id: "host-file-1",
     url: "https://files.example/sample.bin",
   })
   expect(new URL(hostUrl).origin).not.toBe(new URL(childUrl).origin)

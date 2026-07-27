@@ -16,9 +16,9 @@ import type {
 } from "../browser/hostEmulator.types"
 import { HOST_EMULATOR_SOURCE } from "../browser/hostEmulatorSource"
 
-/** Result the wrapper can hand back to `sendUploadResult` (URLs are a plain object over the wire). */
+/** Result the wrapper can hand back to `sendUploadResult` (plain structured-clone data). */
 export interface WireUploadResult {
-  urls?: Record<string, string>
+  files?: { id: string; url: string }[]
   error?: string
 }
 
@@ -43,7 +43,7 @@ export interface HostEmulatorHandle {
   /** Tell the iframe the UI language (BCP 47 code). */
   setLanguage: (language: string) => Promise<void>
   /** Reply to a `file-upload` (use when constructed with `autoUpload: false`). */
-  sendUploadResult: (requestId: string | null, result: WireUploadResult) => Promise<void>
+  sendUploadResult: (requestId: string, result: WireUploadResult) => Promise<void>
   /** Reply to an `open-dialog` (use when constructed with `autoDialog: false`). */
   respondToDialog: (requestId: string, confirmed: boolean) => Promise<void>
   /** The most recent message of `type`, or null. */
@@ -52,8 +52,9 @@ export interface HostEmulatorHandle {
   messages: (type?: string) => Promise<RecordedMessage[]>
   /**
    * Poll `last(type)` until a message matches `predicate` (or any message of `type` if omitted).
-   * The predicate runs in Node, so any JS works. Note: messages carrying `Map`s (file-upload /
-   * upload-result) don't survive serialization — assert those in same-context jest tests instead.
+   * The predicate runs in Node, so any JS works. File payloads are exposed through
+   * `waitForFileUpload`, which records browser-realm metadata and hashes rather than serializing
+   * `File` instances across the Playwright boundary.
    */
   waitForMessage: (
     type: string,

@@ -14,7 +14,7 @@ interface Props {
   userAnswer: UserAnswer
   setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
   testRequestResponse: RunResult | null
-  sendFileUploadMessage: (filename: string, file: File) => void
+  sendFileUploadMessage: (file: File) => void
   fileUploadResponse: UploadResultMessage | null
   grading?: ExerciseTaskGradingResult | null
 }

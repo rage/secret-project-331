@@ -16,7 +16,7 @@ interface Props {
   state: ExerciseIframeState | null
   setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
   testRequestResponse: RunResult | null
-  sendFileUploadMessage: (filename: string, file: File) => void
+  sendFileUploadMessage: (file: File) => void
   requestRepositoryExercises: () => void
   fileUploadResponse: UploadResultMessage | null
 }

@@ -6,12 +6,25 @@ use super::helpers::file_uploading;
 pub use crate::domain::{authorization::AuthorizationToken, models_requests::UploadClaim};
 use crate::prelude::*;
 use actix_files::NamedFile;
-use std::{
-    collections::HashMap,
-    path::{Component, Path},
-};
+use std::path::{Component, Path};
 use tokio::fs::read;
-use utoipa::OpenApi;
+use utoipa::{OpenApi, PartialSchema, ToSchema};
+
+/// OpenAPI-only representation of an arbitrary multipart binary part.
+struct ExerciseUploadBinary;
+
+impl PartialSchema for ExerciseUploadBinary {
+    fn schema() -> utoipa::openapi::RefOr<utoipa::openapi::schema::Schema> {
+        utoipa::openapi::schema::ObjectBuilder::new()
+            .schema_type(utoipa::openapi::schema::Type::String)
+            .format(Some(utoipa::openapi::SchemaFormat::KnownFormat(
+                utoipa::openapi::KnownFormat::Binary,
+            )))
+            .into()
+    }
+}
+
+impl ToSchema for ExerciseUploadBinary {}
 
 #[derive(OpenApi)]
 #[openapi(paths(upload_from_exercise_service))]
@@ -163,7 +176,7 @@ POST `/api/v0/files/:exercise_service_slug`
 Used to upload data from exercise service iframes.
 
 # Returns
-The randomly generated paths to each uploaded file in a `file_name => file_path` hash map.
+An ordered list of host-assigned file ids and stored URLs.
 */
 #[instrument(skip(payload, file_store, app_conf, upload_claim))]
 #[utoipa::path(
@@ -175,11 +188,11 @@ The randomly generated paths to each uploaded file in a `file_name => file_path`
         ("exercise_service_slug" = String, Path, description = "Exercise service slug")
     ),
     request_body(
-        content = String,
+        content = inline(std::collections::HashMap<String, ExerciseUploadBinary>),
         content_type = "multipart/form-data"
     ),
     responses(
-        (status = 200, description = "Uploaded files", body = HashMap<String, String>)
+        (status = 200, description = "Uploaded files", body = [file_uploading::ExerciseServiceUploadResultEntry])
     )
 )]
 
@@ -191,7 +204,7 @@ async fn upload_from_exercise_service(
     user: Option<AuthUser>,
     upload_claim: Result<UploadClaim, ControllerError>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<web::Json<HashMap<String, String>>> {
+) -> ControllerResult<web::Json<Vec<file_uploading::ExerciseServiceUploadResultEntry>>> {
     let mut conn = pool.acquire().await?;
     // accessed from exercise services, can't authenticate using login,
     // the upload claim is used to verify requests instead
@@ -224,26 +237,32 @@ async fn upload_from_exercise_service(
         }
     }
 
-    let mut paths = HashMap::new();
-    if let Err(outer_err) = file_uploading::process_exercise_service_upload(
+    let mut uploaded_paths = Vec::new();
+    let paths = match file_uploading::process_exercise_service_upload(
         &mut conn,
         exercise_service_slug.as_str(),
         payload,
         file_store.as_ref(),
-        &mut paths,
+        &mut uploaded_paths,
         user,
         &app_conf.base_url,
     )
     .await
     {
-        // something went wrong while uploading the files, try to delete leftovers
-        for path in paths.values() {
-            if let Err(err) = file_store.delete(Path::new(path)).await {
-                error!("Failed to delete file '{path}' during cleanup: {err}")
+        Ok(paths) => paths,
+        Err(outer_err) => {
+            // something went wrong while uploading the files, try to delete leftovers
+            for uploaded in uploaded_paths {
+                if let Err(err) = file_store.delete(Path::new(&uploaded.path)).await {
+                    error!(
+                        "Failed to delete file '{}' during cleanup: {err}",
+                        uploaded.path
+                    );
+                }
             }
+            return Err(outer_err);
         }
-        return Err(outer_err);
-    }
+    };
 
     token.authorized_ok(web::Json(paths))
 }
@@ -262,4 +281,21 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::post().to(upload_from_exercise_service),
         )
         .route("{tail:.*}", web::get().to(redirect_to_storage_service));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn exercise_upload_openapi_body_is_a_uuid_keyed_binary_map() {
+        let document = serde_json::to_value(FilesApiDoc::openapi()).unwrap();
+        let schema = document
+            .pointer("/paths/~1{exercise_service_slug}/post/requestBody/content/multipart~1form-data/schema")
+            .unwrap();
+
+        assert_eq!(schema["type"], "object");
+        assert_eq!(schema["additionalProperties"]["type"], "string");
+        assert_eq!(schema["additionalProperties"]["format"], "binary");
+    }
 }

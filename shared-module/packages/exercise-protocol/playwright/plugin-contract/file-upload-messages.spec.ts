@@ -10,9 +10,7 @@ import {
 
 const test = withBrowserDiagnostics(base)
 
-test("file-upload guards accept a genuine Map and File and reject plain objects", async ({
-  page,
-}) => {
+test("file-upload guards accept a genuine File array and reject non-arrays", async ({ page }) => {
   const file = new File([new Uint8Array([0, 1, 2, 255])], "sample.bin", {
     type: "application/octet-stream",
     lastModified: 1_725_000_000_000,
@@ -20,7 +18,7 @@ test("file-upload guards accept a genuine Map and File and reject plain objects"
   const message = {
     message: "file-upload",
     requestId: "request-1",
-    files: new Map<string, string | Blob>([["sample.bin", file]]),
+    files: [file],
   }
 
   expect(isFileUploadMessage(message)).toBe(true)
@@ -28,7 +26,7 @@ test("file-upload guards accept a genuine Map and File and reject plain objects"
   expect(
     isFileUploadMessage({
       ...message,
-      files: { "sample.bin": file },
+      files: { "0": file },
     }),
   ).toBe(false)
 
@@ -42,17 +40,17 @@ test("file-upload guards accept a genuine Map and File and reject plain objects"
       type: "application/octet-stream",
       lastModified: 1_725_000_000_000,
     })
-    channel.port1.postMessage(new Map([["sample.bin", sourceFile]]))
+    channel.port1.postMessage([sourceFile])
     const data = await received
-    if (!(data instanceof Map)) {
-      return { isMap: false }
+    if (!Array.isArray(data)) {
+      return { isArray: false }
     }
-    const receivedFile = data.get("sample.bin")
+    const receivedFile = data[0]
     if (!(receivedFile instanceof File)) {
-      return { isMap: true, isFile: false }
+      return { isArray: true, isFile: false }
     }
     return {
-      isMap: true,
+      isArray: true,
       isFile: true,
       name: receivedFile.name,
       type: receivedFile.type,
@@ -63,7 +61,7 @@ test("file-upload guards accept a genuine Map and File and reject plain objects"
   })
 
   expect(cloned).toEqual({
-    isMap: true,
+    isArray: true,
     isFile: true,
     name: "sample.bin",
     type: "application/octet-stream",
@@ -73,12 +71,12 @@ test("file-upload guards accept a genuine Map and File and reject plain objects"
   })
 })
 
-test("upload-result guards require URL Maps on success but accept correlated errors", () => {
+test("upload-result guards require ordered id/URL entries on success and correlated errors", () => {
   const success = {
     message: "upload-result",
     requestId: "request-1",
     success: true,
-    urls: new Map([["sample.bin", "https://files.example/sample.bin"]]),
+    files: [{ id: "host-file-1", url: "https://files.example/sample.bin" }],
   }
   const failure = {
     message: "upload-result",
@@ -94,7 +92,7 @@ test("upload-result guards require URL Maps on success but accept correlated err
   expect(
     isUploadResultMessage({
       ...success,
-      urls: { "sample.bin": "https://files.example/sample.bin" },
+      files: [{ id: "host-file-1" }],
     }),
   ).toBe(false)
   expect(isUploadResultMessage({ ...failure, requestId: 12 })).toBe(false)

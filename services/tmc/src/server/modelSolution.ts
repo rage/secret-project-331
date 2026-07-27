@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto"
 import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
 
@@ -6,7 +7,6 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { compressProject, extractProject, prepareSolution } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
@@ -117,9 +117,10 @@ const uploadModelSolution = async (
   await compressProject(solutionDir, solutionArchive, "zstd", true, log)
 
   const archiveName = exercise.part + "/" + exercise.name + "-solution.tar.zst"
+  const uploadId = randomUUID()
   debug("uploading solution", "archiveName:", archiveName)
   const form = new FormData()
-  form.append(archiveName, nodeFs.createReadStream(solutionArchive))
+  form.append(uploadId, nodeFs.createReadStream(solutionArchive), archiveName)
   const headers: Record<string, string> = {}
   if (uploadClaim) {
     headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
@@ -134,14 +135,13 @@ const uploadModelSolution = async (
   }
   const resData: unknown = await res.json()
   if (
-    isObjectMap(isString)(resData) &&
-    Object.prototype.hasOwnProperty.call(resData, archiveName) &&
-    typeof resData[archiveName] === "string"
+    Array.isArray(resData) &&
+    resData.length === 1 &&
+    resData[0]?.id === uploadId &&
+    typeof resData[0].url === "string"
   ) {
-    const solutionDownloadUrl = resData[archiveName]
+    const solutionDownloadUrl = resData[0].url
     return { spec: { solution_download_url: solutionDownloadUrl }, paths: [solutionArchive] }
   }
-  throw new Error(
-    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(resData)}`,
-  )
+  throw new Error(`Unexpected upload response for "${archiveName}" — ${JSON.stringify(resData)}`)
 }

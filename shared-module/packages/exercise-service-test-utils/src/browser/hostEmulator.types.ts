@@ -8,10 +8,9 @@ export interface RecordedMessage {
   [key: string]: unknown
 }
 
-/** Payload for `sendUploadResult`: either the stored URLs, or an error. */
+/** Payload for `sendUploadResult`: ordered host-assigned files, or an error. */
 export interface UploadResultInput {
-  /** name -> stored URL. A plain object is accepted and converted to the `Map` the protocol wants. */
-  urls?: Map<string, string> | Record<string, string>
+  files?: { id: string; url: string }[]
   error?: string
 }
 
@@ -29,7 +28,7 @@ export interface FileUploadEntrySnapshot {
 /** A browser-realm snapshot of a `file-upload`, including the bytes of every Blob/File. */
 export interface FileUploadSnapshot {
   requestId: string | null
-  filesKind: "map" | "plain-object" | "array" | "missing" | "other"
+  filesKind: "array" | "plain-object" | "map" | "missing" | "other"
   entries: FileUploadEntrySnapshot[]
 }
 
@@ -61,7 +60,7 @@ export interface HostApi {
   /** Tell the iframe the UI language (BCP 47 code). */
   setLanguage: (language: string) => void
   /** Reply to a `file-upload` (use with `autoUpload: false`), echoing its `requestId`. */
-  sendUploadResult: (requestId: string | null, result: UploadResultInput) => void
+  sendUploadResult: (requestId: string, result: UploadResultInput) => void
   /** Reply to an `open-dialog` (use with `autoDialog: false`), echoing its `requestId`. */
   respondToDialog: (requestId: string, confirmed: boolean) => void
   /** Answer a `request-repository-exercises` (TMC-style plugins). */

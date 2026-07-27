@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto"
 import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
 
@@ -6,7 +7,6 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { buildBrowserTestScript } from "@/tmc/browserTestScript"
 import {
@@ -146,9 +146,10 @@ const uploadPublicSpec = async (
   const checksum = await compressProject(stubDir, stubArchive, "zstd", true, log)
 
   const archiveName = buildArchiveName(exercise)
+  const uploadId = randomUUID()
   debug("uploading stub", "archiveName:", archiveName)
   const form = new FormData()
-  form.append(archiveName, nodeFs.createReadStream(stubArchive))
+  form.append(uploadId, nodeFs.createReadStream(stubArchive), archiveName)
   const headers: Record<string, string> = {}
   if (uploadClaim) {
     headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
@@ -163,13 +164,14 @@ const uploadPublicSpec = async (
   }
   const resData: unknown = await res.json()
   if (
-    isObjectMap(isString)(resData) &&
-    Object.prototype.hasOwnProperty.call(resData, archiveName) &&
-    typeof resData[archiveName] === "string" &&
-    resData[archiveName].length > 0
+    Array.isArray(resData) &&
+    resData.length === 1 &&
+    resData[0]?.id === uploadId &&
+    typeof resData[0].url === "string" &&
+    resData[0].url.length > 0
   ) {
     const config = await getExercisePackagingConfiguration(stubDir, log)
-    const stub_download_url = resData[archiveName]
+    const stub_download_url = resData[0].url
     return {
       spec: {
         type,
@@ -181,7 +183,5 @@ const uploadPublicSpec = async (
       paths: [stubArchive],
     }
   }
-  throw new Error(
-    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(resData)}`,
-  )
+  throw new Error(`Unexpected upload response for "${archiveName}" — ${JSON.stringify(resData)}`)
 }

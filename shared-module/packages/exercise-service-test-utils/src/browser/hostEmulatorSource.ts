@@ -226,11 +226,11 @@ export const HOST_EMULATOR_SOURCE = String.raw`(options) => {
       recordFileUpload(msg)
     }
     if (msg.message === "file-upload" && autoUpload) {
-      const urls = new Map()
-      msg.files.forEach((value, name) => {
-        urls.set(name, uploadUrlBase + encodeURIComponent(name))
-      })
-      post({ message: "upload-result", requestId: msg.requestId ?? null, success: true, urls })
+      const files = msg.files.map((file) => ({
+        id: crypto.randomUUID(),
+        url: uploadUrlBase + encodeURIComponent(file.name),
+      }))
+      post({ message: "upload-result", requestId: msg.requestId, success: true, files })
     } else if (msg.message === "open-dialog" && autoDialog) {
       post({ message: "dialog-response", requestId: msg.requestId, confirmed: true })
     }
@@ -291,11 +291,11 @@ export const HOST_EMULATOR_SOURCE = String.raw`(options) => {
     sendUploadResult(requestId, result) {
       const r = result || {}
       if (r.error !== undefined && r.error !== null) {
-        post({ message: "upload-result", requestId: requestId ?? null, success: false, error: r.error })
+        post({ message: "upload-result", requestId, success: false, error: r.error })
         return
       }
-      const urls = r.urls instanceof Map ? r.urls : new Map(Object.entries(r.urls || {}))
-      post({ message: "upload-result", requestId: requestId ?? null, success: true, urls })
+      const files = Array.isArray(r.files) ? r.files : []
+      post({ message: "upload-result", requestId, success: true, files })
     },
     respondToDialog(requestId, confirmed) {
       post({ message: "dialog-response", requestId, confirmed: confirmed !== false })

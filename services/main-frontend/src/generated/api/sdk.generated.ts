@@ -922,7 +922,7 @@ export type Options<
  * Used to upload data from exercise service iframes.
  *
  * # Returns
- * The randomly generated paths to each uploaded file in a `file_name => file_path` hash map.
+ * An ordered list of host-assigned file ids and stored URLs.
  */
 export const uploadFilesFromExerciseService = <ThrowOnError extends boolean = true>(
   options: Options<UploadFilesFromExerciseServiceData, ThrowOnError>,
@@ -2668,7 +2668,7 @@ export const getCourseAudiences = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.
  */
 export const getCourseMetadata = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseMetadataData, ThrowOnError>,

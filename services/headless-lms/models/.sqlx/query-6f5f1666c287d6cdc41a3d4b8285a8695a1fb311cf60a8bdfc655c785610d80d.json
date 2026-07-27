@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT * FROM course_page_markdown_content\nWHERE id = $1\nAND deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_page_markdown_content",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_page_markdown_content",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_page_markdown_content",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_page_markdown_content",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "markdown_content",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_page_markdown_content",
+            "name": "markdown_content"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "6f5f1666c287d6cdc41a3d4b8285a8695a1fb311cf60a8bdfc655c785610d80d"
+}

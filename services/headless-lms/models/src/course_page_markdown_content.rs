@@ -40,6 +40,22 @@ pub async fn insert(
     Ok(res)
 }
 
+pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<CoursePageMarkdownContent> {
+    let res = sqlx::query_as!(
+        CoursePageMarkdownContent,
+        r#"
+SELECT * FROM course_page_markdown_content
+WHERE id = $1
+AND deleted_at IS NULL
+    "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
 /// Get latest page content, either latest Markdown that has been synced or json format.
 pub async fn get_course_page_content_by_page_id(
     conn: &mut PgConnection,

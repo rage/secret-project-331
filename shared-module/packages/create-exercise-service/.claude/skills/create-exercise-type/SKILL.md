@@ -64,8 +64,9 @@ and propose the nearest feasible design rather than attempting it. Grounded in t
 that needs a live DB, a session, or a network call to another course service can't exist — grade runs
 from `private_spec + answer` alone (reference/07 §6), and the *only* sanctioned grading I/O is
 fetching a client-supplied URL, which is hostile input to be guarded, not a data source (§8). The
-plugin cannot store the uploaded files themselves — it only holds their URLs (see the file-upload
-gotcha below). You cannot mutate a stored blob's shape in place without a version bump + a migration
+plugin cannot store uploaded files or mint their IDs — it only receives host-assigned IDs and URLs
+(see the file-upload gotcha below). You cannot mutate a stored blob's shape in place without a
+version bump + a migration
 step (migrate-on-read, reference/07 §1); you cannot make view-submission depend on server-only data
 it is never sent; and nothing you build may require the host to migrate its database. When an ask
 lands here, refuse the impossible part explicitly and redesign around it.
@@ -228,12 +229,14 @@ Authoring gotchas (each cost a real session a debugging round-trip):
 - **The scaffold is ESM** (`type: module`): in Playwright/test files use
   `path.dirname(fileURLToPath(import.meta.url))`, never `__dirname`. The tsconfig has
   `noUncheckedIndexedAccess`, so `array[0]` is `T | undefined` — index with `?.`/`!` deliberately.
-- **File-upload exercises**: plugins never store files. The `useFileUpload(port)` hook
-  (`@/shared-module/exercise-react/react/hooks/useFileUpload`) sends `file-upload` to the host and
-  resolves to a `Map<name, url>` — the answer records the URLs. Meaningful upload tests disable the
-  emulator's automatic response, inspect the real `Map`/`File` request and exact bytes, then send a
-  correlated response; see `reference/08-browser-integration-testing.md`. If your grader downloads
-  these URLs, they are attacker-controlled input — SSRF-guard every fetch and see reference/07 §8.
+- **File-upload exercises**: plugins never store files or mint file IDs. The `useFileUpload(port)`
+  hook (`@/shared-module/exercise-react/react/hooks/useFileUpload`) sends an ordered `File[]` with a
+  request-only `requestId`, then resolves to ordered host-assigned `{ requestId, id, file, url }`
+  entries. Store the returned id and URL in the answer; never key files by filename or generate a
+  per-file id in the iframe. Meaningful upload tests disable the emulator's automatic response,
+  inspect the real `File[]` request and exact bytes, then send a correlated ordered `{ id, url }[]`
+  response; see `reference/08-browser-integration-testing.md`. If your grader downloads those URLs,
+  they are attacker-controlled input — SSRF-guard every fetch and see reference/07 §8.
 - **If the answer view seeds state from `previous_submission`, emit a `current-state` for it** —
   otherwise the host's `valid` gate stays unset and a student can't resubmit unchanged prior work.
 
@@ -285,9 +288,12 @@ smoke test, not a suite. Cover at least:
   answer, unknown ids);
 - an old-version spec fed via `set-state` emits the migrated current version.
 
-For uploads, set `autoUpload: false`; before responding, assert the request id, genuine `Map`/`File`
-shape, key, filename, MIME type, size, and exact fixture bytes/SHA-256. A fabricated host success or
-an emulator-generated URL proves only plugin behavior, never real host upload. Run the bundled
+For uploads, set `autoUpload: false`; before responding, assert the request id, genuine ordered
+`File[]` shape, duplicate filenames if applicable, filename, MIME type, size, and exact fixture
+bytes/SHA-256. Reply with host-assigned IDs in the same order and assert those IDs plus the request
+id reach the answer. Cover malformed/missing/extra results, host errors, and concurrent requests.
+A fabricated host success or an emulator-generated URL proves only plugin behavior, never real host
+upload. Run the bundled
 portable runner from the generated project root; it discovers the project and executes every
 required level, ending with the complete unfiltered suite:
 

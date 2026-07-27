@@ -196,16 +196,20 @@ immediately fetches its service-info. No monorepo changes.
 - [ ] `playwright/plugin-contract/` is **comprehensive**, not a smoke test: every editor control +
       `valid` transition, the answer flow's happy path and every client-side rejection the design
       defines, `previous_submission` seeding, view-submission including degenerate cases, and an
-      old-version spec emitting the migrated version. For uploads, inspect the captured browser-side
-      `Map`/`File` request before responding and assert request id, filename, MIME type, byte size,
-      and SHA-256; a fabricated emulator success is not real-host proof.
+      old-version spec emitting the migrated version. For uploads, inspect the captured ordered
+      browser-side `File[]` request before responding: request id, duplicate filenames where
+      relevant, MIME type, byte size, and SHA-256. Reply with host-assigned `{ id, url }[]` in the
+      same order and prove the answer records those IDs plus URLs; reject malformed/missing/extra
+      results. A fabricated emulator success is not real-host proof.
 - [ ] `playwright/iframe-boundary/` covers the same critical protocol through a sandboxed iframe at
-      a distinct origin in every configured browser. It preserves exact upload bytes and reports
-      browser/iframe transport failures with diagnostics.
+      a distinct origin in every configured browser. It preserves exact upload bytes, ordering,
+      request IDs, and host-assigned IDs (including duplicate filenames), and reports browser/iframe
+      transport failures with diagnostics.
 - [ ] `playwright/system/` contains real-host Playground coverage when that integration is in scope.
-      It intercepts the actual multipart request and asserts field name, filename, MIME type, bytes,
-      and digest. A required system test that fails is **incomplete verification**, even when lower
-      layers pass; do not replace it with an emulator assertion or mark it skipped.
+      It intercepts the actual multipart request and asserts UUID field names, original filename,
+      MIME type, bytes, and digest; then proves retrieved bytes, returned host ID/URL, emitted
+      state, and view-submission. A required system test that fails is **incomplete verification**,
+      even when lower layers pass; do not replace it with an emulator assertion or mark it skipped.
 - [ ] (Track B) `shared-module/sync.ts` targets updated (step 5) — including `TEST_UTIL_TARGETS` if
       browser suites are kept; seed row present; `exercise_service_info` populated; CMS can add the
       exercise; answering + grading + view-submission work end to end in a seeded course.

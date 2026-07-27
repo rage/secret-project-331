@@ -68,8 +68,9 @@ local plugin. Configure the Playground with the local service-info URL. Do not s
 emulator, a local copy of host code, or a fabricated upload-success message.
 
 For a host-mediated upload claim, inspect the real `/api/v0/files/playground` multipart request and
-assert its field name, filename, MIME type, length, exact bytes, and SHA-256. Then assert the returned
-URL and retrieved bytes, the plugin's `current-state`, and view-submission rendering. Do not persist
+assert its UUID field name, original filename, MIME type, length, exact bytes, and SHA-256. Then
+assert the returned host ID and URL, retrieved bytes, the plugin's `current-state`, and
+view-submission rendering. Do not persist
 a real course merely to prove this flow.
 
 If a known host regression prevents the multipart file from being sent, leave the assertion as an
@@ -83,28 +84,33 @@ Meaningful plugin-contract and iframe-boundary upload tests set `autoUpload: fal
 committed fixture through the rendered file input, then call `waitForFileUpload()` and assert the
 browser-realm snapshot **before** sending a host response:
 
-- `requestId` is present and is the id used by the correlated response;
-- `filesKind` is `"map"` (plain objects and arrays are not accepted as equivalent wire data);
-- the entries have the exact expected keys and order;
-- each entry is the expected `"file"` or `"blob"` kind;
+- `requestId` is present and is used only by the correlated response;
+- `filesKind` is `"array"`; the wire value is an ordered `File[]`, never a `Map`, object, or
+  plugin-supplied file-id wrapper;
+- the entries preserve the selected-file order, including duplicate filenames;
+- each entry is a `"file"` kind;
 - filename, MIME type, byte size, and `lastModified` semantics are correct;
 - SHA-256 equals the fixture's known digest and the observed bytes/length equal the fixture exactly.
 
-Build the snapshot in the browser realm before Playwright serialization. `Map`, `File`, and `Blob`
-must not be inferred from the empty-looking object that cross-realm serialization can produce.
-Respond only after every assertion passes, using the captured `requestId`. Tests for host rejection,
-missing URLs, delayed responses, and concurrent uploads should likewise control their responses
-manually. A client-side rejection must assert that `fileUploadCount()` does not increase.
+Build the snapshot in the browser realm before Playwright serialization. `File` must not be inferred
+from the empty-looking object that cross-realm serialization can produce. Respond only after every
+assertion passes, using the captured `requestId` and newly generated host IDs in matching order.
+Assert the plugin records each returned `{ requestId, id, url }` with its original file. Tests for
+host rejection, malformed/missing/extra result entries, delayed responses, and concurrent uploads
+should likewise control their responses manually. A client-side rejection must assert that
+`fileUploadCount()` does not increase.
 
 At minimum, file-upload exercises cover:
 
 - successful editor and answer uploads;
-- host rejection and malformed/missing returned URL;
-- delayed and concurrent response correlation;
+- host rejection and malformed/missing/extra returned result entries;
+- delayed and concurrent request/reply correlation;
+- duplicate filenames with distinct host-assigned IDs and preserved ordering;
 - client-side type/count/size rejection with no outgoing upload message;
 - multi-file selection, replacement/removal, and seeded prior answers;
 - exact bytes across the distinct-origin boundary in all configured engines;
-- the production Playground system request and post-success state described above.
+- the production Playground UUID-keyed multipart request, retrieved bytes, and post-success state
+  described above.
 
 ## Execution and diagnostics
 

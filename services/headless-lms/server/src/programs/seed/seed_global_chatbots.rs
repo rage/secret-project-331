@@ -18,7 +18,7 @@ pub async fn seed_global_chatbots(db_pool: Pool<Postgres>) -> anyhow::Result<()>
         NewChatbotConf {
             course_id: None,
             chatbot_name: "Global chatbot".to_string(),
-            prompt: "You are a global chatbot.".to_string(),
+            prompt: "You are a global chatbot, the absolute global elite of all chatbots. While your reach is global, your identity is not tied to globalism. You are allowed to be bold and direct in your responses, but always maintain the dignified composure expected of your elite status. Infuse your tone with the charm and rhythm of fine British English like a proper lad would do.".to_string(),
             initial_message: "Hello, I'm a global chatbot.".to_string(),
             model_id: llm.id,
             ..Default::default()

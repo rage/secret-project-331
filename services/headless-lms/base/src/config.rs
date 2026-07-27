@@ -100,9 +100,13 @@ impl AzureChatbotConfiguration {
     pub fn try_from_env() -> anyhow::Result<Option<Self>> {
         let api_key = env::var("AZURE_CHATBOT_API_KEY").ok();
         let api_endpoint_str = env::var("AZURE_CHATBOT_API_ENDPOINT").ok();
+        let project_name = env::var("AZURE_PROJECT_NAME").ok();
 
-        if let (Some(api_key), Some(api_endpoint_str)) = (api_key, api_endpoint_str) {
-            let api_endpoint = Url::parse(&api_endpoint_str)
+        if let (Some(api_key), Some(api_endpoint_str), Some(project_name)) =
+            (api_key, api_endpoint_str, project_name)
+        {
+            let api_endpoint = Url::parse(&api_endpoint_str)?
+                .join(&format!("/api/projects/{project_name}/openai/v1/responses"))
                 .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?;
             Ok(Some(AzureChatbotConfiguration {
                 api_key: SecretString::new(api_key.into()),

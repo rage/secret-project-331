@@ -82,15 +82,16 @@ RETURNING *
 
 pub async fn get_course_ids_by_prerequisite(
     conn: &mut PgConnection,
-    prerequisites: &[String],
+    prerequisite_query: String,
 ) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query_scalar!(
         r#"
 SELECT DISTINCT course_id
 FROM course_prerequisites
-WHERE prerequisite = ANY($1::text [])
+WHERE to_tsvector('english', prerequisite)
+@@ websearch_to_tsquery('english', $1)
         "#,
-        &prerequisites
+        prerequisite_query
     )
     .fetch_all(conn)
     .await?;

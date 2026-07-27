@@ -82,15 +82,16 @@ RETURNING *
 
 pub async fn get_course_ids_by_audience(
     conn: &mut PgConnection,
-    audiences: &[String],
+    audience_query: String,
 ) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query_scalar!(
         r#"
 SELECT DISTINCT course_id
 FROM course_audiences
-WHERE audience = ANY($1::text [])
+WHERE to_tsvector('english', audience)
+@@ websearch_to_tsquery('english', $1)
         "#,
-        &audiences
+        audience_query
     )
     .fetch_all(conn)
     .await?;

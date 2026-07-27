@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT DISTINCT course_id\nFROM course_audiences\nWHERE audience = ANY($1::text [])\n        ",
+  "query": "\nSELECT DISTINCT course_id\nFROM course_audiences\nWHERE to_tsvector('english', audience)\n@@ websearch_to_tsquery('english', $1)\n        ",
   "describe": {
     "columns": [
       {
@@ -17,12 +17,12 @@
     ],
     "parameters": {
       "Left": [
-        "TextArray"
+        "Text"
       ]
     },
     "nullable": [
       false
     ]
   },
-  "hash": "5f6f84f08a35a0d5b5f7e5d648a226f275d9f42f74a1d241117b6cda6b1f2d27"
+  "hash": "9259f053de0955d7ff6ba3f408065da41fc8db44e90f096fc75fe566792a8e3a"
 }

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     course_audiences::get_course_ids_by_audience,
     course_prerequisites::get_course_ids_by_prerequisite,
@@ -11,6 +12,7 @@ use crate::{
     azure_chatbot::{
         ArrayItem, ArrayProperty, ChatbotUserContext, JSONType, JsonItem, SchemaPropertyType,
     },
+    azure_embedding::create_embedding,
     chatbot_tools::{
         AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
         ToolProperties,
@@ -43,17 +45,22 @@ impl ChatbotTool for CourseFinderTool {
         arguments: Self::Arguments,
         _user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
-        let audience_courses = get_course_ids_by_audience(conn, &arguments.audiences).await?;
-        let prerequisite_courses =
-            get_course_ids_by_prerequisite(conn, &arguments.prerequisites).await?;
         let description_query_string = arguments.description.join(" OR ");
+        let audience_query_string = arguments.audiences.join(" OR ");
+        let prerequisites_query_string = arguments.prerequisites.join(" OR ");
+
+        let audience_courses = get_course_ids_by_audience(conn, audience_query_string).await?;
+        let prerequisite_courses =
+            get_course_ids_by_prerequisite(conn, prerequisites_query_string).await?;
 
         let description_courses =
             get_by_description_keywords(conn, description_query_string).await?;
+        let app_config = ApplicationConfiguration::try_from_env()?;
+        let input = "testing".to_string();
+        create_embedding(input, &app_config).await?;
 
         let course_ids = [audience_courses, prerequisite_courses, description_courses].concat();
         let courses = courses::get_by_ids(conn, &course_ids).await?;
-        //let course_json = serde_json::to_string(&courses);
         Ok(CourseFinderTool {
             state: CourseFinderState { courses },
             arguments,
@@ -69,13 +76,11 @@ impl ChatbotTool for CourseFinderTool {
         Some("Do not return the JSON of the courses to the user. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
     }
 
-    // Look up the full content of a specific document by the title and filepath or id (page_id). The needed arguments can be found from Azure search results or by using the course_structure tool. Either a filepath or a page_id is required to find the correct document, in addition to the document title.
-
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
             name: "course_finder".to_string(),
-            description: "Find all the courses that fit the user inquiry. The arguments should be created based on the terms with which the user wants to filter the courses. The needed arguments should therefore be parsed from the user message.".to_string(),
+            description: "Find suitable courses for the user if they want to find available courses for their conditions. The arguments should be created based on the terms with which the user wants to filter the courses. The needed arguments should therefore be parsed from the user message. The arguments are arrays of keywords extracted from the user message. This tool is useful to find any courses if the user wants recommendations for courses they can take.".to_string(),
             parameters: LLMToolParams {
                 tool_type: LLMToolParamType::Object,
                 properties: HashMap::from([
@@ -94,7 +99,7 @@ impl ChatbotTool for CourseFinderTool {
                         "prerequisites".to_string(),
                         SchemaPropertyType::ArrayProperty(ArrayProperty {
                                 type_field: JSONType::Array,
-                            description: Some("List of preliminary knowledge possessed to be suitable for a course.".to_string()),
+                            description: Some("List of keywords of preliminary knowledge possessed to be suitable for a course.".to_string()),
                             items: ArrayItem::JsonItem(JsonItem {
                                     type_field: JSONType::String,
                                     description: None,
@@ -105,7 +110,7 @@ impl ChatbotTool for CourseFinderTool {
                         "audiences".to_string(),
                         SchemaPropertyType::ArrayProperty(ArrayProperty {
                                 type_field: JSONType::Array,
-                            description: Some("LIst of audience types that a course is suitable for.".to_string()),
+                            description: Some("List of keywords of audience types that a course is suitable for.".to_string()),
                             items: ArrayItem::JsonItem(JsonItem {
                                     type_field: JSONType::String,
                                     description: None,

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT DISTINCT course_id\nFROM course_prerequisites\nWHERE prerequisite = ANY($1::text [])\n        ",
+  "query": "\nSELECT DISTINCT course_id\nFROM course_prerequisites\nWHERE to_tsvector('english', prerequisite)\n@@ websearch_to_tsquery('english', $1)\n        ",
   "describe": {
     "columns": [
       {
@@ -17,12 +17,12 @@
     ],
     "parameters": {
       "Left": [
-        "TextArray"
+        "Text"
       ]
     },
     "nullable": [
       false
     ]
   },
-  "hash": "4552761bb8e6aa75ca3be5d840b85c76ddcbb44bf4ccfa34e452843fa12ec070"
+  "hash": "3e1f4a02c3c66258827b03aeeb3ea09013f31ed24ebf955297cb0e1bff01b131"
 }

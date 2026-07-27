@@ -18,7 +18,9 @@ use rand::seq::IndexedRandom;
 use utoipa::OpenApi;
 
 use crate::{
-    domain::authorization::{authorize, authorize_access_to_course_material},
+    domain::authorization::{
+        authorize, authorize_access_to_chatbot, authorize_access_to_course_material,
+    },
     prelude::*,
 };
 
@@ -109,11 +111,10 @@ async fn send_message(
     let mut conn = pool.acquire().await?;
     let chatbot_configuration =
         chatbot_configurations::get_by_id(&mut conn, chatbot_configuration_id).await?;
-    let token = if let Some(course_id) = chatbot_configuration.course_id {
-        authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?
-    } else {
-        authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?
-    };
+
+    let token =
+        authorize_access_to_chatbot(&mut conn, Some(user.id), chatbot_configuration.course_id)
+            .await?;
 
     let conversation = chatbot_conversations::get_by_id(&mut conn, conversation_id).await?;
     if conversation.user_id != user.id
@@ -193,11 +194,9 @@ async fn new_conversation(
     let mut conn = pool.acquire().await?;
 
     let configuration = models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
-    let token = if let Some(course_id) = configuration.course_id {
-        authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?
-    } else {
-        authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?
-    };
+
+    let token =
+        authorize_access_to_chatbot(&mut conn, Some(user.id), configuration.course_id).await?;
 
     let conversation = models::chatbot_conversations::create_for_user_and_configuration(
         &mut conn,
@@ -265,11 +264,11 @@ async fn current_conversation_info(
     let mut conn = pool.acquire().await?;
     let chatbot_configuration =
         models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
-    let token = if let Some(course_id) = chatbot_configuration.course_id {
-        authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?
-    } else {
-        authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?
-    };
+
+    let token =
+        authorize_access_to_chatbot(&mut conn, Some(user.id), chatbot_configuration.course_id)
+            .await?;
+
     let res = chatbot_conversations::get_current_conversation_info(
         &mut conn,
         user.id,

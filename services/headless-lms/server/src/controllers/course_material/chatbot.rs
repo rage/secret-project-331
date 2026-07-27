@@ -17,12 +17,7 @@ use headless_lms_models::{chatbot_configurations, courses};
 use rand::seq::IndexedRandom;
 use utoipa::OpenApi;
 
-use crate::{
-    domain::authorization::{
-        authorize, authorize_access_to_chatbot, authorize_access_to_course_material,
-    },
-    prelude::*,
-};
+use crate::{domain::authorization::authorize_access_to_chatbot, prelude::*};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -134,20 +129,10 @@ async fn send_message(
         None
     };
 
-    let chatbot_user = if let (Some(course_id), Some(course_name)) =
-        ((chatbot_configuration.course_id), course_name)
-    {
-        ChatbotUserContext {
-            user_id: Some(user.id.to_owned()),
-            course_id: Some(course_id),
-            course_name: Some(course_name),
-        }
-    } else {
-        ChatbotUserContext {
-            user_id: None,
-            course_id: None,
-            course_name: None,
-        }
+    let chatbot_user = ChatbotUserContext {
+        user_id: Some(user.id.to_owned()),
+        course_id: chatbot_configuration.course_id.map(|course_id| course_id),
+        course_name: course_name.map(|course_name| course_name),
     };
 
     let response_stream = send_chat_request_and_parse_stream(

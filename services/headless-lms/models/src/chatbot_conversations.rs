@@ -175,27 +175,14 @@ pub async fn get_current_conversation_info(
         None
     };
 
-    if let Some(course) = course {
-        Ok(ChatbotConversationInfo {
-            current_conversation,
-            current_conversation_messages,
-            current_conversation_message_citations,
-            suggested_messages,
-            // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
-            chatbot_name: chatbot_configuration.chatbot_name,
-            course_name: Some(course.name),
-            hide_citations: chatbot_configuration.hide_citations,
-        })
-    } else {
-        Ok(ChatbotConversationInfo {
-            current_conversation,
-            current_conversation_messages,
-            current_conversation_message_citations,
-            suggested_messages,
-            // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
-            chatbot_name: chatbot_configuration.chatbot_name,
-            course_name: None,
-            hide_citations: chatbot_configuration.hide_citations,
-        })
-    }
+    Ok(ChatbotConversationInfo {
+        current_conversation,
+        current_conversation_messages,
+        current_conversation_message_citations,
+        suggested_messages,
+        // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
+        chatbot_name: chatbot_configuration.chatbot_name,
+        course_name: course.map(|course| course.name),
+        hide_citations: chatbot_configuration.hide_citations,
+    })
 }

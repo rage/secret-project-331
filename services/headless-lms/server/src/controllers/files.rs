@@ -238,7 +238,7 @@ async fn upload_from_exercise_service(
     }
 
     let mut uploaded_paths = Vec::new();
-    let paths = match file_uploading::process_exercise_service_upload(
+    let uploaded_files = match file_uploading::process_exercise_service_upload(
         &mut conn,
         exercise_service_slug.as_str(),
         payload,
@@ -264,7 +264,7 @@ async fn upload_from_exercise_service(
         }
     };
 
-    token.authorized_ok(web::Json(paths))
+    token.authorized_ok(web::Json(uploaded_files))
 }
 
 /**
@@ -288,7 +288,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn exercise_upload_openapi_body_is_a_uuid_keyed_binary_map() {
+    fn exercise_upload_openapi_body_is_a_string_keyed_binary_map() {
         let document = serde_json::to_value(FilesApiDoc::openapi()).unwrap();
         let schema = document
             .pointer("/paths/~1{exercise_service_slug}/post/requestBody/content/multipart~1form-data/schema")

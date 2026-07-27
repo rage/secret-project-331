@@ -569,7 +569,7 @@ surfaces "verified"/"fully verified" on a green `tsc`/vitest/playwright run alon
 
 Keep every browser spec under `playwright/`, with four fixed directories:
 
-```
+```text
 playwright/
   plugin-contract/   # typed host emulator; plugin behaviour and protocol shape
   iframe-boundary/   # sandboxed, distinct-origin iframe transport

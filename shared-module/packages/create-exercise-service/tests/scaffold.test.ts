@@ -90,7 +90,9 @@ describe("scaffoldReactProject", () => {
       "playwright/system",
       "playwright/fixtures",
     ]) {
-      await assert.doesNotReject(stat(join(projectPath, rel)), `${rel} should exist`)
+      const directoryStats = stat(join(projectPath, rel))
+      await assert.doesNotReject(directoryStats, `${rel} should exist`)
+      assert.ok((await directoryStats).isDirectory(), `${rel} should be a directory`)
     }
     await assert.rejects(
       stat(join(projectPath, "e2e")),
@@ -255,7 +257,9 @@ describe("scaffoldReactProject (npm strategy)", () => {
       "playwright/system",
       "playwright/fixtures",
     ]) {
-      await assert.doesNotReject(stat(join(projectPath, rel)), `${rel} should exist`)
+      const directoryStats = stat(join(projectPath, rel))
+      await assert.doesNotReject(directoryStats, `${rel} should exist`)
+      assert.ok((await directoryStats).isDirectory(), `${rel} should be a directory`)
     }
     await assert.rejects(stat(join(projectPath, "e2e")))
   })

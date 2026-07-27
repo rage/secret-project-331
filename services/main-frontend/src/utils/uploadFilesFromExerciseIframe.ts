@@ -15,7 +15,9 @@ export async function uploadFilesFromExerciseIframe(
   exerciseServiceSlug: string,
   files: readonly File[],
 ): Promise<FileUploadResultEntry[]> {
-  const body = Object.fromEntries(files.map((file) => [crypto.randomUUID(), file]))
+  const uploads = files.map((file) => [crypto.randomUUID(), file] as const)
+  const ids = uploads.map(([id]) => id)
+  const body = Object.fromEntries(uploads)
   const response = await uploadFilesFromExerciseService({
     body,
     path: { exercise_service_slug: exerciseServiceSlug },
@@ -23,7 +25,8 @@ export async function uploadFilesFromExerciseIframe(
   if (
     !Array.isArray(response) ||
     !response.every((entry) => isUploadResultEntry(entry)) ||
-    response.length !== files.length
+    response.length !== files.length ||
+    response.some((entry, index) => entry.id !== ids[index])
   ) {
     throw new Error("The upload service returned an invalid file result")
   }

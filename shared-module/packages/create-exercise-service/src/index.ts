@@ -58,7 +58,7 @@ const VENDORED_PACKAGES = [
   "exercise-service-test-utils",
 ]
 
-/** Top-level entries in the template that must never be copied into a generated project. */
+/** Entries in the template that must never be copied into a generated project. */
 export const COPY_EXCLUDES = new Set([
   "node_modules",
   "dist",
@@ -77,6 +77,7 @@ export const COPY_EXCLUDES = new Set([
   "playwright-report",
   "blob-report",
   ".playwright-cli",
+  "playwright/.cache",
   // moocfi-internal deployment files (private GCR base images + pnpm workspace); broken in a
   // standalone project, so not generated.
   "Dockerfile",
@@ -149,7 +150,8 @@ export async function copyTemplate(src: string, dest: string): Promise<void> {
       }
       const rel = relative(src, source)
       const topLevel = rel.split(sep)[0] ?? ""
-      if (COPY_EXCLUDES.has(topLevel)) {
+      const normalizedRel = rel.split(sep).join("/")
+      if (COPY_EXCLUDES.has(topLevel) || COPY_EXCLUDES.has(normalizedRel)) {
         return false
       }
       // The synced shared-module copy is git-ignored and excluded from tsc; we vendor a fresh one.
@@ -362,17 +364,20 @@ function assertPortableExercisePackageSpecifiers(
   specifiers: Partial<Record<ExercisePackageName, string>>,
 ): void {
   for (const [packageName, specifier] of Object.entries(specifiers)) {
-    if (!specifier.startsWith("file:")) {
+    const protocol = ["file:", "link:", "portal:"].find((candidate) =>
+      specifier.startsWith(candidate),
+    )
+    if (!protocol) {
       continue
     }
 
-    const filePath = specifier.slice("file:".length)
+    const filePath = specifier.slice(protocol.length)
     const isAbsolute =
       filePath.startsWith("/") || filePath.startsWith("\\") || /^[A-Za-z]:[\\/]/.test(filePath)
     if (isAbsolute) {
       throw new Error(
-        `Absolute file: specifier for ${packageName} is not portable: ${specifier}. ` +
-          "Use a file: path relative to the generated project instead.",
+        `Absolute ${protocol} specifier for ${packageName} is not portable: ${specifier}. ` +
+          `Use a ${protocol} path relative to the generated project instead.`,
       )
     }
   }
@@ -396,8 +401,9 @@ export interface ScaffoldOptions {
   exercisePackagesVersion?: string
   /**
    * Per-package npm specifier overrides for locally packed or otherwise unpublished packages.
-   * Relative `file:` paths are preserved verbatim; absolute `file:` paths are rejected so the
-   * generated package.json remains portable. Ignored when `sharedModule` is "vendor".
+   * Relative `file:`, `link:`, and `portal:` paths are preserved verbatim; absolute local paths are
+   * rejected so the generated package.json remains portable. Ignored when `sharedModule` is
+   * "vendor".
    */
   exercisePackageSpecifiers?: Partial<Record<ExercisePackageName, string>>
 }

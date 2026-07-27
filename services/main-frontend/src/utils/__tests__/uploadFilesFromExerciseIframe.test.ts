@@ -43,6 +43,20 @@ describe("uploadFilesFromExerciseIframe", () => {
     })
   })
 
+  it("rejects host results whose IDs do not match multipart UUID order", async () => {
+    upload.mockResolvedValue([
+      { id: "bbbbbbbb-0000-4000-8000-000000000000", url: "https://files.example/two" },
+      { id: "aaaaaaaa-0000-4000-8000-000000000000", url: "https://files.example/one" },
+    ])
+
+    await expect(
+      uploadFilesFromExerciseIframe("file-submission", [
+        new File(["first"], "first.txt"),
+        new File(["second"], "second.txt"),
+      ]),
+    ).rejects.toThrow("invalid file result")
+  })
+
   it.each([
     [[]],
     [[{ id: "host-1" }]],
@@ -54,7 +68,7 @@ describe("uploadFilesFromExerciseIframe", () => {
         { id: "host-3", url: "https://files.example/three" },
       ],
     ],
-  ])("rejects malformed or mis-sized upload results", async (response) => {
+  ])("rejects malformed or mis-sized upload results (%#)", async (response) => {
     upload.mockResolvedValue(response as never)
 
     await expect(

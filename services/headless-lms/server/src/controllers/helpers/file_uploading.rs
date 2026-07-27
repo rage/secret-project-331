@@ -22,8 +22,8 @@ use std::{collections::HashSet, path::Path};
 use std::{
     path::PathBuf,
     sync::{
-        Arc,
         atomic::{AtomicU64, Ordering},
+        Arc, Mutex,
     },
 };
 use utoipa::ToSchema;
@@ -38,9 +38,15 @@ pub struct ExerciseServiceUploadResultEntry {
     pub url: String,
 }
 
-/** Tracks uploaded object paths; the enclosing database transaction rolls metadata back on failure. */
+/** Tracks uploaded object paths for cleanup when the batch fails. */
 pub struct ExerciseServiceUploadCleanup {
     pub path: String,
+}
+
+struct ExerciseServiceUploadMetadata {
+    path: String,
+    filename: String,
+    mime_type: String,
 }
 
 /// Processes an upload from an exercise service or an exercise iframe.
@@ -55,24 +61,23 @@ pub async fn process_exercise_service_upload(
     base_url: &str,
 ) -> Result<Vec<ExerciseServiceUploadResultEntry>, ControllerError> {
     let mut results = Vec::new();
+    let mut metadata = Vec::new();
     let mut ids = HashSet::new();
     let batch_bytes = Arc::new(AtomicU64::new(0));
-    let mut tx = conn.begin().await?;
     while let Some(item) = payload.next().await {
         let field = item.map_err(|err| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
+            controller_err!(
+                BadRequest,
                 format!("Failed to read multipart field: {}", err),
-                Some(anyhow::anyhow!("Multipart error: {}", err)),
+                anyhow::anyhow!("Multipart error: {}", err)
             )
         })?;
         validate_exercise_upload_file_count(results.len())?;
         let field_name = {
             let name_ref = field.name().ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "Tried to upload a file without a file name".to_string(),
-                    None,
+                controller_err!(
+                    BadRequest,
+                    "Tried to upload a file without a file name".to_string()
                 )
             })?;
             name_ref.to_string()
@@ -93,51 +98,81 @@ pub async fn process_exercise_service_upload(
             .content_type()
             .map(ToString::to_string)
             .unwrap_or_default();
-        let stream = limited_exercise_upload_stream(field, batch_bytes.clone());
-        upload_file_to_storage_in_existing_transaction(
-            &mut tx,
-            Path::new(&path),
-            &filename,
-            &mime_type,
-            stream,
-            file_store,
-            uploader.map(|u| u.id),
-        )
-        .await?;
+        let (stream, stream_error) = limited_exercise_upload_stream(field, batch_bytes.clone());
+        let upload_result = file_store
+            .upload_stream(Path::new(&path), stream, &mime_type)
+            .await;
+        if let Some(error) = stream_error
+            .lock()
+            .expect("stream error mutex poisoned")
+            .take()
+        {
+            return Err(error);
+        }
+        upload_result?;
         let url = format!("{base_url}/api/v0/files/{path}");
         results.push(ExerciseServiceUploadResultEntry {
             id: field_name,
             url,
         });
+        metadata.push(ExerciseServiceUploadMetadata {
+            path,
+            filename,
+            mime_type,
+        });
     }
     validate_exercise_upload_not_empty(results.len())?;
+    let mut tx = conn.begin().await?;
+    for upload in metadata {
+        models::file_uploads::insert(
+            &mut tx,
+            &upload.filename,
+            &upload.path,
+            &upload.mime_type,
+            uploader.map(|user| user.id),
+        )
+        .await?;
+    }
     tx.commit().await?;
     Ok(results)
 }
 
-fn limited_exercise_upload_stream(field: mp::Field, batch_bytes: Arc<AtomicU64>) -> GenericPayload {
+fn limited_exercise_upload_stream(
+    field: mp::Field,
+    batch_bytes: Arc<AtomicU64>,
+) -> (GenericPayload, Arc<Mutex<Option<ControllerError>>>) {
     let per_file_bytes = Arc::new(AtomicU64::new(0));
-    Box::pin(futures::stream::try_unfold(
-        (field, per_file_bytes, batch_bytes),
-        |(mut field, per_file_bytes, batch_bytes)| async move {
+    let stream_error = Arc::new(Mutex::new(None));
+    let payload_stream_error = stream_error.clone();
+    let stream = Box::pin(futures::stream::try_unfold(
+        (field, per_file_bytes, batch_bytes, payload_stream_error),
+        |(mut field, per_file_bytes, batch_bytes, stream_error)| async move {
             let Some(chunk) = field.next().await else {
                 return Ok(None);
             };
             let chunk = chunk.map_err(|error| anyhow::Error::msg(error.to_string()))?;
-            consume_exercise_upload_bytes(&per_file_bytes, &batch_bytes, chunk.len())?;
-            Ok(Some((chunk, (field, per_file_bytes, batch_bytes))))
+            if let Err(error) =
+                consume_exercise_upload_bytes(&per_file_bytes, &batch_bytes, chunk.len())
+            {
+                *stream_error.lock().expect("stream error mutex poisoned") = Some(error);
+                return Err(anyhow::Error::msg("Exercise upload exceeds the size limit"));
+            }
+            Ok(Some((
+                chunk,
+                (field, per_file_bytes, batch_bytes, stream_error),
+            )))
         },
-    ))
+    ));
+    (stream, stream_error)
 }
 
 fn validate_exercise_upload_file_count(files_received: usize) -> Result<(), ControllerError> {
     if files_received < EXERCISE_UPLOAD_MAX_FILES {
         return Ok(());
     }
-    Err(ControllerError::new(
-        ControllerErrorType::BadRequest,
-        format!("A maximum of {EXERCISE_UPLOAD_MAX_FILES} files can be uploaded at once"),
-        None,
+    Err(controller_err!(
+        BadRequest,
+        format!("A maximum of {EXERCISE_UPLOAD_MAX_FILES} files can be uploaded at once")
     ))
 }
 
@@ -146,19 +181,17 @@ fn validate_exercise_upload_id(
     ids: &mut HashSet<String>,
 ) -> Result<(), ControllerError> {
     Uuid::parse_str(field_name).map_err(|_| {
-        ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Each exercise upload field name must be a UUID".to_string(),
-            None,
+        controller_err!(
+            BadRequest,
+            "Each exercise upload field name must be a UUID".to_string()
         )
     })?;
     if ids.insert(field_name.to_string()) {
         return Ok(());
     }
-    Err(ControllerError::new(
-        ControllerErrorType::BadRequest,
-        "Duplicate exercise upload field id".to_string(),
-        None,
+    Err(controller_err!(
+        BadRequest,
+        "Duplicate exercise upload field id".to_string()
     ))
 }
 
@@ -166,10 +199,9 @@ fn validate_exercise_upload_filename(filename: Option<&str>) -> Result<&str, Con
     filename
         .filter(|filename| !filename.is_empty())
         .ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Every exercise upload part must be a file with a filename".to_string(),
-                None,
+            controller_err!(
+                BadRequest,
+                "Every exercise upload part must be a file with a filename".to_string()
             )
         })
 }
@@ -178,10 +210,9 @@ fn validate_exercise_upload_not_empty(files_received: usize) -> Result<(), Contr
     if files_received > 0 {
         return Ok(());
     }
-    Err(ControllerError::new(
-        ControllerErrorType::BadRequest,
-        "At least one file must be uploaded".to_string(),
-        None,
+    Err(controller_err!(
+        BadRequest,
+        "At least one file must be uploaded".to_string()
     ))
 }
 
@@ -189,8 +220,14 @@ fn consume_exercise_upload_bytes(
     per_file_bytes: &AtomicU64,
     batch_bytes: &AtomicU64,
     chunk_len: usize,
-) -> anyhow::Result<()> {
-    let chunk_len = u64::try_from(chunk_len).context("exercise upload chunk length overflow")?;
+) -> Result<(), ControllerError> {
+    let chunk_len = u64::try_from(chunk_len).map_err(|error| {
+        controller_err!(
+            BadRequest,
+            "exercise upload chunk length overflow".to_string(),
+            error
+        )
+    })?;
     let file_total = per_file_bytes.fetch_add(chunk_len, Ordering::Relaxed) + chunk_len;
     let batch_total = batch_bytes.fetch_add(chunk_len, Ordering::Relaxed) + chunk_len;
     if file_total <= EXERCISE_UPLOAD_MAX_FILE_BYTES
@@ -198,8 +235,9 @@ fn consume_exercise_upload_bytes(
     {
         return Ok(());
     }
-    Err(anyhow::Error::msg(
-        "Exercise upload exceeds the 100 MiB per-file or batch limit",
+    Err(controller_err!(
+        BadRequest,
+        "Exercise upload exceeds the 100 MiB per-file or batch limit"
     ))
 }
 
@@ -213,18 +251,14 @@ mod exercise_upload_tests {
         let mut ids = HashSet::new();
 
         assert!(validate_exercise_upload_id(&id, &mut ids).is_ok());
-        assert!(
-            validate_exercise_upload_id(&id, &mut ids)
-                .unwrap_err()
-                .to_string()
-                .contains("Duplicate")
-        );
-        assert!(
-            validate_exercise_upload_id("filename.pdf", &mut ids)
-                .unwrap_err()
-                .to_string()
-                .contains("must be a UUID")
-        );
+        assert!(validate_exercise_upload_id(&id, &mut ids)
+            .unwrap_err()
+            .to_string()
+            .contains("Duplicate"));
+        assert!(validate_exercise_upload_id("filename.pdf", &mut ids)
+            .unwrap_err()
+            .to_string()
+            .contains("must be a UUID"));
     }
 
     #[test]
@@ -232,11 +266,19 @@ mod exercise_upload_tests {
         let per_file = AtomicU64::new(EXERCISE_UPLOAD_MAX_FILE_BYTES - 1);
         let batch = AtomicU64::new(EXERCISE_UPLOAD_MAX_BATCH_BYTES - 1);
         assert!(consume_exercise_upload_bytes(&per_file, &batch, 1).is_ok());
-        assert!(consume_exercise_upload_bytes(&per_file, &batch, 1).is_err());
+        let error = consume_exercise_upload_bytes(&per_file, &batch, 1).unwrap_err();
+        assert!(matches!(
+            error.error_type(),
+            ControllerErrorType::BadRequest
+        ));
 
         let per_file = AtomicU64::new(0);
         let batch = AtomicU64::new(EXERCISE_UPLOAD_MAX_BATCH_BYTES);
-        assert!(consume_exercise_upload_bytes(&per_file, &batch, 1).is_err());
+        let error = consume_exercise_upload_bytes(&per_file, &batch, 1).unwrap_err();
+        assert!(matches!(
+            error.error_type(),
+            ControllerErrorType::BadRequest
+        ));
     }
 
     #[test]

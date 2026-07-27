@@ -25,7 +25,8 @@ export class FileUploadError extends Error {}
 export interface ParentUploadClientOptions {
   /**
    * How long to wait for the parent's `upload-result` before rejecting. Guards against a host that
-   * never answers — e.g. one predating file-upload support, or a reply that can't be correlated.
+   * never answers — e.g. one predating file-upload support. Replies with unknown request IDs are
+   * ignored because they do not belong to a pending upload.
    * Uploads of large files over slow links are legitimately slow, so the default is generous.
    * Default: 120000 (2 minutes).
    */
@@ -88,8 +89,7 @@ export class ParentUploadClient {
     const message: FileUploadMessage = { message: "file-upload", requestId, files: [...files] }
     return new Promise<UploadedFile[]>((resolve, reject) => {
       // Reject rather than hang forever if the parent never replies — a host that predates
-      // file-upload support ignores the message, and an uncorrelated reply is dropped when it's
-      // ambiguous (see handleMessage). Without this the promise would never settle.
+      // file-upload support ignores the message. Without this the promise would never settle.
       const timer = setTimeout(() => {
         this.pending.delete(requestId)
         reject(
@@ -120,16 +120,26 @@ export class ParentUploadClient {
   }
 
   private handleMessage(data: unknown): void {
-    if (!isUploadResultMessage(data)) {
+    if (
+      !data ||
+      typeof data !== "object" ||
+      (data as { message?: unknown }).message !== "upload-result" ||
+      typeof (data as { requestId?: unknown }).requestId !== "string"
+    ) {
       return
     }
-    const entry = this.pending.get(data.requestId)
+    const requestId = (data as { requestId: string }).requestId
+    const entry = this.pending.get(requestId)
     if (!entry) {
       // Unknown or already-resolved request id.
       return
     }
     clearTimeout(entry.timer)
-    this.pending.delete(data.requestId)
+    this.pending.delete(requestId)
+    if (!isUploadResultMessage(data)) {
+      entry.reject(new FileUploadError("The parent returned an invalid upload result"))
+      return
+    }
     if (data.success) {
       if (data.files.length !== entry.files.length) {
         entry.reject(
@@ -139,15 +149,16 @@ export class ParentUploadClient {
         )
         return
       }
-      entry.resolve(
-        entry.files.map((file, index) => {
-          const result = data.files[index]
-          if (!result || typeof result.id !== "string" || typeof result.url !== "string") {
-            throw new FileUploadError("The parent returned an invalid uploaded file result")
-          }
-          return { requestId: data.requestId, id: result.id, file, url: result.url }
-        }),
-      )
+      const uploadedFiles: UploadedFile[] = []
+      for (const [index, file] of entry.files.entries()) {
+        const result = data.files[index]
+        if (!result || typeof result.id !== "string" || typeof result.url !== "string") {
+          entry.reject(new FileUploadError("The parent returned an invalid uploaded file result"))
+          return
+        }
+        uploadedFiles.push({ requestId: data.requestId, id: result.id, file, url: result.url })
+      }
+      entry.resolve(uploadedFiles)
     } else {
       entry.reject(new FileUploadError(data.error))
     }

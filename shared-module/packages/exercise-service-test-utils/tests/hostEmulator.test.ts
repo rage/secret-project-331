@@ -65,6 +65,27 @@ describe("host emulator", () => {
     expect(host.last("file-upload")).toMatchObject({ message: "file-upload", requestId: "r1" })
   })
 
+  test("auto-answers tolerated non-array file containers without relying on randomUUID", () => {
+    const { iframePort, received } = installEmulator()
+    postToEmulator(iframePort, {
+      message: "file-upload",
+      requestId: "legacy-map",
+      files: new Map([["legacy-name", "not-a-file"]]),
+    })
+
+    expect(findMessage(received, "upload-result")).toMatchObject({
+      message: "upload-result",
+      requestId: "legacy-map",
+      success: true,
+      files: [
+        {
+          id: expect.stringMatching(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/),
+          url: "https://uploads.example/legacy-name",
+        },
+      ],
+    })
+  })
+
   test("auto-confirms open-dialog echoing requestId", () => {
     const { iframePort, received } = installEmulator()
     postToEmulator(iframePort, {

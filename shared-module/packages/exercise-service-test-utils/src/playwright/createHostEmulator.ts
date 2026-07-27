@@ -27,7 +27,7 @@ export interface WaitOptions {
   intervalMs?: number
 }
 
-export type FileInputFiles = Parameters<import("@playwright/test").Locator["setInputFiles"]>[0]
+export type FileInputFiles = Parameters<Locator["setInputFiles"]>[0]
 
 export interface HostEmulatorHandle {
   /** The page the emulator was installed on. */
@@ -92,6 +92,29 @@ export interface NestedHostEmulatorHandle extends HostEmulatorHandle {
   readonly frame: FrameLocator
 }
 
+async function pollForMatch<T>(
+  page: Page,
+  candidates: () => Promise<T[]>,
+  predicate: ((candidate: T) => boolean) | undefined,
+  waitOptions: WaitOptions,
+  timeoutLabel: string,
+): Promise<T> {
+  const timeoutMs = waitOptions.timeoutMs ?? 5000
+  const intervalMs = waitOptions.intervalMs ?? 50
+  const deadline = Date.now() + timeoutMs
+  for (;;) {
+    const values = await candidates()
+    const match = predicate ? values.find((candidate) => predicate(candidate)) : values[0]
+    if (match) {
+      return match
+    }
+    if (Date.now() >= deadline) {
+      throw new Error(`Timed out after ${timeoutMs}ms waiting for ${timeoutLabel}`)
+    }
+    await page.waitForTimeout(intervalMs)
+  }
+}
+
 function createHandle(page: Page, contentRoot: Page | FrameLocator = page): HostEmulatorHandle {
   const handle: HostEmulatorHandle = {
     page,
@@ -128,45 +151,31 @@ function createHandle(page: Page, contentRoot: Page | FrameLocator = page): Host
     messages(type) {
       return page.evaluate((t) => window.__host.messages(t), type)
     },
-    async waitForMessage(type, predicate, waitOptions = {}) {
-      const timeoutMs = waitOptions.timeoutMs ?? 5000
-      const intervalMs = waitOptions.intervalMs ?? 50
-      const deadline = Date.now() + timeoutMs
-      for (;;) {
-        // Scan the full history (like the in-browser `waitFor`), not just `last(type)`: a matching
-        // message can be superseded by a newer one of the same type between polls, and `last` would
-        // never return it.
-        const history = await page.evaluate((t) => window.__host.messages(t), type)
-        const match = predicate ? history.find((m) => predicate(m)) : history[0]
-        if (match) {
-          return match
-        }
-        if (Date.now() >= deadline) {
-          throw new Error(`Timed out after ${timeoutMs}ms waiting for message: ${type}`)
-        }
-        await page.waitForTimeout(intervalMs)
-      }
+    waitForMessage(type, predicate, waitOptions = {}) {
+      // Scan the full history (like the in-browser `waitFor`), not just `last(type)`: a matching
+      // message can be superseded by a newer one of the same type between polls, and `last` would
+      // never return it.
+      return pollForMatch(
+        page,
+        () => page.evaluate((t) => window.__host.messages(t), type),
+        predicate,
+        waitOptions,
+        `message: ${type}`,
+      )
     },
     waitForCurrentState(predicate, waitOptions) {
       return handle.waitForMessage("current-state", predicate, waitOptions)
     },
-    async waitForFileUpload(predicate, waitOptions = {}) {
-      const timeoutMs = waitOptions.timeoutMs ?? 5000
-      const intervalMs = waitOptions.intervalMs ?? 50
-      const deadline = Date.now() + timeoutMs
-      for (;;) {
-        // The browser API hashes File/Blob bytes before exposing these snapshots. Polling the
-        // serialization-safe snapshots also lets the caller's predicate remain ordinary Node JS.
-        const uploads = await page.evaluate(() => window.__host.fileUploads())
-        const match = predicate ? uploads.find((upload) => predicate(upload)) : uploads[0]
-        if (match) {
-          return match
-        }
-        if (Date.now() >= deadline) {
-          throw new Error(`Timed out after ${timeoutMs}ms waiting for file-upload`)
-        }
-        await page.waitForTimeout(intervalMs)
-      }
+    waitForFileUpload(predicate, waitOptions = {}) {
+      // The browser API hashes File/Blob bytes before exposing these snapshots. Polling the
+      // serialization-safe snapshots also lets the caller's predicate remain ordinary Node JS.
+      return pollForMatch(
+        page,
+        () => page.evaluate(() => window.__host.fileUploads()),
+        predicate,
+        waitOptions,
+        "file-upload",
+      )
     },
     fileUploadCount() {
       return page.evaluate(() => window.__host.fileUploadCount())

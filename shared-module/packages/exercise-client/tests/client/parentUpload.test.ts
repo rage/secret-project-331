@@ -62,7 +62,7 @@ describe("ParentUploadClient", () => {
     ])
   })
 
-  it("rejects host errors, malformed cardinality, and timeouts", async () => {
+  it("rejects host errors, malformed results, and timeouts", async () => {
     jest.useFakeTimers()
     const fake = createFakePort()
     const client = new ParentUploadClient(fake.port, { timeoutMs: 10 })
@@ -80,6 +80,18 @@ describe("ParentUploadClient", () => {
     const wrongCountId = uploadAt(fake.posted, 1).requestId
     fake.reply({ message: "upload-result", requestId: wrongCountId, success: true, files: [] })
     await expect(wrongCount).rejects.toBeInstanceOf(FileUploadError)
+
+    const malformed = client.uploadFiles([file("malformed.txt")])
+    const malformedId = uploadAt(fake.posted, 2).requestId
+    fake.reply({
+      message: "upload-result",
+      requestId: malformedId,
+      success: true,
+      files: [{ id: "host-file", url: 42 }],
+    })
+    await expect(malformed).rejects.toEqual(
+      new FileUploadError("The parent returned an invalid upload result"),
+    )
 
     const timeout = client.uploadFiles([file("timeout.txt")])
     jest.advanceTimersByTime(10)

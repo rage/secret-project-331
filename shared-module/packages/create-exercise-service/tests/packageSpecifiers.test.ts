@@ -135,6 +135,39 @@ describe("npm exercise package specifiers", () => {
     }
   })
 
+  test("rejects absolute link and portal specifiers before creating a project", async (t) => {
+    const absoluteSpecifiers = [
+      "link:/opt/packages/exercise-protocol",
+      "link:C:\\packages\\exercise-protocol",
+      "portal:/opt/packages/exercise-protocol",
+      "portal:C:/packages/exercise-protocol",
+    ]
+
+    for (const specifier of absoluteSpecifiers) {
+      await t.test(specifier, async () => {
+        await withTemporaryProject(async (_base, projectPath) => {
+          await assert.rejects(
+            scaffoldReactProject({
+              projectName: "specifier-exercise",
+              absoluteProjectPath: projectPath,
+              port: 4567,
+              sharedModule: "npm",
+              templateDir: TEMPLATE_DIR,
+              exercisePackageSpecifiers: {
+                "@moocfi/exercise-protocol": specifier,
+              },
+            }),
+            /Absolute (link:|portal:) specifier.*not portable/,
+          )
+          await assert.rejects(
+            stat(projectPath),
+            "validation should run before copying the template",
+          )
+        })
+      })
+    }
+  })
+
   test("ignores overrides in vendor mode", async () => {
     await withTemporaryProject(async (_base, projectPath) => {
       await scaffoldReactProject({

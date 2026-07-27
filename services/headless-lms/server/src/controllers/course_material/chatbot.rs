@@ -267,6 +267,7 @@ async fn current_conversation_info(
         && suggested_messages.is_empty()
         && let Some(current_conversation_messages) = &res.current_conversation_messages
         && let Some(last_message) = current_conversation_messages.last()
+        && let Some(course_name) = &res.course_name
     {
         let initial_suggested_messages = if last_message.order_number == 1 {
             // for the first message, get initial_suggested_messages
@@ -304,9 +305,7 @@ async fn current_conversation_info(
                 message_suggest_llm,
                 current_conversation_messages,
                 chatbot_configuration.initial_suggested_messages,
-                &res.course_name.ok_or_else(|| {
-                    controller_err!(Forbidden, "Course name is missing.".to_string())
-                })?,
+                course_name,
                 course_description,
             )
             .await?

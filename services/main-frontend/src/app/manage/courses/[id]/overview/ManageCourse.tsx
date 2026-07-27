@@ -229,7 +229,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           >
             {t("suggest-metadata-card-title")}
           </p>
-          <CourseMetadata course={course} refetch={refetch}></CourseMetadata>
+          <CourseMetadata courseId={course.id} refetch={refetch}></CourseMetadata>
         </div>
         <div
           className={css`

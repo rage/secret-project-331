@@ -10,8 +10,8 @@ import {
   getSisuCourseLlmDescriptionsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateMetadata } from "@/generated/api/sdk.generated"
-import type { Course, CourseMetadataUpdate } from "@/generated/api/types.generated"
-// import TextField from "@/shared-module/common/components/InputFields/TextField"
+import type { CourseMetadataUpdate } from "@/generated/api/types.generated"
+import { useCourseQuery } from "@/hooks/useCourseQuery"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -21,21 +21,22 @@ import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOpt
 import AIMetadataFormFields from "./AIMetadataFormFields"
 
 interface EditCourseFormProps {
-  course: Course
+  courseId: string
   onSubmitForm: () => void
   open: boolean
   onClose: () => void
 }
 
 const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = ({
-  course,
+  courseId,
   onSubmitForm,
   open,
   onClose,
 }) => {
   const { t } = useTranslation()
 
-  const courseId = course.id
+  const courseQuery = useCourseQuery(courseId)
+
   const sisuQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
@@ -87,7 +88,7 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
           ...data,
         },
         path: {
-          course_id: course.id,
+          course_id: courseId,
         },
       })
       onSubmitForm()
@@ -108,6 +109,8 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
           // oxlint-disable-next-line i18next/no-literal-string
           form: "ai-metadata-form",
           disabled:
+            courseQuery.isFetching ||
+            courseQuery.isError ||
             sisuQuery.isFetching ||
             sisuQuery.isError ||
             prerequisitesQuery.isFetching ||
@@ -119,12 +122,12 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
     >
       <div>
         <QueryResults
-          queries={[sisuQuery, prerequisitesQuery, audiencesQuery] as const}
+          queries={[courseQuery, sisuQuery, prerequisitesQuery, audiencesQuery] as const}
           treatEmptyAsData
-          renderData={([sisuData, prerequisitesData, audiencesData]) => {
+          renderData={([courseData, sisuData, prerequisitesData, audiencesData]) => {
             return (
               <AIMetadataFormFields
-                course={course}
+                course={courseData}
                 sisuData={sisuData}
                 prerequisites={prerequisitesData}
                 audiences={audiencesData}

@@ -17,17 +17,17 @@ import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import AIMetadataForm from "./AIMetadataForm/index"
 
 interface Props {
-  course: Course
+  courseId: string
   refetch: (
     options?: (RefetchOptions & RefetchQueryFilters) | undefined,
   ) => Promise<QueryObserverResult<Course, Error>>
 }
 
-const CourseMetadata: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
+const CourseMetadata: React.FC<React.PropsWithChildren<Props>> = ({ courseId, refetch }) => {
   const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
 
-  const courseStructure = useCourseStructure(course.id)
+  const courseStructure = useCourseStructure(courseId)
 
   const defaultModule = courseStructure.data?.modules.find((module) => module.order_number === 0)
 
@@ -40,36 +40,25 @@ const CourseMetadata: React.FC<React.PropsWithChildren<Props>> = ({ course, refe
 
   return (
     <div>
-      {hasCourseCode ? (
+      <div>
         <Button
           className={css`
             margin: 0.5rem 0;
           `}
+          disabled={!hasCourseCode}
           variant="primary"
           size="medium"
           onClick={() => setShowForm(true)}
         >
           {t("generate-ai-metadata")}
         </Button>
-      ) : (
-        <div>
-          <Button
-            className={css`
-              margin: 0.5rem 0;
-            `}
-            disabled
-            variant="primary"
-            size="medium"
-            onClick={() => setShowForm(true)}
-          >
-            {t("generate-ai-metadata")}
-          </Button>
+        {!hasCourseCode && (
           <GenericInfobox>{t("missing-uh-course-code-notification")}</GenericInfobox>
-        </div>
-      )}
+        )}
+      </div>
 
       <AIMetadataForm
-        course={course}
+        courseId={courseId}
         onSubmitForm={handleOnUpdateCourse}
         open={showForm}
         onClose={() => setShowForm(false)}

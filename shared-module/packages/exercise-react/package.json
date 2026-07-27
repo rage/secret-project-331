@@ -1,6 +1,6 @@
 {
   "name": "@moocfi/exercise-react",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "React adapter for moocfi exercise services: hooks, contexts, components, i18n, and styles wrapping the framework-agnostic @moocfi/exercise-client engines.",
   "keywords": [
     "exercise-service",

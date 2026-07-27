@@ -1,6 +1,6 @@
 {
   "name": "@moocfi/exercise-service-test-utils",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "Testing utilities that play the host/parent side of the moocfi exercise-plugin iframe protocol: a browser host emulator and Playwright helpers to drive a plugin's views and assert its messages.",
   "keywords": [
     "exercise-service",

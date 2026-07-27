@@ -1,6 +1,6 @@
 {
   "name": "@moocfi/exercise-client",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "Framework-agnostic browser runtime for moocfi exercise-service iframes: parent-connection, height-observer, and output-state engines plus the createExerciseClient facade.",
   "keywords": [
     "exercise-service",

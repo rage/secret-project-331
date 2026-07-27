@@ -1,6 +1,6 @@
 {
   "name": "@moocfi/exercise-protocol",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "The moocfi exercise-service contract: parent<->iframe postMessage protocol types, runtime guards, and shared constants. Zero dependencies, framework-agnostic.",
   "keywords": [
     "exercise-service",

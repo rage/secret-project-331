@@ -1,6 +1,6 @@
 {
   "name": "@moocfi/exercise-iframe-host",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "Host-side SDK for embedding moocfi exercise-service iframes: MessageChannelIFrame owns the sandboxed iframe, the MessagePort handshake, and the set-state/set-language protocol.",
   "keywords": [
     "exercise-service",

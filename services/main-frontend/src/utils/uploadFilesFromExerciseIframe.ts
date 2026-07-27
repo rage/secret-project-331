@@ -22,7 +22,7 @@ export async function uploadFilesFromExerciseIframe(
   })
   if (
     !Array.isArray(response) ||
-    !response.every(isUploadResultEntry) ||
+    !response.every((entry) => isUploadResultEntry(entry)) ||
     response.length !== files.length
   ) {
     throw new Error("The upload service returned an invalid file result")

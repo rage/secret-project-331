@@ -43,17 +43,25 @@ describe("uploadFilesFromExerciseIframe", () => {
     })
   })
 
-  it.each([[[]], [[{ id: "host-1" }]], [[{ id: "host-1", url: "https://files.example/one" }]]])(
-    "rejects malformed or mis-sized upload results",
-    async (response) => {
-      upload.mockResolvedValue(response as never)
+  it.each([
+    [[]],
+    [[{ id: "host-1" }]],
+    [[{ id: "host-1", url: "https://files.example/one" }]],
+    [
+      [
+        { id: "host-1", url: "https://files.example/one" },
+        { id: "host-2", url: "https://files.example/two" },
+        { id: "host-3", url: "https://files.example/three" },
+      ],
+    ],
+  ])("rejects malformed or mis-sized upload results", async (response) => {
+    upload.mockResolvedValue(response as never)
 
-      await expect(
-        uploadFilesFromExerciseIframe("file-submission", [
-          new File(["a"], "a.txt"),
-          new File(["b"], "b.txt"),
-        ]),
-      ).rejects.toThrow("invalid file result")
-    },
-  )
+    await expect(
+      uploadFilesFromExerciseIframe("file-submission", [
+        new File(["a"], "a.txt"),
+        new File(["b"], "b.txt"),
+      ]),
+    ).rejects.toThrow("invalid file result")
+  })
 })

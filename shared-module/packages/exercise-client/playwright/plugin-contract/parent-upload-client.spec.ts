@@ -33,11 +33,11 @@ test.beforeAll(async () => {
         channel.port1.addEventListener("message", ({ data }) => {
           void (async () => {
             if (data?.message !== "file-upload") return
-            const value = Array.isArray(data.files) ? data.files[0] : null
+            const value = data.files instanceof Map ? data.files.get("sample.bin") : null
             uploadSnapshot = {
               message: data.message,
               requestId: data.requestId ?? null,
-              filesAreArray: Array.isArray(data.files),
+              filesAreMap: data.files instanceof Map,
               valueIsFile: value instanceof File,
               name: value instanceof File ? value.name : null,
               type: value instanceof Blob ? value.type : null,
@@ -51,7 +51,7 @@ test.beforeAll(async () => {
               message: "upload-result",
               requestId: data.requestId,
               success: true,
-              files: [{ id: "host-file-1", url: "https://files.example/sample.bin" }],
+              urls: new Map([["sample.bin", "https://files.example/sample.bin"]]),
             })
           })()
         })
@@ -63,13 +63,12 @@ test.beforeAll(async () => {
           "sample.bin",
           { type: "application/octet-stream", lastModified: 1725000000000 },
         )
-        const uploadedFiles = await client.uploadFiles([file])
+        const urls = await client.uploadFiles(new Map([["sample.bin", file]]))
         client.dispose()
         return {
           uploadSnapshot,
-          requestId: uploadedFiles[0]?.requestId ?? null,
-          resultId: uploadedFiles[0]?.id ?? null,
-          resultUrl: uploadedFiles[0]?.url ?? null,
+          urlsAreMap: urls instanceof Map,
+          resultUrl: urls.get("sample.bin") ?? null,
         }
       }
     `,
@@ -102,7 +101,7 @@ test.afterAll(async () => {
   }
 })
 
-test("ParentUploadClient round-trips a genuine File array through MessageChannel", async ({
+test("ParentUploadClient round-trips a genuine File and Map through MessageChannel", async ({
   page,
 }) => {
   await page.setContent("<!doctype html><html><body></body></html>")
@@ -120,7 +119,7 @@ test("ParentUploadClient round-trips a genuine File array through MessageChannel
     uploadSnapshot: {
       message: "file-upload",
       requestId: "file-upload-1",
-      filesAreArray: true,
+      filesAreMap: true,
       valueIsFile: true,
       name: "sample.bin",
       type: "application/octet-stream",
@@ -128,8 +127,7 @@ test("ParentUploadClient round-trips a genuine File array through MessageChannel
       lastModified: 1_725_000_000_000,
       bytes: [...bytes],
     },
-    requestId: "file-upload-1",
-    resultId: "host-file-1",
+    urlsAreMap: true,
     resultUrl: "https://files.example/sample.bin",
   })
   expect(

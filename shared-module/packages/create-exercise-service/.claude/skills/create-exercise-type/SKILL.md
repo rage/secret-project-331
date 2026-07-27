@@ -271,12 +271,56 @@ smoke test, not a suite. Cover at least:
   answer, unknown ids);
 - an old-version spec fed via `set-state` emits the migrated current version.
 
-Run it against your service (Playwright boots the dev server via `webServer`); locators must target
-**rendered translated strings** ("Video files"), not i18n keys — the dev server loads real locales:
+**Running the Playwright suite is mandatory.** Do not merely add the tests, list them, or tell the
+user how to run them: discover the generated project's runner configuration and execute the full
+suite before calling the exercise verified. Playwright's `webServer` configuration normally starts
+the dev server itself; do not start a second copy unless the config explicitly requires it.
+
+From the generated project's root, use this discovery-and-run sequence (adapt paths/commands only
+when the project's own configuration says to):
 
 ```bash
-PLAYWRIGHT_CHROMIUM_PATH="$(command -v chromium)" pnpm --dir services/<your-slug> exec playwright test
+# 1. Discover the project-specific e2e setup: script, config, test directory, web server and port.
+sed -n '1,220p' package.json
+sed -n '1,260p' playwright.config.ts  # or playwright.config.{js,mjs,cjs}
+rg -n -i "playwright|webServer|testDir|executablePath" package.json playwright.config.* e2e
+
+# 2. Confirm Playwright discovers the inherited/adapted protocol tests before launching a browser.
+pnpm exec playwright test --list
+
+# 3. Detect a system Chromium without assuming its binary name or that it exists.
+BROWSER="$(command -v chromium || command -v chromium-browser || command -v google-chrome || true)"
+printf 'System Chromium: %s\n' "${BROWSER:-not found}"
+
+# 4. Run with a system browser only when the config exposes its hook; otherwise provision
+#    Playwright's managed Chromium. Either branch runs the complete suite.
+if rg -q "PLAYWRIGHT_CHROMIUM_PATH" playwright.config.* && [ -n "$BROWSER" ]; then
+  PLAYWRIGHT_CHROMIUM_PATH="$BROWSER" pnpm exec playwright test
+else
+  pnpm exec playwright install chromium
+  pnpm exec playwright test
+fi
 ```
+
+This skill can run on any machine. Never assume the moocfi Nix shell, a `chromium` binary, an
+existing Playwright browser cache, or that the generated template still uses
+`PLAYWRIGHT_CHROMIUM_PATH`. The current generated template does support that hook, so a discovered
+system browser uses the system-browser branch. On another host, use that branch only when both
+conditions are true: the inspected config defines the hook **and** `BROWSER` is non-empty. Otherwise
+use the managed-browser branch to provision the Playwright version pinned by the project. If the
+managed browser lacks operating-system
+libraries, report the exact `playwright install` / launch error and follow the host's package setup
+process; do not run privileged package-install commands unprompted, and do not waive e2e verification.
+When the inspected config uses a different browser, channel, package manager, or e2e command, follow
+that configuration instead. Do not guess a browser path or mutate the config just to skip the test.
+
+If the first run fails, inspect the actual failure, keep the output/artifacts, correct the exercise
+or its test setup, and rerun the **full** suite. Useful focused diagnostics after the initial full
+run are `pnpm exec playwright test -g "<test title>"`, `pnpm exec playwright test --headed`, and
+`pnpm exec playwright test --ui`; finish with an unfiltered `pnpm exec playwright test`. A missing
+browser, unavailable dependency install, or failing e2e test means verification is incomplete and
+must be reported plainly, not waived. Locators must target **rendered translated strings** ("Video
+files"), not i18n keys — the dev server loads real locales.
 
 (`drive-view.mjs` from Part B is a quick-look tool for the *example* exercise and screenshots; it is
 hardcoded to the multiple-choice types, so for authoring verification the committed e2e suite above

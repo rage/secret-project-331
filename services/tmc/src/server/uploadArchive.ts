@@ -5,6 +5,8 @@ import FormData from "form-data"
 
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 
+const ARCHIVE_UPLOAD_TIMEOUT_MS = 10 * 60 * 1000
+
 interface UploadArchiveOptions {
   archivePath: string
   archiveName: string
@@ -30,6 +32,7 @@ export async function uploadArchiveAndGetUrl({
     method: "POST",
     headers: { ...headers, ...form.getHeaders() },
     body: form as unknown as Exclude<RequestInit["body"], undefined>,
+    signal: AbortSignal.timeout(ARCHIVE_UPLOAD_TIMEOUT_MS),
   })
   if (!res.ok) {
     throw new Error(`Upload failed: ${res.status} ${res.statusText}`)

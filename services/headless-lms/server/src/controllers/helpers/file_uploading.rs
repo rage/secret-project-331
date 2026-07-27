@@ -22,8 +22,8 @@ use std::{collections::HashSet, path::Path};
 use std::{
     path::PathBuf,
     sync::{
-        atomic::{AtomicU64, Ordering},
         Arc, Mutex,
+        atomic::{AtomicU64, Ordering},
     },
 };
 use utoipa::ToSchema;
@@ -77,7 +77,8 @@ pub async fn process_exercise_service_upload(
             let name_ref = field.name().ok_or_else(|| {
                 controller_err!(
                     BadRequest,
-                    "Tried to upload a file without a file name".to_string()
+                    "Tried to upload a multipart field without a field name or field ID"
+                        .to_string()
                 )
             })?;
             name_ref.to_string()
@@ -104,7 +105,7 @@ pub async fn process_exercise_service_upload(
             .await;
         if let Some(error) = stream_error
             .lock()
-            .expect("stream error mutex poisoned")
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
             .take()
         {
             return Err(error);
@@ -137,6 +138,8 @@ pub async fn process_exercise_service_upload(
     Ok(results)
 }
 
+/// Returns a side channel for typed upload-limit errors because the stream yields `anyhow` errors.
+/// Callers must inspect it after `upload_stream` returns.
 fn limited_exercise_upload_stream(
     field: mp::Field,
     batch_bytes: Arc<AtomicU64>,
@@ -154,7 +157,9 @@ fn limited_exercise_upload_stream(
             if let Err(error) =
                 consume_exercise_upload_bytes(&per_file_bytes, &batch_bytes, chunk.len())
             {
-                *stream_error.lock().expect("stream error mutex poisoned") = Some(error);
+                *stream_error
+                    .lock()
+                    .unwrap_or_else(|poisoned| poisoned.into_inner()) = Some(error);
                 return Err(anyhow::Error::msg("Exercise upload exceeds the size limit"));
             }
             Ok(Some((
@@ -251,14 +256,18 @@ mod exercise_upload_tests {
         let mut ids = HashSet::new();
 
         assert!(validate_exercise_upload_id(&id, &mut ids).is_ok());
-        assert!(validate_exercise_upload_id(&id, &mut ids)
-            .unwrap_err()
-            .to_string()
-            .contains("Duplicate"));
-        assert!(validate_exercise_upload_id("filename.pdf", &mut ids)
-            .unwrap_err()
-            .to_string()
-            .contains("must be a UUID"));
+        assert!(
+            validate_exercise_upload_id(&id, &mut ids)
+                .unwrap_err()
+                .to_string()
+                .contains("Duplicate")
+        );
+        assert!(
+            validate_exercise_upload_id("filename.pdf", &mut ids)
+                .unwrap_err()
+                .to_string()
+                .contains("must be a UUID")
+        );
     }
 
     #[test]

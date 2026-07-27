@@ -160,7 +160,8 @@ export const HOST_EMULATOR_SOURCE = String.raw`(options) => {
     fileUploadRecords.push(record)
     snapshotFileUpload(msg)
       .then((snapshot) => completeFileUpload(generation, record, snapshot))
-      .catch(() => {
+      .catch((error) => {
+        console.error("Failed to snapshot file upload", error)
         if (generation !== fileUploadGeneration) {
           return
         }

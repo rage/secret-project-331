@@ -10,6 +10,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ModuleCompletionReprocessButton from "@/app/manage/courses/[id]/course-instances/ModuleCompletionReprocessButton"
+import CourseMetadata from "@/components/CourseMetadata/CourseMetadata"
 import {
   deleteCourse as deleteCourseFromApi,
   resetCourseProgressForEveryone,
@@ -25,7 +26,6 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
 
-import CourseDescription from "./CourseDescription"
 import EditCourseForm from "./EditCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
@@ -229,7 +229,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           >
             {t("suggest-metadata-card-title")}
           </p>
-          <CourseDescription course={course} refetch={refetch}></CourseDescription>
+          <CourseMetadata course={course} refetch={refetch}></CourseMetadata>
         </div>
         <div
           className={css`

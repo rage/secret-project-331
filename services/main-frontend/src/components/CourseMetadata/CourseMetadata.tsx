@@ -23,7 +23,7 @@ interface Props {
   ) => Promise<QueryObserverResult<Course, Error>>
 }
 
-const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
+const CourseMetadata: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
   const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
 
@@ -78,4 +78,4 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
   )
 }
 
-export default CourseDescription
+export default CourseMetadata

@@ -41,7 +41,12 @@
   },
   "scripts": {
     "build": "tsdown",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:playwright": "playwright test",
+    "test:playwright:plugin-contract": "playwright test playwright/plugin-contract",
+    "test:playwright:iframe-boundary": "playwright test playwright/iframe-boundary",
+    "test:playwright:debug": "playwright test --debug",
+    "verify": "pnpm run build && pnpm run test && pnpm run test:playwright"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",

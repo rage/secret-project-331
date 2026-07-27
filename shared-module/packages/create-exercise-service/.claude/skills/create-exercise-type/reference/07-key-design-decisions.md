@@ -545,13 +545,33 @@ surfaces "verified"/"fully verified" on a green `tsc`/vitest/playwright run alon
 - **Every wire-framing adapter gets its own test** — a byte scanner, an HTTP client: the framing is
   where the silent bugs hide.
 
-### 8. Manual/E2E layer
+### 8. Browser integration layers — do not collapse their evidence
 
-The **Playground** (`courses.mooc.fi/playground-tabs`) exercises the full
-edit → derive → answer → grade → view-submission loop against your running service — use it during
-development and before releases; it surfaces protocol mistakes (height, valid-flag, view switching)
-that unit tests structurally can't. In-monorepo plugins are additionally covered by the Playwright
-`system-tests` suite once seeded into a course.
+Keep every browser spec under `playwright/`, with four fixed directories:
+
+```
+playwright/
+  plugin-contract/   # typed host emulator; plugin behaviour and protocol shape
+  iframe-boundary/   # sandboxed, distinct-origin iframe transport
+  system/            # real host (normally courses.mooc.fi Playground)
+  fixtures/          # committed files whose bytes are asserted
+```
+
+- **Plugin contract** tests prove the plugin sends and receives the correct messages. The emulator
+  may deliberately supply an upload result, but that is not proof that the host created a multipart
+  request or transferred any bytes.
+- **Iframe boundary** tests prove the same critical flow across the actual sandboxed, distinct-origin
+  iframe boundary. Run them in every configured browser; for uploads, assert exact fixture bytes and
+  SHA-256 as well as request id, filename, MIME type, and size before replying.
+- **System** tests use the real **Playground** (`courses.mooc.fi/playground-tabs`) with only the
+  local plugin running. Intercept and inspect the real host multipart request: field name, filename,
+  MIME type, exact bytes, and digest. Then prove the returned URL, emitted `current-state`, and
+  view-submission rendering when the host supports it. Do not persist a course as part of this test.
+
+A required failing browser layer means verification is incomplete. Keep a known real-host regression
+as an active, ordinary failing test until the host is fixed; do not hide it with `skip`, `fixme`,
+`test.fail`, a fabricated host success, or a claim that the emulator verified the integration.
+`drive-view.mjs` is exploratory/manual assistance only, never verification evidence.
 
 ### The test-suite shape, summarized
 
@@ -561,6 +581,12 @@ tests/
     utils/        # 2: privateSpecGenerator (current) + old*Generator (frozen, per version)
   migration/      # 3: one suite per stored type (private, public, model-solution, answer)
   components/     # 7: editor/answer/submission — assert emitted current-state {data, valid}
+
+playwright/
+  plugin-contract/   # emulator-driven browser contracts
+  iframe-boundary/   # sandboxed distinct-origin browser contracts
+  system/            # real-host Playground coverage
+  fixtures/          # byte-stable upload fixtures
 ```
 
 ---

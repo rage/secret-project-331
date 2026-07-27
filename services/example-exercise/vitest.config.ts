@@ -25,5 +25,12 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    // The root layout imports Fontsource CSS. Inline those external packages so Vite transforms
+    // their CSS in a fresh standalone install instead of Node rejecting the `.css` extension.
+    server: {
+      deps: {
+        inline: ["@moocfi/exercise-react", /@fontsource/],
+      },
+    },
   },
 })

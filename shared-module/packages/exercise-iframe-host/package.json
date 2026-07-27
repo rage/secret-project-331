@@ -41,7 +41,12 @@
   },
   "scripts": {
     "build": "tsdown",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:playwright": "playwright test",
+    "test:playwright:plugin-contract": "playwright test playwright/plugin-contract",
+    "test:playwright:iframe-boundary": "playwright test playwright/iframe-boundary",
+    "test:playwright:debug": "playwright test --debug",
+    "verify": "pnpm run build && pnpm run test && pnpm run test:playwright"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
@@ -49,6 +54,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
+    "@playwright/test": "1.61.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/lodash": "^4.17.24",
@@ -66,6 +72,7 @@
     "react-i18next": "^17.0.8",
     "tsdown": "0.22.7",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite": "8.1.4",
     "vitest": "^4.1.9"
   },
   "peerDependencies": {

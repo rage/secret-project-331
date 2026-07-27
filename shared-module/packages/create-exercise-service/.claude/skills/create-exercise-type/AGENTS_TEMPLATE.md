@@ -290,21 +290,30 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 
 - **Locales** live at `src/locales/<lang>/<slug>.json` — per-language directories, file named after
   the service slug. Keep the language files' key sets identical.
-- **This project is ESM** (`type: module`): in e2e/test files use
+- **This project is ESM** (`type: module`): in Playwright/test files use
   `path.dirname(fileURLToPath(import.meta.url))`, never `__dirname`.
 - **The tsconfig has `noUncheckedIndexedAccess`**: `array[0]` is `T | undefined` — index with
   `?.`/`!` deliberately.
 - **Playwright locators must target rendered translated strings** ("Video files"), not i18n keys
   ("file-category-video") — the dev server loads real locale files.
-- **The e2e host emulator's messages are index-signatured.** `createHostEmulator`'s `messages()` /
+- **The plugin-contract host emulator's messages are index-signatured.** `createHostEmulator`'s `messages()` /
   `waitForCurrentState` (from `exercise-service-test-utils`) return `RecordedMessage`
   (`{ message: string; [key: string]: unknown }`), so there is no typed `.data` — read the payload as
   `(msg as { data: MyType }).data`. And `noUncheckedIndexedAccess` makes `messages()[n]`
   possibly-`undefined`, so index it with `!`/`?.`.
+- **Browser-test layers**: keep tests under `playwright/plugin-contract/` (typed host emulator),
+  `playwright/iframe-boundary/` (sandboxed iframe at a distinct origin),
+  `playwright/system/` (real-host Playground), and `playwright/fixtures/` (committed bytes). The
+  emulator proves the plugin protocol only; it does not prove a real host performs an upload. A
+  required failing layer means verification is incomplete; do not hide it with a skip or an emulator
+  substitute.
 - **File uploads**: plugins never store files. The `useFileUpload(port)` hook
   (`src/shared-module/exercise-react/react/hooks/useFileUpload`) sends `file-upload` to the host and
   resolves to a `Map<name, url>`; the answer records only the URLs. The test-utils host emulator
-  auto-answers uploads (`driveFileUpload` + a small committed fixture file). **If your grader
+  can answer uploads (`driveFileUpload` + a small committed fixture file). In plugin-contract and
+  iframe-boundary tests, capture the request before answering and assert the real `Map`/`File` data:
+  request id, filename, MIME type, byte size, and SHA-256. A system test must inspect the real-host
+  multipart request for those same bytes; fabricated success is not real-host proof. **If your grader
   downloads those URLs, they are attacker-controlled — an SSRF sink.** Validate the scheme
   (`http(s)` only); resolve the hostname and reject private/loopback/link-local and metadata
   (`169.254.169.254`) addresses, including `::ffff:`-mapped and numeric forms; set
@@ -324,7 +333,10 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 | service-info (path contract), CSV export            | `src/server/serviceInfo.ts`, `src/server/export{Definitions,Answers}.ts`                |
 | The state machine / dispatcher / three views        | `src/components/{IframeView,Renderer,ExerciseEditor,AnswerExercise,ViewSubmission}.tsx` |
 | Generic host↔plugin envelopes (do not edit)         | `src/shared-module/exercise-protocol/...`                                               |
-| Protocol e2e (typed host emulator)                  | `e2e/protocol.spec.ts`                                                                  |
+| Plugin protocol contract (typed host emulator)      | `playwright/plugin-contract/`                                                           |
+| Sandboxed distinct-origin iframe boundary            | `playwright/iframe-boundary/`                                                           |
+| Real-host Playground system coverage                 | `playwright/system/`                                                                    |
+| Browser fixture bytes                                | `playwright/fixtures/`                                                                  |
 
 ## When you change the data model
 

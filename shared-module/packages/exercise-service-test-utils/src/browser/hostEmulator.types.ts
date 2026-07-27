@@ -15,6 +15,24 @@ export interface UploadResultInput {
   error?: string
 }
 
+/** A serialization-safe description of one value in a `file-upload` payload. */
+export interface FileUploadEntrySnapshot {
+  key: string
+  kind: "file" | "blob" | "string" | "unsupported"
+  name: string | null
+  type: string | null
+  size: number | null
+  lastModified: number | null
+  sha256: string | null
+}
+
+/** A browser-realm snapshot of a `file-upload`, including the bytes of every Blob/File. */
+export interface FileUploadSnapshot {
+  requestId: string | null
+  filesKind: "map" | "plain-object" | "array" | "missing" | "other"
+  entries: FileUploadEntrySnapshot[]
+}
+
 export interface HostEmulatorOptions {
   /** Auto-answer `file-upload` with fake stored URLs (default true). Set false to drive it yourself. */
   autoUpload?: boolean
@@ -60,7 +78,16 @@ export interface HostApi {
     predicate?: (message: RecordedMessage) => boolean,
     timeoutMs?: number,
   ) => Promise<RecordedMessage>
-  /** Clear the recorded history. */
+  /** Serialization-safe snapshots of completed `file-upload` messages, in receive order. */
+  fileUploads: () => FileUploadSnapshot[]
+  /** Number of `file-upload` messages received, including snapshots whose hash is still pending. */
+  fileUploadCount: () => number
+  /** Resolve with a matching completed upload snapshot, else reject on timeout. */
+  waitForFileUpload: (
+    predicate?: (upload: FileUploadSnapshot) => boolean,
+    timeoutMs?: number,
+  ) => Promise<FileUploadSnapshot>
+  /** Clear the recorded history and upload snapshots. */
   reset: () => void
 }
 

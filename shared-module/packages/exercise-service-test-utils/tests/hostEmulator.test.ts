@@ -131,4 +131,115 @@ describe("host emulator", () => {
       error: "boom",
     })
   })
+
+  test("snapshots Map/File payloads with exact browser-realm metadata and SHA-256", async () => {
+    const { host, iframePort } = installEmulator({ autoUpload: false })
+    const snapshotPromise = host.waitForFileUpload((upload) => upload.requestId === "bytes-1")
+    const files = new Map<string, unknown>([
+      ["answer", new File(["hello"], "answer.txt", { type: "text/plain", lastModified: 123 })],
+      ["raw", new Blob([new Uint8Array([0, 1, 2, 255])], { type: "application/octet-stream" })],
+      ["legacy", "already-uploaded"],
+      ["bad", 42],
+    ])
+
+    postToEmulator(iframePort, { message: "file-upload", requestId: "bytes-1", files })
+
+    expect(host.fileUploadCount()).toBe(1)
+    await expect(snapshotPromise).resolves.toEqual({
+      requestId: "bytes-1",
+      filesKind: "map",
+      entries: [
+        {
+          key: "answer",
+          kind: "file",
+          name: "answer.txt",
+          type: "text/plain",
+          size: 5,
+          lastModified: 123,
+          sha256: "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+        },
+        {
+          key: "raw",
+          kind: "blob",
+          name: null,
+          type: "application/octet-stream",
+          size: 4,
+          lastModified: null,
+          sha256: "3d1f57c984978ef98a18378c8166c1cb8ede02c03eeb6aee7e2f121dfeee3e56",
+        },
+        {
+          key: "legacy",
+          kind: "string",
+          name: null,
+          type: null,
+          size: 16,
+          lastModified: null,
+          sha256: "c5b305d4c1b7b93c34296687645d4fd9e25b57352d6fe43b7d4c2860dff8ba9c",
+        },
+        {
+          key: "bad",
+          kind: "unsupported",
+          name: null,
+          type: null,
+          size: null,
+          lastModified: null,
+          sha256: null,
+        },
+      ],
+    })
+  })
+
+  test("classifies non-Map containers and reset clears upload snapshots", async () => {
+    const { host, iframePort } = installEmulator({ autoUpload: false })
+    postToEmulator(iframePort, {
+      message: "file-upload",
+      requestId: "object",
+      files: { answer: "value" },
+    })
+    postToEmulator(iframePort, { message: "file-upload", requestId: "array", files: ["value"] })
+    postToEmulator(iframePort, { message: "file-upload", requestId: "missing" })
+    postToEmulator(iframePort, { message: "file-upload", requestId: 12, files: null })
+
+    await host.waitForFileUpload((upload) => upload.requestId === "missing")
+    await host.waitForFileUpload((upload) => upload.filesKind === "other")
+    expect(host.fileUploads()).toEqual([
+      {
+        requestId: "object",
+        filesKind: "plain-object",
+        entries: [
+          {
+            key: "answer",
+            kind: "string",
+            name: null,
+            type: null,
+            size: 5,
+            lastModified: null,
+            sha256: "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+          },
+        ],
+      },
+      {
+        requestId: "array",
+        filesKind: "array",
+        entries: [
+          {
+            key: "0",
+            kind: "string",
+            name: null,
+            type: null,
+            size: 5,
+            lastModified: null,
+            sha256: "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+          },
+        ],
+      },
+      { requestId: "missing", filesKind: "missing", entries: [] },
+      { requestId: null, filesKind: "other", entries: [] },
+    ])
+
+    host.reset()
+    expect(host.fileUploadCount()).toBe(0)
+    expect(host.fileUploads()).toEqual([])
+    expect(host.messages()).toEqual([])
+  })
 })

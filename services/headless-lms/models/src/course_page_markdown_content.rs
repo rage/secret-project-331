@@ -9,30 +9,33 @@ pub struct CoursePageMarkdownContent {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub markdown_content: String,
+    pub page_history_id: Uuid,
 }
 
-// stuff for the tool
+// Struct used in document_lookup chatbot tool
 pub struct CoursePageContent {
     pub page_id: Uuid,
     pub course_id: Uuid,
     pub title: String,
     pub json_content: Value,
-    /// Latest LLM-generated Markdown that has been synced to Azure.
+    /// Latest LLM-generated Markdown.
     pub markdown_content: Option<String>,
 }
 
 pub async fn insert(
     conn: &mut PgConnection,
     content: &str,
+    page_history_id: &Uuid,
 ) -> ModelResult<CoursePageMarkdownContent> {
     let res = sqlx::query_as!(
         CoursePageMarkdownContent,
         r#"
-    INSERT INTO course_page_markdown_content (markdown_content)
-    VALUES ($1)
-    RETURNING *
+INSERT INTO course_page_markdown_content (markdown_content, page_history_id)
+VALUES ($1, $2)
+RETURNING *
     "#,
-        content
+        content,
+        page_history_id
     )
     .fetch_one(conn)
     .await?;

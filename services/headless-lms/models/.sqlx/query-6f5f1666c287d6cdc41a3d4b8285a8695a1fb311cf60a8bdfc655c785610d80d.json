@@ -57,6 +57,17 @@
             "name": "markdown_content"
           }
         }
+      },
+      {
+        "ordinal": 5,
+        "name": "page_history_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_page_markdown_content",
+            "name": "page_history_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -69,6 +80,7 @@
       false,
       false,
       true,
+      false,
       false
     ]
   },

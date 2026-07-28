@@ -379,10 +379,23 @@ async fn sync_pages_batch(
         let sanitized_blocks = remove_sensitive_attributes(parsed_content);
 
         let page_md_content_id: Option<Uuid> = page_md_ids.get(&page.id).and_then(|x| x.to_owned());
+        let latest_page_history_id: Option<&Uuid> = latest_history_ids.get(&page.id);
 
-        let content_as_markdown = if let Some(id) = page_md_content_id {
-            let content = headless_lms_models::course_page_markdown_content::get(conn, id).await?;
-            content.markdown_content
+        let up_to_date_md_content = if let Some(id) = page_md_content_id {
+            let md_content =
+                headless_lms_models::course_page_markdown_content::get(conn, id).await?;
+            if Some(&md_content.page_history_id) == latest_page_history_id {
+                Some(md_content.markdown_content)
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        let content_as_markdown = if let Some(content) = up_to_date_md_content {
+            info!("Using previously generated Markdown for page {}", page.id);
+            content
         } else {
             match convert_material_blocks_to_markdown_with_llm(
                 &sanitized_blocks,
@@ -430,14 +443,18 @@ async fn sync_pages_batch(
         // save markdown content
         // if there is an error saving it to blobs, we can try uploading the same content
         // if the page hasn't been changed between tries.
-        if let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
-            conn,
-            &content_as_markdown,
-            page.id,
-        )
-        .await
-        {
-            warn!("Failed to save converted page content in DB: {}", e);
+        if let Some(history_id) = latest_page_history_id {
+            // todo when is there no history id?
+            if let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
+                conn,
+                &content_as_markdown,
+                page.id,
+                history_id,
+            )
+            .await
+            {
+                warn!("Failed to save converted page content in DB: {}", e);
+            };
         };
 
         let blob_path = generate_blob_path(page)?;
@@ -504,7 +521,7 @@ async fn sync_pages_batch(
                     page.id, db_err
                 );
             }
-        } else if let Some(history_id) = latest_history_ids.get(&page.id) {
+        } else if let Some(history_id) = latest_page_history_id {
             let mut page_revision_map = HashMap::new();
             page_revision_map.insert(page.id, *history_id);
             if let Err(e) =

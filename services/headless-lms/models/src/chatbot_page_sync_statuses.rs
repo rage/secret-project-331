@@ -63,10 +63,11 @@ pub async fn save_markdown_content(
     conn: &mut PgConnection,
     content: &str,
     page_id: Uuid,
+    page_history_id: &Uuid,
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
 
-    let res = course_page_markdown_content::insert(&mut tx, content).await?;
+    let res = course_page_markdown_content::insert(&mut tx, content, page_history_id).await?;
 
     sqlx::query!(
         r#"

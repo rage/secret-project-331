@@ -12993,9 +12993,17 @@
           "organization_id",
           "organization_name",
           "organization_slug",
-          "modules"
+          "modules",
+          "prerequisites",
+          "audiences"
         ],
         "properties": {
+          "audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseAudience"
+            }
+          },
           "closed_additional_message": {
             "type": ["string", "null"]
           },
@@ -13036,6 +13044,12 @@
           },
           "organization_slug": {
             "type": "string"
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CoursePrerequisite"
+            }
           },
           "slug": {
             "type": "string"

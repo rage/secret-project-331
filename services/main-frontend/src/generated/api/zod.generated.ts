@@ -682,22 +682,6 @@ export const zCourseModule = z.object({
   updated_at: z.iso.datetime(),
 })
 
-export const zCourseAuditingData = z.object({
-  closed_additional_message: z.string().nullish(),
-  closed_at: z.iso.datetime().nullish(),
-  closed_course_successor_id: z.uuid().nullish(),
-  created_at: z.iso.datetime(),
-  description: z.string().nullish(),
-  id: z.uuid(),
-  modules: z.array(zCourseModule),
-  name: z.string(),
-  organization_id: z.uuid(),
-  organization_name: z.string(),
-  organization_slug: z.string(),
-  slug: z.string(),
-  updated_at: z.iso.datetime(),
-})
-
 export const zCourseModuleCompletion = z.object({
   completion_date: z.iso.datetime(),
   completion_granter_user_id: z.uuid().nullish(),
@@ -767,6 +751,24 @@ export const zCoursePrerequisite = z.object({
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   prerequisite: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCourseAuditingData = z.object({
+  audiences: z.array(zCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  description: z.string().nullish(),
+  id: z.uuid(),
+  modules: z.array(zCourseModule),
+  name: z.string(),
+  organization_id: z.uuid(),
+  organization_name: z.string(),
+  organization_slug: z.string(),
+  prerequisites: z.array(zCoursePrerequisite),
+  slug: z.string(),
   updated_at: z.iso.datetime(),
 })
 

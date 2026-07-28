@@ -41,6 +41,20 @@ RETURNING *
     Ok(res)
 }
 
+pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<CoursePrerequisite>> {
+    let res = sqlx::query_as!(
+        CoursePrerequisite,
+        "
+SELECT *
+FROM course_prerequisites
+WHERE deleted_at IS NULL
+",
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,

@@ -14,6 +14,7 @@ import { useState } from "react"
 import { FormProvider, useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import CourseMetadata from "@/components/CourseMetadata/CourseMetadata"
 import {
   getCoursesForAuditingQueryKey,
   updateCourseAuditingDataMutation,
@@ -37,7 +38,6 @@ import { Link, nullIfEmpty, TextArea } from "@/shared-module/components"
 import ContentDisplayBox from "./ContentDisplayBox"
 import ClosedSectionFields from "./EditClosedFields"
 import EditModuleFields from "./EditModuleFields"
-//import CourseDescription from "./CourseDescription"
 import { contentRowStyles } from "./page"
 
 interface CourseAuditingCardProps {
@@ -94,7 +94,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
   const { control, handleSubmit, reset, getValues } = methods
 
   // oxlint-disable-next-line i18next/no-literal-string
-  const { fields } = useFieldArray({ control, name: "modules" })
+  const { fields: moduleFields } = useFieldArray({ control, name: "modules" })
 
   const toggleEdit = () => {
     setEditing(!editing)
@@ -271,12 +271,10 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                 rules={nullIfEmpty}
                 autoResize={true}
               />
-              {/* <CourseDescription course={course} refetch={refetch} /> */}
 
               <ClosedSectionFields />
 
-              {/* .toSorted((l, r) => l.order_number - r.order_number) */}
-              {fields.map((module, idx) => (
+              {moduleFields.map((module, idx) => (
                 <EditModuleFields key={module.id} control={control} module={module} idx={idx} />
               ))}
             </div>
@@ -293,6 +291,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                 content={readOnly.description}
               />
 
+              {/* <CourseMetadata courseId={courseAuditingData.id} /> */}
               {readOnly.closed_at ? (
                 <div
                   className={css`
@@ -319,6 +318,79 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
               ) : (
                 <ContentDisplayBox label={t("closed-at")} />
               )}
+
+              <div className={contentRowStyles}>
+                <ContentDisplayBox
+                  label={t("prerequisites-fieldset-title")}
+                  content={
+                    readOnly.prerequisites.length > 0 &&
+                    readOnly.prerequisites.map((prerequisite) => (
+                      <ul
+                        key={prerequisite.id}
+                        className={css`
+                          list-style: none;
+                          padding: 0;
+                          margin: 0;
+                          font-size: 0.9rem;
+                          line-height: 1.5;
+                        `}
+                      >
+                        <li
+                          className={css`
+                            padding: 0.2rem 0;
+                            padding-left: 1.25rem;
+                            position: relative;
+
+                            ::before {
+                              content: "•";
+                              position: absolute;
+                              left: 0;
+                              color: ${baseTheme.colors.green[600]};
+                            }
+                          `}
+                        >
+                          {prerequisite.prerequisite}
+                        </li>
+                      </ul>
+                    ))
+                  }
+                />
+                <ContentDisplayBox
+                  label={t("audiences-fieldset-title")}
+                  content={
+                    readOnly.audiences.length > 0 &&
+                    readOnly.audiences.map((audience) => (
+                      <ul
+                        key={audience.id}
+                        className={css`
+                          list-style: none;
+                          padding: 0;
+                          margin: 0;
+                          font-size: 0.9rem;
+                          line-height: 1.5;
+                        `}
+                      >
+                        <li
+                          className={css`
+                            padding: 0.2rem 0;
+                            padding-left: 1.25rem;
+                            position: relative;
+
+                            ::before {
+                              content: "•";
+                              position: absolute;
+                              left: 0;
+                              color: ${baseTheme.colors.green[600]};
+                            }
+                          `}
+                        >
+                          {audience.audience}
+                        </li>
+                      </ul>
+                    ))
+                  }
+                />
+              </div>
 
               {readOnly.modules.map((module) => (
                 <div

@@ -258,6 +258,8 @@ pub struct CourseAuditingData {
     pub organization_name: String,
     pub organization_slug: String,
     pub modules: Vec<CourseModule>,
+    pub prerequisites: Vec<CoursePrerequisite>,
+    pub audiences: Vec<CourseAudience>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -417,8 +419,11 @@ GROUP BY
     .fetch_all(&mut *conn)
     .await?;
 
-    let course_ids: Vec<Uuid> = courses_data.iter().map(|c| c.id).collect();
-    let modules_data = crate::course_modules::get_by_course_ids(conn, &course_ids).await?;
+    let modules_data = crate::course_modules::all_courses(conn).await?;
+
+    let prerequisites_data = crate::course_prerequisites::all_courses(conn).await?;
+
+    let audiences_data = crate::course_audiences::all_courses(conn).await?;
 
     let mut modules_by_course_id: HashMap<Uuid, Vec<CourseModule>> = HashMap::new();
     for module in modules_data {
@@ -430,6 +435,22 @@ GROUP BY
 
     for course_modules in modules_by_course_id.values_mut() {
         course_modules.sort_by_key(|c| c.order_number);
+    }
+
+    let mut prerequisites_by_course_id: HashMap<Uuid, Vec<CoursePrerequisite>> = HashMap::new();
+    for prerequisite in prerequisites_data {
+        prerequisites_by_course_id
+            .entry(prerequisite.course_id)
+            .or_default()
+            .push(prerequisite);
+    }
+
+    let mut audiences_by_course_id: HashMap<Uuid, Vec<CourseAudience>> = HashMap::new();
+    for audience in audiences_data {
+        audiences_by_course_id
+            .entry(audience.course_id)
+            .or_default()
+            .push(audience);
     }
 
     let data: Vec<CourseAuditingData> = courses_data
@@ -448,6 +469,8 @@ GROUP BY
             organization_name: c.organization_name,
             organization_slug: c.organization_slug,
             modules: modules_by_course_id.remove(&c.id).unwrap_or_default(),
+            prerequisites: prerequisites_by_course_id.remove(&c.id).unwrap_or_default(),
+            audiences: audiences_by_course_id.remove(&c.id).unwrap_or_default(),
         })
         .collect();
     Ok(data)
@@ -489,6 +512,10 @@ GROUP BY
 
     modules_data.sort_by_key(|c| c.order_number);
 
+    let prerequisites_data = crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+
+    let audiences_data = crate::course_audiences::get_by_course_id(conn, course_id).await?;
+
     let data: CourseAuditingData = CourseAuditingData {
         id: course_data.id,
         name: course_data.name,
@@ -503,6 +530,8 @@ GROUP BY
         organization_name: course_data.organization_name,
         organization_slug: course_data.organization_slug,
         modules: modules_data,
+        prerequisites: prerequisites_data,
+        audiences: audiences_data,
     };
 
     Ok(data)

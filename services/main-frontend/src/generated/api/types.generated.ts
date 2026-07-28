@@ -571,6 +571,7 @@ export type CourseAudience = {
 }
 
 export type CourseAuditingData = {
+  audiences: Array<CourseAudience>
   closed_additional_message?: string | null
   closed_at?: string | null
   closed_course_successor_id?: string | null
@@ -582,6 +583,7 @@ export type CourseAuditingData = {
   organization_id: string
   organization_name: string
   organization_slug: string
+  prerequisites: Array<CoursePrerequisite>
   slug: string
   updated_at: string
 }

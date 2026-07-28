@@ -80,6 +80,7 @@ const EditModuleFields: React.FC<Props> = ({ control, module, idx }) => {
           // oxlint-disable-next-line i18next/no-literal-string
           inputMode="decimal"
           type="number"
+          min={0}
           rules={{
             //...stringToNumberOrNull,
             valueAsNumber: true,

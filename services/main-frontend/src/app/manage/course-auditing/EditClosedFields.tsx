@@ -71,7 +71,7 @@ const EditClosedFields = (): React.ReactElement => {
           <div
             className={css`
               display: flex;
-              align-items: flex-start;
+              align-items: anchor-center;
               justify-content: space-between;
               gap: 1rem;
             `}
@@ -83,7 +83,7 @@ const EditClosedFields = (): React.ReactElement => {
               rules={nullIfEmpty}
               hourCycle={24}
               // oxlint-disable-next-line i18next/no-literal-string
-              fieldSize={"md"}
+              fieldSize={"sm"}
             />
             <TextField
               control={control}

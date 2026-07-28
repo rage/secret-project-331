@@ -445,17 +445,16 @@ async fn sync_pages_batch(
         // save markdown content
         // if there is an error saving it to blobs, we can try uploading the same content
         // if the page hasn't been changed between tries.
-        if let Some(history_id) = latest_page_history_id {
-            if let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
+        if let Some(history_id) = latest_page_history_id
+            && let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
                 conn,
                 &content_as_markdown,
                 page.id,
                 history_id,
             )
             .await
-            {
-                warn!("Failed to save converted page content in DB: {}", e);
-            };
+        {
+            warn!("Failed to save converted page content in DB: {}", e);
         };
 
         let blob_path = generate_blob_path(page)?;

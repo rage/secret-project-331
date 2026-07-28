@@ -3256,7 +3256,7 @@
     "/api/v0/main-frontend/courses/{course_id}/get-course-metadata": {
       "get": {
         "tags": ["courses"],
-        "summary": "\nget `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.",
+        "summary": "\nget `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.",
         "operationId": "getCourseMetadata",
         "parameters": [
           {
@@ -10756,11 +10756,35 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Course"
+                    "$ref": "#/components/schemas/MyCourse"
                   }
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/my-courses/{course_id}/hide": {
+      "post": {
+        "tags": ["users"],
+        "summary": "\nPOST `/api/v0/main-frontend/users/my-courses/:course_id/hide` - Hides a course from the\nauthenticated user's \"My courses\" list.",
+        "operationId": "hideCourseFromMyCourses",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course hidden from the user's my-courses list"
           }
         }
       }
@@ -12027,7 +12051,6 @@
           "id",
           "created_at",
           "updated_at",
-          "course_id",
           "enabled_to_students",
           "chatbot_name",
           "model_id",
@@ -12055,7 +12078,7 @@
             "type": "string"
           },
           "course_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "created_at": {
@@ -16066,6 +16089,23 @@
           }
         }
       },
+      "MyCourse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Course"
+          },
+          {
+            "type": "object",
+            "required": ["can_hide"],
+            "properties": {
+              "can_hide": {
+                "type": "boolean",
+                "description": "Whether the course can be hidden from the \"My courses\" list. Only courses the user has\nenrolled in (and thus have user course settings) can be hidden."
+              }
+            }
+          }
+        ]
+      },
       "NewChapter": {
         "type": "object",
         "required": ["name", "course_id", "chapter_number"],
@@ -16106,7 +16146,6 @@
       "NewChatbotConf": {
         "type": "object",
         "required": [
-          "course_id",
           "enabled_to_students",
           "chatbot_name",
           "model_id",
@@ -16138,7 +16177,7 @@
             "format": "uuid"
           },
           "course_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "daily_tokens_per_user": {
@@ -18608,7 +18647,8 @@
           "created_at",
           "updated_at",
           "current_course_id",
-          "current_course_instance_id"
+          "current_course_instance_id",
+          "hidden"
         ],
         "properties": {
           "course_language_group_id": {
@@ -18630,6 +18670,10 @@
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "hidden": {
+            "type": "boolean",
+            "description": "Whether the user has hidden this course from their personal \"My courses\" list. Does not\naffect course progress."
           },
           "updated_at": {
             "type": "string",

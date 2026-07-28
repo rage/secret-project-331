@@ -292,7 +292,7 @@ export type ChapterUpdate = {
 
 export type ChatbotConfiguration = {
   chatbot_name: string
-  course_id: string
+  course_id?: string | null
   created_at: string
   daily_tokens_per_user: number
   default_chatbot: boolean
@@ -1577,6 +1577,14 @@ export type ModuleUpdates = {
   new_modules: Array<NewModule>
 }
 
+export type MyCourse = Course & {
+  /**
+   * Whether the course can be hidden from the "My courses" list. Only courses the user has
+   * enrolled in (and thus have user course settings) can be hidden.
+   */
+  can_hide: boolean
+}
+
 export type NewChapter = {
   chapter_number: number
   color?: string | null
@@ -1595,7 +1603,7 @@ export type NewChapter = {
 export type NewChatbotConf = {
   chatbot_name: string
   chatbotconf_id?: string | null
-  course_id: string
+  course_id?: string | null
   daily_tokens_per_user: number
   default_chatbot: boolean
   enabled_to_students: boolean
@@ -2388,6 +2396,11 @@ export type UserCourseSettings = {
   current_course_id: string
   current_course_instance_id: string
   deleted_at?: string | null
+  /**
+   * Whether the user has hidden this course from their personal "My courses" list. Does not
+   * affect course progress.
+   */
+  hidden: boolean
   updated_at: string
   user_id: string
 }
@@ -9171,10 +9184,29 @@ export type GetMyCoursesResponses = {
   /**
    * Courses for authenticated user
    */
-  200: Array<Course>
+  200: Array<MyCourse>
 }
 
 export type GetMyCoursesResponse = GetMyCoursesResponses[keyof GetMyCoursesResponses]
+
+export type HideCourseFromMyCoursesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/my-courses/{course_id}/hide"
+}
+
+export type HideCourseFromMyCoursesResponses = {
+  /**
+   * Course hidden from the user's my-courses list
+   */
+  200: unknown
+}
 
 export type ResetUserPasswordData = {
   body: ResetPasswordData

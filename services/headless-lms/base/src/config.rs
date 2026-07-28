@@ -89,7 +89,8 @@ impl ApplicationConfiguration {
 #[derive(Clone)]
 pub struct AzureChatbotConfiguration {
     pub api_key: SecretString,
-    pub api_endpoint: Url,
+    pub api_base: Url,
+    pub project_name: String,
 }
 
 impl AzureChatbotConfiguration {
@@ -105,16 +106,27 @@ impl AzureChatbotConfiguration {
         if let (Some(api_key), Some(api_endpoint_str), Some(project_name)) =
             (api_key, api_endpoint_str, project_name)
         {
-            let api_endpoint = Url::parse(&api_endpoint_str)?
-                .join(&format!("/api/projects/{project_name}/openai/v1/responses"))
+            let api_base = Url::parse(&api_endpoint_str)
                 .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?;
             Ok(Some(AzureChatbotConfiguration {
                 api_key: SecretString::new(api_key.into()),
-                api_endpoint,
+                api_base,
+                project_name,
             }))
         } else {
             Ok(None)
         }
+    }
+
+    pub fn responses_endpoint(&self) -> anyhow::Result<Url> {
+        Ok(self.api_base.join(&format!(
+            "/api/projects/{}/openai/v1/responses",
+            self.project_name
+        ))?)
+    }
+
+    pub fn embeddings_endpoint(&self) -> anyhow::Result<Url> {
+        Ok(self.api_base.join("openai/v1/embeddings")?)
     }
 }
 
@@ -233,7 +245,6 @@ impl AzureConfiguration {
         let chatbot = AzureChatbotConfiguration::try_from_env()?;
         let search_config = AzureSearchConfiguration::try_from_env()?;
         let blob_storage_config = AzureBlobStorageConfiguration::try_from_env()?;
-
         if chatbot.is_some() || search_config.is_some() || blob_storage_config.is_some() {
             Ok(Some(AzureConfiguration {
                 chatbot_config: chatbot,
@@ -253,7 +264,8 @@ impl AzureConfiguration {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let chatbot_config = Some(AzureChatbotConfiguration {
             api_key: SecretString::new(String::new().into()),
-            api_endpoint: Url::parse(&base_url)?.join("/api/v0/mock-azure/test/v1/responses")?,
+            api_base: Url::parse(&base_url)?.join("/api/v0/mock-azure/test/v1/responses")?,
+            project_name: String::new().into(),
         });
         let search_config = Some(AzureSearchConfiguration {
             vectorizer_resource_uri: "".to_string(),

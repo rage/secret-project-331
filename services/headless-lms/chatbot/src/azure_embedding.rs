@@ -1,12 +1,7 @@
-use std::env;
-
 use crate::prelude::*;
-use azure_core::request_options::App;
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_models::chatbot_conversation_message_reasoning::ChatbotConversationMessageReasoning;
 use headless_lms_utils::http::REQWEST_CLIENT;
 use secrecy::ExposeSecret;
-use url::Url;
 
 const API_VERSION: &str = "2024-07-01";
 
@@ -19,13 +14,13 @@ struct EmbeddingRequest {
 }
 
 #[derive(Deserialize)]
-struct EmbeddingData {
-    embedding: Vec<f32>,
+struct EmbeddingResponse {
+    data: Vec<Embedding>,
 }
 
 #[derive(Deserialize)]
-struct EmbeddingResponse {
-    data: Vec<EmbeddingData>,
+struct Embedding {
+    embedding: Vec<f32>,
 }
 
 pub async fn create_embedding(
@@ -52,12 +47,8 @@ pub async fn create_embedding(
             "Azure search configuration is missing from the Azure configuration"
         )
     })?;
-    let api_endpoint_str = env::var("AZURE_CHATBOT_API_ENDPOINT").ok().unwrap();
 
-    let api_endpoint = Url::parse(api_endpoint_str.as_str())?
-        .join("openai/v1/embeddings")
-        .unwrap();
-    dbg!(format!("HERE IS URL!!!!!: {api_endpoint}"));
+    let api_endpoint = chatbot_config.embeddings_endpoint()?;
     let input_json = serde_json::to_string(&input)?;
 
     let response = REQWEST_CLIENT
@@ -70,6 +61,8 @@ pub async fn create_embedding(
         })
         .send()
         .await?;
-    dbg!(response);
+    let json: EmbeddingResponse = serde_json::from_str(&response.text().await?)?;
+    let embedding = json.data.first().unwrap().embedding.to_owned();
+    debug!("LENGTH: {}", embedding.len());
     Ok(())
 }

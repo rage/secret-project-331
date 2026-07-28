@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import { QueryResult } from "@/shared-module/components"
 

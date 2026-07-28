@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CustomPointsPopup from "@/app/manage/exercises/[id]/submissions/CustomPointsPopup"
+import CustomPointsPopup from "@/app/(layout)/manage/exercises/[id]/submissions/CustomPointsPopup"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"

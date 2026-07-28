@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useParams, useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import ChatbotConfigurationForm from "@/app/manage/courses/[id]/other/chatbot/ChatbotConfigurationForm"
+import ChatbotConfigurationForm from "@/app/(layout)/manage/courses/[id]/other/chatbot/ChatbotConfigurationForm"
 import { getChatbotConfigurationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"

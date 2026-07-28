@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
 import { getCourseGlossaryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"

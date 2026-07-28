@@ -6,7 +6,7 @@ import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
 import useCourseInstancesQuery, { invalidateCourseInstances } from "@/hooks/useCourseInstancesQuery"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"

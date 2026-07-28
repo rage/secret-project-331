@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 import ExerciseList from "./ExerciseList"

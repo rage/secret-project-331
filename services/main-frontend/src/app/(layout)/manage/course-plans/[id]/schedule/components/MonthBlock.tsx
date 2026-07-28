@@ -5,7 +5,7 @@ import { format } from "date-fns"
 import { motion } from "motion/react"
 import { forwardRef } from "react"
 
-import { COURSE_PLAN_MONTH_ICONS } from "@/app/manage/course-plans/monthIcons"
+import { COURSE_PLAN_MONTH_ICONS } from "@/app/(layout)/manage/course-plans/monthIcons"
 
 import type { StageMonth } from "../scheduleMappers"
 

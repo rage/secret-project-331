@@ -6,7 +6,7 @@ import { type Key, type ReactNode, useMemo, useRef } from "react"
 import { useTabList, useTabPanel } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { getStageMonths } from "@/app/manage/course-plans/[id]/schedule/scheduleMappers"
+import { getStageMonths } from "@/app/(layout)/manage/course-plans/[id]/schedule/scheduleMappers"
 import type {
   CourseDesignerPlanStageWithTasks,
   CourseDesignerStage,

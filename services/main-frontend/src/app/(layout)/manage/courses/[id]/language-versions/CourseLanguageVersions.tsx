@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
 import { getCourseLanguageVersionsQueryKey } from "@/hooks/useCourseLanguageVersions"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import Button from "@/shared-module/common/components/Button"

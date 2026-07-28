@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewCourseInstanceForm from "@/app/manage/courses/[id]/course-instances/NewCourseInstanceForm"
+import NewCourseInstanceForm from "@/app/(layout)/manage/courses/[id]/course-instances/NewCourseInstanceForm"
 import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { deleteCourseInstance, editCourseInstance } from "@/generated/api/sdk.generated"
 import type { CourseInstanceForm } from "@/generated/api/types.generated"

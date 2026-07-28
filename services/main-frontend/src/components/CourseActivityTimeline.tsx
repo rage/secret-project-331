@@ -6,7 +6,7 @@ import type { EChartsOption } from "echarts"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Echarts from "@/app/manage/courses/[id]/stats/Echarts"
+import Echarts from "@/app/(layout)/manage/courses/[id]/stats/Echarts"
 import {
   moduleTimingCaptionCss,
   ModuleTimingCells,

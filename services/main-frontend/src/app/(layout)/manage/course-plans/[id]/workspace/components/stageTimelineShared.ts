@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import type { StageMonth } from "@/app/manage/course-plans/[id]/schedule/scheduleMappers"
+import type { StageMonth } from "@/app/(layout)/manage/course-plans/[id]/schedule/scheduleMappers"
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 

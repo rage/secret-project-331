@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CustomPointsPopup from "@/app/manage/exercises/[id]/submissions/CustomPointsPopup"
+import CustomPointsPopup from "@/app/(layout)/manage/exercises/[id]/submissions/CustomPointsPopup"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
 import BooleanAsText from "@/shared-module/common/components/BooleanAsText"

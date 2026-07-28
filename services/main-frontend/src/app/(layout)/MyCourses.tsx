@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import CourseCard, { CourseGrid } from "@/app/org/[organizationSlug]/CourseCard"
+import CourseCard, { CourseGrid } from "@/app/(layout)/org/[organizationSlug]/CourseCard"
 import {
   getMyCoursesOptions,
   getMyCoursesQueryKey,

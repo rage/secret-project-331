@@ -8,7 +8,7 @@ import Cite from "citation-js"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
 import { getCourseReferencesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MaterialReference } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"

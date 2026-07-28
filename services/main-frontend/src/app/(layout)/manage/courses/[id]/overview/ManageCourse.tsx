@@ -9,7 +9,7 @@ import type {
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ModuleCompletionReprocessButton from "@/app/manage/courses/[id]/course-instances/ModuleCompletionReprocessButton"
+import ModuleCompletionReprocessButton from "@/app/(layout)/manage/courses/[id]/course-instances/ModuleCompletionReprocessButton"
 import {
   deleteCourse as deleteCourseFromApi,
   resetCourseProgressForEveryone,

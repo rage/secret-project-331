@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
 import {
   getCourseChatbotsOptions,
   setCourseChatbotAsDefaultMutation,

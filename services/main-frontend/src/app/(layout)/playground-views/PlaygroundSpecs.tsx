@@ -6,7 +6,7 @@ import type { UseQueryResult } from "@tanstack/react-query"
 import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import type { PlaygroundSettings } from "@/app/playground-tabs/page"
+import type { PlaygroundSettings } from "@/app/(layout)/playground-tabs/page"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"

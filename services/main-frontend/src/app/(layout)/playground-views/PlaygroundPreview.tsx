@@ -10,7 +10,7 @@ import { useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import type { PlaygroundSettings } from "@/app/playground-tabs/page"
+import type { PlaygroundSettings } from "@/app/(layout)/playground-tabs/page"
 import type { UseParsedPrivateSpecResult } from "@/hooks/playground/useParsedPrivateSpec"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"

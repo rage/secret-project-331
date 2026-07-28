@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 
-import { COURSE_PLAN_MONTH_ICONS } from "@/app/manage/course-plans/monthIcons"
+import { COURSE_PLAN_MONTH_ICONS } from "@/app/(layout)/manage/course-plans/monthIcons"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"

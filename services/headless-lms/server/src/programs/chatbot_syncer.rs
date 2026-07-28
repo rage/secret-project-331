@@ -384,11 +384,13 @@ async fn sync_pages_batch(
         let up_to_date_md_content = if let Some(id) = page_md_content_id {
             let md_content =
                 headless_lms_models::course_page_markdown_content::get(conn, id).await?;
-            if Some(&md_content.page_history_id) == latest_page_history_id {
-                Some(md_content.markdown_content)
-            } else {
-                None
-            }
+            latest_page_history_id.and_then(|id| {
+                if id == &md_content.page_history_id {
+                    Some(md_content.markdown_content)
+                } else {
+                    None
+                }
+            })
         } else {
             None
         };
@@ -444,7 +446,6 @@ async fn sync_pages_batch(
         // if there is an error saving it to blobs, we can try uploading the same content
         // if the page hasn't been changed between tries.
         if let Some(history_id) = latest_page_history_id {
-            // todo when is there no history id?
             if let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
                 conn,
                 &content_as_markdown,

@@ -5,7 +5,6 @@ import Script from "next/script"
 import React, { Suspense, useEffect } from "react"
 
 import DesignTokensRoot from "@/components/DesignTokensRoot"
-import Layout from "@/components/Layout"
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper"
 import { AriaRouterProvider } from "@/components/providers/AriaRouterProvider"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -30,8 +29,6 @@ const RootLayout = ({
     installGlobalErrorReporting({ service: SERVICE_NAME })
   }, [])
 
-  // @ts-expect-error: custom prop
-  const noVisibleLayout = Boolean(children?.noVisibleLayout)
   return (
     <html lang="en" dir={getDir("en")}>
       <body>
@@ -41,9 +38,8 @@ const RootLayout = ({
         </Script>
         <AriaRouterProvider>
           <Suspense fallback={<Spinner />}>
-            <ClientLayoutWrapper>
-              <Layout noVisibleLayout={noVisibleLayout}>{children}</Layout>
-            </ClientLayoutWrapper>
+            <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+            {/* TODO MAYBE DYNAMIC TOASTER HERE */}
           </Suspense>
         </AriaRouterProvider>
       </body>

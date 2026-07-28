@@ -3125,21 +3125,14 @@
       },
       "ChatbotConversation": {
         "type": "object",
-        "required": [
-          "id",
-          "created_at",
-          "updated_at",
-          "course_id",
-          "user_id",
-          "chatbot_configuration_id"
-        ],
+        "required": ["id", "created_at", "updated_at", "user_id", "chatbot_configuration_id"],
         "properties": {
           "chatbot_configuration_id": {
             "type": "string",
             "format": "uuid"
           },
           "course_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "created_at": {
@@ -3167,13 +3160,13 @@
       "ChatbotConversationInfo": {
         "type": "object",
         "description": "Should contain all information required to display the chatbot to the user.",
-        "required": ["chatbot_name", "course_name", "hide_citations"],
+        "required": ["chatbot_name", "hide_citations"],
         "properties": {
           "chatbot_name": {
             "type": "string"
           },
           "course_name": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "current_conversation": {
             "oneOf": [

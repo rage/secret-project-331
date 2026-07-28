@@ -2668,7 +2668,7 @@ export const getCourseAudiences = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course audiences.
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.
  */
 export const getCourseMetadata = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseMetadataData, ThrowOnError>,

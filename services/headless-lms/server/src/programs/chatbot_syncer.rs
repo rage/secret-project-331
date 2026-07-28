@@ -147,7 +147,7 @@ async fn sync_pages(
 
     let course_ids: Vec<Uuid> = chatbot_configs
         .iter()
-        .map(|config| config.course_id)
+        .filter_map(|config| config.course_id)
         .collect::<HashSet<_>>()
         .into_iter()
         .collect();

@@ -132,7 +132,7 @@ async fn send_message(
     let chatbot_user = ChatbotUserContext {
         user_id: Some(user.id.to_owned()),
         course_id: chatbot_configuration.course_id,
-        course_name: course_name,
+        course_name,
     };
 
     let response_stream = send_chat_request_and_parse_stream(

@@ -84,9 +84,10 @@ impl ChatbotTool for DocumentLookupTool {
         let Some(course_id) = user_context.course_id else {
             return Err(chatbot_err!(
                 ToolUseError,
-                "User id is missing.".to_string()
+                "Course id is missing.".to_string()
             ));
         };
+
         let page_id = if let Some(id) = &arguments.page_id {
             id.to_owned()
         } else if let Some(f) = &arguments.filepath {

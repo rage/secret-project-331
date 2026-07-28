@@ -19,7 +19,7 @@ export type AutomaticCompletionRequirements = {
 
 export type ChatbotConfiguration = {
   chatbot_name: string
-  course_id: string
+  course_id?: string | null
   created_at: string
   daily_tokens_per_user: number
   default_chatbot: boolean

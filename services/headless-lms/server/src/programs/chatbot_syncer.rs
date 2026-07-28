@@ -382,20 +382,24 @@ async fn sync_pages_batch(
         let latest_page_history_id: Option<&Uuid> = latest_history_ids.get(&page.id);
 
         let up_to_date_md_content = if let Some(id) = page_md_content_id {
-            let md_content =
-                headless_lms_models::course_page_markdown_content::get(conn, id).await?;
-            latest_page_history_id.and_then(|id| {
-                if id == &md_content.page_history_id {
-                    Some(md_content.markdown_content)
-                } else {
-                    None
-                }
+            let md_content_option =
+                headless_lms_models::course_page_markdown_content::get(conn, id)
+                    .await
+                    .ok();
+            md_content_option.and_then(|md_content| {
+                latest_page_history_id.and_then(|id| {
+                    if id == &md_content.page_history_id {
+                        Some(md_content.markdown_content)
+                    } else {
+                        None
+                    }
+                })
             })
         } else {
             None
         };
 
-        let content_as_markdown = if let Some(content) = up_to_date_md_content {
+        let content_as_markdown = if let Some(content) = up_to_date_md_content.to_owned() {
             info!("Using previously generated Markdown for page {}", page.id);
             content
         } else {
@@ -442,10 +446,11 @@ async fn sync_pages_batch(
             }
         };
 
-        // save markdown content
+        // save markdown content if new markdown was generated
         // if there is an error saving it to blobs, we can try uploading the same content
         // if the page hasn't been changed between tries.
         if let Some(history_id) = latest_page_history_id
+            && up_to_date_md_content.is_none()
             && let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
                 conn,
                 &content_as_markdown,

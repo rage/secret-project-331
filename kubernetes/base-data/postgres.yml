@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:15
+          image: pgvector/pgvector:pg18-trixie
           envFrom:
             - configMapRef:
                 name: postgres-configuration
@@ -32,7 +32,7 @@ spec:
               name: postgres
           volumeMounts:
             - name: postgres-volume-mount
-              mountPath: /var/lib/postgresql/data
+              mountPath: /var/lib/postgresql/
           readinessProbe:
             exec:
               command:

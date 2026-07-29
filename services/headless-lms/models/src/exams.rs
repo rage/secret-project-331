@@ -4,7 +4,7 @@ use utoipa::ToSchema;
 
 use crate::{courses::Course, prelude::*};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
-
+use pgvector::Vector;
 #[derive(Debug, Serialize, ToSchema)]
 
 pub struct Exam {
@@ -164,7 +164,8 @@ SELECT id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1

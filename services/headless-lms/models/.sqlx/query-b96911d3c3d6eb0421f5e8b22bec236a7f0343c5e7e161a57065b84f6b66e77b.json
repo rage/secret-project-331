@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy,\n  course_material_ai_instructions\nFROM courses\nWHERE course_language_group_id = $1\nAND deleted_at IS NULL\n        ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy,\n  course_material_ai_instructions,\n  embedding as \"embedding: Vector\"\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -154,17 +154,6 @@
       },
       {
         "ordinal": 14,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "base_module_completion_requires_n_submodule_completions"
-          }
-        }
-      },
-      {
-        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool",
         "origin": {
@@ -175,13 +164,24 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 15,
         "name": "is_unlisted",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "courses",
             "name": "is_unlisted"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "base_module_completion_requires_n_submodule_completions"
           }
         }
       },
@@ -330,11 +330,27 @@
             "name": "course_material_ai_instructions"
           }
         }
+      },
+      {
+        "ordinal": 29,
+        "name": "embedding: Vector",
+        "type_info": {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "embedding"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "UuidArray"
       ]
     },
     "nullable": [
@@ -366,8 +382,9 @@
       false,
       false,
       false,
+      true,
       true
     ]
   },
-  "hash": "5938cd4cb02a7b2f678f96e0c7f3f653c2d885963baae8e84dd22cdf9ecc958a"
+  "hash": "b96911d3c3d6eb0421f5e8b22bec236a7f0343c5e7e161a57065b84f6b66e77b"
 }

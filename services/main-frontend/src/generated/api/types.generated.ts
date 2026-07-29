@@ -540,6 +540,7 @@ export type Course = {
   created_at: string
   deleted_at?: string | null
   description?: string | null
+  embedding?: Array<number> | null
   flagged_answers_skip_manual_review_and_allow_retry: boolean
   flagged_answers_threshold?: number | null
   id: string
@@ -566,6 +567,7 @@ export type CourseAudience = {
   course_id: string
   created_at: string
   deleted_at?: string | null
+  embedding: Array<number>
   id: string
   updated_at: string
 }
@@ -938,6 +940,7 @@ export type CoursePrerequisite = {
   course_id: string
   created_at: string
   deleted_at?: string | null
+  embedding: Array<number>
   id: string
   prerequisite: string
   updated_at: string
@@ -1579,8 +1582,8 @@ export type ModuleUpdates = {
 
 export type MyCourse = Course & {
   /**
-   * Whether the course can be hidden from the "My courses" list. Only courses the user has
-   * enrolled in (and thus have user course settings) can be hidden.
+   * Whether the course can be hidden from the "My courses" list. False for courses the user has
+   * not enrolled in or has a role in.
    */
   can_hide: boolean
 }

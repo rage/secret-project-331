@@ -12863,6 +12863,13 @@
           "description": {
             "type": ["string", "null"]
           },
+          "embedding": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "number",
+              "format": "float"
+            }
+          },
           "flagged_answers_skip_manual_review_and_allow_retry": {
             "type": "boolean"
           },
@@ -12915,7 +12922,7 @@
       },
       "CourseAudience": {
         "type": "object",
-        "required": ["id", "created_at", "updated_at", "course_id", "audience"],
+        "required": ["id", "created_at", "updated_at", "course_id", "audience", "embedding"],
         "properties": {
           "audience": {
             "type": "string"
@@ -12931,6 +12938,13 @@
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "embedding": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            }
           },
           "id": {
             "type": "string",
@@ -13966,7 +13980,7 @@
       },
       "CoursePrerequisite": {
         "type": "object",
-        "required": ["id", "created_at", "updated_at", "course_id", "prerequisite"],
+        "required": ["id", "created_at", "updated_at", "course_id", "prerequisite", "embedding"],
         "properties": {
           "course_id": {
             "type": "string",
@@ -13979,6 +13993,13 @@
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "embedding": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            }
           },
           "id": {
             "type": "string",
@@ -16100,7 +16121,7 @@
             "properties": {
               "can_hide": {
                 "type": "boolean",
-                "description": "Whether the course can be hidden from the \"My courses\" list. Only courses the user has\nenrolled in (and thus have user course settings) can be hidden."
+                "description": "Whether the course can be hidden from the \"My courses\" list. False for courses the user has\nnot enrolled in or has a role in."
               }
             }
           }

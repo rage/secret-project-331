@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_audiences (\n    course_id,\n    audience\n  )\n  SELECT $1,\n  UNNEST ($2::TEXT []) audience\nRETURNING *\n",
+  "query": "\nSELECT\n        id,\n        created_at,\n        updated_at,\n        deleted_at,\n        course_id,\n        audience,\n        embedding as \"embedding: Vector\"\nFROM course_audiences\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -68,12 +68,27 @@
             "name": "audience"
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "embedding: Vector",
+        "type_info": {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_audiences",
+            "name": "embedding"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "TextArray"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -82,8 +97,9 @@
       false,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "e386e3da00ce5415f067b85af1e05d3c7477d185ed0890e49e1a2e85398253fe"
+  "hash": "bbcac5d159084564819120a1057e5ec49b53125260520740833a295dff649901"
 }

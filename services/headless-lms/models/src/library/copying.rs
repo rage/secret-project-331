@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use serde_json::Value;
 
+use crate::ModelResult;
 use crate::course_instances;
 use crate::course_instances::NewCourseInstance;
 use crate::course_language_groups;
@@ -14,8 +15,7 @@ use crate::exams::Exam;
 use crate::exams::NewExam;
 use crate::pages;
 use crate::prelude::*;
-
-use crate::ModelResult;
+use pgvector::Vector;
 
 pub async fn copy_course(
     conn: &mut PgConnection,
@@ -82,7 +82,8 @@ INSERT INTO courses (
     cheater_detection_enabled,
     chapter_locking_enabled,
     ai_policy,
-    course_material_ai_instructions
+    course_material_ai_instructions,
+    embedding
   )
 VALUES (
     $1,
@@ -105,7 +106,8 @@ VALUES (
     $18,
     $19,
     $20,
-    $21
+    $21,
+    $22
   )
 RETURNING id,
   name,
@@ -135,7 +137,8 @@ RETURNING id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
         "#,
         new_course.name,
         new_course.organization_id,
@@ -157,7 +160,8 @@ RETURNING id,
         parent_course.cheater_detection_enabled,
         parent_course.chapter_locking_enabled,
         parent_course.ai_policy as CourseAiPolicy,
-        parent_course.course_material_ai_instructions
+        parent_course.course_material_ai_instructions,
+        parent_course.embedding as Option<Vector>
     )
     .fetch_one(&mut *tx)
     .await?;

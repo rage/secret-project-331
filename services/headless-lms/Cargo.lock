@@ -4773,6 +4773,8 @@ checksum = "3673cba5b9a124916096a423b806a9f29620972c6c97b08db5f2053e9428b481"
 dependencies = [
  "bytes",
  "postgres-types",
+ "serde",
+ "sqlx",
 ]
 
 [[package]]

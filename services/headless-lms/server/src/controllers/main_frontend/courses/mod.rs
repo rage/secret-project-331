@@ -2713,17 +2713,19 @@ POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadat
         (status = 200, description = "Updated metadata", body = CourseMetadata)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn update_metadata(
     payload: web::Json<CourseMetadataUpdate>,
     course_id: web::Path<Uuid>,
+    app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseMetadata>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let metadata_update = payload.0;
-    let course = models::courses::set_metadata(&mut conn, *course_id, metadata_update).await?;
+    let course =
+        models::courses::set_metadata(&mut conn, &app_conf, *course_id, metadata_update).await?;
 
     token.authorized_ok(web::Json(course))
 }

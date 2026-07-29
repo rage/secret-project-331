@@ -10,9 +10,12 @@ use crate::{
     pages::{Page, PageVisibility, get_all_by_course_id_and_visibility},
     prelude::*,
 };
-use headless_lms_utils::{file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME};
+use headless_lms_utils::{
+    azure_embedding::create_embeddings, file_store::FileStore,
+    language_tag_to_name::LANGUAGE_TAG_TO_NAME,
+};
+use pgvector::Vector;
 use utoipa::ToSchema;
-
 pub struct CourseInfo {
     pub id: Uuid,
     pub is_draft: bool,
@@ -88,6 +91,8 @@ pub struct Course {
     pub cheater_detection_enabled: bool,
     pub ai_policy: CourseAiPolicy,
     pub course_material_ai_instructions: Option<bool>,
+    #[schema(value_type = Option<Vec<f32>>)]
+    pub embedding: Option<Vector>,
 }
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
@@ -311,7 +316,8 @@ SELECT id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -356,7 +362,8 @@ SELECT id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -408,7 +415,8 @@ SELECT id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -472,7 +480,8 @@ SELECT id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -521,7 +530,8 @@ SELECT
     c.chapter_locking_enabled,
     c.cheater_detection_enabled,
     c.ai_policy,
-    c.course_material_ai_instructions
+    c.course_material_ai_instructions,
+    c.embedding as "embedding: Vector"
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -595,7 +605,8 @@ SELECT id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -643,7 +654,8 @@ SELECT id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
 WHERE id = $1
   AND join_code = $2
@@ -763,7 +775,8 @@ SELECT courses.id,
   courses.chapter_locking_enabled,
   courses.cheater_detection_enabled,
   courses.ai_policy,
-  courses.course_material_ai_instructions
+  courses.course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -893,7 +906,8 @@ RETURNING id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
     "#,
         course_update.name,
         course_update.description,
@@ -997,7 +1011,8 @@ RETURNING id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
     "#,
         course_id
     )
@@ -1038,7 +1053,8 @@ SELECT id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -1135,7 +1151,8 @@ SELECT id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   AND deleted_at IS NULL
@@ -1182,7 +1199,8 @@ SELECT id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -1249,7 +1267,8 @@ SELECT id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions
+  course_material_ai_instructions,
+  embedding as "embedding: Vector"
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;
@@ -1452,7 +1471,7 @@ pub struct CourseMetadataUpdate {
     course_prerequisites: Vec<NewCoursePrerequisite>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone, ToSchema)]
 pub struct CourseMetadata {
     course_description: Option<String>,
     course_audiences: Vec<CourseAudience>,
@@ -1461,6 +1480,7 @@ pub struct CourseMetadata {
 
 pub async fn set_metadata(
     conn: &mut PgConnection,
+    app_conf: &ApplicationConfiguration,
     course_id: Uuid,
     course_metadata: CourseMetadataUpdate,
 ) -> ModelResult<CourseMetadata> {
@@ -1490,7 +1510,14 @@ pub async fn set_metadata(
 
     crate::course_prerequisites::delete_batch(conn, prerequisites_to_delete).await?;
 
-    let prerequisites = insert_course_prerequisites(conn, course_id, prerequisites_to_add).await?;
+    let prerequisite_embeddings = create_embeddings(prerequisites_to_add.clone(), app_conf).await?;
+    let prerequisites = insert_course_prerequisites(
+        conn,
+        course_id,
+        prerequisites_to_add,
+        prerequisite_embeddings,
+    )
+    .await?;
 
     let old_audiences: Vec<CourseAudience> =
         crate::course_audiences::get_by_course_id(conn, course_id).await?;
@@ -1517,8 +1544,15 @@ pub async fn set_metadata(
         .collect();
 
     crate::course_audiences::delete_batch(conn, audiences_to_delete).await?;
-    let audiences =
-        crate::course_audiences::insert_course_audiences(conn, course_id, audiences_to_add).await?;
+
+    let audience_embeddings = create_embeddings(audiences_to_add.clone(), app_conf).await?;
+    let audiences = crate::course_audiences::insert_course_audiences(
+        conn,
+        course_id,
+        audiences_to_add,
+        audience_embeddings,
+    )
+    .await?;
 
     let course = get_course(conn, course_id).await?;
 

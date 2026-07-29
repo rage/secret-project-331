@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM course_audiences\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
+  "query": "\nUPDATE course_prerequisites\nSET deleted_at = now()\nWHERE id = ANY($1::UUID [])\nAND deleted_at IS NULL\nRETURNING\n        id,\n        created_at,\n        updated_at,\n        deleted_at,\n        course_id,\n        prerequisite,\n        embedding as \"embedding: Vector\"\n",
   "describe": {
     "columns": [
       {
@@ -9,7 +9,7 @@
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "course_audiences",
+            "table": "course_prerequisites",
             "name": "id"
           }
         }
@@ -20,7 +20,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "course_audiences",
+            "table": "course_prerequisites",
             "name": "created_at"
           }
         }
@@ -31,7 +31,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "course_audiences",
+            "table": "course_prerequisites",
             "name": "updated_at"
           }
         }
@@ -42,7 +42,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "course_audiences",
+            "table": "course_prerequisites",
             "name": "deleted_at"
           }
         }
@@ -53,26 +53,42 @@
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "course_audiences",
+            "table": "course_prerequisites",
             "name": "course_id"
           }
         }
       },
       {
         "ordinal": 5,
-        "name": "audience",
+        "name": "prerequisite",
         "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "course_audiences",
-            "name": "audience"
+            "table": "course_prerequisites",
+            "name": "prerequisite"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "embedding: Vector",
+        "type_info": {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_prerequisites",
+            "name": "embedding"
           }
         }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "UuidArray"
       ]
     },
     "nullable": [
@@ -81,8 +97,9 @@
       false,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "2a09e975fcde10c9e07a4aa4bc9b69510dbbc261d496ce42cbf3905f23e6ddd9"
+  "hash": "e63352490c26ee81a95e62a6f9037456eb51f9b9911c8bf19c8ba3d9db7ebc67"
 }

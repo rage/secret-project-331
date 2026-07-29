@@ -164,6 +164,7 @@ export type Course = {
   created_at: string
   deleted_at?: string | null
   description?: string | null
+  embedding?: Array<number> | null
   flagged_answers_skip_manual_review_and_allow_retry: boolean
   flagged_answers_threshold?: number | null
   id: string

@@ -395,6 +395,7 @@ export const zCourse = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   description: z.string().nullish(),
+  embedding: z.array(z.number()).nullish(),
   flagged_answers_skip_manual_review_and_allow_retry: z.boolean(),
   flagged_answers_threshold: z
     .int()
@@ -419,6 +420,7 @@ export const zCourseAudience = z.object({
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
+  embedding: z.array(z.number()),
   id: z.uuid(),
   updated_at: z.iso.datetime(),
 })
@@ -749,6 +751,7 @@ export const zCoursePrerequisite = z.object({
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
+  embedding: z.array(z.number()),
   id: z.uuid(),
   prerequisite: z.string(),
   updated_at: z.iso.datetime(),

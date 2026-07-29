@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM course_prerequisites\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
+  "query": "\nSELECT\n        id,\n        created_at,\n        updated_at,\n        deleted_at,\n        course_id,\n        prerequisite,\n        embedding as \"embedding: Vector\"\nFROM course_prerequisites\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -68,6 +68,22 @@
             "name": "prerequisite"
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "embedding: Vector",
+        "type_info": {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_prerequisites",
+            "name": "embedding"
+          }
+        }
       }
     ],
     "parameters": {
@@ -81,8 +97,9 @@
       false,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "497d28ea6e629b4a9bc70830140b0dfd20dbec5c6d90a8ddce5f817af084fd93"
+  "hash": "cfd56a86225fcdd42bcb9efa6282b4e2dfa276c3ec29ab4113d33763b1634cc3"
 }

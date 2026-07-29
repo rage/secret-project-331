@@ -1,5 +1,6 @@
 //! Commonly used utils.
 
+pub mod azure_embedding;
 pub mod cache;
 pub mod document_schema_processor;
 pub mod email_processor;
@@ -21,6 +22,5 @@ pub mod services;
 pub mod strings;
 pub mod url_encoding;
 pub mod url_to_oembed_endpoint;
-
 #[macro_use]
 extern crate tracing;

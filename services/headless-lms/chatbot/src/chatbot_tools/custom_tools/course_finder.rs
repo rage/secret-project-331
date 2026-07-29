@@ -6,13 +6,13 @@ use headless_lms_models::{
     course_prerequisites::get_course_ids_by_prerequisite,
     courses::{self, Course, get_by_description_keywords},
 };
+use headless_lms_utils::azure_embedding::create_embeddings;
 use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::{
         ArrayItem, ArrayProperty, ChatbotUserContext, JSONType, JsonItem, SchemaPropertyType,
     },
-    azure_embedding::create_embedding,
     chatbot_tools::{
         AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
         ToolProperties,
@@ -55,9 +55,9 @@ impl ChatbotTool for CourseFinderTool {
 
         let description_courses =
             get_by_description_keywords(conn, description_query_string).await?;
-        let app_config = ApplicationConfiguration::try_from_env()?;
-        let input = "testing".to_string();
-        create_embedding(input, &app_config).await?;
+        //let app_config = ApplicationConfiguration::try_from_env()?;
+        //let input = vec!["testing a lot longer string with multiple words".to_string()];
+        //let embeddings = create_embeddings(input, &app_config).await;
 
         let course_ids = [audience_courses, prerequisite_courses, description_courses].concat();
         let courses = courses::get_by_ids(conn, &course_ids).await?;

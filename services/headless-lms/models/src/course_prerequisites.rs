@@ -1,8 +1,9 @@
 use crate::prelude::*;
+use pgvector::Vector;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, FromRow, ToSchema)]
 pub struct CoursePrerequisite {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -10,9 +11,11 @@ pub struct CoursePrerequisite {
     pub deleted_at: Option<DateTime<Utc>>,
     pub course_id: Uuid,
     pub prerequisite: String,
+    #[schema(value_type = Vec<f32>)]
+    pub embedding: Option<Vector>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema)]
 pub struct NewCoursePrerequisite {
     pub prerequisite: String,
 }
@@ -21,21 +24,36 @@ pub async fn insert_course_prerequisites(
     conn: &mut PgConnection,
     course_id: Uuid,
     new_prerequisites: Vec<String>,
+    embeddings: Vec<Vec<f32>>,
 ) -> ModelResult<Vec<CoursePrerequisite>> {
-    let res = sqlx::query_as!(
-        CoursePrerequisite,
-        "
+    let embed_vecs: Vec<Vector> = embeddings.into_iter().map(Vector::from).collect();
+    let res = sqlx::query_as::<_, CoursePrerequisite>(
+        r#"
 INSERT INTO course_prerequisites (
     course_id,
-    prerequisite
+    prerequisite,
+    embedding
   )
-  SELECT $1,
-  UNNEST ($2::TEXT []) prerequisite
-RETURNING *
-",
+SELECT $1,
+       t.prerequisite,
+       t.embedding
+FROM UNNEST(
+    $2::text[],
+    $3::vector[]
+) AS t(prerequisite, embedding)
+RETURNING
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
         course_id,
-        &new_prerequisites
+        prerequisite,
+        embedding
+    "#,
     )
+    .bind(course_id)
+    .bind(&new_prerequisites)
+    .bind(&embed_vecs)
     .fetch_all(conn)
     .await?;
     Ok(res)
@@ -47,12 +65,19 @@ pub async fn get_by_course_id(
 ) -> ModelResult<Vec<CoursePrerequisite>> {
     let res = sqlx::query_as!(
         CoursePrerequisite,
-        "
-SELECT *
+        r#"
+SELECT
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        course_id,
+        prerequisite,
+        embedding as "embedding: Vector"
 FROM course_prerequisites
 WHERE course_id = $1
 AND deleted_at IS NULL
-",
+"#,
         course_id
     )
     .fetch_all(conn)
@@ -66,13 +91,20 @@ pub async fn delete_batch(
 ) -> ModelResult<Vec<CoursePrerequisite>> {
     let res = sqlx::query_as!(
         CoursePrerequisite,
-        "
+        r#"
 UPDATE course_prerequisites
 SET deleted_at = now()
 WHERE id = ANY($1::UUID [])
 AND deleted_at IS NULL
-RETURNING *
-",
+RETURNING
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        course_id,
+        prerequisite,
+        embedding as "embedding: Vector"
+"#,
         &ids_to_delete
     )
     .fetch_all(conn)

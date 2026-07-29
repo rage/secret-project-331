@@ -5,7 +5,7 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct DatabaseOrganization {
     pub id: Uuid,
     pub slug: String,

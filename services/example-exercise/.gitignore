@@ -8,6 +8,13 @@
 # testing
 /coverage
 
+# playwright
+/test-results
+/playwright-report
+/blob-report
+/.playwright-cli
+/playwright/.cache
+
 # rsbuild / TanStack Start build output
 /dist
 .tanstack

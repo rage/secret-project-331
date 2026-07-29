@@ -9,7 +9,7 @@ import { createParentConnection } from "@/shared-module/exercise-client/client/p
  *
  * Thin React wrapper over the framework-agnostic `createParentConnection` engine.
  *
- * How this connection establisment works and what are the allowed messages are documented here: https://github.com/rage/secret-project-331/blob/master/docs/iframes.md
+ * How this connection establisment works and what are the allowed messages are documented here: https://github.com/rage/secret-project-331/blob/master/docs/plugin-system.md
  */
 function useExerciseServiceParentConnection(
   onMessage: (messageData: unknown, port: MessagePort) => void,

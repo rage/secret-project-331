@@ -1,11 +1,13 @@
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { isOldQuiz } from "@/util/migration/migrationSettings"
-import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz"
+import { revealableCorrectAnswers } from "@/util/converter"
+import { migratePrivateSpecToLatest } from "@/util/migration/migrateToLatest"
 import { isSpecRequest } from "@/utils/exerciseServiceApi"
 
-import type { OldQuiz } from "../../types/oldQuizTypes"
-import type { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
-import type { PrivateSpecQuizItemClosedEndedQuestion } from "../../types/quizTypes/privateSpec"
+import type {
+  ModelSolutionQuiz,
+  ModelSolutionQuizItem,
+  ModelSolutionQuizItemClosedEndedQuestion,
+} from "../../types/quizTypes/modelSolutionSpec"
 
 const SERVICE = "quizzes"
 
@@ -81,32 +83,70 @@ function handleModelSolutionGeneration(body: unknown): ModelSolutionQuiz {
     throw new Error(`Invalid spec request: ${JSON.stringify(errorInfo)}`)
   }
   const specRequest = body
-  const quiz = specRequest.private_spec as OldQuiz | null
-  if (quiz === null) {
+  if (specRequest.private_spec === null || specRequest.private_spec === undefined) {
     throw new Error("Private spec cannot be null")
   }
 
-  const modelSolution = createModelSolution(quiz)
+  const modelSolution = createModelSolution(specRequest.private_spec)
   return modelSolution
 }
 
-function createModelSolution(quiz: OldQuiz | ModelSolutionQuiz): ModelSolutionQuiz {
-  const modelSolution: ModelSolutionQuiz | null = isOldQuiz(quiz)
-    ? migrateModelSolutionSpecQuiz(quiz as OldQuiz)
-    : (quiz as ModelSolutionQuiz)
-  if (modelSolution === null) {
-    throw new Error("Model solution was null")
-  }
-  // Make sure we don't include illegal properties
-  for (const quizItem of modelSolution.items) {
-    if (quizItem.type === "closed-ended-question") {
-      const asPrivateSpec = quizItem as PrivateSpecQuizItemClosedEndedQuestion
-      if (asPrivateSpec.validityRegex !== undefined) {
-        // @ts-expect-error: Deleting a property that should not exist
-        delete asPrivateSpec.validityRegex
-      }
-    }
-  }
+/** Keep only on-model-solution messages, trimmed and non-empty. Visibility is dropped (already known). */
+function messagesOnModelSolution(messages: { visibility: string; message: string }[]): string[] {
+  return messages
+    .filter((m) => m.visibility === "on-model-solution")
+    .map((m) => m.message.trim())
+    .filter((m) => m !== "")
+}
 
-  return modelSolution as ModelSolutionQuiz
+/**
+ * Derive the model solution from the (possibly old) private spec. The model solution is the private
+ * spec minus what a finishing student / peer reviewer must not see. Every scope drops
+ * `feedbackMessages` and instead exposes `messagesOnModelSolution` (filtered to the
+ * on-model-solution visibility), so after-answer messages structurally cannot leak. The closed-ended
+ * item additionally drops its `gradingStrategy` (the acceptance rule) and exposes a readable correct
+ * answer via `correctAnswerDisplayTexts`.
+ */
+function createModelSolution(privateSpecInput: unknown): ModelSolutionQuiz {
+  const privateSpec = migratePrivateSpecToLatest(privateSpecInput)
+  const items = privateSpec.items.map((quizItem): ModelSolutionQuizItem => {
+    if (
+      quizItem.type === "multiple-choice" ||
+      quizItem.type === "choose-n" ||
+      quizItem.type === "multiple-choice-dropdown"
+    ) {
+      const { feedbackMessages, options, ...rest } = quizItem
+      const modelSolutionOptions = options.map((option) => {
+        const { feedbackMessages: optionFeedbackMessages, ...optionRest } = option
+        return {
+          ...optionRest,
+          messagesOnModelSolution: messagesOnModelSolution(optionFeedbackMessages),
+        }
+      })
+      return {
+        ...rest,
+        options: modelSolutionOptions,
+        messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
+      } as unknown as ModelSolutionQuizItem
+    }
+    if (quizItem.type === "closed-ended-question") {
+      const { gradingStrategy, feedbackMessages, ...rest } = quizItem
+      return {
+        ...rest,
+        messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
+        correctAnswerDisplayTexts: revealableCorrectAnswers(gradingStrategy),
+      } satisfies ModelSolutionQuizItemClosedEndedQuestion
+    }
+    const { feedbackMessages, ...rest } = quizItem
+    return {
+      ...rest,
+      messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
+    } as unknown as ModelSolutionQuizItem
+  })
+  const { feedbackMessages, ...quizRest } = privateSpec
+  return {
+    ...quizRest,
+    items,
+    messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
+  } as unknown as ModelSolutionQuiz
 }

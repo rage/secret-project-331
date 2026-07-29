@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React, { useEffect, useId, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import { typography } from "../../styles"
+import { baseTheme, typography } from "../../styles"
 import type { ButtonProps } from "../Button"
 import Button from "../Button"
 import Dialog from "./Dialog"
@@ -25,6 +25,8 @@ interface StandardDialogProps {
   preventBackgroundScroll?: boolean
   leftAlignTitle?: boolean
   closeable?: boolean
+  /** Sets `lang` on the dialog root for correct screen reader pronunciation */
+  lang?: string | undefined
   "data-testid"?: string
   /** Whether the dialog is closable by clicking outside of it */
   isDismissable?: boolean
@@ -50,6 +52,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
   preventBackgroundScroll = true,
   leftAlignTitle = false,
   closeable = true,
+  lang,
   "data-testid": dataTestId,
   isDismissable = false,
   shouldCloseOnBlur = false,
@@ -78,6 +81,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
       disableContentScroll={disableContentScroll}
       preventBackgroundScroll={preventBackgroundScroll}
       closeable={closeable}
+      lang={lang}
       data-testid={dataTestId}
       isDismissable={isDismissable}
       shouldCloseOnBlur={shouldCloseOnBlur}
@@ -137,11 +141,9 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
                     background-color: #f0f0f0;
                   }
 
-                  &:focus {
-                    outline: none;
-                    box-shadow:
-                      0 0 0 2px #fff,
-                      0 0 0 4px #e0e0e0;
+                  &:focus-visible {
+                    outline: 3px solid ${baseTheme.colors.green[600]};
+                    outline-offset: 2px;
                   }
                 `}
                 aria-label={t("close")}
@@ -157,6 +159,11 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
             padding: ${leftAlignTitle ? "1rem 2rem" : "1.5rem 2rem"};
             border-bottom: 1px solid #eaeaea;
             text-align: ${leftAlignTitle ? "left" : "center"};
+
+            @media (max-width: 480px) {
+              padding-left: 1rem;
+              padding-right: 1rem;
+            }
           `}
         >
           <h2
@@ -177,6 +184,12 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
             min-height: 0;
             ${!noPadding && `padding: 1rem 2rem;`}
             ${!disableContentScroll && "overflow-y: auto;"}
+
+            @media (max-width: 480px) {
+              ${!noPadding &&
+              `padding-left: 1rem;
+              padding-right: 1rem;`}
+            }
           `}
         >
           {children}
@@ -190,6 +203,11 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
               display: flex;
               justify-content: flex-end;
               gap: 1rem;
+
+              @media (max-width: 480px) {
+                padding-left: 1rem;
+                padding-right: 1rem;
+              }
             `}
           >
             {buttons.map((button, index) => (

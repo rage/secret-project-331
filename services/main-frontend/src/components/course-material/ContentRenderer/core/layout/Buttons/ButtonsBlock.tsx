@@ -3,8 +3,8 @@
 import { css } from "@emotion/css"
 
 import type { ButtonAttributes, ButtonsAttributes } from "@/../types/GutenbergBlockAttributes"
-import Button from "@/shared-module/common/components/Button"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Link } from "@/shared-module/components"
 import colorMapper from "@/styles/course-material/colorMapper"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 
@@ -103,31 +103,30 @@ const ButtonsBlock: React.FC<
     } = button.attributes as ButtonAttributes & { className?: string }
 
     return (
-      <a
+      <Link
         key={button.clientId}
+        styledAsButton
+        variant={getButtonTypeFromClassName(className)}
+        size="medium"
+        href={url ?? ""}
+        isDisabled={!url}
+        {...(linkTarget && { target: linkTarget })}
         rel={relForLinkTarget(rel, linkTarget)}
-        href={url}
-        target={linkTarget}
+        className={css`
+          ${backgroundColor && `background: ${colorMapper(backgroundColor)} !important;`}
+          ${gradient && `background: ${colorMapper(gradient)} !important;`}
+          ${textColor &&
+          `color: ${colorMapper(textColor)} !important; border-color: ${colorMapper(
+            textColor,
+          )} !important;`}
+          ${fontSize && `font-size: ${fontSizeMapper(fontSize)} !important;`}
+          margin: 0.5rem 0rem;
+          margin-right: 0.5rem;
+        `}
       >
-        {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label set via dangerouslySetInnerHTML */}
-        <Button
-          className={css`
-            ${backgroundColor && `background: ${colorMapper(backgroundColor)} !important;`}
-            ${gradient && `background: ${colorMapper(gradient)} !important;`}
-            ${textColor &&
-            `color: ${colorMapper(textColor)} !important; border-color: ${colorMapper(
-              textColor,
-            )} !important;`}
-            ${fontSize && `font-size: ${fontSizeMapper(fontSize)} !important;`}
-            margin: 0.5rem 0rem;
-            margin-right: 0.5rem;
-          `}
-          variant={getButtonTypeFromClassName(className)}
-          size="medium"
-          dangerouslySetInnerHTML={{ __html: text ?? placeholder ?? "BUTTON" }}
-        />
+        <span dangerouslySetInnerHTML={{ __html: text ?? placeholder ?? "BUTTON" }} />
         <OpensInNewTabNotice linkTarget={linkTarget} />
-      </a>
+      </Link>
     )
   })
   return (

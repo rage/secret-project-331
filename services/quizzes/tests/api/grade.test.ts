@@ -451,7 +451,10 @@ describe("grade", () => {
 
     expect(response.status).toBe(500)
     const result = JSON.parse(response.text)
-    expect(result.error_message).toContain("Unexpected item answer type")
+    // A garbage answer type no longer scores; it now trips the answer/item type-mismatch guard.
+    expect(result.error_message).toContain(
+      "Answer type 'unknown-type' does not match quiz item type 'multiple-choice'",
+    )
   })
 
   describe("choose-n grading", () => {

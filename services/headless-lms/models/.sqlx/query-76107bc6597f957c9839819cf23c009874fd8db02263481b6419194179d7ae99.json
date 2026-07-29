@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_page_sync_statuses AS cps\nSET converted_markdown_content_id = $1\nWHERE cps.page_id = $2\n  AND cps.deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "76107bc6597f957c9839819cf23c009874fd8db02263481b6419194179d7ae99"
+}

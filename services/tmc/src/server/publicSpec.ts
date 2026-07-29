@@ -1,12 +1,9 @@
-import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
 
-import FormData from "form-data"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { buildBrowserTestScript } from "@/tmc/browserTestScript"
 import {
@@ -23,6 +20,7 @@ import type { PublicSpec } from "@/util/stateInterfaces"
 
 import type { ParsedSpecRequest } from "./requestSchemas"
 import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
+import { uploadArchiveAndGetUrl } from "./uploadArchive"
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown
@@ -147,41 +145,21 @@ const uploadPublicSpec = async (
 
   const archiveName = buildArchiveName(exercise)
   debug("uploading stub", "archiveName:", archiveName)
-  const form = new FormData()
-  form.append(archiveName, nodeFs.createReadStream(stubArchive))
-  const headers: Record<string, string> = {}
-  if (uploadClaim) {
-    headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
-  }
-  const res = await fetch(uploadUrl, {
-    method: "POST",
-    headers: { ...headers, ...form.getHeaders() },
-    body: form as unknown as Exclude<RequestInit["body"], undefined>,
+  const stub_download_url = await uploadArchiveAndGetUrl({
+    archivePath: stubArchive,
+    archiveName,
+    uploadUrl,
+    uploadClaim,
   })
-  if (!res.ok) {
-    throw new Error(`Upload failed: ${res.status} ${res.statusText}`)
+  const config = await getExercisePackagingConfiguration(stubDir, log)
+  return {
+    spec: {
+      type,
+      archive_name: archiveName,
+      stub_download_url,
+      checksum,
+      student_file_paths: config.student_file_paths,
+    },
+    paths: [stubArchive],
   }
-  const resData: unknown = await res.json()
-  if (
-    isObjectMap(isString)(resData) &&
-    Object.prototype.hasOwnProperty.call(resData, archiveName) &&
-    typeof resData[archiveName] === "string" &&
-    resData[archiveName].length > 0
-  ) {
-    const config = await getExercisePackagingConfiguration(stubDir, log)
-    const stub_download_url = resData[archiveName]
-    return {
-      spec: {
-        type,
-        archive_name: archiveName,
-        stub_download_url,
-        checksum,
-        student_file_paths: config.student_file_paths,
-      },
-      paths: [stubArchive],
-    }
-  }
-  throw new Error(
-    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(resData)}`,
-  )
 }

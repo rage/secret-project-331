@@ -8,6 +8,7 @@ import { produce } from "immer"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import UserOnWrongCourseNotification from "@/components/course-material/notifications/UserOnWrongCourseNotification"
@@ -49,7 +50,9 @@ import { courseMaterialAtom } from "@/state/course-material"
 
 import type { BlockRendererProps } from "../.."
 import ExerciseStatusMessage from "./ExerciseStatusMessage"
+import ExerciseSubmitButton from "./ExerciseSubmitButton"
 import ExerciseTask from "./ExerciseTask"
+import OutOfTriesNotification from "./OutOfTriesNotification"
 import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
@@ -109,13 +112,18 @@ export const exerciseButtonStyles = css`
       #69af8a 0 -3px 0 inset;
   }
 
-  &:disabled {
+  &:disabled,
+  &[aria-disabled="true"] {
     background: #929896;
     box-shadow:
       rgba(45, 35, 66, 0) 0 4px 8px,
       rgba(45, 35, 66, 0) 0 7px 13px -3px,
       #68716c 0 -3px 0 inset;
     cursor: not-allowed;
+  }
+
+  &[aria-disabled="true"]:hover {
+    filter: none;
   }
 `
 
@@ -156,6 +164,11 @@ function exerciseBlockTitleHeadingStyles(exerciseNameIsLong: boolean) {
       overflow-wrap: anywhere;
       min-width: 0;
       margin-top: -2px;
+
+      /* Focused programmatically after grading, not via tab, so no focus ring needed. */
+      &:focus {
+        outline: none;
+      }
 
       ${respondToOrLarger.xxxs} {
         font-size: ${long ? "1.06rem" : "1.14rem"};
@@ -219,13 +232,17 @@ const ExerciseBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ExerciseBlockAttributes>>
 > = (props) => {
   const sectionRef = useRef<HTMLElement>(null)
+  const exerciseTitleRef = useRef<HTMLHeadingElement>(null)
   const exerciseTitleId = useId()
+  const [submissionAnnouncement, setSubmissionAnnouncement] = useState<string | null>(null)
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const returnTo = useCurrentPagePathForReturnTo(
     pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ""),
   )
-  const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
+  const [answers, setAnswers] = useState<
+    Map<string, { valid: boolean; data: unknown; validityMessages?: string[] }>
+  >(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
@@ -303,6 +320,21 @@ const ExerciseBlock: React.FC<
           payload: data,
           signedIn: Boolean(loginState.signedIn),
         })
+        // Announce grading to screen readers and move focus to the exercise heading.
+        const scoreGiven = data.exercise_status?.score_given
+        const maxScore = getCourseMaterialExercise.data?.exercise.score_maximum
+        setSubmissionAnnouncement(
+          scoreGiven !== null &&
+            scoreGiven !== undefined &&
+            maxScore !== null &&
+            maxScore !== undefined
+            ? t("answer-submitted-with-points-announcement", {
+                points: scoreGiven,
+                maxPoints: maxScore,
+              })
+            : t("answer-submitted-announcement"),
+        )
+        exerciseTitleRef.current?.focus({ preventScroll: true })
         await getCourseMaterialExercise.refetch()
         makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       },
@@ -332,6 +364,7 @@ const ExerciseBlock: React.FC<
         isChapterLocked: Boolean(isChapterLocked),
       })
       postSubmissionMutation.reset()
+      setSubmissionAnnouncement(null)
 
       setAnswers(answers)
 
@@ -476,6 +509,36 @@ const ExerciseBlock: React.FC<
 
         const reviewingStage = courseMaterialExercise.exercise_status?.reviewing_stage
         const gradingState = courseMaterialExercise.exercise_status?.grading_progress
+
+        // Already-localized reasons the submit button is disabled, shown next to it so students
+        // understand why (course-improvements-issues#161). Answer-specific reasons come from the
+        // exercise iframe (e.g. a Timeline duplicate); host-side ones (deadline, language version,
+        // cannot post) are added here.
+        const taskCount = postThisStateToIFrame?.length ?? 0
+        const answerValues = Array.from(answers.values())
+        const answersIncomplete = answers.size < taskCount || answerValues.some((a) => !a.valid)
+        const answerValidityMessages = answerValues.flatMap((a) => a.validityMessages ?? [])
+        const submissionBlockers: string[] = []
+        if (answersIncomplete) {
+          if (answerValidityMessages.length > 0) {
+            submissionBlockers.push(...answerValidityMessages)
+          } else {
+            submissionBlockers.push(t("answer-the-exercise-before-submitting"))
+          }
+        }
+        if (exerciseDeadline && exerciseDeadline.getTime() < Date.now()) {
+          submissionBlockers.push(
+            t("submission-blocked-deadline-passed", { deadline: deadlineAsString }),
+          )
+        }
+        if (userOnWrongLanguageVersion) {
+          submissionBlockers.push(t("submission-blocked-wrong-language"))
+        }
+        if (!courseMaterialExercise.can_post_submission) {
+          submissionBlockers.push(t("submission-blocked-cannot-submit"))
+        }
+        const uniqueSubmissionBlockers = [...new Set(submissionBlockers)]
+
         return (
           <ExerciseCardWrapper
             ref={sectionRef}
@@ -484,7 +547,12 @@ const ExerciseBlock: React.FC<
           >
             <ExerciseCardHeader
               title={
-                <h2 id={exerciseTitleId} className={exerciseTitleStyles.heading}>
+                <h2
+                  id={exerciseTitleId}
+                  ref={exerciseTitleRef}
+                  tabIndex={-1}
+                  className={exerciseTitleStyles.heading}
+                >
                   <div className={exerciseTitleStyles.label}>{t("label-exercise")}:</div>
                   <div className={exerciseTitleStyles.nameLine}>
                     {courseMaterialExercise.exercise.name}
@@ -584,6 +652,13 @@ const ExerciseBlock: React.FC<
                 </div>
               }
             />
+
+            <VisuallyHidden>
+              {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status live region; <output> drops the VisuallyHidden styling */}
+              <div role="status" aria-live="polite">
+                {submissionAnnouncement}
+              </div>
+            </VisuallyHidden>
 
             {chapterLockingEnabled &&
               courseMaterialExercise &&
@@ -736,75 +811,68 @@ const ExerciseBlock: React.FC<
                     </div>
                   </YellowBox>
                 )}
+              <OutOfTriesNotification ranOutOfTries={Boolean(ranOutOfTries)} />
               <div>
-                {courseMaterialExercise.can_post_submission &&
-                  !userOnWrongLanguageVersion &&
-                  !inSubmissionView &&
-                  !isChapterLocked && (
-                    <button
-                      disabled={
-                        postSubmissionMutation.isPending ||
-                        answers.size < (postThisStateToIFrame?.length ?? 0) ||
-                        Array.from(answers.values()).some((x) => !x.valid)
+                {!inSubmissionView && !isChapterLocked && (
+                  <ExerciseSubmitButton
+                    isPending={postSubmissionMutation.isPending}
+                    blockers={uniqueSubmissionBlockers}
+                    buttonClassName={cx(exerciseButtonStyles)}
+                    onSubmit={() => {
+                      if (!courseInstanceId && !courseMaterialExercise.exercise.exam_id) {
+                        return
                       }
-                      className={cx(exerciseButtonStyles)}
-                      onClick={() => {
-                        if (!courseInstanceId && !courseMaterialExercise.exercise.exam_id) {
-                          return
-                        }
-                        postSubmissionMutation.mutate(
-                          {
-                            exercise_slide_id: courseMaterialExercise.current_exercise_slide.id,
-                            exercise_task_submissions:
-                              courseMaterialExercise.current_exercise_slide.exercise_tasks.map(
-                                (task) => ({
-                                  exercise_task_id: task.id,
-                                  data_json: answers.get(task.id)?.data,
-                                }),
-                              ),
+                      postSubmissionMutation.mutate(
+                        {
+                          exercise_slide_id: courseMaterialExercise.current_exercise_slide.id,
+                          exercise_task_submissions:
+                            courseMaterialExercise.current_exercise_slide.exercise_tasks.map(
+                              (task) => ({
+                                exercise_task_id: task.id,
+                                data_json: answers.get(task.id)?.data,
+                              }),
+                            ),
+                        },
+                        {
+                          onSuccess: (res) => {
+                            queryClient.setQueryData(
+                              courseMaterialExerciseQueryKey(id),
+                              (old: CourseMaterialExercise | undefined) => {
+                                if (!old) {
+                                  throw new Error("No CourseMaterialExercise found")
+                                }
+                                return produce(old, (draft: CourseMaterialExercise) => {
+                                  res.exercise_task_submission_results.forEach(
+                                    (et_submission_result) => {
+                                      // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
+                                      const receivedExerciseTaskSubmission =
+                                        et_submission_result.submission
+                                      const draftExerciseTask =
+                                        draft.current_exercise_slide.exercise_tasks.find((et) => {
+                                          return (
+                                            et.id ===
+                                            et_submission_result.submission.exercise_task_id
+                                          )
+                                        })
+                                      if (draftExerciseTask) {
+                                        draftExerciseTask.previous_submission =
+                                          receivedExerciseTaskSubmission
+                                      }
+                                      // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
+                                      if (isExam && et_submission_result.grading !== null) {
+                                        throw new Error("Exams should have hidden gradings")
+                                      }
+                                    },
+                                  )
+                                })
+                              },
+                            )
                           },
-                          {
-                            onSuccess: (res) => {
-                              queryClient.setQueryData(
-                                courseMaterialExerciseQueryKey(id),
-                                (old: CourseMaterialExercise | undefined) => {
-                                  if (!old) {
-                                    throw new Error("No CourseMaterialExercise found")
-                                  }
-                                  return produce(old, (draft: CourseMaterialExercise) => {
-                                    res.exercise_task_submission_results.forEach(
-                                      (et_submission_result) => {
-                                        // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
-                                        const receivedExerciseTaskSubmission =
-                                          et_submission_result.submission
-                                        const draftExerciseTask =
-                                          draft.current_exercise_slide.exercise_tasks.find((et) => {
-                                            return (
-                                              et.id ===
-                                              et_submission_result.submission.exercise_task_id
-                                            )
-                                          })
-                                        if (draftExerciseTask) {
-                                          draftExerciseTask.previous_submission =
-                                            receivedExerciseTaskSubmission
-                                        }
-                                        // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
-                                        if (isExam && et_submission_result.grading !== null) {
-                                          throw new Error("Exams should have hidden gradings")
-                                        }
-                                      },
-                                    )
-                                  })
-                                },
-                              )
-                            },
-                          },
-                        )
-                      }}
-                    >
-                      {t("submit-button")}
-                    </button>
-                  )}
+                        },
+                      )
+                    }}
+                  />
+                )}
 
                 {userOnWrongLanguageVersion &&
                   courseMaterialState.settings &&

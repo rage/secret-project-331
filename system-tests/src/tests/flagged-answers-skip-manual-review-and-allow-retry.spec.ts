@@ -67,8 +67,8 @@ test("Reset flagged answers without manual review", async () => {
 
     await student2Page.getByRole("button", { name: "Start peer review" }).click()
     await student2Page.getByRole("button", { name: "Report" }).click()
-    await student2Page.getByText("Spam", { exact: true }).click()
-    await student2Page.getByPlaceholder("Optional description...").fill("Spam report for reset")
+    await student2Page.getByRole("radio", { name: "Spam" }).click()
+    await student2Page.getByLabel("Optional description...").fill("Spam report for reset")
     await waitForSuccessNotification(student2Page, async () => {
       await student2Page.getByLabel("Report Answer").getByRole("button", { name: "Submit" }).click()
     })

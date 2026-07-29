@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +12,8 @@ interface VerificationFormProps {
   isSubmitting: boolean
 }
 
-// VerificationForm renders the email verification code form step.
+// VerificationForm renders the email verification code form. The surrounding Dialog supplies the
+// heading, so no title is passed here.
 export const VerificationForm: React.FC<VerificationFormProps> = ({
   onSubmit,
   error,
@@ -21,12 +23,14 @@ export const VerificationForm: React.FC<VerificationFormProps> = ({
 
   return (
     <OneTimeCodeForm
-      title={t("email-verification-title")}
       message={t("email-verification-message")}
       onSubmit={onSubmit}
       submitLabel={t("verify-button")}
       error={error}
       isSubmitting={isSubmitting}
+      containerClassName={css`
+        padding: 0;
+      `}
     />
   )
 }

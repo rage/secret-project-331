@@ -1,12 +1,12 @@
 import { css } from "@emotion/css"
-import React, { useContext, useMemo } from "react"
+import React, { useContext, useEffect, useId, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import TextArea from "@/shared-module/common/components/InputFields/TextAreaField"
 import { wordCount } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import useParentDialog from "@/shared-module/exercise-react/react/hooks/useParentDialog"
-import { headingFont, secondaryFont } from "@/shared-module/exercise-react/styles"
+import { baseTheme, headingFont, secondaryFont } from "@/shared-module/exercise-react/styles"
 
 import type { QuizItemComponentProps } from "."
 import type { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
@@ -34,6 +34,26 @@ export const container = css`
   }
 `
 
+const ANNOUNCEMENT_PAUSE_MS = 10_000
+
+// Debounces a live-region announcement so it only fires once typing has paused and the message changed.
+const usePausedAnnouncement = (message: string, delayMs: number): string => {
+  const [announcement, setAnnouncement] = useState("")
+  const lastAnnouncedRef = useRef(message)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (message !== lastAnnouncedRef.current) {
+        lastAnnouncedRef.current = message
+        setAnnouncement(message)
+      }
+    }, delayMs)
+    return () => clearTimeout(timer)
+  }, [message, delayMs])
+
+  return announcement
+}
+
 const Essay: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemEssay, UserItemAnswerEssay>
 > = ({ quizItemAnswerState, quizItem, setQuizItemAnswerState }) => {
@@ -42,6 +62,23 @@ const Essay: React.FunctionComponent<
   const openDialog = useParentDialog(port)
   const text = quizItemAnswerState?.textData ?? ""
   const usersWordCount = useMemo(() => wordCount(text), [text])
+  const titleId = useId()
+  const bodyId = useId()
+  const labelledBy =
+    [quizItem.title ? titleId : null, quizItem.body ? bodyId : null].filter(Boolean).join(" ") ||
+    undefined
+
+  const wordCountAnnouncement = useMemo(() => {
+    if (quizItem.minWords && usersWordCount < quizItem.minWords) {
+      return t("word-count-below-minimum", { count: usersWordCount, min: quizItem.minWords })
+    }
+    if (quizItem.maxWords && usersWordCount > quizItem.maxWords) {
+      return t("word-count-above-maximum", { count: usersWordCount, max: quizItem.maxWords })
+    }
+    return t("word-count-status", { count: usersWordCount })
+  }, [usersWordCount, quizItem.minWords, quizItem.maxWords, t])
+
+  const announcedWordCount = usePausedAnnouncement(wordCountAnnouncement, ANNOUNCEMENT_PAUSE_MS)
 
   return (
     <div
@@ -53,6 +90,7 @@ const Essay: React.FunctionComponent<
     >
       {quizItem.title && (
         <div
+          id={titleId}
           className={css`
             display: flex;
             margin: 0.5rem 0;
@@ -64,6 +102,7 @@ const Essay: React.FunctionComponent<
       )}
       {quizItem.body && (
         <div
+          id={bodyId}
           className={css`
             display: flex;
             margin: 0.5rem 0;
@@ -117,7 +156,7 @@ const Essay: React.FunctionComponent<
             setQuizItemAnswerState(newQuizItemAnswerState)
           }}
           placeholder={t("answer")}
-          aria-label={t("answer")}
+          aria-labelledby={labelledBy}
           rows={5}
           autoResize
           className={css`
@@ -128,14 +167,15 @@ const Essay: React.FunctionComponent<
               resize: vertical;
               background: #f4f5f7 !important;
               border-radius: 0.25rem;
-              border: 0.188rem solid #dfe1e6 !important;
-              outline: none;
+              /* gray[400] for sufficient contrast against the field background */
+              border: 0.188rem solid ${baseTheme.colors.gray[400]} !important;
             }
           `}
           value={text}
         />
       </div>
       <div>
+        {/* Each fact is its own block so screen readers announce them as separate paragraphs. */}
         <div
           className={css`
             display: flex;
@@ -150,13 +190,13 @@ const Essay: React.FunctionComponent<
         <div
           className={css`
             display: flex;
-            column-gap: 0.625rem;
+            flex-direction: column;
+            row-gap: 0.25rem;
+            color: #4c5868;
           `}
         >
           <div
             className={css`
-              display: flex;
-              color: #4c5868;
               font-size: 1.125rem;
               line-height: 140%;
               font-weight: 700;
@@ -164,31 +204,35 @@ const Essay: React.FunctionComponent<
           >
             {usersWordCount} {t("words")}
           </div>
-          <div
-            className={css`
-              display: flex;
-              color: #4c5868;
-
-              span {
-                background: #f4f5f7;
-                border-radius: 0.25rem;
-                margin-right: 0.375rem;
-                padding: 0.05rem 0.4rem;
-              }
-
-              strong {
-                color: #333333;
-                margin: 0 0.125rem;
-              }
-            `}
-          >
-            <span>
+          {quizItem.minWords !== null && (
+            <div>
               {t("min-words")}: {quizItem.minWords}
-            </span>
-            <span>
+            </div>
+          )}
+          {quizItem.maxWords !== null && (
+            <div>
               {t("max-words")}: {quizItem.maxWords}
-            </span>
-          </div>
+            </div>
+          )}
+        </div>
+        <div
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status live region; <output> changes styling/semantics
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className={css`
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip-path: rect(0 0 0 0);
+            white-space: nowrap;
+            border: 0;
+          `}
+        >
+          {announcedWordCount}
         </div>
       </div>
     </div>

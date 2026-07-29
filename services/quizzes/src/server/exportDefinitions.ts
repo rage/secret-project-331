@@ -1,5 +1,5 @@
-import { handlePrivateSpecMigration } from "@/grading/utils"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import { migratePrivateSpecToLatest } from "@/util/migration/migrateToLatest"
 
 import type {
   PrivateSpecQuiz,
@@ -300,7 +300,7 @@ async function postImpl(request: Request) {
     const body = await request.json()
     const parsed = parseRequest(body)
     const migratedPrivateSpecs = parsed.items.map((item) =>
-      handlePrivateSpecMigration(item.private_spec as PrivateSpecQuiz),
+      migratePrivateSpecToLatest(item.private_spec),
     )
     const columns =
       migratedPrivateSpecs.length > 0

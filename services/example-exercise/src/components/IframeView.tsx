@@ -8,6 +8,13 @@ import { isSetLanguageMessage } from "@/shared-module/exercise-protocol/core/exe
 import HeightTrackingContainer from "@/shared-module/exercise-react/react/components/HeightTrackingContainer"
 import useExerciseServiceParentConnection from "@/shared-module/exercise-react/react/hooks/useExerciseServiceParentConnection"
 import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
+import {
+  parseAnswer,
+  parseModelSolution,
+  parsePreviousSubmission,
+  parsePrivateSpec,
+  parsePublicSpec,
+} from "@/util/migration/migrateToLatest"
 import type {
   Alternative,
   Answer,
@@ -15,13 +22,7 @@ import type {
   ModelSolutionApi,
   PublicAlternative,
 } from "@/util/stateInterfaces"
-import {
-  isExerciseFeedback,
-  parseAnswer,
-  parseModelSolution,
-  parsePrivateSpec,
-  parsePublicSpec,
-} from "@/util/stateInterfaces"
+import { isExerciseFeedback } from "@/util/stateInterfaces"
 
 export interface SubmissionData {
   grading: ExerciseTaskGradingResult
@@ -33,6 +34,8 @@ export type State =
   | {
       view_type: "answer-exercise"
       public_spec: PublicAlternative[]
+      /** The student's last saved answer, replayed by the host on retry so we can prefill it. */
+      previous_submission: Answer | null
     }
   | {
       view_type: "view-submission"
@@ -57,26 +60,38 @@ const IframeView: React.FC = () => {
 
   const port = useExerciseServiceParentConnection((messageData) => {
     if (forgivingIsSetStateMessage(messageData)) {
+      // `forgivingIsSetStateMessage` only checks `message === "set-state"`; it does NOT guarantee a
+      // `data` payload. A set-state with missing/partial `data` must degrade gracefully rather than
+      // throw inside this port callback (which the React error boundary would not catch).
+      const data = (messageData.data ?? {}) as {
+        public_spec?: unknown
+        private_spec?: unknown
+        previous_submission?: unknown
+        user_answer?: unknown
+        model_solution_spec?: unknown
+        grading?: ExerciseTaskGradingResult | null
+      }
       ReactDOM.flushSync(() => {
         if (messageData.view_type === "answer-exercise") {
           setState({
             view_type: messageData.view_type,
-            public_spec: parsePublicSpec(messageData.data.public_spec),
+            public_spec: parsePublicSpec(data.public_spec),
+            previous_submission: parsePreviousSubmission(data.previous_submission),
           })
         } else if (messageData.view_type === "exercise-editor") {
           setState({
             view_type: messageData.view_type,
-            private_spec: parsePrivateSpec(messageData.data.private_spec),
+            private_spec: parsePrivateSpec(data.private_spec),
           })
         } else if (messageData.view_type === "view-submission") {
-          const feedbackJson = messageData.data.grading?.feedback_json
+          const feedbackJson = data.grading?.feedback_json
           setState({
             view_type: messageData.view_type,
-            public_spec: parsePublicSpec(messageData.data.public_spec),
-            answer: parseAnswer(messageData.data.user_answer),
+            public_spec: parsePublicSpec(data.public_spec),
+            answer: parseAnswer(data.user_answer),
             feedback_json: isExerciseFeedback(feedbackJson) ? feedbackJson : null,
-            model_solution_spec: parseModelSolution(messageData.data.model_solution_spec),
-            grading: messageData.data.grading,
+            model_solution_spec: parseModelSolution(data.model_solution_spec),
+            grading: data.grading ?? null,
           })
         } else {
           console.error("Unknown view type received from parent")

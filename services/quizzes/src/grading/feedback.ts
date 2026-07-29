@@ -1,3 +1,5 @@
+import { applicableItemFeedbackMessages, joinFeedbackMessages } from "@/util/feedbackMessages"
+
 import type {
   UserAnswer,
   UserItemAnswerMultiplechoice,
@@ -19,7 +21,7 @@ const submissionFeedback = (
   submission: UserAnswer,
   quiz: PrivateSpecQuiz,
   quizItemGradings: QuizItemAnswerGrading[],
-  submitMessage: string | null,
+  overallCorrectnessRatio: number,
 ): ItemAnswerFeedback[] => {
   const itemFeedbacks: ItemAnswerFeedback[] = submission.itemAnswers.map(
     (itemAnswer): ItemAnswerFeedback => {
@@ -36,6 +38,10 @@ const submissionFeedback = (
         }
       }
 
+      const quizItemFeedback = joinFeedbackMessages(
+        applicableItemFeedbackMessages(item.feedbackMessages, itemGrading.correctnessCoefficient),
+      )
+
       // Multiple choices
       if (
         item.type === "multiple-choice" ||
@@ -44,11 +50,6 @@ const submissionFeedback = (
       ) {
         const multipleChoiceQuizItem = item as PrivateSpecQuizItemMultiplechoice
         const multipleChoiceUserAnswer = itemAnswer as UserItemAnswerMultiplechoice
-
-        const quizItemFeedback =
-          itemGrading.correctnessCoefficient === 1
-            ? multipleChoiceQuizItem.successMessage
-            : multipleChoiceQuizItem.failureMessage
 
         if (!multipleChoiceUserAnswer.selectedOptionIds) {
           return {
@@ -83,7 +84,11 @@ const submissionFeedback = (
 
               return {
                 option_id: option.id,
-                option_feedback: option.messageAfterSubmissionWhenSelected,
+                option_feedback: joinFeedbackMessages(
+                  option.feedbackMessages
+                    .filter((m) => m.visibility === "when-selected-after-answer")
+                    .map((m) => m.message),
+                ),
                 // We'll reveal whether what the student chose was correct or not. If fogOfWar is turned on, we'll never reveal this in the grading and the student will have to get this information from the model solution spec.
                 this_option_was_correct: fogOfWar ? null : option.correct,
               }
@@ -96,10 +101,6 @@ const submissionFeedback = (
       if (item.type === "timeline") {
         const timelineQuizItem = item as PrivateSpecQuizItemTimeline
         const timelineItemAnswer = itemAnswer as UserItemAnswerTimeline
-        const quizItemFeedback =
-          itemGrading.correctnessCoefficient === 1
-            ? timelineQuizItem.successMessage
-            : timelineQuizItem.failureMessage
 
         return {
           quiz_item_id: timelineQuizItem.id,
@@ -129,8 +130,7 @@ const submissionFeedback = (
 
       return {
         quiz_item_id: item.id,
-        quiz_item_feedback:
-          itemGrading.correctnessCoefficient === 1 ? item.successMessage : item.failureMessage,
+        quiz_item_feedback: quizItemFeedback,
         quiz_item_option_feedbacks: null,
         timeline_item_feedbacks: null,
         correctnessCoefficient: itemGrading.correctnessCoefficient,
@@ -138,10 +138,13 @@ const submissionFeedback = (
     },
   )
 
-  if (submitMessage && submitMessage.trim() !== "") {
+  const quizLevelFeedback = joinFeedbackMessages(
+    applicableItemFeedbackMessages(quiz.feedbackMessages, overallCorrectnessRatio),
+  )
+  if (quizLevelFeedback !== null) {
     itemFeedbacks.push({
       quiz_item_id: null,
-      quiz_item_feedback: submitMessage.trim(),
+      quiz_item_feedback: quizLevelFeedback,
       quiz_item_option_feedbacks: null,
       timeline_item_feedbacks: null,
       correctnessCoefficient: 1,

@@ -98,7 +98,18 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                   )}
                   label={t("exercises-attempted")}
                 />
-                <ColorsIdentifier />
+                <ColorsIdentifier
+                  studentPoints={courseModuleProgress.score_given ?? null}
+                  requiredPoints={courseModuleProgress.score_required ?? null}
+                  maxPoints={courseModuleProgress.score_maximum ?? null}
+                  // The exercises bar above also draws a required marker, from attempted_exercises_required.
+                  showRequiredLegend={
+                    (courseModuleProgress.score_required !== null &&
+                      courseModuleProgress.score_required !== undefined) ||
+                    (courseModuleProgress.attempted_exercises_required !== null &&
+                      courseModuleProgress.attempted_exercises_required !== undefined)
+                  }
+                />
               </div>
             </TotalWrapper>
             <Wrapper>

@@ -38,7 +38,7 @@ const CardContentWrapper = styled.div`
   overflow-wrap: break-word;
   ${BackgroundStyles}
 
-  h2 {
+  span.chapter-title {
     font-weight: 600;
     z-index: 20;
     line-height: 1.2;
@@ -250,7 +250,7 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
                   {t("chapter-chapter-number", { number: chapterNumber })}
                 </span>
               </div>
-              <h2>{title}</h2>
+              <span className="chapter-title">{title}</span>
             </PseudoContentLink>
           ) : (
             <>
@@ -284,7 +284,7 @@ const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
                   {t("chapter-chapter-number", { number: chapterNumber })}
                 </span>
               </div>
-              <h2>{title}</h2>
+              <span className="chapter-title">{title}</span>
             </>
           )}
         </div>

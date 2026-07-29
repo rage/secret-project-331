@@ -87,7 +87,7 @@ export type ChatbotChatStreamEvent =
 
 export type ChatbotConversation = {
   chatbot_configuration_id: string
-  course_id: string
+  course_id?: string | null
   created_at: string
   deleted_at?: string | null
   id: string
@@ -100,7 +100,7 @@ export type ChatbotConversation = {
  */
 export type ChatbotConversationInfo = {
   chatbot_name: string
-  course_name: string
+  course_name?: string | null
   current_conversation?: null | ChatbotConversation
   current_conversation_message_citations?: Array<ChatbotConversationMessageCitation> | null
   current_conversation_messages?: Array<ChatbotConversationMessage> | null
@@ -1106,6 +1106,11 @@ export type UserCourseSettings = {
   current_course_id: string
   current_course_instance_id: string
   deleted_at?: string | null
+  /**
+   * Whether the user has hidden this course from their personal "My courses" list. Does not
+   * affect course progress.
+   */
+  hidden: boolean
   updated_at: string
   user_id: string
 }

@@ -14,8 +14,10 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
+import { baseTheme } from "@/shared-module/common/styles"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Dialog } from "@/shared-module/components"
 
 const Login: React.FC = () => {
   const { t } = useTranslation()
@@ -38,6 +40,7 @@ const Login: React.FC = () => {
     isSubmittingVerification,
     submitCredentials,
     submitVerification,
+    cancelVerification,
     onConsentSubmitted,
   } = useLoginFlow(redirect, t)
 
@@ -53,17 +56,15 @@ const Login: React.FC = () => {
       className={css`
         margin: 0 auto;
         a {
-          text-decoration: none;
-          color: #007bff;
-          :hover {
-            text-decoration: underline;
-          }
+          /* Underline links so they are distinguishable by more than colour alone (WCAG 1.4.1). */
+          text-decoration: underline;
+          color: ${baseTheme.colors.blue[600]};
         }
       `}
     >
       {error && <ErrorBanner error={error} />}
 
-      {step.step === "credentials" && (
+      {(step.step === "credentials" || step.step === "verification") && (
         <CredentialsForm
           onSubmit={submitCredentials}
           error={credentialsError}
@@ -71,13 +72,17 @@ const Login: React.FC = () => {
         />
       )}
 
-      {step.step === "verification" && (
+      <Dialog
+        open={step.step === "verification"}
+        onClose={cancelVerification}
+        title={t("email-verification-title")}
+      >
         <VerificationForm
           onSubmit={submitVerification}
           error={verificationError}
           isSubmitting={isSubmittingVerification}
         />
-      )}
+      </Dialog>
 
       {step.step === "awaiting_consent_check" && (
         <div

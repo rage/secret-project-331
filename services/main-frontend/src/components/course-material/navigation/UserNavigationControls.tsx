@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
 import { Menu } from "@/shared-module/common/components/Navigation/NavBar"
+import { menuEntryLayout } from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
@@ -18,6 +19,25 @@ import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
 
 import CourseSettingsModal from "../modals/CourseSettingsModal"
+
+// Styles an anchor to match the menu-tooltip buttons, so page-navigation entries are single
+// links, not a link wrapping a button. Menu owns layout via menuEntryLayout; only the
+// anchor-specific colors live here.
+const menuLink = cx(
+  menuEntryLayout,
+  css`
+    color: ${baseTheme.colors.green[600]};
+
+    &:hover {
+      background: inherit;
+      color: ${baseTheme.colors.green[700]};
+    }
+  `,
+)
+
+const menuButtonColor = css`
+  color: ${baseTheme.colors.green[600]} !important;
+`
 
 export interface UserNavigationControlsProps {
   styles?: string[]
@@ -78,24 +98,14 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
         <>
           {courseId && hasPermission && (
             <li>
-              <a href={manageCourseRoute(courseId)}>
-                <Button
-                  className={css`
-                    color: ${baseTheme.colors.green[600]} !important;
-                  `}
-                  variant="primary"
-                  size="medium"
-                >
-                  {t("button-text-manage-course")}
-                </Button>
+              <a className={menuLink} href={manageCourseRoute(courseId)}>
+                {t("button-text-manage-course")}
               </a>
             </li>
           )}
           <li>
             <Button
-              className={css`
-                color: ${baseTheme.colors.green[600]} !important;
-              `}
+              className={menuButtonColor}
               size="medium"
               variant="primary"
               onClick={() => {
@@ -107,28 +117,13 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           </li>
 
           <li>
-            <a href={"/user-settings"}>
-              <Button
-                className={css`
-                  color: ${baseTheme.colors.green[600]} !important;
-                `}
-                size="medium"
-                variant="primary"
-              >
-                {t("user-settings")}
-              </Button>
+            <a className={menuLink} href={"/user-settings"}>
+              {t("user-settings")}
             </a>
           </li>
 
           <li className={cx(styles)}>
-            <Button
-              className={css`
-                color: ${baseTheme.colors.green[600]} !important;
-              `}
-              size="medium"
-              variant="primary"
-              onClick={logout}
-            >
+            <Button className={menuButtonColor} size="medium" variant="primary" onClick={logout}>
               {t("log-out")}
             </Button>
           </li>
@@ -138,29 +133,13 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   ) : (
     <Menu>
       <li className={cx(styles)}>
-        <a href={signUpPathWithReturnTo}>
-          <Button
-            className={css`
-              color: ${baseTheme.colors.green[600]} !important;
-            `}
-            size="medium"
-            variant="primary"
-          >
-            {t("create-new-account")}
-          </Button>
+        <a className={menuLink} href={signUpPathWithReturnTo}>
+          {t("create-new-account")}
         </a>
       </li>
       <li className={cx(styles)}>
-        <a href={loginPathWithReturnTo}>
-          <Button
-            className={css`
-              color: ${baseTheme.colors.green[600]} !important;
-            `}
-            size="medium"
-            variant="primary"
-          >
-            {t("log-in")}
-          </Button>
+        <a className={menuLink} href={loginPathWithReturnTo}>
+          {t("log-in")}
         </a>
       </li>
     </Menu>

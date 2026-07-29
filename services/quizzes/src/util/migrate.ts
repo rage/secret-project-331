@@ -6,7 +6,6 @@ import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import type { OldQuiz, OldQuizItemOption, QuizItem } from "../../types/oldQuizTypes"
 
 export function migrateQuiz(oldQuiz: unknown): OldQuiz {
-  console.log("Old quiz:", oldQuiz)
   return {
     ...(oldQuiz as OldQuiz),
     items: (oldQuiz as OldQuiz).items.map((x) => migrateQuizItem(x)),

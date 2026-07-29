@@ -90,7 +90,7 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
     // Teacher reviews answers
     await teacherPage.goto("http://project-331.local/organizations")
     await selectOrganization(teacherPage, "University of Helsinki, Department of Computer Science")
-    await teacherPage.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
+    await teacherPage.getByRole("link", { name: "Peer review Course", exact: true }).click()
     await teacherPage.goto("http://project-331.local/org/uh-cs")
     await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
     await teacherPage.getByRole("tab", { name: "Exercises" }).click()

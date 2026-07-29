@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::prelude::*;
+use crate::{course_page_markdown_content, prelude::*};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 
@@ -14,6 +14,7 @@ pub struct ChatbotPageSyncStatus {
     pub error_message: Option<String>,
     pub synced_page_revision_id: Option<Uuid>,
     pub consecutive_failures: i32,
+    pub converted_markdown_content_id: Option<Uuid>,
 }
 
 pub async fn ensure_sync_statuses_exist(
@@ -56,6 +57,33 @@ WHERE course_id = ANY($1)
     );
 
     Ok(all_statuses)
+}
+
+pub async fn save_markdown_content(
+    conn: &mut PgConnection,
+    content: &str,
+    page_id: Uuid,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+
+    let res = course_page_markdown_content::insert(&mut tx, content).await?;
+
+    sqlx::query!(
+        r#"
+UPDATE chatbot_page_sync_statuses AS cps
+SET converted_markdown_content_id = $1
+WHERE cps.page_id = $2
+  AND cps.deleted_at IS NULL
+    "#,
+        res.id,
+        &page_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+
+    Ok(())
 }
 
 // Given a mapping from page id to the new revision id, update the sync statuses

@@ -67,7 +67,9 @@ const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPoin
       <div>
         <span className="heading">{t("points-label")}</span>
         <div className="points">
-          <CheckCircle size={16} weight="bold" color="#394F77" />
+          <span aria-hidden="true">
+            <CheckCircle size={16} weight="bold" color="#394F77" />
+          </span>
           <span data-testid={dataTestId} className={pointsScoreStyles}>
             <sup>{score ?? "-"}</sup>/<sub>{maxScore}</sub>
           </span>

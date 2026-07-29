@@ -1,10 +1,13 @@
 import React, { useCallback, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import type { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 import type { UserAnswer } from "../../../../types/quizTypes/answer"
 import type { PublicSpecQuiz } from "../../../../types/quizTypes/publicSpec"
 import QuizzesUserItemAnswerContext from "../../../contexts/QuizzesUserItemAnswerContext"
+import { LATEST_QUIZ_VERSION } from "../../../util/migration/versions"
+import { getQuizValidityMessages } from "./getValidityMessages"
 import AnswerExerciseImpl from "./impl-by-quiz-item-type"
 
 export interface ExerciseProps {
@@ -20,13 +23,14 @@ const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({
   previousSubmission,
   user_information,
 }) => {
+  const { t } = useTranslation()
   const intialAnswer = useMemo(() => {
     if (previousSubmission) {
       return previousSubmission
     }
     return {
       itemAnswers: [],
-      version: "2",
+      version: LATEST_QUIZ_VERSION,
     } satisfies UserAnswer
   }, [previousSubmission])
   const [userAnswer, setUserAnswer] = useState<UserAnswer | null>(intialAnswer)
@@ -42,6 +46,14 @@ const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({
     [publicSpec.items.length],
   )
 
+  // Already-localized reasons the current answer is not yet submittable. Sent to the parent with the
+  // `current-state` message so it can tell the student why the submit button is greyed out.
+  const getValidityMessages = useCallback(
+    (newState: UserAnswer | null): string[] =>
+      getQuizValidityMessages(newState, publicSpec.items.length, (key) => t(key)),
+    [publicSpec.items.length, t],
+  )
+
   return (
     <QuizzesUserItemAnswerContext.Provider
       value={{
@@ -49,6 +61,7 @@ const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({
         port: port,
         _rawSetOutputState: setUserAnswer,
         validate,
+        getValidityMessages,
       }}
     >
       <AnswerExerciseImpl

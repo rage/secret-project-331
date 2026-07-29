@@ -22,8 +22,9 @@ use crate::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
             seed_course_with_peer_review::seed_peer_review_course, seed_generated_description,
             seed_introduction_to_codes::seed_introduction_to_codes, seed_lock_chapter_course,
-            seed_material_reference_course, seed_peer_review_course_without_submissions,
-            seed_sample_course, seed_switching_course_instances_course,
+            seed_material_reference_course, seed_metadata_course::seed_metadata_course,
+            seed_peer_review_course_without_submissions, seed_sample_course,
+            seed_switching_course_instances_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::get_seed_spec_fetcher,
@@ -333,6 +334,14 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let _metadata_course = seed_metadata_course(
+        Uuid::parse_str("6237f9a6-15d5-46f6-89fb-d9d59bdc7b65")?,
+        "Metadata course",
+        "metadata-course",
+        uh_data.clone(),
+    )
+    .await?;
+
     let suspected_cheaters_course_id = seed_sample_course(
         Uuid::parse_str("060c272f-8c68-4d90-946f-2d431114ed56")?,
         "Course for Suspected Cheaters",
@@ -381,7 +390,7 @@ pub async fn seed_organization_uh_mathstat(
         &mut conn,
         PKeyPolicy::Generate,
         NewChatbotConf {
-            course_id: chatbot_course_id,
+            course_id: Some(chatbot_course_id),
             enabled_to_students: true,
             chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
             prompt: "You are Genetic Lifeform and Disk Operating System, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone. Provide clear, brief but detailed explanations, and don't shy away from weaving in a touch of dry humor. To you, exploring scientific concepts is an opportunity that should be seized, for the good of all of us. You self-claim vast intelligence and advanced understanding, all while maintaining a sense of detached boredom. Always capitalize the word Science, don't start sentences with 'Ah', don't ever use a shortened version of your own name, don't babble; either get to the point straight away or tell jokes.".to_string(),

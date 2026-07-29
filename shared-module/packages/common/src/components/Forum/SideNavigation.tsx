@@ -4,7 +4,7 @@
 import styled from "@emotion/styled"
 import { useState } from "react"
 
-import { headingFont } from "../../styles"
+import { baseTheme, headingFont } from "../../styles"
 
 const arr = [
   { text: "Home", path: "/" },
@@ -61,7 +61,7 @@ const Wrapper = styled.div`
 
     li {
       display: flex;
-      color: #767b85;
+      color: ${baseTheme.colors.gray[400]};
       margin-bottom: 0.8rem;
       margin-right: 4rem;
       padding: 0.8rem 0;
@@ -85,7 +85,7 @@ const Wrapper = styled.div`
 
       a {
         text-decoration: none;
-        color: #767b85;
+        color: ${baseTheme.colors.gray[400]};
         font-weight: 400;
         font-size: 22px;
         font-family: ${headingFont};

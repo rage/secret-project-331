@@ -292,7 +292,7 @@ export type ChapterUpdate = {
 
 export type ChatbotConfiguration = {
   chatbot_name: string
-  course_id: string
+  course_id?: string | null
   created_at: string
   daily_tokens_per_user: number
   default_chatbot: boolean
@@ -432,6 +432,15 @@ export type CohortActivity = {
   offset?: number | null
 }
 
+export type CompleteCourseMetadata = {
+  course: Course
+  course_audiences: Array<CourseAudience>
+  course_instances: Array<CourseInstance>
+  course_organization: DatabaseOrganization
+  course_prerequisites: Array<CoursePrerequisite>
+  default_module: CourseModule
+}
+
 export type CompletionGridRow = {
   grade?: number | null
   module?: string | null
@@ -551,6 +560,15 @@ export type Course = {
  * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
  */
 export type CourseAiPolicy = "NotSet" | "NoAi" | "PlanningOnly" | "Limited" | "FullUse" | "Required"
+
+export type CourseAudience = {
+  audience: string
+  course_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  updated_at: string
+}
 
 export type CourseBreadcrumbInfo = {
   course_id: string
@@ -773,6 +791,18 @@ export type CourseMaterialExerciseTask = {
   public_spec?: unknown
 }
 
+export type CourseMetadata = {
+  course_audiences: Array<CourseAudience>
+  course_description?: string | null
+  course_prerequisites: Array<CoursePrerequisite>
+}
+
+export type CourseMetadataUpdate = {
+  course_audiences: Array<NewCourseAudience>
+  course_description?: string | null
+  course_prerequisites: Array<NewCoursePrerequisite>
+}
+
 /**
  *
  * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
@@ -904,6 +934,15 @@ export type CourseModuleThresholdInfo = {
   minimum_duration_seconds: number
 }
 
+export type CoursePrerequisite = {
+  course_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  prerequisite: string
+  updated_at: string
+}
+
 export type CourseStructure = {
   chapters: Array<Chapter>
   course: Course
@@ -1005,6 +1044,18 @@ export type DatabaseChapter = {
   id: string
   name: string
   opens_at?: string | null
+  updated_at: string
+}
+
+export type DatabaseOrganization = {
+  created_at: string
+  deleted_at?: string | null
+  description?: string | null
+  hidden: boolean
+  id: string
+  name: string
+  organization_image_path?: string | null
+  slug: string
   updated_at: string
 }
 
@@ -1284,6 +1335,11 @@ export type ExerciseServiceNewOrUpdate = {
   name: string
   public_url: string
   slug: string
+}
+
+export type ExerciseServiceUploadResultEntry = {
+  id: string
+  url: string
 }
 
 export type ExerciseServiceWithError = {
@@ -1580,6 +1636,7 @@ export type ModifiedModule = {
 export type Module = {
   course_code: string
   description: string
+  prerequisites: Array<string>
 }
 
 export type ModuleUpdates = {
@@ -1587,6 +1644,14 @@ export type ModuleUpdates = {
   modified_modules: Array<ModifiedModule>
   moved_chapters: Array<[string, string]>
   new_modules: Array<NewModule>
+}
+
+export type MyCourse = Course & {
+  /**
+   * Whether the course can be hidden from the "My courses" list. False for courses the user has
+   * not enrolled in or has a role in.
+   */
+  can_hide: boolean
 }
 
 export type NewChapter = {
@@ -1607,7 +1672,7 @@ export type NewChapter = {
 export type NewChatbotConf = {
   chatbot_name: string
   chatbotconf_id?: string | null
-  course_id: string
+  course_id?: string | null
   daily_tokens_per_user: number
   default_chatbot: boolean
   enabled_to_students: boolean
@@ -1667,6 +1732,14 @@ export type NewCourse = {
    * Name of the teacher who is responsible for the course. Must be a valid name.
    */
   teacher_in_charge_name: string
+}
+
+export type NewCourseAudience = {
+  audience: string
+}
+
+export type NewCoursePrerequisite = {
+  prerequisite: string
 }
 
 export type NewExam = {
@@ -2224,6 +2297,7 @@ export type ServicePortInfo = {
 }
 
 export type SisuDescriptionResponse = {
+  audience: Array<string>
   course_description: string
   modules: Array<Module>
 }
@@ -2391,6 +2465,11 @@ export type UserCourseSettings = {
   current_course_id: string
   current_course_instance_id: string
   deleted_at?: string | null
+  /**
+   * Whether the user has hidden this course from their personal "My courses" list. Does not
+   * affect course progress.
+   */
+  hidden: boolean
   updated_at: string
   user_id: string
 }
@@ -2509,7 +2588,9 @@ export type UserWithModuleCompletions = {
 export type VerbosityLevel = "low" | "medium" | "high"
 
 export type UploadFilesFromExerciseServiceData = {
-  body: string
+  body: {
+    [key: string]: Blob | File
+  }
   path: {
     /**
      * Exercise service slug
@@ -2524,9 +2605,7 @@ export type UploadFilesFromExerciseServiceResponses = {
   /**
    * Uploaded files
    */
-  200: {
-    [key: string]: string
-  }
+  200: Array<ExerciseServiceUploadResultEntry>
 }
 
 export type UploadFilesFromExerciseServiceResponse =
@@ -2826,6 +2905,22 @@ export type GetChatbotModelResponses = {
 }
 
 export type GetChatbotModelResponse = GetChatbotModelResponses[keyof GetChatbotModelResponses]
+
+export type GetAllChatbotsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/chatbots/"
+}
+
+export type GetAllChatbotsResponses = {
+  /**
+   * All chatbots
+   */
+  200: Array<ChatbotConfiguration>
+}
+
+export type GetAllChatbotsResponse = GetAllChatbotsResponses[keyof GetAllChatbotsResponses]
 
 export type DeleteChatbotConfigurationData = {
   body?: never
@@ -3882,6 +3977,22 @@ export type CreateCourseResponses = {
 
 export type CreateCourseResponse = CreateCourseResponses[keyof CreateCourseResponses]
 
+export type GetAllCoursesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/courses/"
+}
+
+export type GetAllCoursesResponses = {
+  /**
+   * All courses
+   */
+  200: Array<Course>
+}
+
+export type GetAllCoursesResponse = GetAllCoursesResponses[keyof GetAllCoursesResponses]
+
 export type GetCourseByJoinCodeData = {
   body?: never
   path: {
@@ -4489,6 +4600,71 @@ export type GetCourseFeedbackCountResponses = {
 
 export type GetCourseFeedbackCountResponse =
   GetCourseFeedbackCountResponses[keyof GetCourseFeedbackCountResponses]
+
+export type GetCourseAudiencesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/get-course-audiences"
+}
+
+export type GetCourseAudiencesResponses = {
+  /**
+   * Course audiences
+   */
+  200: Array<CourseAudience>
+}
+
+export type GetCourseAudiencesResponse =
+  GetCourseAudiencesResponses[keyof GetCourseAudiencesResponses]
+
+export type GetCourseMetadataData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/get-course-metadata"
+}
+
+export type GetCourseMetadataResponses = {
+  /**
+   * Course metadata
+   */
+  200: CompleteCourseMetadata
+}
+
+export type GetCourseMetadataResponse = GetCourseMetadataResponses[keyof GetCourseMetadataResponses]
+
+export type GetCoursePrerequisitesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/get-course-prerequisites"
+}
+
+export type GetCoursePrerequisitesResponses = {
+  /**
+   * Course prerequisites
+   */
+  200: Array<CoursePrerequisite>
+}
+
+export type GetCoursePrerequisitesResponse =
+  GetCoursePrerequisitesResponses[keyof GetCoursePrerequisitesResponses]
 
 export type GetCourseGlossaryData = {
   body?: never
@@ -6265,6 +6441,27 @@ export type GetCourseThresholdsResponses = {
 
 export type GetCourseThresholdsResponse =
   GetCourseThresholdsResponses[keyof GetCourseThresholdsResponses]
+
+export type UpdateMetadataData = {
+  body: CourseMetadataUpdate
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/update-metadata"
+}
+
+export type UpdateMetadataResponses = {
+  /**
+   * Updated metadata
+   */
+  200: CourseMetadata
+}
+
+export type UpdateMetadataResponse = UpdateMetadataResponses[keyof UpdateMetadataResponses]
 
 export type UpdateCoursePeerReviewQueueReviewsReceivedData = {
   body?: never
@@ -9183,10 +9380,29 @@ export type GetMyCoursesResponses = {
   /**
    * Courses for authenticated user
    */
-  200: Array<Course>
+  200: Array<MyCourse>
 }
 
 export type GetMyCoursesResponse = GetMyCoursesResponses[keyof GetMyCoursesResponses]
+
+export type HideCourseFromMyCoursesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/my-courses/{course_id}/hide"
+}
+
+export type HideCourseFromMyCoursesResponses = {
+  /**
+   * Course hidden from the user's my-courses list
+   */
+  200: unknown
+}
 
 export type ResetUserPasswordData = {
   body: ResetPasswordData

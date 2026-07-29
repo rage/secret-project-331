@@ -12,6 +12,7 @@
   "dependencies": {
     "@emotion/css": "^11.13.5",
     "@internationalized/date": "^3.12.2",
+    "@react-stately/autocomplete": "3.0.0-beta.6",
     "@react-stately/calendar": "^3.10.1",
     "@react-stately/collections": "^3.13.1",
     "@react-stately/combobox": "^3.14.1",
@@ -19,15 +20,18 @@
     "@react-stately/list": "^3.14.1",
     "@react-stately/overlays": "^3.7.1",
     "@react-stately/radio": "^3.12.1",
+    "@react-stately/searchfield": "^3.6.1",
     "@react-stately/select": "^3.10.1",
     "@react-stately/toggle": "^3.10.1",
     "@react-types/shared": "^3.36.0",
+    "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "react-aria": "^3.50.0"
   },
   "devDependencies": {
     "@tanstack/react-query": "^5.101.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.0.1",
     "@types/react": "^19.2.17",

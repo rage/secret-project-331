@@ -105,7 +105,10 @@ test.skip("Testing exam works", async ({ page }) => {
     await waitForViewType(quizzesIframe, "answer-exercise")
 
     await quizzesIframe.getByRole("button", { name: "Correct answer" }).waitFor()
-    await page.getByRole("button", { name: "Submit" }).isDisabled()
+    await expect(page.getByRole("button", { name: "Submit" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    )
 
     await quizzesIframe.getByRole("button", { name: "Correct answer" }).click()
     await page.getByRole("button", { name: "Submit" }).click()

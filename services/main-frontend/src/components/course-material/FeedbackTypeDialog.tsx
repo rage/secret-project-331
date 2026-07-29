@@ -117,9 +117,9 @@ const FeedbackTypeDialog: React.FC = () => {
               transform: translateY(0);
             }
 
-            &:focus {
-              outline: none;
-              box-shadow: 0 0 0 2px ${baseTheme.colors.gray[200]};
+            &:focus-visible {
+              outline: 3px solid ${baseTheme.colors.green[600]};
+              outline-offset: 2px;
             }
 
             &::after {
@@ -193,9 +193,9 @@ const FeedbackTypeDialog: React.FC = () => {
               transform: translateY(0);
             }
 
-            &:focus {
-              outline: none;
-              box-shadow: 0 0 0 2px ${baseTheme.colors.green[200]};
+            &:focus-visible {
+              outline: 3px solid ${baseTheme.colors.green[600]};
+              outline-offset: 2px;
             }
 
             &::after {

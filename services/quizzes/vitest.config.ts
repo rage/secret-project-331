@@ -7,8 +7,13 @@ import { configDefaults, defineConfig } from "vitest/config"
 export default defineConfig({
   // Resolve `@/*` -> `./src/*`. An explicit alias, not tsconfig paths: src/shared-module is
   // excluded from tsconfig but the vendored code imports via `@/`.
+  // `next/dynamic` -> the SPA shim, mirroring the rsbuild resolve.alias, so vendored code that
+  // imports "next/dynamic" resolves under vitest too (this app has no Next runtime).
   resolve: {
-    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "next/dynamic": fileURLToPath(new URL("./src/lib/next-shims/dynamic.tsx", import.meta.url)),
+    },
   },
   plugins: [
     // Match the build's SVG handling (default export) so tests render real icon components.

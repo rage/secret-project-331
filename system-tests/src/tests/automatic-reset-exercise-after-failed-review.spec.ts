@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 
 import { getExerciseRegion, selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -86,7 +87,8 @@ test("Automatic reject and reset submission", async () => {
     //Student1 gets zero points based on reviews so the submisission will be automatically reset
 
     // Student1 peer reviews Student2 and Teachers answers
-    await student1Page.getByRole("button", { name: "Start peer review" }).click()
+    await waitForSpinnersToDisappear(student1Page)
+    await student1Page.getByRole("button", { name: "Start peer review", disabled: false }).click()
     await student1Page
       .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
       .getByRole("radio", { name: "Strongly agree" })

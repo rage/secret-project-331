@@ -28,7 +28,7 @@ pub struct ChatbotConfiguration {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
     pub enabled_to_students: bool,
     pub chatbot_name: String,
     pub model_id: Uuid,
@@ -90,7 +90,7 @@ impl Default for ChatbotConfiguration {
 #[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
 
 pub struct NewChatbotConf {
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
     pub enabled_to_students: bool,
     pub chatbot_name: String,
     pub model_id: Uuid,
@@ -420,6 +420,20 @@ RETURNING *
         chatbot_configuration_id,
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_all_chatbots(conn: &mut PgConnection) -> ModelResult<Vec<ChatbotConfiguration>> {
+    let res = sqlx::query_as!(
+        ChatbotConfiguration,
+        r#"
+    SELECT *
+    FROM chatbot_configurations
+    WHERE deleted_at IS NULL
+    "#,
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

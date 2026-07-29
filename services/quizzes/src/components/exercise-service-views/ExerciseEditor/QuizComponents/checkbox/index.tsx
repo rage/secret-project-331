@@ -9,6 +9,9 @@ import type { PrivateSpecQuizItemCheckbox } from "../../../../../../types/quizTy
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import FeedbackMessagesEditor, {
+  useItemFeedbackVisibilityOptions,
+} from "../common/FeedbackMessagesEditor"
 
 interface CheckboxEditorProps {
   quizItemId: string
@@ -42,6 +45,7 @@ const OptionNameContainer = styled.div`
 
 const CheckboxEditor: React.FC<CheckboxEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
+  const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemCheckbox>((quiz) => {
@@ -75,6 +79,18 @@ const CheckboxEditor: React.FC<CheckboxEditorProps> = ({ quizItemId }) => {
           />
         </OptionNameContainer>
       </OptionCreationWrapper>
+      <FeedbackMessagesEditor
+        value={selected.feedbackMessages}
+        visibilityOptions={itemFeedbackVisibilityOptions}
+        onChange={(feedbackMessages) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            draft.feedbackMessages = feedbackMessages
+          })
+        }}
+      />
     </EditorCard>
   )
 }

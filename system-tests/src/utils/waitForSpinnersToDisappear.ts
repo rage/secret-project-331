@@ -28,6 +28,7 @@ export default async function waitForSpinnersToDisappear(
         await Promise.all(LOADING_TEST_IDS.map((testId) => page.getByTestId(testId).all()))
       ).flat()
       await Promise.all(spinnerLocators.map((locator) => locator.waitFor({ state: "detached" })))
+      await page.waitForTimeout(100)
     }
   } catch (e) {
     console.warn(`Spinner did not disappear: ${e}`)

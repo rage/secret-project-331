@@ -5,7 +5,7 @@ Scaffolding CLI that creates a new standalone exercise service from the
 
 ## Usage
 
-Run it from a checkout of this monorepo:
+From a monorepo checkout, run:
 
 ```bash
 bin/create-exercise-service
@@ -35,11 +35,21 @@ A standalone TanStack Start (rsbuild bundler) exercise service, rendered entirel
   this snapshot as real source, so it has no dependency on the monorepo at runtime.
 - A `package.json` that merges the dependencies the vendored code needs. Monorepo-only bits
   (pinned node version, CSS lint tooling) are dropped.
+- Layered browser-test directories: `playwright/plugin-contract/`,
+  `playwright/iframe-boundary/`, `playwright/system/`, and `playwright/fixtures/`. The system
+  directory is reserved for real-host checks when required. New plugins must not use the legacy
+  `e2e/` directory.
+
+When this package is published, its bundled template instead uses the npm strategy: the generated
+project depends on the four `@moocfi/exercise-*` packages and does not vendor `src/shared-module/`.
+The scaffolder API can supply relative `file:` package specifiers for local package directories or
+packed tarballs; absolute `file:` paths are rejected so generated projects remain portable.
 
 ## Notes
 
-- The CLI must run from inside this monorepo. It reads the template and the shared packages
-  from the repo on disk, so it is not published as a standalone `pnpm create` package.
+- From a monorepo checkout, the CLI reads the local template and can vendor local shared packages.
+  The published package carries a bundled template and uses published (or explicitly supplied
+  relative `file:`) exercise packages instead.
 - The vendored `src/shared-module/` is a point-in-time copy. To pull in newer shared code,
   re-run the CLI into a fresh directory or copy the packages over manually.
 - Only the React project type is implemented. Svelte and no-framework are placeholders.

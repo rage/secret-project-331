@@ -24,8 +24,28 @@ describe("POST /api/model-solution", () => {
       }),
     )
     expect(res.status).toBe(200)
-    const solution = (await res.json()) as { correctOptionIds: string[] }
+    const solution = (await res.json()) as { version: string; correctOptionIds: string[] }
+    expect(solution.version).toBe("1")
     expect(solution.correctOptionIds).toEqual(["a", "c"])
+  })
+
+  it("migrates a versioned private_spec envelope (migrate-on-read)", async () => {
+    const res = await handleModelSolution(
+      post({
+        request_id: "r1",
+        upload_url: null,
+        private_spec: {
+          version: "1",
+          alternatives: [
+            { id: "a", name: "Right", correct: true },
+            { id: "b", name: "Wrong", correct: false },
+          ],
+        },
+      }),
+    )
+    expect(res.status).toBe(200)
+    const solution = (await res.json()) as { version: string; correctOptionIds: string[] }
+    expect(solution.correctOptionIds).toEqual(["a"])
   })
 
   it("rejects an invalid request with 400", async () => {

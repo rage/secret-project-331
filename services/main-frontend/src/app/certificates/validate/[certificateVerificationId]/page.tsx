@@ -11,12 +11,11 @@ import {
   renderReadOnlyStaleError,
 } from "@/components/queryResultErrorRenderers"
 import { getCertificateByVerificationIdOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Link, QueryResult } from "@/shared-module/components"
 
 const ModuleCertificateVerification: React.FC = () => {
   const { t } = useTranslation()
@@ -81,11 +80,16 @@ const CertificateImage: React.FC<{ certificateBlob: Blob }> = ({ certificateBlob
           border: 1px solid black;
         `}
       />
-      <a href={objectUrl} download="certificate.png">
-        <Button variant="primary" size="medium">
-          {t("save-as-png")}
-        </Button>
-      </a>
+      <Link
+        href={objectUrl}
+        // eslint-disable-next-line i18next/no-literal-string
+        download="certificate.png"
+        styledAsButton
+        variant="primary"
+        size="medium"
+      >
+        {t("save-as-png")}
+      </Link>
     </div>
   )
 }

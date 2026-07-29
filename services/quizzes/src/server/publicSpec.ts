@@ -1,11 +1,7 @@
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { convertPublicSpecFromPrivateSpec } from "@/util/converter"
-import { isOldQuiz } from "@/util/migration/migrationSettings"
-import { migratePrivateSpecQuiz } from "@/util/migration/privateSpecQuiz"
+import { migratePrivateSpecToLatest } from "@/util/migration/migrateToLatest"
 import { isSpecRequest } from "@/utils/exerciseServiceApi"
-
-import type { OldQuiz } from "../../types/oldQuizTypes"
-import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 
 const SERVICE = "quizzes"
 
@@ -71,13 +67,10 @@ function handlePost(specRequest: unknown) {
     console.error("Public spec request failed: Invalid private_spec", errorInfo)
     return Response.json({ message: "Invalid private_spec" }, { status: 400 })
   }
-  const quiz = specRequest.private_spec as unknown as OldQuiz | PrivateSpecQuiz | null
-  if (quiz === null) {
+  if (specRequest.private_spec === null || specRequest.private_spec === undefined) {
     return Response.json({ message: "Quiz cannot be null" }, { status: 400 })
   }
-  const converted: PrivateSpecQuiz = isOldQuiz(quiz)
-    ? migratePrivateSpecQuiz(quiz as OldQuiz)
-    : (quiz as PrivateSpecQuiz)
+  const converted = migratePrivateSpecToLatest(specRequest.private_spec)
   const publicSpecQuiz = convertPublicSpecFromPrivateSpec(converted)
   return Response.json(publicSpecQuiz, { status: 200 })
 }

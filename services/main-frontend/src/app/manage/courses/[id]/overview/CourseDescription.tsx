@@ -14,7 +14,7 @@ import { useCourseStructure } from "@/hooks/useCourseStructure"
 import Button from "@/shared-module/common/components/Button"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 
-import AIDescriptionForm from "./AIDescriptionForm"
+import AIMetadataForm from "./AIMetadataForm/index"
 
 interface Props {
   course: Course
@@ -49,7 +49,7 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
           size="medium"
           onClick={() => setShowForm(true)}
         >
-          {t("generate-ai-description")}
+          {t("generate-ai-metadata")}
         </Button>
       ) : (
         <div>
@@ -62,13 +62,13 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
             size="medium"
             onClick={() => setShowForm(true)}
           >
-            {t("generate-ai-description")}
+            {t("generate-ai-metadata")}
           </Button>
           <GenericInfobox>{t("missing-uh-course-code-notification")}</GenericInfobox>
         </div>
       )}
 
-      <AIDescriptionForm
+      <AIMetadataForm
         course={course}
         onSubmitForm={handleOnUpdateCourse}
         open={showForm}

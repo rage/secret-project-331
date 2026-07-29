@@ -75,10 +75,12 @@ test.describe("Peer review followed by self review works", () => {
       await page1.getByLabel("Add default block").click()
       await page1.getByLabel("Empty block; start writing or").fill("Here's what you will do: x.")
       await page1
-        .getByLabel("Peer review questionThe answer was easy to read")
+        .getByLabel("Peer review question", { exact: true })
+        .nth(0)
         .fill("The answer was hard to read")
       await page1
-        .getByLabel("Peer review questionThe answer was correct")
+        .getByLabel("Peer review question", { exact: true })
+        .nth(1)
         .fill("The answer was incorrect")
       await waitForSuccessNotification(page1, async () => {
         await page1.getByRole("button", { name: "Save" }).click()

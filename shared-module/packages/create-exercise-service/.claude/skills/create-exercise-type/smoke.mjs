@@ -77,11 +77,11 @@ async function main() {
   ]) {
     check(existsSync(join(out, "src", "shared-module", p)), `vendored src/shared-module/${p}`)
   }
-  check(existsSync(join(out, "playwright.config.ts")), "playwright.config.ts present (inherited e2e)")
-  check(
-    existsSync(join(out, "e2e", "protocol.spec.ts")),
-    "e2e/protocol.spec.ts present (inherited e2e)",
-  )
+  check(existsSync(join(out, "playwright.config.ts")), "playwright.config.ts present")
+  for (const level of ["plugin-contract", "iframe-boundary", "system", "fixtures"]) {
+    check(existsSync(join(out, "playwright", level)), `playwright/${level}/ present`)
+  }
+  check(!existsSync(join(out, "e2e")), "legacy e2e/ directory absent")
   const info = readFileSync(join(out, "src", "server", "serviceInfo.ts"), "utf8")
   check(info.includes(`service_name: "${DISPLAY}"`), `service-info service_name === "${DISPLAY}"`)
   check(

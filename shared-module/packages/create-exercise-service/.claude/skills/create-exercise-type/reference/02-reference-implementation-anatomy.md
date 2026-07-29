@@ -237,15 +237,20 @@ Four packages are vendored (copied) into `src/shared-module/`:
 - `exercise-react/` — the React adapter (hooks like `useExerciseServiceParentConnection`,
   `HeightTrackingContainer`, `withNoSsr`, i18n `createI18n`, theme/styles).
 - `exercise-service-test-utils/` — the host emulator + Playwright helpers backing the inherited
-  `e2e/protocol.spec.ts` suite (see below). Declares no runtime deps of its own.
+  `playwright/plugin-contract/protocol.spec.ts` suite (see below). Declares no runtime deps of its
+  own.
 
 Consumers import via deep paths `@/shared-module/exercise-react/...`. The upstream source is
 `shared-module/packages/*`; a sync mechanism copies it in (see `03-scaffolding-cli.md`). **Treat
 `src/shared-module/` as read-only** — edits get overwritten on the next sync.
 
-Every generated project also inherits `playwright.config.ts` and `e2e/protocol.spec.ts`, a working
-protocol test built on `exercise-service-test-utils`; keep both when slimming a new plugin down —
-they're the regression coverage for the handshake/host-emulator round trip, not template cruft.
+Every generated project inherits `playwright.config.ts`, `playwright/plugin-contract/`,
+`playwright/iframe-boundary/`, `playwright/system/`, and `playwright/fixtures/`. Keep this
+hierarchy when slimming a plugin down. The plugin-contract suite is regression coverage for the
+handshake and typed host-emulator round trip; the iframe-boundary suite exercises the same contract
+through a sandboxed iframe at a distinct origin; system tests prove integration with a real host
+(normally the production Playground). An emulator's fabricated upload success is useful plugin
+coverage, never proof that a real host sent the file.
 
 ## 7. i18n & localisation
 

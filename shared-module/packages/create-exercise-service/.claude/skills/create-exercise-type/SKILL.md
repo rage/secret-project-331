@@ -64,8 +64,9 @@ and propose the nearest feasible design rather than attempting it. Grounded in t
 that needs a live DB, a session, or a network call to another course service can't exist — grade runs
 from `private_spec + answer` alone (reference/07 §6), and the *only* sanctioned grading I/O is
 fetching a client-supplied URL, which is hostile input to be guarded, not a data source (§8). The
-plugin cannot store the uploaded files themselves — it only holds their URLs (see the file-upload
-gotcha below). You cannot mutate a stored blob's shape in place without a version bump + a migration
+plugin cannot store uploaded files or mint their IDs — it only receives host-assigned IDs and URLs
+(see the file-upload gotcha below). You cannot mutate a stored blob's shape in place without a
+version bump + a migration
 step (migrate-on-read, reference/07 §1); you cannot make view-submission depend on server-only data
 it is never sent; and nothing you build may require the host to migrate its database. When an ask
 lands here, refuse the impossible part explicitly and redesign around it.
@@ -225,14 +226,17 @@ Authoring gotchas (each cost a real session a debugging round-trip):
   these to your types; deleting the call sites silently disarms them.
 - **Locales** live at `src/locales/<lang>/<slug>.json` (per-language dirs, file named after your
   slug); keep en/fi key sets identical.
-- **The scaffold is ESM** (`type: module`): in e2e/test files use
+- **The scaffold is ESM** (`type: module`): in Playwright/test files use
   `path.dirname(fileURLToPath(import.meta.url))`, never `__dirname`. The tsconfig has
   `noUncheckedIndexedAccess`, so `array[0]` is `T | undefined` — index with `?.`/`!` deliberately.
-- **File-upload exercises**: plugins never store files. The `useFileUpload(port)` hook
-  (`@/shared-module/exercise-react/react/hooks/useFileUpload`) sends `file-upload` to the host and
-  resolves to a `Map<name, url>` — the answer records the URLs. In tests the host emulator
-  auto-answers uploads (`driveFileUpload` + a small committed fixture file). If your grader downloads
-  these URLs, they are attacker-controlled input — SSRF-guard every fetch and see reference/07 §8.
+- **File-upload exercises**: plugins never store files or mint file IDs. The `useFileUpload(port)`
+  hook (`@/shared-module/exercise-react/react/hooks/useFileUpload`) sends an ordered `File[]` with a
+  request-only `requestId`, then resolves to ordered host-assigned `{ requestId, id, file, url }`
+  entries. Store the returned id and URL in the answer; never key files by filename or generate a
+  per-file id in the iframe. Meaningful upload tests disable the emulator's automatic response,
+  inspect the real `File[]` request and exact bytes, then send a correlated ordered `{ id, url }[]`
+  response; see `reference/08-browser-integration-testing.md`. If your grader downloads those URLs,
+  they are attacker-controlled input — SSRF-guard every fetch and see reference/07 §8.
 - **If the answer view seeds state from `previous_submission`, emit a `current-state` for it** —
   otherwise the host's `valid` gate stays unset and a student can't resubmit unchanged prior work.
 
@@ -258,8 +262,21 @@ with the bug present.
   the submission stuck `Pending` forever);
 - any adapter with wire framing (a byte scanner, an HTTP client) gets its own test.
 
-E2E layer: adapt the inherited `e2e/protocol.spec.ts` (typed `createHostEmulator` + `set-state`
-builders). **The e2e suite must be comprehensive — this is not a user preference to ask about**
+Browser integration is mandatory. Read and follow
+**`reference/08-browser-integration-testing.md`**; it defines the required hierarchy, evidence, and
+runner. Browser specs live only under `playwright/plugin-contract/`,
+`playwright/iframe-boundary/`, or `playwright/system/`, with shared assets in
+`playwright/fixtures/`. A legacy `e2e/` directory is a verification failure.
+
+The layers support different claims and are not interchangeable:
+
+- **plugin-contract** exercises the plugin through the typed host emulator;
+- **iframe-boundary** proves transport through a sandboxed, distinct-origin iframe and real
+  `MessageChannel` in every configured browser;
+- **system** proves behavior with the real host. Any claim about production host-mediated upload
+  requires the production Playground system test; an emulator cannot establish it.
+
+The plugin-contract suite must be comprehensive — this is not a user preference to ask about
 (discuss test *strategy* if useful; never whether to test thoroughly). Three happy-path tests is a
 smoke test, not a suite. Cover at least:
 
@@ -271,16 +288,23 @@ smoke test, not a suite. Cover at least:
   answer, unknown ids);
 - an old-version spec fed via `set-state` emits the migrated current version.
 
-Run it against your service (Playwright boots the dev server via `webServer`); locators must target
-**rendered translated strings** ("Video files"), not i18n keys — the dev server loads real locales:
+For uploads, set `autoUpload: false`; before responding, assert the request id, genuine ordered
+`File[]` shape, duplicate filenames if applicable, filename, MIME type, size, and exact fixture
+bytes/SHA-256. Reply with host-assigned IDs in the same order and assert those IDs plus the request
+id reach the answer. Cover malformed/missing/extra results, host errors, and concurrent requests.
+A fabricated host success or an emulator-generated URL proves only plugin behavior, never real host
+upload. Run the bundled
+portable runner from the generated project root; it discovers the project and executes every
+required level, ending with the complete unfiltered suite:
 
 ```bash
-PLAYWRIGHT_CHROMIUM_PATH="$(command -v chromium)" pnpm --dir services/<your-slug> exec playwright test
+node <skill-dir>/scripts/run-generated-playwright.mjs
 ```
 
-(`drive-view.mjs` from Part B is a quick-look tool for the *example* exercise and screenshots; it is
-hardcoded to the multiple-choice types, so for authoring verification the committed e2e suite above
-is the loop — don't bend drive-view to your types.)
+Do not merely add or list tests. Any missing browser, zero-test level, legacy path, required failing
+layer, or incomplete run means verification is incomplete and must be reported plainly. Focused
+runs are diagnostic only. `drive-view.mjs` is exploratory only and is never verification evidence.
+Locators target rendered translated strings ("Video files"), not locale keys.
 
 ## Reference material
 
@@ -292,16 +316,17 @@ Bundled in **`reference/`** (start at `reference/README.md`), alongside the ship
 - `05` the end-to-end checklist — **mandatory reading at the implementation step above**.
 - `06` the design rationale.
 - `07` the data-modelling + leak + testing deep dive — the source of the Gate-2 doctrine above.
+- `08` the mandatory browser-integration levels, upload evidence, and portable execution rules.
 
 ---
 
 # Part B — Maintainer path: run & smoke-test the CLI
 
 For verifying the CLI and the `services/example-exercise` template themselves (template drift,
-CI-style checks, screenshots of the example exercise). Everything is driven by three scripts in this
-skill dir: `smoke.mjs` (scaffold + HTTP contract), `drive-view.mjs` (the iframe protocol against a
-real browser), and `interactive-demo.sh` (the prompt flow). Part A's implement step also uses the
-Setup and scaffold commands below.
+CI-style checks, screenshots of the example exercise). `smoke.mjs` supplies the HTTP drift check,
+`interactive-demo.sh` exercises the prompt flow, and `drive-view.mjs` is an exploratory iframe
+driver only — it is never verification evidence. Part A's implement step also uses the Setup and
+scaffold commands below.
 
 ## Prerequisites
 
@@ -348,10 +373,12 @@ node smoke.mjs --keep    # don't delete the temp project (inspect the output)
 PASS
 ```
 
-**`drive-view.mjs` — the iframe protocol** (handshake → `set-state` → `current-state`, in Chromium).
-`smoke.mjs` checks the HTTP contract; this checks the _iframe_ contract that HTTP can't reach. It
+**`drive-view.mjs` — exploratory iframe driving** (handshake → `set-state` → `current-state`, in
+Chromium). It is useful for quick visual inspection and screenshots, but it is hardcoded to the
+example exercise, uses an emulated host, and **never proves a browser contract or real-host
+integration**. It
 boots `services/example-exercise`, plays the host, pushes the answer view, clicks an option, and
-asserts the emitted `current-state`:
+prints/asserts the emitted `current-state` for this exploration:
 
 ```bash
 node drive-view.mjs                                # boot example-exercise on :3002, drive it, tear down
@@ -368,8 +395,8 @@ PASS
 ```
 
 To drive _your_ generated service, boot it and pass `--base`; editing the pushed `public_spec` in
-the script to match your data types is for **maintainer smoke-checks only** — authors verify with the
-committed e2e suite, not by hand-editing drive-view (see Part A's Verify step). The emulator it injects
+the script to match your data types is for **exploration only** — authors verify with the committed
+Playwright hierarchy and portable runner (see Part A's Verify step). The emulator it injects
 (`@moocfi/exercise-service-test-utils`, `src/browser/hostEmulator.js`) plays the parent: transfers
 the port, auto-answers `file-upload`/`open-dialog`, and records the iframe's full message history
 (so `current-state` survives the `height-changed` spam). For committed tests, use the typed

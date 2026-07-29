@@ -1273,6 +1273,11 @@ export type ExerciseServiceNewOrUpdate = {
   slug: string
 }
 
+export type ExerciseServiceUploadResultEntry = {
+  id: string
+  url: string
+}
+
 export type ExerciseServiceWithError = {
   exercise_service: ExerciseService
   service_info_error?: string | null
@@ -1579,8 +1584,8 @@ export type ModuleUpdates = {
 
 export type MyCourse = Course & {
   /**
-   * Whether the course can be hidden from the "My courses" list. Only courses the user has
-   * enrolled in (and thus have user course settings) can be hidden.
+   * Whether the course can be hidden from the "My courses" list. False for courses the user has
+   * not enrolled in or has a role in.
    */
   can_hide: boolean
 }
@@ -2519,7 +2524,9 @@ export type UserWithModuleCompletions = {
 export type VerbosityLevel = "low" | "medium" | "high"
 
 export type UploadFilesFromExerciseServiceData = {
-  body: string
+  body: {
+    [key: string]: Blob | File
+  }
   path: {
     /**
      * Exercise service slug
@@ -2534,9 +2541,7 @@ export type UploadFilesFromExerciseServiceResponses = {
   /**
    * Uploaded files
    */
-  200: {
-    [key: string]: string
-  }
+  200: Array<ExerciseServiceUploadResultEntry>
 }
 
 export type UploadFilesFromExerciseServiceResponse =

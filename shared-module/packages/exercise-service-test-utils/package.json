@@ -1,6 +1,6 @@
 {
   "name": "@moocfi/exercise-service-test-utils",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "Testing utilities that play the host/parent side of the moocfi exercise-plugin iframe protocol: a browser host emulator and Playwright helpers to drive a plugin's views and assert its messages.",
   "keywords": [
     "exercise-service",
@@ -41,7 +41,12 @@
   },
   "scripts": {
     "build": "tsdown",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:playwright": "playwright test",
+    "test:playwright:plugin-contract": "playwright test playwright/plugin-contract",
+    "test:playwright:iframe-boundary": "playwright test playwright/iframe-boundary",
+    "test:playwright:debug": "playwright test --debug",
+    "verify": "pnpm run build && pnpm run test && pnpm run test:playwright"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",

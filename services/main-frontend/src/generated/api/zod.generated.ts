@@ -1185,6 +1185,11 @@ export const zExerciseServiceNewOrUpdate = z.object({
   slug: z.string(),
 })
 
+export const zExerciseServiceUploadResultEntry = z.object({
+  id: z.string(),
+  url: z.string(),
+})
+
 export const zExerciseServiceWithError = z.object({
   exercise_service: zExerciseService,
   service_info_error: z.string().nullish(),
@@ -2991,7 +2996,7 @@ export const zNewChatbotConf = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
-export const zUploadFilesFromExerciseServiceBody = z.string()
+export const zUploadFilesFromExerciseServiceBody = z.record(z.string(), z.string())
 
 export const zUploadFilesFromExerciseServicePath = z.object({
   exercise_service_slug: z.string(),
@@ -3000,7 +3005,7 @@ export const zUploadFilesFromExerciseServicePath = z.object({
 /**
  * Uploaded files
  */
-export const zUploadFilesFromExerciseServiceResponse = z.record(z.string(), z.string())
+export const zUploadFilesFromExerciseServiceResponse = z.array(zExerciseServiceUploadResultEntry)
 
 export const zUpdateCertificateConfigurationBody = z.object({
   file: z.array(z.string()),

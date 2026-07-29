@@ -4,6 +4,8 @@ export * from "./protocol/stateBuilders"
 export * from "./playwright/createHostEmulator"
 export { HOST_EMULATOR_SOURCE } from "./browser/hostEmulatorSource"
 export type {
+  FileUploadEntrySnapshot,
+  FileUploadSnapshot,
   HostApi,
   HostEmulatorOptions,
   RecordedMessage,

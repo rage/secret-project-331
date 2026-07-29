@@ -1,7 +1,6 @@
-// End-to-end protocol test: drives the plugin's three views through the host emulator and asserts
-// the messages it emits. This suite is inherited by every service scaffolded from this template —
-// adapt the specs to your own data types. Run it with `pnpm exec playwright test` (see
-// playwright.config.ts for the chromium note). It is not part of `pnpm test` (vitest) or CI.
+// Plugin-contract test: drives the plugin's three views through the host emulator and asserts the
+// messages it emits. This suite is inherited by every service scaffolded from this template —
+// adapt the specs to your own data types. Run `pnpm run test:playwright:plugin-contract`.
 
 import { expect, test } from "@playwright/test"
 
@@ -12,17 +11,21 @@ import {
   viewSubmissionState,
 } from "@/shared-module/exercise-service-test-utils/protocol/stateBuilders"
 
+import { withBrowserDiagnostics } from "../fixtures/diagnostics"
+
+const contractTest = withBrowserDiagnostics(test)
+
 const OPTIONS: [{ id: string; name: string }, { id: string; name: string }] = [
   { id: "11111111-1111-1111-1111-111111111111", name: "Helsinki" },
   { id: "22222222-2222-2222-2222-222222222222", name: "Tampere" },
 ]
 
-test.beforeEach(async ({ page }) => {
+contractTest.beforeEach(async ({ page }) => {
   // Open the plugin's iframe page first so it mounts and starts the handshake.
   await page.goto("/iframe")
 })
 
-test("exercise-editor emits the private spec as current-state", async ({ page }) => {
+contractTest("exercise-editor emits the private spec as current-state", async ({ page }) => {
   const host = await createHostEmulator(page)
   await host.setState(
     exerciseEditorState({
@@ -47,7 +50,7 @@ test("exercise-editor emits the private spec as current-state", async ({ page })
   expect(privateSpec.alternatives[0]).toMatchObject({ name: "Helsinki", correct: true })
 })
 
-test("answer-exercise reports the selected option as current-state", async ({ page }) => {
+contractTest("answer-exercise reports the selected option as current-state", async ({ page }) => {
   const host = await createHostEmulator(page)
   await host.setState(answerExerciseState({ public_spec: OPTIONS }))
   await host.waitForViewType("answer-exercise")
@@ -60,7 +63,7 @@ test("answer-exercise reports the selected option as current-state", async ({ pa
   expect((state.data as { selectedOptionId: string }).selectedOptionId).toBe(OPTIONS[1].id)
 })
 
-test("view-submission renders the graded submission", async ({ page }) => {
+contractTest("view-submission renders the graded submission", async ({ page }) => {
   const host = await createHostEmulator(page)
   await host.setState(
     viewSubmissionState({

@@ -899,7 +899,7 @@ import type {
  * Used to upload data from exercise service iframes.
  *
  * # Returns
- * The randomly generated paths to each uploaded file in a `file_name => file_path` hash map.
+ * An ordered list of host-assigned file ids and stored URLs.
  */
 export const uploadFilesFromExerciseServiceMutation = (
   options?: Partial<Options<UploadFilesFromExerciseServiceData>>,

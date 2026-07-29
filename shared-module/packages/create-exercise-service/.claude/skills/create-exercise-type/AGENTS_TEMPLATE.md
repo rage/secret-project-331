@@ -68,8 +68,9 @@ Design **one master type (the private spec) and two projections**, not three ind
 **Don't attempt what the plugin contract forbids.** Some asks aren't hard, they're impossible here —
 name why and redesign around them rather than trying. Impossible under this contract: grading that
 needs a live DB, a session, or a call to another course service (grade runs from `private_spec +
-answer` alone, save the one client-URL-fetch exception above); storing the uploaded files themselves
-(the plugin only holds their URLs); changing a stored blob's shape in place without a version bump +
+answer` alone, save the one client-URL-fetch exception above); storing uploaded files or minting
+their IDs (the plugin only receives host-assigned IDs and URLs); changing a stored blob's shape in
+place without a version bump +
 a migration step (see "your specs are stored forever" below); making view-submission depend on
 server-only data it is never sent; or anything that would require the host to migrate its database.
 
@@ -249,9 +250,10 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 - **If correctness is stored as an opaque matcher (regex/validator), also store or derive a readable
   correct answer** for the model solution — otherwise there's nothing to show the student. Derive it
   by explicit per-variant pick (never reveal the matcher itself).
-- **IDs are minted in the editor**, and flow through the derivations unchanged. Never mint ids inside
-  the public-spec / model-solution generators — every re-save would produce fresh ids, orphaning all
-  stored answers.
+- **Domain IDs are minted in the editor**, and flow through the derivations unchanged. Never mint
+  domain ids inside the public-spec / model-solution generators — every re-save would produce fresh
+  ids, orphaning stored answers. This does **not** apply to uploaded-file IDs: the host, not the
+  editor or iframe, creates those after receiving `File[]`.
 - **Derivation is pure, total, and deterministic** — same private spec in → same public spec out, no
   I/O, no `Math.random()`, and defined for _every_ spec the editor can emit (including drafts). If
   you shuffle for anti-cheating, shuffle in the _view_ or from a stored seed, not in the generator.
@@ -290,21 +292,34 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 
 - **Locales** live at `src/locales/<lang>/<slug>.json` — per-language directories, file named after
   the service slug. Keep the language files' key sets identical.
-- **This project is ESM** (`type: module`): in e2e/test files use
+- **This project is ESM** (`type: module`): in Playwright/test files use
   `path.dirname(fileURLToPath(import.meta.url))`, never `__dirname`.
 - **The tsconfig has `noUncheckedIndexedAccess`**: `array[0]` is `T | undefined` — index with
   `?.`/`!` deliberately.
 - **Playwright locators must target rendered translated strings** ("Video files"), not i18n keys
   ("file-category-video") — the dev server loads real locale files.
-- **The e2e host emulator's messages are index-signatured.** `createHostEmulator`'s `messages()` /
+- **The plugin-contract host emulator's messages are index-signatured.** `createHostEmulator`'s `messages()` /
   `waitForCurrentState` (from `exercise-service-test-utils`) return `RecordedMessage`
   (`{ message: string; [key: string]: unknown }`), so there is no typed `.data` — read the payload as
   `(msg as { data: MyType }).data`. And `noUncheckedIndexedAccess` makes `messages()[n]`
   possibly-`undefined`, so index it with `!`/`?.`.
-- **File uploads**: plugins never store files. The `useFileUpload(port)` hook
-  (`src/shared-module/exercise-react/react/hooks/useFileUpload`) sends `file-upload` to the host and
-  resolves to a `Map<name, url>`; the answer records only the URLs. The test-utils host emulator
-  auto-answers uploads (`driveFileUpload` + a small committed fixture file). **If your grader
+- **Browser-test layers**: keep tests under `playwright/plugin-contract/` (typed host emulator),
+  `playwright/iframe-boundary/` (sandboxed iframe at a distinct origin),
+  `playwright/system/` (real-host Playground), and `playwright/fixtures/` (committed bytes). The
+  emulator proves the plugin protocol only; it does not prove a real host performs an upload. A
+  required failing layer means verification is incomplete; do not hide it with a skip or an emulator
+  substitute.
+- **File uploads**: plugins never store files or create file IDs. The `useFileUpload(port)` hook
+  (`src/shared-module/exercise-react/react/hooks/useFileUpload`) sends `file-upload` with an ordered
+  `File[]` and a request-only `requestId`, then resolves to host-assigned
+  `{ requestId, id, file, url }` entries. Store the returned ID and URL in the answer; never key
+  uploads by filename or serialize a plugin-minted file ID. The test-utils host emulator can answer
+  uploads (`driveFileUpload` + a small committed fixture file). In plugin-contract and
+  iframe-boundary tests, capture the request before answering and assert the real `File[]` data:
+  request id, ordering (including duplicate filenames), filename, MIME type, byte size, and SHA-256.
+  Reply with distinct host IDs and prove result ordering and ID propagation; cover malformed/missing/
+  extra results and host errors. A system test must inspect the real-host multipart UUID field names,
+  original filenames, and the same bytes; fabricated success is not real-host proof. **If your grader
   downloads those URLs, they are attacker-controlled — an SSRF sink.** Validate the scheme
   (`http(s)` only); resolve the hostname and reject private/loopback/link-local and metadata
   (`169.254.169.254`) addresses, including `::ffff:`-mapped and numeric forms; set
@@ -315,6 +330,12 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   never a silent log) — or the submission hangs `Pending` forever. An in-memory retry queue does not
   survive a restart.
 
+  The host owns the multipart trust boundary: it generates UUID field names after it receives the
+  iframe message, retains browser filenames as metadata, and must enforce configured count and
+  streamed per-file/aggregate byte limits. Empty/non-file/missing-filename/invalid-or-duplicate UUID
+  parts are rejected, and a failed batch removes all stored objects and metadata. Plugin-side limits
+  are only usability checks.
+
 ## Where each concern lives
 
 | Concern                                             | File(s)                                                                                 |
@@ -324,15 +345,19 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 | service-info (path contract), CSV export            | `src/server/serviceInfo.ts`, `src/server/export{Definitions,Answers}.ts`                |
 | The state machine / dispatcher / three views        | `src/components/{IframeView,Renderer,ExerciseEditor,AnswerExercise,ViewSubmission}.tsx` |
 | Generic host↔plugin envelopes (do not edit)         | `src/shared-module/exercise-protocol/...`                                               |
-| Protocol e2e (typed host emulator)                  | `e2e/protocol.spec.ts`                                                                  |
+| Plugin protocol contract (typed host emulator)      | `playwright/plugin-contract/`                                                           |
+| Sandboxed distinct-origin iframe boundary            | `playwright/iframe-boundary/`                                                           |
+| Real-host Playground system coverage                 | `playwright/system/`                                                                    |
+| Browser fixture bytes                                | `playwright/fixtures/`                                                                  |
 
 ## When you change the data model
 
 Before writing editor UI, be able to answer: (1) the **versioned** private-spec type and where
 `version` lives; (2) what the two projections drop, checked against the derivable-answer leaks, built
 by explicit pick; (3) every field classified by visibility, surviving peer-review-on and exam mode;
-(4) `feedback_json` safe assuming retries remain; (5) ids minted in the editor; (6) derivation pure &
-deterministic; (7) answer gradeable from private spec alone, versioned, safe to show a peer reviewer;
+(4) `feedback_json` safe assuming retries remain; (5) domain ids minted in the editor and upload IDs
+minted only by the host; (6) derivation pure & deterministic; (7) answer gradeable from private
+spec alone, versioned, safe to show a peer reviewer;
 (8) the single `validate()` and its invariants; (9) sync vs async grading + partial-credit policy;
 (10) all four doors migrate old versions through one chain where a new version is a one-line
 registry addition; (11) every editor control that affects the saved result writes to a spec field

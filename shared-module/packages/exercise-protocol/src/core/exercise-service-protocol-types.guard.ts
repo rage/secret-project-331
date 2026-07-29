@@ -2,7 +2,7 @@
  * Generated type guards for "exercise-service-protocol-types.ts".
  * WARNING: Do not manually change this file.
  */
-import type { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, FileUploadMessage, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, OpenDialogMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, DialogResponseMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
+import type { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, FileUploadMessage, FileUploadResultEntry, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, OpenDialogMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, DialogResponseMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
 
 export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
     const typedObj = obj as MessageFromIframe
@@ -61,10 +61,22 @@ export function isFileUploadMessage(obj: unknown): obj is FileUploadMessage {
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
         typedObj["message"] === "file-upload" &&
-        (typeof typedObj["requestId"] === "undefined" ||
-            typedObj["requestId"] === null ||
-            typeof typedObj["requestId"] === "string") &&
-        typedObj["files"] instanceof Map
+        typeof typedObj["requestId"] === "string" &&
+        Array.isArray(typedObj["files"]) &&
+        typedObj["files"].every((e: any) =>
+            e instanceof File
+        )
+    )
+}
+
+export function isFileUploadResultEntry(obj: unknown): obj is FileUploadResultEntry {
+    const typedObj = obj as FileUploadResultEntry
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typeof typedObj["id"] === "string" &&
+        typeof typedObj["url"] === "string"
     )
 }
 
@@ -140,21 +152,20 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
             typedObj["message"] === "upload-result" &&
-            (typeof typedObj["requestId"] === "undefined" ||
-                typedObj["requestId"] === null ||
-                typeof typedObj["requestId"] === "string") &&
+            typeof typedObj["requestId"] === "string" &&
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
             typedObj["success"] === true &&
-            typedObj["urls"] instanceof Map ||
+            Array.isArray(typedObj["files"]) &&
+            typedObj["files"].every((e: any) =>
+                isFileUploadResultEntry(e) as boolean
+            ) ||
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
             typedObj["message"] === "upload-result" &&
-            (typeof typedObj["requestId"] === "undefined" ||
-                typedObj["requestId"] === null ||
-                typeof typedObj["requestId"] === "string") &&
+            typeof typedObj["requestId"] === "string" &&
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
@@ -210,21 +221,20 @@ export function isUploadResultMessage(obj: unknown): obj is UploadResultMessage 
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
             typedObj["message"] === "upload-result" &&
-            (typeof typedObj["requestId"] === "undefined" ||
-                typedObj["requestId"] === null ||
-                typeof typedObj["requestId"] === "string") &&
+            typeof typedObj["requestId"] === "string" &&
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
             typedObj["success"] === true &&
-            typedObj["urls"] instanceof Map ||
+            Array.isArray(typedObj["files"]) &&
+            typedObj["files"].every((e: any) =>
+                isFileUploadResultEntry(e) as boolean
+            ) ||
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
             typedObj["message"] === "upload-result" &&
-            (typeof typedObj["requestId"] === "undefined" ||
-                typedObj["requestId"] === null ||
-                typeof typedObj["requestId"] === "string") &&
+            typeof typedObj["requestId"] === "string" &&
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&

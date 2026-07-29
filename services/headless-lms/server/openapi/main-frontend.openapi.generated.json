@@ -17,7 +17,7 @@
     "/api/v0/files/{exercise_service_slug}": {
       "post": {
         "tags": ["files"],
-        "summary": "\nPOST `/api/v0/files/:exercise_service_slug`\nUsed to upload data from exercise service iframes.\n\n# Returns\nThe randomly generated paths to each uploaded file in a `file_name => file_path` hash map.",
+        "summary": "\nPOST `/api/v0/files/:exercise_service_slug`\nUsed to upload data from exercise service iframes.\n\n# Returns\nAn ordered list of host-assigned file ids and stored URLs.",
         "operationId": "uploadFilesFromExerciseService",
         "parameters": [
           {
@@ -34,7 +34,14 @@
           "content": {
             "multipart/form-data": {
               "schema": {
-                "type": "string"
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "format": "binary"
+                },
+                "propertyNames": {
+                  "type": "string"
+                }
               }
             }
           },
@@ -46,12 +53,9 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "propertyNames": {
-                    "type": "string"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseServiceUploadResultEntry"
                   }
                 }
               }
@@ -15014,6 +15018,18 @@
           }
         }
       },
+      "ExerciseServiceUploadResultEntry": {
+        "type": "object",
+        "required": ["id", "url"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
       "ExerciseServiceWithError": {
         "type": "object",
         "required": ["exercise_service"],
@@ -16100,7 +16116,7 @@
             "properties": {
               "can_hide": {
                 "type": "boolean",
-                "description": "Whether the course can be hidden from the \"My courses\" list. Only courses the user has\nenrolled in (and thus have user course settings) can be hidden."
+                "description": "Whether the course can be hidden from the \"My courses\" list. False for courses the user has\nnot enrolled in or has a role in."
               }
             }
           }

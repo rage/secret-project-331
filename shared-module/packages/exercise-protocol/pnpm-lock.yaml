@@ -16,6 +16,9 @@ importers:
       '@arethetypeswrong/cli':
         specifier: 0.18.5
         version: 0.18.5
+      '@playwright/test':
+        specifier: 1.61.1
+        version: 1.61.1
       '@types/node':
         specifier: ^26.0.1
         version: 26.1.0
@@ -79,6 +82,11 @@ packages:
 
   '@oxc-project/types@0.139.0':
     resolution: {integrity: sha512-r9gHphtCs+1M7J0pw6Sn/hh/Wpa/iQrOOkrNAlVLF/gHq+/CJmHIWKKUUhdWjcD6CIa8idarspCsASiXCXvFUw==}
+
+  '@playwright/test@1.61.1':
+    resolution: {integrity: sha512-8nKv6+0RJSL9FE4jYOEGXnPeM/Hg12qZpmqzZjRh3qM0Y7c3z1mrOTfFLids72RDQYVh9WpLEfR5WdpNX4fkig==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   '@publint/pack@0.1.5':
     resolution: {integrity: sha512-edgyN2pP07uXiP4tJs0s8KVmU8M8i60YPbbI0/WDeok1mIJHRXz+CgD8I0nelwDkoCh3EWL/G5kGfbuHjsdbvw==}
@@ -599,6 +607,11 @@ packages:
       '@75lb/nature':
         optional: true
 
+  fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+
   get-caller-file@2.0.5:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
     engines: {node: 6.* || 8.* || >= 10.*}
@@ -812,6 +825,16 @@ packages:
   picomatch@4.0.5:
     resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
     engines: {node: '>=12'}
+
+  playwright-core@1.61.1:
+    resolution: {integrity: sha512-h7Qlt6m4REp25qvIdvbDtVmD4LqVXfpRxhORv9L0jzETM05p4fuPJ3dKyuSXQxDSbXnmS79HAgi9589lGSpLkg==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.61.1:
+    resolution: {integrity: sha512-DWnY5o3YbLWK4GovuAVwpqL+1VwGNdUGrRr++8j8PtQQzvAVZUIMjKQ90fY689sEJZJBbZVw1rXaOKSTitkzPQ==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   publint@0.3.21:
     resolution: {integrity: sha512-OqejcnMV6E9zel2oCrUOJEiiFkGiAAni0A6ibfQNh1k9Gu5z4F+Yso8lllam7AzmV6Do0vp7u3UpZNRBwuXaHQ==}
@@ -1083,6 +1106,10 @@ snapshots:
     optional: true
 
   '@oxc-project/types@0.139.0': {}
+
+  '@playwright/test@1.61.1':
+    dependencies:
+      playwright: 1.61.1
 
   '@publint/pack@0.1.5':
     dependencies:
@@ -1404,6 +1431,9 @@ snapshots:
 
   find-replace@5.0.2: {}
 
+  fsevents@2.3.2:
+    optional: true
+
   get-caller-file@2.0.5: {}
 
   get-tsconfig@5.0.0-beta.5:
@@ -1479,6 +1509,14 @@ snapshots:
   picomatch@4.0.4: {}
 
   picomatch@4.0.5: {}
+
+  playwright-core@1.61.1: {}
+
+  playwright@1.61.1:
+    dependencies:
+      playwright-core: 1.61.1
+    optionalDependencies:
+      fsevents: 2.3.2
 
   publint@0.3.21:
     dependencies:
@@ -1739,6 +1777,7 @@ snapshots:
 
 time:
   '@arethetypeswrong/cli@0.18.5': '2026-07-09T22:24:30.256Z'
+  '@playwright/test@1.61.1': '2026-06-23T19:49:12.825Z'
   '@types/node@26.1.0': '2026-07-01T11:04:10.429Z'
   '@typescript/typescript6@6.0.2': '2026-07-06T18:06:47.459Z'
   publint@0.3.21: '2026-05-13T00:28:23.832Z'

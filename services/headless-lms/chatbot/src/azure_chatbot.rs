@@ -1366,21 +1366,21 @@ fn check_error_should_terminate_stream(err: &ChatbotErrorType) -> bool {
     )
 }
 
-async fn clean_up_unfinished_tool_calls(
+async fn answer_unfinished_tool_calls(
     conn: &mut PgConnection,
     conversation_id: Uuid,
 ) -> ChatbotResult<()> {
     trace!(
-        "Cleaning up unfinished tool calls for conversation {}",
+        "Dealing with unfinished tool calls for conversation {}",
         conversation_id
     );
-    let res = headless_lms_models::chatbot_conversation_messages::delete_hanging_tool_call_messages_for_conversation(
+    let res = headless_lms_models::chatbot_conversation_messages::answer_hanging_tool_call_messages_for_conversation(
         conn,
         conversation_id,
     )
     .await
     .map_err(ChatbotError::from)?;
-    trace!("Cleaned {} tool calls", res.len());
+    trace!("Answered {} hanging tool calls", res.len());
     Ok(())
 }
 
@@ -1502,7 +1502,7 @@ pub async fn send_chat_request_and_parse_stream(
                         error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.lock().await, e);
                         should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
-                            if let Err(e2) = clean_up_unfinished_tool_calls(&mut conn, conversation_id).await {
+                            if let Err(e2) = answer_unfinished_tool_calls(&mut conn, conversation_id).await {
                                 error!("Error in chatbot streaming and couldn't clean up tool calls: {e2}. Response id: {}", response_id.lock().await);
                             };
                             return Err(e)?;
@@ -1585,7 +1585,7 @@ pub async fn send_chat_request_and_parse_stream(
                         };
                         should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
-                            if let Err(e2) = clean_up_unfinished_tool_calls(&mut conn, conversation_id).await {
+                            if let Err(e2) = answer_unfinished_tool_calls(&mut conn, conversation_id).await {
                                 error!("Error in chatbot streaming and couldn't clean up tool calls: {e2}. Response id: {}", response_id.to_string());
                             };
                             return Err(e)?;
@@ -1642,7 +1642,7 @@ pub async fn send_chat_request_and_parse_stream(
                 }
             }
         }
-        if should_clean_tool_calls { clean_up_unfinished_tool_calls(&mut conn, conversation_id).await?;}
+        if should_clean_tool_calls { answer_unfinished_tool_calls(&mut conn, conversation_id).await?;}
 
         if !done.load(atomic::Ordering::Relaxed) {
             let id = response_id.lock().await;

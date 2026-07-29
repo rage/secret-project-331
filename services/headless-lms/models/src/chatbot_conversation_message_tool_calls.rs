@@ -180,15 +180,25 @@ RETURNING
 /// a tool call has been made but not answered. This happens with provider tools that we
 /// can't control. In this case, the conversation is left in a state which is invalid,
 /// so we need to delete the un-answered tool call(s).
-pub async fn delete_hanging_tool_calls_for_conversation(
+pub async fn get_hanging_tool_calls_for_conversation(
     conn: &mut PgConnection,
     conversation_id: Uuid,
 ) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolCall,
         r#"
-UPDATE chatbot_conversation_message_tool_calls AS ccmtc
-SET deleted_at = NOW()
+SELECT
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    chatbot_conversation_message_id,
+    tool_name,
+    tool_arguments,
+    tool_call_id,
+    tool_kind as "tool_kind: ToolKind",
+    response_id
+FROM chatbot_conversation_message_tool_calls AS ccmtc
 WHERE ccmtc.chatbot_conversation_message_id IN (
     SELECT id
     FROM chatbot_conversation_messages
@@ -202,16 +212,6 @@ WHERE ccmtc.chatbot_conversation_message_id IN (
     WHERE tool_call_id = ccmtc.tool_call_id
       AND deleted_at IS NULL
   )
-RETURNING ccmtc.id,
-  ccmtc.created_at,
-  ccmtc.updated_at,
-  ccmtc.deleted_at,
-  ccmtc.chatbot_conversation_message_id,
-  ccmtc.tool_name,
-  ccmtc.tool_arguments,
-  ccmtc.tool_call_id,
-  ccmtc.tool_kind AS "tool_kind: ToolKind",
-  ccmtc.response_id
         "#,
         conversation_id
     )

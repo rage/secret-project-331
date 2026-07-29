@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_conversation_message_tool_calls AS ccmtc\nSET deleted_at = NOW()\nWHERE ccmtc.chatbot_conversation_message_id IN (\n    SELECT id\n    FROM chatbot_conversation_messages\n    WHERE conversation_id = $1\n      AND deleted_at IS NULL\n  )\n  AND ccmtc.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT id\n    FROM chatbot_conversation_message_tool_outputs\n    WHERE tool_call_id = ccmtc.tool_call_id\n      AND deleted_at IS NULL\n  )\nRETURNING ccmtc.id,\n  ccmtc.created_at,\n  ccmtc.updated_at,\n  ccmtc.deleted_at,\n  ccmtc.chatbot_conversation_message_id,\n  ccmtc.tool_name,\n  ccmtc.tool_arguments,\n  ccmtc.tool_call_id,\n  ccmtc.tool_kind AS \"tool_kind: ToolKind\",\n  ccmtc.response_id\n        ",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    tool_name,\n    tool_arguments,\n    tool_call_id,\n    tool_kind as \"tool_kind: ToolKind\",\n    response_id\nFROM chatbot_conversation_message_tool_calls AS ccmtc\nWHERE ccmtc.chatbot_conversation_message_id IN (\n    SELECT id\n    FROM chatbot_conversation_messages\n    WHERE conversation_id = $1\n      AND deleted_at IS NULL\n  )\n  AND ccmtc.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT id\n    FROM chatbot_conversation_message_tool_outputs\n    WHERE tool_call_id = ccmtc.tool_call_id\n      AND deleted_at IS NULL\n  )\n        ",
   "describe": {
     "columns": [
       {
@@ -142,5 +142,5 @@
       false
     ]
   },
-  "hash": "b0f6864029116bd5220c1bc26ae5ccac299c4aa17b18b0670ad1286904a6861d"
+  "hash": "3d795fec0342c0f45415ca43c062ee2e71f4885fcddca19a8e83c819b7dd31fa"
 }

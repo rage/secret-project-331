@@ -255,42 +255,40 @@ RETURNING *
 }
 
 /// Sometimes during chatbot conversation streaming, the stream ends unexpectedly while
-/// a tool call has been made but not answered. This happens with provider tools that we
-/// can't control. In this case, the conversation is left in a state which is invalid,
-/// so we need to delete the messages with un-answered tool calls.
-pub async fn delete_hanging_tool_call_messages_for_conversation(
+/// a tool call has been made but not answered. This happens also with provider tools that
+/// we can't control. In this case, the conversation is left in a state which is invalid,
+/// so we need to anser the un-answered tool calls to inform of the failure and continue
+/// the conversation.
+pub async fn answer_hanging_tool_call_messages_for_conversation(
     conn: &mut PgConnection,
     conversation_id: Uuid,
-) -> ModelResult<Vec<ChatbotConversationMessageRow>> {
+) -> ModelResult<Vec<ChatbotConversationMessage>> {
     let mut tx = conn.begin().await?;
     let mut res = vec![];
 
-    let deleted_children =
-        chatbot_conversation_message_tool_calls::delete_hanging_tool_calls_for_conversation(
+    let hanging_children =
+        chatbot_conversation_message_tool_calls::get_hanging_tool_calls_for_conversation(
             &mut tx,
             conversation_id,
         )
         .await?;
 
-    if !deleted_children.is_empty() {
-        let ids: Vec<Uuid> = deleted_children
-            .iter()
-            .map(|x| x.chatbot_conversation_message_id)
-            .collect();
-        let deleted = sqlx::query_as!(
-            ChatbotConversationMessageRow,
-            r#"
-UPDATE chatbot_conversation_messages
-SET deleted_at = NOW()
-WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
-  AND deleted_at IS NULL
-RETURNING *
-        "#,
-            &ids
-        )
-        .fetch_all(&mut *tx)
-        .await?;
-        res = deleted
+    if !hanging_children.is_empty() {
+        for tool_call in hanging_children.into_iter() {
+            let tool_output = ChatbotConversationMessage {
+                conversation_id,
+                message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
+                    output: "Unexpected error encountered, tool call aborted.".to_string(),
+                    tool_call_id: tool_call.tool_call_id,
+                    tool_kind: tool_call.tool_kind,
+                    response_id: tool_call.response_id,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            };
+            let inserted = insert(&mut tx, tool_output).await?;
+            res.push(inserted);
+        }
     }
     tx.commit().await?;
     Ok(res)

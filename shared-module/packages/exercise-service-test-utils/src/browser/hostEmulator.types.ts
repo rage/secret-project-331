@@ -8,11 +8,28 @@ export interface RecordedMessage {
   [key: string]: unknown
 }
 
-/** Payload for `sendUploadResult`: either the stored URLs, or an error. */
+/** Payload for `sendUploadResult`: ordered host-assigned files, or an error. */
 export interface UploadResultInput {
-  /** name -> stored URL. A plain object is accepted and converted to the `Map` the protocol wants. */
-  urls?: Map<string, string> | Record<string, string>
+  files?: { id: string; url: string }[]
   error?: string
+}
+
+/** A serialization-safe description of one value in a `file-upload` payload. */
+export interface FileUploadEntrySnapshot {
+  key: string
+  kind: "file" | "blob" | "string" | "unsupported"
+  name: string | null
+  type: string | null
+  size: number | null
+  lastModified: number | null
+  sha256: string | null
+}
+
+/** A browser-realm snapshot of a `file-upload`, including the bytes of every Blob/File. */
+export interface FileUploadSnapshot {
+  requestId: string | null
+  filesKind: "array" | "plain-object" | "map" | "missing" | "other"
+  entries: FileUploadEntrySnapshot[]
 }
 
 export interface HostEmulatorOptions {
@@ -43,7 +60,7 @@ export interface HostApi {
   /** Tell the iframe the UI language (BCP 47 code). */
   setLanguage: (language: string) => void
   /** Reply to a `file-upload` (use with `autoUpload: false`), echoing its `requestId`. */
-  sendUploadResult: (requestId: string | null, result: UploadResultInput) => void
+  sendUploadResult: (requestId: string, result: UploadResultInput) => void
   /** Reply to an `open-dialog` (use with `autoDialog: false`), echoing its `requestId`. */
   respondToDialog: (requestId: string, confirmed: boolean) => void
   /** Answer a `request-repository-exercises` (TMC-style plugins). */
@@ -60,7 +77,16 @@ export interface HostApi {
     predicate?: (message: RecordedMessage) => boolean,
     timeoutMs?: number,
   ) => Promise<RecordedMessage>
-  /** Clear the recorded history. */
+  /** Serialization-safe snapshots of completed `file-upload` messages, in receive order. */
+  fileUploads: () => FileUploadSnapshot[]
+  /** Number of `file-upload` messages received, including snapshots whose hash is still pending. */
+  fileUploadCount: () => number
+  /** Resolve with a matching completed upload snapshot, else reject on timeout. */
+  waitForFileUpload: (
+    predicate?: (upload: FileUploadSnapshot) => boolean,
+    timeoutMs?: number,
+  ) => Promise<FileUploadSnapshot>
+  /** Clear the recorded history and upload snapshots. */
   reset: () => void
 }
 

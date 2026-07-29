@@ -1,6 +1,6 @@
 {
   "name": "@moocfi/exercise-protocol",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "The moocfi exercise-service contract: parent<->iframe postMessage protocol types, runtime guards, and shared constants. Zero dependencies, framework-agnostic.",
   "keywords": [
     "exercise-service",
@@ -40,10 +40,16 @@
   },
   "scripts": {
     "build": "tsdown",
-    "generate-guards": "pnpm exec ts-auto-guard --export-all --paths src/core/exercise-service-protocol-types.ts --project tsconfig.guards.json && sed -i -E 's/^import \\{/import type {/' src/core/exercise-service-protocol-types.guard.ts"
+    "generate-guards": "pnpm exec ts-auto-guard --export-all --paths src/core/exercise-service-protocol-types.ts --project tsconfig.guards.json && sed -i -E 's/^import \\{/import type {/' src/core/exercise-service-protocol-types.guard.ts",
+    "test:playwright": "playwright test",
+    "test:playwright:plugin-contract": "playwright test playwright/plugin-contract",
+    "test:playwright:iframe-boundary": "playwright test playwright/iframe-boundary",
+    "test:playwright:debug": "playwright test --debug",
+    "verify": "pnpm run build && pnpm run test:playwright"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
+    "@playwright/test": "1.61.1",
     "@types/node": "^26.0.1",
     "@typescript/native": "npm:typescript@^7.0.2",
     "publint": "0.3.21",

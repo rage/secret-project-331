@@ -7,7 +7,7 @@ import type { PublicSpec } from "@/util/stateInterfaces"
 
 interface Props {
   publicSpec: PublicSpec
-  sendFileUploadMessage: (filename: string, file: File) => void
+  sendFileUploadMessage: (file: File) => void
   fileUploadResponse: UploadResultMessage | null
 }
 
@@ -55,8 +55,7 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
           disabled={fileToUpload === null}
           onClick={() => {
             if (fileToUpload) {
-              // oxlint-disable-next-line i18next/no-literal-string
-              sendFileUploadMessage(`submission-${publicSpec.archive_name}`, fileToUpload)
+              sendFileUploadMessage(fileToUpload)
             }
           }}
         >

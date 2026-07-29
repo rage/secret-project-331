@@ -3,13 +3,11 @@
 import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import { uploadFilesFromExerciseService } from "@/generated/api/sdk.generated"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import ThrottledChildRenderer, {
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
-import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
@@ -21,7 +19,7 @@ import {
   EXERCISE_IFRAME_QUEUE_CONFIG,
   EXERCISE_IFRAME_QUEUE_ID,
 } from "@/stores/course-material/throttledRendererStore"
-import { validateGeneratedData } from "@/utils/validateGeneratedData"
+import { uploadFilesFromExerciseIframe } from "@/utils/uploadFilesFromExerciseIframe"
 
 interface ExerciseTaskIframeProps {
   exerciseTaskId: string
@@ -37,27 +35,9 @@ interface ExerciseTaskIframeProps {
 
 /**
  * Upload files on the iframe's behalf (plugins never store data themselves) and return the stored
- * name -> URL map. Mirrors the playground's upload path; a logged-in student is authorized to upload
- * to the exercise service's slug.
+ * ordered host-assigned id/URL entries. A logged-in student is authorized to upload to the exercise
+ * service's slug.
  */
-const uploadFilesForExerciseService = async (
-  exerciseServiceSlug: string,
-  files: Map<string, string | Blob>,
-): Promise<Map<string, string>> => {
-  const form = new FormData()
-  files.forEach((value, key) => {
-    form.append(key, value)
-  })
-  const response = await uploadFilesFromExerciseService({
-    body: form as unknown as string,
-    path: {
-      exercise_service_slug: exerciseServiceSlug,
-    },
-  })
-  const validated = validateGeneratedData(response, isObjectMap(isString))
-  return new Map(Object.entries(validated))
-}
-
 const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframeProps>> = ({
   exerciseTaskId,
   exerciseServiceSlug,
@@ -84,22 +64,22 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       } else if (messageContainer.message === "file-upload") {
         let response: MessageToIframe
         try {
-          const urls = await uploadFilesForExerciseService(
+          const files = await uploadFilesFromExerciseIframe(
             exerciseServiceSlug,
             messageContainer.files,
           )
           response = {
             // oxlint-disable-next-line i18next/no-literal-string
             message: "upload-result",
-            requestId: messageContainer.requestId ?? null,
+            requestId: messageContainer.requestId,
             success: true,
-            urls,
+            files,
           }
         } catch (e) {
           response = {
             // oxlint-disable-next-line i18next/no-literal-string
             message: "upload-result",
-            requestId: messageContainer.requestId ?? null,
+            requestId: messageContainer.requestId,
             success: false,
             error: e instanceof Error ? e.message : String(e),
           }

@@ -234,15 +234,17 @@ Three host behaviors worth internalizing:
    boundary so every render site is safe by construction. The answer is attacker-controlled, and
    peer reviewers render it.
 
-### 4. Mint IDs at authoring time; keep derivation deterministic
+### 4. Mint domain IDs at authoring time; keep derivation deterministic
 
 The answer references the public spec by id (`{selectedOptionId}`), and grading matches those ids
 against the **private** spec. Two rules keep this correspondence intact:
 
-- **IDs are minted in the editor** (example-exercise: `generateUuid()` when the teacher adds an
-  option, `ExerciseEditor.tsx`) and flow _through_ the derivations unchanged. Never mint ids inside
-  the public-spec/model-solution generators — every re-save would produce fresh ids, silently
-  orphaning all previously stored answers (view-submission stops matching; regrading breaks).
+- **Domain IDs are minted in the editor** (example-exercise: `generateUuid()` when the teacher adds
+  an option, `ExerciseEditor.tsx`) and flow _through_ the derivations unchanged. Never mint domain
+  ids inside the public-spec/model-solution generators — every re-save would produce fresh ids,
+  silently orphaning all previously stored answers (view-submission stops matching; regrading
+  breaks). This rule is about authored domain entities, not uploaded files: the host creates opaque
+  upload IDs after it receives the iframe's files.
 - **Derivation is deterministic** — a re-save of an unchanged private spec should produce an
   equivalent public spec. If you shuffle options for anti-cheating, either shuffle in the _view_
   (per render) or derive the order from a seed stored in the private spec — never `Math.random()`
@@ -279,6 +281,24 @@ The answer is stored per-submission forever and is the input to grading and to v
   `value.version` and stamps the current version onto whatever arrives silently *relabels* future
   blobs instead of migrating them. Old answers replay through grading during regrades and through
   view-submission forever.
+
+#### File uploads: the host owns file identity and storage
+
+An upload is not an authored domain entity. The iframe calls `uploadFiles(files: readonly File[])`;
+it sends only the ordered browser `File[]` plus a `requestId` that correlates a single request/reply
+pair. It must never generate, validate, or include a per-file ID. After receiving the message, the
+host creates an opaque UUID for every file, uploads a UUID-keyed multipart batch while retaining the
+original browser filename as metadata, and returns ordered `{ id, url }[]` entries. Position is the
+association: the client checks the result count, pairs entry *n* to file *n*, and exposes
+`{ requestId, id, file, url }`. Store the returned host ID and URL in the answer when the exercise
+needs to refer to the upload; do not use a filename as a key because filenames can repeat.
+
+The host/backend owns the untrusted multipart boundary. It must reject empty bodies, non-file parts,
+missing filenames, invalid or duplicate UUID field names, more than the configured file count, and
+files or complete batches over configured limits. Enforce per-file and aggregate limits from bytes
+actually streamed, not claimed metadata. Preserve all-or-nothing semantics: if any validation,
+storage, or response-construction step fails, remove every stored object and its metadata for the
+batch. The iframe's type/count/size checks are usability feedback, not a security boundary.
 
 ### 7. Represent drafts: the `valid` flag is your validity model, parsing is not
 
@@ -545,13 +565,35 @@ surfaces "verified"/"fully verified" on a green `tsc`/vitest/playwright run alon
 - **Every wire-framing adapter gets its own test** — a byte scanner, an HTTP client: the framing is
   where the silent bugs hide.
 
-### 8. Manual/E2E layer
+### 8. Browser integration layers — do not collapse their evidence
 
-The **Playground** (`courses.mooc.fi/playground-tabs`) exercises the full
-edit → derive → answer → grade → view-submission loop against your running service — use it during
-development and before releases; it surfaces protocol mistakes (height, valid-flag, view switching)
-that unit tests structurally can't. In-monorepo plugins are additionally covered by the Playwright
-`system-tests` suite once seeded into a course.
+Keep every browser spec under `playwright/`, with four fixed directories:
+
+```text
+playwright/
+  plugin-contract/   # typed host emulator; plugin behaviour and protocol shape
+  iframe-boundary/   # sandboxed, distinct-origin iframe transport
+  system/            # real host (normally courses.mooc.fi Playground)
+  fixtures/          # committed files whose bytes are asserted
+```
+
+- **Plugin contract** tests prove the plugin sends and receives the correct messages. The emulator
+  may deliberately supply an upload result, but that is not proof that the host created a multipart
+  request or transferred any bytes.
+- **Iframe boundary** tests prove the same critical flow across the actual sandboxed, distinct-origin
+  iframe boundary. Run them in every configured browser; for uploads, assert exact fixture bytes and
+  SHA-256 as well as request id, order, duplicate filenames, MIME type, and size before replying
+  with distinct host IDs. Then prove those IDs and the request ID are recorded in the answer.
+- **System** tests use the real **Playground** (`courses.mooc.fi/playground-tabs`) with only the
+  local plugin running. Intercept and inspect the real host multipart request: UUID field name,
+  original filename, MIME type, exact bytes, and digest. Then prove the returned host ID and URL,
+  emitted `current-state`, and view-submission rendering when the host supports it. Do not persist a
+  course as part of this test.
+
+A required failing browser layer means verification is incomplete. Keep a known real-host regression
+as an active, ordinary failing test until the host is fixed; do not hide it with `skip`, `fixme`,
+`test.fail`, a fabricated host success, or a claim that the emulator verified the integration.
+`drive-view.mjs` is exploratory/manual assistance only, never verification evidence.
 
 ### The test-suite shape, summarized
 
@@ -561,6 +603,12 @@ tests/
     utils/        # 2: privateSpecGenerator (current) + old*Generator (frozen, per version)
   migration/      # 3: one suite per stored type (private, public, model-solution, answer)
   components/     # 7: editor/answer/submission — assert emitted current-state {data, valid}
+
+playwright/
+  plugin-contract/   # emulator-driven browser contracts
+  iframe-boundary/   # sandboxed distinct-origin browser contracts
+  system/            # real-host Playground coverage
+  fixtures/          # byte-stable upload fixtures
 ```
 
 ---
@@ -600,7 +648,8 @@ Before writing the editor UI, be able to answer:
    (feedback withheld, public spec still shipped)?
 4. Is `feedback_json` safe assuming retries remain (the grader can't see the attempt count), with
    full reveals living in `model_solution_spec` instead?
-5. Where are ids minted? (Must be: the editor.)
+5. Where are domain ids minted? (Must be: the editor.) If the exercise uploads files, does the
+   iframe send only ordered `File[]`, with host-assigned upload IDs returned in matching order?
 6. Is derivation pure and deterministic? Where does randomization live, if any?
 7. Can the answer + private spec alone produce a grade? Is the answer versioned? Does it contain
    nothing you wouldn't show a peer reviewer?

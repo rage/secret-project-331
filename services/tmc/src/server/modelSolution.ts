@@ -1,12 +1,9 @@
-import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
 
-import FormData from "form-data"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { compressProject, extractProject, prepareSolution } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
@@ -16,6 +13,7 @@ import type { ModelSolutionSpec } from "@/util/stateInterfaces"
 
 import type { ParsedSpecRequest } from "./requestSchemas"
 import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
+import { uploadArchiveAndGetUrl } from "./uploadArchive"
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown
@@ -118,30 +116,11 @@ const uploadModelSolution = async (
 
   const archiveName = exercise.part + "/" + exercise.name + "-solution.tar.zst"
   debug("uploading solution", "archiveName:", archiveName)
-  const form = new FormData()
-  form.append(archiveName, nodeFs.createReadStream(solutionArchive))
-  const headers: Record<string, string> = {}
-  if (uploadClaim) {
-    headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
-  }
-  const res = await fetch(uploadUrl, {
-    method: "POST",
-    headers: { ...headers, ...form.getHeaders() },
-    body: form as unknown as Exclude<RequestInit["body"], undefined>,
+  const solutionDownloadUrl = await uploadArchiveAndGetUrl({
+    archivePath: solutionArchive,
+    archiveName,
+    uploadUrl,
+    uploadClaim,
   })
-  if (!res.ok) {
-    throw new Error(`Upload failed: ${res.status} ${res.statusText}`)
-  }
-  const resData: unknown = await res.json()
-  if (
-    isObjectMap(isString)(resData) &&
-    Object.prototype.hasOwnProperty.call(resData, archiveName) &&
-    typeof resData[archiveName] === "string"
-  ) {
-    const solutionDownloadUrl = resData[archiveName]
-    return { spec: { solution_download_url: solutionDownloadUrl }, paths: [solutionArchive] }
-  }
-  throw new Error(
-    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(resData)}`,
-  )
+  return { spec: { solution_download_url: solutionDownloadUrl }, paths: [solutionArchive] }
 }

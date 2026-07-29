@@ -1503,7 +1503,7 @@ pub async fn send_chat_request_and_parse_stream(
                         should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
                             if let Err(e2) = answer_unfinished_tool_calls(&mut conn, conversation_id).await {
-                                error!("Error in chatbot streaming and couldn't clean up tool calls: {e2}. Response id: {}", response_id.lock().await);
+                                error!("Error in chatbot streaming and couldn't answer unfinished tool calls: {e2}. Response id: {}", response_id.lock().await);
                             };
                             return Err(e)?;
                         };
@@ -1586,7 +1586,7 @@ pub async fn send_chat_request_and_parse_stream(
                         should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
                             if let Err(e2) = answer_unfinished_tool_calls(&mut conn, conversation_id).await {
-                                error!("Error in chatbot streaming and couldn't clean up tool calls: {e2}. Response id: {}", response_id.to_string());
+                                error!("Error in chatbot streaming and couldn't answer unfinished tool calls: {e2}. Response id: {}", response_id.to_string());
                             };
                             return Err(e)?;
                         };

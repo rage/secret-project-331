@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_conversation_message_tool_calls (\n    chatbot_conversation_message_id,\n    tool_name,\n    tool_arguments,\n    tool_call_id,\n    tool_kind,\n    response_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    tool_name,\n    tool_arguments,\n    tool_call_id,\n    tool_kind as \"tool_kind: ToolKind\",\n    response_id\n        ",
+  "query": "\nUPDATE chatbot_conversation_message_tool_calls\nSET deleted_at = NOW()\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -16,39 +16,6 @@
       },
       {
         "ordinal": 1,
-        "name": "created_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
-            "name": "created_at"
-          }
-        }
-      },
-      {
-        "ordinal": 2,
-        "name": "updated_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
-            "name": "updated_at"
-          }
-        }
-      },
-      {
-        "ordinal": 3,
-        "name": "deleted_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
-            "name": "deleted_at"
-          }
-        }
-      },
-      {
-        "ordinal": 4,
         "name": "chatbot_conversation_message_id",
         "type_info": "Uuid",
         "origin": {
@@ -59,7 +26,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 2,
         "name": "tool_name",
         "type_info": "Varchar",
         "origin": {
@@ -70,7 +37,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 3,
         "name": "tool_arguments",
         "type_info": "Jsonb",
         "origin": {
@@ -81,7 +48,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 4,
         "name": "tool_call_id",
         "type_info": "Varchar",
         "origin": {
@@ -92,8 +59,41 @@
         }
       },
       {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
         "ordinal": 8,
-        "name": "tool_kind: ToolKind",
+        "name": "tool_kind",
         "type_info": {
           "Custom": {
             "name": "tool_kind",
@@ -126,36 +126,21 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Varchar",
-        "Jsonb",
-        "Varchar",
-        {
-          "Custom": {
-            "name": "tool_kind",
-            "kind": {
-              "Enum": [
-                "function",
-                "azure-ai-search"
-              ]
-            }
-          }
-        },
-        "Text"
+        "Uuid"
       ]
     },
     "nullable": [
       false,
       false,
       false,
+      false,
+      false,
+      false,
+      false,
       true,
-      false,
-      false,
-      false,
-      false,
       false,
       false
     ]
   },
-  "hash": "03c13a775213dbcbe544d076866d9a8980faf10d59b26746ade3048100a01672"
+  "hash": "4350bd969496e69270918b6ab5aa174d6cfc3ecad432c09972ea0f4c2e0de929"
 }

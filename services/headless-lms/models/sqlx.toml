@@ -31,6 +31,7 @@
 'user_points_update_strategy' = "crate::exercise_task_gradings::UserPointsUpdateStrategy"
 'user_role' = "crate::roles::UserRole"
 'verbosity_level' = "crate::chatbot_configurations::VerbosityLevel"
+'tool_kind' = "crate::chatbot_conversation_message_tool_calls::ToolKind"
 
 [macros.table-overrides.'email_verification_tokens']
 'email_verification_token' = "crate::secret::DbSecret"

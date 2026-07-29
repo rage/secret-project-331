@@ -46,16 +46,7 @@ INSERT INTO chatbot_conversation_message_tool_outputs (
     response_id
   )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    output,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+RETURNING *
         "#,
         msg_id,
         input.output,
@@ -75,16 +66,7 @@ pub async fn get_by_id(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolOutput,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    output,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+SELECT *
 FROM chatbot_conversation_message_tool_outputs
 WHERE id = $1
   AND deleted_at IS NULL
@@ -103,16 +85,7 @@ pub async fn get_by_message_id(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolOutput,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    output,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+SELECT *
 FROM chatbot_conversation_message_tool_outputs
 WHERE chatbot_conversation_message_id = $1
   AND deleted_at IS NULL
@@ -135,16 +108,7 @@ UPDATE chatbot_conversation_message_tool_outputs
 SET deleted_at = NOW()
 WHERE id = $1
   AND deleted_at IS NULL
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    output,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+RETURNING *
         "#,
         id
     )

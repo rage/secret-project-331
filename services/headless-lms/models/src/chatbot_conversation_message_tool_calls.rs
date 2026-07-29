@@ -64,17 +64,7 @@ INSERT INTO chatbot_conversation_message_tool_calls (
     response_id
   )
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    tool_name,
-    tool_arguments,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+RETURNING *
         "#,
         msg_id,
         input.tool_name,
@@ -95,17 +85,7 @@ pub async fn get_by_id(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolCall,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    tool_name,
-    tool_arguments,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+SELECT *
 FROM chatbot_conversation_message_tool_calls
 WHERE id = $1
   AND deleted_at IS NULL
@@ -124,17 +104,7 @@ pub async fn get_by_message_id(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolCall,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    tool_name,
-    tool_arguments,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+SELECT *
 FROM chatbot_conversation_message_tool_calls
 WHERE chatbot_conversation_message_id = $1
   AND deleted_at IS NULL
@@ -157,17 +127,7 @@ UPDATE chatbot_conversation_message_tool_calls
 SET deleted_at = NOW()
 WHERE id = $1
   AND deleted_at IS NULL
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    tool_name,
-    tool_arguments,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+RETURNING *
         "#,
         id
     )
@@ -187,17 +147,7 @@ pub async fn get_hanging_tool_calls_for_conversation(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolCall,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    tool_name,
-    tool_arguments,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+SELECT *
 FROM chatbot_conversation_message_tool_calls AS ccmtc
 WHERE ccmtc.chatbot_conversation_message_id IN (
     SELECT id

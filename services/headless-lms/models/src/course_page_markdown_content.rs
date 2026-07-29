@@ -43,6 +43,33 @@ RETURNING *
     Ok(res)
 }
 
+pub async fn insert_batch(
+    conn: &mut PgConnection,
+    page_history_id_md_contents: Vec<(Uuid, String)>,
+) -> ModelResult<Vec<CoursePageMarkdownContent>> {
+    let (history_ids, contents): (Vec<Uuid>, Vec<String>) =
+        page_history_id_md_contents.into_iter().unzip();
+    let res = sqlx::query_as!(
+        CoursePageMarkdownContent,
+        r#"
+
+INSERT INTO course_page_markdown_content (markdown_content, page_history_id)
+SELECT data.content, data.page_history_id
+FROM (
+    SELECT unnest($1::text []) AS content,
+      unnest($2::uuid []) AS page_history_id
+  ) AS data
+RETURNING *
+    "#,
+        &contents,
+        &history_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
 pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<CoursePageMarkdownContent> {
     let res = sqlx::query_as!(
         CoursePageMarkdownContent,

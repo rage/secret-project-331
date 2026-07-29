@@ -254,8 +254,8 @@ RETURNING *
     Ok(res)
 }
 
-/// Sometimes during chatbot conversation streaming, the stream ends unexpectedly while
-/// a tool call has been made but not answered. This happens also with provider tools that
+/// Sometimes during chatbot conversation streaming, the stream ends unexpectedly while a
+/// tool call has been made but not answered. This happens also with provider tools that
 /// we can't control. In this case, the conversation is left in a state which is invalid,
 /// so we need to answer the un-answered tool calls to inform of the failure and continue
 /// the conversation.

@@ -368,6 +368,8 @@ async fn sync_pages_batch(
     ));
 
     let mut allowed_file_paths = Vec::new();
+    let mut page_revision_map = HashMap::new();
+    let mut new_markdown_contents_map = HashMap::new();
 
     for page in pages {
         info!("Syncing page id: {}.", page.id);
@@ -451,16 +453,13 @@ async fn sync_pages_batch(
         // if the page hasn't been changed between tries.
         if let Some(history_id) = latest_page_history_id
             && up_to_date_md_content.is_none()
-            && let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
-                conn,
-                &content_as_markdown,
-                page.id,
-                history_id,
-            )
-            .await
         {
-            warn!("Failed to save converted page content in DB: {}", e);
-        };
+            new_markdown_contents_map.insert(
+                page.id,
+                (history_id.to_owned(), content_as_markdown.to_owned()),
+                // is str ok
+            );
+        }
 
         let blob_path = generate_blob_path(page)?;
         let chapter: Option<DatabaseChapter> = if page.chapter_id.is_some() {
@@ -527,30 +526,43 @@ async fn sync_pages_batch(
                 );
             }
         } else if let Some(history_id) = latest_page_history_id {
-            let mut page_revision_map = HashMap::new();
             page_revision_map.insert(page.id, *history_id);
-            if let Err(e) =
-                headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
-                    conn,
-                    page_revision_map,
-                )
-                .await
-            {
-                let error_msg = format!("Sync failed: Status update error: {}", e);
-                warn!("Failed to update sync status for page {}: {:?}", page.id, e);
-                if let Err(db_err) =
-                    headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
-                        conn, page.id, &error_msg,
-                    )
-                    .await
-                {
-                    warn!(
-                        "Failed to record status update error for page {}: {:?}",
-                        page.id, db_err
-                    );
-                }
-            }
         }
+    }
+
+    if let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
+        conn,
+        new_markdown_contents_map,
+    )
+    .await
+    {
+        warn!("Failed to save converted page content in DB: {}", e);
+    };
+
+    // update revision ids for all pages
+    if let Err(e) = headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
+        conn,
+        page_revision_map,
+    )
+    .await
+    {
+        let error_msg = format!("Sync failed: Status update error: {}", e);
+        warn!(
+            "Failed to update sync status fora page in course {}: {:?}",
+            course_id, e
+        );
+        // todo: do we need to set page sync errors?
+
+        /*         if let Err(db_err) = headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
+            conn, page.id, &error_msg,
+        )
+        .await
+        {
+            warn!(
+                "Failed to record status update error for page {}: {:?}",
+                page.id, db_err
+            );
+        } */
     }
 
     Ok(())

@@ -116,15 +116,14 @@ pub struct ExerciseSlideSubmissionInfo {
 }
 
 impl ExerciseSlideSubmissionInfo {
-    /// Redacts fields that must never reach a holder of a share token, who has no
-    /// teacher or course role. Unlike the role-gated paths, the shared view ALWAYS hides:
+    /// Redacts fields that must never reach a holder of a share token, who has no teacher or
+    /// course role. Unlike the role-gated paths, the shared view always hides:
     ///
-    /// - every task's model solution spec, unconditionally — otherwise "submit → share →
-    ///   open my own link" is the cheapest path to a solution before earning it. (The
-    ///   course-material path instead reveals it once the student has full points or is
-    ///   out of tries.)
-    /// - the submitter's internal `user_id`, nulled rather than removed so the wire shape
-    ///   stays the same for other consumers of this type.
+    /// - every task's model solution spec, regardless of grading state — otherwise
+    ///   "submit → share → open my own link" is the cheapest path to a solution. (The
+    ///   course-material path reveals it once the student has full points or is out of tries.)
+    /// - the submitter's `user_id`, zeroed rather than removed so the wire shape stays the
+    ///   same for other consumers of this type.
     pub fn strip_for_shared_view(&mut self) {
         for task in &mut self.tasks {
             task.model_solution_spec = None;

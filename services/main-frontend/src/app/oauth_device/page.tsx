@@ -25,8 +25,7 @@ const DeviceVerificationPage: React.FC = () => {
   usePageTitle(t("title-authorize-application"))
 
   const queryUserCode = searchParams.get("user_code") ?? ""
-  // The code we are actively verifying. Empty until a code is provided via the
-  // query string or typed in manually.
+  // The code being verified, as opposed to `inputValue`, which is what the user is typing.
   const [userCode, setUserCode] = useState(queryUserCode)
   const [inputValue, setInputValue] = useState(queryUserCode)
   const [approved, setApproved] = useState(false)
@@ -89,8 +88,7 @@ const DeviceVerificationPage: React.FC = () => {
     setUserCode(inputValue.trim())
   }
 
-  // Manual entry: shown before a code has been resolved, and again when the
-  // lookup failed (invalid or expired code) so the user can retry.
+  // Also shown after a failed lookup (invalid or expired code) so the user can retry.
   const showEntryForm = userCode.length === 0 || verification.isError
 
   return (

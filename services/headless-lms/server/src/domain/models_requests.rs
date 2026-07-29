@@ -4,7 +4,7 @@ use crate::config::server_runtime_config;
 use crate::prelude::*;
 use actix_http::Payload;
 use actix_web::{FromRequest, HttpRequest};
-use chrono::{DateTime, Duration, Utc};
+use chrono::{Duration, Utc};
 use futures::{
     FutureExt,
     future::{BoxFuture, Ready, ready},
@@ -19,9 +19,7 @@ use headless_lms_models::{
 use secrecy::{ExposeSecret, SecretString};
 
 use headless_lms_base::error::backend_error::BackendError;
-use jsonwebtoken::{
-    Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode, errors::ErrorKind,
-};
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use models::SpecFetcher;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -66,12 +64,6 @@ pub struct UploadClaim {
     iat: usize,
 }
 
-#[derive(Debug, Deserialize)]
-struct LegacyUploadClaim {
-    exercise_service_slug: String,
-    expiration_time: DateTime<Utc>,
-}
-
 impl UploadClaim {
     pub fn exercise_service_slug(&self) -> &str {
         self.exercise_service_slug.as_ref()
@@ -92,7 +84,7 @@ impl UploadClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_upload_claim_with_legacy_fallback(token, key).map_err(|err| {
+        validate_hs256_claim(token, key).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!("Invalid jwt key: {}", err),
@@ -149,12 +141,6 @@ pub struct GradingUpdateClaim {
     iat: usize,
 }
 
-#[derive(Debug, Deserialize)]
-struct LegacyGradingUpdateClaim {
-    submission_id: Uuid,
-    expiration_time: DateTime<Utc>,
-}
-
 impl GradingUpdateClaim {
     pub fn submission_id(&self) -> Uuid {
         self.submission_id
@@ -175,7 +161,7 @@ impl GradingUpdateClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_grading_update_claim_with_legacy_fallback(token, key).map_err(|err| {
+        validate_hs256_claim(token, key).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!("Invalid jwt key: {}", err),
@@ -558,13 +544,6 @@ pub struct GivePeerReviewClaim {
     iat: usize,
 }
 
-#[derive(Debug, Deserialize)]
-struct LegacyGivePeerReviewClaim {
-    exercise_slide_submission_id: Uuid,
-    peer_or_self_review_config_id: Uuid,
-    expiration_time: DateTime<Utc>,
-}
-
 impl GivePeerReviewClaim {
     pub fn expiring_in_1_day(
         exercise_slide_submission_id: Uuid,
@@ -585,7 +564,7 @@ impl GivePeerReviewClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_peer_review_claim_with_legacy_fallback(token, key).map_err(|err| {
+        validate_hs256_claim(token, key).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!("Invalid claim: {}", err),
@@ -615,101 +594,6 @@ fn validate_hs256_claim<T: serde::de::DeserializeOwned>(
     let validation = Validation::new(Algorithm::HS256);
     decode::<T>(token, &DecodingKey::from_secret(&key.0), &validation)
         .map(|token_data| token_data.claims)
-}
-
-/// Decodes claims in compatibility mode and validates legacy `expiration_time` manually.
-fn validate_hs256_legacy_claim<T: serde::de::DeserializeOwned>(
-    token: &str,
-    key: &JwtKey,
-) -> Result<T, jsonwebtoken::errors::Error> {
-    let mut validation = Validation::new(Algorithm::HS256);
-    validation.required_spec_claims = std::collections::HashSet::new();
-    validation.validate_exp = false;
-    decode::<T>(token, &DecodingKey::from_secret(&key.0), &validation)
-        .map(|token_data| token_data.claims)
-}
-
-fn legacy_timestamp_to_claim_number(
-    timestamp: DateTime<Utc>,
-) -> Result<usize, jsonwebtoken::errors::Error> {
-    usize::try_from(timestamp.timestamp())
-        .map_err(|_| jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken))
-}
-
-/// Validates upload claim using modern JWT fields, with temporary fallback to legacy claims.
-fn validate_upload_claim_with_legacy_fallback(
-    token: &str,
-    key: &JwtKey,
-) -> Result<UploadClaim, jsonwebtoken::errors::Error> {
-    match validate_hs256_claim::<UploadClaim>(token, key) {
-        Ok(claim) => Ok(claim),
-        Err(err) if matches!(err.kind(), ErrorKind::MissingRequiredClaim(claim) if claim == "exp") =>
-        {
-            let legacy: LegacyUploadClaim = validate_hs256_legacy_claim(token, key)?;
-            if legacy.expiration_time < Utc::now() {
-                return Err(jsonwebtoken::errors::Error::from(
-                    ErrorKind::ExpiredSignature,
-                ));
-            }
-            Ok(UploadClaim {
-                exercise_service_slug: legacy.exercise_service_slug,
-                exp: legacy_timestamp_to_claim_number(legacy.expiration_time)?,
-                iat: 0,
-            })
-        }
-        Err(err) => Err(err),
-    }
-}
-
-/// Validates grading update claim using modern JWT fields, with temporary fallback to legacy claims.
-fn validate_grading_update_claim_with_legacy_fallback(
-    token: &str,
-    key: &JwtKey,
-) -> Result<GradingUpdateClaim, jsonwebtoken::errors::Error> {
-    match validate_hs256_claim::<GradingUpdateClaim>(token, key) {
-        Ok(claim) => Ok(claim),
-        Err(err) if matches!(err.kind(), ErrorKind::MissingRequiredClaim(claim) if claim == "exp") =>
-        {
-            let legacy: LegacyGradingUpdateClaim = validate_hs256_legacy_claim(token, key)?;
-            if legacy.expiration_time < Utc::now() {
-                return Err(jsonwebtoken::errors::Error::from(
-                    ErrorKind::ExpiredSignature,
-                ));
-            }
-            Ok(GradingUpdateClaim {
-                submission_id: legacy.submission_id,
-                exp: legacy_timestamp_to_claim_number(legacy.expiration_time)?,
-                iat: 0,
-            })
-        }
-        Err(err) => Err(err),
-    }
-}
-
-/// Validates peer review claim using modern JWT fields, with temporary fallback to legacy claims.
-fn validate_peer_review_claim_with_legacy_fallback(
-    token: &str,
-    key: &JwtKey,
-) -> Result<GivePeerReviewClaim, jsonwebtoken::errors::Error> {
-    match validate_hs256_claim::<GivePeerReviewClaim>(token, key) {
-        Ok(claim) => Ok(claim),
-        Err(err) if matches!(err.kind(), ErrorKind::MissingRequiredClaim(claim) if claim == "exp") =>
-        {
-            let legacy: LegacyGivePeerReviewClaim = validate_hs256_legacy_claim(token, key)?;
-            if legacy.expiration_time < Utc::now() {
-                return Err(jsonwebtoken::errors::Error::from(
-                    ErrorKind::ExpiredSignature,
-                ));
-            }
-            Ok(GivePeerReviewClaim {
-                exercise_slide_submission_id: legacy.exercise_slide_submission_id,
-                peer_or_self_review_config_id: legacy.peer_or_self_review_config_id,
-                exp: legacy_timestamp_to_claim_number(legacy.expiration_time)?,
-                iat: 0,
-            })
-        }
-        Err(err) => Err(err),
-    }
 }
 
 /// A caching spec fetcher ONLY FOR THE SEED that returns a cached spec if the same
@@ -931,41 +815,33 @@ mod tests {
             .expect_err("a grading update claim must not validate as an upload claim");
     }
 
-    /// Documents that the `validate_*_with_legacy_fallback` compatibility path is **unreachable**
-    /// as written: it only fires on `ErrorKind::MissingRequiredClaim("exp")`, but jsonwebtoken
-    /// deserializes into the claim struct before checking required spec claims, so a legacy claim
-    /// (`expiration_time` instead of `exp`) fails with a JSON error and never reaches the
-    /// fallback. Nothing depends on legacy claims any more — they expired within a day of the
-    /// jsonwebtoken upgrade — so the safe behavior is rejection, and the three
-    /// `Legacy*Claim` structs plus their fallbacks are dead code that can be deleted. This test
-    /// pins the current behavior so a revival of the path is deliberate rather than accidental.
+    /// A legacy-shaped claim, carrying `expiration_time` instead of `exp`, is rejected whether or
+    /// not that timestamp has passed. Pinned so that accepting the old shape again has to be
+    /// deliberate.
     #[test]
     fn legacy_grading_update_claim_shape_is_rejected() {
         let key = JwtKey::test_key();
         let submission_id = Uuid::new_v4();
 
-        // An *unexpired* legacy claim: still rejected, because the fallback never runs.
-        let legacy = sign_json(
+        let unexpired = sign_json(
             json!({
                 "submission_id": submission_id,
                 "expiration_time": Utc::now() + Duration::hours(1),
             }),
             &key,
         );
-        let err = GradingUpdateClaim::validate(&legacy, &key)
+        let err = GradingUpdateClaim::validate(&unexpired, &key)
             .expect_err("a claim without `exp` must be rejected");
         assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
 
-        // An expired legacy claim is likewise rejected; whichever branch handles it, a claim
-        // whose expiry has passed must never authorize a grading update.
-        let expired_legacy = sign_json(
+        let expired = sign_json(
             json!({
                 "submission_id": submission_id,
                 "expiration_time": Utc::now() - Duration::hours(1),
             }),
             &key,
         );
-        GradingUpdateClaim::validate(&expired_legacy, &key)
+        GradingUpdateClaim::validate(&expired, &key)
             .expect_err("an expired legacy claim must be rejected");
     }
 

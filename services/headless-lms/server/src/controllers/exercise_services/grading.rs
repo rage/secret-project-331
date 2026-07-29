@@ -29,8 +29,7 @@ async fn grading_update(
 }
 
 /// Rejects a grading update whose signed claim authorizes a different submission than the one
-/// addressed by the URL path. Extracted from the handler so the check is unit-testable without
-/// a running server.
+/// addressed by the URL path.
 fn verify_claim_matches_submission(
     submission_id: Uuid,
     claim_submission_id: Uuid,
@@ -45,8 +44,7 @@ fn verify_claim_matches_submission(
     Ok(())
 }
 
-/// Applies a grading result to the submission's existing grading. Extracted from the handler so
-/// tests can drive it with a transaction rather than a `PgPool` and a running `App`.
+/// Applies a grading result to the submission's existing grading.
 async fn apply_grading_update(
     conn: &mut PgConnection,
     submission_id: Uuid,
@@ -158,8 +156,8 @@ mod tests {
         );
     }
 
-    /// Positive control for the test above: with a grading row present the same call writes the
-    /// result through, so the rejection isn't just an unrelated failure.
+    /// Positive control for the test above: with a grading row present, the same call writes
+    /// the result through.
     #[actix_web::test]
     async fn update_with_an_existing_grading_writes_the_result() {
         insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, :task);

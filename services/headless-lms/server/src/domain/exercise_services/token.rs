@@ -21,10 +21,8 @@ use std::time::Duration;
 /// The token is hashed to a digest, looked up in `oauth_access_tokens`, gated on
 /// the `exercise-services` scope, and mapped to the local user that owns it.
 ///
-/// This replaced the earlier `UserFromTMCAccessToken`, which validated a TMC
-/// access token against tmc.mooc.fi. The error bodies and status codes are kept
-/// byte-for-byte identical to that extractor so the tmc-langs client's error
-/// mapping keeps working:
+/// The exact error bodies and status codes are a contract with the tmc-langs client,
+/// which keys its error mapping on them:
 ///  - a missing / invalid / expired / revoked token, a token whose client may
 ///    not use Bearer tokens, a sender-constrained (DPoP) token, or a token whose
 ///    user no longer exists all yield `401` with an `unauthorized` body;
@@ -72,11 +70,9 @@ fn forbidden(message: &str) -> ControllerError {
 /// is an infrastructure failure (a sqlx connection/statement error surfaces as
 /// `ModelErrorType::Database`) and must propagate as a `500`.
 ///
-/// This distinction is load-bearing: langs turns a `401` into
-/// refresh-then-DELETE-credentials, so collapsing a transient DB blip into `401`
-/// (as the previous blanket `.map_err(|_| unauthorized(...))` did) would
-/// force-log-out every user during the outage. The removed TMC extractor kept
-/// transport errors as `5xx` for exactly this reason.
+/// The distinction is load-bearing: langs turns a `401` into
+/// refresh-then-DELETE-credentials, so collapsing a transient DB blip into `401` would
+/// force-log-out every user for the duration of the outage.
 fn lookup_error(err: models::ModelError, unauthorized_message: &str) -> ControllerError {
     use headless_lms_base::error::backend_error::BackendError;
     match err.error_type() {
@@ -123,7 +119,6 @@ async fn resolve_oauth_user(
         ));
     }
 
-    // The issuing client must be allowed to use Bearer tokens.
     let client = OAuthClient::find_by_id(conn, access_token.client_id)
         .await
         .map_err(|e| lookup_error(e, "The access token's client could not be found."))?;
@@ -133,7 +128,6 @@ async fn resolve_oauth_user(
         ));
     }
 
-    // Scope gate: the token must carry the exercise-services scope.
     if !access_token
         .scopes
         .iter()
@@ -189,11 +183,9 @@ impl FromRequest for UserFromOAuthToken {
             };
             let mut conn = pool.acquire().await?;
 
-            // In test/dev mode a small set of fixed tokens map straight to seeded
-            // users so tests can call the API without running a full device flow.
-            // Any token that is not one of those falls through to the real
-            // OAuth-token path below, so genuine device-flow tokens (and their
-            // 401/403 rejections) are still exercised end-to-end even here.
+            // In test/dev mode a small set of fixed tokens map straight to seeded users so
+            // tests can skip the device flow. Anything else falls through to the real
+            // OAuth-token path below.
             if app_conf.test_mode {
                 warn!("Test mode is on: fixed test tokens map directly to seeded users.");
                 if let Some(user) =
@@ -211,10 +203,9 @@ impl FromRequest for UserFromOAuthToken {
                 }
             }
 
-            // A cached user (keyed by the token) skips the DB re-resolution — and
-            // therefore the soft-delete/revocation checks in `resolve_oauth_user` —
-            // for the cache TTL, which is clamped to the token's own remaining
-            // lifetime so a cached mapping never outlives the token itself.
+            // A cache hit skips `resolve_oauth_user`, and with it the soft-delete and
+            // revocation checks, for the cache TTL. The TTL is clamped to the token's own
+            // remaining lifetime so a cached mapping never outlives the token.
             let user = match load_user(&cache, &token).await {
                 Some(user) => user,
                 None => {

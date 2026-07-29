@@ -1075,9 +1075,6 @@ pub async fn authenticate_test_user(
 ///  - `Ok(None)` when it is not, so the caller falls through to real OAuth-token
 ///    validation (this keeps genuine device-flow tokens working under test_mode);
 ///  - `Err(..)` only if a recognised token's seeded user is unexpectedly missing.
-///
-/// Keep the mapping small and deterministic. The token strings are intentionally
-/// obvious and carry no security value — they only work while `test_mode` is on.
 pub async fn authenticate_test_token(
     conn: &mut PgConnection,
     token: &SecretString,
@@ -1086,8 +1083,8 @@ pub async fn authenticate_test_token(
     // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
     assert!(application_configuration.test_mode);
 
-    // Exposed only here to compare against the fixed test-token table; the value
-    // is a well-known constant, not a secret.
+    // These token strings are well-known constants, not secrets; they only work under
+    // `test_mode`.
     let email = match token.expose_secret() {
         "test-token-langs" => "langs@example.com",
         "test-token-student1" => "student1@example.com",

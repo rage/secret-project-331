@@ -73,12 +73,8 @@ pub struct AuthApiDoc;
 )]
 pub struct ErrorsApiDoc;
 
-/// Adds the bearer-token security scheme used by every
-/// `/api/v0/exercise-services/client` endpoint.
-///
-/// The client endpoints authenticate via `Authorization: Bearer <token>`, so the
-/// spec declares a single `bearer_auth` HTTP bearer scheme that each operation
-/// references.
+/// Declares the single `bearer_auth` HTTP bearer scheme that every
+/// `/api/v0/exercise-services/client` operation references.
 struct ExerciseServicesClientSecurityAddon;
 
 impl Modify for ExerciseServicesClientSecurityAddon {

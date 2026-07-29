@@ -1,4 +1,3 @@
-// OAuth endpoint constants
 export const BASE = "http://project-331.local"
 export const AUTHORIZE = `${BASE}/api/v0/main-frontend/oauth/authorize`
 export const TOKEN = `${BASE}/api/v0/main-frontend/oauth/token`
@@ -9,31 +8,24 @@ export const REVOKE = `${BASE}/api/v0/main-frontend/oauth/revoke`
 export const INTROSPECT = `${BASE}/api/v0/main-frontend/oauth/introspect`
 export const DEVICE_AUTHORIZATION = `${BASE}/api/v0/main-frontend/oauth/device_authorization`
 
-// Exercise-services client API (authenticated with our own OAuth Bearer tokens).
 export const EXERCISE_SERVICES_CLIENT = `${BASE}/api/v0/exercise-services/client`
 
-// Device-authorization (RFC 8628) clients seeded for the device-flow spec.
 export const DEVICE_CODE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:device_code"
 export const EXERCISE_SERVICES_SCOPE = "exercise-services"
-// Public native client; carries the exercise-services scope (mirrors the prod client).
-export const TMC_CLI_VSCODE_CLIENT_ID = "tmc-cli-vscode"
-// Test/dev-only device client whose scope is NOT exercise-services, used to exercise the 403 scope gate.
-export const TMC_CLI_VSCODE_NOSCOPE_CLIENT_ID = "tmc-cli-vscode-noscope-test"
+export const TMC_VSCODE_CLIENT_ID = "tmc-vscode"
+/** Device client without the exercise-services scope, for testing the scope gate. Not seeded in production. */
+export const TMC_VSCODE_NOSCOPE_CLIENT_ID = "tmc-vscode-noscope-test"
 
-// Test client constants
 export const TEST_CLIENT_ID = "test-client-id"
-export const TEST_CLIENT_SECRET = "very-secret" // <- hardcoded as requested
-export const APP_DISPLAY_NAME = "Test Client" // shown on consent <h2> and settings <strong>
+export const TEST_CLIENT_SECRET = "very-secret"
+export const APP_DISPLAY_NAME = "Test Client"
 // Redirect URI is per-worker (getRedirectUri() from redirectServer after ensureRedirectServer()). Ports 8765..8784.
 
-// Test users: student1/2 used by flows.spec; other OAuth specs use existing seed users
-// (non-students + student3–7) so we don't rely on consent state or users not returned from seed.
 export const USER_EMAIL = "student1@example.com"
 export const USER_PASSWORD = "student1"
 export const USER_EMAIL_2 = "student2@example.com"
 export const USER_PASSWORD_2 = "student2"
 
-// Already-logged-in storage state for flows
 export const STUDENT_STORAGE_STATE = "src/states/student1@example.com.json"
 export const STUDENT2_STORAGE_STATE = "src/states/student2@example.com.json"
 
@@ -43,7 +35,8 @@ export interface OAuthTestUser {
   storageStatePath: string
 }
 
-// One user per spec: 8 non-students + 6 students (3–8). No admin (conflicts with other tests).
+// One user per spec so specs can run in parallel without sharing consent state. No admin: it
+// conflicts with other tests.
 const OAUTH_SPEC_USERS = {
   "code-issuance": {
     email: "user@example.com",
@@ -117,7 +110,7 @@ const OAUTH_SPEC_USERS = {
   },
 } satisfies Record<string, OAuthTestUser>
 
-/** Returns credentials and storage state path for the given OAuth spec (one user per spec for parallel runs). */
+/** Returns the credentials and storage state path reserved for the given OAuth spec. */
 export function getOAuthTestUser(specKey: keyof typeof OAUTH_SPEC_USERS): OAuthTestUser {
   const user = OAUTH_SPEC_USERS[specKey]
   if (!user) {

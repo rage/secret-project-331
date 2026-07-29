@@ -377,18 +377,14 @@ impl OAuthRefreshTokens {
     /// Atomically claim a refresh token that was superseded by rotation and is
     /// still within the reuse grace window, so it can be redeemed exactly once.
     ///
-    /// This is an `UPDATE ... RETURNING` that clears `rotated_at` (unmatching the
-    /// row) in the same statement that matches on `rotated_at IS NOT NULL`.
-    /// Because the match and the clear happen atomically under a row lock, two
-    /// concurrent grace redemptions of the same token are serialized: exactly one
-    /// observes `rotated_at IS NOT NULL` and claims the row; every other
-    /// redemption updates zero rows and gets `RowNotFound` (which the caller maps
-    /// to `invalid_grant`). This bounds the grace window to a single extra branch
-    /// instead of the N parallel chains a plain lookup-then-insert would allow.
+    /// One `UPDATE ... RETURNING` matches on `rotated_at IS NOT NULL` and clears it in the same
+    /// statement, so concurrent grace redemptions of one token serialize under the row lock:
+    /// exactly one claims the row and the rest update zero rows and get `RowNotFound`, which the
+    /// caller maps to `invalid_grant`. That bounds the window to a single extra branch instead of
+    /// the N chains a lookup-then-insert would allow.
     ///
-    /// Matches only tokens that were rotated (`rotated_at IS NOT NULL`) at or
-    /// after `rotated_after`, are not expired, and belong to `client_id`.
-    /// Hard-revoked tokens clear `rotated_at`, so they are never matched here.
+    /// Matches only unexpired tokens belonging to `client_id` that were rotated at or after
+    /// `rotated_after`. Hard revocation clears `rotated_at`, so revoked tokens never match.
     ///
     /// # Transaction Requirements
     /// Must be called within the same transaction as the subsequent token
@@ -427,12 +423,10 @@ impl OAuthRefreshTokens {
     /// # Transaction Requirements
     /// This method must be called within an existing database transaction.
     ///
-    /// Unlike [`Self::complete_refresh_token_rotation_in_transaction`], this does
-    /// not revoke the (user, client) family: the already-rotated token is being
-    /// reused by a racing client, so the sibling chain must stay valid (bounded
-    /// temporary branching). The reused token's `rotated_at` was already cleared
-    /// when [`Self::claim_reusable_after_rotation`] claimed it, so it stays
-    /// revoked and cannot be redeemed again within the window.
+    /// Unlike [`Self::complete_refresh_token_rotation_in_transaction`], this leaves the
+    /// (user, client) family alone: a racing client is reusing the rotated token, so the sibling
+    /// chain must stay valid. [`Self::claim_reusable_after_rotation`] already cleared the reused
+    /// token's `rotated_at`, so it stays revoked and cannot be redeemed again.
     pub async fn issue_tokens_reused_within_grace_in_transaction(
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         reused_token: &OAuthRefreshTokens,

@@ -5293,7 +5293,7 @@ export const denyOauthConsent = <ThrowOnError extends boolean = true>(
  * POST /api/v0/main-frontend/oauth/device_authorization HTTP/1.1
  * Content-Type: application/x-www-form-urlencoded
  *
- * client_id=tmc-cli-vscode&scope=exercise-services
+ * client_id=tmc-vscode&scope=exercise-services
  * ```
  *
  * Successful response:

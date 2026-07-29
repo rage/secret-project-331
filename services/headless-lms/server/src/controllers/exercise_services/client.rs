@@ -64,7 +64,6 @@ const CLIENT_VERSION_HEADER: &str = "X-Client-Version";
 /// the upload, so the filename extension is the validation gate.
 const ACCEPTED_ARCHIVE_EXTENSIONS: &[&str] = &[".zip", ".tar.zst"];
 
-/// Case-insensitive suffix check against `ACCEPTED_ARCHIVE_EXTENSIONS`.
 fn filename_has_accepted_archive_extension(file_name: &str) -> bool {
     let lower = file_name.to_ascii_lowercase();
     ACCEPTED_ARCHIVE_EXTENSIONS
@@ -73,8 +72,7 @@ fn filename_has_accepted_archive_extension(file_name: &str) -> bool {
 }
 
 /// Validates the uploaded submission's file name: the multipart part must carry one, and it must
-/// end in an accepted archive extension. Extracted from `submit_exercise` so both rejections are
-/// unit-testable without constructing a multipart request.
+/// end in an accepted archive extension.
 fn validate_submission_file_name(file_name: Option<&str>) -> Result<(), ControllerError> {
     let file_name = file_name.ok_or_else(|| {
         controller_err!(
@@ -95,9 +93,8 @@ fn validate_submission_file_name(file_name: Option<&str>) -> Result<(), Controll
     Ok(())
 }
 
-/// The content type to store the uploaded archive under. tmc-langs sets no content-type on the
-/// upload, so a missing one falls back to `application/octet-stream` rather than being rejected;
-/// the filename extension is the actual validation gate.
+/// The content type to store the uploaded archive under. A missing one falls back to
+/// `application/octet-stream` rather than being rejected; see `ACCEPTED_ARCHIVE_EXTENSIONS`.
 fn submission_content_type(content_type: Option<mime::Mime>) -> mime::Mime {
     content_type.unwrap_or(mime::APPLICATION_OCTET_STREAM)
 }
@@ -374,7 +371,6 @@ fn model_solution_should_be_revealed(
     score_given: f32,
     slide_submission_count: i64,
 ) -> bool {
-    // Same full-points comparison (with epsilon) the other exercise views use.
     let has_received_full_points = score_given >= exercise.score_maximum as f32
         || (score_given - exercise.score_maximum as f32).abs() < 0.0001;
     let out_of_tries = exercise.limit_number_of_tries
@@ -425,7 +421,7 @@ async fn get_course_progress(
         .map(|c| c.id)
         .collect::<HashSet<_>>();
 
-    // one read of every exercise state the user has in this course, keyed by exercise
+    // One read for the whole course instead of a query per exercise.
     let states = models::user_exercise_states::get_all_for_user_and_course_or_exam(
         &mut conn,
         user.id,
@@ -503,7 +499,6 @@ async fn get_exercise(
         models_requests::fetch_service_info,
     )
     .await?;
-    // `get_by_id` above already 404s an unknown id, so the exercise exists here.
     let course_id = match course_or_exam_id {
         Some(CourseOrExamId::Course(course_id)) => course_id,
         Some(CourseOrExamId::Exam(_)) => {
@@ -515,7 +510,6 @@ async fn get_exercise(
             ));
         }
         None => {
-            // No resolvable course context for this signed-in user: not enrolled.
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequestWithReason(BadRequestReason::NotEnrolled),
                 "User is not enrolled to this exercise's course".to_string(),
@@ -559,7 +553,6 @@ async fn get_exercise(
         tasks: exercise_slide
             .exercise_tasks
             .into_iter()
-            // Unlike get_course_exercises's unconditional null, this respects `reveal_model_solution`.
             .map(|mut et| {
                 if !reveal_model_solution {
                     et.model_solution_spec = None;

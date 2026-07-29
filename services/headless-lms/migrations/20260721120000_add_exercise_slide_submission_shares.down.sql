@@ -1,1 +1,0 @@
-DROP TABLE exercise_slide_submission_shares;

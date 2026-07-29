@@ -228,8 +228,6 @@ pub async fn introspect(
     // Fetch the client that originally issued the token (not the introspecting client)
     let token_client = OAuthClient::find_by_id(&mut conn, access_token.client_id).await?;
 
-    // Resolve the token owner's legacy TMC upstream_id, gated to confidential
-    // callers (see `resolve_gated_upstream_id`).
     let upstream_id = resolve_gated_upstream_id(&mut conn, &client, access_token.user_id).await;
 
     // Build response with token metadata
@@ -264,11 +262,10 @@ pub async fn introspect(
 /// Resolve the token owner's legacy TMC `upstream_id` for the introspection
 /// response — a privileged, non-standard claim consumed by tmc-server.
 ///
-/// It is only exposed to a caller that authenticated as a **confidential**
-/// client (its secret was verified before this point). Public clients present
-/// no secret, so they never receive it and we skip the user lookup entirely. A
-/// missing/erroring user row must not break introspection, so a lookup failure
-/// just omits the claim.
+/// Only a caller that authenticated as a **confidential** client (its secret was
+/// verified before this point) receives it; for public clients the user lookup is
+/// skipped entirely. A lookup failure omits the claim rather than failing
+/// introspection.
 async fn resolve_gated_upstream_id(
     conn: &mut sqlx::PgConnection,
     introspecting_client: &OAuthClient,

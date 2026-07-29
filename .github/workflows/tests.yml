@@ -110,9 +110,8 @@ jobs:
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo build --verbose
 
-      # OpenAPI drift gate: re-export the committed specs under server/openapi (the
-      # generate-bindings sequence) and fail if they differ from what is committed,
-      # catching annotation changes that were never re-exported or hand-edited specs.
+      # OpenAPI drift gate: re-export the specs under server/openapi and fail if they
+      # differ from what is committed.
       - name: Export OpenAPI specs
         run: |
           docker run --rm \

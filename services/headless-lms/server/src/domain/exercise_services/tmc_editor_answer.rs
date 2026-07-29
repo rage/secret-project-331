@@ -1,10 +1,9 @@
 //! The `tmc` exercise service's editor answer shape.
 //!
-//! A submission's `data_json` is a plugin-owned blob the host normally forwards
-//! verbatim, but the client controller is the one place in the host that both writes
-//! this tmc shape (`submit_exercise`) and reads the archive URL back out of it
-//! (`download_submission`). Owning it in one typed place keeps those two sides in sync
-//! with each other and with `EditorUserAnswer` in
+//! A submission's `data_json` is a plugin-owned blob the host normally forwards verbatim,
+//! but the client controller both writes this tmc shape (`submit_exercise`) and reads the
+//! archive URL back out of it (`download_submission`). One typed definition keeps those
+//! two sides in sync with each other and with `EditorUserAnswer` in
 //! `services/tmc/src/util/stateInterfaces.ts`.
 
 use serde::{Deserialize, Serialize};

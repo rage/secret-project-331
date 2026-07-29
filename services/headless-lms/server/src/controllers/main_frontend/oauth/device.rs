@@ -1,9 +1,10 @@
-//! OAuth 2.0 Device Authorization Grant endpoints (RFC 8628).
+//! OAuth 2.0 Device Authorization Grant endpoints
+//! ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)).
 //!
 //! Two audiences share this module:
 //!
 //! - The **device endpoint** `POST /device_authorization` is public (no session)
-//!   and called by native clients (e.g. the TMC CLI). It issues an opaque
+//!   and called by native clients such as the TMC VSCode extension. It issues an opaque
 //!   `device_code` plus a human-typable `user_code` and tells the client where
 //!   to send the user.
 //! - The **verification endpoints** (`GET /device_verification`,
@@ -11,11 +12,9 @@
 //!   session-authed (`AuthUser`) and drive the browser consent page the user
 //!   lands on after typing their `user_code`.
 //!
-//! The DB-touching core of each handler lives in a free function (mirroring the
-//! `token.rs` -> `token_service.rs` split) so it can be unit-tested against a
-//! real connection without actix extractors.
-//!
-//! Follows [RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628).
+//! The DB-touching core of each handler lives in a free function, as in
+//! `token.rs` / `token_service.rs`, so it can be unit-tested without actix
+//! extractors.
 
 use crate::domain::oauth::helpers::{
     oauth_invalid_client, oauth_invalid_scope, oauth_unauthorized_client,
@@ -112,7 +111,7 @@ pub struct DeviceDecisionResponse {
 /// Uppercases, strips everything that is not a base32 alphanumeric (so a missing
 /// or extra hyphen and surrounding whitespace are tolerated), and re-inserts the
 /// single group separator when exactly eight characters remain. Malformed input
-/// is returned uppercased-and-stripped and simply won't match any stored code.
+/// is returned uppercased-and-stripped and will not match any stored code.
 fn normalize_user_code(input: &str) -> String {
     let cleaned: String = input
         .chars()
@@ -170,10 +169,8 @@ fn is_pending_user_code_collision(err: &models::ModelError) -> bool {
     )
 }
 
-/// Insert a pending device code, regenerating the `user_code` on the rare
-/// collision with another still-pending grant. The `user_code` space is large
-/// (~2^40), so a clash is vanishingly unlikely — but when it happens it must
-/// retry rather than surface a 500.
+/// Insert a pending device code, regenerating the `user_code` on collision with
+/// another still-pending grant so a clash cannot surface as a 500.
 ///
 /// Each attempt runs inside its own savepoint so a unique-violation rolls back
 /// cleanly and leaves the surrounding connection usable for the next try.
@@ -218,7 +215,7 @@ async fn insert_device_code_retrying_user_code(
             }
         }
     }
-    // Every attempt collided (astronomically unlikely). Surface the last error.
+    // Every attempt collided; surface the last error.
     Err(last_err
         .expect("the retry loop records the collision error on every attempt")
         .into())
@@ -307,8 +304,8 @@ async fn approve_device(
         .await
         .map_err(|_| device_code_not_found())?;
 
-    // Persist consent exactly like the web consent flow (Decision 3: always
-    // record consent; never short-circuit on an existing grant).
+    // Record consent unconditionally, like the web consent flow: never short-circuit on an
+    // existing grant.
     OAuthUserClientScopes::insert(conn, user_id, device.client_id, &device.scopes).await?;
 
     OAuthDeviceCode::approve(conn, user_code, user_id)
@@ -341,7 +338,7 @@ async fn deny_device(conn: &mut PgConnection, user_code: &str) -> Result<(), Con
 /// POST /api/v0/main-frontend/oauth/device_authorization HTTP/1.1
 /// Content-Type: application/x-www-form-urlencoded
 ///
-/// client_id=tmc-cli-vscode&scope=exercise-services
+/// client_id=tmc-vscode&scope=exercise-services
 /// ```
 ///
 /// Successful response:
@@ -856,13 +853,9 @@ mod tests {
         assert!(matches!(err.error_type(), ControllerErrorType::BadRequest));
     }
 
-    /// Review M8: the provisioned `tmc-cli-vscode` client has `require_pkce=true`
-    /// (forced for public clients). RFC 8628 defines no PKCE binding, so the
-    /// device grant must ignore it end-to-end: device authorization carries no
-    /// code_challenge (the form has no such field) and the approved code redeems
-    /// at the token endpoint with no PKCE verifier. This pins that no-op so a
-    /// regression that started honoring require_pkce on the device path would
-    /// fail here rather than silently break the prod client.
+    /// The provisioned `tmc-vscode` client has `require_pkce=true`, forced for public clients,
+    /// but RFC 8628 defines no PKCE binding, so the device grant must ignore it end to end.
+    /// Honoring `require_pkce` here would break the production client silently.
     #[actix_web::test]
     async fn require_pkce_is_a_noop_for_the_device_grant_end_to_end() {
         use crate::domain::oauth::token_query::TokenGrant;

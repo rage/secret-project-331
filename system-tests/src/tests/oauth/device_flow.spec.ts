@@ -3,8 +3,8 @@ import { expect, test } from "../../fixtures/oauth"
 import { login } from "../../utils/login"
 import {
   EXERCISE_SERVICES_SCOPE,
-  TMC_CLI_VSCODE_CLIENT_ID,
-  TMC_CLI_VSCODE_NOSCOPE_CLIENT_ID,
+  TMC_VSCODE_CLIENT_ID,
+  TMC_VSCODE_NOSCOPE_CLIENT_ID,
 } from "../../utils/oauth/constants"
 import {
   callClientCourses,
@@ -50,19 +50,16 @@ test.describe("OAuth device authorization flow", () => {
   test("pending, slow_down, approve, then a token that reaches the client API (200)", async ({
     page,
   }) => {
-    const device = await requestDeviceAuthorization(
-      TMC_CLI_VSCODE_CLIENT_ID,
-      EXERCISE_SERVICES_SCOPE,
-    )
+    const device = await requestDeviceAuthorization(TMC_VSCODE_CLIENT_ID, EXERCISE_SERVICES_SCOPE)
     expect(device.user_code).toMatch(/^[0-9A-Z]{4}-[0-9A-Z]{4}$/)
 
     // Poll before approval: authorization_pending.
-    const pending = await pollDeviceToken(device.device_code, TMC_CLI_VSCODE_CLIENT_ID)
+    const pending = await pollDeviceToken(device.device_code, TMC_VSCODE_CLIENT_ID)
     expect(pending.status).toBe(400)
     expect(pending.body.error).toBe("authorization_pending")
 
     // Immediate second poll (faster than the interval): slow_down.
-    const tooFast = await pollDeviceToken(device.device_code, TMC_CLI_VSCODE_CLIENT_ID)
+    const tooFast = await pollDeviceToken(device.device_code, TMC_VSCODE_CLIENT_ID)
     expect(tooFast.status).toBe(400)
     expect(tooFast.body.error).toBe("slow_down")
 
@@ -76,7 +73,7 @@ test.describe("OAuth device authorization flow", () => {
     )
 
     // Poll again: tokens are issued.
-    const issued = await pollDeviceToken(device.device_code, TMC_CLI_VSCODE_CLIENT_ID)
+    const issued = await pollDeviceToken(device.device_code, TMC_VSCODE_CLIENT_ID)
     expect(issued.status).toBe(200)
     expect(issued.body.access_token).toBeTruthy()
     expect(issued.body.refresh_token).toBeTruthy()
@@ -88,10 +85,7 @@ test.describe("OAuth device authorization flow", () => {
   })
 
   test("denying the device code yields access_denied on the next poll", async ({ page }) => {
-    const device = await requestDeviceAuthorization(
-      TMC_CLI_VSCODE_CLIENT_ID,
-      EXERCISE_SERVICES_SCOPE,
-    )
+    const device = await requestDeviceAuthorization(TMC_VSCODE_CLIENT_ID, EXERCISE_SERVICES_SCOPE)
 
     await loginAndDecide(
       page,
@@ -101,7 +95,7 @@ test.describe("OAuth device authorization flow", () => {
       "deny",
     )
 
-    const denied = await pollDeviceToken(device.device_code, TMC_CLI_VSCODE_CLIENT_ID)
+    const denied = await pollDeviceToken(device.device_code, TMC_VSCODE_CLIENT_ID)
     expect(denied.status).toBe(400)
     expect(denied.body.error).toBe("access_denied")
   })
@@ -111,7 +105,7 @@ test.describe("OAuth device authorization flow", () => {
   }) => {
     // This client is seeded with the `openid` scope only, so its device-flow token
     // lacks exercise-services and must be refused by the scope gate.
-    const device = await requestDeviceAuthorization(TMC_CLI_VSCODE_NOSCOPE_CLIENT_ID, "openid")
+    const device = await requestDeviceAuthorization(TMC_VSCODE_NOSCOPE_CLIENT_ID, "openid")
 
     await loginAndDecide(
       page,
@@ -121,7 +115,7 @@ test.describe("OAuth device authorization flow", () => {
       "approve",
     )
 
-    const issued = await pollDeviceToken(device.device_code, TMC_CLI_VSCODE_NOSCOPE_CLIENT_ID)
+    const issued = await pollDeviceToken(device.device_code, TMC_VSCODE_NOSCOPE_CLIENT_ID)
     expect(issued.status).toBe(200)
     expect(issued.body.access_token).toBeTruthy()
 

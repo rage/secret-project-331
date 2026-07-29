@@ -93,10 +93,9 @@ pub async fn process_token_grant(
     conn: &mut PgConnection,
     request: TokenGrantRequest<'_>,
 ) -> Result<TokenGrantResult, TokenGrantError> {
-    // The device-code grant records each poll (last_polled_at) and that write
-    // must persist even when the poll returns an error (authorization_pending /
-    // slow_down). Handle it on the bare connection (autocommit) before opening
-    // the single issuance transaction the other grants roll back on failure.
+    // Handled on the bare connection, before the issuance transaction the other grants
+    // roll back on failure, because its poll bookkeeping must persist on error too.
+    // See `process_device_code_grant`.
     if let TokenGrant::DeviceCode { device_code } = request.grant {
         return process_device_code_grant(conn, &request, device_code).await;
     }
@@ -239,21 +238,16 @@ pub async fn process_token_grant(
                     })
                 }
                 Err(_) => {
-                    // The presented token isn't currently valid. It may have been
-                    // rotated moments ago by a racing client (e.g. a shared or
-                    // synced credential). Honor a short reuse grace window: a
-                    // just-rotated token is redeemed once more WITHOUT the
-                    // family-wide revocation, so the sibling chain stays valid
-                    // (bounded temporary branching). Outside the window — and for
-                    // hard-revoked or unknown tokens — this fails as before.
+                    // The token isn't valid, but it may have been rotated moments ago by a racing
+                    // client. Within the grace window it is redeemed once more without revoking
+                    // the family, so the sibling chain survives. Hard-revoked, unknown, and
+                    // older tokens still fail.
                     let presented =
                         token_digest_sha256(refresh_token.expose_secret(), request.token_hmac_key);
                     let rotated_after =
                         Utc::now() - Duration::seconds(REFRESH_TOKEN_REUSE_GRACE_SECONDS);
-                    // Atomically claim the just-rotated token: this both finds it
-                    // and clears its `rotated_at` so it can be reused at most once.
-                    // A second reuse within the window (or a racing concurrent
-                    // redemption) matches zero rows and fails as invalid_grant.
+                    // Claiming both finds the token and clears its `rotated_at`, so a second
+                    // reuse matches no rows and fails as invalid_grant.
                     let reused = OAuthRefreshTokens::claim_reusable_after_rotation(
                         &mut tx,
                         presented,
@@ -988,7 +982,7 @@ mod tests {
             .await
             .unwrap();
 
-        // Reuse RT1 now fails (today's behavior preserved).
+        // Reuse of RT1 outside the window fails.
         let grant2 = refresh_grant(&rt1);
         let err = process_token_grant(
             tx.as_mut(),

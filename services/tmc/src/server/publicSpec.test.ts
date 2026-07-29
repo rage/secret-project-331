@@ -4,6 +4,7 @@ import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 
 import { handlePublicSpec } from "./publicSpec"
+import { uploadArchiveAndGetUrl } from "./uploadArchive"
 
 // The happy path downloads the template and shells out to tmc-langs-cli; unit tests cover request
 // validation plus the serialization shape of the returned PublicSpec (with tmc-langs and the file
@@ -12,20 +13,27 @@ import { handlePublicSpec } from "./publicSpec"
 // tmc-langs is a CLI subprocess and the template download hits the network; stub both so the
 // serialization guard below can drive the handler in-process.
 vi.mock("@/lib", () => ({
-  downloadStream: vi.fn(async () => undefined),
+  downloadStream: vi.fn(() => Promise.resolve(undefined)),
 }))
 vi.mock("@/tmc/langs", () => ({
-  extractProject: vi.fn(async () => undefined),
-  prepareStub: vi.fn(async () => undefined),
-  compressProject: vi.fn(async () => "checksum-abc123"),
-  getExercisePackagingConfiguration: vi.fn(async () => ({
-    student_file_paths: ["src/main.py"],
-    exercise_file_paths: ["test/test_main.py"],
-  })),
+  extractProject: vi.fn(() => Promise.resolve(undefined)),
+  prepareStub: vi.fn(() => Promise.resolve(undefined)),
+  compressProject: vi.fn(() => Promise.resolve("checksum-abc123")),
+  getExercisePackagingConfiguration: vi.fn(() =>
+    Promise.resolve({
+      student_file_paths: ["src/main.py"],
+      exercise_file_paths: ["test/test_main.py"],
+    }),
+  ),
 }))
 // Error reporting is fire-and-forget over the network; keep it out of the tests.
 vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
-  reportErrorOccurrence: vi.fn(async () => undefined),
+  reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),
+}))
+// The upload's own wire contract is covered by uploadArchive.test.ts; here it only needs to yield a
+// URL (or throw) so the spec shape below can be asserted.
+vi.mock("./uploadArchive", () => ({
+  uploadArchiveAndGetUrl: vi.fn(() => Promise.resolve("http://files/part01/ex01.tar.zst")),
 }))
 
 function post(body: string): Request {
@@ -111,24 +119,12 @@ describe("POST /api/public-spec editor spec serialization", () => {
     })
   }
 
-  /** Mocks the file-upload endpoint's JSON response body. */
-  function mockUploadResponse(body: unknown): void {
-    global.fetch = vi.fn(
-      async () =>
-        new Response(JSON.stringify(body), {
-          status: 200,
-          headers: { "content-type": "application/json" },
-        }),
-    ) as unknown as typeof global.fetch
-  }
-
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(uploadArchiveAndGetUrl).mockResolvedValue(stubDownloadUrl)
   })
 
   it('returns exactly the fields tmc-langs deserializes, with `type: "editor"`', async () => {
-    mockUploadResponse({ [archiveName]: stubDownloadUrl })
-
     const res = await handlePublicSpec(post(specRequest()))
     expect(res.status).toBe(200)
     const spec = (await res.json()) as Record<string, unknown>
@@ -156,37 +152,22 @@ describe("POST /api/public-spec editor spec serialization", () => {
     expect(spec.archive_name).toBe("part01/ex01.tar.zst")
   })
 
-  it("fails loudly when the upload response is missing the archive key", async () => {
-    // The upload responded successfully but keyed the URL under a different name; silently
-    // producing a spec with an empty/undefined stub_download_url would strand the client.
-    mockUploadResponse({ "some-other-name.tar.zst": stubDownloadUrl })
+  it("passes the built archive name and upload target through to the upload", async () => {
+    await handlePublicSpec(post(specRequest()))
 
-    await expect(handlePublicSpec(post(specRequest()))).rejects.toThrow(
-      /missing or invalid archive key/,
+    expect(uploadArchiveAndGetUrl).toHaveBeenCalledWith(
+      expect.objectContaining({
+        archiveName,
+        uploadUrl: "http://headless-lms/api/v0/files/tmc",
+      }),
     )
   })
 
-  it("fails loudly when the archive key maps to an empty URL", async () => {
-    mockUploadResponse({ [archiveName]: "" })
+  it("fails loudly rather than emitting a spec without a usable stub URL", async () => {
+    // A rejected upload must surface; silently producing a spec with an empty/undefined
+    // stub_download_url would strand the client.
+    vi.mocked(uploadArchiveAndGetUrl).mockRejectedValue(new Error("upload exploded"))
 
-    await expect(handlePublicSpec(post(specRequest()))).rejects.toThrow(
-      /missing or invalid archive key/,
-    )
-  })
-
-  it("fails loudly when the archive key maps to a non-string value", async () => {
-    mockUploadResponse({ [archiveName]: 42 })
-
-    await expect(handlePublicSpec(post(specRequest()))).rejects.toThrow(
-      /missing or invalid archive key/,
-    )
-  })
-
-  it("fails loudly when the upload response is not an object", async () => {
-    mockUploadResponse("nope")
-
-    await expect(handlePublicSpec(post(specRequest()))).rejects.toThrow(
-      /missing or invalid archive key/,
-    )
+    await expect(handlePublicSpec(post(specRequest()))).rejects.toThrow(/upload exploded/)
   })
 })

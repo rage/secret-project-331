@@ -1,20 +1,12 @@
 //! OAuth 2.0 Device Authorization Grant endpoints
 //! ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)).
 //!
-//! Two audiences share this module:
+//! Two audiences share this module: `POST /device_authorization` is public and called by
+//! native clients, while the `/device_verification*` endpoints are session-authed (`AuthUser`)
+//! and drive the browser consent page.
 //!
-//! - The **device endpoint** `POST /device_authorization` is public (no session)
-//!   and called by native clients such as the TMC VSCode extension. It issues an opaque
-//!   `device_code` plus a human-typable `user_code` and tells the client where
-//!   to send the user.
-//! - The **verification endpoints** (`GET /device_verification`,
-//!   `POST /device_verification/approve`, `POST /device_verification/deny`) are
-//!   session-authed (`AuthUser`) and drive the browser consent page the user
-//!   lands on after typing their `user_code`.
-//!
-//! The DB-touching core of each handler lives in a free function, as in
-//! `token.rs` / `token_service.rs`, so it can be unit-tested without actix
-//! extractors.
+//! The DB-touching core of each handler lives in a free function, as in `token.rs` /
+//! `token_service.rs`, so it can be unit-tested without actix extractors.
 
 use crate::domain::oauth::helpers::{
     oauth_invalid_client, oauth_invalid_scope, oauth_unauthorized_client,

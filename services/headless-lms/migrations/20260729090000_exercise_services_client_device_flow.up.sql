@@ -79,8 +79,3 @@ COMMENT ON COLUMN oauth_device_codes.expires_at IS 'Expiration time for the devi
 COMMENT ON COLUMN oauth_device_codes.created_at IS 'Creation timestamp.';
 COMMENT ON COLUMN oauth_device_codes.updated_at IS 'Last update timestamp (maintained by trigger).';
 COMMENT ON COLUMN oauth_device_codes.metadata IS 'Free-form JSON for diagnostics (device/ip, etc.).';
-
-ALTER TABLE oauth_refresh_tokens
-ADD COLUMN rotated_at TIMESTAMPTZ;
-
-COMMENT ON COLUMN oauth_refresh_tokens.rotated_at IS 'When this refresh token was superseded by rotation (NULL for active or hard-revoked tokens). Enables a short reuse grace window; cleared on hard revoke so revoked tokens are never resurrected.';

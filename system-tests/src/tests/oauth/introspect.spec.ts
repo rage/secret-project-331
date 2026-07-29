@@ -135,14 +135,51 @@ test.describe("Token Introspection (RFC 7662)", () => {
     expect(data.error).toBe("invalid_client")
   })
 
-  test("invalid client_secret -> returns active: false", async ({ page }) => {
+  // RFC 7662 §2.3: failed *client* authentication is 401 invalid_client, not
+  // `active: false`. A resource server has to be able to tell "my own credentials are
+  // wrong" from "this user's token is inactive" — collapsing both made a credential typo
+  // look like a site-wide logout. Nothing is disclosed: an unauthenticated caller never
+  // reaches a token lookup.
+  test("invalid client_secret -> invalid_client error", async ({ page }) => {
     const accessToken = await getBearerToken(page)
-    const response = await introspectToken(accessToken, {
-      clientSecret: "wrong-secret",
+    const body = new URLSearchParams({
+      token: accessToken,
+      client_id: TEST_CLIENT_ID,
+      client_secret: "wrong-secret",
+    })
+    const response = await fetch(INTROSPECT, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body.toString(),
     })
 
-    // RFC 7662: Return active: false for auth failures to prevent enumeration
-    expect(response.active).toBe(false)
+    expect(response.status).toBe(401)
+    const data = await response.json()
+    expect(data.error).toBe("invalid_client")
+  })
+
+  test("unknown client_id -> invalid_client error", async ({ page }) => {
+    const accessToken = await getBearerToken(page)
+    const body = new URLSearchParams({
+      token: accessToken,
+      client_id: "no-such-client",
+      client_secret: TEST_CLIENT_SECRET,
+    })
+    const response = await fetch(INTROSPECT, {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: body.toString(),
+    })
+
+    expect(response.status).toBe(401)
+    const data = await response.json()
+    expect(data.error).toBe("invalid_client")
   })
 
   test("missing token parameter -> invalid_request error", async () => {

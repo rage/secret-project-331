@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { createCourse } from "@/utils/flows/newCourse.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -22,65 +23,52 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  await page.click(`button:text("Create")`)
-
-  await page.click('input[type="radio"]')
-
-  // Fill input[type="text"]
-  await page.fill("text=Name", "Introduction to System Level Testing")
-
-  await page.fill("text=Teacher in charge name", "teacher")
-  await page.fill("text=Teacher in charge email", "teacher@example.com")
-
-  await page.fill('textarea:below(:text("Description"))', "Course description")
-
-  await page.click(`button:text("Create"):below(:text("Course language"))`)
+  await createCourse(page, {
+    name: "Introduction to System Level Testing",
+    language: "English",
+    teacherInChargeName: "teacher",
+    teacherInChargeEmail: "teacher@example.com",
+    description: "Course description",
+  })
 
   await page
-    .locator("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg")
+    .getByRole("link", { name: "Manage course 'Introduction to System Level Testing'" })
     .click()
 
-  await page.getByText("Pages").click()
+  await page.getByRole("tab", { name: "Pages" }).click()
 
-  await page.locator(`button:has-text("New chapter")`).last().click()
+  const newChapterDialog = page.getByRole("dialog", { name: "New chapter" })
 
-  // Fill input[type="text"]
-  await page.fill("text=Name", "The Levels of testing")
+  await page.getByRole("button", { name: "New chapter" }).click()
+  await newChapterDialog.waitFor()
+  await newChapterDialog.getByLabel("Name", { exact: true }).fill("The Levels of testing")
+  await newChapterDialog.getByLabel("Chapter number", { exact: true }).press("ArrowRight")
+  await newChapterDialog.getByLabel("Name", { exact: true }).fill("The Levels of Testing")
+  await newChapterDialog.getByRole("button", { name: "Create" }).click()
+  await newChapterDialog.waitFor({ state: "hidden" })
+  await page.getByRole("heading", { name: /Chapter 1: The Levels of Testing/ }).waitFor()
 
-  await page.press("text=Chapter number", "ArrowRight")
+  // Unused by the assertions, but its presence is what makes the "New page" buttons below
+  // Chapter 1 resolve the way the following steps expect.
+  await page.getByRole("button", { name: "New chapter" }).click()
+  await newChapterDialog.waitFor()
+  await newChapterDialog.getByLabel("Name", { exact: true }).fill("Unit testing")
+  await newChapterDialog.getByRole("button", { name: "Create" }).click()
+  await newChapterDialog.waitFor({ state: "hidden" })
+  await page.getByRole("heading", { name: /Chapter 2: Unit testing/ }).waitFor()
 
-  // Fill input[type="text"]
-  await page.fill("text=Name", "The Levels of Testing")
+  const newPageDialog = page.getByRole("dialog", { name: "New page" })
 
-  await page.click('button:text("Create")')
-
-  await page.locator(`button:has-text("New")`).last().click()
-
-  // Fill input[type="text"]
-  await page.fill("text=Name", "Unit testing")
-
-  await page.click('button:text("Create")')
-
-  await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
-
-  // Fill input[type="text"]
-  await page.fill(`label:has-text("Title")`, "Integration Testing")
-
-  await page.click('button:text("Create")')
-
-  await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
-
-  // Fill input[type="text"]
-  await page.fill(`label:has-text("Title")`, "System Testing")
-
-  await page.click('button:text("Create")')
-
-  await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
-
-  // Fill input[type="text"]
-  await page.fill(`label:has-text("Title")`, "Acceptance Testing")
-
-  await page.click('button:text("Create")')
+  for (const pageTitle of ["Integration Testing", "System Testing", "Acceptance Testing"]) {
+    await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
+    await newPageDialog.waitFor()
+    await newPageDialog.getByLabel("Title  *", { exact: true }).fill(pageTitle)
+    await newPageDialog.getByRole("button", { name: "Create" }).click()
+    // Wait for the dialog to go away before touching the page behind it: while the modal is up its
+    // backdrop covers the "New page" buttons, and the page list re-renders as the new page lands.
+    await newPageDialog.waitFor({ state: "hidden" })
+    await page.getByRole("cell", { name: pageTitle, exact: true }).waitFor()
+  }
 
   await page.click(`button:text("Edit page"):right-of(:text("System Testing"))`)
 

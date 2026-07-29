@@ -1,5 +1,8 @@
+use crate::domain::exercise_services::token::invalidate_cached_user;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_utils::cache::Cache;
 use models::oauth_user_client_scopes::{AuthorizedClientInfo, OAuthUserClientScopes};
 use sqlx::PgPool;
 use utoipa::OpenApi;
@@ -33,12 +36,7 @@ pub async fn get_authorized_clients(
     token.authorized_ok(HttpResponse::Ok().json(rows))
 }
 
-// KNOWN GAP: a token revoked here can keep authenticating from a stale cache entry for up
-// to `MAX_CACHE_TTL` (1h). Unlike `POST /revoke`, this cannot evict the exercise-services
-// bearer-token cache (`domain::exercise_services::token`): that cache is keyed by token
-// plaintext, and `revoke_user_client_everything` only has one-way digests. Fixing it means
-// re-keying the cache by digest or adding a per-(user_id, client_id) invalidation marker.
-#[instrument(skip(pool, auth_user))]
+#[instrument(skip(pool, auth_user, app_conf, cache))]
 #[utoipa::path(
     delete,
     path = "/authorized-clients/{client_id}",
@@ -55,13 +53,22 @@ pub async fn delete_authorized_client(
     pool: web::Data<PgPool>,
     auth_user: AuthUser,
     path: web::Path<Uuid>, // client_id (DB uuid)
+    app_conf: web::Data<ApplicationConfiguration>,
+    cache: web::Data<Cache>,
 ) -> ControllerResult<HttpResponse> {
     let client_id = path.into_inner();
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    OAuthUserClientScopes::revoke_user_client_everything(&mut conn, auth_user.id, client_id)
-        .await?;
+    let revoked_digests =
+        OAuthUserClientScopes::revoke_user_client_everything(&mut conn, auth_user.id, client_id)
+            .await?;
+
+    // Without this the deleted tokens keep authenticating from cache for the rest of their TTL.
+    let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
+    for digest in &revoked_digests {
+        invalidate_cached_user(&cache, digest, token_hmac_key).await;
+    }
 
     token.authorized_ok(HttpResponse::NoContent().finish())
 }

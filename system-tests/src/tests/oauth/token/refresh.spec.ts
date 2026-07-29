@@ -13,7 +13,7 @@ import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
 import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { revokeToken } from "../../../utils/oauth/revokeHelpers"
-import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
+import { exchangeCodeForToken, redeemRefreshToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
 test.beforeAll(async () => {
@@ -116,64 +116,25 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     expect(data.error).toBe("invalid_grant")
   })
 
+  // Refresh tokens are single-use: rotation revokes the whole token family, so the
+  // superseded token must be rejected afterwards (RFC 9700 reuse detection).
   test("refresh token rotation - old token revoked after use", async ({ page }) => {
     const refreshToken1 = await getRefreshToken(page)
 
-    const body = new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken1,
-      client_id: TEST_CLIENT_ID,
-      client_secret: TEST_CLIENT_SECRET,
-    })
-    const response = await fetch(TOKEN, {
-      method: "POST",
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-      },
-      body: body.toString(),
-    })
-    expect(response.status).toBe(200)
-    const data = await response.json()
-    expect(data.access_token).toBeTruthy()
-    expect(data.refresh_token).toBeTruthy()
-    const refreshToken2 = data.refresh_token
+    const rotation = await redeemRefreshToken(refreshToken1)
+    expect(rotation.status).toBe(200)
+    expect(rotation.data.access_token).toBeTruthy()
+    expect(rotation.data.refresh_token).toBeTruthy()
+    const refreshToken2 = rotation.data.refresh_token!
 
-    const body2 = new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken1,
-      client_id: TEST_CLIENT_ID,
-      client_secret: TEST_CLIENT_SECRET,
-    })
-    const response2 = await fetch(TOKEN, {
-      method: "POST",
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-      },
-      body: body2.toString(),
-    })
-    expect(response2.status).toBe(400)
-    const data2 = await response2.json()
-    expect(data2.error).toBe("invalid_grant")
+    const reuse = await redeemRefreshToken(refreshToken1)
+    expect(reuse.status).toBe(400)
+    expect(reuse.data.error).toBe("invalid_grant")
 
-    const body3 = new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken2,
-      client_id: TEST_CLIENT_ID,
-      client_secret: TEST_CLIENT_SECRET,
-    })
-    const response3 = await fetch(TOKEN, {
-      method: "POST",
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-      },
-      body: body3.toString(),
-    })
-    expect(response3.status).toBe(200)
-    const data3 = await response3.json()
-    expect(data3.access_token).toBeTruthy()
+    // The rejected reuse must not take down the chain the rotation issued.
+    const sibling = await redeemRefreshToken(refreshToken2)
+    expect(sibling.status).toBe(200)
+    expect(sibling.data.access_token).toBeTruthy()
   })
 
   test("revoked refresh token -> invalid_grant error", async ({ page }) => {

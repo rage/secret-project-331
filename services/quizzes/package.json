@@ -29,6 +29,7 @@
     "@react-aria/live-announcer": "^3.5.1",
     "@react-aria/overlays": "^3.32.1",
     "@react-aria/utils": "^3.34.1",
+    "@react-spring/web": "^10.1.0",
     "@react-stately/collections": "^3.13.1",
     "@react-stately/combobox": "^3.14.1",
     "@react-stately/datepicker": "^3.17.1",
@@ -62,7 +63,6 @@
     "react-hot-toast": "^2.6.0",
     "react-i18next": "^17.0.8",
     "react-popper": "^2.3.0",
-    "react-spring": "^10.0.4",
     "use-debounce": "^10.1.1",
     "uuid": "^14.0.1",
     "zod": "^4.4.3"

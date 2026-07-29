@@ -540,6 +540,7 @@ import type {
   HideCourseFromMyCoursesData,
   HideCourseFromMyCoursesResponses,
   IntrospectOauthTokenData,
+  IntrospectOauthTokenErrors,
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponses,
@@ -5435,10 +5436,10 @@ export const denyOauthDeviceVerification = <ThrowOnError extends boolean = true>
  * the active state and metadata of an access token.
  *
  * ### Security Features
- * - Client authentication is required (client_id and client_secret for confidential clients)
- * - Returns `active: false` for invalid/expired tokens or authentication failures
- * to prevent token enumeration attacks
- * - Always returns 200 OK, even for invalid tokens (per RFC 7662)
+ * - Client authentication is required (client_id and client_secret for confidential clients);
+ * an unknown client or bad secret is 401 `invalid_client` (RFC 7662 §2.3)
+ * - Returns 200 with `active: false` for an invalid/expired *token* (RFC 7662 §2.1), so token
+ * existence is never disclosed to an authenticated caller
  *
  * ### Request Parameters
  * - `token` (required): The token to be introspected
@@ -5459,6 +5460,11 @@ export const denyOauthDeviceVerification = <ThrowOnError extends boolean = true>
  * - `iss`: Issuer
  * - `jti`: JWT ID
  * - `token_type`: "Bearer" or "DPoP"
+ * - Non-standard members, returned only to callers that authenticated as a
+ * confidential client and omitted (never falsified) otherwise:
+ * - `upstream_id`: the token owner's legacy TMC user id
+ * - `client_bearer_allowed`: whether the client the token was issued to may use it
+ * as a plain Bearer credential. Consumers must fail closed if it is absent.
  *
  * Follows [RFC 7662 — OAuth 2.0 Token Introspection](https://datatracker.ietf.org/doc/html/rfc7662).
  *
@@ -5503,8 +5509,13 @@ export const denyOauthDeviceVerification = <ThrowOnError extends boolean = true>
  */
 export const introspectOauthToken = <ThrowOnError extends boolean = true>(
   options: Options<IntrospectOauthTokenData, ThrowOnError>,
-): RequestResult<IntrospectOauthTokenResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<IntrospectOauthTokenResponses, unknown, ThrowOnError, "data">({
+): RequestResult<IntrospectOauthTokenResponses, IntrospectOauthTokenErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    IntrospectOauthTokenResponses,
+    IntrospectOauthTokenErrors,
+    ThrowOnError,
+    "data"
+  >({
     ...urlSearchParamsBodySerializer,
     responseStyle: "data",
     url: "/api/v0/main-frontend/oauth/introspect",

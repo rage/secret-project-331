@@ -1067,14 +1067,10 @@ pub async fn authenticate_test_user(
 
 /// Maps a fixed, well-known test token to a seeded user. **Test/dev mode only.**
 ///
-/// The exercise-services client API's `UserFromOAuthToken` extractor calls this
-/// before the real OAuth-token path when `test_mode` is on, so tests can drive
-/// the API with a stable token instead of running a full device-authorization
-/// flow. Returns:
-///  - `Ok(Some(user))` when the token is a recognised fixed test token;
-///  - `Ok(None)` when it is not, so the caller falls through to real OAuth-token
-///    validation (this keeps genuine device-flow tokens working under test_mode);
-///  - `Err(..)` only if a recognised token's seeded user is unexpectedly missing.
+/// The exercise-services client API's `UserFromOAuthToken` extractor calls this before the real
+/// OAuth-token path when `test_mode` is on, so tests can skip the device-authorization flow.
+/// An unrecognised token yields `Ok(None)` so the caller falls through to real OAuth validation,
+/// keeping genuine device-flow tokens working under `test_mode`.
 pub async fn authenticate_test_token(
     conn: &mut PgConnection,
     token: &SecretString,

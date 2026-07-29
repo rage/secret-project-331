@@ -2,6 +2,7 @@
 import type { Locator, Page } from "@playwright/test"
 import { test } from "@playwright/test"
 
+import { createCourse } from "@/utils/flows/newCourse.flow"
 import { selectOrganization } from "@/utils/organizationUtils"
 import { addQuizFeedbackMessage } from "@/utils/quizFeedbackMessages"
 
@@ -22,19 +23,13 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-    await page.click(`button:text("Create")`)
-
-    await page.click('input[type="radio"]')
-
-    // Fill input[type="text"]
-    await page.getByRole("textbox", { name: "Name *", exact: true }).fill("exercise test")
-
-    await page.fill("text=Teacher in charge name", "teacher")
-    await page.fill("text=Teacher in charge email", "teacher@example.com")
-
-    await page.fill('textarea:below(:text("Description"))', "Course description")
-
-    await page.click(`button:text("Create"):below(:text("Course language"))`)
+    await createCourse(page, {
+      name: "exercise test",
+      language: "English",
+      teacherInChargeName: "teacher",
+      teacherInChargeEmail: "teacher@example.com",
+      description: "Course description",
+    })
 
     await page.getByText("Course created successfully").waitFor()
 

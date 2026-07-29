@@ -1,3 +1,4 @@
+use crate::library::oauth::Digest;
 use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
@@ -137,11 +138,14 @@ impl OAuthUserClientScopes {
     }
 
     /// One-shot revoke: remove all scopes and tokens for a (user, client) pair atomically.
+    ///
+    /// Returns the digests of the deleted access tokens so the caller can evict their
+    /// cached user mappings; without that they keep authenticating until the cache TTL.
     pub async fn revoke_user_client_everything(
         conn: &mut PgConnection,
         user_id: Uuid,
         client_id: Uuid,
-    ) -> ModelResult<()> {
+    ) -> ModelResult<Vec<Digest>> {
         let mut tx = conn.begin().await?;
 
         sqlx::query!(
@@ -152,16 +156,16 @@ impl OAuthUserClientScopes {
         .execute(&mut *tx)
         .await?;
 
-        sqlx::query!(
-            r#"DELETE FROM oauth_access_tokens WHERE user_id = $1 AND client_id = $2"#,
+        let deleted_digests = sqlx::query_scalar!(
+            r#"DELETE FROM oauth_access_tokens WHERE user_id = $1 AND client_id = $2 RETURNING digest"#,
             user_id,
             client_id
         )
-        .execute(&mut *tx)
+        .fetch_all(&mut *tx)
         .await?;
 
         sqlx::query!(
-            r#"UPDATE oauth_refresh_tokens SET revoked = true, rotated_at = NULL WHERE user_id = $1 AND client_id = $2"#,
+            r#"UPDATE oauth_refresh_tokens SET revoked = true WHERE user_id = $1 AND client_id = $2"#,
             user_id,
             client_id
         )
@@ -177,6 +181,6 @@ impl OAuthUserClientScopes {
         .await?;
 
         tx.commit().await?;
-        Ok(())
+        Ok(deleted_digests)
     }
 }

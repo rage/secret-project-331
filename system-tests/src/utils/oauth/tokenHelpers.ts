@@ -57,6 +57,40 @@ export async function exchangeCodeForToken(code: string, mode: AuthMode, codeVer
   return data as { access_token: string; refresh_token?: string; token_type?: string }
 }
 
+export interface RefreshGrantResponse {
+  status: number
+  data: {
+    access_token?: string
+    refresh_token?: string
+    error?: string
+    [key: string]: unknown
+  }
+}
+
+/**
+ * Redeem a refresh token at the /token endpoint with the test client's credentials.
+ * Returns the status and parsed body without asserting, so error cases can be checked too.
+ */
+export async function redeemRefreshToken(refreshToken: string): Promise<RefreshGrantResponse> {
+  const body = new URLSearchParams({
+    grant_type: "refresh_token",
+    refresh_token: refreshToken,
+    client_id: TEST_CLIENT_ID,
+    client_secret: TEST_CLIENT_SECRET,
+  })
+
+  const resp = await fetch(TOKEN, {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+    },
+    body: body.toString(),
+  })
+
+  return { status: resp.status, data: await resp.json() }
+}
+
 interface UserInfoResponse {
   sub: string
   [key: string]: unknown

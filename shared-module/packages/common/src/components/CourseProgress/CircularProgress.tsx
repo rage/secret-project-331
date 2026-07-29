@@ -2,9 +2,9 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useSpring } from "@react-spring/web"
 import { useLayoutEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useSpring } from "react-spring"
 
 import type { CircularProgressExtraProps } from "."
 import { baseTheme, headingFont, secondaryFont } from "../../styles"

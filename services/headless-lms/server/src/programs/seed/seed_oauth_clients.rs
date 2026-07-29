@@ -13,13 +13,10 @@ pub struct SeedOAuthClientsResult {
 
 /// The dev/CI HMAC key used to derive every stored client-secret digest below.
 ///
-/// `base/src/config.rs` loads `OAUTH_TOKEN_HMAC_KEY` raw from the environment, but the environment
-/// value is not what the manifest literally spells: `kubernetes/{dev,test}/headless-lms/env.yml`
-/// are `kind: Secret` manifests with a **`data:`** block, so Kubernetes base64-*decodes* each value
-/// before injecting it. `OAUTH_TOKEN_HMAC_KEY: cGlwcHVyaQ==` therefore reaches the process as
-/// `pippuri`. Seeded digests must be `HMAC-SHA-256(key = "pippuri", <secret>)` or client-secret
-/// validation can never match. `seeded_secret_digests_match_dev_hmac_key` pins that by reading the
-/// manifests and decoding them the way Kubernetes does, so a change on either side is caught.
+/// `kubernetes/{dev,test}/headless-lms/env.yml` are `kind: Secret` manifests, so Kubernetes
+/// base64-decodes each `data:` value before injecting it: `OAUTH_TOKEN_HMAC_KEY: cGlwcHVyaQ==`
+/// reaches the process as `pippuri`. Seeded digests must be
+/// `HMAC-SHA-256(key = "pippuri", <secret>)` or client-secret validation can never match.
 #[cfg_attr(not(test), allow(dead_code))]
 const DEV_OAUTH_TOKEN_HMAC_KEY: &str = "pippuri";
 
@@ -131,8 +128,8 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
 
     // Device-flow clients, dev/CI only; prod clients are provisioned by an operator.
 
-    // 4) tmc-vscode: public native client for the RFC 8628 device-flow login. Same
-    //    id and shape as prod (public clients have no secret to seed).
+    // tmc-vscode: public native client for the RFC 8628 device-flow login. Same id and shape
+    // as prod (public clients have no secret to seed).
     let device_grant_types = vec![GrantTypeName::DeviceCode, GrantTypeName::RefreshToken];
     let device_redirect_uris = vec!["urn:ietf:wg:oauth:2.0:oob".to_string()];
     let exercise_services_scopes = vec!["exercise-services".to_string()];
@@ -159,11 +156,9 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         oauth_client::OAuthClient::insert(&mut conn, tmc_vscode_params).await?;
     }
 
-    // 5) tmc-server-introspection-dev: confidential client tmc-server uses to introspect our
-    //    tokens locally. The dev client_id/secret intentionally differ from prod and match
-    //    tmc-server's config/secrets.yml dev defaults: id `tmc-server-introspection-dev`,
-    //    secret `for local development only, intentionally public`, digested under
-    //    DEV_OAUTH_TOKEN_HMAC_KEY (see that constant for why the key is `pippuri`).
+    // tmc-server-introspection-dev: confidential client tmc-server uses to introspect our
+    // tokens locally. Id and secret must match tmc-server's config/secrets.yml dev defaults,
+    // and intentionally differ from prod.
     let introspection_secret = Digest::from_str(INTROSPECTION_SECRET_DIGEST_HEX).unwrap(); // "for local development only, intentionally public"
     let no_grants: Vec<GrantTypeName> = vec![];
     let no_scopes: Vec<String> = vec![];
@@ -193,10 +188,9 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         oauth_client::OAuthClient::insert(&mut conn, introspection_params).await?;
     }
 
-    // 6) tmc-vscode-noscope-test: TEST/DEV ONLY. A device-flow client that carries a
-    //    scope other than exercise-services, so a token minted through it lets tests exercise
-    //    the exercise-services scope gate (403) without borrowing the shared test-client-id or
-    //    another spec's user. Not provisioned in prod.
+    // tmc-vscode-noscope-test: a device-flow client whose scopes exclude exercise-services, so
+    // tests can drive the scope gate (403) without borrowing the shared test client or another
+    // spec's user. Not provisioned in prod.
     let noscope_grant_types = vec![GrantTypeName::DeviceCode];
     let openid_scopes = vec!["openid".to_string()];
     let noscope_params = oauth_client::NewClientParams {
@@ -249,8 +243,7 @@ mod tests {
     /// Reads `OAUTH_TOKEN_HMAC_KEY` out of a `kind: Secret` manifest the way Kubernetes does:
     /// the `data:` values are base64, and the *decoded* bytes are what lands in the environment.
     ///
-    /// Deliberately does not parse YAML generically — the point is to mimic the one decoding step
-    /// that the seed previously got wrong.
+    /// Deliberately not a generic YAML parse; the point is to mimic that one decoding step.
     fn hmac_key_from_manifest(relative_path: &str) -> String {
         let path = Path::new(env!("CARGO_MANIFEST_DIR")).join(relative_path);
         let manifest = fs::read_to_string(&path)
@@ -289,13 +282,9 @@ mod tests {
         String::from_utf8(decoded).expect("OAUTH_TOKEN_HMAC_KEY must decode to UTF-8")
     }
 
-    /// Pin [`DEV_OAUTH_TOKEN_HMAC_KEY`] to the value the deployed dev/CI process actually receives.
-    ///
-    /// This is the assertion that was missing when the seeded digests were recomputed under the
-    /// literal manifest text `cGlwcHVyaQ==`: because those manifests are `kind: Secret` with a
-    /// `data:` block, Kubernetes base64-decodes them, so the process gets `pippuri`. Every
-    /// confidential-client authentication in CI failed with `invalid_client` / "invalid client
-    /// secret" while the offline-HMAC unit test still passed.
+    /// Pin [`DEV_OAUTH_TOKEN_HMAC_KEY`] to the value the deployed dev/CI process actually
+    /// receives. Without this, a key mismatch shows up only as `invalid_client` from every
+    /// confidential-client authentication in CI, while the offline-HMAC unit test stays green.
     #[test]
     fn dev_hmac_key_matches_kubernetes_env_manifests() {
         for manifest in DEV_ENV_MANIFESTS {

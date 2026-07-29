@@ -17,12 +17,6 @@ use headless_lms_models::oauth_refresh_tokens::{
 
 use super::token_query::TokenGrant;
 
-/// How long, in seconds, an already-rotated refresh token may still be redeemed
-/// (once more, without family-wide revocation) so two clients racing a refresh
-/// don't immediately log each other out. See [`process_token_grant`] refresh
-/// handling and `OAuthRefreshTokens::claim_reusable_after_rotation`.
-const REFRESH_TOKEN_REUSE_GRACE_SECONDS: i64 = 60;
-
 /// A pair of access and refresh tokens with their digests.
 pub struct TokenPair {
     pub access_token: String,
@@ -184,129 +178,62 @@ pub async fn process_token_grant(
         } => {
             let presented =
                 token_digest_sha256(refresh_token.expose_secret(), request.token_hmac_key);
-            // Consume with client_id check in WHERE clause to prevent DoS attacks
-            match OAuthRefreshTokens::consume_in_transaction(&mut tx, presented, request.client.id)
-                .await
-            {
-                Ok(old) => {
-                    // On `Err` the caller rolls back the transaction, so the consumed-token
-                    // update above is undone too and the refresh token isn't burned.
-                    let effective_scopes = resolve_refresh_scopes(&old.scopes, scope.as_deref())?;
-
-                    if let Some(expected_jkt) = old.dpop_jkt.as_deref() {
-                        let presented_jkt = request.dpop_jkt.ok_or_else(|| {
-                            TokenGrantError::InvalidClient(
-                                "missing DPoP header for sender-constrained refresh".into(),
-                            )
-                        })?;
-                        if presented_jkt != expected_jkt {
-                            return Err(TokenGrantError::DpopMismatch);
-                        }
-                    }
-
-                    let refresh_issue_type = if old.dpop_jkt.is_some() {
-                        TokenType::DPoP
-                    } else {
-                        request.issued_token_type
-                    };
-                    let at_jkt = old.dpop_jkt.as_deref().or(request.dpop_jkt);
-                    let refresh_jkt = old.dpop_jkt.as_deref().or(request.dpop_jkt);
-
-                    OAuthRefreshTokens::complete_refresh_token_rotation_in_transaction(
-                        &mut tx,
-                        &old,
-                        RotateRefreshTokenParams {
-                            new_refresh_token_digest: &request.token_pair.refresh_digest,
-                            new_access_token_digest: &request.token_pair.access_digest,
-                            access_token_expires_at: request.access_expires_at,
-                            refresh_token_expires_at: request.refresh_expires_at,
-                            access_token_type: refresh_issue_type,
-                            access_token_dpop_jkt: at_jkt,
-                            refresh_token_dpop_jkt: refresh_jkt,
-                            scopes: &effective_scopes,
-                        },
-                    )
-                    .await
-                    .map_err(|e| TokenGrantError::ServerError(format!("{}", e)))?;
-
-                    Ok(TokenGrantResult {
-                        user_id: old.user_id,
-                        scopes: effective_scopes,
-                        nonce: None,
-                        access_expires_at: request.access_expires_at,
-                        issue_id_token: false,
-                    })
-                }
-                Err(_) => {
-                    // The token isn't valid, but it may have been rotated moments ago by a racing
-                    // client. Within the grace window it is redeemed once more without revoking
-                    // the family, so the sibling chain survives. Hard-revoked, unknown, and
-                    // older tokens still fail.
-                    let presented =
-                        token_digest_sha256(refresh_token.expose_secret(), request.token_hmac_key);
-                    let rotated_after =
-                        Utc::now() - Duration::seconds(REFRESH_TOKEN_REUSE_GRACE_SECONDS);
-                    // Claiming both finds the token and clears its `rotated_at`, so a second
-                    // reuse matches no rows and fails as invalid_grant.
-                    let reused = OAuthRefreshTokens::claim_reusable_after_rotation(
-                        &mut tx,
-                        presented,
-                        request.client.id,
-                        rotated_after,
-                    )
+            // Consume with client_id check in WHERE clause to prevent DoS attacks.
+            // A token that isn't currently valid — unknown, expired, revoked, or already
+            // rotated — fails as invalid_grant here; the rotation that superseded it
+            // already revoked the whole (user, client) family.
+            let old =
+                OAuthRefreshTokens::consume_in_transaction(&mut tx, presented, request.client.id)
                     .await
                     .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?;
 
-                    // Same as the normal rotation path above; a rejection here also rolls
-                    // back the grace-window claim (which cleared `rotated_at`).
-                    let effective_scopes =
-                        resolve_refresh_scopes(&reused.scopes, scope.as_deref())?;
+            // On `Err` the caller rolls back the transaction, so the consumed-token
+            // update above is undone too and the refresh token isn't burned.
+            let effective_scopes = resolve_refresh_scopes(&old.scopes, scope.as_deref())?;
 
-                    if let Some(expected_jkt) = reused.dpop_jkt.as_deref() {
-                        let presented_jkt = request.dpop_jkt.ok_or_else(|| {
-                            TokenGrantError::InvalidClient(
-                                "missing DPoP header for sender-constrained refresh".into(),
-                            )
-                        })?;
-                        if presented_jkt != expected_jkt {
-                            return Err(TokenGrantError::DpopMismatch);
-                        }
-                    }
-
-                    let refresh_issue_type = if reused.dpop_jkt.is_some() {
-                        TokenType::DPoP
-                    } else {
-                        request.issued_token_type
-                    };
-                    let at_jkt = reused.dpop_jkt.as_deref().or(request.dpop_jkt);
-                    let refresh_jkt = reused.dpop_jkt.as_deref().or(request.dpop_jkt);
-
-                    OAuthRefreshTokens::issue_tokens_reused_within_grace_in_transaction(
-                        &mut tx,
-                        &reused,
-                        RotateRefreshTokenParams {
-                            new_refresh_token_digest: &request.token_pair.refresh_digest,
-                            new_access_token_digest: &request.token_pair.access_digest,
-                            access_token_expires_at: request.access_expires_at,
-                            refresh_token_expires_at: request.refresh_expires_at,
-                            access_token_type: refresh_issue_type,
-                            access_token_dpop_jkt: at_jkt,
-                            refresh_token_dpop_jkt: refresh_jkt,
-                            scopes: &effective_scopes,
-                        },
+            if let Some(expected_jkt) = old.dpop_jkt.as_deref() {
+                let presented_jkt = request.dpop_jkt.ok_or_else(|| {
+                    TokenGrantError::InvalidClient(
+                        "missing DPoP header for sender-constrained refresh".into(),
                     )
-                    .await
-                    .map_err(|e| TokenGrantError::ServerError(format!("{}", e)))?;
-
-                    Ok(TokenGrantResult {
-                        user_id: reused.user_id,
-                        scopes: effective_scopes,
-                        nonce: None,
-                        access_expires_at: request.access_expires_at,
-                        issue_id_token: false,
-                    })
+                })?;
+                if presented_jkt != expected_jkt {
+                    return Err(TokenGrantError::DpopMismatch);
                 }
             }
+
+            let refresh_issue_type = if old.dpop_jkt.is_some() {
+                TokenType::DPoP
+            } else {
+                request.issued_token_type
+            };
+            let at_jkt = old.dpop_jkt.as_deref().or(request.dpop_jkt);
+            let refresh_jkt = old.dpop_jkt.as_deref().or(request.dpop_jkt);
+
+            OAuthRefreshTokens::complete_refresh_token_rotation_in_transaction(
+                &mut tx,
+                &old,
+                RotateRefreshTokenParams {
+                    new_refresh_token_digest: &request.token_pair.refresh_digest,
+                    new_access_token_digest: &request.token_pair.access_digest,
+                    access_token_expires_at: request.access_expires_at,
+                    refresh_token_expires_at: request.refresh_expires_at,
+                    access_token_type: refresh_issue_type,
+                    access_token_dpop_jkt: at_jkt,
+                    refresh_token_dpop_jkt: refresh_jkt,
+                    scopes: &effective_scopes,
+                },
+            )
+            .await
+            .map_err(|e| TokenGrantError::ServerError(format!("{}", e)))?;
+
+            Ok(TokenGrantResult {
+                user_id: old.user_id,
+                scopes: effective_scopes,
+                nonce: None,
+                access_expires_at: request.access_expires_at,
+                issue_id_token: false,
+            })
         }
         TokenGrant::DeviceCode { .. } => {
             // Handled before the transaction is opened (see process_token_grant).
@@ -818,8 +745,11 @@ mod tests {
         tx.rollback().await;
     }
 
+    /// Refresh tokens are single-use: the rotation that supersedes a token revokes the
+    /// whole (user, client) family, so presenting the old token afterwards must fail as
+    /// `invalid_grant` (RFC 9700 refresh token reuse detection).
     #[actix_web::test]
-    async fn refresh_reuse_within_grace_window_branches_without_family_revocation() {
+    async fn refresh_reuse_of_a_rotated_token_fails_with_invalid_grant() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
         let key = hmac_key();
@@ -827,7 +757,7 @@ mod tests {
         let user = users::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
-            "refresh-grace@example.com",
+            "refresh-reuse@example.com",
             None,
             None,
         )
@@ -835,7 +765,7 @@ mod tests {
         .unwrap();
         let client = insert_device_client(tx.as_mut()).await;
 
-        // RT1 -> RT2 (normal rotation; revokes the family, marks RT1 rotated).
+        // RT1 -> RT2 (normal rotation; revokes the family).
         let rt1 = insert_refresh_token(tx.as_mut(), user, client.id).await;
         let pair2 = generate_token_pair(&key);
         let rt2 = pair2.refresh_token.clone();
@@ -847,203 +777,31 @@ mod tests {
         .await
         .expect("initial rotation should succeed");
 
-        // Reuse RT1 within the grace window -> RT3, WITHOUT revoking RT2.
-        let pair3 = generate_token_pair(&key);
-        let rt3 = pair3.refresh_token.clone();
-        let grant2 = refresh_grant(&rt1);
-        process_token_grant(
-            tx.as_mut(),
-            build_request_with_pair(&grant2, &client, &key, pair3),
-        )
-        .await
-        .expect("reuse within grace window should succeed");
-
-        // Both resulting chains are live (branching).
+        // The rotation revoked RT1 along with the rest of the family.
         assert!(
-            OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&rt2, &key))
+            OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&rt1, &key))
                 .await
-                .is_ok(),
-            "RT2 (original rotation chain) must stay valid"
-        );
-        assert!(
-            OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&rt3, &key))
-                .await
-                .is_ok(),
-            "RT3 (grace-reuse chain) must be valid"
+                .is_err(),
+            "the rotated token must no longer be valid"
         );
 
-        tx.rollback().await;
-    }
-
-    #[actix_web::test]
-    async fn refresh_second_reuse_within_grace_window_fails_with_invalid_grant() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let key = hmac_key();
-
-        let user = users::insert(
-            tx.as_mut(),
-            PKeyPolicy::Generate,
-            "refresh-grace-twice@example.com",
-            None,
-            None,
-        )
-        .await
-        .unwrap();
-        let client = insert_device_client(tx.as_mut()).await;
-
-        // RT1 -> RT2 (normal rotation; marks RT1 rotated).
-        let rt1 = insert_refresh_token(tx.as_mut(), user, client.id).await;
-        let pair2 = generate_token_pair(&key);
-        let rt2 = pair2.refresh_token.clone();
-        process_token_grant(
-            tx.as_mut(),
-            build_request_with_pair(&refresh_grant(&rt1), &client, &key, pair2),
-        )
-        .await
-        .expect("initial rotation should succeed");
-
-        // First reuse of RT1 within the grace window -> RT3, WITHOUT family revoke.
-        let pair3 = generate_token_pair(&key);
-        let rt3 = pair3.refresh_token.clone();
-        process_token_grant(
-            tx.as_mut(),
-            build_request_with_pair(&refresh_grant(&rt1), &client, &key, pair3),
-        )
-        .await
-        .expect("first reuse within grace window should branch");
-
-        // Second reuse of the SAME rotated token, still inside the window, must
-        // fail: the claim cleared RT1's rotated_at, so it is single-use.
-        let err = process_token_grant(
-            tx.as_mut(),
-            build_request_with_pair(
-                &refresh_grant(&rt1),
-                &client,
-                &key,
-                generate_token_pair(&key),
-            ),
-        )
-        .await
-        .expect_err("a second reuse of the same rotated token must fail");
-        assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
-
-        // Neither sibling chain from the single allowed branch was revoked.
-        assert!(
-            OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&rt2, &key))
-                .await
-                .is_ok(),
-            "RT2 must stay valid after the rejected second reuse"
-        );
-        assert!(
-            OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&rt3, &key))
-                .await
-                .is_ok(),
-            "RT3 (the single allowed grace branch) must stay valid"
-        );
-
-        tx.rollback().await;
-    }
-
-    #[actix_web::test]
-    async fn refresh_reuse_outside_grace_window_keeps_family_revocation() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let key = hmac_key();
-
-        let user = users::insert(
-            tx.as_mut(),
-            PKeyPolicy::Generate,
-            "refresh-late@example.com",
-            None,
-            None,
-        )
-        .await
-        .unwrap();
-        let client = insert_device_client(tx.as_mut()).await;
-
-        let rt1 = insert_refresh_token(tx.as_mut(), user, client.id).await;
-        let pair2 = generate_token_pair(&key);
-        let rt2 = pair2.refresh_token.clone();
-        let grant1 = refresh_grant(&rt1);
-        process_token_grant(
-            tx.as_mut(),
-            build_request_with_pair(&grant1, &client, &key, pair2),
-        )
-        .await
-        .expect("initial rotation should succeed");
-
-        // Backdate the rotation so RT1 is now outside the grace window.
-        let rt1_digest = token_digest_sha256(&rt1, &key);
-        sqlx::query("UPDATE oauth_refresh_tokens SET rotated_at = $1 WHERE digest = $2")
-            .bind(Utc::now() - Duration::seconds(REFRESH_TOKEN_REUSE_GRACE_SECONDS + 60))
-            .bind(rt1_digest.as_slice())
-            .execute(&mut **tx.as_mut())
-            .await
-            .unwrap();
-
-        // Reuse of RT1 outside the window fails.
+        // Reusing RT1 fails, even immediately after the rotation.
         let grant2 = refresh_grant(&rt1);
         let err = process_token_grant(
             tx.as_mut(),
             build_request_with_pair(&grant2, &client, &key, generate_token_pair(&key)),
         )
         .await
-        .expect_err("reuse outside the grace window must fail");
+        .expect_err("reusing a rotated refresh token must fail");
         assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
 
-        // The current chain (RT2) is untouched.
+        // The rejected reuse must not take down the live chain.
         assert!(
             OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&rt2, &key))
                 .await
                 .is_ok(),
-            "RT2 must remain valid after a failed out-of-window reuse"
+            "RT2 must remain valid after a rejected reuse of its predecessor"
         );
-
-        tx.rollback().await;
-    }
-
-    #[actix_web::test]
-    async fn refresh_hard_revoked_token_is_not_resurrected_by_grace() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let key = hmac_key();
-
-        let user = users::insert(
-            tx.as_mut(),
-            PKeyPolicy::Generate,
-            "refresh-revoked@example.com",
-            None,
-            None,
-        )
-        .await
-        .unwrap();
-        let client = insert_device_client(tx.as_mut()).await;
-
-        let rt1 = insert_refresh_token(tx.as_mut(), user, client.id).await;
-        let pair2 = generate_token_pair(&key);
-        let grant1 = refresh_grant(&rt1);
-        process_token_grant(
-            tx.as_mut(),
-            build_request_with_pair(&grant1, &client, &key, pair2),
-        )
-        .await
-        .expect("initial rotation should succeed");
-
-        // Hard-revoke the family (e.g. logout): clears rotated_at, so RT1 must
-        // not be resurrectable even though it was rotated moments ago.
-        OAuthRefreshTokens::revoke_all_by_user_client(tx.as_mut(), user, client.id)
-            .await
-            .unwrap();
-
-        let grant2 = refresh_grant(&rt1);
-        let err = process_token_grant(
-            tx.as_mut(),
-            build_request_with_pair(&grant2, &client, &key, generate_token_pair(&key)),
-        )
-        .await
-        .expect_err("hard-revoked token must not be resurrected");
-        assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
 
         tx.rollback().await;
     }

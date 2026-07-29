@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { createCourse } from "@/utils/flows/newCourse.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -78,17 +79,12 @@ test.describe("admin", () => {
     )
     await expect(page.getByText("Introduction to Statistics")).toBeVisible()
 
-    await page.click(`button:text("Create")`)
-    // Fill input
-    await page.fill("input[label=Name]", "Advanced drafts")
-    // Fill .css-1cftqx7 div div:nth-child(3) div label .css-1m9fudm
-    await page.fill('input[label="Teacher in charge name"]', "admin")
-    // Fill div div:nth-child(4) div label .css-1m9fudm
-    await page.fill('input[label="Teacher in charge email"]', "admin@example.com")
-
-    await page.check(`label:has-text("English")`)
-
-    await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
+    await createCourse(page, {
+      name: "Advanced drafts",
+      language: "English",
+      teacherInChargeName: "admin",
+      teacherInChargeEmail: "admin@example.com",
+    })
 
     await page.locator("[aria-label=\"Manage\\ course\\ \\'Advanced\\ drafts\\'\"] svg").click()
 
@@ -126,16 +122,13 @@ test.describe("Teacher", () => {
   test("Can give students access to the draft course", async ({ page, browser }) => {
     await page.goto("http://project-331.local/organizations")
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-    await page
-      .getByRole("region", { name: "Courses:" })
-      .getByRole("button", { name: "Create", exact: true })
-      .click()
-    await page.getByLabel("Name  *", { exact: true }).fill("Best draft course")
-    await page.getByLabel("Teacher in charge name  *").fill("Draft Teacher")
-    await page.getByLabel("Teacher in charge email  *").fill("draft@example.com")
-    await page.getByRole("textbox", { name: "Description" }).fill("draft")
-    await page.locator("label").filter({ hasText: "English" }).click()
-    await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
+    await createCourse(page, {
+      name: "Best draft course",
+      language: "English",
+      teacherInChargeName: "Draft Teacher",
+      teacherInChargeEmail: "draft@example.com",
+      description: "draft",
+    })
     await page.getByText("Course created successfully").waitFor()
     await page.getByRole("link", { name: "Manage course 'Best draft course'" }).click()
     await page.getByRole("tab", { name: "Permissions" }).click()
@@ -158,17 +151,13 @@ test.describe("Teacher", () => {
   test("teacher gets permissions to new course when copying a course", async ({ page }) => {
     await page.goto("http://project-331.local/organizations")
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-    await page.getByRole("button", { name: "Create" }).first().click()
-    await page.getByLabel("Teacher in charge name  *").fill("Draft Teacher")
-    await page.getByLabel("Teacher in charge email  *").fill("draft@example.com")
-    await page.getByLabel("Copy content from another course").check()
-    await page
-      .locator("#duplicate-course-select-menu")
-      .selectOption("639f4d25-9376-49b5-bcca-7cba18c38565")
-    await page.getByLabel("Name  *", { exact: true }).click()
-    await page.getByLabel("Name  *", { exact: true }).fill("Introduction to localizing copy")
-    await page.getByLabel("English").check()
-    await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
+    await createCourse(page, {
+      name: "Introduction to localizing copy",
+      language: "English",
+      teacherInChargeName: "Draft Teacher",
+      teacherInChargeEmail: "draft@example.com",
+      copyContentFromCourseId: "639f4d25-9376-49b5-bcca-7cba18c38565",
+    })
     await page.getByText("Course created successfully").waitFor()
 
     await page
@@ -183,22 +172,14 @@ test.describe("Teacher", () => {
   }) => {
     await page.goto("http://project-331.local/organizations")
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-    await page.getByRole("button", { name: "Create" }).first().click()
-    await page.getByLabel("Teacher in charge name  *").fill("Draft Teacher")
-    await page.getByLabel("Teacher in charge email  *").fill("draft@example.com")
-    await page.getByLabel("Copy content from another course").check()
-    await page
-      .locator("#duplicate-course-select-menu")
-      .selectOption("639f4d25-9376-49b5-bcca-7cba18c38565")
-    await page
-      .getByLabel("Grant access to this course to everyone who had access to the original one")
-      .check()
-    await page.getByLabel("Name  *", { exact: true }).click()
-    await page
-      .getByLabel("Name  *", { exact: true })
-      .fill("Introduction to localizing copy with permissions")
-    await page.getByLabel("English").check()
-    await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
+    await createCourse(page, {
+      name: "Introduction to localizing copy with permissions",
+      language: "English",
+      teacherInChargeName: "Draft Teacher",
+      teacherInChargeEmail: "draft@example.com",
+      copyContentFromCourseId: "639f4d25-9376-49b5-bcca-7cba18c38565",
+      grantAccessToOriginalUsers: true,
+    })
     await page.getByText("Course created successfully").waitFor()
 
     await page

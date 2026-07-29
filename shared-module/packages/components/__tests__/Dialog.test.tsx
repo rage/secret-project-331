@@ -33,9 +33,17 @@ function DialogHarness(props: { isDismissable?: boolean; onClose?: () => void })
   )
 }
 
+/**
+ * react-aria's outside-interaction detection binds `pointerdown`+`click` only when
+ * `PointerEvent` exists, and falls back to `mousedown`+`mouseup` when it does not.
+ * jsdom provides no `PointerEvent`, so drive both sequences: whichever pair react-aria
+ * bound fires exactly once, and the other pair is ignored by the branch it did not take.
+ */
 function clickUnderlay() {
   const underlay = screen.getByRole("dialog").parentElement!
   fireEvent.pointerDown(underlay)
+  fireEvent.mouseDown(underlay)
+  fireEvent.mouseUp(underlay)
   fireEvent.click(underlay)
 }
 

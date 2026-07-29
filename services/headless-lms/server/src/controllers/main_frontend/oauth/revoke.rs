@@ -162,7 +162,9 @@ pub async fn revoke(
                             token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                         OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
                         // Keeps the DB delete above from leaving a stale cache hit.
-                        invalidate_cached_user(&cache, &form.token).await;
+                        let token_digest =
+                            token_digest_sha256(form.token.expose_secret(), token_hmac_key);
+                        invalidate_cached_user(&cache, &token_digest, token_hmac_key).await;
                     }
                     true
                 }
@@ -257,7 +259,9 @@ pub async fn revoke(
                                 token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                             OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
                             // Keeps the DB delete above from leaving a stale cache hit.
-                            invalidate_cached_user(&cache, &form.token).await;
+                            let token_digest =
+                                token_digest_sha256(form.token.expose_secret(), token_hmac_key);
+                            invalidate_cached_user(&cache, &token_digest, token_hmac_key).await;
                         }
                     }
                     Err(err) => {
@@ -294,7 +298,9 @@ pub async fn revoke(
                             token_digest_sha256(form.token.expose_secret(), token_hmac_key);
                         OAuthAccessToken::revoke_by_digest(&mut conn, token_digest).await?;
                         // Keeps the DB delete above from leaving a stale cache hit.
-                        invalidate_cached_user(&cache, &form.token).await;
+                        let token_digest =
+                            token_digest_sha256(form.token.expose_secret(), token_hmac_key);
+                        invalidate_cached_user(&cache, &token_digest, token_hmac_key).await;
                     }
                     true
                 }

@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use futures_util::{FutureExt, future::LocalBoxFuture};
 use headless_lms_utils::cache::Cache;
 use models::{
-    library::oauth::{EXERCISE_SERVICES_SCOPE, token_digest_sha256},
+    library::oauth::{Digest, EXERCISE_SERVICES_SCOPE, token_digest_sha256},
     oauth_access_token::{OAuthAccessToken, TokenType},
     oauth_client::OAuthClient,
     users::User,
@@ -64,13 +64,9 @@ fn forbidden(message: &str) -> ControllerError {
 
 /// Classify a model lookup error raised while resolving a Bearer token.
 ///
-/// A genuinely absent row — the token, its client, or its user does not exist
-/// (or the user is soft-deleted) — is an authentication failure and maps to
-/// `401` with the `unauthorized` body the langs client keys on. Any other error
-/// is an infrastructure failure (a sqlx connection/statement error surfaces as
-/// `ModelErrorType::Database`) and must propagate as a `500`.
-///
-/// The distinction is load-bearing: langs turns a `401` into
+/// An absent row (token, client or user missing, or the user soft-deleted) is an
+/// authentication failure and maps to `401`; anything else is infrastructure and must
+/// propagate as `500`. The distinction is load-bearing: langs turns a `401` into
 /// refresh-then-DELETE-credentials, so collapsing a transient DB blip into `401` would
 /// force-log-out every user for the duration of the outage.
 fn lookup_error(err: models::ModelError, unauthorized_message: &str) -> ControllerError {
@@ -203,17 +199,19 @@ impl FromRequest for UserFromOAuthToken {
                 }
             }
 
+            let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
+            let digest = token_digest_sha256(token.expose_secret(), token_hmac_key);
+
             // A cache hit skips `resolve_oauth_user`, and with it the soft-delete and
             // revocation checks, for the cache TTL. The TTL is clamped to the token's own
             // remaining lifetime so a cached mapping never outlives the token.
-            let user = match load_user(&cache, &token).await {
+            let user = match load_user(&cache, &digest, token_hmac_key).await {
                 Some(user) => user,
                 None => {
-                    let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
                     let (user, expires_at) =
                         resolve_oauth_user(&mut conn, &token, token_hmac_key).await?;
                     let ttl = cache_ttl_for_token(expires_at, Utc::now());
-                    cache_user(&cache, &token, &user, ttl).await;
+                    cache_user(&cache, &digest, token_hmac_key, &user, ttl).await;
                     user
                 }
             };
@@ -224,10 +222,19 @@ impl FromRequest for UserFromOAuthToken {
     }
 }
 
-fn token_to_cache_key(token: &SecretString) -> String {
-    let mut hasher = blake3::Hasher::new();
-    hasher.update(token.expose_secret().as_bytes());
-    format!("user:{}", hasher.finalize().to_hex())
+/// Domain separator for the cache-key KDF. Changing it invalidates every cache entry.
+const CACHE_KEY_CONTEXT: &str = "headless-lms exercise-services token cache v1";
+
+/// Cache key for a token, derived from its `oauth_access_tokens.digest` rather than the token
+/// plaintext: bulk revocation only ever holds digests, so a plaintext-derived key could not
+/// be evicted. Keyed (not a bare hash) so a leaked Redis dump is inert and a guessed digest
+/// cannot be confirmed offline.
+fn digest_to_cache_key(digest: &Digest, token_hmac_key: &SecretString) -> String {
+    let subkey = blake3::derive_key(CACHE_KEY_CONTEXT, token_hmac_key.expose_secret().as_bytes());
+    format!(
+        "user:{}",
+        blake3::keyed_hash(&subkey, digest.as_slice()).to_hex()
+    )
 }
 
 /// Upper bound on cache TTL, independent of the token's own expiry.
@@ -240,19 +247,41 @@ fn cache_ttl_for_token(expires_at: DateTime<Utc>, now: DateTime<Utc>) -> Duratio
     until_expiry.min(MAX_CACHE_TTL)
 }
 
-pub async fn cache_user(cache: &Cache, token: &SecretString, user: &User, ttl: Duration) {
-    cache.cache_json(token_to_cache_key(token), user, ttl).await;
+pub async fn cache_user(
+    cache: &Cache,
+    digest: &Digest,
+    token_hmac_key: &SecretString,
+    user: &User,
+    ttl: Duration,
+) {
+    cache
+        .cache_json(digest_to_cache_key(digest, token_hmac_key), user, ttl)
+        .await;
 }
 
-pub async fn load_user(cache: &Cache, token: &SecretString) -> Option<User> {
-    cache.get_json(token_to_cache_key(token)).await
+pub async fn load_user(
+    cache: &Cache,
+    digest: &Digest,
+    token_hmac_key: &SecretString,
+) -> Option<User> {
+    cache
+        .get_json(digest_to_cache_key(digest, token_hmac_key))
+        .await
 }
 
 /// Evicts a cached user mapping. Call this right after revoking a token so it can't
-/// keep authenticating from a stale cache hit for the rest of its TTL. Needs the
-/// plaintext (the cache is keyed by its hash, not the DB digest).
-pub(crate) async fn invalidate_cached_user(cache: &Cache, token: &SecretString) {
-    cache.invalidate(token_to_cache_key(token)).await;
+/// keep authenticating from a stale cache hit for the rest of its TTL.
+///
+/// Entries written before this keying scheme shipped are unreachable and only age out
+/// within `MAX_CACHE_TTL`.
+pub(crate) async fn invalidate_cached_user(
+    cache: &Cache,
+    digest: &Digest,
+    token_hmac_key: &SecretString,
+) {
+    cache
+        .invalidate(digest_to_cache_key(digest, token_hmac_key))
+        .await;
 }
 
 #[cfg(test)]
@@ -578,26 +607,9 @@ mod tests {
     /// matching `headless_lms_utils::cache`'s own test convention.
     #[actix_web::test]
     async fn revoking_an_access_token_evicts_its_cached_user() {
-        let Some(redis_url) = test_redis_url() else {
-            eprintln!(
-                "REDIS_URL not set; skipping revoke-then-cache integration test \
-                 (see headless_lms_utils::cache's own test for the same convention)"
-            );
+        let Some(cache) = connected_test_cache().await else {
             return;
         };
-        let cache = Cache::new(&redis_url).expect("failed to construct Redis cache client");
-        // `Cache::wait_for_initial_connection` is `#[cfg(test)]` *inside the
-        // utils crate*, so it isn't visible here (cfg(test) doesn't cross a
-        // crate boundary into a downstream dependent's tests) — poll the
-        // public `initial_connection_successful` instead.
-        let connect_deadline = tokio::time::Instant::now() + Duration::from_secs(10);
-        while !cache.initial_connection_successful() {
-            assert!(
-                tokio::time::Instant::now() < connect_deadline,
-                "failed to connect to Redis within timeout"
-            );
-            tokio::time::sleep(Duration::from_millis(100)).await;
-        }
 
         insert_data!(:tx, :user);
         let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
@@ -617,24 +629,27 @@ mod tests {
             .await
             .expect("token should resolve before revocation");
         let ttl = cache_ttl_for_token(expires_at, Utc::now());
-        cache_user(&cache, &token, &resolved, ttl).await;
+        let digest = token_digest_sha256(&plaintext, &hmac_key());
+        cache_user(&cache, &digest, &hmac_key(), &resolved, ttl).await;
         assert!(
-            load_user(&cache, &token).await.is_some(),
+            load_user(&cache, &digest, &hmac_key()).await.is_some(),
             "user should be cached after the first successful resolution"
         );
 
         // Revoke it the way the /revoke controller's access-token path does:
         // hard-delete the DB row, then evict the cache entry.
-        let digest = token_digest_sha256(&plaintext, &hmac_key());
-        OAuthAccessToken::revoke_by_digest(tx.as_mut(), digest)
-            .await
-            .expect("revoke_by_digest should succeed");
-        invalidate_cached_user(&cache, &token).await;
+        OAuthAccessToken::revoke_by_digest(
+            tx.as_mut(),
+            token_digest_sha256(&plaintext, &hmac_key()),
+        )
+        .await
+        .expect("revoke_by_digest should succeed");
+        invalidate_cached_user(&cache, &digest, &hmac_key()).await;
 
         // The very next lookup must miss the cache (not just eventually,
         // once the TTL naturally expires).
         assert!(
-            load_user(&cache, &token).await.is_none(),
+            load_user(&cache, &digest, &hmac_key()).await.is_none(),
             "a revoked token's cache entry must not survive revocation"
         );
 
@@ -644,5 +659,123 @@ mod tests {
             .await
             .expect_err("a revoked token must not resolve from the DB either");
         assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+    }
+
+    /// The bug this keying scheme exists for: bulk revocation holds no token plaintext, so
+    /// with a plaintext-derived cache key it could not evict and the token kept
+    /// authenticating for up to `MAX_CACHE_TTL`.
+    ///
+    /// Needs a real Redis; a no-op (not a failure) when `REDIS_URL` isn't set.
+    #[actix_web::test]
+    async fn bulk_revoking_a_clients_tokens_evicts_their_cached_users() {
+        let Some(cache) = connected_test_cache().await else {
+            return;
+        };
+
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let plaintext = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        let (resolved, expires_at) =
+            resolve_oauth_user(tx.as_mut(), &secret(&plaintext), &hmac_key())
+                .await
+                .expect("token should resolve before revocation");
+        let digest = token_digest_sha256(&plaintext, &hmac_key());
+        cache_user(
+            &cache,
+            &digest,
+            &hmac_key(),
+            &resolved,
+            cache_ttl_for_token(expires_at, Utc::now()),
+        )
+        .await;
+        assert!(load_user(&cache, &digest, &hmac_key()).await.is_some());
+
+        // The bulk path never sees plaintext — it must be able to evict from the digests alone.
+        let revoked =
+            models::oauth_user_client_scopes::OAuthUserClientScopes::revoke_user_client_everything(
+                tx.as_mut(),
+                user,
+                client.id,
+            )
+            .await
+            .expect("bulk revoke should succeed");
+        assert_eq!(
+            revoked.len(),
+            1,
+            "bulk revoke must return the deleted digest"
+        );
+        for revoked_digest in &revoked {
+            invalidate_cached_user(&cache, revoked_digest, &hmac_key()).await;
+        }
+
+        assert!(
+            load_user(&cache, &digest, &hmac_key()).await.is_none(),
+            "a bulk-revoked token's cache entry must not survive revocation"
+        );
+    }
+
+    #[test]
+    fn cache_key_is_not_the_db_digest() {
+        let digest = token_digest_sha256("some-token", &hmac_key());
+        let key = digest_to_cache_key(&digest, &hmac_key());
+        // A key that merely re-encoded the digest would leak it into Redis.
+        let digest_hex: String = digest
+            .as_slice()
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect();
+        assert!(!key.contains(&digest_hex));
+    }
+
+    #[test]
+    fn cache_key_is_stable_per_digest() {
+        let a = token_digest_sha256("token-a", &hmac_key());
+        let b = token_digest_sha256("token-b", &hmac_key());
+        assert_eq!(
+            digest_to_cache_key(&a, &hmac_key()),
+            digest_to_cache_key(&a, &hmac_key())
+        );
+        assert_ne!(
+            digest_to_cache_key(&a, &hmac_key()),
+            digest_to_cache_key(&b, &hmac_key())
+        );
+    }
+
+    #[test]
+    fn cache_key_depends_on_the_hmac_key() {
+        let digest = token_digest_sha256("token", &hmac_key());
+        let other = secret("a-different-hmac-key");
+        assert_ne!(
+            digest_to_cache_key(&digest, &hmac_key()),
+            digest_to_cache_key(&digest, &other)
+        );
+    }
+
+    /// A Redis-backed `Cache` that has completed its initial connection, or `None` when
+    /// `REDIS_URL` isn't set (matching `headless_lms_utils::cache`'s own test convention).
+    async fn connected_test_cache() -> Option<Cache> {
+        let redis_url = test_redis_url()?;
+        let cache = Cache::new(&redis_url).expect("failed to construct Redis cache client");
+        // `Cache::wait_for_initial_connection` is `#[cfg(test)]` *inside the utils crate*, so
+        // it isn't visible here (cfg(test) doesn't cross a crate boundary into a downstream
+        // dependent's tests) — poll the public `initial_connection_successful` instead.
+        let deadline = tokio::time::Instant::now() + Duration::from_secs(10);
+        while !cache.initial_connection_successful() {
+            assert!(
+                tokio::time::Instant::now() < deadline,
+                "failed to connect to Redis within timeout"
+            );
+            tokio::time::sleep(Duration::from_millis(100)).await;
+        }
+        Some(cache)
     }
 }

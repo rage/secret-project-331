@@ -170,6 +170,8 @@ impl OAuthAccessToken {
         }
     }
 
+    /// Discards the deleted digests, so callers cannot evict the exercise-services token cache.
+    /// Prefer `OAuthUserClientScopes::revoke_user_client_everything`, which returns them.
     pub async fn delete_all_by_user_client(
         conn: &mut PgConnection,
         user_id: Uuid,

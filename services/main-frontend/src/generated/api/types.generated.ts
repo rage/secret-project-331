@@ -7839,6 +7839,13 @@ export type IntrospectOauthTokenData = {
   url: "/api/v0/main-frontend/oauth/introspect"
 }
 
+export type IntrospectOauthTokenErrors = {
+  /**
+   * Client authentication failed (invalid_client)
+   */
+  401: unknown
+}
+
 export type IntrospectOauthTokenResponses = {
   /**
    * OAuth token introspection response

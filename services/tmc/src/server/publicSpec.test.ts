@@ -6,12 +6,8 @@ import { buildArchiveName } from "@/util/helpers"
 import { handlePublicSpec } from "./publicSpec"
 import { uploadArchiveAndGetUrl } from "./uploadArchive"
 
-// The happy path downloads the template and shells out to tmc-langs-cli; unit tests cover request
-// validation plus the serialization shape of the returned PublicSpec (with tmc-langs and the file
-// upload mocked), system tests cover the full flow.
-
 // tmc-langs is a CLI subprocess and the template download hits the network; stub both so the
-// serialization guard below can drive the handler in-process.
+// serialization guard below can drive the handler in-process. System tests cover the full flow.
 vi.mock("@/lib", () => ({
   downloadStream: vi.fn(() => Promise.resolve(undefined)),
 }))

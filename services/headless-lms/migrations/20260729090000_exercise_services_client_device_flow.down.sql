@@ -1,6 +1,3 @@
-ALTER TABLE oauth_refresh_tokens
-  DROP COLUMN IF EXISTS rotated_at;
-
 DROP TABLE IF EXISTS oauth_device_codes;
 DROP TYPE IF EXISTS device_code_status;
 

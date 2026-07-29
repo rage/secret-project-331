@@ -1,8 +1,8 @@
 "use client"
 
+import type { SpringValue } from "@react-spring/web"
+import { animated, to, useSpring, useSprings } from "@react-spring/web"
 import { useCallback, useEffect, useMemo, useRef } from "react"
-import type { SpringValue } from "react-spring"
-import { animated, to, useSpring, useSprings } from "react-spring"
 
 const PARTICLES = 70
 const RIPPLES = 4

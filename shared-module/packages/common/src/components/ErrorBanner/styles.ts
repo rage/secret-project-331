@@ -5,6 +5,8 @@ import { baseTheme, monospaceFont } from "../../styles"
 export const BannerWrapper = styled.div<{ compact?: boolean; isFrontendCrash?: boolean }>`
   background: ${(p) => (p.isFrontendCrash ? "#fff0f6" : "#fff5f5")};
   width: 100%;
+  height: 100%;
+  max-height: 50vh;
   position: relative;
   margin: 0 auto;
   display: block;
@@ -16,6 +18,8 @@ export const Content = styled.div<{ compact?: boolean }>`
   padding-top: ${(p) => (p.compact ? "1rem" : "3rem")};
   padding-bottom: ${(p) => (p.compact ? "1rem" : "3rem")};
   max-width: 100%;
+  height: inherit;
+  max-height: inherit;
   font-weight: 500;
   font-size: ${(p) => (p.compact ? "0.95rem" : "1rem")};
   line-height: 1.4;
@@ -53,7 +57,6 @@ export const DetailTag = styled.div`
   background: #ffe8ec;
   margin: 0 2rem;
   border-radius: 10px;
-  overflow: hidden;
   details {
     padding: 0;
   }
@@ -94,6 +97,8 @@ export const DetailTag = styled.div`
 
   ul {
     padding: 0;
+    max-height: 35vh;
+    overflow: auto;
     margin: 0;
     padding-bottom: 2rem;
   }

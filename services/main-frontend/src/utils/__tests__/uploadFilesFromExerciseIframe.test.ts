@@ -15,7 +15,9 @@ jest.mock("@/generated/api/sdk.generated", () => ({
 jest.mock("uuid", () => ({ v4: jest.fn() }))
 
 const upload = jest.mocked(uploadFilesFromExerciseService)
-const uuid = jest.mocked(v4)
+// `v4` is overloaded (it can also return a Uint8Array); pin the mock to the no-arg string form the
+// adapter uses so `mockReturnValueOnce` accepts string ids.
+const uuid = jest.mocked(v4 as () => string)
 
 describe("uploadFilesFromExerciseIframe", () => {
   beforeEach(() => {
@@ -63,13 +65,20 @@ describe("uploadFilesFromExerciseIframe", () => {
       { id: "bbbbbbbb-0000-4000-8000-000000000000", url: "https://files.example/two" },
     ])
 
-    expect(upload).toHaveBeenCalledWith({
-      path: { exercise_service_slug: "file-submission" },
-      body: {
-        "aaaaaaaa-0000-4000-8000-000000000000": first,
-        "bbbbbbbb-0000-4000-8000-000000000000": second,
-      },
-    })
+    const options = upload.mock.calls[0]?.[0]
+    expect(options?.path).toEqual({ exercise_service_slug: "file-submission" })
+    const body = options?.body as Record<string, File>
+    // The adapter re-materializes each file into a fresh in-memory File (so the upload is a buffered
+    // request, not a stream — see the adapter comment), so assert on the UUID field names and file
+    // contents rather than on File object identity.
+    expect(Object.keys(body)).toEqual([
+      "aaaaaaaa-0000-4000-8000-000000000000",
+      "bbbbbbbb-0000-4000-8000-000000000000",
+    ])
+    expect(body["aaaaaaaa-0000-4000-8000-000000000000"]).toBeInstanceOf(File)
+    expect(body["aaaaaaaa-0000-4000-8000-000000000000"]?.name).toBe("same.txt")
+    expect(await body["aaaaaaaa-0000-4000-8000-000000000000"]?.text()).toBe("first")
+    expect(await body["bbbbbbbb-0000-4000-8000-000000000000"]?.text()).toBe("second")
   })
 
   it("rejects host results whose IDs do not match multipart UUID order", async () => {

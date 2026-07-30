@@ -2,7 +2,9 @@ use crate::{
     config::{ServerConfig, ServerConfigBuilder},
     setup_tracing,
 };
-use headless_lms_base::config::{ApplicationConfiguration, OAuthServerConfiguration};
+use headless_lms_base::config::{
+    ApplicationConfiguration, OAuthServerConfiguration, SuotarConfiguration,
+};
 
 use headless_lms_utils::{
     file_store::local_file_store::LocalFileStore, services::sisu::SisuClient,
@@ -53,6 +55,9 @@ pub async fn test_config() -> ServerConfig {
             azure_configuration: None,
             test_chatbot: false,
             test_sisu: false,
+            test_suotar: false,
+            suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
+                .expect("Failed to build the mock Suotar configuration"),
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
             oauth_server_configuration: OAuthServerConfiguration {

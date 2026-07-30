@@ -4,8 +4,7 @@ use secrecy::ExposeSecret;
 
 use crate::prelude::*;
 
-/// Length of a generated linking token. Far beyond sufficient on purpose: the token is the only
-/// proof of ownership and it is not scoped to any account of ours.
+/// Length of a linking token, which is the only proof of ownership and is bound to no account.
 const TOKEN_LENGTH: usize = 128;
 
 #[derive(Debug, Clone)]
@@ -41,7 +40,7 @@ pub fn is_valid(token: &StudentNumberVerificationToken) -> bool {
     token.expires_at > now && token.used_at.is_none() && token.deleted_at.is_none()
 }
 
-/// Probabilistic cleanup, reused from the existing token model rather than adding a cron.
+/// Probabilistic cleanup instead of a cron.
 pub async fn maybe_cleanup_expired(conn: &mut PgConnection) -> ModelResult<()> {
     let random_num = rand::rng().random_range(1..=10);
     if random_num == 1 {
@@ -59,10 +58,8 @@ WHERE expires_at < now()
     Ok(())
 }
 
-/// Mints a token for a Sisu person, deliberately without binding it to an account: the click, made
-/// while logged in, is what creates the binding.
-///
-/// Returns the row id and the plaintext token to put in the mailed link.
+/// Mints a token for a Sisu person, bound to no account: the click while logged in creates the
+/// binding. Returns the row id and the plaintext token for the mailed link.
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
@@ -98,8 +95,66 @@ RETURNING id
     Ok((res.id, token))
 }
 
-/// Looks up an unused, unexpired token. Never claims it: claiming is an explicit `POST` from a
-/// logged-in session after a confirmation step.
+/// A token row with everything pinned, for the seed only.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SeedStudentNumberVerificationToken {
+    /// Fixed plaintext so a spec can navigate straight to the link. At least 128 characters, or the
+    /// `student_number_verification_token_length` check rejects the row.
+    pub token: String,
+    pub student_number: String,
+    pub sisu_person_id: String,
+    pub first_names: Option<String>,
+    pub last_name: Option<String>,
+    pub emailed_to: String,
+    pub course_id: Option<Uuid>,
+    pub expires_at: DateTime<Utc>,
+    pub used_at: Option<DateTime<Utc>>,
+    pub claimed_by_user_id: Option<Uuid>,
+}
+
+/// Seeds a token with a fixed plaintext value and a chosen expiry/claim state, which [`insert`]
+/// cannot do: system tests need the valid, expired and used links to be constants. Seed use only.
+pub async fn insert_seed_row(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+    seed: &SeedStudentNumberVerificationToken,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        r#"
+INSERT INTO student_number_verification_tokens (
+    id,
+    token,
+    student_number,
+    sisu_person_id,
+    first_names,
+    last_name,
+    emailed_to,
+    course_id,
+    expires_at,
+    used_at,
+    claimed_by_user_id
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+RETURNING id
+        "#,
+        pkey_policy.into_uuid(),
+        seed.token,
+        seed.student_number,
+        seed.sisu_person_id,
+        seed.first_names,
+        seed.last_name,
+        seed.emailed_to,
+        seed.course_id,
+        seed.expires_at,
+        seed.used_at,
+        seed.claimed_by_user_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
+/// Looks up an unused, unexpired token without claiming it; claiming is a separate explicit `POST`.
 pub async fn get_unclaimed_by_token(
     conn: &mut PgConnection,
     token: &DbSecret,
@@ -142,8 +197,7 @@ WHERE id = $1
     Ok(res)
 }
 
-/// Marks the token claimed by the logged-in account. Returns whether the claim won the race; a
-/// second claim of the same token must not succeed.
+/// Marks the token claimed by the account. Returns false if another claim already won the race.
 pub async fn claim(
     conn: &mut PgConnection,
     token: &DbSecret,
@@ -168,8 +222,7 @@ RETURNING id
     Ok(claimed.is_some())
 }
 
-/// Retires outstanding tokens for a student number, for when the link was established some other
-/// way and the mailed links must stop working.
+/// Retires outstanding tokens for a student number, once the link was established some other way.
 pub async fn soft_delete_unused_for_student_number(
     conn: &mut PgConnection,
     student_number: &str,

@@ -97,7 +97,8 @@ Communication between the parent page and the IFrame is restricted to specific m
 | `current-state`                | IFrame | Parent | Informs the parent that the IFrame's state has changed. Includes data and validity status.                                                                                         |
 | `height-changed`               | IFrame | Parent | Notifies the parent that the content height has changed, allowing the parent to resize the IFrame.                                                                                 |
 | `set-language`                 | Parent | IFrame | Informs the IFrame of the user's preferred language using IETF BCP 47 language tags.                                                                                               |
-| `open-link`                    | Iframe | Parent | The IFrame requests a link to be opened in the browser's main browsing context.                                                                                                    |
+| `open-link`                    | Iframe | Parent | The IFrame asks the parent to open a link in a new browser tab. The parent confirms with the user first. See below.                                                                |
+| `download-file`                | Iframe | Parent | The IFrame asks the parent to download a file for the user. Carries the `url` and an optional suggested `filename`. The parent confirms with the user first. See below.            |
 | `request-iframe-reload`        | Iframe | Parent | The IFrame encountered a serious client-side problem (for example, a failed chunk load) and asks the parent to reload it.                                                          |
 | `file-upload`                  | Iframe | Parent | The IFrame asks the parent to upload files on its behalf (plugins never store data themselves). Carries a `requestId` and an ordered `File[]`; it never sends file ids. See below. |
 | `upload-result`                | Parent | IFrame | The parent's reply to `file-upload`, echoing the `requestId`; on success carries ordered `{ id, url }[]` entries with host-assigned ids, on failure an error.                      |
@@ -116,6 +117,18 @@ Communication between the parent page and the IFrame is restricted to specific m
 > (`exercise-client`), which mirror the `useParentDialog` / `ParentDialogClient` request/response
 > helpers. Note this is unrelated to `SpecRequest.upload_url`, which is a server-side upload URL used
 > by the spec-generator endpoints.
+
+> **Links and downloads.** An exercise iframe is sandboxed without `allow-popups`, so a
+> `target="_blank"` link does nothing, a same-tab navigation would replace the exercise, and browsers
+> ignore the `download` attribute for cross-origin responses. Anything that should leave the iframe
+> therefore goes through the parent: send `open-link` to open a URL in a new tab, or `download-file`
+> to save one. The parent accepts only absolute `http:`/`https:` URLs and asks the user to confirm —
+> in its own wording, showing the URL — before acting, so a plugin cannot open or download anything
+> behind the user's back. A suggested `filename` is a hint: the parent strips directory components,
+> and the browser may name the file from the response instead. Both messages are fire-and-forget: the
+> parent never reports back what the user chose, so a plugin must not put any UI into a pending state
+> waiting for the outcome. Use `requestOpenLink` / `requestFileDownload` (`exercise-client`) or the
+> `useParentLinks(port)` hook (`exercise-react`) rather than posting the messages by hand.
 
 ### Views
 

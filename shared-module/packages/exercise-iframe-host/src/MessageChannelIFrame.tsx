@@ -13,6 +13,7 @@ import type {
   SetStateMessage,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import {
+  isDownloadFileMessage,
   isHeightChangedMessage,
   isMessageFromIframe,
   isOpenDialogMessage,
@@ -20,7 +21,9 @@ import {
   isRequestIframeReloadMessage,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 
+import type { ExerciseDialogApi } from "./exerciseDialogApi"
 import useEventCallback from "./useEventCallback"
+import useIframeLinkRequests from "./useIframeLinkRequests"
 import useMessageChannel from "./useMessageChannel"
 
 // Inlined from shared-module's BreakFromCentered component: only this prop type is needed
@@ -36,23 +39,7 @@ interface WithSidebar {
 }
 type BreakFromCenteredProps = NoSidebar | WithSidebar
 
-/**
- * The slice of the host app's dialog system this component needs to answer an iframe's
- * `open-dialog` request. The host injects it (typically from common's `useDialog()`), which keeps
- * this package free of a `common` dependency while still supporting parent-rendered dialogs.
- */
-export interface ExerciseDialogApi {
-  alert: (
-    message: React.ReactNode,
-    title?: string,
-    options?: { okButtonLabel?: string },
-  ) => Promise<void>
-  confirm: (
-    message: React.ReactNode,
-    title?: string,
-    options?: { yesButtonLabel?: string; noButtonLabel?: string },
-  ) => Promise<boolean>
-}
+export type { ExerciseDialogApi }
 
 interface MessageChannelIFrameProps {
   url: string
@@ -65,8 +52,9 @@ interface MessageChannelIFrameProps {
   headingBeforeIframe?: string
   onReady?: () => void
   /**
-   * Host-provided dialog controller used to answer the iframe's `open-dialog` requests. Every host
-   * that renders this component mounts a dialog system; pass its `useDialog()` result here.
+   * Host-provided dialog controller used to answer the iframe's `open-dialog` requests and to confirm
+   * its `open-link` / `download-file` requests. Every host that renders this component mounts a
+   * dialog system; pass its `useDialog()` result here.
    */
   dialog: ExerciseDialogApi
 }
@@ -105,6 +93,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   dialog,
 }) => {
   const { t, i18n } = useTranslation()
+  const { openLinkOnRequest, downloadFileOnRequest } = useIframeLinkRequests(dialog)
   const language = i18n.language
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const iframeSandboxAttribute = useIframeSandboxingAttribute(disableSandbox)
@@ -239,8 +228,10 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   }, [])
 
   // An exercise inside the iframe can ask us (the parent) to show a dialog and report back the
-  // user's choice. We delegate to the host-provided `dialog` controller (backed by the app's
-  // DialogProvider), which queues concurrent dialogs and handles layering.
+  // user's choice, and to open a link or download a file on its behalf. All three go through the
+  // host-provided `dialog` controller (backed by the app's DialogProvider), which queues concurrent
+  // dialogs and handles layering; the link/download requests are confirmed by the user first and get
+  // no reply, so nothing in the iframe waits on them.
   const handlePortMessage = useEventCallback(
     (message: WindowEventMap["message"], currentMessageChannel: MessageChannel) => {
       const data = message?.data
@@ -262,8 +253,10 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         iframeRef.current.dataset.iframeHeight = Number(data.data).toString()
       } else if (isOpenLinkMessage(data)) {
         console.info(`The iframe wants to open a link: ${data.data}`)
-
-        window.open(data.data, "_blank", "noopener,noreferrer")
+        openLinkOnRequest(data.data)
+      } else if (isDownloadFileMessage(data)) {
+        console.info(`The iframe wants to download a file: ${data.url}`)
+        downloadFileOnRequest(data.url, data.filename)
       } else if (isRequestIframeReloadMessage(data)) {
         scheduleIframeReload()
       } else if (isOpenDialogMessage(data)) {

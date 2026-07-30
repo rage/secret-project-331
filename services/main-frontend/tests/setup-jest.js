@@ -1,16 +1,17 @@
 // jsdom's Blob/File implementation does not provide arrayBuffer()/text(), which real browsers have.
 // Polyfill them via FileReader so tests can read file bytes the way production code does. Guarded so
 // this becomes a no-op if the test environment ever ships them natively.
+const readWith = (method) =>
+  function () {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.addEventListener("load", () => resolve(reader.result), { once: true })
+      reader.addEventListener("error", () => reject(reader.error), { once: true })
+      reader[method](this)
+    })
+  }
+
 if (typeof Blob !== "undefined") {
-  const readWith = (method) =>
-    function () {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result)
-        reader.onerror = () => reject(reader.error)
-        reader[method](this)
-      })
-    }
   if (typeof Blob.prototype.arrayBuffer !== "function") {
     Blob.prototype.arrayBuffer = readWith("readAsArrayBuffer")
   }

@@ -128,12 +128,12 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => {
-            if (!messagePort) {
-              return
-            }
             // The iframe sandbox blocks target="_blank", so the parent opens the link (after asking
             // the user) instead of the browser doing nothing here.
             e.preventDefault()
+            if (!messagePort) {
+              return
+            }
             const target = e.currentTarget
             requestOpenLink(messagePort, target.href)
           }}

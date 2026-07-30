@@ -336,6 +336,18 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   parts are rejected, and a failed batch removes all stored objects and metadata. Plugin-side limits
   are only usability checks.
 
+- **Links and downloads**: the iframe sandbox has no `allow-popups`, so a `target="_blank"` link does
+  nothing at all, a same-tab navigation would replace the exercise, and browsers ignore the `download`
+  attribute for cross-origin responses — which is why an ordinary download link in a plugin looks
+  broken. Ask the parent instead, via `useParentLinks(port)`
+  (`src/shared-module/exercise-react/react/hooks/useParentLinks`): `openLink(url)` posts `open-link`
+  and `downloadFile({ url, filename })` posts `download-file`. Both take absolute http(s) URLs only
+  (anything else throws), the host confirms with the user in its own wording before acting, and neither
+  gets a reply — so render such a control as a plain action, never one that waits for an outcome. The
+  suggested filename is a hint: the host strips directory components and the browser may name the file
+  from the response. The plugin-contract host emulator records both messages like any other, so assert
+  with `waitForMessage("download-file")` rather than on a browser download.
+
 ## Where each concern lives
 
 | Concern                                             | File(s)                                                                                 |

@@ -9,7 +9,7 @@ use models::{
     users::User,
 };
 use secrecy::{ExposeSecret, SecretString};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use utoipa::{OpenApi, ToSchema};
 
 #[derive(OpenApi)]
@@ -23,6 +23,8 @@ use utoipa::{OpenApi, ToSchema};
     get_all_research_form_answers_with_user_id,
     get_my_courses,
     hide_course_from_my_courses,
+    unhide_course_from_my_courses,
+    get_my_studies,
     get_user_reset_exercise_logs,
     get_user_course_submission_times,
     send_reset_password_email,
@@ -300,6 +302,246 @@ async fn hide_course_from_my_courses(
     }
 
     token.authorized_ok(web::Json(()))
+}
+
+/**
+POST `/api/v0/main-frontend/users/my-courses/:course_id/unhide` - Puts a previously hidden course
+back into the authenticated user's "My courses" list.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/my-courses/{course_id}/unhide",
+    operation_id = "unhideCourseFromMyCourses",
+    tag = "users",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course restored to the user's my-courses list")
+    )
+)]
+async fn unhide_course_from_my_courses(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    models::user_course_settings::set_hidden(&mut conn, user.id, *course_id, false).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/// A course module as the student's own profile shows it: the module's identity, what it is worth,
+/// and the student's best visible completion of it.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct MyStudiesCourseModule {
+    pub course_module_id: Uuid,
+    /// `None` for the course's default module; the frontend labels those with the course name.
+    pub name: Option<String>,
+    pub order_number: i32,
+    pub ects_credits: Option<f32>,
+    pub uh_course_code: Option<String>,
+    pub supports_credit_registration: bool,
+    /// `None` when the student has no completion that may be shown to them.
+    pub completion: Option<MyStudiesCompletion>,
+}
+
+/// A completion as the student may see it. Completions flagged `needs_to_be_reviewed` never reach
+/// this struct: the student must not be able to infer that they are under suspicion.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct MyStudiesCompletion {
+    pub course_module_completion_id: Uuid,
+    pub completion_date: DateTime<Utc>,
+    /// `None` on pass/fail modules; the frontend falls back to `passed`.
+    pub grade: Option<i32>,
+    pub passed: bool,
+    pub prerequisite_modules_completed: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct MyStudiesCourse {
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_slug: String,
+    pub organization_slug: String,
+    pub language_code: String,
+    pub first_enrolled_at: DateTime<Utc>,
+    /// False when the student's active version of this course is a different language version.
+    pub is_current: bool,
+    /// Hidden courses are included here, unlike in `getMyCourses`, so the profile can offer unhiding.
+    pub hidden: bool,
+    /// The instance the per-module progress is fetched for. `None` if the enrolment has no instance.
+    pub current_course_instance_id: Option<Uuid>,
+    pub current_course_instance_name: Option<String>,
+    pub supports_credit_registration: bool,
+    pub modules: Vec<MyStudiesCourseModule>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct MyStudiesTotals {
+    pub courses: i32,
+    pub completions: i32,
+    /// Summed over passed completions only, so the tile cannot overstate what the student earned.
+    pub ects: f32,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct MyStudies {
+    /// Drives whether the profile's credit-registration tab renders at all.
+    pub any_module_supports_credit_registration: bool,
+    pub courses: Vec<MyStudiesCourse>,
+    pub totals: MyStudiesTotals,
+}
+
+/**
+GET `/api/v0/main-frontend/users/my-studies` - The authenticated user's own study record: every
+course they are enrolled in, its modules, and their completions.
+
+Self-scoped by construction: there is no user id parameter, so this endpoint cannot be pointed at
+another account. The teacher/admin equivalent is `getUserCourseEnrollments`.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/my-studies",
+    operation_id = "getMyStudies",
+    tag = "users",
+    responses(
+        (status = 200, description = "The authenticated user's study record", body = MyStudies)
+    )
+)]
+async fn get_my_studies(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<MyStudies>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let enrollments_info =
+        models::course_instance_enrollments::get_course_enrollments_info_for_user(
+            &mut conn, user.id,
+        )
+        .await?;
+    let organizations = models::organizations::all_organizations_include_hidden(&mut conn).await?;
+    let organization_slugs: HashMap<Uuid, String> =
+        organizations.into_iter().map(|o| (o.id, o.slug)).collect();
+
+    let mut courses = Vec::with_capacity(enrollments_info.course_enrollments.len());
+    let mut total_completions = 0;
+    let mut total_ects = 0.0;
+
+    for enrollment in enrollments_info.course_enrollments {
+        // One completion per module: the best of the student's visible ones, matching what the
+        // course material shows (`get_user_module_completion_statuses_for_course`).
+        let mut best_completion_by_module: HashMap<Uuid, MyStudiesCompletion> = HashMap::new();
+        for course_module in &enrollment.course_modules {
+            let visible_completions: Vec<_> = enrollment
+                .course_module_completions
+                .iter()
+                .filter(|c| c.course_module_id == course_module.id && !c.needs_to_be_reviewed)
+                .cloned()
+                .collect();
+            if let Some(best) =
+                models::course_module_completions::select_best_completion(visible_completions)
+            {
+                total_completions += 1;
+                if best.passed {
+                    total_ects += course_module.ects_credits.unwrap_or(0.0);
+                }
+                best_completion_by_module.insert(
+                    course_module.id,
+                    MyStudiesCompletion {
+                        course_module_completion_id: best.id,
+                        completion_date: best.completion_date,
+                        grade: best.grade,
+                        passed: best.passed,
+                        prerequisite_modules_completed: best.prerequisite_modules_completed,
+                    },
+                );
+            }
+        }
+
+        let mut modules: Vec<MyStudiesCourseModule> = enrollment
+            .course_modules
+            .iter()
+            .map(|course_module| MyStudiesCourseModule {
+                course_module_id: course_module.id,
+                name: course_module.name.clone(),
+                order_number: course_module.order_number,
+                ects_credits: course_module.ects_credits,
+                uh_course_code: course_module.uh_course_code.clone(),
+                supports_credit_registration: course_module.enable_credit_registration_via_suotar,
+                completion: best_completion_by_module.remove(&course_module.id),
+            })
+            .collect();
+        modules.sort_by_key(|m| m.order_number);
+
+        // Prefer the instance the student's settings point at; it is the one the course material
+        // shows progress for. Any other enrolled instance of this course is an acceptable fallback.
+        let settings_instance_id = enrollment
+            .user_course_settings
+            .as_ref()
+            .map(|s| s.current_course_instance_id);
+        let current_instance = enrollment
+            .course_instances
+            .iter()
+            .find(|ci| Some(ci.id) == settings_instance_id)
+            .or_else(|| enrollment.course_instances.first());
+
+        let organization_slug = organization_slugs
+            .get(&enrollment.course.organization_id)
+            .cloned()
+            .ok_or_else(|| {
+                anyhow!(
+                    "Organization {} of course {} not found",
+                    enrollment.course.organization_id,
+                    enrollment.course_id
+                )
+            })?;
+
+        courses.push(MyStudiesCourse {
+            course_id: enrollment.course_id,
+            course_name: enrollment.course.name.clone(),
+            course_slug: enrollment.course.slug.clone(),
+            organization_slug,
+            language_code: enrollment.course.language_code.clone(),
+            first_enrolled_at: enrollment.first_enrolled_at,
+            is_current: enrollment.is_current,
+            hidden: enrollment
+                .user_course_settings
+                .as_ref()
+                .is_some_and(|s| s.hidden),
+            current_course_instance_id: current_instance.map(|ci| ci.id),
+            current_course_instance_name: current_instance.and_then(|ci| ci.name.clone()),
+            supports_credit_registration: modules.iter().any(|m| m.supports_credit_registration),
+            modules,
+        });
+    }
+
+    // The student's active courses first, then most recently started, so the top of the page is the
+    // part they are working on.
+    courses.sort_by(|a, b| {
+        b.is_current
+            .cmp(&a.is_current)
+            .then(b.first_enrolled_at.cmp(&a.first_enrolled_at))
+    });
+
+    let res = MyStudies {
+        any_module_supports_credit_registration: courses
+            .iter()
+            .any(|c| c.supports_credit_registration),
+        totals: MyStudiesTotals {
+            courses: courses.len() as i32,
+            completions: total_completions,
+            ects: total_ects,
+        },
+        courses,
+    };
+
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -657,9 +899,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_all_research_form_answers_with_user_id),
     )
     .route("/my-courses", web::get().to(get_my_courses))
+    .route("/my-studies", web::get().to(get_my_studies))
     .route(
         "/my-courses/{course_id}/hide",
         web::post().to(hide_course_from_my_courses),
+    )
+    .route(
+        "/my-courses/{course_id}/unhide",
+        web::post().to(unhide_course_from_my_courses),
     )
     .route(
         "/get-user-research-consent",

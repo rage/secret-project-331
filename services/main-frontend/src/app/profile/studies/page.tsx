@@ -6,11 +6,10 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { getMyStudiesOptions } from "@/generated/api/@tanstack/react-query.generated"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Link, QueryResult } from "@/shared-module/components"
+import { Infobox, Link, QueryResult } from "@/shared-module/components"
 
 import { FIND_MORE_COURSES_URL } from "../constants"
 import HiddenCoursesSection from "./HiddenCoursesSection"
@@ -61,7 +60,7 @@ const StudiesPage: React.FC = () => {
             <StudiesSummary totals={myStudies.totals} />
 
             {myStudies.totals.completions === 0 ? (
-              <GenericInfobox>{t("no-completions-yet-keep-going")}</GenericInfobox>
+              <Infobox>{t("no-completions-yet-keep-going")}</Infobox>
             ) : null}
 
             <h2 className={headingCss}>{t("heading-your-courses")}</h2>

@@ -30,6 +30,8 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponses,
+  ClaimEmailVerificationLinkData,
+  ClaimEmailVerificationLinkResponses,
   ConfigureChatbotData,
   ConfigureChatbotResponses,
   ConfirmCourseSuspectedCheaterData,
@@ -332,6 +334,9 @@ import type {
   GetEditProposalsResponses,
   GetEmailTemplatesData,
   GetEmailTemplatesResponses,
+  GetEmailVerificationLinkForTestModeData,
+  GetEmailVerificationLinkForTestModeErrors,
+  GetEmailVerificationLinkForTestModeResponses,
   GetExamData,
   GetExamExercisesData,
   GetExamExercisesResponses,
@@ -372,6 +377,10 @@ import type {
   GetFirstExerciseSubmissionsHistoryResponses,
   GetMyCoursesData,
   GetMyCoursesResponses,
+  GetMyEmailVerificationStatusData,
+  GetMyEmailVerificationStatusResponses,
+  GetMyStudiesData,
+  GetMyStudiesResponses,
   GetNumberOfPeopleCompletedACourseData,
   GetNumberOfPeopleCompletedACourseResponses,
   GetNumberOfPeopleDoneAtLeastOneExerciseData,
@@ -548,6 +557,8 @@ import type {
   RemoveRoleResponses,
   ReprocessCourseCompletionsData,
   ReprocessCourseCompletionsResponses,
+  RequestEmailVerificationLinkData,
+  RequestEmailVerificationLinkResponses,
   ResetCourseProgressForEveryoneData,
   ResetCourseProgressForEveryoneResponses,
   ResetCourseProgressForTeacherThemselvesData,
@@ -588,6 +599,8 @@ import type {
   TeacherSetStudentChapterStatusResponses,
   TeacherUnlockStudentChapterData,
   TeacherUnlockStudentChapterResponses,
+  UnhideCourseFromMyCoursesData,
+  UnhideCourseFromMyCoursesResponses,
   UnsetExamCourseData,
   UnsetExamCourseResponses,
   UpdateCertificateConfigurationData,
@@ -647,6 +660,7 @@ import {
   zAdvanceCourseDesignerStageResponse,
   zApproveOauthConsentResponse,
   zChangeUserPasswordResponse,
+  zClaimEmailVerificationLinkResponse,
   zConfigureChatbotResponse,
   zCreateChapterResponse,
   zCreateCodeGiveawayResponse,
@@ -769,6 +783,7 @@ import {
   zGetEditProposalCountResponse,
   zGetEditProposalsResponse,
   zGetEmailTemplatesResponse,
+  zGetEmailVerificationLinkForTestModeResponse,
   zGetExamExercisesResponse,
   zGetExamResponse,
   zGetExamSubmissionsWithExamIdResponse,
@@ -789,6 +804,8 @@ import {
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
   zGetMyCoursesResponse,
+  zGetMyEmailVerificationStatusResponse,
+  zGetMyStudiesResponse,
   zGetNumberOfPeopleCompletedACourseResponse,
   zGetNumberOfPeopleDoneAtLeastOneExerciseResponse,
   zGetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse,
@@ -864,6 +881,7 @@ import {
   zPreviewCourseInstanceCompletionsResponse,
   zRemoveCoursePlanMemberResponse,
   zReprocessCourseCompletionsResponse,
+  zRequestEmailVerificationLinkResponse,
   zResetCourseProgressForEveryoneResponse,
   zResetCourseProgressForTeacherThemselvesResponse,
   zResetExercisesForSelectedUsersResponse,
@@ -4288,6 +4306,105 @@ export const deleteEmailTemplate = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * POST `/api/v0/main-frontend/email-verification/claim` - Consumes a mailed link and records the proof.
+ *
+ * Unauthenticated because the token names the account and the mail is often opened on a device that is
+ * not signed in. A POST rather than a GET so a mail scanner or a link prefetcher cannot burn the link.
+ */
+export const claimEmailVerificationLink = <ThrowOnError extends boolean = true>(
+  options: Options<ClaimEmailVerificationLinkData, ThrowOnError>,
+): RequestResult<ClaimEmailVerificationLinkResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    ClaimEmailVerificationLinkResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zClaimEmailVerificationLinkResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-verification/claim",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification link to the
+ * signed-in account's current address.
+ */
+export const requestEmailVerificationLink = <ThrowOnError extends boolean = true>(
+  options: Options<RequestEmailVerificationLinkData, ThrowOnError>,
+): RequestResult<RequestEmailVerificationLinkResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    RequestEmailVerificationLinkResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zRequestEmailVerificationLinkResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-verification/request",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-verification/status` - Whether the signed-in account's address is
+ * proven, and what we last mailed about it.
+ */
+export const getMyEmailVerificationStatus = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyEmailVerificationStatusData, ThrowOnError>,
+): RequestResult<GetMyEmailVerificationStatusResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetMyEmailVerificationStatusResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetMyEmailVerificationStatusResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-verification/status",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-verification/test-mode-link` - The signed-in account's own pending
+ * verification link.
+ *
+ * Exists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the
+ * caller's own account, so an accidentally open gate only ever hands you your own link.
+ */
+export const getEmailVerificationLinkForTestMode = <ThrowOnError extends boolean = true>(
+  options?: Options<GetEmailVerificationLinkForTestModeData, ThrowOnError>,
+): RequestResult<
+  GetEmailVerificationLinkForTestModeResponses,
+  GetEmailVerificationLinkForTestModeErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options?.client ?? client).get<
+    GetEmailVerificationLinkForTestModeResponses,
+    GetEmailVerificationLinkForTestModeErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetEmailVerificationLinkForTestModeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-verification/test-mode-link",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/exam/:exam_id/exam-exercises` - Returns all the exercises with exam_id.
  */
 export const getExamExercises = <ThrowOnError extends boolean = true>(
@@ -6815,6 +6932,43 @@ export const hideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
   (options.client ?? client).post<HideCourseFromMyCoursesResponses, unknown, ThrowOnError, "data">({
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/my-courses/{course_id}/hide",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/users/my-courses/:course_id/unhide` - Puts a previously hidden course
+ * back into the authenticated user's "My courses" list.
+ */
+export const unhideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
+  options: Options<UnhideCourseFromMyCoursesData, ThrowOnError>,
+): RequestResult<UnhideCourseFromMyCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UnhideCourseFromMyCoursesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-courses/{course_id}/unhide",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/my-studies` - The authenticated user's own study record: every
+ * course they are enrolled in, its modules, and their completions.
+ *
+ * No user id parameter, so it cannot be pointed at another account. The teacher/admin equivalent is
+ * `getUserCourseEnrollments`.
+ */
+export const getMyStudies = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyStudiesData, ThrowOnError>,
+): RequestResult<GetMyStudiesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyStudiesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyStudiesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-studies",
     ...options,
   })
 

@@ -6562,6 +6562,105 @@
         }
       }
     },
+    "/api/v0/main-frontend/email-verification/claim": {
+      "post": {
+        "tags": ["email-verification"],
+        "summary": "\nPOST `/api/v0/main-frontend/email-verification/claim` - Consumes a mailed link and records the proof.\n\nDeliberately unauthenticated: the token names the account, so no session is needed and requiring one\nwould fail the common case of opening the mail on a device that is not signed in. Deliberately a POST\nrather than a GET, so a mail scanner or a link prefetcher cannot burn the link.",
+        "operationId": "claimEmailVerificationLink",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimEmailVerificationPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Outcome of the claim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimEmailVerificationResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/email-verification/request": {
+      "post": {
+        "tags": ["email-verification"],
+        "summary": "\nPOST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification link to the\nsigned-in account's current address.",
+        "operationId": "requestEmailVerificationLink",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestEmailVerificationPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "What the request did",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestEmailVerificationOutcome"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/email-verification/status": {
+      "get": {
+        "tags": ["email-verification"],
+        "summary": "\nGET `/api/v0/main-frontend/email-verification/status` - Whether the signed-in account's address is\nproven, and what we last mailed about it.",
+        "operationId": "getMyEmailVerificationStatus",
+        "responses": {
+          "200": {
+            "description": "Email verification status of the signed-in user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailVerificationStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/email-verification/test-mode-link": {
+      "get": {
+        "tags": ["email-verification"],
+        "summary": "\nGET `/api/v0/main-frontend/email-verification/test-mode-link` - The signed-in account's own pending\nverification link.\n\nExists because there is no mail capture in the system tests, so a spec cannot read the link out of an\ninbox. Returns 404 unless `TEST_MODE` is on, and it is scoped to the caller's own account, so the\nworst it can do with the gate accidentally open is hand you a link to your own mailbox.",
+        "operationId": "getEmailVerificationLinkForTestMode",
+        "responses": {
+          "200": {
+            "description": "The caller's pending verification link",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not in test mode, or no pending link"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/exams/{exam_id}/exam-exercises": {
       "get": {
         "tags": ["exams"],
@@ -10793,6 +10892,49 @@
         }
       }
     },
+    "/api/v0/main-frontend/users/my-courses/{course_id}/unhide": {
+      "post": {
+        "tags": ["users"],
+        "summary": "\nPOST `/api/v0/main-frontend/users/my-courses/:course_id/unhide` - Puts a previously hidden course\nback into the authenticated user's \"My courses\" list.",
+        "operationId": "unhideCourseFromMyCourses",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course restored to the user's my-courses list"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/my-studies": {
+      "get": {
+        "tags": ["users"],
+        "summary": "\nGET `/api/v0/main-frontend/users/my-studies` - The authenticated user's own study record: every\ncourse they are enrolled in, its modules, and their completions.\n\nSelf-scoped by construction: there is no user id parameter, so this endpoint cannot be pointed at\nanother account. The teacher/admin equivalent is `getUserCourseEnrollments`.",
+        "operationId": "getMyStudies",
+        "responses": {
+          "200": {
+            "description": "The authenticated user's study record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyStudies"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/users/reset-password": {
       "post": {
         "tags": ["users"],
@@ -12219,6 +12361,20 @@
             "format": "date-time"
           }
         }
+      },
+      "ClaimEmailVerificationPayload": {
+        "type": "object",
+        "required": ["token"],
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "ClaimEmailVerificationResult": {
+        "type": "string",
+        "description": "Why a claim did not record a proof. Distinct values because the remedy differs: a used link means\n\"you are already done\", an expired one means \"ask for a new one\", and a changed address means \"the\nlink was for your old address\".",
+        "enum": ["verified", "already_used", "expired", "email_changed", "invalid"]
       },
       "CmsPageExercise": {
         "type": "object",
@@ -13910,7 +14066,13 @@
       "CourseModuleInfo": {
         "type": "object",
         "description": "Slim module descriptor so the frontend can label per-module completions and show \"X of Y modules\"\nwithout a separate course-structure fetch. Default (base) module has `name = None`.",
-        "required": ["id", "order_number", "exercise_count", "daily_submissions"],
+        "required": [
+          "id",
+          "order_number",
+          "exercise_count",
+          "daily_submissions",
+          "enable_credit_registration_via_suotar"
+        ],
         "properties": {
           "daily_submissions": {
             "type": "array",
@@ -13918,6 +14080,15 @@
               "$ref": "#/components/schemas/DailySubmissionCount"
             },
             "description": "This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none."
+          },
+          "ects_credits": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "ECTS credits the module is worth. `None` when the module grants no credits."
+          },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean",
+            "description": "Read straight from `course_modules`; the column is deliberately off the `CourseModule` DTO."
           },
           "exercise_count": {
             "type": "integer",
@@ -13939,6 +14110,10 @@
           "order_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"],
+            "description": "The module's course code in the university's registry, e.g. `BSCS1001`."
           }
         }
       },
@@ -14484,6 +14659,43 @@
           }
         }
       },
+      "EmailSendStatus": {
+        "type": "string",
+        "description": "What we can honestly say about an email we queued.\n\nWe hand messages to an SMTP relay, so nothing here says anything about an inbox. Copy that\nrenders this must say \"sent from our system\", never \"delivered\" or \"the recipient received\".",
+        "enum": ["queued", "retrying", "sent", "send_failed"]
+      },
+      "EmailSendStatusReport": {
+        "type": "object",
+        "description": "The payload every surface that mentions a queued email returns, so the student, the teacher and\nthe admin cannot be told three different things.",
+        "required": ["email_send_status", "retry_count"],
+        "properties": {
+          "email_send_status": {
+            "$ref": "#/components/schemas/EmailSendStatus"
+          },
+          "failure_code": {
+            "type": ["string", "null"]
+          },
+          "failure_is_transient": {
+            "type": ["boolean", "null"]
+          },
+          "last_attempt_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "next_retry_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "retry_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sent_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      },
       "EmailTemplate": {
         "type": "object",
         "required": ["id", "created_at", "updated_at", "template_type"],
@@ -14558,10 +14770,71 @@
           "credit_registration_student_number_linked"
         ]
       },
+      "EmailVerificationEmailInfo": {
+        "type": "object",
+        "description": "What we last mailed about the address the account holds now, and what our queue says happened to\nit. Never a delivery confirmation: we hand messages to an SMTP relay and cannot see an inbox.",
+        "required": ["emailed_to", "sent_at", "expires_at"],
+        "properties": {
+          "emailed_to": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "send_status": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EmailSendStatusReport"
+              }
+            ]
+          },
+          "sent_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "EmailVerificationMethod": {
         "type": "string",
         "description": "How proof of control over [`UserDetail::email`] was obtained.\n\nA discriminator, not a flag: consumers that care about the strength of the proof must match\nexhaustively. `AdminAsserted` is deliberately weaker than the rest.",
         "enum": ["verification_link", "password_reset_backfill", "tmc_confirmed", "admin_asserted"]
+      },
+      "EmailVerificationStatus": {
+        "type": "object",
+        "required": ["email"],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "email_verified_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "email_verified_method": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EmailVerificationMethod"
+              }
+            ]
+          },
+          "latest_verification_email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EmailVerificationEmailInfo"
+              }
+            ]
+          }
+        }
       },
       "EventInfo": {
         "type": "object",
@@ -16136,6 +16409,177 @@
             }
           }
         ]
+      },
+      "MyStudies": {
+        "type": "object",
+        "required": ["any_module_supports_credit_registration", "courses", "totals"],
+        "properties": {
+          "any_module_supports_credit_registration": {
+            "type": "boolean",
+            "description": "Drives whether the profile's credit-registration tab renders at all."
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyStudiesCourse"
+            }
+          },
+          "totals": {
+            "$ref": "#/components/schemas/MyStudiesTotals"
+          }
+        }
+      },
+      "MyStudiesCompletion": {
+        "type": "object",
+        "description": "A completion as the student may see it. Completions flagged `needs_to_be_reviewed` never reach\nthis struct: the student must not be able to infer that they are under suspicion.",
+        "required": [
+          "course_module_completion_id",
+          "completion_date",
+          "passed",
+          "prerequisite_modules_completed"
+        ],
+        "properties": {
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_module_completion_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grade": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "`None` on pass/fail modules; the frontend falls back to `passed`."
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "prerequisite_modules_completed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MyStudiesCourse": {
+        "type": "object",
+        "required": [
+          "course_id",
+          "course_name",
+          "course_slug",
+          "organization_slug",
+          "language_code",
+          "first_enrolled_at",
+          "is_current",
+          "hidden",
+          "supports_credit_registration",
+          "modules"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "course_slug": {
+            "type": "string"
+          },
+          "current_course_instance_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The instance the per-module progress is fetched for. `None` if the enrolment has no instance."
+          },
+          "current_course_instance_name": {
+            "type": ["string", "null"]
+          },
+          "first_enrolled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hidden": {
+            "type": "boolean",
+            "description": "Hidden courses are included here, unlike in `getMyCourses`, so the profile can offer unhiding."
+          },
+          "is_current": {
+            "type": "boolean",
+            "description": "False when the student's active version of this course is a different language version."
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyStudiesCourseModule"
+            }
+          },
+          "organization_slug": {
+            "type": "string"
+          },
+          "supports_credit_registration": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MyStudiesCourseModule": {
+        "type": "object",
+        "description": "A course module as the student's own profile shows it: the module's identity, what it is worth,\nand the student's best visible completion of it.",
+        "required": ["course_module_id", "order_number", "supports_credit_registration"],
+        "properties": {
+          "completion": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MyStudiesCompletion",
+                "description": "`None` when the student has no completion that may be shown to them."
+              }
+            ]
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ects_credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "`None` for the course's default module; the frontend labels those with the course name."
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "supports_credit_registration": {
+            "type": "boolean"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "MyStudiesTotals": {
+        "type": "object",
+        "required": ["courses", "completions", "ects"],
+        "properties": {
+          "completions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courses": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ects": {
+            "type": "number",
+            "format": "float",
+            "description": "Summed over passed completions only, so the tile cannot overstate what the student earned."
+          }
+        }
       },
       "NewChapter": {
         "type": "object",
@@ -17865,6 +18309,20 @@
       "ReportReason": {
         "type": "string",
         "enum": ["Spam", "HarmfulContent", "AiGenerated"]
+      },
+      "RequestEmailVerificationOutcome": {
+        "type": "string",
+        "enum": ["queued", "already_verified", "recently_sent"]
+      },
+      "RequestEmailVerificationPayload": {
+        "type": "object",
+        "required": ["language"],
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "Which language to mail. Falls back to English when no template exists for it."
+          }
+        }
       },
       "ResearchFormQuestionAnswer": {
         "type": "object",

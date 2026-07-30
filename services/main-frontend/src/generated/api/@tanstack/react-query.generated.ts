@@ -22,6 +22,7 @@ import {
   authorizeOauthGet,
   authorizeOauthPost,
   changeUserPassword,
+  claimEmailVerificationLink,
   configureChatbot,
   confirmCourseSuspectedCheater,
   createChapter,
@@ -171,6 +172,7 @@ import {
   getEditProposalCount,
   getEditProposals,
   getEmailTemplates,
+  getEmailVerificationLinkForTestMode,
   getExam,
   getExamExercises,
   getExamSubmissionsWithExamId,
@@ -191,6 +193,8 @@ import {
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
   getMyCourses,
+  getMyEmailVerificationStatus,
+  getMyStudies,
   getNumberOfPeopleCompletedACourse,
   getNumberOfPeopleDoneAtLeastOneExercise,
   getNumberOfPeopleRegisteredCompletionToStudyRegistry,
@@ -279,6 +283,7 @@ import {
   removeCoursePlanMember,
   removeRole,
   reprocessCourseCompletions,
+  requestEmailVerificationLink,
   resetCourseProgressForEveryone,
   resetCourseProgressForTeacherThemselves,
   resetExercisesForSelectedUsers,
@@ -299,6 +304,7 @@ import {
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
   teacherUnlockStudentChapter,
+  unhideCourseFromMyCourses,
   unsetExamCourse,
   updateCertificateConfiguration,
   updateChapter,
@@ -341,6 +347,8 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponse,
+  ClaimEmailVerificationLinkData,
+  ClaimEmailVerificationLinkResponse,
   ConfigureChatbotData,
   ConfigureChatbotResponse,
   ConfirmCourseSuspectedCheaterData,
@@ -612,6 +620,8 @@ import type {
   GetEditProposalsResponse,
   GetEmailTemplatesData,
   GetEmailTemplatesResponse,
+  GetEmailVerificationLinkForTestModeData,
+  GetEmailVerificationLinkForTestModeResponse,
   GetExamData,
   GetExamExercisesData,
   GetExamExercisesResponse,
@@ -652,6 +662,10 @@ import type {
   GetFirstExerciseSubmissionsHistoryResponse,
   GetMyCoursesData,
   GetMyCoursesResponse,
+  GetMyEmailVerificationStatusData,
+  GetMyEmailVerificationStatusResponse,
+  GetMyStudiesData,
+  GetMyStudiesResponse,
   GetNumberOfPeopleCompletedACourseData,
   GetNumberOfPeopleCompletedACourseResponse,
   GetNumberOfPeopleDoneAtLeastOneExerciseData,
@@ -814,6 +828,8 @@ import type {
   RemoveRoleData,
   ReprocessCourseCompletionsData,
   ReprocessCourseCompletionsResponse,
+  RequestEmailVerificationLinkData,
+  RequestEmailVerificationLinkResponse,
   ResetCourseProgressForEveryoneData,
   ResetCourseProgressForEveryoneResponse,
   ResetCourseProgressForTeacherThemselvesData,
@@ -850,6 +866,7 @@ import type {
   TeacherSetStudentChapterStatusResponse,
   TeacherUnlockStudentChapterData,
   TeacherUnlockStudentChapterResponse,
+  UnhideCourseFromMyCoursesData,
   UnsetExamCourseData,
   UpdateCertificateConfigurationData,
   UpdateCertificateConfigurationResponse,
@@ -5544,6 +5561,121 @@ export const deleteEmailTemplateMutation = (
   return mutationOptions
 }
 
+/**
+ *
+ * POST `/api/v0/main-frontend/email-verification/claim` - Consumes a mailed link and records the proof.
+ *
+ * Unauthenticated because the token names the account and the mail is often opened on a device that is
+ * not signed in. A POST rather than a GET so a mail scanner or a link prefetcher cannot burn the link.
+ */
+export const claimEmailVerificationLinkMutation = (
+  options?: Partial<Options<ClaimEmailVerificationLinkData>>,
+): UseMutationOptions<
+  ClaimEmailVerificationLinkResponse,
+  DefaultError,
+  Options<ClaimEmailVerificationLinkData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ClaimEmailVerificationLinkResponse,
+    DefaultError,
+    Options<ClaimEmailVerificationLinkData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await claimEmailVerificationLink({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification link to the
+ * signed-in account's current address.
+ */
+export const requestEmailVerificationLinkMutation = (
+  options?: Partial<Options<RequestEmailVerificationLinkData>>,
+): UseMutationOptions<
+  RequestEmailVerificationLinkResponse,
+  DefaultError,
+  Options<RequestEmailVerificationLinkData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RequestEmailVerificationLinkResponse,
+    DefaultError,
+    Options<RequestEmailVerificationLinkData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await requestEmailVerificationLink({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getMyEmailVerificationStatusQueryKey = (
+  options?: Options<GetMyEmailVerificationStatusData>,
+) => createQueryKey("getMyEmailVerificationStatus", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-verification/status` - Whether the signed-in account's address is
+ * proven, and what we last mailed about it.
+ */
+export const getMyEmailVerificationStatusOptions = (
+  options?: Options<GetMyEmailVerificationStatusData>,
+) =>
+  queryOptions<
+    GetMyEmailVerificationStatusResponse,
+    DefaultError,
+    GetMyEmailVerificationStatusResponse,
+    ReturnType<typeof getMyEmailVerificationStatusQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyEmailVerificationStatus({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyEmailVerificationStatusQueryKey(options),
+  })
+
+export const getEmailVerificationLinkForTestModeQueryKey = (
+  options?: Options<GetEmailVerificationLinkForTestModeData>,
+) => createQueryKey("getEmailVerificationLinkForTestMode", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-verification/test-mode-link` - The signed-in account's own pending
+ * verification link.
+ *
+ * Exists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the
+ * caller's own account, so an accidentally open gate only ever hands you your own link.
+ */
+export const getEmailVerificationLinkForTestModeOptions = (
+  options?: Options<GetEmailVerificationLinkForTestModeData>,
+) =>
+  queryOptions<
+    GetEmailVerificationLinkForTestModeResponse,
+    DefaultError,
+    GetEmailVerificationLinkForTestModeResponse,
+    ReturnType<typeof getEmailVerificationLinkForTestModeQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getEmailVerificationLinkForTestMode({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getEmailVerificationLinkForTestModeQueryKey(options),
+  })
+
 export const getExamExercisesQueryKey = (options: Options<GetExamExercisesData>) =>
   createQueryKey("getExamExercises", options)
 
@@ -9410,6 +9542,57 @@ export const hideCourseFromMyCoursesMutation = (
   }
   return mutationOptions
 }
+
+/**
+ *
+ * POST `/api/v0/main-frontend/users/my-courses/:course_id/unhide` - Puts a previously hidden course
+ * back into the authenticated user's "My courses" list.
+ */
+export const unhideCourseFromMyCoursesMutation = (
+  options?: Partial<Options<UnhideCourseFromMyCoursesData>>,
+): UseMutationOptions<unknown, DefaultError, Options<UnhideCourseFromMyCoursesData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<UnhideCourseFromMyCoursesData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await unhideCourseFromMyCourses({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getMyStudiesQueryKey = (options?: Options<GetMyStudiesData>) =>
+  createQueryKey("getMyStudies", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/my-studies` - The authenticated user's own study record: every
+ * course they are enrolled in, its modules, and their completions.
+ *
+ * No user id parameter, so it cannot be pointed at another account. The teacher/admin equivalent is
+ * `getUserCourseEnrollments`.
+ */
+export const getMyStudiesOptions = (options?: Options<GetMyStudiesData>) =>
+  queryOptions<
+    GetMyStudiesResponse,
+    DefaultError,
+    GetMyStudiesResponse,
+    ReturnType<typeof getMyStudiesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyStudies({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyStudiesQueryKey(options),
+  })
 
 export const resetUserPasswordMutation = (
   options?: Partial<Options<ResetUserPasswordData>>,

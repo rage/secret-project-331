@@ -754,24 +754,6 @@ export const zCoursePrerequisite = z.object({
   updated_at: z.iso.datetime(),
 })
 
-export const zCourseAuditingData = z.object({
-  audiences: z.array(zCourseAudience),
-  closed_additional_message: z.string().nullish(),
-  closed_at: z.iso.datetime().nullish(),
-  closed_course_successor_id: z.uuid().nullish(),
-  created_at: z.iso.datetime(),
-  description: z.string().nullish(),
-  id: z.uuid(),
-  modules: z.array(zCourseModule),
-  name: z.string(),
-  organization_id: z.uuid(),
-  organization_name: z.string(),
-  organization_slug: z.string(),
-  prerequisites: z.array(zCoursePrerequisite),
-  slug: z.string(),
-  updated_at: z.iso.datetime(),
-})
-
 export const zCourseMetadata = z.object({
   course_audiences: z.array(zCourseAudience),
   course_description: z.string().nullish(),
@@ -1585,14 +1567,6 @@ export const zModifiedModule = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   uh_course_code: z.string().nullish(),
-})
-
-export const zCourseAuditingDataUpdate = z.object({
-  closed_additional_message: z.string().nullish(),
-  closed_at: z.iso.datetime().nullish(),
-  closed_course_successor_id: z.uuid().nullish(),
-  description: z.string().nullish(),
-  modules: z.array(zModifiedModule),
 })
 
 export const zModule = z.object({
@@ -2560,6 +2534,46 @@ export const zUpdateCourseDesignerStageTaskRequest = z.object({
  */
 export const zUploadResult = z.object({
   url: z.string(),
+})
+
+export const zUpsertCourseAudience = z.object({
+  audience: z.string(),
+  course_id: z.uuid(),
+  id: z.uuid(),
+})
+
+export const zUpsertCoursePrerequisite = z.object({
+  course_id: z.uuid(),
+  id: z.uuid(),
+  prerequisite: z.string(),
+})
+
+export const zCourseAuditingData = z.object({
+  audiences: z.array(zUpsertCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  description: z.string().nullish(),
+  id: z.uuid(),
+  modules: z.array(zCourseModule),
+  name: z.string(),
+  organization_id: z.uuid(),
+  organization_name: z.string(),
+  organization_slug: z.string(),
+  prerequisites: z.array(zUpsertCoursePrerequisite),
+  slug: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCourseAuditingDataUpdate = z.object({
+  audiences: z.array(zUpsertCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  description: z.string().nullish(),
+  modules: z.array(zModifiedModule),
+  prerequisites: z.array(zUpsertCoursePrerequisite),
 })
 
 export const zUser = z.object({

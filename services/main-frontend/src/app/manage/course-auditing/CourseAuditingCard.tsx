@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { useQueryClient, type QueryObserverResult } from "@tanstack/react-query"
 import {
   BellXmark,
@@ -13,6 +14,7 @@ import { parseISO } from "date-fns"
 import { useState } from "react"
 import { FormProvider, useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
 
 import CourseMetadata from "@/components/CourseMetadata/CourseMetadata"
 import {
@@ -24,7 +26,6 @@ import type {
   CourseAuditingDataUpdate,
   ModifiedModule,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -33,12 +34,27 @@ import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-
 import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import { Link, nullIfEmpty, TextArea } from "@/shared-module/components"
+import { Button, Link, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
 
 import ContentDisplayBox from "./ContentDisplayBox"
 import ClosedSectionFields from "./EditClosedFields"
 import EditModuleFields from "./EditModuleFields"
 import { contentRowStyles } from "./page"
+
+const FieldSet = styled.fieldset`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+  border: 1px solid ${baseTheme.colors.gray[200]};
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  gap: 1rem;
+`
+
+const Legend = styled.legend`
+  font-weight: 600;
+  padding: 0 0.25rem;
+`
 
 interface CourseAuditingCardProps {
   id: string
@@ -96,6 +112,21 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
   // oxlint-disable-next-line i18next/no-literal-string
   const { fields: moduleFields } = useFieldArray({ control, name: "modules" })
 
+  const {
+    fields: prereqFields,
+    append: appendPrereq,
+    remove: removePrereq,
+
+    // oxlint-disable-next-line i18next/no-literal-string
+  } = useFieldArray({ control, name: "prerequisites" })
+
+  const {
+    fields: audienceFields,
+    append: appendAudience,
+    remove: removeAudience,
+    // oxlint-disable-next-line i18next/no-literal-string
+  } = useFieldArray({ control, name: "audiences" })
+
   const toggleEdit = () => {
     setEditing(!editing)
   }
@@ -106,6 +137,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
   }
 
   const onSubmit = handleSubmit((data: EditCourseAuditingData) => {
+    console.log(data)
     updateMutation.mutateAsync({
       body: {
         ...data,
@@ -177,7 +209,6 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
           className={css`
             padding: 1rem;
             border: 1px solid rgba(0, 0, 0, 0.12);
-            background: ${baseTheme.colors.gray[50]};
           `}
         >
           <div
@@ -226,11 +257,11 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                   size={"small"}
                 >
                   {status === UpdateStatus.none ? (
-                    <FloppyDiskSave size={20} />
+                    <FloppyDiskSave size={25} />
                   ) : status === UpdateStatus.saved ? (
-                    <CheckCircle size={20} />
+                    <CheckCircle size={25} />
                   ) : (
-                    <BellXmark size={20} />
+                    <BellXmark size={25} />
                   )}
                 </Button>
                 <Button
@@ -239,7 +270,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                   variant={"icon"}
                   size={"small"}
                 >
-                  <XmarkCircle size={20} />
+                  <XmarkCircle size={25} />
                 </Button>
               </div>
             ) : (
@@ -250,7 +281,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                 `}
               >
                 <Button aria-label={t("edit")} onClick={toggleEdit} variant={"icon"} size={"small"}>
-                  <Pencil size={20} />
+                  <Pencil size={25} />
                 </Button>
               </div>
             )}
@@ -273,6 +304,111 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
               />
 
               <ClosedSectionFields />
+
+              <FieldSet>
+                <Legend>{t("prerequisites-fieldset-title")}</Legend>
+
+                {prereqFields.map((prerequisite, idx) => (
+                  <div
+                    key={prerequisite.id}
+                    className={css`
+                      display: flex;
+                      flex-flow: row;
+                    `}
+                  >
+                    <TextField
+                      control={control}
+                      label={t("text-field-label-prerequisites", { index: idx + 1 })}
+                      name={`prerequisites.${idx}.prerequisite`}
+                    />
+                    <Button
+                      className={css`
+                        height: fit-content;
+                        margin: 1rem;
+                        padding: 0.5rem;
+                      `}
+                      size="small"
+                      type="button"
+                      variant="tertiary"
+                      onClick={() => removePrereq(idx)}
+                    >
+                      {t("button-remove")}
+                    </Button>
+                  </div>
+                ))}
+                <div
+                  className={css`
+                    display: flex;
+                  `}
+                >
+                  <Button
+                    className={css`
+                      margin-top: 0.5rem;
+                    `}
+                    size="medium"
+                    type="button"
+                    variant="secondary"
+                    onClick={() =>
+                      appendPrereq({ id: v4(), course_id: readOnly.id, prerequisite: "" })
+                    }
+                  >
+                    {t("add-new-prerequisite")}
+                  </Button>
+                </div>
+              </FieldSet>
+              <FieldSet>
+                <Legend>{t("audiences-fieldset-title")}</Legend>
+
+                {audienceFields.map((audience, idx) => (
+                  <div
+                    key={audience.id}
+                    className={css`
+                      display: flex;
+                      flex-flow: row;
+                    `}
+                  >
+                    <TextField
+                      key={audience.id}
+                      control={control}
+                      label={t("text-field-label-audiences", { index: idx + 1 })}
+                      name={`audiences.${idx}.audience`}
+                    />
+                    <Button
+                      className={css`
+                        height: fit-content;
+                        margin: 1rem;
+                        padding: 0.5rem;
+                      `}
+                      size="small"
+                      type="button"
+                      variant="tertiary"
+                      onClick={() => removeAudience(idx)}
+                    >
+                      {t("button-remove")}
+                    </Button>
+                  </div>
+                ))}
+
+                <div
+                  className={css`
+                    display: flex;
+                  `}
+                >
+                  <Button
+                    className={css`
+                      margin-top: 0.5rem;
+                    `}
+                    size="medium"
+                    type="button"
+                    variant="secondary"
+                    onClick={() =>
+                      appendAudience({ id: v4(), course_id: readOnly.id, audience: "" })
+                    }
+                  >
+                    {t("add-new-audience")}
+                  </Button>
+                </div>
+              </FieldSet>
 
               {moduleFields.map((module, idx) => (
                 <EditModuleFields key={module.id} control={control} module={module} idx={idx} />

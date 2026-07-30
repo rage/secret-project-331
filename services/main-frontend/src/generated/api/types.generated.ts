@@ -571,7 +571,7 @@ export type CourseAudience = {
 }
 
 export type CourseAuditingData = {
-  audiences: Array<CourseAudience>
+  audiences: Array<UpsertCourseAudience>
   closed_additional_message?: string | null
   closed_at?: string | null
   closed_course_successor_id?: string | null
@@ -583,17 +583,19 @@ export type CourseAuditingData = {
   organization_id: string
   organization_name: string
   organization_slug: string
-  prerequisites: Array<CoursePrerequisite>
+  prerequisites: Array<UpsertCoursePrerequisite>
   slug: string
   updated_at: string
 }
 
 export type CourseAuditingDataUpdate = {
+  audiences: Array<UpsertCourseAudience>
   closed_additional_message?: string | null
   closed_at?: string | null
   closed_course_successor_id?: string | null
   description?: string | null
   modules: Array<ModifiedModule>
+  prerequisites: Array<UpsertCoursePrerequisite>
 }
 
 export type CourseBreadcrumbInfo = {
@@ -2356,6 +2358,18 @@ export type UpdateCourseDesignerStageTaskRequest = {
  */
 export type UploadResult = {
   url: string
+}
+
+export type UpsertCourseAudience = {
+  audience: string
+  course_id: string
+  id: string
+}
+
+export type UpsertCoursePrerequisite = {
+  course_id: string
+  id: string
+  prerequisite: string
 }
 
 export type User = {

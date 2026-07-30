@@ -17,6 +17,13 @@ pub struct NewCourseAudience {
     pub audience: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
+pub struct UpsertCourseAudience {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub audience: String,
+}
+
 pub async fn insert_course_audiences(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -41,14 +48,37 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<CourseAudience>> {
+pub async fn get_all_audiences(conn: &mut PgConnection) -> ModelResult<Vec<UpsertCourseAudience>> {
     let res = sqlx::query_as!(
-        CourseAudience,
+        UpsertCourseAudience,
         "
-SELECT *
+SELECT id,
+audience,
+course_id
 FROM course_audiences
 WHERE deleted_at IS NULL
 ",
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_audiences_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<UpsertCourseAudience>> {
+    let res = sqlx::query_as!(
+        UpsertCourseAudience,
+        "
+SELECT id,
+audience,
+course_id
+FROM course_audiences
+WHERE course_id = $1
+AND deleted_at IS NULL
+",
+        course_id
     )
     .fetch_all(conn)
     .await?;

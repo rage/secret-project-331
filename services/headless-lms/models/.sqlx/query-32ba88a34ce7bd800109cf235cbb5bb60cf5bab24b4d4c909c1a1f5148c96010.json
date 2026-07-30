@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_audiences (course_id, id, audience)\nSELECT $1,\n  audience_data.id,\n  audience_data.audience\nFROM UNNEST ($2::UUID [], $3::TEXT []) AS audience_data(id, audience) ON CONFLICT (id) DO\nUPDATE\nSET audience = EXCLUDED.audience\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "32ba88a34ce7bd800109cf235cbb5bb60cf5bab24b4d4c909c1a1f5148c96010"
+}

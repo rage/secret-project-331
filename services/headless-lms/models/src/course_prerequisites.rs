@@ -17,6 +17,13 @@ pub struct NewCoursePrerequisite {
     pub prerequisite: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
+pub struct UpsertCoursePrerequisite {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub prerequisite: String,
+}
+
 pub async fn insert_course_prerequisites(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -41,14 +48,39 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<CoursePrerequisite>> {
+pub async fn get_all_prerequisites(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<UpsertCoursePrerequisite>> {
     let res = sqlx::query_as!(
-        CoursePrerequisite,
+        UpsertCoursePrerequisite,
         "
-SELECT *
+SELECT id,
+prerequisite,
+course_id
 FROM course_prerequisites
 WHERE deleted_at IS NULL
 ",
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_prerequisites_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<UpsertCoursePrerequisite>> {
+    let res = sqlx::query_as!(
+        UpsertCoursePrerequisite,
+        "
+SELECT id,
+prerequisite,
+course_id
+FROM course_prerequisites
+WHERE course_id = $1
+AND deleted_at IS NULL
+",
+        course_id
     )
     .fetch_all(conn)
     .await?;

@@ -296,7 +296,7 @@ AND deleted_at IS NULL
     Ok(())
 }
 
-pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<CourseModule>> {
+pub async fn get_all_modules(conn: &mut PgConnection) -> ModelResult<Vec<CourseModule>> {
     let res = sqlx::query_as!(
         CourseModulesSchema,
         "

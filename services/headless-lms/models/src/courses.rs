@@ -2,11 +2,12 @@ use std::collections::HashMap;
 
 use crate::{
     chapters::{Chapter, course_chapters},
-    course_audiences::{CourseAudience, NewCourseAudience},
+    course_audiences::{CourseAudience, NewCourseAudience, UpsertCourseAudience},
     course_instances::CourseInstance,
     course_modules::{CourseModule, ModifiedModule},
     course_prerequisites::{
-        CoursePrerequisite, NewCoursePrerequisite, insert_course_prerequisites,
+        CoursePrerequisite, NewCoursePrerequisite, UpsertCoursePrerequisite,
+        insert_course_prerequisites,
     },
     organizations::DatabaseOrganization,
     pages::{Page, PageVisibility, get_all_by_course_id_and_visibility},
@@ -218,32 +219,6 @@ pub struct NewCourse {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
-pub struct CourseToAudit {
-    pub id: Uuid,
-    pub slug: String,
-    pub organization_id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub name: String,
-    pub description: Option<String>,
-    pub uh_course_code: Option<String>,
-    pub closed_at: Option<DateTime<Utc>>,
-    pub closed_additional_message: Option<String>,
-    pub closed_course_successor_id: Option<Uuid>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
-pub struct CourseToAuditUpdate {
-    pub description: Option<String>,
-    pub uh_course_code: Option<String>,
-    pub closed_at: Option<DateTime<Utc>>,
-    pub closed_additional_message: Option<String>,
-    pub closed_course_successor_id: Option<Uuid>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
 pub struct CourseAuditingData {
     pub id: Uuid,
     pub name: String,
@@ -258,8 +233,8 @@ pub struct CourseAuditingData {
     pub organization_name: String,
     pub organization_slug: String,
     pub modules: Vec<CourseModule>,
-    pub prerequisites: Vec<CoursePrerequisite>,
-    pub audiences: Vec<CourseAudience>,
+    pub prerequisites: Vec<UpsertCoursePrerequisite>,
+    pub audiences: Vec<UpsertCourseAudience>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -270,6 +245,8 @@ pub struct CourseAuditingDataUpdate {
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
     pub modules: Vec<ModifiedModule>,
+    pub prerequisites: Vec<UpsertCoursePrerequisite>,
+    pub audiences: Vec<UpsertCourseAudience>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -394,8 +371,7 @@ pub async fn all_courses_for_auditing(
 ) -> ModelResult<Vec<CourseAuditingData>> {
     let courses_data = sqlx::query!(
         r#"
-SELECT
-  c.id,
+SELECT c.id,
   c.name,
   c.slug,
   c.created_at,
@@ -405,25 +381,26 @@ SELECT
   c.closed_at,
   c.closed_additional_message,
   c.closed_course_successor_id,
-  o.name as organization_name,
-  o.slug as organization_slug
-FROM courses c JOIN organizations o ON o.id = c.organization_id
-WHERE c.deleted_at IS NULL and o.deleted_at IS NULL
-GROUP BY
-  c.id,
+  o.name AS organization_name,
+  o.slug AS organization_slug
+FROM courses c
+  JOIN organizations o ON o.id = c.organization_id
+WHERE c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
+GROUP BY c.id,
   c.name,
   o.name,
-  o.slug;
+  o.slug
 "#
     )
     .fetch_all(&mut *conn)
     .await?;
 
-    let modules_data = crate::course_modules::all_courses(conn).await?;
+    let modules_data = crate::course_modules::get_all_modules(conn).await?;
 
-    let prerequisites_data = crate::course_prerequisites::all_courses(conn).await?;
+    let prerequisites_data = crate::course_prerequisites::get_all_prerequisites(conn).await?;
 
-    let audiences_data = crate::course_audiences::all_courses(conn).await?;
+    let audiences_data = crate::course_audiences::get_all_audiences(conn).await?;
 
     let mut modules_by_course_id: HashMap<Uuid, Vec<CourseModule>> = HashMap::new();
     for module in modules_data {
@@ -437,7 +414,8 @@ GROUP BY
         course_modules.sort_by_key(|c| c.order_number);
     }
 
-    let mut prerequisites_by_course_id: HashMap<Uuid, Vec<CoursePrerequisite>> = HashMap::new();
+    let mut prerequisites_by_course_id: HashMap<Uuid, Vec<UpsertCoursePrerequisite>> =
+        HashMap::new();
     for prerequisite in prerequisites_data {
         prerequisites_by_course_id
             .entry(prerequisite.course_id)
@@ -445,7 +423,7 @@ GROUP BY
             .push(prerequisite);
     }
 
-    let mut audiences_by_course_id: HashMap<Uuid, Vec<CourseAudience>> = HashMap::new();
+    let mut audiences_by_course_id: HashMap<Uuid, Vec<UpsertCourseAudience>> = HashMap::new();
     for audience in audiences_data {
         audiences_by_course_id
             .entry(audience.course_id)
@@ -473,6 +451,7 @@ GROUP BY
             audiences: audiences_by_course_id.remove(&c.id).unwrap_or_default(),
         })
         .collect();
+
     Ok(data)
 }
 
@@ -482,8 +461,7 @@ pub async fn course_auditing_data_by_id(
 ) -> ModelResult<CourseAuditingData> {
     let course_data = sqlx::query!(
         r#"
-SELECT
-  c.id,
+SELECT c.id,
   c.name,
   c.slug,
   c.created_at,
@@ -493,15 +471,17 @@ SELECT
   c.closed_at,
   c.closed_additional_message,
   c.closed_course_successor_id,
-  o.name as organization_name,
-  o.slug as organization_slug
-FROM courses c JOIN organizations o ON o.id = c.organization_id
-WHERE c.id = $1 AND c.deleted_at IS NULL and o.deleted_at IS NULL
-GROUP BY
-  c.id,
+  o.name AS organization_name,
+  o.slug AS organization_slug
+FROM courses c
+  JOIN organizations o ON o.id = c.organization_id
+WHERE c.id = $1
+  AND c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
+GROUP BY c.id,
   c.name,
   o.name,
-  o.slug;
+  o.slug
 "#,
         course_id
     )
@@ -512,9 +492,11 @@ GROUP BY
 
     modules_data.sort_by_key(|c| c.order_number);
 
-    let prerequisites_data = crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    let prerequisites_data =
+        crate::course_prerequisites::get_prerequisites_by_course_id(conn, course_id).await?;
 
-    let audiences_data = crate::course_audiences::get_by_course_id(conn, course_id).await?;
+    let audiences_data =
+        crate::course_audiences::get_audiences_by_course_id(conn, course_id).await?;
 
     let data: CourseAuditingData = CourseAuditingData {
         id: course_data.id,
@@ -553,7 +535,8 @@ SET description = $2,
   closed_additional_message = $4,
   closed_course_successor_id = $5
 WHERE id = $1
-  AND deleted_at IS NULL"#,
+  AND deleted_at IS NULL
+"#,
         course_id,
         data_update.description,
         data_update.closed_at,
@@ -563,26 +546,134 @@ WHERE id = $1
     .execute(&mut *tx)
     .await?;
 
-    for module in data_update.modules {
-        sqlx::query_as!(
-            ModifiedModule,
-            r#"
-UPDATE course_modules
-SET uh_course_code = $2,
-  completion_registration_link_override = $3,
-  ects_credits = $4,
-  enable_registering_completion_to_uh_open_university = $5
-WHERE id = $1
-  AND deleted_at IS NULL"#,
-            module.id,
-            module.uh_course_code,
-            module.completion_registration_link_override,
-            module.ects_credits,
-            module.enable_registering_completion_to_uh_open_university,
-        )
-        .execute(&mut *tx)
-        .await?;
-    }
+    let module_ids: Vec<Uuid> = data_update.modules.iter().map(|m| m.id).collect();
+
+    let uh_course_codes: Vec<Option<String>> = data_update
+        .modules
+        .iter()
+        .map(|m| m.uh_course_code.clone())
+        .collect();
+
+    let completion_registration_link_overrides: Vec<Option<String>> = data_update
+        .modules
+        .iter()
+        .map(|m| m.completion_registration_link_override.clone())
+        .collect();
+
+    let ects_credits: Vec<Option<f32>> =
+        data_update.modules.iter().map(|m| m.ects_credits).collect();
+
+    let enable_registering_completion_to_uh_open_university: Vec<bool> = data_update
+        .modules
+        .iter()
+        .map(|m| m.enable_registering_completion_to_uh_open_university)
+        .collect();
+
+    sqlx::query!(
+        r#"
+UPDATE course_modules cm
+SET uh_course_code = v.uh_course_code,
+  completion_registration_link_override = v.completion_registration_link_override,
+  ects_credits = v.ects_credits,
+  enable_registering_completion_to_uh_open_university = v.enable_registering_completion_to_uh_open_university
+FROM (
+    SELECT *
+    FROM UNNEST(
+        $1::uuid [],
+        $2::TEXT [],
+        $3::TEXT [],
+        $4::FLOAT8 [],
+        $5::BOOLEAN []
+      ) AS v(
+        id,
+        uh_course_code,
+        completion_registration_link_override,
+        ects_credits,
+        enable_registering_completion_to_uh_open_university
+      )
+  ) AS v
+WHERE cm.id = v.id
+"#,
+        &module_ids[..],
+        &uh_course_codes[..] as &[Option<String>],
+        &completion_registration_link_overrides[..] as &[Option<String>],
+        &ects_credits[..] as &[Option<f32>],
+        &enable_registering_completion_to_uh_open_university[..],
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    let prerequisite_ids: Vec<Uuid> = data_update.prerequisites.iter().map(|p| p.id).collect();
+
+    let updated_prerequisites: Vec<String> = data_update
+        .prerequisites
+        .iter()
+        .map(|p| p.prerequisite.clone())
+        .collect();
+
+    let old_prerequisites: Vec<CoursePrerequisite> =
+        crate::course_prerequisites::get_by_course_id(&mut tx, course_id).await?;
+
+    let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
+        .iter()
+        .filter(|p| !updated_prerequisites.contains(&p.prerequisite))
+        .map(|p| p.id.clone())
+        .collect();
+
+    crate::course_prerequisites::delete_batch(&mut tx, prerequisites_to_delete).await?;
+
+    sqlx::query!(
+        r#"
+INSERT INTO course_prerequisites (course_id, id, prerequisite)
+SELECT $1,
+  prerequisite_data.id,
+  prerequisite_data.prerequisite
+FROM UNNEST ($2::UUID [], $3::TEXT []) AS prerequisite_data(id, prerequisite) ON CONFLICT (id) DO
+UPDATE
+SET prerequisite = EXCLUDED.prerequisite
+"#,
+        &course_id,
+        &prerequisite_ids[..],
+        &updated_prerequisites[..]
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    let audience_ids: Vec<Uuid> = data_update.audiences.iter().map(|a| a.id).collect();
+
+    let updated_audiences: Vec<String> = data_update
+        .audiences
+        .iter()
+        .map(|a| a.audience.clone())
+        .collect();
+
+    let old_audiences: Vec<CourseAudience> =
+        crate::course_audiences::get_by_course_id(&mut tx, course_id).await?;
+
+    let audiences_to_delete: Vec<Uuid> = old_audiences
+        .iter()
+        .filter(|a| !updated_audiences.contains(&a.audience))
+        .map(|a| a.id.clone())
+        .collect();
+
+    crate::course_audiences::delete_batch(&mut tx, audiences_to_delete).await?;
+
+    sqlx::query!(
+        r#"
+INSERT INTO course_audiences (course_id, id, audience)
+SELECT $1,
+  audience_data.id,
+  audience_data.audience
+FROM UNNEST ($2::UUID [], $3::TEXT []) AS audience_data(id, audience) ON CONFLICT (id) DO
+UPDATE
+SET audience = EXCLUDED.audience
+"#,
+        &course_id,
+        &audience_ids[..],
+        &updated_audiences[..]
+    )
+    .execute(&mut *tx)
+    .await?;
 
     tx.commit().await?;
     Ok(())

@@ -13001,7 +13001,7 @@
           "audiences": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CourseAudience"
+              "$ref": "#/components/schemas/UpsertCourseAudience"
             }
           },
           "closed_additional_message": {
@@ -13048,7 +13048,7 @@
           "prerequisites": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CoursePrerequisite"
+              "$ref": "#/components/schemas/UpsertCoursePrerequisite"
             }
           },
           "slug": {
@@ -13062,8 +13062,14 @@
       },
       "CourseAuditingDataUpdate": {
         "type": "object",
-        "required": ["modules"],
+        "required": ["modules", "prerequisites", "audiences"],
         "properties": {
+          "audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertCourseAudience"
+            }
+          },
           "closed_additional_message": {
             "type": ["string", "null"]
           },
@@ -13082,6 +13088,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ModifiedModule"
+            }
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertCoursePrerequisite"
             }
           }
         }
@@ -18573,6 +18585,40 @@
         "required": ["url"],
         "properties": {
           "url": {
+            "type": "string"
+          }
+        }
+      },
+      "UpsertCourseAudience": {
+        "type": "object",
+        "required": ["id", "course_id", "audience"],
+        "properties": {
+          "audience": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UpsertCoursePrerequisite": {
+        "type": "object",
+        "required": ["id", "course_id", "prerequisite"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "prerequisite": {
             "type": "string"
           }
         }

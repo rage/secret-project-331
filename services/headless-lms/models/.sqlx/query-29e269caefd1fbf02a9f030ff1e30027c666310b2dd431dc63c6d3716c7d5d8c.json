@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  c.id,\n  c.name,\n  c.slug,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description,\n  c.closed_at,\n  c.closed_additional_message,\n  c.closed_course_successor_id,\n  o.name as organization_name,\n  o.slug as organization_slug\nFROM courses c JOIN organizations o ON o.id = c.organization_id\nWHERE c.deleted_at IS NULL and o.deleted_at IS NULL\nGROUP BY\n  c.id,\n  c.name,\n  o.name,\n  o.slug;\n",
+  "query": "\nSELECT c.id,\n  c.name,\n  c.slug,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description,\n  c.closed_at,\n  c.closed_additional_message,\n  c.closed_course_successor_id,\n  o.name AS organization_name,\n  o.slug AS organization_slug\nFROM courses c\n  JOIN organizations o ON o.id = c.organization_id\nWHERE c.deleted_at IS NULL\n  AND o.deleted_at IS NULL\nGROUP BY c.id,\n  c.name,\n  o.name,\n  o.slug\n",
   "describe": {
     "columns": [
       {
@@ -154,5 +154,5 @@
       false
     ]
   },
-  "hash": "034841cd84935d354c5fb7a5ce71437d72768677e6a04468f2f7aa5d3c0558af"
+  "hash": "29e269caefd1fbf02a9f030ff1e30027c666310b2dd431dc63c6d3716c7d5d8c"
 }

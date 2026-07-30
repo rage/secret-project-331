@@ -4,6 +4,7 @@ Syncs tmc users
 use std::env;
 
 use crate::config::program_config::ProgramConfig;
+use crate::domain::email_ownership_verification::queue_verification_email_best_effort;
 use crate::setup_tracing;
 use anyhow::Context;
 
@@ -83,14 +84,21 @@ pub async fn update_users(
 
     for change in email_update_list {
         if let Some(user_id) = change.user_id {
-            match update_email_for_user(
-                &mut *conn,
-                &user_id,
-                change.new_value.as_deref().unwrap_or("unknown").to_string(),
-            )
-            .await
-            {
-                Ok(email) => email,
+            // A change with no new value cannot be applied: user_details.email is CHECKed to contain
+            // an '@', so the old placeholder string would only have failed at the database.
+            let Some(new_email) = change.new_value.as_deref() else {
+                error!(
+                    "TMC email change {} for user {user_id} carries no new value",
+                    change.id
+                );
+                continue;
+            };
+            match update_email_for_user(&mut *conn, &user_id, new_email.to_string()).await {
+                Ok(changed_user_id) => {
+                    // The trigger just dropped any proof of the old address.
+                    queue_verification_email_best_effort(&mut *conn, changed_user_id, new_email)
+                        .await;
+                }
                 Err(e) => {
                     error!("Error updating user with id {}", user_id);
                     error!("Error: {}", e);

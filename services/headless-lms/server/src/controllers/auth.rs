@@ -284,6 +284,15 @@ pub async fn signup(
         )
         .await;
 
+        // tmc.mooc.fi mails its own confirmation link, but never tells us the outcome, so the address
+        // stays unproven here until our own link is opened.
+        domain::email_ownership_verification::queue_verification_email_best_effort(
+            &mut conn,
+            user.id,
+            &user_details.email,
+        )
+        .await;
+
         let token = skip_authorize();
         authorization::remember(&session, user)?;
         token.authorized_ok(web::Json(SignupResponse::Success))
@@ -371,6 +380,13 @@ async fn handle_test_mode_signup(
                 anyhow!(e),
             )
         })?;
+    domain::email_ownership_verification::queue_verification_email_best_effort(
+        conn,
+        user.id,
+        &user_details.email,
+    )
+    .await;
+
     authorization::remember(session, user)?;
 
     let token = skip_authorize();

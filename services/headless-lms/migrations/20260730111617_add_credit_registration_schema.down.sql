@@ -95,6 +95,10 @@ DROP TABLE IF EXISTS verified_student_numbers;
 
 DROP TYPE IF EXISTS student_number_verification_method;
 
+-- 2b. Email-ownership tokens. Dropped before the email_deliveries revert below, whose DELETE of
+-- raw-address deliveries would otherwise trip this table's foreign key.
+DROP TABLE IF EXISTS email_ownership_verification_tokens;
+
 -- 2. user_details email-ownership verification.
 DROP TRIGGER IF EXISTS clear_email_verification ON user_details;
 

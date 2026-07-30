@@ -76,6 +76,47 @@ FROM (
 WHERE t.user_id = ud.user_id
   AND t.last_used > ud.updated_at;
 
+-- 2b. email_ownership_verification_tokens: the proof that produces
+-- email_verified_method = 'verification_link'. Deliberately not a purpose discriminator on
+-- email_verification_tokens: that table is the administrator login second factor (15 minute TTL, a
+-- separate six digit code, and a probabilistic cleanup that hard-deletes rows by expires_at whether
+-- they were used or not), so sharing it would mean per-purpose TTL and cleanup branching inside the
+-- login path and would destroy the send history this flow reports to the user.
+CREATE TABLE email_ownership_verification_tokens (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  token VARCHAR(255) NOT NULL,
+  user_id UUID NOT NULL REFERENCES users(id),
+  email VARCHAR(255) NOT NULL,
+  email_delivery_id UUID REFERENCES email_deliveries(id),
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now() + INTERVAL '7 days',
+  used_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  CONSTRAINT email_ownership_verification_token_length CHECK (LENGTH(token) >= 128)
+);
+CREATE UNIQUE INDEX uq_email_ownership_verification_token ON email_ownership_verification_tokens (token, deleted_at) NULLS NOT DISTINCT
+WHERE used_at IS NULL;
+CREATE INDEX idx_email_ownership_verification_tokens_user ON email_ownership_verification_tokens (user_id, created_at DESC)
+WHERE deleted_at IS NULL;
+CREATE INDEX idx_email_ownership_verification_tokens_expires ON email_ownership_verification_tokens (expires_at)
+WHERE used_at IS NULL
+  AND deleted_at IS NULL;
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON email_ownership_verification_tokens FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE email_ownership_verification_tokens IS 'One-click links mailed to a user''s own address to prove they control it. Bound to an account at creation, unlike student_number_verification_tokens: here we already know whose address it is and the only open question is whether they can read it.';
+COMMENT ON COLUMN email_ownership_verification_tokens.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN email_ownership_verification_tokens.token IS 'Long random string (at least 128 characters) that is the only proof carried by the link.';
+COMMENT ON COLUMN email_ownership_verification_tokens.user_id IS 'The account whose address is being proven.';
+COMMENT ON COLUMN email_ownership_verification_tokens.email IS 'The address the link was mailed to, frozen at send time. The claim refuses the token if user_details.email no longer matches, so a link cannot carry a proof over to an address the user switched to afterwards.';
+COMMENT ON COLUMN email_ownership_verification_tokens.email_delivery_id IS 'The email_deliveries row carrying the link, so the account page can report our send status. Addressed to a raw recipient_email rather than to user_id on purpose: the mail must go to the address as it was when the link was minted.';
+COMMENT ON COLUMN email_ownership_verification_tokens.expires_at IS 'When the link stops working. Default 7 days: the user asked for this mail, so it is read sooner than an unsolicited one, but it still has to survive a weekend.';
+COMMENT ON COLUMN email_ownership_verification_tokens.used_at IS 'When the link was opened and the proof recorded. Null if unused.';
+COMMENT ON COLUMN email_ownership_verification_tokens.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN email_ownership_verification_tokens.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN email_ownership_verification_tokens.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+
 -- 3. verified_student_numbers: the account to student number link. Global per account.
 CREATE TYPE student_number_verification_method AS ENUM (
   'emailed_link',
@@ -103,7 +144,7 @@ CREATE TABLE verified_student_numbers (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  -- TODO(doc 14 Q19): Suotar has not confirmed how student numbers are normalised on their side.
+  -- TODO: Suotar has not confirmed how student numbers are normalised on their side.
   -- We normalise before calling and keep this loose: real UH numbers are 9 digits, but do not
   -- hard-code 9, and never trim leading zeros.
   CONSTRAINT student_number_format CHECK (student_number ~ '^[0-9]{6,12}$'),
@@ -390,14 +431,14 @@ CREATE TABLE credit_registrations (
   selected_enrolment_realisation_id VARCHAR(255),
   attainment_date DATE,
   attainment_language VARCHAR(15),
-  -- TODO(doc 14 Q2): Suotar has not confirmed the pass/fail grade scale id spelling
+  -- TODO: Suotar has not confirmed the pass/fail grade scale id spelling
   -- (sis-hyv-hyl vs sis-hyl-hyv). Whatever the client sends lands here verbatim; the spelling
   -- itself is one constant next to the grade mapping function, so a late answer is a one-line change.
   grade_scale_id VARCHAR(64),
   grade_id VARCHAR(16),
   credits REAL,
   request_item_id VARCHAR(128) NOT NULL,
-  -- TODO(doc 14 Q1): unknown whether a sisuTimeout ever carries a submittedAttainmentId. When it
+  -- TODO: unknown whether a sisuTimeout ever carries a submittedAttainmentId. When it
   -- does not, submission_uncertain recovery has nothing to verify with and must fall back to
   -- resolve-enrolments' existingAttainments. Never resubmit either way.
   submitted_attainment_id VARCHAR(255),
@@ -697,10 +738,10 @@ COMMENT ON COLUMN open_university_product_access_tokens.deleted_at IS 'Timestamp
 -- 13. Per-module configuration.
 ALTER TABLE course_modules
 ADD COLUMN enable_credit_registration_via_suotar BOOLEAN NOT NULL DEFAULT FALSE,
-  -- TODO(doc 14 Q5): Suotar has not said whether their API returns openUniversityProductId. Until
+  -- TODO: Suotar has not said whether their API returns openUniversityProductId. Until
   -- they do, teachers type it in here; when they do, prefer the returned id over this one.
   ADD COLUMN open_university_product_id VARCHAR(255),
-  -- TODO(doc 14 Q2): pass/fail grade scale id spelling is unconfirmed (sis-hyv-hyl vs sis-hyl-hyv).
+  -- TODO: pass/fail grade scale id spelling is unconfirmed (sis-hyv-hyl vs sis-hyl-hyv).
   -- This override exists because a module may be pass/fail here but graded in Sisu, or vice versa.
   ADD COLUMN credit_registration_grade_scale_id VARCHAR(64),
   ADD COLUMN credit_registration_paused_at TIMESTAMP WITH TIME ZONE,

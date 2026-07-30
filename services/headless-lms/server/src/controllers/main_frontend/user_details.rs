@@ -485,6 +485,19 @@ pub async fn update_user_info(
     }
 
     tx.commit().await?;
+
+    if email_changed {
+        // Queued after the commit so a rolled-back edit cannot mail a link for an address the account
+        // does not actually have. The trigger has just dropped the proof of the old address.
+        let mut conn = pool.acquire().await?;
+        domain::email_ownership_verification::queue_verification_email_best_effort(
+            &mut conn,
+            user.id,
+            &payload.email,
+        )
+        .await;
+    }
+
     let token = skip_authorize();
     token.authorized_ok(web::Json(updated_user))
 }

@@ -44,11 +44,12 @@
 'email_verification_token' = "crate::secret::DbSecret"
 'code' = "crate::secret::DbSecret"
 
+[macros.table-overrides.'email_ownership_verification_tokens']
+'token' = "crate::secret::DbSecret"
+
 [macros.table-overrides.'marketing_mailing_list_access_tokens']
 'access_token' = "crate::secret::DbSecret"
 
-# The linking token is the only proof of ownership and is not scoped to an account, so it never
-# leaves the model layer in plaintext.
 [macros.table-overrides.'student_number_verification_tokens']
 'token' = "crate::secret::DbSecret"
 

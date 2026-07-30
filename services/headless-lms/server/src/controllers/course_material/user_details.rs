@@ -65,6 +65,7 @@ pub async fn update_user_info(
     payload: web::Json<UserInfoPayload>,
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut conn = pool.acquire().await?;
+    let existing = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
     let res = models::user_details::update_user_info(
         &mut conn,
         user.id,
@@ -75,6 +76,14 @@ pub async fn update_user_info(
         payload.email_communication_consent,
     )
     .await?;
+
+    if existing.email != res.email {
+        // The trigger has just dropped the proof of the old address.
+        domain::email_ownership_verification::queue_verification_email_best_effort(
+            &mut conn, user.id, &res.email,
+        )
+        .await;
+    }
 
     let token = skip_authorize();
     token.authorized_ok(web::Json(res))

@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT email_verified_at,\n  email_verified_method AS \"email_verified_method: EmailVerificationMethod\"\nFROM user_details\nWHERE user_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "email_verified_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email_verified_at"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "email_verified_method: EmailVerificationMethod",
+        "type_info": {
+          "Custom": {
+            "name": "email_verification_method",
+            "kind": {
+              "Enum": [
+                "verification_link",
+                "password_reset_backfill",
+                "tmc_confirmed",
+                "admin_asserted"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email_verified_method"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true
+    ]
+  },
+  "hash": "19353a6ca0b90188c1b5f68d06b661ebcf5191abcce80eb8e69426cae9614f1d"
+}

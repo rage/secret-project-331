@@ -10,7 +10,13 @@
 'course_designer_plan_stage_status' = "crate::course_designer_plans::CourseDesignerPlanStageStatus"
 'course_designer_plan_status' = "crate::course_designer_plans::CourseDesignerPlanStatus"
 'course_designer_stage' = "crate::course_designer_plans::CourseDesignerStage"
+'credit_registration_admin_action' = "crate::credit_registration_admin_actions::CreditRegistrationAdminAction"
+'credit_registration_admin_action_target' = "crate::credit_registration_admin_actions::CreditRegistrationAdminActionTarget"
+'credit_registration_error_code' = "crate::credit_registrations::CreditRegistrationErrorCode"
+'credit_registration_event_kind' = "crate::credit_registration_events::CreditRegistrationEventKind"
+'credit_registration_state' = "crate::credit_registrations::CreditRegistrationState"
 'email_template_type' = "crate::email_templates::EmailTemplateType"
+'email_verification_method' = "crate::user_details::EmailVerificationMethod"
 'error_source' = "crate::errors::ErrorSource"
 'exercise_repository_status' = "crate::exercise_repositories::ExerciseRepositoryStatus"
 'grant_type' = "crate::library::oauth::grant_type::GrantTypeName"
@@ -24,6 +30,8 @@
 'reasoning_effort_level' = "crate::chatbot_configurations::ReasoningEffortLevel"
 'report_reason' = "crate::flagged_answers::ReportReason"
 'reviewing_stage' = "crate::user_exercise_states::ReviewingStage"
+'student_number_verification_method' = "crate::verified_student_numbers::StudentNumberVerificationMethod"
+'suotar_endpoint' = "crate::suotar_api_calls::SuotarEndpoint"
 'suspected_cheater_status' = "crate::suspected_cheaters::SuspectedCheaterStatus"
 'teacher_decision_type' = "crate::teacher_grading_decisions::TeacherDecisionType"
 'token_endpoint_auth_method' = "crate::oauth_client::TokenEndpointAuthMethod"
@@ -37,6 +45,14 @@
 'code' = "crate::secret::DbSecret"
 
 [macros.table-overrides.'marketing_mailing_list_access_tokens']
+'access_token' = "crate::secret::DbSecret"
+
+# The linking token is the only proof of ownership and is not scoped to an account, so it never
+# leaves the model layer in plaintext.
+[macros.table-overrides.'student_number_verification_tokens']
+'token' = "crate::secret::DbSecret"
+
+[macros.table-overrides.'open_university_product_access_tokens']
 'access_token' = "crate::secret::DbSecret"
 
 # Giveaway codes are intentionally returned to the recipient over the API, so they use

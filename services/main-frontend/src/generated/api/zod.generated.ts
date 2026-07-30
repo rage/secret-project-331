@@ -985,6 +985,11 @@ export const zEmailTemplateType = z.enum([
   "delete_user_email",
   "confirm_email_code",
   "generic",
+  "credit_registration_account_linking",
+  "verify_email_address",
+  "credit_registration_action_needed",
+  "credit_registration_registered",
+  "credit_registration_student_number_linked",
 ])
 
 export const zEmailTemplate = z.object({
@@ -1015,6 +1020,19 @@ export const zEmailTemplateNew = z.object({
   subject: z.string().nullish(),
   template_type: zEmailTemplateType,
 })
+
+/**
+ * How proof of control over [`UserDetail::email`] was obtained.
+ *
+ * A discriminator, not a flag: consumers that care about the strength of the proof must match
+ * exhaustively. `AdminAsserted` is deliberately weaker than the rest.
+ */
+export const zEmailVerificationMethod = z.enum([
+  "verification_link",
+  "password_reset_backfill",
+  "tmc_confirmed",
+  "admin_asserted",
+])
 
 export const zEventInfo = z.object({
   count: z
@@ -2687,6 +2705,8 @@ export const zUserDetail = z.object({
   created_at: z.iso.datetime(),
   email: z.string(),
   email_communication_consent: z.boolean().nullish(),
+  email_verified_at: z.iso.datetime().nullish(),
+  email_verified_method: zEmailVerificationMethod.nullish(),
   first_name: z.string().nullish(),
   last_name: z.string().nullish(),
   search_helper: z.string().nullish(),

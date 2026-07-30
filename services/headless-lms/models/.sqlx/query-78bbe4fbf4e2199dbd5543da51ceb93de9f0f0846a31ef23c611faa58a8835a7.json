@@ -1,0 +1,148 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM credit_registration_account_linking_emails\nWHERE student_number = $1\n  AND deleted_at IS NULL\nORDER BY sent_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "student_number",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "sisu_person_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sisu_person_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "emailed_to",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "emailed_to"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "student_number_verification_token_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "student_number_verification_token_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "email_delivery_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "email_delivery_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "sent_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sent_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "deleted_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "78bbe4fbf4e2199dbd5543da51ceb93de9f0f0846a31ef23c611faa58a8835a7"
+}

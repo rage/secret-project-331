@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS(SELECT 1 FROM email_templates WHERE id = $1 AND deleted_at IS NULL) AS \"template_ok!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "template_ok!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "42adc1b22e5bed9c0781a8010edd5642b5bcd77c55fb826d4e8b501dcdfb23d3"
+}

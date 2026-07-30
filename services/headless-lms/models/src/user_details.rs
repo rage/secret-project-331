@@ -7,6 +7,20 @@ use crate::{prelude::*, users::User};
 
 const MIN_FUZZY_SEARCH_TERM_LENGTH: usize = 3;
 
+/// How proof of control over [`UserDetail::email`] was obtained.
+///
+/// A discriminator, not a flag: consumers that care about the strength of the proof must match
+/// exhaustively. `AdminAsserted` is deliberately weaker than the rest.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
+#[sqlx(type_name = "email_verification_method", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+pub enum EmailVerificationMethod {
+    VerificationLink,
+    PasswordResetBackfill,
+    TmcConfirmed,
+    AdminAsserted,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 
 pub struct UserDetail {
@@ -19,6 +33,10 @@ pub struct UserDetail {
     pub search_helper: Option<String>,
     pub country: Option<String>,
     pub email_communication_consent: Option<bool>,
+    /// When the user last proved control of the address in `email`. `None` means unproven. Cleared
+    /// by a database trigger on every address change, so a value here always refers to `email`.
+    pub email_verified_at: Option<DateTime<Utc>>,
+    pub email_verified_method: Option<EmailVerificationMethod>,
 }
 
 pub async fn get_user_details_by_user_id(
@@ -36,7 +54,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM user_details
 WHERE user_id = $1 ",
         user_id
@@ -62,7 +82,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM user_details
 WHERE user_id IN (
     SELECT UNNEST($1::uuid [])
@@ -95,7 +117,9 @@ SELECT distinct (ud.user_id),
  ud.email,
  ud.search_helper,
  ud.country,
- ud.email_communication_consent
+ ud.email_communication_consent,
+ ud.email_verified_at,
+ ud.email_verified_method
 FROM user_details ud
 JOIN users u
   ON u.id = ud.user_id
@@ -131,7 +155,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM (
     SELECT user_id,
       created_at,
@@ -142,6 +168,8 @@ FROM (
       search_helper,
       country,
       email_communication_consent,
+      email_verified_at,
+      email_verified_method,
       lower($1) <<-> email_search_helper AS dist
     FROM user_details
     ORDER BY dist
@@ -176,7 +204,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM user_details
 WHERE user_id = $1;
 ",
@@ -212,7 +242,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM (
     SELECT user_id,
       created_at,
@@ -223,6 +255,8 @@ FROM (
       search_helper,
       country,
       email_communication_consent,
+      email_verified_at,
+      email_verified_method,
       lower($1) <<-> name_search_helper AS dist
     FROM user_details
     ORDER BY dist
@@ -305,7 +339,9 @@ SELECT d.user_id,
   d.last_name,
   d.search_helper,
   d.country,
-  d.email_communication_consent
+  d.email_communication_consent,
+  d.email_verified_at,
+  d.email_verified_method
 FROM course_instance_enrollments e
   JOIN user_details d ON e.user_id = d.user_id
 WHERE e.course_id = $1
@@ -335,7 +371,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM user_details
 WHERE user_id = ANY($1::uuid[])
         "#,
@@ -364,7 +402,9 @@ SELECT ud.user_id,
   ud.last_name,
   ud.search_helper,
   ud.country,
-  ud.email_communication_consent
+  ud.email_communication_consent,
+  ud.email_verified_at,
+  ud.email_verified_method
 FROM user_details ud
 JOIN user_course_settings ucs ON ud.user_id = ucs.user_id
 WHERE ud.user_id = ANY($1::uuid[])
@@ -397,7 +437,9 @@ SELECT ud.user_id,
   ud.last_name,
   ud.search_helper,
   ud.country,
-  ud.email_communication_consent
+  ud.email_communication_consent,
+  ud.email_verified_at,
+  ud.email_verified_method
 FROM user_details ud
 JOIN user_course_settings ucs ON ud.user_id = ucs.user_id
 WHERE ud.user_id = $1
@@ -478,7 +520,9 @@ RETURNING user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 "#,
         email,
         first_name,
@@ -491,4 +535,68 @@ RETURNING user_id,
     .await?;
 
     Ok(updated_user)
+}
+
+/// Records a proof of control over the address currently in `email`.
+///
+/// The statement deliberately does not touch `email`: the `clear_email_verification` trigger nulls
+/// the flag whenever the address changes in the same statement, so setting both at once for a new
+/// address would silently write nothing.
+pub async fn set_email_verified(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    method: EmailVerificationMethod,
+    verified_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE user_details
+SET email_verified_at = $2,
+  email_verified_method = $3
+WHERE user_id = $1
+"#,
+        user_id,
+        verified_at,
+        method as EmailVerificationMethod,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Drops a proof of control, for an admin revoking a verification they should not have asserted.
+///
+/// Address changes do not need this: the `clear_email_verification` trigger handles those.
+pub async fn clear_email_verified(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE user_details
+SET email_verified_at = NULL,
+  email_verified_method = NULL
+WHERE user_id = $1
+"#,
+        user_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Whether the address currently in `email` has a proof of control, and how it was obtained.
+pub async fn get_email_verification(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Option<(DateTime<Utc>, EmailVerificationMethod)>> {
+    let row = sqlx::query!(
+        r#"
+SELECT email_verified_at,
+  email_verified_method AS "email_verified_method: EmailVerificationMethod"
+FROM user_details
+WHERE user_id = $1
+"#,
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(row.email_verified_at.zip(row.email_verified_method))
 }

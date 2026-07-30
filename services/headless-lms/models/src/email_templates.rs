@@ -9,6 +9,28 @@ pub enum EmailTemplateType {
     DeleteUserEmail,
     ConfirmEmailCode,
     Generic,
+    /// Substitutes from `email_deliveries.placeholders` rather than from a user, because the
+    /// recipient may have no account here.
+    CreditRegistrationAccountLinking,
+    VerifyEmailAddress,
+    CreditRegistrationActionNeeded,
+    CreditRegistrationRegistered,
+    CreditRegistrationStudentNumberLinked,
+}
+
+impl EmailTemplateType {
+    /// Whether this template's substitutions come from `email_deliveries.placeholders` instead of
+    /// being derived from the recipient's account.
+    pub fn uses_placeholder_bag(self) -> bool {
+        matches!(
+            self,
+            Self::CreditRegistrationAccountLinking
+                | Self::VerifyEmailAddress
+                | Self::CreditRegistrationActionNeeded
+                | Self::CreditRegistrationRegistered
+                | Self::CreditRegistrationStudentNumberLinked
+        )
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]

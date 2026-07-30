@@ -6,7 +6,7 @@ use anyhow::{Context, Result};
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use futures::{FutureExt, StreamExt};
 use headless_lms_models::email_deliveries::{
-    Email, EmailDeliveryErrorInsert, FETCH_LIMIT, fetch_emails,
+    Email, EmailDeliveryErrorInsert, FETCH_LIMIT, RETRY_WINDOW_SECS, fetch_emails,
     increment_retry_and_mark_non_retryable, increment_retry_and_schedule,
     insert_email_delivery_error, mark_as_sent,
 };
@@ -28,7 +28,6 @@ const BATCH_SIZE: usize = FETCH_LIMIT as usize;
 const FRONTEND_BASE_URL: &str = "https://courses.mooc.fi";
 const BASE_BACKOFF_SECS: i64 = 60;
 const MAX_BACKOFF_SECS: i64 = 24 * 60 * 60;
-const MAX_RETRY_AGE_SECS: i64 = 3 * 24 * 60 * 60;
 const JITTER_SECS: i64 = 30;
 
 static SMTP_FROM: Lazy<String> = Lazy::new(|| {
@@ -99,7 +98,7 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
             attempt,
             "retry_window_expired",
             format!(
-                "Retry window expired before send attempt (email_id={}, user_id={}, template={:?}, first_failed_at={:?})",
+                "Retry window expired before send attempt (email_id={}, user_id={:?}, template={:?}, first_failed_at={:?})",
                 email.id, email.user_id, email.template_type, email.first_failed_at
             ),
         )
@@ -124,6 +123,7 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
             template_type,
             email.id,
             email.user_id,
+            email.placeholders.as_ref(),
             email_block,
             attempt,
         )
@@ -221,11 +221,34 @@ async fn apply_email_template_replacements(
     conn: &mut PgConnection,
     template_type: EmailTemplateType,
     email_id: Uuid,
-    user_id: Uuid,
+    user_id: Option<Uuid>,
+    placeholders: Option<&serde_json::Value>,
     blocks: Vec<EmailGutenbergBlock>,
     attempt: i32,
 ) -> anyhow::Result<TemplateApplyResult> {
     let mut replacements = HashMap::new();
+
+    if template_type == EmailTemplateType::Generic {
+        return Ok(TemplateApplyResult::Ready(blocks));
+    }
+
+    if template_type.uses_placeholder_bag() {
+        let replacements = placeholder_bag_replacements(placeholders);
+        return Ok(TemplateApplyResult::Ready(insert_placeholders(
+            blocks,
+            &replacements,
+        )));
+    }
+
+    // Every remaining template derives its values from an account, so a delivery addressed to a raw
+    // address cannot use one.
+    let Some(user_id) = user_id else {
+        let msg = format!(
+            "Template {template_type:?} requires a user but the delivery is addressed to a raw address"
+        );
+        record_non_retryable_failure(conn, email_id, attempt, "template", msg).await?;
+        return Ok(TemplateApplyResult::Abandoned);
+    };
 
     match template_type {
         EmailTemplateType::ResetPasswordEmail => {
@@ -287,15 +310,43 @@ async fn apply_email_template_replacements(
                 return Ok(TemplateApplyResult::Abandoned);
             }
         }
-        EmailTemplateType::Generic => {
-            return Ok(TemplateApplyResult::Ready(blocks));
-        }
+        // Handled before this match: Generic substitutes nothing, and the placeholder-bag templates
+        // substitute from the delivery row. Listed rather than caught by `_` so a new template type
+        // is a compile error here.
+        EmailTemplateType::Generic
+        | EmailTemplateType::CreditRegistrationAccountLinking
+        | EmailTemplateType::VerifyEmailAddress
+        | EmailTemplateType::CreditRegistrationActionNeeded
+        | EmailTemplateType::CreditRegistrationRegistered
+        | EmailTemplateType::CreditRegistrationStudentNumberLinked => {}
     }
 
     Ok(TemplateApplyResult::Ready(insert_placeholders(
         blocks,
         &replacements,
     )))
+}
+
+/// Turns a delivery's placeholder bag into `{{ KEY }}` substitutions. Non-string scalars are
+/// rendered as they serialize; nested objects and arrays are skipped, because there is no sensible
+/// rendering for them in email body text.
+fn placeholder_bag_replacements(
+    placeholders: Option<&serde_json::Value>,
+) -> HashMap<String, String> {
+    let Some(serde_json::Value::Object(bag)) = placeholders else {
+        return HashMap::new();
+    };
+    bag.iter()
+        .filter_map(|(key, value)| {
+            let rendered = match value {
+                serde_json::Value::String(s) => s.clone(),
+                serde_json::Value::Number(n) => n.to_string(),
+                serde_json::Value::Bool(b) => b.to_string(),
+                _ => return None,
+            };
+            Some((key.clone(), rendered))
+        })
+        .collect()
 }
 
 fn insert_placeholders(
@@ -431,7 +482,7 @@ pub async fn main() -> anyhow::Result<()> {
 
 fn retry_window_expired(first_failed_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
     match first_failed_at {
-        Some(ts) => (now - ts).num_seconds() > MAX_RETRY_AGE_SECS,
+        Some(ts) => (now - ts).num_seconds() > RETRY_WINDOW_SECS,
         None => false,
     }
 }

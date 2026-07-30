@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
 import { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { getOauthDeviceVerificationOptions } from "@/generated/api/@tanstack/react-query.generated"
@@ -11,13 +12,32 @@ import {
   approveOauthDeviceVerification,
   denyOauthDeviceVerification,
 } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button, type ButtonProps, TextField } from "@/shared-module/components"
+
+interface DeviceCodeFields {
+  userCode: string
+}
+
+// The shared Button has no destructive variant, so retint `secondary`'s own tokens rather
+// than hardcode colours; this keeps the variant's hover/pressed/disabled behaviour intact.
+const denyButtonStyles = css`
+  --btn-secondary-fg: var(--color-red-700);
+  --btn-secondary-bg-hover: var(--color-red-700);
+  --btn-secondary-border-hover: var(--color-red-700);
+`
+
+// The system tests locate the consent buttons by these ids. Button spreads `domProps` onto the
+// <button>, but ButtonHTMLAttributes has no data-* index signature, hence the casts.
+type ButtonDomProps = NonNullable<ButtonProps["domProps"]>
+// oxlint-disable-next-line i18next/no-literal-string
+const approveButtonDomProps = { "data-testid": "oauth-device-approve-button" } as ButtonDomProps
+// oxlint-disable-next-line i18next/no-literal-string
+const denyButtonDomProps = { "data-testid": "oauth-device-deny-button" } as ButtonDomProps
 
 const DeviceVerificationPage: React.FC = () => {
   const searchParams = useSearchParams()
@@ -25,12 +45,16 @@ const DeviceVerificationPage: React.FC = () => {
   usePageTitle(t("title-authorize-application"))
 
   const queryUserCode = searchParams.get("user_code") ?? ""
-  // The code being verified, as opposed to `inputValue`, which is what the user is typing.
+  // The code being verified, as opposed to the form field, which is what the user is typing.
   const [userCode, setUserCode] = useState(queryUserCode)
-  const [inputValue, setInputValue] = useState(queryUserCode)
   const [approved, setApproved] = useState(false)
   const [denied, setDenied] = useState(false)
   const decided = approved || denied
+
+  const { control, handleSubmit, watch } = useForm<DeviceCodeFields>({
+    defaultValues: { userCode: queryUserCode },
+  })
+  const inputValue = watch("userCode")
 
   const verification = useQuery({
     ...getOauthDeviceVerificationOptions({ query: { user_code: userCode } }),
@@ -83,11 +107,6 @@ const DeviceVerificationPage: React.FC = () => {
     )
   }
 
-  const submitCode = (e: React.FormEvent) => {
-    e.preventDefault()
-    setUserCode(inputValue.trim())
-  }
-
   // Also shown after a failed lookup (invalid or expired code) so the user can retry.
   const showEntryForm = userCode.length === 0 || verification.isError
 
@@ -98,14 +117,16 @@ const DeviceVerificationPage: React.FC = () => {
       className={sectionClass}
     >
       {showEntryForm && (
-        <form onSubmit={submitCode}>
-          <TextField
-            label={t("oauth-device-user-code-label")}
-            placeholder={t("oauth-device-enter-code")}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            data-testid="oauth-device-user-code-input"
-          />
+        <form onSubmit={handleSubmit((fields) => setUserCode(fields.userCode.trim()))}>
+          {/* TextField takes no DOM escape hatch, so the test hook lives on a wrapper. */}
+          <div data-testid="oauth-device-user-code-input">
+            <TextField
+              name="userCode"
+              control={control}
+              label={t("oauth-device-user-code-label")}
+              description={t("oauth-device-enter-code")}
+            />
+          </div>
           {verification.isError && (
             <p data-testid="oauth-device-error">{t("oauth-device-code-not-found")}</p>
           )}
@@ -141,17 +162,18 @@ const DeviceVerificationPage: React.FC = () => {
               onClick={() => approveMutation.mutate()}
               disabled={approveMutation.isPending || denyMutation.isPending}
               aria-label={t("approve")}
-              data-testid="oauth-device-approve-button"
+              domProps={approveButtonDomProps}
             >
               {t("approve")}
             </Button>
             <Button
-              variant="reject"
+              variant="secondary"
               size="large"
+              className={denyButtonStyles}
               onClick={() => denyMutation.mutate()}
               disabled={approveMutation.isPending || denyMutation.isPending}
               aria-label={t("button-text-cancel")}
-              data-testid="oauth-device-deny-button"
+              domProps={denyButtonDomProps}
             >
               {t("button-text-cancel")}
             </Button>

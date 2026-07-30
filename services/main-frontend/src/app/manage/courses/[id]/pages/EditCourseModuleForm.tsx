@@ -401,6 +401,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   reset()
                 }}
                 disabled={isSubmitting}
+                type={"button"}
                 variant={"icon"}
                 size={"small"}
               >
@@ -417,6 +418,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 background: #e1e3e5 !important;
               `}
               onClick={() => setActive(true)}
+              type={"button"}
               variant={"icon"}
               size={"small"}
             >
@@ -438,6 +440,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               `}
               onClick={() => onDeleteModule(module.id)}
               disabled={isSubmitting}
+              type={"button"}
               variant={"icon"}
               size={"small"}
             >

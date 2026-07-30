@@ -16100,7 +16100,7 @@
             "properties": {
               "can_hide": {
                 "type": "boolean",
-                "description": "Whether the course can be hidden from the \"My courses\" list. Only courses the user has\nenrolled in (and thus have user course settings) can be hidden."
+                "description": "Whether the course can be hidden from the \"My courses\" list. False for courses the user has\nnot enrolled in or has a role in."
               }
             }
           }

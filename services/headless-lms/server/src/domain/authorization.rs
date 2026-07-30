@@ -311,10 +311,14 @@ pub async fn authorize_access_to_chatbot(
     user_id: Option<Uuid>,
     course_id: Option<Uuid>,
 ) -> Result<AuthorizationToken, ControllerError> {
-    let token = if let Some(course_id) = course_id {
-        authorize_access_to_course_material(conn, user_id, course_id).await?
+    let token = if let Some(_user_id) = user_id {
+        if let Some(course_id) = course_id {
+            authorize_access_to_course_material(conn, user_id, course_id).await?
+        } else {
+            authorize(conn, Act::View, user_id, Res::GlobalPermissions).await?
+        }
     } else {
-        authorize(conn, Act::View, user_id, Res::GlobalPermissions).await?
+        skip_authorize()
     };
 
     Ok(token)

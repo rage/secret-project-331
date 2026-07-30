@@ -11,11 +11,12 @@ use crate::{
 
 pub struct ChatbotConversation {
     pub id: Uuid,
+    pub anonymous_id: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub course_id: Option<Uuid>,
-    pub user_id: Uuid,
+    pub user_id: Option<Uuid>,
     pub chatbot_configuration_id: Uuid,
 }
 
@@ -39,12 +40,18 @@ pub async fn insert(
     let res = sqlx::query_as!(
         ChatbotConversation,
         r#"
-INSERT INTO chatbot_conversations (course_id, user_id, chatbot_configuration_id)
-VALUES ($1, $2, $3)
+INSERT INTO chatbot_conversations (
+    course_id,
+    user_id,
+    anonymous_id,
+    chatbot_configuration_id
+  )
+VALUES ($1, $2, $3, $4)
 RETURNING *
         "#,
         input.course_id,
         input.user_id,
+        input.anonymous_id,
         input.chatbot_configuration_id
     )
     .fetch_one(conn)
@@ -71,7 +78,8 @@ WHERE id = $1
 pub async fn create_for_user_and_configuration(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
-    user_id: Uuid,
+    user_id: Option<Uuid>,
+    anonymous_id: Option<String>,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversation> {
     let res = sqlx::query_as!(
@@ -81,20 +89,22 @@ INSERT INTO chatbot_conversations (
     id,
     course_id,
     user_id,
+    anonymous_id,
     chatbot_configuration_id
-)
-SELECT
-    $1,
-    chatbot_configurations.course_id,
-    $2,
-    chatbot_configurations.id
+  )
+SELECT $1,
+  chatbot_configurations.course_id,
+  $2,
+  $3,
+  chatbot_configurations.id
 FROM chatbot_configurations
-WHERE chatbot_configurations.id = $3
+WHERE chatbot_configurations.id = $4
   AND chatbot_configurations.deleted_at IS NULL
 RETURNING *
         "#,
         pkey_policy.into_uuid(),
         user_id,
+        anonymous_id,
         chatbot_configuration_id
     )
     .fetch_one(conn)
@@ -104,7 +114,8 @@ RETURNING *
 
 pub async fn get_latest_conversation_for_user(
     conn: &mut PgConnection,
-    user_id: Uuid,
+    user_id: Option<Uuid>,
+    anonymous_id: Option<String>,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversation> {
     let res = sqlx::query_as!(
@@ -112,13 +123,23 @@ pub async fn get_latest_conversation_for_user(
         r#"
 SELECT *
 FROM chatbot_conversations
-WHERE user_id = $1
-  AND chatbot_configuration_id = $2
+WHERE (
+    (
+      $1::uuid IS NOT NULL
+      AND user_id = $1
+    )
+    OR (
+      $1::uuid IS NULL
+      AND anonymous_id = $2
+    )
+  )
+  AND chatbot_configuration_id = $3
   AND deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT 1
         "#,
         user_id,
+        anonymous_id,
         chatbot_configuration_id
     )
     .fetch_one(conn)
@@ -129,7 +150,8 @@ LIMIT 1
 /// Gets the current conversation for the user, if any. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
 pub async fn get_current_conversation_info(
     tx: &mut PgConnection,
-    user_id: Uuid,
+    user_id: Option<Uuid>,
+    anonymous_id: Option<String>,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversationInfo> {
     let chatbot_configuration =
@@ -141,7 +163,7 @@ pub async fn get_current_conversation_info(
     };
 
     let current_conversation =
-        get_latest_conversation_for_user(tx, user_id, chatbot_configuration_id)
+        get_latest_conversation_for_user(tx, user_id, anonymous_id, chatbot_configuration_id)
             .await
             .optional()?;
     // the messages are sorted by response_order_number

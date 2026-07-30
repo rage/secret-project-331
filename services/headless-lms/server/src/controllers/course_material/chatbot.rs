@@ -18,6 +18,7 @@ use rand::seq::IndexedRandom;
 use utoipa::OpenApi;
 
 use crate::{domain::authorization::authorize_access_to_chatbot, prelude::*};
+use rand::distr::{Alphanumeric, SampleString};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -96,7 +97,7 @@ Sends a new chat message to the chatbot.
 async fn send_message(
     pool: web::Data<PgPool>,
     params: web::Path<(Uuid, Uuid)>,
-    user: AuthUser,
+    user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<String>,
 ) -> ControllerResult<HttpResponse> {
@@ -107,14 +108,27 @@ async fn send_message(
     let chatbot_configuration =
         chatbot_configurations::get_by_id(&mut conn, chatbot_configuration_id).await?;
 
-    let token =
-        authorize_access_to_chatbot(&mut conn, Some(user.id), chatbot_configuration.course_id)
-            .await?;
+    let token = authorize_access_to_chatbot(
+        &mut conn,
+        user.map(|u| u.id),
+        chatbot_configuration.course_id,
+    )
+    .await?;
 
     let conversation = chatbot_conversations::get_by_id(&mut conn, conversation_id).await?;
-    if conversation.user_id != user.id
+
+    let anonymous_id = if let Some(_user) = user {
+        None
+    } else {
+        Some(String::from(
+            "F1S3h8X92jcwKNgDEQOSUa4WFbQ1YCVklt9HNhugc0FHW1txXb7Vsmw725oMjr11KtkAEafG2lXm1EHQYrNzw7DTIUohydaV082nbgxNc5H7oiihYjOE1885une4HGOM",
+        ))
+    };
+
+    if conversation.user_id != user.map(|u| u.id)
         || conversation.chatbot_configuration_id != chatbot_configuration_id
         || conversation.course_id != chatbot_configuration.course_id
+        || conversation.anonymous_id != anonymous_id
     {
         return Err(controller_err!(
             Forbidden,
@@ -130,7 +144,7 @@ async fn send_message(
     };
 
     let chatbot_user = ChatbotUserContext {
-        user_id: Some(user.id.to_owned()),
+        user_id: user.map(|u| u.id),
         course_id: chatbot_configuration.course_id,
         course_name,
     };
@@ -173,7 +187,7 @@ Sends a new chat message to the chatbot.
 #[instrument(skip(pool))]
 async fn new_conversation(
     pool: web::Data<PgPool>,
-    user: AuthUser,
+    user: Option<AuthUser>,
     params: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<ChatbotConversation>> {
     let mut conn = pool.acquire().await?;
@@ -181,12 +195,19 @@ async fn new_conversation(
     let configuration = models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
 
     let token =
-        authorize_access_to_chatbot(&mut conn, Some(user.id), configuration.course_id).await?;
+        authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), configuration.course_id).await?;
+
+    let anonymous_id = if let Some(_user) = user {
+        None
+    } else {
+        Some(Alphanumeric.sample_string(&mut rand::rng(), 128))
+    };
 
     let conversation = models::chatbot_conversations::create_for_user_and_configuration(
         &mut conn,
         PKeyPolicy::Generate,
-        user.id,
+        user.map(|u| u.id),
+        anonymous_id.clone(),
         configuration.id,
     )
     .await?;
@@ -210,7 +231,8 @@ async fn new_conversation(
                     ..Default::default()
                 }),
             },
-            user.id,
+            user.map(|u| u.id),
+            anonymous_id,
             configuration.id,
         )
         .await?;
@@ -242,7 +264,7 @@ Returns the current conversation for the user.
 #[instrument(skip(pool, app_conf))]
 async fn current_conversation_info(
     pool: web::Data<PgPool>,
-    user: AuthUser,
+    user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     params: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
@@ -250,13 +272,25 @@ async fn current_conversation_info(
     let chatbot_configuration =
         models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
 
-    let token =
-        authorize_access_to_chatbot(&mut conn, Some(user.id), chatbot_configuration.course_id)
-            .await?;
+    let token = authorize_access_to_chatbot(
+        &mut conn,
+        user.map(|u| u.id),
+        chatbot_configuration.course_id,
+    )
+    .await?;
+
+    let anonymous_id = if let Some(_user) = user {
+        None
+    } else {
+        Some(String::from(
+            "F1S3h8X92jcwKNgDEQOSUa4WFbQ1YCVklt9HNhugc0FHW1txXb7Vsmw725oMjr11KtkAEafG2lXm1EHQYrNzw7DTIUohydaV082nbgxNc5H7oiihYjOE1885une4HGOM",
+        ))
+    };
 
     let res = chatbot_conversations::get_current_conversation_info(
         &mut conn,
-        user.id,
+        user.map(|u| u.id),
+        anonymous_id.clone(),
         chatbot_configuration.id,
     )
     .await?;
@@ -322,7 +356,8 @@ async fn current_conversation_info(
 
         let res = chatbot_conversations::get_current_conversation_info(
             &mut conn,
-            user.id,
+            user.map(|u| u.id),
+            anonymous_id,
             chatbot_configuration.id,
         )
         .await?;

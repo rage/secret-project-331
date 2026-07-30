@@ -1579,8 +1579,8 @@ export type ModuleUpdates = {
 
 export type MyCourse = Course & {
   /**
-   * Whether the course can be hidden from the "My courses" list. Only courses the user has
-   * enrolled in (and thus have user course settings) can be hidden.
+   * Whether the course can be hidden from the "My courses" list. False for courses the user has
+   * not enrolled in or has a role in.
    */
   can_hide: boolean
 }

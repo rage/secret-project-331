@@ -191,6 +191,117 @@ impl OAuthRefreshTokens {
         Ok(())
     }
 
+    /// Looks up a refresh token whether or not it is still usable, so a presented token can be
+    /// told apart from one that never existed. Reuse detection needs the owning (user, client)
+    /// of a token `consume_in_transaction` has already rejected.
+    pub async fn find_any_by_digest(
+        conn: &mut PgConnection,
+        digest: Digest,
+        client_id: Uuid,
+    ) -> ModelResult<Option<OAuthRefreshTokens>> {
+        let row = sqlx::query_as!(
+            OAuthRefreshTokens,
+            r#"
+            SELECT *
+            FROM oauth_refresh_tokens
+            WHERE digest = $1
+              AND client_id = $2
+            "#,
+            digest.as_bytes(),
+            client_id
+        )
+        .fetch_optional(conn)
+        .await?;
+        Ok(row)
+    }
+
+    /// Revokes everything issued from a (user, client) grant: every refresh token, every access
+    /// token, and any outstanding authorization code.
+    ///
+    /// Consent (`oauth_user_client_scopes`) is deliberately left alone — neither a logout nor a
+    /// refresh-reuse takedown is a withdrawal of consent. `revoke_user_client_everything` layers
+    /// that on top.
+    ///
+    /// Returns the digests of the deleted access tokens so the caller can evict their cached user
+    /// mappings; without that they keep authenticating until the cache TTL expires.
+    pub async fn revoke_grant(
+        conn: &mut PgConnection,
+        user_id: Uuid,
+        client_id: Uuid,
+    ) -> ModelResult<Vec<Digest>> {
+        let mut tx = conn.begin().await?;
+        let digests = Self::revoke_grant_in_transaction(&mut tx, user_id, client_id).await?;
+        tx.commit().await?;
+        Ok(digests)
+    }
+
+    /// `revoke_grant` across every client the user ever authorized, for use when the account
+    /// itself goes away. Returns the deleted access-token digests for cache eviction.
+    pub async fn revoke_all_grants_of_user_in_transaction(
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        user_id: Uuid,
+    ) -> ModelResult<Vec<Digest>> {
+        sqlx::query!(
+            r#"UPDATE oauth_refresh_tokens SET revoked = true WHERE user_id = $1"#,
+            user_id
+        )
+        .execute(&mut **tx)
+        .await?;
+
+        let deleted_digests = sqlx::query_scalar!(
+            r#"DELETE FROM oauth_access_tokens WHERE user_id = $1 RETURNING digest"#,
+            user_id
+        )
+        .fetch_all(&mut **tx)
+        .await?;
+
+        sqlx::query!(
+            r#"DELETE FROM oauth_auth_codes WHERE user_id = $1"#,
+            user_id
+        )
+        .execute(&mut **tx)
+        .await?;
+
+        Ok(deleted_digests)
+    }
+
+    /// `revoke_grant` for a caller that owns the transaction.
+    pub async fn revoke_grant_in_transaction(
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        user_id: Uuid,
+        client_id: Uuid,
+    ) -> ModelResult<Vec<Digest>> {
+        sqlx::query!(
+            r#"
+            UPDATE oauth_refresh_tokens
+               SET revoked = true
+             WHERE user_id = $1 AND client_id = $2
+            "#,
+            user_id,
+            client_id
+        )
+        .execute(&mut **tx)
+        .await?;
+
+        let deleted_digests = sqlx::query_scalar!(
+            r#"DELETE FROM oauth_access_tokens WHERE user_id = $1 AND client_id = $2 RETURNING digest"#,
+            user_id,
+            client_id
+        )
+        .fetch_all(&mut **tx)
+        .await?;
+
+        sqlx::query!(
+            r#"DELETE FROM oauth_auth_codes WHERE user_id = $1 AND client_id = $2"#,
+            user_id,
+            client_id
+        )
+        .execute(&mut **tx)
+        .await?;
+
+        Ok(deleted_digests)
+    }
+
     /// Consume a refresh token within an existing transaction.
     ///
     /// # Transaction Requirements

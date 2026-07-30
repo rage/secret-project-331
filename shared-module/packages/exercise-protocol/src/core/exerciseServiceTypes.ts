@@ -13,6 +13,12 @@ export interface ExerciseServiceInfoApi {
   has_custom_view?: boolean
   csv_export_definitions_endpoint_path?: string
   csv_export_answers_endpoint_path?: string
+  /**
+   * Turns host-stored uploaded files into this service's `UserAnswer`. Declaring it is what
+   * makes the service visible to the exercise-services client API, so a service that omits it
+   * is never offered to a native (non-browser) client.
+   */
+  build_user_answer_endpoint_path?: string
 }
 
 export type GradingProgress = "Pending" | "Failed" | "FullyGraded" | "PendingManual" | "NotReady"

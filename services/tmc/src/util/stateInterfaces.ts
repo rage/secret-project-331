@@ -56,7 +56,15 @@ export interface PublicSpec {
   browser_test?: BrowserTestSpec
 }
 
+/**
+ * Mirrored by `ModelSolutionSpec` in tmc-langs-rust
+ * (`crates/tmc-mooc-client/src/exercise.rs`), which deserializes this blob for
+ * native clients. `type` is the discriminant that keeps it self-describing
+ * outside its task, like {@link PublicSpec}'s; the solution is an uploaded
+ * project archive for both types.
+ */
 export interface ModelSolutionSpec {
+  type: "browser" | "editor"
   solution_download_url: string
 }
 

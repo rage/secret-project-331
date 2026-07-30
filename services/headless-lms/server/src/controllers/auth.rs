@@ -2,6 +2,7 @@
 Handlers for HTTP requests to `/api/v0/auth`.
 */
 
+use crate::domain::exercise_services::token::invalidate_cached_user;
 use crate::{
     OAuthClient,
     domain::{
@@ -21,6 +22,7 @@ use headless_lms_models::{
     user_passwords, users,
 };
 use headless_lms_utils::{
+    cache::Cache,
     prelude::UtilErrorType,
     services::tmc::{NewUserInfo, TmcClient},
 };
@@ -858,7 +860,7 @@ POST `/api/v0/auth/delete-user-account` If users single-use code is correct then
         (status = 200, description = "Whether the account was deleted", body = bool)
     )
 )]
-#[instrument(skip(pool, payload, auth_user, session))]
+#[instrument(skip(pool, payload, auth_user, session, cache, app_conf))]
 #[allow(clippy::async_yields_async)]
 pub async fn delete_user_account(
     auth_user: Option<AuthUser>,
@@ -866,6 +868,8 @@ pub async fn delete_user_account(
     payload: web::Json<EmailCode>,
     session: Session,
     tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<bool>> {
     let token = skip_authorize();
     if let Some(auth_user) = auth_user {
@@ -905,10 +909,17 @@ pub async fn delete_user_account(
         }
 
         // Delete user locally and mark email code as used
-        users::delete_user(&mut tx, auth_user.id).await?;
+        let revoked_access_digests = users::delete_user(&mut tx, auth_user.id).await?;
         user_email_codes::mark_user_email_code_used(&mut tx, auth_user.id, &payload.code).await?;
 
         tx.commit().await?;
+
+        // Without this the deleted account keeps authenticating the exercise-services client API
+        // from a cache hit until the entry ages out.
+        let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
+        for digest in &revoked_access_digests {
+            invalidate_cached_user(&cache, digest, token_hmac_key).await;
+        }
 
         authorization::forget(&session);
         token.authorized_ok(web::Json(true))

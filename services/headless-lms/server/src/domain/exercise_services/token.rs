@@ -202,9 +202,11 @@ impl FromRequest for UserFromOAuthToken {
             let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
             let digest = token_digest_sha256(token.expose_secret(), token_hmac_key);
 
-            // A cache hit skips `resolve_oauth_user`, and with it the soft-delete and
-            // revocation checks, for the cache TTL. The TTL is clamped to the token's own
-            // remaining lifetime so a cached mapping never outlives the token.
+            // A cache hit skips `resolve_oauth_user`, and with it the token-validity,
+            // bearer_allowed, scope and soft-delete checks, for the cache TTL — see
+            // `MAX_CACHE_TTL` for why that bound is the security-relevant number. The TTL is
+            // additionally clamped to the token's own remaining lifetime so a cached mapping
+            // never outlives the token.
             let user = match load_user(&cache, &digest, token_hmac_key).await {
                 Some(user) => user,
                 None => {
@@ -238,7 +240,14 @@ fn digest_to_cache_key(digest: &Digest, token_hmac_key: &SecretString) -> String
 }
 
 /// Upper bound on cache TTL, independent of the token's own expiry.
-const MAX_CACHE_TTL: Duration = Duration::from_secs(60 * 60);
+///
+/// A cache hit skips every authorization check in `resolve_oauth_user`, and only the mutation
+/// sites that hold token digests (`/revoke`, `authorized_clients`, account deletion) can evict.
+/// `ON DELETE CASCADE` from `users`/`oauth_clients` and a bare `UPDATE oauth_clients SET
+/// bearer_allowed = false` hold none, so this bound — not eviction — is what caps how long a ban,
+/// a consent withdrawal or a client-capability change can go unnoticed. Keep it short: a minute of
+/// stale authorization is tolerable, an hour is not.
+const MAX_CACHE_TTL: Duration = Duration::from_secs(60);
 
 /// `min(MAX_CACHE_TTL, expires_at - now)`, floored at zero — a flat TTL could otherwise
 /// outlive a short-lived token.
@@ -391,20 +400,27 @@ mod tests {
     }
 
     #[test]
-    fn cache_ttl_is_clamped_to_one_hour_for_long_lived_tokens() {
+    fn cache_ttl_is_clamped_for_long_lived_tokens() {
         let now = Utc::now();
-        // Token good for another 24h: TTL must still be capped at one hour.
+        // Token good for another 24h: the cap, not the token, decides the TTL.
         let ttl = cache_ttl_for_token(now + ChronoDuration::hours(24), now);
-        assert_eq!(ttl, Duration::from_secs(60 * 60));
+        assert_eq!(ttl, MAX_CACHE_TTL);
+    }
+
+    /// The cap is what bounds how long a ban, a scope revocation or a `bearer_allowed` flip can go
+    /// unnoticed, since the mutation sites that could evict do not all hold token digests.
+    #[test]
+    fn the_cache_ttl_cap_stays_short() {
+        assert!(MAX_CACHE_TTL <= Duration::from_secs(60));
     }
 
     #[test]
-    fn cache_ttl_tracks_short_lived_tokens() {
+    fn cache_ttl_tracks_tokens_shorter_lived_than_the_cap() {
         let now = Utc::now();
-        // Token expiring in 10 minutes: the mapping must not outlive it.
-        let ttl = cache_ttl_for_token(now + ChronoDuration::minutes(10), now);
-        assert!(ttl <= Duration::from_secs(10 * 60));
-        assert!(ttl > Duration::from_secs(9 * 60));
+        // Token expiring in 30 seconds: the mapping must not outlive it.
+        let ttl = cache_ttl_for_token(now + ChronoDuration::seconds(30), now);
+        assert!(ttl <= Duration::from_secs(30));
+        assert!(ttl > Duration::from_secs(25));
     }
 
     #[test]
@@ -535,6 +551,45 @@ mod tests {
             .expect_err("a soft-deleted user's token must be rejected");
         assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
         assert_unauthorized_body(err);
+    }
+
+    /// Deleting the account must take its credentials down with it, not merely make the
+    /// `users` join fail: the returned digests are what lets the caller evict the cache, and a
+    /// deleted access-token row is what makes the ban survive a cache that was never evicted.
+    #[actix_web::test]
+    async fn deleting_a_user_revokes_their_tokens_and_reports_the_digests() {
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+        let digest = token_digest_sha256(&token, &hmac_key());
+
+        let revoked = models::users::delete_user(tx.as_mut(), user)
+            .await
+            .expect("delete user");
+        assert_eq!(
+            revoked.len(),
+            1,
+            "the deleted access token's digest must be reported for cache eviction"
+        );
+
+        assert!(
+            OAuthAccessToken::find_valid(tx.as_mut(), digest)
+                .await
+                .is_err(),
+            "the access token row must be gone, not just orphaned"
+        );
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("a deleted user's token must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
     }
 
     #[actix_web::test]

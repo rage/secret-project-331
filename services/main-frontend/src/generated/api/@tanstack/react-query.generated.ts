@@ -274,6 +274,7 @@ import {
   hideCourseFromMyCourses,
   introspectOauthToken,
   joinCourseWithJoinCode,
+  listOwnSubmissionShares,
   markFeedbackAsRead,
   type Options,
   postOauthUserInfo,
@@ -290,6 +291,8 @@ import {
   resetUserPassword,
   restorePageHistory,
   revokeOauthToken,
+  revokeSubmissionShare,
+  revokeSubmissionSharesOfSubmission,
   saveCourseDesignerSchedule,
   searchUserDetailsByEmail,
   searchUserDetailsByOtherDetails,
@@ -817,6 +820,8 @@ import type {
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
+  ListOwnSubmissionSharesData,
+  ListOwnSubmissionSharesResponse,
   MarkFeedbackAsReadData,
   PostOauthUserInfoData,
   PreviewCourseInstanceCompletionsData,
@@ -840,6 +845,10 @@ import type {
   RestorePageHistoryData,
   RestorePageHistoryResponse,
   RevokeOauthTokenData,
+  RevokeSubmissionShareData,
+  RevokeSubmissionShareResponse,
+  RevokeSubmissionSharesOfSubmissionData,
+  RevokeSubmissionSharesOfSubmissionResponse,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponse,
   SearchUserDetailsByEmailData,
@@ -7211,16 +7220,16 @@ export const denyOauthDeviceVerificationMutation = (
  * the active state and metadata of an access token.
  *
  * ### Security Features
- * - Client authentication is required (client_id and client_secret for confidential clients);
- * an unknown client or bad secret is 401 `invalid_client` (RFC 7662 §2.3)
+ * - Only a confidential client may introspect; an unknown client, a public client or a bad
+ * secret is 401 `invalid_client` (RFC 7662 §2.1, §2.3)
  * - Returns 200 with `active: false` for an invalid/expired *token* (RFC 7662 §2.1), so token
  * existence is never disclosed to an authenticated caller
  *
  * ### Request Parameters
  * - `token` (required): The token to be introspected
  * - `token_type_hint` (optional): Hint about token type ("access_token" or "refresh_token")
- * - `client_id` (required): Client identifier
- * - `client_secret` (required for confidential clients): Client secret
+ * - `client_id` (required): Client identifier of a confidential client
+ * - `client_secret` (required): Client secret
  *
  * ### Response
  * Returns a JSON object with:
@@ -8874,6 +8883,88 @@ export const removeRoleMutation = (
   const mutationOptions: UseMutationOptions<unknown, DefaultError, Options<RemoveRoleData>> = {
     mutationFn: async (fnOptions) =>
       await removeRole({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const listOwnSubmissionSharesQueryKey = (options?: Options<ListOwnSubmissionSharesData>) =>
+  createQueryKey("listOwnSubmissionShares", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions` - Lists the shares the current user has minted,
+ * newest first, so they can be reviewed and withdrawn.
+ */
+export const listOwnSubmissionSharesOptions = (options?: Options<ListOwnSubmissionSharesData>) =>
+  queryOptions<
+    ListOwnSubmissionSharesResponse,
+    DefaultError,
+    ListOwnSubmissionSharesResponse,
+    ReturnType<typeof listOwnSubmissionSharesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listOwnSubmissionShares({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listOwnSubmissionSharesQueryKey(options),
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
+ * share the current user has minted for one submission.
+ */
+export const revokeSubmissionSharesOfSubmissionMutation = (
+  options?: Partial<Options<RevokeSubmissionSharesOfSubmissionData>>,
+): UseMutationOptions<
+  RevokeSubmissionSharesOfSubmissionResponse,
+  DefaultError,
+  Options<RevokeSubmissionSharesOfSubmissionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RevokeSubmissionSharesOfSubmissionResponse,
+    DefaultError,
+    Options<RevokeSubmissionSharesOfSubmissionData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await revokeSubmissionSharesOfSubmission({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/{token}` - Withdraws one share, after which the
+ * link stops resolving.
+ *
+ * Only the share's creator may revoke it: holding the token is authority to view, not to withdraw.
+ * Revoking an unknown or already-revoked share is a no-op, reported as `false`.
+ */
+export const revokeSubmissionShareMutation = (
+  options?: Partial<Options<RevokeSubmissionShareData>>,
+): UseMutationOptions<
+  RevokeSubmissionShareResponse,
+  DefaultError,
+  Options<RevokeSubmissionShareData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RevokeSubmissionShareResponse,
+    DefaultError,
+    Options<RevokeSubmissionShareData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await revokeSubmissionShare({
         ...options,
         ...fnOptions,
         throwOnError: true,

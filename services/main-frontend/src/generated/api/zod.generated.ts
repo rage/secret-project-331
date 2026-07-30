@@ -1287,6 +1287,20 @@ export const zExerciseSlideSubmissionCountByWeekAndHour = z.object({
     .nullish(),
 })
 
+/**
+ * A shareable link to an existing exercise-slide submission. The `id` is the
+ * unguessable token used in the shareable URL; a viewer resolves the token back
+ * to the submission it points at.
+ */
+export const zExerciseSlideSubmissionShare = z.object({
+  created_at: z.iso.datetime(),
+  created_by: z.uuid(),
+  deleted_at: z.iso.datetime().nullish(),
+  exercise_slide_submission_id: z.uuid(),
+  id: z.uuid(),
+  updated_at: z.iso.datetime(),
+})
+
 export const zExerciseTaskSubmission = z.object({
   created_at: z.iso.datetime(),
   data_json: z.unknown().optional(),
@@ -5740,6 +5754,36 @@ export const zGetPendingRolesQuery = z.object({
 export const zGetPendingRolesResponse = z.array(zPendingRole)
 
 export const zRemoveRoleBody = zRoleInfo
+
+/**
+ * The caller's live shares, newest first
+ */
+export const zListOwnSubmissionSharesResponse = z.array(zExerciseSlideSubmissionShare)
+
+export const zRevokeSubmissionSharesOfSubmissionPath = z.object({
+  submission_id: z.uuid(),
+})
+
+/**
+ * How many shares were withdrawn
+ */
+export const zRevokeSubmissionSharesOfSubmissionResponse = z.coerce
+  .bigint()
+  .min(BigInt("-9223372036854775808"), {
+    error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+  })
+  .max(BigInt("9223372036854775807"), {
+    error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+  })
+
+export const zRevokeSubmissionSharePath = z.object({
+  token: z.uuid(),
+})
+
+/**
+ * Whether a live share was withdrawn
+ */
+export const zRevokeSubmissionShareResponse = z.boolean()
 
 export const zGetSharedSubmissionInfoPath = z.object({
   token: z.uuid(),

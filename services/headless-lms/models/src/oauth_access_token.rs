@@ -170,28 +170,6 @@ impl OAuthAccessToken {
         }
     }
 
-    /// Discards the deleted digests, so callers cannot evict the exercise-services token cache.
-    /// Prefer `OAuthUserClientScopes::revoke_user_client_everything`, which returns them.
-    pub async fn delete_all_by_user_client(
-        conn: &mut PgConnection,
-        user_id: Uuid,
-        client_id: Uuid,
-    ) -> ModelResult<()> {
-        let mut tx = conn.begin().await?;
-        sqlx::query!(
-            r#"
-            DELETE FROM oauth_access_tokens
-            WHERE user_id = $1 AND client_id = $2
-            "#,
-            user_id,
-            client_id
-        )
-        .execute(&mut *tx)
-        .await?;
-        tx.commit().await?;
-        Ok(())
-    }
-
     /// Revoke (delete) an access token by its digest.
     ///
     /// This method is used for the OAuth 2.0 token revocation endpoint (RFC 7009).

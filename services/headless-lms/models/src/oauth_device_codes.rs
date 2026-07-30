@@ -1,5 +1,5 @@
 use crate::{library::oauth::Digest, prelude::*};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgConnection, Type};
 use uuid::Uuid;
@@ -107,6 +107,33 @@ impl OAuthDeviceCode {
         .await?;
 
         Ok(())
+    }
+
+    /// How long an expired device code is kept before it is prunable.
+    ///
+    /// Deleting on the stroke of expiry would turn a device still polling into `invalid_grant`
+    /// instead of the `expired_token` RFC 8628 §3.5 prescribes; the grace period keeps that answer
+    /// truthful.
+    pub const EXPIRED_RETENTION: Duration = Duration::hours(1);
+
+    /// Deletes device codes that expired more than [`EXPIRED_RETENTION`] ago, whatever their
+    /// status.
+    ///
+    /// Only the approved-and-redeemed path deletes its own row, so without this every abandoned
+    /// login leaves a permanent row whose `user_code` is unusable — excluded by
+    /// `expires_at > now()` — yet unreclaimable, since the partial unique index still holds it
+    /// while `status = 'pending'`. Called opportunistically from the device-authorization
+    /// endpoint: the table only grows when that endpoint is used, so that is also where it can
+    /// shrink, with no CronJob to forget to deploy.
+    pub async fn delete_expired(conn: &mut PgConnection) -> ModelResult<u64> {
+        let deleted = sqlx::query!(
+            r#"DELETE FROM oauth_device_codes WHERE expires_at < now() - $1::interval"#,
+            Self::EXPIRED_RETENTION as Duration
+        )
+        .execute(conn)
+        .await?
+        .rows_affected();
+        Ok(deleted)
     }
 
     /// Find the still-valid, pending grant for a given `user_code`.

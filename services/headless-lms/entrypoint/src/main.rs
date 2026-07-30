@@ -41,6 +41,12 @@ fn main() -> Result<()> {
             execute: Box::new(|| tokio_run(programs::ended_exams_processor::main())),
         },
         Program {
+            name: "exercise-service-client-upload-reaper",
+            execute: Box::new(
+                || tokio_run(programs::exercise_service_client_upload_reaper::main()),
+            ),
+        },
+        Program {
             name: "open-university-registration-link-fetcher",
             execute: Box::new(|| {
                 tokio_run(programs::open_university_registration_link_fetcher::main())

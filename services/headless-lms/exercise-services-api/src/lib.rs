@@ -43,17 +43,46 @@ pub struct ExerciseTask {
     pub exercise_service_slug: String,
 }
 
+/// A file the host stored on a client's behalf. The host assigns `id`; a client never invents
+/// one. Returned by the upload endpoint and echoed back by submission download.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct UploadedFile {
+    /// The host's file id. Names this file in a submit request.
+    pub id: Uuid,
+    /// The original file name the client sent.
+    pub name: String,
+    /// Direct download URL; needs no bearer token.
+    pub download_url: String,
+}
+
+/// Response of `POST exercises/{id}/files`, in the same order as the request's parts.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct UploadedFiles {
+    pub files: Vec<UploadedFile>,
+}
+
+/// Body of `POST exercises/{id}/submit`. Plain JSON — no file parts, no archive. The host hands
+/// `uploaded_file_ids` to the exercise service, which builds the answer.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub exercise_task_id: Uuid,
+    /// Ids from this exercise's `files` endpoint, in the order the exercise service should see
+    /// them. May be empty for a service whose answer needs no files. Every id must have been
+    /// uploaded by this user for this exercise.
+    pub uploaded_file_ids: Vec<Uuid>,
 }
 
+/// Result of a submit. Carries both ids so a client never re-derives one from the other:
+/// grading polling takes `task_submission_id`, download/share take `slide_submission_id`.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseTaskSubmissionResult {
-    pub submission_id: Uuid,
+    pub task_submission_id: Uuid,
+    pub slide_submission_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -97,11 +126,12 @@ pub struct ExerciseSlideSubmissionListItem {
     pub grading_progress: Option<GradingProgress>,
 }
 
-/// The file-store URL of a submitted archive, which the client downloads directly.
+/// Response of `GET submissions/{id}/download`: the files the client uploaded for that
+/// submission, recovered from the host's own upload records, not from the service's answer.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
-pub struct SubmissionArchiveDownloadUrl {
-    pub archive_download_url: String,
+pub struct SubmissionFiles {
+    pub files: Vec<UploadedFile>,
 }
 
 /// The current user's progress across every exercise they can see in a course, returned
@@ -196,19 +226,83 @@ mod test {
         );
     }
 
+    /// The submit body names ids only. No answer blob and no archive may appear in it: the
+    /// exercise service owns the answer's shape, and the host has no archive concept left.
     #[test]
-    fn exercise_slide_submission_has_no_data_json() {
-        // The submit `submission` part is just the two ids; the server derives
-        // `data_json` itself.
+    fn exercise_slide_submission_carries_only_ids() {
+        let file_id = Uuid::max();
         let value = serde_json::to_value(ExerciseSlideSubmission {
             exercise_slide_id: Uuid::nil(),
             exercise_task_id: Uuid::nil(),
+            uploaded_file_ids: vec![file_id],
         })
         .unwrap();
         let obj = value.as_object().unwrap();
         assert!(obj.contains_key("exercise_slide_id"));
         assert!(obj.contains_key("exercise_task_id"));
+        assert_eq!(obj["uploaded_file_ids"], json!([file_id]));
         assert!(!obj.contains_key("data_json"));
+        assert_eq!(obj.len(), 3);
+    }
+
+    /// A client must never have to derive one submission id from the other; both come back.
+    #[test]
+    fn submit_result_carries_both_submission_ids() {
+        let task_submission_id = Uuid::nil();
+        let slide_submission_id = Uuid::max();
+        let value = serde_json::to_value(ExerciseTaskSubmissionResult {
+            task_submission_id,
+            slide_submission_id,
+        })
+        .unwrap();
+        assert_eq!(
+            value,
+            json!({
+                "task_submission_id": task_submission_id,
+                "slide_submission_id": slide_submission_id,
+            })
+        );
+    }
+
+    #[test]
+    fn uploaded_and_submission_files_share_the_file_shape() {
+        let id = Uuid::max();
+        let file = || UploadedFile {
+            id,
+            name: "src/main.rs".to_string(),
+            download_url: "http://project-331.local/api/v0/files/tmc/abc".to_string(),
+        };
+        let expected = json!({
+            "files": [{
+                "id": id,
+                "name": "src/main.rs",
+                "download_url": "http://project-331.local/api/v0/files/tmc/abc",
+            }]
+        });
+        assert_eq!(
+            serde_json::to_value(UploadedFiles {
+                files: vec![file()]
+            })
+            .unwrap(),
+            expected
+        );
+        assert_eq!(
+            serde_json::to_value(SubmissionFiles {
+                files: vec![file()]
+            })
+            .unwrap(),
+            expected
+        );
+    }
+
+    /// A submission whose answer needed no files is legitimate, so download must be able to
+    /// report an empty list rather than only ever a single archive URL.
+    #[test]
+    fn submission_files_may_be_empty() {
+        assert_eq!(
+            serde_json::to_value(SubmissionFiles { files: Vec::new() }).unwrap(),
+            json!({ "files": [] })
+        );
     }
 
     #[test]

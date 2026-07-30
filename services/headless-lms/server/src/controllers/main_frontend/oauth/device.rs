@@ -237,6 +237,16 @@ async fn create_device_authorization(
 
     let requested_scopes = resolve_device_scopes(&client, form.scope.as_deref())?;
 
+    // The table only grows through this endpoint, so this is where it shrinks. A failure here must
+    // not fail the login.
+    match OAuthDeviceCode::delete_expired(conn).await {
+        Ok(0) => {}
+        Ok(deleted) => tracing::info!(deleted, "device_authorization: pruned expired device codes"),
+        Err(e) => {
+            tracing::warn!(err = %e, "device_authorization: pruning expired device codes failed")
+        }
+    }
+
     let device_code = generate_access_token();
     let device_code_digest = token_digest_sha256(&device_code, token_hmac_key);
     let expires_at = Utc::now() + Duration::minutes(DEVICE_CODE_TTL_MINUTES);
@@ -855,6 +865,7 @@ mod tests {
             TokenGrantRequest, generate_token_pair, process_token_grant,
         };
         use headless_lms_models::oauth_access_token::TokenType;
+        use headless_lms_utils::cache::Cache;
 
         insert_data!(:tx, :user);
         let client = insert_client(
@@ -898,9 +909,13 @@ mod tests {
             dpop_jkt: None,
             token_hmac_key: &key,
         };
-        let result = process_token_grant(tx.as_mut(), request)
-            .await
-            .expect("device grant must succeed without a PKCE verifier despite require_pkce=true");
+        let result = process_token_grant(
+            tx.as_mut(),
+            &Cache::new("redis://127.0.0.1:1").expect("cache"),
+            request,
+        )
+        .await
+        .expect("device grant must succeed without a PKCE verifier despite require_pkce=true");
         assert_eq!(result.user_id, user);
         assert_eq!(result.scopes, vec!["exercise-services".to_string()]);
 

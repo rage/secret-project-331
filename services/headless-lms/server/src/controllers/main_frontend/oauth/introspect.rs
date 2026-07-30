@@ -2,6 +2,7 @@ use crate::domain::oauth::helpers::oauth_invalid_client;
 use crate::domain::oauth::introspect_query::IntrospectQuery;
 use crate::domain::oauth::introspect_response::IntrospectResponse;
 use crate::domain::oauth::oauth_validated::OAuthValidated;
+use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use headless_lms_base::config::ApplicationConfiguration;
@@ -25,16 +26,16 @@ pub(crate) struct MainFrontendOauthIntrospectApiDoc;
 /// the active state and metadata of an access token.
 ///
 /// ### Security Features
-/// - Client authentication is required (client_id and client_secret for confidential clients);
-///   an unknown client or bad secret is 401 `invalid_client` (RFC 7662 §2.3)
+/// - Only a confidential client may introspect; an unknown client, a public client or a bad
+///   secret is 401 `invalid_client` (RFC 7662 §2.1, §2.3)
 /// - Returns 200 with `active: false` for an invalid/expired *token* (RFC 7662 §2.1), so token
 ///   existence is never disclosed to an authenticated caller
 ///
 /// ### Request Parameters
 /// - `token` (required): The token to be introspected
 /// - `token_type_hint` (optional): Hint about token type ("access_token" or "refresh_token")
-/// - `client_id` (required): Client identifier
-/// - `client_secret` (required for confidential clients): Client secret
+/// - `client_id` (required): Client identifier of a confidential client
+/// - `client_secret` (required): Client secret
 ///
 /// ### Response
 /// Returns a JSON object with:
@@ -185,11 +186,15 @@ pub async fn introspect(
 
 /// Authenticate the caller of the introspection endpoint.
 ///
-/// Rejects an unknown `client_id` or a bad secret with 401 `invalid_client` (RFC 7662 §2.3).
-/// Only the *token's* validity is reported as `200 {"active": false}` (§2.1): folding failed
-/// **client** authentication into that answer makes a caller's credential typo
-/// indistinguishable from every one of its users holding an inactive token. No enumeration
-/// risk, since an unauthenticated caller never reaches a token lookup.
+/// Only a **confidential** client may introspect (RFC 7662 §2.1: the endpoint MUST be protected).
+/// A public client id is not a credential — `tmc-vscode`'s is hardcoded in the extension — so
+/// accepting one turned the endpoint into a validity-and-owner oracle for any leaked token,
+/// callable with no secret at all.
+///
+/// An unknown `client_id`, a public client, or a bad secret is 401 `invalid_client` (§2.3). Only
+/// the *token's* validity is reported as `200 {"active": false}`: folding failed **client**
+/// authentication into that answer makes a caller's credential typo indistinguishable from every
+/// one of its users holding an inactive token.
 async fn authenticate_introspecting_client(
     conn: &mut sqlx::PgConnection,
     form: &crate::domain::oauth::introspect_query::IntrospectParams,
@@ -202,22 +207,25 @@ async fn authenticate_introspecting_client(
             oauth_invalid_client("invalid client_id")
         })?;
 
-    if client.is_confidential() {
-        let Some(secret) = &client.client_secret else {
-            tracing::warn!("OAuth introspect: confidential client has no stored secret");
-            return Err(oauth_invalid_client("invalid client secret"));
-        };
-        let provided = token_digest_sha256(
-            form.client_secret
-                .as_ref()
-                .map(|s| s.expose_secret())
-                .unwrap_or_default(),
-            token_hmac_key,
-        );
-        if !secret.constant_eq(&provided) {
-            tracing::warn!("OAuth introspect: invalid client secret");
-            return Err(oauth_invalid_client("invalid client secret"));
-        }
+    if !client.is_confidential() {
+        tracing::warn!("OAuth introspect: public client may not introspect");
+        return Err(oauth_invalid_client("invalid client_id"));
+    }
+
+    let Some(secret) = &client.client_secret else {
+        tracing::warn!("OAuth introspect: confidential client has no stored secret");
+        return Err(oauth_invalid_client("invalid client secret"));
+    };
+    let provided = token_digest_sha256(
+        form.client_secret
+            .as_ref()
+            .map(|s| s.expose_secret())
+            .unwrap_or_default(),
+        token_hmac_key,
+    );
+    if !secret.constant_eq(&provided) {
+        tracing::warn!("OAuth introspect: invalid client secret");
+        return Err(oauth_invalid_client("invalid client secret"));
     }
 
     Ok(client)
@@ -269,7 +277,19 @@ fn resolve_gated_bearer_allowed(
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
-    cfg.route("/introspect", web::post().to(introspect));
+    // Matches `/token`, `/authorize` and the device endpoints: without it an unmetered caller can
+    // drive a token lookup per request.
+    cfg.service(
+        web::resource("/introspect")
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(100),
+                per_hour: Some(500),
+                per_day: Some(2000),
+                per_month: None,
+                ..Default::default()
+            }))
+            .route(web::post().to(introspect)),
+    );
 }
 
 #[cfg(test)]
@@ -515,20 +535,29 @@ mod tests {
         assert_invalid_client(missing);
     }
 
-    /// A public client has no secret to check, so it authenticates without one — it just never
-    /// receives the privileged members.
+    /// A public client id is not a credential — `tmc-vscode`'s ships inside the extension — so it
+    /// must not buy an introspection answer, with or without a secret.
     #[actix_web::test]
-    async fn public_client_authenticates_without_a_secret() {
+    async fn public_client_cannot_introspect() {
         insert_data!(:tx);
         let client = insert_client(tx.as_mut(), TokenEndpointAuthMethod::None, true).await;
 
-        let authenticated = authenticate_introspecting_client(
+        let err = authenticate_introspecting_client(
             tx.as_mut(),
             &params(&client.client_id, None),
             &hmac_key(),
         )
         .await
-        .expect("a public client needs no secret");
-        assert_eq!(authenticated.id, client.id);
+        .expect_err("a public client must not be able to introspect");
+        assert_invalid_client(err);
+
+        let err = authenticate_introspecting_client(
+            tx.as_mut(),
+            &params(&client.client_id, Some("anything")),
+            &hmac_key(),
+        )
+        .await
+        .expect_err("offering a secret must not make a public client confidential");
+        assert_invalid_client(err);
     }
 }

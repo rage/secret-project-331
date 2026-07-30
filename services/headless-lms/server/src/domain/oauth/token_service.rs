@@ -3,8 +3,11 @@ use secrecy::{ExposeSecret, SecretString};
 use sqlx::{Connection, PgConnection};
 use uuid::Uuid;
 
+use crate::domain::exercise_services::token::invalidate_cached_user;
 use crate::domain::oauth::errors::TokenGrantError;
 use crate::domain::oauth::pkce::verify_token_pkce;
+use headless_lms_utils::cache::Cache;
+
 use headless_lms_models::library::oauth::Digest;
 use headless_lms_models::library::oauth::tokens::token_digest_sha256;
 use headless_lms_models::oauth_access_token::TokenType;
@@ -83,8 +86,56 @@ pub struct TokenGrantResult {
     pub issue_id_token: bool,
 }
 
+/// RFC 9700 §4.14.2: presenting a refresh token that has already been revoked — by a rotation
+/// that superseded it, or by `/revoke` — is evidence the token leaked, so the whole (user, client)
+/// family is taken down instead of only this request failing. Without that, an attacker who
+/// redeems a stolen token first keeps a self-renewing family alive while the victim silently
+/// re-logs-in into a new one.
+///
+/// Runs before the issuance transaction: that transaction is rolled back on error, which would
+/// undo the takedown.
+///
+/// A token still valid here that loses a concurrent race to another rotation is deliberately left
+/// alone — that is one client refreshing twice, and the winning rotation already turned the family
+/// over.
+async fn revoke_family_on_refresh_token_reuse(
+    conn: &mut PgConnection,
+    cache: &Cache,
+    client: &OAuthClient,
+    refresh_token: &SecretString,
+    token_hmac_key: &SecretString,
+) -> Result<(), TokenGrantError> {
+    let presented = token_digest_sha256(refresh_token.expose_secret(), token_hmac_key);
+    let found = OAuthRefreshTokens::find_any_by_digest(conn, presented, client.id)
+        .await
+        .map_err(|e| TokenGrantError::ServerError(format!("{}", e)))?;
+    let Some(token) = found else {
+        return Ok(());
+    };
+    if !token.revoked {
+        return Ok(());
+    }
+
+    tracing::warn!(
+        user_id = %token.user_id,
+        client_id = %client.id,
+        "OAuth token: reuse of a revoked refresh token; revoking the whole (user, client) token family"
+    );
+    let revoked_access_digests = OAuthRefreshTokens::revoke_grant(conn, token.user_id, client.id)
+        .await
+        .map_err(|e| TokenGrantError::ServerError(format!("{}", e)))?;
+    for digest in &revoked_access_digests {
+        invalidate_cached_user(cache, digest, token_hmac_key).await;
+    }
+
+    Err(TokenGrantError::InvalidGrant(
+        "Given grant is invalid".to_string(),
+    ))
+}
+
 pub async fn process_token_grant(
     conn: &mut PgConnection,
+    cache: &Cache,
     request: TokenGrantRequest<'_>,
 ) -> Result<TokenGrantResult, TokenGrantError> {
     // Handled on the bare connection, before the issuance transaction the other grants
@@ -92,6 +143,17 @@ pub async fn process_token_grant(
     // See `process_device_code_grant`.
     if let TokenGrant::DeviceCode { device_code } = request.grant {
         return process_device_code_grant(conn, &request, device_code).await;
+    }
+
+    if let TokenGrant::RefreshToken { refresh_token, .. } = request.grant {
+        revoke_family_on_refresh_token_reuse(
+            conn,
+            cache,
+            request.client,
+            refresh_token,
+            request.token_hmac_key,
+        )
+        .await?;
     }
 
     let mut tx = conn
@@ -180,8 +242,8 @@ pub async fn process_token_grant(
                 token_digest_sha256(refresh_token.expose_secret(), request.token_hmac_key);
             // Consume with client_id check in WHERE clause to prevent DoS attacks.
             // A token that isn't currently valid — unknown, expired, revoked, or already
-            // rotated — fails as invalid_grant here; the rotation that superseded it
-            // already revoked the whole (user, client) family.
+            // rotated — fails as invalid_grant here; the revoked case has already been
+            // punished by `revoke_family_on_refresh_token_reuse`.
             let old =
                 OAuthRefreshTokens::consume_in_transaction(&mut tx, presented, request.client.id)
                     .await
@@ -376,6 +438,12 @@ mod tests {
         SecretString::new("test-token-service-hmac-key".to_string().into())
     }
 
+    /// A `Cache` pointed at a port nothing listens on. Every operation degrades to a no-op, which
+    /// is all these tests need: they assert on database state, not on cache contents.
+    fn test_cache() -> Cache {
+        Cache::new("redis://127.0.0.1:1").expect("cache")
+    }
+
     /// Build a request that reuses a caller-supplied token pair (so the test can
     /// recover the issued refresh-token plaintext).
     fn build_request_with_pair<'a>(
@@ -561,9 +629,13 @@ mod tests {
         let grant = TokenGrant::DeviceCode {
             device_code: device_code.clone().into(),
         };
-        let result = process_token_grant(tx.as_mut(), build_request(&grant, &client, &key))
-            .await
-            .expect("device grant should succeed");
+        let result = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant, &client, &key),
+        )
+        .await
+        .expect("device grant should succeed");
         assert_eq!(result.user_id, user);
         assert_eq!(result.scopes, vec!["exercise-services".to_string()]);
         assert!(!result.issue_id_token);
@@ -572,9 +644,13 @@ mod tests {
         let grant2 = TokenGrant::DeviceCode {
             device_code: device_code.into(),
         };
-        let err = process_token_grant(tx.as_mut(), build_request(&grant2, &client, &key))
-            .await
-            .expect_err("replay should fail");
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant2, &client, &key),
+        )
+        .await
+        .expect_err("replay should fail");
         assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
 
         tx.rollback().await;
@@ -593,9 +669,13 @@ mod tests {
         let grant = TokenGrant::DeviceCode {
             device_code: device_code.into(),
         };
-        let err = process_token_grant(tx.as_mut(), build_request(&grant, &client, &key))
-            .await
-            .expect_err("pending grant should not succeed");
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant, &client, &key),
+        )
+        .await
+        .expect_err("pending grant should not succeed");
         assert!(matches!(err, TokenGrantError::AuthorizationPending));
 
         tx.rollback().await;
@@ -617,9 +697,13 @@ mod tests {
         let grant = TokenGrant::DeviceCode {
             device_code: device_code.into(),
         };
-        let err = process_token_grant(tx.as_mut(), build_request(&grant, &client, &key))
-            .await
-            .expect_err("denied grant should not succeed");
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant, &client, &key),
+        )
+        .await
+        .expect_err("denied grant should not succeed");
         assert!(matches!(err, TokenGrantError::AccessDenied));
 
         tx.rollback().await;
@@ -639,9 +723,13 @@ mod tests {
         let grant = TokenGrant::DeviceCode {
             device_code: device_code.into(),
         };
-        let err = process_token_grant(tx.as_mut(), build_request(&grant, &client, &key))
-            .await
-            .expect_err("expired grant should not succeed");
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant, &client, &key),
+        )
+        .await
+        .expect_err("expired grant should not succeed");
         assert!(matches!(err, TokenGrantError::ExpiredToken));
 
         tx.rollback().await;
@@ -661,18 +749,26 @@ mod tests {
         let grant1 = TokenGrant::DeviceCode {
             device_code: device_code.clone().into(),
         };
-        let first = process_token_grant(tx.as_mut(), build_request(&grant1, &client, &key))
-            .await
-            .expect_err("first poll should be pending");
+        let first = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant1, &client, &key),
+        )
+        .await
+        .expect_err("first poll should be pending");
         assert!(matches!(first, TokenGrantError::AuthorizationPending));
 
         // Second immediate poll: slow_down (polled well within the interval).
         let grant2 = TokenGrant::DeviceCode {
             device_code: device_code.into(),
         };
-        let second = process_token_grant(tx.as_mut(), build_request(&grant2, &client, &key))
-            .await
-            .expect_err("fast second poll should slow down");
+        let second = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant2, &client, &key),
+        )
+        .await
+        .expect_err("fast second poll should slow down");
         assert!(matches!(second, TokenGrantError::SlowDown));
 
         tx.rollback().await;
@@ -689,9 +785,13 @@ mod tests {
         let grant = TokenGrant::DeviceCode {
             device_code: "does-not-exist".into(),
         };
-        let err = process_token_grant(tx.as_mut(), build_request(&grant, &client, &key))
-            .await
-            .expect_err("unknown device code should fail");
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant, &client, &key),
+        )
+        .await
+        .expect_err("unknown device code should fail");
         assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
 
         tx.rollback().await;
@@ -727,9 +827,13 @@ mod tests {
         let grant_b = TokenGrant::DeviceCode {
             device_code: device_code.clone().into(),
         };
-        let err = process_token_grant(tx.as_mut(), build_request(&grant_b, &client_b, &key))
-            .await
-            .expect_err("cross-client device code redemption must fail");
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant_b, &client_b, &key),
+        )
+        .await
+        .expect_err("cross-client device code redemption must fail");
         assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
 
         // The binding check does not consume the code, so the original client
@@ -737,19 +841,24 @@ mod tests {
         let grant_a = TokenGrant::DeviceCode {
             device_code: device_code.into(),
         };
-        let ok = process_token_grant(tx.as_mut(), build_request(&grant_a, &client_a, &key))
-            .await
-            .expect("the client the code was issued to should still succeed");
+        let ok = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant_a, &client_a, &key),
+        )
+        .await
+        .expect("the client the code was issued to should still succeed");
         assert_eq!(ok.user_id, user);
 
         tx.rollback().await;
     }
 
-    /// Refresh tokens are single-use: the rotation that supersedes a token revokes the
-    /// whole (user, client) family, so presenting the old token afterwards must fail as
-    /// `invalid_grant` (RFC 9700 refresh token reuse detection).
+    /// Refresh tokens are single-use, and reuse is treated as a leak: presenting a superseded
+    /// token fails as `invalid_grant` *and* takes down the whole (user, client) family, including
+    /// the successor the legitimate holder is still using (RFC 9700 §4.14.2). Anything less lets
+    /// an attacker who redeemed the stolen token first keep renewing forever.
     #[actix_web::test]
-    async fn refresh_reuse_of_a_rotated_token_fails_with_invalid_grant() {
+    async fn refresh_reuse_of_a_rotated_token_revokes_the_whole_family() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
         let key = hmac_key();
@@ -769,9 +878,11 @@ mod tests {
         let rt1 = insert_refresh_token(tx.as_mut(), user, client.id).await;
         let pair2 = generate_token_pair(&key);
         let rt2 = pair2.refresh_token.clone();
+        let at2 = pair2.access_token.clone();
         let grant1 = refresh_grant(&rt1);
         process_token_grant(
             tx.as_mut(),
+            &test_cache(),
             build_request_with_pair(&grant1, &client, &key, pair2),
         )
         .await
@@ -789,18 +900,27 @@ mod tests {
         let grant2 = refresh_grant(&rt1);
         let err = process_token_grant(
             tx.as_mut(),
+            &test_cache(),
             build_request_with_pair(&grant2, &client, &key, generate_token_pair(&key)),
         )
         .await
         .expect_err("reusing a rotated refresh token must fail");
         assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
 
-        // The rejected reuse must not take down the live chain.
+        // The takedown reaches the successor the legitimate holder still has: the victim is
+        // logged out rather than left sharing a live family with the attacker.
         assert!(
             OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&rt2, &key))
                 .await
-                .is_ok(),
-            "RT2 must remain valid after a rejected reuse of its predecessor"
+                .is_err(),
+            "RT2 must be dead after a reuse of its predecessor was detected"
+        );
+        // The access token issued alongside RT2 goes with it, or the bearer keeps working.
+        assert!(
+            OAuthAccessToken::find_valid(tx.as_mut(), token_digest_sha256(&at2, &key))
+                .await
+                .is_err(),
+            "the access token from the rotated pair must be revoked with the family"
         );
 
         tx.rollback().await;
@@ -835,6 +955,7 @@ mod tests {
         let grant = refresh_grant_with_scope(&rt1, "exercise-services");
         let result = process_token_grant(
             tx.as_mut(),
+            &test_cache(),
             build_request_with_pair(&grant, &client, &key, pair2),
         )
         .await
@@ -894,6 +1015,7 @@ mod tests {
         let grant = refresh_grant_with_scope(&rt1, "exercise-services admin");
         let err = process_token_grant(
             tx.as_mut(),
+            &test_cache(),
             build_request_with_pair(&grant, &client, &key, generate_token_pair(&key)),
         )
         .await
@@ -913,6 +1035,7 @@ mod tests {
         let grant2 = refresh_grant(&rt1);
         process_token_grant(
             tx.as_mut(),
+            &test_cache(),
             build_request_with_pair(&grant2, &client, &key, generate_token_pair(&key)),
         )
         .await

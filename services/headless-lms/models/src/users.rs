@@ -1,3 +1,4 @@
+use crate::library::oauth::Digest;
 use crate::prelude::*;
 use utoipa::ToSchema;
 
@@ -260,7 +261,12 @@ pub async fn update_email_for_user(
     Ok(())
 }
 
-pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+/// Soft-deletes the user and takes their OAuth credentials down with the account.
+///
+/// Returns the digests of the deleted access tokens so a caller holding the exercise-services
+/// token cache can evict them; otherwise a deleted account keeps authenticating that API from a
+/// cache hit until the entry ages out (see `domain::exercise_services::token`).
+pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<Vec<Digest>> {
     info!("Deleting user {id}");
     let mut tx = conn.begin().await?;
     crate::email_deliveries::soft_delete_unsent_retryable_deliveries_for_user(&mut tx, id).await?;
@@ -282,7 +288,12 @@ pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     )
     .execute(&mut *tx)
     .await?;
+    let revoked_access_digests =
+        crate::oauth_refresh_tokens::OAuthRefreshTokens::revoke_all_grants_of_user_in_transaction(
+            &mut tx, id,
+        )
+        .await?;
     tx.commit().await?;
     info!("Deletion succeeded");
-    Ok(())
+    Ok(revoked_access_digests)
 }

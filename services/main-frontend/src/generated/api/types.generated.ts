@@ -1398,6 +1398,20 @@ export type ExerciseSlideSubmissionInfo = {
   user_exercise_state?: null | UserExerciseState
 }
 
+/**
+ * A shareable link to an existing exercise-slide submission. The `id` is the
+ * unguessable token used in the shareable URL; a viewer resolves the token back
+ * to the submission it points at.
+ */
+export type ExerciseSlideSubmissionShare = {
+  created_at: string
+  created_by: string
+  deleted_at?: string | null
+  exercise_slide_submission_id: string
+  id: string
+  updated_at: string
+}
+
 export type ExerciseStatusSummaryForUser = {
   exercise: Exercise
   exercise_slide_submissions: Array<ExerciseSlideSubmission>
@@ -8895,6 +8909,67 @@ export type RemoveRoleResponses = {
    */
   200: unknown
 }
+
+export type ListOwnSubmissionSharesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/shared-submissions"
+}
+
+export type ListOwnSubmissionSharesResponses = {
+  /**
+   * The caller's live shares, newest first
+   */
+  200: Array<ExerciseSlideSubmissionShare>
+}
+
+export type ListOwnSubmissionSharesResponse =
+  ListOwnSubmissionSharesResponses[keyof ListOwnSubmissionSharesResponses]
+
+export type RevokeSubmissionSharesOfSubmissionData = {
+  body?: never
+  path: {
+    /**
+     * Exercise slide submission id
+     */
+    submission_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}"
+}
+
+export type RevokeSubmissionSharesOfSubmissionResponses = {
+  /**
+   * How many shares were withdrawn
+   */
+  200: number
+}
+
+export type RevokeSubmissionSharesOfSubmissionResponse =
+  RevokeSubmissionSharesOfSubmissionResponses[keyof RevokeSubmissionSharesOfSubmissionResponses]
+
+export type RevokeSubmissionShareData = {
+  body?: never
+  path: {
+    /**
+     * Submission share token
+     */
+    token: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/shared-submissions/{token}"
+}
+
+export type RevokeSubmissionShareResponses = {
+  /**
+   * Whether a live share was withdrawn
+   */
+  200: boolean
+}
+
+export type RevokeSubmissionShareResponse =
+  RevokeSubmissionShareResponses[keyof RevokeSubmissionShareResponses]
 
 export type GetSharedSubmissionInfoData = {
   body?: never

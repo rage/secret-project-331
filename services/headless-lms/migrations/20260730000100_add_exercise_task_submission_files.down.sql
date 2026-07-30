@@ -1,0 +1,1 @@
+DROP TABLE exercise_task_submission_files;

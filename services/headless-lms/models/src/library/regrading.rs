@@ -1004,6 +1004,7 @@ mod test {
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_spec_endpoint_path: "/model-solution".to_string(),
                 has_custom_view: false,
+                build_user_answer_endpoint_path: None,
             },
         )
         .await?;

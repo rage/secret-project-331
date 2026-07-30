@@ -17,7 +17,7 @@
     "/api/v0/exercise-services/client/courses": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/courses\n *\n * Returns the courses that the user is currently enrolled on that contain TMC exercises.",
+        "summary": "\n * GET /api/v0/exercise-services/client/courses\n *\n * Returns the courses that the user is currently enrolled on that contain exercises this\n * client can be served.",
         "operationId": "getClientCourses",
         "parameters": [
           {
@@ -32,7 +32,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The courses the user is enrolled on that contain TMC exercises",
+            "description": "The courses the user is enrolled on that contain client-servable exercises",
             "content": {
               "application/json": {
                 "schema": {
@@ -150,7 +150,7 @@
     "/api/v0/exercise-services/client/courses/{id}/exercises": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/courses/:id/exercises\n *\n * Returns the user's exercise slides for the given course.\n * Does not return anything for chapters which are not open yet.\n * Selects slides for exercises with no slide selected yet.\n * Only returns slides which have tasks that are compatible with the client (tmc).",
+        "summary": "\n * GET /api/v0/exercise-services/client/courses/:id/exercises\n *\n * Returns the user's exercise slides for the given course.\n * Does not return anything for chapters which are not open yet.\n * Selects slides for exercises with no slide selected yet.\n * Only returns slides which have tasks whose exercise service can serve this client.",
         "operationId": "getClientCourseExercises",
         "parameters": [
           {
@@ -175,7 +175,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The user's TMC-compatible exercise slides for open chapters",
+            "description": "The user's client-servable exercise slides for open chapters",
             "content": {
               "application/json": {
                 "schema": {
@@ -328,7 +328,7 @@
         ],
         "responses": {
           "200": {
-            "description": "An exercise slide for the user",
+            "description": "An exercise slide for the user, carrying only the tasks whose exercise service can serve this client",
             "content": {
               "application/json": {
                 "schema": {
@@ -348,7 +348,7 @@
             }
           },
           "404": {
-            "description": "No exercise with the given id exists, or it belongs to an exam (not served by this API)",
+            "description": "No exercise with the given id exists, it belongs to an exam (not served by this API), or no task of it can serve this client",
             "content": {
               "application/json": {
                 "schema": {
@@ -359,6 +359,102 @@
           },
           "422": {
             "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/exercises/{id}/files": {
+      "post": {
+        "tags": ["exercise-services-client"],
+        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/files\n *\n * Stores files for a later submission to this exercise. Every multipart field name must be a\n * UUID the client picks; the host assigns the ids a submit request then names. Uploads are\n * bound to this exercise and user, and unreferenced ones are reaped, so a client should upload\n * immediately before submitting.",
+        "operationId": "uploadClientExerciseFiles",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "One file part per file, each field name a distinct client-chosen UUID and each part carrying a file name",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The stored files, in the order the parts were sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadedFiles"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No exercise with the given id exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), or the multipart body violates the field-name, file-count or size rules",
             "content": {
               "application/json": {
                 "schema": {
@@ -456,7 +552,7 @@
     "/api/v0/exercise-services/client/exercises/{id}/submit": {
       "post": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/submit\n *\n * Accepts an exercise submission from the user.",
+        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/submit\n *\n * Accepts an exercise submission from the user. The body names files previously stored through\n * this exercise's `files` endpoint; the exercise service turns them into its own answer.",
         "operationId": "submitClientExercise",
         "parameters": [
           {
@@ -480,11 +576,11 @@
           }
         ],
         "requestBody": {
-          "description": "Multipart form with a `submission` part containing a JSON `ExerciseSlideSubmission` and a `file` part containing the exercise archive",
+          "description": "The slide and task being answered, and the ids of the files the answer is built from",
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ExerciseSlideSubmission"
               }
             }
           },
@@ -492,7 +588,7 @@
         },
         "responses": {
           "200": {
-            "description": "The created submission",
+            "description": "The created submission, identified by both its task and slide submission ids",
             "content": {
               "application/json": {
                 "schema": {
@@ -522,7 +618,7 @@
             }
           },
           "422": {
-            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`)",
+            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -552,7 +648,7 @@
     "/api/v0/exercise-services/client/submissions/{id}/download": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/submissions/:id/download\n *\n * Resolves an exercise-slide submission (by the id returned from the submissions\n * list) to the file-store URL of the archive that was submitted, so the client\n * can re-download an old submission.",
+        "summary": "\n * GET /api/v0/exercise-services/client/submissions/:id/download\n *\n * Resolves an exercise-slide submission (by the id returned from the submissions list, or by\n * a submit's `slide_submission_id`) to the files it was made from, so the client can restore\n * an old submission.",
         "operationId": "downloadClientSubmission",
         "parameters": [
           {
@@ -577,11 +673,11 @@
         ],
         "responses": {
           "200": {
-            "description": "The download URL of the submitted archive",
+            "description": "The files the submission was made from, in the order the client uploaded them; empty when it was made from none",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SubmissionArchiveDownloadUrl"
+                  "$ref": "#/components/schemas/SubmissionFiles"
                 }
               }
             }
@@ -607,7 +703,7 @@
             }
           },
           "404": {
-            "description": "No submission with the given id exists, or it has no downloadable archive",
+            "description": "No submission with the given id exists",
             "content": {
               "application/json": {
                 "schema": {
@@ -958,7 +1054,8 @@
       },
       "ExerciseSlideSubmission": {
         "type": "object",
-        "required": ["exercise_slide_id", "exercise_task_id"],
+        "description": "Body of `POST exercises/{id}/submit`. Plain JSON — no file parts, no archive. The host hands\n`uploaded_file_ids` to the exercise service, which builds the answer.",
+        "required": ["exercise_slide_id", "exercise_task_id", "uploaded_file_ids"],
         "properties": {
           "exercise_slide_id": {
             "type": "string",
@@ -967,6 +1064,14 @@
           "exercise_task_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "uploaded_file_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Ids from this exercise's `files` endpoint, in the order the exercise service should see\nthem. May be empty for a service whose answer needs no files. Every id must have been\nuploaded by this user for this exercise."
           }
         }
       },
@@ -1025,9 +1130,14 @@
       },
       "ExerciseTaskSubmissionResult": {
         "type": "object",
-        "required": ["submission_id"],
+        "description": "Result of a submit. Carries both ids so a client never re-derives one from the other:\ngrading polling takes `task_submission_id`, download/share take `slide_submission_id`.",
+        "required": ["task_submission_id", "slide_submission_id"],
         "properties": {
-          "submission_id": {
+          "slide_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_submission_id": {
             "type": "string",
             "format": "uuid"
           }
@@ -1086,13 +1196,49 @@
           }
         }
       },
-      "SubmissionArchiveDownloadUrl": {
+      "SubmissionFiles": {
         "type": "object",
-        "description": "The file-store URL of a submitted archive, which the client downloads directly.",
-        "required": ["archive_download_url"],
+        "description": "Response of `GET submissions/{id}/download`: the files the client uploaded for that\nsubmission, recovered from the host's own upload records, not from the service's answer.",
+        "required": ["files"],
         "properties": {
-          "archive_download_url": {
-            "type": "string"
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UploadedFile"
+            }
+          }
+        }
+      },
+      "UploadedFile": {
+        "type": "object",
+        "description": "A file the host stored on a client's behalf. The host assigns `id`; a client never invents\none. Returned by the upload endpoint and echoed back by submission download.",
+        "required": ["id", "name", "download_url"],
+        "properties": {
+          "download_url": {
+            "type": "string",
+            "description": "Direct download URL; needs no bearer token."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The host's file id. Names this file in a submit request."
+          },
+          "name": {
+            "type": "string",
+            "description": "The original file name the client sent."
+          }
+        }
+      },
+      "UploadedFiles": {
+        "type": "object",
+        "description": "Response of `POST exercises/{id}/files`, in the same order as the request's parts.",
+        "required": ["files"],
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UploadedFile"
+            }
           }
         }
       }

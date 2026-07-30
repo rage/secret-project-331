@@ -14,6 +14,7 @@ use actix_web::{HttpResponse, web};
 use chrono::{Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_utils::cache::Cache;
 use models::{
     library::oauth::token_digest_sha256, oauth_access_token::TokenType, oauth_client::OAuthClient,
 };
@@ -93,7 +94,7 @@ pub(crate) struct MainFrontendOauthTokenApiDoc;
 /// HTTP/1.1 401 Unauthorized
 /// WWW-Authenticate: DPoP error="use_dpop_proof", error_description="Missing DPoP header"
 /// ```
-#[instrument(skip(pool, app_conf, form))]
+#[instrument(skip(pool, app_conf, form, cache))]
 #[utoipa::path(
     post,
     path = "/token",
@@ -113,6 +114,7 @@ pub async fn token(
     OAuthValidated(form): OAuthValidated<TokenQuery>,
     req: actix_web::HttpRequest,
     app_conf: web::Data<ApplicationConfiguration>,
+    cache: web::Data<Cache>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
@@ -219,7 +221,7 @@ pub async fn token(
         nonce: nonce_opt,
         access_expires_at: at_expires_at,
         issue_id_token,
-    } = process_token_grant(&mut conn, request)
+    } = process_token_grant(&mut conn, &cache, request)
         .await
         .map_err(|e: TokenGrantError| ControllerError::from(e))?;
 

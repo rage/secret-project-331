@@ -117,7 +117,9 @@ pub async fn delete_users(
     let user_ids_in_db = get_users_ids_in_db_from_upstream_ids(&mut *conn, &to_delete).await?;
     info!("{} users need to be deleted", to_delete.len());
     for id in user_ids_in_db {
-        models::users::delete_user(&mut *conn, id).await?;
+        // This batch job has no cache handle; the exercise-services token cache bounds its own
+        // staleness (see `MAX_CACHE_TTL`).
+        let _revoked_access_digests = models::users::delete_user(&mut *conn, id).await?;
     }
     info!("Deletions done");
     Ok(())

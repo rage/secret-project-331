@@ -156,29 +156,11 @@ impl OAuthUserClientScopes {
         .execute(&mut *tx)
         .await?;
 
-        let deleted_digests = sqlx::query_scalar!(
-            r#"DELETE FROM oauth_access_tokens WHERE user_id = $1 AND client_id = $2 RETURNING digest"#,
-            user_id,
-            client_id
-        )
-        .fetch_all(&mut *tx)
-        .await?;
-
-        sqlx::query!(
-            r#"UPDATE oauth_refresh_tokens SET revoked = true WHERE user_id = $1 AND client_id = $2"#,
-            user_id,
-            client_id
-        )
-        .execute(&mut *tx)
-        .await?;
-
-        sqlx::query!(
-            r#"DELETE FROM oauth_auth_codes WHERE user_id = $1 AND client_id = $2"#,
-            user_id,
-            client_id
-        )
-        .execute(&mut *tx)
-        .await?;
+        let deleted_digests =
+            crate::oauth_refresh_tokens::OAuthRefreshTokens::revoke_grant_in_transaction(
+                &mut tx, user_id, client_id,
+            )
+            .await?;
 
         tx.commit().await?;
         Ok(deleted_digests)

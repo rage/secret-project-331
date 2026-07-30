@@ -544,6 +544,8 @@ import type {
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponses,
+  ListOwnSubmissionSharesData,
+  ListOwnSubmissionSharesResponses,
   MarkFeedbackAsReadData,
   MarkFeedbackAsReadResponses,
   PostOauthUserInfoData,
@@ -575,6 +577,10 @@ import type {
   RestorePageHistoryResponses,
   RevokeOauthTokenData,
   RevokeOauthTokenResponses,
+  RevokeSubmissionShareData,
+  RevokeSubmissionShareResponses,
+  RevokeSubmissionSharesOfSubmissionData,
+  RevokeSubmissionSharesOfSubmissionResponses,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponses,
   SearchUserDetailsByEmailData,
@@ -881,6 +887,7 @@ import {
   zGetUsersReturningExercisesHistoryResponse,
   zGetUserSuspectedCheatersResponse,
   zJoinCourseWithJoinCodeResponse,
+  zListOwnSubmissionSharesResponse,
   zPreviewCourseInstanceCompletionsResponse,
   zRemoveCoursePlanMemberResponse,
   zReprocessCourseCompletionsResponse,
@@ -889,6 +896,8 @@ import {
   zResetExercisesForSelectedUsersResponse,
   zResetUserPasswordResponse,
   zRestorePageHistoryResponse,
+  zRevokeSubmissionShareResponse,
+  zRevokeSubmissionSharesOfSubmissionResponse,
   zSaveCourseDesignerScheduleResponse,
   zSearchUserDetailsByEmailResponse,
   zSearchUserDetailsByOtherDetailsResponse,
@@ -5436,16 +5445,16 @@ export const denyOauthDeviceVerification = <ThrowOnError extends boolean = true>
  * the active state and metadata of an access token.
  *
  * ### Security Features
- * - Client authentication is required (client_id and client_secret for confidential clients);
- * an unknown client or bad secret is 401 `invalid_client` (RFC 7662 §2.3)
+ * - Only a confidential client may introspect; an unknown client, a public client or a bad
+ * secret is 401 `invalid_client` (RFC 7662 §2.1, §2.3)
  * - Returns 200 with `active: false` for an invalid/expired *token* (RFC 7662 §2.1), so token
  * existence is never disclosed to an authenticated caller
  *
  * ### Request Parameters
  * - `token` (required): The token to be introspected
  * - `token_type_hint` (optional): Hint about token type ("access_token" or "refresh_token")
- * - `client_id` (required): Client identifier
- * - `client_secret` (required for confidential clients): Client secret
+ * - `client_id` (required): Client identifier of a confidential client
+ * - `client_secret` (required): Client secret
  *
  * ### Response
  * Returns a JSON object with:
@@ -6511,6 +6520,60 @@ export const removeRole = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions` - Lists the shares the current user has minted,
+ * newest first, so they can be reviewed and withdrawn.
+ */
+export const listOwnSubmissionShares = <ThrowOnError extends boolean = true>(
+  options?: Options<ListOwnSubmissionSharesData, ThrowOnError>,
+): RequestResult<ListOwnSubmissionSharesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<ListOwnSubmissionSharesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zListOwnSubmissionSharesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions",
+    ...options,
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
+ * share the current user has minted for one submission.
+ */
+export const revokeSubmissionSharesOfSubmission = <ThrowOnError extends boolean = true>(
+  options: Options<RevokeSubmissionSharesOfSubmissionData, ThrowOnError>,
+): RequestResult<RevokeSubmissionSharesOfSubmissionResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<
+    RevokeSubmissionSharesOfSubmissionResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zRevokeSubmissionSharesOfSubmissionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}",
+    ...options,
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/{token}` - Withdraws one share, after which the
+ * link stops resolving.
+ *
+ * Only the share's creator may revoke it: holding the token is authority to view, not to withdraw.
+ * Revoking an unknown or already-revoked share is a no-op, reported as `false`.
+ */
+export const revokeSubmissionShare = <ThrowOnError extends boolean = true>(
+  options: Options<RevokeSubmissionShareData, ThrowOnError>,
+): RequestResult<RevokeSubmissionShareResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<RevokeSubmissionShareResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zRevokeSubmissionShareResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions/{token}",
+    ...options,
   })
 
 /**

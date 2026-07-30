@@ -294,6 +294,83 @@ pub struct ExerciseServiceCsvExportRequest<'a, T: Serialize> {
     pub items: &'a [T],
 }
 
+/// A file the host stored for a client, as an exercise service sees it.
+#[derive(Debug, Serialize)]
+pub struct UploadedFileRef {
+    pub id: Uuid,
+    pub name: String,
+    pub url: String,
+}
+
+/// Asks an exercise service to turn host-stored files into its own `UserAnswer`. Sent to the
+/// service's `build_user_answer_endpoint_path`.
+#[derive(Debug, Serialize)]
+pub struct BuildUserAnswerRequest<'a> {
+    pub request_id: Uuid,
+    /// The task's public spec, so the service can shape the answer to the exercise.
+    pub public_spec: Option<&'a serde_json::Value>,
+    pub uploaded_files: Vec<UploadedFileRef>,
+}
+
+/// The service's answer. Opaque to the host, which only stores and forwards it.
+#[derive(Debug, Deserialize)]
+pub struct BuildUserAnswerResponse {
+    pub answer: serde_json::Value,
+}
+
+/// Timeout for the build-user-answer hop. Deliberately far shorter than the 120 s spec and CSV
+/// timeouts: this one sits inside a user's submit request, and no host-side fallback exists — a
+/// fallback would mean the host guessing the service's answer shape, which is the coupling this
+/// endpoint removes.
+const BUILD_USER_ANSWER_TIMEOUT_SECS: u64 = 10;
+
+/// Asks the exercise service at `url` to build a `UserAnswer` from the given uploaded files.
+pub async fn post_build_user_answer_request(
+    url: Url,
+    public_spec: Option<&serde_json::Value>,
+    uploaded_files: Vec<UploadedFileRef>,
+) -> ModelResult<serde_json::Value> {
+    let client = reqwest::Client::new();
+    let response = client
+        .post(url.clone())
+        .timeout(std::time::Duration::from_secs(
+            BUILD_USER_ANSWER_TIMEOUT_SECS,
+        ))
+        .json(&BuildUserAnswerRequest {
+            request_id: Uuid::new_v4(),
+            public_spec,
+            uploaded_files,
+        })
+        .send()
+        .await
+        .map_err(ModelError::from)?;
+
+    let status = response.status();
+    if !status.is_success() {
+        let status_code = status.as_u16();
+        let response_body = response.text().await.unwrap_or_default();
+        error!(
+            ?url,
+            ?response_body,
+            status_code = %status_code,
+            "Exercise service returned an unsuccessful status code while building a user answer"
+        );
+        return Err(ModelError::new(
+            ModelErrorType::HttpRequest {
+                status_code,
+                response_body: response_body.clone(),
+            },
+            format!(
+                "Building the user answer failed with status: {status_code} response: {response_body}"
+            ),
+            None,
+        ));
+    }
+
+    let parsed: BuildUserAnswerResponse = parse_response_json(response).await?;
+    Ok(parsed.answer)
+}
+
 /// Column definition for exercise service CSV export; callers must use scalar-only cell values.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ExerciseServiceCsvExportColumn {
@@ -931,5 +1008,77 @@ mod tests {
         let err = extract_grading_update_claim(req, payload)
             .expect_err("a non-JWT claim header must be rejected");
         assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// The exercise service sees only this JSON, so its shape is a contract. In particular the
+    /// host sends no answer of its own: `uploaded_files` plus the public spec is all a service
+    /// gets, and whatever it returns under `answer` is stored verbatim.
+    #[test]
+    fn build_user_answer_request_serializes_to_the_documented_shape() {
+        let request_id = Uuid::new_v4();
+        let file_id = Uuid::new_v4();
+        let public_spec = json!({ "type": "editor" });
+        let value = serde_json::to_value(BuildUserAnswerRequest {
+            request_id,
+            public_spec: Some(&public_spec),
+            uploaded_files: vec![UploadedFileRef {
+                id: file_id,
+                name: "submission.tar.zst".to_string(),
+                url: "http://project-331.local/api/v0/files/tmc/abc".to_string(),
+            }],
+        })
+        .expect("serializes");
+        assert_eq!(
+            value,
+            json!({
+                "request_id": request_id,
+                "public_spec": { "type": "editor" },
+                "uploaded_files": [{
+                    "id": file_id,
+                    "name": "submission.tar.zst",
+                    "url": "http://project-331.local/api/v0/files/tmc/abc",
+                }],
+            })
+        );
+    }
+
+    /// A task with no public spec must still produce a valid request, and a service whose answer
+    /// needs no files must be reachable with an empty list.
+    #[test]
+    fn build_user_answer_request_allows_no_public_spec_and_no_files() {
+        let value = serde_json::to_value(BuildUserAnswerRequest {
+            request_id: Uuid::nil(),
+            public_spec: None,
+            uploaded_files: Vec::new(),
+        })
+        .expect("serializes");
+        assert_eq!(value["public_spec"], json!(null));
+        assert_eq!(value["uploaded_files"], json!([]));
+    }
+
+    /// The answer is opaque: any JSON value a service returns must round-trip untouched.
+    #[test]
+    fn build_user_answer_response_keeps_the_answer_opaque() {
+        for answer in [
+            json!({ "type": "editor", "archive_file_id": "x", "archive_download_url": "u" }),
+            json!({ "some": { "nested": ["shape", 1, true] } }),
+            json!("a bare string"),
+        ] {
+            let parsed: BuildUserAnswerResponse =
+                serde_json::from_value(json!({ "answer": answer.clone() })).expect("deserializes");
+            assert_eq!(parsed.answer, answer);
+        }
+    }
+
+    /// A service that answers 200 with the wrong body must fail rather than have the host invent
+    /// an answer, which is exactly the coupling this endpoint exists to remove.
+    #[test]
+    fn build_user_answer_response_rejects_a_body_without_an_answer() {
+        assert!(
+            serde_json::from_value::<BuildUserAnswerResponse>(json!({ "result": "editor" }))
+                .is_err()
+        );
+        assert!(serde_json::from_value::<BuildUserAnswerResponse>(json!({})).is_err());
+        assert!(serde_json::from_value::<BuildUserAnswerResponse>(json!([])).is_err());
     }
 }

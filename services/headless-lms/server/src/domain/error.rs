@@ -107,6 +107,15 @@ pub enum BadRequestReason {
     /// The user is not enrolled on the course the requested exercise belongs to.
     #[display("Not enrolled")]
     NotEnrolled,
+    /// A submission named a file that was uploaded but has since been reaped.
+    #[display("Upload expired")]
+    UploadExpired,
+    /// A submission named a file the host has no upload record of for this exercise and user.
+    #[display("Unknown upload")]
+    UnknownUpload,
+    /// A submission named the same uploaded file more than once.
+    #[display("Duplicate upload")]
+    DuplicateUpload,
 }
 
 impl BadRequestReason {
@@ -114,6 +123,9 @@ impl BadRequestReason {
     fn message_key(self) -> &'static str {
         match self {
             Self::NotEnrolled => "not_enrolled",
+            Self::UploadExpired => "upload_expired",
+            Self::UnknownUpload => "unknown_upload",
+            Self::DuplicateUpload => "duplicate_upload",
         }
     }
 }

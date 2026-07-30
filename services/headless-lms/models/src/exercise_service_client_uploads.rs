@@ -180,7 +180,30 @@ ORDER BY u.created_at
 /// and reports `false` if one has. That re-check plus the row lock
 /// [`lock_for_exercise_and_user`] takes is what stops a reap from landing in the middle of a
 /// submit and destroying its files.
+///
+/// The lock is taken in a statement of its own, and that ordering is the whole point. Under READ
+/// COMMITTED a statement's snapshot is fixed when the statement starts, and Postgres refreshes only
+/// the row an `UPDATE` locks — never the rows its subqueries read. So a single locking `UPDATE`
+/// blocks on the submit's lock, unblocks, and then evaluates `NOT EXISTS` against a snapshot from
+/// *before* the submit committed: it finds no submission and reaps the files of a submission that
+/// already answered 200. Locking first makes the `UPDATE` a later statement, so its snapshot
+/// includes that commit.
 pub async fn mark_reaped(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool> {
+    let mut tx = conn.begin().await?;
+    let locked = sqlx::query_scalar!(
+        "
+SELECT id
+FROM exercise_service_client_uploads
+WHERE id = $1
+FOR UPDATE
+",
+        id
+    )
+    .fetch_optional(&mut *tx)
+    .await?;
+    if locked.is_none() {
+        return Ok(false);
+    }
     let retired = sqlx::query_scalar!(
         "
 UPDATE exercise_service_client_uploads AS u
@@ -196,8 +219,9 @@ RETURNING u.id
 ",
         id
     )
-    .fetch_optional(conn)
+    .fetch_optional(&mut *tx)
     .await?;
+    tx.commit().await?;
     Ok(retired.is_some())
 }
 
@@ -536,10 +560,11 @@ mod test {
     /// submission referenced it must not go through with the reap, or the submission commits with
     /// its files already gone.
     ///
-    /// This covers the interleaving logically, in one transaction; the row lock
-    /// `lock_for_exercise_and_user` takes to make the two orderings the *only* possibilities is not
-    /// exercised here, because the test harness cannot commit fixtures for a second connection to
-    /// see.
+    /// This covers the interleaving logically, in one transaction. The row lock that makes the two
+    /// orderings the *only* possibilities needs two connections, and so committed fixtures, which
+    /// this harness cannot produce; that half lives in the server crate, as
+    /// `programs::exercise_service_client_upload_reaper`'s
+    /// `a_concurrent_reaper_blocks_on_the_submit_lock_and_then_declines_to_reap`.
     #[tokio::test]
     async fn a_reap_cannot_retire_an_upload_a_submission_just_referenced() {
         insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);

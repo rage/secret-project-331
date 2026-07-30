@@ -185,6 +185,7 @@ impl FromRequest for SupportedClient {
     responses(
         (status = 200, description = "The courses the user is enrolled on that contain client-servable exercises", body = Vec<api::Course>),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -237,6 +238,7 @@ async fn get_courses(
     responses(
         (status = 200, description = "The requested course", body = api::Course),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this course", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No course with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
@@ -285,6 +287,7 @@ async fn get_course(
     responses(
         (status = 200, description = "The user's client-servable exercise slides for open chapters", body = Vec<api::ExerciseSlide>),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this course", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No course with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
@@ -398,6 +401,7 @@ fn model_solution_should_be_revealed(
     responses(
         (status = 200, description = "The user's per-exercise progress for the course's open chapters", body = api::CourseProgress),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this course", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No course with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
@@ -469,6 +473,7 @@ async fn get_course_progress(
     responses(
         (status = 200, description = "An exercise slide for the user, carrying only the tasks whose exercise service can serve this client", body = api::ExerciseSlide),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists, it belongs to an exam (not served by this API), or no task of it can serve this client", body = crate::domain::error::ApiErrorResponse),
         (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
@@ -805,6 +810,7 @@ fn uploaded_file_refs(
     responses(
         (status = 200, description = "The stored files, in the order the parts were sent", body = api::UploadedFiles),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), or the multipart body violates the field-name, file-count or size rules", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
@@ -935,6 +941,7 @@ async fn store_client_uploads(
     responses(
         (status = 200, description = "The created submission, identified by both its task and slide submission ids", body = api::ExerciseTaskSubmissionResult),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists, or the referenced slide/task does not exist", body = crate::domain::error::ApiErrorResponse),
         (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
@@ -1169,6 +1176,7 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
     responses(
         (status = 200, description = "The current user's submissions to the exercise, newest first", body = Vec<api::ExerciseSlideSubmissionListItem>),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -1854,7 +1862,7 @@ mod upload_tests {
 
     const BOUNDARY: &str = "clientuploadboundary";
 
-    fn app_conf() -> ApplicationConfiguration {
+    pub(super) fn app_conf() -> ApplicationConfiguration {
         ApplicationConfiguration {
             base_url: "http://project-331.local".to_string(),
             test_mode: true,
@@ -1908,7 +1916,7 @@ mod upload_tests {
     /// Writes into a temp dir. `LocalFileStore` is unusable here because it demands the
     /// `HEADLESS_LMS_CACHE_FILES_PATH` env var, and mutating the environment from a test that runs
     /// alongside others is worse than implementing the three methods these tests reach.
-    struct TempFileStore(tempfile::TempDir);
+    pub(super) struct TempFileStore(pub(super) tempfile::TempDir);
 
     #[async_trait::async_trait(?Send)]
     impl FileStore for TempFileStore {
@@ -2337,5 +2345,1005 @@ mod upload_tests {
             .as_str()
             .unwrap_or_default()
             .to_string()
+    }
+}
+
+/// Route-level tests: the two write routes driven through actix, so the extractors, the
+/// authorization call, the multipart parsing and the error mapping are all in the picture. The
+/// helper-level tests above cover the individual checks; these cover the wiring, which is where a
+/// handler stops matching its own OpenAPI annotations.
+///
+/// Fixtures are committed, because the handlers acquire their own pool connections and cannot see
+/// an open transaction. Nothing left behind is reapable (every client upload here is fresh, so it
+/// is inside the retention window), which is what keeps the reaper's unfiltered tests unaffected.
+#[cfg(test)]
+mod route_tests {
+    use super::*;
+    use crate::test_helper::*;
+    use actix_web::http::StatusCode;
+    use actix_web::{App, test};
+    use chrono::Duration as ChronoDuration;
+    use chrono::Utc;
+    use headless_lms_models::library::oauth::pkce::PkceMethod;
+    use headless_lms_models::library::oauth::{
+        EXERCISE_SERVICES_SCOPE, GrantTypeName, generate_access_token, token_digest_sha256,
+    };
+    use headless_lms_models::oauth_access_token::{
+        NewAccessTokenParams, OAuthAccessToken, TokenType,
+    };
+    use headless_lms_models::oauth_client::{
+        ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,
+    };
+    use headless_lms_utils::cache::Cache;
+    use headless_lms_utils::file_store::FileStore;
+    use models::exercise_task_gradings::ExerciseTaskGradingResult;
+    use sqlx::Connection;
+    use std::sync::{Arc, Mutex};
+
+    const BOUNDARY: &str = "clientrouteboundary";
+
+    /// Everything a request needs: the ids the routes are called with, and a bearer the
+    /// `UserFromOAuthToken` extractor accepts.
+    struct Fixture {
+        user: Uuid,
+        course: Uuid,
+        exercise: Uuid,
+        slide: Uuid,
+        task: Uuid,
+        /// A task of the fixture exercise whose exercise service declares no
+        /// `build_user_answer_endpoint_path`, so this API cannot serve it.
+        unservable_task: Uuid,
+        token: String,
+    }
+
+    /// A bearer for `user`, taking the real `oauth_access_tokens` path rather than the test-token
+    /// shortcut, which only maps to seeded users this crate's tests do not have.
+    async fn issue_token(conn: &mut PgConnection, user: Uuid) -> String {
+        let client = OAuthClient::insert(
+            conn,
+            NewClientParams {
+                client_id: &format!("cli-{}", &generate_access_token()[..12]),
+                client_name: "Client API route test client",
+                application_type: ApplicationType::Native,
+                token_endpoint_auth_method: TokenEndpointAuthMethod::None,
+                client_secret: None,
+                client_secret_expires_at: None,
+                redirect_uris: &["urn:ietf:wg:oauth:2.0:oob".to_string()],
+                post_logout_redirect_uris: None,
+                allowed_grant_types: &[GrantTypeName::DeviceCode, GrantTypeName::RefreshToken],
+                scopes: &[EXERCISE_SERVICES_SCOPE.to_string()],
+                require_pkce: true,
+                pkce_methods_allowed: &[PkceMethod::S256],
+                allowed_origins: None,
+                bearer_allowed: true,
+            },
+        )
+        .await
+        .expect("oauth client");
+        let plaintext = generate_access_token();
+        let hmac_key = upload_tests::app_conf()
+            .oauth_server_configuration
+            .oauth_token_hmac_key
+            .clone();
+        OAuthAccessToken::insert(
+            conn,
+            NewAccessTokenParams {
+                digest: &token_digest_sha256(&plaintext, &hmac_key),
+                user_id: Some(user),
+                client_id: client.id,
+                scopes: &[EXERCISE_SERVICES_SCOPE.to_string()],
+                audience: None,
+                token_type: TokenType::Bearer,
+                dpop_jkt: None,
+                metadata: serde_json::Map::new(),
+                expires_at: Utc::now() + ChronoDuration::hours(1),
+            },
+        )
+        .await
+        .expect("access token");
+        plaintext
+    }
+
+    /// Registers a client-capable exercise service under a slug of its own, and a task of that
+    /// type. A unique slug keeps these committed rows from being mistaken for anyone else's: the
+    /// capability query is global, and the other tests that read it assert by membership.
+    async fn insert_client_capable_task(
+        conn: &mut PgConnection,
+        slide: Uuid,
+        internal_url: Option<String>,
+    ) -> Uuid {
+        let slug = format!("client-route-test-{}", Uuid::new_v4());
+        let service = models::exercise_services::insert_exercise_service(
+            conn,
+            &models::exercise_services::ExerciseServiceNewOrUpdate {
+                name: slug.clone(),
+                slug: slug.clone(),
+                public_url: "http://example.com/api/service".to_string(),
+                internal_url,
+                max_reprocessing_submissions_at_once: 1,
+            },
+        )
+        .await
+        .expect("exercise service");
+        models::exercise_service_info::insert(
+            conn,
+            &models::exercise_service_info::PathInfo {
+                exercise_service_id: service.id,
+                user_interface_iframe_path: "/iframe".to_string(),
+                grade_endpoint_path: "/grade".to_string(),
+                public_spec_endpoint_path: "/public-spec".to_string(),
+                model_solution_spec_endpoint_path: "/model-solution".to_string(),
+                has_custom_view: false,
+                build_user_answer_endpoint_path: Some("/build-user-answer".to_string()),
+            },
+        )
+        .await
+        .expect("service info");
+        models::exercise_tasks::insert(
+            conn,
+            models::PKeyPolicy::Generate,
+            models::exercise_tasks::NewExerciseTask {
+                exercise_slide_id: slide,
+                exercise_type: slug,
+                assignment: vec![],
+                public_spec: Some(serde_json::Value::Null),
+                private_spec: Some(serde_json::Value::Null),
+                model_solution_spec: Some(serde_json::Value::Null),
+                order_number: 1,
+            },
+        )
+        .await
+        .expect("exercise task")
+    }
+
+    /// A committed course with one exercise, and a user who is enrolled unless `enrolled` is false.
+    /// The exercise carries two tasks: the fixture macro's, whose exercise service cannot serve
+    /// this client, and `task`, whose service can.
+    async fn committed_fixture(enrolled: bool) -> Fixture {
+        committed_fixture_with_service(enrolled, None).await
+    }
+
+    async fn committed_fixture_with_service(
+        enrolled: bool,
+        service_internal_url: Option<String>,
+    ) -> Fixture {
+        insert_data!(:tx, user: user, :org, course: course, instance: instance, :course_module, :chapter, :page, exercise: exercise, slide: slide, task: _unservable_task);
+        let task = insert_client_capable_task(tx.as_mut(), slide, service_internal_url).await;
+        if enrolled {
+            models::course_instance_enrollments::insert_enrollment_and_set_as_current(
+                tx.as_mut(),
+                models::course_instance_enrollments::NewCourseInstanceEnrollment {
+                    course_id: course,
+                    user_id: user,
+                    course_instance_id: instance.id,
+                },
+            )
+            .await
+            .expect("enrollment");
+        }
+        let token = issue_token(tx.as_mut(), user).await;
+        tx.commit().await;
+        Fixture {
+            user,
+            course,
+            exercise,
+            slide,
+            task,
+            unservable_task: _unservable_task,
+            token,
+        }
+    }
+
+    /// The routes under a real actix app, with the app data every extractor and handler reads.
+    macro_rules! client_api_app {
+        () => {{
+            let file_store: Arc<dyn FileStore> = Arc::new(upload_tests::TempFileStore(
+                tempfile::tempdir().expect("temp dir"),
+            ));
+            client_api_app!(file_store)
+        }};
+        ($file_store:expr) => {{
+            let pool = PgPool::connect(&test_database_url()).await.expect("pool");
+            let file_store: Arc<dyn FileStore> = $file_store;
+            test::init_service(
+                App::new()
+                    .app_data(web::Data::new(pool))
+                    .app_data(web::Data::from(file_store))
+                    .app_data(web::Data::new(upload_tests::app_conf()))
+                    .app_data(web::Data::new(
+                        Cache::new("redis://127.0.0.1:1").expect("cache"),
+                    ))
+                    .app_data(web::Data::new(JwtKey::test_key()))
+                    .configure(_add_routes),
+            )
+            .await
+        }};
+    }
+
+    fn multipart_body(parts: &[(Uuid, &str, &str)]) -> Vec<u8> {
+        let mut body = String::new();
+        for (field_name, file_name, contents) in parts {
+            body.push_str(&format!("--{BOUNDARY}\r\n"));
+            body.push_str(&format!(
+                "Content-Disposition: form-data; name=\"{field_name}\"; filename=\"{file_name}\"\r\n"
+            ));
+            body.push_str("Content-Type: application/octet-stream\r\n\r\n");
+            body.push_str(contents);
+            body.push_str("\r\n");
+        }
+        body.push_str(&format!("--{BOUNDARY}--\r\n"));
+        body.into_bytes()
+    }
+
+    fn upload_request(
+        exercise: Uuid,
+        token: &str,
+        parts: &[(Uuid, &str, &str)],
+    ) -> test::TestRequest {
+        test::TestRequest::post()
+            .uri(&format!("/exercises/{exercise}/files"))
+            .insert_header(("Authorization", format!("Bearer {token}")))
+            .insert_header((
+                "Content-Type",
+                format!("multipart/form-data; boundary={BOUNDARY}"),
+            ))
+            .set_payload(multipart_body(parts))
+    }
+
+    fn submit_request(
+        exercise: Uuid,
+        token: &str,
+        body: &api::ExerciseSlideSubmission,
+    ) -> test::TestRequest {
+        test::TestRequest::post()
+            .uri(&format!("/exercises/{exercise}/submit"))
+            .insert_header(("Authorization", format!("Bearer {token}")))
+            .set_json(body)
+    }
+
+    /// The `message_key` a client keys its error handling on.
+    fn message_key(body: &serde_json::Value) -> &str {
+        body["message_key"].as_str().unwrap_or_default()
+    }
+
+    /// Uploads two files through the route and returns their ids, in the order the client sent them.
+    async fn upload_two(fixture: &Fixture) -> Vec<Uuid> {
+        let app = client_api_app!();
+        let request = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[
+                (Uuid::new_v4(), "a.tar.zst", "first"),
+                (Uuid::new_v4(), "b.txt", "second"),
+            ],
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let body: api::UploadedFiles = test::read_body_json(response).await;
+        body.files.into_iter().map(|file| file.id).collect()
+    }
+
+    #[actix_web::test]
+    async fn uploading_files_returns_them_in_the_order_they_were_sent() {
+        let fixture = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[
+                (Uuid::new_v4(), "a.tar.zst", "first"),
+                (Uuid::new_v4(), "b.txt", "second"),
+            ],
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let body: api::UploadedFiles = test::read_body_json(response).await;
+        let names: Vec<&str> = body.files.iter().map(|file| file.name.as_str()).collect();
+        assert_eq!(names, vec!["a.tar.zst", "b.txt"]);
+        assert!(
+            body.files
+                .iter()
+                .all(|file| file.download_url.contains(&file.id.to_string())
+                    || !file.download_url.is_empty())
+        );
+
+        // The bindings the later submit validates against must exist for this exercise and user.
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let ids: Vec<Uuid> = body.files.iter().map(|file| file.id).collect();
+        let recorded = models::exercise_service_client_uploads::get_for_exercise_and_user(
+            tx.as_mut(),
+            fixture.exercise,
+            fixture.user,
+            &ids,
+        )
+        .await
+        .expect("bindings");
+        assert_eq!(recorded.len(), 2);
+        assert!(recorded.iter().all(|upload| !upload.deleted));
+        tx.rollback().await;
+    }
+
+    #[actix_web::test]
+    async fn uploading_without_a_bearer_is_unauthorized() {
+        let fixture = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = test::TestRequest::post()
+            .uri(&format!("/exercises/{}/files", fixture.exercise))
+            .insert_header((
+                "Content-Type",
+                format!("multipart/form-data; boundary={BOUNDARY}"),
+            ))
+            .set_payload(multipart_body(&[(Uuid::new_v4(), "a.tar.zst", "first")]))
+            .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn a_user_who_never_enrolled_cannot_upload() {
+        let fixture = committed_fixture(false).await;
+        let app = client_api_app!();
+        let request = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "first")],
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "not_enrolled");
+    }
+
+    #[actix_web::test]
+    async fn uploading_to_an_unknown_exercise_is_not_found() {
+        let fixture = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = upload_request(
+            Uuid::new_v4(),
+            &fixture.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "first")],
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
+
+    /// A part whose field name is not a UUID is refused, and — the point of the test — nothing is
+    /// recorded and no object is left in the store, since the ids are the client's own handles.
+    #[actix_web::test]
+    async fn a_part_named_by_something_other_than_a_uuid_is_refused() {
+        let fixture = committed_fixture(true).await;
+        let app = client_api_app!();
+        let mut body = String::new();
+        body.push_str(&format!("--{BOUNDARY}\r\n"));
+        body.push_str(
+            "Content-Disposition: form-data; name=\"not-a-uuid\"; filename=\"a.tar.zst\"\r\n",
+        );
+        body.push_str("Content-Type: application/octet-stream\r\n\r\nfirst\r\n");
+        body.push_str(&format!("--{BOUNDARY}--\r\n"));
+        let request = test::TestRequest::post()
+            .uri(&format!("/exercises/{}/files", fixture.exercise))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .insert_header((
+                "Content-Type",
+                format!("multipart/form-data; boundary={BOUNDARY}"),
+            ))
+            .set_payload(body.into_bytes())
+            .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// Parts are streamed to the object store one at a time, so a body whose *second* part is
+    /// invalid has already put an object there. Nothing points at that object — no `file_uploads`
+    /// row, so not even the reaper can find it — which is why the route deletes it itself.
+    #[actix_web::test]
+    async fn a_part_rejected_after_an_earlier_one_was_stored_leaves_no_object_behind() {
+        let fixture = committed_fixture(true).await;
+        let store_dir = tempfile::tempdir().expect("temp dir");
+        let store_path = store_dir.path().to_path_buf();
+        let app = client_api_app!(Arc::new(upload_tests::TempFileStore(store_dir)));
+
+        let mut body = String::new();
+        body.push_str(&format!("--{BOUNDARY}\r\n"));
+        body.push_str(&format!(
+            "Content-Disposition: form-data; name=\"{}\"; filename=\"a.tar.zst\"\r\n",
+            Uuid::new_v4()
+        ));
+        body.push_str("Content-Type: application/octet-stream\r\n\r\nfirst\r\n");
+        body.push_str(&format!("--{BOUNDARY}\r\n"));
+        body.push_str(
+            "Content-Disposition: form-data; name=\"not-a-uuid\"; filename=\"b.txt\"\r\n",
+        );
+        body.push_str("Content-Type: application/octet-stream\r\n\r\nsecond\r\n");
+        body.push_str(&format!("--{BOUNDARY}--\r\n"));
+        let request = test::TestRequest::post()
+            .uri(&format!("/exercises/{}/files", fixture.exercise))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .insert_header((
+                "Content-Type",
+                format!("multipart/form-data; boundary={BOUNDARY}"),
+            ))
+            .set_payload(body.into_bytes())
+            .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+
+        let namespace = store_path.join(CLIENT_UPLOAD_PATH_PREFIX);
+        let leftovers: Vec<String> = std::fs::read_dir(&namespace)
+            .map(|entries| {
+                entries
+                    .map(|entry| {
+                        entry
+                            .expect("dir entry")
+                            .file_name()
+                            .to_string_lossy()
+                            .into_owned()
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        assert!(
+            leftovers.is_empty(),
+            "objects left in the store: {leftovers:?}"
+        );
+    }
+
+    #[actix_web::test]
+    async fn a_user_who_never_enrolled_cannot_submit() {
+        let fixture = committed_fixture(false).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.task,
+                uploaded_file_ids: vec![],
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "not_enrolled");
+    }
+
+    #[actix_web::test]
+    async fn submitting_to_an_unknown_exercise_is_not_found() {
+        let fixture = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            Uuid::new_v4(),
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.task,
+                uploaded_file_ids: vec![],
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
+
+    #[actix_web::test]
+    async fn submitting_the_same_upload_twice_is_reported() {
+        let fixture = committed_fixture(true).await;
+        let ids = upload_two(&fixture).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.task,
+                uploaded_file_ids: vec![ids[0], ids[0]],
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "duplicate_upload");
+    }
+
+    #[actix_web::test]
+    async fn submitting_an_upload_that_was_never_recorded_is_reported() {
+        let fixture = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.task,
+                uploaded_file_ids: vec![Uuid::new_v4()],
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "unknown_upload");
+    }
+
+    /// Another user's upload must read as unknown rather than as a permission error: the binding is
+    /// keyed by user, so from this user's side the id simply does not exist.
+    #[actix_web::test]
+    async fn submitting_another_users_upload_is_reported_as_unknown() {
+        let owner = committed_fixture(true).await;
+        let ids = upload_two(&owner).await;
+        let other = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            other.exercise,
+            &other.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: other.slide,
+                exercise_task_id: other.task,
+                uploaded_file_ids: vec![ids[0]],
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "unknown_upload");
+    }
+
+    /// A reaped upload is reported distinctly from an unrecognised one, because only this one is
+    /// recoverable by uploading again.
+    #[actix_web::test]
+    async fn submitting_a_reaped_upload_reports_it_as_expired() {
+        let fixture = committed_fixture(true).await;
+        let ids = upload_two(&fixture).await;
+
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        sqlx::query(
+            "UPDATE exercise_service_client_uploads SET deleted_at = now() WHERE file_upload_id = $1",
+        )
+        .bind(ids[0])
+        .execute(&mut **tx.as_mut())
+        .await
+        .expect("retire");
+        tx.commit().await;
+
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.task,
+                uploaded_file_ids: vec![ids[0]],
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "upload_expired");
+    }
+
+    /// The slide and task come from the request body while the URL authorizes the exercise, so a
+    /// body naming another exercise's slide must be refused.
+    #[actix_web::test]
+    async fn submitting_another_exercises_slide_is_refused() {
+        let fixture = committed_fixture(true).await;
+        let other = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: other.slide,
+                exercise_task_id: other.task,
+                uploaded_file_ids: vec![],
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "validation_error");
+    }
+
+    /// The exercise service behind the fixture task declares no `build_user_answer` endpoint, so
+    /// the task is not client-servable and submit must refuse it at the edge rather than let
+    /// grading fail deep inside a service that will never understand the answer.
+    #[actix_web::test]
+    async fn submitting_to_a_task_no_service_can_serve_is_refused() {
+        let fixture = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.unservable_task,
+                uploaded_file_ids: vec![],
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "validation_error");
+    }
+
+    /// The answer the stub exercise service claims to have built. Asserting the persisted answer is
+    /// exactly this is what proves the host forwards the service's answer rather than shaping one.
+    fn stub_answer() -> serde_json::Value {
+        serde_json::json!({ "built_by": "the exercise service" })
+    }
+
+    fn stub_grading() -> ExerciseTaskGradingResult {
+        ExerciseTaskGradingResult {
+            grading_progress: GradingProgress::FullyGraded,
+            score_given: 1.0,
+            score_maximum: 1,
+            feedback_text: Some("graded by the stub".to_string()),
+            feedback_json: None,
+            set_user_variables: None,
+        }
+    }
+
+    /// How the stub answers a grading request.
+    enum StubGrading {
+        Graded(ExerciseTaskGradingResult),
+        Unavailable,
+    }
+
+    struct StubState {
+        build_requests: Mutex<Vec<serde_json::Value>>,
+        grade_requests: Mutex<Vec<serde_json::Value>>,
+        /// Paths a submit asked the stub for that it is not supposed to need. Asserted empty, so a
+        /// hop added to the submit path cannot pass unnoticed — notably a live service-info fetch,
+        /// which the committed `exercise_service_info` row is there to make unnecessary.
+        unexpected: Mutex<Vec<String>>,
+        /// Uploads to retire while the build-user-answer hop is in flight, landing a reap inside
+        /// the window between submit's unlocked validation and its locked re-check. Set after the
+        /// server is running, since the ids only exist once the uploads do.
+        reap_during_build: Mutex<Vec<Uuid>>,
+        grading: StubGrading,
+    }
+
+    impl StubState {
+        fn new(grading: StubGrading) -> Self {
+            Self {
+                build_requests: Mutex::new(Vec::new()),
+                grade_requests: Mutex::new(Vec::new()),
+                unexpected: Mutex::new(Vec::new()),
+                reap_during_build: Mutex::new(Vec::new()),
+                grading,
+            }
+        }
+
+        fn reap_on_next_build(&self, ids: Vec<Uuid>) {
+            *self.reap_during_build.lock().expect("stub lock") = ids;
+        }
+
+        fn calls(&self, requests: &Mutex<Vec<serde_json::Value>>) -> Vec<serde_json::Value> {
+            requests.lock().expect("stub lock").clone()
+        }
+
+        /// Asserts the stub was asked for exactly the build and grade hops, once each.
+        fn assert_hops(&self, grade_calls: usize) {
+            assert!(
+                self.unexpected.lock().expect("stub lock").is_empty(),
+                "submit called endpoints beyond build-user-answer and grade: {:?}",
+                self.unexpected.lock().expect("stub lock")
+            );
+            assert_eq!(self.calls(&self.build_requests).len(), 1);
+            assert_eq!(self.calls(&self.grade_requests).len(), grade_calls);
+        }
+    }
+
+    async fn stub_build_user_answer(
+        state: web::Data<StubState>,
+        body: web::Json<serde_json::Value>,
+    ) -> actix_web::HttpResponse {
+        state
+            .build_requests
+            .lock()
+            .expect("stub lock")
+            .push(body.into_inner());
+        let reap = state.reap_during_build.lock().expect("stub lock").clone();
+        if !reap.is_empty() {
+            // A connection of its own, because the reaper is a separate process and must not be
+            // able to see or be blocked by the request's own transaction.
+            let mut conn = PgConnection::connect(&test_database_url())
+                .await
+                .expect("reaper connection");
+            sqlx::query(
+                "UPDATE exercise_service_client_uploads SET deleted_at = now() WHERE file_upload_id = ANY($1)",
+            )
+            .bind(&reap)
+            .execute(&mut conn)
+            .await
+            .expect("reap");
+        }
+        actix_web::HttpResponse::Ok().json(serde_json::json!({ "answer": stub_answer() }))
+    }
+
+    async fn stub_grade(
+        state: web::Data<StubState>,
+        body: web::Json<serde_json::Value>,
+    ) -> actix_web::HttpResponse {
+        state
+            .grade_requests
+            .lock()
+            .expect("stub lock")
+            .push(body.into_inner());
+        match &state.grading {
+            StubGrading::Graded(result) => actix_web::HttpResponse::Ok().json(result),
+            StubGrading::Unavailable => {
+                actix_web::HttpResponse::InternalServerError().body("the grader is down")
+            }
+        }
+    }
+
+    async fn stub_unexpected(
+        request: actix_web::HttpRequest,
+        state: web::Data<StubState>,
+    ) -> actix_web::HttpResponse {
+        state.unexpected.lock().expect("stub lock").push(format!(
+            "{} {}",
+            request.method(),
+            request.path()
+        ));
+        actix_web::HttpResponse::NotFound().finish()
+    }
+
+    /// Serves the two endpoints a submit drives, on a real socket, and returns its base URL for the
+    /// exercise service's `internal_url`.
+    ///
+    /// Both hops are HTTP in production, and the build hop is the window the reap race opens in, so
+    /// short-circuiting them in-process would remove the thing under test.
+    fn start_exercise_service_stub(state: Arc<StubState>) -> String {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").expect("bind");
+        let port = listener.local_addr().expect("local addr").port();
+        let server = actix_web::HttpServer::new(move || {
+            App::new()
+                .app_data(web::Data::from(state.clone()))
+                .route("/build-user-answer", web::post().to(stub_build_user_answer))
+                .route("/grade", web::post().to(stub_grade))
+                .default_service(web::to(stub_unexpected))
+        })
+        .workers(1)
+        .disable_signals()
+        .listen(listener)
+        .expect("listen")
+        .run();
+        actix_web::rt::spawn(server);
+        format!("http://127.0.0.1:{port}")
+    }
+
+    /// The `user_exercise_states` row `process_submission` requires, with the slide the student is
+    /// answering selected. Both are written when the student opens the exercise, which a native
+    /// client does before it can submit.
+    async fn open_exercise(fixture: &Fixture) {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        models::user_exercise_states::upsert_selected_exercise_slide_id(
+            tx.as_mut(),
+            fixture.user,
+            fixture.exercise,
+            Some(fixture.course),
+            None,
+            Some(fixture.slide),
+        )
+        .await
+        .expect("exercise state");
+        tx.commit().await;
+    }
+
+    /// A fixture whose exercise service is the stub, with the state a submit needs, plus two
+    /// uploads.
+    async fn fixture_with_stub(state: Arc<StubState>) -> (Fixture, Vec<Uuid>) {
+        let url = start_exercise_service_stub(state);
+        let fixture = committed_fixture_with_service(true, Some(url)).await;
+        open_exercise(&fixture).await;
+        let ids = upload_two(&fixture).await;
+        (fixture, ids)
+    }
+
+    fn uploaded_names(request: &serde_json::Value) -> Vec<String> {
+        request["uploaded_files"]
+            .as_array()
+            .expect("uploaded_files")
+            .iter()
+            .map(|file| file["name"].as_str().expect("name").to_string())
+            .collect()
+    }
+
+    async fn slide_submission_count(exercise: Uuid, user: Uuid) -> i64 {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let count: i64 = sqlx::query_scalar(
+            "SELECT count(*) FROM exercise_slide_submissions WHERE exercise_id = $1 AND user_id = $2 AND deleted_at IS NULL",
+        )
+        .bind(exercise)
+        .bind(user)
+        .fetch_one(&mut **tx.as_mut())
+        .await
+        .expect("count");
+        tx.rollback().await;
+        count
+    }
+
+    async fn rejected_submission_count(slide: Uuid, user: Uuid) -> i64 {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let count: i64 = sqlx::query_scalar(
+            "SELECT count(*) FROM rejected_exercise_slide_submissions WHERE exercise_slide_id = $1 AND user_id = $2 AND deleted_at IS NULL",
+        )
+        .bind(slide)
+        .bind(user)
+        .fetch_one(&mut **tx.as_mut())
+        .await
+        .expect("count");
+        tx.rollback().await;
+        count
+    }
+
+    /// The happy path, end to end: the host hands the uploads to the exercise service, persists the
+    /// answer the service built, grades it through the service, and records which files the
+    /// submission was made from — in the order the client named them, not the order it uploaded in.
+    #[actix_web::test]
+    async fn submitting_grades_the_answer_the_exercise_service_built() {
+        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
+        let (fixture, ids) = fixture_with_stub(state.clone()).await;
+        let named = vec![ids[1], ids[0]];
+
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.task,
+                uploaded_file_ids: named.clone(),
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let body: api::ExerciseTaskSubmissionResult = test::read_body_json(response).await;
+
+        state.assert_hops(1);
+        let build_request = state.calls(&state.build_requests).remove(0);
+        assert_eq!(uploaded_names(&build_request), vec!["b.txt", "a.tar.zst"]);
+        let grade_request = state.calls(&state.grade_requests).remove(0);
+        assert_eq!(grade_request["submission_data"], stub_answer());
+
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let submission =
+            models::exercise_task_submissions::get_by_id(tx.as_mut(), body.task_submission_id)
+                .await
+                .expect("task submission");
+        assert_eq!(submission.data_json, Some(stub_answer()));
+        assert_eq!(
+            submission.exercise_slide_submission_id,
+            body.slide_submission_id
+        );
+
+        let grading = models::exercise_task_gradings::get_by_id(
+            tx.as_mut(),
+            submission
+                .exercise_task_grading_id
+                .expect("submission was graded"),
+        )
+        .await
+        .expect("grading");
+        assert_eq!(grading.grading_progress, GradingProgress::FullyGraded);
+        assert_eq!(grading.unscaled_score_given, Some(1.0));
+        assert_eq!(grading.feedback_text.as_deref(), Some("graded by the stub"));
+
+        let files = models::exercise_task_submission_files::get_by_task_submission_ids(
+            tx.as_mut(),
+            &[body.task_submission_id],
+        )
+        .await
+        .expect("submission files");
+        let recorded: Vec<(Uuid, &str, i32)> = files
+            .iter()
+            .map(|file| (file.file_upload_id, file.name.as_str(), file.order_number))
+            .collect();
+        assert_eq!(
+            recorded,
+            vec![(named[0], "b.txt", 0), (named[1], "a.tar.zst", 1)]
+        );
+        tx.rollback().await;
+    }
+
+    /// A grading hop that fails must still leave the rejected-submission audit row behind, which is
+    /// what submit's commit-then-return-the-error branch exists for. No accepted submission may
+    /// survive it.
+    #[actix_web::test]
+    async fn a_failed_grading_keeps_only_the_rejected_submission() {
+        let state = Arc::new(StubState::new(StubGrading::Unavailable));
+        let (fixture, ids) = fixture_with_stub(state.clone()).await;
+
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.task,
+                uploaded_file_ids: vec![ids[0]],
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+
+        state.assert_hops(1);
+        assert_eq!(
+            slide_submission_count(fixture.exercise, fixture.user).await,
+            0
+        );
+        assert_eq!(
+            rejected_submission_count(fixture.slide, fixture.user).await,
+            1
+        );
+    }
+
+    /// The reap-safety re-check: an upload retired while the build-user-answer hop is in flight has
+    /// already passed submit's unlocked validation, so only the locked re-check inside the
+    /// association transaction can catch it. The submission must not survive.
+    #[actix_web::test]
+    async fn an_upload_reaped_during_the_service_hop_is_caught_by_the_locked_recheck() {
+        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
+        let (fixture, ids) = fixture_with_stub(state.clone()).await;
+        state.reap_on_next_build(vec![ids[0]]);
+
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.task,
+                uploaded_file_ids: vec![ids[0]],
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "upload_expired");
+
+        // The build hop ran — so the reap really landed after validation — and grading never did.
+        state.assert_hops(0);
+        assert_eq!(
+            slide_submission_count(fixture.exercise, fixture.user).await,
+            0
+        );
     }
 }

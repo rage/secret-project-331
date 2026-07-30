@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM oauth_device_codes WHERE expires_at < now() - $1::interval",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Interval"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c763c85adf526cc08f3ec4f4ee96ed33bae0473a02d7008c1df887af29d0bd69"
+}

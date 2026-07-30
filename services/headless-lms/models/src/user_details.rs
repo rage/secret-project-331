@@ -253,42 +253,6 @@ fn parse_exact_user_id_search_term(search: &str) -> Option<Uuid> {
     search.trim().parse().ok()
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn normalizes_name_search_term() {
-        assert_eq!(normalize_name_search_term("  alice@example.com  "), "alice");
-        assert_eq!(normalize_name_search_term("  alice  "), "alice");
-    }
-
-    #[test]
-    fn normalizes_email_search_term_without_removing_domain() {
-        assert_eq!(
-            normalize_email_search_term("  alice@example.com  "),
-            "alice@example.com"
-        );
-    }
-
-    #[test]
-    fn rejects_short_fuzzy_search_terms() {
-        assert!(!is_fuzzy_search_term_long_enough("al"));
-        assert!(is_fuzzy_search_term_long_enough("ali"));
-    }
-
-    #[test]
-    fn parses_exact_user_id_search_term() {
-        let user_id = Uuid::parse_str("5b177cc9-fbc3-43b5-8108-63481ff0b0e4").unwrap();
-
-        assert_eq!(
-            parse_exact_user_id_search_term("  5b177cc9-fbc3-43b5-8108-63481ff0b0e4  "),
-            Some(user_id)
-        );
-        assert_eq!(parse_exact_user_id_search_term("not-a-user-id"), None);
-    }
-}
-
 /// Retrieves all users enrolled in a specific course
 pub async fn get_users_by_course_id(
     conn: &mut PgConnection,
@@ -491,4 +455,40 @@ RETURNING user_id,
     .await?;
 
     Ok(updated_user)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn normalizes_name_search_term() {
+        assert_eq!(normalize_name_search_term("  alice@example.com  "), "alice");
+        assert_eq!(normalize_name_search_term("  alice  "), "alice");
+    }
+
+    #[test]
+    fn normalizes_email_search_term_without_removing_domain() {
+        assert_eq!(
+            normalize_email_search_term("  alice@example.com  "),
+            "alice@example.com"
+        );
+    }
+
+    #[test]
+    fn rejects_short_fuzzy_search_terms() {
+        assert!(!is_fuzzy_search_term_long_enough("al"));
+        assert!(is_fuzzy_search_term_long_enough("ali"));
+    }
+
+    #[test]
+    fn parses_exact_user_id_search_term() {
+        let user_id = Uuid::parse_str("5b177cc9-fbc3-43b5-8108-63481ff0b0e4").unwrap();
+
+        assert_eq!(
+            parse_exact_user_id_search_term("  5b177cc9-fbc3-43b5-8108-63481ff0b0e4  "),
+            Some(user_id)
+        );
+        assert_eq!(parse_exact_user_id_search_term("not-a-user-id"), None);
+    }
 }

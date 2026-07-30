@@ -336,6 +336,149 @@ mod tests {
         tx.rollback().await;
     }
 
+    /// The reap-vs-submit race with two real connections, which is the part
+    /// `models::exercise_service_client_uploads`' own tests cannot reach: they run inside one
+    /// uncommitted transaction, so a second connection can never see their fixtures.
+    ///
+    /// What is under test is not just the outcome but the mechanism — that a reaper running
+    /// concurrently with a submit *blocks* on the row lock `lock_for_exercise_and_user` takes,
+    /// instead of racing past it, and that when it unblocks its `NOT EXISTS` re-check observes the
+    /// association the submit committed. The second half is a Postgres detail worth pinning: the
+    /// blocked `UPDATE` re-evaluates its qual, subquery included, against the committed row, so it
+    /// declines rather than destroying the files of a submission that already returned 200.
+    #[actix_web::test]
+    async fn a_concurrent_reaper_blocks_on_the_submit_lock_and_then_declines_to_reap() {
+        // Committed so the reaper's connection can see them. Deliberately not backdated: an
+        // upload inside the retention window is invisible to `get_reapable`, so what this test
+        // leaves in the database cannot perturb the unfiltered `reap()` calls above.
+        insert_data!(:tx, user: user, :org, course: course, instance: _instance, :course_module, :chapter, :page, :exercise, slide: slide, task: task);
+        let file_id = models::file_uploads::insert(
+            tx.as_mut(),
+            "raced.tar.zst",
+            "exercise-services-client/raced",
+            "application/octet-stream",
+            Some(user),
+        )
+        .await
+        .expect("file upload");
+        models::exercise_service_client_uploads::insert_many(
+            tx.as_mut(),
+            exercise,
+            user,
+            &[file_id],
+        )
+        .await
+        .expect("binding");
+        let binding_id = binding_id_of(tx.as_mut(), file_id).await;
+        tx.commit().await;
+
+        // The submit side: validate under the row lock, inside the transaction that will record
+        // the association.
+        let mut submit_conn = Conn::init().await;
+        let mut submit_tx = submit_conn.begin().await;
+        let locked = models::exercise_service_client_uploads::lock_for_exercise_and_user(
+            submit_tx.as_mut(),
+            exercise,
+            user,
+            &[file_id],
+        )
+        .await
+        .expect("locked lookup");
+        assert_eq!(locked.len(), 1);
+        assert!(!locked[0].deleted);
+
+        // The reaper, on its own connection, tries to retire the very row the submit holds.
+        let mut reaper_conn = Conn::init().await;
+        let mut reaper_tx = reaper_conn.begin().await;
+        // Scoped so the pinned future releases its borrow of `reaper_tx` before the rollback.
+        let reaped = {
+            let mut reap = std::pin::pin!(models::exercise_service_client_uploads::mark_reaped(
+                reaper_tx.as_mut(),
+                binding_id
+            ));
+            assert!(
+                tokio::time::timeout(std::time::Duration::from_millis(500), &mut reap)
+                    .await
+                    .is_err(),
+                "the reaper must block on the row lock the submit holds, not decide without it"
+            );
+
+            let slide_submission = models::exercise_slide_submissions::insert_exercise_slide_submission(
+            submit_tx.as_mut(),
+            models::exercise_slide_submissions::NewExerciseSlideSubmission {
+                exercise_slide_id: slide,
+                course_id: Some(course),
+                exam_id: None,
+                user_id: user,
+                exercise_id: exercise,
+                user_points_update_strategy:
+                    models::exercise_task_gradings::UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+            },
+        )
+        .await
+        .expect("slide submission");
+            let task_submission = models::exercise_task_submissions::insert(
+                submit_tx.as_mut(),
+                models::PKeyPolicy::Generate,
+                slide_submission.id,
+                slide,
+                task,
+                &serde_json::json!({ "opaque": "plugin owned" }),
+            )
+            .await
+            .expect("task submission");
+            models::exercise_task_submission_files::insert_many(
+                submit_tx.as_mut(),
+                task_submission,
+                &[file_id],
+            )
+            .await
+            .expect("submission files");
+            submit_tx.commit().await;
+
+            tokio::time::timeout(std::time::Duration::from_secs(10), &mut reap)
+                .await
+                .expect("the reaper must unblock once the submit commits")
+                .expect("mark_reaped")
+        };
+        assert!(
+            !reaped,
+            "the reaper must decline an upload the submit referenced while it waited"
+        );
+        reaper_tx.rollback().await;
+
+        let mut check_conn = Conn::init().await;
+        let mut check_tx = check_conn.begin().await;
+        let recorded = models::exercise_service_client_uploads::get_for_exercise_and_user(
+            check_tx.as_mut(),
+            exercise,
+            user,
+            &[file_id],
+        )
+        .await
+        .expect("binding lookup");
+        assert_eq!(
+            recorded,
+            vec![models::exercise_service_client_uploads::ClientUpload {
+                file_upload_id: file_id,
+                deleted: false
+            }],
+            "the upload must stay usable, so download_submission can still serve it"
+        );
+        check_tx.rollback().await;
+    }
+
+    /// Not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
+    async fn binding_id_of(conn: &mut PgConnection, file_upload_id: uuid::Uuid) -> uuid::Uuid {
+        sqlx::query_scalar(
+            "SELECT id FROM exercise_service_client_uploads WHERE file_upload_id = $1",
+        )
+        .bind(file_upload_id)
+        .fetch_one(conn)
+        .await
+        .expect("binding id")
+    }
+
     /// Not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
     async fn backdate(conn: &mut PgConnection, file_upload_id: uuid::Uuid, age: Duration) {
         sqlx::query(

@@ -912,7 +912,7 @@ mod tests {
                 let s3_id = Uuid::parse_str("462a6493-a506-42e6-869d-10220b2885b8").unwrap();
 
                 let res = calculate_peer_review_weighted_points(
-                    &vec![
+                    &[
                         create_peer_review_question_scale(q1_id, 0.25),
                         create_peer_review_question_scale(q2_id, 0.25),
                         create_peer_review_question_scale(q3_id, 0.25),
@@ -920,7 +920,7 @@ mod tests {
                         // Extra one to check that ignoring questions works
                         create_peer_review_question_essay(e1_id, 0.25),
                     ],
-                    &vec![
+                    &[
                         // First student
                         create_peer_review_question_submission_with_ids(5.0, q1_id, s1_id),
                         create_peer_review_question_submission_with_ids(4.0, q2_id, s1_id),

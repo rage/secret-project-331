@@ -54,6 +54,16 @@
               }
             }
           },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "426": {
             "description": "The client is obsolete and must be upgraded",
             "content": {
@@ -111,6 +121,16 @@
           },
           "401": {
             "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope, or the user may not view this course",
             "content": {
               "application/json": {
                 "schema": {
@@ -197,6 +217,16 @@
               }
             }
           },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope, or the user may not view this course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "No course with the given id exists",
             "content": {
@@ -272,6 +302,16 @@
               }
             }
           },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope, or the user may not view this course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "No course with the given id exists",
             "content": {
@@ -339,6 +379,16 @@
           },
           "401": {
             "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope, or the user may not view this exercise",
             "content": {
               "application/json": {
                 "schema": {
@@ -443,6 +493,16 @@
               }
             }
           },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope, or the user may not view this exercise",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "No exercise with the given id exists",
             "content": {
@@ -531,6 +591,16 @@
               }
             }
           },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "426": {
             "description": "The client is obsolete and must be upgraded",
             "content": {
@@ -599,6 +669,16 @@
           },
           "401": {
             "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope, or the user may not view this exercise",
             "content": {
               "application/json": {
                 "schema": {

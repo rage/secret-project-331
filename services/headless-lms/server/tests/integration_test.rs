@@ -1,3 +1,7 @@
+// clippy's `allow-unwrap-in-tests` only recognises `#[cfg(test)]` modules, not `tests/`
+// integration crates, so the crate-level deny has to be waived here by hand.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::{env, sync::Arc};
 
 use actix_http::{Request, body::BoxBody};

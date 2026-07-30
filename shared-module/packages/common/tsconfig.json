@@ -2,6 +2,9 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
+    "paths": {
+      "@/shared-module/exercise-protocol/*": ["../exercise-protocol/src/*"]
+    },
     "typeRoots": ["./src/types", "types", "../node_modules/@types", "node_modules/@types"],
     "jsx": "preserve",
     "lib": ["dom", "dom.iterable", "esnext"],

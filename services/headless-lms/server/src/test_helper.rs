@@ -83,6 +83,14 @@ pub fn test_redis_url() -> Option<String> {
     env::var("REDIS_URL").ok()
 }
 
+/// Database URL for tests that need a pool of their own rather than a single connection, resolved
+/// the same way `Conn::init` resolves it so both see the same fixtures.
+pub fn test_database_url() -> String {
+    dotenvy::dotenv().ok();
+    env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://headless-lms@localhost:54328/headless_lms_dev".to_string())
+}
+
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
 
@@ -133,6 +141,18 @@ impl Tx<'_> {
 
     pub async fn rollback(self) {
         self.0.rollback().await.unwrap()
+    }
+
+    /// Commits, which this wrapper otherwise deliberately prevents.
+    ///
+    /// Only for tests whose subject *is* cross-connection behaviour — row locks and blocking — since
+    /// a second connection cannot see uncommitted fixtures. Such a test owns whatever it leaves
+    /// behind. `DATABASE_URL` is recreated from scratch per CI run, and fixtures use random
+    /// identifiers so repeats do not collide — but committed rows are visible to every other test
+    /// in the run, so a committing test must not leave behind anything an unfiltered query could
+    /// pick up (a reapable client upload, for one).
+    pub async fn commit(self) {
+        self.0.commit().await.unwrap()
     }
 }
 

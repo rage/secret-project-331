@@ -133,7 +133,7 @@ mod test {
 
     #[tokio::test]
     async fn round_trips_files_in_the_order_the_client_sent_them() {
-        insert_data!(:tx, user:user_id, :org, course:course_id, :instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
         let submission_id = insert_task_submission(
             tx.as_mut(),
             course_id,
@@ -168,7 +168,7 @@ mod test {
     /// some other submission must never appear in this submission's list.
     #[tokio::test]
     async fn never_returns_another_submissions_files() {
-        insert_data!(:tx, user:user_id, :org, course:course_id, :instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
         let mine = insert_task_submission(
             tx.as_mut(),
             course_id,
@@ -211,7 +211,7 @@ mod test {
 
     #[tokio::test]
     async fn omits_a_deleted_file_upload() {
-        insert_data!(:tx, user:user_id, :org, course:course_id, :instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
         let submission_id = insert_task_submission(
             tx.as_mut(),
             course_id,
@@ -242,7 +242,7 @@ mod test {
     /// rather than an error.
     #[tokio::test]
     async fn an_empty_file_list_records_nothing() {
-        insert_data!(:tx, user:user_id, :org, course:course_id, :instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
         let submission_id = insert_task_submission(
             tx.as_mut(),
             course_id,

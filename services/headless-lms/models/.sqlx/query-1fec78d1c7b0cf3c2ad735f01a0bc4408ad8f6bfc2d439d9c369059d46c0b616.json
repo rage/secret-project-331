@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT u.id,\n  u.file_upload_id,\n  f.path\nFROM exercise_service_client_uploads AS u\n  JOIN file_uploads AS f ON f.id = u.file_upload_id\nWHERE u.deleted_at IS NULL\n  AND u.created_at < $1\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_task_submission_files AS s\n    WHERE s.file_upload_id = u.file_upload_id\n      AND s.deleted_at IS NULL\n  )\nORDER BY u.created_at\n",
+  "query": "\nSELECT u.id,\n  u.file_upload_id,\n  f.path\nFROM exercise_service_client_uploads AS u\n  JOIN file_uploads AS f ON f.id = u.file_upload_id\nWHERE f.deleted_at IS NULL\n  AND u.created_at < $1\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_task_submission_files AS s\n    WHERE s.file_upload_id = u.file_upload_id\n      AND s.deleted_at IS NULL\n  )\nORDER BY u.created_at\n",
   "describe": {
     "columns": [
       {
@@ -48,5 +48,5 @@
       false
     ]
   },
-  "hash": "597ec63d5f78a7f0bff4c7c04a859039b0454e11b349ee26d2eb056d69637113"
+  "hash": "1fec78d1c7b0cf3c2ad735f01a0bc4408ad8f6bfc2d439d9c369059d46c0b616"
 }

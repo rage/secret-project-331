@@ -90,7 +90,7 @@ test("Email ownership verification: the mailed link proves the address and an em
     )
   })
 
-  await test.step("Changing the email address clears the proof and mails a link to the new address", async () => {
+  await test.step("Changing the email address clears the proof and mails a link to the new address, without a reload", async () => {
     await page.goto(ACCOUNT_URL)
     await accountTab.waitForTab()
     await accountTab.updatePersonalInformation(
@@ -98,10 +98,10 @@ test("Email ownership verification: the mailed link proves the address and an em
       { field: "email", expectedValue: SECOND_EMAIL },
     )
 
-    await page.reload()
     const section = page.getByTestId("email-verification-section")
     await expect(section.getByText("Email not verified")).toBeVisible()
     await expect(section.getByText(SECOND_EMAIL, { exact: true }).first()).toBeVisible()
+    await expect(page.getByRole("button", { name: "Send a new verification link" })).toBeVisible()
   })
 
   await test.step("The link for the new address verifies it again", async () => {

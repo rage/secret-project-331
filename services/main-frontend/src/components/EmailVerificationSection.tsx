@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import type { QueryClient } from "@tanstack/react-query"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
 import React from "react"
@@ -86,6 +87,13 @@ const outcomeCss = css`
   color: var(--color-gray-600);
   font-size: var(--font-size-1);
 `
+
+/** Changing the account email invalidates verification server-side; callers must refetch this after such edits. */
+export const refetchEmailVerificationStatusForUser = async (queryClient: QueryClient) => {
+  await queryClient.refetchQueries({
+    queryKey: getMyEmailVerificationStatusOptions().queryKey,
+  })
+}
 
 /** Whether the account's address is proven, and a way to get a fresh verification link mailed. */
 const EmailVerificationSection: React.FC = () => {

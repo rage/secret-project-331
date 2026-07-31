@@ -186,3 +186,47 @@ AND deleted_at IS NULL
 
     Ok(())
 }
+
+pub struct HelperStruct {
+    pub page_id: Uuid,
+    pub page_revision_id: Uuid,
+    //pub converted_markdown_content_id: Option<Uuid>,
+    pub markdown: Option<String>,
+    pub chapter_name: Option<String>,
+    pub chapter_number: Option<i32>,
+}
+
+pub async fn helper(
+    conn: &mut PgConnection,
+    page_id_to_history_id_md_id: HashMap<Uuid, (Uuid, Uuid)>,
+) -> ModelResult<Vec<HelperStruct>> {
+    let (page_ids, (ph_ids, md_ids)): (Vec<Uuid>, (Vec<Uuid>, Vec<Uuid>)) =
+        page_id_to_history_id_md_id.into_iter().unzip();
+
+    let md = course_page_markdown_content::get_many(conn, &md_ids).await?;
+
+    let rows = sqlx::query!(
+        r#"
+SELECT input.page_id,
+  input.page_revision_id,
+  c.name AS chapter_name,
+  c.chapter_number
+FROM (
+    SELECT unnest($1::uuid []) AS page_id,
+      unnest($2::uuid []) AS page_revision_id
+  ) AS input
+  JOIN pages ON pages.id = input.page_id
+  JOIN chapters AS c ON pages.chapter_id = c.id
+WHERE pages.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+        "#,
+        &page_ids,
+        &ph_ids,
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    todo!()
+
+    //    Ok(res)
+}

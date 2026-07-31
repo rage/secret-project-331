@@ -369,6 +369,7 @@ async fn sync_pages_batch(
 
     let mut allowed_file_paths = Vec::new();
     let mut page_revision_map = HashMap::new();
+    // newly created md. map page_id to page_history_id and md content
     let mut new_markdown_contents_map = HashMap::new();
 
     for page in pages {
@@ -384,6 +385,7 @@ async fn sync_pages_batch(
         let latest_page_history_id: Option<&Uuid> = latest_history_ids.get(&page.id);
 
         let up_to_date_md_content = if let Some(id) = page_md_content_id {
+            //
             let md_content_option =
                 headless_lms_models::course_page_markdown_content::get(conn, id)
                     .await
@@ -463,6 +465,7 @@ async fn sync_pages_batch(
 
         let blob_path = generate_blob_path(page)?;
         let chapter: Option<DatabaseChapter> = if page.chapter_id.is_some() {
+            //
             match headless_lms_models::chapters::get_chapter_by_page_id(conn, page.id).await {
                 Ok(c) => Some(c),
                 Err(e) => {

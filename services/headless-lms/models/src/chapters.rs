@@ -619,6 +619,29 @@ WHERE c.id = p.chapter_id
     Ok(chapter)
 }
 
+/* pub async fn get_chapter_by_page_id_batch(
+    conn: &mut PgConnection,
+    page_ids: &[Uuid],
+) -> ModelResult<Vec<DatabaseChapter>> {
+    let chapter = sqlx::query_as!(
+        DatabaseChapter,
+        "
+SELECT c.*
+FROM chapters c,
+  pages p,
+  input (SELECT unnest($1::uuid []) AS page_id)
+WHERE c.id = p.chapter_id
+  AND p.id = input.page_id
+  AND c.deleted_at IS NULL
+    ",
+        page_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(chapter)
+} */
+
 pub async fn get_chapter_info_by_page_metadata(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,

@@ -86,6 +86,25 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
+pub async fn get_many(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<CoursePageMarkdownContent>> {
+    let res = sqlx::query_as!(
+        CoursePageMarkdownContent,
+        r#"
+SELECT * FROM course_page_markdown_content
+WHERE id = ANY($1)
+AND deleted_at IS NULL
+    "#,
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
 /// Get latest page content, either latest Markdown that has been synced or json format.
 pub async fn get_course_page_content_by_page_id(
     conn: &mut PgConnection,
@@ -148,3 +167,39 @@ FROM pages
         Ok(fallback_content)
     }
 }
+
+/* pub async fn get_course_page_contents_by_page_id_page_history_id(
+    conn: &mut PgConnection,
+    page_ids: &[Uuid],
+    ph_ids: &[Uuid],
+) -> ModelResult<Vec<CoursePageContent>> {
+    let content = sqlx::query_as!(
+        CoursePageContent,
+        r#"
+SELECT pages.content AS json_content,
+  pages.title,
+  pages.id AS page_id,
+  cpmc.markdown_content
+FROM (
+    SELECT unnest($1::uuid []) AS page_id,
+      unnest($2::uuid []) AS page_history_id
+  ) AS input
+JOIN pages ON pages.id = input.page_id
+  JOIN page_history AS ph ON pages.id = ph.page_id
+  JOIN chatbot_page_sync_statuses AS cps ON pages.id = cps.page_id
+  JOIN course_page_markdown_content AS cpmc ON cps.converted_markdown_content_id = cpmc.id
+WHERE ph.id = input.page_history_id
+  AND pages.deleted_at IS NULL
+  AND ph.deleted_at IS NULL
+  AND cps.deleted_at IS NULL
+  AND cpmc.deleted_at IS NULL
+    "#,
+        page_ids,
+        ph_ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    Ok(content)
+}
+ */

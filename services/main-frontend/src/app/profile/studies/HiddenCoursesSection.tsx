@@ -38,12 +38,15 @@ const courseNameCss = css`
   color: ${baseTheme.colors.gray[700]};
 `
 
+const noteCss = css`
+  color: ${baseTheme.colors.gray[600]};
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem;
+`
+
 const POST = "POST"
 
-/**
- * The only place a course hidden from "My courses" can be brought back deliberately: everywhere else
- * `hidden` is cleared as a side effect of opening the course material.
- */
+/** The only deliberate unhide: elsewhere `hidden` clears when the student opens the material. */
 const HiddenCoursesSection: React.FC<HiddenCoursesSectionProps> = ({ courses }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -61,6 +64,7 @@ const HiddenCoursesSection: React.FC<HiddenCoursesSectionProps> = ({ courses }) 
 
   return (
     <Disclosure title={t("hidden-courses-n", { n: courses.length })}>
+      <p className={noteCss}>{t("hidden-courses-are-not-included-in-the-summary")}</p>
       {courses.map((course) => (
         <div className={rowCss} key={course.course_id}>
           <span className={courseNameCss}>{course.course_name}</span>

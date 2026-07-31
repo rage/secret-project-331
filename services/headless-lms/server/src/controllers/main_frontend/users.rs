@@ -334,8 +334,7 @@ async fn unhide_course_from_my_courses(
     token.authorized_ok(web::Json(()))
 }
 
-/// A course module as the student's own profile shows it: the module's identity, what it is worth,
-/// and the student's best visible completion of it.
+/// A course module as the student's own profile shows it, with their best visible completion.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyStudiesCourseModule {
     pub course_module_id: Uuid,
@@ -345,12 +344,12 @@ pub struct MyStudiesCourseModule {
     pub ects_credits: Option<f32>,
     pub uh_course_code: Option<String>,
     pub supports_credit_registration: bool,
-    /// `None` when the student has no completion that may be shown to them.
+    /// `None` when no completion may be shown to the student. May be a failed one, so check `passed`.
     pub completion: Option<MyStudiesCompletion>,
 }
 
-/// A completion as the student may see it. Completions flagged `needs_to_be_reviewed` never reach
-/// this struct: the student must not be able to infer that they are under suspicion.
+/// A completion as the student may see it. `needs_to_be_reviewed` ones are excluded so a student
+/// cannot infer that they are under suspicion.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyStudiesCompletion {
     pub course_module_completion_id: Uuid,
@@ -380,17 +379,20 @@ pub struct MyStudiesCourse {
     pub modules: Vec<MyStudiesCourseModule>,
 }
 
+/// Summarises the courses the profile lists, i.e. the non-hidden ones.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyStudiesTotals {
     pub courses: i32,
+    /// Counts passed completions only.
     pub completions: i32,
-    /// Summed over passed completions only, so the tile cannot overstate what the student earned.
+    /// Summed over passed completions only.
     pub ects: f32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyStudies {
-    /// Drives whether the profile's credit-registration tab renders at all.
+    /// Drives whether the profile's credit-registration tab renders. Covers hidden courses too:
+    /// hiding a course must not take away access to registering its credits.
     pub any_module_supports_credit_registration: bool,
     pub courses: Vec<MyStudiesCourse>,
     pub totals: MyStudiesTotals,
@@ -400,8 +402,8 @@ pub struct MyStudies {
 GET `/api/v0/main-frontend/users/my-studies` - The authenticated user's own study record: every
 course they are enrolled in, its modules, and their completions.
 
-Self-scoped by construction: there is no user id parameter, so this endpoint cannot be pointed at
-another account. The teacher/admin equivalent is `getUserCourseEnrollments`.
+No user id parameter, so it cannot be pointed at another account. The teacher/admin equivalent is
+`getUserCourseEnrollments`.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -430,12 +432,10 @@ async fn get_my_studies(
         organizations.into_iter().map(|o| (o.id, o.slug)).collect();
 
     let mut courses = Vec::with_capacity(enrollments_info.course_enrollments.len());
-    let mut total_completions = 0;
-    let mut total_ects = 0.0;
 
     for enrollment in enrollments_info.course_enrollments {
-        // One completion per module: the best of the student's visible ones, matching what the
-        // course material shows (`get_user_module_completion_statuses_for_course`).
+        // Best visible completion per module, matching the course material's
+        // `get_user_module_completion_statuses_for_course`.
         let mut best_completion_by_module: HashMap<Uuid, MyStudiesCompletion> = HashMap::new();
         for course_module in &enrollment.course_modules {
             let visible_completions: Vec<_> = enrollment
@@ -447,10 +447,7 @@ async fn get_my_studies(
             if let Some(best) =
                 models::course_module_completions::select_best_completion(visible_completions)
             {
-                total_completions += 1;
-                if best.passed {
-                    total_ects += course_module.ects_credits.unwrap_or(0.0);
-                }
+                // Failed completions are kept for the course's own table; only the totals omit them.
                 best_completion_by_module.insert(
                     course_module.id,
                     MyStudiesCompletion {
@@ -479,8 +476,7 @@ async fn get_my_studies(
             .collect();
         modules.sort_by_key(|m| m.order_number);
 
-        // Prefer the instance the student's settings point at; it is the one the course material
-        // shows progress for. Any other enrolled instance of this course is an acceptable fallback.
+        // Prefer the settings' instance: it is the one the course material shows progress for.
         let settings_instance_id = enrollment
             .user_course_settings
             .as_ref()
@@ -491,16 +487,20 @@ async fn get_my_studies(
             .find(|ci| Some(ci.id) == settings_instance_id)
             .or_else(|| enrollment.course_instances.first());
 
-        let organization_slug = organization_slugs
+        // Without an organization slug there is no url to the course, so skip it rather than fail the
+        // whole study record.
+        let Some(organization_slug) = organization_slugs
             .get(&enrollment.course.organization_id)
             .cloned()
-            .ok_or_else(|| {
-                anyhow!(
-                    "Organization {} of course {} not found",
-                    enrollment.course.organization_id,
-                    enrollment.course_id
-                )
-            })?;
+        else {
+            warn!(
+                user_id = %user.id,
+                course_id = %enrollment.course_id,
+                organization_id = %enrollment.course.organization_id,
+                "Skipping course from the user's studies because its organization is deleted"
+            );
+            continue;
+        };
 
         courses.push(MyStudiesCourse {
             course_id: enrollment.course_id,
@@ -521,20 +521,32 @@ async fn get_my_studies(
         });
     }
 
-    // The student's active courses first, then most recently started, so the top of the page is the
-    // part they are working on.
+    // So the top of the page is what the student is working on now.
     courses.sort_by(|a, b| {
         b.is_current
             .cmp(&a.is_current)
             .then(b.first_enrolled_at.cmp(&a.first_enrolled_at))
     });
 
+    let mut total_courses = 0;
+    let mut total_completions = 0;
+    let mut total_ects = 0.0;
+    for course in courses.iter().filter(|c| !c.hidden) {
+        total_courses += 1;
+        for module in &course.modules {
+            if module.completion.as_ref().is_some_and(|c| c.passed) {
+                total_completions += 1;
+                total_ects += module.ects_credits.unwrap_or(0.0);
+            }
+        }
+    }
+
     let res = MyStudies {
         any_module_supports_credit_registration: courses
             .iter()
             .any(|c| c.supports_credit_registration),
         totals: MyStudiesTotals {
-            courses: courses.len() as i32,
+            courses: total_courses,
             completions: total_completions,
             ects: total_ects,
         },

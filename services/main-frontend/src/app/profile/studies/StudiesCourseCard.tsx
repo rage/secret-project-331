@@ -52,12 +52,11 @@ const linkRowCss = css`
   margin: 1rem 0 0.25rem;
 `
 
-/** One enrolled course: a scannable header row that expands to this student's progress and
- * completion record for it. Progress is fetched only once expanded. */
 const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({ course }) => {
   const { t, i18n } = useTranslation()
 
-  const completedModules = course.modules.filter((m) => m.completion).length
+  // A failed module still has a completion, so filter on `passed` or the badge claims a pass.
+  const completedModules = course.modules.filter((m) => m.completion?.passed).length
   const title = (
     <span className={summaryCss}>
       <span className={courseNameCss}>{course.course_name}</span>

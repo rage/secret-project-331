@@ -34,7 +34,7 @@ const hiddenSectionCss = css`
 
 const StudiesPage: React.FC = () => {
   const { t } = useTranslation()
-  // Higher order than the profile layout so this page's title wins deterministically.
+  // Higher order than the profile layout so this page's title wins.
   usePageTitle(t("heading-your-studies"), { order: 10 })
 
   const myStudiesQuery = useQuery({ ...getMyStudiesOptions() })
@@ -59,7 +59,8 @@ const StudiesPage: React.FC = () => {
             <h2 className={headingCss}>{t("heading-summary")}</h2>
             <StudiesSummary totals={myStudies.totals} />
 
-            {myStudies.totals.completions === 0 ? (
+            {/* Only worth saying when there are courses listed for the totals to cover. */}
+            {visibleCourses.length > 0 && myStudies.totals.completions === 0 ? (
               <Infobox>{t("no-completions-yet-keep-going")}</Infobox>
             ) : null}
 

@@ -54,7 +54,6 @@ pub struct CourseModuleInfo {
     pub ects_credits: Option<f32>,
     /// The module's course code in the university's registry, e.g. `BSCS1001`.
     pub uh_course_code: Option<String>,
-    /// Read straight from `course_modules`; the column is deliberately off the `CourseModule` DTO.
     pub enable_credit_registration_via_suotar: bool,
 }
 
@@ -254,6 +253,8 @@ struct CourseEnrollmentRow {
 }
 
 /// Returns one entry per course the user is enrolled in, with aggregated data.
+///
+/// Enrollments whose course has been soft-deleted are left out.
 pub async fn get_course_enrollments_info_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -351,8 +352,7 @@ ORDER BY c.course_module_id, "day!"
             });
     }
 
-    // The credit-registration flag is deliberately kept off the `CourseModule` DTO, so it is read
-    // here instead of coming along with `get_by_course_ids` below.
+    // The flag is not on the `CourseModule` DTO, so `get_by_course_ids` below cannot supply it.
     let credit_registration_enabled_module_ids: HashSet<Uuid> = sqlx::query_scalar!(
         "
 SELECT id
@@ -384,17 +384,16 @@ WHERE course_id = ANY($1)
 
     let mut course_enrollments = Vec::with_capacity(rows.len());
     for row in rows {
-        let course = courses
-            .iter()
-            .find(|c| c.id == row.course_id)
-            .cloned()
-            .ok_or_else(|| {
-                crate::ModelError::new(
-                    crate::error::ModelErrorType::NotFound,
-                    "Course not found for enrollment".to_string(),
-                    None,
-                )
-            })?;
+        // A missing course row means the course was soft-deleted; erroring here would take the
+        // user's other courses down with it.
+        let Some(course) = courses.iter().find(|c| c.id == row.course_id).cloned() else {
+            warn!(
+                user_id = %user_id,
+                course_id = %row.course_id,
+                "Skipping enrollment because its course has been deleted"
+            );
+            continue;
+        };
         let course_instances: Vec<_> = all_course_instances
             .iter()
             .filter(|ci| ci.course_id == row.course_id)

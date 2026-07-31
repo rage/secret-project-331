@@ -461,8 +461,11 @@ CREATE TABLE suotar_api_calls (
   deleted_at TIMESTAMP WITH TIME ZONE
 );
 CREATE INDEX idx_suotar_api_calls_endpoint_started ON suotar_api_calls (endpoint, started_at DESC);
+CREATE INDEX idx_suotar_api_calls_started ON suotar_api_calls (started_at DESC);
 CREATE INDEX idx_suotar_api_calls_failures ON suotar_api_calls (started_at DESC)
 WHERE NOT succeeded;
+-- GIN cannot serve `= ANY`, so the drill-down predicate has to stay `credit_registration_ids @> ...`.
+CREATE INDEX idx_suotar_api_calls_registration_ids ON suotar_api_calls USING GIN (credit_registration_ids);
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON suotar_api_calls FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
@@ -509,6 +512,9 @@ CREATE INDEX idx_credit_registration_events_registration ON credit_registration_
 CREATE INDEX idx_credit_registration_events_kind_created ON credit_registration_events (kind, created_at DESC);
 CREATE INDEX idx_credit_registration_events_error_code ON credit_registration_events (error_code, created_at DESC)
 WHERE error_code IS NOT NULL;
+-- The SET NULL above scans this table once per swept call, and it is never pruned.
+CREATE INDEX idx_credit_registration_events_api_call ON credit_registration_events (suotar_api_call_id)
+WHERE suotar_api_call_id IS NOT NULL;
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON credit_registration_events FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 

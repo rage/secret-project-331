@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM suotar_api_calls\nWHERE $1 = ANY(credit_registration_ids)\n  AND deleted_at IS NULL\nORDER BY started_at DESC\nLIMIT $2\n        ",
+  "query": "\nSELECT *\nFROM suotar_api_calls\nWHERE credit_registration_ids @> ARRAY [$1::uuid]\n  AND deleted_at IS NULL\nORDER BY started_at DESC\nLIMIT $2\n        ",
   "describe": {
     "columns": [
       {
@@ -243,5 +243,5 @@
       true
     ]
   },
-  "hash": "32b4687dcef0cb7157f9d066d887f2de4278a5018c53281c0cddcb9798878dc3"
+  "hash": "e64ae9bc64128a9ed8d268fbe70a8ff36e018d9c52d2e2c853a91c0427d315a8"
 }

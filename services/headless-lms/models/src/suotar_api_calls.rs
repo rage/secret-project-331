@@ -208,6 +208,8 @@ LIMIT $1
 }
 
 /// Calls that mention a ledger row, for the per-item drill-down.
+///
+/// Containment, not `= ANY`: only `@>` can use the GIN index on `credit_registration_ids`.
 pub async fn get_by_credit_registration_id(
     conn: &mut PgConnection,
     credit_registration_id: Uuid,
@@ -218,7 +220,7 @@ pub async fn get_by_credit_registration_id(
         r#"
 SELECT *
 FROM suotar_api_calls
-WHERE $1 = ANY(credit_registration_ids)
+WHERE credit_registration_ids @> ARRAY [$1::uuid]
   AND deleted_at IS NULL
 ORDER BY started_at DESC
 LIMIT $2

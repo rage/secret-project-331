@@ -16416,7 +16416,7 @@
         "properties": {
           "any_module_supports_credit_registration": {
             "type": "boolean",
-            "description": "Drives whether the profile's credit-registration tab renders at all."
+            "description": "Drives whether the profile's credit-registration tab renders at all. Covers hidden courses\ntoo: hiding a course from a list must not take away access to registering its credits."
           },
           "courses": {
             "type": "array",
@@ -16534,7 +16534,7 @@
               },
               {
                 "$ref": "#/components/schemas/MyStudiesCompletion",
-                "description": "`None` when the student has no completion that may be shown to them."
+                "description": "`None` when the student has no completion that may be shown to them. May be a completion the\nstudent failed, so check `passed` before presenting it as an achievement."
               }
             ]
           },
@@ -16564,11 +16564,13 @@
       },
       "MyStudiesTotals": {
         "type": "object",
+        "description": "Summarises the courses the profile lists, i.e. the non-hidden ones. Hidden courses are counted in\nnone of these: they are shown only in the unhide section, so counting them would leave the tiles\ndisagreeing with the list under them.",
         "required": ["courses", "completions", "ects"],
         "properties": {
           "completions": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "Counts passed completions only, so it cannot overstate what the student achieved."
           },
           "courses": {
             "type": "integer",
@@ -18312,7 +18314,7 @@
       },
       "RequestEmailVerificationOutcome": {
         "type": "string",
-        "enum": ["queued", "already_verified", "recently_sent"]
+        "enum": ["queued", "already_verified", "recently_sent", "not_configured"]
       },
       "RequestEmailVerificationPayload": {
         "type": "object",

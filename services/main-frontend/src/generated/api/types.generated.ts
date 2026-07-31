@@ -1677,7 +1677,8 @@ export type MyCourse = Course & {
 
 export type MyStudies = {
   /**
-   * Drives whether the profile's credit-registration tab renders at all.
+   * Drives whether the profile's credit-registration tab renders at all. Covers hidden courses
+   * too: hiding a course from a list must not take away access to registering its credits.
    */
   any_module_supports_credit_registration: boolean
   courses: Array<MyStudiesCourse>
@@ -1740,7 +1741,15 @@ export type MyStudiesCourseModule = {
   uh_course_code?: string | null
 }
 
+/**
+ * Summarises the courses the profile lists, i.e. the non-hidden ones. Hidden courses are counted in
+ * none of these: they are shown only in the unhide section, so counting them would leave the tiles
+ * disagreeing with the list under them.
+ */
 export type MyStudiesTotals = {
+  /**
+   * Counts passed completions only, so it cannot overstate what the student achieved.
+   */
   completions: number
   courses: number
   /**
@@ -2283,7 +2292,11 @@ export type RegradingSubmissionInfo = {
 
 export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
 
-export type RequestEmailVerificationOutcome = "queued" | "already_verified" | "recently_sent"
+export type RequestEmailVerificationOutcome =
+  | "queued"
+  | "already_verified"
+  | "recently_sent"
+  | "not_configured"
 
 export type RequestEmailVerificationPayload = {
   /**

@@ -1715,6 +1715,11 @@ export const zMyStudiesCourse = z.object({
   supports_credit_registration: z.boolean(),
 })
 
+/**
+ * Summarises the courses the profile lists, i.e. the non-hidden ones. Hidden courses are counted in
+ * none of these: they are shown only in the unhide section, so counting them would leave the tiles
+ * disagreeing with the list under them.
+ */
 export const zMyStudiesTotals = z.object({
   completions: z
     .int()
@@ -2466,6 +2471,7 @@ export const zRequestEmailVerificationOutcome = z.enum([
   "queued",
   "already_verified",
   "recently_sent",
+  "not_configured",
 ])
 
 export const zRequestEmailVerificationPayload = z.object({

@@ -8,7 +8,7 @@
 -- (email_template_type, language, deleted_at) NULLS NOT DISTINCT.
 UPDATE email_templates t
 SET email_template_type = 'generic',
-  deleted_at = now() + (r.n * INTERVAL '1 microsecond')
+  deleted_at = now() - (r.n * INTERVAL '1 microsecond')
 FROM (
     SELECT id,
       row_number() OVER (
@@ -120,13 +120,6 @@ ALTER COLUMN user_id
 SET NOT NULL;
 
 COMMENT ON COLUMN email_deliveries.user_id IS 'The user to whom the email should be sent to. If the email template contains dynamic portions with user-specific information (like a grade from a course) this user_id will be used to derive the information.';
-
--- password_reset_backfill is written by the up migration's backfill and nothing else, so clearing by
--- method cannot discard a proof that came from somewhere stronger.
-UPDATE user_details
-SET email_verified_at = NULL,
-  email_verified_method = NULL
-WHERE email_verified_method = 'password_reset_backfill';
 
 DROP TRIGGER IF EXISTS clear_email_verification ON user_details;
 

@@ -1,5 +1,6 @@
--- Statement order minimises lock hold time: new types and tables first, the live tables the pods
--- read on every request (course_modules, email_deliveries, user_details) last.
+-- One transaction, so locks hold to commit: the foreign keys take SHARE ROW EXCLUSIVE on users,
+-- email_deliveries, courses, course_modules, course_module_completions and course_instances, which
+-- blocks writes (not reads) to all six for the whole migration. Reordering cannot help.
 
 CREATE TYPE student_number_verification_method AS ENUM (
   'emailed_link',
@@ -914,7 +915,7 @@ ADD CONSTRAINT user_details_email_verification_consistent CHECK (
   ) NOT VALID;
 
 COMMENT ON COLUMN user_details.email_verified_at IS 'When the user last proved control of the address currently in email. NULL means unproven. Automatically reset to NULL by the clear_email_verification trigger whenever email changes, so a non-NULL value always refers to the current address. Never set this without a proof of mailbox control.';
-COMMENT ON COLUMN user_details.email_verified_method IS 'How email_verified_at was obtained. The credit-registration email-match fast track accepts emailed_code and tmc_confirmed only.';
+COMMENT ON COLUMN user_details.email_verified_method IS 'How email_verified_at was obtained. The credit-registration email-match fast track accepts emailed_code, password_reset_backfill and tmc_confirmed; admin_asserted rests on no mailbox proof and is refused.';
 
 -- Structural, not remembered per writer: there are already three writers of user_details.email and
 -- the fourth will be added by someone who has not read the fast-track design. Retiring the pending

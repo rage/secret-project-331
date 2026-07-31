@@ -1,4 +1,4 @@
-use crate::domain::exercise_services::token::invalidate_cached_user;
+use crate::domain::exercise_services::token::{invalidate_cached_user, invalidate_cached_users};
 use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::domain::oauth::revoke_query::RevokeQuery;
 use crate::prelude::*;
@@ -225,9 +225,7 @@ async fn revoke_refresh_grant_of_client(
                 let revoked_access_digests =
                     OAuthRefreshTokens::revoke_grant(conn, refresh_token.user_id, client.id)
                         .await?;
-                for digest in &revoked_access_digests {
-                    invalidate_cached_user(cache, digest, token_hmac_key).await;
-                }
+                invalidate_cached_users(cache, &revoked_access_digests, token_hmac_key).await;
             }
             Ok(true)
         }

@@ -2,7 +2,7 @@
 Handlers for HTTP requests to `/api/v0/auth`.
 */
 
-use crate::domain::exercise_services::token::invalidate_cached_user;
+use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_tokens;
 use crate::{
     OAuthClient,
     domain::{
@@ -909,18 +909,16 @@ pub async fn delete_user_account(
         }
 
         // Delete user locally and mark email code as used
-        let revoked_access_digests = users::delete_user(&mut tx, auth_user.id).await?;
+        delete_user_and_invalidate_cached_tokens(
+            &mut tx,
+            &cache,
+            &app_conf.oauth_server_configuration.oauth_token_hmac_key,
+            auth_user.id,
+        )
+        .await?;
         user_email_codes::mark_user_email_code_used(&mut tx, auth_user.id, &payload.code).await?;
 
         tx.commit().await?;
-
-        // Without this the deleted account keeps authenticating the exercise-services client API
-        // from a cache hit until the entry ages out.
-        let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
-        for digest in &revoked_access_digests {
-            invalidate_cached_user(&cache, digest, token_hmac_key).await;
-        }
-
         authorization::forget(&session);
         token.authorized_ok(web::Json(true))
     } else {

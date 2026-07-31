@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO exercise_service_info (\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view,\n    build_user_answer_endpoint_path\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING *\n",
+  "query": "\nINSERT INTO exercise_service_info (\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view,\n    build_user_answer_endpoint_path,\n    answer_files_endpoint_path\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING *\n",
   "describe": {
     "columns": [
       {
@@ -123,6 +123,17 @@
             "name": "build_user_answer_endpoint_path"
           }
         }
+      },
+      {
+        "ordinal": 11,
+        "name": "answer_files_endpoint_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "answer_files_endpoint_path"
+          }
+        }
       }
     ],
     "parameters": {
@@ -133,6 +144,7 @@
         "Varchar",
         "Varchar",
         "Bool",
+        "Text",
         "Text"
       ]
     },
@@ -147,8 +159,9 @@
       false,
       true,
       true,
+      true,
       true
     ]
   },
-  "hash": "ec7165ac158dc1ca9be185340681b8d4eceab2d2a12c0a74fa73769403612a31"
+  "hash": "11a24ecee73ee73666ba7f61cc2c455945561074b2f2592229f3a3d9710587cb"
 }

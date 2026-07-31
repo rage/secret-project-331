@@ -1233,7 +1233,7 @@ async fn get_exercise_submissions(
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The files the submission was made from, in the order the client uploaded them; empty when it was made from none", body = api::SubmissionFiles),
+        (status = 200, description = "The files the submission was made from, in the order they were recorded; the same shape whether the submission came from a native client or the service's IFrame", body = api::SubmissionFiles),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot download another user's submission", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No submission with the given id exists", body = crate::domain::error::ApiErrorResponse),
@@ -1265,9 +1265,10 @@ async fn download_submission(
         *submission_id,
     )
     .await?;
-    // Resolved from the host's own upload records, never from the exercise service's answer:
-    // the answer is an opaque plugin-owned blob and reading it would tie this endpoint to one
-    // plugin's shape.
+    // Resolved from the host's own file records, never from the exercise service's answer: the
+    // answer is an opaque plugin-owned blob and reading it would tie this endpoint to one plugin's
+    // shape. An IFrame-made submission is recorded at submit time by asking its service to
+    // enumerate the answer's files, so both origins are served by this one read.
     let task_submission_ids: Vec<Uuid> = task_submissions.iter().map(|ts| ts.id).collect();
     let files = models::exercise_task_submission_files::get_by_task_submission_ids(
         &mut conn,
@@ -1282,8 +1283,8 @@ async fn download_submission(
     )))
 }
 
-/// Turns the host's own upload records into the download response. Every tracked file is
-/// reachable, not just the first, so a multi-file submission is fully restorable.
+/// Turns the host's own file records into the download response. Every tracked file is reachable,
+/// not just the first, so a multi-file submission is fully restorable.
 fn submission_files_response(
     files: Vec<models::exercise_task_submission_files::SubmissionFile>,
     file_store: &dyn FileStore,
@@ -1972,7 +1973,7 @@ mod upload_tests {
         }
     }
 
-    fn file_store() -> TempFileStore {
+    pub(super) fn file_store() -> TempFileStore {
         TempFileStore(tempfile::tempdir().expect("temp dir"))
     }
 
@@ -2362,6 +2363,7 @@ mod route_tests {
     use crate::test_helper::*;
     use actix_web::http::StatusCode;
     use actix_web::{App, test};
+    use base64::Engine;
     use chrono::Duration as ChronoDuration;
     use chrono::Utc;
     use headless_lms_models::library::oauth::pkce::PkceMethod;
@@ -2475,6 +2477,7 @@ mod route_tests {
                 model_solution_spec_endpoint_path: "/model-solution".to_string(),
                 has_custom_view: false,
                 build_user_answer_endpoint_path: Some("/build-user-answer".to_string()),
+                answer_files_endpoint_path: Some("/answer-files".to_string()),
             },
         )
         .await
@@ -3016,6 +3019,7 @@ mod route_tests {
 
     struct StubState {
         build_requests: Mutex<Vec<serde_json::Value>>,
+        answer_files_requests: Mutex<Vec<serde_json::Value>>,
         grade_requests: Mutex<Vec<serde_json::Value>>,
         /// Paths a submit asked the stub for that it is not supposed to need. Asserted empty, so a
         /// hop added to the submit path cannot pass unnoticed — notably a live service-info fetch,
@@ -3032,6 +3036,7 @@ mod route_tests {
         fn new(grading: StubGrading) -> Self {
             Self {
                 build_requests: Mutex::new(Vec::new()),
+                answer_files_requests: Mutex::new(Vec::new()),
                 grade_requests: Mutex::new(Vec::new()),
                 unexpected: Mutex::new(Vec::new()),
                 reap_during_build: Mutex::new(Vec::new()),
@@ -3086,6 +3091,34 @@ mod route_tests {
         actix_web::HttpResponse::Ok().json(serde_json::json!({ "answer": stub_answer() }))
     }
 
+    /// Enumerates the files of an answer the way a real exercise service does: it reads its own
+    /// answer shape, which for the stub is `{"files": [{"name", "contents"}]}`.
+    async fn stub_answer_files(
+        state: web::Data<StubState>,
+        body: web::Json<serde_json::Value>,
+    ) -> actix_web::HttpResponse {
+        let answer = body["answer"].clone();
+        state
+            .answer_files_requests
+            .lock()
+            .expect("stub lock")
+            .push(body.into_inner());
+        let files: Vec<serde_json::Value> = answer["files"]
+            .as_array()
+            .cloned()
+            .unwrap_or_default()
+            .iter()
+            .map(|file| {
+                let contents = file["contents"].as_str().unwrap_or_default();
+                serde_json::json!({
+                    "name": file["name"].as_str().unwrap_or_default(),
+                    "data": base64::engine::general_purpose::STANDARD.encode(contents),
+                })
+            })
+            .collect();
+        actix_web::HttpResponse::Ok().json(serde_json::json!({ "files": files }))
+    }
+
     async fn stub_grade(
         state: web::Data<StubState>,
         body: web::Json<serde_json::Value>,
@@ -3127,6 +3160,7 @@ mod route_tests {
             App::new()
                 .app_data(web::Data::from(state.clone()))
                 .route("/build-user-answer", web::post().to(stub_build_user_answer))
+                .route("/answer-files", web::post().to(stub_answer_files))
                 .route("/grade", web::post().to(stub_grade))
                 .default_service(web::to(stub_unexpected))
         })
@@ -3345,5 +3379,234 @@ mod route_tests {
             slide_submission_count(fixture.exercise, fixture.user).await,
             0
         );
+    }
+    /// The two files a student's work consists of, used for both origins so that the download
+    /// responses can be compared for equality rather than merely for similarity.
+    const STUDENT_FILES: [(&str, &str); 2] = [("a.tar.zst", "first"), ("b.txt", "second")];
+
+    /// A browser-origin answer in the stub service's own shape. Opaque to the host, which is the
+    /// point: only the service's answer-files endpoint reads it.
+    fn browser_answer() -> serde_json::Value {
+        serde_json::json!({
+            "type": "browser",
+            "files": STUDENT_FILES
+                .iter()
+                .map(|(name, contents)| serde_json::json!({ "name": name, "contents": contents }))
+                .collect::<Vec<_>>(),
+        })
+    }
+
+    /// Submits an answer the way the course-material IFrame does — no named uploads, the files
+    /// inside the service's answer — through the same function that route's handler calls.
+    async fn submit_from_the_iframe(
+        fixture: &Fixture,
+        answer: serde_json::Value,
+        store: &dyn FileStore,
+    ) -> Uuid {
+        let mut conn = PgConnection::connect(&test_database_url())
+            .await
+            .expect("connection");
+        let exercise = models::exercises::get_by_id(&mut conn, fixture.exercise)
+            .await
+            .expect("exercise");
+        let result = domain::exercise_services::submission_files::submit_recording_answer_files(
+            &mut conn,
+            fixture.user,
+            exercise,
+            &StudentExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
+                    exercise_task_id: fixture.task,
+                    data_json: answer,
+                }],
+            },
+            std::sync::Arc::new(JwtKey::test_key()),
+            store,
+        )
+        .await
+        .expect("iframe submission");
+        result
+            .exercise_task_submission_results
+            .into_iter()
+            .next()
+            .expect("one task submission")
+            .submission
+            .exercise_slide_submission_id
+    }
+
+    async fn download(
+        app: &impl actix_web::dev::Service<
+            actix_http::Request,
+            Response = actix_web::dev::ServiceResponse,
+            Error = actix_web::Error,
+        >,
+        token: &str,
+        submission: Uuid,
+    ) -> serde_json::Value {
+        let request = test::TestRequest::get()
+            .uri(&format!("/submissions/{submission}/download"))
+            .insert_header(("Authorization", format!("Bearer {token}")))
+            .to_request();
+        let response = test::call_service(app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        test::read_body_json(response).await
+    }
+
+    /// Path of the object a `download_url` names, for reading it back out of the file store.
+    fn object_path(download_url: &str) -> &str {
+        download_url
+            .split_once("/api/v0/files/")
+            .expect("a files URL")
+            .1
+    }
+
+    /// Replaces the members that name *which stored object* a file is — necessarily a different
+    /// row and a different object for two different submissions — with placeholders, leaving
+    /// everything a client can otherwise observe: the response's field set, each file's field set,
+    /// the names, and their order. Two canonicalised bodies compare equal only if the client cannot
+    /// tell the two submissions' downloads apart. The bytes behind the URLs are asserted separately.
+    fn canonicalize_download(body: &serde_json::Value) -> serde_json::Value {
+        let files = body["files"].as_array().expect("files");
+        serde_json::json!({
+            "files": files
+                .iter()
+                .map(|file| {
+                    let object = file.as_object().expect("file object");
+                    let mut canonical = object.clone();
+                    canonical.insert("id".to_string(), serde_json::json!("<uuid>"));
+                    let url = object["download_url"].as_str().expect("download_url");
+                    let served_from = &url[..url.len() - object_path(url).len()];
+                    canonical.insert(
+                        "download_url".to_string(),
+                        serde_json::json!(format!("{served_from}<object>")),
+                    );
+                    serde_json::Value::Object(canonical)
+                })
+                .collect::<Vec<_>>(),
+        })
+    }
+
+    /// What a client actually gets when it follows every `download_url`, in order.
+    async fn served_files(
+        store: &dyn FileStore,
+        body: &serde_json::Value,
+    ) -> Vec<(String, String)> {
+        let mut served = Vec::new();
+        for file in body["files"].as_array().expect("files") {
+            let url = file["download_url"].as_str().expect("download_url");
+            let bytes = store
+                .download(std::path::Path::new(object_path(url)))
+                .await
+                .expect("stored object");
+            served.push((
+                file["name"].as_str().expect("name").to_string(),
+                String::from_utf8(bytes).expect("utf-8 contents"),
+            ));
+        }
+        served
+    }
+
+    /// The requirement itself: the same work, submitted once from a native client and once from the
+    /// exercise service's IFrame, downloads identically. Not "both are non-empty" — byte-equal
+    /// after only the per-file stored-object identity is canonicalised away.
+    #[actix_web::test]
+    async fn a_browser_submission_downloads_exactly_like_an_editor_one() {
+        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
+        let url = start_exercise_service_stub(state.clone());
+        let fixture = committed_fixture_with_service(true, Some(url)).await;
+        open_exercise(&fixture).await;
+
+        let store: Arc<dyn FileStore> = Arc::new(upload_tests::TempFileStore(
+            tempfile::tempdir().expect("temp dir"),
+        ));
+        let app = client_api_app!(store.clone());
+        let upload = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[
+                (Uuid::new_v4(), STUDENT_FILES[0].0, STUDENT_FILES[0].1),
+                (Uuid::new_v4(), STUDENT_FILES[1].0, STUDENT_FILES[1].1),
+            ],
+        )
+        .to_request();
+        let response = test::call_service(&app, upload).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let uploaded: api::UploadedFiles = test::read_body_json(response).await;
+        let named: Vec<Uuid> = uploaded.files.iter().map(|file| file.id).collect();
+
+        let submit = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.task,
+                uploaded_file_ids: named,
+            },
+        )
+        .to_request();
+        let response = test::call_service(&app, submit).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let editor: api::ExerciseTaskSubmissionResult = test::read_body_json(response).await;
+
+        let from_iframe = submit_from_the_iframe(&fixture, browser_answer(), store.as_ref()).await;
+
+        let editor_body = download(&app, &fixture.token, editor.slide_submission_id).await;
+        let browser_body = download(&app, &fixture.token, from_iframe).await;
+
+        assert_eq!(
+            serde_json::to_vec(&canonicalize_download(&browser_body)).expect("json"),
+            serde_json::to_vec(&canonicalize_download(&editor_body)).expect("json"),
+            "browser {browser_body} differs in shape from editor {editor_body}"
+        );
+        // Following the URLs must yield the same work, not merely the same field names.
+        let expected: Vec<(String, String)> = STUDENT_FILES
+            .iter()
+            .map(|(name, contents)| (name.to_string(), contents.to_string()))
+            .collect();
+        assert_eq!(served_files(store.as_ref(), &browser_body).await, expected);
+        assert_eq!(served_files(store.as_ref(), &editor_body).await, expected);
+        assert_eq!(state.calls(&state.answer_files_requests).len(), 1);
+    }
+
+    /// The host must not have to understand the answer to record its files: it forwards the blob
+    /// verbatim and stores whatever the service names.
+    #[actix_web::test]
+    async fn the_answer_is_forwarded_to_the_service_unchanged() {
+        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
+        let url = start_exercise_service_stub(state.clone());
+        let fixture = committed_fixture_with_service(true, Some(url)).await;
+        open_exercise(&fixture).await;
+
+        submit_from_the_iframe(&fixture, browser_answer(), &upload_tests::file_store()).await;
+
+        let request = state.calls(&state.answer_files_requests);
+        assert_eq!(request[0]["answer"], browser_answer());
+    }
+
+    /// A service that declares no answer-files endpoint is the one remaining case in which an
+    /// IFrame-made submission has nothing to download, so the empty response must stay reachable.
+    #[actix_web::test]
+    async fn a_service_that_cannot_enumerate_its_answers_downloads_empty() {
+        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
+        let url = start_exercise_service_stub(state.clone());
+        let fixture = committed_fixture_with_service(true, Some(url)).await;
+        open_exercise(&fixture).await;
+        let mut conn = PgConnection::connect(&test_database_url())
+            .await
+            .expect("connection");
+        sqlx::query(
+            "UPDATE exercise_service_info SET answer_files_endpoint_path = NULL WHERE exercise_service_id = (SELECT id FROM exercise_services WHERE slug = (SELECT exercise_type FROM exercise_tasks WHERE id = $1))",
+        )
+        .bind(fixture.task)
+        .execute(&mut conn)
+        .await
+        .expect("clear endpoint");
+
+        let from_iframe =
+            submit_from_the_iframe(&fixture, browser_answer(), &upload_tests::file_store()).await;
+        let app = client_api_app!();
+        let body = download(&app, &fixture.token, from_iframe).await;
+        assert_eq!(body, serde_json::json!({ "files": [] }));
+        assert!(state.calls(&state.answer_files_requests).is_empty());
     }
 }

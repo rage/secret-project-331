@@ -123,6 +123,17 @@
             "name": "build_user_answer_endpoint_path"
           }
         }
+      },
+      {
+        "ordinal": 11,
+        "name": "answer_files_endpoint_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "answer_files_endpoint_path"
+          }
+        }
       }
     ],
     "parameters": {
@@ -139,6 +150,7 @@
       false,
       false,
       false,
+      true,
       true,
       true,
       true

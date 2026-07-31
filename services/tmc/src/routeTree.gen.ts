@@ -1,4 +1,4 @@
-/* oxlint-disable */
+/* eslint-disable */
 
 // @ts-nocheck
 
@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root"
+import { Route as ApiAnswerFilesRouteImport } from "./routes/api/answer-files"
 import { Route as ApiBuildUserAnswerRouteImport } from "./routes/api/build-user-answer"
 import { Route as ApiExtractStubRouteImport } from "./routes/api/extract-stub"
 import { Route as ApiGradeRouteImport } from "./routes/api/grade"
@@ -77,6 +78,11 @@ const ApiBuildUserAnswerRoute = ApiBuildUserAnswerRouteImport.update({
   path: "/api/build-user-answer",
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAnswerFilesRoute = ApiAnswerFilesRouteImport.update({
+  id: "/api/answer-files",
+  path: "/api/answer-files",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStatusUpRoute = ApiStatusUpRouteImport.update({
   id: "/api/status/up",
   path: "/api/status/up",
@@ -86,6 +92,7 @@ const ApiStatusUpRoute = ApiStatusUpRouteImport.update({
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/iframe": typeof IframeRoute
+  "/api/answer-files": typeof ApiAnswerFilesRoute
   "/api/build-user-answer": typeof ApiBuildUserAnswerRoute
   "/api/extract-stub": typeof ApiExtractStubRoute
   "/api/grade": typeof ApiGradeRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/iframe": typeof IframeRoute
+  "/api/answer-files": typeof ApiAnswerFilesRoute
   "/api/build-user-answer": typeof ApiBuildUserAnswerRoute
   "/api/extract-stub": typeof ApiExtractStubRoute
   "/api/grade": typeof ApiGradeRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
   "/iframe": typeof IframeRoute
+  "/api/answer-files": typeof ApiAnswerFilesRoute
   "/api/build-user-answer": typeof ApiBuildUserAnswerRoute
   "/api/extract-stub": typeof ApiExtractStubRoute
   "/api/grade": typeof ApiGradeRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
   fullPaths:
     | "/"
     | "/iframe"
+    | "/api/answer-files"
     | "/api/build-user-answer"
     | "/api/extract-stub"
     | "/api/grade"
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
   to:
     | "/"
     | "/iframe"
+    | "/api/answer-files"
     | "/api/build-user-answer"
     | "/api/extract-stub"
     | "/api/grade"
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | "__root__"
     | "/"
     | "/iframe"
+    | "/api/answer-files"
     | "/api/build-user-answer"
     | "/api/extract-stub"
     | "/api/grade"
@@ -174,6 +186,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   IframeRoute: typeof IframeRoute
+  ApiAnswerFilesRoute: typeof ApiAnswerFilesRoute
   ApiBuildUserAnswerRoute: typeof ApiBuildUserAnswerRoute
   ApiExtractStubRoute: typeof ApiExtractStubRoute
   ApiGradeRoute: typeof ApiGradeRoute
@@ -265,6 +278,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ApiBuildUserAnswerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/api/answer-files": {
+      id: "/api/answer-files"
+      path: "/api/answer-files"
+      fullPath: "/api/answer-files"
+      preLoaderRoute: typeof ApiAnswerFilesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/api/status/up": {
       id: "/api/status/up"
       path: "/api/status/up"
@@ -278,6 +298,7 @@ declare module "@tanstack/react-router" {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   IframeRoute: IframeRoute,
+  ApiAnswerFilesRoute: ApiAnswerFilesRoute,
   ApiBuildUserAnswerRoute: ApiBuildUserAnswerRoute,
   ApiExtractStubRoute: ApiExtractStubRoute,
   ApiGradeRoute: ApiGradeRoute,

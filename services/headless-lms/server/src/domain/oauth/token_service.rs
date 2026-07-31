@@ -3,7 +3,7 @@ use secrecy::{ExposeSecret, SecretString};
 use sqlx::{Connection, PgConnection};
 use uuid::Uuid;
 
-use crate::domain::exercise_services::token::invalidate_cached_user;
+use crate::domain::exercise_services::token::invalidate_cached_users;
 use crate::domain::oauth::errors::TokenGrantError;
 use crate::domain::oauth::pkce::verify_token_pkce;
 use headless_lms_utils::cache::Cache;
@@ -124,9 +124,7 @@ async fn revoke_family_on_refresh_token_reuse(
     let revoked_access_digests = OAuthRefreshTokens::revoke_grant(conn, token.user_id, client.id)
         .await
         .map_err(|e| TokenGrantError::ServerError(format!("{}", e)))?;
-    for digest in &revoked_access_digests {
-        invalidate_cached_user(cache, digest, token_hmac_key).await;
-    }
+    invalidate_cached_users(cache, &revoked_access_digests, token_hmac_key).await;
 
     Err(TokenGrantError::InvalidGrant(
         "Given grant is invalid".to_string(),

@@ -753,7 +753,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The files the submission was made from, in the order the client uploaded them; empty when it was made from none",
+            "description": "The files the submission was made from, in the order they were recorded; the same shape whether the submission came from a native client or the service's IFrame",
             "content": {
               "application/json": {
                 "schema": {
@@ -1278,7 +1278,7 @@
       },
       "SubmissionFiles": {
         "type": "object",
-        "description": "Response of `GET submissions/{id}/download`: the files the client uploaded for that\nsubmission, recovered from the host's own upload records, not from the service's answer.",
+        "description": "Response of `GET submissions/{id}/download`: the files the submission was made from, recovered\nfrom the host's own file records rather than from the service's answer.\n\nThe same shape regardless of where the submission was made. A native client's uploads are\nrecorded as it names them; an answer made in the service's IFrame carries its files inside the\nservice's own answer, so the host asks the service to enumerate them and stores them the same\nway. Empty only when the submission genuinely has no files — an exercise type with none, or a\nservice that declares no way to enumerate its answers' files.",
         "required": ["files"],
         "properties": {
           "files": {

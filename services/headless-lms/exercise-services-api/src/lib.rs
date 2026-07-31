@@ -126,8 +126,14 @@ pub struct ExerciseSlideSubmissionListItem {
     pub grading_progress: Option<GradingProgress>,
 }
 
-/// Response of `GET submissions/{id}/download`: the files the client uploaded for that
-/// submission, recovered from the host's own upload records, not from the service's answer.
+/// Response of `GET submissions/{id}/download`: the files the submission was made from, recovered
+/// from the host's own file records rather than from the service's answer.
+///
+/// The same shape regardless of where the submission was made. A native client's uploads are
+/// recorded as it names them; an answer made in the service's IFrame carries its files inside the
+/// service's own answer, so the host asks the service to enumerate them and stores them the same
+/// way. Empty only when the submission genuinely has no files — an exercise type with none, or a
+/// service that declares no way to enumerate its answers' files.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct SubmissionFiles {
@@ -295,8 +301,8 @@ mod test {
         );
     }
 
-    /// A submission whose answer needed no files is legitimate, so download must be able to
-    /// report an empty list rather than only ever a single archive URL.
+    /// Not the normal path for any origin any more, but still representable: an exercise type with
+    /// no files, or a service that cannot enumerate its answers' files.
     #[test]
     fn submission_files_may_be_empty() {
         assert_eq!(

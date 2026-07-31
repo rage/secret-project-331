@@ -371,6 +371,86 @@ pub async fn post_build_user_answer_request(
     Ok(parsed.answer)
 }
 
+/// Asks an exercise service which files one of its answers consists of. Sent to the service's
+/// `answer_files_endpoint_path`.
+#[derive(Debug, Serialize)]
+pub struct AnswerFilesRequest<'a> {
+    pub request_id: Uuid,
+    /// The task's public spec, so the service can name the files the way the exercise defines them.
+    pub public_spec: Option<&'a serde_json::Value>,
+    /// The answer to enumerate. Opaque to the host; only the service reads it.
+    pub answer: &'a serde_json::Value,
+}
+
+/// One file of an answer, as the service reports it.
+#[derive(Debug, Deserialize)]
+pub struct AnswerFile {
+    /// The file's name as the student sees it, e.g. `src/main.rs`.
+    pub name: String,
+    /// The file's bytes, base64-encoded, because an answer's files need not be text.
+    pub data: String,
+    /// Defaults to `application/octet-stream`, which is also what the client upload path records
+    /// for a part whose multipart headers name no type.
+    #[serde(default)]
+    pub mime: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AnswerFilesResponse {
+    /// In the order the student's files should be restored in; the host records it verbatim.
+    pub files: Vec<AnswerFile>,
+}
+
+/// Timeout for the answer-files hop. Longer than the build-user-answer hop's 10 s because a service
+/// may have to pack the answer's files into an archive to report them, which the build direction
+/// never does. Still well inside a user's submit request, and there is no host-side fallback.
+const ANSWER_FILES_TIMEOUT_SECS: u64 = 30;
+
+/// Asks the exercise service at `url` which files the given answer consists of.
+pub async fn post_answer_files_request(
+    url: Url,
+    public_spec: Option<&serde_json::Value>,
+    answer: &serde_json::Value,
+) -> ModelResult<Vec<AnswerFile>> {
+    let client = reqwest::Client::new();
+    let response = client
+        .post(url.clone())
+        .timeout(std::time::Duration::from_secs(ANSWER_FILES_TIMEOUT_SECS))
+        .json(&AnswerFilesRequest {
+            request_id: Uuid::new_v4(),
+            public_spec,
+            answer,
+        })
+        .send()
+        .await
+        .map_err(ModelError::from)?;
+
+    let status = response.status();
+    if !status.is_success() {
+        let status_code = status.as_u16();
+        let response_body = response.text().await.unwrap_or_default();
+        error!(
+            ?url,
+            ?response_body,
+            status_code = %status_code,
+            "Exercise service returned an unsuccessful status code while listing an answer's files"
+        );
+        return Err(ModelError::new(
+            ModelErrorType::HttpRequest {
+                status_code,
+                response_body: response_body.clone(),
+            },
+            format!(
+                "Listing the answer's files failed with status: {status_code} response: {response_body}"
+            ),
+            None,
+        ));
+    }
+
+    let parsed: AnswerFilesResponse = parse_response_json(response).await?;
+    Ok(parsed.files)
+}
+
 /// Column definition for exercise service CSV export; callers must use scalar-only cell values.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ExerciseServiceCsvExportColumn {

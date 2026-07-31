@@ -241,13 +241,21 @@ fn digest_to_cache_key(digest: &Digest, token_hmac_key: &SecretString) -> String
 
 /// Upper bound on cache TTL, independent of the token's own expiry.
 ///
-/// A cache hit skips every authorization check in `resolve_oauth_user`, and only the mutation
-/// sites that hold token digests (`/revoke`, `authorized_clients`, account deletion) can evict.
-/// `ON DELETE CASCADE` from `users`/`oauth_clients` and a bare `UPDATE oauth_clients SET
-/// bearer_allowed = false` hold none, so this bound — not eviction — is what caps how long a ban,
-/// a consent withdrawal or a client-capability change can go unnoticed. Keep it short: a minute of
-/// stale authorization is tolerable, an hour is not.
-const MAX_CACHE_TTL: Duration = Duration::from_secs(60);
+/// A cache hit skips every authorization check in `resolve_oauth_user`, so this is the window in
+/// which a change that nothing evicts for goes unnoticed. Every mutation this application performs
+/// does evict: token revocation (`/revoke`), refresh-family revocation on reuse, consent withdrawal
+/// (`authorized_clients`), and user deletion — both self-service and the `sync_tmc_users` batch —
+/// all go through code that holds the affected digests.
+///
+/// What remains is only out-of-band SQL, and it cannot be hooked from here:
+///  - a hard `DELETE FROM users`/`oauth_clients`, whose `ON DELETE CASCADE` into
+///    `oauth_access_tokens` holds no digests and runs no Rust;
+///  - `oauth_clients` changes — `bearer_allowed = false`, a soft delete, a narrowed `scopes` — for
+///    which no Rust mutator exists at all, so there is no call site to evict from.
+///
+/// For those paths this bound is still the only guard, which is why it is minutes and not an hour:
+/// a change made by hand has to take effect without also flushing Redis.
+const MAX_CACHE_TTL: Duration = Duration::from_secs(15 * 60);
 
 /// `min(MAX_CACHE_TTL, expires_at - now)`, floored at zero — a flat TTL could otherwise
 /// outlive a short-lived token.
@@ -291,6 +299,36 @@ pub(crate) async fn invalidate_cached_user(
     cache
         .invalidate(digest_to_cache_key(digest, token_hmac_key))
         .await;
+}
+
+/// Evicts every mapping a batch revocation invalidated — a refresh family, a withdrawn consent, a
+/// deleted user. Same contract as `invalidate_cached_user`, for the callers that revoke more than
+/// one token at a time.
+pub(crate) async fn invalidate_cached_users(
+    cache: &Cache,
+    digests: &[Digest],
+    token_hmac_key: &SecretString,
+) {
+    for digest in digests {
+        invalidate_cached_user(cache, digest, token_hmac_key).await;
+    }
+}
+
+/// Soft-deletes a user and evicts every cached mapping their access tokens had.
+///
+/// The only supported way to delete a user: `models::users::delete_user` returns the digests of the
+/// tokens it hard-deleted, and a caller that drops them leaves a banned account authenticating from
+/// a cache hit for the rest of `MAX_CACHE_TTL`. Both callers — self-service account deletion and the
+/// `sync_tmc_users` batch — go through here so neither can forget.
+pub async fn delete_user_and_invalidate_cached_tokens(
+    conn: &mut PgConnection,
+    cache: &Cache,
+    token_hmac_key: &SecretString,
+    user_id: uuid::Uuid,
+) -> Result<(), models::ModelError> {
+    let revoked = models::users::delete_user(conn, user_id).await?;
+    invalidate_cached_users(cache, &revoked, token_hmac_key).await;
+    Ok(())
 }
 
 #[cfg(test)]
@@ -407,11 +445,10 @@ mod tests {
         assert_eq!(ttl, MAX_CACHE_TTL);
     }
 
-    /// The cap is what bounds how long a ban, a scope revocation or a `bearer_allowed` flip can go
-    /// unnoticed, since the mutation sites that could evict do not all hold token digests.
+    /// Guards the bound argued for in `MAX_CACHE_TTL`'s doc: minutes, never an hour.
     #[test]
-    fn the_cache_ttl_cap_stays_short() {
-        assert!(MAX_CACHE_TTL <= Duration::from_secs(60));
+    fn the_cache_ttl_cap_stays_in_minutes() {
+        assert!(MAX_CACHE_TTL <= Duration::from_secs(15 * 60));
     }
 
     #[test]
@@ -776,6 +813,60 @@ mod tests {
             load_user(&cache, &digest, &hmac_key()).await.is_none(),
             "a bulk-revoked token's cache entry must not survive revocation"
         );
+    }
+
+    /// Deleting a user must take effect on the next request, not after `MAX_CACHE_TTL`. This is the
+    /// path both the self-service account deletion and the `sync_tmc_users` batch take; the batch
+    /// used to drop the digests and rely on the TTL alone.
+    ///
+    /// Needs a real Redis; a no-op (not a failure) when `REDIS_URL` isn't set.
+    #[actix_web::test]
+    async fn deleting_a_user_evicts_their_cached_tokens() {
+        let Some(cache) = connected_test_cache().await else {
+            return;
+        };
+
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        // Two tokens, so a hook that only evicted the first would fail here.
+        let mut digests = Vec::new();
+        for _ in 0..2 {
+            let plaintext = insert_token(
+                tx.as_mut(),
+                &client,
+                user,
+                &[EXERCISE_SERVICES_SCOPE.to_string()],
+                TokenType::Bearer,
+                Utc::now() + ChronoDuration::hours(1),
+            )
+            .await;
+            let (resolved, expires_at) =
+                resolve_oauth_user(tx.as_mut(), &secret(&plaintext), &hmac_key())
+                    .await
+                    .expect("token should resolve before deletion");
+            let digest = token_digest_sha256(&plaintext, &hmac_key());
+            cache_user(
+                &cache,
+                &digest,
+                &hmac_key(),
+                &resolved,
+                cache_ttl_for_token(expires_at, Utc::now()),
+            )
+            .await;
+            assert!(load_user(&cache, &digest, &hmac_key()).await.is_some());
+            digests.push(digest);
+        }
+
+        delete_user_and_invalidate_cached_tokens(tx.as_mut(), &cache, &hmac_key(), user)
+            .await
+            .expect("deletion should succeed");
+
+        for digest in &digests {
+            assert!(
+                load_user(&cache, digest, &hmac_key()).await.is_none(),
+                "a deleted user's cache entries must not survive the deletion"
+            );
+        }
     }
 
     #[test]

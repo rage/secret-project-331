@@ -215,6 +215,23 @@ pub fn get_internal_build_user_answer_url(
 }
 
 /**
+Returns a url that can be used to ask this exercise service which files one of its answers
+consists of. `None` when the service does not declare the endpoint, which leaves answers made
+in its IFrame with no files for the host to record.
+*/
+pub fn get_internal_answer_files_url(
+    exercise_service: &ExerciseService,
+    exercise_service_info: &ExerciseServiceInfo,
+) -> ModelResult<Option<Url>> {
+    let Some(path) = exercise_service_info.answer_files_endpoint_path.as_deref() else {
+        return Ok(None);
+    };
+    let mut url = get_exercise_service_internally_preferred_baseurl(exercise_service)?;
+    url.set_path(path);
+    Ok(Some(url))
+}
+
+/**
 Slugs of the exercise services that can serve a native (non-browser) client, i.e. those
 declaring a `build_user_answer_endpoint_path`.
 
@@ -354,6 +371,7 @@ mod test {
                 has_custom_view: false,
                 build_user_answer_endpoint_path: build_user_answer_endpoint_path
                     .map(ToString::to_string),
+                answer_files_endpoint_path: None,
             },
         )
         .await
@@ -431,6 +449,43 @@ mod test {
             get_internal_build_user_answer_url(&plain, &plain_info)
                 .unwrap()
                 .is_none()
+        );
+        tx.rollback().await;
+    }
+
+    #[tokio::test]
+    async fn answer_files_url_resolves_against_the_internal_base_url() {
+        insert_data!(:tx);
+        let (service, info) = insert_service(tx.as_mut(), "enumerating", None).await;
+        assert!(
+            get_internal_answer_files_url(&service, &info)
+                .unwrap()
+                .is_none()
+        );
+
+        let updated = crate::exercise_service_info::upsert_service_info(
+            tx.as_mut(),
+            service.id,
+            &crate::exercise_service_info::ExerciseServiceInfoApi {
+                service_name: "enumerating".to_string(),
+                user_interface_iframe_path: info.user_interface_iframe_path.clone(),
+                grade_endpoint_path: info.grade_endpoint_path.clone(),
+                public_spec_endpoint_path: info.public_spec_endpoint_path.clone(),
+                model_solution_spec_endpoint_path: info.model_solution_spec_endpoint_path.clone(),
+                has_custom_view: Some(false),
+                csv_export_definitions_endpoint_path: None,
+                csv_export_answers_endpoint_path: None,
+                build_user_answer_endpoint_path: None,
+                answer_files_endpoint_path: Some("/api/answer-files".to_string()),
+            },
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            get_internal_answer_files_url(&service, &updated)
+                .unwrap()
+                .map(|url| url.to_string()),
+            Some("http://internal.example.com/api/answer-files".to_string())
         );
         tx.rollback().await;
     }

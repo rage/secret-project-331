@@ -26,6 +26,8 @@ describe("GET /api/service-info", () => {
     expect(info.model_solution_spec_endpoint_path.endsWith("/api/model-solution")).toBe(true)
     // Declaring this is what makes tmc visible to the exercise-services client API.
     expect(info.build_user_answer_endpoint_path.endsWith("/api/build-user-answer")).toBe(true)
+    // Declaring this is what makes an IFrame-made answer downloadable.
+    expect(info.answer_files_endpoint_path.endsWith("/api/answer-files")).toBe(true)
   })
 })
 

@@ -1,4 +1,4 @@
-use crate::domain::exercise_services::token::invalidate_cached_user;
+use crate::domain::exercise_services::token::invalidate_cached_users;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use headless_lms_base::config::ApplicationConfiguration;
@@ -66,9 +66,7 @@ pub async fn delete_authorized_client(
 
     // Without this the deleted tokens keep authenticating from cache for the rest of their TTL.
     let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
-    for digest in &revoked_digests {
-        invalidate_cached_user(&cache, digest, token_hmac_key).await;
-    }
+    invalidate_cached_users(&cache, &revoked_digests, token_hmac_key).await;
 
     token.authorized_ok(HttpResponse::NoContent().finish())
 }

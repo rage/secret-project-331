@@ -116,9 +116,11 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     expect(data.error).toBe("invalid_grant")
   })
 
-  // Refresh tokens are single-use: rotation revokes the whole token family, so the
-  // superseded token must be rejected afterwards (RFC 9700 reuse detection).
-  test("refresh token rotation - old token revoked after use", async ({ page }) => {
+  // Refresh tokens are single-use, and reuse is treated as a leak: the superseded token is
+  // rejected *and* the whole (user, client) family goes down with it, including the successor
+  // the legitimate holder is still using (RFC 9700 §4.14.2). Anything less lets an attacker
+  // who redeemed the stolen token first keep renewing forever.
+  test("refresh token reuse revokes the whole family", async ({ page }) => {
     const refreshToken1 = await getRefreshToken(page)
 
     const rotation = await redeemRefreshToken(refreshToken1)
@@ -131,10 +133,10 @@ test.describe("/token endpoint - Refresh Token Grant", () => {
     expect(reuse.status).toBe(400)
     expect(reuse.data.error).toBe("invalid_grant")
 
-    // The rejected reuse must not take down the chain the rotation issued.
-    const sibling = await redeemRefreshToken(refreshToken2)
-    expect(sibling.status).toBe(200)
-    expect(sibling.data.access_token).toBeTruthy()
+    // The victim is logged out rather than left sharing a live family with the attacker.
+    const successor = await redeemRefreshToken(refreshToken2)
+    expect(successor.status).toBe(400)
+    expect(successor.data.error).toBe("invalid_grant")
   })
 
   test("revoked refresh token -> invalid_grant error", async ({ page }) => {

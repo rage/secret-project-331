@@ -1,5 +1,5 @@
 // VERSION=0.38.1
-// Type surface regenerated from tmc-langs-rust b94f8c7f9f7 (tmc-langs-cli 0.40.0) by bin/tmc-langs-update-bindings-from-checkout
+// Type surface regenerated from tmc-langs-rust 3d8190f599c (tmc-langs-cli 0.40.0) by bin/tmc-langs-update-bindings-from-checkout
 
 export type Locale = string
 

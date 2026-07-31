@@ -19,6 +19,12 @@ export interface ExerciseServiceInfoApi {
    * is never offered to a native (non-browser) client.
    */
   build_user_answer_endpoint_path?: string
+  /**
+   * Enumerates the files one of this service's answers consists of. Declaring it is what makes an
+   * answer made in this service's IFrame downloadable through the exercise-services client API:
+   * such an answer names no host-stored uploads, so the host has no other way to know its files.
+   */
+  answer_files_endpoint_path?: string
 }
 
 export type GradingProgress = "Pending" | "Failed" | "FullyGraded" | "PendingManual" | "NotReady"

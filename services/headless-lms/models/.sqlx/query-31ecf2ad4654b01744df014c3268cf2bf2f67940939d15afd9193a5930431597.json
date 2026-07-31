@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view,\n    csv_export_definitions_endpoint_path,\n    csv_export_answers_endpoint_path,\n    build_user_answer_endpoint_path\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET user_interface_iframe_path = $2,\n  grade_endpoint_path = $3,\n  public_spec_endpoint_path = $4,\n  model_solution_spec_endpoint_path = $5,\n  has_custom_view = $6,\n  csv_export_definitions_endpoint_path = $7,\n  csv_export_answers_endpoint_path = $8,\n  build_user_answer_endpoint_path = $9\nRETURNING *\n    ",
+  "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view,\n    csv_export_definitions_endpoint_path,\n    csv_export_answers_endpoint_path,\n    build_user_answer_endpoint_path,\n    answer_files_endpoint_path\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET user_interface_iframe_path = $2,\n  grade_endpoint_path = $3,\n  public_spec_endpoint_path = $4,\n  model_solution_spec_endpoint_path = $5,\n  has_custom_view = $6,\n  csv_export_definitions_endpoint_path = $7,\n  csv_export_answers_endpoint_path = $8,\n  build_user_answer_endpoint_path = $9,\n  answer_files_endpoint_path = $10\nRETURNING *\n    ",
   "describe": {
     "columns": [
       {
@@ -123,6 +123,17 @@
             "name": "build_user_answer_endpoint_path"
           }
         }
+      },
+      {
+        "ordinal": 11,
+        "name": "answer_files_endpoint_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "answer_files_endpoint_path"
+          }
+        }
       }
     ],
     "parameters": {
@@ -133,6 +144,7 @@
         "Varchar",
         "Varchar",
         "Bool",
+        "Text",
         "Text",
         "Text",
         "Text"
@@ -149,8 +161,9 @@
       false,
       true,
       true,
+      true,
       true
     ]
   },
-  "hash": "5c98df350b3828e5a388bc1d5784c4ffda708b377997fae64ebcb36a47f50798"
+  "hash": "31ecf2ad4654b01744df014c3268cf2bf2f67940939d15afd9193a5930431597"
 }

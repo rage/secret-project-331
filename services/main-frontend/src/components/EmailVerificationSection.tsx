@@ -8,30 +8,27 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { getMyEmailVerificationStatusOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { requestEmailVerificationLink } from "@/generated/api/sdk.generated"
+import { requestEmailVerificationCode, verifyEmailOwnership } from "@/generated/api/sdk.generated"
 import type {
-  EmailSendStatus,
   EmailVerificationStatus,
   RequestEmailVerificationOutcome,
+  VerifyEmailOwnershipResult,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Badge, Button, DescriptionList } from "@/shared-module/components"
 
+import OneTimeCodeForm from "./forms/OneTimeCodeForm"
+
 const TONE_SUCCESS = "success"
 const TONE_WARNING = "warning"
 
-const SEND_STATUS_KEYS = {
-  queued: "email-send-status-queued",
-  retrying: "email-send-status-retrying",
-  sent: "email-send-status-sent",
-  send_failed: "email-send-status-send-failed",
-} as const satisfies Record<EmailSendStatus, string>
+/** The server refuses a resend for two minutes, so the button must not re-enable before then. */
+const RESEND_COOLDOWN_SECONDS = 120
 
 const OUTCOME_KEYS = {
-  queued: "message-email-verification-link-on-its-way",
+  queued: "message-email-verification-code-on-its-way",
   already_verified: "message-email-is-already-verified",
-  recently_sent: "message-email-verification-link-was-just-sent",
-  not_configured: "message-email-verification-is-not-available-right-now",
+  recently_sent: "message-email-verification-code-was-just-sent",
 } as const satisfies Record<RequestEmailVerificationOutcome, string>
 
 const cardCss = css`
@@ -84,6 +81,11 @@ const bodyCss = css`
   }
 `
 
+const codeFormCss = css`
+  padding: 0;
+  align-self: stretch;
+`
+
 const outcomeCss = css`
   color: var(--color-gray-600);
   font-size: var(--font-size-1);
@@ -101,9 +103,9 @@ const EmailVerificationSection: React.FC = () => {
   const statusQuery = useQuery({ ...getMyEmailVerificationStatusOptions() })
   const status = statusQuery.data
 
-  // No chrome until the status is known: a deployment without the feature shows no trace of it,
-  // and a skeleton that then vanishes is worse than a card that arrives late.
-  if (!status || !status.verification_configured) {
+  // No chrome until the status is known: a skeleton that then vanishes is worse than a card that
+  // arrives late.
+  if (!status) {
     return null
   }
 
@@ -124,22 +126,40 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const [outcome, setOutcome] = React.useState<RequestEmailVerificationOutcome | null>(null)
+  const [codeRefused, setCodeRefused] = React.useState(false)
 
-  const requestLink = useToastMutation<RequestEmailVerificationOutcome, unknown, void>(
-    async () => await requestEmailVerificationLink({ body: { language: i18n.language } }),
+  const invalidateStatus = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: getMyEmailVerificationStatusOptions().queryKey,
+    })
+  }
+
+  const requestCode = useToastMutation<RequestEmailVerificationOutcome, unknown, void>(
+    async () => await requestEmailVerificationCode({ body: { language: i18n.language } }),
     { notify: false },
     {
       onSuccess: async (result) => {
         setOutcome(result)
-        await queryClient.invalidateQueries({
-          queryKey: getMyEmailVerificationStatusOptions().queryKey,
-        })
+        setCodeRefused(false)
+        await invalidateStatus()
+      },
+    },
+  )
+
+  const submitCode = useToastMutation<VerifyEmailOwnershipResult, unknown, string>(
+    async (code) => await verifyEmailOwnership({ body: { code } }),
+    { notify: false },
+    {
+      onSuccess: async (result) => {
+        setCodeRefused(result === "invalid")
+        setOutcome(null)
+        await invalidateStatus()
       },
     },
   )
 
   const verified = status.email_verified_at !== null && status.email_verified_at !== undefined
-  const lastEmail = status.latest_verification_email
+  const pendingCode = status.latest_verification_email
 
   const items = [{ label: t("label-email"), value: status.email }]
   if (verified) {
@@ -147,20 +167,11 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
       label: t("label-verified-at"),
       value: new Date(status.email_verified_at as string).toLocaleString(i18n.language),
     })
-  } else if (lastEmail) {
-    items.push(
-      { label: t("label-verification-link-sent-to"), value: lastEmail.emailed_to },
-      {
-        label: t("label-verification-link-sent-at"),
-        value: new Date(lastEmail.sent_at).toLocaleString(i18n.language),
-      },
-    )
-    if (lastEmail.send_status) {
-      items.push({
-        label: t("label-our-send-status"),
-        value: t(SEND_STATUS_KEYS[lastEmail.send_status.email_send_status]),
-      })
-    }
+  } else if (pendingCode) {
+    items.push({
+      label: t("label-verification-code-sent-at"),
+      value: new Date(pendingCode.sent_at).toLocaleString(i18n.language),
+    })
   }
 
   return (
@@ -177,16 +188,31 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
 
       <DescriptionList items={items} />
 
-      {verified ? null : (
+      {verified ? null : pendingCode ? (
+        <OneTimeCodeForm
+          containerClassName={codeFormCss}
+          message={t("message-enter-the-verification-code-we-emailed-you")}
+          onSubmit={async (code) => {
+            await submitCode.mutateAsync(code)
+          }}
+          submitLabel={t("button-text-verify")}
+          error={codeRefused ? t("incorrect-code") : null}
+          isSubmitting={submitCode.isPending}
+          resend={{
+            helperText: t("message-did-not-receive-the-verification-code"),
+            label: t("resend"),
+            onResend: () => requestCode.mutate(),
+            cooldownSeconds: RESEND_COOLDOWN_SECONDS,
+          }}
+        />
+      ) : (
         <Button
           variant="secondary"
           size="medium"
-          isLoading={requestLink.isPending}
-          onClick={() => requestLink.mutate()}
+          isLoading={requestCode.isPending}
+          onClick={() => requestCode.mutate()}
         >
-          {lastEmail
-            ? t("button-send-a-new-verification-link")
-            : t("button-send-a-verification-link")}
+          {t("button-send-a-verification-code")}
         </Button>
       )}
 

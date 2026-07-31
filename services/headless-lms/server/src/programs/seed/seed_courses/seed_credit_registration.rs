@@ -302,7 +302,7 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
     user_details::set_email_verified(
         &mut conn,
         verified_email.user_id,
-        EmailVerificationMethod::VerificationLink,
+        EmailVerificationMethod::EmailedCode,
         Utc::now() - Duration::days(30),
     )
     .await?;

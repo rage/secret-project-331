@@ -22,7 +22,7 @@
             "name": "email_verification_method",
             "kind": {
               "Enum": [
-                "verification_link",
+                "emailed_code",
                 "password_reset_backfill",
                 "tmc_confirmed",
                 "admin_asserted"

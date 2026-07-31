@@ -39,20 +39,26 @@ pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     setup_tracing()?;
     let database_url = ProgramConfig::database_url_with_default();
-    // Verification links mailed here must point at the environment being synced; the server reads
-    // the same variable into `ApplicationConfiguration::base_url`.
-    let base_url = ProgramConfig::required("BASE_URL")?;
+    // The same variable the server reads into
+    // `ApplicationConfiguration::enable_email_ownership_verification`.
+    let email_ownership_verification_enabled =
+        ProgramConfig::bool_flag("ENABLE_EMAIL_OWNERSHIP_VERIFICATION");
     let recent_changes = fetch_recently_changed_user_details().await?;
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
     delete_users(&mut conn, &recent_changes).await?;
-    update_users(&mut conn, &base_url, &recent_changes).await?;
+    update_users(
+        &mut conn,
+        email_ownership_verification_enabled,
+        &recent_changes,
+    )
+    .await?;
     Ok(())
 }
 
 pub async fn update_users(
     conn: &mut PgConnection,
-    base_url: &str,
+    email_ownership_verification_enabled: bool,
     recent_changes: &TMCRecentChanges,
 ) -> anyhow::Result<()> {
     let email_update_list = recent_changes
@@ -102,9 +108,8 @@ pub async fn update_users(
                     // The `clear_email_verification` trigger just dropped the old address's proof.
                     queue_verification_email_best_effort(
                         &mut *conn,
-                        base_url,
+                        email_ownership_verification_enabled,
                         changed_user_id,
-                        new_email,
                     )
                     .await;
                 }

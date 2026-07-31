@@ -1,44 +1,6 @@
 -- Statement order minimises lock hold time: new types and tables first, the live tables the pods
 -- read on every request (course_modules, email_deliveries, user_details) last.
 
--- Not a purpose discriminator on email_verification_tokens: that table is the administrator login
--- second factor (short TTL, six digit code, cleanup that hard-deletes by expires_at), so sharing it
--- would branch the login path per purpose and lose the send history this flow reports to the user.
-CREATE TABLE email_ownership_verification_tokens (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  token VARCHAR(255) NOT NULL,
-  user_id UUID NOT NULL REFERENCES users(id),
-  email VARCHAR(255) NOT NULL,
-  email_delivery_id UUID REFERENCES email_deliveries(id),
-  expires_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now() + INTERVAL '7 days',
-  used_at TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  deleted_at TIMESTAMP WITH TIME ZONE,
-  CONSTRAINT email_ownership_verification_token_length CHECK (LENGTH(token) >= 128)
-);
-CREATE UNIQUE INDEX uq_email_ownership_verification_token ON email_ownership_verification_tokens (token, deleted_at) NULLS NOT DISTINCT
-WHERE used_at IS NULL;
-CREATE INDEX idx_email_ownership_verification_tokens_user ON email_ownership_verification_tokens (user_id, created_at DESC)
-WHERE deleted_at IS NULL;
-CREATE INDEX idx_email_ownership_verification_tokens_expires ON email_ownership_verification_tokens (expires_at)
-WHERE used_at IS NULL
-  AND deleted_at IS NULL;
-CREATE TRIGGER set_timestamp BEFORE
-UPDATE ON email_ownership_verification_tokens FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
-COMMENT ON TABLE email_ownership_verification_tokens IS 'One-click links mailed to a user''s own address to prove they control it. Bound to an account at creation, unlike student_number_verification_tokens: here we already know whose address it is and the only open question is whether they can read it.';
-COMMENT ON COLUMN email_ownership_verification_tokens.id IS 'A unique, stable identifier for the record.';
-COMMENT ON COLUMN email_ownership_verification_tokens.token IS 'Long random string (at least 128 characters) that is the only proof carried by the link.';
-COMMENT ON COLUMN email_ownership_verification_tokens.user_id IS 'The account whose address is being proven.';
-COMMENT ON COLUMN email_ownership_verification_tokens.email IS 'The address the link was mailed to, frozen at send time. The claim refuses the token if user_details.email no longer matches, so a link cannot carry a proof over to an address the user switched to afterwards.';
-COMMENT ON COLUMN email_ownership_verification_tokens.email_delivery_id IS 'The email_deliveries row carrying the link, so the account page can report our send status. Addressed to a raw recipient_email rather than to user_id on purpose: the mail must go to the address as it was when the link was minted.';
-COMMENT ON COLUMN email_ownership_verification_tokens.expires_at IS 'When the link stops working. Default 7 days: the user asked for this mail, so it is read sooner than an unsolicited one, but it still has to survive a weekend.';
-COMMENT ON COLUMN email_ownership_verification_tokens.used_at IS 'When the link was opened and the proof recorded. Null if unused.';
-COMMENT ON COLUMN email_ownership_verification_tokens.created_at IS 'Timestamp when the record was created.';
-COMMENT ON COLUMN email_ownership_verification_tokens.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
-COMMENT ON COLUMN email_ownership_verification_tokens.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
-
 CREATE TYPE student_number_verification_method AS ENUM (
   'emailed_link',
   'email_match_fast_track',
@@ -856,8 +818,41 @@ CREATE INDEX email_deliveries_recipient_email_idx ON email_deliveries (LOWER(rec
 WHERE recipient_email IS NOT NULL
   AND deleted_at IS NULL;
 
+CREATE TYPE user_email_code_purpose AS ENUM (
+  'admin_login',
+  'account_deletion',
+  'email_ownership_verification'
+);
+
+COMMENT ON TYPE user_email_code_purpose IS 'What an emailed single-use code authorises. A discriminator, not a label: every read of user_email_codes is scoped by it, so a code mailed for one action cannot be spent on another.';
+
+-- ADD COLUMN with a DEFAULT is metadata-only on PG 11+, so the live table is not rewritten; the
+-- default is then dropped because a purpose must always be stated by the writer.
+ALTER TABLE user_email_codes
+ADD COLUMN purpose user_email_code_purpose NOT NULL DEFAULT 'account_deletion',
+  ADD COLUMN attempt_count INTEGER NOT NULL DEFAULT 0;
+
+ALTER TABLE user_email_codes
+ALTER COLUMN purpose DROP DEFAULT;
+
+-- Pre-existing rows are single-use codes with a one hour TTL, so any still live are already dead in
+-- practice. Retiring them means no code outlives the purpose change with an invented purpose.
+UPDATE user_email_codes
+SET deleted_at = now()
+WHERE deleted_at IS NULL;
+
+DROP INDEX unique_active_user_email_codes_user;
+
+CREATE UNIQUE INDEX unique_active_user_email_codes_user ON user_email_codes (user_id, purpose)
+WHERE deleted_at IS NULL
+  AND used_at IS NULL;
+
+COMMENT ON TABLE user_email_codes IS 'Single-use codes emailed to a user to prove they can read their own mailbox before an action: the administrator login second factor, account deletion, and email address ownership verification. At most one live code per user per purpose; requesting a new one retires the old.';
+COMMENT ON COLUMN user_email_codes.purpose IS 'Which action this code authorises.';
+COMMENT ON COLUMN user_email_codes.attempt_count IS 'Wrong guesses recorded against this code. The checking handler retires the code once its own limit is reached, which is what stops a six digit code from being brute forced.';
+
 CREATE TYPE email_verification_method AS ENUM (
-  'verification_link',
+  'emailed_code',
   'password_reset_backfill',
   'tmc_confirmed',
   'admin_asserted'
@@ -877,15 +872,22 @@ ADD CONSTRAINT user_details_email_verification_consistent CHECK (
   ) NOT VALID;
 
 COMMENT ON COLUMN user_details.email_verified_at IS 'When the user last proved control of the address currently in email. NULL means unproven. Automatically reset to NULL by the clear_email_verification trigger whenever email changes, so a non-NULL value always refers to the current address. Never set this without a proof of mailbox control.';
-COMMENT ON COLUMN user_details.email_verified_method IS 'How email_verified_at was obtained. The credit-registration email-match fast track accepts verification_link and tmc_confirmed only.';
+COMMENT ON COLUMN user_details.email_verified_method IS 'How email_verified_at was obtained. The credit-registration email-match fast track accepts emailed_code and tmc_confirmed only.';
 
 -- Structural, not remembered per writer: there are already three writers of user_details.email and
--- the fourth will be added by someone who has not read the fast-track design.
+-- the fourth will be added by someone who has not read the fast-track design. Retiring the pending
+-- verification code belongs here for the same reason, and because a code mailed to the old address
+-- must not be able to prove the new one.
 CREATE FUNCTION clear_email_verification_on_email_change() RETURNS trigger AS $$
 BEGIN
   IF NEW.email IS DISTINCT FROM OLD.email THEN
     NEW.email_verified_at := NULL;
     NEW.email_verified_method := NULL;
+    UPDATE user_email_codes
+    SET deleted_at = now()
+    WHERE user_id = NEW.user_id
+      AND purpose = 'email_ownership_verification'
+      AND deleted_at IS NULL;
   END IF;
   RETURN NEW;
 END;

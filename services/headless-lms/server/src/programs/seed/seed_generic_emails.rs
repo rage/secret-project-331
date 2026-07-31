@@ -206,8 +206,8 @@ pub async fn seed_generic_emails(
     Ok(())
 }
 
-/// Placeholders come from `email_deliveries.placeholders`, not the recipient's account: the mail
-/// goes to a raw address, as it stood when the link was minted.
+/// The sender looks the account's pending code up at send time and substitutes `{{CODE}}`, as it does
+/// for the login and account deletion codes.
 ///
 /// A migration cannot insert a template row using an enum value it adds itself, so in dev and tests
 /// the `verify_email_address` templates come only from here.
@@ -223,7 +223,7 @@ async fn seed_email_ownership_verification_templates(
             "isValid": true,
             "clientId": "77777777-7777-7777-7777-777777777777",
             "attributes": {
-                "content": "Hello, please confirm that {{EMAIL}} is your email address.",
+                "content": "Hello, please use this code to confirm the email address on your account.",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -233,7 +233,7 @@ async fn seed_email_ownership_verification_templates(
             "isValid": true,
             "clientId": "88888888-8888-8888-8888-888888888888",
             "attributes": {
-                "content": "Confirm your email address here: {{VERIFICATION_LINK}}",
+                "content": "Your confirmation code is: {{CODE}}",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -243,7 +243,7 @@ async fn seed_email_ownership_verification_templates(
             "isValid": true,
             "clientId": "99999999-9999-9999-9999-999999999999",
             "attributes": {
-                "content": "If you did not request this, you can ignore this message. Nothing changes until the link is opened.",
+                "content": "If you did not request this, you can ignore this message. Nothing changes until the code is entered.",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -270,7 +270,7 @@ async fn seed_email_ownership_verification_templates(
             "isValid": true,
             "clientId": "aaaaaaaa-7777-7777-7777-777777777777",
             "attributes": {
-                "content": "Hei, vahvista että {{EMAIL}} on sähköpostiosoitteesi.",
+                "content": "Hei, vahvista tilisi sähköpostiosoite tällä koodilla.",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -280,7 +280,7 @@ async fn seed_email_ownership_verification_templates(
             "isValid": true,
             "clientId": "bbbbbbbb-8888-8888-8888-888888888888",
             "attributes": {
-                "content": "Vahvista sähköpostiosoitteesi tästä: {{VERIFICATION_LINK}}",
+                "content": "Vahvistuskoodisi on: {{CODE}}",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -290,7 +290,7 @@ async fn seed_email_ownership_verification_templates(
             "isValid": true,
             "clientId": "cccccccc-9999-9999-9999-999999999999",
             "attributes": {
-                "content": "Jos et pyytänyt tätä, voit jättää viestin huomiotta. Mikään ei muutu ennen kuin linkki avataan.",
+                "content": "Jos et pyytänyt tätä, voit jättää viestin huomiotta. Mikään ei muutu ennen kuin koodi syötetään.",
                 "drop_cap": false
             },
             "innerBlocks": []

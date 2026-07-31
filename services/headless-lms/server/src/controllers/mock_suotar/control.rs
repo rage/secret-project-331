@@ -152,6 +152,7 @@ mod tests {
             test_suotar,
             development_uuid_login: false,
             enable_admin_email_verification: false,
+            enable_email_ownership_verification: false,
             azure_configuration: None,
             suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
                 .expect("the mock configuration is built from a constant base url"),

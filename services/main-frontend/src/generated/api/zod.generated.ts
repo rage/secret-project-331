@@ -209,21 +209,6 @@ export const zChapterUpdate = z.object({
   opens_at: z.iso.datetime().nullish(),
 })
 
-export const zClaimEmailVerificationPayload = z.object({
-  token: z.string(),
-})
-
-/**
- * Outcome of claiming a link. The failures are distinct values because the remedy differs for each.
- */
-export const zClaimEmailVerificationResult = z.enum([
-  "verified",
-  "already_used",
-  "expired",
-  "email_changed",
-  "invalid",
-])
-
 export const zCmsPageExerciseSlide = z.object({
   exercise_id: z.uuid(),
   id: z.uuid(),
@@ -998,30 +983,6 @@ export const zEmailData = z.object({
   language: z.string(),
 })
 
-/**
- * What we can honestly say about an email we queued.
- *
- * We only hand messages to an SMTP relay, so copy rendering this must never say "delivered" or
- * "received".
- */
-export const zEmailSendStatus = z.enum(["queued", "retrying", "sent", "send_failed"])
-
-/**
- * The shared payload for every surface that reports on a queued email.
- */
-export const zEmailSendStatusReport = z.object({
-  email_send_status: zEmailSendStatus,
-  failure_code: z.string().nullish(),
-  failure_is_transient: z.boolean().nullish(),
-  last_attempt_at: z.iso.datetime().nullish(),
-  next_retry_at: z.iso.datetime().nullish(),
-  retry_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  sent_at: z.iso.datetime().nullish(),
-})
-
 export const zEmailTemplateType = z.enum([
   "reset_password_email",
   "delete_user_email",
@@ -1068,9 +1029,7 @@ export const zEmailTemplateNew = z.object({
  * hand messages to an SMTP relay and cannot see an inbox.
  */
 export const zEmailVerificationEmailInfo = z.object({
-  emailed_to: z.string(),
   expires_at: z.iso.datetime(),
-  send_status: zEmailSendStatusReport.nullish(),
   sent_at: z.iso.datetime(),
 })
 
@@ -1078,7 +1037,7 @@ export const zEmailVerificationEmailInfo = z.object({
  * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
  */
 export const zEmailVerificationMethod = z.enum([
-  "verification_link",
+  "emailed_code",
   "password_reset_backfill",
   "tmc_confirmed",
   "admin_asserted",
@@ -1089,7 +1048,6 @@ export const zEmailVerificationStatus = z.object({
   email_verified_at: z.iso.datetime().nullish(),
   email_verified_method: zEmailVerificationMethod.nullish(),
   latest_verification_email: zEmailVerificationEmailInfo.nullish(),
-  verification_configured: z.boolean(),
 })
 
 export const zEventInfo = z.object({
@@ -2463,7 +2421,6 @@ export const zRequestEmailVerificationOutcome = z.enum([
   "queued",
   "already_verified",
   "recently_sent",
-  "not_configured",
 ])
 
 export const zRequestEmailVerificationPayload = z.object({
@@ -3152,6 +3109,16 @@ export const zNewChatbotConf = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
+
+export const zVerifyEmailOwnershipPayload = z.object({
+  code: z.string(),
+})
+
+/**
+ * Outcome of submitting a code. Wrong, expired, superseded and spent are one value: they are
+ * indistinguishable to someone typing digits, and telling them apart only helps a guesser.
+ */
+export const zVerifyEmailOwnershipResult = z.enum(["verified", "already_verified", "invalid"])
 
 export const zUploadFilesFromExerciseServiceBody = z.record(z.string(), z.string())
 
@@ -4843,19 +4810,12 @@ export const zDeleteEmailTemplatePath = z.object({
  */
 export const zDeleteEmailTemplateResponse = zEmailTemplate
 
-export const zClaimEmailVerificationLinkBody = zClaimEmailVerificationPayload
-
-/**
- * Outcome of the claim
- */
-export const zClaimEmailVerificationLinkResponse = zClaimEmailVerificationResult
-
-export const zRequestEmailVerificationLinkBody = zRequestEmailVerificationPayload
+export const zRequestEmailVerificationCodeBody = zRequestEmailVerificationPayload
 
 /**
  * What the request did
  */
-export const zRequestEmailVerificationLinkResponse = zRequestEmailVerificationOutcome
+export const zRequestEmailVerificationCodeResponse = zRequestEmailVerificationOutcome
 
 /**
  * Email verification status of the signed-in user
@@ -4863,9 +4823,16 @@ export const zRequestEmailVerificationLinkResponse = zRequestEmailVerificationOu
 export const zGetMyEmailVerificationStatusResponse = zEmailVerificationStatus
 
 /**
- * The caller's pending verification link
+ * The caller's pending verification code
  */
-export const zGetEmailVerificationLinkForTestModeResponse = z.string()
+export const zGetEmailVerificationCodeForTestModeResponse = z.string()
+
+export const zVerifyEmailOwnershipBody = zVerifyEmailOwnershipPayload
+
+/**
+ * Outcome of submitting the code
+ */
+export const zVerifyEmailOwnershipResponse = zVerifyEmailOwnershipResult
 
 export const zGetExamExercisesPath = z.object({
   exam_id: z.uuid(),

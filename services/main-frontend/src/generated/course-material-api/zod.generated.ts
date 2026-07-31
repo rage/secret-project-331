@@ -368,7 +368,7 @@ export const zCustomViewExerciseTasks = z.object({
  * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
  */
 export const zEmailVerificationMethod = z.enum([
-  "verification_link",
+  "emailed_code",
   "password_reset_backfill",
   "tmc_confirmed",
   "admin_asserted",

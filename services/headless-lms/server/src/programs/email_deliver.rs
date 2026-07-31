@@ -11,6 +11,7 @@ use headless_lms_models::email_deliveries::{
     insert_email_delivery_error, mark_as_sent, maybe_purge_expired_recipient_addresses,
 };
 use headless_lms_models::email_templates::EmailTemplateType;
+use headless_lms_models::user_email_codes::UserEmailCodePurpose;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
 use headless_lms_utils::email_processor::{self, BlockAttributes, EmailGutenbergBlock};
 use lettre::transport::smtp::Error as SmtpError;
@@ -20,6 +21,7 @@ use lettre::{
     message::{MultiPart, SinglePart, header},
 };
 use once_cell::sync::Lazy;
+use secrecy::ExposeSecret;
 use sqlx::{Connection, PgConnection, PgPool};
 use std::collections::HashMap;
 use uuid::Uuid;
@@ -286,11 +288,13 @@ async fn apply_email_template_replacements(
         EmailTemplateType::DeleteUserEmail => {
             if let Some(code) =
                 headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
-                    conn, user_id,
+                    conn,
+                    user_id,
+                    UserEmailCodePurpose::AccountDeletion,
                 )
                 .await?
             {
-                replacements.insert("CODE".to_string(), code.code);
+                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
             } else {
                 let msg = anyhow::anyhow!("No deletion code found for user {}", user_id);
                 record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
@@ -301,13 +305,35 @@ async fn apply_email_template_replacements(
         EmailTemplateType::ConfirmEmailCode => {
             if let Some(code) =
                 headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
-                    conn, user_id,
+                    conn,
+                    user_id,
+                    UserEmailCodePurpose::AdminLogin,
                 )
                 .await?
             {
-                replacements.insert("CODE".to_string(), code.code);
+                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
             } else {
                 let msg = anyhow::anyhow!("No verification code found for user {}", user_id);
+                record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
+                    .await?;
+                return Ok(TemplateApplyResult::Abandoned);
+            }
+        }
+        EmailTemplateType::VerifyEmailAddress => {
+            if let Some(code) =
+                headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
+                    conn,
+                    user_id,
+                    UserEmailCodePurpose::EmailOwnershipVerification,
+                )
+                .await?
+            {
+                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
+            } else {
+                let msg = anyhow::anyhow!(
+                    "No email ownership verification code found for user {}",
+                    user_id
+                );
                 record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
                     .await?;
                 return Ok(TemplateApplyResult::Abandoned);
@@ -316,7 +342,6 @@ async fn apply_email_template_replacements(
         // Handled above. Listed rather than caught by `_` so a new template type is a compile error.
         EmailTemplateType::Generic
         | EmailTemplateType::CreditRegistrationAccountLinking
-        | EmailTemplateType::VerifyEmailAddress
         | EmailTemplateType::CreditRegistrationActionNeeded
         | EmailTemplateType::CreditRegistrationRegistered
         | EmailTemplateType::CreditRegistrationStudentNumberLinked => {}

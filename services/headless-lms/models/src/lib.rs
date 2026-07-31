@@ -52,7 +52,6 @@ pub mod credit_registration_events;
 pub mod credit_registration_phase_state;
 pub mod credit_registrations;
 pub mod email_deliveries;
-pub mod email_ownership_verification_tokens;
 pub mod email_templates;
 pub mod email_verification_tokens;
 pub mod ended_processed_exams;

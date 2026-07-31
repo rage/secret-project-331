@@ -487,13 +487,12 @@ pub async fn update_user_info(
     tx.commit().await?;
 
     if email_changed {
-        // After the commit: a rolled-back edit must not mail a link for an address the account lacks.
+        // After the commit: a rolled-back edit must not mail a code for an address the account lacks.
         let mut conn = pool.acquire().await?;
         domain::email_ownership_verification::queue_verification_email_best_effort(
             &mut conn,
-            &app_conf.base_url,
+            app_conf.enable_email_ownership_verification,
             user.id,
-            &payload.email,
         )
         .await;
     }

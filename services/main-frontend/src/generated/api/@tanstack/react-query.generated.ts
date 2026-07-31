@@ -22,7 +22,6 @@ import {
   authorizeOauthGet,
   authorizeOauthPost,
   changeUserPassword,
-  claimEmailVerificationLink,
   configureChatbot,
   confirmCourseSuspectedCheater,
   createChapter,
@@ -172,7 +171,7 @@ import {
   getEditProposalCount,
   getEditProposals,
   getEmailTemplates,
-  getEmailVerificationLinkForTestMode,
+  getEmailVerificationCodeForTestMode,
   getExam,
   getExamExercises,
   getExamSubmissionsWithExamId,
@@ -283,7 +282,7 @@ import {
   removeCoursePlanMember,
   removeRole,
   reprocessCourseCompletions,
-  requestEmailVerificationLink,
+  requestEmailVerificationCode,
   resetCourseProgressForEveryone,
   resetCourseProgressForTeacherThemselves,
   resetExercisesForSelectedUsers,
@@ -330,6 +329,7 @@ import {
   uploadCourseMedia,
   uploadFilesFromExerciseService,
   upsertCoursePartnersBlock,
+  verifyEmailOwnership,
 } from "../sdk.generated"
 import type {
   AddCodeGiveawayCodesData,
@@ -347,8 +347,6 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponse,
-  ClaimEmailVerificationLinkData,
-  ClaimEmailVerificationLinkResponse,
   ConfigureChatbotData,
   ConfigureChatbotResponse,
   ConfirmCourseSuspectedCheaterData,
@@ -620,8 +618,8 @@ import type {
   GetEditProposalsResponse,
   GetEmailTemplatesData,
   GetEmailTemplatesResponse,
-  GetEmailVerificationLinkForTestModeData,
-  GetEmailVerificationLinkForTestModeResponse,
+  GetEmailVerificationCodeForTestModeData,
+  GetEmailVerificationCodeForTestModeResponse,
   GetExamData,
   GetExamExercisesData,
   GetExamExercisesResponse,
@@ -828,8 +826,8 @@ import type {
   RemoveRoleData,
   ReprocessCourseCompletionsData,
   ReprocessCourseCompletionsResponse,
-  RequestEmailVerificationLinkData,
-  RequestEmailVerificationLinkResponse,
+  RequestEmailVerificationCodeData,
+  RequestEmailVerificationCodeResponse,
   ResetCourseProgressForEveryoneData,
   ResetCourseProgressForEveryoneResponse,
   ResetCourseProgressForTeacherThemselvesData,
@@ -908,6 +906,8 @@ import type {
   UploadFilesFromExerciseServiceData,
   UploadFilesFromExerciseServiceResponse,
   UpsertCoursePartnersBlockData,
+  VerifyEmailOwnershipData,
+  VerifyEmailOwnershipResponse,
 } from "../types.generated"
 
 /**
@@ -5563,52 +5563,23 @@ export const deleteEmailTemplateMutation = (
 
 /**
  *
- * POST `/api/v0/main-frontend/email-verification/claim` - Consumes a mailed link and records the proof.
- *
- * Unauthenticated because the token names the account and the mail is often opened on a device that is
- * not signed in. A POST rather than a GET so a mail scanner or a link prefetcher cannot burn the link.
- */
-export const claimEmailVerificationLinkMutation = (
-  options?: Partial<Options<ClaimEmailVerificationLinkData>>,
-): UseMutationOptions<
-  ClaimEmailVerificationLinkResponse,
-  DefaultError,
-  Options<ClaimEmailVerificationLinkData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    ClaimEmailVerificationLinkResponse,
-    DefaultError,
-    Options<ClaimEmailVerificationLinkData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await claimEmailVerificationLink({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- *
- * POST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification link to the
+ * POST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification code to the
  * signed-in account's current address.
  */
-export const requestEmailVerificationLinkMutation = (
-  options?: Partial<Options<RequestEmailVerificationLinkData>>,
+export const requestEmailVerificationCodeMutation = (
+  options?: Partial<Options<RequestEmailVerificationCodeData>>,
 ): UseMutationOptions<
-  RequestEmailVerificationLinkResponse,
+  RequestEmailVerificationCodeResponse,
   DefaultError,
-  Options<RequestEmailVerificationLinkData>
+  Options<RequestEmailVerificationCodeData>
 > => {
   const mutationOptions: UseMutationOptions<
-    RequestEmailVerificationLinkResponse,
+    RequestEmailVerificationCodeResponse,
     DefaultError,
-    Options<RequestEmailVerificationLinkData>
+    Options<RequestEmailVerificationCodeData>
   > = {
     mutationFn: async (fnOptions) =>
-      await requestEmailVerificationLink({
+      await requestEmailVerificationCode({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -5645,36 +5616,65 @@ export const getMyEmailVerificationStatusOptions = (
     queryKey: getMyEmailVerificationStatusQueryKey(options),
   })
 
-export const getEmailVerificationLinkForTestModeQueryKey = (
-  options?: Options<GetEmailVerificationLinkForTestModeData>,
-) => createQueryKey("getEmailVerificationLinkForTestMode", options)
+export const getEmailVerificationCodeForTestModeQueryKey = (
+  options?: Options<GetEmailVerificationCodeForTestModeData>,
+) => createQueryKey("getEmailVerificationCodeForTestMode", options)
 
 /**
  *
- * GET `/api/v0/main-frontend/email-verification/test-mode-link` - The signed-in account's own pending
- * verification link.
+ * GET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending
+ * verification code.
  *
  * Exists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the
- * caller's own account, so an accidentally open gate only ever hands you your own link.
+ * caller's own account, so an accidentally open gate only ever hands you your own code.
  */
-export const getEmailVerificationLinkForTestModeOptions = (
-  options?: Options<GetEmailVerificationLinkForTestModeData>,
+export const getEmailVerificationCodeForTestModeOptions = (
+  options?: Options<GetEmailVerificationCodeForTestModeData>,
 ) =>
   queryOptions<
-    GetEmailVerificationLinkForTestModeResponse,
+    GetEmailVerificationCodeForTestModeResponse,
     DefaultError,
-    GetEmailVerificationLinkForTestModeResponse,
-    ReturnType<typeof getEmailVerificationLinkForTestModeQueryKey>
+    GetEmailVerificationCodeForTestModeResponse,
+    ReturnType<typeof getEmailVerificationCodeForTestModeQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) =>
-      await getEmailVerificationLinkForTestMode({
+      await getEmailVerificationCodeForTestMode({
         ...options,
         ...queryKey[0],
         signal,
         throwOnError: true,
       }),
-    queryKey: getEmailVerificationLinkForTestModeQueryKey(options),
+    queryKey: getEmailVerificationCodeForTestModeQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof.
+ *
+ * Authenticated and scoped to the caller's own account, so the code is the only secret involved and it
+ * never has to identify anybody on its own.
+ */
+export const verifyEmailOwnershipMutation = (
+  options?: Partial<Options<VerifyEmailOwnershipData>>,
+): UseMutationOptions<
+  VerifyEmailOwnershipResponse,
+  DefaultError,
+  Options<VerifyEmailOwnershipData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    VerifyEmailOwnershipResponse,
+    DefaultError,
+    Options<VerifyEmailOwnershipData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await verifyEmailOwnership({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getExamExercisesQueryKey = (options: Options<GetExamExercisesData>) =>
   createQueryKey("getExamExercises", options)

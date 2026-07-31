@@ -15,7 +15,7 @@ viewpoints:
       - course_credit_registration_consents
       - verified_student_numbers
       - student_number_verification_tokens
-      - email_ownership_verification_tokens
+      - user_email_codes
       - credit_registration_account_linking_emails
       - email_deliveries
       - email_templates
@@ -54,11 +54,12 @@ viewpoints:
           - student_number_verification_tokens
       - name: Email ownership and the mail proofs ride on
         desc: >-
-          The proofs are one-click links sent by mail, so the address each link went to, our send
-          status and the record of who has already been mailed are all part of the proof. The
-          linking mails go to addresses Sisu holds, which frequently have no account here.
+          Account address ownership is proven by a code mailed to the account and typed back, so the
+          proof lives on user_details and the code table holds nothing but the pending code. The
+          student-number linking mails carry one-click links instead, and go to addresses Sisu holds
+          which frequently have no account here.
         tables:
-          - email_ownership_verification_tokens
+          - user_email_codes
           - credit_registration_account_linking_emails
           - email_deliveries
           - email_templates

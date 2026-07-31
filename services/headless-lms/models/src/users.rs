@@ -254,13 +254,6 @@ pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     info!("Deleting user {id}");
     let mut tx = conn.begin().await?;
     crate::email_deliveries::soft_delete_unsent_retryable_deliveries_for_user(&mut tx, id).await?;
-    crate::email_ownership_verification_tokens::soft_delete_unused_with_pending_mail_for_user(
-        &mut tx, id,
-    )
-    .await?;
-    // After the sweep, so nothing still sendable picks up the erased placeholder as its address.
-    crate::email_ownership_verification_tokens::erase_stored_addresses_for_user(&mut tx, id)
-        .await?;
     sqlx::query!("DELETE FROM user_details WHERE user_id = $1", id,)
         .execute(&mut *tx)
         .await?;

@@ -12,7 +12,7 @@ const MIN_FUZZY_SEARCH_TERM_LENGTH: usize = 3;
 #[sqlx(type_name = "email_verification_method", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum EmailVerificationMethod {
-    VerificationLink,
+    EmailedCode,
     PasswordResetBackfill,
     TmcConfirmed,
     AdminAsserted,
@@ -330,7 +330,7 @@ mod tests {
             set_email_verified(
                 tx,
                 user_id,
-                EmailVerificationMethod::VerificationLink,
+                EmailVerificationMethod::EmailedCode,
                 Utc::now(),
             )
             .await
@@ -447,7 +447,7 @@ mod tests {
             assert!(updated.email_verified_at.is_some());
             assert_eq!(
                 updated.email_verified_method,
-                Some(EmailVerificationMethod::VerificationLink)
+                Some(EmailVerificationMethod::EmailedCode)
             );
         }
     }

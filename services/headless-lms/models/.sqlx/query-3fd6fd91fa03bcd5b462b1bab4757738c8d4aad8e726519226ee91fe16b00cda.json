@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE user_email_codes\nSET deleted_at = NOW()\nWHERE user_id = $1\n  AND purpose = $2\n  AND deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "user_email_code_purpose",
+            "kind": {
+              "Enum": [
+                "admin_login",
+                "account_deletion",
+                "email_ownership_verification"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3fd6fd91fa03bcd5b462b1bab4757738c8d4aad8e726519226ee91fe16b00cda"
+}

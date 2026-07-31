@@ -6562,40 +6562,11 @@
         }
       }
     },
-    "/api/v0/main-frontend/email-verification/claim": {
-      "post": {
-        "tags": ["email-verification"],
-        "summary": "\nPOST `/api/v0/main-frontend/email-verification/claim` - Consumes a mailed link and records the proof.\n\nUnauthenticated because the token names the account and the mail is often opened on a device that is\nnot signed in. A POST rather than a GET so a mail scanner or a link prefetcher cannot burn the link.",
-        "operationId": "claimEmailVerificationLink",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClaimEmailVerificationPayload"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Outcome of the claim",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimEmailVerificationResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v0/main-frontend/email-verification/request": {
       "post": {
         "tags": ["email-verification"],
-        "summary": "\nPOST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification link to the\nsigned-in account's current address.",
-        "operationId": "requestEmailVerificationLink",
+        "summary": "\nPOST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification code to the\nsigned-in account's current address.",
+        "operationId": "requestEmailVerificationCode",
         "requestBody": {
           "content": {
             "application/json": {
@@ -6616,6 +6587,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Email ownership verification is switched off"
           }
         }
       }
@@ -6639,14 +6613,14 @@
         }
       }
     },
-    "/api/v0/main-frontend/email-verification/test-mode-link": {
+    "/api/v0/main-frontend/email-verification/test-mode-code": {
       "get": {
         "tags": ["email-verification"],
-        "summary": "\nGET `/api/v0/main-frontend/email-verification/test-mode-link` - The signed-in account's own pending\nverification link.\n\nExists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the\ncaller's own account, so an accidentally open gate only ever hands you your own link.",
-        "operationId": "getEmailVerificationLinkForTestMode",
+        "summary": "\nGET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending\nverification code.\n\nExists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the\ncaller's own account, so an accidentally open gate only ever hands you your own code.",
+        "operationId": "getEmailVerificationCodeForTestMode",
         "responses": {
           "200": {
-            "description": "The caller's pending verification link",
+            "description": "The caller's pending verification code",
             "content": {
               "text/plain": {
                 "schema": {
@@ -6656,7 +6630,39 @@
             }
           },
           "404": {
-            "description": "Not in test mode, or no pending link"
+            "description": "Not in test mode, or no pending code"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/email-verification/verify": {
+      "post": {
+        "tags": ["email-verification"],
+        "summary": "\nPOST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof.\n\nAuthenticated and scoped to the caller's own account, so the code is the only secret involved and it\nnever has to identify anybody on its own.",
+        "operationId": "verifyEmailOwnership",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailOwnershipPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Outcome of submitting the code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailOwnershipResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Email ownership verification is switched off"
           }
         }
       }
@@ -12362,20 +12368,6 @@
           }
         }
       },
-      "ClaimEmailVerificationPayload": {
-        "type": "object",
-        "required": ["token"],
-        "properties": {
-          "token": {
-            "type": "string"
-          }
-        }
-      },
-      "ClaimEmailVerificationResult": {
-        "type": "string",
-        "description": "Outcome of claiming a link. The failures are distinct values because the remedy differs for each.",
-        "enum": ["verified", "already_used", "expired", "email_changed", "invalid"]
-      },
       "CmsPageExercise": {
         "type": "object",
         "required": [
@@ -14658,43 +14650,6 @@
           }
         }
       },
-      "EmailSendStatus": {
-        "type": "string",
-        "description": "What we can honestly say about an email we queued.\n\nWe only hand messages to an SMTP relay, so copy rendering this must never say \"delivered\" or\n\"received\".",
-        "enum": ["queued", "retrying", "sent", "send_failed"]
-      },
-      "EmailSendStatusReport": {
-        "type": "object",
-        "description": "The shared payload for every surface that reports on a queued email.",
-        "required": ["email_send_status", "retry_count"],
-        "properties": {
-          "email_send_status": {
-            "$ref": "#/components/schemas/EmailSendStatus"
-          },
-          "failure_code": {
-            "type": ["string", "null"]
-          },
-          "failure_is_transient": {
-            "type": ["boolean", "null"]
-          },
-          "last_attempt_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "next_retry_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "retry_count": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "sent_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          }
-        }
-      },
       "EmailTemplate": {
         "type": "object",
         "required": ["id", "created_at", "updated_at", "template_type"],
@@ -14772,24 +14727,11 @@
       "EmailVerificationEmailInfo": {
         "type": "object",
         "description": "What we last mailed about the address the account holds now. Never a delivery confirmation: we\nhand messages to an SMTP relay and cannot see an inbox.",
-        "required": ["emailed_to", "sent_at", "expires_at"],
+        "required": ["sent_at", "expires_at"],
         "properties": {
-          "emailed_to": {
-            "type": "string"
-          },
           "expires_at": {
             "type": "string",
             "format": "date-time"
-          },
-          "send_status": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/EmailSendStatusReport"
-              }
-            ]
           },
           "sent_at": {
             "type": "string",
@@ -14800,11 +14742,11 @@
       "EmailVerificationMethod": {
         "type": "string",
         "description": "How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.",
-        "enum": ["verification_link", "password_reset_backfill", "tmc_confirmed", "admin_asserted"]
+        "enum": ["emailed_code", "password_reset_backfill", "tmc_confirmed", "admin_asserted"]
       },
       "EmailVerificationStatus": {
         "type": "object",
-        "required": ["email", "verification_configured"],
+        "required": ["email"],
         "properties": {
           "email": {
             "type": "string"
@@ -14832,10 +14774,6 @@
                 "$ref": "#/components/schemas/EmailVerificationEmailInfo"
               }
             ]
-          },
-          "verification_configured": {
-            "type": "boolean",
-            "description": "Whether this deployment can mail verification links at all. False until a\n`verify_email_address` template exists; the account UI then shows nothing about verification."
           }
         }
       },
@@ -18317,7 +18255,7 @@
       },
       "RequestEmailVerificationOutcome": {
         "type": "string",
-        "enum": ["queued", "already_verified", "recently_sent", "not_configured"]
+        "enum": ["queued", "already_verified", "recently_sent"]
       },
       "RequestEmailVerificationPayload": {
         "type": "object",
@@ -19478,6 +19416,20 @@
       "VerbosityLevel": {
         "type": "string",
         "enum": ["low", "medium", "high"]
+      },
+      "VerifyEmailOwnershipPayload": {
+        "type": "object",
+        "required": ["code"],
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "VerifyEmailOwnershipResult": {
+        "type": "string",
+        "description": "Outcome of submitting a code. Wrong, expired, superseded and spent are one value: they are\nindistinguishable to someone typing digits, and telling them apart only helps a guesser.",
+        "enum": ["verified", "already_verified", "invalid"]
       }
     }
   },

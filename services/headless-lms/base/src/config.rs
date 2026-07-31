@@ -42,6 +42,7 @@ pub struct ApplicationConfiguration {
     pub test_suotar: bool,
     pub development_uuid_login: bool,
     pub enable_admin_email_verification: bool,
+    pub enable_email_ownership_verification: bool,
     pub azure_configuration: Option<AzureConfiguration>,
     pub suotar_configuration: SuotarConfiguration,
     pub tmc_account_creation_origin: Option<String>,
@@ -57,6 +58,8 @@ impl ApplicationConfiguration {
         let development_uuid_login = bool_env_false_by_default("DEVELOPMENT_UUID_LOGIN");
         let enable_admin_email_verification =
             bool_env_false_by_default("ENABLE_ADMIN_EMAIL_VERIFICATION");
+        let enable_email_ownership_verification =
+            bool_env_false_by_default("ENABLE_EMAIL_OWNERSHIP_VERIFICATION");
         let test_chatbot = test_mode
             && (bool_env_false_by_default("USE_MOCK_AZURE_CONFIGURATION")
                 || env::var("AZURE_CHATBOT_API_KEY").is_err());
@@ -105,6 +108,7 @@ impl ApplicationConfiguration {
             test_suotar,
             development_uuid_login,
             enable_admin_email_verification,
+            enable_email_ownership_verification,
             azure_configuration,
             suotar_configuration,
             tmc_account_creation_origin,

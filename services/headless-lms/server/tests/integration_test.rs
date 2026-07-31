@@ -97,6 +97,7 @@ pub async fn test_config() -> ServerConfig {
             base_url: "http://project-331.local".to_string(),
             development_uuid_login: false,
             enable_admin_email_verification: false,
+            enable_email_ownership_verification: false,
             azure_configuration: None,
             test_chatbot: false,
             test_sisu: false,

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE email_ownership_verification_tokens t\nSET used_at = now()\nWHERE t.token = $1\n  AND t.used_at IS NULL\n  AND t.deleted_at IS NULL\n  AND t.expires_at > now()\n  AND EXISTS (\n    SELECT 1\n    FROM user_details ud\n    WHERE ud.user_id = t.user_id\n      AND lower(ud.email) = lower(t.email)\n  )\nRETURNING t.*\n        ",
+  "query": "\nSELECT id,\n  user_id,\n  code,\n  purpose AS \"purpose: UserEmailCodePurpose\",\n  attempt_count,\n  expires_at,\n  used_at,\n  created_at,\n  updated_at,\n  deleted_at\nFROM user_email_codes\nWHERE user_id = $1\n  AND purpose = $2\n  AND deleted_at IS NULL\n  AND used_at IS NULL\n  AND expires_at > $3\n        ",
   "describe": {
     "columns": [
       {
@@ -9,52 +9,63 @@
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "email_ownership_verification_tokens",
+            "table": "user_email_codes",
             "name": "id"
           }
         }
       },
       {
         "ordinal": 1,
-        "name": "token",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "email_ownership_verification_tokens",
-            "name": "token"
-          }
-        }
-      },
-      {
-        "ordinal": 2,
         "name": "user_id",
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "email_ownership_verification_tokens",
+            "table": "user_email_codes",
             "name": "user_id"
           }
         }
       },
       {
-        "ordinal": 3,
-        "name": "email",
+        "ordinal": 2,
+        "name": "code",
         "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "email_ownership_verification_tokens",
-            "name": "email"
+            "table": "user_email_codes",
+            "name": "code"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "purpose: UserEmailCodePurpose",
+        "type_info": {
+          "Custom": {
+            "name": "user_email_code_purpose",
+            "kind": {
+              "Enum": [
+                "admin_login",
+                "account_deletion",
+                "email_ownership_verification"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "user_email_codes",
+            "name": "purpose"
           }
         }
       },
       {
         "ordinal": 4,
-        "name": "email_delivery_id",
-        "type_info": "Uuid",
+        "name": "attempt_count",
+        "type_info": "Int4",
         "origin": {
           "Table": {
-            "table": "email_ownership_verification_tokens",
-            "name": "email_delivery_id"
+            "table": "user_email_codes",
+            "name": "attempt_count"
           }
         }
       },
@@ -64,7 +75,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "email_ownership_verification_tokens",
+            "table": "user_email_codes",
             "name": "expires_at"
           }
         }
@@ -75,7 +86,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "email_ownership_verification_tokens",
+            "table": "user_email_codes",
             "name": "used_at"
           }
         }
@@ -86,7 +97,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "email_ownership_verification_tokens",
+            "table": "user_email_codes",
             "name": "created_at"
           }
         }
@@ -97,7 +108,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "email_ownership_verification_tokens",
+            "table": "user_email_codes",
             "name": "updated_at"
           }
         }
@@ -108,7 +119,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "email_ownership_verification_tokens",
+            "table": "user_email_codes",
             "name": "deleted_at"
           }
         }
@@ -116,7 +127,20 @@
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Uuid",
+        {
+          "Custom": {
+            "name": "user_email_code_purpose",
+            "kind": {
+              "Enum": [
+                "admin_login",
+                "account_deletion",
+                "email_ownership_verification"
+              ]
+            }
+          }
+        },
+        "Timestamptz"
       ]
     },
     "nullable": [
@@ -124,7 +148,7 @@
       false,
       false,
       false,
-      true,
+      false,
       false,
       true,
       false,
@@ -132,5 +156,5 @@
       true
     ]
   },
-  "hash": "9d37aaf5095d9fa01749f31bdb245291890a4fa34a58bce460a32f3476c1e5d9"
+  "hash": "e5501a3e652db7a2714a6b19d5720227ded68e359fda0cc3f57185fae40c498b"
 }

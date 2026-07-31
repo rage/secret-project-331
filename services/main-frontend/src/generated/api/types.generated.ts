@@ -331,20 +331,6 @@ export type ChatbotConfigurationModel = {
   updated_at: string
 }
 
-export type ClaimEmailVerificationPayload = {
-  token: string
-}
-
-/**
- * Outcome of claiming a link. The failures are distinct values because the remedy differs for each.
- */
-export type ClaimEmailVerificationResult =
-  | "verified"
-  | "already_used"
-  | "expired"
-  | "email_changed"
-  | "invalid"
-
 export type CmsPageExercise = {
   deadline?: string | null
   id: string
@@ -1133,27 +1119,6 @@ export type EmailData = {
   language: string
 }
 
-/**
- * What we can honestly say about an email we queued.
- *
- * We only hand messages to an SMTP relay, so copy rendering this must never say "delivered" or
- * "received".
- */
-export type EmailSendStatus = "queued" | "retrying" | "sent" | "send_failed"
-
-/**
- * The shared payload for every surface that reports on a queued email.
- */
-export type EmailSendStatusReport = {
-  email_send_status: EmailSendStatus
-  failure_code?: string | null
-  failure_is_transient?: boolean | null
-  last_attempt_at?: string | null
-  next_retry_at?: string | null
-  retry_count: number
-  sent_at?: string | null
-}
-
 export type EmailTemplate = {
   content?: unknown
   course_id?: string | null
@@ -1191,9 +1156,7 @@ export type EmailTemplateType =
  * hand messages to an SMTP relay and cannot see an inbox.
  */
 export type EmailVerificationEmailInfo = {
-  emailed_to: string
   expires_at: string
-  send_status?: null | EmailSendStatusReport
   sent_at: string
 }
 
@@ -1201,7 +1164,7 @@ export type EmailVerificationEmailInfo = {
  * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
  */
 export type EmailVerificationMethod =
-  | "verification_link"
+  | "emailed_code"
   | "password_reset_backfill"
   | "tmc_confirmed"
   | "admin_asserted"
@@ -1211,11 +1174,6 @@ export type EmailVerificationStatus = {
   email_verified_at?: string | null
   email_verified_method?: null | EmailVerificationMethod
   latest_verification_email?: null | EmailVerificationEmailInfo
-  /**
-   * Whether this deployment can mail verification links at all. False until a
-   * `verify_email_address` template exists; the account UI then shows nothing about verification.
-   */
-  verification_configured: boolean
 }
 
 export type EventInfo = {
@@ -2285,11 +2243,7 @@ export type RegradingSubmissionInfo = {
 
 export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
 
-export type RequestEmailVerificationOutcome =
-  | "queued"
-  | "already_verified"
-  | "recently_sent"
-  | "not_configured"
+export type RequestEmailVerificationOutcome = "queued" | "already_verified" | "recently_sent"
 
 export type RequestEmailVerificationPayload = {
   /**
@@ -2702,6 +2656,16 @@ export type UserWithModuleCompletions = {
 }
 
 export type VerbosityLevel = "low" | "medium" | "high"
+
+export type VerifyEmailOwnershipPayload = {
+  code: string
+}
+
+/**
+ * Outcome of submitting a code. Wrong, expired, superseded and spent are one value: they are
+ * indistinguishable to someone typing digits, and telling them apart only helps a guesser.
+ */
+export type VerifyEmailOwnershipResult = "verified" | "already_verified" | "invalid"
 
 export type UploadFilesFromExerciseServiceData = {
   body: {
@@ -6708,39 +6672,29 @@ export type DeleteEmailTemplateResponses = {
 export type DeleteEmailTemplateResponse =
   DeleteEmailTemplateResponses[keyof DeleteEmailTemplateResponses]
 
-export type ClaimEmailVerificationLinkData = {
-  body: ClaimEmailVerificationPayload
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/email-verification/claim"
-}
-
-export type ClaimEmailVerificationLinkResponses = {
-  /**
-   * Outcome of the claim
-   */
-  200: ClaimEmailVerificationResult
-}
-
-export type ClaimEmailVerificationLinkResponse =
-  ClaimEmailVerificationLinkResponses[keyof ClaimEmailVerificationLinkResponses]
-
-export type RequestEmailVerificationLinkData = {
+export type RequestEmailVerificationCodeData = {
   body: RequestEmailVerificationPayload
   path?: never
   query?: never
   url: "/api/v0/main-frontend/email-verification/request"
 }
 
-export type RequestEmailVerificationLinkResponses = {
+export type RequestEmailVerificationCodeErrors = {
+  /**
+   * Email ownership verification is switched off
+   */
+  404: unknown
+}
+
+export type RequestEmailVerificationCodeResponses = {
   /**
    * What the request did
    */
   200: RequestEmailVerificationOutcome
 }
 
-export type RequestEmailVerificationLinkResponse =
-  RequestEmailVerificationLinkResponses[keyof RequestEmailVerificationLinkResponses]
+export type RequestEmailVerificationCodeResponse =
+  RequestEmailVerificationCodeResponses[keyof RequestEmailVerificationCodeResponses]
 
 export type GetMyEmailVerificationStatusData = {
   body?: never
@@ -6759,29 +6713,53 @@ export type GetMyEmailVerificationStatusResponses = {
 export type GetMyEmailVerificationStatusResponse =
   GetMyEmailVerificationStatusResponses[keyof GetMyEmailVerificationStatusResponses]
 
-export type GetEmailVerificationLinkForTestModeData = {
+export type GetEmailVerificationCodeForTestModeData = {
   body?: never
   path?: never
   query?: never
-  url: "/api/v0/main-frontend/email-verification/test-mode-link"
+  url: "/api/v0/main-frontend/email-verification/test-mode-code"
 }
 
-export type GetEmailVerificationLinkForTestModeErrors = {
+export type GetEmailVerificationCodeForTestModeErrors = {
   /**
-   * Not in test mode, or no pending link
+   * Not in test mode, or no pending code
    */
   404: unknown
 }
 
-export type GetEmailVerificationLinkForTestModeResponses = {
+export type GetEmailVerificationCodeForTestModeResponses = {
   /**
-   * The caller's pending verification link
+   * The caller's pending verification code
    */
   200: string
 }
 
-export type GetEmailVerificationLinkForTestModeResponse =
-  GetEmailVerificationLinkForTestModeResponses[keyof GetEmailVerificationLinkForTestModeResponses]
+export type GetEmailVerificationCodeForTestModeResponse =
+  GetEmailVerificationCodeForTestModeResponses[keyof GetEmailVerificationCodeForTestModeResponses]
+
+export type VerifyEmailOwnershipData = {
+  body: VerifyEmailOwnershipPayload
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/email-verification/verify"
+}
+
+export type VerifyEmailOwnershipErrors = {
+  /**
+   * Email ownership verification is switched off
+   */
+  404: unknown
+}
+
+export type VerifyEmailOwnershipResponses = {
+  /**
+   * Outcome of submitting the code
+   */
+  200: VerifyEmailOwnershipResult
+}
+
+export type VerifyEmailOwnershipResponse =
+  VerifyEmailOwnershipResponses[keyof VerifyEmailOwnershipResponses]
 
 export type GetExamExercisesData = {
   body?: never

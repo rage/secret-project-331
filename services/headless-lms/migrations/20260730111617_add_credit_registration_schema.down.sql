@@ -88,10 +88,6 @@ DROP TABLE IF EXISTS verified_student_numbers;
 
 DROP TYPE IF EXISTS student_number_verification_method;
 
--- Dropped before the email_deliveries revert below, whose DELETE of raw-address deliveries would
--- otherwise trip this table's foreign key.
-DROP TABLE IF EXISTS email_ownership_verification_tokens;
-
 DROP TABLE IF EXISTS course_module_suotar_realisations;
 
 DROP INDEX IF EXISTS idx_course_modules_suotar_enabled;
@@ -144,3 +140,17 @@ ALTER TABLE user_details DROP COLUMN IF EXISTS email_verified_at,
   DROP COLUMN IF EXISTS email_verified_method;
 
 DROP TYPE IF EXISTS email_verification_method;
+
+-- After the trigger function above, which reads user_email_codes.purpose.
+DROP INDEX IF EXISTS unique_active_user_email_codes_user;
+
+CREATE UNIQUE INDEX IF NOT EXISTS unique_active_user_email_codes_user ON user_email_codes(user_id, code)
+WHERE deleted_at IS NULL
+  AND used_at IS NULL;
+
+ALTER TABLE user_email_codes DROP COLUMN IF EXISTS purpose,
+  DROP COLUMN IF EXISTS attempt_count;
+
+DROP TYPE IF EXISTS user_email_code_purpose;
+
+COMMENT ON TABLE user_email_codes IS 'Stores single-use codes for actions like user account deletion verification.';

@@ -504,7 +504,7 @@ export type CustomViewExerciseTasks = {
  * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
  */
 export type EmailVerificationMethod =
-  | "verification_link"
+  | "emailed_code"
   | "password_reset_backfill"
   | "tmc_confirmed"
   | "admin_asserted"

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM credit_registration_account_linking_emails\nWHERE student_number = $1\n  AND deleted_at IS NULL\nORDER BY sent_at DESC\n        ",
+  "query": "\nSELECT *\nFROM credit_registration_account_linking_emails\nWHERE sisu_person_id = $1\n  AND deleted_at IS NULL\nORDER BY sent_at DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -144,5 +144,5 @@
       true
     ]
   },
-  "hash": "78bbe4fbf4e2199dbd5543da51ceb93de9f0f0846a31ef23c611faa58a8835a7"
+  "hash": "92ab2f877ebe5d5ede370ddd9ea3ceda3ee2e23c0bd9588e45de89949d150032"
 }

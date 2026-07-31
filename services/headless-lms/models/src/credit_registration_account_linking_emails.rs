@@ -1,7 +1,7 @@
 //! Dedup ledger for account-linking mails.
 //!
-//! Keyed on the Sisu-side identity plus the recipient address, because at send time there is no
-//! account of ours to key on.
+//! Keyed on the Sisu person id plus the recipient address: at send time there is no account of ours
+//! to key on, and the student number changes when a student moves between programmes.
 use utoipa::ToSchema;
 
 use crate::prelude::*;
@@ -84,20 +84,20 @@ ORDER BY sent_at DESC
     Ok(res)
 }
 
-pub async fn get_by_student_number(
+pub async fn get_by_sisu_person_id(
     conn: &mut PgConnection,
-    student_number: &str,
+    sisu_person_id: &str,
 ) -> ModelResult<Vec<CreditRegistrationAccountLinkingEmail>> {
     let res = sqlx::query_as!(
         CreditRegistrationAccountLinkingEmail,
         r#"
 SELECT *
 FROM credit_registration_account_linking_emails
-WHERE student_number = $1
+WHERE sisu_person_id = $1
   AND deleted_at IS NULL
 ORDER BY sent_at DESC
         "#,
-        student_number
+        sisu_person_id
     )
     .fetch_all(conn)
     .await?;
@@ -107,18 +107,18 @@ ORDER BY sent_at DESC
 /// Backs the rate cap of at most one mail per Sisu person per window, across all courses.
 pub async fn count_sent_since(
     conn: &mut PgConnection,
-    student_number: &str,
+    sisu_person_id: &str,
     since: DateTime<Utc>,
 ) -> ModelResult<i64> {
     let count = sqlx::query_scalar!(
         r#"
 SELECT COUNT(*) AS "count!"
 FROM credit_registration_account_linking_emails
-WHERE student_number = $1
+WHERE sisu_person_id = $1
   AND sent_at >= $2
   AND deleted_at IS NULL
         "#,
-        student_number,
+        sisu_person_id,
         since,
     )
     .fetch_one(conn)
@@ -130,18 +130,18 @@ WHERE student_number = $1
 /// unused.
 pub async fn count_sent_for_person_and_course(
     conn: &mut PgConnection,
-    student_number: &str,
+    sisu_person_id: &str,
     course_id: Uuid,
 ) -> ModelResult<i64> {
     let count = sqlx::query_scalar!(
         r#"
 SELECT COUNT(*) AS "count!"
 FROM credit_registration_account_linking_emails
-WHERE student_number = $1
+WHERE sisu_person_id = $1
   AND course_id = $2
   AND deleted_at IS NULL
         "#,
-        student_number,
+        sisu_person_id,
         course_id,
     )
     .fetch_one(conn)

@@ -40,16 +40,17 @@ CREATE UNIQUE INDEX uq_verified_student_numbers_user ON verified_student_numbers
 WHERE deleted_at IS NULL;
 CREATE UNIQUE INDEX uq_verified_student_numbers_number ON verified_student_numbers (student_number)
 WHERE deleted_at IS NULL;
-CREATE INDEX idx_verified_student_numbers_person ON verified_student_numbers (sisu_person_id)
+-- One account per Sisu person: the number changes on a programme move, the person id does not.
+CREATE UNIQUE INDEX uq_verified_student_numbers_person ON verified_student_numbers (sisu_person_id)
 WHERE deleted_at IS NULL;
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON verified_student_numbers FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE verified_student_numbers IS 'Student numbers proven to belong to a courses.mooc.fi account. Global per account: one live row per user and one live row per student number. Relinking soft-deletes the old row and inserts a new one; student_number is never updated in place because the old value is audit-relevant.';
+COMMENT ON TABLE verified_student_numbers IS 'Student numbers proven to belong to a courses.mooc.fi account. Global per account: one live row per user, one per student number and one per Sisu person id. Relinking soft-deletes the old row and inserts a new one; student_number is never updated in place because the old value is audit-relevant.';
 COMMENT ON COLUMN verified_student_numbers.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN verified_student_numbers.user_id IS 'The account that holds this student number.';
 COMMENT ON COLUMN verified_student_numbers.student_number IS 'The University of Helsinki student number, normalised (whitespace stripped, leading zeros preserved).';
-COMMENT ON COLUMN verified_student_numbers.sisu_person_id IS 'Sisu person id reported alongside the student number. Stable across student number changes.';
+COMMENT ON COLUMN verified_student_numbers.sisu_person_id IS 'Sisu person id reported alongside the student number. Stable across student number changes, live-unique, and the identity the double-registration guards key on.';
 COMMENT ON COLUMN verified_student_numbers.first_names IS 'First names as Sisu reports them, shown on the link confirmation page and in support views.';
 COMMENT ON COLUMN verified_student_numbers.last_name IS 'Last name as Sisu reports it, shown on the link confirmation page and in support views.';
 COMMENT ON COLUMN verified_student_numbers.verified_at IS 'When the link was established.';
@@ -124,10 +125,10 @@ CREATE TABLE credit_registration_account_linking_emails (
   deleted_at TIMESTAMP WITH TIME ZONE
 );
 -- The dedup mechanism: the sender inserts ON CONFLICT DO NOTHING in the transaction that mints the
--- token and the delivery row, and mails only when a row came back. Keyed on the Sisu-side identity
--- plus the address, so primaryEmail and secondaryEmail each get at most one mail.
-CREATE UNIQUE INDEX uq_account_linking_email_number_course_address ON credit_registration_account_linking_emails (
-  student_number,
+-- token and the delivery row, and mails only when a row came back. Keyed on the person id, not the
+-- number, which changes; the address is in the key so primaryEmail and secondaryEmail each get one.
+CREATE UNIQUE INDEX uq_account_linking_email_person_course_address ON credit_registration_account_linking_emails (
+  sisu_person_id,
   course_id,
   LOWER(emailed_to),
   deleted_at
@@ -135,7 +136,7 @@ CREATE UNIQUE INDEX uq_account_linking_email_number_course_address ON credit_reg
 CREATE INDEX idx_account_linking_emails_course ON credit_registration_account_linking_emails (course_id, sent_at DESC)
 WHERE deleted_at IS NULL;
 -- Rate cap lookups: "have we mailed this person anywhere recently?"
-CREATE INDEX idx_account_linking_emails_number_sent ON credit_registration_account_linking_emails (student_number, sent_at DESC)
+CREATE INDEX idx_account_linking_emails_person_sent ON credit_registration_account_linking_emails (sisu_person_id, sent_at DESC)
 WHERE deleted_at IS NULL;
 -- No read uses this: it stops a hard-deleted token from seq-scanning here through the foreign key.
 CREATE INDEX idx_account_linking_emails_token ON credit_registration_account_linking_emails (student_number_verification_token_id)
@@ -143,10 +144,10 @@ WHERE student_number_verification_token_id IS NOT NULL;
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON credit_registration_account_linking_emails FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE credit_registration_account_linking_emails IS 'One row per account-linking mail we queued, keyed on the Sisu-side identity plus the recipient address. Prevents mailing the same Sisu person twice for the same course and backs the per-person rate caps.';
+COMMENT ON TABLE credit_registration_account_linking_emails IS 'One row per account-linking mail we queued, keyed on the Sisu person id plus the recipient address. Prevents mailing the same Sisu person twice for the same course and backs the per-person rate caps.';
 COMMENT ON COLUMN credit_registration_account_linking_emails.id IS 'A unique, stable identifier for the record.';
-COMMENT ON COLUMN credit_registration_account_linking_emails.student_number IS 'The student number the mail was about. Rate caps are keyed on this rather than on a user id, because at send time there is no account.';
-COMMENT ON COLUMN credit_registration_account_linking_emails.sisu_person_id IS 'Sisu person id the mail was about.';
+COMMENT ON COLUMN credit_registration_account_linking_emails.student_number IS 'The student number the mail was about, for support and audit. Not a key: it changes when a student moves between programmes.';
+COMMENT ON COLUMN credit_registration_account_linking_emails.sisu_person_id IS 'Sisu person id the mail was about. The dedup and rate cap key, because at send time there is no account of ours to key on.';
 COMMENT ON COLUMN credit_registration_account_linking_emails.course_id IS 'The course whose registration flow triggered the mail.';
 COMMENT ON COLUMN credit_registration_account_linking_emails.emailed_to IS 'The address the mail was queued to.';
 COMMENT ON COLUMN credit_registration_account_linking_emails.student_number_verification_token_id IS 'The token whose link the mail carried.';
@@ -374,10 +375,11 @@ WHERE deleted_at IS NULL;
 CREATE INDEX idx_credit_registrations_admin_attention ON credit_registrations (updated_at DESC)
 WHERE needs_admin_attention
   AND deleted_at IS NULL;
--- One student number may not hold two live registrations for the same module. Superseded rows are
+-- One Sisu person, not one student number: the number changes on a move to a degree programme, so a
+-- guard keyed on it would let the same person register twice from two accounts. Superseded rows are
 -- excluded because a grade improvement is deliberately a second submission for the same pair.
-CREATE UNIQUE INDEX uq_credit_registrations_number_module ON credit_registrations (student_number, course_module_id)
-WHERE student_number IS NOT NULL
+CREATE UNIQUE INDEX uq_credit_registrations_person_module ON credit_registrations (sisu_person_id, course_module_id)
+WHERE sisu_person_id IS NOT NULL
   AND deleted_at IS NULL
   AND superseded_by_id IS NULL
   AND state IN (

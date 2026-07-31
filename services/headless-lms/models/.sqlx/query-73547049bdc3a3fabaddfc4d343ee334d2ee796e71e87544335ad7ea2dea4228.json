@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registration_account_linking_emails\nWHERE student_number = $1\n  AND sent_at >= $2\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registration_account_linking_emails\nWHERE sisu_person_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -13,12 +13,12 @@
     "parameters": {
       "Left": [
         "Text",
-        "Timestamptz"
+        "Uuid"
       ]
     },
     "nullable": [
       null
     ]
   },
-  "hash": "c945234bad00e4c0d9e833bbbc67ff41f92617d435b99fdf9396a072d818a0dd"
+  "hash": "73547049bdc3a3fabaddfc4d343ee334d2ee796e71e87544335ad7ea2dea4228"
 }

@@ -16,9 +16,8 @@ pub const RETRY_WINDOW_SECS: i64 = 3 * 24 * 60 * 60;
 /// How long a delivery to a raw address may keep that address after being queued.
 const RECIPIENT_ADDRESS_RETENTION: &str = "1 month";
 
-/// One purge attempt in this many sender ticks. The sender ticks every 10 seconds, so this is about
-/// hourly.
-const PURGE_CHANCE_IN: u32 = 360;
+/// One purge in this many calls, matching the token cleanups. The caller schedules how often it asks.
+const PURGE_CHANCE_IN: u32 = 10;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct EmailDelivery {

@@ -27,6 +27,10 @@ use std::collections::HashMap;
 use uuid::Uuid;
 const BATCH_SIZE: usize = FETCH_LIMIT as usize;
 
+/// How often the sender asks the model to purge expired recipient addresses. The model then rolls its
+/// own 1 in 10 chance, so a sweep lands roughly every ten hours.
+const RECIPIENT_ADDRESS_PURGE_INTERVAL: Duration = Duration::from_secs(60 * 60);
+
 const BASE_BACKOFF_SECS: i64 = 60;
 const MAX_BACKOFF_SECS: i64 = 24 * 60 * 60;
 const JITTER_SECS: i64 = 30;
@@ -83,16 +87,6 @@ pub async fn mail_sender(pool: &PgPool, mailer: &SmtpTransport) -> Result<()> {
         .buffer_unordered(BATCH_SIZE);
 
     while futures.next().await.is_some() {}
-
-    // Logged, not propagated: an error here reaches main() and restarts the pod, which would stop
-    // mail going out over a retention sweep.
-    match maybe_purge_expired_recipient_addresses(&mut conn).await {
-        Ok(purged) if purged > 0 => {
-            tracing::info!("Purged retained recipient addresses from {purged} email deliveries")
-        }
-        Ok(_) => {}
-        Err(err) => tracing::error!("Failed to purge retained recipient addresses: {err}"),
-    }
 
     Ok(())
 }
@@ -499,9 +493,34 @@ pub async fn main() -> anyhow::Result<()> {
     };
 
     let mut interval = tokio::time::interval(Duration::from_secs(10));
+    // Startup counts as an attempt: pods restart often, and firing on the first tick would turn every
+    // restart into another sweep.
+    let mut last_purge_attempt = tokio::time::Instant::now();
     loop {
         interval.tick().await;
         mail_sender(&pool, &mailer).await?;
+
+        // An elapsed check rather than a second interval: another `tick().await` in this loop would
+        // stall the 10 second send cycle until the hour was up and stop mail going out.
+        if last_purge_attempt.elapsed() >= RECIPIENT_ADDRESS_PURGE_INTERVAL {
+            last_purge_attempt = tokio::time::Instant::now();
+            let purged = async {
+                let mut conn = pool.acquire().await?;
+                maybe_purge_expired_recipient_addresses(&mut conn).await
+            }
+            .await;
+            // Logged, not propagated: an error out of main() restarts the pod, which would stop mail
+            // going out over a retention sweep.
+            match purged {
+                Ok(purged) if purged > 0 => {
+                    tracing::info!(
+                        "Purged retained recipient addresses from {purged} email deliveries"
+                    )
+                }
+                Ok(_) => {}
+                Err(err) => tracing::error!("Failed to purge retained recipient addresses: {err}"),
+            }
+        }
     }
 }
 

@@ -112,19 +112,26 @@ RETURNING
     Ok(res)
 }
 
-pub async fn get_course_ids_by_audience(
+pub async fn get_course_ids_by_audience_vector(
     conn: &mut PgConnection,
-    audience_query: String,
+    audience_vec: Vec<f32>,
 ) -> ModelResult<Vec<Uuid>> {
-    let res = sqlx::query_scalar!(
+    let vector = Vector::from(audience_vec);
+    let res = sqlx::query_scalar(
         r#"
-SELECT DISTINCT course_id
-FROM course_audiences
-WHERE to_tsvector('english', audience)
-@@ websearch_to_tsquery('english', $1)
+SELECT course_id
+FROM (
+    SELECT
+        course_id,
+        MIN(embedding <=> $1) AS distance
+    FROM course_audiences
+    GROUP BY course_id
+) t
+ORDER BY distance
+LIMIT 5
         "#,
-        audience_query
     )
+    .bind(vector)
     .fetch_all(conn)
     .await?;
     Ok(res)

@@ -112,19 +112,26 @@ RETURNING
     Ok(res)
 }
 
-pub async fn get_course_ids_by_prerequisite(
+pub async fn get_course_ids_by_prerequisite_vector(
     conn: &mut PgConnection,
-    prerequisite_query: String,
+    prerequisite_vec: Vec<f32>,
 ) -> ModelResult<Vec<Uuid>> {
-    let res = sqlx::query_scalar!(
+    let vector = Vector::from(prerequisite_vec);
+    let res = sqlx::query_scalar(
         r#"
-SELECT DISTINCT course_id
-FROM course_prerequisites
-WHERE to_tsvector('english', prerequisite)
-@@ websearch_to_tsquery('english', $1)
+SELECT course_id
+FROM (
+    SELECT
+        course_id,
+        MIN(embedding <=> $1::vector) AS distance
+    FROM course_prerequisites
+    GROUP BY course_id
+) t
+ORDER BY distance
+LIMIT 5
         "#,
-        prerequisite_query
     )
+    .bind(vector)
     .fetch_all(conn)
     .await?;
     Ok(res)

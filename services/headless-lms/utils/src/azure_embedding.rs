@@ -21,31 +21,30 @@ struct Embedding {
     embedding: Vec<f32>,
 }
 
-pub async fn create_embeddings(
-    input: Vec<String>,
-    app_config: &ApplicationConfiguration,
-) -> UtilResult<Vec<Vec<f32>>> {
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
+pub async fn create_embeddings(input: Vec<String>) -> UtilResult<Vec<Vec<f32>>> {
+    let app_config = ApplicationConfiguration::try_from_env()?;
+
+    let azure_config = app_config.azure_configuration.ok_or_else(|| {
         util_err!(
             EmbeddingRequestBuildError,
             "Azure configuration is missing from the application configuration"
         )
     })?;
 
-    let chatbot_config = azure_config.chatbot_config.as_ref().ok_or_else(|| {
+    let chatbot_config = azure_config.chatbot_config.ok_or_else(|| {
         error!("Chatbot configuration missing");
         util_err!(
             EmbeddingRequestBuildError,
             "Chatbot configuration is missing from the Azure configuration"
         )
     })?;
-    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
+    let search_config = azure_config.search_config.ok_or_else(|| {
         util_err!(
             EmbeddingRequestBuildError,
             "Azure search configuration is missing from the Azure configuration"
         )
     })?;
-
+    println!("INPUT: {}", input.first().expect("EMPTY"));
     let api_endpoint = chatbot_config.embeddings_endpoint()?;
     let response = REQWEST_CLIENT
         .post(api_endpoint)
@@ -57,7 +56,18 @@ pub async fn create_embeddings(
         })
         .send()
         .await?;
-    let json: EmbeddingResponse = serde_json::from_str(&response.text().await?)?;
-    let embeddings: Vec<Vec<f32>> = json.data.iter().map(|e| e.embedding.to_owned()).collect();
-    Ok(embeddings)
+    if response.status().is_success() {
+        let json: EmbeddingResponse = serde_json::from_str(&response.text().await?)?;
+        let embeddings: Vec<Vec<f32>> = json.data.iter().map(|e| e.embedding.to_owned()).collect();
+        Ok(embeddings)
+    } else {
+        return Err(util_err!(
+            EmbeddingRequestBuildError,
+            format!(
+                "Embedding API failed: {} - {}",
+                response.status(),
+                response.text().await?
+            )
+        ));
+    }
 }

@@ -1,24 +1,22 @@
 use std::collections::HashMap;
 
-use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_models::{
-    course_audiences::get_course_ids_by_audience,
-    course_prerequisites::get_course_ids_by_prerequisite,
-    courses::{self, Course, get_by_description_keywords},
-};
-use headless_lms_utils::azure_embedding::create_embeddings;
-use sqlx::PgConnection;
-
 use crate::{
-    azure_chatbot::{
-        ArrayItem, ArrayProperty, ChatbotUserContext, JSONType, JsonItem, SchemaPropertyType,
-    },
+    azure_chatbot::{ChatbotUserContext, JSONType, JsonItem, SchemaPropertyType},
     chatbot_tools::{
         AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
         ToolProperties,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
 };
+//use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::{
+    course_audiences::get_course_ids_by_audience_vector,
+    course_prerequisites::get_course_ids_by_prerequisite_vector,
+    courses::{self, Course, get_by_description_vector},
+};
+use headless_lms_utils::azure_embedding::create_embeddings;
+use serde::{Deserialize, Deserializer, Serialize};
+use sqlx::PgConnection;
 
 pub type CourseFinderTool = ToolProperties<CourseFinderState, CourseFinderArguments>;
 
@@ -45,21 +43,41 @@ impl ChatbotTool for CourseFinderTool {
         arguments: Self::Arguments,
         _user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
-        let description_query_string = arguments.description.join(" OR ");
-        let audience_query_string = arguments.audiences.join(" OR ");
-        let prerequisites_query_string = arguments.prerequisites.join(" OR ");
+        println!("{:#?}", arguments);
+        let audience_courses = if let Some(audiences) = &arguments.audiences {
+            let audience_embedding = create_embeddings(vec![audiences.clone()])
+                .await?
+                .first()
+                .expect("Embedding returned nothing")
+                .to_owned();
+            get_course_ids_by_audience_vector(conn, audience_embedding).await?
+        } else {
+            vec![]
+        };
 
-        let audience_courses = get_course_ids_by_audience(conn, audience_query_string).await?;
-        let prerequisite_courses =
-            get_course_ids_by_prerequisite(conn, prerequisites_query_string).await?;
+        let prerequisite_courses = if let Some(prerequisites) = &arguments.prerequisites {
+            let prerequisite_embedding = create_embeddings(vec![prerequisites.clone()])
+                .await?
+                .first()
+                .expect("Embedding returned nothing")
+                .to_owned();
+            get_course_ids_by_prerequisite_vector(conn, prerequisite_embedding).await?
+        } else {
+            vec![]
+        };
 
-        let description_courses =
-            get_by_description_keywords(conn, description_query_string).await?;
-        //let app_config = ApplicationConfiguration::try_from_env()?;
-        //let input = vec!["testing a lot longer string with multiple words".to_string()];
-        //let embeddings = create_embeddings(input, &app_config).await;
+        let description_courses = if let Some(description) = &arguments.description {
+            let description_embedding = create_embeddings(vec![description.clone()])
+                .await?
+                .first()
+                .expect("Embedding returned nothing")
+                .to_owned();
+            get_by_description_vector(conn, description_embedding).await?
+        } else {
+            vec![]
+        };
 
-        let course_ids = [audience_courses, prerequisite_courses, description_courses].concat();
+        let course_ids = [description_courses, audience_courses, prerequisite_courses].concat();
         let courses = courses::get_by_ids(conn, &course_ids).await?;
         Ok(CourseFinderTool {
             state: CourseFinderState { courses },
@@ -80,41 +98,30 @@ impl ChatbotTool for CourseFinderTool {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
             name: "course_finder".to_string(),
-            description: "Find suitable courses for the user if they want to find available courses for their conditions. The arguments should be created based on the terms with which the user wants to filter the courses. The needed arguments should therefore be parsed from the user message. The arguments are arrays of keywords extracted from the user message. This tool is useful to find any courses if the user wants recommendations for courses they can take.".to_string(),
+            description: "Find suitable courses for the user if they want to find available courses for their conditions. The arguments should be created based on the terms with which the user wants to filter the courses. The needed arguments should therefore be parsed from the user message. The arguments are natural-language descriptions for the parameters the user is using to search the courses. At least one of the three arguments is required. This tool is useful to find any courses if the user wants recommendations for courses they can take.".to_string(),
             parameters: LLMToolParams {
                 tool_type: LLMToolParamType::Object,
                 properties: HashMap::from([
                     (
                         "description".to_string(),
-                        SchemaPropertyType::ArrayProperty(ArrayProperty {
-                                type_field: JSONType::Array,
-                            description: Some("List of keywords used to search course descriptions based on if the user tries to find courses based on what they contain or teach.".to_string()),
-                            items: ArrayItem::JsonItem(JsonItem {
-                                    type_field: JSONType::String,
-                                    description: None,
-                                }),
+                        SchemaPropertyType::Item(JsonItem {
+                                type_field: JSONType::String,
+                            description: Some("A natural-language description of what the user wants to learn.".to_string()),
+
                         }),
                     ),
                     (
                         "prerequisites".to_string(),
-                        SchemaPropertyType::ArrayProperty(ArrayProperty {
-                                type_field: JSONType::Array,
-                            description: Some("List of keywords of preliminary knowledge possessed to be suitable for a course.".to_string()),
-                            items: ArrayItem::JsonItem(JsonItem {
-                                    type_field: JSONType::String,
-                                    description: None,
-                                }),
+                        SchemaPropertyType::Item(JsonItem {
+                                type_field: JSONType::String,
+                            description:Some("A natural-language description of the knowledge or experience the user already has.".to_string()),
                         }),
                     ),
                     (
                         "audiences".to_string(),
-                        SchemaPropertyType::ArrayProperty(ArrayProperty {
-                                type_field: JSONType::Array,
-                            description: Some("List of keywords of audience types that a course is suitable for.".to_string()),
-                            items: ArrayItem::JsonItem(JsonItem {
-                                    type_field: JSONType::String,
-                                    description: None,
-                                }),
+                        SchemaPropertyType::Item(JsonItem {
+                                type_field: JSONType::String,
+                            description: Some("A natural-language description of the type of learner the user is, if relevant.".to_string()),
                         }),
                     ),
                 ]),
@@ -130,9 +137,28 @@ pub struct CourseFinderState {
     courses: Vec<Course>,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CourseFinderArguments {
-    description: Vec<String>,
-    prerequisites: Vec<String>,
-    audiences: Vec<String>,
+    #[serde(deserialize_with = "empty_string_as_none")]
+    description: Option<String>,
+    #[serde(deserialize_with = "empty_string_as_none")]
+    prerequisites: Option<String>,
+    #[serde(deserialize_with = "empty_string_as_none")]
+    audiences: Option<String>,
+}
+
+fn empty_string_as_none<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let opt = Option::<String>::deserialize(deserializer)?;
+
+    Ok(opt.and_then(|s| {
+        let s = s.trim();
+        if s.is_empty() {
+            None
+        } else {
+            Some(s.to_owned())
+        }
+    }))
 }

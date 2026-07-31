@@ -1,0 +1,92 @@
+# tbls reads its config from the current working directory only and does not walk up, so anything
+# invoking tbls from a subdirectory must pass -c with this file's path.
+viewpoints:
+  - id: credit-registration
+    name: Credit registration
+    desc: >-
+      How a completed course module becomes a credit in the University of Helsinki study registry.
+      Once the student has consented for the course and holds a student number proven to be theirs,
+      one ledger row per completion is pushed to Sisu through Suotar and polled until the registry
+      confirms the attainment.
+    tables:
+      - credit_registrations
+      - credit_registration_events
+      - course_module_completions
+      - course_credit_registration_consents
+      - verified_student_numbers
+      - student_number_verification_tokens
+      - email_ownership_verification_tokens
+      - credit_registration_account_linking_emails
+      - email_deliveries
+      - email_templates
+      - user_details
+      - course_modules
+      - course_module_suotar_realisations
+      - open_university_product_access_tokens
+      - credit_registration_phase_state
+      - credit_registration_admin_actions
+      - suotar_api_calls
+      - credit_registration_daily_snapshots
+      - study_registry_registrars
+      - course_module_completion_registered_to_study_registries
+      # Shared hubs, deliberately in no group: a table may appear in only one group of a viewpoint,
+      # and each of these belongs to every one of them.
+      - users
+      - courses
+      - course_instances
+    groups:
+      - name: Ledger and audit trail
+        desc: >-
+          One row per attempt at registering one completion. Every state write appends an event in
+          the same transaction, so the ledger holds current state and the event table holds history.
+        tables:
+          - credit_registrations
+          - credit_registration_events
+          - course_module_completions
+      - name: Preconditions
+        desc: >-
+          Nothing is submitted until the student has consented for the course and a student number
+          has been proven to belong to their account. Both are global per account, not per module,
+          and the token table is what turns an emailed link into a proof.
+        tables:
+          - course_credit_registration_consents
+          - verified_student_numbers
+          - student_number_verification_tokens
+      - name: Email ownership and the mail proofs ride on
+        desc: >-
+          The proofs are one-click links sent by mail, so the address each link went to, our send
+          status and the record of who has already been mailed are all part of the proof. The
+          linking mails go to addresses Sisu holds, which frequently have no account here.
+        tables:
+          - email_ownership_verification_tokens
+          - credit_registration_account_linking_emails
+          - email_deliveries
+          - email_templates
+          - user_details
+      - name: Per-module configuration
+        desc: >-
+          The per-module opt-in and the Sisu-side identifiers it needs: the course unit realisations
+          enrolment discovery polls, and the open university product access tokens that enrolment
+          links are built from.
+        tables:
+          - course_modules
+          - course_module_suotar_realisations
+          - open_university_product_access_tokens
+      - name: Pipeline operation
+        desc: >-
+          What an operator reads and acts on: per-phase scheduling, heartbeats and pauses, the
+          manual-action audit whose targets are often not registrations at all, the per-call Suotar
+          log, and the daily queue depths the ledger cannot reconstruct after the fact.
+        tables:
+          - credit_registration_phase_state
+          - credit_registration_admin_actions
+          - suotar_api_calls
+          - credit_registration_daily_snapshots
+      - name: Legacy pull-flow mirror
+        desc: >-
+          The push path mirrors its registrations into the pre-existing pull-flow ledger under a
+          registrar of its own, which keeps the existing teacher views and the pull API working
+          while modules move over one at a time.
+        tables:
+          - study_registry_registrars
+          - course_module_completion_registered_to_study_registries

@@ -34,6 +34,18 @@ CREATE TABLE verified_student_numbers (
   -- methods both rest on the Sisu-held address.
   CONSTRAINT verified_student_numbers_proof_address CHECK (
     (verified_via = 'admin_manual') = (verified_via_email IS NULL)
+  ),
+  CONSTRAINT verified_student_numbers_match_field_method CHECK (
+    verified_via = 'email_match_fast_track'
+    OR verified_via_email_match_field IS NULL
+  ),
+  -- Iff, not one-way like its neighbours: an admin_manual row naming no admin is the case to catch.
+  CONSTRAINT verified_student_numbers_admin_linker CHECK (
+    (verified_via = 'admin_manual') = (linked_by_user_id IS NOT NULL)
+  ),
+  CONSTRAINT verified_student_numbers_link_reason CHECK (
+    verified_via = 'admin_manual'
+    OR link_reason IS NULL
   )
 );
 CREATE UNIQUE INDEX uq_verified_student_numbers_user ON verified_student_numbers (user_id)
@@ -167,7 +179,14 @@ CREATE TABLE course_credit_registration_consents (
   asked_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  deleted_at TIMESTAMP WITH TIME ZONE
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  -- Without this, "when did this student consent?" can answer NULL on a consent record.
+  CONSTRAINT course_credit_registration_consents_flag_timestamp CHECK (
+    CASE
+      WHEN consent_given THEN consent_given_at IS NOT NULL
+      ELSE consent_withdrawn_at IS NOT NULL
+    END
+  )
 );
 CREATE UNIQUE INDEX uq_course_credit_registration_consents_user_course ON course_credit_registration_consents (user_id, course_id, deleted_at) NULLS NOT DISTINCT;
 CREATE TRIGGER set_timestamp BEFORE
@@ -549,7 +568,14 @@ CREATE TABLE credit_registration_admin_actions (
   affected_row_count INT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  deleted_at TIMESTAMP WITH TIME ZONE
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  -- A row breaking either of these is reachable from neither get_by_target nor get_by_phase.
+  CONSTRAINT credit_registration_admin_actions_target_id_kind CHECK (
+    (target_id IS NULL) = (target_kind = 'phase')
+  ),
+  CONSTRAINT credit_registration_admin_actions_target_phase_kind CHECK (
+    (target_phase IS NOT NULL) = (target_kind = 'phase')
+  )
 );
 CREATE INDEX idx_credit_registration_admin_actions_created ON credit_registration_admin_actions (created_at DESC)
 WHERE deleted_at IS NULL;
@@ -739,11 +765,21 @@ ADD COLUMN enable_credit_registration_via_suotar BOOLEAN NOT NULL DEFAULT FALSE,
   ADD COLUMN credit_registration_product_token_found BOOLEAN,
   ADD COLUMN credit_registration_config_check_message TEXT;
 
+-- NOT VALID: enable_credit_registration_via_suotar is FALSE in every existing row, which conforms.
+-- Inserts and updates are still checked.
+ALTER TABLE course_modules
+ADD CONSTRAINT course_modules_one_credit_registration_path CHECK (
+    NOT (
+      enable_credit_registration_via_suotar
+      AND enable_registering_completion_to_uh_open_university
+    )
+  ) NOT VALID;
+
 CREATE INDEX idx_course_modules_suotar_enabled ON course_modules (course_id, order_number)
 WHERE enable_credit_registration_via_suotar
   AND deleted_at IS NULL;
 
-COMMENT ON COLUMN course_modules.enable_credit_registration_via_suotar IS 'The per-module opt-in for credit registration via Suotar, and the rollout switch. Mutually exclusive with enable_registering_completion_to_uh_open_university by application rule; while it is on, the legacy pull API must not see this modules completions.';
+COMMENT ON COLUMN course_modules.enable_credit_registration_via_suotar IS 'The per-module opt-in for credit registration via Suotar, and the rollout switch. The course_modules_one_credit_registration_path constraint keeps it mutually exclusive with enable_registering_completion_to_uh_open_university, because both paths would register the same attainment in Sisu; while it is on, the legacy pull API must not see this modules completions.';
 COMMENT ON COLUMN course_modules.open_university_product_id IS 'The open university product used to build Sisu enrolment links for this module.';
 COMMENT ON COLUMN course_modules.credit_registration_grade_scale_id IS 'Per-module override of the Sisu grade scale id. NULL means derive it from the completion.';
 COMMENT ON COLUMN course_modules.credit_registration_paused_at IS 'While set, no pipeline phase claims rows for this module and the module renders as paused rather than broken. Pausing does not rewrite ledger states, which is what makes resuming a no-op.';

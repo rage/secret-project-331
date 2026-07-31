@@ -92,6 +92,8 @@ DROP TABLE IF EXISTS course_module_suotar_realisations;
 
 DROP INDEX IF EXISTS idx_course_modules_suotar_enabled;
 
+ALTER TABLE course_modules DROP CONSTRAINT IF EXISTS course_modules_one_credit_registration_path;
+
 ALTER TABLE course_modules DROP COLUMN IF EXISTS enable_credit_registration_via_suotar,
   DROP COLUMN IF EXISTS open_university_product_id,
   DROP COLUMN IF EXISTS credit_registration_grade_scale_id,

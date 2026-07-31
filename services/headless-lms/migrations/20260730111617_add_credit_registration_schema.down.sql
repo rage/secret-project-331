@@ -108,8 +108,6 @@ ALTER TABLE course_modules DROP COLUMN IF EXISTS enable_credit_registration_via_
 DELETE FROM email_deliveries
 WHERE user_id IS NULL;
 
-DROP INDEX IF EXISTS email_deliveries_recipient_email_idx;
-
 ALTER TABLE email_deliveries DROP CONSTRAINT IF EXISTS email_deliveries_has_exactly_one_recipient;
 
 ALTER TABLE email_deliveries DROP COLUMN IF EXISTS recipient_email,
@@ -127,8 +125,6 @@ UPDATE user_details
 SET email_verified_at = NULL,
   email_verified_method = NULL
 WHERE email_verified_method = 'password_reset_backfill';
-
-DROP INDEX IF EXISTS idx_user_details_verified_email;
 
 DROP TRIGGER IF EXISTS clear_email_verification ON user_details;
 

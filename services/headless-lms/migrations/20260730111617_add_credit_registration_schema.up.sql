@@ -687,7 +687,6 @@ CREATE TABLE credit_registration_daily_snapshots (
   deleted_at TIMESTAMP WITH TIME ZONE
 );
 CREATE UNIQUE INDEX uq_credit_registration_daily_snapshots ON credit_registration_daily_snapshots (snapshot_date, state, deleted_at) NULLS NOT DISTINCT;
-CREATE INDEX idx_credit_registration_daily_snapshots_date ON credit_registration_daily_snapshots (snapshot_date DESC);
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON credit_registration_daily_snapshots FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
@@ -740,7 +739,7 @@ ADD COLUMN enable_credit_registration_via_suotar BOOLEAN NOT NULL DEFAULT FALSE,
   ADD COLUMN credit_registration_product_token_found BOOLEAN,
   ADD COLUMN credit_registration_config_check_message TEXT;
 
-CREATE INDEX idx_course_modules_suotar_enabled ON course_modules (id)
+CREATE INDEX idx_course_modules_suotar_enabled ON course_modules (course_id, order_number)
 WHERE enable_credit_registration_via_suotar
   AND deleted_at IS NULL;
 
@@ -824,10 +823,6 @@ ADD CONSTRAINT email_deliveries_has_exactly_one_recipient CHECK (
 COMMENT ON COLUMN email_deliveries.user_id IS 'The user to whom the email should be sent. NULL for emails addressed to a raw external address (see recipient_email), e.g. student-number linking mails sent to the address Sisu holds for a person who may not have an account here. Never set together with recipient_email.';
 COMMENT ON COLUMN email_deliveries.recipient_email IS 'Explicit recipient address, used when the email is not addressed to a known user. Never set together with user_id, and nulled by retention once the delivery is sent or retired, so an old row holds no address.';
 COMMENT ON COLUMN email_deliveries.placeholders IS 'Placeholder bag substituted into the template body at send time. Used when the recipient has no account, so the sender needs no user lookup. NULL means the template derives its placeholders from user_id.';
-
-CREATE INDEX email_deliveries_recipient_email_idx ON email_deliveries (LOWER(recipient_email))
-WHERE recipient_email IS NOT NULL
-  AND deleted_at IS NULL;
 
 CREATE TYPE user_email_code_purpose AS ENUM (
   'admin_login',
@@ -923,10 +918,3 @@ FROM (
   ) t
 WHERE t.user_id = ud.user_id
   AND t.last_used > ud.updated_at;
-
--- Last in the file on purpose. sqlx runs the whole migration in one transaction, so the ACCESS
--- EXCLUSIVE the ADD COLUMN above takes on user_details is held until commit and every live pod's
--- read of user_details blocks meanwhile. This index cannot be built CONCURRENTLY ahead of the
--- deploy, because the column it covers does not exist until this migration adds it.
-CREATE INDEX idx_user_details_verified_email ON user_details (LOWER(email))
-WHERE email_verified_at IS NOT NULL;

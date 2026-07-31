@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id\n        FROM study_registry_registrars\n        WHERE deleted_at IS NULL\n        ORDER BY created_at\n        LIMIT 1\n        ",
+  "query": "\n        SELECT id\n        FROM study_registry_registrars\n        WHERE name = 'Default Registrar'\n          AND deleted_at IS NULL\n        ORDER BY created_at\n        LIMIT 1\n        ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "77b9bfbcc932de131580331d79787283b8a9e5373298c50e6558258fce7b6ad7"
+  "hash": "706d8c98bc09efa5c80c84ffa6a1a7950e6f253a91fc03914f72240a64999791"
 }

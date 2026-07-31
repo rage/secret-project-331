@@ -1,87 +1,9 @@
--- Credit registration via Suotar: all schema the feature needs, in dependency order.
--- Everything here is inert until a course module sets enable_credit_registration_via_suotar.
--- 1. email_deliveries: allow addressing a raw external address with no account here.
-ALTER TABLE email_deliveries
-ALTER COLUMN user_id DROP NOT NULL,
-  ADD COLUMN recipient_email VARCHAR(255),
-  ADD COLUMN placeholders JSONB;
+-- Statement order minimises lock hold time: new types and tables first, the live tables the pods
+-- read on every request (course_modules, email_deliveries, user_details) last.
 
-ALTER TABLE email_deliveries
-ADD CONSTRAINT email_deliveries_has_exactly_one_recipient CHECK (
-    (user_id IS NOT NULL)::int + (recipient_email IS NOT NULL)::int = 1
-  );
-
-CREATE INDEX email_deliveries_recipient_email_idx ON email_deliveries (LOWER(recipient_email))
-WHERE recipient_email IS NOT NULL
-  AND deleted_at IS NULL;
-
-COMMENT ON COLUMN email_deliveries.user_id IS 'The user to whom the email should be sent. NULL for emails addressed to a raw external address (see recipient_email), e.g. student-number linking mails sent to the address Sisu holds for a person who may not have an account here. Exactly one of user_id and recipient_email is set.';
-COMMENT ON COLUMN email_deliveries.recipient_email IS 'Explicit recipient address, used when the email is not addressed to a known user. Exactly one of user_id and recipient_email is set.';
-COMMENT ON COLUMN email_deliveries.placeholders IS 'Placeholder bag substituted into the template body at send time. Used when the recipient has no account, so the sender needs no user lookup. NULL means the template derives its placeholders from user_id.';
-
--- 2. user_details email-ownership verification.
-CREATE TYPE email_verification_method AS ENUM (
-  'verification_link',
-  'password_reset_backfill',
-  'tmc_confirmed',
-  'admin_asserted'
-);
-
-COMMENT ON TYPE email_verification_method IS 'How proof of control over user_details.email was obtained. admin_asserted is deliberately weaker than the others and is not accepted by the credit-registration email-match fast track.';
-
-ALTER TABLE user_details
-ADD COLUMN email_verified_at TIMESTAMP WITH TIME ZONE,
-  ADD COLUMN email_verified_method email_verification_method;
-
-ALTER TABLE user_details
-ADD CONSTRAINT user_details_email_verification_consistent CHECK (
-    (email_verified_at IS NULL) = (email_verified_method IS NULL)
-  );
-
-CREATE INDEX idx_user_details_verified_email ON user_details (LOWER(email))
-WHERE email_verified_at IS NOT NULL;
-
-COMMENT ON COLUMN user_details.email_verified_at IS 'When the user last proved control of the address currently in email. NULL means unproven. Automatically reset to NULL by the clear_email_verification trigger whenever email changes, so a non-NULL value always refers to the current address. Never set this without a proof of mailbox control.';
-COMMENT ON COLUMN user_details.email_verified_method IS 'How email_verified_at was obtained. The credit-registration email-match fast track accepts verification_link and tmc_confirmed only.';
-
--- Structural, not remembered per writer: there are already three writers of user_details.email and
--- the fourth will be added by someone who has not read the fast-track design.
-CREATE FUNCTION clear_email_verification_on_email_change() RETURNS trigger AS $$
-BEGIN
-  IF NEW.email IS DISTINCT FROM OLD.email THEN
-    NEW.email_verified_at := NULL;
-    NEW.email_verified_method := NULL;
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER clear_email_verification BEFORE
-UPDATE ON user_details FOR EACH ROW EXECUTE FUNCTION clear_email_verification_on_email_change();
-
--- Conservative backfill: a consumed password_reset_token proves control of the address held at
--- used_at. updated_at is the only available bound on "the address has not changed since", and the
--- set_timestamp trigger bumps it on any update, so this is sound but under-inclusive on purpose.
--- deleted_at is ignored because insert_password_reset_token soft-deletes prior rows, used ones included.
-UPDATE user_details ud
-SET email_verified_at = t.last_used,
-  email_verified_method = 'password_reset_backfill'
-FROM (
-    SELECT user_id,
-      MAX(used_at) AS last_used
-    FROM password_reset_tokens
-    WHERE used_at IS NOT NULL
-    GROUP BY user_id
-  ) t
-WHERE t.user_id = ud.user_id
-  AND t.last_used > ud.updated_at;
-
--- 2b. email_ownership_verification_tokens: the proof that produces
--- email_verified_method = 'verification_link'. Deliberately not a purpose discriminator on
--- email_verification_tokens: that table is the administrator login second factor (15 minute TTL, a
--- separate six digit code, and a probabilistic cleanup that hard-deletes rows by expires_at whether
--- they were used or not), so sharing it would mean per-purpose TTL and cleanup branching inside the
--- login path and would destroy the send history this flow reports to the user.
+-- Not a purpose discriminator on email_verification_tokens: that table is the administrator login
+-- second factor (short TTL, six digit code, cleanup that hard-deletes by expires_at), so sharing it
+-- would branch the login path per purpose and lose the send history this flow reports to the user.
 CREATE TABLE email_ownership_verification_tokens (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   token VARCHAR(255) NOT NULL,
@@ -117,7 +39,6 @@ COMMENT ON COLUMN email_ownership_verification_tokens.created_at IS 'Timestamp w
 COMMENT ON COLUMN email_ownership_verification_tokens.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN email_ownership_verification_tokens.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
--- 3. verified_student_numbers: the account to student number link. Global per account.
 CREATE TYPE student_number_verification_method AS ENUM (
   'emailed_link',
   'email_match_fast_track',
@@ -144,9 +65,8 @@ CREATE TABLE verified_student_numbers (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  -- TODO: Suotar has not confirmed how student numbers are normalised on their side.
-  -- We normalise before calling and keep this loose: real UH numbers are 9 digits, but do not
-  -- hard-code 9, and never trim leading zeros.
+  -- TODO: Suotar has not confirmed their normalisation. Kept loose on purpose: real UH numbers are
+  -- 9 digits, but do not hard-code 9 and never trim leading zeros.
   CONSTRAINT student_number_format CHECK (student_number ~ '^[0-9]{6,12}$'),
   -- admin_manual rows rest on a human decision, so they carry no proving address; the other two
   -- methods both rest on the Sisu-held address.
@@ -182,7 +102,6 @@ COMMENT ON COLUMN verified_student_numbers.created_at IS 'Timestamp when the rec
 COMMENT ON COLUMN verified_student_numbers.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN verified_student_numbers.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
--- 4. student_number_verification_tokens: unbound at creation, bound when the link is opened.
 CREATE TABLE student_number_verification_tokens (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   token VARCHAR(255) NOT NULL,
@@ -229,7 +148,6 @@ COMMENT ON COLUMN student_number_verification_tokens.created_at IS 'Timestamp wh
 COMMENT ON COLUMN student_number_verification_tokens.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN student_number_verification_tokens.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
--- 5. credit_registration_account_linking_emails: the never-spam dedup ledger.
 CREATE TABLE credit_registration_account_linking_emails (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   student_number VARCHAR(32) NOT NULL,
@@ -243,10 +161,9 @@ CREATE TABLE credit_registration_account_linking_emails (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE
 );
--- The dedup mechanism itself: the sender inserts with ON CONFLICT DO NOTHING in the same
--- transaction that mints the token and the delivery row, and only mails when a row came back.
--- Keyed on the Sisu-side identity plus the address because no account of ours is involved. Both
--- primaryEmail and secondaryEmail may legitimately be mailed, one mail each.
+-- The dedup mechanism: the sender inserts ON CONFLICT DO NOTHING in the transaction that mints the
+-- token and the delivery row, and mails only when a row came back. Keyed on the Sisu-side identity
+-- plus the address, so primaryEmail and secondaryEmail each get at most one mail.
 CREATE UNIQUE INDEX uq_account_linking_email_number_course_address ON credit_registration_account_linking_emails (
   student_number,
   course_id,
@@ -274,7 +191,6 @@ COMMENT ON COLUMN credit_registration_account_linking_emails.created_at IS 'Time
 COMMENT ON COLUMN credit_registration_account_linking_emails.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN credit_registration_account_linking_emails.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
--- 6. course_credit_registration_consents: per course, not per module.
 CREATE TABLE course_credit_registration_consents (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES users(id),
@@ -303,7 +219,6 @@ COMMENT ON COLUMN course_credit_registration_consents.created_at IS 'Timestamp w
 COMMENT ON COLUMN course_credit_registration_consents.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN course_credit_registration_consents.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
--- 7. Ledger enums. state answers "what does the pipeline do next", error_code answers "why".
 CREATE TYPE credit_registration_state AS ENUM (
   'pending_prerequisites',
   'pending_consent',
@@ -409,7 +324,6 @@ CREATE TYPE credit_registration_admin_action_target AS ENUM (
 
 COMMENT ON TYPE credit_registration_admin_action_target IS 'What kind of thing a manual action was taken on. Not every target is a credit registration, which is why the manual-action audit cannot live on the per-item event table alone.';
 
--- 8. credit_registrations: the core ledger, one row per completion lifecycle attempt.
 CREATE TABLE credit_registrations (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   course_module_completion_id UUID NOT NULL REFERENCES course_module_completions(id),
@@ -431,16 +345,15 @@ CREATE TABLE credit_registrations (
   selected_enrolment_realisation_id VARCHAR(255),
   attainment_date DATE,
   attainment_language VARCHAR(15),
-  -- TODO: Suotar has not confirmed the pass/fail grade scale id spelling
-  -- (sis-hyv-hyl vs sis-hyl-hyv). Whatever the client sends lands here verbatim; the spelling
-  -- itself is one constant next to the grade mapping function, so a late answer is a one-line change.
+  -- TODO: Suotar has not confirmed the pass/fail grade scale id spelling (sis-hyv-hyl vs
+  -- sis-hyl-hyv). Whatever the client sends lands here verbatim.
   grade_scale_id VARCHAR(64),
   grade_id VARCHAR(16),
   credits REAL,
   request_item_id VARCHAR(128) NOT NULL,
-  -- TODO: unknown whether a sisuTimeout ever carries a submittedAttainmentId. When it
-  -- does not, submission_uncertain recovery has nothing to verify with and must fall back to
-  -- resolve-enrolments' existingAttainments. Never resubmit either way.
+  -- TODO: unknown whether a sisuTimeout ever carries a submittedAttainmentId. Without one,
+  -- submission_uncertain recovery must fall back to resolve-enrolments' existingAttainments.
+  -- Never resubmit either way.
   submitted_attainment_id VARCHAR(255),
   submitted_attainment_type VARCHAR(64),
   sisu_attainment_id VARCHAR(255),
@@ -463,8 +376,7 @@ CREATE TABLE credit_registrations (
 );
 
 -- Exactly one live registration per completion. Superseded rows (a grade improvement resubmitted a
--- better grade) stay as history and are excluded, so a completion can accumulate attempts over time
--- while never having two in flight at once.
+-- better grade) stay as history and are excluded, so attempts accumulate but never two in flight.
 CREATE UNIQUE INDEX uq_credit_registrations_completion ON credit_registrations (course_module_completion_id)
 WHERE deleted_at IS NULL
   AND superseded_by_id IS NULL;
@@ -498,8 +410,7 @@ CREATE INDEX idx_credit_registrations_admin_attention ON credit_registrations (u
 WHERE needs_admin_attention
   AND deleted_at IS NULL;
 -- One student number may not hold two live registrations for the same module. Superseded rows are
--- excluded: a grade improvement is deliberately a second submission for the same pair, and this
--- index is what would otherwise forbid it.
+-- excluded because a grade improvement is deliberately a second submission for the same pair.
 CREATE UNIQUE INDEX uq_credit_registrations_number_module ON credit_registrations (student_number, course_module_id)
 WHERE student_number IS NOT NULL
   AND deleted_at IS NULL
@@ -562,7 +473,6 @@ COMMENT ON COLUMN credit_registrations.created_at IS 'Timestamp when the record 
 COMMENT ON COLUMN credit_registrations.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN credit_registrations.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
--- 9. suotar_api_calls, before credit_registration_events because the events reference it.
 CREATE TABLE suotar_api_calls (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   endpoint suotar_endpoint NOT NULL,
@@ -600,7 +510,7 @@ COMMENT ON COLUMN suotar_api_calls.ok_item_count IS 'How many items the response
 COMMENT ON COLUMN suotar_api_calls.error_item_count IS 'How many items the response rejected.';
 COMMENT ON COLUMN suotar_api_calls.request_level_error_code IS 'The code returned when the whole request was rejected rather than individual items.';
 COMMENT ON COLUMN suotar_api_calls.error_message IS 'Request-level error detail, scrubbed before storage.';
-COMMENT ON COLUMN suotar_api_calls.request_body_sample IS 'Scrubbed sample of the request body: full body for at most 20 items, otherwise the first 5 plus a count, truncated to 64 kB. Names, student numbers, email addresses and access tokens are redacted at write time by scrub_suotar_body; keys are kept so the payload shape stays debuggable.';
+COMMENT ON COLUMN suotar_api_calls.request_body_sample IS 'Scrubbed sample of the request body: full body for at most 20 items, otherwise the first 5 plus a count, truncated to 64 kB. scrub_suotar_body redacts at write time on a best-effort basis: student numbers, email addresses, access tokens and the known person fields go, while a personal name quoted in a free-text error message is deliberately kept because the study registry holds it anyway. Keys are kept so the payload shape stays debuggable. Rows here are swept after 90 days.';
 COMMENT ON COLUMN suotar_api_calls.response_body_sample IS 'Scrubbed sample of the response body, same rules as request_body_sample.';
 COMMENT ON COLUMN suotar_api_calls.credit_registration_ids IS 'The ledger rows this call covered, in request item id order. This is the replacement for the personal data removed from the bodies: debugging walks body to registration id to ledger row, where the real values are held in exactly one place.';
 COMMENT ON COLUMN suotar_api_calls.worker_name IS 'Which worker or manual action made the call, so the submitter, the verify poller and an admin retry are distinguishable.';
@@ -609,7 +519,6 @@ COMMENT ON COLUMN suotar_api_calls.created_at IS 'Timestamp when the record was 
 COMMENT ON COLUMN suotar_api_calls.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN suotar_api_calls.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
--- 10. credit_registration_events: the permanent, append-only audit trail per ledger row.
 CREATE TABLE credit_registration_events (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   credit_registration_id UUID NOT NULL REFERENCES credit_registrations(id) ON DELETE RESTRICT,
@@ -619,12 +528,12 @@ CREATE TABLE credit_registration_events (
   error_code credit_registration_error_code,
   message TEXT,
   -- SET NULL, not RESTRICT: this table is permanent but suotar_api_calls is swept after 90 days, so
-  -- the reference has to be allowed to go stale rather than block the sweep.
+  -- the reference must be allowed to go stale rather than block the sweep.
   suotar_api_call_id UUID REFERENCES suotar_api_calls(id) ON DELETE SET NULL,
   actor_user_id UUID REFERENCES users(id),
   details JSONB,
-  -- clock_timestamp(), not now(): now() is the transaction timestamp, so several events appended in
-  -- one transaction would all claim the same instant and the timeline could not be ordered.
+  -- clock_timestamp(), not now(): events appended in one transaction must not all claim the same
+  -- instant, or the timeline cannot be ordered.
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE
@@ -636,7 +545,7 @@ WHERE error_code IS NOT NULL;
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON credit_registration_events FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE credit_registration_events IS 'Append-only audit trail for the credit registration ledger. There is no retention sweep here, which is exactly why the stored Suotar exchange must be scrubbed: this table must not become the copy of personal data that outlives the 90-day suotar_api_calls window.';
+COMMENT ON TABLE credit_registration_events IS 'Append-only audit trail for the credit registration ledger. There is no retention sweep here, so anything stored survives the 90-day suotar_api_calls window; every Suotar payload written to details is scrubbed at write time, but only best-effort — email addresses, student-number-shaped digit runs, access tokens and the known person fields are removed, while a personal name quoted in a free-text error message is deliberately left in place because the study registry holds it anyway. Treat this table as holding personal data, not as a guaranteed personal-data-free store.';
 COMMENT ON COLUMN credit_registration_events.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN credit_registration_events.credit_registration_id IS 'The ledger row this event belongs to. Also the reference that replaces the identifiers removed from details, since the ledger row holds the real snapshot values.';
 COMMENT ON COLUMN credit_registration_events.kind IS 'What kind of event this is.';
@@ -651,7 +560,6 @@ COMMENT ON COLUMN credit_registration_events.created_at IS 'Timestamp when the r
 COMMENT ON COLUMN credit_registration_events.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN credit_registration_events.deleted_at IS 'Timestamp when the record was deleted. Exists for convention and for personal data erasure; events are not soft-deleted in normal operation.';
 
--- 11. credit_registration_admin_actions: the global, actor-ordered manual-action audit.
 CREATE TABLE credit_registration_admin_actions (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   action credit_registration_admin_action NOT NULL,
@@ -700,7 +608,6 @@ COMMENT ON COLUMN credit_registration_admin_actions.created_at IS 'Timestamp whe
 COMMENT ON COLUMN credit_registration_admin_actions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN credit_registration_admin_actions.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
--- 12. open_university_product_access_tokens: replaces the human-URL-only registration links.
 CREATE TABLE open_university_product_access_tokens (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   open_university_product_id VARCHAR(255) NOT NULL,
@@ -735,14 +642,122 @@ COMMENT ON COLUMN open_university_product_access_tokens.created_at IS 'Timestamp
 COMMENT ON COLUMN open_university_product_access_tokens.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN open_university_product_access_tokens.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
--- 13. Per-module configuration.
+CREATE TABLE credit_registration_phase_state (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  phase VARCHAR(64) NOT NULL,
+  process_name VARCHAR(64) NOT NULL,
+  expected_interval_secs INT NOT NULL,
+  last_heartbeat_at TIMESTAMP WITH TIME ZONE,
+  last_run_started_at TIMESTAMP WITH TIME ZONE,
+  last_run_finished_at TIMESTAMP WITH TIME ZONE,
+  last_success_at TIMESTAMP WITH TIME ZONE,
+  next_run_at TIMESTAMP WITH TIME ZONE,
+  items_processed_last_run INT,
+  items_failed_last_run INT,
+  consecutive_failures INT NOT NULL DEFAULT 0,
+  last_error TEXT,
+  paused_at TIMESTAMP WITH TIME ZONE,
+  paused_by_user_id UUID REFERENCES users(id),
+  pause_reason TEXT,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE
+);
+CREATE UNIQUE INDEX uq_credit_registration_phase_state_phase ON credit_registration_phase_state (phase, deleted_at) NULLS NOT DISTINCT;
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON credit_registration_phase_state FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE credit_registration_phase_state IS 'One row per pipeline phase, not per worker process. Phases are what an operator reasons about, what the dashboard lists and what the system tests tick individually. Rows are seeded by migration and thereafter only ever updated.';
+COMMENT ON COLUMN credit_registration_phase_state.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN credit_registration_phase_state.phase IS 'The canonical phase name, used verbatim here, in the test tick endpoint, in the dashboard and in the audit log.';
+COMMENT ON COLUMN credit_registration_phase_state.process_name IS 'Which worker process runs this phase.';
+COMMENT ON COLUMN credit_registration_phase_state.expected_interval_secs IS 'How often the phase is expected to run. Persisted rather than hardcoded in the frontend because the "phase is down" rule is evaluated server-side and rendered client-side, and it should be one number in one place.';
+COMMENT ON COLUMN credit_registration_phase_state.last_heartbeat_at IS 'Written on every iteration whether or not there was work, so idle and wedged are distinguishable.';
+COMMENT ON COLUMN credit_registration_phase_state.last_run_started_at IS 'When the phase last began an iteration.';
+COMMENT ON COLUMN credit_registration_phase_state.last_run_finished_at IS 'When the phase last finished an iteration.';
+COMMENT ON COLUMN credit_registration_phase_state.last_success_at IS 'When the phase last completed a unit of work without error.';
+COMMENT ON COLUMN credit_registration_phase_state.next_run_at IS 'When the phase should next run. Setting it to now() is how the admin run-now action works, using the same mechanism the phase already uses for its own scheduling.';
+COMMENT ON COLUMN credit_registration_phase_state.items_processed_last_run IS 'How many items the last iteration handled.';
+COMMENT ON COLUMN credit_registration_phase_state.items_failed_last_run IS 'How many items the last iteration failed on.';
+COMMENT ON COLUMN credit_registration_phase_state.consecutive_failures IS 'Observable copy of the in-process circuit-breaker counter, written each tick.';
+COMMENT ON COLUMN credit_registration_phase_state.last_error IS 'The last error the phase recorded.';
+COMMENT ON COLUMN credit_registration_phase_state.paused_at IS 'While set, the phase skips its body. A phase flag rather than scaling a deployment to zero, because half the phases are database-only and useful during a Suotar outage.';
+COMMENT ON COLUMN credit_registration_phase_state.paused_by_user_id IS 'Who paused the phase.';
+COMMENT ON COLUMN credit_registration_phase_state.pause_reason IS 'Why the phase was paused.';
+COMMENT ON COLUMN credit_registration_phase_state.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN credit_registration_phase_state.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN credit_registration_phase_state.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+
+INSERT INTO credit_registration_phase_state (phase, process_name, expected_interval_secs)
+VALUES ('materialize', 'credit-registrar', 60),
+  ('preconditions', 'credit-registrar', 10),
+  ('resolve-enrolments', 'credit-registrar', 10),
+  ('import', 'credit-registrar', 10),
+  ('verify', 'credit-registrar', 60),
+  ('legacy-mirror', 'credit-registrar', 60),
+  ('student-notifications', 'credit-registrar', 60),
+  ('enrolment-discovery', 'suotar-syncer', 1800),
+  ('link-emails', 'suotar-syncer', 1800),
+  ('product-token-refresh', 'suotar-syncer', 21600),
+  ('config-validation', 'suotar-syncer', 86400),
+  ('retention-sweep', 'suotar-syncer', 3600);
+
+CREATE TABLE credit_registration_daily_snapshots (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  snapshot_date DATE NOT NULL,
+  state credit_registration_state NOT NULL,
+  count INT NOT NULL,
+  entered_count INT NOT NULL DEFAULT 0,
+  left_count INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE
+);
+CREATE UNIQUE INDEX uq_credit_registration_daily_snapshots ON credit_registration_daily_snapshots (snapshot_date, state, deleted_at) NULLS NOT DISTINCT;
+CREATE INDEX idx_credit_registration_daily_snapshots_date ON credit_registration_daily_snapshots (snapshot_date DESC);
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON credit_registration_daily_snapshots FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE credit_registration_daily_snapshots IS 'Daily queue depth per ledger state. The ledger holds current state only, so a row that passed through a state in an hour leaves no depth trace and the dashboard trend charts have nothing to read. Aggregates only, deliberately: anything per-person belongs in the ledger. Roughly sixteen rows a day, so no retention policy is needed.';
+COMMENT ON COLUMN credit_registration_daily_snapshots.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN credit_registration_daily_snapshots.snapshot_date IS 'The day this row describes.';
+COMMENT ON COLUMN credit_registration_daily_snapshots.state IS 'The ledger state this row counts.';
+COMMENT ON COLUMN credit_registration_daily_snapshots.count IS 'End-of-day depth in this state.';
+COMMENT ON COLUMN credit_registration_daily_snapshots.entered_count IS 'How many rows entered this state that day, from the event table. Makes the funnel flow columns cheap.';
+COMMENT ON COLUMN credit_registration_daily_snapshots.left_count IS 'How many rows left this state that day, from the event table.';
+COMMENT ON COLUMN credit_registration_daily_snapshots.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN credit_registration_daily_snapshots.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN credit_registration_daily_snapshots.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+
+-- The registrar the push path attributes its legacy-ledger mirror rows to, which keeps the existing
+-- teacher UI's registered boolean and ?exclude_already_registered=true working. The id is fixed so
+-- seeds and tests can reference it.
+INSERT INTO study_registry_registrars (id, name, secret_key)
+VALUES (
+    '9da5a12f-0b96-4c35-a4fe-6d427d9c4292',
+    'Suotar (push)',
+    encode(gen_random_bytes(32), 'hex')
+  );
+
+-- Added ahead of use: a new enum value cannot be used in the transaction that adds it, so nothing
+-- here can seed a template row.
+ALTER TYPE email_template_type
+ADD VALUE 'credit_registration_account_linking';
+ALTER TYPE email_template_type
+ADD VALUE 'verify_email_address';
+ALTER TYPE email_template_type
+ADD VALUE 'credit_registration_action_needed';
+ALTER TYPE email_template_type
+ADD VALUE 'credit_registration_registered';
+ALTER TYPE email_template_type
+ADD VALUE 'credit_registration_student_number_linked';
+
 ALTER TABLE course_modules
 ADD COLUMN enable_credit_registration_via_suotar BOOLEAN NOT NULL DEFAULT FALSE,
-  -- TODO: Suotar has not said whether their API returns openUniversityProductId. Until
-  -- they do, teachers type it in here; when they do, prefer the returned id over this one.
+  -- TODO: unknown whether Suotar's API returns openUniversityProductId. Until it does, teachers
+  -- type it in here; prefer a returned id over this one once there is one.
   ADD COLUMN open_university_product_id VARCHAR(255),
-  -- TODO: pass/fail grade scale id spelling is unconfirmed (sis-hyv-hyl vs sis-hyl-hyv).
-  -- This override exists because a module may be pass/fail here but graded in Sisu, or vice versa.
+  -- The override exists because a module may be pass/fail here but graded in Sisu, or vice versa.
   ADD COLUMN credit_registration_grade_scale_id VARCHAR(64),
   ADD COLUMN credit_registration_paused_at TIMESTAMP WITH TIME ZONE,
   ADD COLUMN credit_registration_paused_by_user_id UUID REFERENCES users(id),
@@ -809,116 +824,84 @@ COMMENT ON COLUMN course_module_suotar_realisations.created_at IS 'Timestamp whe
 COMMENT ON COLUMN course_module_suotar_realisations.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN course_module_suotar_realisations.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
--- 14. credit_registration_phase_state: per-phase heartbeat and control.
-CREATE TABLE credit_registration_phase_state (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  phase VARCHAR(64) NOT NULL,
-  process_name VARCHAR(64) NOT NULL,
-  expected_interval_secs INT NOT NULL,
-  last_heartbeat_at TIMESTAMP WITH TIME ZONE,
-  last_run_started_at TIMESTAMP WITH TIME ZONE,
-  last_run_finished_at TIMESTAMP WITH TIME ZONE,
-  last_success_at TIMESTAMP WITH TIME ZONE,
-  next_run_at TIMESTAMP WITH TIME ZONE,
-  items_processed_last_run INT,
-  items_failed_last_run INT,
-  consecutive_failures INT NOT NULL DEFAULT 0,
-  last_error TEXT,
-  paused_at TIMESTAMP WITH TIME ZONE,
-  paused_by_user_id UUID REFERENCES users(id),
-  pause_reason TEXT,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  deleted_at TIMESTAMP WITH TIME ZONE
+ALTER TABLE email_deliveries
+ALTER COLUMN user_id DROP NOT NULL,
+  ADD COLUMN recipient_email VARCHAR(255),
+  ADD COLUMN placeholders JSONB;
+
+-- NOT VALID: every existing row has user_id set and no recipient_email, so it already conforms.
+-- Inserts and updates are still checked.
+ALTER TABLE email_deliveries
+ADD CONSTRAINT email_deliveries_has_exactly_one_recipient CHECK (
+    (user_id IS NOT NULL)::int + (recipient_email IS NOT NULL)::int = 1
+  ) NOT VALID;
+
+COMMENT ON COLUMN email_deliveries.user_id IS 'The user to whom the email should be sent. NULL for emails addressed to a raw external address (see recipient_email), e.g. student-number linking mails sent to the address Sisu holds for a person who may not have an account here. Exactly one of user_id and recipient_email is set.';
+COMMENT ON COLUMN email_deliveries.recipient_email IS 'Explicit recipient address, used when the email is not addressed to a known user. Exactly one of user_id and recipient_email is set.';
+COMMENT ON COLUMN email_deliveries.placeholders IS 'Placeholder bag substituted into the template body at send time. Used when the recipient has no account, so the sender needs no user lookup. NULL means the template derives its placeholders from user_id.';
+
+CREATE INDEX email_deliveries_recipient_email_idx ON email_deliveries (LOWER(recipient_email))
+WHERE recipient_email IS NOT NULL
+  AND deleted_at IS NULL;
+
+CREATE TYPE email_verification_method AS ENUM (
+  'verification_link',
+  'password_reset_backfill',
+  'tmc_confirmed',
+  'admin_asserted'
 );
-CREATE UNIQUE INDEX uq_credit_registration_phase_state_phase ON credit_registration_phase_state (phase, deleted_at) NULLS NOT DISTINCT;
-CREATE TRIGGER set_timestamp BEFORE
-UPDATE ON credit_registration_phase_state FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE credit_registration_phase_state IS 'One row per pipeline phase, not per worker process. Phases are what an operator reasons about, what the dashboard lists and what the system tests tick individually. Rows are seeded by migration and thereafter only ever updated.';
-COMMENT ON COLUMN credit_registration_phase_state.id IS 'A unique, stable identifier for the record.';
-COMMENT ON COLUMN credit_registration_phase_state.phase IS 'The canonical phase name, used verbatim here, in the test tick endpoint, in the dashboard and in the audit log.';
-COMMENT ON COLUMN credit_registration_phase_state.process_name IS 'Which worker process runs this phase.';
-COMMENT ON COLUMN credit_registration_phase_state.expected_interval_secs IS 'How often the phase is expected to run. Persisted rather than hardcoded in the frontend because the "phase is down" rule is evaluated server-side and rendered client-side, and it should be one number in one place.';
-COMMENT ON COLUMN credit_registration_phase_state.last_heartbeat_at IS 'Written on every iteration whether or not there was work, so idle and wedged are distinguishable.';
-COMMENT ON COLUMN credit_registration_phase_state.last_run_started_at IS 'When the phase last began an iteration.';
-COMMENT ON COLUMN credit_registration_phase_state.last_run_finished_at IS 'When the phase last finished an iteration.';
-COMMENT ON COLUMN credit_registration_phase_state.last_success_at IS 'When the phase last completed a unit of work without error.';
-COMMENT ON COLUMN credit_registration_phase_state.next_run_at IS 'When the phase should next run. Setting it to now() is how the admin run-now action works, using the same mechanism the phase already uses for its own scheduling.';
-COMMENT ON COLUMN credit_registration_phase_state.items_processed_last_run IS 'How many items the last iteration handled.';
-COMMENT ON COLUMN credit_registration_phase_state.items_failed_last_run IS 'How many items the last iteration failed on.';
-COMMENT ON COLUMN credit_registration_phase_state.consecutive_failures IS 'Observable copy of the in-process circuit-breaker counter, written each tick.';
-COMMENT ON COLUMN credit_registration_phase_state.last_error IS 'The last error the phase recorded.';
-COMMENT ON COLUMN credit_registration_phase_state.paused_at IS 'While set, the phase skips its body. A phase flag rather than scaling a deployment to zero, because half the phases are database-only and useful during a Suotar outage.';
-COMMENT ON COLUMN credit_registration_phase_state.paused_by_user_id IS 'Who paused the phase.';
-COMMENT ON COLUMN credit_registration_phase_state.pause_reason IS 'Why the phase was paused.';
-COMMENT ON COLUMN credit_registration_phase_state.created_at IS 'Timestamp when the record was created.';
-COMMENT ON COLUMN credit_registration_phase_state.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
-COMMENT ON COLUMN credit_registration_phase_state.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON TYPE email_verification_method IS 'How proof of control over user_details.email was obtained. admin_asserted is deliberately weaker than the others and is not accepted by the credit-registration email-match fast track.';
 
-INSERT INTO credit_registration_phase_state (phase, process_name, expected_interval_secs)
-VALUES ('materialize', 'credit-registrar', 60),
-  ('preconditions', 'credit-registrar', 10),
-  ('resolve-enrolments', 'credit-registrar', 10),
-  ('import', 'credit-registrar', 10),
-  ('verify', 'credit-registrar', 60),
-  ('legacy-mirror', 'credit-registrar', 60),
-  ('student-notifications', 'credit-registrar', 60),
-  ('enrolment-discovery', 'suotar-syncer', 1800),
-  ('link-emails', 'suotar-syncer', 1800),
-  ('product-token-refresh', 'suotar-syncer', 21600),
-  ('config-validation', 'suotar-syncer', 86400),
-  ('retention-sweep', 'suotar-syncer', 3600);
+ALTER TABLE user_details
+ADD COLUMN email_verified_at TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN email_verified_method email_verification_method;
 
--- 15. credit_registration_daily_snapshots: queue depth history the ledger cannot reconstruct.
-CREATE TABLE credit_registration_daily_snapshots (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  snapshot_date DATE NOT NULL,
-  state credit_registration_state NOT NULL,
-  count INT NOT NULL,
-  entered_count INT NOT NULL DEFAULT 0,
-  left_count INT NOT NULL DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  deleted_at TIMESTAMP WITH TIME ZONE
-);
-CREATE UNIQUE INDEX uq_credit_registration_daily_snapshots ON credit_registration_daily_snapshots (snapshot_date, state, deleted_at) NULLS NOT DISTINCT;
-CREATE INDEX idx_credit_registration_daily_snapshots_date ON credit_registration_daily_snapshots (snapshot_date DESC);
-CREATE TRIGGER set_timestamp BEFORE
-UPDATE ON credit_registration_daily_snapshots FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+-- NOT VALID: both columns are NULL in every existing row, which conforms. Inserts and updates are
+-- still checked.
+ALTER TABLE user_details
+ADD CONSTRAINT user_details_email_verification_consistent CHECK (
+    (email_verified_at IS NULL) = (email_verified_method IS NULL)
+  ) NOT VALID;
 
-COMMENT ON TABLE credit_registration_daily_snapshots IS 'Daily queue depth per ledger state. The ledger holds current state only, so a row that passed through a state in an hour leaves no depth trace and the dashboard trend charts have nothing to read. Aggregates only, deliberately: anything per-person belongs in the ledger. Roughly sixteen rows a day, so no retention policy is needed.';
-COMMENT ON COLUMN credit_registration_daily_snapshots.id IS 'A unique, stable identifier for the record.';
-COMMENT ON COLUMN credit_registration_daily_snapshots.snapshot_date IS 'The day this row describes.';
-COMMENT ON COLUMN credit_registration_daily_snapshots.state IS 'The ledger state this row counts.';
-COMMENT ON COLUMN credit_registration_daily_snapshots.count IS 'End-of-day depth in this state.';
-COMMENT ON COLUMN credit_registration_daily_snapshots.entered_count IS 'How many rows entered this state that day, from the event table. Makes the funnel flow columns cheap.';
-COMMENT ON COLUMN credit_registration_daily_snapshots.left_count IS 'How many rows left this state that day, from the event table.';
-COMMENT ON COLUMN credit_registration_daily_snapshots.created_at IS 'Timestamp when the record was created.';
-COMMENT ON COLUMN credit_registration_daily_snapshots.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
-COMMENT ON COLUMN credit_registration_daily_snapshots.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN user_details.email_verified_at IS 'When the user last proved control of the address currently in email. NULL means unproven. Automatically reset to NULL by the clear_email_verification trigger whenever email changes, so a non-NULL value always refers to the current address. Never set this without a proof of mailbox control.';
+COMMENT ON COLUMN user_details.email_verified_method IS 'How email_verified_at was obtained. The credit-registration email-match fast track accepts verification_link and tmc_confirmed only.';
 
--- 16. The registrar the push path attributes its legacy-ledger mirror rows to. Mirroring keeps the
--- existing teacher UI's registered boolean working and keeps ?exclude_already_registered=true
--- filtering these completions out for this registrar. Looked up by name; the id is fixed so seeds
--- and tests can reference it.
-INSERT INTO study_registry_registrars (id, name, secret_key)
-VALUES (
-    '9da5a12f-0b96-4c35-a4fe-6d427d9c4292',
-    'Suotar (push)',
-    encode(gen_random_bytes(32), 'hex')
-  );
+-- Structural, not remembered per writer: there are already three writers of user_details.email and
+-- the fourth will be added by someone who has not read the fast-track design.
+CREATE FUNCTION clear_email_verification_on_email_change() RETURNS trigger AS $$
+BEGIN
+  IF NEW.email IS DISTINCT FROM OLD.email THEN
+    NEW.email_verified_at := NULL;
+    NEW.email_verified_method := NULL;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- 17. Email template types the feature queues. Added now, unused, so no later migration is needed
--- just to name a template. A new enum value cannot be used in the transaction that adds it, which is
--- why nothing here seeds a template row.
-ALTER TYPE email_template_type
-ADD VALUE 'credit_registration_account_linking';
-ALTER TYPE email_template_type
-ADD VALUE 'verify_email_address';
-ALTER TYPE email_template_type
-ADD VALUE 'credit_registration_action_needed';
-ALTER TYPE email_template_type
-ADD VALUE 'credit_registration_registered';
-ALTER TYPE email_template_type
-ADD VALUE 'credit_registration_student_number_linked';
+CREATE TRIGGER clear_email_verification BEFORE
+UPDATE ON user_details FOR EACH ROW EXECUTE FUNCTION clear_email_verification_on_email_change();
+
+-- A consumed password_reset_token proves control of the address held at used_at. updated_at is the
+-- only bound available on "the address has not changed since", so this is sound but deliberately
+-- under-inclusive; deleted_at is ignored because insert_password_reset_token soft-deletes used rows
+-- too. Re-running after a revert finds nothing: this write bumps updated_at past last_used.
+UPDATE user_details ud
+SET email_verified_at = t.last_used,
+  email_verified_method = 'password_reset_backfill'
+FROM (
+    SELECT user_id,
+      MAX(used_at) AS last_used
+    FROM password_reset_tokens
+    WHERE used_at IS NOT NULL
+    GROUP BY user_id
+  ) t
+WHERE t.user_id = ud.user_id
+  AND t.last_used > ud.updated_at;
+
+-- Last in the file on purpose. sqlx runs the whole migration in one transaction, so the ACCESS
+-- EXCLUSIVE the ADD COLUMN above takes on user_details is held until commit and every live pod's
+-- read of user_details blocks meanwhile. This index cannot be built CONCURRENTLY ahead of the
+-- deploy, because the column it covers does not exist until this migration adds it.
+CREATE INDEX idx_user_details_verified_email ON user_details (LOWER(email))
+WHERE email_verified_at IS NOT NULL;

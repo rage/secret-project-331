@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE credit_registrations\nSET state = $2::credit_registration_state,\n  -- clock_timestamp(), not now(): now() is the transaction timestamp, so several state changes in\n  -- one transaction would share an instant and the timeline would lose their order.\n  state_entered_at = clock_timestamp(),\n  error_code = $3,\n  error_message = $4,\n  needs_admin_attention = COALESCE($5, needs_admin_attention),\n  terminal_at = CASE\n    WHEN $6 THEN COALESCE(terminal_at, now())\n    ELSE terminal_at\n  END,\n  registered_at = CASE\n    WHEN $2::credit_registration_state = 'registered' THEN COALESCE(registered_at, now())\n    ELSE registered_at\n  END,\n  submitted_at = CASE\n    WHEN $2::credit_registration_state = 'submitting' THEN now()\n    ELSE submitted_at\n  END,\n  enrolment_checked_at = CASE\n    WHEN state = 'checking_enrolment'\n    AND $2::credit_registration_state <> 'checking_enrolment' THEN now()\n    ELSE enrolment_checked_at\n  END,\n  enrolment_banner_dismissed_at = CASE\n    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN NULL\n    ELSE enrolment_banner_dismissed_at\n  END\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING *\n        ",
+  "query": "\nUPDATE credit_registrations\nSET state = $2::credit_registration_state,\n  -- clock_timestamp(), not now(): now() is the transaction timestamp, so several state changes in\n  -- one transaction would share an instant and the timeline would lose their order.\n  state_entered_at = clock_timestamp(),\n  error_code = $3,\n  error_message = $4,\n  needs_admin_attention = COALESCE($5, needs_admin_attention),\n  -- ELSE NULL: an admin retry out of a terminal state must come back into terminal_at IS NULL, which\n  -- is what every stuck-item query filters on.\n  terminal_at = CASE\n    WHEN $6 THEN COALESCE(terminal_at, now())\n    ELSE NULL\n  END,\n  first_failed_at = CASE\n    WHEN $7 THEN COALESCE(first_failed_at, now())\n    ELSE first_failed_at\n  END,\n  registered_at = CASE\n    WHEN $2::credit_registration_state = 'registered' THEN COALESCE(registered_at, now())\n    ELSE registered_at\n  END,\n  submitted_at = CASE\n    WHEN $2::credit_registration_state = 'submitting' THEN now()\n    ELSE submitted_at\n  END,\n  enrolment_checked_at = CASE\n    WHEN state = 'checking_enrolment'\n    AND $2::credit_registration_state <> 'checking_enrolment' THEN now()\n    ELSE enrolment_checked_at\n  END,\n  enrolment_banner_dismissed_at = CASE\n    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN NULL\n    ELSE enrolment_banner_dismissed_at\n  END\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -596,6 +596,7 @@
         },
         "Text",
         "Bool",
+        "Bool",
         "Bool"
       ]
     },
@@ -645,5 +646,5 @@
       true
     ]
   },
-  "hash": "c5c1283b3087300bac57f332c64b39fa6f553be053757ef6f0acf21d2c3f8600"
+  "hash": "d15acb95a0edd5e6ed6755c2dc0ff53c61214787a86b64d0f011517d07d1622d"
 }

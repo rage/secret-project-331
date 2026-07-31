@@ -445,8 +445,8 @@ COMMENT ON COLUMN credit_registrations.sisu_attainment_id IS 'The attainment id 
 COMMENT ON COLUMN credit_registrations.sisu_attainment_type IS 'The attainment type Sisu confirmed.';
 COMMENT ON COLUMN credit_registrations.submit_retry_count IS 'How many times submission has been retried after a transient failure.';
 COMMENT ON COLUMN credit_registrations.verify_attempt_count IS 'How many verify polls have been made. Also part of the verify request item id.';
-COMMENT ON COLUMN credit_registrations.next_attempt_at IS 'When the pipeline may next claim this row. Backoff and verify cadence both write it.';
-COMMENT ON COLUMN credit_registrations.first_failed_at IS 'When the first failure happened, the anchor of the retry window.';
+COMMENT ON COLUMN credit_registrations.next_attempt_at IS 'When the pipeline may next claim this row. Backoff, verify cadence and the states that wait on a human all write it; because claim_due orders by it under a LIMIT, a state that never defers starves the rest of its queue.';
+COMMENT ON COLUMN credit_registrations.first_failed_at IS 'When the row first entered a failure state, the anchor of the retry window. Written only by credit_registrations::transition, so deferring a row cannot start the clock on one that has not failed.';
 COMMENT ON COLUMN credit_registrations.last_attempt_at IS 'When the pipeline last acted on this row.';
 COMMENT ON COLUMN credit_registrations.attempt_number IS 'Which attempt at this completion this row is. Grade improvements insert a new attempt rather than mutating the registered one, and the UIs render "attempt 2 of 3" from this.';
 COMMENT ON COLUMN credit_registrations.superseded_by_id IS 'The newer attempt that replaced this row. Set when a strictly better grade is resubmitted; the old row keeps its state and terminal_at, because it really was registered.';
@@ -454,7 +454,7 @@ COMMENT ON COLUMN credit_registrations.superseded_at IS 'When this row was super
 COMMENT ON COLUMN credit_registrations.enrolment_checked_at IS 'When enrolments were last resolved for this row.';
 COMMENT ON COLUMN credit_registrations.submitted_at IS 'When the import request was sent.';
 COMMENT ON COLUMN credit_registrations.registered_at IS 'When Sisu confirmed the attainment.';
-COMMENT ON COLUMN credit_registrations.terminal_at IS 'When the row reached a terminal state. Set for every terminal state, which makes both the standard non-terminal filter and time-to-registration percentiles trivial.';
+COMMENT ON COLUMN credit_registrations.terminal_at IS 'When the row reached a terminal state, and NULL whenever it is not in one: an admin retry out of a terminal state clears it. That is what lets terminal_at IS NULL serve as the non-terminal filter for the stuck detector and the pipeline funnel.';
 COMMENT ON COLUMN credit_registrations.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN credit_registrations.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN credit_registrations.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';

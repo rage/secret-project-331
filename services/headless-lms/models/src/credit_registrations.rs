@@ -35,7 +35,8 @@ pub enum CreditRegistrationState {
 }
 
 impl CreditRegistrationState {
-    /// States the pipeline never leaves on its own. `terminal_at` is stamped on entry to these.
+    /// States the pipeline never leaves on its own. `terminal_at` tracks membership: stamped on
+    /// entry, cleared on exit, so an admin retry becomes visible to the stuck queries again.
     pub fn is_terminal(self) -> bool {
         matches!(
             self,
@@ -46,6 +47,11 @@ impl CreditRegistrationState {
                 | Self::Cancelled
                 | Self::AbandonedByConsentWithdrawal
         )
+    }
+
+    /// Entry to one of these anchors the retry window in `first_failed_at`.
+    pub fn is_failure(self) -> bool {
+        matches!(self, Self::FailedRetryable | Self::FailedPermanent)
     }
 
     /// Used for reporting and for the double-registration guard.
@@ -237,10 +243,10 @@ impl Transition {
 /// Moves a ledger row to a new state and appends the matching audit event, atomically.
 ///
 /// Also stamps, so callers must not: `state_entered_at` (every call, including a self-transition),
-/// `terminal_at` (first terminal state only, never cleared), `registered_at`, `submitted_at`,
-/// `enrolment_checked_at` (on leaving `checking_enrolment`), and clears
-/// `enrolment_banner_dismissed_at` on entry to `no_usable_enrolment` so a fresh enrolment problem
-/// shows the banner again.
+/// `terminal_at` (set on entry to a terminal state, cleared on leaving one), `first_failed_at` (the
+/// first failure only), `registered_at`, `submitted_at`, `enrolment_checked_at` (on leaving
+/// `checking_enrolment`), and clears `enrolment_banner_dismissed_at` on entry to
+/// `no_usable_enrolment` so a fresh enrolment problem shows the banner again.
 pub async fn transition(
     conn: &mut PgConnection,
     id: Uuid,
@@ -274,9 +280,14 @@ SET state = $2::credit_registration_state,
   error_code = $3,
   error_message = $4,
   needs_admin_attention = COALESCE($5, needs_admin_attention),
+  -- ELSE NULL: without it an admin retry stays invisible to every terminal_at IS NULL query.
   terminal_at = CASE
     WHEN $6 THEN COALESCE(terminal_at, now())
-    ELSE terminal_at
+    ELSE NULL
+  END,
+  first_failed_at = CASE
+    WHEN $7 THEN COALESCE(first_failed_at, now())
+    ELSE first_failed_at
   END,
   registered_at = CASE
     WHEN $2::credit_registration_state = 'registered' THEN COALESCE(registered_at, now())
@@ -305,6 +316,7 @@ RETURNING *
         transition.error_message,
         transition.needs_admin_attention,
         to_state.is_terminal(),
+        to_state.is_failure(),
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -590,7 +602,10 @@ WHERE id = $1
     Ok(())
 }
 
-/// Schedules the next pipeline attempt; the backoff delay is the caller's policy.
+/// Defers when the pipeline may next claim this row; the delay is the caller's policy.
+///
+/// Does not touch `first_failed_at`, which [`transition`] owns: states that wait on a human must
+/// defer to stay out of `claim_due`'s `LIMIT`, and anchoring the retry window there would expire them.
 pub async fn schedule_next_attempt(
     conn: &mut PgConnection,
     id: Uuid,
@@ -599,8 +614,7 @@ pub async fn schedule_next_attempt(
     sqlx::query!(
         r#"
 UPDATE credit_registrations
-SET next_attempt_at = $2,
-  first_failed_at = COALESCE(first_failed_at, now())
+SET next_attempt_at = $2
 WHERE id = $1
   AND deleted_at IS NULL
         "#,
@@ -885,7 +899,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn terminal_at_is_stamped_once_and_never_moved() {
+    async fn terminal_at_holds_between_terminal_states_and_clears_on_a_retry() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let id =
             insert_registration(tx.as_mut(), user, course, instance.id, course_module.id).await;
@@ -907,6 +921,15 @@ mod tests {
         .await
         .unwrap();
         assert_eq!(second.terminal_at, Some(terminal_at));
+
+        let retried = transition(
+            tx.as_mut(),
+            id,
+            &Transition::to(CreditRegistrationState::ReadyToSubmit),
+        )
+        .await
+        .unwrap();
+        assert_eq!(retried.terminal_at, None);
     }
 
     #[tokio::test]

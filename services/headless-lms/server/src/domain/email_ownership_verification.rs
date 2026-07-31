@@ -12,11 +12,7 @@ use headless_lms_models::{
 use secrecy::ExposeSecret;
 use serde_json::json;
 
-use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
-
-/// Where the mailed link points when `FRONTEND_BASE_URL` is unset. Same default as the mail sender's.
-const FRONTEND_BASE_URL_FALLBACK: &str = "https://courses.mooc.fi";
 
 /// Automatic sends have no UI language to work from. The template lookup falls back to English on its
 /// own, so this only makes the intent explicit at the call sites.
@@ -33,11 +29,18 @@ pub enum VerificationEmailOutcome {
     AlreadyVerified,
     /// A link to this same address is younger than the resend cap.
     RecentlySent,
+    /// No `verify_email_address` template exists to mail. A deployment gap rather than a fault in the
+    /// request, so callers report it instead of failing.
+    NotConfigured,
 }
 
 /// Mails a verification link for `email`, which must be the address currently on the account.
+///
+/// `base_url` is this deployment's own base URL, i.e. [`ApplicationConfiguration::base_url`]: the link
+/// has to point at the environment that minted the token.
 pub async fn queue_verification_email(
     conn: &mut PgConnection,
+    base_url: &str,
     user_id: Uuid,
     email: &str,
     language: &str,
@@ -58,24 +61,26 @@ pub async fn queue_verification_email(
         return Ok(VerificationEmailOutcome::RecentlySent);
     }
 
+    // Not an error: the lookup already falls back from `language` to English to the language-agnostic
+    // template, so no row means the deployment has no verification template at all. A user pressing
+    // "send me a link" must be told that rather than shown a server fault.
     let template = email_templates::get_generic_email_template_by_type_and_language(
         conn,
         EmailTemplateType::VerifyEmailAddress,
         language,
     )
     .await
-    .map_err(|e| {
-        anyhow::anyhow!(
-            "No verify_email_address email template is configured for language '{language}': {e}"
-        )
-    })?;
+    .optional()?;
+    let Some(template) = template else {
+        return Ok(VerificationEmailOutcome::NotConfigured);
+    };
 
     let mut tx = conn.begin().await?;
     let (token_id, token) =
         email_ownership_verification_tokens::insert(&mut tx, PKeyPolicy::Generate, user_id, email)
             .await?;
     let placeholders = json!({
-        "VERIFICATION_LINK": verification_link(token.expose_secret()),
+        "VERIFICATION_LINK": verification_link(base_url, token.expose_secret()),
         "EMAIL": email,
     });
     // Addressed to the raw address rather than to user_id: the mail has to go to the address the link
@@ -100,10 +105,16 @@ pub async fn queue_verification_email(
 /// queue or the template is unavailable. The user can always ask again from account settings.
 pub async fn queue_verification_email_best_effort(
     conn: &mut PgConnection,
+    base_url: &str,
     user_id: Uuid,
     email: &str,
 ) {
-    match queue_verification_email(conn, user_id, email, FALLBACK_EMAIL_LANGUAGE).await {
+    match queue_verification_email(conn, base_url, user_id, email, FALLBACK_EMAIL_LANGUAGE).await {
+        Ok(VerificationEmailOutcome::NotConfigured) => {
+            error!(
+                "No verify_email_address email template exists, so no verification link was mailed for {user_id}"
+            );
+        }
         Ok(outcome) => {
             info!("Email ownership verification mail for {user_id}: {outcome:?}");
         }
@@ -114,14 +125,10 @@ pub async fn queue_verification_email_best_effort(
 }
 
 /// The URL the mailed link points at. Tokens are alphanumeric, so no percent-encoding is needed.
-pub fn verification_link(token: &str) -> String {
-    let base = ProgramConfig::optional("FRONTEND_BASE_URL")
-        .map(|value| value.trim().to_string())
-        .filter(|value| !value.is_empty())
-        .unwrap_or_else(|| FRONTEND_BASE_URL_FALLBACK.to_string());
+pub fn verification_link(base_url: &str, token: &str) -> String {
     format!(
         "{}/email-verified?token={}",
-        base.trim_end_matches('/'),
+        base_url.trim_end_matches('/'),
         token
     )
 }

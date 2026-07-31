@@ -11,33 +11,27 @@ import { signUp } from "@/utils/flows/signup.flow"
  * The compromise: there is no mail capture anywhere in this repo, so the spec cannot read the link out
  * of an inbox. It asks the backend for the caller's own pending link through
  * `GET /email-verification/test-mode-link`, which 404s unless `TEST_MODE` is on and only ever returns
- * the signed-in account's own link. The link's host comes from `FRONTEND_BASE_URL`, which the dev
- * cluster does not set, so only the token is taken from it and the URL is rebuilt against
- * project-331.local.
+ * the signed-in account's own link.
  *
  * The account is created by the spec rather than seeded, because the spec changes its email address and
  * a seeded user's address is a login credential other specs depend on.
  */
 
-const ACCOUNT_URL = "http://project-331.local/user-settings/account"
-const TEST_MODE_LINK_URL =
-  "http://project-331.local/api/v0/main-frontend/email-verification/test-mode-link"
+const ORIGIN = "http://project-331.local"
+const ACCOUNT_URL = `${ORIGIN}/user-settings/account`
+const TEST_MODE_LINK_URL = `${ORIGIN}/api/v0/main-frontend/email-verification/test-mode-link`
 
 const FIRST_EMAIL = "email-ownership@example.com"
 const SECOND_EMAIL = "email-ownership-moved@example.com"
 const PASSWORD = "email-ownership"
 
-async function pendingVerificationToken(page: Page): Promise<string> {
+async function pendingVerificationLink(page: Page): Promise<string> {
   const response = await page.request.get(TEST_MODE_LINK_URL)
   expect(response.ok()).toBe(true)
   const link: string = await response.json()
-  const token = new URL(link).searchParams.get("token")
-  expect(token).not.toBeNull()
-  return token as string
-}
-
-async function openVerificationLink(page: Page, token: string): Promise<void> {
-  await page.goto(`http://project-331.local/email-verified?token=${token}`)
+  // Navigating it only works if it points at the environment that minted the token.
+  expect(link).toContain(`${ORIGIN}/email-verified?token=`)
+  return link
 }
 
 test("Email ownership verification: the mailed link proves the address and an email change clears the proof", async ({
@@ -68,11 +62,11 @@ test("Email ownership verification: the mailed link proves the address and an em
     )
   })
 
-  let spentToken = ""
+  let spentLink = ""
 
   await test.step("Opening the link records the proof", async () => {
-    spentToken = await pendingVerificationToken(page)
-    await openVerificationLink(page, spentToken)
+    spentLink = await pendingVerificationLink(page)
+    await page.goto(spentLink)
     await expect(page.getByTestId("email-verification-outcome")).toContainText(
       "Your email has been verified",
     )
@@ -84,7 +78,7 @@ test("Email ownership verification: the mailed link proves the address and an em
   })
 
   await test.step("Reopening the spent link is refused with its own copy", async () => {
-    await openVerificationLink(page, spentToken)
+    await page.goto(spentLink)
     await expect(page.getByTestId("email-verification-outcome")).toContainText(
       "This link has already been used",
     )
@@ -105,8 +99,7 @@ test("Email ownership verification: the mailed link proves the address and an em
   })
 
   await test.step("The link for the new address verifies it again", async () => {
-    const token = await pendingVerificationToken(page)
-    await openVerificationLink(page, token)
+    await page.goto(await pendingVerificationLink(page))
     await expect(page.getByTestId("email-verification-outcome")).toContainText(
       "Your email has been verified",
     )

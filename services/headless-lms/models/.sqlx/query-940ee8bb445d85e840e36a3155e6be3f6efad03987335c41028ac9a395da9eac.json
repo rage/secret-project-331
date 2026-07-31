@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE email_deliveries ed\nSET recipient_email = $2::text,\n    placeholders = CASE\n      WHEN ed.placeholders IS NULL THEN NULL\n      ELSE jsonb_set(ed.placeholders, '{EMAIL}', to_jsonb($2::text))\n    END\nFROM email_ownership_verification_tokens t\nWHERE t.user_id = $1\n  AND t.email_delivery_id = ed.id\n  AND ed.recipient_email IS NOT NULL\n  AND ed.recipient_email <> $2::text\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "940ee8bb445d85e840e36a3155e6be3f6efad03987335c41028ac9a395da9eac"
+}

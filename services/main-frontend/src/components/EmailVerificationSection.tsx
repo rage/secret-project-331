@@ -31,6 +31,7 @@ const OUTCOME_KEYS = {
   queued: "message-email-verification-link-on-its-way",
   already_verified: "message-email-is-already-verified",
   recently_sent: "message-email-verification-link-was-just-sent",
+  not_configured: "message-email-verification-is-not-available-right-now",
 } as const satisfies Record<RequestEmailVerificationOutcome, string>
 
 const cardCss = css`

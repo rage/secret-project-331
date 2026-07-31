@@ -14,8 +14,7 @@ pub struct User {
 
 /// The domain part of an address, as stored in `users.email_domain`.
 ///
-/// Shared by every writer of `user_details.email`: the column is derived, so one writer computing it
-/// differently or not at all is invisible until someone tries to measure account domains.
+/// Every writer of `user_details.email` must use this, or the derived column drifts silently.
 pub fn email_domain_from_email(email: &str) -> Option<&str> {
     email.trim().split('@').next_back()
 }
@@ -210,8 +209,8 @@ AND deleted_at IS NULL
 
 /// Points the account with this upstream id at a new address, keeping `users.email_domain` in step.
 ///
-/// The `clear_email_verification` trigger drops any proof of the old address as part of the update.
-/// Returns the local user id so the caller can mail a fresh verification link.
+/// The `clear_email_verification` trigger drops proof of the old address as part of the update; the
+/// returned local user id lets the caller mail a fresh link.
 pub async fn update_email_for_user(
     conn: &mut PgConnection,
     upstream_id: &i32,
@@ -259,6 +258,9 @@ pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
         &mut tx, id,
     )
     .await?;
+    // After the sweep, so nothing still sendable picks up the erased placeholder as its address.
+    crate::email_ownership_verification_tokens::erase_stored_addresses_for_user(&mut tx, id)
+        .await?;
     sqlx::query!("DELETE FROM user_details WHERE user_id = $1", id,)
         .execute(&mut *tx)
         .await?;

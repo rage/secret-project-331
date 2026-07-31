@@ -39,16 +39,20 @@ pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     setup_tracing()?;
     let database_url = ProgramConfig::database_url_with_default();
+    // Verification links mailed here must point at the environment being synced; the server reads
+    // the same variable into `ApplicationConfiguration::base_url`.
+    let base_url = ProgramConfig::required("BASE_URL")?;
     let recent_changes = fetch_recently_changed_user_details().await?;
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
     delete_users(&mut conn, &recent_changes).await?;
-    update_users(&mut conn, &recent_changes).await?;
+    update_users(&mut conn, &base_url, &recent_changes).await?;
     Ok(())
 }
 
 pub async fn update_users(
     conn: &mut PgConnection,
+    base_url: &str,
     recent_changes: &TMCRecentChanges,
 ) -> anyhow::Result<()> {
     let email_update_list = recent_changes
@@ -84,8 +88,8 @@ pub async fn update_users(
 
     for change in email_update_list {
         if let Some(user_id) = change.user_id {
-            // A change with no new value cannot be applied: user_details.email is CHECKed to contain
-            // an '@', so the old placeholder string would only have failed at the database.
+            // `user_details.email` is CHECKed to contain an '@', so a change carrying no new value
+            // cannot be applied at all.
             let Some(new_email) = change.new_value.as_deref() else {
                 error!(
                     "TMC email change {} for user {user_id} carries no new value",
@@ -95,9 +99,14 @@ pub async fn update_users(
             };
             match update_email_for_user(&mut *conn, &user_id, new_email.to_string()).await {
                 Ok(changed_user_id) => {
-                    // The trigger just dropped any proof of the old address.
-                    queue_verification_email_best_effort(&mut *conn, changed_user_id, new_email)
-                        .await;
+                    // The `clear_email_verification` trigger just dropped the old address's proof.
+                    queue_verification_email_best_effort(
+                        &mut *conn,
+                        base_url,
+                        changed_user_id,
+                        new_email,
+                    )
+                    .await;
                 }
                 Err(e) => {
                     error!("Error updating user with id {}", user_id);

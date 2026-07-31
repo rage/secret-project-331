@@ -470,7 +470,7 @@ pub async fn update_user_info(
             email_opt,
             upstream_id,
             tmc_client.clone(),
-            app_conf,
+            app_conf.clone(),
         )
         .await
         .map_err(|e| {
@@ -487,11 +487,11 @@ pub async fn update_user_info(
     tx.commit().await?;
 
     if email_changed {
-        // Queued after the commit so a rolled-back edit cannot mail a link for an address the account
-        // does not actually have. The trigger has just dropped the proof of the old address.
+        // After the commit: a rolled-back edit must not mail a link for an address the account lacks.
         let mut conn = pool.acquire().await?;
         domain::email_ownership_verification::queue_verification_email_best_effort(
             &mut conn,
+            &app_conf.base_url,
             user.id,
             &payload.email,
         )

@@ -53,6 +53,10 @@ pub enum RequestEmailVerificationOutcome {
     AlreadyVerified,
     /// A link went to this address moments ago; sending another would only duplicate it.
     RecentlySent,
+    /// This deployment has no verification email template, so there is nothing to mail. Its own value
+    /// rather than a 500: the request was fine and the address is still unverified, so the copy has to
+    /// say that instead of blaming the user's click.
+    NotConfigured,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -141,7 +145,7 @@ pub async fn get_my_email_verification_status(
 POST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification link to the
 signed-in account's current address.
 */
-#[instrument(skip(pool, payload))]
+#[instrument(skip(pool, payload, app_conf))]
 #[utoipa::path(
     post,
     path = "/request",
@@ -156,13 +160,20 @@ pub async fn request_email_verification_link(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<RequestEmailVerificationPayload>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<RequestEmailVerificationOutcome>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
     let details = user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
-    let outcome =
-        queue_verification_email(&mut conn, user.id, &details.email, &payload.language).await?;
+    let outcome = queue_verification_email(
+        &mut conn,
+        &app_conf.base_url,
+        user.id,
+        &details.email,
+        &payload.language,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(match outcome {
         VerificationEmailOutcome::Queued => RequestEmailVerificationOutcome::Queued,
@@ -170,6 +181,7 @@ pub async fn request_email_verification_link(
             RequestEmailVerificationOutcome::AlreadyVerified
         }
         VerificationEmailOutcome::RecentlySent => RequestEmailVerificationOutcome::RecentlySent,
+        VerificationEmailOutcome::NotConfigured => RequestEmailVerificationOutcome::NotConfigured,
     }))
 }
 
@@ -199,11 +211,6 @@ pub async fn claim_email_verification_link(
     let authorization_token = skip_authorize();
 
     let token = DbSecret::new(payload.token.expose_secret().to_string());
-    let Some(existing) =
-        email_ownership_verification_tokens::get_by_token(&mut conn, &token).await?
-    else {
-        return authorization_token.authorized_ok(web::Json(ClaimEmailVerificationResult::Invalid));
-    };
 
     // Spending the link and recording the proof commit together or not at all. Split across two
     // statements, a failure between them would burn the token while leaving the account unverified,
@@ -211,10 +218,8 @@ pub async fn claim_email_verification_link(
     // they are not.
     let mut tx = conn.begin().await?;
 
-    // Classified before the claim so the copy can be specific, then re-derived from the claim's own
-    // result: only the UPDATE is authoritative about who won a concurrent double click.
-    let result =
-        if let Some(claimed) = email_ownership_verification_tokens::claim(&mut tx, &token).await? {
+    let result = match email_ownership_verification_tokens::claim(&mut tx, &token).await? {
+        Some(claimed) => {
             user_details::set_email_verified(
                 &mut tx,
                 claimed.user_id,
@@ -223,15 +228,22 @@ pub async fn claim_email_verification_link(
             )
             .await?;
             ClaimEmailVerificationResult::Verified
-        } else if existing.used_at.is_some() {
-            ClaimEmailVerificationResult::AlreadyUsed
-        } else if existing.expires_at <= Utc::now() || existing.deleted_at.is_some() {
+        }
+        // Read after the claim, not before: a pre-claim snapshot still looks live to the loser of a
+        // double click, so classifying from it would tell them their address changed when the other
+        // request in fact verified it. Our UPDATE blocks on the winner's row lock, so once it reports
+        // no rows the winner has committed and this read sees its `used_at`.
+        None => match email_ownership_verification_tokens::get_by_token(&mut tx, &token).await? {
+            None => ClaimEmailVerificationResult::Invalid,
+            Some(row) if row.used_at.is_some() => ClaimEmailVerificationResult::AlreadyUsed,
             // A retired row was superseded by a newer request for the same account, which from the
             // recipient's side is the same story as an expired one: this link is no longer the good one.
-            ClaimEmailVerificationResult::Expired
-        } else {
-            ClaimEmailVerificationResult::EmailChanged
-        };
+            Some(row) if row.expires_at <= Utc::now() || row.deleted_at.is_some() => {
+                ClaimEmailVerificationResult::Expired
+            }
+            Some(_) => ClaimEmailVerificationResult::EmailChanged,
+        },
+    };
 
     tx.commit().await?;
 
@@ -276,7 +288,10 @@ pub async fn get_email_verification_link_for_test_mode(
             controller_err!(NotFound, "No pending email verification link.".to_string())
         })?;
 
-    authorization_token.authorized_ok(web::Json(verification_link(latest.token.expose_secret())))
+    authorization_token.authorized_ok(web::Json(verification_link(
+        &app_conf.base_url,
+        latest.token.expose_secret(),
+    )))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

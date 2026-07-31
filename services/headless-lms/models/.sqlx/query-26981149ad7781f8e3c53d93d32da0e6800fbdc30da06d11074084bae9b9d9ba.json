@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE email_ownership_verification_tokens\nSET email = $2\nWHERE user_id = $1\n  AND email <> $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "26981149ad7781f8e3c53d93d32da0e6800fbdc30da06d11074084bae9b9d9ba"
+}

@@ -4,9 +4,11 @@ use secrecy::ExposeSecret;
 
 use crate::prelude::*;
 
-/// Length of a generated verification token. Matches the other emailed-link tokens: the link is the
-/// only proof carried by the mail.
+/// Length of a generated verification token; matches the other emailed-link tokens.
 const TOKEN_LENGTH: usize = 128;
+
+/// Replaces a stored address on account deletion. Not a valid address, so nothing can mail it.
+const ERASED_EMAIL: &str = "[deleted]";
 
 #[derive(Debug, Clone)]
 pub struct EmailOwnershipVerificationToken {
@@ -27,20 +29,38 @@ pub fn is_valid(token: &EmailOwnershipVerificationToken) -> bool {
     token.expires_at > now && token.used_at.is_none() && token.deleted_at.is_none()
 }
 
-/// Probabilistic cleanup, reused from the other token models rather than adding a cron.
+/// Probabilistic cleanup instead of a cron. Claimed rows survive: they are the audit trail behind
+/// an `email_verified_at`.
 ///
-/// Unlike `email_verification_tokens::maybe_cleanup_expired`, claimed rows survive: they are the
-/// send history the account page reports and the audit trail behind an `email_verified_at`.
+/// The token is the only thing pointing at the delivery that carried the link, so the statement
+/// also erases the address from it and retires it if unsent.
 pub async fn maybe_cleanup_expired(conn: &mut PgConnection) -> ModelResult<()> {
     let random_num = rand::rng().random_range(1..=10);
     if random_num == 1 {
         info!("Cleaning up expired email ownership verification tokens");
         sqlx::query!(
             r#"
-DELETE FROM email_ownership_verification_tokens
-WHERE expires_at < now()
-  AND used_at IS NULL
+WITH deleted AS (
+  DELETE FROM email_ownership_verification_tokens
+  WHERE expires_at < now()
+    AND used_at IS NULL
+  RETURNING email_delivery_id
+)
+UPDATE email_deliveries ed
+SET recipient_email = $1::text,
+    placeholders = CASE
+      WHEN ed.placeholders IS NULL THEN NULL
+      ELSE jsonb_set(ed.placeholders, '{EMAIL}', to_jsonb($1::text))
+    END,
+    deleted_at = CASE
+      WHEN ed.sent OR ed.deleted_at IS NOT NULL THEN ed.deleted_at
+      ELSE now()
+    END
+FROM deleted
+WHERE ed.id = deleted.email_delivery_id
+  AND ed.recipient_email IS NOT NULL
             "#,
+            ERASED_EMAIL,
         )
         .execute(conn)
         .await?;
@@ -48,10 +68,8 @@ WHERE expires_at < now()
     Ok(())
 }
 
-/// Mints a token for one account and one address.
-///
-/// Retires the account's outstanding tokens first, so only the newest link works. Returns the row id
-/// and the plaintext token to put in the mailed link.
+/// Mints a token for one account and address, retiring the account's outstanding ones so only the
+/// newest link works. Returns the row id and the plaintext token for the mailed link.
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
@@ -99,8 +117,7 @@ WHERE id = $1
     Ok(())
 }
 
-/// Looks a token up without filtering out used, expired or retired rows, so the caller can tell the
-/// user which of those happened instead of one blanket "invalid link".
+/// Returns used, expired and retired rows too, so the caller can say which of those happened.
 pub async fn get_by_token(
     conn: &mut PgConnection,
     token: &DbSecret,
@@ -143,12 +160,8 @@ LIMIT 1
     Ok(res)
 }
 
-/// Consumes the token, but only while `user_details.email` still equals the address the link was
-/// mailed to.
-///
-/// Both halves matter. The `used_at IS NULL` predicate makes the claim single-use under concurrency,
-/// and the address comparison stops a link minted for one address from proving a different one the
-/// user switched to after asking for it.
+/// Single-use claim (`used_at IS NULL`), and only while `user_details.email` still equals the
+/// address the link was mailed to, so a link cannot prove an address switched to afterwards.
 pub async fn claim(
     conn: &mut PgConnection,
     token: &DbSecret,
@@ -197,11 +210,9 @@ WHERE user_id = $1
     Ok(res.rows_affected())
 }
 
-/// Retires the account's pending links together with the mail carrying them.
+/// Retires the account's pending links and the mail carrying them, for account deletion.
 ///
-/// For account deletion. The ordinary "cancel this user's unsent mail" sweep keys on
-/// `email_deliveries.user_id`, which is NULL for these rows, so without this a deleted account would
-/// still be mailed a link to confirm an address that no longer exists here.
+/// The ordinary unsent-mail sweep keys on `email_deliveries.user_id`, which is NULL for these rows.
 pub async fn soft_delete_unused_with_pending_mail_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -227,15 +238,64 @@ WHERE t.user_id = $1
     Ok(())
 }
 
+/// Overwrites every copy of the account's address the verification flow stored, keeping the rows.
+///
+/// For account deletion: the token's frozen `email` and its delivery's `recipient_email` and
+/// `EMAIL` placeholder outlive `user_details`, and the retention sweep reaches only expired unused
+/// rows. Idempotent.
+pub async fn erase_stored_addresses_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<()> {
+    // These deliveries carry no user_id, so the token's `email_delivery_id` is the only way to
+    // reach them. The `recipient_email` guard keeps the update off user_id-addressed rows, where
+    // writing a recipient would break the "exactly one of user_id and recipient_email" constraint.
+    sqlx::query!(
+        r#"
+UPDATE email_deliveries ed
+SET recipient_email = $2::text,
+    placeholders = CASE
+      WHEN ed.placeholders IS NULL THEN NULL
+      ELSE jsonb_set(ed.placeholders, '{EMAIL}', to_jsonb($2::text))
+    END
+FROM email_ownership_verification_tokens t
+WHERE t.user_id = $1
+  AND t.email_delivery_id = ed.id
+  AND ed.recipient_email IS NOT NULL
+  AND ed.recipient_email <> $2::text
+        "#,
+        user_id,
+        ERASED_EMAIL,
+    )
+    .execute(&mut *conn)
+    .await?;
+    sqlx::query!(
+        r#"
+UPDATE email_ownership_verification_tokens
+SET email = $2
+WHERE user_id = $1
+  AND email <> $2
+        "#,
+        user_id,
+        ERASED_EMAIL,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// When we last mailed a link to this exact address, for the resend rate cap.
 ///
-/// Retired and claimed rows count: they were still mail we sent. Keying on the address rather than on
-/// the account is what lets a genuine address change be mailed immediately.
+/// Retired and claimed rows count. Keyed on the address, not the account, so a genuine address
+/// change can be mailed immediately. Runs the cleanup, which only removes rows older than any
+/// resend window.
 pub async fn get_last_send_time_for_address(
     conn: &mut PgConnection,
     user_id: Uuid,
     email: &str,
 ) -> ModelResult<Option<DateTime<Utc>>> {
+    maybe_cleanup_expired(conn).await?;
+
     let res = sqlx::query_scalar!(
         r#"
 SELECT MAX(created_at)

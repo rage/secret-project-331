@@ -284,10 +284,10 @@ pub async fn signup(
         )
         .await;
 
-        // tmc.mooc.fi mails its own confirmation link, but never tells us the outcome, so the address
-        // stays unproven here until our own link is opened.
+        // tmc.mooc.fi mails its own confirmation link but never tells us the outcome.
         domain::email_ownership_verification::queue_verification_email_best_effort(
             &mut conn,
+            &app_conf.base_url,
             user.id,
             &user_details.email,
         )
@@ -382,6 +382,7 @@ async fn handle_test_mode_signup(
         })?;
     domain::email_ownership_verification::queue_verification_email_best_effort(
         conn,
+        &app_conf.base_url,
         user.id,
         &user_details.email,
     )

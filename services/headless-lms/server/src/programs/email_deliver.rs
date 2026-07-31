@@ -8,7 +8,7 @@ use futures::{FutureExt, StreamExt};
 use headless_lms_models::email_deliveries::{
     Email, EmailDeliveryErrorInsert, FETCH_LIMIT, RETRY_WINDOW_SECS, fetch_emails,
     increment_retry_and_mark_non_retryable, increment_retry_and_schedule,
-    insert_email_delivery_error, mark_as_sent,
+    insert_email_delivery_error, mark_as_sent, maybe_purge_expired_recipient_addresses,
 };
 use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
@@ -81,6 +81,16 @@ pub async fn mail_sender(pool: &PgPool, mailer: &SmtpTransport) -> Result<()> {
         .buffer_unordered(BATCH_SIZE);
 
     while futures.next().await.is_some() {}
+
+    // Logged, not propagated: an error here reaches main() and restarts the pod, which would stop
+    // mail going out over a retention sweep.
+    match maybe_purge_expired_recipient_addresses(&mut conn).await {
+        Ok(purged) if purged > 0 => {
+            tracing::info!("Purged retained recipient addresses from {purged} email deliveries")
+        }
+        Ok(_) => {}
+        Err(err) => tracing::error!("Failed to purge retained recipient addresses: {err}"),
+    }
 
     Ok(())
 }

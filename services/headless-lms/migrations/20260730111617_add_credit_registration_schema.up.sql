@@ -829,15 +829,27 @@ ALTER COLUMN user_id DROP NOT NULL,
   ADD COLUMN recipient_email VARCHAR(255),
   ADD COLUMN placeholders JSONB;
 
+-- Not "exactly one": retention nulls recipient_email once the address is no longer needed, leaving a
+-- row with neither. Such a row must be unsendable, hence the second clause -- and fetch_emails also
+-- skips it, because a NULL recipient_email with no user_id yields no address to send to.
 -- NOT VALID: every existing row has user_id set and no recipient_email, so it already conforms.
 -- Inserts and updates are still checked.
 ALTER TABLE email_deliveries
 ADD CONSTRAINT email_deliveries_has_exactly_one_recipient CHECK (
-    (user_id IS NOT NULL)::int + (recipient_email IS NOT NULL)::int = 1
+    NOT (
+      user_id IS NOT NULL
+      AND recipient_email IS NOT NULL
+    )
+    AND (
+      sent
+      OR deleted_at IS NOT NULL
+      OR user_id IS NOT NULL
+      OR recipient_email IS NOT NULL
+    )
   ) NOT VALID;
 
-COMMENT ON COLUMN email_deliveries.user_id IS 'The user to whom the email should be sent. NULL for emails addressed to a raw external address (see recipient_email), e.g. student-number linking mails sent to the address Sisu holds for a person who may not have an account here. Exactly one of user_id and recipient_email is set.';
-COMMENT ON COLUMN email_deliveries.recipient_email IS 'Explicit recipient address, used when the email is not addressed to a known user. Exactly one of user_id and recipient_email is set.';
+COMMENT ON COLUMN email_deliveries.user_id IS 'The user to whom the email should be sent. NULL for emails addressed to a raw external address (see recipient_email), e.g. student-number linking mails sent to the address Sisu holds for a person who may not have an account here. Never set together with recipient_email.';
+COMMENT ON COLUMN email_deliveries.recipient_email IS 'Explicit recipient address, used when the email is not addressed to a known user. Never set together with user_id, and nulled by retention once the delivery is sent or retired, so an old row holds no address.';
 COMMENT ON COLUMN email_deliveries.placeholders IS 'Placeholder bag substituted into the template body at send time. Used when the recipient has no account, so the sender needs no user lookup. NULL means the template derives its placeholders from user_id.';
 
 CREATE INDEX email_deliveries_recipient_email_idx ON email_deliveries (LOWER(recipient_email))

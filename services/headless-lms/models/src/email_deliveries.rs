@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use rand::RngExt;
 use utoipa::ToSchema;
 
 use crate::email_templates::EmailTemplateType;
@@ -11,6 +12,13 @@ pub const FETCH_LIMIT: i64 = 20;
 ///
 /// Shared by the sender and [`derive_email_send_status`], which must agree on what has failed.
 pub const RETRY_WINDOW_SECS: i64 = 3 * 24 * 60 * 60;
+
+/// How long a delivery to a raw address may keep that address after being queued.
+const RECIPIENT_ADDRESS_RETENTION: &str = "1 month";
+
+/// One purge attempt in this many sender ticks. The sender ticks every 10 seconds, so this is about
+/// hourly.
+const PURGE_CHANCE_IN: u32 = 360;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct EmailDelivery {
@@ -500,6 +508,48 @@ WHERE user_id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Probabilistic purge instead of a cron, in the style of the token cleanups.
+///
+/// Only raw-address rows ever hold an address; a delivery addressed by `user_id` resolves the address
+/// from `user_details` at send time and stores nothing.
+pub async fn maybe_purge_expired_recipient_addresses(conn: &mut PgConnection) -> ModelResult<u64> {
+    if rand::rng().random_range(1..=PURGE_CHANCE_IN) != 1 {
+        return Ok(0);
+    }
+    info!("Purging retained recipient addresses past their retention window");
+    let result = sqlx::query!(
+        r#"
+UPDATE email_deliveries ed
+SET recipient_email = NULL,
+    placeholders = CASE
+      WHEN ed.placeholders IS NULL THEN NULL
+      ELSE ed.placeholders - 'EMAIL'
+    END,
+    -- Without an address the row can never be delivered, so retire it here instead of leaving the
+    -- sender to claim it and fail. The CHECK constraint also requires this.
+    retryable = CASE WHEN ed.sent THEN ed.retryable ELSE FALSE END,
+    next_retry_at = CASE WHEN ed.sent THEN ed.next_retry_at ELSE NULL END,
+    deleted_at = CASE
+      WHEN ed.sent OR ed.deleted_at IS NOT NULL THEN ed.deleted_at
+      ELSE now()
+    END
+WHERE ed.recipient_email IS NOT NULL
+  AND ed.created_at < now() - $1::text::interval
+  -- The sender stamps last_attempt_at when it claims a row and holds a five minute lease, so an hour
+  -- of quiet means nothing is mid-send.
+  AND (
+    ed.sent
+    OR ed.last_attempt_at IS NULL
+    OR ed.last_attempt_at < now() - interval '1 hour'
+  )
+        "#,
+        RECIPIENT_ADDRESS_RETENTION
+    )
+    .execute(conn)
+    .await?;
+    Ok(result.rows_affected())
 }
 
 #[cfg(test)]

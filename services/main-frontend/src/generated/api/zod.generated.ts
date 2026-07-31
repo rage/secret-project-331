@@ -1048,6 +1048,7 @@ export const zEmailVerificationStatus = z.object({
   email_verified_at: z.iso.datetime().nullish(),
   email_verified_method: zEmailVerificationMethod.nullish(),
   latest_verification_email: zEmailVerificationEmailInfo.nullish(),
+  verification_enabled: z.boolean(),
 })
 
 export const zEventInfo = z.object({

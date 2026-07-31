@@ -103,9 +103,10 @@ const EmailVerificationSection: React.FC = () => {
   const statusQuery = useQuery({ ...getMyEmailVerificationStatusOptions() })
   const status = statusQuery.data
 
-  // No chrome until the status is known: a skeleton that then vanishes is worse than a card that
-  // arrives late.
-  if (!status) {
+  // Nothing until the status is known: a skeleton that then vanishes is worse than a card that
+  // arrives late. Nothing either when the feature is off, when the buttons would only hit endpoints
+  // that 404.
+  if (!status || !status.verification_enabled) {
     return null
   }
 

@@ -41,6 +41,8 @@ pub struct EmailVerificationEmailInfo {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct EmailVerificationStatus {
+    /// False switches the feature off entirely; the request and verify endpoints 404 then.
+    pub verification_enabled: bool,
     pub email: String,
     pub email_verified_at: Option<DateTime<Utc>>,
     pub email_verified_method: Option<EmailVerificationMethod>,
@@ -82,7 +84,7 @@ pub enum VerifyEmailOwnershipResult {
 GET `/api/v0/main-frontend/email-verification/status` - Whether the signed-in account's address is
 proven, and what we last mailed about it.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 #[utoipa::path(
     get,
     path = "/status",
@@ -95,6 +97,7 @@ proven, and what we last mailed about it.
 pub async fn get_my_email_verification_status(
     user: AuthUser,
     pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<EmailVerificationStatus>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
@@ -106,6 +109,7 @@ pub async fn get_my_email_verification_status(
             .await?;
 
     token.authorized_ok(web::Json(EmailVerificationStatus {
+        verification_enabled: app_conf.enable_email_ownership_verification,
         email: details.email,
         email_verified_at: details.email_verified_at,
         email_verified_method: details.email_verified_method,

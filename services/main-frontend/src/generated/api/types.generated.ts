@@ -1174,6 +1174,10 @@ export type EmailVerificationStatus = {
   email_verified_at?: string | null
   email_verified_method?: null | EmailVerificationMethod
   latest_verification_email?: null | EmailVerificationEmailInfo
+  /**
+   * False switches the feature off entirely; the request and verify endpoints 404 then.
+   */
+  verification_enabled: boolean
 }
 
 export type EventInfo = {

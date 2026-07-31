@@ -14746,7 +14746,7 @@
       },
       "EmailVerificationStatus": {
         "type": "object",
-        "required": ["email"],
+        "required": ["verification_enabled", "email"],
         "properties": {
           "email": {
             "type": "string"
@@ -14774,6 +14774,10 @@
                 "$ref": "#/components/schemas/EmailVerificationEmailInfo"
               }
             ]
+          },
+          "verification_enabled": {
+            "type": "boolean",
+            "description": "False switches the feature off entirely; the request and verify endpoints 404 then."
           }
         }
       },

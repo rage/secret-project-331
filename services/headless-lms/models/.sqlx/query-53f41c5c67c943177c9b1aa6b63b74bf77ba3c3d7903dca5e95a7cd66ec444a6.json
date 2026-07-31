@@ -1,0 +1,172 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM open_university_product_access_tokens\nWHERE open_university_product_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "open_university_product_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "open_university_product_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "access_token",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "access_token"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "state",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "state"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "document_state",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "document_state"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "suotar_token_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "suotar_token_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "last_refreshed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "last_refreshed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "last_refresh_failed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "last_refresh_failed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "last_refresh_error",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "last_refresh_error"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "consecutive_failures",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "consecutive_failures"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "deleted_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "53f41c5c67c943177c9b1aa6b63b74bf77ba3c3d7903dca5e95a7cd66ec444a6"
+}

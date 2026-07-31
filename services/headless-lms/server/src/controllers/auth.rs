@@ -18,7 +18,7 @@ use anyhow::anyhow;
 use headless_lms_models::{ModelErrorType, ModelResult};
 use headless_lms_models::{
     email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
-    user_passwords, users,
+    user_email_codes::UserEmailCodePurpose, user_passwords, users,
 };
 use headless_lms_utils::{
     prelude::UtilErrorType,
@@ -284,6 +284,14 @@ pub async fn signup(
         )
         .await;
 
+        // tmc.mooc.fi mails its own confirmation link but never tells us the outcome.
+        domain::email_ownership_verification::queue_verification_email_best_effort(
+            &mut conn,
+            app_conf.enable_email_ownership_verification,
+            user.id,
+        )
+        .await;
+
         let token = skip_authorize();
         authorization::remember(&session, user)?;
         token.authorized_ok(web::Json(SignupResponse::Success))
@@ -371,6 +379,13 @@ async fn handle_test_mode_signup(
                 anyhow!(e),
             )
         })?;
+    domain::email_ownership_verification::queue_verification_email_best_effort(
+        conn,
+        app_conf.enable_email_ownership_verification,
+        user.id,
+    )
+    .await;
+
     authorization::remember(session, user)?;
 
     let token = skip_authorize();
@@ -809,27 +824,24 @@ pub async fn send_delete_user_email_code(
 
         let user = models::users::get_by_id(&mut conn, auth_user.id).await?;
 
-        let code = if let Some(existing) =
-            models::user_email_codes::get_unused_user_email_code_with_user_id(
-                &mut conn,
-                auth_user.id,
-            )
-            .await?
+        let code = match models::user_email_codes::get_unused_user_email_code_with_user_id(
+            &mut conn,
+            auth_user.id,
+            UserEmailCodePurpose::AccountDeletion,
+        )
+        .await?
         {
-            existing.code
-        } else {
-            let new_code: String = rand::rng().random_range(100_000..1_000_000).to_string();
-            models::user_email_codes::insert_user_email_code(
-                &mut conn,
-                auth_user.id,
-                new_code.clone(),
-            )
-            .await?;
-            new_code
+            Some(existing) => existing.code,
+            None => models::user_email_codes::generate_code(),
         };
 
-        models::user_email_codes::insert_user_email_code(&mut conn, auth_user.id, code.clone())
-            .await?;
+        models::user_email_codes::insert_user_email_code(
+            &mut conn,
+            auth_user.id,
+            UserEmailCodePurpose::AccountDeletion,
+            &code,
+        )
+        .await?;
         let _ =
             models::email_deliveries::insert_email_delivery(&mut conn, user.id, delete_template.id)
                 .await?;
@@ -839,10 +851,11 @@ pub async fn send_delete_user_email_code(
     token.authorized_ok(web::Json(false))
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Deserialize, ToSchema)]
 
 pub struct EmailCode {
-    pub code: String,
+    #[schema(value_type = String)]
+    pub code: DbSecret,
 }
 
 /**
@@ -875,6 +888,7 @@ pub async fn delete_user_account(
         let code_ok = user_email_codes::is_reset_user_email_code_valid(
             &mut conn,
             auth_user.id,
+            UserEmailCodePurpose::AccountDeletion,
             &payload.code,
         )
         .await?;
@@ -906,7 +920,13 @@ pub async fn delete_user_account(
 
         // Delete user locally and mark email code as used
         users::delete_user(&mut tx, auth_user.id).await?;
-        user_email_codes::mark_user_email_code_used(&mut tx, auth_user.id, &payload.code).await?;
+        user_email_codes::mark_user_email_code_used(
+            &mut tx,
+            auth_user.id,
+            UserEmailCodePurpose::AccountDeletion,
+            &payload.code,
+        )
+        .await?;
 
         tx.commit().await?;
 
@@ -949,31 +969,33 @@ async fn handle_email_verification(
     conn: &mut PgConnection,
     user: &headless_lms_models::users::User,
 ) -> ControllerResult<web::Json<LoginResponse>> {
-    let code: String = rand::rng().random_range(100_000..1_000_000).to_string();
+    let code = user_email_codes::generate_code();
 
-    let email_verification_token = email_verification_tokens::create_email_verification_token(
+    let email_verification_token =
+        email_verification_tokens::create_email_verification_token(conn, user.id, code.clone())
+            .await
+            .map_err(|e| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Failed to create email verification token".to_string(),
+                    Some(anyhow!(e)),
+                )
+            })?;
+
+    user_email_codes::insert_user_email_code(
         conn,
         user.id,
-        DbSecret::new(code.clone()),
+        UserEmailCodePurpose::AdminLogin,
+        &code,
     )
     .await
     .map_err(|e| {
         ControllerError::new(
             ControllerErrorType::InternalServerError,
-            "Failed to create email verification token".to_string(),
+            "Failed to insert user email code".to_string(),
             Some(anyhow!(e)),
         )
     })?;
-
-    user_email_codes::insert_user_email_code(conn, user.id, code.clone())
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to insert user email code".to_string(),
-                Some(anyhow!(e)),
-            )
-        })?;
 
     let email_template = models::email_templates::get_generic_email_template_by_type_and_language(
         conn,
@@ -1087,15 +1109,20 @@ pub async fn verify_email(
 
     let user_id = token_value.user_id;
 
-    user_email_codes::mark_user_email_code_used(&mut conn, user_id, payload.code.expose_secret())
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to mark user email code as used".to_string(),
-                Some(anyhow!(e)),
-            )
-        })?;
+    user_email_codes::mark_user_email_code_used(
+        &mut conn,
+        user_id,
+        UserEmailCodePurpose::AdminLogin,
+        &payload.code,
+    )
+    .await
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to mark user email code as used".to_string(),
+            Some(anyhow!(e)),
+        )
+    })?;
 
     email_verification_tokens::mark_as_used(&mut conn, &payload.email_verification_token)
         .await

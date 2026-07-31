@@ -90,20 +90,13 @@ DROP TYPE IF EXISTS student_number_verification_method;
 
 DROP TABLE IF EXISTS course_module_suotar_realisations;
 
+DROP TABLE IF EXISTS course_module_suotar_configurations;
+
 DROP INDEX IF EXISTS idx_course_modules_suotar_enabled;
 
 ALTER TABLE course_modules DROP CONSTRAINT IF EXISTS course_modules_one_credit_registration_path;
 
-ALTER TABLE course_modules DROP COLUMN IF EXISTS enable_credit_registration_via_suotar,
-  DROP COLUMN IF EXISTS open_university_product_id,
-  DROP COLUMN IF EXISTS credit_registration_grade_scale_id,
-  DROP COLUMN IF EXISTS credit_registration_paused_at,
-  DROP COLUMN IF EXISTS credit_registration_paused_by_user_id,
-  DROP COLUMN IF EXISTS credit_registration_pause_reason,
-  DROP COLUMN IF EXISTS credit_registration_config_checked_at,
-  DROP COLUMN IF EXISTS credit_registration_course_code_resolves,
-  DROP COLUMN IF EXISTS credit_registration_product_token_found,
-  DROP COLUMN IF EXISTS credit_registration_config_check_message;
+ALTER TABLE course_modules DROP COLUMN IF EXISTS enable_credit_registration_via_suotar;
 
 -- Deliveries addressed to a raw address cannot be represented once user_id is mandatory again, so
 -- they go; email_delivery_errors cascades and the ledger that referenced them was dropped above.

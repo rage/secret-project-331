@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH due AS (\n  SELECT cr.id\n  FROM credit_registrations cr\n    JOIN course_modules cm ON cm.id = cr.course_module_id\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND cr.state = ANY($1::credit_registration_state [])\n    AND cr.next_attempt_at <= now()\n    AND cm.credit_registration_paused_at IS NULL\n  ORDER BY cr.next_attempt_at\n  FOR UPDATE OF cr SKIP LOCKED\n  LIMIT $2\n)\nUPDATE credit_registrations cr\nSET last_attempt_at = now()\nFROM due\nWHERE cr.id = due.id\nRETURNING cr.*\n        ",
+  "query": "\nWITH due AS (\n  SELECT cr.id\n  FROM credit_registrations cr\n    LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cr.course_module_id\n    AND c.deleted_at IS NULL\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND cr.state = ANY($1::credit_registration_state [])\n    AND cr.next_attempt_at <= now()\n    AND c.paused_at IS NULL\n  ORDER BY cr.next_attempt_at\n  FOR UPDATE OF cr SKIP LOCKED\n  LIMIT $2\n)\nUPDATE credit_registrations cr\nSET last_attempt_at = now()\nFROM due\nWHERE cr.id = due.id\nRETURNING cr.*\n        ",
   "describe": {
     "columns": [
       {
@@ -618,5 +618,5 @@
       true
     ]
   },
-  "hash": "69af4945c1c5f6326a9c81aff3b3f3e33d86b378b9635f1fbd54064f8f55c8aa"
+  "hash": "14f7a90674339460063f37effce668e26014d518c0ef5f929f123f14413409ab"
 }

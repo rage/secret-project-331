@@ -98,10 +98,12 @@ pub async fn get_all_active_for_enabled_modules(
 SELECT cmsr.*
 FROM course_module_suotar_realisations cmsr
   JOIN course_modules cm ON cm.id = cmsr.course_module_id
+  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
+  AND c.deleted_at IS NULL
 WHERE cmsr.active
   AND cmsr.deleted_at IS NULL
   AND cm.enable_credit_registration_via_suotar
-  AND cm.credit_registration_paused_at IS NULL
+  AND c.paused_at IS NULL
   AND cm.deleted_at IS NULL
 ORDER BY cmsr.last_listed_at ASC NULLS FIRST
         "#,

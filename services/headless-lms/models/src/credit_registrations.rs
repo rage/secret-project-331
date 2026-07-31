@@ -357,12 +357,13 @@ pub async fn claim_due(
 WITH due AS (
   SELECT cr.id
   FROM credit_registrations cr
-    JOIN course_modules cm ON cm.id = cr.course_module_id
+    LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cr.course_module_id
+    AND c.deleted_at IS NULL
   WHERE cr.deleted_at IS NULL
     AND cr.superseded_by_id IS NULL
     AND cr.state = ANY($1::credit_registration_state [])
     AND cr.next_attempt_at <= now()
-    AND cm.credit_registration_paused_at IS NULL
+    AND c.paused_at IS NULL
   ORDER BY cr.next_attempt_at
   FOR UPDATE OF cr SKIP LOCKED
   LIMIT $2

@@ -752,19 +752,7 @@ ALTER TYPE email_template_type
 ADD VALUE 'credit_registration_student_number_linked';
 
 ALTER TABLE course_modules
-ADD COLUMN enable_credit_registration_via_suotar BOOLEAN NOT NULL DEFAULT FALSE,
-  -- TODO: unknown whether Suotar's API returns openUniversityProductId. Until it does, teachers
-  -- type it in here; prefer a returned id over this one once there is one.
-  ADD COLUMN open_university_product_id VARCHAR(255),
-  -- The override exists because a module may be pass/fail here but graded in Sisu, or vice versa.
-  ADD COLUMN credit_registration_grade_scale_id VARCHAR(64),
-  ADD COLUMN credit_registration_paused_at TIMESTAMP WITH TIME ZONE,
-  ADD COLUMN credit_registration_paused_by_user_id UUID REFERENCES users(id),
-  ADD COLUMN credit_registration_pause_reason TEXT,
-  ADD COLUMN credit_registration_config_checked_at TIMESTAMP WITH TIME ZONE,
-  ADD COLUMN credit_registration_course_code_resolves BOOLEAN,
-  ADD COLUMN credit_registration_product_token_found BOOLEAN,
-  ADD COLUMN credit_registration_config_check_message TEXT;
+ADD COLUMN enable_credit_registration_via_suotar BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- NOT VALID: enable_credit_registration_via_suotar is FALSE in every existing row, which conforms.
 -- Inserts and updates are still checked.
@@ -781,15 +769,58 @@ WHERE enable_credit_registration_via_suotar
   AND deleted_at IS NULL;
 
 COMMENT ON COLUMN course_modules.enable_credit_registration_via_suotar IS 'The per-module opt-in for credit registration via Suotar, and the rollout switch. The course_modules_one_credit_registration_path constraint keeps it mutually exclusive with enable_registering_completion_to_uh_open_university, because both paths would register the same attainment in Sisu; while it is on, the legacy pull API must not see this modules completions.';
-COMMENT ON COLUMN course_modules.open_university_product_id IS 'The open university product used to build Sisu enrolment links for this module.';
-COMMENT ON COLUMN course_modules.credit_registration_grade_scale_id IS 'Per-module override of the Sisu grade scale id. NULL means derive it from the completion.';
-COMMENT ON COLUMN course_modules.credit_registration_paused_at IS 'While set, no pipeline phase claims rows for this module and the module renders as paused rather than broken. Pausing does not rewrite ledger states, which is what makes resuming a no-op.';
-COMMENT ON COLUMN course_modules.credit_registration_paused_by_user_id IS 'Who paused credit registration for this module.';
-COMMENT ON COLUMN course_modules.credit_registration_pause_reason IS 'Why credit registration was paused for this module.';
-COMMENT ON COLUMN course_modules.credit_registration_config_checked_at IS 'When the config-validation phase last checked this module. NULL together with the two check booleans means never checked, so the admin view can show unknown instead of implying a passing check it never ran.';
-COMMENT ON COLUMN course_modules.credit_registration_course_code_resolves IS 'Whether the configured course code resolved at the last config check. NULL means not checked yet.';
-COMMENT ON COLUMN course_modules.credit_registration_product_token_found IS 'Whether an access token was found for the configured product at the last config check. NULL means not checked yet.';
-COMMENT ON COLUMN course_modules.credit_registration_config_check_message IS 'Human-readable detail from the last config check.';
+
+CREATE TABLE course_module_suotar_configurations (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  course_module_id UUID NOT NULL REFERENCES course_modules(id),
+  -- TODO: unknown whether Suotar's API returns openUniversityProductId. Until it does, teachers
+  -- type it in here; prefer a returned id over this one once there is one.
+  open_university_product_id VARCHAR(255),
+  -- The override exists because a module may be pass/fail here but graded in Sisu, or vice versa.
+  grade_scale_id VARCHAR(64),
+  paused_at TIMESTAMP WITH TIME ZONE,
+  paused_by_user_id UUID REFERENCES users(id),
+  pause_reason TEXT,
+  config_checked_at TIMESTAMP WITH TIME ZONE,
+  course_code_resolves BOOLEAN,
+  product_token_found BOOLEAN,
+  config_check_message TEXT,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  CONSTRAINT course_module_suotar_configurations_pause_pair CHECK (
+    (paused_at IS NULL) = (paused_by_user_id IS NULL)
+  ),
+  -- Keeps "never checked" indivisible so the admin view cannot read a half-written check as a
+  -- verdict. One boolean may still be NULL on a checked row: no product means no token to look up.
+  CONSTRAINT course_module_suotar_configurations_check_result CHECK (
+    (config_checked_at IS NULL) = (
+      course_code_resolves IS NULL
+      AND product_token_found IS NULL
+    )
+  )
+);
+-- Bare, unlike its NULLS NOT DISTINCT neighbours: ON CONFLICT (course_module_id) can only infer
+-- against this shape, so an upsert resurrects a soft-deleted row instead of inserting beside it.
+CREATE UNIQUE INDEX uq_course_module_suotar_configurations ON course_module_suotar_configurations (course_module_id);
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON course_module_suotar_configurations FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE course_module_suotar_configurations IS 'Per-module Suotar credit registration configuration, the per-module pause, and the config-validation phase''s last verdict. At most one live row per course module; no row means the module is not configured, which is not an error. The enable_credit_registration_via_suotar rollout switch stays on course_modules instead, because it is read on the per-user my-studies path for every logged-in user.';
+COMMENT ON COLUMN course_module_suotar_configurations.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN course_module_suotar_configurations.course_module_id IS 'The module this configuration is for. No ON DELETE clause: course modules are only ever soft-deleted, and the pause record must not be able to vanish.';
+COMMENT ON COLUMN course_module_suotar_configurations.open_university_product_id IS 'The open university product used to build Sisu enrolment links for this module.';
+COMMENT ON COLUMN course_module_suotar_configurations.grade_scale_id IS 'Per-module override of the Sisu grade scale id. NULL means derive it from the completion.';
+COMMENT ON COLUMN course_module_suotar_configurations.paused_at IS 'While set, no pipeline phase claims rows for this module and the module renders as paused rather than broken. Pausing does not rewrite ledger states, which is what makes resuming a no-op.';
+COMMENT ON COLUMN course_module_suotar_configurations.paused_by_user_id IS 'Who paused credit registration for this module. Set exactly when paused_at is.';
+COMMENT ON COLUMN course_module_suotar_configurations.pause_reason IS 'Why credit registration was paused for this module.';
+COMMENT ON COLUMN course_module_suotar_configurations.config_checked_at IS 'When the config-validation phase last checked this module. NULL together with the two check booleans means never checked, so the admin view can show unknown instead of implying a passing check it never ran.';
+COMMENT ON COLUMN course_module_suotar_configurations.course_code_resolves IS 'Whether the configured course code resolved at the last config check. NULL means not checked yet.';
+COMMENT ON COLUMN course_module_suotar_configurations.product_token_found IS 'Whether an access token was found for the configured product at the last config check. NULL means not checked yet.';
+COMMENT ON COLUMN course_module_suotar_configurations.config_check_message IS 'Human-readable detail from the last config check.';
+COMMENT ON COLUMN course_module_suotar_configurations.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN course_module_suotar_configurations.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN course_module_suotar_configurations.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
 CREATE TABLE course_module_suotar_realisations (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

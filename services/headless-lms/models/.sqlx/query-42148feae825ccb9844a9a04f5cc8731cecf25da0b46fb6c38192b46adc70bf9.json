@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id AS course_module_id,\n  course_id,\n  enable_credit_registration_via_suotar,\n  uh_course_code,\n  ects_credits,\n  open_university_product_id,\n  credit_registration_grade_scale_id,\n  credit_registration_paused_at,\n  credit_registration_paused_by_user_id,\n  credit_registration_pause_reason,\n  credit_registration_config_checked_at,\n  credit_registration_course_code_resolves,\n  credit_registration_product_token_found,\n  credit_registration_config_check_message\nFROM course_modules\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT cm.id AS course_module_id,\n  cm.course_id,\n  cm.enable_credit_registration_via_suotar,\n  cm.uh_course_code,\n  cm.ects_credits,\n  c.open_university_product_id AS \"open_university_product_id?\",\n  c.grade_scale_id AS \"credit_registration_grade_scale_id?\",\n  c.paused_at AS \"credit_registration_paused_at?\",\n  c.paused_by_user_id AS \"credit_registration_paused_by_user_id?\",\n  c.pause_reason AS \"credit_registration_pause_reason?\",\n  c.config_checked_at AS \"credit_registration_config_checked_at?\",\n  c.course_code_resolves AS \"credit_registration_course_code_resolves?\",\n  c.product_token_found AS \"credit_registration_product_token_found?\",\n  c.config_check_message AS \"credit_registration_config_check_message?\"\nFROM course_modules cm\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\nORDER BY cm.course_id,\n  cm.order_number\n        ",
   "describe": {
     "columns": [
       {
@@ -60,108 +60,106 @@
       },
       {
         "ordinal": 5,
-        "name": "open_university_product_id",
+        "name": "open_university_product_id?",
         "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "course_modules",
+            "table": "course_module_suotar_configurations",
             "name": "open_university_product_id"
           }
         }
       },
       {
         "ordinal": 6,
-        "name": "credit_registration_grade_scale_id",
+        "name": "credit_registration_grade_scale_id?",
         "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "course_modules",
-            "name": "credit_registration_grade_scale_id"
+            "table": "course_module_suotar_configurations",
+            "name": "grade_scale_id"
           }
         }
       },
       {
         "ordinal": 7,
-        "name": "credit_registration_paused_at",
+        "name": "credit_registration_paused_at?",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "course_modules",
-            "name": "credit_registration_paused_at"
+            "table": "course_module_suotar_configurations",
+            "name": "paused_at"
           }
         }
       },
       {
         "ordinal": 8,
-        "name": "credit_registration_paused_by_user_id",
+        "name": "credit_registration_paused_by_user_id?",
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "course_modules",
-            "name": "credit_registration_paused_by_user_id"
+            "table": "course_module_suotar_configurations",
+            "name": "paused_by_user_id"
           }
         }
       },
       {
         "ordinal": 9,
-        "name": "credit_registration_pause_reason",
+        "name": "credit_registration_pause_reason?",
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "course_modules",
-            "name": "credit_registration_pause_reason"
+            "table": "course_module_suotar_configurations",
+            "name": "pause_reason"
           }
         }
       },
       {
         "ordinal": 10,
-        "name": "credit_registration_config_checked_at",
+        "name": "credit_registration_config_checked_at?",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "course_modules",
-            "name": "credit_registration_config_checked_at"
+            "table": "course_module_suotar_configurations",
+            "name": "config_checked_at"
           }
         }
       },
       {
         "ordinal": 11,
-        "name": "credit_registration_course_code_resolves",
+        "name": "credit_registration_course_code_resolves?",
         "type_info": "Bool",
         "origin": {
           "Table": {
-            "table": "course_modules",
-            "name": "credit_registration_course_code_resolves"
+            "table": "course_module_suotar_configurations",
+            "name": "course_code_resolves"
           }
         }
       },
       {
         "ordinal": 12,
-        "name": "credit_registration_product_token_found",
+        "name": "credit_registration_product_token_found?",
         "type_info": "Bool",
         "origin": {
           "Table": {
-            "table": "course_modules",
-            "name": "credit_registration_product_token_found"
+            "table": "course_module_suotar_configurations",
+            "name": "product_token_found"
           }
         }
       },
       {
         "ordinal": 13,
-        "name": "credit_registration_config_check_message",
+        "name": "credit_registration_config_check_message?",
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "course_modules",
-            "name": "credit_registration_config_check_message"
+            "table": "course_module_suotar_configurations",
+            "name": "config_check_message"
           }
         }
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -180,5 +178,5 @@
       true
     ]
   },
-  "hash": "302eb164438462140bda0c17dafd5e66ec20ec5d4d23ca1736bbafaf6b332698"
+  "hash": "42148feae825ccb9844a9a04f5cc8731cecf25da0b46fb6c38192b46adc70bf9"
 }

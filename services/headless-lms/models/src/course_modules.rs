@@ -680,8 +680,9 @@ WHERE uh_course_code IS NOT NULL
     Ok(res)
 }
 
-/// Per-module credit-registration configuration, kept off [`CourseModule`]: only the pipeline and
-/// the admin views need these columns.
+/// Per-module credit-registration configuration: the rollout switch and the module's own fields
+/// merged with its `course_module_suotar_configurations` row. Every field of that row is optional
+/// here because a module with no configuration row is a valid, unconfigured module.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseModuleCreditRegistrationConfig {
     pub course_module_id: Uuid,
@@ -709,23 +710,25 @@ pub async fn get_credit_registration_config(
     let res = sqlx::query_as!(
         CourseModuleCreditRegistrationConfig,
         r#"
-SELECT id AS course_module_id,
-  course_id,
-  enable_credit_registration_via_suotar,
-  uh_course_code,
-  ects_credits,
-  open_university_product_id,
-  credit_registration_grade_scale_id,
-  credit_registration_paused_at,
-  credit_registration_paused_by_user_id,
-  credit_registration_pause_reason,
-  credit_registration_config_checked_at,
-  credit_registration_course_code_resolves,
-  credit_registration_product_token_found,
-  credit_registration_config_check_message
-FROM course_modules
-WHERE id = $1
-  AND deleted_at IS NULL
+SELECT cm.id AS course_module_id,
+  cm.course_id,
+  cm.enable_credit_registration_via_suotar,
+  cm.uh_course_code,
+  cm.ects_credits,
+  c.open_university_product_id AS "open_university_product_id?",
+  c.grade_scale_id AS "credit_registration_grade_scale_id?",
+  c.paused_at AS "credit_registration_paused_at?",
+  c.paused_by_user_id AS "credit_registration_paused_by_user_id?",
+  c.pause_reason AS "credit_registration_pause_reason?",
+  c.config_checked_at AS "credit_registration_config_checked_at?",
+  c.course_code_resolves AS "credit_registration_course_code_resolves?",
+  c.product_token_found AS "credit_registration_product_token_found?",
+  c.config_check_message AS "credit_registration_config_check_message?"
+FROM course_modules cm
+  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
+  AND c.deleted_at IS NULL
+WHERE cm.id = $1
+  AND cm.deleted_at IS NULL
         "#,
         course_module_id
     )
@@ -741,25 +744,27 @@ pub async fn get_all_suotar_enabled(
     let res = sqlx::query_as!(
         CourseModuleCreditRegistrationConfig,
         r#"
-SELECT id AS course_module_id,
-  course_id,
-  enable_credit_registration_via_suotar,
-  uh_course_code,
-  ects_credits,
-  open_university_product_id,
-  credit_registration_grade_scale_id,
-  credit_registration_paused_at,
-  credit_registration_paused_by_user_id,
-  credit_registration_pause_reason,
-  credit_registration_config_checked_at,
-  credit_registration_course_code_resolves,
-  credit_registration_product_token_found,
-  credit_registration_config_check_message
-FROM course_modules
-WHERE enable_credit_registration_via_suotar
-  AND deleted_at IS NULL
-ORDER BY course_id,
-  order_number
+SELECT cm.id AS course_module_id,
+  cm.course_id,
+  cm.enable_credit_registration_via_suotar,
+  cm.uh_course_code,
+  cm.ects_credits,
+  c.open_university_product_id AS "open_university_product_id?",
+  c.grade_scale_id AS "credit_registration_grade_scale_id?",
+  c.paused_at AS "credit_registration_paused_at?",
+  c.paused_by_user_id AS "credit_registration_paused_by_user_id?",
+  c.pause_reason AS "credit_registration_pause_reason?",
+  c.config_checked_at AS "credit_registration_config_checked_at?",
+  c.course_code_resolves AS "credit_registration_course_code_resolves?",
+  c.product_token_found AS "credit_registration_product_token_found?",
+  c.config_check_message AS "credit_registration_config_check_message?"
+FROM course_modules cm
+  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
+  AND c.deleted_at IS NULL
+WHERE cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL
+ORDER BY cm.course_id,
+  cm.order_number
         "#,
     )
     .fetch_all(conn)

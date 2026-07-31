@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cmsr.*\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\nWHERE cmsr.active\n  AND cmsr.deleted_at IS NULL\n  AND cm.enable_credit_registration_via_suotar\n  AND cm.credit_registration_paused_at IS NULL\n  AND cm.deleted_at IS NULL\nORDER BY cmsr.last_listed_at ASC NULLS FIRST\n        ",
+  "query": "\nSELECT cmsr.*\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE cmsr.active\n  AND cmsr.deleted_at IS NULL\n  AND cm.enable_credit_registration_via_suotar\n  AND c.paused_at IS NULL\n  AND cm.deleted_at IS NULL\nORDER BY cmsr.last_listed_at ASC NULLS FIRST\n        ",
   "describe": {
     "columns": [
       {
@@ -190,5 +190,5 @@
       true
     ]
   },
-  "hash": "a2c864a9495be9bc70bdf48c1f2032720c7234edda8eaf4ea88e0aea74a4b913"
+  "hash": "46a1f8e524176c21dfd2946a0c720ff0755e58c7d8e4c6bb8b3c9a4fe9fdc80b"
 }

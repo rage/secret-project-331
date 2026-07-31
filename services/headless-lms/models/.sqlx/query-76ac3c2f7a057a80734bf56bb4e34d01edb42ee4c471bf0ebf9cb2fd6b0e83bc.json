@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT p.id as page_id,\n  p.order_number as order_number,\n  p.course_id as course_id,\n  p.exam_id as exam_id,\n  c.id as \"chapter_id?\",\n  c.chapter_number as \"chapter_number?\"\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.id = $1;\n",
+  "query": "\n-- Nullability is stated per column rather than inferred: sqlx-cli 0.9.0 derives a reversed\n-- nullable array for this query, which makes every offline build of it fail.\nSELECT p.id as \"page_id!\",\n  p.order_number as \"order_number!\",\n  p.course_id as \"course_id?\",\n  p.exam_id as \"exam_id?\",\n  c.id as \"chapter_id?\",\n  c.chapter_number as \"chapter_number?\"\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.id = $1;\n",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "page_id",
+        "name": "page_id!",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -16,7 +16,7 @@
       },
       {
         "ordinal": 1,
-        "name": "order_number",
+        "name": "order_number!",
         "type_info": "Int4",
         "origin": {
           "Table": {
@@ -27,7 +27,7 @@
       },
       {
         "ordinal": 2,
-        "name": "course_id",
+        "name": "course_id?",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -38,7 +38,7 @@
       },
       {
         "ordinal": 3,
-        "name": "exam_id",
+        "name": "exam_id?",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -76,13 +76,13 @@
       ]
     },
     "nullable": [
+      true,
+      true,
+      true,
+      true,
       false,
-      false,
-      true,
-      true,
-      true,
-      true
+      false
     ]
   },
-  "hash": "db5cd5b4719b69e217948320994bd8f3f6ae513f1378eb76d2fe6391acf179fc"
+  "hash": "76ac3c2f7a057a80734bf56bb4e34d01edb42ee4c471bf0ebf9cb2fd6b0e83bc"
 }

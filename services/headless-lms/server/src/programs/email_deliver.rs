@@ -25,13 +25,18 @@ use std::collections::HashMap;
 use uuid::Uuid;
 const BATCH_SIZE: usize = FETCH_LIMIT as usize;
 
-const FRONTEND_BASE_URL: &str = "https://courses.mooc.fi";
 const BASE_BACKOFF_SECS: i64 = 60;
 const MAX_BACKOFF_SECS: i64 = 24 * 60 * 60;
 const JITTER_SECS: i64 = 30;
 
 static SMTP_FROM: Lazy<String> = Lazy::new(|| {
     ProgramConfig::required("SMTP_FROM").expect("No moocfi email found in the env variables.")
+});
+/// The same variable the server reads into `ApplicationConfiguration::base_url`: a mailed link has to
+/// point at the environment that minted its token. Not `FRONTEND_BASE_URL`, which no overlay sets, so
+/// reading that sends dev and test links to production.
+static BASE_URL: Lazy<String> = Lazy::new(|| {
+    ProgramConfig::required("BASE_URL").expect("No BASE_URL found in the env variables.")
 });
 static SMTP_HOST: Lazy<String> = Lazy::new(|| {
     ProgramConfig::required("SMTP_HOST").expect("No email relay found in the env variables.")
@@ -240,8 +245,7 @@ async fn apply_email_template_replacements(
         )));
     }
 
-    // Every remaining template derives its values from an account, so a delivery addressed to a raw
-    // address cannot use one.
+    // Every remaining template derives its values from an account.
     let Some(user_id) = user_id else {
         let msg = format!(
             "Template {template_type:?} requires a user but the delivery is addressed to a raw address"
@@ -255,20 +259,9 @@ async fn apply_email_template_replacements(
             if let Some(token_str) =
                 get_unused_reset_password_token_with_user_id(conn, user_id).await?
             {
-                let base = ProgramConfig::optional("FRONTEND_BASE_URL")
-                    .and_then(|value| {
-                        let trimmed = value.trim();
-                        if trimmed.is_empty() {
-                            None
-                        } else {
-                            Some(trimmed.to_string())
-                        }
-                    })
-                    .unwrap_or_else(|| FRONTEND_BASE_URL.to_string());
-
                 let reset_url = format!(
                     "{}/reset-user-password/{}",
-                    base.trim_end_matches('/'),
+                    BASE_URL.trim_end_matches('/'),
                     token_str.token
                 );
 
@@ -310,9 +303,7 @@ async fn apply_email_template_replacements(
                 return Ok(TemplateApplyResult::Abandoned);
             }
         }
-        // Handled before this match: Generic substitutes nothing, and the placeholder-bag templates
-        // substitute from the delivery row. Listed rather than caught by `_` so a new template type
-        // is a compile error here.
+        // Handled above. Listed rather than caught by `_` so a new template type is a compile error.
         EmailTemplateType::Generic
         | EmailTemplateType::CreditRegistrationAccountLinking
         | EmailTemplateType::VerifyEmailAddress
@@ -327,9 +318,8 @@ async fn apply_email_template_replacements(
     )))
 }
 
-/// Turns a delivery's placeholder bag into `{{ KEY }}` substitutions. Non-string scalars are
-/// rendered as they serialize; nested objects and arrays are skipped, because there is no sensible
-/// rendering for them in email body text.
+/// Turns a delivery's placeholder bag into `{{ KEY }}` substitutions. Nested objects and arrays are
+/// skipped: there is no sensible rendering for them in body text.
 fn placeholder_bag_replacements(
     placeholders: Option<&serde_json::Value>,
 ) -> HashMap<String, String> {

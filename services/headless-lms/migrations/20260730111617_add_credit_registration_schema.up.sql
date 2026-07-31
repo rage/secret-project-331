@@ -137,6 +137,9 @@ WHERE deleted_at IS NULL;
 -- Rate cap lookups: "have we mailed this person anywhere recently?"
 CREATE INDEX idx_account_linking_emails_number_sent ON credit_registration_account_linking_emails (student_number, sent_at DESC)
 WHERE deleted_at IS NULL;
+-- No read uses this: it stops a hard-deleted token from seq-scanning here through the foreign key.
+CREATE INDEX idx_account_linking_emails_token ON credit_registration_account_linking_emails (student_number_verification_token_id)
+WHERE student_number_verification_token_id IS NOT NULL;
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON credit_registration_account_linking_emails FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 

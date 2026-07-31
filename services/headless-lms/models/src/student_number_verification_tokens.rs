@@ -41,15 +41,21 @@ pub fn is_valid(token: &StudentNumberVerificationToken) -> bool {
 }
 
 /// Probabilistic cleanup instead of a cron.
+///
+/// Soft-delete, not DELETE: `credit_registration_account_linking_emails` references these rows, and
+/// this runs on the click path, so a foreign key violation here would 500 a student opening a valid
+/// link.
 pub async fn maybe_cleanup_expired(conn: &mut PgConnection) -> ModelResult<()> {
     let random_num = rand::rng().random_range(1..=10);
     if random_num == 1 {
         info!("Cleaning up expired student number verification tokens");
         sqlx::query!(
             r#"
-DELETE FROM student_number_verification_tokens
+UPDATE student_number_verification_tokens
+SET deleted_at = now()
 WHERE expires_at < now()
   AND used_at IS NULL
+  AND deleted_at IS NULL
             "#,
         )
         .execute(conn)

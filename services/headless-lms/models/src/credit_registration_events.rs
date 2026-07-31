@@ -1,8 +1,7 @@
 //! Append-only audit trail for the credit registration ledger.
 //!
-//! Nothing in this table has a retention sweep, which is exactly why every Suotar payload written
-//! here goes through [`scrub_suotar_body`] first. Scrubbing happens at every write site, never at
-//! read time: redacting on read would leave the raw values on disk.
+//! No retention sweep touches this table, so every Suotar payload must go through
+//! [`scrub_suotar_body`] at the write site — redacting on read would leave the raw values on disk.
 use std::sync::LazyLock;
 
 use regex::{Captures, Regex};
@@ -12,8 +11,7 @@ use utoipa::ToSchema;
 use crate::credit_registrations::{CreditRegistrationErrorCode, CreditRegistrationState};
 use crate::prelude::*;
 
-/// The placeholder a redacted value is replaced with. The key is kept so the payload shape, which is
-/// what one actually debugs, survives.
+/// Replaces a redacted value; the key is kept so the payload shape survives.
 pub const REDACTED: &str = "[redacted]";
 
 /// Keys whose values identify a person or authenticate a request. Matched case-insensitively at any
@@ -32,15 +30,10 @@ const REDACTED_KEYS: &[&str] = &[
     "sisupersonid",
 ];
 
-/// Keys whose values the value scan must leave alone.
+/// Keys whose values the value scan must leave alone: they carry ids shaped like student numbers —
+/// `cr-{uuid}` request item ids, Sisu ids such as `hy-CUR-135176012` — that the scan would mangle.
 ///
-/// These are the fields debugging actually needs and none of them identifies a person on its own.
-/// They are exempted from the scan rather than just from key redaction because they carry
-/// identifiers that look like student numbers: `cr-{uuid}` request item ids and Sisu ids such as
-/// `hy-CUR-135176012` would otherwise be mangled into uselessness.
-///
-/// Container keys do not belong here: an exemption stops at the objects below it, so a key listed only
-/// to shield its children buys nothing and hides the intent.
+/// Container keys do not belong here: an exemption stops at the objects below it.
 const NEVER_SCANNED_KEYS: &[&str] = &[
     "requestitemid",
     "code",
@@ -62,56 +55,39 @@ static EMAIL_RE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}").expect("hardcoded regex")
 });
 
-/// A student-number-shaped run of digits, with the UUID shape listed first so that an id quoted in
-/// free text matches whole and is passed through by [`scrub_free_text`] instead of losing its
-/// 12-digit tail. The `regex` crate has no lookaround, so an alternation read leftmost-first is the
-/// only way to say "digits that are not part of a UUID". The word boundaries keep the digit branch
-/// from eating part of a longer number such as a millisecond timestamp.
+/// Student-number-shaped digit runs. The id shapes come first because the `regex` crate has no
+/// lookaround: leftmost-first alternation is the only way to say "digits not part of an id". The
+/// word boundaries keep the digit branch off longer numbers such as millisecond timestamps.
+///
+/// Known cost of the `prefixed` branch: a student number hyphen-joined to a word,
+/// `person-012345678`, survives. A bare digit run, the shape Suotar's messages use, still goes.
 static STUDENT_NUMBER_RE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r"(?P<uuid>\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b)|(?P<digits>\b[0-9]{6,12}\b)",
+        r"(?P<uuid>\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b)|(?P<prefixed>\b[A-Za-z][A-Za-z0-9-]*-[0-9]{6,12}\b)|(?P<digits>\b[0-9]{6,12}\b)",
     )
     .expect("hardcoded regex")
 });
 
-/// Best-effort removal of personal data from a Suotar request or response body. Not a guarantee, and
+/// Best-effort removal of personal data from a Suotar request or response body. Not a guarantee and
 /// not an exhaustive PII filter.
 ///
-/// Every value is treated according to the key directly above it, one of:
+/// Two mechanisms, because either alone leaks: key matching removes the structured person fields,
+/// and the free-text scan is the backstop for the input Suotar's error messages quote back. A key's
+/// treatment covers its own scalar value and the scalars of an array under it, but objects are
+/// always classified again key by key, so an exemption never spreads over a subtree.
 ///
-/// - `REDACTED_KEYS` — student number, names, emails, person ids, access tokens. The value is replaced
-///   by `[redacted]` whatever its shape.
-/// - `NEVER_SCANNED_KEYS` — request item ids, codes, grade, credit and attainment fields. Passed
-///   through verbatim, because these carry the digit runs the value scan would otherwise mangle.
-/// - anything else — scanned as free text for email addresses and student-number-shaped digit runs.
-///
-/// A key's treatment covers its own scalar value and the scalars of an array under it, so a list of ids
-/// survives whole. An object is always classified again key by key on the way down, so an exemption
-/// never spreads over a subtree — the per-item error objects Suotar nests under id keys are exactly
-/// where its messages quote the input back.
-///
-/// Two mechanisms, because either alone leaks. Key matching removes the structured person fields. The
-/// value scan is the backstop: Suotar's error messages quote the input, so key matching alone leaks
-/// through `error.message`, and a field they add tomorrow is covered before the key list catches up. A
-/// deny-by-default allow-list is deliberately not used — a payload that turns into `[redacted]`
-/// everywhere the moment Suotar adds a field is useless.
-///
-/// What the value scan removes is limited to what is cheap and reliable to recognise: email addresses
-/// and student-number-shaped digit runs. A personal name in free text is deliberately left in place —
-/// no pattern separates `Aada Virtanen` from ordinary error prose, and the study registry holds the
-/// name regardless. Names arriving under one of the known person keys are still redacted, because
-/// there the match is exact.
+/// The scan only removes email addresses and student-number-shaped digit runs. A name in free text
+/// is kept: no pattern separates it from error prose, and the study registry holds it anyway.
 pub fn scrub_suotar_body(value: &Value) -> Value {
     scrub(value)
 }
 
-/// What happens to the value under a key.
 enum KeyPolicy {
-    /// Replaced by [`REDACTED`], subtree and all: over-redacting a person field is the safe direction.
+    /// Replaced by [`REDACTED`], subtree and all.
     FullyRedact,
     /// Passed through verbatim, except for objects, which are classified by their own keys.
     NeverScan,
-    /// The default, for every key nobody has an opinion about.
+    /// The default.
     ScanFreeText,
 }
 
@@ -146,8 +122,8 @@ fn scrub(value: &Value) -> Value {
     }
 }
 
-/// Keeps the ids an exempt key holds, whether bare or in a list, but hands any object back to [`scrub`]
-/// so that an exemption cannot smuggle a nested error message past the value scan.
+/// Keeps bare ids and lists of ids, but hands objects back to [`scrub`] so an exemption cannot
+/// smuggle a nested error message past the value scan.
 fn keep_scalars(value: &Value) -> Value {
     match value {
         Value::Object(_) => scrub(value),
@@ -167,8 +143,7 @@ fn scrub_free_text(text: &str) -> String {
     let without_emails = EMAIL_RE.replace_all(text, REDACTED);
     STUDENT_NUMBER_RE
         .replace_all(&without_emails, |captures: &Captures| {
-            // The uuid branch exists only to claim the match before the digit branch can bite off a
-            // UUID group, so it is put back unchanged.
+            // The id branches exist to beat the digit branch to the match; put them back unchanged.
             if captures.name("digits").is_some() {
                 REDACTED.to_string()
             } else {
@@ -178,10 +153,9 @@ fn scrub_free_text(text: &str) -> String {
         .into_owned()
 }
 
-/// The `details` shape for a Suotar exchange: both sides, because the admin drill-down renders them
-/// side by side and inferring the request from the ledger snapshot after a retry is guesswork.
-///
-/// Scrubs on construction, so there is no way to build an unscrubbed one.
+/// Both sides of a Suotar exchange, scrubbed on construction so there is no way to build an
+/// unscrubbed `details`. The request is kept because the ledger row no longer reflects it after a
+/// retry.
 pub fn suotar_exchange_details(request: Option<&Value>, response: Option<&Value>) -> Value {
     let mut details = serde_json::Map::new();
     if let Some(request) = request {
@@ -193,7 +167,6 @@ pub fn suotar_exchange_details(request: Option<&Value>, response: Option<&Value>
     Value::Object(details)
 }
 
-/// What kind of thing an event records.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
 #[sqlx(
     type_name = "credit_registration_event_kind",
@@ -257,8 +230,8 @@ impl NewCreditRegistrationEvent {
     }
 }
 
-/// Appends one event. Callers that also change `state` must go through
-/// `credit_registrations::transition`, which writes both in one transaction.
+/// Callers that also change `state` must go through `credit_registrations::transition` instead,
+/// which writes both in one transaction.
 pub async fn insert(
     conn: &mut PgConnection,
     new: &NewCreditRegistrationEvent,
@@ -367,8 +340,7 @@ mod tests {
 
     #[test]
     fn keeps_the_fields_debugging_needs() {
-        // The digit runs in a request item id and a Sisu id are student-number shaped; the value scan
-        // must not touch them or the drill-down loses the only way back to the ledger row.
+        // These ids carry student-number-shaped digit runs the value scan must not touch.
         let body = json!({
             "requestItemId": "cr-2a4b0d6e-0000-4000-8000-000000000001",
             "code": "sent",
@@ -440,8 +412,7 @@ mod tests {
         let body = json!({ "enrolmentId": ["hy-CUR-135176012", "hy-CUR-135176013"] });
         assert_eq!(scrub_suotar_body(&body), body);
 
-        // An object in that list is classified by its own keys, so the exemption does not reach the
-        // quoted student number.
+        // An object in that list is classified by its own keys, so the exemption stops there.
         let mixed = json!({
             "code": ["hy-CUR-135176012", { "message": "Person 012345678 not found" }],
         });
@@ -458,7 +429,7 @@ mod tests {
 
     #[test]
     fn a_redacted_key_takes_its_whole_value_with_it() {
-        // Over-redacting a person field costs debuggability; under-redacting one is a permanent leak.
+        // Over-redacting a person field costs debuggability; under-redacting is a permanent leak.
         let scrubbed = scrub_suotar_body(&json!({
             "firstNames": ["Aada", "Maria"],
             "personId": { "value": "hy-hlo-1" },
@@ -471,8 +442,7 @@ mod tests {
 
     #[test]
     fn value_scan_reaches_inside_a_never_scanned_key() {
-        // Suotar hangs per-item errors off `status`, and the exemption is only for that key's own
-        // scalar value, so the quoted student number and address below still have to go.
+        // Suotar hangs per-item errors off an exempt key; the exemption covers only its own scalar.
         let scrubbed = scrub_suotar_body(&json!({
             "items": [{
                 "status": {
@@ -496,8 +466,7 @@ mod tests {
 
     #[test]
     fn value_scan_keeps_request_item_ids_quoted_in_free_text_whole() {
-        // The last UUID group is 12 digits, so a naive digit-run scan eats it and the per-item
-        // drill-down loses the only mapping from the message back to a ledger row.
+        // The last UUID group is 12 digits, so a naive digit-run scan would eat it.
         let body = json!({ "message": "item cr-2a4b0d6e-0000-4000-8000-000000000001 rejected" });
         assert_eq!(scrub_suotar_body(&body), body);
 
@@ -505,18 +474,22 @@ mod tests {
         let numeric = json!({ "message": "item 12345678-1234-4321-8765-123456789012 rejected" });
         assert_eq!(scrub_suotar_body(&numeric), numeric);
 
-        // A student number that merely sits next to a hyphen is not a UUID and still goes.
-        let adjacent = json!({ "message": "person-012345678 not found" });
+        // A Sisu id is kept whole for the same reason, even though its tail is digits only.
+        let sisu = json!({ "message": "enrolment hy-CUR-135176012 rejected" });
+        assert_eq!(scrub_suotar_body(&sisu), sisu);
+
+        // Accepted cost: a student number hyphen-joined to a word reads as a prefixed id and
+        // survives. A bare run still goes, which is the shape Suotar sends.
+        let adjacent = json!({ "message": "person-012345678 and 012345678 not found" });
         assert_eq!(
             scrub_suotar_body(&adjacent),
-            json!({ "message": format!("person-{REDACTED} not found") })
+            json!({ "message": format!("person-012345678 and {REDACTED} not found") })
         );
     }
 
     #[test]
     fn free_text_names_are_deliberately_kept() {
-        // Best-effort by design: no pattern separates a name from error prose, and the study registry
-        // holds the name anyway. Only the known person keys are redacted.
+        // No pattern separates a name from error prose; only the known person keys are redacted.
         let scrubbed = scrub_suotar_body(&json!({
             "errors": [{ "code": "personNotFound", "message": "No person matching Aada Maria Virtanen" }],
             "fullName": "Aada Maria Virtanen",

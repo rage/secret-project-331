@@ -5,16 +5,12 @@ import { AccountTab } from "@/utils/components/UserSettings/AccountTab"
 import { signUp } from "@/utils/flows/signup.flow"
 
 /**
- * A verification mail is queued, opening its link records the proof, changing the address clears the
- * proof, and a spent link is refused with its own copy.
+ * No mail capture exists in this repo, so the link comes from
+ * `GET /email-verification/test-mode-link`, which 404s unless `TEST_MODE` is on and only
+ * ever returns the signed-in account's own link.
  *
- * The compromise: there is no mail capture anywhere in this repo, so the spec cannot read the link out
- * of an inbox. It asks the backend for the caller's own pending link through
- * `GET /email-verification/test-mode-link`, which 404s unless `TEST_MODE` is on and only ever returns
- * the signed-in account's own link.
- *
- * The account is created by the spec rather than seeded, because the spec changes its email address and
- * a seeded user's address is a login credential other specs depend on.
+ * The account is created rather than seeded because this spec changes its email address,
+ * and a seeded user's address is a login credential other specs depend on.
  */
 
 const ORIGIN = "http://project-331.local"
@@ -29,8 +25,8 @@ async function pendingVerificationLink(page: Page): Promise<string> {
   const response = await page.request.get(TEST_MODE_LINK_URL)
   expect(response.ok()).toBe(true)
   const link: string = await response.json()
-  // Navigating it only works if it points at the environment that minted the token.
-  expect(link).toContain(`${ORIGIN}/email-verified?token=`)
+  // Not /email-verified: that path stays tmc.mooc.fi's own redirect target.
+  expect(link).toContain(`${ORIGIN}/verify-email?token=`)
   return link
 }
 

@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS (\n    SELECT 1\n    FROM email_templates\n    WHERE email_template_type = $1\n      AND course_id IS NULL\n      AND deleted_at IS NULL\n  ) AS \"exists!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "email_template_type",
+            "kind": {
+              "Enum": [
+                "reset_password_email",
+                "delete_user_email",
+                "generic",
+                "confirm_email_code",
+                "credit_registration_account_linking",
+                "verify_email_address",
+                "credit_registration_action_needed",
+                "credit_registration_registered",
+                "credit_registration_student_number_linked"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "c4d7ac6f86d42e8c3df488a54addbf4599ffeff39e99db22770ee6a4cb542f77"
+}

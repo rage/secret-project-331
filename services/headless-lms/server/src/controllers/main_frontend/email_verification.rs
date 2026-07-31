@@ -1,9 +1,8 @@
 /*!
 Handlers for HTTP requests to `/api/v0/main-frontend/email-verification`.
 
-Proving that an account can read the address it claims. Independent of any one feature: until this
-existed, `user_details.email` was self-service editable with no verification at all, and the OIDC
-discovery document advertised an `email_verified` claim we could not produce.
+Proving that an account can read the address it claims: `user_details.email` is self-service editable,
+and the OIDC discovery document advertises an `email_verified` claim.
 */
 
 use headless_lms_models::{
@@ -15,7 +14,8 @@ use secrecy::{ExposeSecret, SecretString};
 use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::email_ownership_verification::{
-    VerificationEmailOutcome, queue_verification_email, verification_link,
+    VerificationEmailOutcome, queue_verification_email, verification_email_configured,
+    verification_link,
 };
 use crate::prelude::*;
 
@@ -28,8 +28,8 @@ use crate::prelude::*;
 ))]
 pub(crate) struct MainFrontendEmailVerificationApiDoc;
 
-/// What we last mailed about the address the account holds now, and what our queue says happened to
-/// it. Never a delivery confirmation: we hand messages to an SMTP relay and cannot see an inbox.
+/// What we last mailed about the address the account holds now. Never a delivery confirmation: we
+/// hand messages to an SMTP relay and cannot see an inbox.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct EmailVerificationEmailInfo {
     pub emailed_to: String,
@@ -44,6 +44,9 @@ pub struct EmailVerificationStatus {
     pub email_verified_at: Option<DateTime<Utc>>,
     pub email_verified_method: Option<EmailVerificationMethod>,
     pub latest_verification_email: Option<EmailVerificationEmailInfo>,
+    /// Whether this deployment can mail verification links at all. False until a
+    /// `verify_email_address` template exists; the account UI then shows nothing about verification.
+    pub verification_configured: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -51,11 +54,9 @@ pub struct EmailVerificationStatus {
 pub enum RequestEmailVerificationOutcome {
     Queued,
     AlreadyVerified,
-    /// A link went to this address moments ago; sending another would only duplicate it.
+    /// A link went to this address moments ago.
     RecentlySent,
-    /// This deployment has no verification email template, so there is nothing to mail. Its own value
-    /// rather than a 500: the request was fine and the address is still unverified, so the copy has to
-    /// say that instead of blaming the user's click.
+    /// This deployment has no verification email template, so there is nothing to mail.
     NotConfigured,
 }
 
@@ -71,16 +72,14 @@ pub struct ClaimEmailVerificationPayload {
     pub token: SecretString,
 }
 
-/// Why a claim did not record a proof. Distinct values because the remedy differs: a used link means
-/// "you are already done", an expired one means "ask for a new one", and a changed address means "the
-/// link was for your old address".
+/// Outcome of claiming a link. The failures are distinct values because the remedy differs for each.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ClaimEmailVerificationResult {
     Verified,
     AlreadyUsed,
     Expired,
-    /// The account's address changed after the link was mailed, so the link no longer proves anything.
+    /// The account's address changed after the link was mailed.
     EmailChanged,
     Invalid,
 }
@@ -110,10 +109,7 @@ pub async fn get_my_email_verification_status(
     let latest =
         email_ownership_verification_tokens::get_latest_for_user(&mut conn, user.id).await?;
 
-    // Only a link about the address the account holds right now is worth reporting. Reachable
-    // otherwise: change the address away and back inside the resend cap, and the newest live token
-    // still names the address that was abandoned in between. Saying "link sent to <that>" would point
-    // the user at a mailbox this account no longer claims.
+    // Changing the address away and back can leave the newest token naming the abandoned address.
     let latest =
         latest.filter(|latest| latest.email.to_lowercase() == details.email.to_lowercase());
 
@@ -138,6 +134,7 @@ pub async fn get_my_email_verification_status(
         email_verified_at: details.email_verified_at,
         email_verified_method: details.email_verified_method,
         latest_verification_email,
+        verification_configured: verification_email_configured(&mut conn).await?,
     }))
 }
 
@@ -188,9 +185,8 @@ pub async fn request_email_verification_link(
 /**
 POST `/api/v0/main-frontend/email-verification/claim` - Consumes a mailed link and records the proof.
 
-Deliberately unauthenticated: the token names the account, so no session is needed and requiring one
-would fail the common case of opening the mail on a device that is not signed in. Deliberately a POST
-rather than a GET, so a mail scanner or a link prefetcher cannot burn the link.
+Unauthenticated because the token names the account and the mail is often opened on a device that is
+not signed in. A POST rather than a GET so a mail scanner or a link prefetcher cannot burn the link.
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -212,10 +208,8 @@ pub async fn claim_email_verification_link(
 
     let token = DbSecret::new(payload.token.expose_secret().to_string());
 
-    // Spending the link and recording the proof commit together or not at all. Split across two
-    // statements, a failure between them would burn the token while leaving the account unverified,
-    // and the dead link would then answer "already used" — telling the recipient they are done when
-    // they are not.
+    // One transaction: spending the token without recording the proof would answer "already used"
+    // while the account stays unverified.
     let mut tx = conn.begin().await?;
 
     let result = match email_ownership_verification_tokens::claim(&mut tx, &token).await? {
@@ -229,15 +223,12 @@ pub async fn claim_email_verification_link(
             .await?;
             ClaimEmailVerificationResult::Verified
         }
-        // Read after the claim, not before: a pre-claim snapshot still looks live to the loser of a
-        // double click, so classifying from it would tell them their address changed when the other
-        // request in fact verified it. Our UPDATE blocks on the winner's row lock, so once it reports
-        // no rows the winner has committed and this read sees its `used_at`.
+        // Read after the claim, not before: the claiming UPDATE blocks on the winner's row lock, so a
+        // no-rows result means the winner has committed and this read sees its `used_at`.
         None => match email_ownership_verification_tokens::get_by_token(&mut tx, &token).await? {
             None => ClaimEmailVerificationResult::Invalid,
             Some(row) if row.used_at.is_some() => ClaimEmailVerificationResult::AlreadyUsed,
-            // A retired row was superseded by a newer request for the same account, which from the
-            // recipient's side is the same story as an expired one: this link is no longer the good one.
+            // A retired row was superseded by a newer request, which reads the same to the recipient.
             Some(row) if row.expires_at <= Utc::now() || row.deleted_at.is_some() => {
                 ClaimEmailVerificationResult::Expired
             }
@@ -254,9 +245,8 @@ pub async fn claim_email_verification_link(
 GET `/api/v0/main-frontend/email-verification/test-mode-link` - The signed-in account's own pending
 verification link.
 
-Exists because there is no mail capture in the system tests, so a spec cannot read the link out of an
-inbox. Returns 404 unless `TEST_MODE` is on, and it is scoped to the caller's own account, so the
-worst it can do with the gate accidentally open is hand you a link to your own mailbox.
+Exists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the
+caller's own account, so an accidentally open gate only ever hands you your own link.
 */
 #[instrument(skip(pool, app_conf))]
 #[utoipa::path(

@@ -336,9 +336,7 @@ export type ClaimEmailVerificationPayload = {
 }
 
 /**
- * Why a claim did not record a proof. Distinct values because the remedy differs: a used link means
- * "you are already done", an expired one means "ask for a new one", and a changed address means "the
- * link was for your old address".
+ * Outcome of claiming a link. The failures are distinct values because the remedy differs for each.
  */
 export type ClaimEmailVerificationResult =
   | "verified"
@@ -916,9 +914,6 @@ export type CourseModuleInfo = {
    * ECTS credits the module is worth. `None` when the module grants no credits.
    */
   ects_credits?: number | null
-  /**
-   * Read straight from `course_modules`; the column is deliberately off the `CourseModule` DTO.
-   */
   enable_credit_registration_via_suotar: boolean
   /**
    * Number of non-deleted exercises in this module. Submission density is divided by this so courses
@@ -1141,14 +1136,13 @@ export type EmailData = {
 /**
  * What we can honestly say about an email we queued.
  *
- * We hand messages to an SMTP relay, so nothing here says anything about an inbox. Copy that
- * renders this must say "sent from our system", never "delivered" or "the recipient received".
+ * We only hand messages to an SMTP relay, so copy rendering this must never say "delivered" or
+ * "received".
  */
 export type EmailSendStatus = "queued" | "retrying" | "sent" | "send_failed"
 
 /**
- * The payload every surface that mentions a queued email returns, so the student, the teacher and
- * the admin cannot be told three different things.
+ * The shared payload for every surface that reports on a queued email.
  */
 export type EmailSendStatusReport = {
   email_send_status: EmailSendStatus
@@ -1193,8 +1187,8 @@ export type EmailTemplateType =
   | "credit_registration_student_number_linked"
 
 /**
- * What we last mailed about the address the account holds now, and what our queue says happened to
- * it. Never a delivery confirmation: we hand messages to an SMTP relay and cannot see an inbox.
+ * What we last mailed about the address the account holds now. Never a delivery confirmation: we
+ * hand messages to an SMTP relay and cannot see an inbox.
  */
 export type EmailVerificationEmailInfo = {
   emailed_to: string
@@ -1204,10 +1198,7 @@ export type EmailVerificationEmailInfo = {
 }
 
 /**
- * How proof of control over [`UserDetail::email`] was obtained.
- *
- * A discriminator, not a flag: consumers that care about the strength of the proof must match
- * exhaustively. `AdminAsserted` is deliberately weaker than the rest.
+ * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
  */
 export type EmailVerificationMethod =
   | "verification_link"
@@ -1220,6 +1211,11 @@ export type EmailVerificationStatus = {
   email_verified_at?: string | null
   email_verified_method?: null | EmailVerificationMethod
   latest_verification_email?: null | EmailVerificationEmailInfo
+  /**
+   * Whether this deployment can mail verification links at all. False until a
+   * `verify_email_address` template exists; the account UI then shows nothing about verification.
+   */
+  verification_configured: boolean
 }
 
 export type EventInfo = {
@@ -1677,8 +1673,8 @@ export type MyCourse = Course & {
 
 export type MyStudies = {
   /**
-   * Drives whether the profile's credit-registration tab renders at all. Covers hidden courses
-   * too: hiding a course from a list must not take away access to registering its credits.
+   * Drives whether the profile's credit-registration tab renders. Covers hidden courses too:
+   * hiding a course must not take away access to registering its credits.
    */
   any_module_supports_credit_registration: boolean
   courses: Array<MyStudiesCourse>
@@ -1686,8 +1682,8 @@ export type MyStudies = {
 }
 
 /**
- * A completion as the student may see it. Completions flagged `needs_to_be_reviewed` never reach
- * this struct: the student must not be able to infer that they are under suspicion.
+ * A completion as the student may see it. `needs_to_be_reviewed` ones are excluded so a student
+ * cannot infer that they are under suspicion.
  */
 export type MyStudiesCompletion = {
   completion_date: string
@@ -1725,8 +1721,7 @@ export type MyStudiesCourse = {
 }
 
 /**
- * A course module as the student's own profile shows it: the module's identity, what it is worth,
- * and the student's best visible completion of it.
+ * A course module as the student's own profile shows it, with their best visible completion.
  */
 export type MyStudiesCourseModule = {
   completion?: null | MyStudiesCompletion
@@ -1742,18 +1737,16 @@ export type MyStudiesCourseModule = {
 }
 
 /**
- * Summarises the courses the profile lists, i.e. the non-hidden ones. Hidden courses are counted in
- * none of these: they are shown only in the unhide section, so counting them would leave the tiles
- * disagreeing with the list under them.
+ * Summarises the courses the profile lists, i.e. the non-hidden ones.
  */
 export type MyStudiesTotals = {
   /**
-   * Counts passed completions only, so it cannot overstate what the student achieved.
+   * Counts passed completions only.
    */
   completions: number
   courses: number
   /**
-   * Summed over passed completions only, so the tile cannot overstate what the student earned.
+   * Summed over passed completions only.
    */
   ects: number
 }

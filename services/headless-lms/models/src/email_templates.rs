@@ -9,8 +9,6 @@ pub enum EmailTemplateType {
     DeleteUserEmail,
     ConfirmEmailCode,
     Generic,
-    /// Substitutes from `email_deliveries.placeholders` rather than from a user, because the
-    /// recipient may have no account here.
     CreditRegistrationAccountLinking,
     VerifyEmailAddress,
     CreditRegistrationActionNeeded,
@@ -19,8 +17,8 @@ pub enum EmailTemplateType {
 }
 
 impl EmailTemplateType {
-    /// Whether this template's substitutions come from `email_deliveries.placeholders` instead of
-    /// being derived from the recipient's account.
+    /// Whether substitutions come from `email_deliveries.placeholders` instead of the recipient's
+    /// account, which may not exist.
     pub fn uses_placeholder_bag(self) -> bool {
         matches!(
             self,
@@ -101,6 +99,31 @@ WHERE deleted_at IS NULL
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// Whether this deployment has any course-independent template of `template_type`, in any language.
+///
+/// Language-agnostic, so a feature check does not fail on a deployment that added only one
+/// language; a missing language surfaces at send time instead.
+pub async fn generic_template_of_type_exists(
+    conn: &mut PgConnection,
+    template_type: EmailTemplateType,
+) -> ModelResult<bool> {
+    let exists = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS (
+    SELECT 1
+    FROM email_templates
+    WHERE email_template_type = $1
+      AND course_id IS NULL
+      AND deleted_at IS NULL
+  ) AS "exists!"
+        "#,
+        template_type as EmailTemplateType,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exists)
 }
 
 pub async fn get_generic_email_template_by_type_and_language(

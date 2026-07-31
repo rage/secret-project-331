@@ -15,7 +15,7 @@ import type {
   RequestEmailVerificationOutcome,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Badge, Button, DescriptionList, QueryResult } from "@/shared-module/components"
+import { Badge, Button, DescriptionList } from "@/shared-module/components"
 
 const TONE_SUCCESS = "success"
 const TONE_WARNING = "warning"
@@ -89,17 +89,23 @@ const outcomeCss = css`
   font-size: var(--font-size-1);
 `
 
-/** Changing the account email invalidates verification server-side; callers must refetch this after such edits. */
+/** Email changes clear verification server-side; callers must refetch after such an edit. */
 export const refetchEmailVerificationStatusForUser = async (queryClient: QueryClient) => {
   await queryClient.refetchQueries({
     queryKey: getMyEmailVerificationStatusOptions().queryKey,
   })
 }
 
-/** Whether the account's address is proven, and a way to get a fresh verification link mailed. */
 const EmailVerificationSection: React.FC = () => {
   const { t } = useTranslation()
   const statusQuery = useQuery({ ...getMyEmailVerificationStatusOptions() })
+  const status = statusQuery.data
+
+  // No chrome until the status is known: a deployment without the feature shows no trace of it,
+  // and a skeleton that then vanishes is worse than a card that arrives late.
+  if (!status || !status.verification_configured) {
+    return null
+  }
 
   return (
     <div className={cardCss} data-testid="email-verification-section">
@@ -109,7 +115,7 @@ const EmailVerificationSection: React.FC = () => {
         </div>
         <h3>{t("heading-email-address-verification")}</h3>
       </div>
-      <QueryResult query={statusQuery}>{(status) => <Body status={status} />}</QueryResult>
+      <Body status={status} />
     </div>
   )
 }

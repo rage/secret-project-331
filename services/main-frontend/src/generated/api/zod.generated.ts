@@ -214,9 +214,7 @@ export const zClaimEmailVerificationPayload = z.object({
 })
 
 /**
- * Why a claim did not record a proof. Distinct values because the remedy differs: a used link means
- * "you are already done", an expired one means "ask for a new one", and a changed address means "the
- * link was for your old address".
+ * Outcome of claiming a link. The failures are distinct values because the remedy differs for each.
  */
 export const zClaimEmailVerificationResult = z.enum([
   "verified",
@@ -1003,14 +1001,13 @@ export const zEmailData = z.object({
 /**
  * What we can honestly say about an email we queued.
  *
- * We hand messages to an SMTP relay, so nothing here says anything about an inbox. Copy that
- * renders this must say "sent from our system", never "delivered" or "the recipient received".
+ * We only hand messages to an SMTP relay, so copy rendering this must never say "delivered" or
+ * "received".
  */
 export const zEmailSendStatus = z.enum(["queued", "retrying", "sent", "send_failed"])
 
 /**
- * The payload every surface that mentions a queued email returns, so the student, the teacher and
- * the admin cannot be told three different things.
+ * The shared payload for every surface that reports on a queued email.
  */
 export const zEmailSendStatusReport = z.object({
   email_send_status: zEmailSendStatus,
@@ -1067,8 +1064,8 @@ export const zEmailTemplateNew = z.object({
 })
 
 /**
- * What we last mailed about the address the account holds now, and what our queue says happened to
- * it. Never a delivery confirmation: we hand messages to an SMTP relay and cannot see an inbox.
+ * What we last mailed about the address the account holds now. Never a delivery confirmation: we
+ * hand messages to an SMTP relay and cannot see an inbox.
  */
 export const zEmailVerificationEmailInfo = z.object({
   emailed_to: z.string(),
@@ -1078,10 +1075,7 @@ export const zEmailVerificationEmailInfo = z.object({
 })
 
 /**
- * How proof of control over [`UserDetail::email`] was obtained.
- *
- * A discriminator, not a flag: consumers that care about the strength of the proof must match
- * exhaustively. `AdminAsserted` is deliberately weaker than the rest.
+ * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
  */
 export const zEmailVerificationMethod = z.enum([
   "verification_link",
@@ -1095,6 +1089,7 @@ export const zEmailVerificationStatus = z.object({
   email_verified_at: z.iso.datetime().nullish(),
   email_verified_method: zEmailVerificationMethod.nullish(),
   latest_verification_email: zEmailVerificationEmailInfo.nullish(),
+  verification_configured: z.boolean(),
 })
 
 export const zEventInfo = z.object({
@@ -1668,8 +1663,8 @@ export const zMyCourse = zCourse.and(
 )
 
 /**
- * A completion as the student may see it. Completions flagged `needs_to_be_reviewed` never reach
- * this struct: the student must not be able to infer that they are under suspicion.
+ * A completion as the student may see it. `needs_to_be_reviewed` ones are excluded so a student
+ * cannot infer that they are under suspicion.
  */
 export const zMyStudiesCompletion = z.object({
   completion_date: z.iso.datetime(),
@@ -1684,8 +1679,7 @@ export const zMyStudiesCompletion = z.object({
 })
 
 /**
- * A course module as the student's own profile shows it: the module's identity, what it is worth,
- * and the student's best visible completion of it.
+ * A course module as the student's own profile shows it, with their best visible completion.
  */
 export const zMyStudiesCourseModule = z.object({
   completion: zMyStudiesCompletion.nullish(),
@@ -1716,9 +1710,7 @@ export const zMyStudiesCourse = z.object({
 })
 
 /**
- * Summarises the courses the profile lists, i.e. the non-hidden ones. Hidden courses are counted in
- * none of these: they are shown only in the unhide section, so counting them would leave the tiles
- * disagreeing with the list under them.
+ * Summarises the courses the profile lists, i.e. the non-hidden ones.
  */
 export const zMyStudiesTotals = z.object({
   completions: z

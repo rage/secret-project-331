@@ -6565,7 +6565,7 @@
     "/api/v0/main-frontend/email-verification/claim": {
       "post": {
         "tags": ["email-verification"],
-        "summary": "\nPOST `/api/v0/main-frontend/email-verification/claim` - Consumes a mailed link and records the proof.\n\nDeliberately unauthenticated: the token names the account, so no session is needed and requiring one\nwould fail the common case of opening the mail on a device that is not signed in. Deliberately a POST\nrather than a GET, so a mail scanner or a link prefetcher cannot burn the link.",
+        "summary": "\nPOST `/api/v0/main-frontend/email-verification/claim` - Consumes a mailed link and records the proof.\n\nUnauthenticated because the token names the account and the mail is often opened on a device that is\nnot signed in. A POST rather than a GET so a mail scanner or a link prefetcher cannot burn the link.",
         "operationId": "claimEmailVerificationLink",
         "requestBody": {
           "content": {
@@ -6642,7 +6642,7 @@
     "/api/v0/main-frontend/email-verification/test-mode-link": {
       "get": {
         "tags": ["email-verification"],
-        "summary": "\nGET `/api/v0/main-frontend/email-verification/test-mode-link` - The signed-in account's own pending\nverification link.\n\nExists because there is no mail capture in the system tests, so a spec cannot read the link out of an\ninbox. Returns 404 unless `TEST_MODE` is on, and it is scoped to the caller's own account, so the\nworst it can do with the gate accidentally open is hand you a link to your own mailbox.",
+        "summary": "\nGET `/api/v0/main-frontend/email-verification/test-mode-link` - The signed-in account's own pending\nverification link.\n\nExists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the\ncaller's own account, so an accidentally open gate only ever hands you your own link.",
         "operationId": "getEmailVerificationLinkForTestMode",
         "responses": {
           "200": {
@@ -10919,7 +10919,7 @@
     "/api/v0/main-frontend/users/my-studies": {
       "get": {
         "tags": ["users"],
-        "summary": "\nGET `/api/v0/main-frontend/users/my-studies` - The authenticated user's own study record: every\ncourse they are enrolled in, its modules, and their completions.\n\nSelf-scoped by construction: there is no user id parameter, so this endpoint cannot be pointed at\nanother account. The teacher/admin equivalent is `getUserCourseEnrollments`.",
+        "summary": "\nGET `/api/v0/main-frontend/users/my-studies` - The authenticated user's own study record: every\ncourse they are enrolled in, its modules, and their completions.\n\nNo user id parameter, so it cannot be pointed at another account. The teacher/admin equivalent is\n`getUserCourseEnrollments`.",
         "operationId": "getMyStudies",
         "responses": {
           "200": {
@@ -12373,7 +12373,7 @@
       },
       "ClaimEmailVerificationResult": {
         "type": "string",
-        "description": "Why a claim did not record a proof. Distinct values because the remedy differs: a used link means\n\"you are already done\", an expired one means \"ask for a new one\", and a changed address means \"the\nlink was for your old address\".",
+        "description": "Outcome of claiming a link. The failures are distinct values because the remedy differs for each.",
         "enum": ["verified", "already_used", "expired", "email_changed", "invalid"]
       },
       "CmsPageExercise": {
@@ -14087,8 +14087,7 @@
             "description": "ECTS credits the module is worth. `None` when the module grants no credits."
           },
           "enable_credit_registration_via_suotar": {
-            "type": "boolean",
-            "description": "Read straight from `course_modules`; the column is deliberately off the `CourseModule` DTO."
+            "type": "boolean"
           },
           "exercise_count": {
             "type": "integer",
@@ -14661,12 +14660,12 @@
       },
       "EmailSendStatus": {
         "type": "string",
-        "description": "What we can honestly say about an email we queued.\n\nWe hand messages to an SMTP relay, so nothing here says anything about an inbox. Copy that\nrenders this must say \"sent from our system\", never \"delivered\" or \"the recipient received\".",
+        "description": "What we can honestly say about an email we queued.\n\nWe only hand messages to an SMTP relay, so copy rendering this must never say \"delivered\" or\n\"received\".",
         "enum": ["queued", "retrying", "sent", "send_failed"]
       },
       "EmailSendStatusReport": {
         "type": "object",
-        "description": "The payload every surface that mentions a queued email returns, so the student, the teacher and\nthe admin cannot be told three different things.",
+        "description": "The shared payload for every surface that reports on a queued email.",
         "required": ["email_send_status", "retry_count"],
         "properties": {
           "email_send_status": {
@@ -14772,7 +14771,7 @@
       },
       "EmailVerificationEmailInfo": {
         "type": "object",
-        "description": "What we last mailed about the address the account holds now, and what our queue says happened to\nit. Never a delivery confirmation: we hand messages to an SMTP relay and cannot see an inbox.",
+        "description": "What we last mailed about the address the account holds now. Never a delivery confirmation: we\nhand messages to an SMTP relay and cannot see an inbox.",
         "required": ["emailed_to", "sent_at", "expires_at"],
         "properties": {
           "emailed_to": {
@@ -14800,12 +14799,12 @@
       },
       "EmailVerificationMethod": {
         "type": "string",
-        "description": "How proof of control over [`UserDetail::email`] was obtained.\n\nA discriminator, not a flag: consumers that care about the strength of the proof must match\nexhaustively. `AdminAsserted` is deliberately weaker than the rest.",
+        "description": "How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.",
         "enum": ["verification_link", "password_reset_backfill", "tmc_confirmed", "admin_asserted"]
       },
       "EmailVerificationStatus": {
         "type": "object",
-        "required": ["email"],
+        "required": ["email", "verification_configured"],
         "properties": {
           "email": {
             "type": "string"
@@ -14833,6 +14832,10 @@
                 "$ref": "#/components/schemas/EmailVerificationEmailInfo"
               }
             ]
+          },
+          "verification_configured": {
+            "type": "boolean",
+            "description": "Whether this deployment can mail verification links at all. False until a\n`verify_email_address` template exists; the account UI then shows nothing about verification."
           }
         }
       },
@@ -16416,7 +16419,7 @@
         "properties": {
           "any_module_supports_credit_registration": {
             "type": "boolean",
-            "description": "Drives whether the profile's credit-registration tab renders at all. Covers hidden courses\ntoo: hiding a course from a list must not take away access to registering its credits."
+            "description": "Drives whether the profile's credit-registration tab renders. Covers hidden courses too:\nhiding a course must not take away access to registering its credits."
           },
           "courses": {
             "type": "array",
@@ -16431,7 +16434,7 @@
       },
       "MyStudiesCompletion": {
         "type": "object",
-        "description": "A completion as the student may see it. Completions flagged `needs_to_be_reviewed` never reach\nthis struct: the student must not be able to infer that they are under suspicion.",
+        "description": "A completion as the student may see it. `needs_to_be_reviewed` ones are excluded so a student\ncannot infer that they are under suspicion.",
         "required": [
           "course_module_completion_id",
           "completion_date",
@@ -16524,7 +16527,7 @@
       },
       "MyStudiesCourseModule": {
         "type": "object",
-        "description": "A course module as the student's own profile shows it: the module's identity, what it is worth,\nand the student's best visible completion of it.",
+        "description": "A course module as the student's own profile shows it, with their best visible completion.",
         "required": ["course_module_id", "order_number", "supports_credit_registration"],
         "properties": {
           "completion": {
@@ -16534,7 +16537,7 @@
               },
               {
                 "$ref": "#/components/schemas/MyStudiesCompletion",
-                "description": "`None` when the student has no completion that may be shown to them. May be a completion the\nstudent failed, so check `passed` before presenting it as an achievement."
+                "description": "`None` when no completion may be shown to the student. May be a failed one, so check `passed`."
               }
             ]
           },
@@ -16564,13 +16567,13 @@
       },
       "MyStudiesTotals": {
         "type": "object",
-        "description": "Summarises the courses the profile lists, i.e. the non-hidden ones. Hidden courses are counted in\nnone of these: they are shown only in the unhide section, so counting them would leave the tiles\ndisagreeing with the list under them.",
+        "description": "Summarises the courses the profile lists, i.e. the non-hidden ones.",
         "required": ["courses", "completions", "ects"],
         "properties": {
           "completions": {
             "type": "integer",
             "format": "int32",
-            "description": "Counts passed completions only, so it cannot overstate what the student achieved."
+            "description": "Counts passed completions only."
           },
           "courses": {
             "type": "integer",
@@ -16579,7 +16582,7 @@
           "ects": {
             "type": "number",
             "format": "float",
-            "description": "Summed over passed completions only, so the tile cannot overstate what the student earned."
+            "description": "Summed over passed completions only."
           }
         }
       },

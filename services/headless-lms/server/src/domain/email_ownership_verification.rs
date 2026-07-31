@@ -1,7 +1,7 @@
 //! Minting and mailing email-ownership verification links.
 //!
-//! Signup and all three writers of `user_details.email` come through here, so the token, the link and
-//! the resend cap cannot drift between them.
+//! Signup and every writer of `user_details.email` goes through here, so the token, the link and the
+//! resend cap cannot drift between them.
 
 use chrono::Duration;
 use headless_lms_models::{
@@ -14,30 +14,26 @@ use serde_json::json;
 
 use crate::prelude::*;
 
-/// Automatic sends have no UI language to work from. The template lookup falls back to English on its
-/// own, so this only makes the intent explicit at the call sites.
+/// Language for the automatic sends, which have no UI language to work from.
 pub const FALLBACK_EMAIL_LANGUAGE: &str = "en";
 
-/// How soon after mailing a link to an address we refuse to mail another to the same address. A
-/// mail-bomb guard, not a quota: the resend button is the intended remedy when a mail does not arrive.
+/// Mail-bomb guard, not a quota: how soon after mailing a link we refuse another to that address.
 const MIN_RESEND_INTERVAL_MINUTES: i64 = 2;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum VerificationEmailOutcome {
     Queued,
-    /// The address already carries a proof, so there is nothing to prove.
     AlreadyVerified,
     /// A link to this same address is younger than the resend cap.
     RecentlySent,
-    /// No `verify_email_address` template exists to mail. A deployment gap rather than a fault in the
-    /// request, so callers report it instead of failing.
+    /// No `verify_email_address` template exists; adding one turns the feature on.
     NotConfigured,
 }
 
 /// Mails a verification link for `email`, which must be the address currently on the account.
 ///
-/// `base_url` is this deployment's own base URL, i.e. [`ApplicationConfiguration::base_url`]: the link
-/// has to point at the environment that minted the token.
+/// `base_url` is [`ApplicationConfiguration::base_url`]: the link has to point at the environment
+/// that minted the token.
 pub async fn queue_verification_email(
     conn: &mut PgConnection,
     base_url: &str,
@@ -61,9 +57,7 @@ pub async fn queue_verification_email(
         return Ok(VerificationEmailOutcome::RecentlySent);
     }
 
-    // Not an error: the lookup already falls back from `language` to English to the language-agnostic
-    // template, so no row means the deployment has no verification template at all. A user pressing
-    // "send me a link" must be told that rather than shown a server fault.
+    // The lookup falls back to English, so no row means the deployment has no template at all.
     let template = email_templates::get_generic_email_template_by_type_and_language(
         conn,
         EmailTemplateType::VerifyEmailAddress,
@@ -83,8 +77,8 @@ pub async fn queue_verification_email(
         "VERIFICATION_LINK": verification_link(base_url, token.expose_secret()),
         "EMAIL": email,
     });
-    // Addressed to the raw address rather than to user_id: the mail has to go to the address the link
-    // was minted for, even if the account moves on to a different one before the queue drains.
+    // To the raw address, not user_id: the mail must reach the address the link was minted for
+    // even if the account moves on before the queue drains.
     let delivery_id = email_deliveries::insert_email_delivery_to_address(
         &mut tx,
         email,
@@ -99,10 +93,8 @@ pub async fn queue_verification_email(
     Ok(VerificationEmailOutcome::Queued)
 }
 
-/// Queues the mail without letting a failure propagate.
-///
-/// For the automatic sends: neither a signup nor an email change may be rolled back because the mail
-/// queue or the template is unavailable. The user can always ask again from account settings.
+/// Queues the mail without letting a failure propagate: no signup or email change may be rolled back
+/// because the mail queue or the template is unavailable.
 pub async fn queue_verification_email_best_effort(
     conn: &mut PgConnection,
     base_url: &str,
@@ -110,9 +102,10 @@ pub async fn queue_verification_email_best_effort(
     email: &str,
 ) {
     match queue_verification_email(conn, base_url, user_id, email, FALLBACK_EMAIL_LANGUAGE).await {
+        // The intended dormant state until a deployment adds the template, so info! and not error!.
         Ok(VerificationEmailOutcome::NotConfigured) => {
-            error!(
-                "No verify_email_address email template exists, so no verification link was mailed for {user_id}"
+            info!(
+                "No verify_email_address email template exists, so email ownership verification is off and no link was mailed for {user_id}"
             );
         }
         Ok(outcome) => {
@@ -124,10 +117,22 @@ pub async fn queue_verification_email_best_effort(
     }
 }
 
+/// Whether this deployment can mail verification links at all. The account UI hides its verification
+/// card entirely while this is false.
+pub async fn verification_email_configured(conn: &mut PgConnection) -> anyhow::Result<bool> {
+    Ok(email_templates::generic_template_of_type_exists(
+        conn,
+        EmailTemplateType::VerifyEmailAddress,
+    )
+    .await?)
+}
+
 /// The URL the mailed link points at. Tokens are alphanumeric, so no percent-encoding is needed.
+///
+/// Not `/email-verified`: tmc.mooc.fi redirects there with no token of ours and we cannot change it.
 pub fn verification_link(base_url: &str, token: &str) -> String {
     format!(
-        "{}/email-verified?token={}",
+        "{}/verify-email?token={}",
         base_url.trim_end_matches('/'),
         token
     )

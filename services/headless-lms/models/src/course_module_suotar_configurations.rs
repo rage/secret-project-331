@@ -22,6 +22,41 @@ pub struct CourseModuleSuotarConfiguration {
     pub config_check_message: Option<String>,
 }
 
+/// The open university products whose access tokens are worth refreshing: those configured on an
+/// enabled, unpaused module, stalest first. One product can back several modules, so each appears
+/// once.
+pub async fn get_stalest_product_ids_for_enabled_modules(
+    conn: &mut PgConnection,
+    limit: i64,
+    course_id: Option<Uuid>,
+) -> ModelResult<Vec<String>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT c.open_university_product_id AS "open_university_product_id!"
+FROM course_module_suotar_configurations c
+  JOIN course_modules cm ON cm.id = c.course_module_id
+  LEFT JOIN open_university_product_access_tokens t ON t.open_university_product_id = c.open_university_product_id
+  AND t.deleted_at IS NULL
+WHERE c.open_university_product_id IS NOT NULL
+  AND c.paused_at IS NULL
+  AND c.deleted_at IS NULL
+  AND cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL
+  AND ($2::uuid IS NULL OR cm.course_id = $2)
+GROUP BY c.open_university_product_id,
+  t.last_refreshed_at
+ORDER BY t.last_refreshed_at ASC NULLS FIRST,
+  c.open_university_product_id
+LIMIT $1
+        "#,
+        limit,
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Writes the module's Suotar configuration, creating the row if the module has none. The pause and
 /// config-check columns are left alone; their writers are separate.
 ///

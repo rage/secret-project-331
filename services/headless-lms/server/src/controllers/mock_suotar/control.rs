@@ -180,7 +180,7 @@ async fn run_registrar_tick(
 /// A tick's calls are attributed to the tick rather than to a worker, so the audit log says which
 /// traffic a test produced.
 fn tick_context<'a>(
-    app_conf: &ApplicationConfiguration,
+    app_conf: &'a ApplicationConfiguration,
     pool: &'a PgPool,
     suotar_client: &'a SuotarClient,
 ) -> PhaseContext<'a> {
@@ -189,6 +189,7 @@ fn tick_context<'a>(
         suotar_client,
         test_mode: app_conf.test_mode,
         caller: "run-tick",
+        base_url: &app_conf.base_url,
     }
 }
 

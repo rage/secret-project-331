@@ -50,10 +50,12 @@ WEB_WORKLOADS = [
 
 OTHER_HEADLESS_LMS_WORKLOADS = [
     "chatbot-syncer",
+    "credit-registrar",
     "email-deliver",
     "mailchimp-syncer",
     "regrader",
     "service-info-fetcher",
+    "suotar-syncer",
     "calculate-page-visit-stats",
     "ended-exams-processor",
     "open-university-registration-link-fetcher",

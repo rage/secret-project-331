@@ -6,12 +6,16 @@
 //! behave differently depending on who ran it.
 
 pub mod breaker;
+mod enrolment_discovery;
 mod import;
 mod legacy_mirror;
+mod link_emails;
 mod materialize;
 mod preconditions;
+mod product_token_refresh;
 mod resolve_enrolments;
 mod verify;
+pub mod worker_loop;
 
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::credit_registration_events::{
@@ -154,14 +158,21 @@ impl CreditRegistrationPhase {
                 user: true,
                 registration_ids: false,
             },
+            // These three reach their rows through the course module, which carries the course but
+            // has no user dimension at all: a realisation's roster and a product's token are facts
+            // about a course, not about one of our accounts.
+            Self::EnrolmentDiscovery | Self::LinkEmails | Self::ProductTokenRefresh => {
+                ScopeSupport {
+                    course: true,
+                    user: false,
+                    registration_ids: false,
+                }
+            }
             // Not implemented yet; each reaches its rows through the module rather than the ledger,
             // and its author sets this when the phase lands.
-            Self::StudentNotifications
-            | Self::EnrolmentDiscovery
-            | Self::LinkEmails
-            | Self::ProductTokenRefresh
-            | Self::ConfigValidation
-            | Self::RetentionSweep => ScopeSupport::NONE,
+            Self::StudentNotifications | Self::ConfigValidation | Self::RetentionSweep => {
+                ScopeSupport::NONE
+            }
         }
     }
 }
@@ -227,6 +238,9 @@ pub struct PhaseContext<'a> {
     /// Goes into the audit log's `worker_name` alongside the phase, so a call made by a test tick is
     /// distinguishable from one the worker made.
     pub caller: &'a str,
+    /// Where a link in a queued mail points. A mailed link outlives the process that wrote it, so it
+    /// cannot be relative.
+    pub base_url: &'a str,
 }
 
 impl PhaseContext<'_> {
@@ -264,10 +278,14 @@ pub async fn run_phase_once(
         CreditRegistrationPhase::Import => Box::pin(import::run(ctx, scope)),
         CreditRegistrationPhase::Verify => Box::pin(verify::run(ctx, scope)),
         CreditRegistrationPhase::LegacyMirror => Box::pin(legacy_mirror::run(ctx, scope)),
+        CreditRegistrationPhase::EnrolmentDiscovery => {
+            Box::pin(enrolment_discovery::run(ctx, scope))
+        }
+        CreditRegistrationPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
+        CreditRegistrationPhase::ProductTokenRefresh => {
+            Box::pin(product_token_refresh::run(ctx, scope))
+        }
         CreditRegistrationPhase::StudentNotifications
-        | CreditRegistrationPhase::EnrolmentDiscovery
-        | CreditRegistrationPhase::LinkEmails
-        | CreditRegistrationPhase::ProductTokenRefresh
         | CreditRegistrationPhase::ConfigValidation
         | CreditRegistrationPhase::RetentionSweep => return Ok(PhaseTick::NotImplemented),
     };

@@ -15,4 +15,5 @@ pub mod seed;
 pub mod service_info_fetcher;
 pub mod sorter;
 pub mod start_server;
+pub mod suotar_syncer;
 pub mod sync_tmc_users;

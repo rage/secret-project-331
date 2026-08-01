@@ -8,6 +8,7 @@
 //! precondition recompute, which reads the database alone, and a worker phase applying one of the
 //! outcomes here to an answer from the study registry.
 
+pub mod account_linking;
 pub mod classification;
 pub mod enrolment_selection;
 pub mod grade_mapping;
@@ -20,6 +21,7 @@ pub mod student_facing_status;
 pub mod submission_context;
 pub mod withdrawal;
 
+pub use account_linking::{ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails};
 pub use classification::{Retryability, retryability};
 pub use legacy_mirror::{SUOTAR_PUSH_REGISTRAR_ID, mirror_successes_to_legacy_ledger};
 pub use materialize::ensure_registration_rows_for_eligible_completions;

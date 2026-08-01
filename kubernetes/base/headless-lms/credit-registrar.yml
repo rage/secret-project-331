@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: credit-registrar
+  labels:
+    app: credit-registrar
+    deploymentType: with-init-container
+    needs-db: "true"
+spec:
+  # More than one would claim the same ledger rows. FOR UPDATE SKIP LOCKED makes that safe, but the
+  # in-process circuit breaker is per pod, so a second replica would double the calls to a study
+  # registry that is already failing.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: credit-registrar
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: credit-registrar
+    spec:
+      containers:
+        - name: credit-registrar
+          image: headless-lms
+          command: ["bin/run", "credit-registrar"]
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 20m
+            limits:
+              memory: 500Mi
+              cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
+      initContainers:
+        - name: headless-lms-wait-for-db
+          image: headless-lms
+          command:
+            - bash
+            - "-c"
+            - |
+              echo Waiting for postgres to be available
+              timeout 120 ./wait-for-db.sh
+              ./wait-for-db-migrations.sh
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 20m
+            limits:
+              memory: 500Mi
+              cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets

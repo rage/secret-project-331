@@ -79,6 +79,10 @@ fn main() -> Result<()> {
             }),
         },
         Program {
+            name: "suotar-syncer",
+            execute: Box::new(|| tokio_run(programs::suotar_syncer::main())),
+        },
+        Program {
             name: "sync-tmc-users",
             execute: Box::new(|| tokio_run(programs::sync_tmc_users::main())),
         },

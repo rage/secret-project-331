@@ -185,6 +185,27 @@ WHERE user_id = ANY($1::uuid [])
     Ok(res)
 }
 
+/// The person id rather than the number, because the number changes when a student moves between
+/// programmes while the person id does not.
+pub async fn get_by_sisu_person_ids(
+    conn: &mut PgConnection,
+    sisu_person_ids: &[String],
+) -> ModelResult<Vec<VerifiedStudentNumber>> {
+    let res = sqlx::query_as!(
+        VerifiedStudentNumber,
+        r#"
+SELECT *
+FROM verified_student_numbers
+WHERE sisu_person_id = ANY($1::varchar [])
+  AND deleted_at IS NULL
+        "#,
+        sisu_person_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_student_numbers(
     conn: &mut PgConnection,
     student_numbers: &[String],

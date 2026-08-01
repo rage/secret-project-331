@@ -798,6 +798,35 @@ WHERE id = $1
     Ok(())
 }
 
+/// Brings forward the recheck of rows parked for want of an enrolment, for students the study
+/// registry now lists as enrolled.
+///
+/// Only the clock moves. The precondition recompute is what takes the row back to `ready_to_submit`,
+/// so the enrolment is re-resolved rather than assumed from a roster entry.
+pub async fn recheck_no_usable_enrolment_now(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_ids: &[Uuid],
+) -> ModelResult<u64> {
+    let res = sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET next_attempt_at = now()
+WHERE course_id = $1
+  AND user_id = ANY($2::uuid [])
+  AND state = 'no_usable_enrolment'
+  AND next_attempt_at > now()
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+        "#,
+        course_id,
+        user_ids,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected())
+}
+
 pub async fn increment_submit_retry_count(conn: &mut PgConnection, id: Uuid) -> ModelResult<i32> {
     let res = sqlx::query!(
         r#"

@@ -202,6 +202,115 @@ pub async fn seed_generic_emails(
     insert_email_template(&mut conn, None, confirm_template, confirm_subject).await?;
 
     seed_email_ownership_verification_templates(&mut conn).await?;
+    seed_account_linking_templates(&mut conn).await?;
+
+    Ok(())
+}
+
+/// The mail that carries a student-number linking link.
+///
+/// Every placeholder is passed on the delivery row, because the recipient is addressed at the study
+/// registry's address and may have no account here at all. The "you received this because" line is
+/// not decoration: the message is unsolicited from the recipient's point of view.
+///
+/// A migration cannot insert a template row using an enum value it adds itself, so in dev and tests
+/// the `credit_registration_account_linking` templates come only from here.
+async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
+    info!("inserting credit registration account linking emails");
+
+    let english_subject = Some("Link your student number to register your credits");
+    let english_body = json!([
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "d1000000-0000-0000-0000-000000000001",
+            "attributes": {
+                "content": "Hello {{NAME}}, you completed {{COURSE_NAME}} on courses.mooc.fi and we can register the credits for you.",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "d1000000-0000-0000-0000-000000000002",
+            "attributes": {
+                "content": "Open this link while logged in to confirm that student number {{STUDENT_NUMBER}} is yours: {{LINK}}",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "d1000000-0000-0000-0000-000000000003",
+            "attributes": {
+                "content": "The link is valid for 14 days and can be used once. You received this message because you are enrolled in {{COURSE_NAME}} at the University of Helsinki and completed it on courses.mooc.fi. If this was not you, please ignore this message.",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        }
+    ]);
+
+    insert_email_template(
+        conn,
+        None,
+        EmailTemplateNew {
+            template_type: EmailTemplateType::CreditRegistrationAccountLinking,
+            language: Some("en".to_string()),
+            content: Some(english_body),
+            subject: english_subject.map(|s| s.to_string()),
+        },
+        english_subject,
+    )
+    .await?;
+
+    let finnish_subject = Some("Yhdistä opiskelijanumerosi, jotta voimme kirjata opintopisteesi");
+    let finnish_body = json!([
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "d2000000-0000-0000-0000-000000000001",
+            "attributes": {
+                "content": "Hei {{NAME}}, olet suorittanut kurssin {{COURSE_NAME}} courses.mooc.fi-palvelussa ja voimme kirjata opintopisteet puolestasi.",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "d2000000-0000-0000-0000-000000000002",
+            "attributes": {
+                "content": "Avaa tämä linkki kirjautuneena vahvistaaksesi, että opiskelijanumero {{STUDENT_NUMBER}} on sinun: {{LINK}}",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "d2000000-0000-0000-0000-000000000003",
+            "attributes": {
+                "content": "Linkki on voimassa 14 päivää ja sen voi käyttää kertaalleen. Sait tämän viestin, koska olet ilmoittautunut kurssille {{COURSE_NAME}} Helsingin yliopistossa ja suorittanut sen courses.mooc.fi-palvelussa. Jos tämä ei ollut sinä, voit jättää viestin huomiotta.",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        }
+    ]);
+
+    insert_email_template(
+        conn,
+        None,
+        EmailTemplateNew {
+            template_type: EmailTemplateType::CreditRegistrationAccountLinking,
+            language: Some("fi".to_string()),
+            content: Some(finnish_body),
+            subject: finnish_subject.map(|s| s.to_string()),
+        },
+        finnish_subject,
+    )
+    .await?;
 
     Ok(())
 }

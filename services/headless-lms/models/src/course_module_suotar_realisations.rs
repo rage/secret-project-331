@@ -88,14 +88,40 @@ ORDER BY created_at
     Ok(res)
 }
 
-/// Realisations enrolment discovery should poll: active, on an enabled module that is not paused.
-pub async fn get_all_active_for_enabled_modules(
+/// The id `list-by-course` echoes back for one realisation. Derived rather than stored: a listing
+/// request needs no ledger row, and this keeps the realisation greppable in both call logs.
+pub fn listing_request_item_id(realisation_id: Uuid) -> String {
+    format!("cur-{realisation_id}")
+}
+
+/// A realisation to list, with the two facts the `list-by-course` request needs.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RealisationToList {
+    pub id: Uuid,
+    pub course_module_id: Uuid,
+    pub course_id: Uuid,
+    pub course_unit_realisation_id: String,
+    /// `None` means the module has no course code configured, so it cannot be listed.
+    pub uh_course_code: Option<String>,
+}
+
+/// The realisations one discovery iteration takes, stalest first.
+///
+/// Ordering only: due-ness comes from the phase's own interval, never from `last_listed_at`, so one
+/// run cannot make another run's realisation look handled.
+pub async fn get_stalest_for_listing(
     conn: &mut PgConnection,
-) -> ModelResult<Vec<CourseModuleSuotarRealisation>> {
+    limit: i64,
+    course_id: Option<Uuid>,
+) -> ModelResult<Vec<RealisationToList>> {
     let res = sqlx::query_as!(
-        CourseModuleSuotarRealisation,
+        RealisationToList,
         r#"
-SELECT cmsr.*
+SELECT cmsr.id AS "id!",
+  cmsr.course_module_id AS "course_module_id!",
+  cm.course_id AS "course_id!",
+  cmsr.course_unit_realisation_id AS "course_unit_realisation_id!",
+  cm.uh_course_code AS "uh_course_code?"
 FROM course_module_suotar_realisations cmsr
   JOIN course_modules cm ON cm.id = cmsr.course_module_id
   LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
@@ -105,8 +131,13 @@ WHERE cmsr.active
   AND cm.enable_credit_registration_via_suotar
   AND c.paused_at IS NULL
   AND cm.deleted_at IS NULL
-ORDER BY cmsr.last_listed_at ASC NULLS FIRST
+  AND ($2::uuid IS NULL OR cm.course_id = $2)
+ORDER BY cmsr.last_listed_at ASC NULLS FIRST,
+  cmsr.id
+LIMIT $1
         "#,
+        limit,
+        course_id,
     )
     .fetch_all(conn)
     .await?;

@@ -72,10 +72,17 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
         }
       `}
     >
-      {module.enable_registering_completion_to_uh_open_university && (
+      {/* Same page for both flows, different label: on the new one the student does no registering,
+          so "Register" would promise them work that is not theirs. */}
+      {(module.enable_credit_registration_via_suotar ||
+        module.enable_registering_completion_to_uh_open_university) && (
         <Cta
           href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}
-          label={t("register")}
+          label={
+            module.enable_credit_registration_via_suotar
+              ? t("credit-registration-status")
+              : t("register")
+          }
           enabled={Boolean(module.completed)}
         />
       )}

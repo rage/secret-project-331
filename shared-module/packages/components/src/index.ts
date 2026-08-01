@@ -48,6 +48,14 @@ export { Infobox } from "./components/Infobox"
 export type { InfoboxProps, InfoboxTone } from "./components/Infobox"
 export { Meter } from "./components/Meter"
 export type { MeterProps, MeterTone } from "./components/Meter"
+export { RegistrationStatusBadge } from "./components/registrationStatus/RegistrationStatusBadge"
+export type { RegistrationStatusBadgeProps } from "./components/registrationStatus/RegistrationStatusBadge"
+export { RegistrationStatusStepper } from "./components/registrationStatus/RegistrationStatusStepper"
+export type {
+  RegistrationStatusStep,
+  RegistrationStatusStepperProps,
+} from "./components/registrationStatus/RegistrationStatusStepper"
+export type { RegistrationStatusState } from "./components/registrationStatus/registrationStatusState"
 export { StatTile } from "./components/StatTile"
 export type { StatTileProps, StatTileTone } from "./components/StatTile"
 export { Table } from "./components/Table"

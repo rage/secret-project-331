@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import type { GlossaryState } from "@/contexts/course-material/GlossaryContext"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import useAiUsageNoticeAcknowledgement from "@/hooks/course-material/useAiUsageNoticeAcknowledgement"
+import useCourseCreditRegistrationConsent from "@/hooks/course-material/useCourseCreditRegistrationConsent"
 import useDefaultChatbotConfiguration from "@/hooks/course-material/useDefaultChatbotConfiguration"
 import useDialogStep, { DialogStep } from "@/hooks/course-material/useDialogStep"
 import useGlossary from "@/hooks/course-material/useGlossary"
@@ -41,6 +42,7 @@ import ContentRenderer from "../ContentRenderer"
 import AudioPlayer from "../ContentRenderer/moocfi/AudioPlayer"
 import NavigationContainer from "../ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "../FeedbackHandler"
+import CreditRegistrationConsentDialog from "../forms/CreditRegistrationConsentDialog"
 import SelectResearchConsentForm from "../forms/SelectResearchConsentForm"
 import SelectUserInformationForm from "../forms/SelectUserInformationForm"
 import HeadingsNavigation from "../HeadingsNavigation"
@@ -145,11 +147,21 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const shouldShowAiUsageNotice =
     aiUsageNoticeAcknowledgementQuery.isSuccess && aiUsageNoticeAcknowledgementQuery.data === false
 
+  // Asked once per course, and only where there is something to register. `asked` covers a declined
+  // answer too, so "Not now" is remembered rather than re-asked on the next page load.
+  const creditRegistrationConsentQuery = useCourseCreditRegistrationConsent(courseId ?? null)
+  const creditRegistrationConsent = creditRegistrationConsentQuery.data
+  const shouldAskCreditRegistrationConsent =
+    creditRegistrationConsentQuery.isSuccess &&
+    creditRegistrationConsent?.credit_registration_enabled_for_course === true &&
+    creditRegistrationConsent.asked === false
+
   const activeStep = useDialogStep({
     shouldAnswerMissingInfoForm,
     shouldChooseInstance,
     waitingForCourseSettingsToBeFilled,
     shouldShowAiUsageNotice,
+    shouldAskCreditRegistrationConsent,
     researchFormIsLoadedAndExists,
     showResearchConsentFormBecauseOfUrl,
     showResearchConsentFormBecauseOfMissingAnswers,
@@ -171,6 +183,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     (!signedIn || querySettled(userDetailsQuery)) &&
     (!courseScopedQueriesShouldRun ||
       (querySettled(aiUsageNoticeAcknowledgementQuery) &&
+        querySettled(creditRegistrationConsentQuery) &&
         querySettled(researchConsentFormQuery) &&
         querySettled(researchConsentFormAnswerQuery)))
 
@@ -268,6 +281,15 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             courseMaterialAiInstructions={
               courseMaterialState.course.course_material_ai_instructions
             }
+            onClose={() => {
+              handleRefresh()
+            }}
+          />
+        )}
+
+        {creditRegistrationConsent && activeStep === DialogStep.CreditRegistrationConsent && (
+          <CreditRegistrationConsentDialog
+            consent={creditRegistrationConsent}
             onClose={() => {
               handleRefresh()
             }}

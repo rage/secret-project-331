@@ -80,6 +80,8 @@ const UserSettingsLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
         {/* oxlint-disable-next-line i18next/no-literal-string */}
         <Tab tabName="account">{t("user-settings-account-tab")}</Tab>
         {/* oxlint-disable-next-line i18next/no-literal-string */}
+        <Tab tabName="student-number">{t("user-settings-student-number-tab")}</Tab>
+        {/* oxlint-disable-next-line i18next/no-literal-string */}
         <Tab tabName="permissions">{t("user-settings-permissions-tab")}</Tab>
         <TabPanel>{children}</TabPanel>
       </Tabs>

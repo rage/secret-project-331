@@ -635,6 +635,95 @@ ORDER BY created_at DESC
     Ok(res)
 }
 
+/// One ledger row with the course, module and enrolment facts every student view of it needs, so a
+/// status page is one query rather than a fan-out per row.
+#[derive(Debug, Clone, PartialEq)]
+pub struct StudentCreditRegistration {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_slug: String,
+    pub course_module_id: Uuid,
+    pub course_module_name: Option<String>,
+    pub uh_course_code: Option<String>,
+    pub ects_credits: Option<f32>,
+    pub course_module_completion_id: Uuid,
+    pub completion_date: DateTime<Utc>,
+    pub state: CreditRegistrationState,
+    pub error_code: Option<CreditRegistrationErrorCode>,
+    pub next_attempt_at: DateTime<Utc>,
+    pub registered_at: Option<DateTime<Utc>>,
+    pub sisu_attainment_id: Option<String>,
+    pub credits: Option<f32>,
+    pub grade_id: Option<String>,
+    pub attempt_number: i32,
+    pub superseded_by_id: Option<Uuid>,
+    pub superseded_at: Option<DateTime<Utc>>,
+    pub enrolment_checked_at: Option<DateTime<Utc>>,
+    /// The teacher's label for the realisation we submitted against, not a Sisu id.
+    pub enrolment_realisation_name: Option<String>,
+    /// Needed to build the enrolment link a student with no usable enrolment is sent to.
+    pub open_university_product_id: Option<String>,
+}
+
+/// The user's registrations as the student surfaces show them, newest completion first. Superseded
+/// attempts are included: the student is entitled to see an earlier attempt Sisu may still hold.
+///
+/// `course_module_id` narrows it to the one module the completion status page is about.
+pub async fn get_student_facing_by_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module_id: Option<Uuid>,
+) -> ModelResult<Vec<StudentCreditRegistration>> {
+    let res = sqlx::query_as!(
+        StudentCreditRegistration,
+        r#"
+SELECT cr.id,
+  cr.course_id,
+  c.name AS course_name,
+  c.slug AS course_slug,
+  cr.course_module_id,
+  cm.name AS course_module_name,
+  cm.uh_course_code,
+  cm.ects_credits,
+  cr.course_module_completion_id,
+  cmc.completion_date,
+  cr.state AS "state: CreditRegistrationState",
+  cr.error_code AS "error_code?: CreditRegistrationErrorCode",
+  cr.next_attempt_at,
+  cr.registered_at,
+  cr.sisu_attainment_id,
+  cr.credits,
+  cr.grade_id,
+  cr.attempt_number,
+  cr.superseded_by_id,
+  cr.superseded_at,
+  cr.enrolment_checked_at,
+  r.label AS "enrolment_realisation_name?",
+  conf.open_university_product_id AS "open_university_product_id?"
+FROM credit_registrations cr
+  JOIN courses c ON c.id = cr.course_id
+  JOIN course_modules cm ON cm.id = cr.course_module_id
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
+  AND conf.deleted_at IS NULL
+  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id
+  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id
+  AND r.deleted_at IS NULL
+WHERE cr.user_id = $1
+  AND cr.deleted_at IS NULL
+  AND ($2::uuid IS NULL OR cr.course_module_id = $2)
+ORDER BY cmc.completion_date DESC,
+  cr.attempt_number DESC
+        "#,
+        user_id,
+        course_module_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Frozen copy of what we are about to submit. Written once, before the row leaves
 /// `checking_enrolment`: a later regrade must not alter a submitted row.
 #[derive(Debug, Clone, PartialEq)]

@@ -2,6 +2,22 @@ use secrecy::ExposeSecret;
 
 use crate::prelude::*;
 
+/// Where the open university's own enrolment page takes an access token. The same base the scraped
+/// registration links used, so a student sees the page they saw before this pipeline existed.
+const OPEN_UNIVERSITY_ENROLMENT_BASE_URL: &str =
+    "https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=";
+
+/// The enrolment page a student with no usable enrolment is sent to.
+///
+/// The token is what makes the link land on the right product, so it is exposed here on purpose;
+/// nothing else may put it in a log line or a stored response body.
+pub fn enrolment_url(token: &OpenUniversityProductAccessToken) -> String {
+    format!(
+        "{OPEN_UNIVERSITY_ENROLMENT_BASE_URL}{}",
+        token.access_token.expose_secret()
+    )
+}
+
 #[derive(Debug, Clone)]
 pub struct OpenUniversityProductAccessToken {
     pub id: Uuid,

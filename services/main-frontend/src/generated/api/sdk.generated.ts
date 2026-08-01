@@ -30,6 +30,9 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponses,
+  ClaimStudentNumberVerificationTokenData,
+  ClaimStudentNumberVerificationTokenErrors,
+  ClaimStudentNumberVerificationTokenResponses,
   ConfigureChatbotData,
   ConfigureChatbotResponses,
   ConfirmCourseSuspectedCheaterData,
@@ -373,12 +376,22 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponses,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponses,
+  GetMyCourseCreditRegistrationConsentData,
+  GetMyCourseCreditRegistrationConsentResponses,
   GetMyCoursesData,
   GetMyCoursesResponses,
+  GetMyCreditRegistrationConsentsData,
+  GetMyCreditRegistrationConsentsResponses,
+  GetMyCreditRegistrationForCourseModuleData,
+  GetMyCreditRegistrationForCourseModuleResponses,
+  GetMyCreditRegistrationsData,
+  GetMyCreditRegistrationsResponses,
   GetMyEmailVerificationStatusData,
   GetMyEmailVerificationStatusResponses,
   GetMyStudiesData,
   GetMyStudiesResponses,
+  GetMyVerifiedStudentNumberData,
+  GetMyVerifiedStudentNumberResponses,
   GetNumberOfPeopleCompletedACourseData,
   GetNumberOfPeopleCompletedACourseResponses,
   GetNumberOfPeopleDoneAtLeastOneExerciseData,
@@ -543,6 +556,9 @@ import type {
   PostOauthUserInfoResponses,
   PreviewCourseInstanceCompletionsData,
   PreviewCourseInstanceCompletionsResponses,
+  PreviewStudentNumberVerificationTokenData,
+  PreviewStudentNumberVerificationTokenErrors,
+  PreviewStudentNumberVerificationTokenResponses,
   ProcessEditProposalData,
   ProcessEditProposalResponses,
   ReceivePlaygroundGradingData,
@@ -555,6 +571,9 @@ import type {
   RemoveRoleResponses,
   ReprocessCourseCompletionsData,
   ReprocessCourseCompletionsResponses,
+  RequestCreditRegistrationEnrolmentRecheckData,
+  RequestCreditRegistrationEnrolmentRecheckErrors,
+  RequestCreditRegistrationEnrolmentRecheckResponses,
   RequestEmailVerificationCodeData,
   RequestEmailVerificationCodeErrors,
   RequestEmailVerificationCodeResponses,
@@ -590,6 +609,8 @@ import type {
   SetCourseModuleCertificateGenerationResponses,
   SetExamCourseData,
   SetExamCourseResponses,
+  SetMyCourseCreditRegistrationConsentData,
+  SetMyCourseCreditRegistrationConsentResponses,
   SoftDeleteOrganizationData,
   SoftDeleteOrganizationResponses,
   TeacherLockStudentChapterData,
@@ -600,6 +621,8 @@ import type {
   TeacherUnlockStudentChapterResponses,
   UnhideCourseFromMyCoursesData,
   UnhideCourseFromMyCoursesResponses,
+  UnlinkMyStudentNumberData,
+  UnlinkMyStudentNumberResponses,
   UnsetExamCourseData,
   UnsetExamCourseResponses,
   UpdateCertificateConfigurationData,
@@ -662,6 +685,7 @@ import {
   zAdvanceCourseDesignerStageResponse,
   zApproveOauthConsentResponse,
   zChangeUserPasswordResponse,
+  zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
   zCreateChapterResponse,
   zCreateCodeGiveawayResponse,
@@ -804,9 +828,14 @@ import {
   zGetFirstExerciseSubmissionsByModuleResponse,
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
+  zGetMyCourseCreditRegistrationConsentResponse,
   zGetMyCoursesResponse,
+  zGetMyCreditRegistrationConsentsResponse,
+  zGetMyCreditRegistrationForCourseModuleResponse,
+  zGetMyCreditRegistrationsResponse,
   zGetMyEmailVerificationStatusResponse,
   zGetMyStudiesResponse,
+  zGetMyVerifiedStudentNumberResponse,
   zGetNumberOfPeopleCompletedACourseResponse,
   zGetNumberOfPeopleDoneAtLeastOneExerciseResponse,
   zGetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse,
@@ -880,8 +909,10 @@ import {
   zGetUserSuspectedCheatersResponse,
   zJoinCourseWithJoinCodeResponse,
   zPreviewCourseInstanceCompletionsResponse,
+  zPreviewStudentNumberVerificationTokenResponse,
   zRemoveCoursePlanMemberResponse,
   zReprocessCourseCompletionsResponse,
+  zRequestCreditRegistrationEnrolmentRecheckResponse,
   zRequestEmailVerificationCodeResponse,
   zResetCourseProgressForEveryoneResponse,
   zResetCourseProgressForTeacherThemselvesResponse,
@@ -896,9 +927,11 @@ import {
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseModuleCertificateGenerationResponse,
+  zSetMyCourseCreditRegistrationConsentResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
+  zUnlinkMyStudentNumberResponse,
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
   zUpdateChapterResponse,
@@ -4275,6 +4308,245 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
       await zGetCourseWeekdayHourSubmissionCountsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/weekday-hour-submission-counts",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - The signed-in
+ * account's credit registration consent for one course.
+ */
+export const getMyCourseCreditRegistrationConsent = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyCourseCreditRegistrationConsentData, ThrowOnError>,
+): RequestResult<GetMyCourseCreditRegistrationConsentResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetMyCourseCreditRegistrationConsentResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyCourseCreditRegistrationConsentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in
+ * account's answer and applies it to that course's registrations at once.
+ *
+ * Backs every entry point — the course-start dialog, the status page and the profile page — because a
+ * completion backfilled from an earlier term will never see the dialog again.
+ */
+export const setMyCourseCreditRegistrationConsent = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyCourseCreditRegistrationConsentData, ThrowOnError>,
+): RequestResult<SetMyCourseCreditRegistrationConsentResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetMyCourseCreditRegistrationConsentResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetMyCourseCreditRegistrationConsentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my` - Every credit registration of the signed-in
+ * account, newest completion first.
+ */
+export const getMyCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyCreditRegistrationsData, ThrowOnError>,
+): RequestResult<GetMyCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyCreditRegistrationsResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zGetMyCreditRegistrationsResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registrations/my",
+      ...options,
+    },
+  )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}` - The
+ * signed-in account's registration for one course module, or null when the pipeline has not created one
+ * yet.
+ *
+ * Null rather than 404 because a completed module whose ledger row the materialize phase has not
+ * written yet is a normal state the status page has to explain.
+ */
+export const getMyCreditRegistrationForCourseModule = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyCreditRegistrationForCourseModuleData, ThrowOnError>,
+): RequestResult<GetMyCreditRegistrationForCourseModuleResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetMyCreditRegistrationForCourseModuleResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyCreditRegistrationForCourseModuleResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/consents` - One row per course the signed-in
+ * account is enrolled on that offers credit registration, asked or not.
+ */
+export const getMyCreditRegistrationConsents = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyCreditRegistrationConsentsData, ThrowOnError>,
+): RequestResult<GetMyCreditRegistrationConsentsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetMyCreditRegistrationConsentsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyCreditRegistrationConsentsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/consents",
+    ...options,
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
+ * from the signed-in account.
+ *
+ * Registrations that have not been sent go back to waiting for a student number. Credits already in
+ * Sisu are untouched; we cannot remove those.
+ */
+export const unlinkMyStudentNumber = <ThrowOnError extends boolean = true>(
+  options?: Options<UnlinkMyStudentNumberData, ThrowOnError>,
+): RequestResult<UnlinkMyStudentNumberResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).delete<UnlinkMyStudentNumberResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zUnlinkMyStudentNumberResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registrations/my/student-number",
+      ...options,
+    },
+  )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/student-number` - The student number linked to the
+ * signed-in account, or null.
+ */
+export const getMyVerifiedStudentNumber = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyVerifiedStudentNumberData, ThrowOnError>,
+): RequestResult<GetMyVerifiedStudentNumberResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetMyVerifiedStudentNumberResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetMyVerifiedStudentNumberResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/student-number",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to
+ * look for an enrolment again, for a row parked because the study registry had none.
+ *
+ * Only the clock moves. The precondition recompute takes the row back to `ready_to_submit`, so the
+ * enrolment is resolved afresh rather than assumed.
+ */
+export const requestCreditRegistrationEnrolmentRecheck = <ThrowOnError extends boolean = true>(
+  options: Options<RequestCreditRegistrationEnrolmentRecheckData, ThrowOnError>,
+): RequestResult<
+  RequestCreditRegistrationEnrolmentRecheckResponses,
+  RequestCreditRegistrationEnrolmentRecheckErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RequestCreditRegistrationEnrolmentRecheckResponses,
+    RequestCreditRegistrationEnrolmentRecheckErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zRequestCreditRegistrationEnrolmentRecheckResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}` - What the
+ * mailed link would link, without linking it.
+ *
+ * A session is required so the confirmation can name the account the number would land on, and the
+ * handler writes nothing: the link has to survive a mail scanner fetching it.
+ */
+export const previewStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
+  options: Options<PreviewStudentNumberVerificationTokenData, ThrowOnError>,
+): RequestResult<
+  PreviewStudentNumberVerificationTokenResponses,
+  PreviewStudentNumberVerificationTokenErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    PreviewStudentNumberVerificationTokenResponses,
+    PreviewStudentNumberVerificationTokenErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zPreviewStudentNumberVerificationTokenResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends
+ * a mailed link and links the student number to the signed-in account.
+ *
+ * The only writer of a link. Any signed-in account may claim any valid token: holding it proves control
+ * of the Sisu-held mailbox, and the session says which of our accounts the person wants to use.
+ */
+export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
+  options: Options<ClaimStudentNumberVerificationTokenData, ThrowOnError>,
+): RequestResult<
+  ClaimStudentNumberVerificationTokenResponses,
+  ClaimStudentNumberVerificationTokenErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    ClaimStudentNumberVerificationTokenResponses,
+    ClaimStudentNumberVerificationTokenErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zClaimStudentNumberVerificationTokenResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim",
     ...options,
   })
 

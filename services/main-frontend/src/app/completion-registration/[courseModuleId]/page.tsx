@@ -12,6 +12,7 @@ import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
+import CreditRegistrationStatus from "./CreditRegistrationStatus"
 import RegisterCompletion from "./RegisterCompletion"
 
 const REDIRECT = "redirect"
@@ -39,6 +40,17 @@ const CompletionPage: React.FC = () => {
   return (
     <QueryResult query={userCompletionInformation}>
       {(data) => {
+        // Credit registration first: a module on the new pipeline may still carry the old flag while
+        // a course is being migrated, and the student must not be sent to a form we no longer use.
+        if (data.enable_credit_registration_via_suotar) {
+          return (
+            <CreditRegistrationStatus
+              courseModuleId={courseModuleId}
+              heading={data.course_name}
+              ectsCredits={data.ects_credits}
+            />
+          )
+        }
         if (!data.enable_registering_completion_to_uh_open_university) {
           return (
             <ErrorBanner

@@ -184,6 +184,26 @@ WHERE token = $1
     Ok(res)
 }
 
+/// Looks up a token whatever state it is in, so the landing page can tell an expired link from a
+/// spent one instead of showing one message for both.
+pub async fn get_by_token(
+    conn: &mut PgConnection,
+    token: &DbSecret,
+) -> ModelResult<Option<StudentNumberVerificationToken>> {
+    let res = sqlx::query_as!(
+        StudentNumberVerificationToken,
+        r#"
+SELECT *
+FROM student_number_verification_tokens
+WHERE token = $1
+        "#,
+        token.expose_secret()
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_id(
     conn: &mut PgConnection,
     id: Uuid,

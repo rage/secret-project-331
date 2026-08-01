@@ -325,3 +325,23 @@ export function userSettingsRoute() {
 export function profileStudiesRoute() {
   return "/profile/studies"
 }
+
+export function profileCreditRegistrationRoute() {
+  return "/profile/credit-registration"
+}
+
+export function userSettingsStudentNumberRoute() {
+  return "/user-settings/student-number"
+}
+
+export function completionRegistrationRoute(courseModuleId: string) {
+  return `/completion-registration/${courseModuleId}`
+}
+
+/**
+ * Must stay in step with the backend's `LINK_STUDENT_NUMBER_PATH`, which is what the mailed link is
+ * built from: a divergence breaks every account-linking mail already sent.
+ */
+export function linkStudentNumberRoute(token: string) {
+  return `/link-student-number/${token}`
+}

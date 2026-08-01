@@ -331,6 +331,23 @@ export type ChatbotConfigurationModel = {
   updated_at: string
 }
 
+export type ClaimStudentNumberVerificationTokenOutcome =
+  | "linked"
+  | "already_linked_to_this_account"
+  | "expired"
+  | "already_used"
+  | "student_number_already_linked_to_another_account"
+
+export type ClaimStudentNumberVerificationTokenResult = {
+  linked_course_name?: string | null
+  /**
+   * Completions that stopped waiting for a student number because of this claim.
+   */
+  newly_unblocked_registration_count: number
+  outcome: ClaimStudentNumberVerificationTokenOutcome
+  student_number?: string | null
+}
+
 export type CmsPageExercise = {
   deadline?: string | null
   id: string
@@ -1024,6 +1041,63 @@ export type CreateCourseDesignerStageTaskRequest = {
   title: string
 }
 
+export type CreditRegistrationConsentModule = {
+  ects_credits?: number | null
+  id: string
+  name?: string | null
+  uh_course_code?: string | null
+}
+
+/**
+ * Why a ledger row is where it is; `state` says what happens to it next.
+ */
+export type CreditRegistrationErrorCode =
+  | "person_not_found"
+  | "course_code_not_found"
+  | "enrolment_not_found"
+  | "enrolment_not_accepted"
+  | "invalid_grade_for_grade_scale"
+  | "course_not_allowed"
+  | "invalid_credits"
+  | "study_right_not_valid"
+  | "acceptor_not_found"
+  | "sisu_validation_failed"
+  | "sisu_timeout"
+  | "sisu_temporarily_unavailable"
+  | "misregistered"
+  | "unauthorized"
+  | "malformed_request"
+  | "transport_error"
+  | "unexpected_response"
+  | "no_grade_scale_mapping"
+  | "missing_uh_course_code"
+  | "missing_ects_credits"
+  | "retry_window_expired"
+  | "unknown"
+
+/**
+ * What the pipeline does next with a ledger row.
+ */
+export type CreditRegistrationState =
+  | "pending_prerequisites"
+  | "pending_consent"
+  | "pending_student_number"
+  | "ready_to_submit"
+  | "checking_enrolment"
+  | "no_usable_enrolment"
+  | "submitting"
+  | "submission_uncertain"
+  | "awaiting_verification"
+  | "registered"
+  | "duplicate"
+  | "not_improved"
+  | "misregistered"
+  | "failed_retryable"
+  | "failed_permanent"
+  | "blocked"
+  | "cancelled"
+  | "abandoned_by_consent_withdrawal"
+
 export type CronJobInfo = {
   last_schedule_time?: string | null
   name: string
@@ -1118,6 +1192,14 @@ export type EmailData = {
   email: string
   language: string
 }
+
+/**
+ * What we can honestly say about an email we queued.
+ *
+ * We only hand messages to an SMTP relay, so copy rendering this must never say "delivered" or
+ * "received".
+ */
+export type EmailSendStatus = "queued" | "retrying" | "sent" | "send_failed"
 
 export type EmailTemplate = {
   content?: unknown
@@ -1570,6 +1652,15 @@ export type JoinCourseWithJoinCodePayload = {
   join_code: string
 }
 
+/**
+ * What we can honestly say about the linking mail: our send status, never a delivery.
+ */
+export type LinkingEmailStatus = {
+  email_send_status: EmailSendStatus
+  emailed_to_masked: string
+  sent_at?: string | null
+}
+
 export type ManualCompletionPreview = {
   already_completed_users: Array<ManualCompletionPreviewUser>
   first_time_completing_users: Array<ManualCompletionPreviewUser>
@@ -1631,6 +1722,85 @@ export type MyCourse = Course & {
    * not enrolled in or has a role in.
    */
   can_hide: boolean
+}
+
+export type MyCourseCreditRegistrationConsent = {
+  /**
+   * False means never asked, which is not the same as asked and declined.
+   */
+  asked: boolean
+  consent_given?: boolean | null
+  consent_given_at?: string | null
+  consent_withdrawn_at?: string | null
+  course_id: string
+  course_name: string
+  credit_registration_enabled_for_course: boolean
+  modules: Array<CreditRegistrationConsentModule>
+  /**
+   * Completions already waiting on consent, so the dialog can say how many one click registers
+   * instead of guessing.
+   */
+  registrable_completion_count: number
+}
+
+/**
+ * One credit registration as its owner sees it.
+ */
+export type MyCreditRegistration = {
+  attempt_number: number
+  can_request_enrolment_recheck: boolean
+  completion_date: string
+  course_id: string
+  course_module_id: string
+  course_module_name?: string | null
+  course_name: string
+  course_slug: string
+  credits?: number | null
+  ects_credits?: number | null
+  /**
+   * The open university enrolment page, for a row the study registry has no enrolment for.
+   */
+  enrolment_link?: string | null
+  enrolment_realisation_name?: string | null
+  error_code?: null | CreditRegistrationErrorCode
+  grade_id?: string | null
+  id: string
+  linking_email?: null | LinkingEmailStatus
+  next_attempt_at: string
+  registered_at?: string | null
+  sisu_attainment_id?: string | null
+  state: CreditRegistrationState
+  /**
+   * Whether the pipeline is still expected to move this row on its own. Drives the status page's
+   * polling, so a state added later cannot leave the page refreshing forever or not at all.
+   */
+  status_is_moving: boolean
+  student_facing_status: StudentFacingCreditRegistrationStatus
+  superseded: boolean
+  uh_course_code?: string | null
+}
+
+export type MyCreditRegistrationConsent = {
+  asked_at?: string | null
+  consent_given?: boolean | null
+  consent_given_at?: string | null
+  consent_withdrawn_at?: string | null
+  course_id: string
+  course_name: string
+  registered_count: number
+  registrable_completion_count: number
+}
+
+/**
+ * The live registration for one course module, with the attempts a newer one replaced.
+ */
+export type MyCreditRegistrationForCourseModule = {
+  /**
+   * The module's other rows, newest completion first. Shown rather than hidden because the study
+   * registry may hold an earlier attempt's attainment as well as the current one's.
+   */
+  earlier_attempts: Array<MyCreditRegistration>
+  registration: MyCreditRegistration
 }
 
 export type MyStudies = {
@@ -1711,6 +1881,22 @@ export type MyStudiesTotals = {
    * Summed over passed completions only.
    */
   ects: number
+}
+
+/**
+ * The account's linked student number, unmasked: it is the holder's own number, and masking a value
+ * they have to compare against their own records makes the page useless.
+ */
+export type MyVerifiedStudentNumber = {
+  first_names?: string | null
+  last_name?: string | null
+  student_number: string
+  verified_at: string
+  verified_via: StudentNumberVerificationMethod
+  /**
+   * The Sisu-held address the proof rests on, masked; `None` when support linked it by hand.
+   */
+  verified_via_email_masked?: string | null
 }
 
 export type NewChapter = {
@@ -2247,6 +2433,14 @@ export type RegradingSubmissionInfo = {
 
 export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
 
+export type RequestCreditRegistrationEnrolmentRecheckResult = {
+  next_recheck_allowed_at?: string | null
+  /**
+   * False when we looked so recently that asking again would tell the student nothing new.
+   */
+  recheck_started: boolean
+}
+
 export type RequestEmailVerificationOutcome = "queued" | "already_verified" | "recently_sent"
 
 export type RequestEmailVerificationPayload = {
@@ -2364,10 +2558,80 @@ export type ServicePortInfo = {
   target_port?: string | null
 }
 
+export type SetMyCourseCreditRegistrationConsentPayload = {
+  consent_given: boolean
+}
+
+export type SetMyCourseCreditRegistrationConsentResult = {
+  consent_given: boolean
+  consent_given_at?: string | null
+  consent_withdrawn_at?: string | null
+  /**
+   * For late consent this is the whole payoff, so it must not be swallowed.
+   */
+  newly_unblocked_registration_count: number
+}
+
 export type SisuDescriptionResponse = {
   audience: Array<string>
   course_description: string
   modules: Array<Module>
+}
+
+/**
+ * The stage a student sees, and which of the four steps of the status stepper it belongs to.
+ */
+export type StudentFacingCreditRegistrationStatus =
+  | "waiting_for_completion"
+  | "needs_consent"
+  | "needs_student_number"
+  | "in_progress"
+  | "needs_enrolment"
+  | "waiting_for_sisu"
+  | "registered"
+  | "failed"
+  | "not_registering"
+
+/**
+ * How a student number was proven to belong to an account.
+ */
+export type StudentNumberVerificationMethod =
+  | "emailed_link"
+  | "email_match_fast_track"
+  | "admin_manual"
+
+/**
+ * What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
+ * able to spend the token.
+ */
+export type StudentNumberVerificationTokenPreview = {
+  already_used: boolean
+  /**
+   * So the page can say "you already used this link" rather than accusing someone else.
+   */
+  already_used_by_this_account: boolean
+  claimable: boolean
+  /**
+   * A support case: moving a student number between accounts on mailbox access alone would let
+   * anyone detach another account's link.
+   */
+  conflicts_with_other_account: boolean
+  course_name?: string | null
+  /**
+   * What this account is linked to now. Claiming replaces it.
+   */
+  current_student_number?: string | null
+  emailed_to_masked: string
+  expired: boolean
+  expires_at: string
+  first_names?: string | null
+  last_name?: string | null
+  student_number: string
+  /**
+   * Shown in the confirmation, because being logged in to the wrong account is the common mistake
+   * and this is what makes it obvious before the click rather than after.
+   */
+  target_account_email: string
 }
 
 export type StudentsByCountryTotalsResult = {
@@ -2464,6 +2728,13 @@ export type ThresholdData = {
 
 export type TimeGranularity = "Year" | "Month" | "Day"
 
+export type UnlinkMyStudentNumberResult = {
+  /**
+   * Registrations that went back to waiting for a student number.
+   */
+  affected_registration_count: number
+}
+
 export type UpdateCourseDesignerStageTaskRequest = {
   description?: string | null
   is_completed?: boolean | null
@@ -2511,8 +2782,13 @@ export type UserCompletionInformation = {
   course_name: string
   ects_credits?: number | null
   email: string
+  enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
-  uh_course_code: string
+  /**
+   * `None` only on a module registering through credit registration; the legacy flow cannot
+   * fetch its link without one.
+   */
+  uh_course_code?: string | null
 }
 
 export type UserCourseProgress = {
@@ -6637,6 +6913,231 @@ export type GetCourseWeekdayHourSubmissionCountsResponses = {
 
 export type GetCourseWeekdayHourSubmissionCountsResponse =
   GetCourseWeekdayHourSubmissionCountsResponses[keyof GetCourseWeekdayHourSubmissionCountsResponses]
+
+export type GetMyCourseCreditRegistrationConsentData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent"
+}
+
+export type GetMyCourseCreditRegistrationConsentResponses = {
+  /**
+   * The caller's consent for the course
+   */
+  200: MyCourseCreditRegistrationConsent
+}
+
+export type GetMyCourseCreditRegistrationConsentResponse =
+  GetMyCourseCreditRegistrationConsentResponses[keyof GetMyCourseCreditRegistrationConsentResponses]
+
+export type SetMyCourseCreditRegistrationConsentData = {
+  body: SetMyCourseCreditRegistrationConsentPayload
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent"
+}
+
+export type SetMyCourseCreditRegistrationConsentResponses = {
+  /**
+   * The recorded answer and what it unblocked
+   */
+  200: SetMyCourseCreditRegistrationConsentResult
+}
+
+export type SetMyCourseCreditRegistrationConsentResponse =
+  SetMyCourseCreditRegistrationConsentResponses[keyof SetMyCourseCreditRegistrationConsentResponses]
+
+export type GetMyCreditRegistrationsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my"
+}
+
+export type GetMyCreditRegistrationsResponses = {
+  /**
+   * The caller's credit registrations
+   */
+  200: Array<MyCreditRegistration>
+}
+
+export type GetMyCreditRegistrationsResponse =
+  GetMyCreditRegistrationsResponses[keyof GetMyCreditRegistrationsResponses]
+
+export type GetMyCreditRegistrationForCourseModuleData = {
+  body?: never
+  path: {
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}"
+}
+
+export type GetMyCreditRegistrationForCourseModuleResponses = {
+  /**
+   * The caller's registration for the module
+   */
+  200: null | MyCreditRegistrationForCourseModule
+}
+
+export type GetMyCreditRegistrationForCourseModuleResponse =
+  GetMyCreditRegistrationForCourseModuleResponses[keyof GetMyCreditRegistrationForCourseModuleResponses]
+
+export type GetMyCreditRegistrationConsentsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/consents"
+}
+
+export type GetMyCreditRegistrationConsentsResponses = {
+  /**
+   * The caller's per-course consents
+   */
+  200: Array<MyCreditRegistrationConsent>
+}
+
+export type GetMyCreditRegistrationConsentsResponse =
+  GetMyCreditRegistrationConsentsResponses[keyof GetMyCreditRegistrationConsentsResponses]
+
+export type UnlinkMyStudentNumberData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/student-number"
+}
+
+export type UnlinkMyStudentNumberResponses = {
+  /**
+   * How many registrations went back to waiting
+   */
+  200: UnlinkMyStudentNumberResult
+}
+
+export type UnlinkMyStudentNumberResponse =
+  UnlinkMyStudentNumberResponses[keyof UnlinkMyStudentNumberResponses]
+
+export type GetMyVerifiedStudentNumberData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/student-number"
+}
+
+export type GetMyVerifiedStudentNumberResponses = {
+  /**
+   * The caller's linked student number
+   */
+  200: null | MyVerifiedStudentNumber
+}
+
+export type GetMyVerifiedStudentNumberResponse =
+  GetMyVerifiedStudentNumberResponses[keyof GetMyVerifiedStudentNumberResponses]
+
+export type RequestCreditRegistrationEnrolmentRecheckData = {
+  body?: never
+  path: {
+    /**
+     * Credit registration id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment"
+}
+
+export type RequestCreditRegistrationEnrolmentRecheckErrors = {
+  /**
+   * The registration is not waiting for an enrolment
+   */
+  400: unknown
+  /**
+   * Not the caller's registration
+   */
+  403: unknown
+}
+
+export type RequestCreditRegistrationEnrolmentRecheckResponses = {
+  /**
+   * Whether a recheck was started
+   */
+  200: RequestCreditRegistrationEnrolmentRecheckResult
+}
+
+export type RequestCreditRegistrationEnrolmentRecheckResponse =
+  RequestCreditRegistrationEnrolmentRecheckResponses[keyof RequestCreditRegistrationEnrolmentRecheckResponses]
+
+export type PreviewStudentNumberVerificationTokenData = {
+  body?: never
+  path: {
+    /**
+     * The mailed verification token
+     */
+    token: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}"
+}
+
+export type PreviewStudentNumberVerificationTokenErrors = {
+  /**
+   * No such token
+   */
+  404: unknown
+}
+
+export type PreviewStudentNumberVerificationTokenResponses = {
+  /**
+   * What the token would link
+   */
+  200: StudentNumberVerificationTokenPreview
+}
+
+export type PreviewStudentNumberVerificationTokenResponse =
+  PreviewStudentNumberVerificationTokenResponses[keyof PreviewStudentNumberVerificationTokenResponses]
+
+export type ClaimStudentNumberVerificationTokenData = {
+  body?: never
+  path: {
+    /**
+     * The mailed verification token
+     */
+    token: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim"
+}
+
+export type ClaimStudentNumberVerificationTokenErrors = {
+  /**
+   * No such token
+   */
+  404: unknown
+}
+
+export type ClaimStudentNumberVerificationTokenResponses = {
+  /**
+   * What the claim did
+   */
+  200: ClaimStudentNumberVerificationTokenResult
+}
+
+export type ClaimStudentNumberVerificationTokenResponse =
+  ClaimStudentNumberVerificationTokenResponses[keyof ClaimStudentNumberVerificationTokenResponses]
 
 export type GetEmailTemplatesData = {
   body?: never

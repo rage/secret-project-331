@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use utoipa::ToSchema;
 
 use crate::{
@@ -752,10 +752,13 @@ pub async fn get_manual_completion_result_preview(
 pub struct UserCompletionInformation {
     pub course_module_completion_id: Uuid,
     pub course_name: String,
-    pub uh_course_code: String,
+    /// `None` only on a module registering through credit registration; the legacy flow cannot
+    /// fetch its link without one.
+    pub uh_course_code: Option<String>,
     pub email: String,
     pub ects_credits: Option<f32>,
     pub enable_registering_completion_to_uh_open_university: bool,
+    pub enable_credit_registration_via_suotar: bool,
 }
 
 pub async fn get_user_completion_information(
@@ -771,25 +774,32 @@ pub async fn get_user_completion_information(
         user.id,
     )
     .await?;
-    // Course code is required only so that fetching the link later works.
-    let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-        ModelError::new(
+    let credit_registration_config =
+        course_modules::get_credit_registration_config(conn, course_module.id).await?;
+    // The credit registration status page is where a missing course code has to be explained to the
+    // student, so refusing to describe the completion at all would hide the one error it exists for.
+    if course_module.uh_course_code.is_none()
+        && !credit_registration_config.enable_credit_registration_via_suotar
+    {
+        return Err(ModelError::new(
             ModelErrorType::InvalidRequest,
             "Course module is missing uh_course_code.".to_string(),
             None,
-        )
-    })?;
+        ));
+    }
     Ok(UserCompletionInformation {
         course_module_completion_id: course_module_completion.id,
         course_name: course_module
             .name
             .clone()
             .unwrap_or_else(|| course.name.clone()),
-        uh_course_code,
+        uh_course_code: course_module.uh_course_code.clone(),
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
         enable_registering_completion_to_uh_open_university: course_module
             .enable_registering_completion_to_uh_open_university,
+        enable_credit_registration_via_suotar: credit_registration_config
+            .enable_credit_registration_via_suotar,
     })
 }
 
@@ -805,6 +815,7 @@ pub struct UserModuleCompletionStatus {
     pub grade: Option<i32>,
     pub passed: Option<bool>,
     pub enable_registering_completion_to_uh_open_university: bool,
+    pub enable_credit_registration_via_suotar: bool,
     pub certification_enabled: bool,
     pub certificate_configuration_id: Option<Uuid>,
 }
@@ -835,6 +846,12 @@ pub async fn get_user_module_completion_statuses_for_course(
             .collect();
 
     let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(conn, course_id).await?;
+
+    let credit_registration_enabled_module_ids: HashSet<Uuid> =
+        course_modules::get_credit_registration_enabled_ids_for_course(conn, course_id)
+            .await?
+            .into_iter()
+            .collect();
 
     let course_module_completion_statuses = course_modules
         .into_iter()
@@ -874,6 +891,8 @@ pub async fn get_user_module_completion_statuses_for_course(
                     .is_some_and(|x| x.prerequisite_modules_completed),
                 enable_registering_completion_to_uh_open_university: module
                     .enable_registering_completion_to_uh_open_university,
+                enable_credit_registration_via_suotar: credit_registration_enabled_module_ids
+                    .contains(&module.id),
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
             }

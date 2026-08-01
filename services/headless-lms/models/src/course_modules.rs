@@ -680,6 +680,51 @@ WHERE uh_course_code IS NOT NULL
     Ok(res)
 }
 
+/// Ids of the course's modules opted in to credit registration. The flag is not on the
+/// [`CourseModule`] DTO, so a caller holding modules cannot answer this from them.
+pub async fn get_credit_registration_enabled_ids_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        "
+SELECT id
+FROM course_modules
+WHERE course_id = $1
+  AND enable_credit_registration_via_suotar
+  AND deleted_at IS NULL
+ORDER BY order_number
+        ",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Every course the user is enrolled on that has at least one module opted in to credit
+/// registration, so the profile page can list a course the student was never asked about.
+pub async fn get_credit_registration_course_ids_for_enrolled_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        "
+SELECT DISTINCT cm.course_id
+FROM course_modules cm
+  JOIN course_instance_enrollments cie ON cie.course_id = cm.course_id
+WHERE cie.user_id = $1
+  AND cie.deleted_at IS NULL
+  AND cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL
+        ",
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Per-module credit-registration configuration: the rollout switch and the module's own fields
 /// merged with its `course_module_suotar_configurations` row. Every field of that row is optional
 /// here because a module with no configuration row is a valid, unconfigured module.

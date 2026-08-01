@@ -147,6 +147,31 @@ WHERE user_id = $1
     Ok(res)
 }
 
+/// The account's most recent link, retired ones included.
+///
+/// Reporting on a linking mail needs the Sisu person the mail was addressed to, and a retired link
+/// is the only record of that an unlinked account has: the mail is keyed by Sisu person and we do
+/// not identify an account by matching its email address against Sisu's.
+pub async fn get_latest_including_deleted_by_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Option<VerifiedStudentNumber>> {
+    let res = sqlx::query_as!(
+        VerifiedStudentNumber,
+        r#"
+SELECT *
+FROM verified_student_numbers
+WHERE user_id = $1
+ORDER BY verified_at DESC
+LIMIT 1
+        "#,
+        user_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_student_number(
     conn: &mut PgConnection,
     student_number: &str,

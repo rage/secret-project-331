@@ -1103,10 +1103,7 @@ WHERE id = $1
     Ok(res.is_joinable_by_code_only)
 }
 
-pub(crate) async fn get_by_ids(
-    conn: &mut PgConnection,
-    course_ids: &[Uuid],
-) -> ModelResult<Vec<Course>> {
+pub async fn get_by_ids(conn: &mut PgConnection, course_ids: &[Uuid]) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
         r#"

@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH unmirrored AS (\n  SELECT cr.course_id,\n    cr.course_module_completion_id,\n    cr.course_module_id,\n    cr.user_id,\n    cr.student_number\n  FROM credit_registrations cr\n  WHERE cr.deleted_at IS NULL\n    AND cr.state IN ('registered', 'duplicate', 'not_improved')\n    AND cr.student_number IS NOT NULL\n    AND NOT EXISTS (\n      SELECT 1\n      FROM course_module_completion_registered_to_study_registries r\n      WHERE r.course_module_completion_id = cr.course_module_completion_id\n        AND r.study_registry_registrar_id = $2\n        AND r.deleted_at IS NULL\n    )\n    AND ($3::uuid IS NULL OR cr.course_id = $3)\n    AND ($4::uuid IS NULL OR cr.user_id = $4)\n    AND (\n      cardinality($5::uuid []) = 0\n      OR cr.id = ANY($5::uuid [])\n    )\n  ORDER BY cr.terminal_at\n  LIMIT $1\n),\ninserted AS (\n  INSERT INTO course_module_completion_registered_to_study_registries (\n      course_id,\n      course_module_completion_id,\n      course_module_id,\n      study_registry_registrar_id,\n      user_id,\n      real_student_number\n    )\n  SELECT course_id,\n    course_module_completion_id,\n    course_module_id,\n    $2,\n    user_id,\n    student_number\n  FROM unmirrored\n  RETURNING id\n)\nSELECT COUNT(*) AS \"mirrored!\"\nFROM inserted\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "mirrored!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "63d5ea389725e4b9d7e068f3bc6fefbf4301637dbd566b8e8bb0e9e7b4c159cd"
+}

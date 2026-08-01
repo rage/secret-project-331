@@ -478,8 +478,13 @@ pub fn resolvable_keys(endpoint: SuotarEndpoint) -> &'static [&'static str] {
 }
 
 /// The classification a client is entitled to read as "transient, retry me".
+///
+/// Read from the state machine rather than restated: a second copy of the class list would drift,
+/// and the guard below would silently stop guarding.
 fn is_retryable_transient_code(code: &str) -> bool {
-    code == "sisuTemporarilyUnavailable"
+    headless_lms_models::library::credit_registration::classification::is_retryable_transient_wire_code(
+        code,
+    )
 }
 
 /// Whether the endpoint's contract lists a transient code among its per-item results at all.

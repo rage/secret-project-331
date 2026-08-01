@@ -36,6 +36,29 @@ pub enum CreditRegistrationState {
 }
 
 impl CreditRegistrationState {
+    /// Every state, so a classification can be proven exhaustive at runtime as well as at compile
+    /// time.
+    pub const ALL: [Self; 18] = [
+        Self::PendingPrerequisites,
+        Self::PendingConsent,
+        Self::PendingStudentNumber,
+        Self::ReadyToSubmit,
+        Self::CheckingEnrolment,
+        Self::NoUsableEnrolment,
+        Self::Submitting,
+        Self::SubmissionUncertain,
+        Self::AwaitingVerification,
+        Self::Registered,
+        Self::Duplicate,
+        Self::NotImproved,
+        Self::Misregistered,
+        Self::FailedRetryable,
+        Self::FailedPermanent,
+        Self::Blocked,
+        Self::Cancelled,
+        Self::AbandonedByConsentWithdrawal,
+    ];
+
     /// States the pipeline never leaves on its own. `terminal_at` tracks membership: stamped on
     /// entry, cleared on exit, so an admin retry becomes visible to the stuck queries again.
     pub fn is_terminal(self) -> bool {
@@ -91,6 +114,35 @@ pub enum CreditRegistrationErrorCode {
     MissingEctsCredits,
     RetryWindowExpired,
     Unknown,
+}
+
+impl CreditRegistrationErrorCode {
+    /// Every code, so the retryability classification can be proven total at runtime as well as at
+    /// compile time.
+    pub const ALL: [Self; 22] = [
+        Self::PersonNotFound,
+        Self::CourseCodeNotFound,
+        Self::EnrolmentNotFound,
+        Self::EnrolmentNotAccepted,
+        Self::InvalidGradeForGradeScale,
+        Self::CourseNotAllowed,
+        Self::InvalidCredits,
+        Self::StudyRightNotValid,
+        Self::AcceptorNotFound,
+        Self::SisuValidationFailed,
+        Self::SisuTimeout,
+        Self::SisuTemporarilyUnavailable,
+        Self::Misregistered,
+        Self::Unauthorized,
+        Self::MalformedRequest,
+        Self::TransportError,
+        Self::UnexpectedResponse,
+        Self::NoGradeScaleMapping,
+        Self::MissingUhCourseCode,
+        Self::MissingEctsCredits,
+        Self::RetryWindowExpired,
+        Self::Unknown,
+    ];
 }
 
 /// Suotar's per-item `code` as a ledger error code.
@@ -385,6 +437,35 @@ RETURNING *
     Ok(after)
 }
 
+/// Which rows a phase iteration may touch.
+///
+/// Empty means every row, which is what production runs. A narrowed scope exists so a test can
+/// drive the pipeline for its own course without sweeping a shared database: it is one predicate on
+/// the same claim query rather than a query of its own, so a scoped run cannot behave differently
+/// from an unscoped one.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct RegistrationScope {
+    pub course_id: Option<Uuid>,
+    pub user_id: Option<Uuid>,
+    /// The precision escape hatch, for a caller that already knows its ledger rows.
+    pub credit_registration_ids: Vec<Uuid>,
+}
+
+impl RegistrationScope {
+    pub fn is_unscoped(&self) -> bool {
+        self.course_id.is_none()
+            && self.user_id.is_none()
+            && self.credit_registration_ids.is_empty()
+    }
+
+    pub fn for_course(course_id: Uuid) -> Self {
+        Self {
+            course_id: Some(course_id),
+            ..Self::default()
+        }
+    }
+}
+
 /// Claims up to `limit` due rows in the given states for this worker.
 ///
 /// The `SKIP LOCKED` row locks live until the caller's transaction ends, so callers must pass a
@@ -393,6 +474,7 @@ RETURNING *
 pub async fn claim_due(
     conn: &mut PgConnection,
     states: &[CreditRegistrationState],
+    scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<Vec<CreditRegistration>> {
     let res = sqlx::query_as!(
@@ -408,6 +490,12 @@ WITH due AS (
     AND cr.state = ANY($1::credit_registration_state [])
     AND cr.next_attempt_at <= now()
     AND c.paused_at IS NULL
+    AND ($3::uuid IS NULL OR cr.course_id = $3)
+    AND ($4::uuid IS NULL OR cr.user_id = $4)
+    AND (
+      cardinality($5::uuid []) = 0
+      OR cr.id = ANY($5::uuid [])
+    )
   ORDER BY cr.next_attempt_at
   FOR UPDATE OF cr SKIP LOCKED
   LIMIT $2
@@ -420,6 +508,9 @@ RETURNING cr.*
         "#,
         states as &[CreditRegistrationState],
         limit,
+        scope.course_id,
+        scope.user_id,
+        &scope.credit_registration_ids,
     )
     .fetch_all(conn)
     .await?;

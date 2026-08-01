@@ -129,6 +129,31 @@ RETURNING id
     Ok(res.id)
 }
 
+/// Backs the per-actor guard on the resend endpoints: one person's actions of one kind in a window.
+pub async fn count_by_actor_since(
+    conn: &mut PgConnection,
+    actor_user_id: Uuid,
+    action: CreditRegistrationAdminAction,
+    since: DateTime<Utc>,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM credit_registration_admin_actions
+WHERE actor_user_id = $1
+  AND action = $2
+  AND created_at >= $3
+  AND deleted_at IS NULL
+        "#,
+        actor_user_id,
+        action as CreditRegistrationAdminAction,
+        since,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 pub async fn get_recent(
     conn: &mut PgConnection,
     limit: i64,

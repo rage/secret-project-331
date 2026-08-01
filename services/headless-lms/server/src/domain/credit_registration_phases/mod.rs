@@ -10,6 +10,7 @@ mod enrolment_discovery;
 mod import;
 mod legacy_mirror;
 mod link_emails;
+pub mod linking_mail_resend;
 mod materialize;
 mod preconditions;
 mod product_token_refresh;
@@ -35,7 +36,9 @@ use headless_lms_models::{
 };
 use headless_lms_utils::error::util_error::{SuotarErrorVariant, UtilError, UtilErrorType};
 use headless_lms_utils::prelude::Utc;
-use headless_lms_utils::services::suotar::{SuotarBatchResponse, SuotarClient, SuotarItemStatus};
+use headless_lms_utils::services::suotar::{
+    ListedPerson, SuotarBatchResponse, SuotarClient, SuotarItemStatus,
+};
 use sqlx::{PgConnection, PgPool};
 use std::future::Future;
 use std::pin::Pin;
@@ -342,6 +345,19 @@ pub async fn run_phase_once(
         credit_registration_phase_state::record_run(&mut conn, phase.as_str(), &outcome).await?;
     }
     Ok(PhaseTick::Ran(outcome))
+}
+
+/// Every address the study registry holds for a listed person, in the order it lists them. Which one
+/// they read is not something we can know, so none is preferred over another.
+pub(crate) fn listed_person_addresses(person: &ListedPerson) -> Vec<String> {
+    [
+        Some(person.primary_email.clone()),
+        person.secondary_email.clone(),
+    ]
+    .into_iter()
+    .flatten()
+    .filter(|address| !address.trim().is_empty())
+    .collect()
 }
 
 /// The response item Suotar sent for one request item, taken from the raw body rather than rebuilt

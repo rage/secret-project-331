@@ -7,7 +7,14 @@ import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
-import type { CompletionGridRow } from "@/generated/api/types.generated"
+import CourseCreditRegistrationSummaryPanel from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
+import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
+import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
+import {
+  creditRegistrationKey,
+  useTeacherCreditRegistrations,
+} from "@/components/credit-registration/teacherCreditRegistrations"
+import type { CompletionGridRow, CourseCreditRegistration } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
@@ -24,6 +31,9 @@ import { StaleTableWrapper } from "./StaleTableWrapper"
 import { StudentPillCell } from "./StudentPillCell"
 
 const PLACEHOLDER = "-"
+
+/** Stable empty index so the column memo does not rebuild on every render before the fetch lands. */
+const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 
 type CompletionRow = Record<string, unknown> & {
   user_id: string
@@ -107,15 +117,19 @@ const statusCellClass = css`
   gap: 0.25rem;
 `
 
-const StatusCell: React.FC<{ registered: boolean; needsReview: boolean }> = ({
-  registered,
-  needsReview,
-}) => {
+const StatusCell: React.FC<{
+  registered: boolean
+  needsReview: boolean
+  creditRegistration: CourseCreditRegistration | undefined
+}> = ({ registered, needsReview, creditRegistration }) => {
   const { t } = useTranslation()
   const status = registered ? t("registered") : PLACEHOLDER
-  const showStatus = registered || !needsReview
+  // The credit registration badge replaces the legacy yes/no: on an opted-in module the ledger knows
+  // more than "registered somewhere", including why nothing has happened yet.
+  const showStatus = !creditRegistration && (registered || !needsReview)
   return (
     <div className={statusCellClass}>
+      {creditRegistration && <CreditRegistrationStatusCell registration={creditRegistration} />}
       {showStatus && <span>{status}</span>}
       {needsReview && <CourseModuleCompletionNeedsReviewBadge />}
     </div>
@@ -125,6 +139,7 @@ const StatusCell: React.FC<{ registered: boolean; needsReview: boolean }> = ({
 const buildColumns = (
   modulesInOrder: ModuleColumn[],
   t: TFunction,
+  creditRegistrations: CreditRegistrationIndex,
 ): ColumnDef<CompletionRow, unknown>[] => {
   const columns: ColumnDef<CompletionRow, unknown>[] = [
     {
@@ -168,6 +183,9 @@ const buildColumns = (
             <StatusCell
               registered={Boolean(row.original[registeredKeyOf(moduleId)])}
               needsReview={Boolean(row.original[needsReviewKeyOf(moduleId)])}
+              creditRegistration={creditRegistrations.get(
+                creditRegistrationKey(row.original.user_id, moduleId),
+              )}
             />
           ),
         },
@@ -188,6 +206,7 @@ export const CompletionsTabContent: React.FC = () => {
   const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])
   const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
   const detailQuery = useCourseStudentsCompletionsDetail(courseId, userIds)
+  const creditRegistrationsQuery = useTeacherCreditRegistrations(courseId, userIds)
 
   // Deferred *after* userIds/detailQuery are derived so a search/sort/page commit still fires the
   // detail request promptly -- only the expensive pivot below is deprioritized.
@@ -199,7 +218,11 @@ export const CompletionsTabContent: React.FC = () => {
     () => pivotCompletions(deferredIdentityRows, deferredDetailData ?? [], t),
     [deferredIdentityRows, deferredDetailData, t],
   )
-  const columns = useMemo(() => buildColumns(modulesInOrder, t), [modulesInOrder, t])
+  const creditRegistrations = creditRegistrationsQuery.data ?? EMPTY_CREDIT_REGISTRATIONS
+  const columns = useMemo(
+    () => buildColumns(modulesInOrder, t, creditRegistrations),
+    [modulesInOrder, t, creditRegistrations],
+  )
 
   if (identityQuery.isError) {
     return <ErrorBanner error={identityQuery.error} />
@@ -212,16 +235,19 @@ export const CompletionsTabContent: React.FC = () => {
   }
 
   return (
-    <StaleTableWrapper isStale={isStale}>
-      <StudentsTable
-        columns={columns}
-        data={data}
-        colorHeaders
-        colorColumns
-        colorHeaderUnderline
-        sorting={sorting}
-        onSortingChange={onSortingChange}
-      />
-    </StaleTableWrapper>
+    <>
+      <CourseCreditRegistrationSummaryPanel courseId={courseId} />
+      <StaleTableWrapper isStale={isStale}>
+        <StudentsTable
+          columns={columns}
+          data={data}
+          colorHeaders
+          colorColumns
+          colorHeaderUnderline
+          sorting={sorting}
+          onSortingChange={onSortingChange}
+        />
+      </StaleTableWrapper>
+    </>
   )
 }

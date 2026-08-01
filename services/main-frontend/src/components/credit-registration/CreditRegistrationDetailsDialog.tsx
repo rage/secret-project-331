@@ -1,0 +1,187 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { CourseCreditRegistration } from "@/generated/api/types.generated"
+import { Badge, DescriptionList, Dialog, QueryResult } from "@/shared-module/components"
+
+import {
+  registrationErrorHelp,
+  registrationExplanation,
+  registrationStatusLabel,
+} from "./creditRegistrationCopy"
+import ResendLinkingEmailBlock from "./ResendLinkingEmailBlock"
+import {
+  isAdminEstablishedLink,
+  linkingEmailSentence,
+  studentNumberVerificationLabel,
+} from "./teacherCreditRegistrations"
+
+interface Props {
+  registration: CourseCreditRegistration
+  open: boolean
+  onClose: () => void
+}
+
+const timelineCss = css`
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`
+
+const timelineRowCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-size: 0.875rem;
+`
+
+const timestampCss = css`
+  color: var(--color-gray-500);
+  font-variant-numeric: tabular-nums;
+`
+
+const ledgerStateCss = css`
+  font-family: var(--font-family-mono, monospace);
+  color: var(--color-gray-600);
+`
+
+const sectionHeadingCss = css`
+  font-weight: 500;
+  margin: 1.5rem 0 0.5rem;
+`
+
+// oxlint-disable-next-line i18next/no-literal-string
+const STACKED = "stacked" as const
+// A support-established link rests on judgement rather than on proof of mailbox control, so it is
+// toned apart from one the student confirmed.
+// oxlint-disable-next-line i18next/no-literal-string
+const SUPPORT_LINK_TONE = "warning" as const
+// oxlint-disable-next-line i18next/no-literal-string
+const CONFIRMED_LINK_TONE = "neutral" as const
+// The one stage where a resend can help: nothing moves until a student number is linked.
+// oxlint-disable-next-line i18next/no-literal-string
+const WAITING_FOR_STUDENT_NUMBER = "needs_student_number" as const
+
+/**
+ * One student's registration for one module, as a teacher needs it when the student is standing in
+ * front of them: where it stands, the number we hold in full, and what we can say about the mail.
+ */
+const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, onClose }) => {
+  const { t } = useTranslation()
+  const detailsQuery = useQuery({
+    ...getCreditRegistrationDetailsOptions({
+      path: { credit_registration_id: registration.id },
+    }),
+    enabled: open,
+  })
+
+  const errorHelp = registrationErrorHelp(t, registration.error_code)
+  const verificationLabel = studentNumberVerificationLabel(
+    t,
+    registration.student_number_verified_via,
+  )
+  const items = [
+    {
+      label: t("label-status"),
+      value: registrationStatusLabel(t, registration.student_facing_status),
+    },
+    {
+      label: t("label-explanation"),
+      value: registrationExplanation(t, registration.student_facing_status, registration.state),
+    },
+    {
+      label: t("label-verified-student-number"),
+      value: registration.student_number ? (
+        <span
+          className={css`
+            display: inline-flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+          `}
+        >
+          <span>{registration.student_number}</span>
+          {verificationLabel && (
+            <Badge
+              tone={
+                isAdminEstablishedLink(registration.student_number_verified_via)
+                  ? SUPPORT_LINK_TONE
+                  : CONFIRMED_LINK_TONE
+              }
+            >
+              {verificationLabel}
+            </Badge>
+          )}
+        </span>
+      ) : (
+        t("credit-registration-no-student-number-linked")
+      ),
+    },
+  ]
+  if (errorHelp) {
+    items.push({ label: t("label-reason"), value: errorHelp })
+  }
+  if (registration.enrolment_realisation_name) {
+    items.push({
+      label: t("label-credit-registration-realisation"),
+      value: registration.enrolment_realisation_name,
+    })
+  }
+  if (registration.sisu_attainment_id) {
+    items.push({
+      label: t("label-attainment-id"),
+      value: registration.sisu_attainment_id,
+    })
+  }
+  if (registration.linking_email) {
+    items.push({
+      label: t("label-credit-registration-linking-email"),
+      value: linkingEmailSentence(
+        t,
+        registration.linking_email.email_send_status,
+        registration.linking_email.sent_at,
+        registration.linking_email.emailed_to_masked,
+      ),
+    })
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={t("heading-credit-registration-details")}
+      size="wide"
+    >
+      <DescriptionList items={items} layout={STACKED} />
+      {registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
+        <ResendLinkingEmailBlock registration={registration} />
+      )}
+      <div className={sectionHeadingCss}>{t("heading-credit-registration-timeline")}</div>
+      <QueryResult query={detailsQuery}>
+        {(details) => (
+          <ul className={timelineCss}>
+            {details.events.map((event) => (
+              <li className={timelineRowCss} key={event.id}>
+                <span className={timestampCss}>{new Date(event.created_at).toLocaleString()}</span>
+                {/* The ledger state and event kind are technical identifiers, deliberately not
+                    translated: they are what a teacher quotes when escalating to support. */}
+                <span className={ledgerStateCss}>{event.to_state ?? event.kind}</span>
+                {event.message && <span>{event.message}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </QueryResult>
+    </Dialog>
+  )
+}
+
+export default CreditRegistrationDetailsDialog

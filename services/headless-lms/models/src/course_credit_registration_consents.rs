@@ -109,6 +109,50 @@ ORDER BY created_at DESC
     Ok(res)
 }
 
+/// Why the course's enrolled students are not going to get credits, in the two counts a teacher can
+/// act on. Neither counts a student who has both consented and linked a number.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema)]
+pub struct CourseCreditRegistrationBlockedStudentCounts {
+    /// Consented, but we hold no student number for them, so nothing can be submitted.
+    pub unlinked_consented_student_count: i64,
+    /// Never asked or declined.
+    pub no_consent_student_count: i64,
+}
+
+pub async fn count_blocked_students_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CourseCreditRegistrationBlockedStudentCounts> {
+    let res = sqlx::query_as!(
+        CourseCreditRegistrationBlockedStudentCounts,
+        r#"
+WITH enrolled AS (
+  SELECT DISTINCT cie.user_id
+  FROM course_instance_enrollments cie
+  WHERE cie.course_id = $1
+    AND cie.deleted_at IS NULL
+)
+SELECT COUNT(*) FILTER (
+    WHERE c.consent_given
+      AND vsn.id IS NULL
+  ) AS "unlinked_consented_student_count!",
+  COUNT(*) FILTER (
+    WHERE c.consent_given IS NOT TRUE
+  ) AS "no_consent_student_count!"
+FROM enrolled e
+  LEFT JOIN course_credit_registration_consents c ON c.user_id = e.user_id
+  AND c.course_id = $1
+  AND c.deleted_at IS NULL
+  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = e.user_id
+  AND vsn.deleted_at IS NULL
+        "#,
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_consenting_user_ids_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,

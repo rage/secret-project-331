@@ -116,6 +116,10 @@ import {
   getCourseCompletionsHistoryByInstance,
   getCourseCompletionsHistoryCustomTimePeriod,
   getCourseCompletionStatsForEmailDomain,
+  getCourseCreditRegistrationModuleConfigs,
+  getCourseCreditRegistrations,
+  getCourseCreditRegistrationsForUsers,
+  getCourseCreditRegistrationSummary,
   getCourseDailySubmissionCounts,
   getCourseDailyUsersWhoSubmittedSomething,
   getCourseDefaultPeerReview,
@@ -168,6 +172,7 @@ import {
   getCourseUsersCountsByExercise,
   getCourseUserSettingsForUser,
   getCourseWeekdayHourSubmissionCounts,
+  getCreditRegistrationDetails,
   getCurrentTime,
   getEditProposalCount,
   getEditProposals,
@@ -291,6 +296,7 @@ import {
   reprocessCourseCompletions,
   requestCreditRegistrationEnrolmentRecheck,
   requestEmailVerificationCode,
+  resendCourseCreditRegistrationLinkingEmail,
   resetCourseProgressForEveryone,
   resetCourseProgressForTeacherThemselves,
   resetExercisesForSelectedUsers,
@@ -521,6 +527,14 @@ import type {
   GetCourseCompletionsHistoryResponse,
   GetCourseCompletionStatsForEmailDomainData,
   GetCourseCompletionStatsForEmailDomainResponse,
+  GetCourseCreditRegistrationModuleConfigsData,
+  GetCourseCreditRegistrationModuleConfigsResponse,
+  GetCourseCreditRegistrationsData,
+  GetCourseCreditRegistrationsForUsersData,
+  GetCourseCreditRegistrationsForUsersResponse,
+  GetCourseCreditRegistrationsResponse,
+  GetCourseCreditRegistrationSummaryData,
+  GetCourseCreditRegistrationSummaryResponse,
   GetCourseDailySubmissionCountsData,
   GetCourseDailySubmissionCountsResponse,
   GetCourseDailyUsersWhoSubmittedSomethingData,
@@ -622,6 +636,8 @@ import type {
   GetCourseUserSettingsForUserResponse,
   GetCourseWeekdayHourSubmissionCountsData,
   GetCourseWeekdayHourSubmissionCountsResponse,
+  GetCreditRegistrationDetailsData,
+  GetCreditRegistrationDetailsResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
   GetEditProposalCountData,
@@ -854,6 +870,8 @@ import type {
   RequestCreditRegistrationEnrolmentRecheckResponse,
   RequestEmailVerificationCodeData,
   RequestEmailVerificationCodeResponse,
+  ResendCourseCreditRegistrationLinkingEmailData,
+  ResendCourseCreditRegistrationLinkingEmailResponse,
   ResetCourseProgressForEveryoneData,
   ResetCourseProgressForEveryoneResponse,
   ResetCourseProgressForTeacherThemselvesData,
@@ -1666,6 +1684,268 @@ export const deleteCodeGiveawayCodeMutation = (
   return mutationOptions
 }
 
+/**
+ *
+ * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids` - The
+ * registrations of the named students, for the students tab's current page.
+ */
+export const getCourseCreditRegistrationsForUsersMutation = (
+  options?: Partial<Options<GetCourseCreditRegistrationsForUsersData>>,
+): UseMutationOptions<
+  GetCourseCreditRegistrationsForUsersResponse,
+  DefaultError,
+  Options<GetCourseCreditRegistrationsForUsersData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    GetCourseCreditRegistrationsForUsersResponse,
+    DefaultError,
+    Options<GetCourseCreditRegistrationsForUsersData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await getCourseCreditRegistrationsForUsers({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseCreditRegistrationsQueryKey = (
+  options: Options<GetCourseCreditRegistrationsData>,
+) => createQueryKey("getCourseCreditRegistrations", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list` - A page of the
+ * course's registrations, filtered by state and searched by student name, email or student number.
+ */
+export const getCourseCreditRegistrationsOptions = (
+  options: Options<GetCourseCreditRegistrationsData>,
+) =>
+  queryOptions<
+    GetCourseCreditRegistrationsResponse,
+    DefaultError,
+    GetCourseCreditRegistrationsResponse,
+    ReturnType<typeof getCourseCreditRegistrationsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCreditRegistrations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCreditRegistrationsQueryKey(options),
+  })
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
+>(
+  queryKey: QueryKey<Options>,
+  page: K,
+) => {
+  const params = { ...queryKey[0] }
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any),
+    }
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers,
+    }
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any),
+    }
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any),
+    }
+  }
+  return params as unknown as typeof page
+}
+
+export const getCourseCreditRegistrationsInfiniteQueryKey = (
+  options: Options<GetCourseCreditRegistrationsData>,
+): QueryKey<Options<GetCourseCreditRegistrationsData>> =>
+  createQueryKey("getCourseCreditRegistrations", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list` - A page of the
+ * course's registrations, filtered by state and searched by student name, email or student number.
+ */
+export const getCourseCreditRegistrationsInfiniteOptions = (
+  options: Options<GetCourseCreditRegistrationsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    GetCourseCreditRegistrationsResponse,
+    DefaultError,
+    InfiniteData<GetCourseCreditRegistrationsResponse>,
+    QueryKey<Options<GetCourseCreditRegistrationsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<GetCourseCreditRegistrationsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetCourseCreditRegistrationsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await getCourseCreditRegistrations({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: getCourseCreditRegistrationsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
+export const getCourseCreditRegistrationModuleConfigsQueryKey = (
+  options: Options<GetCourseCreditRegistrationModuleConfigsData>,
+) => createQueryKey("getCourseCreditRegistrationModuleConfigs", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs` - The
+ * course's per-module credit registration configuration.
+ */
+export const getCourseCreditRegistrationModuleConfigsOptions = (
+  options: Options<GetCourseCreditRegistrationModuleConfigsData>,
+) =>
+  queryOptions<
+    GetCourseCreditRegistrationModuleConfigsResponse,
+    DefaultError,
+    GetCourseCreditRegistrationModuleConfigsResponse,
+    ReturnType<typeof getCourseCreditRegistrationModuleConfigsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCreditRegistrationModuleConfigs({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCreditRegistrationModuleConfigsQueryKey(options),
+  })
+
+/**
+ *
+ * POST
+ * `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off
+ * another account-linking mail for one person on this course.
+ *
+ * The target has to be on this course's roster in the study registry and hold no link with us, which is
+ * the same predicate the enrolment discovery phase claims mails under. The caps of the ordinary claim
+ * path apply and there is no parameter that relaxes them: a refusal comes back as a typed outcome for
+ * the teacher to escalate, and only an admin can override.
+ */
+export const resendCourseCreditRegistrationLinkingEmailMutation = (
+  options?: Partial<Options<ResendCourseCreditRegistrationLinkingEmailData>>,
+): UseMutationOptions<
+  ResendCourseCreditRegistrationLinkingEmailResponse,
+  DefaultError,
+  Options<ResendCourseCreditRegistrationLinkingEmailData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ResendCourseCreditRegistrationLinkingEmailResponse,
+    DefaultError,
+    Options<ResendCourseCreditRegistrationLinkingEmailData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await resendCourseCreditRegistrationLinkingEmail({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseCreditRegistrationSummaryQueryKey = (
+  options: Options<GetCourseCreditRegistrationSummaryData>,
+) => createQueryKey("getCourseCreditRegistrationSummary", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
+ * counts plus the two reasons a student of this course will not get credits.
+ */
+export const getCourseCreditRegistrationSummaryOptions = (
+  options: Options<GetCourseCreditRegistrationSummaryData>,
+) =>
+  queryOptions<
+    GetCourseCreditRegistrationSummaryResponse,
+    DefaultError,
+    GetCourseCreditRegistrationSummaryResponse,
+    ReturnType<typeof getCourseCreditRegistrationSummaryQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCreditRegistrationSummary({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCreditRegistrationSummaryQueryKey(options),
+  })
+
+export const getCreditRegistrationDetailsQueryKey = (
+  options: Options<GetCreditRegistrationDetailsData>,
+) => createQueryKey("getCreditRegistrationDetails", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One
+ * registration with its timeline and the other attempts for the same completion.
+ *
+ * Authorized on the row's own course, not on a course id from the caller: with a course in the path a
+ * teacher of one course could read another's rows by pairing their own course with a foreign id.
+ */
+export const getCreditRegistrationDetailsOptions = (
+  options: Options<GetCreditRegistrationDetailsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationDetailsResponse,
+    DefaultError,
+    GetCreditRegistrationDetailsResponse,
+    ReturnType<typeof getCreditRegistrationDetailsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationDetails({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationDetailsQueryKey(options),
+  })
+
 export const getCourseInstanceQueryKey = (options: Options<GetCourseInstanceData>) =>
   createQueryKey("getCourseInstance", options)
 
@@ -1977,40 +2257,6 @@ export const getCourseInstancePointsOptions = (options: Options<GetCourseInstanc
       }),
     queryKey: getCourseInstancePointsQueryKey(options),
   })
-
-const createInfiniteParams = <
-  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
->(
-  queryKey: QueryKey<Options>,
-  page: K,
-) => {
-  const params = { ...queryKey[0] }
-  if (page.body) {
-    params.body = {
-      ...(queryKey[0].body as any),
-      ...(page.body as any),
-    }
-  }
-  if (page.headers) {
-    params.headers = {
-      ...queryKey[0].headers,
-      ...page.headers,
-    }
-  }
-  if (page.path) {
-    params.path = {
-      ...(queryKey[0].path as any),
-      ...(page.path as any),
-    }
-  }
-  if (page.query) {
-    params.query = {
-      ...(queryKey[0].query as any),
-      ...(page.query as any),
-    }
-  }
-  return params as unknown as typeof page
-}
 
 export const getCourseInstancePointsInfiniteQueryKey = (
   options: Options<GetCourseInstancePointsData>,

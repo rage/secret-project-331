@@ -1,5 +1,6 @@
 use utoipa::ToSchema;
 
+use crate::course_modules::CourseModuleSuotarRealisationEdit;
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -68,6 +69,42 @@ RETURNING id
     Ok(res.id)
 }
 
+/// Makes the module's live realisations exactly `wanted`, soft-deleting the rest.
+///
+/// A soft delete rather than a flag flip: `active = false` means "configured but not polled now",
+/// which is not the same as a realisation the teacher removed, and the counters of a removed one
+/// should stop being read.
+pub async fn replace_for_course_module(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    wanted: &[CourseModuleSuotarRealisationEdit],
+) -> ModelResult<()> {
+    let existing = get_by_course_module_id(conn, course_module_id).await?;
+    let kept: Vec<&str> = wanted
+        .iter()
+        .map(|row| row.course_unit_realisation_id.trim())
+        .filter(|id| !id.is_empty())
+        .collect();
+    for row in existing {
+        if !kept.contains(&row.course_unit_realisation_id.as_str()) {
+            soft_delete(conn, row.id).await?;
+        }
+    }
+    for row in wanted {
+        let realisation_id = row.course_unit_realisation_id.trim();
+        if realisation_id.is_empty() {
+            continue;
+        }
+        let label = row
+            .label
+            .as_deref()
+            .map(str::trim)
+            .filter(|l| !l.is_empty());
+        upsert(conn, course_module_id, realisation_id, label, row.active).await?;
+    }
+    Ok(())
+}
+
 pub async fn get_by_course_module_id(
     conn: &mut PgConnection,
     course_module_id: Uuid,
@@ -82,6 +119,29 @@ WHERE course_module_id = $1
 ORDER BY created_at
         "#,
         course_module_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseModuleSuotarRealisation>> {
+    let res = sqlx::query_as!(
+        CourseModuleSuotarRealisation,
+        r#"
+SELECT cmsr.*
+FROM course_module_suotar_realisations cmsr
+  JOIN course_modules cm ON cm.id = cmsr.course_module_id
+WHERE cm.course_id = $1
+  AND cmsr.deleted_at IS NULL
+  AND cm.deleted_at IS NULL
+ORDER BY cm.order_number,
+  cmsr.created_at
+        "#,
+        course_id
     )
     .fetch_all(conn)
     .await?;

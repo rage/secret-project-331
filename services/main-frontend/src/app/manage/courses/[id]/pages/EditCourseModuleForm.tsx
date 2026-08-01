@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { CheckCircle, Pencil, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
@@ -13,8 +13,21 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import {
+  Button as NewButton,
+  Checkbox as NewCheckbox,
+  Select as NewSelect,
+  TextField as NewTextField,
+} from "@/shared-module/components"
 
 import type { ModuleView } from "./CourseModules"
+import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
+import {
+  DERIVED_GRADE_SCALE,
+  EMPTY_REALISATION,
+  NUMERIC_GRADE_SCALE_ID,
+  PASS_FAIL_GRADE_SCALE_ID,
+} from "./creditRegistrationModuleFields"
 
 interface Props {
   module: ModuleView
@@ -36,7 +49,40 @@ export interface EditCourseModuleFormFields {
   override_completion_link: boolean
   completion_registration_link_override: string
   enable_registering_completion_to_uh_open_university: boolean
+  credit_registration: CreditRegistrationModuleFields
 }
+
+const creditRegistrationSectionCss = css`
+  border-top: 1px solid #e1e3e5;
+  padding-top: 1rem;
+  margin-bottom: 1rem;
+`
+
+const creditRegistrationBodyCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+`
+
+const realisationsHeadingCss = css`
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+`
+
+const realisationsHintCss = css`
+  color: ${baseTheme.colors.gray[500]};
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+`
+
+const realisationRowCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+`
 
 const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseModuleFormFields => {
   return {
@@ -59,6 +105,7 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseMo
     completion_registration_link_override: module.completion_registration_link_override ?? "",
     enable_registering_completion_to_uh_open_university:
       module.enable_registering_completion_to_uh_open_university,
+    credit_registration: module.credit_registration,
   }
 }
 
@@ -71,10 +118,12 @@ const EditCourseModuleForm: React.FC<Props> = ({
   const { t } = useTranslation()
   const [active, setActive] = useState(false)
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
     reset,
+    setValue,
     watch,
   } = useForm<EditCourseModuleFormFields>({
     // oxlint-disable-next-line i18next/no-literal-string
@@ -84,6 +133,11 @@ const EditCourseModuleForm: React.FC<Props> = ({
   useEffect(() => {
     reset(makeDefaultValues(module, chapters))
   }, [reset, module, chapters])
+  const realisations = useFieldArray({
+    control,
+    // oxlint-disable-next-line i18next/no-literal-string
+    name: "credit_registration.realisations",
+  })
 
   const onSubmitFormWrapper = (fields: EditCourseModuleFormFields) => {
     setActive(false)
@@ -92,6 +146,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
 
   const isChecked = watch("automatic_completion")
   const overrideLink = watch("override_completion_link")
+  const creditRegistrationEnabled = watch("credit_registration.enabled")
 
   return (
     <form
@@ -298,7 +353,15 @@ const EditCourseModuleForm: React.FC<Props> = ({
             </div>
             <Checkbox
               label={t("label-enable-registering-completion-to-uh-open-university")}
-              {...register("enable_registering_completion_to_uh_open_university")}
+              {...register("enable_registering_completion_to_uh_open_university", {
+                onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                  // The two registration paths would put the same attainment in Sisu twice, and the
+                  // backend rejects the pair; clearing the other one keeps the form savable.
+                  if (event.target.checked) {
+                    setValue("credit_registration.enabled", false)
+                  }
+                },
+              })}
             />
             <div
               className={css`
@@ -340,6 +403,86 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   valueAsNumber: true,
                 })}
               />
+            </div>
+            <div className={creditRegistrationSectionCss}>
+              <NewCheckbox
+                name="credit_registration.enabled"
+                control={control}
+                label={t("label-enable-credit-registration-via-suotar")}
+                description={t("description-enable-credit-registration-via-suotar")}
+                rules={{
+                  onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                    if (event.target.checked) {
+                      setValue("enable_registering_completion_to_uh_open_university", false)
+                    }
+                  },
+                }}
+              />
+              {creditRegistrationEnabled && (
+                <div className={creditRegistrationBodyCss}>
+                  <NewTextField
+                    name="credit_registration.open_university_product_id"
+                    control={control}
+                    label={t("label-open-university-product-id")}
+                    description={t("description-open-university-product-id")}
+                  />
+                  <NewSelect
+                    name="credit_registration.grade_scale_id"
+                    control={control}
+                    label={t("label-credit-registration-grade-scale")}
+                    description={t("description-credit-registration-grade-scale")}
+                    options={[
+                      {
+                        value: DERIVED_GRADE_SCALE,
+                        label: t("grade-scale-derive-from-completion"),
+                      },
+                      { value: PASS_FAIL_GRADE_SCALE_ID, label: t("grade-scale-pass-fail") },
+                      { value: NUMERIC_GRADE_SCALE_ID, label: t("grade-scale-numeric") },
+                    ]}
+                  />
+                  <div>
+                    <div className={realisationsHeadingCss}>
+                      {t("heading-credit-registration-realisations")}
+                    </div>
+                    <div className={realisationsHintCss}>
+                      {t("hint-credit-registration-realisations")}
+                    </div>
+                    {realisations.fields.map((field, index) => (
+                      <div className={realisationRowCss} key={field.id}>
+                        <NewTextField
+                          name={`credit_registration.realisations.${index}.course_unit_realisation_id`}
+                          control={control}
+                          label={t("label-course-unit-realisation-id")}
+                        />
+                        <NewTextField
+                          name={`credit_registration.realisations.${index}.label`}
+                          control={control}
+                          label={t("label-realisation-name-shown-to-students")}
+                        />
+                        <NewCheckbox
+                          name={`credit_registration.realisations.${index}.active`}
+                          control={control}
+                          label={t("label-realisation-active")}
+                        />
+                        <NewButton
+                          variant="secondary"
+                          size="small"
+                          onPress={() => realisations.remove(index)}
+                        >
+                          {t("button-text-remove")}
+                        </NewButton>
+                      </div>
+                    ))}
+                    <NewButton
+                      variant="secondary"
+                      size="small"
+                      onPress={() => realisations.append(EMPTY_REALISATION)}
+                    >
+                      {t("button-text-add-realisation")}
+                    </NewButton>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

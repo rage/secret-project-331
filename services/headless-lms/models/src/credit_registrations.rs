@@ -7,8 +7,10 @@ use chrono::NaiveDate;
 use utoipa::ToSchema;
 
 use crate::credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent};
+use crate::library::students_view::escape_like_pattern;
 use crate::prelude::*;
 use crate::suotar_api_calls::SuotarEndpoint;
+use crate::verified_student_numbers::StudentNumberVerificationMethod;
 
 /// What the pipeline does next with a ledger row.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
@@ -1029,6 +1031,272 @@ GROUP BY state
     .fetch_all(conn)
     .await?;
     Ok(rows.into_iter().map(|r| (r.state, r.count)).collect())
+}
+
+/// Live rows of one course per module and state, for the teacher's per-module summary.
+pub async fn count_by_module_and_state_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<(Uuid, CreditRegistrationState, i64)>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT course_module_id,
+  state AS "state: CreditRegistrationState",
+  COUNT(*) AS "count!"
+FROM credit_registrations
+WHERE course_id = $1
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+GROUP BY course_module_id,
+  state
+        "#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|r| (r.course_module_id, r.state, r.count))
+        .collect())
+}
+
+/// Live rows of one course needing a human, per module.
+pub async fn count_needing_admin_attention_by_module_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<(Uuid, i64)>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT course_module_id,
+  COUNT(*) AS "count!"
+FROM credit_registrations
+WHERE course_id = $1
+  AND needs_admin_attention
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+GROUP BY course_module_id
+        "#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|r| (r.course_module_id, r.count))
+        .collect())
+}
+
+/// One ledger row as a teacher sees it: the raw state, the student's identity and the unmasked
+/// verified student number, without the study registry's own error text.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TeacherCreditRegistration {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: Option<String>,
+    pub course_id: Uuid,
+    pub course_module_id: Uuid,
+    pub course_module_name: Option<String>,
+    pub course_instance_id: Uuid,
+    pub course_module_completion_id: Uuid,
+    pub completion_date: DateTime<Utc>,
+    pub state: CreditRegistrationState,
+    pub state_entered_at: DateTime<Utc>,
+    pub error_code: Option<CreditRegistrationErrorCode>,
+    pub needs_admin_attention: bool,
+    pub next_attempt_at: DateTime<Utc>,
+    pub registered_at: Option<DateTime<Utc>>,
+    pub sisu_attainment_id: Option<String>,
+    pub grade_id: Option<String>,
+    pub credits: Option<f32>,
+    pub attempt_number: i32,
+    pub superseded_by_id: Option<Uuid>,
+    /// Live only: a soft-deleted link is no longer a number we hold for this student.
+    pub student_number: Option<String>,
+    pub student_number_verified_at: Option<DateTime<Utc>>,
+    pub student_number_verified_via: Option<StudentNumberVerificationMethod>,
+    /// Needed to find the account's linking mails, which are keyed on the Sisu person.
+    pub sisu_person_id: Option<String>,
+    pub enrolment_realisation_name: Option<String>,
+}
+
+/// The optional narrowings a teacher surface applies, all of them in SQL.
+#[derive(Debug, Clone, Default)]
+pub struct TeacherCreditRegistrationFilters<'a> {
+    /// The students-tab batch: the users of one identity-list page.
+    pub user_ids: Option<&'a [Uuid]>,
+    pub state: Option<CreditRegistrationState>,
+    /// Free text matched against the student's name, email or verified student number.
+    pub search: Option<&'a str>,
+    pub course_instance_id: Option<Uuid>,
+}
+
+/// The course's ledger rows as the teacher surfaces show them, newest completion first.
+pub async fn get_teacher_facing_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    filters: &TeacherCreditRegistrationFilters<'_>,
+    limit: i64,
+    offset: i64,
+) -> ModelResult<Vec<TeacherCreditRegistration>> {
+    let search_pattern = filters.search.map(search_pattern_of);
+    let res = sqlx::query_as!(
+        TeacherCreditRegistration,
+        r#"
+SELECT cr.id,
+  cr.user_id,
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  ud.email AS "email?",
+  cr.course_id,
+  cr.course_module_id,
+  cm.name AS course_module_name,
+  cr.course_instance_id,
+  cr.course_module_completion_id,
+  cmc.completion_date,
+  cr.state AS "state: CreditRegistrationState",
+  cr.state_entered_at,
+  cr.error_code AS "error_code?: CreditRegistrationErrorCode",
+  cr.needs_admin_attention,
+  cr.next_attempt_at,
+  cr.registered_at,
+  cr.sisu_attainment_id,
+  cr.grade_id,
+  cr.credits,
+  cr.attempt_number,
+  cr.superseded_by_id,
+  vsn.student_number AS "student_number?",
+  vsn.verified_at AS "student_number_verified_at?",
+  vsn.verified_via AS "student_number_verified_via?: StudentNumberVerificationMethod",
+  vsn.sisu_person_id AS "sisu_person_id?",
+  r.label AS "enrolment_realisation_name?"
+FROM credit_registrations cr
+  JOIN course_modules cm ON cm.id = cr.course_module_id
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  LEFT JOIN user_details ud ON ud.user_id = cr.user_id
+  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
+  AND vsn.deleted_at IS NULL
+  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id
+  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id
+  AND r.deleted_at IS NULL
+WHERE cr.course_id = $1
+  AND cr.deleted_at IS NULL
+  AND ($2::uuid [] IS NULL OR cr.user_id = ANY($2))
+  AND (
+    $3::credit_registration_state IS NULL
+    OR cr.state = $3
+  )
+  AND (
+    $4::text IS NULL
+    OR ud.name_search_helper LIKE '%' || $4 || '%' ESCAPE '\'
+    OR ud.email_search_helper LIKE '%' || $4 || '%' ESCAPE '\'
+    OR LOWER(vsn.student_number) LIKE '%' || $4 || '%' ESCAPE '\'
+  )
+  AND ($5::uuid IS NULL OR cr.course_instance_id = $5)
+ORDER BY cmc.completion_date DESC,
+  cr.attempt_number DESC,
+  cr.id
+LIMIT $6 OFFSET $7
+        "#,
+        course_id,
+        filters.user_ids,
+        filters.state as Option<CreditRegistrationState>,
+        search_pattern.as_deref(),
+        filters.course_instance_id,
+        limit,
+        offset,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// How many rows [`get_teacher_facing_by_course_id`] would return without a page limit.
+pub async fn count_teacher_facing_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    filters: &TeacherCreditRegistrationFilters<'_>,
+) -> ModelResult<i64> {
+    let search_pattern = filters.search.map(search_pattern_of);
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM credit_registrations cr
+  LEFT JOIN user_details ud ON ud.user_id = cr.user_id
+  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
+  AND vsn.deleted_at IS NULL
+WHERE cr.course_id = $1
+  AND cr.deleted_at IS NULL
+  AND (
+    $2::credit_registration_state IS NULL
+    OR cr.state = $2
+  )
+  AND (
+    $3::text IS NULL
+    OR ud.name_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
+    OR ud.email_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
+    OR LOWER(vsn.student_number) LIKE '%' || $3 || '%' ESCAPE '\'
+  )
+  AND ($4::uuid IS NULL OR cr.course_instance_id = $4)
+        "#,
+        course_id,
+        filters.state as Option<CreditRegistrationState>,
+        search_pattern.as_deref(),
+        filters.course_instance_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
+/// The `LIKE` pattern the search helper columns are matched against: lowercased, metacharacters
+/// escaped, so a search for `%` matches a literal one.
+fn search_pattern_of(search: &str) -> String {
+    escape_like_pattern(&search.to_lowercase())
+}
+
+/// One row for a teacher surface, by id. `None` when no such live row exists.
+pub async fn get_teacher_facing_by_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<Option<TeacherCreditRegistration>> {
+    let row = get_by_id(conn, id).await?;
+    let rows = get_teacher_facing_by_course_id(
+        conn,
+        row.course_id,
+        &TeacherCreditRegistrationFilters {
+            user_ids: Some(&[row.user_id]),
+            ..TeacherCreditRegistrationFilters::default()
+        },
+        i64::MAX,
+        0,
+    )
+    .await?;
+    Ok(rows.into_iter().find(|candidate| candidate.id == id))
+}
+
+/// Every attempt for the same completion as `row`, that one included, newest attempt first.
+pub async fn get_teacher_facing_attempts_for_completion(
+    conn: &mut PgConnection,
+    row: &TeacherCreditRegistration,
+) -> ModelResult<Vec<TeacherCreditRegistration>> {
+    let mut rows = get_teacher_facing_by_course_id(
+        conn,
+        row.course_id,
+        &TeacherCreditRegistrationFilters {
+            user_ids: Some(&[row.user_id]),
+            ..TeacherCreditRegistrationFilters::default()
+        },
+        i64::MAX,
+        0,
+    )
+    .await?;
+    rows.retain(|candidate| {
+        candidate.course_module_completion_id == row.course_module_completion_id
+    });
+    rows.sort_by_key(|row| std::cmp::Reverse(row.attempt_number));
+    Ok(rows)
 }
 
 #[cfg(test)]

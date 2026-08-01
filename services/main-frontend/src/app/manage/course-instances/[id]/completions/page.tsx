@@ -8,6 +8,8 @@ import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
+import { useTeacherCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
 import FullWidthTable from "@/components/tables/FullWidthTable"
 import {
@@ -43,6 +45,8 @@ import CompletionsExportButton from "./CompletionsExportButton"
 const EMAIL = "email"
 const NAME = "name"
 const NUMBER = "number"
+
+const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 
 interface Sorting {
   type: string
@@ -95,6 +99,16 @@ const CompletionsPage: React.FC = () => {
       }
     },
   })
+
+  const listedUserIds = useMemo(
+    () => getCompletionsList.data?.users.map((user) => user.userId) ?? [],
+    [getCompletionsList.data],
+  )
+  const creditRegistrationsQuery = useTeacherCreditRegistrations(
+    courseInstanceQuery.data?.course_id ?? null,
+    listedUserIds,
+  )
+  const creditRegistrations = creditRegistrationsQuery.data ?? EMPTY_CREDIT_REGISTRATIONS
 
   const [showForm, setShowForm] = useState(false)
   const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
@@ -366,6 +380,7 @@ const CompletionsPage: React.FC = () => {
                     key={user.userId}
                     sortedCourseModules={data.sortedCourseModules}
                     user={user}
+                    creditRegistrations={creditRegistrations}
                   />
                 ))}
               </tbody>

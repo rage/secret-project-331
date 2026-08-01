@@ -30,7 +30,10 @@ use headless_lms_utils::services::suotar::{
 use sqlx::PgConnection;
 use std::collections::HashSet;
 
-use super::{CreditRegistrationPhase, PhaseContext, PhaseScope, every_item_failed_transiently};
+use super::{
+    CreditRegistrationPhase, PhaseContext, PhaseScope, every_item_failed_transiently,
+    listed_person_addresses,
+};
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
     let endpoint = SuotarEndpoint::ListByCourse;
@@ -152,7 +155,7 @@ async fn reconcile(
             first_names: Some(person.first_names.clone()),
             last_name: Some(person.last_name.clone()),
             course_id: realisation.course_id,
-            addresses: addresses_of(person),
+            addresses: listed_person_addresses(person),
         };
         if discovered.addresses.is_empty() {
             // The only genuinely unreachable population, and the reason it has a counter of its own.
@@ -176,19 +179,6 @@ async fn reconcile(
         recheck_no_usable_enrolment_now(conn, realisation.course_id, &linked_user_ids).await?;
     }
     Ok(outcome)
-}
-
-/// Every address the study registry holds, in the order it lists them. Which one the person reads is
-/// not something we can know, so none is preferred over another.
-fn addresses_of(person: &ListedPerson) -> Vec<String> {
-    [
-        Some(person.primary_email.clone()),
-        person.secondary_email.clone(),
-    ]
-    .into_iter()
-    .flatten()
-    .filter(|address| !address.trim().is_empty())
-    .collect()
 }
 
 fn listable_course_code(realisation: &RealisationToList) -> Option<String> {

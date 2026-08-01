@@ -1086,8 +1086,9 @@ async fn course_name_of_token(
 }
 
 /// Keeps the domain and drops the local part: enough for a student to recognise which of their
-/// mailboxes to open, and not enough to be a new disclosure of an address.
-fn mask_email(email: &str) -> String {
+/// mailboxes to open, and not enough to be a new disclosure of an address. Teachers get the same
+/// masking; only admins see an address in full.
+pub(crate) fn mask_email(email: &str) -> String {
     match email.split_once('@') {
         Some((_, domain)) => format!("...@{domain}"),
         None => "...".to_string(),

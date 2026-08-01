@@ -220,6 +220,14 @@ import type {
   GetCourseCompletionsHistoryResponses,
   GetCourseCompletionStatsForEmailDomainData,
   GetCourseCompletionStatsForEmailDomainResponses,
+  GetCourseCreditRegistrationModuleConfigsData,
+  GetCourseCreditRegistrationModuleConfigsResponses,
+  GetCourseCreditRegistrationsData,
+  GetCourseCreditRegistrationsForUsersData,
+  GetCourseCreditRegistrationsForUsersResponses,
+  GetCourseCreditRegistrationsResponses,
+  GetCourseCreditRegistrationSummaryData,
+  GetCourseCreditRegistrationSummaryResponses,
   GetCourseDailySubmissionCountsData,
   GetCourseDailySubmissionCountsResponses,
   GetCourseDailyUsersWhoSubmittedSomethingData,
@@ -327,6 +335,9 @@ import type {
   GetCourseUserSettingsForUserResponses,
   GetCourseWeekdayHourSubmissionCountsData,
   GetCourseWeekdayHourSubmissionCountsResponses,
+  GetCreditRegistrationDetailsData,
+  GetCreditRegistrationDetailsErrors,
+  GetCreditRegistrationDetailsResponses,
   GetCurrentTimeData,
   GetCurrentTimeResponses,
   GetEditProposalCountData,
@@ -577,6 +588,9 @@ import type {
   RequestEmailVerificationCodeData,
   RequestEmailVerificationCodeErrors,
   RequestEmailVerificationCodeResponses,
+  ResendCourseCreditRegistrationLinkingEmailData,
+  ResendCourseCreditRegistrationLinkingEmailErrors,
+  ResendCourseCreditRegistrationLinkingEmailResponses,
   ResetCourseProgressForEveryoneData,
   ResetCourseProgressForEveryoneResponses,
   ResetCourseProgressForTeacherThemselvesData,
@@ -756,6 +770,10 @@ import {
   zGetCourseCompletionsHistoryCustomTimePeriodResponse,
   zGetCourseCompletionsHistoryResponse,
   zGetCourseCompletionStatsForEmailDomainResponse,
+  zGetCourseCreditRegistrationModuleConfigsResponse,
+  zGetCourseCreditRegistrationsForUsersResponse,
+  zGetCourseCreditRegistrationsResponse,
+  zGetCourseCreditRegistrationSummaryResponse,
   zGetCourseDailySubmissionCountsResponse,
   zGetCourseDailyUsersWhoSubmittedSomethingResponse,
   zGetCourseDesignerPlanResponse,
@@ -804,6 +822,7 @@ import {
   zGetCourseUsersCountsByExerciseResponse,
   zGetCourseUserSettingsForUserResponse,
   zGetCourseWeekdayHourSubmissionCountsResponse,
+  zGetCreditRegistrationDetailsResponse,
   zGetCurrentTimeResponse,
   zGetEditProposalCountResponse,
   zGetEditProposalsResponse,
@@ -914,6 +933,7 @@ import {
   zReprocessCourseCompletionsResponse,
   zRequestCreditRegistrationEnrolmentRecheckResponse,
   zRequestEmailVerificationCodeResponse,
+  zResendCourseCreditRegistrationLinkingEmailResponse,
   zResetCourseProgressForEveryoneResponse,
   zResetCourseProgressForTeacherThemselvesResponse,
   zResetExercisesForSelectedUsersResponse,
@@ -1473,6 +1493,162 @@ export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ *
+ * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids` - The
+ * registrations of the named students, for the students tab's current page.
+ */
+export const getCourseCreditRegistrationsForUsers = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationsForUsersData, ThrowOnError>,
+): RequestResult<GetCourseCreditRegistrationsForUsersResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    GetCourseCreditRegistrationsForUsersResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseCreditRegistrationsForUsersResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list` - A page of the
+ * course's registrations, filtered by state and searched by student name, email or student number.
+ */
+export const getCourseCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationsData, ThrowOnError>,
+): RequestResult<GetCourseCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseCreditRegistrationsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs` - The
+ * course's per-module credit registration configuration.
+ */
+export const getCourseCreditRegistrationModuleConfigs = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationModuleConfigsData, ThrowOnError>,
+): RequestResult<
+  GetCourseCreditRegistrationModuleConfigsResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCourseCreditRegistrationModuleConfigsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseCreditRegistrationModuleConfigsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs",
+    ...options,
+  })
+
+/**
+ *
+ * POST
+ * `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off
+ * another account-linking mail for one person on this course.
+ *
+ * The target has to be on this course's roster in the study registry and hold no link with us, which is
+ * the same predicate the enrolment discovery phase claims mails under. The caps of the ordinary claim
+ * path apply and there is no parameter that relaxes them: a refusal comes back as a typed outcome for
+ * the teacher to escalate, and only an admin can override.
+ */
+export const resendCourseCreditRegistrationLinkingEmail = <ThrowOnError extends boolean = true>(
+  options: Options<ResendCourseCreditRegistrationLinkingEmailData, ThrowOnError>,
+): RequestResult<
+  ResendCourseCreditRegistrationLinkingEmailResponses,
+  ResendCourseCreditRegistrationLinkingEmailErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    ResendCourseCreditRegistrationLinkingEmailResponses,
+    ResendCourseCreditRegistrationLinkingEmailErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zResendCourseCreditRegistrationLinkingEmailResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
+ * counts plus the two reasons a student of this course will not get credits.
+ */
+export const getCourseCreditRegistrationSummary = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationSummaryData, ThrowOnError>,
+): RequestResult<GetCourseCreditRegistrationSummaryResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseCreditRegistrationSummaryResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseCreditRegistrationSummaryResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One
+ * registration with its timeline and the other attempts for the same completion.
+ *
+ * Authorized on the row's own course, not on a course id from the caller: with a course in the path a
+ * teacher of one course could read another's rows by pairing their own course with a foreign id.
+ */
+export const getCreditRegistrationDetails = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationDetailsData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationDetailsErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationDetailsResponses,
+    GetCreditRegistrationDetailsErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCreditRegistrationDetailsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}",
+    ...options,
+  })
 
 /**
  *

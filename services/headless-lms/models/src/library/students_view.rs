@@ -31,7 +31,7 @@ pub struct StudentsListPage {
 
 /// Escapes the `LIKE`/`ILIKE` metacharacters `\`, `%` and `_` so a search string is matched
 /// literally (used together with `ESCAPE '\'` in the query).
-fn escape_like_pattern(input: &str) -> String {
+pub fn escape_like_pattern(input: &str) -> String {
     input
         .replace('\\', "\\\\")
         .replace('%', "\\%")

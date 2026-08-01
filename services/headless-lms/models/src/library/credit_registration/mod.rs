@@ -17,6 +17,7 @@ pub mod outcomes;
 pub mod payload;
 pub mod preconditions;
 pub mod student_facing_status;
+pub mod submission_context;
 pub mod withdrawal;
 
 pub use classification::{Retryability, retryability};
@@ -24,4 +25,5 @@ pub use legacy_mirror::{SUOTAR_PUSH_REGISTRAR_ID, mirror_successes_to_legacy_led
 pub use materialize::ensure_registration_rows_for_eligible_completions;
 pub use preconditions::recompute_preconditions;
 pub use student_facing_status::StudentFacingCreditRegistrationStatus;
-pub use withdrawal::withdrawal_target;
+pub use submission_context::{SubmissionContext, get_submission_contexts};
+pub use withdrawal::{apply_consent_change, withdrawal_target};

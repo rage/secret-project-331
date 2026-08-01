@@ -153,6 +153,12 @@ fn scrub_free_text(text: &str) -> String {
         .into_owned()
 }
 
+/// Best-effort removal of personal data from a message rather than a body. Same rules; the
+/// scrubber's input is JSON and an error message is a bare string.
+pub fn scrub_text(text: &str) -> String {
+    scrub_free_text(text)
+}
+
 /// Both sides of a Suotar exchange, scrubbed on construction so there is no way to build an
 /// unscrubbed `details`. The request is kept because the ledger row no longer reflects it after a
 /// retry.

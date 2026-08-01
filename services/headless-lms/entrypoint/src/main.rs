@@ -28,6 +28,10 @@ struct Program {
 fn main() -> Result<()> {
     let programs_list = vec![
         Program {
+            name: "credit-registrar",
+            execute: Box::new(|| tokio_run(programs::credit_registrar::main())),
+        },
+        Program {
             name: "doc-file-generator",
             execute: Box::new(|| tokio_run(programs::doc_file_generator::main())),
         },

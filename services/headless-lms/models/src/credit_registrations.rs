@@ -738,6 +738,42 @@ WHERE id = $1
     Ok(())
 }
 
+/// Records the attainment the study registry holds, unless another live row already claims it.
+///
+/// Returns whether it was recorded. Two rows may legitimately be told about one attainment — a
+/// grade improvement Sisu declines names the attainment the first attempt registered — and a unique
+/// index would turn that into a failed transition rather than the terminal state it should be.
+pub async fn set_sisu_attainment_if_unclaimed(
+    conn: &mut PgConnection,
+    id: Uuid,
+    sisu_attainment_id: &str,
+    sisu_attainment_type: Option<&str>,
+) -> ModelResult<bool> {
+    let updated = sqlx::query_scalar!(
+        r#"
+UPDATE credit_registrations
+SET sisu_attainment_id = $2,
+  sisu_attainment_type = $3
+WHERE id = $1
+  AND deleted_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM credit_registrations other
+    WHERE other.sisu_attainment_id = $2
+      AND other.deleted_at IS NULL
+      AND other.id <> $1
+  )
+RETURNING id
+        "#,
+        id,
+        sisu_attainment_id,
+        sisu_attainment_type,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(updated.is_some())
+}
+
 /// Defers when the pipeline may next claim this row; the delay is the caller's policy.
 ///
 /// Does not touch `first_failed_at`, which [`transition`] owns: states that wait on a human must

@@ -8,7 +8,7 @@ use headless_lms_utils::services::suotar::{
 };
 use utoipa::ToSchema;
 
-use crate::credit_registration_events::scrub_suotar_body;
+use crate::credit_registration_events::{scrub_suotar_body, scrub_text};
 use crate::prelude::*;
 
 /// How long call rows are kept.
@@ -273,9 +273,7 @@ impl SuotarCallAudit for PgSuotarCallAudit {
             ok_item_count: finished.ok_item_count.try_into().unwrap_or(i32::MAX),
             error_item_count: finished.error_item_count.try_into().unwrap_or(i32::MAX),
             request_level_error_code: finished.request_level_error_code,
-            error_message: finished
-                .error_message
-                .map(|message| scrub_message(&message)),
+            error_message: finished.error_message.map(|message| scrub_text(&message)),
             response_body_sample: finished
                 .response_body
                 .map(|body| sample_body(&scrub_suotar_body(&body))),
@@ -292,14 +290,6 @@ impl SuotarCallAudit for PgSuotarCallAudit {
         if let Err(error) = finish(&mut conn, call_id, &finished).await {
             error!("Could not complete suotar_api_calls {call_id}: {error}");
         }
-    }
-}
-
-/// The scrubber takes JSON, and an error message is a bare string.
-fn scrub_message(message: &str) -> String {
-    match scrub_suotar_body(&serde_json::Value::String(message.to_string())) {
-        serde_json::Value::String(scrubbed) => scrubbed,
-        other => other.to_string(),
     }
 }
 

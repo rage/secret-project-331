@@ -5,7 +5,32 @@
 //! state of their own rather than a flag: a flag would have to be remembered by the claim query,
 //! the stuck detector, the funnel and every alert rule, and one of them would forget.
 
-use crate::credit_registrations::CreditRegistrationState;
+use crate::credit_registrations::{CreditRegistrationState, RegistrationScope};
+use crate::prelude::*;
+
+use super::preconditions::{PRECONDITIONS_LIMIT, recompute_preconditions};
+
+/// Applies a consent answer to the student's registrations on that course.
+///
+/// Called by the consent endpoints inside the transaction that writes the consent, so the student
+/// sees the effect on the page they are looking at. The precondition phase applies the same rules to
+/// anything that changed between ticks, so this is a shortcut rather than the only path.
+pub async fn apply_consent_change(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<i64> {
+    recompute_preconditions(
+        conn,
+        &RegistrationScope {
+            user_id: Some(user_id),
+            course_id: Some(course_id),
+            credit_registration_ids: Vec::new(),
+        },
+        PRECONDITIONS_LIMIT,
+    )
+    .await
+}
 
 /// The state a row moves to when the student withdraws consent, or `None` when withdrawal changes
 /// nothing about it.

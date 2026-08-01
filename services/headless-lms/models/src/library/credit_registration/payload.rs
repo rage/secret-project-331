@@ -12,6 +12,26 @@ use crate::prelude::*;
 
 use super::grade_mapping::{GradeSource, map_grade};
 
+/// What the completion contributes to the payload.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CompletionFacts {
+    pub passed: bool,
+    pub grade: Option<i32>,
+    pub completion_date: DateTime<Utc>,
+    pub completion_language: String,
+}
+
+impl From<&CourseModuleCompletion> for CompletionFacts {
+    fn from(completion: &CourseModuleCompletion) -> Self {
+        Self {
+            passed: completion.passed,
+            grade: completion.grade,
+            completion_date: completion.completion_date,
+            completion_language: completion.completion_language.clone(),
+        }
+    }
+}
+
 /// Everything outside the completion that the payload is built from.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PayloadSources<'a> {
@@ -33,7 +53,7 @@ pub struct BuiltPayload {
 }
 
 pub fn build_payload_snapshot(
-    completion: &CourseModuleCompletion,
+    completion: &CompletionFacts,
     sources: PayloadSources<'_>,
 ) -> Result<BuiltPayload, CreditRegistrationErrorCode> {
     // The last line of defence for "never push a failure": materialize filters these out and the
@@ -141,25 +161,12 @@ mod tests {
     use super::super::grade_mapping::{NUMERIC_GRADE_SCALE_ID, PASS_FAIL_GRADE_SCALE_ID};
     use super::*;
 
-    fn completion(passed: bool, grade: Option<i32>) -> CourseModuleCompletion {
-        CourseModuleCompletion {
-            id: Uuid::new_v4(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-            course_id: Uuid::new_v4(),
-            course_module_id: Uuid::new_v4(),
-            user_id: Uuid::new_v4(),
-            completion_date: "2026-05-22T09:00:00Z".parse().expect("valid instant"),
-            completion_registration_attempt_date: None,
-            completion_language: "fi-FI".to_string(),
-            eligible_for_ects: true,
-            email: "student@example.com".to_string(),
-            grade,
+    fn completion(passed: bool, grade: Option<i32>) -> CompletionFacts {
+        CompletionFacts {
             passed,
-            prerequisite_modules_completed: true,
-            completion_granter_user_id: None,
-            needs_to_be_reviewed: false,
+            grade,
+            completion_date: "2026-05-22T09:00:00Z".parse().expect("valid instant"),
+            completion_language: "fi-FI".to_string(),
         }
     }
 

@@ -837,6 +837,37 @@ mod tests {
         );
     }
 
+    /// The rule stated in one place and applied in another has to be proven to be the same rule.
+    /// This walks a row into every state, withdraws consent and checks the recompute against the
+    /// statement of what withdrawal does.
+    #[tokio::test]
+    async fn withdrawal_does_what_the_rule_says_from_every_state() {
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+        for state in CreditRegistrationState::ALL {
+            insert_data!(tx: tx; user: student);
+            let fixture =
+                fixture(tx.as_mut(), student, course, instance.id, course_module.id).await;
+            course_credit_registration_consents::upsert(tx.as_mut(), student, course, true)
+                .await
+                .unwrap();
+            link_student_number(tx.as_mut(), student).await;
+            transition(tx.as_mut(), fixture.registration, &Transition::to(state))
+                .await
+                .unwrap();
+            course_credit_registration_consents::upsert(tx.as_mut(), student, course, false)
+                .await
+                .unwrap();
+
+            recompute(tx.as_mut(), &fixture).await;
+            let expected = super::super::withdrawal::withdrawal_target(state).unwrap_or(state);
+            assert_eq!(
+                self::state(tx.as_mut(), &fixture).await,
+                expected,
+                "withdrawal from {state:?}"
+            );
+        }
+    }
+
     #[tokio::test]
     async fn a_scoped_recompute_leaves_another_students_row_alone() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);

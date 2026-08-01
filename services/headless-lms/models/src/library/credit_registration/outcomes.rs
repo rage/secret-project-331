@@ -93,6 +93,11 @@ pub fn submit_error_outcome(
     facts: &RowFacts,
 ) -> Outcome {
     use CreditRegistrationErrorCode as Code;
+    // An answer we cannot classify is not evidence that nothing was created, and `failed_permanent`
+    // is a state an admin retries from. On import that retry would be a second submission.
+    if endpoint == SuotarEndpoint::ImportAttainments && code == Code::Unknown {
+        return submission_uncertain();
+    }
     match retryability(code) {
         Retryability::VerifyOnly if endpoint == SuotarEndpoint::ImportAttainments => {
             submission_uncertain()
@@ -333,7 +338,7 @@ mod tests {
             (Code::MissingEctsCredits, State::FailedPermanent),
             (Code::RetryWindowExpired, State::FailedPermanent),
             (Code::Misregistered, State::FailedPermanent),
-            (Code::Unknown, State::FailedPermanent),
+            (Code::Unknown, State::SubmissionUncertain),
         ];
         assert_eq!(expected.len(), CreditRegistrationErrorCode::ALL.len());
         for (code, state) in expected {
@@ -343,6 +348,43 @@ mod tests {
 
     /// The same code means different things depending on whether the call could have created
     /// something. Resolve creates nothing, so a timeout there is a plain retry.
+    /// The complete set of import answers after which the row may be sent again. Each is a refusal
+    /// of the item before Sisu saw it rather than an outcome of it, so nothing was created; the
+    /// transient code is on the list only because the phase never reaches here with it, having
+    /// hardened it to a timeout first. Adding to this list is a decision about a real transcript.
+    #[test]
+    fn the_import_answers_that_allow_another_attempt_are_only_refusals() {
+        let resendable: Vec<Code> = CreditRegistrationErrorCode::ALL
+            .into_iter()
+            .filter(|code| import(*code).to_state == State::FailedRetryable)
+            .collect();
+        assert_eq!(
+            resendable,
+            vec![
+                Code::SisuTemporarilyUnavailable,
+                Code::Unauthorized,
+                Code::MalformedRequest,
+                Code::TransportError,
+                Code::UnexpectedResponse,
+            ]
+        );
+        assert_eq!(
+            crate::credit_registrations::map_code(
+                SuotarEndpoint::ImportAttainments,
+                "sisuTemporarilyUnavailable"
+            ),
+            Some(Code::SisuTimeout)
+        );
+    }
+
+    /// The dangerous shape of an unknown answer: an admin retry from `failed_permanent` would send
+    /// an import whose first outcome nobody knows.
+    #[test]
+    fn an_import_answer_we_cannot_classify_is_uncertain_rather_than_failed() {
+        assert_eq!(import(Code::Unknown).to_state, State::SubmissionUncertain);
+        assert_eq!(resolve(Code::Unknown).to_state, State::FailedPermanent);
+    }
+
     #[test]
     fn a_timeout_is_uncertain_on_import_and_retryable_on_resolve() {
         assert_eq!(

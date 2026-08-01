@@ -5,6 +5,7 @@ pub mod program_config;
 use crate::{
     OAuthClient,
     config::program_config::ProgramConfig,
+    controllers::mock_suotar::store::MockSuotarStore,
     domain::{
         models_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
         request_span_middleware::RequestSpan,
@@ -49,6 +50,9 @@ pub struct ServerRuntimeConfig {
     pub app_conf: ApplicationConfiguration,
     /// Redis connection URL — may contain credentials, so kept secret.
     pub redis_url: SecretString,
+    /// The mock Suotar's own Redis database, kept off the cache's index 1 so a flush touches
+    /// nothing of the cache's. Overridable for a developer who already has something on index 2.
+    pub mock_suotar_redis_db_index: i64,
     pub jwt_password: SecretString,
     pub private_cookie_key: SecretString,
     pub test_mode: bool,
@@ -105,6 +109,10 @@ impl ServerRuntimeConfig {
                     .context("REDIS_URL must be defined")?
                     .into(),
             ),
+            mock_suotar_redis_db_index: env::var("MOCK_SUOTAR_REDIS_DB_INDEX")
+                .ok()
+                .and_then(|value| value.trim().parse().ok())
+                .unwrap_or(2),
             jwt_password: SecretString::new(
                 env::var("JWT_PASSWORD")
                     .context("JWT_PASSWORD must be defined")?
@@ -167,6 +175,7 @@ pub struct ServerConfigBuilder {
     pub file_store: Arc<dyn FileStore + Send + Sync>,
     pub app_conf: ApplicationConfiguration,
     pub redis_url: SecretString,
+    pub mock_suotar_redis_db_index: i64,
     pub jwt_password: SecretString,
     pub tmc_client: TmcClient,
     pub sisu_client: SisuClient,
@@ -192,6 +201,7 @@ impl ServerConfigBuilder {
             .await,
             app_conf: runtime_config.app_conf.clone(),
             redis_url: runtime_config.redis_url.clone(),
+            mock_suotar_redis_db_index: runtime_config.mock_suotar_redis_db_index,
             jwt_password: runtime_config.jwt_password.clone(),
             tmc_client: TmcClient::new(
                 runtime_config.app_conf.tmc_admin_access_token.clone(),
@@ -243,6 +253,18 @@ impl ServerConfigBuilder {
         let cache = Cache::new(self.redis_url.expose_secret())?;
         let cache = Data::new(cache);
 
+        // Registered unconditionally like every other entry: it only parses a url, and the routes
+        // that use it are absent unless the mock is on.
+        if app_conf.test_suotar {
+            warn!(
+                "MOCK SUOTAR ENABLED - credit registrations are simulated and are NOT recorded in Sisu"
+            );
+        }
+        let mock_suotar_store = Data::new(MockSuotarStore::new(
+            self.redis_url.expose_secret(),
+            self.mock_suotar_redis_db_index,
+        )?);
+
         let jwt_key = JwtKey::new(&self.jwt_password)?;
         let jwt_key = Data::new(jwt_key);
 
@@ -263,6 +285,7 @@ impl ServerConfigBuilder {
             payload_config,
             tmc_client,
             sisu_client,
+            mock_suotar_store,
         };
         Ok(config)
     }
@@ -282,6 +305,7 @@ pub struct ServerConfig {
     pub jwt_key: Data<JwtKey>,
     pub tmc_client: Data<TmcClient>,
     pub sisu_client: Data<SisuClient>,
+    pub mock_suotar_store: Data<MockSuotarStore>,
 }
 
 /// Common configuration that is used by both production and testing.
@@ -299,6 +323,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         payload_config,
         tmc_client,
         sisu_client,
+        mock_suotar_store,
     } = server_config;
     let api_rate_limit_config = RateLimit::global_api_rate_limit_config(app_conf.test_mode);
     // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
@@ -317,6 +342,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(cache)
         .app_data(tmc_client)
         .app_data(sisu_client)
+        .app_data(mock_suotar_store)
         .service(
             web::scope("/api/v0")
                 .wrap(RateLimit::new(api_rate_limit_config))

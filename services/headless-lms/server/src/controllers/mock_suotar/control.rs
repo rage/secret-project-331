@@ -8,15 +8,34 @@
 //! `bindings.ts`; Playwright uses a hand-written client (`system-tests/src/utils/suotarControl.ts`).
 
 use crate::domain::credit_registration_phases::{
-    CreditRegistrationPhase, PhaseTick, run_phase_once,
+    CreditRegistrationPhase, PhaseScope, PhaseTick, run_phase_once,
 };
 use crate::prelude::*;
 use sqlx::PgPool;
 
+use super::commands;
+
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RunTickQuery {
     /// Optional so a missing phase answers our typed error listing the valid names, not actix's 400.
     pub phase: Option<String>,
+    pub course_id: Option<Uuid>,
+    /// Resolved here rather than in the spec: the friendly form is also the fault's owner, so a
+    /// scenario hands back one object a spec passes to both.
+    pub course_slug: Option<String>,
+    pub user_id: Option<Uuid>,
+    pub user_email: Option<String>,
+    /// Comma-separated ledger row ids, for a spec that already knows them.
+    pub credit_registration_ids: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct UnresolvedScope {
+    pub status: String,
+    pub half: String,
+    pub value: String,
 }
 
 /// The outcome of dispatching one phase.
@@ -67,6 +86,10 @@ POST `/api/v0/mock-suotar/control/run-tick?phase={phase}`
 
 Runs one iteration of one pipeline phase. 200 when the phase ran, 501 `phaseNotImplemented` when no
 implementation is registered for it, 400 `unknownPhase` for a name that is not a phase.
+
+An optional scope — `courseId`/`courseSlug`, `userId`/`userEmail`, `creditRegistrationIds` — narrows
+the rows the iteration may claim, so a spec advances only its own and a batch carries one owner.
+Absent means unscoped, which is what production does.
 */
 async fn run_tick(
     app_conf: web::Data<ApplicationConfiguration>,
@@ -89,7 +112,15 @@ async fn run_tick(
         ));
     };
 
-    let result = PhaseTickResult::of(phase, run_phase_once(&pool, phase).await?);
+    let scope = match resolve_scope(&pool, &query).await? {
+        Ok(scope) => scope,
+        // Never a silent fall-through to sweeping everything.
+        Err(unresolved) => {
+            return token.authorized_ok(HttpResponse::BadRequest().json(unresolved));
+        }
+    };
+
+    let result = PhaseTickResult::of(phase, run_phase_once(&pool, phase, &scope).await?);
     token.authorized_ok(match &result {
         PhaseTickResult::Ran { .. } => HttpResponse::Ok().json(&result),
         _ => HttpResponse::NotImplemented().json(&result),
@@ -102,6 +133,9 @@ POST `/api/v0/mock-suotar/control/run-registrar-tick`
 The combined form of `run-tick`: materialize, preconditions, resolve-enrolments, import and verify in
 pipeline order, for specs that want a completion walked end to end. Always 200; each phase reports
 its own status in the body.
+
+Deliberately takes no scope: a suite that only ever ticks scoped never exercises the sweep-everything
+behaviour production has.
 */
 async fn run_registrar_tick(
     app_conf: web::Data<ApplicationConfiguration>,
@@ -110,14 +144,76 @@ async fn run_registrar_tick(
     super::assert_enabled(&app_conf);
     let token = skip_authorize();
 
+    let scope = PhaseScope::default();
     let mut phases = Vec::new();
     for phase in CreditRegistrationPhase::REGISTRAR_TICK_SEQUENCE {
         phases.push(PhaseTickResult::of(
             phase,
-            run_phase_once(&pool, phase).await?,
+            run_phase_once(&pool, phase, &scope).await?,
         ));
     }
     token.authorized_ok(HttpResponse::Ok().json(RegistrarTickResult { phases }))
+}
+
+/// The outer error is a real failure; the inner one is a scope half that names nothing.
+async fn resolve_scope(
+    pool: &PgPool,
+    query: &RunTickQuery,
+) -> anyhow::Result<Result<PhaseScope, UnresolvedScope>> {
+    let mut scope = PhaseScope {
+        course_id: query.course_id,
+        user_id: query.user_id,
+        credit_registration_ids: Vec::new(),
+    };
+    if let Some(slug) = &query.course_slug {
+        let found: Option<Uuid> =
+            sqlx::query_scalar("SELECT id FROM courses WHERE slug = $1 AND deleted_at IS NULL")
+                .bind(slug)
+                .fetch_optional(pool)
+                .await?;
+        match found {
+            Some(id) => scope.course_id = Some(id),
+            None => {
+                return Ok(Err(UnresolvedScope {
+                    status: "unresolvedScope".to_string(),
+                    half: "courseSlug".to_string(),
+                    value: slug.clone(),
+                }));
+            }
+        }
+    }
+    if let Some(email) = &query.user_email {
+        let found: Option<Uuid> =
+            sqlx::query_scalar("SELECT user_id FROM user_details WHERE LOWER(email) = LOWER($1)")
+                .bind(email)
+                .fetch_optional(pool)
+                .await?;
+        match found {
+            Some(id) => scope.user_id = Some(id),
+            None => {
+                return Ok(Err(UnresolvedScope {
+                    status: "unresolvedScope".to_string(),
+                    half: "userEmail".to_string(),
+                    value: email.clone(),
+                }));
+            }
+        }
+    }
+    if let Some(raw) = &query.credit_registration_ids {
+        for part in raw.split(',').filter(|part| !part.trim().is_empty()) {
+            match Uuid::parse_str(part.trim()) {
+                Ok(id) => scope.credit_registration_ids.push(id),
+                Err(_) => {
+                    return Ok(Err(UnresolvedScope {
+                        status: "unresolvedScope".to_string(),
+                        half: "creditRegistrationIds".to_string(),
+                        value: part.trim().to_string(),
+                    }));
+                }
+            }
+        }
+    }
+    Ok(Ok(scope))
 }
 
 fn known_phase_names() -> Vec<String> {
@@ -127,9 +223,12 @@ fn known_phase_names() -> Vec<String> {
         .collect()
 }
 
+/// The two tick routes stay routes rather than command variants: they drive the pipeline instead of
+/// manipulating the world, and they have a landed client and landed tests.
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/run-tick", web::post().to(run_tick))
-        .route("/run-registrar-tick", web::post().to(run_registrar_tick));
+        .route("/run-registrar-tick", web::post().to(run_registrar_tick))
+        .configure(commands::_add_routes);
 }
 
 #[cfg(test)]

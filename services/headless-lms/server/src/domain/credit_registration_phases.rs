@@ -7,6 +7,7 @@
 
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use sqlx::PgPool;
+use uuid::Uuid;
 
 /// A pipeline phase. The string forms are canonical: `credit_registration_phase_state.phase`, the
 /// tick endpoint's `?phase=`, the dashboard's Workers tab labels and the audit log's `target_phase`.
@@ -95,6 +96,27 @@ impl CreditRegistrationPhase {
     }
 }
 
+/// Which rows one iteration may touch.
+///
+/// Production passes the unscoped value, so a scoped run differs only in the row set: the claim
+/// query is the same SQL either way, and cannot drift from the one production uses. A phase that
+/// cannot honour a dimension has to say so rather than sweep everything silently.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct PhaseScope {
+    pub course_id: Option<Uuid>,
+    pub user_id: Option<Uuid>,
+    /// The precision escape hatch, for a spec that already knows its ledger rows.
+    pub credit_registration_ids: Vec<Uuid>,
+}
+
+impl PhaseScope {
+    pub fn is_unscoped(&self) -> bool {
+        self.course_id.is_none()
+            && self.user_id.is_none()
+            && self.credit_registration_ids.is_empty()
+    }
+}
+
 /// What one dispatch attempt did.
 #[derive(Debug, Clone, PartialEq)]
 pub enum PhaseTick {
@@ -111,6 +133,7 @@ pub enum PhaseTick {
 pub async fn run_phase_once(
     _pool: &PgPool,
     phase: CreditRegistrationPhase,
+    _scope: &PhaseScope,
 ) -> anyhow::Result<PhaseTick> {
     match phase {
         CreditRegistrationPhase::Materialize

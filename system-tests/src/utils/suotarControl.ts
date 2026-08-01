@@ -8,15 +8,18 @@
  * Deployments, which a spec cannot wait out inside the 100 s per-test timeout. A tick runs one
  * iteration of one phase synchronously.
  *
- * - **Ticks are global.** One tick processes every eligible row in the whole database, not just the
- *   rows your spec seeded. Assert only on your own student and course, never on a global count.
+ * - **A tick sweeps everything it is not scoped away from.** Pass a scope so the iteration advances
+ *   only your own rows and a batch carries one owner; without one it processes every eligible row in
+ *   the database. Aggregates stay global either way, so assert on your own student and course.
+ * - `runRegistrarTick` deliberately takes no scope: a suite that only ever ticks scoped never
+ *   exercises the sweep-everything behaviour production has.
  * - A phase answers `phaseNotImplemented` until its implementation is registered. That is not a
  *   failure.
  */
 
 import type { APIRequestContext } from "@playwright/test"
 
-const CONTROL_BASE_URL = "http://project-331.local/api/v0/mock-suotar/control"
+export const CONTROL_BASE_URL = "http://project-331.local/api/v0/mock-suotar/control"
 
 /** Must match `CreditRegistrationPhase` in the backend. */
 export const CREDIT_REGISTRATION_PHASES = [
@@ -36,6 +39,18 @@ export const CREDIT_REGISTRATION_PHASES = [
 
 export type CreditRegistrationPhase = (typeof CREDIT_REGISTRATION_PHASES)[number]
 
+/**
+ * Which rows a tick may touch. A scenario hands back the same object, so a spec passes it on to
+ * `runTick` and to a fault's `owner` without restating an identifier.
+ */
+export interface TickScope {
+  courseId?: string
+  courseSlug?: string
+  userId?: string
+  userEmail?: string
+  creditRegistrationIds?: string[]
+}
+
 export type PhaseTickResult =
   | {
       status: "ran"
@@ -46,16 +61,35 @@ export type PhaseTickResult =
     }
   | { status: "phaseNotImplemented"; phase: CreditRegistrationPhase }
   | { status: "unknownPhase"; phase: string | null; knownPhases: string[] }
+  | { status: "unresolvedScope"; half: string; value: string }
 
 export interface RegistrarTickResult {
   phases: PhaseTickResult[]
 }
 
+const scopeQuery = (scope?: TickScope): string => {
+  if (!scope) {
+    return ""
+  }
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(scope)) {
+    if (value === undefined) {
+      continue
+    }
+    params.append(key, Array.isArray(value) ? value.join(",") : value)
+  }
+  const query = params.toString()
+  return query === "" ? "" : `&${query}`
+}
+
 export const runTick = async (
   request: APIRequestContext,
   phase: CreditRegistrationPhase,
+  scope?: TickScope,
 ): Promise<PhaseTickResult> => {
-  const response = await request.post(`${CONTROL_BASE_URL}/run-tick?phase=${phase}`)
+  const response = await request.post(
+    `${CONTROL_BASE_URL}/run-tick?phase=${phase}${scopeQuery(scope)}`,
+  )
   // 501 is the "no implementation registered yet" answer and 400 the unknown-phase one; anything
   // else (notably 404) means the mock is not enabled and the whole spec is invalid.
   if (![200, 400, 501].includes(response.status())) {
@@ -84,46 +118,72 @@ export const runRegistrarTick = async (
   return (await response.json()) as RegistrarTickResult
 }
 
-export const runMaterializeTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "materialize")
+export const runMaterializeTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "materialize", scope)
 
-export const runPreconditionsTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "preconditions")
+export const runPreconditionsTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "preconditions", scope)
 
-export const runResolveEnrolmentsTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "resolve-enrolments")
+export const runResolveEnrolmentsTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "resolve-enrolments", scope)
 
-export const runImportSubmissionTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "import")
+export const runImportSubmissionTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "import", scope)
 
-export const runVerifyPollTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "verify")
+export const runVerifyPollTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "verify", scope)
 
 /** Outage recovery is the verify phase doing its job; aliased because the test plan names it. */
-export const runOutageRecoveryTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "verify")
+export const runOutageRecoveryTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "verify", scope)
 
-export const runLegacyMirrorTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "legacy-mirror")
+export const runLegacyMirrorTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "legacy-mirror", scope)
 
-export const runStudentNotificationsTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "student-notifications")
+export const runStudentNotificationsTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "student-notifications", scope)
 
-export const runEnrolmentDiscoveryTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "enrolment-discovery")
+export const runEnrolmentDiscoveryTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "enrolment-discovery", scope)
 
 /**
  * Separate from enrolment discovery because the fast-track specs assert that **no** linking
  * mail was queued, which needs the mailing phase run on its own.
  */
-export const runLinkEmailsTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "link-emails")
+export const runLinkEmailsTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "link-emails", scope)
 
-export const runProductTokenRefreshTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "product-token-refresh")
+export const runProductTokenRefreshTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "product-token-refresh", scope)
 
-export const runConfigValidationTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "config-validation")
+export const runConfigValidationTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "config-validation", scope)
 
-export const runRetentionSweepTick = (request: APIRequestContext): Promise<PhaseTickResult> =>
-  runTick(request, "retention-sweep")
+export const runRetentionSweepTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<PhaseTickResult> => runTick(request, "retention-sweep", scope)

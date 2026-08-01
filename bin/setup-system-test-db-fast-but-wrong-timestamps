@@ -65,5 +65,23 @@ run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-develo
 # Create new headless_lms_test database using our template
 run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public createdb --host=postgres --port=5432 --username=headless-lms --template="$DATABASE_TEMPLATE_NAME" headless_lms_test
 
+# This path replaces the database without running the seed, so the mock Suotar's simulated world has
+# to go with it: the template freezes every timestamp, so nothing derived from seeded data can tell a
+# world a run old from a fresh one. Unconditional, and a control command rather than a raw redis-cli,
+# which would silently stop matching the index the mock actually uses.
+MOCK_SUOTAR_RESET_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+  http://project-331.local/api/v0/mock-suotar/control/command \
+  -H "Content-Type: application/json" \
+  -d '{"command":"reset","scope":"world"}' || echo "000")
+case "$MOCK_SUOTAR_RESET_STATUS" in
+  200) echo "Cleared the mock Suotar's simulated world." ;;
+  # 404 means the mock is off, which is a supported way to run against a real staging Suotar.
+  404) echo "Mock Suotar is not enabled; nothing to clear." ;;
+  *)
+    echo "Failed to clear the mock Suotar's simulated world (HTTP $MOCK_SUOTAR_RESET_STATUS). Refusing to hand the suite the previous run's world."
+    exit 1
+    ;;
+esac
+
 echo ""
 echo -e "${GREEN}✅ Now you have a fresh headless_lms_test database you can use for testing.${RESET_EVERYTHING}"

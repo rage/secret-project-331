@@ -19,9 +19,10 @@ use actix_web::{
 };
 use anyhow::Context;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::suotar_api_calls::PgSuotarCallAudit;
 use headless_lms_utils::{
     cache::Cache, file_store::FileStore, icu4x::Icu4xBlob, ip_to_country::IpToCountryMapper,
-    services::sisu::SisuClient, services::tmc::TmcClient,
+    services::sisu::SisuClient, services::suotar::SuotarClient, services::tmc::TmcClient,
 };
 use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
 use secrecy::{ExposeSecret, SecretString};
@@ -272,6 +273,12 @@ impl ServerConfigBuilder {
 
         let sisu_client = Data::new(self.sisu_client);
 
+        // Built here rather than in `from_runtime_config` because auditing every call needs the pool.
+        let suotar_client = Data::new(SuotarClient::new(
+            &app_conf.suotar_configuration,
+            Arc::new(PgSuotarCallAudit::new(db_pool.as_ref().clone())),
+        ));
+
         let config = ServerConfig {
             json_config,
             db_pool,
@@ -285,6 +292,7 @@ impl ServerConfigBuilder {
             payload_config,
             tmc_client,
             sisu_client,
+            suotar_client,
             mock_suotar_store,
         };
         Ok(config)
@@ -305,6 +313,7 @@ pub struct ServerConfig {
     pub jwt_key: Data<JwtKey>,
     pub tmc_client: Data<TmcClient>,
     pub sisu_client: Data<SisuClient>,
+    pub suotar_client: Data<SuotarClient>,
     pub mock_suotar_store: Data<MockSuotarStore>,
 }
 
@@ -323,6 +332,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         payload_config,
         tmc_client,
         sisu_client,
+        suotar_client,
         mock_suotar_store,
     } = server_config;
     let api_rate_limit_config = RateLimit::global_api_rate_limit_config(app_conf.test_mode);
@@ -342,6 +352,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(cache)
         .app_data(tmc_client)
         .app_data(sisu_client)
+        .app_data(suotar_client)
         .app_data(mock_suotar_store)
         .service(
             web::scope("/api/v0")

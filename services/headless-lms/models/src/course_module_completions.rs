@@ -782,6 +782,15 @@ WHERE course_module_id = ANY($1)
   -- registration until a teacher dismisses or confirms them.
   AND needs_to_be_reviewed = FALSE
   AND deleted_at IS NULL
+  -- Modules on the push path are registered by us; letting the registry pull them too would put a
+  -- second attainment on the student's transcript.
+  AND NOT EXISTS (
+    SELECT 1
+    FROM course_modules cm
+    WHERE cm.id = course_module_completions.course_module_id
+      AND cm.enable_credit_registration_via_suotar
+      AND cm.deleted_at IS NULL
+  )
   AND id NOT IN (
     SELECT course_module_completion_id
     FROM course_module_completion_registered_to_study_registries

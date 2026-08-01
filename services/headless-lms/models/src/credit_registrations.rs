@@ -8,6 +8,7 @@ use utoipa::ToSchema;
 
 use crate::credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent};
 use crate::prelude::*;
+use crate::suotar_api_calls::SuotarEndpoint;
 
 /// What the pipeline does next with a ledger row.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
@@ -90,6 +91,49 @@ pub enum CreditRegistrationErrorCode {
     MissingEctsCredits,
     RetryWindowExpired,
     Unknown,
+}
+
+/// Suotar's per-item `code` as a ledger error code.
+///
+/// `None` where the code names no failure of ours to record: every success code, and verify's
+/// `notRegistered`, which only means Sisu has not finished yet. An unrecognised code becomes
+/// [`CreditRegistrationErrorCode::Unknown`] and keeps its raw string in `error_message`, because
+/// Suotar may add codes and a strict mapping would take the pipeline down the day they do.
+pub fn map_code(endpoint: SuotarEndpoint, code: &str) -> Option<CreditRegistrationErrorCode> {
+    use CreditRegistrationErrorCode as Code;
+    let mapped = match code {
+        "personFound"
+        | "enrolmentFound"
+        | "registered"
+        | "sent"
+        | "duplicateAttainment"
+        | "notImprovedAttainment"
+        | "found"
+        | "enrolmentsListed"
+        | "notRegistered" => return None,
+        "personNotFound" => Code::PersonNotFound,
+        "courseCodeNotFound" => Code::CourseCodeNotFound,
+        "enrolmentNotFound" => Code::EnrolmentNotFound,
+        "enrolmentNotAccepted" => Code::EnrolmentNotAccepted,
+        "invalidGradeForGradeScale" => Code::InvalidGradeForGradeScale,
+        "courseNotAllowed" => Code::CourseNotAllowed,
+        "invalidCredits" => Code::InvalidCredits,
+        "studyRightNotValid" => Code::StudyRightNotValid,
+        "acceptorNotFound" => Code::AcceptorNotFound,
+        "sisuValidationFailed" => Code::SisuValidationFailed,
+        "sisuTimeout" => Code::SisuTimeout,
+        "misregistered" => Code::Misregistered,
+        "unauthorized" => Code::Unauthorized,
+        "malformedRequest" => Code::MalformedRequest,
+        // Import's contract has no per-item transient, so one arriving there is not evidence that
+        // nothing was created. Retrying it could put a second attainment on a transcript.
+        "sisuTemporarilyUnavailable" if endpoint == SuotarEndpoint::ImportAttainments => {
+            Code::SisuTimeout
+        }
+        "sisuTemporarilyUnavailable" => Code::SisuTemporarilyUnavailable,
+        _ => Code::Unknown,
+    };
+    Some(mapped)
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -1021,5 +1065,149 @@ mod tests {
         .unwrap();
         assert!(!resolved.needs_admin_attention);
         assert_eq!(resolved.error_code, None);
+    }
+
+    #[test]
+    fn every_documented_error_code_maps() {
+        use CreditRegistrationErrorCode as Code;
+        let cases = [
+            (
+                SuotarEndpoint::ResolvePersons,
+                "personNotFound",
+                Code::PersonNotFound,
+            ),
+            (
+                SuotarEndpoint::ResolvePersons,
+                "sisuTemporarilyUnavailable",
+                Code::SisuTemporarilyUnavailable,
+            ),
+            (
+                SuotarEndpoint::ResolveEnrolments,
+                "personNotFound",
+                Code::PersonNotFound,
+            ),
+            (
+                SuotarEndpoint::ResolveEnrolments,
+                "courseCodeNotFound",
+                Code::CourseCodeNotFound,
+            ),
+            (
+                SuotarEndpoint::ResolveEnrolments,
+                "enrolmentNotFound",
+                Code::EnrolmentNotFound,
+            ),
+            (
+                SuotarEndpoint::ResolveEnrolments,
+                "enrolmentNotAccepted",
+                Code::EnrolmentNotAccepted,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "invalidGradeForGradeScale",
+                Code::InvalidGradeForGradeScale,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "courseNotAllowed",
+                Code::CourseNotAllowed,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "invalidCredits",
+                Code::InvalidCredits,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "studyRightNotValid",
+                Code::StudyRightNotValid,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "acceptorNotFound",
+                Code::AcceptorNotFound,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "sisuValidationFailed",
+                Code::SisuValidationFailed,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "sisuTimeout",
+                Code::SisuTimeout,
+            ),
+            (
+                SuotarEndpoint::VerifyAttainments,
+                "misregistered",
+                Code::Misregistered,
+            ),
+            (
+                SuotarEndpoint::VerifyAttainments,
+                "sisuTemporarilyUnavailable",
+                Code::SisuTemporarilyUnavailable,
+            ),
+            (
+                SuotarEndpoint::ListByCourse,
+                "courseCodeNotFound",
+                Code::CourseCodeNotFound,
+            ),
+            (
+                SuotarEndpoint::ResolvePersons,
+                "unauthorized",
+                Code::Unauthorized,
+            ),
+            (
+                SuotarEndpoint::ResolvePersons,
+                "malformedRequest",
+                Code::MalformedRequest,
+            ),
+        ];
+        for (endpoint, code, expected) in cases {
+            assert_eq!(
+                map_code(endpoint, code),
+                Some(expected),
+                "{code} on {endpoint:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn no_code_that_needs_no_recording_becomes_an_error() {
+        for (endpoint, code) in [
+            (SuotarEndpoint::ResolvePersons, "personFound"),
+            (SuotarEndpoint::ResolveEnrolments, "enrolmentFound"),
+            (SuotarEndpoint::ImportAttainments, "sent"),
+            (SuotarEndpoint::ImportAttainments, "registered"),
+            (SuotarEndpoint::ImportAttainments, "duplicateAttainment"),
+            (SuotarEndpoint::ImportAttainments, "notImprovedAttainment"),
+            (SuotarEndpoint::VerifyAttainments, "registered"),
+            (SuotarEndpoint::ProductAccessTokens, "found"),
+            (SuotarEndpoint::ListByCourse, "enrolmentsListed"),
+            (SuotarEndpoint::VerifyAttainments, "notRegistered"),
+        ] {
+            assert_eq!(map_code(endpoint, code), None, "{code} on {endpoint:?}");
+        }
+    }
+
+    #[test]
+    fn an_item_level_transient_on_import_is_uncertain_rather_than_retryable() {
+        assert_eq!(
+            map_code(
+                SuotarEndpoint::ImportAttainments,
+                "sisuTemporarilyUnavailable"
+            ),
+            Some(CreditRegistrationErrorCode::SisuTimeout)
+        );
+    }
+
+    #[test]
+    fn a_code_suotar_adds_later_maps_to_unknown_rather_than_failing() {
+        assert_eq!(
+            map_code(
+                SuotarEndpoint::VerifyAttainments,
+                "somethingSuotarAddedLater"
+            ),
+            Some(CreditRegistrationErrorCode::Unknown)
+        );
     }
 }

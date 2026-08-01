@@ -30,6 +30,7 @@ pub enum UtilErrorType {
     TmcHttpError,
     TmcErrorResponse,
     SisuClientError(SisuErrorVariant),
+    SuotarClientError(SuotarErrorVariant),
 }
 #[derive(Debug)]
 
@@ -37,6 +38,37 @@ pub enum SisuErrorVariant {
     GenericSisuError,
     InvalidCourseCode,
     SisuResourceNotFound,
+}
+
+/// How a call to Suotar failed at the request level. Per-item failures are not errors: they come
+/// back inside a successful batch response.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SuotarErrorVariant {
+    /// Our credentials. Loud, and never attributed to the rows in the batch.
+    Unauthorized,
+    /// Our request. Loud, and never attributed to the rows in the batch.
+    MalformedRequest,
+    /// Another 4xx carrying the documented `{ error: { code, message } }` body.
+    RequestLevelError,
+    ServerError,
+    /// The connection itself failed, so the request provably never arrived.
+    TransportNotDelivered,
+    /// The request left and the answer did not arrive. A timeout is this, not the above.
+    TransportUnknown,
+    /// Suotar answered, and the answer was not a batch response.
+    Deserialization,
+}
+
+impl SuotarErrorVariant {
+    /// Whether Suotar may have acted on the request. Only the three failures that prove it did not
+    /// are safe to re-send; an import that may have landed must be verified instead, because
+    /// re-sending puts a second attainment on a real transcript.
+    pub fn outcome_may_have_landed(self) -> bool {
+        !matches!(
+            self,
+            Self::Unauthorized | Self::MalformedRequest | Self::TransportNotDelivered
+        )
+    }
 }
 
 /**

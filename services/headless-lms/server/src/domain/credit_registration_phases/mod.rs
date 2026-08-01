@@ -134,6 +134,18 @@ impl CreditRegistrationPhase {
         }
     }
 
+    /// Whether [`run_phase_once`] has an implementation registered for the phase.
+    ///
+    /// Mirrors that function's not-implemented arm, and both have to name the same phases. A phase
+    /// with no implementation never heartbeats, so the dashboard must not report it as a worker that
+    /// stopped answering.
+    pub fn is_implemented(self) -> bool {
+        !matches!(
+            self,
+            Self::StudentNotifications | Self::ConfigValidation | Self::RetentionSweep
+        )
+    }
+
     /// Whether the phase talks to the study registry, and so shares the circuit breaker.
     pub fn calls_study_registry(self) -> bool {
         matches!(

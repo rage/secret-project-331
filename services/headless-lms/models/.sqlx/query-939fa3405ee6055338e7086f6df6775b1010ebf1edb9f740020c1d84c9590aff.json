@@ -1,0 +1,635 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.id,\n  cr.created_at,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.course_instance_id,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state AS \"state: CreditRegistrationState\",\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?: CreditRegistrationErrorCode\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.last_attempt_at,\n  cr.submitted_at,\n  cr.registered_at,\n  cr.terminal_at,\n  cr.student_number,\n  cr.sisu_person_id,\n  cr.uh_course_code,\n  cr.selected_enrolment_id,\n  cr.grade_scale_id,\n  cr.grade_id,\n  cr.credits,\n  cr.request_item_id,\n  cr.submitted_attainment_id,\n  cr.sisu_attainment_id,\n  cr.submit_retry_count,\n  cr.verify_attempt_count,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  vsn.student_number AS \"verified_student_number?\",\n  vsn.verified_at AS \"verified_student_number_at?\",\n  vsn.verified_via AS \"verified_student_number_via?: StudentNumberVerificationMethod\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND ($1::bool OR cr.superseded_by_id IS NULL)\n  AND (\n    $2::credit_registration_state [] IS NULL\n    OR cr.state = ANY($2)\n  )\n  AND (\n    $3::credit_registration_error_code [] IS NULL\n    OR cr.error_code = ANY($3)\n  )\n  AND ($4::uuid IS NULL OR cr.course_id = $4)\n  AND ($5::uuid IS NULL OR cr.course_module_id = $5)\n  AND ($6::uuid IS NULL OR cr.user_id = $6)\n  AND (\n    $7::text IS NULL\n    OR cr.student_number = $7\n    OR vsn.student_number = $7\n  )\n  AND (NOT $8::bool OR cr.needs_admin_attention)\n  AND ($9::timestamptz IS NULL OR cr.submitted_at >= $9)\n  AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)\n  AND (\n    $11::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.submitted_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.sisu_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.error_message) LIKE '%' || $11 || '%' ESCAPE '\\'\n  )\n  AND (\n    $12::uuid IS NULL\n    OR cr.id = $12\n    OR cr.user_id = $12\n    OR cr.course_module_completion_id = $12\n  )\nORDER BY CASE\n    WHEN $13::text = 'attempts' THEN cr.submit_retry_count + cr.verify_attempt_count\n  END DESC NULLS LAST,\n  CASE $13::text\n    WHEN 'created' THEN cr.created_at\n    WHEN 'time_in_state' THEN cr.state_entered_at\n    ELSE COALESCE(cr.last_attempt_at, cr.state_entered_at)\n  END DESC,\n  cr.id\nLIMIT $14 OFFSET $15\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "first_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "last_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "email?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "course_module_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "course_instance_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_instance_id"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "completion_date",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "completion_date"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "state: CreditRegistrationState",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "state_entered_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state_entered_at"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "error_code?: CreditRegistrationErrorCode",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "acceptor_not_found",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "sisu_temporarily_unavailable",
+                "misregistered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "error_code"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "needs_admin_attention",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "needs_admin_attention"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "next_attempt_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "next_attempt_at"
+          }
+        }
+      },
+      {
+        "ordinal": 18,
+        "name": "last_attempt_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "last_attempt_at"
+          }
+        }
+      },
+      {
+        "ordinal": 19,
+        "name": "submitted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "submitted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 20,
+        "name": "registered_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "registered_at"
+          }
+        }
+      },
+      {
+        "ordinal": 21,
+        "name": "terminal_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "terminal_at"
+          }
+        }
+      },
+      {
+        "ordinal": 22,
+        "name": "student_number",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 23,
+        "name": "sisu_person_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "sisu_person_id"
+          }
+        }
+      },
+      {
+        "ordinal": 24,
+        "name": "uh_course_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "uh_course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 25,
+        "name": "selected_enrolment_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "selected_enrolment_id"
+          }
+        }
+      },
+      {
+        "ordinal": 26,
+        "name": "grade_scale_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "grade_scale_id"
+          }
+        }
+      },
+      {
+        "ordinal": 27,
+        "name": "grade_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "grade_id"
+          }
+        }
+      },
+      {
+        "ordinal": 28,
+        "name": "credits",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "credits"
+          }
+        }
+      },
+      {
+        "ordinal": 29,
+        "name": "request_item_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "request_item_id"
+          }
+        }
+      },
+      {
+        "ordinal": 30,
+        "name": "submitted_attainment_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "submitted_attainment_id"
+          }
+        }
+      },
+      {
+        "ordinal": 31,
+        "name": "sisu_attainment_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "sisu_attainment_id"
+          }
+        }
+      },
+      {
+        "ordinal": 32,
+        "name": "submit_retry_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "submit_retry_count"
+          }
+        }
+      },
+      {
+        "ordinal": 33,
+        "name": "verify_attempt_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "verify_attempt_count"
+          }
+        }
+      },
+      {
+        "ordinal": 34,
+        "name": "attempt_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "attempt_number"
+          }
+        }
+      },
+      {
+        "ordinal": 35,
+        "name": "superseded_by_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "superseded_by_id"
+          }
+        }
+      },
+      {
+        "ordinal": 36,
+        "name": "verified_student_number?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 37,
+        "name": "verified_student_number_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_at"
+          }
+        }
+      },
+      {
+        "ordinal": 38,
+        "name": "verified_student_number_via?: StudentNumberVerificationMethod",
+        "type_info": {
+          "Custom": {
+            "name": "student_number_verification_method",
+            "kind": {
+              "Enum": [
+                "emailed_link",
+                "email_match_fast_track",
+                "admin_manual"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_via"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bool",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending_prerequisites",
+                      "pending_consent",
+                      "pending_student_number",
+                      "ready_to_submit",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_error_code[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_error_code",
+                  "kind": {
+                    "Enum": [
+                      "person_not_found",
+                      "course_code_not_found",
+                      "enrolment_not_found",
+                      "enrolment_not_accepted",
+                      "invalid_grade_for_grade_scale",
+                      "course_not_allowed",
+                      "invalid_credits",
+                      "study_right_not_valid",
+                      "acceptor_not_found",
+                      "sisu_validation_failed",
+                      "sisu_timeout",
+                      "sisu_temporarily_unavailable",
+                      "misregistered",
+                      "unauthorized",
+                      "malformed_request",
+                      "transport_error",
+                      "unexpected_response",
+                      "no_grade_scale_mapping",
+                      "missing_uh_course_code",
+                      "missing_ects_credits",
+                      "retry_window_expired",
+                      "unknown"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Bool",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Uuid",
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "939fa3405ee6055338e7086f6df6775b1010ebf1edb9f740020c1d84c9590aff"
+}

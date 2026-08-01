@@ -396,6 +396,201 @@ LIMIT $2
     Ok(res)
 }
 
+/// One endpoint's traffic over a window.
+///
+/// A row is inserted before the request leaves and completed when it lands, so `duration_ms IS NULL`
+/// means still in flight. Everything below counts finished calls only, or a call in progress would
+/// read as a failure.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SuotarEndpointStats {
+    pub endpoint: SuotarEndpoint,
+    pub call_count: i64,
+    pub failed_call_count: i64,
+    pub in_flight_count: i64,
+    pub ok_item_count: i64,
+    pub error_item_count: i64,
+    pub p50_duration_ms: Option<i32>,
+    pub p95_duration_ms: Option<i32>,
+    pub last_success_at: Option<DateTime<Utc>>,
+    pub last_failure_at: Option<DateTime<Utc>>,
+    /// Suotar's own request-level code from the most recent failure, or `None` for a transport
+    /// failure, which never reached Suotar and so has no code.
+    pub last_request_level_error_code: Option<String>,
+}
+
+pub async fn get_endpoint_stats(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+) -> ModelResult<Vec<SuotarEndpointStats>> {
+    let rows = sqlx::query_as!(
+        SuotarEndpointStats,
+        r#"
+SELECT endpoint AS "endpoint!: SuotarEndpoint",
+  COUNT(*) FILTER (WHERE duration_ms IS NOT NULL) AS "call_count!",
+  COUNT(*) FILTER (
+    WHERE duration_ms IS NOT NULL
+      AND NOT succeeded
+  ) AS "failed_call_count!",
+  COUNT(*) FILTER (WHERE duration_ms IS NULL) AS "in_flight_count!",
+  COALESCE(SUM(ok_item_count), 0) AS "ok_item_count!",
+  COALESCE(SUM(error_item_count), 0) AS "error_item_count!",
+  PERCENTILE_DISC(0.5) WITHIN GROUP (
+    ORDER BY duration_ms
+  ) AS "p50_duration_ms",
+  PERCENTILE_DISC(0.95) WITHIN GROUP (
+    ORDER BY duration_ms
+  ) AS "p95_duration_ms",
+  MAX(started_at) FILTER (WHERE succeeded) AS "last_success_at",
+  MAX(started_at) FILTER (
+    WHERE duration_ms IS NOT NULL
+      AND NOT succeeded
+  ) AS "last_failure_at",
+  (
+    ARRAY_AGG(
+      request_level_error_code
+      ORDER BY started_at DESC
+    ) FILTER (
+      WHERE duration_ms IS NOT NULL
+        AND NOT succeeded
+        AND request_level_error_code IS NOT NULL
+    )
+  ) [1] AS "last_request_level_error_code"
+FROM suotar_api_calls
+WHERE started_at >= $1
+  AND deleted_at IS NULL
+GROUP BY endpoint
+        "#,
+        since,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows)
+}
+
+/// Where one endpoint stands right now, over all time rather than a window.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SuotarEndpointStanding {
+    pub endpoint: SuotarEndpoint,
+    pub last_success_at: Option<DateTime<Utc>>,
+    pub last_failure_at: Option<DateTime<Utc>>,
+    /// Finished failures since the last success.
+    pub consecutive_failures: i64,
+}
+
+pub async fn get_endpoint_standings(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<SuotarEndpointStanding>> {
+    let rows = sqlx::query_as!(
+        SuotarEndpointStanding,
+        r#"
+WITH last_success AS (
+  SELECT endpoint,
+    MAX(started_at) AS at
+  FROM suotar_api_calls
+  WHERE succeeded
+    AND deleted_at IS NULL
+  GROUP BY endpoint
+)
+SELECT c.endpoint AS "endpoint!: SuotarEndpoint",
+  ls.at AS "last_success_at",
+  MAX(c.started_at) FILTER (
+    WHERE c.duration_ms IS NOT NULL
+      AND NOT c.succeeded
+  ) AS "last_failure_at",
+  COUNT(*) FILTER (
+    WHERE c.duration_ms IS NOT NULL
+      AND NOT c.succeeded
+      AND (
+        ls.at IS NULL
+        OR c.started_at > ls.at
+      )
+  ) AS "consecutive_failures!"
+FROM suotar_api_calls c
+  LEFT JOIN last_success ls ON ls.endpoint = c.endpoint
+WHERE c.deleted_at IS NULL
+GROUP BY c.endpoint,
+  ls.at
+        "#,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows)
+}
+
+/// A run of failures the health rules key on.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SuotarFailureRun {
+    pub count: i64,
+    pub last_at: Option<DateTime<Utc>>,
+}
+
+/// Calls Suotar refused our credentials on. One is enough to stop everything registering.
+pub async fn count_credential_rejections_since(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+) -> ModelResult<SuotarFailureRun> {
+    let row = sqlx::query_as!(
+        SuotarFailureRun,
+        r#"
+SELECT COUNT(*) AS "count!",
+  MAX(started_at) AS "last_at"
+FROM suotar_api_calls
+WHERE started_at >= $1
+  AND deleted_at IS NULL
+  AND (
+    http_status IN (401, 403)
+    OR request_level_error_code = 'unauthorized'
+  )
+        "#,
+        since,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(row)
+}
+
+/// The unbroken run of "Suotar did not answer usefully" at the end of the window.
+///
+/// A transport failure carries no HTTP status, which is how it is told apart from a refusal Suotar
+/// composed itself.
+pub async fn count_unreachable_run_since(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+) -> ModelResult<SuotarFailureRun> {
+    let row = sqlx::query_as!(
+        SuotarFailureRun,
+        r#"
+WITH last_success AS (
+  SELECT MAX(started_at) AS at
+  FROM suotar_api_calls
+  WHERE succeeded
+    AND started_at >= $1
+    AND deleted_at IS NULL
+)
+SELECT COUNT(*) AS "count!",
+  MAX(c.started_at) AS "last_at"
+FROM suotar_api_calls c
+  CROSS JOIN last_success ls
+WHERE c.started_at >= $1
+  AND c.deleted_at IS NULL
+  AND c.duration_ms IS NOT NULL
+  AND NOT c.succeeded
+  AND (
+    c.http_status IS NULL
+    OR c.http_status >= 500
+  )
+  AND (
+    ls.at IS NULL
+    OR c.started_at > ls.at
+  )
+        "#,
+        since,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(row)
+}
+
 /// Hard-deletes rows past the retention window: the stored bodies must stop existing.
 pub async fn delete_older_than(conn: &mut PgConnection, cutoff: DateTime<Utc>) -> ModelResult<u64> {
     let res = sqlx::query!(

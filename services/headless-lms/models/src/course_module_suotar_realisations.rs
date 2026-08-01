@@ -204,6 +204,65 @@ LIMIT $1
     Ok(res)
 }
 
+/// One active realisation's counters from its last discovery run, with the course it belongs to.
+///
+/// Point-in-time, not a windowed sum: the phase overwrites the row whole, so these numbers describe
+/// the last run and nothing else. Every surface that renders them has to say so.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RealisationDiscoveryReport {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_module_id: Uuid,
+    pub course_module_name: Option<String>,
+    pub course_unit_realisation_id: String,
+    pub label: Option<String>,
+    pub uh_course_code: Option<String>,
+    pub last_listed_at: Option<DateTime<Utc>>,
+    pub last_listed_person_count: Option<i32>,
+    pub last_already_linked_count: Option<i32>,
+    pub last_mailed_count: Option<i32>,
+    pub last_suppressed_by_dedup_count: Option<i32>,
+    pub last_suppressed_by_rate_cap_count: Option<i32>,
+    pub last_no_address_count: Option<i32>,
+}
+
+pub async fn get_active_discovery_reports(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<RealisationDiscoveryReport>> {
+    let res = sqlx::query_as!(
+        RealisationDiscoveryReport,
+        r#"
+SELECT cmsr.id,
+  cm.course_id,
+  c.name AS course_name,
+  cmsr.course_module_id,
+  cm.name AS course_module_name,
+  cmsr.course_unit_realisation_id,
+  cmsr.label,
+  cm.uh_course_code,
+  cmsr.last_listed_at,
+  cmsr.last_listed_person_count,
+  cmsr.last_already_linked_count,
+  cmsr.last_mailed_count,
+  cmsr.last_suppressed_by_dedup_count,
+  cmsr.last_suppressed_by_rate_cap_count,
+  cmsr.last_no_address_count
+FROM course_module_suotar_realisations cmsr
+  JOIN course_modules cm ON cm.id = cmsr.course_module_id
+  JOIN courses c ON c.id = cm.course_id
+WHERE cmsr.active
+  AND cmsr.deleted_at IS NULL
+  AND cm.deleted_at IS NULL
+ORDER BY c.name,
+  cmsr.course_unit_realisation_id
+        "#,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn record_listing_outcome(
     conn: &mut PgConnection,
     id: Uuid,

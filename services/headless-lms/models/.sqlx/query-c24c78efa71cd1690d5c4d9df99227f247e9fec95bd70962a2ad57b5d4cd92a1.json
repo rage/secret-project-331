@@ -1,0 +1,104 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registrations cr\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND ($1::bool OR cr.superseded_by_id IS NULL)\n  AND (\n    $2::credit_registration_state [] IS NULL\n    OR cr.state = ANY($2)\n  )\n  AND (\n    $3::credit_registration_error_code [] IS NULL\n    OR cr.error_code = ANY($3)\n  )\n  AND ($4::uuid IS NULL OR cr.course_id = $4)\n  AND ($5::uuid IS NULL OR cr.course_module_id = $5)\n  AND ($6::uuid IS NULL OR cr.user_id = $6)\n  AND (\n    $7::text IS NULL\n    OR cr.student_number = $7\n    OR vsn.student_number = $7\n  )\n  AND (NOT $8::bool OR cr.needs_admin_attention)\n  AND ($9::timestamptz IS NULL OR cr.submitted_at >= $9)\n  AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)\n  AND (\n    $11::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.submitted_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.sisu_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.error_message) LIKE '%' || $11 || '%' ESCAPE '\\'\n  )\n  AND (\n    $12::uuid IS NULL\n    OR cr.id = $12\n    OR cr.user_id = $12\n    OR cr.course_module_completion_id = $12\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bool",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending_prerequisites",
+                      "pending_consent",
+                      "pending_student_number",
+                      "ready_to_submit",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_error_code[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_error_code",
+                  "kind": {
+                    "Enum": [
+                      "person_not_found",
+                      "course_code_not_found",
+                      "enrolment_not_found",
+                      "enrolment_not_accepted",
+                      "invalid_grade_for_grade_scale",
+                      "course_not_allowed",
+                      "invalid_credits",
+                      "study_right_not_valid",
+                      "acceptor_not_found",
+                      "sisu_validation_failed",
+                      "sisu_timeout",
+                      "sisu_temporarily_unavailable",
+                      "misregistered",
+                      "unauthorized",
+                      "malformed_request",
+                      "transport_error",
+                      "unexpected_response",
+                      "no_grade_scale_mapping",
+                      "missing_uh_course_code",
+                      "missing_ects_credits",
+                      "retry_window_expired",
+                      "unknown"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Bool",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "c24c78efa71cd1690d5c4d9df99227f247e9fec95bd70962a2ad57b5d4cd92a1"
+}

@@ -1,0 +1,112 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT endpoint AS \"endpoint!: SuotarEndpoint\",\n  COUNT(*) FILTER (WHERE duration_ms IS NOT NULL) AS \"call_count!\",\n  COUNT(*) FILTER (\n    WHERE duration_ms IS NOT NULL\n      AND NOT succeeded\n  ) AS \"failed_call_count!\",\n  COUNT(*) FILTER (WHERE duration_ms IS NULL) AS \"in_flight_count!\",\n  COALESCE(SUM(ok_item_count), 0) AS \"ok_item_count!\",\n  COALESCE(SUM(error_item_count), 0) AS \"error_item_count!\",\n  PERCENTILE_DISC(0.5) WITHIN GROUP (\n    ORDER BY duration_ms\n  ) AS \"p50_duration_ms\",\n  PERCENTILE_DISC(0.95) WITHIN GROUP (\n    ORDER BY duration_ms\n  ) AS \"p95_duration_ms\",\n  MAX(started_at) FILTER (WHERE succeeded) AS \"last_success_at\",\n  MAX(started_at) FILTER (\n    WHERE duration_ms IS NOT NULL\n      AND NOT succeeded\n  ) AS \"last_failure_at\",\n  (\n    ARRAY_AGG(\n      request_level_error_code\n      ORDER BY started_at DESC\n    ) FILTER (\n      WHERE duration_ms IS NOT NULL\n        AND NOT succeeded\n        AND request_level_error_code IS NOT NULL\n    )\n  ) [1] AS \"last_request_level_error_code\"\nFROM suotar_api_calls\nWHERE started_at >= $1\n  AND deleted_at IS NULL\nGROUP BY endpoint\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "endpoint!: SuotarEndpoint",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_endpoint",
+            "kind": {
+              "Enum": [
+                "resolve_persons",
+                "resolve_enrolments",
+                "import_attainments",
+                "verify_attainments",
+                "product_access_tokens",
+                "list_by_course"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "endpoint"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "call_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "failed_call_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "in_flight_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "ok_item_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "error_item_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "p50_duration_ms",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 7,
+        "name": "p95_duration_ms",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 8,
+        "name": "last_success_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "last_failure_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 10,
+        "name": "last_request_level_error_code",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "5b56147d149ba312c21e04aef1737152654bb67fbdc678acb4666dfc73ff20f1"
+}

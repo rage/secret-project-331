@@ -312,6 +312,92 @@ fn not_handed_over_yet() -> EmailSendStatusReport {
     }
 }
 
+/// Mails claimed in the window, newest first, whatever course they belong to.
+pub async fn get_sent_since(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+) -> ModelResult<Vec<CreditRegistrationAccountLinkingEmail>> {
+    let res = sqlx::query_as!(
+        CreditRegistrationAccountLinkingEmail,
+        r#"
+SELECT *
+FROM credit_registration_account_linking_emails
+WHERE sent_at >= $1
+  AND deleted_at IS NULL
+ORDER BY sent_at DESC
+        "#,
+        since,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// One person and course we have mailed to the cap without ever being claimed: the stale-address
+/// population, which is the only way to tell "the student is ignoring us" from "the address Sisu
+/// holds is dead".
+#[derive(Debug, Clone, PartialEq)]
+pub struct StaleUnclaimedLinkingMails {
+    pub student_number: String,
+    pub sisu_person_id: String,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub mail_count: i64,
+    pub first_sent_at: DateTime<Utc>,
+    pub last_sent_at: DateTime<Utc>,
+    pub mail_ids: Vec<Uuid>,
+    /// In full: an admin deciding whether resending can work has to read the address.
+    pub addresses: Vec<String>,
+}
+
+pub async fn get_stale_unclaimed(
+    conn: &mut PgConnection,
+    min_mail_count: i64,
+    limit: i64,
+) -> ModelResult<Vec<StaleUnclaimedLinkingMails>> {
+    let res = sqlx::query_as!(
+        StaleUnclaimedLinkingMails,
+        r#"
+SELECT e.student_number AS "student_number!",
+  e.sisu_person_id AS "sisu_person_id!",
+  e.course_id AS "course_id!",
+  c.name AS "course_name!",
+  COUNT(*) AS "mail_count!",
+  MIN(e.sent_at) AS "first_sent_at!",
+  MAX(e.sent_at) AS "last_sent_at!",
+  ARRAY_AGG(
+    e.id
+    ORDER BY e.sent_at
+  ) AS "mail_ids!",
+  ARRAY_AGG(
+    e.emailed_to
+    ORDER BY e.sent_at
+  ) AS "addresses!"
+FROM credit_registration_account_linking_emails e
+  JOIN courses c ON c.id = e.course_id
+WHERE e.deleted_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM verified_student_numbers vsn
+    WHERE vsn.sisu_person_id = e.sisu_person_id
+      AND vsn.deleted_at IS NULL
+  )
+GROUP BY e.student_number,
+  e.sisu_person_id,
+  e.course_id,
+  c.name
+HAVING COUNT(*) >= $1
+ORDER BY MAX(e.sent_at) DESC
+LIMIT $2
+        "#,
+        min_mail_count,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Lets a rate-cap override or an admin resend mail the same address again.
 pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(

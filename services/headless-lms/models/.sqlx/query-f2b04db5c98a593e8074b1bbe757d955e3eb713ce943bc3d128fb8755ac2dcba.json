@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT verified_via AS \"verified_via: StudentNumberVerificationMethod\",\n  COUNT(*) AS \"count!\"\nFROM verified_student_numbers\nWHERE deleted_at IS NULL\n  AND ($1::timestamptz IS NULL OR verified_at >= $1)\nGROUP BY verified_via\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "verified_via: StudentNumberVerificationMethod",
+        "type_info": {
+          "Custom": {
+            "name": "student_number_verification_method",
+            "kind": {
+              "Enum": [
+                "emailed_link",
+                "email_match_fast_track",
+                "admin_manual"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_via"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "f2b04db5c98a593e8074b1bbe757d955e3eb713ce943bc3d128fb8755ac2dcba"
+}

@@ -15,6 +15,7 @@ pub mod course_designer;
 pub mod course_instances;
 pub mod course_modules;
 pub mod courses;
+pub mod credit_registration_admin;
 pub mod credit_registrations;
 pub mod email_templates;
 pub mod email_verification;
@@ -58,6 +59,7 @@ use utoipa::OpenApi;
         (path = "/course-instances", api = course_instances::MainFrontendCourseInstancesApiDoc),
         (path = "/course-modules", api = course_modules::MainFrontendCourseModulesApiDoc),
         (path = "/courses", api = courses::MainFrontendCoursesApiDoc),
+        (path = "/credit-registration-admin", api = credit_registration_admin::MainFrontendCreditRegistrationAdminApiDoc),
         (path = "/credit-registrations", api = credit_registrations::MainFrontendCreditRegistrationsApiDoc),
         (path = "/email-templates", api = email_templates::MainFrontendEmailTemplatesApiDoc),
         (path = "/email-verification", api = email_verification::MainFrontendEmailVerificationApiDoc),
@@ -99,6 +101,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/course-plans").configure(course_designer::_add_routes))
         .service(web::scope("/course-modules").configure(course_modules::_add_routes))
         .service(web::scope("/courses").configure(courses::_add_routes))
+        .service(
+            web::scope("/credit-registration-admin")
+                .configure(credit_registration_admin::_add_routes),
+        )
         .service(web::scope("/credit-registrations").configure(credit_registrations::_add_routes))
         .service(web::scope("/email-templates").configure(email_templates::_add_routes))
         .service(web::scope("/email-verification").configure(email_verification::_add_routes))

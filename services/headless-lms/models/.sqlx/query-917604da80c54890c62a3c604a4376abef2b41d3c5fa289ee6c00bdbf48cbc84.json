@@ -1,0 +1,194 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cmsr.id,\n  cm.course_id,\n  c.name AS course_name,\n  cmsr.course_module_id,\n  cm.name AS course_module_name,\n  cmsr.course_unit_realisation_id,\n  cmsr.label,\n  cm.uh_course_code,\n  cmsr.last_listed_at,\n  cmsr.last_listed_person_count,\n  cmsr.last_already_linked_count,\n  cmsr.last_mailed_count,\n  cmsr.last_suppressed_by_dedup_count,\n  cmsr.last_suppressed_by_rate_cap_count,\n  cmsr.last_no_address_count\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\n  JOIN courses c ON c.id = cm.course_id\nWHERE cmsr.active\n  AND cmsr.deleted_at IS NULL\n  AND cm.deleted_at IS NULL\nORDER BY c.name,\n  cmsr.course_unit_realisation_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_module_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_unit_realisation_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "course_unit_realisation_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "label",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "label"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "uh_course_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "uh_course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "last_listed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_listed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "last_listed_person_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_listed_person_count"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "last_already_linked_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_already_linked_count"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "last_mailed_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_mailed_count"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "last_suppressed_by_dedup_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_suppressed_by_dedup_count"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "last_suppressed_by_rate_cap_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_suppressed_by_rate_cap_count"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "last_no_address_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_no_address_count"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "917604da80c54890c62a3c604a4376abef2b41d3c5fa289ee6c00bdbf48cbc84"
+}

@@ -1016,6 +1016,9 @@ WHERE id = $1
 }
 
 /// Live rows per state, for the dashboard funnel.
+///
+/// Superseded attempts are excluded, as they are in the per-course sibling: a course that regrades
+/// holds two rows per student and would otherwise be counted twice in every tile.
 pub async fn count_by_state(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<(CreditRegistrationState, i64)>> {
@@ -1024,7 +1027,8 @@ pub async fn count_by_state(
 SELECT state AS "state: CreditRegistrationState",
   COUNT(*) AS "count!"
 FROM credit_registrations
-WHERE deleted_at IS NULL
+WHERE superseded_by_id IS NULL
+  AND deleted_at IS NULL
 GROUP BY state
         "#,
     )
@@ -1296,6 +1300,483 @@ pub async fn get_teacher_facing_attempts_for_completion(
         candidate.course_module_completion_id == row.course_module_completion_id
     });
     rows.sort_by_key(|row| std::cmp::Reverse(row.attempt_number));
+    Ok(rows)
+}
+
+/// One ledger row as an admin sees it: every identifier support needs to answer "what happened to
+/// this student", across courses.
+///
+/// The study registry's own error text is not here. It is written for an integrator, may name a
+/// person and is not translated; the error code plus the scrubbed call bodies are what an admin
+/// reads instead.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AdminCreditRegistration {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    /// In full: the admin view exists to resolve support cases, which starts from the address.
+    pub email: Option<String>,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_module_id: Uuid,
+    pub course_module_name: Option<String>,
+    pub course_instance_id: Uuid,
+    pub course_module_completion_id: Uuid,
+    pub completion_date: DateTime<Utc>,
+    pub state: CreditRegistrationState,
+    pub state_entered_at: DateTime<Utc>,
+    pub error_code: Option<CreditRegistrationErrorCode>,
+    pub needs_admin_attention: bool,
+    pub next_attempt_at: DateTime<Utc>,
+    pub last_attempt_at: Option<DateTime<Utc>>,
+    pub submitted_at: Option<DateTime<Utc>>,
+    pub registered_at: Option<DateTime<Utc>>,
+    pub terminal_at: Option<DateTime<Utc>>,
+    /// Frozen on the row when it left `checking_enrolment`, so it is what we actually sent.
+    pub student_number: Option<String>,
+    pub sisu_person_id: Option<String>,
+    pub uh_course_code: Option<String>,
+    pub selected_enrolment_id: Option<String>,
+    pub grade_scale_id: Option<String>,
+    pub grade_id: Option<String>,
+    pub credits: Option<f32>,
+    pub request_item_id: String,
+    pub submitted_attainment_id: Option<String>,
+    pub sisu_attainment_id: Option<String>,
+    pub submit_retry_count: i32,
+    pub verify_attempt_count: i32,
+    pub attempt_number: i32,
+    pub superseded_by_id: Option<Uuid>,
+    /// The account's live link now, which may differ from the number frozen on the row.
+    pub verified_student_number: Option<String>,
+    pub verified_student_number_at: Option<DateTime<Utc>>,
+    pub verified_student_number_via: Option<StudentNumberVerificationMethod>,
+}
+
+/// How the explorer orders a page. Descending only: an ops table is read newest-worst first.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AdminCreditRegistrationSort {
+    #[default]
+    LastActivity,
+    Created,
+    TimeInState,
+    Attempts,
+}
+
+impl AdminCreditRegistrationSort {
+    /// The value the query's `ORDER BY` branches on.
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::LastActivity => "last_activity",
+            Self::Created => "created",
+            Self::TimeInState => "time_in_state",
+            Self::Attempts => "attempts",
+        }
+    }
+}
+
+/// The narrowings the admin explorer applies, all of them in SQL.
+#[derive(Debug, Clone, Default)]
+pub struct AdminCreditRegistrationFilters<'a> {
+    pub states: Option<&'a [CreditRegistrationState]>,
+    pub error_codes: Option<&'a [CreditRegistrationErrorCode]>,
+    pub course_id: Option<Uuid>,
+    pub course_module_id: Option<Uuid>,
+    pub user_id: Option<Uuid>,
+    pub student_number: Option<&'a str>,
+    pub needs_admin_attention: bool,
+    pub submitted_after: Option<DateTime<Utc>>,
+    pub submitted_before: Option<DateTime<Utc>>,
+    /// Matched against the student's name and email, either student number, the attainment ids and
+    /// the stored error text. Searching that text is not rendering it.
+    pub search: Option<&'a str>,
+    /// A uuid typed into the search box: a registration, a user or a completion id.
+    pub search_id: Option<Uuid>,
+    /// Off by default, or a course that regrades shows two rows per student.
+    pub include_superseded: bool,
+}
+
+/// A page of the ledger for the admin explorer, cross-course.
+pub async fn get_admin_facing(
+    conn: &mut PgConnection,
+    filters: &AdminCreditRegistrationFilters<'_>,
+    sort: AdminCreditRegistrationSort,
+    limit: i64,
+    offset: i64,
+) -> ModelResult<Vec<AdminCreditRegistration>> {
+    let search_pattern = filters.search.map(search_pattern_of);
+    let res = sqlx::query_as!(
+        AdminCreditRegistration,
+        r#"
+SELECT cr.id,
+  cr.created_at,
+  cr.user_id,
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  ud.email AS "email?",
+  cr.course_id,
+  c.name AS course_name,
+  cr.course_module_id,
+  cm.name AS course_module_name,
+  cr.course_instance_id,
+  cr.course_module_completion_id,
+  cmc.completion_date,
+  cr.state AS "state: CreditRegistrationState",
+  cr.state_entered_at,
+  cr.error_code AS "error_code?: CreditRegistrationErrorCode",
+  cr.needs_admin_attention,
+  cr.next_attempt_at,
+  cr.last_attempt_at,
+  cr.submitted_at,
+  cr.registered_at,
+  cr.terminal_at,
+  cr.student_number,
+  cr.sisu_person_id,
+  cr.uh_course_code,
+  cr.selected_enrolment_id,
+  cr.grade_scale_id,
+  cr.grade_id,
+  cr.credits,
+  cr.request_item_id,
+  cr.submitted_attainment_id,
+  cr.sisu_attainment_id,
+  cr.submit_retry_count,
+  cr.verify_attempt_count,
+  cr.attempt_number,
+  cr.superseded_by_id,
+  vsn.student_number AS "verified_student_number?",
+  vsn.verified_at AS "verified_student_number_at?",
+  vsn.verified_via AS "verified_student_number_via?: StudentNumberVerificationMethod"
+FROM credit_registrations cr
+  JOIN courses c ON c.id = cr.course_id
+  JOIN course_modules cm ON cm.id = cr.course_module_id
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  LEFT JOIN user_details ud ON ud.user_id = cr.user_id
+  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
+  AND vsn.deleted_at IS NULL
+WHERE cr.deleted_at IS NULL
+  AND ($1::bool OR cr.superseded_by_id IS NULL)
+  AND (
+    $2::credit_registration_state [] IS NULL
+    OR cr.state = ANY($2)
+  )
+  AND (
+    $3::credit_registration_error_code [] IS NULL
+    OR cr.error_code = ANY($3)
+  )
+  AND ($4::uuid IS NULL OR cr.course_id = $4)
+  AND ($5::uuid IS NULL OR cr.course_module_id = $5)
+  AND ($6::uuid IS NULL OR cr.user_id = $6)
+  AND (
+    $7::text IS NULL
+    OR cr.student_number = $7
+    OR vsn.student_number = $7
+  )
+  AND (NOT $8::bool OR cr.needs_admin_attention)
+  AND ($9::timestamptz IS NULL OR cr.submitted_at >= $9)
+  AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)
+  AND (
+    $11::text IS NULL
+    OR ud.name_search_helper LIKE '%' || $11 || '%' ESCAPE '\'
+    OR ud.email_search_helper LIKE '%' || $11 || '%' ESCAPE '\'
+    OR LOWER(cr.student_number) LIKE '%' || $11 || '%' ESCAPE '\'
+    OR LOWER(vsn.student_number) LIKE '%' || $11 || '%' ESCAPE '\'
+    OR LOWER(cr.submitted_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\'
+    OR LOWER(cr.sisu_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\'
+    OR LOWER(cr.error_message) LIKE '%' || $11 || '%' ESCAPE '\'
+  )
+  AND (
+    $12::uuid IS NULL
+    OR cr.id = $12
+    OR cr.user_id = $12
+    OR cr.course_module_completion_id = $12
+  )
+ORDER BY CASE
+    WHEN $13::text = 'attempts' THEN cr.submit_retry_count + cr.verify_attempt_count
+  END DESC NULLS LAST,
+  CASE $13::text
+    WHEN 'created' THEN cr.created_at
+    WHEN 'time_in_state' THEN cr.state_entered_at
+    ELSE COALESCE(cr.last_attempt_at, cr.state_entered_at)
+  END DESC,
+  cr.id
+LIMIT $14 OFFSET $15
+        "#,
+        filters.include_superseded,
+        filters.states as Option<&[CreditRegistrationState]>,
+        filters.error_codes as Option<&[CreditRegistrationErrorCode]>,
+        filters.course_id,
+        filters.course_module_id,
+        filters.user_id,
+        filters.student_number,
+        filters.needs_admin_attention,
+        filters.submitted_after,
+        filters.submitted_before,
+        search_pattern.as_deref(),
+        filters.search_id,
+        sort.as_str(),
+        limit,
+        offset,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// How many rows [`get_admin_facing`] would return without a page limit.
+pub async fn count_admin_facing(
+    conn: &mut PgConnection,
+    filters: &AdminCreditRegistrationFilters<'_>,
+) -> ModelResult<i64> {
+    let search_pattern = filters.search.map(search_pattern_of);
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM credit_registrations cr
+  LEFT JOIN user_details ud ON ud.user_id = cr.user_id
+  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
+  AND vsn.deleted_at IS NULL
+WHERE cr.deleted_at IS NULL
+  AND ($1::bool OR cr.superseded_by_id IS NULL)
+  AND (
+    $2::credit_registration_state [] IS NULL
+    OR cr.state = ANY($2)
+  )
+  AND (
+    $3::credit_registration_error_code [] IS NULL
+    OR cr.error_code = ANY($3)
+  )
+  AND ($4::uuid IS NULL OR cr.course_id = $4)
+  AND ($5::uuid IS NULL OR cr.course_module_id = $5)
+  AND ($6::uuid IS NULL OR cr.user_id = $6)
+  AND (
+    $7::text IS NULL
+    OR cr.student_number = $7
+    OR vsn.student_number = $7
+  )
+  AND (NOT $8::bool OR cr.needs_admin_attention)
+  AND ($9::timestamptz IS NULL OR cr.submitted_at >= $9)
+  AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)
+  AND (
+    $11::text IS NULL
+    OR ud.name_search_helper LIKE '%' || $11 || '%' ESCAPE '\'
+    OR ud.email_search_helper LIKE '%' || $11 || '%' ESCAPE '\'
+    OR LOWER(cr.student_number) LIKE '%' || $11 || '%' ESCAPE '\'
+    OR LOWER(vsn.student_number) LIKE '%' || $11 || '%' ESCAPE '\'
+    OR LOWER(cr.submitted_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\'
+    OR LOWER(cr.sisu_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\'
+    OR LOWER(cr.error_message) LIKE '%' || $11 || '%' ESCAPE '\'
+  )
+  AND (
+    $12::uuid IS NULL
+    OR cr.id = $12
+    OR cr.user_id = $12
+    OR cr.course_module_completion_id = $12
+  )
+        "#,
+        filters.include_superseded,
+        filters.states as Option<&[CreditRegistrationState]>,
+        filters.error_codes as Option<&[CreditRegistrationErrorCode]>,
+        filters.course_id,
+        filters.course_module_id,
+        filters.user_id,
+        filters.student_number,
+        filters.needs_admin_attention,
+        filters.submitted_after,
+        filters.submitted_before,
+        search_pattern.as_deref(),
+        filters.search_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
+/// Live rows carrying an error code, split by whether the pipeline is still working on them.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CreditRegistrationErrorCodeCount {
+    pub error_code: CreditRegistrationErrorCode,
+    pub in_flight_count: i64,
+    pub terminal_failure_count: i64,
+}
+
+/// The error-code breakdown the Overview shows.
+///
+/// A row abandoned by a consent withdrawal carries no failure of ours, so it is in neither column.
+pub async fn count_by_error_code(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<CreditRegistrationErrorCodeCount>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT error_code AS "error_code!: CreditRegistrationErrorCode",
+  COUNT(*) FILTER (WHERE terminal_at IS NULL) AS "in_flight_count!",
+  COUNT(*) FILTER (
+    WHERE state IN ('failed_permanent', 'misregistered')
+  ) AS "terminal_failure_count!"
+FROM credit_registrations
+WHERE error_code IS NOT NULL
+  AND state <> 'abandoned_by_consent_withdrawal'
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+GROUP BY error_code
+ORDER BY COUNT(*) DESC
+        "#,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| CreditRegistrationErrorCodeCount {
+            error_code: row.error_code,
+            in_flight_count: row.in_flight_count,
+            terminal_failure_count: row.terminal_failure_count,
+        })
+        .collect())
+}
+
+pub async fn count_needing_admin_attention(conn: &mut PgConnection) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM credit_registrations
+WHERE needs_admin_attention
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+        "#,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
+/// The row that has been waiting longest for the pipeline to do something with it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct OldestNonTerminalRegistration {
+    pub id: Uuid,
+    pub state: CreditRegistrationState,
+    pub state_entered_at: DateTime<Utc>,
+}
+
+pub async fn get_oldest_non_terminal(
+    conn: &mut PgConnection,
+) -> ModelResult<Option<OldestNonTerminalRegistration>> {
+    let row = sqlx::query_as!(
+        OldestNonTerminalRegistration,
+        r#"
+SELECT id,
+  state AS "state: CreditRegistrationState",
+  state_entered_at
+FROM credit_registrations
+WHERE terminal_at IS NULL
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+ORDER BY state_entered_at
+LIMIT 1
+        "#,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(row)
+}
+
+/// One day of terminal outcomes, for the throughput series.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CreditRegistrationThroughputDay {
+    pub day: DateTime<Utc>,
+    pub registered_count: i64,
+    pub other_success_count: i64,
+    pub failed_count: i64,
+}
+
+/// Daily terminal outcomes over the window. Withdrawn rows are in no column: they are neither a
+/// success nor a failure.
+pub async fn get_throughput_by_day(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+) -> ModelResult<Vec<CreditRegistrationThroughputDay>> {
+    let rows = sqlx::query_as!(
+        CreditRegistrationThroughputDay,
+        r#"
+SELECT DATE_TRUNC('day', terminal_at) AS "day!",
+  COUNT(*) FILTER (WHERE state = 'registered') AS "registered_count!",
+  COUNT(*) FILTER (
+    WHERE state IN ('duplicate', 'not_improved')
+  ) AS "other_success_count!",
+  COUNT(*) FILTER (WHERE state = 'failed_permanent') AS "failed_count!"
+FROM credit_registrations
+WHERE terminal_at >= $1
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+GROUP BY 1
+ORDER BY 1
+        "#,
+        since,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows)
+}
+
+/// How long a row may sit in one state before it counts as stuck. Seconds, per state.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct StuckThresholds {
+    pub ready_to_submit_secs: i64,
+    pub submitting_secs: i64,
+    pub awaiting_verification_secs: i64,
+    pub failed_retryable_secs: i64,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct StuckRegistrationCount {
+    pub state: CreditRegistrationState,
+    pub count: i64,
+    /// Over three times the threshold, which is what makes the alert critical.
+    pub severely_stuck_count: i64,
+    pub oldest_state_entered_at: Option<DateTime<Utc>>,
+}
+
+/// Rows the pipeline should have moved by now, per state.
+///
+/// Only the four states with a threshold are considered: the rest wait on a student or on a human,
+/// and alerting on those would fire on the feature working as designed.
+pub async fn count_stuck(
+    conn: &mut PgConnection,
+    thresholds: &StuckThresholds,
+) -> ModelResult<Vec<StuckRegistrationCount>> {
+    let rows = sqlx::query_as!(
+        StuckRegistrationCount,
+        r#"
+SELECT cr.state AS "state!: CreditRegistrationState",
+  COUNT(*) AS "count!",
+  COUNT(*) FILTER (
+    WHERE now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs * 3)
+  ) AS "severely_stuck_count!",
+  MIN(cr.state_entered_at) AS "oldest_state_entered_at"
+FROM credit_registrations cr
+  CROSS JOIN LATERAL (
+    SELECT CASE cr.state
+        WHEN 'ready_to_submit' THEN $1::double precision
+        WHEN 'submitting' THEN $2::double precision
+        WHEN 'awaiting_verification' THEN $3::double precision
+        WHEN 'failed_retryable' THEN $4::double precision
+      END AS threshold_secs
+  ) t
+WHERE cr.terminal_at IS NULL
+  AND cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+  AND t.threshold_secs IS NOT NULL
+  AND now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs)
+GROUP BY cr.state
+        "#,
+        thresholds.ready_to_submit_secs as f64,
+        thresholds.submitting_secs as f64,
+        thresholds.awaiting_verification_secs as f64,
+        thresholds.failed_retryable_secs as f64,
+    )
+    .fetch_all(conn)
+    .await?;
     Ok(rows)
 }
 

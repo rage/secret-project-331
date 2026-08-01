@@ -345,3 +345,23 @@ export function completionRegistrationRoute(courseModuleId: string) {
 export function linkStudentNumberRoute(token: string) {
   return `/link-student-number/${token}`
 }
+
+export function creditRegistrationRoute() {
+  return "/manage/credit-registration"
+}
+
+export function creditRegistrationOverviewRoute() {
+  return "/manage/credit-registration/overview"
+}
+
+export function creditRegistrationRegistrationsRoute() {
+  return "/manage/credit-registration/registrations"
+}
+
+export function creditRegistrationLinkingRoute() {
+  return "/manage/credit-registration/linking"
+}
+
+export function creditRegistrationItemRoute(creditRegistrationId: string) {
+  return `/manage/credit-registration/registrations/${creditRegistrationId}`
+}

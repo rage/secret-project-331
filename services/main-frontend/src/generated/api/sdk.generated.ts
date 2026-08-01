@@ -22,6 +22,23 @@ import type {
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponses,
+  AdminManuallyLinkStudentNumberData,
+  AdminManuallyLinkStudentNumberErrors,
+  AdminManuallyLinkStudentNumberResponses,
+  AdminMaterializeCreditRegistrationsData,
+  AdminMaterializeCreditRegistrationsResponses,
+  AdminResendAccountLinkingEmailData,
+  AdminResendAccountLinkingEmailErrors,
+  AdminResendAccountLinkingEmailResponses,
+  AdminResolveStudentNumberForLinkingData,
+  AdminResolveStudentNumberForLinkingErrors,
+  AdminResolveStudentNumberForLinkingResponses,
+  AdminTransitionCreditRegistrationData,
+  AdminTransitionCreditRegistrationErrors,
+  AdminTransitionCreditRegistrationResponses,
+  AdminUnlinkStudentNumberData,
+  AdminUnlinkStudentNumberErrors,
+  AdminUnlinkStudentNumberResponses,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponses,
   ApproveOauthConsentData,
@@ -172,6 +189,8 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAccountLinkingStatsData,
+  GetAccountLinkingStatsResponses,
   GetAllChatbotsData,
   GetAllChatbotsResponses,
   GetAllCoursesData,
@@ -338,6 +357,11 @@ import type {
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsErrors,
   GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationForAdminData,
+  GetCreditRegistrationForAdminErrors,
+  GetCreditRegistrationForAdminResponses,
+  GetCreditRegistrationOverviewData,
+  GetCreditRegistrationOverviewResponses,
   GetCurrentTimeData,
   GetCurrentTimeResponses,
   GetEditProposalCountData,
@@ -495,6 +519,8 @@ import type {
   GetStudentEnrollmentsByCountryResponses,
   GetStudentsByCountryTotalsData,
   GetStudentsByCountryTotalsResponses,
+  GetSuotarHealthData,
+  GetSuotarHealthResponses,
   GetTotalUsersCompletedCourseByInstanceData,
   GetTotalUsersCompletedCourseByInstanceResponses,
   GetTotalUsersCompletedCourseCustomTimePeriodData,
@@ -560,6 +586,10 @@ import type {
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponses,
+  ListCreditRegistrationsForAdminData,
+  ListCreditRegistrationsForAdminResponses,
+  ListVerifiedStudentNumbersForAdminData,
+  ListVerifiedStudentNumbersForAdminResponses,
   MarkFeedbackAsReadData,
   MarkFeedbackAsReadResponses,
   PostOauthUserInfoData,
@@ -696,6 +726,12 @@ import {
   zAddCodeGiveawayCodesResponse,
   zAddCoursePlanMemberResponse,
   zAddTeacherGradingForExamSubmissionResponse,
+  zAdminManuallyLinkStudentNumberResponse,
+  zAdminMaterializeCreditRegistrationsResponse,
+  zAdminResendAccountLinkingEmailResponse,
+  zAdminResolveStudentNumberForLinkingResponse,
+  zAdminTransitionCreditRegistrationResponse,
+  zAdminUnlinkStudentNumberResponse,
   zAdvanceCourseDesignerStageResponse,
   zApproveOauthConsentResponse,
   zChangeUserPasswordResponse,
@@ -747,6 +783,7 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAccountLinkingStatsResponse,
   zGetAllChatbotsResponse,
   zGetAllCoursesResponse,
   zGetAvgTimeToFirstSubmissionHistoryResponse,
@@ -823,6 +860,8 @@ import {
   zGetCourseUserSettingsForUserResponse,
   zGetCourseWeekdayHourSubmissionCountsResponse,
   zGetCreditRegistrationDetailsResponse,
+  zGetCreditRegistrationForAdminResponse,
+  zGetCreditRegistrationOverviewResponse,
   zGetCurrentTimeResponse,
   zGetEditProposalCountResponse,
   zGetEditProposalsResponse,
@@ -897,6 +936,7 @@ import {
   zGetStudentCompletionsByCountryResponse,
   zGetStudentEnrollmentsByCountryResponse,
   zGetStudentsByCountryTotalsResponse,
+  zGetSuotarHealthResponse,
   zGetTotalUsersCompletedCourseByInstanceResponse,
   zGetTotalUsersCompletedCourseCustomTimePeriodResponse,
   zGetTotalUsersCompletedCourseResponse,
@@ -927,6 +967,8 @@ import {
   zGetUsersReturningExercisesHistoryResponse,
   zGetUserSuspectedCheatersResponse,
   zJoinCourseWithJoinCodeResponse,
+  zListCreditRegistrationsForAdminResponse,
+  zListVerifiedStudentNumbersForAdminResponse,
   zPreviewCourseInstanceCompletionsResponse,
   zPreviewStudentNumberVerificationTokenResponse,
   zRemoveCoursePlanMemberResponse,
@@ -4484,6 +4526,333 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
       await zGetCourseWeekdayHourSubmissionCountsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/weekday-hour-submission-counts",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
+ * per-realisation counters, the send-status totals and the stale-address list.
+ */
+export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAccountLinkingStatsData, ThrowOnError>,
+): RequestResult<GetAccountLinkingStatsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAccountLinkingStatsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAccountLinkingStatsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link` - Links a student
+ * number to an account on an admin's judgement.
+ *
+ * The last resort, for the students no amount of resending can reach: some mailbox hosts will not
+ * accept our mail at all, and without this those people cannot get their credits. It substitutes an
+ * admin's judgement for proof of mailbox control, so the row is marked `admin_manual` forever, carries
+ * the reason, names the admin, and is surfaced distinctly to teachers and admins alike.
+ *
+ * Two gates, both refusals rather than warnings. The reason is required. And the number is resolved
+ * again here and has to still name the person the preview returned, so a typo cannot mint a link to
+ * somebody else and a caller who never previewed cannot produce the person id to echo.
+ */
+export const adminManuallyLinkStudentNumber = <ThrowOnError extends boolean = true>(
+  options: Options<AdminManuallyLinkStudentNumberData, ThrowOnError>,
+): RequestResult<
+  AdminManuallyLinkStudentNumberResponses,
+  AdminManuallyLinkStudentNumberErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminManuallyLinkStudentNumberResponses,
+    AdminManuallyLinkStudentNumberErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminManuallyLinkStudentNumberResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resend` - Sets off another
+ * account-linking mail for one person on one course.
+ *
+ * The first-line remedy, and the one the dashboard puts in front of support: it is cheap, reversible
+ * and leaves the ownership proof intact, because the recipient still has to open the link while logged
+ * in. The mail goes to the addresses the study registry holds, which are the only addresses the
+ * pipeline itself would reach.
+ *
+ * Both caps live in the one writer of the linking ledger and no parameter relaxes them. An override
+ * therefore does not ask for an exemption: it retires the ledger rows a cap is counting, as its own
+ * audited action, and then runs the ordinary path — which still refuses if something else stops it.
+ */
+export const adminResendAccountLinkingEmail = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResendAccountLinkingEmailData, ThrowOnError>,
+): RequestResult<
+  AdminResendAccountLinkingEmailResponses,
+  AdminResendAccountLinkingEmailErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminResendAccountLinkingEmailResponses,
+    AdminResendAccountLinkingEmailErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminResendAccountLinkingEmailResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/resend",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one
+ * student number up in the study registry without changing anything.
+ *
+ * The preview a manual link is gated on: the admin reads the registry's name back to the student they
+ * are talking to before a link is created. Writes nothing but the call log row every study registry
+ * call writes.
+ */
+export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResolveStudentNumberForLinkingData, ThrowOnError>,
+): RequestResult<
+  AdminResolveStudentNumberForLinkingResponses,
+  AdminResolveStudentNumberForLinkingErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminResolveStudentNumberForLinkingResponses,
+    AdminResolveStudentNumberForLinkingErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminResolveStudentNumberForLinkingResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
+ * completions and recomputes preconditions, now.
+ *
+ * The same two database-only steps the `materialize` and `preconditions` phases take, run directly
+ * rather than through the phase dispatcher: the phase-state row describes the worker loops, and an
+ * admin pressing a button must not make a dead worker look alive.
+ */
+export const adminMaterializeCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<AdminMaterializeCreditRegistrationsData, ThrowOnError>,
+): RequestResult<AdminMaterializeCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminMaterializeCreditRegistrationsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminMaterializeCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/materialize",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/overview` - Everything the Overview tab and the
+ * alert banner render, in one request so the tiles cannot contradict each other.
+ */
+export const getCreditRegistrationOverview = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationOverviewData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationOverviewResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationOverviewResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationOverviewResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/overview",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations` - A page of the ledger, filtered
+ * and sorted.
+ */
+export const listCreditRegistrationsForAdmin = <ThrowOnError extends boolean = true>(
+  options?: Options<ListCreditRegistrationsForAdminData, ThrowOnError>,
+): RequestResult<ListCreditRegistrationsForAdminResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    ListCreditRegistrationsForAdminResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zListCreditRegistrationsForAdminResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}` - One
+ * row with its timeline, the calls that timeline refers to, the other attempts for the same completion,
+ * the actions taken on it and its linking mails.
+ */
+export const getCreditRegistrationForAdmin = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationForAdminData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationForAdminResponses,
+  GetCreditRegistrationForAdminErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationForAdminResponses,
+    GetCreditRegistrationForAdminErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationForAdminResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`
+ * - Moves one row by hand.
+ *
+ * The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
+ * re-importing could put a second attainment on a real transcript. Resubmitting re-checks consent here:
+ * a `misregistered` row is deliberately outside the automatic machinery, so nothing upstream has
+ * checked it, and without this an admin could resubmit for a student who has withdrawn.
+ */
+export const adminTransitionCreditRegistration = <ThrowOnError extends boolean = true>(
+  options: Options<AdminTransitionCreditRegistrationData, ThrowOnError>,
+): RequestResult<
+  AdminTransitionCreditRegistrationResponses,
+  AdminTransitionCreditRegistrationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminTransitionCreditRegistrationResponses,
+    AdminTransitionCreditRegistrationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminTransitionCreditRegistrationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/student-numbers` - A page of the live links, for
+ * spot-checking and support.
+ */
+export const listVerifiedStudentNumbersForAdmin = <ThrowOnError extends boolean = true>(
+  options?: Options<ListVerifiedStudentNumbersForAdminData, ThrowOnError>,
+): RequestResult<ListVerifiedStudentNumbersForAdminResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    ListVerifiedStudentNumbersForAdminResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zListVerifiedStudentNumbersForAdminResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/student-numbers",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/student-numbers/{id}/unlink` - Retires one link.
+ *
+ * A reason is required, so the request carries a body rather than being a `DELETE`. The row is
+ * soft-deleted: the number a student once held is part of the audit trail.
+ */
+export const adminUnlinkStudentNumber = <ThrowOnError extends boolean = true>(
+  options: Options<AdminUnlinkStudentNumberData, ThrowOnError>,
+): RequestResult<
+  AdminUnlinkStudentNumberResponses,
+  AdminUnlinkStudentNumberErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminUnlinkStudentNumberResponses,
+    AdminUnlinkStudentNumberErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminUnlinkStudentNumberResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/student-numbers/{verified_student_number_id}/unlink",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-health` - Per-endpoint call counts,
+ * success rates and latency percentiles over an hour, a day and a week.
+ */
+export const getSuotarHealth = <ThrowOnError extends boolean = true>(
+  options?: Options<GetSuotarHealthData, ThrowOnError>,
+): RequestResult<GetSuotarHealthResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetSuotarHealthResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetSuotarHealthResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/suotar-health",
     ...options,
   })
 

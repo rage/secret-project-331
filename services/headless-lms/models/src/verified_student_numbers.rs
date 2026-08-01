@@ -250,6 +250,139 @@ WHERE student_number = ANY($1::varchar [])
     Ok(res)
 }
 
+/// One link as an admin support view shows it: the account it belongs to, in full, and how it was
+/// established.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AdminVerifiedStudentNumber {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub user_email: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub student_number: String,
+    pub sisu_person_id: String,
+    pub verified_at: DateTime<Utc>,
+    pub verified_via: StudentNumberVerificationMethod,
+    /// The Sisu-held address the proof rests on, in full. `None` for an admin-established link.
+    pub verified_via_email: Option<String>,
+    pub linked_by_user_id: Option<Uuid>,
+    pub link_reason: Option<String>,
+    pub verified_from_course_id: Option<Uuid>,
+    pub live_registration_count: i64,
+}
+
+/// Live links only, newest first: a retired link is not a number we hold.
+pub async fn get_admin_page(
+    conn: &mut PgConnection,
+    verified_via: Option<StudentNumberVerificationMethod>,
+    search: Option<&str>,
+    limit: i64,
+    offset: i64,
+) -> ModelResult<Vec<AdminVerifiedStudentNumber>> {
+    let res = sqlx::query_as!(
+        AdminVerifiedStudentNumber,
+        r#"
+SELECT vsn.id,
+  vsn.user_id,
+  ud.email AS "user_email?",
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  vsn.student_number,
+  vsn.sisu_person_id,
+  vsn.verified_at,
+  vsn.verified_via AS "verified_via: StudentNumberVerificationMethod",
+  vsn.verified_via_email,
+  vsn.linked_by_user_id,
+  vsn.link_reason,
+  vsn.verified_from_course_id,
+  (
+    SELECT COUNT(*)
+    FROM credit_registrations cr
+    WHERE cr.user_id = vsn.user_id
+      AND cr.superseded_by_id IS NULL
+      AND cr.deleted_at IS NULL
+  ) AS "live_registration_count!"
+FROM verified_student_numbers vsn
+  LEFT JOIN user_details ud ON ud.user_id = vsn.user_id
+WHERE vsn.deleted_at IS NULL
+  AND (
+    $1::student_number_verification_method IS NULL
+    OR vsn.verified_via = $1
+  )
+  AND (
+    $2::text IS NULL
+    OR LOWER(vsn.student_number) LIKE '%' || $2 || '%' ESCAPE '\'
+    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
+    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
+  )
+ORDER BY vsn.verified_at DESC,
+  vsn.id
+LIMIT $3 OFFSET $4
+        "#,
+        verified_via as Option<StudentNumberVerificationMethod>,
+        search,
+        limit,
+        offset,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn count_admin_page(
+    conn: &mut PgConnection,
+    verified_via: Option<StudentNumberVerificationMethod>,
+    search: Option<&str>,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM verified_student_numbers vsn
+  LEFT JOIN user_details ud ON ud.user_id = vsn.user_id
+WHERE vsn.deleted_at IS NULL
+  AND (
+    $1::student_number_verification_method IS NULL
+    OR vsn.verified_via = $1
+  )
+  AND (
+    $2::text IS NULL
+    OR LOWER(vsn.student_number) LIKE '%' || $2 || '%' ESCAPE '\'
+    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
+    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
+  )
+        "#,
+        verified_via as Option<StudentNumberVerificationMethod>,
+        search,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
+/// Live links per method, so an admin-established one is never hidden inside a total.
+pub async fn count_by_method_since(
+    conn: &mut PgConnection,
+    since: Option<DateTime<Utc>>,
+) -> ModelResult<Vec<(StudentNumberVerificationMethod, i64)>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT verified_via AS "verified_via: StudentNumberVerificationMethod",
+  COUNT(*) AS "count!"
+FROM verified_student_numbers
+WHERE deleted_at IS NULL
+  AND ($1::timestamptz IS NULL OR verified_at >= $1)
+GROUP BY verified_via
+        "#,
+        since,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.verified_via, row.count))
+        .collect())
+}
+
 /// Unlinks by soft-delete; relinking inserts a new row, keeping the old number for audit.
 pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(

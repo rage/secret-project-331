@@ -10,6 +10,7 @@ import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import {
   allOrganizationsRoute,
   chatbotCommandCenterRoute,
+  creditRegistrationOverviewRoute,
   domainStatsRoute,
   globalPermissionsRoute,
   globalStatsRoute,
@@ -168,6 +169,23 @@ const FrontPage = () => {
             `}
           >
             {t("link-text-chatbot-command-center")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions
+        action={{ type: "administrate" }}
+        resource={{ type: "global_permissions" }}
+      >
+        <div>
+          <Link
+            href={creditRegistrationOverviewRoute()}
+            className={css`
+              cursor: pointer;
+              color: blue;
+              text-decoration: underline;
+            `}
+          >
+            {t("title-credit-registration")}
           </Link>
         </div>
       </OnlyRenderIfPermissions>

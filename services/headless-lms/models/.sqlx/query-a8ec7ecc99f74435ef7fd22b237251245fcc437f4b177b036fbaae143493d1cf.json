@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT state AS \"state: CreditRegistrationState\",\n  COUNT(*) AS \"count!\"\nFROM credit_registrations\nWHERE deleted_at IS NULL\nGROUP BY state\n        ",
+  "query": "\nSELECT state AS \"state: CreditRegistrationState\",\n  COUNT(*) AS \"count!\"\nFROM credit_registrations\nWHERE superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY state\n        ",
   "describe": {
     "columns": [
       {
@@ -55,5 +55,5 @@
       null
     ]
   },
-  "hash": "1e15f82e242c1c5d880588e30e15bf267d06eae1a94a2ff6e091b97e5d8a315f"
+  "hash": "a8ec7ecc99f74435ef7fd22b237251245fcc437f4b177b036fbaae143493d1cf"
 }

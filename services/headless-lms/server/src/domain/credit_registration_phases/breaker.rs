@@ -91,6 +91,34 @@ pub fn is_open(key: &ScopeKey) -> bool {
     }
 }
 
+/// What one breaker holds right now, in this process.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct BreakerSnapshot {
+    pub open: bool,
+    pub consecutive_failures: u32,
+    /// How much of the cooldown is left, in seconds.
+    pub open_for_secs: Option<u64>,
+}
+
+/// Reads a breaker without touching it, for the dashboard.
+///
+/// Deliberately not [`is_open`], which clears an elapsed cooldown as a side effect: a read must not
+/// reset the counters a worker is about to consult.
+pub fn snapshot(key: &ScopeKey) -> BreakerSnapshot {
+    let breakers = lock();
+    let Some(state) = breakers.get(key) else {
+        return BreakerSnapshot::default();
+    };
+    let remaining = state
+        .open_until
+        .and_then(|until| until.checked_duration_since(Instant::now()));
+    BreakerSnapshot {
+        open: remaining.is_some(),
+        consecutive_failures: state.consecutive_failures,
+        open_for_secs: remaining.map(|left| left.as_secs()),
+    }
+}
+
 pub fn record_success(key: &ScopeKey) {
     let mut breakers = lock();
     breakers.remove(key);

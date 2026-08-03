@@ -69,21 +69,14 @@ pub async fn save_markdown_content(
     }
 
     let mut tx = conn.begin().await?;
-    let res = match course_page_markdown_content::insert_batch(
+    let res = course_page_markdown_content::insert_batch(
         &mut tx,
         page_id_to_history_id_md_content
             .clone()
             .into_iter()
             .collect(),
     )
-    .await
-    {
-        Ok(res) => res,
-        Err(e) => {
-            tx.rollback().await?;
-            return Err(e);
-        }
-    };
+    .await?;
 
     let (md_ids, page_ids): (Vec<Uuid>, Vec<Uuid>) = page_id_to_history_id_md_content
         .iter()
@@ -95,7 +88,7 @@ pub async fn save_markdown_content(
         .into_iter()
         .unzip();
 
-    match sqlx::query!(
+    sqlx::query!(
         r#"
 UPDATE chatbot_page_sync_statuses AS cps
 SET converted_markdown_content_id = data.markdown_id
@@ -110,14 +103,7 @@ WHERE cps.page_id = data.page_id
         &page_ids
     )
     .execute(&mut *tx)
-    .await
-    {
-        Ok(_) => {}
-        Err(e) => {
-            tx.rollback().await?;
-            return Err(e.into());
-        }
-    };
+    .await?;
 
     tx.commit().await?;
 

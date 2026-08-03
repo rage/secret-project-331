@@ -65,7 +65,7 @@ export const zChapterWithStatus = z.object({
 })
 
 export const zChatbotConversation = z.object({
-  anonymous_id: z.string().nullish(),
+  anonymous_token: z.string().nullish(),
   chatbot_configuration_id: z.uuid(),
   course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),

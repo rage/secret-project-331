@@ -3127,7 +3127,7 @@
         "type": "object",
         "required": ["id", "created_at", "updated_at", "chatbot_configuration_id"],
         "properties": {
-          "anonymous_id": {
+          "anonymous_token": {
             "type": ["string", "null"]
           },
           "chatbot_configuration_id": {

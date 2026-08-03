@@ -82,12 +82,12 @@
       },
       {
         "ordinal": 7,
-        "name": "anonymous_id",
+        "name": "anonymous_token",
         "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "chatbot_conversations",
-            "name": "anonymous_id"
+            "name": "anonymous_token"
           }
         }
       }

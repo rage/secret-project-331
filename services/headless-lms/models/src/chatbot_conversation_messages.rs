@@ -127,7 +127,7 @@ pub async fn insert_for_conversation_user_and_configuration(
     conn: &mut PgConnection,
     input: ChatbotConversationMessage,
     user_id: Option<Uuid>,
-    anonymous_id: Option<String>,
+    anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversationMessage> {
     let mut tx = conn.begin().await?;
@@ -144,7 +144,7 @@ WHERE id = $1
     )
     OR (
       $2::uuid IS NULL
-      AND anonymous_id = $3
+      AND anonymous_token = $3
     )
   )
   AND chatbot_configuration_id = $4
@@ -152,7 +152,7 @@ WHERE id = $1
         "#,
         input.conversation_id,
         user_id,
-        anonymous_id,
+        anonymous_token,
         chatbot_configuration_id
     )
     .fetch_one(&mut *tx)

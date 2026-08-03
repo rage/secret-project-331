@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM chatbot_conversations\nWHERE (\n    (\n      $1::uuid IS NOT NULL\n      AND user_id = $1\n    )\n    OR (\n      $1::uuid IS NULL\n      AND anonymous_id = $2\n    )\n  )\n  AND chatbot_configuration_id = $3\n  AND deleted_at IS NULL\nORDER BY created_at DESC\nLIMIT 1\n        ",
+  "query": "\nINSERT INTO chatbot_conversations (\n    id,\n    course_id,\n    user_id,\n    anonymous_token,\n    chatbot_configuration_id\n  )\nSELECT $1,\n  chatbot_configurations.course_id,\n  $2,\n  $3,\n  chatbot_configurations.id\nFROM chatbot_configurations\nWHERE chatbot_configurations.id = $4\n  AND chatbot_configurations.deleted_at IS NULL\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -82,12 +82,12 @@
       },
       {
         "ordinal": 7,
-        "name": "anonymous_id",
+        "name": "anonymous_token",
         "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "chatbot_conversations",
-            "name": "anonymous_id"
+            "name": "anonymous_token"
           }
         }
       }
@@ -95,7 +95,8 @@
     "parameters": {
       "Left": [
         "Uuid",
-        "Text",
+        "Uuid",
+        "Varchar",
         "Uuid"
       ]
     },
@@ -110,5 +111,5 @@
       true
     ]
   },
-  "hash": "66604897ae385957027482dca41fd7386164fdcd812dc91928ec7cb776aa3dfb"
+  "hash": "d237b90906f1c77fe8a54b70b9fbbce44e3a383e9e8a71ab6378d7d23b0497db"
 }

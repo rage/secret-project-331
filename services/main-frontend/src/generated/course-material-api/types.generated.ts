@@ -86,7 +86,7 @@ export type ChatbotChatStreamEvent =
     }
 
 export type ChatbotConversation = {
-  anonymous_id?: string | null
+  anonymous_token?: string | null
   chatbot_configuration_id: string
   course_id?: string | null
   created_at: string

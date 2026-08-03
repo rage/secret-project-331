@@ -190,9 +190,9 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   const createNewConversation = async () => {
     try {
       const res = await newConversationMutation.mutateAsync()
-      const anonymous_id = res.anonymous_id
-      if (anonymous_id) {
-        localStorage.setItem("anonymous_id", anonymous_id)
+      const anonymousToken = res.anonymous_token
+      if (anonymousToken) {
+        localStorage.setItem("anonymousToken", anonymousToken)
       }
     } catch (_error) {
       console.error("There was an error in creating conversation")

@@ -118,13 +118,13 @@ async fn send_message(
 
     let conversation = chatbot_conversations::get_by_id(&mut conn, conversation_id).await?;
 
-    let anonymous_id_req = req
+    let anonymous_token_req = req
         .headers()
-        .get("anonymous-id")
-        .and_then(|anonymous_id| anonymous_id.to_str().ok());
+        .get("anonymous-token")
+        .and_then(|anonymous_token| anonymous_token.to_str().ok());
 
-    let anonymous_id = if let Some(anonymous_id) = anonymous_id_req {
-        Some(anonymous_id.to_owned())
+    let anonymous_token = if let Some(anonymous_token) = anonymous_token_req {
+        Some(anonymous_token.to_owned())
     } else {
         None
     };
@@ -132,7 +132,7 @@ async fn send_message(
     if conversation.user_id != user.map(|u| u.id)
         || conversation.chatbot_configuration_id != chatbot_configuration_id
         || conversation.course_id != chatbot_configuration.course_id
-        || conversation.anonymous_id != anonymous_id
+        || conversation.anonymous_token != anonymous_token
     {
         return Err(controller_err!(
             Forbidden,
@@ -201,7 +201,7 @@ async fn new_conversation(
     let token =
         authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), configuration.course_id).await?;
 
-    let anonymous_id = if let Some(_user) = user {
+    let anonymous_token = if let Some(_user) = user {
         None
     } else {
         Some(Alphanumeric.sample_string(&mut rand::rng(), 128))
@@ -211,7 +211,7 @@ async fn new_conversation(
         &mut conn,
         PKeyPolicy::Generate,
         user.map(|u| u.id),
-        anonymous_id.clone(),
+        anonymous_token.clone(),
         configuration.id,
     )
     .await?;
@@ -236,7 +236,7 @@ async fn new_conversation(
                 }),
             },
             user.map(|u| u.id),
-            anonymous_id,
+            anonymous_token,
             configuration.id,
         )
         .await?;
@@ -284,13 +284,13 @@ async fn current_conversation_info(
     )
     .await?;
 
-    let anonymous_id_req = req
+    let anonymous_token_req = req
         .headers()
-        .get("anonymous-id")
-        .and_then(|anonymous_id| anonymous_id.to_str().ok());
+        .get("anonymous-token")
+        .and_then(|anonymous_token| anonymous_token.to_str().ok());
 
-    let anonymous_id = if let Some(anonymous_id) = anonymous_id_req {
-        Some(anonymous_id.to_owned())
+    let anonymous_token = if let Some(anonymous_token) = anonymous_token_req {
+        Some(anonymous_token.to_owned())
     } else {
         None
     };
@@ -298,7 +298,7 @@ async fn current_conversation_info(
     let res = chatbot_conversations::get_current_conversation_info(
         &mut conn,
         user.map(|u| u.id),
-        anonymous_id.clone(),
+        anonymous_token.clone(),
         chatbot_configuration.id,
     )
     .await?;
@@ -365,7 +365,7 @@ async fn current_conversation_info(
         let res = chatbot_conversations::get_current_conversation_info(
             &mut conn,
             user.map(|u| u.id),
-            anonymous_id,
+            anonymous_token,
             chatbot_configuration.id,
         )
         .await?;

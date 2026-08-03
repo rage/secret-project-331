@@ -11,7 +11,7 @@ use crate::{
 
 pub struct ChatbotConversation {
     pub id: Uuid,
-    pub anonymous_id: Option<String>,
+    pub anonymous_token: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -43,7 +43,7 @@ pub async fn insert(
 INSERT INTO chatbot_conversations (
     course_id,
     user_id,
-    anonymous_id,
+    anonymous_token,
     chatbot_configuration_id
   )
 VALUES ($1, $2, $3, $4)
@@ -51,7 +51,7 @@ RETURNING *
         "#,
         input.course_id,
         input.user_id,
-        input.anonymous_id,
+        input.anonymous_token,
         input.chatbot_configuration_id
     )
     .fetch_one(conn)
@@ -79,7 +79,7 @@ pub async fn create_for_user_and_configuration(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
     user_id: Option<Uuid>,
-    anonymous_id: Option<String>,
+    anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversation> {
     let res = sqlx::query_as!(
@@ -89,7 +89,7 @@ INSERT INTO chatbot_conversations (
     id,
     course_id,
     user_id,
-    anonymous_id,
+    anonymous_token,
     chatbot_configuration_id
   )
 SELECT $1,
@@ -104,7 +104,7 @@ RETURNING *
         "#,
         pkey_policy.into_uuid(),
         user_id,
-        anonymous_id,
+        anonymous_token,
         chatbot_configuration_id
     )
     .fetch_one(conn)
@@ -115,7 +115,7 @@ RETURNING *
 pub async fn get_latest_conversation_for_user(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
-    anonymous_id: Option<String>,
+    anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversation> {
     let res = sqlx::query_as!(
@@ -130,7 +130,7 @@ WHERE (
     )
     OR (
       $1::uuid IS NULL
-      AND anonymous_id = $2
+      AND anonymous_token = $2
     )
   )
   AND chatbot_configuration_id = $3
@@ -139,7 +139,7 @@ ORDER BY created_at DESC
 LIMIT 1
         "#,
         user_id,
-        anonymous_id,
+        anonymous_token,
         chatbot_configuration_id
     )
     .fetch_one(conn)
@@ -151,7 +151,7 @@ LIMIT 1
 pub async fn get_current_conversation_info(
     tx: &mut PgConnection,
     user_id: Option<Uuid>,
-    anonymous_id: Option<String>,
+    anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversationInfo> {
     let chatbot_configuration =
@@ -163,7 +163,7 @@ pub async fn get_current_conversation_info(
     };
 
     let current_conversation =
-        get_latest_conversation_for_user(tx, user_id, anonymous_id, chatbot_configuration_id)
+        get_latest_conversation_for_user(tx, user_id, anonymous_token, chatbot_configuration_id)
             .await
             .optional()?;
     // the messages are sorted by response_order_number

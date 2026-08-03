@@ -48,15 +48,12 @@ RETURNING *
 
 pub async fn insert_batch(
     conn: &mut PgConnection,
-    mut page_id_md_contents: Vec<(Uuid, String)>,
-    mut page_id_history_id: Vec<(Uuid, Uuid)>,
+    page_id_history_id_contents: Vec<(Uuid, (Uuid, String))>,
 ) -> ModelResult<Vec<CoursePageMarkdownContent>> {
-    // sort the vecs by page id
-    page_id_history_id.sort_by_key(|x| x.0);
-    page_id_md_contents.sort_by_key(|x| x.0);
-
-    let (_, contents): (Vec<Uuid>, Vec<String>) = page_id_md_contents.into_iter().unzip();
-    let (page_ids, history_ids): (Vec<Uuid>, Vec<Uuid>) = page_id_history_id.into_iter().unzip();
+    let (page_ids, history_ids_contents): (Vec<Uuid>, Vec<(Uuid, String)>) =
+        page_id_history_id_contents.into_iter().unzip();
+    let (history_ids, contents): (Vec<Uuid>, Vec<String>) =
+        history_ids_contents.into_iter().unzip();
 
     let res = sqlx::query_as!(
         CoursePageMarkdownContent,

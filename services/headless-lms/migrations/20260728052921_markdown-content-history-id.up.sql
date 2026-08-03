@@ -8,6 +8,8 @@ ADD COLUMN page_history_id UUID NOT NULL REFERENCES page_history(id),
   ADD COLUMN page_id UUID NOT NULL REFERENCES pages(id);
 
 COMMENT ON COLUMN course_page_markdown_content.page_history_id IS 'The page history version that this Markdown was generated from.';
+COMMENT ON COLUMN course_page_markdown_content.page_id IS 'The page that this Markdown was generated from, for convenience.';
+
 
 CREATE INDEX course_page_markdown_content_page_history_id ON course_page_markdown_content(page_history_id);
 

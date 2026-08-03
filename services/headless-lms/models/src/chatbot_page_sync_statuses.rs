@@ -59,6 +59,8 @@ WHERE course_id = ANY($1)
     Ok(all_statuses)
 }
 
+type TwoUuidsVec = Vec<(Uuid, Uuid)>;
+
 pub async fn save_markdown_content(
     conn: &mut PgConnection,
     page_id_to_history_id_md_content: HashMap<Uuid, (Uuid, String)>,
@@ -67,9 +69,8 @@ pub async fn save_markdown_content(
     if page_id_to_history_id_md_content.is_empty() {
         return Ok(());
     }
-    let (page_id_page_history_id, page_id_md_content): (Vec<(Uuid, Uuid)>, Vec<(Uuid, String)>) =
+    let (page_id_page_history_id, page_id_md_content): (TwoUuidsVec, Vec<(Uuid, String)>) =
         page_id_to_history_id_md_content
-            .to_owned()
             .into_iter()
             .map(|(page_id, (ph_id, c))| ((page_id, ph_id), (page_id, c)))
             .collect::<Vec<((Uuid, Uuid), (Uuid, String))>>()
@@ -88,7 +89,7 @@ pub async fn save_markdown_content(
         .iter()
         .filter_map(|(p_id, ph_id)| {
             let md_id = res.iter().find(|x| &x.page_history_id == ph_id);
-            md_id.and_then(|x| Some((x.id, p_id.to_owned())))
+            md_id.map(|x| (x.id, p_id.to_owned()))
         })
         .collect::<Vec<(Uuid, Uuid)>>()
         .into_iter()

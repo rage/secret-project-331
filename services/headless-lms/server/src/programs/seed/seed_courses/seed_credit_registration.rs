@@ -18,8 +18,14 @@
 //! Names and emails are unlikely strings (`Zzyzx …`) because a spec asserts their absence from the
 //! scrubbed Suotar API log.
 //!
-//! No module here has `enable_credit_registration_via_suotar` on, and nothing may turn it on: the
-//! backfill spec flips it from the UI, which is one-way and run-wide.
+//! The backfill course keeps `enable_credit_registration_via_suotar` off, and nothing may turn it
+//! on: its spec flips it from the UI, which is one-way and run-wide. Every other course here has it
+//! on, because with it off the whole pipeline is a no-op.
+//!
+//! Both worker programs run in the test deployment and tick every phase unscoped every few seconds,
+//! so a fixture row nothing is supposed to move has to sit on a **paused** module. That is what the
+//! states course is. Rows on the unpaused courses are fair game for any tick, which is why specs
+//! assert on their own students rather than on counts.
 
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
@@ -27,15 +33,18 @@ use headless_lms_base::config::{SuotarConfiguration, bool_env_false_by_default};
 use headless_lms_models::{
     PKeyPolicy, course_credit_registration_consents, course_instance_enrollments,
     course_module_completions::{self, NewCourseModuleCompletionSeed},
+    credit_registration_account_linking_emails::{self, NewAccountLinkingEmail},
     credit_registration_admin_actions::{
         self, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
         NewCreditRegistrationAdminAction,
     },
     credit_registrations::{
-        self, CreditRegistrationState, NewCreditRegistration, PayloadSnapshot, Transition,
+        self, CreditRegistrationErrorCode, CreditRegistrationState, NewCreditRegistration,
+        PayloadSnapshot, Transition,
     },
+    roles::UserRole,
     student_number_verification_tokens::{self, SeedStudentNumberVerificationToken},
-    study_registry_registrars::get_or_create_default_registrar,
+    study_registry_registrars::{self, get_or_create_default_registrar},
     user_details::{self, EmailVerificationMethod},
     user_passwords::{hash_password, upsert_user_password},
     users,
@@ -51,6 +60,7 @@ use crate::controllers::mock_suotar::commands::{
     CourseUnitUpsert, EnrolmentUpsert, PersonUpsert, ProductAccessTokenUpsert, RealisationUpsert,
     WorldPush,
 };
+use crate::controllers::mock_suotar::ids as mock_ids;
 use crate::controllers::mock_suotar::world::{
     CourseBehaviour, CreditRange, DatePeriod, EnrolmentState, LocalizedName, PersonBehaviour,
     RealisationKind, Ripeness, WorldDefaults,
@@ -59,7 +69,9 @@ use crate::programs::seed::builder::{
     chapter::ChapterBuilder,
     context::SeedContext,
     course::{CourseBuilder, CourseInstanceConfig},
-    module::{CompletionBuilder, CompletionRegisteredBuilder, ModuleBuilder},
+    module::{
+        CompletionBuilder, CompletionRegisteredBuilder, CreditRegistrationSeed, ModuleBuilder,
+    },
     page::PageBuilder,
 };
 use crate::programs::seed::seed_courses::CommonCourseData;
@@ -76,6 +88,24 @@ pub const GRADE_IMPROVEMENT_COURSE_ID: Uuid =
     Uuid::from_u128(0xc5ed17ea_0005_4a5e_9e6e_c0de00000005);
 /// Owned outright by `suotar-backfill-and-late-consent.spec.ts`, which flips the Suotar flag on.
 pub const BACKFILL_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0003_4a5e_9e6e_c0de00000003);
+/// Owned by `suotar-admin-dashboard.spec.ts`. Discovery and the linking mails can only be ticked by
+/// course, so the one spec that ticks them needs a course no other spec has students on.
+pub const ADMIN_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0006_4a5e_9e6e_c0de00000006);
+/// One frozen ledger row per registration state and per error code, on a paused module.
+///
+/// Read by `suotar-teacher-views.spec.ts` and by the admin explorer, and written by neither: a read
+/// model needs every state present without waiting for some other spec's tick to produce it.
+pub const STATES_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0007_4a5e_9e6e_c0de00000007);
+
+/// A study registry registrar whose key a spec can present, so the legacy pull stream is readable
+/// from a test. Every other registrar's key is random by design; this one exists only in a seeded
+/// database and is how "a Suotar module's completions left the pull stream" is checked at all.
+pub const PULL_REGISTRAR_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0008_4a5e_9e6e_c0de00000008);
+pub const PULL_REGISTRAR_SECRET_KEY: &str = "credit-registration-system-tests-pull-registrar";
+
+/// The seeded attempt chain, by fixed id so a spec can open the detail page without searching.
+pub const SUPERSEDED_ATTEMPT_1_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0901_4a5e_9e6e_c0de00000901);
+pub const SUPERSEDED_ATTEMPT_2_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0902_4a5e_9e6e_c0de00000902);
 
 /// Linking tokens for `suotar-account-linking.spec.ts`, seeded rather than mailed.
 ///
@@ -99,11 +129,21 @@ pub const LINKING_TOKEN_ALREADY_USED: &str = concat!(
     "33333333-3333-3333-3333-333333333333",
     "33333333-3333-3333-3333-333333333333",
 );
+/// Carries a student number that is already live on another account, so claiming it is refused
+/// without being consumed.
+pub const LINKING_TOKEN_CONFLICT: &str = concat!(
+    "44444444-4444-4444-4444-444444444444",
+    "44444444-4444-4444-4444-444444444444",
+    "44444444-4444-4444-4444-444444444444",
+    "44444444-4444-4444-4444-444444444444",
+);
 
 pub const CRS_101: &str = "CRS-101";
 pub const CRS_102: &str = "CRS-102";
 pub const CRS_OLD_101: &str = "CRS-OLD-101";
 pub const CRS_BACKFILL_101: &str = "CRS-BACKFILL-101";
+pub const CRS_ADMIN_101: &str = "CRS-ADMIN-101";
+pub const CRS_STATES_101: &str = "CRS-STATES-101";
 
 pub const CRS_GRADED_101: &str = "CRS-GRADED-101";
 /// One module per import failure the contract lists, each breaking exactly one thing.
@@ -123,6 +163,8 @@ pub const OLD_FLOW_COURSE_SLUG: &str = "credit-registration-old-flow";
 pub const BACKFILL_COURSE_SLUG: &str = "credit-registration-backfill";
 pub const IMPORT_OUTCOMES_COURSE_SLUG: &str = "credit-registration-import-outcomes";
 pub const GRADE_IMPROVEMENT_COURSE_SLUG: &str = "credit-registration-grade-improvement";
+pub const ADMIN_COURSE_SLUG: &str = "credit-registration-admin";
+pub const STATES_COURSE_SLUG: &str = "credit-registration-states";
 
 /// A seeded student and the Sisu person the mock must answer with for them. Only the seed holds the
 /// account and the Sisu vocabulary at once, which is why the mock's world is built from here: the
@@ -158,8 +200,8 @@ pub const CONSENTED_UNLINKED: MockPersonFixture = MockPersonFixture {
     sisu_email: "zzyzx.linkpending@helsinki.example",
     account_email: Some("credit-registration-consented-unlinked@example.com"),
 };
-/// Deliberately has no enrolment in the mock's world: the in-course banner and the
-/// no-usable-enrolment specs need a person Sisu knows and has not enrolled.
+/// Has never been asked for consent, which is what makes the course-start dialog appear. The
+/// happy-path spec answers it, so this person needs an enrolment and a completion like any other.
 pub const NOT_CONSENTED: MockPersonFixture = MockPersonFixture {
     student_number: "900000103",
     first_names: "Zzyzx",
@@ -167,6 +209,111 @@ pub const NOT_CONSENTED: MockPersonFixture = MockPersonFixture {
     sisu_email: "zzyzx.noconsent@helsinki.example",
     account_email: Some("credit-registration-not-consented@example.com"),
 };
+/// The import that times out. Its own person, so the fault predicated on this student number cannot
+/// reach another spec's row even though the course is shared.
+pub const IMPORT_TIMEOUT: MockPersonFixture = MockPersonFixture {
+    student_number: "900000402",
+    first_names: "Zzyzx",
+    last_name: "Timedout",
+    sisu_email: "zzyzx.timedout@helsinki.example",
+    account_email: Some("credit-registration-import-timeout@example.com"),
+};
+/// Consented and linked, and deliberately absent from the mock's enrolments: the only way to reach
+/// `no_usable_enrolment` without arming a fault.
+pub const NO_ENROLMENT: MockPersonFixture = MockPersonFixture {
+    student_number: "900000301",
+    first_names: "Zzyzx",
+    last_name: "Notenrolled",
+    sisu_email: "zzyzx.notenrolled@helsinki.example",
+    account_email: Some("credit-registration-no-enrolment@example.com"),
+};
+/// Enrolled twice on the same course, once through a degree programme and once through the open
+/// university, so the selection policy has something to choose between.
+pub const TWO_ENROLMENTS: MockPersonFixture = MockPersonFixture {
+    student_number: "900000302",
+    first_names: "Zzyzx",
+    last_name: "Twicenrolled",
+    sisu_email: "zzyzx.twicenrolled@helsinki.example",
+    account_email: Some("credit-registration-two-enrolments@example.com"),
+};
+pub const VERIFY_POLLING: MockPersonFixture = MockPersonFixture {
+    student_number: "900000501",
+    first_names: "Zzyzx",
+    last_name: "Polling",
+    sisu_email: "zzyzx.polling@helsinki.example",
+    account_email: Some("credit-registration-verify-polling@example.com"),
+};
+pub const VERIFY_MISREGISTERED: MockPersonFixture = MockPersonFixture {
+    student_number: "900000502",
+    first_names: "Zzyzx",
+    last_name: "Reversed",
+    sisu_email: "zzyzx.reversed@helsinki.example",
+    account_email: Some("credit-registration-verify-misregistered@example.com"),
+};
+/// Never asked for consent and fully eligible otherwise, so "nothing is submitted without consent"
+/// is a claim about a row that would move the moment consent arrived.
+pub const CONSENT_WITHHELD: MockPersonFixture = MockPersonFixture {
+    student_number: "900000701",
+    first_names: "Zzyzx",
+    last_name: "Unasked",
+    sisu_email: "zzyzx.unasked@helsinki.example",
+    account_email: Some("credit-registration-consent-withheld@example.com"),
+};
+pub const CONSENT_WITHDRAWN: MockPersonFixture = MockPersonFixture {
+    student_number: "900000702",
+    first_names: "Zzyzx",
+    last_name: "Withdrawn",
+    sisu_email: "zzyzx.withdrawn@helsinki.example",
+    account_email: Some("credit-registration-consent-withdrawn@example.com"),
+};
+/// Unlinked, so a discovery run finds them and a linking mail is queued.
+pub const ADMIN_UNLINKED: MockPersonFixture = MockPersonFixture {
+    student_number: "900000902",
+    first_names: "Zzyzx",
+    last_name: "Unlinked",
+    sisu_email: "zzyzx.unlinked@helsinki.example",
+    account_email: Some("credit-registration-admin-unlinked@example.com"),
+};
+/// Mailed to the cap and never claimed, and with no account at all: the stale-address population,
+/// which is the only place the resend and manual-link actions render.
+pub const ADMIN_STALE: MockPersonFixture = MockPersonFixture {
+    student_number: "900000903",
+    first_names: "Zzyzx",
+    last_name: "Deadaddress",
+    sisu_email: "zzyzx.deadaddress@helsinki.example",
+    account_email: None,
+};
+/// Mailed to the cap on the same course as `ADMIN_STALE`, but owned by the teacher specs: a resend
+/// refused by the cap has to be provable without racing whichever spec is overriding the cap.
+pub const TEACHER_RESEND_CAPPED: MockPersonFixture = MockPersonFixture {
+    student_number: "900000804",
+    first_names: "Zzyzx",
+    last_name: "Cappedmail",
+    sisu_email: "zzyzx.cappedmail@helsinki.example",
+    account_email: None,
+};
+
+/// Linked already, so a discovery run has something to count as already linked.
+pub const ADMIN_LINKED: MockPersonFixture = MockPersonFixture {
+    student_number: "900000904",
+    first_names: "Zzyzx",
+    last_name: "Alreadylinked",
+    sisu_email: "zzyzx.alreadylinked@helsinki.example",
+    account_email: Some("credit-registration-admin-linked@example.com"),
+};
+
+/// Prefixes making three distinct addresses out of one person's Sisu address, because the dedup key
+/// is the address and the cap is three mails per person and course.
+const MAILED_ADDRESS_SUFFIXES: [&str; 3] = ["", "old.", "older."];
+
+/// Enrolled on a Suotar course and nothing else: no student number, no consent answer, no
+/// completion. The profile tab is hidden until a student has such a course, so the empty state needs
+/// a student who has one and nothing in it.
+pub const PROFILE_EMPTY_EMAIL: &str = "credit-registration-profile-empty@example.com";
+
+/// The account that claims the seeded linking tokens. It holds no student number of its own, because
+/// the tokens are unbound and the point is that they bind to whoever opens the link.
+pub const LINK_CLAIMER_EMAIL: &str = "credit-registration-link-claimer@example.com";
 pub const LINK_VALID: MockPersonFixture = MockPersonFixture {
     student_number: "900000201",
     first_names: "Zzyzx",
@@ -285,16 +432,16 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
     let suotar_instance_id = cx.v5(b"instance:suotar");
     let (suotar_course, suotar_instance, _) =
         CourseBuilder::new("Credit registration via Suotar", SUOTAR_COURSE_SLUG)
-            .desc(
-                "Fixture course for the credit registration system tests. The Suotar flag is off.",
-            )
+            .desc("Fixture course for the credit registration system tests.")
             .course_id(SUOTAR_COURSE_ID)
+            .role(teacher_user_id, UserRole::Teacher)
             .instance(instance_config(suotar_instance_id))
             .module(
                 ModuleBuilder::new()
                     .order(0)
                     .ects(5.0)
                     .uh_course_code(CRS_101.to_string())
+                    .credit_registration(credit_registration_config(CRS_101, true))
                     .chapter(
                         // The in-course re-enrol banner spec needs a chapter page it can actually read.
                         ChapterBuilder::new(1, "Registering credits")
@@ -314,7 +461,8 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
                     .order(1)
                     .name("Second module")
                     .ects(3.0)
-                    .uh_course_code(CRS_102.to_string()),
+                    .uh_course_code(CRS_102.to_string())
+                    .credit_registration(credit_registration_config(CRS_102, false)),
             )
             .seed(&mut conn, &cx)
             .await?;
@@ -341,6 +489,8 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
     seed_backfill_course(&mut conn, org, teacher_user_id).await?;
     seed_import_outcomes_course(&mut conn, org, teacher_user_id).await?;
     seed_grade_improvement_course(&mut conn, org, teacher_user_id).await?;
+    seed_admin_course(&mut conn, org, teacher_user_id).await?;
+    seed_states_course(&mut conn, org, teacher_user_id).await?;
 
     info!("inserting credit registration students");
 
@@ -393,6 +543,23 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
     )
     .await?;
 
+    let link_claimer = insert_student(
+        &mut conn,
+        cx.v5(b"user:link-claimer"),
+        LINK_CLAIMER_EMAIL,
+        "Zzyzx",
+        "Claimer",
+    )
+    .await?;
+    let profile_empty = insert_student(
+        &mut conn,
+        cx.v5(b"user:profile-empty"),
+        PROFILE_EMPTY_EMAIL,
+        "Zzyzx",
+        "Emptyprofile",
+    )
+    .await?;
+
     for student in [
         &consented_linked,
         &consented_unlinked,
@@ -400,6 +567,8 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
         &verified_email,
         &unverified_twin,
         &superseded_student,
+        &link_claimer,
+        &profile_empty,
     ] {
         course_instance_enrollments::insert(
             &mut conn,
@@ -409,6 +578,39 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
         )
         .await?;
     }
+
+    // Everyone whose row the pipeline is meant to move: consented, linked, with a passed completion
+    // on the first module. The mock's enrolments decide which of them gets stuck where.
+    for fixture in [
+        &IMPORT_TIMEOUT,
+        &NO_ENROLMENT,
+        &TWO_ENROLMENTS,
+        &VERIFY_POLLING,
+        &VERIFY_MISREGISTERED,
+        &CONSENT_WITHDRAWN,
+    ] {
+        let student = seed_spec_student(
+            &mut conn,
+            &cx,
+            fixture,
+            suotar_course.id,
+            suotar_instance.id,
+            true,
+        )
+        .await?;
+        seed_eligible_completion(&mut conn, &student, suotar_course.id, None).await?;
+    }
+    // Linked and eligible but never asked, so its row can only ever sit in `pending_consent`.
+    let consent_withheld = seed_spec_student(
+        &mut conn,
+        &cx,
+        &CONSENT_WITHHELD,
+        suotar_course.id,
+        suotar_instance.id,
+        false,
+    )
+    .await?;
+    seed_eligible_completion(&mut conn, &consent_withheld, suotar_course.id, None).await?;
 
     // `not_consented` gets no row at all: a missing row is what makes the course-start dialog
     // appear, while `consent_given = false` means asked and declined.
@@ -479,16 +681,27 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
     )
     .await?;
 
+    // The happy-path actor answers the consent dialog itself, so its completion is already here and
+    // waiting in `pending_consent` for the answer.
+    seed_eligible_completion(&mut conn, &not_consented, suotar_course.id, None).await?;
+
     info!("inserting credit registration linking tokens");
     seed_linking_tokens(&mut conn, &cx, suotar_course.id, unverified_twin.user_id).await?;
 
     info!("inserting credit registration ledger history");
     seed_superseded_attempt_pair(
         &mut conn,
-        &cx,
         &superseded_student,
         suotar_course.id,
         suotar_instance.id,
+    )
+    .await?;
+
+    study_registry_registrars::insert(
+        &mut conn,
+        PKeyPolicy::Fixed(PULL_REGISTRAR_ID),
+        "Credit registration system tests (pull)",
+        PULL_REGISTRAR_SECRET_KEY,
     )
     .await?;
 
@@ -532,6 +745,27 @@ async fn push_mock_suotar_world(base_url: &str) -> Result<()> {
         anyhow::bail!("pushing the mock Suotar world to {url} failed with {status}: {body}");
     }
     Ok(())
+}
+
+/// Turns the module on and points it at the mock's realisation for the same course code.
+///
+/// Only the degree realisation is listed: an active realisation is one `list-by-course` call per
+/// discovery run, and every seeded person is enrolled through a degree programme except the one the
+/// enrolment-selection case needs.
+///
+/// `with_product` is per module rather than per course because
+/// `open_university_product_access_tokens` is keyed on the product id globally — two modules sharing
+/// one would let a spec that breaks the token refresh break another spec's enrolment link.
+fn credit_registration_config(course_code: &str, with_product: bool) -> CreditRegistrationSeed {
+    CreditRegistrationSeed {
+        open_university_product_id: with_product.then(|| product_id(course_code)),
+        grade_scale_id: None,
+        active_realisation_ids: vec![mock_ids::realisation_id(
+            course_code,
+            RealisationKind::Degree,
+        )],
+        paused_reason: None,
+    }
 }
 
 fn instance_config(instance_id: Uuid) -> CourseInstanceConfig {
@@ -579,7 +813,8 @@ async fn seed_backfill_course(
         let mut completion = CompletionBuilder::new(student.user_id)
             .email(student.email.clone())
             .grade(3)
-            .passed(true);
+            .passed(true)
+            .prerequisite_modules_completed(true);
         if index == 1 {
             completion = completion.registered(
                 CompletionRegisteredBuilder::new()
@@ -588,6 +823,21 @@ async fn seed_backfill_course(
         }
         module = module.completion(completion);
     }
+    let failed_student = insert_student(
+        conn,
+        cx.v5(b"user:backfill:failed"),
+        "credit-registration-backfill-failed@example.com",
+        "Zzyzx",
+        "Backfillfailed",
+    )
+    .await?;
+    module = module.completion(
+        CompletionBuilder::new(failed_student.user_id)
+            .email(failed_student.email.clone())
+            .grade(0)
+            .passed(false)
+            .prerequisite_modules_completed(true),
+    );
 
     let (course, instance, _) = CourseBuilder::new(
         "Credit registration backfill",
@@ -600,11 +850,241 @@ async fn seed_backfill_course(
     .seed(conn, &cx)
     .await?;
 
+    // Nobody has been asked: a historical completion belongs to a student who was never offered
+    // this, and the whole point of the backfill is that its rows wait in `pending_consent` until one
+    // of them answers from their profile.
     for index in 1..=4 {
         let user_id = cx.v5(format!("user:backfill:{index}").as_bytes());
         course_instance_enrollments::insert(conn, user_id, course.id, instance.id).await?;
-        course_credit_registration_consents::upsert(conn, user_id, course.id, true).await?;
     }
+    course_instance_enrollments::insert(conn, failed_student.user_id, course.id, instance.id)
+        .await?;
+    Ok(())
+}
+
+/// The account-linking fixtures, on a course of their own.
+///
+/// The tab's stale-address list, and with it the resend and manual-link actions, only renders a
+/// (person, course) that has been mailed to the cap without ever being claimed. That takes three
+/// mails at three addresses, because the dedup key is the address.
+async fn seed_admin_course(
+    conn: &mut PgConnection,
+    org: Uuid,
+    teacher_user_id: Uuid,
+) -> Result<()> {
+    let cx = SeedContext {
+        teacher: teacher_user_id,
+        org,
+        base_course_ns: ADMIN_COURSE_ID,
+    };
+    let (course, instance, _) = CourseBuilder::new("Credit registration admin", ADMIN_COURSE_SLUG)
+        .desc("Fixture course for the admin dashboard's account linking views.")
+        .course_id(ADMIN_COURSE_ID)
+        .role(teacher_user_id, UserRole::Teacher)
+        .instance(instance_config(cx.v5(b"instance:admin")))
+        .module(
+            ModuleBuilder::new()
+                .order(0)
+                .ects(5.0)
+                .uh_course_code(CRS_ADMIN_101.to_string())
+                .credit_registration(credit_registration_config(CRS_ADMIN_101, true)),
+        )
+        .seed(conn, &cx)
+        .await?;
+
+    let unlinked =
+        seed_spec_account(conn, &cx, &ADMIN_UNLINKED, course.id, instance.id, true).await?;
+    seed_eligible_completion(conn, &unlinked, course.id, None).await?;
+    let linked = seed_spec_student(conn, &cx, &ADMIN_LINKED, course.id, instance.id, true).await?;
+    seed_eligible_completion(conn, &linked, course.id, None).await?;
+
+    for fixture in [&ADMIN_STALE, &TEACHER_RESEND_CAPPED] {
+        for suffix in MAILED_ADDRESS_SUFFIXES {
+            let address = format!("{suffix}{}", fixture.sisu_email);
+            let claimed = credit_registration_account_linking_emails::claim_send_slot(
+                conn,
+                &NewAccountLinkingEmail {
+                    student_number: fixture.student_number.to_string(),
+                    sisu_person_id: fixture.sisu_person_id(),
+                    course_id: course.id,
+                    emailed_to: address.clone(),
+                    student_number_verification_token_id: None,
+                    email_delivery_id: None,
+                },
+            )
+            .await?;
+            anyhow::ensure!(
+                claimed.is_some(),
+                "the dedup key refused a seeded linking mail to {address}"
+            );
+        }
+    }
+    Ok(())
+}
+
+/// Every registration state, and every error code, as a frozen row.
+///
+/// The module is paused, which every phase's claim query skips: without that the workers running in
+/// the test deployment would walk these onwards within seconds of the seed finishing and the read
+/// models would have nothing stable to render.
+async fn seed_states_course(
+    conn: &mut PgConnection,
+    org: Uuid,
+    teacher_user_id: Uuid,
+) -> Result<()> {
+    let cx = SeedContext {
+        teacher: teacher_user_id,
+        org,
+        base_course_ns: STATES_COURSE_ID,
+    };
+    let (course, instance, _) = CourseBuilder::new(
+        "Credit registration states",
+        STATES_COURSE_SLUG,
+    )
+    .desc("Fixture course holding one frozen registration per state and per error code.")
+    .course_id(STATES_COURSE_ID)
+    .role(teacher_user_id, UserRole::Teacher)
+    .instance(instance_config(cx.v5(b"instance:states")))
+    .module(
+        ModuleBuilder::new()
+            .order(0)
+            .ects(5.0)
+            .uh_course_code(CRS_STATES_101.to_string())
+            .credit_registration(CreditRegistrationSeed {
+                paused_reason: Some(
+                    "Seeded fixture: these rows are read by the teacher and admin views and must not move."
+                        .to_string(),
+                ),
+                ..credit_registration_config(CRS_STATES_101, false)
+            }),
+    )
+    .seed(conn, &cx)
+    .await?;
+
+    for (index, state) in CreditRegistrationState::ALL.iter().enumerate() {
+        seed_frozen_registration(
+            conn,
+            &cx,
+            course.id,
+            instance.id,
+            index + 1,
+            &format!("State{:02}", index + 1),
+            *state,
+            None,
+        )
+        .await?;
+    }
+    // Every code on the same state, so the explorer's error-code filter is exercised without the
+    // state filter changing underneath it.
+    for (index, error_code) in CreditRegistrationErrorCode::ALL.iter().enumerate() {
+        seed_frozen_registration(
+            conn,
+            &cx,
+            course.id,
+            instance.id,
+            50 + index,
+            &format!("Error{:02}", index + 1),
+            CreditRegistrationState::FailedPermanent,
+            Some(*error_code),
+        )
+        .await?;
+    }
+    Ok(())
+}
+
+/// One student, one completion and one ledger row parked in `state`.
+///
+/// `person` is the `PP` half of the student number, in the teacher-views block. The first two get a
+/// student number as well, one confirmed by an emailed link and one established by hand, because the
+/// teacher view has to render the second one distinctly.
+#[allow(clippy::too_many_arguments)]
+async fn seed_frozen_registration(
+    conn: &mut PgConnection,
+    cx: &SeedContext,
+    course_id: Uuid,
+    course_instance_id: Uuid,
+    person: usize,
+    last_name: &str,
+    state: CreditRegistrationState,
+    error_code: Option<CreditRegistrationErrorCode>,
+) -> Result<()> {
+    let student_number = format!("9000008{person:02}");
+    let account_email = format!(
+        "credit-registration-{}@example.com",
+        last_name.to_lowercase()
+    );
+    let student = insert_student(
+        conn,
+        cx.v5(account_email.as_bytes()),
+        &account_email,
+        "Zzyzx",
+        last_name,
+    )
+    .await?;
+    course_instance_enrollments::insert(conn, student.user_id, course_id, course_instance_id)
+        .await?;
+    course_credit_registration_consents::upsert(conn, student.user_id, course_id, true).await?;
+    let verified_via = match person {
+        1 => Some(StudentNumberVerificationMethod::EmailedLink),
+        2 => Some(StudentNumberVerificationMethod::AdminManual),
+        _ => None,
+    };
+    if let Some(verified_via) = verified_via {
+        verified_student_numbers::insert(
+            conn,
+            PKeyPolicy::Fixed(cx.v5(format!("verified:{student_number}").as_bytes())),
+            &NewVerifiedStudentNumber {
+                user_id: student.user_id,
+                student_number: student_number.clone(),
+                sisu_person_id: format!("hy-hlo-{student_number}"),
+                first_names: Some("Zzyzx".to_string()),
+                last_name: Some(last_name.to_string()),
+                verified_via,
+                verified_via_email: Some(format!(
+                    "zzyzx.{}@helsinki.example",
+                    last_name.to_lowercase()
+                )),
+                verified_via_email_match_field: None,
+                account_email_verified_at: None,
+                linked_by_user_id: None,
+                link_reason: (verified_via == StudentNumberVerificationMethod::AdminManual).then(
+                    || "Seeded fixture: the address Sisu holds rejects our mail.".to_string(),
+                ),
+                verified_from_course_id: Some(course_id),
+            },
+        )
+        .await?;
+    }
+
+    let completion_id = seed_eligible_completion(conn, &student, course_id, None).await?;
+    let course_module_id =
+        headless_lms_models::course_modules::get_default_by_course_id(conn, course_id)
+            .await?
+            .id;
+    let id = credit_registrations::insert(
+        conn,
+        PKeyPolicy::Fixed(cx.v5(format!("credit-registration:{account_email}").as_bytes())),
+        &NewCreditRegistration {
+            course_module_completion_id: completion_id,
+            user_id: student.user_id,
+            course_id,
+            course_module_id,
+            course_instance_id,
+            attempt_number: 1,
+        },
+        Some("Seeded fixture"),
+    )
+    .await?;
+    credit_registrations::transition(
+        conn,
+        id,
+        &Transition {
+            error_code,
+            needs_admin_attention: error_code.map(|_| true),
+            ..Transition::to(state)
+        },
+    )
+    .await?;
     Ok(())
 }
 
@@ -638,7 +1118,29 @@ async fn seed_import_outcomes_course(
         course = course.module(module);
     }
     let (course, instance, _) = course.seed(conn, &cx).await?;
-    seed_spec_student(conn, &cx, &IMPORT_OUTCOMES, course.id, instance.id).await
+    let student =
+        seed_spec_student(conn, &cx, &IMPORT_OUTCOMES, course.id, instance.id, true).await?;
+    // One completion per module, so the spec picks its error code by picking a module.
+    for module in headless_lms_models::course_modules::get_by_course_id(conn, course.id).await? {
+        course_module_completions::insert_seed_row(
+            conn,
+            &NewCourseModuleCompletionSeed {
+                course_id: course.id,
+                course_module_id: module.id,
+                user_id: student.user_id,
+                completion_date: Some(Utc::now() - Duration::days(1)),
+                completion_language: Some("en-US".to_string()),
+                eligible_for_ects: Some(true),
+                email: Some(student.email.clone()),
+                grade: None,
+                passed: Some(true),
+                prerequisite_modules_completed: Some(true),
+                needs_to_be_reviewed: Some(false),
+            },
+        )
+        .await?;
+    }
+    Ok(())
 }
 
 async fn seed_grade_improvement_course(
@@ -666,18 +1168,46 @@ async fn seed_grade_improvement_course(
     )
     .seed(conn, &cx)
     .await?;
-    seed_spec_student(conn, &cx, &GRADE_IMPROVEMENT, course.id, instance.id).await
+    seed_spec_student(conn, &cx, &GRADE_IMPROVEMENT, course.id, instance.id, true).await?;
+    Ok(())
 }
 
-/// A user, a consent and a verified student number for one spec's actor, so the mock's person and
-/// the database row carry the same identifiers.
+/// A user, an enrolment, a verified student number and optionally a consent for one spec's actor, so
+/// the mock's person and the database row carry the same identifiers.
+///
+/// `consented = false` leaves the consent row out entirely rather than writing a declined one: a
+/// missing row is what makes the course-start dialog appear, and a declined one means asked.
 async fn seed_spec_student(
     conn: &mut PgConnection,
     cx: &SeedContext,
     fixture: &MockPersonFixture,
     course_id: Uuid,
     course_instance_id: Uuid,
-) -> Result<()> {
+    consented: bool,
+) -> Result<SeededStudent> {
+    let student =
+        seed_spec_account(conn, cx, fixture, course_id, course_instance_id, consented).await?;
+    link_student_number(
+        conn,
+        cx,
+        fixture,
+        student.user_id,
+        course_id,
+        StudentNumberVerificationMethod::EmailedLink,
+    )
+    .await?;
+    Ok(student)
+}
+
+/// The same, without a student number: whoever is meant to be discovered and mailed.
+async fn seed_spec_account(
+    conn: &mut PgConnection,
+    cx: &SeedContext,
+    fixture: &MockPersonFixture,
+    course_id: Uuid,
+    course_instance_id: Uuid,
+    consented: bool,
+) -> Result<SeededStudent> {
     let account_email = fixture
         .account_email
         .ok_or_else(|| anyhow::anyhow!("a driven spec actor needs an account"))?;
@@ -691,27 +1221,75 @@ async fn seed_spec_student(
     .await?;
     course_instance_enrollments::insert(conn, student.user_id, course_id, course_instance_id)
         .await?;
-    course_credit_registration_consents::upsert(conn, student.user_id, course_id, true).await?;
+    if consented {
+        course_credit_registration_consents::upsert(conn, student.user_id, course_id, true).await?;
+    }
+    Ok(student)
+}
+
+async fn link_student_number(
+    conn: &mut PgConnection,
+    cx: &SeedContext,
+    fixture: &MockPersonFixture,
+    user_id: Uuid,
+    course_id: Uuid,
+    verified_via: StudentNumberVerificationMethod,
+) -> Result<()> {
     verified_student_numbers::insert(
         conn,
-        PKeyPolicy::Fixed(cx.v5(format!("verified:{account_email}").as_bytes())),
+        PKeyPolicy::Fixed(cx.v5(format!("verified:{}", fixture.student_number).as_bytes())),
         &NewVerifiedStudentNumber {
-            user_id: student.user_id,
+            user_id,
             student_number: fixture.student_number.to_string(),
             sisu_person_id: fixture.sisu_person_id(),
             first_names: Some(fixture.first_names.to_string()),
             last_name: Some(fixture.last_name.to_string()),
-            verified_via: StudentNumberVerificationMethod::EmailedLink,
+            verified_via,
             verified_via_email: Some(fixture.sisu_email.to_string()),
             verified_via_email_match_field: None,
             account_email_verified_at: None,
             linked_by_user_id: None,
-            link_reason: None,
+            link_reason: (verified_via == StudentNumberVerificationMethod::AdminManual)
+                .then(|| "Seeded fixture: the address Sisu holds rejects our mail.".to_string()),
             verified_from_course_id: Some(course_id),
         },
     )
     .await?;
     Ok(())
+}
+
+/// A completion the pipeline will pick up: passed, worth credits, and with its prerequisites met.
+///
+/// `prerequisite_modules_completed` is the trap — the builder defaults it to false and a row whose
+/// completion has it false never leaves `pending_prerequisites`.
+async fn seed_eligible_completion(
+    conn: &mut PgConnection,
+    student: &SeededStudent,
+    course_id: Uuid,
+    grade: Option<i32>,
+) -> Result<Uuid> {
+    let course_module_id =
+        headless_lms_models::course_modules::get_default_by_course_id(conn, course_id)
+            .await?
+            .id;
+    let completion_id = course_module_completions::insert_seed_row(
+        conn,
+        &NewCourseModuleCompletionSeed {
+            course_id,
+            course_module_id,
+            user_id: student.user_id,
+            completion_date: Some(Utc::now() - Duration::days(1)),
+            completion_language: Some("en-US".to_string()),
+            eligible_for_ects: Some(true),
+            email: Some(student.email.clone()),
+            grade,
+            passed: Some(true),
+            prerequisite_modules_completed: Some(true),
+            needs_to_be_reviewed: Some(false),
+        },
+    )
+    .await?;
+    Ok(completion_id)
 }
 
 async fn insert_student(
@@ -805,6 +1383,23 @@ async fn seed_linking_tokens(
         },
     )
     .await?;
+    student_number_verification_tokens::insert_seed_row(
+        conn,
+        PKeyPolicy::Fixed(cx.v5(b"linking-token:conflict")),
+        &SeedStudentNumberVerificationToken {
+            token: LINKING_TOKEN_CONFLICT.to_string(),
+            student_number: CONSENTED_LINKED.student_number.to_string(),
+            sisu_person_id: CONSENTED_LINKED.sisu_person_id(),
+            first_names: Some(CONSENTED_LINKED.first_names.to_string()),
+            last_name: Some(CONSENTED_LINKED.last_name.to_string()),
+            emailed_to: CONSENTED_LINKED.sisu_email.to_string(),
+            course_id: Some(course_id),
+            expires_at: now + Duration::days(14),
+            used_at: None,
+            claimed_by_user_id: None,
+        },
+    )
+    .await?;
     Ok(())
 }
 
@@ -812,7 +1407,6 @@ async fn seed_linking_tokens(
 /// grade-improvement specs get an attempt chain without driving a regrade first.
 async fn seed_superseded_attempt_pair(
     conn: &mut PgConnection,
-    cx: &SeedContext,
     student: &SeededStudent,
     course_id: Uuid,
     course_instance_id: Uuid,
@@ -841,7 +1435,7 @@ async fn seed_superseded_attempt_pair(
 
     let attempt_1 = insert_registered_attempt(
         conn,
-        cx.v5(b"credit-registration:superseded:attempt-1"),
+        SUPERSEDED_ATTEMPT_1_ID,
         completion_id,
         student.user_id,
         course_id,
@@ -857,7 +1451,7 @@ async fn seed_superseded_attempt_pair(
     credit_registrations::mark_superseded(conn, attempt_1, attempt_1).await?;
     let attempt_2 = insert_registered_attempt(
         conn,
-        cx.v5(b"credit-registration:superseded:attempt-2"),
+        SUPERSEDED_ATTEMPT_2_ID,
         completion_id,
         student.user_id,
         course_id,
@@ -940,7 +1534,7 @@ async fn seed_admin_actions(
         &NewCreditRegistrationAdminAction {
             action: CreditRegistrationAdminAction::TransitionItem,
             target_kind: CreditRegistrationAdminActionTarget::CreditRegistration,
-            target_id: Some(cx.v5(b"credit-registration:superseded:attempt-1")),
+            target_id: Some(SUPERSEDED_ATTEMPT_1_ID),
             target_phase: None,
             actor_user_id: admin_user_id,
             actor_role: "global_admin".to_string(),
@@ -993,16 +1587,32 @@ pub fn mock_suotar_world() -> WorldPush {
     let on_crs_101 = [
         &CONSENTED_LINKED,
         &CONSENTED_UNLINKED,
+        &NOT_CONSENTED,
         &LINK_VALID,
         &LINK_EXPIRED,
         &LINK_USED,
         &SUPERSEDED,
         &FAST_TRACK_VERIFIED,
         &FAST_TRACK_TWIN,
+        &IMPORT_TIMEOUT,
+        &TWO_ENROLMENTS,
+        &VERIFY_POLLING,
+        &VERIFY_MISREGISTERED,
+        &CONSENT_WITHHELD,
+        &CONSENT_WITHDRAWN,
+    ];
+    let on_crs_admin_101 = [
+        &ADMIN_UNLINKED,
+        &ADMIN_STALE,
+        &ADMIN_LINKED,
+        &TEACHER_RESEND_CAPPED,
     ];
 
     let mut persons: Vec<PersonUpsert> = on_crs_101.iter().map(|f| person(f)).collect();
-    persons.push(person(&NOT_CONSENTED));
+    persons.extend(on_crs_admin_101.iter().map(|f| person(f)));
+    // Known to the University and enrolled on nothing, which is the only way to reach
+    // `no_usable_enrolment` from data alone.
+    persons.push(person(&NO_ENROLMENT));
     persons.push(person(&IMPORT_OUTCOMES));
     persons.push(person(&GRADE_IMPROVEMENT));
     persons.extend(BACKFILL_STUDENTS.iter().map(person));
@@ -1033,6 +1643,24 @@ pub fn mock_suotar_world() -> WorldPush {
         &GRADE_IMPROVEMENT,
         CRS_GRADED_101,
         RealisationKind::Degree,
+        wide.clone(),
+        now,
+    ));
+    enrolments.extend(on_crs_admin_101.iter().map(|fixture| {
+        enrolment(
+            fixture,
+            CRS_ADMIN_101,
+            RealisationKind::Degree,
+            wide.clone(),
+            now,
+        )
+    }));
+    // The second enrolment for the selection policy to reject, so the assertion is about which id
+    // was sent rather than about some id being sent.
+    enrolments.push(enrolment(
+        &TWO_ENROLMENTS,
+        CRS_101,
+        RealisationKind::OpenUniversity,
         wide.clone(),
         now,
     ));
@@ -1071,6 +1699,12 @@ pub fn mock_suotar_world() -> WorldPush {
         }
         .build(&wide),
         CourseUnitShape::new(CRS_BACKFILL_101, BACKFILL_COURSE_SLUG, 5.0).build(&wide),
+        CourseUnitShape {
+            kinds: &[RealisationKind::Degree, RealisationKind::OpenUniversity],
+            ..CourseUnitShape::new(CRS_ADMIN_101, ADMIN_COURSE_SLUG, 5.0)
+        }
+        .build(&wide),
+        CourseUnitShape::new(CRS_STATES_101, STATES_COURSE_SLUG, 5.0).build(&wide),
         // Every other module is pass/fail, so grade improvement needs a graded one.
         CourseUnitShape {
             grade_scale_id: "sis-0-5",
@@ -1089,7 +1723,11 @@ pub fn mock_suotar_world() -> WorldPush {
         course_units,
         enrolments,
         attainments: Vec::new(),
-        product_tokens: vec![product_token(CRS_101), product_token(CRS_OLD_101)],
+        product_tokens: vec![
+            product_token(CRS_101),
+            product_token(CRS_OLD_101),
+            product_token(CRS_ADMIN_101),
+        ],
     }
 }
 
@@ -1224,6 +1862,7 @@ mod tests {
             LINKING_TOKEN_VALID,
             LINKING_TOKEN_EXPIRED,
             LINKING_TOKEN_ALREADY_USED,
+            LINKING_TOKEN_CONFLICT,
         ] {
             assert!(token.len() >= 128, "token too short: {}", token.len());
         }

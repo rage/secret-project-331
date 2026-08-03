@@ -81,7 +81,7 @@ const noteCss = css`
 const bodyCss = css`
   font-size: 0.8125rem;
   white-space: pre-wrap;
-  word-break: break-word;
+  overflow-wrap: anywhere;
   background: var(--color-gray-50);
   border: 1px solid var(--color-gray-100);
   border-radius: 6px;

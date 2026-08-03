@@ -1,11 +1,116 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
+
+import {
+  countMockCallsForStudent,
+  CRS_101,
+  IMPORT_OUTCOMES_COURSE_SLUG,
+  loginAsSeededStudent,
+  myCreditRegistrations,
+  myRegistrationOnCourse,
+  SUOTAR_COURSE_SLUG,
+  waitForRegistrationState,
+} from "@/utils/creditRegistration"
+import { applyMockSuotarScenario, transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import {
+  runImportSubmissionTick,
+  runMaterializeTick,
+  runPreconditionsTick,
+  runResolveEnrolmentsTick,
+  runVerifyPollTick,
+} from "@/utils/suotarControl"
+import { pollUntil } from "@/utils/waitingUtils"
 
 /** Owns student numbers `9000004xx`. */
-test.fixme("A Sisu timeout never re-imports, and recovers through verification only", () => {
-  // Waiting on the import phase. A double submission puts two attainments on a real
-  // transcript and cannot be undone: prove exactly one submit call was made for the row.
+const TIMEOUT_EMAIL = "credit-registration-import-timeout@example.com"
+const TIMEOUT_STUDENT_NUMBER = "900000402"
+const OUTCOMES_EMAIL = "credit-registration-import-outcomes@example.com"
+
+test("A Sisu timeout never re-imports, and recovers through verification only", async ({
+  page,
+}) => {
+  await loginAsSeededStudent(page, TIMEOUT_EMAIL)
+  const scope = { userEmail: TIMEOUT_EMAIL }
+
+  // The named scenario arms the timeout after the mock has already written the submission, which is
+  // the dangerous shape: the study registry holds the attainment and we have no answer saying so.
+  await applyMockSuotarScenario(page.request, "timeout-but-landed", {
+    studentNumber: TIMEOUT_STUDENT_NUMBER,
+    courseCode: CRS_101,
+    owner: { user: TIMEOUT_EMAIL, course: SUOTAR_COURSE_SLUG },
+  })
+
+  await runMaterializeTick(page.request, scope)
+  await runPreconditionsTick(page.request, scope)
+  await runResolveEnrolmentsTick(page.request, scope)
+  await runImportSubmissionTick(page.request, scope)
+
+  await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, ["submission_uncertain"])
+  expect(
+    await countMockCallsForStudent(page.request, TIMEOUT_STUDENT_NUMBER, "import_attainments"),
+  ).toBe(1)
+
+  await test.step("Further import passes send nothing", async () => {
+    await runImportSubmissionTick(page.request, scope)
+    await runImportSubmissionTick(page.request, scope)
+    // Only an explicit admin transition leaves `submission_uncertain`, so this negative assertion
+    // holds however many workers and specs tick in between. A second import would put a second
+    // attainment on a real transcript, invisibly.
+    const row = await myRegistrationOnCourse(page.request, SUOTAR_COURSE_SLUG)
+    expect(row.state).toBe("submission_uncertain")
+    expect(
+      await countMockCallsForStudent(page.request, TIMEOUT_STUDENT_NUMBER, "import_attainments"),
+    ).toBe(1)
+  })
+
+  await test.step("Verification is the only way out", async () => {
+    await transitionMockSuotarSubmissionsFor(
+      page.request,
+      TIMEOUT_STUDENT_NUMBER,
+      "registered",
+      CRS_101,
+    )
+    await runVerifyPollTick(page.request, scope)
+    const registered = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+      "registered",
+      "duplicate",
+    ])
+    expect(registered.sisu_attainment_id).not.toBeNull()
+    expect(
+      await countMockCallsForStudent(page.request, TIMEOUT_STUDENT_NUMBER, "import_attainments"),
+    ).toBe(1)
+    expect(
+      await countMockCallsForStudent(page.request, TIMEOUT_STUDENT_NUMBER, "verify_attainments"),
+    ).toBeGreaterThanOrEqual(1)
+  })
 })
 
-test.fixme("Each import error code lands the row in its documented state", () => {
-  // Waiting on the import phase.
+test("Each broken module shape lands the row on its own error code", async ({ page }) => {
+  await loginAsSeededStudent(page, OUTCOMES_EMAIL)
+  const scope = { userEmail: OUTCOMES_EMAIL }
+
+  await runMaterializeTick(page.request, scope)
+  await runPreconditionsTick(page.request, scope)
+  await runResolveEnrolmentsTick(page.request, scope)
+  await runImportSubmissionTick(page.request, scope)
+
+  const failed = await pollUntil(
+    async () => {
+      const rows = (await myCreditRegistrations(page.request)).filter(
+        (row) => row.course_slug === IMPORT_OUTCOMES_COURSE_SLUG && row.error_code !== null,
+      )
+      return rows.length === 4 ? rows : null
+    },
+    { description: "all four import-outcome modules to carry an error code" },
+  )
+
+  const codes = failed.map((row) => row.error_code)
+  // Distinct rather than named one by one: what matters is that four different broken shapes are not
+  // collapsed into one code, and that none of them landed on the catch-all.
+  expect(new Set(codes).size).toBe(codes.length)
+  expect(codes).not.toContain("unknown")
+
+  // The student's own payload carries a code, never the study registry's wording, so there is
+  // nothing for the frontend to leak even if it tried.
+  const raw = JSON.stringify(await myCreditRegistrations(page.request))
+  expect(raw).not.toContain("error_message")
 })

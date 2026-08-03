@@ -91,3 +91,31 @@ RETURNING *
     .await?;
     Ok(res)
 }
+
+/// Pauses or resumes the module. Every phase's claim query skips a paused module, so pausing freezes
+/// its ledger rows where they stand instead of cancelling them. `None` resumes.
+pub async fn set_paused(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    paused_at: Option<DateTime<Utc>>,
+    paused_by_user_id: Option<Uuid>,
+    pause_reason: Option<&str>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE course_module_suotar_configurations
+SET paused_at = $2,
+  paused_by_user_id = $3,
+  pause_reason = $4
+WHERE course_module_id = $1
+  AND deleted_at IS NULL
+        "#,
+        course_module_id,
+        paused_at,
+        paused_by_user_id,
+        pause_reason,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}

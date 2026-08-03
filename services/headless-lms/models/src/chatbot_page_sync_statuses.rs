@@ -78,24 +78,31 @@ pub async fn save_markdown_content(
             .unzip();
 
     let mut tx = conn.begin().await?;
-    let res = course_page_markdown_content::insert_batch(
+    let res = match course_page_markdown_content::insert_batch(
         &mut tx,
         page_id_md_content,
         page_id_page_history_id.to_owned(),
     )
-    .await?;
+    .await
+    {
+        Ok(res) => res,
+        Err(e) => {
+            tx.rollback().await?;
+            return Err(e);
+        }
+    };
 
     let (md_ids, page_ids): (Vec<Uuid>, Vec<Uuid>) = page_id_page_history_id
         .iter()
         .filter_map(|(p_id, ph_id)| {
-            let md_id = res.iter().find(|x| &x.page_history_id == ph_id);
-            md_id.map(|x| (x.id, p_id.to_owned()))
+            let md_content = res.iter().find(|x| &x.page_history_id == ph_id);
+            md_content.map(|content| (content.id, p_id.to_owned()))
         })
         .collect::<Vec<(Uuid, Uuid)>>()
         .into_iter()
         .unzip();
 
-    sqlx::query!(
+    match sqlx::query!(
         r#"
 UPDATE chatbot_page_sync_statuses AS cps
 SET converted_markdown_content_id = data.markdown_id
@@ -110,7 +117,14 @@ WHERE cps.page_id = data.page_id
         &page_ids
     )
     .execute(&mut *tx)
-    .await?;
+    .await
+    {
+        Ok(_) => {}
+        Err(e) => {
+            tx.rollback().await?;
+            return Err(e.into());
+        }
+    };
 
     tx.commit().await?;
 

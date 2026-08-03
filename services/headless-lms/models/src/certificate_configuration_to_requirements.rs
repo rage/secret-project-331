@@ -143,6 +143,8 @@ pub async fn link_configuration_to_module_if_missing(
     Ok(())
 }
 
+/// Soft-deletes a configuration's requirements. Callers deleting the configuration itself must do
+/// both in the same transaction, or course copying breaks on the requirements left behind.
 pub async fn delete_by_certificate_configuration_id(
     conn: &mut PgConnection,
     certificate_configuration_id: Uuid,

@@ -1593,33 +1593,33 @@ mod tests {
         )
     }
 
-    // These use the non-macro query API on purpose: bin/sqlx-prepare only caches --lib queries, so
-    // macro queries here would break offline builds.
     async fn insert_certificate_configuration(
         conn: &mut PgConnection,
         course_module_id: Uuid,
     ) -> Uuid {
-        let file_upload: Uuid = sqlx::query_scalar(
+        let file_upload = sqlx::query!(
             "
 INSERT INTO file_uploads (name, path, mime)
 VALUES ('background.svg', 'certificates/background.svg', 'image/svg+xml')
 RETURNING id
-",
+"
         )
         .fetch_one(&mut *conn)
         .await
-        .unwrap();
-        let configuration: Uuid = sqlx::query_scalar(
+        .unwrap()
+        .id;
+        let configuration = sqlx::query!(
             "
 INSERT INTO certificate_configurations (background_svg_path, background_svg_file_upload_id)
 VALUES ('certificates/background.svg', $1)
 RETURNING id
 ",
+            file_upload
         )
-        .bind(file_upload)
         .fetch_one(&mut *conn)
         .await
-        .unwrap();
+        .unwrap()
+        .id;
         crate::certificate_configuration_to_requirements::insert(
             conn,
             configuration,
@@ -1633,14 +1633,15 @@ RETURNING id
     /// Reproduces the legacy state that `certificate_configurations::delete` no longer leaves
     /// behind: a soft-deleted configuration whose requirements are still live.
     async fn soft_delete_certificate_configuration_only(conn: &mut PgConnection, id: Uuid) {
-        sqlx::query(
+        sqlx::query!(
             "
 UPDATE certificate_configurations
 SET deleted_at = now()
 WHERE id = $1
+  AND deleted_at IS NULL
 ",
+            id
         )
-        .bind(id)
         .execute(conn)
         .await
         .unwrap();
@@ -1650,19 +1651,21 @@ WHERE id = $1
         conn: &mut PgConnection,
         copied_course_id: Uuid,
     ) -> i64 {
-        sqlx::query_scalar(
-            "
-SELECT count(*)
+        sqlx::query!(
+            r#"
+SELECT count(*) AS "count!"
 FROM certificate_configuration_to_requirements cctr
   JOIN course_modules cm ON cctr.course_module_id = cm.id
 WHERE cm.course_id = $1
   AND cctr.deleted_at IS NULL
-",
+  AND cm.deleted_at IS NULL
+"#,
+            copied_course_id
         )
-        .bind(copied_course_id)
         .fetch_one(conn)
         .await
         .unwrap()
+        .count
     }
 
     #[tokio::test]

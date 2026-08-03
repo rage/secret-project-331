@@ -1597,37 +1597,56 @@ mod tests {
         conn: &mut PgConnection,
         course_module_id: Uuid,
     ) -> Uuid {
-        let file_upload = sqlx::query!(
-            "
-INSERT INTO file_uploads (name, path, mime)
-VALUES ('background.svg', 'certificates/background.svg', 'image/svg+xml')
-RETURNING id
-"
+        let background_svg_file_upload_id = crate::file_uploads::insert(
+            &mut *conn,
+            "background.svg",
+            "certificates/background.svg",
+            "image/svg+xml",
+            None,
         )
-        .fetch_one(&mut *conn)
         .await
-        .unwrap()
-        .id;
-        let configuration = sqlx::query!(
-            "
-INSERT INTO certificate_configurations (background_svg_path, background_svg_file_upload_id)
-VALUES ('certificates/background.svg', $1)
-RETURNING id
-",
-            file_upload
-        )
-        .fetch_one(&mut *conn)
-        .await
-        .unwrap()
-        .id;
+        .unwrap();
+        let configuration = crate::certificate_configurations::DatabaseCertificateConfiguration {
+            id: Uuid::new_v4(),
+            certificate_owner_name_y_pos: None,
+            certificate_owner_name_x_pos: None,
+            certificate_owner_name_font_size: None,
+            certificate_owner_name_text_color: None,
+            certificate_owner_name_text_anchor: None,
+            certificate_validate_url_y_pos: None,
+            certificate_validate_url_x_pos: None,
+            certificate_validate_url_font_size: None,
+            certificate_validate_url_text_color: None,
+            certificate_validate_url_text_anchor: None,
+            certificate_date_y_pos: None,
+            certificate_date_x_pos: None,
+            certificate_date_font_size: None,
+            certificate_date_text_color: None,
+            certificate_date_text_anchor: None,
+            certificate_locale: None,
+            paper_size: None,
+            background_svg_path: "certificates/background.svg".to_string(),
+            background_svg_file_upload_id,
+            overlay_svg_path: None,
+            overlay_svg_file_upload_id: None,
+            render_certificate_grade: false,
+            certificate_grade_y_pos: None,
+            certificate_grade_x_pos: None,
+            certificate_grade_font_size: None,
+            certificate_grade_text_color: None,
+            certificate_grade_text_anchor: None,
+        };
+        let inserted = crate::certificate_configurations::insert(&mut *conn, &configuration)
+            .await
+            .unwrap();
         crate::certificate_configuration_to_requirements::insert(
             conn,
-            configuration,
+            inserted.id,
             Some(course_module_id),
         )
         .await
         .unwrap();
-        configuration
+        inserted.id
     }
 
     /// Reproduces the legacy state that `certificate_configurations::delete` no longer leaves

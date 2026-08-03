@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n\nINSERT INTO course_page_markdown_content (markdown_content, page_history_id)\nSELECT data.content, data.page_history_id\nFROM (\n    SELECT unnest($1::text []) AS content,\n      unnest($2::uuid []) AS page_history_id\n  ) AS data\nRETURNING *\n    ",
+  "query": "\n\nINSERT INTO course_page_markdown_content (markdown_content, page_history_id, page_id)\nSELECT data.content, data.page_history_id, data.page_id\nFROM (\n    SELECT unnest($1::text []) AS content,\n      unnest($2::uuid []) AS page_history_id,\n      unnest($3::uuid []) AS page_id\n  ) AS data\nRETURNING *\n    ",
   "describe": {
     "columns": [
       {
@@ -68,11 +68,23 @@
             "name": "page_history_id"
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_page_markdown_content",
+            "name": "page_id"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
         "TextArray",
+        "UuidArray",
         "UuidArray"
       ]
     },
@@ -82,8 +94,9 @@
       false,
       true,
       false,
+      false,
       false
     ]
   },
-  "hash": "dc526e9039cf9daad510b6f0856150f44894c93a7b566ebc898fc2cfa1eb0f01"
+  "hash": "a83ac28044dcf3b3ef286560fb4321b3138e0f1d8633d4086e9ab341c478e404"
 }

@@ -28,6 +28,7 @@ use headless_lms_chatbot::{
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
     chapters::DatabaseChapter,
+    course_page_markdown_content::CoursePageMarkdownContent,
     pages::{Page, PageVisibility},
 };
 use headless_lms_utils::{
@@ -254,10 +255,10 @@ async fn sync_pages(
         }
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
-        let page_md_ids = outdated_statuses
+        let md_ids: Vec<Uuid> = outdated_statuses
             .iter()
-            .map(|s| (s.page_id, s.converted_markdown_content_id))
-            .collect::<HashMap<Uuid, Option<Uuid>>>();
+            .filter_map(|s| s.converted_markdown_content_id)
+            .collect();
         let pages = headless_lms_models::pages::get_by_ids_and_visibility(
             conn,
             &page_ids,
@@ -269,7 +270,7 @@ async fn sync_pages(
             sync_pages_batch(
                 conn,
                 &pages,
-                &page_md_ids,
+                &md_ids,
                 blob_client,
                 &base_url,
                 &config.app_configuration,
@@ -340,7 +341,7 @@ async fn sync_pages_batch(
     conn: &mut PgConnection,
     pages: &[Page],
     // map from page id to course page markdown content id
-    page_md_ids: &HashMap<Uuid, Option<Uuid>>,
+    md_ids: &Vec<Uuid>,
     blob_client: &AzureBlobClient,
     base_url: &Url,
     app_config: &ApplicationConfiguration,
@@ -353,6 +354,9 @@ async fn sync_pages_batch(
         .ok_or_else(|| anyhow::anyhow!("The first page does not belong to any course."))?;
 
     let course = headless_lms_models::courses::get_course(conn, course_id).await?;
+    let chapters = headless_lms_models::chapters::get_chapters_for_course(conn, &course_id).await?;
+    let md_contents =
+        headless_lms_models::course_page_markdown_content::get_many(conn, md_ids).await?;
     let organization =
         headless_lms_models::organizations::get_organization(conn, course.organization_id).await?;
     let task_lm = headless_lms_models::application_task_default_language_models::get_for_task(
@@ -381,27 +385,19 @@ async fn sync_pages_batch(
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let sanitized_blocks = remove_sensitive_attributes(parsed_content);
 
-        let page_md_content_id: Option<Uuid> = page_md_ids.get(&page.id).and_then(|x| x.to_owned());
+        let page_md_content: Option<&CoursePageMarkdownContent> =
+            md_contents.iter().find(|x| x.page_id == page.id);
         let latest_page_history_id: Option<&Uuid> = latest_history_ids.get(&page.id);
 
-        let up_to_date_md_content = if let Some(id) = page_md_content_id {
-            //
-            let md_content_option =
-                headless_lms_models::course_page_markdown_content::get(conn, id)
-                    .await
-                    .ok();
-            md_content_option.and_then(|md_content| {
-                latest_page_history_id.and_then(|id| {
-                    if id == &md_content.page_history_id {
-                        Some(md_content.markdown_content)
-                    } else {
-                        None
-                    }
-                })
+        let up_to_date_md_content = page_md_content.and_then(|c| {
+            latest_page_history_id.and_then(|id| {
+                if id == &c.page_history_id {
+                    Some(c.markdown_content.to_string())
+                } else {
+                    None
+                }
             })
-        } else {
-            None
-        };
+        });
 
         let content_as_markdown = if let Some(content) = up_to_date_md_content.to_owned() {
             info!("Using previously generated Markdown for page {}", page.id);
@@ -464,18 +460,9 @@ async fn sync_pages_batch(
         }
 
         let blob_path = generate_blob_path(page)?;
-        let chapter: Option<DatabaseChapter> = if page.chapter_id.is_some() {
-            //
-            match headless_lms_models::chapters::get_chapter_by_page_id(conn, page.id).await {
-                Ok(c) => Some(c),
-                Err(e) => {
-                    debug!("Chapter lookup failed for page {}: {}", page.id, e);
-                    None
-                }
-            }
-        } else {
-            None
-        };
+        let chapter: Option<&DatabaseChapter> = chapters
+            .iter()
+            .find(|c| page.chapter_id.is_some_and(|c_id| c_id == c.id));
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();

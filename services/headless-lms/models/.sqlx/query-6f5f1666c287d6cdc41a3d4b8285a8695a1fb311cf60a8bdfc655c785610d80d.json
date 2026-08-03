@@ -68,6 +68,17 @@
             "name": "page_history_id"
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_page_markdown_content",
+            "name": "page_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -80,6 +91,7 @@
       false,
       false,
       true,
+      false,
       false,
       false
     ]

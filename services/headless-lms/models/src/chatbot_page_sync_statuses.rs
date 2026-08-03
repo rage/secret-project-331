@@ -67,17 +67,26 @@ pub async fn save_markdown_content(
     if page_id_to_history_id_md_content.is_empty() {
         return Ok(());
     }
-    let history_id_md_contents: Vec<(Uuid, String)> = page_id_to_history_id_md_content
-        .to_owned()
-        .into_values()
-        .collect();
+    let (page_id_page_history_id, page_id_md_content): (Vec<(Uuid, Uuid)>, Vec<(Uuid, String)>) =
+        page_id_to_history_id_md_content
+            .to_owned()
+            .into_iter()
+            .map(|(page_id, (ph_id, c))| ((page_id, ph_id), (page_id, c)))
+            .collect::<Vec<((Uuid, Uuid), (Uuid, String))>>()
+            .into_iter()
+            .unzip();
 
     let mut tx = conn.begin().await?;
-    let res = course_page_markdown_content::insert_batch(&mut tx, history_id_md_contents).await?;
+    let res = course_page_markdown_content::insert_batch(
+        &mut tx,
+        page_id_md_content,
+        page_id_page_history_id.to_owned(),
+    )
+    .await?;
 
-    let (md_ids, page_ids): (Vec<Uuid>, Vec<Uuid>) = page_id_to_history_id_md_content
+    let (md_ids, page_ids): (Vec<Uuid>, Vec<Uuid>) = page_id_page_history_id
         .iter()
-        .filter_map(|(p_id, (ph_id, _))| {
+        .filter_map(|(p_id, ph_id)| {
             let md_id = res.iter().find(|x| &x.page_history_id == ph_id);
             md_id.and_then(|x| Some((x.id, p_id.to_owned())))
         })
@@ -185,48 +194,4 @@ AND deleted_at IS NULL
     .await?;
 
     Ok(())
-}
-
-pub struct HelperStruct {
-    pub page_id: Uuid,
-    pub page_revision_id: Uuid,
-    //pub converted_markdown_content_id: Option<Uuid>,
-    pub markdown: Option<String>,
-    pub chapter_name: Option<String>,
-    pub chapter_number: Option<i32>,
-}
-
-pub async fn helper(
-    conn: &mut PgConnection,
-    page_id_to_history_id_md_id: HashMap<Uuid, (Uuid, Uuid)>,
-) -> ModelResult<Vec<HelperStruct>> {
-    let (page_ids, (ph_ids, md_ids)): (Vec<Uuid>, (Vec<Uuid>, Vec<Uuid>)) =
-        page_id_to_history_id_md_id.into_iter().unzip();
-
-    let md = course_page_markdown_content::get_many(conn, &md_ids).await?;
-
-    let rows = sqlx::query!(
-        r#"
-SELECT input.page_id,
-  input.page_revision_id,
-  c.name AS chapter_name,
-  c.chapter_number
-FROM (
-    SELECT unnest($1::uuid []) AS page_id,
-      unnest($2::uuid []) AS page_revision_id
-  ) AS input
-  JOIN pages ON pages.id = input.page_id
-  JOIN chapters AS c ON pages.chapter_id = c.id
-WHERE pages.deleted_at IS NULL
-  AND c.deleted_at IS NULL
-        "#,
-        &page_ids,
-        &ph_ids,
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-
-    todo!()
-
-    //    Ok(res)
 }

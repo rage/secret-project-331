@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_page_markdown_content (markdown_content, page_history_id)\nVALUES ($1, $2)\nRETURNING *\n    ",
+  "query": "\nINSERT INTO course_page_markdown_content (markdown_content, page_history_id, page_id)\nVALUES ($1, $2, $3)\nRETURNING *\n    ",
   "describe": {
     "columns": [
       {
@@ -68,11 +68,23 @@
             "name": "page_history_id"
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_page_markdown_content",
+            "name": "page_id"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
         "Text",
+        "Uuid",
         "Uuid"
       ]
     },
@@ -82,8 +94,9 @@
       false,
       true,
       false,
+      false,
       false
     ]
   },
-  "hash": "6de422fd7bb40ef02ccce6fd0499ca9374afed9b95907c80529c0bbf1546fb3b"
+  "hash": "59065c2fe28b403b0b073fcdcdcd00d81dc5cf6a78c22f6d047b609b409d2e37"
 }

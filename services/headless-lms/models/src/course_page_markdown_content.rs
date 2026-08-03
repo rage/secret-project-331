@@ -48,10 +48,13 @@ RETURNING *
 
 pub async fn insert_batch(
     conn: &mut PgConnection,
-    page_id_md_contents: Vec<(Uuid, String)>,
-    page_id_history_id: Vec<(Uuid, Uuid)>,
+    mut page_id_md_contents: Vec<(Uuid, String)>,
+    mut page_id_history_id: Vec<(Uuid, Uuid)>,
 ) -> ModelResult<Vec<CoursePageMarkdownContent>> {
-    // todo sort them by page id
+    // sort the vecs by page id
+    page_id_history_id.sort_by_key(|x| x.0);
+    page_id_md_contents.sort_by_key(|x| x.0);
+
     let (_, contents): (Vec<Uuid>, Vec<String>) = page_id_md_contents.into_iter().unzip();
     let (page_ids, history_ids): (Vec<Uuid>, Vec<Uuid>) = page_id_history_id.into_iter().unzip();
 

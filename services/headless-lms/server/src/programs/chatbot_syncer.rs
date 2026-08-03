@@ -455,7 +455,6 @@ async fn sync_pages_batch(
             new_markdown_contents_map.insert(
                 page.id,
                 (history_id.to_owned(), content_as_markdown.to_owned()),
-                // is str ok
             );
         }
 
@@ -530,30 +529,11 @@ async fn sync_pages_batch(
     };
 
     // update revision ids for all pages
-    if let Err(e) = headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
+    headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
         conn,
         page_revision_map,
     )
-    .await
-    {
-        let error_msg = format!("Sync failed: Status update error: {}", e);
-        warn!(
-            "Failed to update sync status fora page in course {}: {:?}",
-            course_id, e
-        );
-        // todo: do we need to set page sync errors?
-
-        /*         if let Err(db_err) = headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
-            conn, page.id, &error_msg,
-        )
-        .await
-        {
-            warn!(
-                "Failed to record status update error for page {}: {:?}",
-                page.id, db_err
-            );
-        } */
-    }
+    .await?;
 
     Ok(())
 }

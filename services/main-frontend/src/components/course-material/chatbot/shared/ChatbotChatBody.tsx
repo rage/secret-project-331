@@ -187,6 +187,18 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     )
   }
 
+  const createNewConversation = async () => {
+    try {
+      const res = await newConversationMutation.mutateAsync()
+      const anonymous_id = res.anonymous_id
+      if (anonymous_id) {
+        localStorage.setItem("anonymous_id", anonymous_id)
+      }
+    } catch (_error) {
+      console.error("There was an error in creating conversation")
+    }
+  }
+
   if (currentConversationInfo && !currentConversationInfo.data?.current_conversation) {
     return (
       <ChatbotDisclaimer
@@ -197,9 +209,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             `}
             size="medium"
             variant="secondary"
-            onClick={() => {
-              newConversationMutation.mutate()
-            }}
+            onClick={createNewConversation}
             disabled={newConversationMutation.isPending}
           >
             {t("button-text-agree")}

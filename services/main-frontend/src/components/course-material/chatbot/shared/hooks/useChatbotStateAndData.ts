@@ -56,6 +56,9 @@ const useChatbotStateAndData = (
     setNewMessage,
     setError,
   )
+
+  const anonymousId = localStorage.getItem("anonymous_id")
+
   const newMessageMutation = useToastMutation(
     async (messageToSend: string) => {
       setChatbotMessageAnnouncement("")
@@ -79,6 +82,9 @@ const useChatbotStateAndData = (
         path: {
           chatbot_configuration_id: chatbotConfigurationId,
           conversation_id: currentConversationInfo.data.current_conversation.id,
+        },
+        headers: {
+          "anonymous-id": anonymousId,
         },
         responseStyle: "data",
         url: SEND_CHATBOT_MESSAGE_PATH,

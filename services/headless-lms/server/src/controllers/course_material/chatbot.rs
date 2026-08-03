@@ -100,6 +100,7 @@ async fn send_message(
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<String>,
+    req: HttpRequest,
 ) -> ControllerResult<HttpResponse> {
     let message = payload.into_inner();
     let chatbot_configuration_id = params.0;
@@ -117,12 +118,15 @@ async fn send_message(
 
     let conversation = chatbot_conversations::get_by_id(&mut conn, conversation_id).await?;
 
-    let anonymous_id = if let Some(_user) = user {
-        None
+    let anonymous_id_req = req
+        .headers()
+        .get("anonymous-id")
+        .and_then(|anonymous_id| anonymous_id.to_str().ok());
+
+    let anonymous_id = if let Some(anonymous_id) = anonymous_id_req {
+        Some(anonymous_id.to_owned())
     } else {
-        Some(String::from(
-            "F1S3h8X92jcwKNgDEQOSUa4WFbQ1YCVklt9HNhugc0FHW1txXb7Vsmw725oMjr11KtkAEafG2lXm1EHQYrNzw7DTIUohydaV082nbgxNc5H7oiihYjOE1885une4HGOM",
-        ))
+        None
     };
 
     if conversation.user_id != user.map(|u| u.id)
@@ -261,12 +265,13 @@ Returns the current conversation for the user.
         )
     )
 )]
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool, app_conf, req))]
 async fn current_conversation_info(
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     params: web::Path<Uuid>,
+    req: HttpRequest,
 ) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
     let mut conn = pool.acquire().await?;
     let chatbot_configuration =
@@ -279,12 +284,15 @@ async fn current_conversation_info(
     )
     .await?;
 
-    let anonymous_id = if let Some(_user) = user {
-        None
+    let anonymous_id_req = req
+        .headers()
+        .get("anonymous-id")
+        .and_then(|anonymous_id| anonymous_id.to_str().ok());
+
+    let anonymous_id = if let Some(anonymous_id) = anonymous_id_req {
+        Some(anonymous_id.to_owned())
     } else {
-        Some(String::from(
-            "F1S3h8X92jcwKNgDEQOSUa4WFbQ1YCVklt9HNhugc0FHW1txXb7Vsmw725oMjr11KtkAEafG2lXm1EHQYrNzw7DTIUohydaV082nbgxNc5H7oiihYjOE1885une4HGOM",
-        ))
+        None
     };
 
     let res = chatbot_conversations::get_current_conversation_info(

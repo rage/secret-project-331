@@ -59,7 +59,7 @@ WHERE course_id = ANY($1)
     Ok(all_statuses)
 }
 
-type TwoUuidsVec = Vec<(Uuid, Uuid)>;
+type UuidPairsVec = Vec<(Uuid, Uuid)>;
 
 pub async fn save_markdown_content(
     conn: &mut PgConnection,
@@ -69,7 +69,7 @@ pub async fn save_markdown_content(
     if page_id_to_history_id_md_content.is_empty() {
         return Ok(());
     }
-    let (page_id_page_history_id, page_id_md_content): (TwoUuidsVec, Vec<(Uuid, String)>) =
+    let (page_id_page_history_id, page_id_md_content): (UuidPairsVec, Vec<(Uuid, String)>) =
         page_id_to_history_id_md_content
             .into_iter()
             .map(|(page_id, (ph_id, c))| ((page_id, ph_id), (page_id, c)))

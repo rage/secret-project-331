@@ -341,7 +341,7 @@ async fn sync_pages_batch(
     conn: &mut PgConnection,
     pages: &[Page],
     // map from page id to course page markdown content id
-    md_ids: &Vec<Uuid>,
+    md_ids: &[Uuid],
     blob_client: &AzureBlobClient,
     base_url: &Url,
     app_config: &ApplicationConfiguration,

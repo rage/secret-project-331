@@ -2,11 +2,15 @@ import styled from "@emotion/styled"
 
 import { baseTheme, monospaceFont } from "../../styles"
 
-export const BannerWrapper = styled.div<{ compact?: boolean; isFrontendCrash?: boolean }>`
+export const BannerWrapper = styled.div<{
+  compact?: boolean
+  isFrontendCrash?: boolean
+  maxHeightVH?: number | undefined
+}>`
   background: ${(p) => (p.isFrontendCrash ? "#fff0f6" : "#fff5f5")};
   width: 100%;
   height: 100%;
-  max-height: 50vh;
+  ${(p) => (p.maxHeightVH ? `max-height: ${p.maxHeightVH}vh;` : "")}
   position: relative;
   margin: 0 auto;
   display: block;
@@ -53,7 +57,7 @@ export const Text = styled.div<{ compact?: boolean }>`
   }
 `
 
-export const DetailTag = styled.div`
+export const DetailTag = styled.div<{ listMaxHeightVH?: number | undefined }>`
   background: #ffe8ec;
   margin: 0 2rem;
   border-radius: 10px;
@@ -97,7 +101,7 @@ export const DetailTag = styled.div`
 
   ul {
     padding: 0;
-    max-height: 35vh;
+    ${(p) => (p.listMaxHeightVH ? `max-height: ${p.listMaxHeightVH}vh;` : "")}
     overflow: auto;
     margin: 0;
     padding-bottom: 2rem;

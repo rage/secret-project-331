@@ -14,6 +14,8 @@ import type {
 export type MessageFromIframe =
   | CurrentStateMessage
   | HeightChangedMessage
+  | OpenLinkMessage
+  | DownloadFileMessage
   | FileUploadMessage
   | RequestRepositoryExercisesMessage
   | RequestIframeReloadMessage
@@ -37,9 +39,41 @@ export interface HeightChangedMessage {
   data: number
 }
 
+/**
+ * Asks the parent to open a link in a new browser tab. The exercise cannot do this itself: its
+ * iframe is sandboxed without `allow-popups`, so `target="_blank"` is blocked, and a same-tab
+ * navigation would replace the exercise with the linked page.
+ *
+ * The parent decides whether to honor the request: it accepts only absolute `http:`/`https:` URLs
+ * and asks the user to confirm — showing the URL — before opening anything. Fire-and-forget: the
+ * iframe is never told what the user chose, so nothing in the exercise may wait on the outcome.
+ * Prefer `requestOpenLink` (`exercise-client`) or the `useParentLinks` hook (`exercise-react`) over
+ * hand-rolling the message.
+ */
 export interface OpenLinkMessage {
   message: "open-link"
+  /** Absolute http(s) URL to open. */
   data: string
+}
+
+/**
+ * Asks the parent to download a file for the user. Same reason as {@link OpenLinkMessage}: a
+ * sandboxed iframe cannot open the new tab a download link needs, and browsers ignore the `download`
+ * attribute for cross-origin responses, so the download has to start from the top-level page.
+ *
+ * Confirmed by the user and restricted to absolute `http:`/`https:` URLs exactly like
+ * {@link OpenLinkMessage}, and likewise fire-and-forget. Prefer `requestFileDownload`
+ * (`exercise-client`) or the `useParentLinks` hook (`exercise-react`).
+ */
+export interface DownloadFileMessage {
+  message: "download-file"
+  /** Absolute http(s) URL of the file, e.g. a URL the host returned from a `file-upload`. */
+  url: string
+  /**
+   * Suggested name for the saved file. The parent strips directory components from it, and browsers
+   * ignore it for cross-origin responses, so treat it as a hint rather than a guarantee.
+   */
+  filename?: string | null
 }
 
 /**

@@ -1,0 +1,129 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO credit_registration_admin_actions (\n    action,\n    target_kind,\n    target_id,\n    target_phase,\n    actor_user_id,\n    actor_role,\n    actor_course_id,\n    reason,\n    before_state,\n    after_state,\n    details,\n    affected_row_count\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_admin_actions",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "credit_registration_admin_action",
+            "kind": {
+              "Enum": [
+                "retry_item",
+                "retry_failed_for_course",
+                "force_recheck",
+                "mark_resolved",
+                "requeue_batch",
+                "transition_item",
+                "cancel_registration",
+                "pause_course_module",
+                "resume_course_module",
+                "pause_phase",
+                "resume_phase",
+                "run_phase_now",
+                "resend_link_email",
+                "unlink_student_number",
+                "manual_link_student_number",
+                "override_rate_cap"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_admin_action_target",
+            "kind": {
+              "Enum": [
+                "credit_registration",
+                "course_module",
+                "course",
+                "phase",
+                "verified_student_number",
+                "student_number_verification_token"
+              ]
+            }
+          }
+        },
+        "Uuid",
+        "Varchar",
+        "Uuid",
+        "Varchar",
+        "Uuid",
+        "Text",
+        {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        },
+        "Jsonb",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e4a32d3f8d81a284dce49d0e66b5dbdd3180d7853a714e1ba720effe54b1c58a"
+}

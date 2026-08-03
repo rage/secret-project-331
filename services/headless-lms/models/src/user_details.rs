@@ -7,6 +7,17 @@ use crate::{prelude::*, users::User};
 
 const MIN_FUZZY_SEARCH_TERM_LENGTH: usize = 3;
 
+/// How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
+#[sqlx(type_name = "email_verification_method", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+pub enum EmailVerificationMethod {
+    EmailedCode,
+    PasswordResetBackfill,
+    TmcConfirmed,
+    AdminAsserted,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 
 pub struct UserDetail {
@@ -19,6 +30,10 @@ pub struct UserDetail {
     pub search_helper: Option<String>,
     pub country: Option<String>,
     pub email_communication_consent: Option<bool>,
+    /// When the user last proved control of the address in `email`. `None` means unproven. Cleared
+    /// by a database trigger on every address change, so a value here always refers to `email`.
+    pub email_verified_at: Option<DateTime<Utc>>,
+    pub email_verified_method: Option<EmailVerificationMethod>,
 }
 
 pub async fn get_user_details_by_user_id(
@@ -36,7 +51,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM user_details
 WHERE user_id = $1 ",
         user_id
@@ -62,7 +79,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM user_details
 WHERE user_id IN (
     SELECT UNNEST($1::uuid [])
@@ -95,7 +114,9 @@ SELECT distinct (ud.user_id),
  ud.email,
  ud.search_helper,
  ud.country,
- ud.email_communication_consent
+ ud.email_communication_consent,
+ ud.email_verified_at,
+ ud.email_verified_method
 FROM user_details ud
 JOIN users u
   ON u.id = ud.user_id
@@ -131,7 +152,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM (
     SELECT user_id,
       created_at,
@@ -142,6 +165,8 @@ FROM (
       search_helper,
       country,
       email_communication_consent,
+      email_verified_at,
+      email_verified_method,
       lower($1) <<-> email_search_helper AS dist
     FROM user_details
     ORDER BY dist
@@ -176,7 +201,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM user_details
 WHERE user_id = $1;
 ",
@@ -212,7 +239,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM (
     SELECT user_id,
       created_at,
@@ -223,6 +252,8 @@ FROM (
       search_helper,
       country,
       email_communication_consent,
+      email_verified_at,
+      email_verified_method,
       lower($1) <<-> name_search_helper AS dist
     FROM user_details
     ORDER BY dist
@@ -287,6 +318,139 @@ mod tests {
         );
         assert_eq!(parse_exact_user_id_search_term("not-a-user-id"), None);
     }
+
+    // One test per writer of user_details.email. No call site clears the verification flag itself,
+    // so these are what notices if the clear_email_verification trigger is ever dropped. Writers A
+    // and B both go through update_user_info, so they differ only in the payload sent.
+    mod email_verification_trigger {
+        use super::*;
+        use crate::test_helper::*;
+
+        async fn verify_now(tx: &mut PgConnection, user_id: Uuid) {
+            set_email_verified(
+                tx,
+                user_id,
+                EmailVerificationMethod::EmailedCode,
+                Utc::now(),
+            )
+            .await
+            .unwrap();
+        }
+
+        #[tokio::test]
+        async fn writer_a_user_settings_edit_clears_the_flag() {
+            insert_data!(:tx, :user);
+            verify_now(tx.as_mut(), user).await;
+
+            let updated = update_user_info(
+                tx.as_mut(),
+                user,
+                "writer-a-changed@example.com",
+                "Changed",
+                "Name",
+                "FI",
+                true,
+            )
+            .await
+            .unwrap();
+
+            assert_eq!(updated.email, "writer-a-changed@example.com");
+            assert_eq!(updated.email_verified_at, None);
+            assert_eq!(updated.email_verified_method, None);
+        }
+
+        #[tokio::test]
+        async fn writer_b_course_material_edit_clears_the_flag() {
+            insert_data!(:tx, :user);
+            let before = update_user_info(
+                tx.as_mut(),
+                user,
+                "writer-b@example.com",
+                "Course",
+                "Material",
+                "FI",
+                true,
+            )
+            .await
+            .unwrap();
+            verify_now(tx.as_mut(), user).await;
+
+            // The course-material form resubmits the whole profile, so only the address differs.
+            let updated = update_user_info(
+                tx.as_mut(),
+                user,
+                "writer-b-changed@example.com",
+                before.first_name.as_deref().unwrap(),
+                before.last_name.as_deref().unwrap(),
+                before.country.as_deref().unwrap(),
+                before.email_communication_consent.unwrap(),
+            )
+            .await
+            .unwrap();
+
+            assert_eq!(updated.email_verified_at, None);
+            assert_eq!(updated.email_verified_method, None);
+        }
+
+        #[tokio::test]
+        async fn writer_c_tmc_sync_clears_the_flag() {
+            insert_data!(:tx);
+            let upstream_id = 90_112_233;
+            let user = crate::users::insert_with_upstream_id_and_moocfi_id(
+                tx.as_mut(),
+                "writer-c@example.com",
+                None,
+                None,
+                upstream_id,
+                Uuid::new_v4(),
+            )
+            .await
+            .unwrap();
+            verify_now(tx.as_mut(), user.id).await;
+
+            crate::users::update_email_for_user(
+                tx.as_mut(),
+                &upstream_id,
+                "writer-c-changed@example.com".to_string(),
+            )
+            .await
+            .unwrap();
+
+            assert!(
+                get_email_verification(tx.as_mut(), user.id)
+                    .await
+                    .unwrap()
+                    .is_none()
+            );
+        }
+
+        #[tokio::test]
+        async fn an_edit_that_leaves_the_address_alone_keeps_the_flag() {
+            insert_data!(:tx, :user);
+            let before = get_user_details_by_user_id(tx.as_mut(), user)
+                .await
+                .unwrap();
+            verify_now(tx.as_mut(), user).await;
+
+            let updated = update_user_info(
+                tx.as_mut(),
+                user,
+                &before.email,
+                "Renamed",
+                "Person",
+                "SE",
+                false,
+            )
+            .await
+            .unwrap();
+
+            assert!(updated.email_verified_at.is_some());
+            assert_eq!(
+                updated.email_verified_method,
+                Some(EmailVerificationMethod::EmailedCode)
+            );
+        }
+    }
 }
 
 /// Retrieves all users enrolled in a specific course
@@ -305,7 +469,9 @@ SELECT d.user_id,
   d.last_name,
   d.search_helper,
   d.country,
-  d.email_communication_consent
+  d.email_communication_consent,
+  d.email_verified_at,
+  d.email_verified_method
 FROM course_instance_enrollments e
   JOIN user_details d ON e.user_id = d.user_id
 WHERE e.course_id = $1
@@ -335,7 +501,9 @@ SELECT user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 FROM user_details
 WHERE user_id = ANY($1::uuid[])
         "#,
@@ -364,7 +532,9 @@ SELECT ud.user_id,
   ud.last_name,
   ud.search_helper,
   ud.country,
-  ud.email_communication_consent
+  ud.email_communication_consent,
+  ud.email_verified_at,
+  ud.email_verified_method
 FROM user_details ud
 JOIN user_course_settings ucs ON ud.user_id = ucs.user_id
 WHERE ud.user_id = ANY($1::uuid[])
@@ -397,7 +567,9 @@ SELECT ud.user_id,
   ud.last_name,
   ud.search_helper,
   ud.country,
-  ud.email_communication_consent
+  ud.email_communication_consent,
+  ud.email_verified_at,
+  ud.email_verified_method
 FROM user_details ud
 JOIN user_course_settings ucs ON ud.user_id = ucs.user_id
 WHERE ud.user_id = $1
@@ -451,6 +623,10 @@ WHERE user_id = $2
     Ok(())
 }
 
+/// Writes the whole profile form, including the derived `users.email_domain`.
+///
+/// On an address change the `clear_email_verification` trigger nulls `email_verified_at` and
+/// `email_verified_method`, so a caller wanting fresh proof must mail a new verification link.
 pub async fn update_user_info(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -460,6 +636,7 @@ pub async fn update_user_info(
     country: &str,
     email_communication_consent: bool,
 ) -> Result<UserDetail, sqlx::Error> {
+    let mut tx = conn.begin().await?;
     let updated_user = sqlx::query_as!(
         UserDetail,
         r#"
@@ -478,7 +655,9 @@ RETURNING user_id,
   last_name,
   search_helper,
   country,
-  email_communication_consent
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
 "#,
         email,
         first_name,
@@ -487,8 +666,83 @@ RETURNING user_id,
         email_communication_consent,
         user_id,
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *tx)
     .await?;
 
+    sqlx::query!(
+        r#"
+UPDATE users
+SET email_domain = $1
+WHERE id = $2
+"#,
+        crate::users::email_domain_from_email(email),
+        user_id,
+    )
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+
     Ok(updated_user)
+}
+
+/// Records a proof of control over the address currently in `email`.
+///
+/// Must not also write `email`: the `clear_email_verification` trigger would null the flag in the
+/// same statement.
+pub async fn set_email_verified(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    method: EmailVerificationMethod,
+    verified_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE user_details
+SET email_verified_at = $2,
+  email_verified_method = $3
+WHERE user_id = $1
+"#,
+        user_id,
+        verified_at,
+        method as EmailVerificationMethod,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Drops a proof of control, for an admin revoking a verification. Address changes do not need it;
+/// the `clear_email_verification` trigger handles those.
+pub async fn clear_email_verified(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE user_details
+SET email_verified_at = NULL,
+  email_verified_method = NULL
+WHERE user_id = $1
+"#,
+        user_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Whether the address currently in `email` has a proof of control, and how it was obtained.
+pub async fn get_email_verification(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Option<(DateTime<Utc>, EmailVerificationMethod)>> {
+    let row = sqlx::query!(
+        r#"
+SELECT email_verified_at,
+  email_verified_method AS "email_verified_method: EmailVerificationMethod"
+FROM user_details
+WHERE user_id = $1
+"#,
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(row.email_verified_at.zip(row.email_verified_method))
 }

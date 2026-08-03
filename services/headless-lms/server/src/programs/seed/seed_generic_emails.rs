@@ -201,5 +201,114 @@ pub async fn seed_generic_emails(
 
     insert_email_template(&mut conn, None, confirm_template, confirm_subject).await?;
 
+    seed_email_ownership_verification_templates(&mut conn).await?;
+
+    Ok(())
+}
+
+/// The sender looks the account's pending code up at send time and substitutes `{{CODE}}`, as it does
+/// for the login and account deletion codes.
+///
+/// A migration cannot insert a template row using an enum value it adds itself, so in dev and tests
+/// the `verify_email_address` templates come only from here.
+async fn seed_email_ownership_verification_templates(
+    conn: &mut sqlx::PgConnection,
+) -> anyhow::Result<()> {
+    info!("inserting email address verification emails");
+
+    let english_subject = Some("Confirm your email address");
+    let english_body = json!([
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "77777777-7777-7777-7777-777777777777",
+            "attributes": {
+                "content": "Hello, please use this code to confirm the email address on your account.",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "88888888-8888-8888-8888-888888888888",
+            "attributes": {
+                "content": "Your confirmation code is: {{CODE}}",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "99999999-9999-9999-9999-999999999999",
+            "attributes": {
+                "content": "If you did not request this, you can ignore this message. Nothing changes until the code is entered.",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        }
+    ]);
+
+    insert_email_template(
+        conn,
+        None,
+        EmailTemplateNew {
+            template_type: EmailTemplateType::VerifyEmailAddress,
+            language: Some("en".to_string()),
+            content: Some(english_body),
+            subject: english_subject.map(|s| s.to_string()),
+        },
+        english_subject,
+    )
+    .await?;
+
+    let finnish_subject = Some("Vahvista sähköpostiosoitteesi");
+    let finnish_body = json!([
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "aaaaaaaa-7777-7777-7777-777777777777",
+            "attributes": {
+                "content": "Hei, vahvista tilisi sähköpostiosoite tällä koodilla.",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "bbbbbbbb-8888-8888-8888-888888888888",
+            "attributes": {
+                "content": "Vahvistuskoodisi on: {{CODE}}",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "cccccccc-9999-9999-9999-999999999999",
+            "attributes": {
+                "content": "Jos et pyytänyt tätä, voit jättää viestin huomiotta. Mikään ei muutu ennen kuin koodi syötetään.",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        }
+    ]);
+
+    insert_email_template(
+        conn,
+        None,
+        EmailTemplateNew {
+            template_type: EmailTemplateType::VerifyEmailAddress,
+            language: Some("fi".to_string()),
+            content: Some(finnish_body),
+            subject: finnish_subject.map(|s| s.to_string()),
+        },
+        finnish_subject,
+    )
+    .await?;
+
     Ok(())
 }

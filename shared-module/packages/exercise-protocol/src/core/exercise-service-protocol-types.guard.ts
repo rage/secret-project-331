@@ -2,13 +2,15 @@
  * Generated type guards for "exercise-service-protocol-types.ts".
  * WARNING: Do not manually change this file.
  */
-import type { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, FileUploadMessage, FileUploadResultEntry, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, OpenDialogMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, DialogResponseMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
+import type { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, DownloadFileMessage, FileUploadMessage, FileUploadResultEntry, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, OpenDialogMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, DialogResponseMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
 
 export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
     const typedObj = obj as MessageFromIframe
     return (
         (isCurrentStateMessage(typedObj) as boolean ||
             isHeightChangedMessage(typedObj) as boolean ||
+            isOpenLinkMessage(typedObj) as boolean ||
+            isDownloadFileMessage(typedObj) as boolean ||
             isFileUploadMessage(typedObj) as boolean ||
             isRequestRepositoryExercisesMessage(typedObj) as boolean ||
             isRequestIframeReloadMessage(typedObj) as boolean ||
@@ -51,6 +53,20 @@ export function isOpenLinkMessage(obj: unknown): obj is OpenLinkMessage {
             typeof typedObj === "function") &&
         typedObj["message"] === "open-link" &&
         typeof typedObj["data"] === "string"
+    )
+}
+
+export function isDownloadFileMessage(obj: unknown): obj is DownloadFileMessage {
+    const typedObj = obj as DownloadFileMessage
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typedObj["message"] === "download-file" &&
+        typeof typedObj["url"] === "string" &&
+        (typeof typedObj["filename"] === "undefined" ||
+            typedObj["filename"] === null ||
+            typeof typedObj["filename"] === "string")
     )
 }
 

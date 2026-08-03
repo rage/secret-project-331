@@ -44,7 +44,8 @@ plugin:
 
 - `src/shared-module/exercise-protocol/core/exercise-service-protocol-types.ts` — the
   `postMessage` envelope types: `MessageFromIframe` (`current-state`, `height-changed`,
-  `file-upload`, `request-repository-exercises`, `request-iframe-reload`, `open-dialog`) and
+  `open-link`, `download-file`, `file-upload`, `request-repository-exercises`,
+  `request-iframe-reload`, `open-dialog`) and
   `MessageToIframe` (`set-language`, `set-state`, `upload-result`, `repository-exercises`,
   `test-results`, `dialog-response`). Also `forgivingIsSetStateMessage`.
 - `src/shared-module/exercise-protocol/core/exercise-service-protocol-types-2.ts` — the generic

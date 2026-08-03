@@ -3203,10 +3203,12 @@ async fn get_current_page_metadata(
     let page_metadata = sqlx::query_as!(
         PageMetadata,
         r#"
-SELECT p.id as page_id,
-  p.order_number as order_number,
-  p.course_id as course_id,
-  p.exam_id as exam_id,
+-- Nullability is stated per column rather than inferred: sqlx-cli 0.9.0 derives a reversed
+-- nullable array for this query, which makes every offline build of it fail.
+SELECT p.id as "page_id!",
+  p.order_number as "order_number!",
+  p.course_id as "course_id?",
+  p.exam_id as "exam_id?",
   c.id as "chapter_id?",
   c.chapter_number as "chapter_number?"
 FROM pages p

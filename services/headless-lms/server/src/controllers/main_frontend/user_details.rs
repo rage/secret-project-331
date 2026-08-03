@@ -470,7 +470,7 @@ pub async fn update_user_info(
             email_opt,
             upstream_id,
             tmc_client.clone(),
-            app_conf,
+            app_conf.clone(),
         )
         .await
         .map_err(|e| {
@@ -485,6 +485,18 @@ pub async fn update_user_info(
     }
 
     tx.commit().await?;
+
+    if email_changed {
+        // After the commit: a rolled-back edit must not mail a code for an address the account lacks.
+        let mut conn = pool.acquire().await?;
+        domain::email_ownership_verification::queue_verification_email_best_effort(
+            &mut conn,
+            app_conf.enable_email_ownership_verification,
+            user.id,
+        )
+        .await;
+    }
+
     let token = skip_authorize();
     token.authorized_ok(web::Json(updated_user))
 }

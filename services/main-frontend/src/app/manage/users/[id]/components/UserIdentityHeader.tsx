@@ -82,6 +82,13 @@ const chipGroupCss = css`
   align-items: center;
 `
 
+const verificationValueCss = css`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+`
+
 const idValueCss = css`
   display: inline-flex;
   align-items: center;
@@ -108,7 +115,7 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
   userDetails,
   userDetailsNotFound,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const rolesQuery = useQuery({ ...getUserRolesOptions({ path: { user_id: userId } }) })
   const userQuery = useQuery({ ...getUserOptions({ path: { user_id: userId } }) })
 
@@ -135,6 +142,19 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
           value={userDetails.email}
           copyLabel={t("copy-email")}
         />
+      ),
+    })
+    // An unverified address is self-service editable; support needs to see that.
+    const verifiedAt = userDetails.email_verified_at
+    items.splice(1, 0, {
+      label: t("label-email-verification"),
+      value: verifiedAt ? (
+        <span className={verificationValueCss}>
+          <Badge tone={TONE.SUCCESS}>{t("badge-email-verified")}</Badge>
+          {new Date(verifiedAt).toLocaleString(i18n.language)}
+        </span>
+      ) : (
+        <Badge tone={TONE.WARNING}>{t("badge-email-not-verified")}</Badge>
       ),
     })
   }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM chapters AS c\nWHERE c.course_id = $1\n  AND c.deleted_at IS NULL\n    ",
+  "query": "\nSELECT *\nFROM chapters\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n",
   "describe": {
     "columns": [
       {
@@ -180,5 +180,5 @@
       true
     ]
   },
-  "hash": "00df91505b14f8a60e9ac516f7ac66279a7d232091c92a83511bd8117e2f6943"
+  "hash": "6161ed075ea06b3e0dfdaa220f0bc70079199c4e5272e293fb1bbf03be15c644"
 }

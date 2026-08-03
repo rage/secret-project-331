@@ -354,7 +354,7 @@ async fn sync_pages_batch(
         .ok_or_else(|| anyhow::anyhow!("The first page does not belong to any course."))?;
 
     let course = headless_lms_models::courses::get_course(conn, course_id).await?;
-    let chapters = headless_lms_models::chapters::get_chapters_for_course(conn, &course_id).await?;
+    let chapters = headless_lms_models::chapters::get_course_chapters(conn, course_id).await?;
     let md_contents =
         headless_lms_models::course_page_markdown_content::get_many(conn, md_ids).await?;
     let organization =

@@ -403,27 +403,14 @@ pub struct UserCourseInstanceChapterProgress {
     pub attempted_exercises: Option<u32>,
 }
 
-pub async fn course_chapters(
+pub async fn get_course_chapters(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Vec<DatabaseChapter>> {
     let chapters = sqlx::query_as!(
         DatabaseChapter,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  name,
-  color,
-  course_id,
-  deleted_at,
-  chapter_image_path,
-  chapter_number,
-  front_page_id,
-  opens_at,
-  copied_from,
-  deadline,
-  course_module_id
+SELECT *
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -614,26 +601,6 @@ WHERE c.id = p.chapter_id
         page_id
     )
     .fetch_one(conn)
-    .await?;
-
-    Ok(chapter)
-}
-
-pub async fn get_chapters_for_course(
-    conn: &mut PgConnection,
-    course_id: &Uuid,
-) -> ModelResult<Vec<DatabaseChapter>> {
-    let chapter = sqlx::query_as!(
-        DatabaseChapter,
-        "
-SELECT *
-FROM chapters AS c
-WHERE c.course_id = $1
-  AND c.deleted_at IS NULL
-    ",
-        course_id
-    )
-    .fetch_all(conn)
     .await?;
 
     Ok(chapter)
@@ -1037,7 +1004,7 @@ pub async fn unlock_first_chapters_for_user(
         })?;
 
     let module_chapter_ids = get_for_module(conn, base_module.id).await?;
-    let mut module_chapters = course_chapters(conn, course_id)
+    let mut module_chapters = get_course_chapters(conn, course_id)
         .await?
         .into_iter()
         .filter(|c| module_chapter_ids.contains(&c.id))
@@ -1083,7 +1050,7 @@ pub async fn unlock_next_chapters_for_user(
     let module = course_modules::get_by_id(conn, completed_chapter.course_module_id).await?;
 
     let module_chapters = get_for_module(conn, completed_chapter.course_module_id).await?;
-    let mut all_module_chapters = course_chapters(conn, course_id)
+    let mut all_module_chapters = get_course_chapters(conn, course_id)
         .await?
         .into_iter()
         .filter(|c| module_chapters.contains(&c.id))
@@ -1145,7 +1112,7 @@ pub async fn unlock_next_chapters_for_user(
 
         for additional_module in additional_modules {
             let module_chapter_ids = get_for_module(conn, additional_module.id).await?;
-            let mut module_chapters = course_chapters(conn, course_id)
+            let mut module_chapters = get_course_chapters(conn, course_id)
                 .await?
                 .into_iter()
                 .filter(|c| module_chapter_ids.contains(&c.id))
@@ -1168,7 +1135,7 @@ pub async fn unlock_next_chapters_for_user(
         }
     } else {
         let module_chapter_ids = get_for_module(conn, completed_chapter.course_module_id).await?;
-        let mut module_chapters = course_chapters(conn, course_id)
+        let mut module_chapters = get_course_chapters(conn, course_id)
             .await?
             .into_iter()
             .filter(|c| module_chapter_ids.contains(&c.id))

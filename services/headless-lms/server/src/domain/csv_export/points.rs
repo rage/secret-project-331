@@ -60,7 +60,7 @@ where
     let csv_fields_before_headers = 1;
 
     let course_instance = course_instances::get_course_instance(conn, course_instance_id).await?;
-    let mut chapters = chapters::course_chapters(conn, course_instance.course_id).await?;
+    let mut chapters = chapters::get_course_chapters(conn, course_instance.course_id).await?;
     chapters.sort_by_key(|c| c.chapter_number);
     let mut chapter_number_to_header_idx = HashMap::new();
     for (idx, chapter) in chapters.iter().enumerate() {

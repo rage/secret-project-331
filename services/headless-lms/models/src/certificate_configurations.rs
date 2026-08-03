@@ -621,6 +621,9 @@ WHERE id = $28
     Ok(())
 }
 
+/// Caller should run this in a transaction: the requirements must go with the configuration, or
+/// course copying breaks. It copies live configurations only, but would still copy requirements
+/// left pointing at a deleted one, which then violates the foreign key.
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
@@ -631,7 +634,11 @@ AND deleted_at IS NULL
 ",
         id
     )
-    .execute(conn)
+    .execute(&mut *conn)
+    .await?;
+    crate::certificate_configuration_to_requirements::delete_by_certificate_configuration_id(
+        conn, id,
+    )
     .await?;
     Ok(())
 }

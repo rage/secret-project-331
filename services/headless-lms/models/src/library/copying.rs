@@ -1145,9 +1145,11 @@ SELECT uuid_generate_v5($1, cctr.id::text),
   uuid_generate_v5($1, cctr.course_module_id::text)
 FROM certificate_configuration_to_requirements cctr
   JOIN course_modules cm ON cctr.course_module_id = cm.id
+  JOIN certificate_configurations cc ON cctr.certificate_configuration_id = cc.id
 WHERE cm.course_id = $2
   AND cctr.deleted_at IS NULL
-  AND cm.deleted_at IS NULL;
+  AND cm.deleted_at IS NULL
+  AND cc.deleted_at IS NULL;
         ",
         new_course_id,
         old_course_id
@@ -1589,6 +1591,113 @@ mod tests {
             original_modules.first().unwrap().id,
             copied_modules.first().unwrap().copied_from.unwrap(),
         )
+    }
+
+    // These use the non-macro query API on purpose: bin/sqlx-prepare only caches --lib queries, so
+    // macro queries here would break offline builds.
+    async fn insert_certificate_configuration(
+        conn: &mut PgConnection,
+        course_module_id: Uuid,
+    ) -> Uuid {
+        let file_upload: Uuid = sqlx::query_scalar(
+            "
+INSERT INTO file_uploads (name, path, mime)
+VALUES ('background.svg', 'certificates/background.svg', 'image/svg+xml')
+RETURNING id
+",
+        )
+        .fetch_one(&mut *conn)
+        .await
+        .unwrap();
+        let configuration: Uuid = sqlx::query_scalar(
+            "
+INSERT INTO certificate_configurations (background_svg_path, background_svg_file_upload_id)
+VALUES ('certificates/background.svg', $1)
+RETURNING id
+",
+        )
+        .bind(file_upload)
+        .fetch_one(&mut *conn)
+        .await
+        .unwrap();
+        crate::certificate_configuration_to_requirements::insert(
+            conn,
+            configuration,
+            Some(course_module_id),
+        )
+        .await
+        .unwrap();
+        configuration
+    }
+
+    /// Reproduces the legacy state that `certificate_configurations::delete` no longer leaves
+    /// behind: a soft-deleted configuration whose requirements are still live.
+    async fn soft_delete_certificate_configuration_only(conn: &mut PgConnection, id: Uuid) {
+        sqlx::query(
+            "
+UPDATE certificate_configurations
+SET deleted_at = now()
+WHERE id = $1
+",
+        )
+        .bind(id)
+        .execute(conn)
+        .await
+        .unwrap();
+    }
+
+    async fn count_copied_certificate_requirements(
+        conn: &mut PgConnection,
+        copied_course_id: Uuid,
+    ) -> i64 {
+        sqlx::query_scalar(
+            "
+SELECT count(*)
+FROM certificate_configuration_to_requirements cctr
+  JOIN course_modules cm ON cctr.course_module_id = cm.id
+WHERE cm.course_id = $1
+  AND cctr.deleted_at IS NULL
+",
+        )
+        .bind(copied_course_id)
+        .fetch_one(conn)
+        .await
+        .unwrap()
+    }
+
+    #[tokio::test]
+    async fn copies_certificate_configurations() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+        insert_certificate_configuration(tx.as_mut(), course_module.id).await;
+
+        let new_course = create_new_course(org, "en-NZ".into());
+        let copied_course = copy_course(tx.as_mut(), course, &new_course, true, user)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            count_copied_certificate_requirements(tx.as_mut(), copied_course.id).await,
+            1
+        );
+    }
+
+    /// Configurations deleted before the requirements were soft-deleted along with them left
+    /// orphaned requirement rows behind, and copying them violated the foreign key.
+    #[tokio::test]
+    async fn skips_requirements_of_deleted_certificate_configurations() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+        let configuration = insert_certificate_configuration(tx.as_mut(), course_module.id).await;
+        soft_delete_certificate_configuration_only(tx.as_mut(), configuration).await;
+
+        let new_course = create_new_course(org, "en-IE".into());
+        let copied_course = copy_course(tx.as_mut(), course, &new_course, true, user)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            count_copied_certificate_requirements(tx.as_mut(), copied_course.id).await,
+            0
+        );
     }
 
     #[tokio::test]

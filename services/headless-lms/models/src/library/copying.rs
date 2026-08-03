@@ -1593,10 +1593,7 @@ mod tests {
         )
     }
 
-    async fn insert_certificate_configuration(
-        conn: &mut PgConnection,
-        course_module_id: Uuid,
-    ) -> Uuid {
+    async fn insert_certificate_configuration(conn: &mut PgConnection) -> Uuid {
         let background_svg_file_upload_id = crate::file_uploads::insert(
             &mut *conn,
             "background.svg",
@@ -1636,89 +1633,82 @@ mod tests {
             certificate_grade_text_color: None,
             certificate_grade_text_anchor: None,
         };
-        let inserted = crate::certificate_configurations::insert(&mut *conn, &configuration)
+        crate::certificate_configurations::insert(conn, &configuration)
             .await
-            .unwrap();
-        crate::certificate_configuration_to_requirements::insert(
-            conn,
-            inserted.id,
-            Some(course_module_id),
-        )
-        .await
-        .unwrap();
-        inserted.id
+            .unwrap()
+            .id
     }
 
-    /// Reproduces the legacy state that `certificate_configurations::delete` no longer leaves
-    /// behind: a soft-deleted configuration whose requirements are still live.
-    async fn soft_delete_certificate_configuration_only(conn: &mut PgConnection, id: Uuid) {
-        sqlx::query!(
-            "
-UPDATE certificate_configurations
-SET deleted_at = now()
-WHERE id = $1
-  AND deleted_at IS NULL
-",
-            id
-        )
-        .execute(conn)
-        .await
-        .unwrap();
-    }
-
-    async fn count_copied_certificate_requirements(
+    async fn certificate_configurations_for_course(
         conn: &mut PgConnection,
-        copied_course_id: Uuid,
-    ) -> i64 {
-        sqlx::query!(
-            r#"
-SELECT count(*) AS "count!"
-FROM certificate_configuration_to_requirements cctr
-  JOIN course_modules cm ON cctr.course_module_id = cm.id
-WHERE cm.course_id = $1
-  AND cctr.deleted_at IS NULL
-  AND cm.deleted_at IS NULL
-"#,
-            copied_course_id
+        course_id: Uuid,
+    ) -> Vec<crate::certificate_configurations::CertificateConfigurationAndRequirements> {
+        crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(
+            conn, course_id,
         )
-        .fetch_one(conn)
         .await
         .unwrap()
-        .count
     }
 
     #[tokio::test]
     async fn copies_certificate_configurations() {
         insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-        insert_certificate_configuration(tx.as_mut(), course_module.id).await;
+        let configuration = insert_certificate_configuration(tx.as_mut()).await;
+        crate::certificate_configuration_to_requirements::insert(
+            tx.as_mut(),
+            configuration,
+            Some(course_module.id),
+        )
+        .await
+        .unwrap();
 
         let new_course = create_new_course(org, "en-NZ".into());
         let copied_course = copy_course(tx.as_mut(), course, &new_course, true, user)
             .await
             .unwrap();
 
-        assert_eq!(
-            count_copied_certificate_requirements(tx.as_mut(), copied_course.id).await,
-            1
-        );
+        let copied = certificate_configurations_for_course(tx.as_mut(), copied_course.id).await;
+        assert_eq!(copied.len(), 1);
+        let required_module_id = *copied[0]
+            .requirements
+            .course_module_ids
+            .first()
+            .expect("the copied configuration should require a module");
+        let required_module = crate::course_modules::get_by_id(tx.as_mut(), required_module_id)
+            .await
+            .unwrap();
+        assert_eq!(required_module.course_id, copied_course.id);
+        assert_eq!(required_module.copied_from, Some(course_module.id));
     }
 
-    /// Configurations deleted before the requirements were soft-deleted along with them left
+    /// Configurations deleted before their requirements were soft-deleted along with them left
     /// orphaned requirement rows behind, and copying them violated the foreign key.
     #[tokio::test]
     async fn skips_requirements_of_deleted_certificate_configurations() {
         insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-        let configuration = insert_certificate_configuration(tx.as_mut(), course_module.id).await;
-        soft_delete_certificate_configuration_only(tx.as_mut(), configuration).await;
+        let configuration = insert_certificate_configuration(tx.as_mut()).await;
+        crate::certificate_configurations::delete(tx.as_mut(), configuration)
+            .await
+            .unwrap();
+        // Linking after the delete is what reproduces the orphan: `delete` now clears the
+        // requirements it used to leave live.
+        crate::certificate_configuration_to_requirements::insert(
+            tx.as_mut(),
+            configuration,
+            Some(course_module.id),
+        )
+        .await
+        .unwrap();
 
         let new_course = create_new_course(org, "en-IE".into());
         let copied_course = copy_course(tx.as_mut(), course, &new_course, true, user)
             .await
             .unwrap();
 
-        assert_eq!(
-            count_copied_certificate_requirements(tx.as_mut(), copied_course.id).await,
-            0
+        assert!(
+            certificate_configurations_for_course(tx.as_mut(), copied_course.id)
+                .await
+                .is_empty()
         );
     }
 

@@ -263,12 +263,11 @@ pub async fn answer_hanging_tool_call_messages_for_conversation(
     conn: &mut PgConnection,
     conversation_id: Uuid,
 ) -> ModelResult<Vec<ChatbotConversationMessage>> {
-    let mut tx = conn.begin().await?;
     let mut res = vec![];
 
     let hanging_children =
         chatbot_conversation_message_tool_calls::get_hanging_tool_calls_for_conversation(
-            &mut tx,
+            conn,
             conversation_id,
         )
         .await?;
@@ -286,11 +285,11 @@ pub async fn answer_hanging_tool_call_messages_for_conversation(
                 }),
                 ..Default::default()
             };
-            let inserted = insert(&mut tx, tool_output).await?;
+            let inserted = insert(conn, tool_output).await?;
             res.push(inserted);
         }
     }
-    tx.commit().await?;
+
     Ok(res)
 }
 

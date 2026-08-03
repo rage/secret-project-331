@@ -1,6 +1,6 @@
 {
   "name": "@moocfi/exercise-react",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "React adapter for moocfi exercise services: hooks, contexts, components, i18n, and styles wrapping the framework-agnostic @moocfi/exercise-client engines.",
   "keywords": [
     "exercise-service",
@@ -43,7 +43,12 @@
   },
   "scripts": {
     "build": "tsdown",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:playwright": "playwright test",
+    "test:playwright:plugin-contract": "playwright test playwright/plugin-contract",
+    "test:playwright:iframe-boundary": "playwright test playwright/iframe-boundary",
+    "test:playwright:debug": "playwright test --debug",
+    "verify": "pnpm run build && pnpm run test && pnpm run test:playwright"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
@@ -55,6 +60,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
+    "@playwright/test": "1.61.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/lodash": "^4.17.24",

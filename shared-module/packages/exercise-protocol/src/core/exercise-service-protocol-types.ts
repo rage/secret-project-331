@@ -14,6 +14,8 @@ import type {
 export type MessageFromIframe =
   | CurrentStateMessage
   | HeightChangedMessage
+  | OpenLinkMessage
+  | DownloadFileMessage
   | FileUploadMessage
   | RequestRepositoryExercisesMessage
   | RequestIframeReloadMessage
@@ -37,15 +39,47 @@ export interface HeightChangedMessage {
   data: number
 }
 
+/**
+ * Asks the parent to open a link in a new browser tab. The exercise cannot do this itself: its
+ * iframe is sandboxed without `allow-popups`, so `target="_blank"` is blocked, and a same-tab
+ * navigation would replace the exercise with the linked page.
+ *
+ * The parent decides whether to honor the request: it accepts only absolute `http:`/`https:` URLs
+ * and asks the user to confirm — showing the URL — before opening anything. Fire-and-forget: the
+ * iframe is never told what the user chose, so nothing in the exercise may wait on the outcome.
+ * Prefer `requestOpenLink` (`exercise-client`) or the `useParentLinks` hook (`exercise-react`) over
+ * hand-rolling the message.
+ */
 export interface OpenLinkMessage {
   message: "open-link"
+  /** Absolute http(s) URL to open. */
   data: string
+}
+
+/**
+ * Asks the parent to download a file for the user. Same reason as {@link OpenLinkMessage}: a
+ * sandboxed iframe cannot open the new tab a download link needs, and browsers ignore the `download`
+ * attribute for cross-origin responses, so the download has to start from the top-level page.
+ *
+ * Confirmed by the user and restricted to absolute `http:`/`https:` URLs exactly like
+ * {@link OpenLinkMessage}, and likewise fire-and-forget. Prefer `requestFileDownload`
+ * (`exercise-client`) or the `useParentLinks` hook (`exercise-react`).
+ */
+export interface DownloadFileMessage {
+  message: "download-file"
+  /** Absolute http(s) URL of the file, e.g. a URL the host returned from a `file-upload`. */
+  url: string
+  /**
+   * Suggested name for the saved file. The parent strips directory components from it, and browsers
+   * ignore it for cross-origin responses, so treat it as a hint rather than a guarantee.
+   */
+  filename?: string | null
 }
 
 /**
  * Asks the parent to upload files on the exercise's behalf (plugins never store data themselves —
  * the host owns storage). The parent answers with an `UploadResultMessage` carrying the same
- * `requestId`; the exercise then records the returned URLs in its `answer`. This mirrors the
+ * `requestId`; the exercise then records the host-assigned ids and returned URLs in its `answer`. This mirrors the
  * `OpenDialogMessage`/`DialogResponseMessage` request/response pattern, so several uploads can be in
  * flight at once. Prefer the `ParentUploadClient` engine (`exercise-client`) or the `useFileUpload`
  * hook (`exercise-react`) over hand-rolling it.
@@ -55,14 +89,17 @@ export interface OpenLinkMessage {
  */
 export interface FileUploadMessage {
   message: "file-upload"
-  /**
-   * Correlation id the parent echoes back in the matching `UploadResultMessage`. Optional for
-   * backward compatibility with callers that predate correlation (they can only have one upload in
-   * flight at a time).
-   */
-  requestId?: string | null
-  /** Files to upload, keyed by name. Sent as a JS `Map` (structured-clone), not a plain object. */
-  files: Map<string, string | Blob>
+  /** Correlation id the parent echoes back in the matching `UploadResultMessage`; never a file id. */
+  requestId: string
+  /** Files to upload. The host assigns opaque file ids after receiving this message. */
+  files: File[]
+}
+
+/** A file stored by the host. Results retain the order of `FileUploadMessage.files`. */
+export interface FileUploadResultEntry {
+  /** Opaque UUID assigned by the host, not the iframe. */
+  id: string
+  url: string
 }
 
 export interface RequestRepositoryExercisesMessage {
@@ -122,17 +159,16 @@ export type SetStateMessage = {
 
 /**
  * The parent's reply to a `FileUploadMessage`, correlated by `requestId`. On success carries the
- * stored files as a JS `Map<name, url>` (structured-clone, not a plain object); on failure an error
- * string.
+ * stored files in the request order; on failure an error string.
  */
 export type UploadResultMessage = {
   message: "upload-result"
-  /** Matches the `requestId` of the `FileUploadMessage` this responds to (when the caller sent one). */
-  requestId?: string | null
+  /** Matches the `requestId` of the `FileUploadMessage` this responds to. */
+  requestId: string
 } & (
   | {
       success: true
-      urls: Map<string, string>
+      files: FileUploadResultEntry[]
     }
   | {
       success: false

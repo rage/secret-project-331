@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import MessagePortContext from "@/contexts/MessagePortContext"
 import Button from "@/shared-module/common/components/Button"
-import type { OpenLinkMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { requestOpenLink } from "@/shared-module/exercise-client/client/parentLinks"
 
 import ParsedText from "../../../../ParsedText"
 import AutoExpandingTextField from "./AutoExpandingTextField"
@@ -128,15 +128,14 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => {
-            if (messagePort) {
-              const target = e.target as HTMLAnchorElement
-              messagePort.postMessage({
-                message: "open-link",
-                data:
-                  (target as HTMLAnchorElement).href ||
-                  (target.parentElement as HTMLAnchorElement)?.href,
-              } satisfies OpenLinkMessage)
+            // The iframe sandbox blocks target="_blank", so the parent opens the link (after asking
+            // the user) instead of the browser doing nothing here.
+            e.preventDefault()
+            if (!messagePort) {
+              return
             }
+            const target = e.currentTarget
+            requestOpenLink(messagePort, target.href)
           }}
         >
           <InfoCircle />

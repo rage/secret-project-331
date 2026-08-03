@@ -1,9 +1,10 @@
 # Scaffolding a new service: `bin/create-exercise-service` + shared-module vendoring
 
 The scaffolding CLI generates a **standalone** TanStack Start (rsbuild) React exercise service from
-the `services/example-exercise` template, with the shared exercise packages vendored in as real
-source. **The CLI produces a runnable project; it does NOT wire the plugin into the running LMS** —
-that second tier is manual (see `04-backend-and-infra-integration.md` and the checklist).
+the `services/example-exercise` template. In a monorepo checkout it vendors the shared exercise
+packages as real source; the published CLI instead uses the corresponding npm packages. **The CLI
+produces a runnable project; it does NOT wire the plugin into the running LMS** — that second tier
+is manual (see `04-backend-and-infra-integration.md` and the checklist).
 
 ## Running it
 
@@ -13,9 +14,9 @@ bin/create-exercise-service     # or: pnpm create-exercise-service
 
 `bin/create-exercise-service` is a thin bash launcher that `cd`s into
 `shared-module/packages/create-exercise-service` and runs `pnpm start` (= `tsx src/index.ts`). The
-package is `@moocfi/create-exercise-service`; its only runtime dep is `@inquirer/prompts`. **It must
-run from inside this monorepo** — it reads the template and shared packages from disk and is not
-published as a standalone `pnpm create` package.
+package is `@moocfi/create-exercise-service`; its only runtime dep is `@inquirer/prompts`. From a
+monorepo checkout it reads the template and shared packages from disk. The published package carries
+a bundled template and scaffolds against the `@moocfi/exercise-*` npm packages.
 
 ## Prompts (in order)
 
@@ -43,7 +44,9 @@ published as a standalone `pnpm create` package.
    copying, so excluded explicitly), the moocfi-internal deploy files (`Dockerfile`,
    `Dockerfile.production.slim.dockerfile`, `.dockerignore`), and the template's own
    `src/shared-module/` (re-vendored next).
-2. **`vendorSharedModules`** — copies a fresh snapshot of four shared packages (see below).
+2. **`vendorSharedModules`** — in monorepo/vendor mode, copies a fresh snapshot of four shared
+   packages (see below). In published/npm mode, imports are rewritten to `@moocfi/exercise-*` and
+   package.json receives those dependencies instead.
 3. **`buildPackageJson`** — rewrites `package.json`: merges the vendored packages' deps +
    peerDeps (template deps win on conflict, sorted); sets `name`/`version` (`0.1.0`); drops
    `devEngines` (monorepo node pin) and the lint-only devDeps (`stylelint`,
@@ -62,8 +65,12 @@ published as a standalone `pnpm create` package.
      vendored copy is tracked real source, not synced-in ignored files.
 
 Result: a standalone client-rendered React exercise service with **no runtime dependency on the
-monorepo**, at the path you gave. The CLI prints the `cd / install / run dev` next steps and a note
-that `src/shared-module/` is a point-in-time snapshot.
+monorepo**, at the path you gave. Every generated project has browser tests arranged as
+`playwright/plugin-contract/`, `playwright/iframe-boundary/`, `playwright/system/`, and
+`playwright/fixtures/`; never add new tests under legacy `e2e/`. The first layer uses the typed host
+emulator, the second uses a sandboxed distinct-origin iframe, and the system layer is reserved for
+a real host such as the production Playground. The CLI prints the `cd / install / run dev` next
+steps and a note about the selected shared-package strategy.
 
 ## The two `src/shared-module/` mechanisms (don't conflate them)
 
@@ -87,11 +94,25 @@ The CLI mirrors that logic but copies **once**. Driven by
 `VENDORED_PACKAGES = ["exercise-protocol", "exercise-client", "exercise-react",
 "exercise-service-test-utils"]`, it `cp`s each package's `src` into `<project>/src/shared-module/<pkg>`.
 Layering: protocol ← client ← react (the iframe-child React adapter); test-utils backs the inherited
-`e2e/protocol.spec.ts` suite and declares no runtime deps. Host-side `exercise-iframe-host` and
-`common`/`components` are intentionally not vendored (the template imports nothing from them). The
-generated project tracks this snapshot as real source; **there is no sync script in a generated
-standalone project** — to update it, re-run the CLI into a fresh dir or copy the packages over
-manually (all four, or the inherited e2e suite silently drifts out of date).
+`playwright/plugin-contract/protocol.spec.ts` suite and declares no runtime deps. It can simulate a
+host response, but that is plugin-contract evidence only, not evidence that a real host uploaded a
+file. Host-side
+`exercise-iframe-host` and `common`/`components` are intentionally not vendored (the template
+imports nothing from them). The generated project tracks this snapshot as real source; **there is
+no sync script in a generated standalone project** — to update it, re-run the CLI into a fresh dir
+or copy the packages over manually (all four, or the inherited plugin-contract suite silently drifts
+out of date).
+
+### Published/npm mode and portable local packages
+
+The published `@moocfi/create-exercise-service` package includes a bundled template. It defaults
+the generated project's runtime dependencies to the CLI version of `@moocfi/exercise-protocol`,
+`@moocfi/exercise-client`, and `@moocfi/exercise-react`, with
+`@moocfi/exercise-service-test-utils` as a development dependency. API callers preparing a local
+integration run may pass `exercisePackageSpecifiers` to substitute an individual package with a
+relative `file:` directory or packed tarball, for example
+`file:../packed/exercise-client-1.2.3.tgz`. Absolute `file:` paths are rejected before scaffolding:
+they leak a machine-specific location into package.json and make a generated project non-portable.
 
 ## Decision: standalone vs. in-monorepo
 

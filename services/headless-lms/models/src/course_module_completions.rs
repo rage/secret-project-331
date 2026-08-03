@@ -469,31 +469,11 @@ WHERE user_id = $1
 pub fn select_best_completion(
     completions: Vec<CourseModuleCompletion>,
 ) -> Option<CourseModuleCompletion> {
-    completions.into_iter().max_by(|a, b| {
-        let score_a = match a.grade {
-            Some(grade) => grade as f32,
-            None => {
-                if a.passed {
-                    0.5
-                } else {
-                    -1.0
-                }
-            }
-        };
-        let score_b = match b.grade {
-            Some(grade) => grade as f32,
-            None => {
-                if b.passed {
-                    0.5
-                } else {
-                    -1.0
-                }
-            }
-        };
-        score_a
-            .partial_cmp(&score_b)
-            .unwrap_or(std::cmp::Ordering::Equal)
-    })
+    // Passed outranks not passed before grades are compared: ranking by grade alone let a failed
+    // graded completion beat a passed pass/fail one, so a failure was reported as the best result.
+    completions
+        .into_iter()
+        .max_by_key(|completion| (completion.passed, completion.grade.unwrap_or(0)))
 }
 
 /// Get the number of students that have completed the course

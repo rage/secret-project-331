@@ -899,6 +899,11 @@ export type CourseModuleInfo = {
    */
   daily_submissions: Array<DailySubmissionCount>
   /**
+   * ECTS credits the module is worth. `None` when the module grants no credits.
+   */
+  ects_credits?: number | null
+  enable_credit_registration_via_suotar: boolean
+  /**
    * Number of non-deleted exercises in this module. Submission density is divided by this so courses
    * of very different size stay comparable. `0` if the module has no chapter-bound exercises.
    */
@@ -911,6 +916,10 @@ export type CourseModuleInfo = {
   id: string
   name?: string | null
   order_number: number
+  /**
+   * The module's course code in the university's registry, e.g. `BSCS1001`.
+   */
+  uh_course_code?: string | null
 }
 
 /**
@@ -1139,6 +1148,40 @@ export type EmailTemplateType =
   | "delete_user_email"
   | "confirm_email_code"
   | "generic"
+  | "credit_registration_account_linking"
+  | "verify_email_address"
+  | "credit_registration_action_needed"
+  | "credit_registration_registered"
+  | "credit_registration_student_number_linked"
+
+/**
+ * What we last mailed about the address the account holds now. Never a delivery confirmation: we
+ * hand messages to an SMTP relay and cannot see an inbox.
+ */
+export type EmailVerificationEmailInfo = {
+  expires_at: string
+  sent_at: string
+}
+
+/**
+ * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
+ */
+export type EmailVerificationMethod =
+  | "emailed_code"
+  | "password_reset_backfill"
+  | "tmc_confirmed"
+  | "admin_asserted"
+
+export type EmailVerificationStatus = {
+  email: string
+  email_verified_at?: string | null
+  email_verified_method?: null | EmailVerificationMethod
+  latest_verification_email?: null | EmailVerificationEmailInfo
+  /**
+   * False switches the feature off entirely; the request and verify endpoints 404 then.
+   */
+  verification_enabled: boolean
+}
 
 export type EventInfo = {
   count?: number | null
@@ -1274,6 +1317,11 @@ export type ExerciseServiceNewOrUpdate = {
   name: string
   public_url: string
   slug: string
+}
+
+export type ExerciseServiceUploadResultEntry = {
+  id: string
+  url: string
 }
 
 export type ExerciseServiceWithError = {
@@ -1586,6 +1634,86 @@ export type MyCourse = Course & {
    * not enrolled in or has a role in.
    */
   can_hide: boolean
+}
+
+export type MyStudies = {
+  /**
+   * Drives whether the profile's credit-registration tab renders. Covers hidden courses too:
+   * hiding a course must not take away access to registering its credits.
+   */
+  any_module_supports_credit_registration: boolean
+  courses: Array<MyStudiesCourse>
+  totals: MyStudiesTotals
+}
+
+/**
+ * A completion as the student may see it. `needs_to_be_reviewed` ones are excluded so a student
+ * cannot infer that they are under suspicion.
+ */
+export type MyStudiesCompletion = {
+  completion_date: string
+  course_module_completion_id: string
+  /**
+   * `None` on pass/fail modules; the frontend falls back to `passed`.
+   */
+  grade?: number | null
+  passed: boolean
+  prerequisite_modules_completed: boolean
+}
+
+export type MyStudiesCourse = {
+  course_id: string
+  course_name: string
+  course_slug: string
+  /**
+   * The instance the per-module progress is fetched for. `None` if the enrolment has no instance.
+   */
+  current_course_instance_id?: string | null
+  current_course_instance_name?: string | null
+  first_enrolled_at: string
+  /**
+   * Hidden courses are included here, unlike in `getMyCourses`, so the profile can offer unhiding.
+   */
+  hidden: boolean
+  /**
+   * False when the student's active version of this course is a different language version.
+   */
+  is_current: boolean
+  language_code: string
+  modules: Array<MyStudiesCourseModule>
+  organization_slug: string
+  supports_credit_registration: boolean
+}
+
+/**
+ * A course module as the student's own profile shows it, with their best visible completion.
+ */
+export type MyStudiesCourseModule = {
+  completion?: null | MyStudiesCompletion
+  course_module_id: string
+  ects_credits?: number | null
+  /**
+   * `None` for the course's default module; the frontend labels those with the course name.
+   */
+  name?: string | null
+  order_number: number
+  supports_credit_registration: boolean
+  uh_course_code?: string | null
+}
+
+/**
+ * Summarises the courses the profile lists, i.e. the non-hidden ones.
+ */
+export type MyStudiesTotals = {
+  /**
+   * Counts passed completions only.
+   */
+  completions: number
+  courses: number
+  /**
+   * Summed over passed completions only.
+   */
+  ects: number
 }
 
 export type NewChapter = {
@@ -2122,6 +2250,15 @@ export type RegradingSubmissionInfo = {
 
 export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
 
+export type RequestEmailVerificationOutcome = "queued" | "already_verified" | "recently_sent"
+
+export type RequestEmailVerificationPayload = {
+  /**
+   * Which language to mail. Falls back to English when no template exists for it.
+   */
+  language: string
+}
+
 export type ResearchFormQuestionAnswer = {
   course_id: string
   created_at: string
@@ -2426,6 +2563,12 @@ export type UserDetail = {
   created_at: string
   email: string
   email_communication_consent?: boolean | null
+  /**
+   * When the user last proved control of the address in `email`. `None` means unproven. Cleared
+   * by a database trigger on every address change, so a value here always refers to `email`.
+   */
+  email_verified_at?: string | null
+  email_verified_method?: null | EmailVerificationMethod
   first_name?: string | null
   last_name?: string | null
   search_helper?: string | null
@@ -2521,8 +2664,20 @@ export type UserWithModuleCompletions = {
 
 export type VerbosityLevel = "low" | "medium" | "high"
 
+export type VerifyEmailOwnershipPayload = {
+  code: string
+}
+
+/**
+ * Outcome of submitting a code. Wrong, expired, superseded and spent are one value: they are
+ * indistinguishable to someone typing digits, and telling them apart only helps a guesser.
+ */
+export type VerifyEmailOwnershipResult = "verified" | "already_verified" | "invalid"
+
 export type UploadFilesFromExerciseServiceData = {
-  body: string
+  body: {
+    [key: string]: Blob | File
+  }
   path: {
     /**
      * Exercise service slug
@@ -2537,9 +2692,7 @@ export type UploadFilesFromExerciseServiceResponses = {
   /**
    * Uploaded files
    */
-  200: {
-    [key: string]: string
-  }
+  200: Array<ExerciseServiceUploadResultEntry>
 }
 
 export type UploadFilesFromExerciseServiceResponse =
@@ -6526,6 +6679,95 @@ export type DeleteEmailTemplateResponses = {
 export type DeleteEmailTemplateResponse =
   DeleteEmailTemplateResponses[keyof DeleteEmailTemplateResponses]
 
+export type RequestEmailVerificationCodeData = {
+  body: RequestEmailVerificationPayload
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/email-verification/request"
+}
+
+export type RequestEmailVerificationCodeErrors = {
+  /**
+   * Email ownership verification is switched off
+   */
+  404: unknown
+}
+
+export type RequestEmailVerificationCodeResponses = {
+  /**
+   * What the request did
+   */
+  200: RequestEmailVerificationOutcome
+}
+
+export type RequestEmailVerificationCodeResponse =
+  RequestEmailVerificationCodeResponses[keyof RequestEmailVerificationCodeResponses]
+
+export type GetMyEmailVerificationStatusData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/email-verification/status"
+}
+
+export type GetMyEmailVerificationStatusResponses = {
+  /**
+   * Email verification status of the signed-in user
+   */
+  200: EmailVerificationStatus
+}
+
+export type GetMyEmailVerificationStatusResponse =
+  GetMyEmailVerificationStatusResponses[keyof GetMyEmailVerificationStatusResponses]
+
+export type GetEmailVerificationCodeForTestModeData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/email-verification/test-mode-code"
+}
+
+export type GetEmailVerificationCodeForTestModeErrors = {
+  /**
+   * Not in test mode, or no pending code
+   */
+  404: unknown
+}
+
+export type GetEmailVerificationCodeForTestModeResponses = {
+  /**
+   * The caller's pending verification code
+   */
+  200: string
+}
+
+export type GetEmailVerificationCodeForTestModeResponse =
+  GetEmailVerificationCodeForTestModeResponses[keyof GetEmailVerificationCodeForTestModeResponses]
+
+export type VerifyEmailOwnershipData = {
+  body: VerifyEmailOwnershipPayload
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/email-verification/verify"
+}
+
+export type VerifyEmailOwnershipErrors = {
+  /**
+   * Email ownership verification is switched off
+   */
+  404: unknown
+}
+
+export type VerifyEmailOwnershipResponses = {
+  /**
+   * Outcome of submitting the code
+   */
+  200: VerifyEmailOwnershipResult
+}
+
+export type VerifyEmailOwnershipResponse =
+  VerifyEmailOwnershipResponses[keyof VerifyEmailOwnershipResponses]
+
 export type GetExamExercisesData = {
   body?: never
   path: {
@@ -9210,6 +9452,41 @@ export type HideCourseFromMyCoursesResponses = {
    */
   200: unknown
 }
+
+export type UnhideCourseFromMyCoursesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/my-courses/{course_id}/unhide"
+}
+
+export type UnhideCourseFromMyCoursesResponses = {
+  /**
+   * Course restored to the user's my-courses list
+   */
+  200: unknown
+}
+
+export type GetMyStudiesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/users/my-studies"
+}
+
+export type GetMyStudiesResponses = {
+  /**
+   * The authenticated user's study record
+   */
+  200: MyStudies
+}
+
+export type GetMyStudiesResponse = GetMyStudiesResponses[keyof GetMyStudiesResponses]
 
 export type ResetUserPasswordData = {
   body: ResetPasswordData

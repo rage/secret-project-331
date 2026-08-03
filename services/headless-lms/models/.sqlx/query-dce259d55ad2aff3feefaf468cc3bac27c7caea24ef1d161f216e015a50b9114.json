@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO student_number_verification_tokens (\n    id,\n    token,\n    student_number,\n    sisu_person_id,\n    first_names,\n    last_name,\n    emailed_to,\n    course_id,\n    expires_at,\n    used_at,\n    claimed_by_user_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "student_number_verification_tokens",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "dce259d55ad2aff3feefaf468cc3bac27c7caea24ef1d161f216e015a50b9114"
+}

@@ -181,6 +181,11 @@ export const zEmailTemplateType = z.enum([
   "delete_user_email",
   "confirm_email_code",
   "generic",
+  "credit_registration_account_linking",
+  "verify_email_address",
+  "credit_registration_action_needed",
+  "credit_registration_registered",
+  "credit_registration_student_number_linked",
 ])
 
 export const zEmailTemplate = z.object({

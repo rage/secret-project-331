@@ -2781,6 +2781,7 @@ dependencies = [
  "pretty_assertions",
  "rand 0.10.2",
  "rand_core 0.10.1",
+ "regex",
  "reqwest 0.13.4",
  "secrecy",
  "serde",

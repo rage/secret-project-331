@@ -171,6 +171,7 @@ import {
   getEditProposalCount,
   getEditProposals,
   getEmailTemplates,
+  getEmailVerificationCodeForTestMode,
   getExam,
   getExamExercises,
   getExamSubmissionsWithExamId,
@@ -191,6 +192,8 @@ import {
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
   getMyCourses,
+  getMyEmailVerificationStatus,
+  getMyStudies,
   getNumberOfPeopleCompletedACourse,
   getNumberOfPeopleDoneAtLeastOneExercise,
   getNumberOfPeopleRegisteredCompletionToStudyRegistry,
@@ -279,6 +282,7 @@ import {
   removeCoursePlanMember,
   removeRole,
   reprocessCourseCompletions,
+  requestEmailVerificationCode,
   resetCourseProgressForEveryone,
   resetCourseProgressForTeacherThemselves,
   resetExercisesForSelectedUsers,
@@ -299,6 +303,7 @@ import {
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
   teacherUnlockStudentChapter,
+  unhideCourseFromMyCourses,
   unsetExamCourse,
   updateCertificateConfiguration,
   updateChapter,
@@ -324,6 +329,7 @@ import {
   uploadCourseMedia,
   uploadFilesFromExerciseService,
   upsertCoursePartnersBlock,
+  verifyEmailOwnership,
 } from "../sdk.generated"
 import type {
   AddCodeGiveawayCodesData,
@@ -612,6 +618,8 @@ import type {
   GetEditProposalsResponse,
   GetEmailTemplatesData,
   GetEmailTemplatesResponse,
+  GetEmailVerificationCodeForTestModeData,
+  GetEmailVerificationCodeForTestModeResponse,
   GetExamData,
   GetExamExercisesData,
   GetExamExercisesResponse,
@@ -652,6 +660,10 @@ import type {
   GetFirstExerciseSubmissionsHistoryResponse,
   GetMyCoursesData,
   GetMyCoursesResponse,
+  GetMyEmailVerificationStatusData,
+  GetMyEmailVerificationStatusResponse,
+  GetMyStudiesData,
+  GetMyStudiesResponse,
   GetNumberOfPeopleCompletedACourseData,
   GetNumberOfPeopleCompletedACourseResponse,
   GetNumberOfPeopleDoneAtLeastOneExerciseData,
@@ -814,6 +826,8 @@ import type {
   RemoveRoleData,
   ReprocessCourseCompletionsData,
   ReprocessCourseCompletionsResponse,
+  RequestEmailVerificationCodeData,
+  RequestEmailVerificationCodeResponse,
   ResetCourseProgressForEveryoneData,
   ResetCourseProgressForEveryoneResponse,
   ResetCourseProgressForTeacherThemselvesData,
@@ -850,6 +864,7 @@ import type {
   TeacherSetStudentChapterStatusResponse,
   TeacherUnlockStudentChapterData,
   TeacherUnlockStudentChapterResponse,
+  UnhideCourseFromMyCoursesData,
   UnsetExamCourseData,
   UpdateCertificateConfigurationData,
   UpdateCertificateConfigurationResponse,
@@ -891,6 +906,8 @@ import type {
   UploadFilesFromExerciseServiceData,
   UploadFilesFromExerciseServiceResponse,
   UpsertCoursePartnersBlockData,
+  VerifyEmailOwnershipData,
+  VerifyEmailOwnershipResponse,
 } from "../types.generated"
 
 /**
@@ -899,7 +916,7 @@ import type {
  * Used to upload data from exercise service iframes.
  *
  * # Returns
- * The randomly generated paths to each uploaded file in a `file_name => file_path` hash map.
+ * An ordered list of host-assigned file ids and stored URLs.
  */
 export const uploadFilesFromExerciseServiceMutation = (
   options?: Partial<Options<UploadFilesFromExerciseServiceData>>,
@@ -5544,6 +5561,121 @@ export const deleteEmailTemplateMutation = (
   return mutationOptions
 }
 
+/**
+ *
+ * POST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification code to the
+ * signed-in account's current address.
+ */
+export const requestEmailVerificationCodeMutation = (
+  options?: Partial<Options<RequestEmailVerificationCodeData>>,
+): UseMutationOptions<
+  RequestEmailVerificationCodeResponse,
+  DefaultError,
+  Options<RequestEmailVerificationCodeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RequestEmailVerificationCodeResponse,
+    DefaultError,
+    Options<RequestEmailVerificationCodeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await requestEmailVerificationCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getMyEmailVerificationStatusQueryKey = (
+  options?: Options<GetMyEmailVerificationStatusData>,
+) => createQueryKey("getMyEmailVerificationStatus", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-verification/status` - Whether the signed-in account's address is
+ * proven, and what we last mailed about it.
+ */
+export const getMyEmailVerificationStatusOptions = (
+  options?: Options<GetMyEmailVerificationStatusData>,
+) =>
+  queryOptions<
+    GetMyEmailVerificationStatusResponse,
+    DefaultError,
+    GetMyEmailVerificationStatusResponse,
+    ReturnType<typeof getMyEmailVerificationStatusQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyEmailVerificationStatus({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyEmailVerificationStatusQueryKey(options),
+  })
+
+export const getEmailVerificationCodeForTestModeQueryKey = (
+  options?: Options<GetEmailVerificationCodeForTestModeData>,
+) => createQueryKey("getEmailVerificationCodeForTestMode", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending
+ * verification code.
+ *
+ * Exists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the
+ * caller's own account, so an accidentally open gate only ever hands you your own code.
+ */
+export const getEmailVerificationCodeForTestModeOptions = (
+  options?: Options<GetEmailVerificationCodeForTestModeData>,
+) =>
+  queryOptions<
+    GetEmailVerificationCodeForTestModeResponse,
+    DefaultError,
+    GetEmailVerificationCodeForTestModeResponse,
+    ReturnType<typeof getEmailVerificationCodeForTestModeQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getEmailVerificationCodeForTestMode({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getEmailVerificationCodeForTestModeQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof.
+ *
+ * Authenticated and scoped to the caller's own account, so the code is the only secret involved and it
+ * never has to identify anybody on its own.
+ */
+export const verifyEmailOwnershipMutation = (
+  options?: Partial<Options<VerifyEmailOwnershipData>>,
+): UseMutationOptions<
+  VerifyEmailOwnershipResponse,
+  DefaultError,
+  Options<VerifyEmailOwnershipData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    VerifyEmailOwnershipResponse,
+    DefaultError,
+    Options<VerifyEmailOwnershipData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await verifyEmailOwnership({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const getExamExercisesQueryKey = (options: Options<GetExamExercisesData>) =>
   createQueryKey("getExamExercises", options)
 
@@ -9410,6 +9542,57 @@ export const hideCourseFromMyCoursesMutation = (
   }
   return mutationOptions
 }
+
+/**
+ *
+ * POST `/api/v0/main-frontend/users/my-courses/:course_id/unhide` - Puts a previously hidden course
+ * back into the authenticated user's "My courses" list.
+ */
+export const unhideCourseFromMyCoursesMutation = (
+  options?: Partial<Options<UnhideCourseFromMyCoursesData>>,
+): UseMutationOptions<unknown, DefaultError, Options<UnhideCourseFromMyCoursesData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<UnhideCourseFromMyCoursesData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await unhideCourseFromMyCourses({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getMyStudiesQueryKey = (options?: Options<GetMyStudiesData>) =>
+  createQueryKey("getMyStudies", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/my-studies` - The authenticated user's own study record: every
+ * course they are enrolled in, its modules, and their completions.
+ *
+ * No user id parameter, so it cannot be pointed at another account. The teacher/admin equivalent is
+ * `getUserCourseEnrollments`.
+ */
+export const getMyStudiesOptions = (options?: Options<GetMyStudiesData>) =>
+  queryOptions<
+    GetMyStudiesResponse,
+    DefaultError,
+    GetMyStudiesResponse,
+    ReturnType<typeof getMyStudiesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyStudies({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyStudiesQueryKey(options),
+  })
 
 export const resetUserPasswordMutation = (
   options?: Partial<Options<ResetUserPasswordData>>,

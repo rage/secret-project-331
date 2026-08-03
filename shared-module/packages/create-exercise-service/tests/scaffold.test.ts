@@ -83,6 +83,23 @@ describe("scaffoldReactProject", () => {
     }
   })
 
+  test("uses the layered Playwright hierarchy and does not recreate legacy e2e tests", async () => {
+    for (const rel of [
+      "playwright/plugin-contract",
+      "playwright/iframe-boundary",
+      "playwright/system",
+      "playwright/fixtures",
+    ]) {
+      const directoryStats = stat(join(projectPath, rel))
+      await assert.doesNotReject(directoryStats, `${rel} should exist`)
+      assert.ok((await directoryStats).isDirectory(), `${rel} should be a directory`)
+    }
+    await assert.rejects(
+      stat(join(projectPath, "e2e")),
+      "legacy e2e directory should not be generated",
+    )
+  })
+
   test("parameterizes package.json (name, version, port, merged deps)", async () => {
     const pkg = JSON.parse(await readFile(join(projectPath, "package.json"), "utf8"))
     assert.equal(pkg.name, PROJECT_NAME)
@@ -231,6 +248,20 @@ describe("scaffoldReactProject (npm strategy)", () => {
       stat(join(projectPath, "src/shared-module")),
       "src/shared-module should not exist in npm mode",
     )
+  })
+
+  test("keeps the layered Playwright hierarchy in npm mode", async () => {
+    for (const rel of [
+      "playwright/plugin-contract",
+      "playwright/iframe-boundary",
+      "playwright/system",
+      "playwright/fixtures",
+    ]) {
+      const directoryStats = stat(join(projectPath, rel))
+      await assert.doesNotReject(directoryStats, `${rel} should exist`)
+      assert.ok((await directoryStats).isDirectory(), `${rel} should be a directory`)
+    }
+    await assert.rejects(stat(join(projectPath, "e2e")))
   })
 
   test("depends on the published @moocfi/exercise-* packages", async () => {

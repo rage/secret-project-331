@@ -129,11 +129,13 @@ In-monorepo services regenerate `src/shared-module/` from `shared-module/package
 sync.ts`'s `SYNC_TARGETS` is keyed by _package_, each listing its destination services — add your
 service's `src/shared-module` path to `REACT_EXERCISE_TARGETS` (covers `exercise-protocol`,
 `exercise-client`, `exercise-react`, mirroring what `example-exercise` receives). If you keep the
-scaffold's inherited e2e suite (`e2e/protocol.spec.ts`, the default), also add it to
-`TEST_UTIL_TARGETS` for `exercise-service-test-utils` — that list currently contains only
-`example-exercise`, so a new Track B service is not synced by default and its vendored copy would go
-stale. Then run `bin/shared-module-sync-watch` while developing. Treat `src/shared-module/` as
-read-only. (Standalone Track A keeps its point-in-time vendored snapshot.)
+scaffold's browser hierarchy — `playwright/plugin-contract/` (typed emulator),
+`playwright/iframe-boundary/` (sandboxed, distinct-origin iframe), `playwright/system/` (real host),
+and `playwright/fixtures/` — also add it to `TEST_UTIL_TARGETS` for
+`exercise-service-test-utils`. That list currently contains only `example-exercise`, so a new Track
+B service is not synced by default and its vendored copy would go stale. Then run
+`bin/shared-module-sync-watch` while developing. Treat `src/shared-module/` as read-only.
+(Standalone Track A keeps its point-in-time vendored snapshot.)
 
 ## Step 6 (Track B) — Register in the backend seed
 
@@ -191,13 +193,25 @@ immediately fetches its service-info. No monorepo changes.
       exists and is anchored at v1 (see `07` Part II #3).
 - [ ] `set-language` respected (BCP 47, English fallback); height reported correctly.
 - [ ] `pnpm test` green; endpoint tests cover the request/response envelopes.
-- [ ] The e2e protocol suite (`e2e/protocol.spec.ts`) is **comprehensive**, not a smoke test: every
-      editor control + `valid` transitions, the answer flow's happy path and every client-side
-      rejection the design defines, `previous_submission` seeding, view-submission incl. degenerate
-      cases, and an old-version spec emitting the migrated version. This bar is unconditional — test
-      *strategy* may be discussed with the user, test thoroughness is not.
+- [ ] `playwright/plugin-contract/` is **comprehensive**, not a smoke test: every editor control +
+      `valid` transition, the answer flow's happy path and every client-side rejection the design
+      defines, `previous_submission` seeding, view-submission including degenerate cases, and an
+      old-version spec emitting the migrated version. For uploads, inspect the captured ordered
+      browser-side `File[]` request before responding: request id, duplicate filenames where
+      relevant, MIME type, byte size, and SHA-256. Reply with host-assigned `{ id, url }[]` in the
+      same order and prove the answer records those IDs plus URLs; reject malformed/missing/extra
+      results. A fabricated emulator success is not real-host proof.
+- [ ] `playwright/iframe-boundary/` covers the same critical protocol through a sandboxed iframe at
+      a distinct origin in every configured browser. It preserves exact upload bytes, ordering,
+      request IDs, and host-assigned IDs (including duplicate filenames), and reports browser/iframe
+      transport failures with diagnostics.
+- [ ] `playwright/system/` contains real-host Playground coverage when that integration is in scope.
+      It intercepts the actual multipart request and asserts UUID field names, original filename,
+      MIME type, bytes, and digest; then proves retrieved bytes, returned host ID/URL, emitted
+      state, and view-submission. A required system test that fails is **incomplete verification**,
+      even when lower layers pass; do not replace it with an emulator assertion or mark it skipped.
 - [ ] (Track B) `shared-module/sync.ts` targets updated (step 5) — including `TEST_UTIL_TARGETS` if
-      the e2e suite is kept; seed row present; `exercise_service_info` populated; CMS can add the
+      browser suites are kept; seed row present; `exercise_service_info` populated; CMS can add the
       exercise; answering + grading + view-submission work end to end in a seeded course.
 
 ## The 80/20 to remember

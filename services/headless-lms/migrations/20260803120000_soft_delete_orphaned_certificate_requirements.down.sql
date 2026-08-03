@@ -1,2 +1,2 @@
--- Which rows were soft-deleted by the up migration is not recoverable.
+-- Not reversible: the up migration does not record which rows it soft-deleted.
 SELECT 1;

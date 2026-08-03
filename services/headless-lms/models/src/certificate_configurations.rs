@@ -621,9 +621,7 @@ WHERE id = $28
     Ok(())
 }
 
-/// Caller should run this in a transaction: the requirements must go with the configuration, or
-/// course copying breaks. It copies live configurations only, but would still copy requirements
-/// left pointing at a deleted one, which then violates the foreign key.
+/// Soft-deletes the configuration's requirements too, so run this in a transaction.
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "

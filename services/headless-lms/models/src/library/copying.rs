@@ -1681,8 +1681,7 @@ mod tests {
         assert_eq!(required_module.copied_from, Some(course_module.id));
     }
 
-    /// Configurations deleted before their requirements were soft-deleted along with them left
-    /// orphaned requirement rows behind, and copying them violated the foreign key.
+    /// Older data can hold requirements pointing at a deleted configuration.
     #[tokio::test]
     async fn skips_requirements_of_deleted_certificate_configurations() {
         insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
@@ -1690,8 +1689,7 @@ mod tests {
         crate::certificate_configurations::delete(tx.as_mut(), configuration)
             .await
             .unwrap();
-        // Linking after the delete is what reproduces the orphan: `delete` now clears the
-        // requirements it used to leave live.
+        // `delete` clears requirements, so the link has to come after it.
         crate::certificate_configuration_to_requirements::insert(
             tx.as_mut(),
             configuration,

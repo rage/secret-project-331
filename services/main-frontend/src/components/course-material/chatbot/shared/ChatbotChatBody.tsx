@@ -191,7 +191,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     try {
       const res = await newConversationMutation.mutateAsync()
       const anonymousToken = res.anonymous_token
-      if (anonymousToken) {
+      if (anonymousToken && typeof window !== "undefined") {
         localStorage.setItem("anonymousToken", anonymousToken)
       }
     } catch (_error) {

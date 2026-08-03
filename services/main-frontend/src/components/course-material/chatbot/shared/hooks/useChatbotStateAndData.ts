@@ -49,15 +49,16 @@ const useChatbotStateAndData = (
     messages: [],
   })
 
-  const currentConversationInfo = useCurrentConversationInfo(chatbotConfigurationId)
+  const anonymousToken =
+    typeof window !== "undefined" ? localStorage.getItem("anonymousToken") : null
+
+  const currentConversationInfo = useCurrentConversationInfo(chatbotConfigurationId, anonymousToken)
   const newConversationMutation = useNewConversationMutation(
     chatbotConfigurationId,
     currentConversationInfo,
     setNewMessage,
     setError,
   )
-
-  const anonymousToken = localStorage.getItem("anonymousToken")
 
   const newMessageMutation = useToastMutation(
     async (messageToSend: string) => {

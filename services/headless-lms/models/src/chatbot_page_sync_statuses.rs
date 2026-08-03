@@ -72,7 +72,7 @@ pub async fn save_markdown_content(
     let res = match course_page_markdown_content::insert_batch(
         &mut tx,
         page_id_to_history_id_md_content
-            .to_owned()
+            .clone()
             .into_iter()
             .collect(),
     )

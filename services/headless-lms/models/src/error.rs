@@ -265,13 +265,13 @@ impl From<sqlx::Error> for ModelError {
                             Some(err.into()),
                         ),
                         "courses_slug_key_when_not_deleted"
-                        | "course_language_groups_slug_unique_non_deleted" => ModelError::new(
-                            ModelErrorType::DatabaseConstraint {
+                        | "course_language_groups_slug_unique_non_deleted" => model_err!(
+                            DatabaseConstraint {
                                 constraint: constraint.to_string(),
                                 description: "A course with this slug already exists.",
                             },
                             err.to_string(),
-                            Some(err.into()),
+                            err
                         ),
                         "unique_chatbot_names_within_course" => ModelError::new(
                             ModelErrorType::DatabaseConstraint {

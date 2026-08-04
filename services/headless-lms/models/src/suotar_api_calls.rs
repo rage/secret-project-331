@@ -197,8 +197,8 @@ WHERE id = $1
     Ok(())
 }
 
-/// Shortens an already-scrubbed body to what this table keeps: whole while the batch is small,
-/// then the leading items plus the count, then nothing but the measurements.
+/// Shortens an already-scrubbed body to what this table keeps: whole while the batch is small, then
+/// the leading items plus a count, then nothing but the measurements.
 pub fn sample_body(value: &serde_json::Value) -> serde_json::Value {
     let sampled = match value.as_array() {
         Some(items) if items.len() > FULL_BODY_ITEM_LIMIT => serde_json::json!({
@@ -218,8 +218,8 @@ pub fn sample_body(value: &serde_json::Value) -> serde_json::Value {
 
 /// Audits every [`headless_lms_utils::services::suotar::SuotarClient`] call.
 ///
-/// Owns a pool rather than borrowing the caller's connection: the row has to be committed while the
-/// request is still in flight, and it has to survive whatever the caller's transaction does next.
+/// Owns a pool rather than borrowing the caller's connection: the row is committed while the
+/// request is in flight and must survive whatever the caller's transaction does next.
 pub struct PgSuotarCallAudit {
     pool: PgPool,
 }
@@ -398,9 +398,8 @@ LIMIT $2
 
 /// One endpoint's traffic over a window.
 ///
-/// A row is inserted before the request leaves and completed when it lands, so `duration_ms IS NULL`
-/// means still in flight. Everything below counts finished calls only, or a call in progress would
-/// read as a failure.
+/// `duration_ms IS NULL` means still in flight, since the row is inserted before the request
+/// leaves; the counts below take finished calls only, or one in progress would read as a failure.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SuotarEndpointStats {
     pub endpoint: SuotarEndpoint,
@@ -467,8 +466,7 @@ GROUP BY endpoint
     Ok(rows)
 }
 
-/// [`SuotarEndpointStats`] for one of several windows at once, so the overview's multi-window health
-/// tab does not run the same percentile aggregate over the table once per window.
+/// [`SuotarEndpointStats`] for one of several windows at once.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SuotarEndpointStatsForWindow {
     pub window_secs: i64,
@@ -548,8 +546,7 @@ GROUP BY w.window_secs,
     Ok(rows)
 }
 
-/// Where one endpoint stands right now, bounded to [`RETENTION_DAYS`] rather than every row ever
-/// written.
+/// Where one endpoint stands right now.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SuotarEndpointStanding {
     pub endpoint: SuotarEndpoint,
@@ -559,8 +556,8 @@ pub struct SuotarEndpointStanding {
     pub consecutive_failures: i64,
 }
 
-/// Bounded to the last [`RETENTION_DAYS`]: the audit table grows one row per Suotar batch call
-/// forever, and the Overview page and the health tab each poll this every 30 seconds.
+/// Bounded to the last [`RETENTION_DAYS`]: this table grows one row per Suotar batch call, and the
+/// Overview and the health tab each poll this every 30 seconds.
 pub async fn get_endpoint_standings(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<SuotarEndpointStanding>> {
@@ -637,10 +634,8 @@ WHERE started_at >= $1
     Ok(row)
 }
 
-/// The unbroken run of "Suotar did not answer usefully" at the end of the window.
-///
-/// A transport failure carries no HTTP status, which is how it is told apart from a refusal Suotar
-/// composed itself.
+/// The unbroken run of "Suotar did not answer usefully" at the end of the window. A transport
+/// failure carries no HTTP status, which is how it is told from a refusal Suotar composed itself.
 pub async fn count_unreachable_run_since(
     conn: &mut PgConnection,
     since: DateTime<Utc>,

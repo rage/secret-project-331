@@ -40,12 +40,10 @@ import {
 
 export interface CreditRegistrationStatusProps {
   courseModuleId: string
-  /** Falls back to the course name when the module has none of its own. */
   heading: string
   ectsCredits: number | null | undefined
 }
 
-/** While the pipeline still owns the row. */
 const MOVING_REFETCH_INTERVAL_MS = 10_000
 /** Sisu answers on its own schedule, so polling it hard buys nothing. */
 const WAITING_FOR_SISU_REFETCH_INTERVAL_MS = 60_000

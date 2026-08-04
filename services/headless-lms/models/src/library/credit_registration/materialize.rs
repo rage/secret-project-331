@@ -1,8 +1,6 @@
-//! Creating ledger rows for completions that are allowed to be registered.
-//!
-//! The same statement is the backfill: flipping a module on makes every one of its pre-existing
-//! eligible completions match, so they arrive over a few minutes rather than as one spike. They
-//! stop at `pending_consent` — historical completions belong to students nobody ever asked.
+//! Creating ledger rows for completions that are allowed to be registered. The same statement is
+//! the backfill: flipping a module on makes every pre-existing eligible completion match, and they
+//! stop at `pending_consent`, because historical completions belong to students nobody ever asked.
 
 use crate::credit_registrations::RegistrationScope;
 use crate::prelude::*;
@@ -10,18 +8,15 @@ use crate::prelude::*;
 /// How many rows one iteration may create. Also the backfill's rate limit.
 pub const MATERIALIZE_LIMIT: i64 = 500;
 
-/// Creates a `pending_prerequisites` row, with its `created` event, for every eligible completion
-/// that has none.
-///
-/// Returns how many rows were created.
+/// Creates a `pending_prerequisites` row and its `created` event for every eligible completion that
+/// has none; returns the count.
 pub async fn ensure_registration_rows_for_eligible_completions(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<i64> {
-    // The ids are generated in the CTE because request_item_id has to be derivable from the row it
-    // sits on in both directions: it is the only handle Suotar's log, our audit log and a per-row
-    // fault have on one registration.
+    // The ids are generated in the CTE so request_item_id stays derivable from the row id in both
+    // directions: it is the only handle Suotar's log and ours share on one registration.
     let created = sqlx::query_scalar!(
         r#"
 WITH eligible AS (
@@ -306,8 +301,6 @@ mod tests {
         );
     }
 
-    /// The backfill's most important predicate: these credits are already in the registry, and
-    /// asking about them would burn one import batch per twenty-five rows to learn nothing.
     #[tokio::test]
     async fn a_completion_the_pull_path_already_registered_is_skipped() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);

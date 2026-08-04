@@ -109,11 +109,11 @@ ORDER BY created_at DESC
     Ok(res)
 }
 
-/// Why the course's enrolled students are not going to get credits, in the two counts a teacher can
-/// act on. Neither counts a student who has both consented and linked a number.
+/// Why the course's enrolled students are not going to get credits. Neither count includes a student
+/// who has both consented and linked a number.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema)]
 pub struct CourseCreditRegistrationBlockedStudentCounts {
-    /// Consented, but we hold no student number for them, so nothing can be submitted.
+    /// Consented, but we hold no student number for them.
     pub unlinked_consented_student_count: i64,
     /// Never asked or declined.
     pub no_consent_student_count: i64,

@@ -1,14 +1,13 @@
 //! The `link-emails` phase: turning a claimed mail slot into a queued message.
 //!
 //! It talks to no study registry, which is the point of it being its own phase: a wedged mail queue
-//! and an unreachable Sisu are different problems and an operator has to be able to tell them apart.
-//!
-//! The rate caps and the dedup guard are not here. They were applied when the slot was claimed, and a
-//! slot with no delivery means a mail is owed — so this phase retries until the message is queued
-//! rather than deciding again whether it should be.
+//! and an unreachable Sisu are different problems. The caps and the dedup guard applied when the
+//! slot was claimed, so this phase retries until the message is queued rather than deciding again.
 
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
+use headless_lms_base::error::backend_error::BackendError;
+use headless_lms_models::ModelErrorType;
 use headless_lms_models::credit_registration_account_linking_emails::{
     LinkingMailToQueue, claim_unqueued, set_email_delivery_id,
 };
@@ -25,7 +24,7 @@ use uuid::Uuid;
 
 use super::{PhaseContext, PhaseScope};
 
-/// How many mails one iteration queues. The sender has its own rate, so this only bounds how much
+/// How many mails one iteration queues; the sender has its own rate, so this only bounds how much
 /// one transaction holds open.
 const QUEUE_LIMIT: i64 = 200;
 
@@ -34,10 +33,15 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     let mut tx = conn.begin().await?;
     let claimed = claim_unqueued(&mut tx, QUEUE_LIMIT, scope.course_id).await?;
     let mut templates = TemplatesByLanguage::default();
+    let mut languages_without_a_template: BTreeSet<String> = BTreeSet::new();
+    let mut skipped = 0;
     for mail in &claimed {
-        let template_id = templates
-            .id_for(&mut tx, &mail.course_language_code)
-            .await?;
+        let language = template_language(&mail.course_language_code);
+        let Some(template_id) = templates.id_for(&mut tx, &language).await? else {
+            languages_without_a_template.insert(language);
+            skipped += 1;
+            continue;
+        };
         let delivery = insert_email_delivery_to_address(
             &mut tx,
             &mail.emailed_to,
@@ -49,17 +53,26 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     }
     tx.commit().await?;
 
-    // Never a failed item: the whole batch is one transaction, so anything that goes wrong — a
-    // missing template above all — fails the iteration and leaves every slot claimable again.
+    // A mail with no template is skipped rather than failing the iteration: the batch is one
+    // transaction, so an error would roll back every mail that could be queued. The slot stays
+    // claimable.
     Ok(PhaseRunOutcome {
         items_processed: i32::try_from(claimed.len()).unwrap_or(i32::MAX),
-        items_failed: 0,
-        error: None,
+        items_failed: skipped,
+        error: (!languages_without_a_template.is_empty()).then(|| {
+            format!(
+                "No credit_registration_account_linking email template for: {}.",
+                languages_without_a_template
+                    .into_iter()
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        }),
     })
 }
 
-/// The substitutions the mail carries, stored on the delivery row because the recipient may have no
-/// account here for the sender to read them from.
+/// Stored on the delivery row because the recipient may have no account here for the sender to read
+/// them from.
 fn placeholders(base_url: &str, mail: &LinkingMailToQueue) -> serde_json::Value {
     json!({
         "LINK": link_student_number_url(base_url, mail.token.expose_secret()),
@@ -71,31 +84,37 @@ fn placeholders(base_url: &str, mail: &LinkingMailToQueue) -> serde_json::Value 
 
 /// One template lookup per language per iteration rather than per mail.
 #[derive(Default)]
-struct TemplatesByLanguage(HashMap<String, Uuid>);
+struct TemplatesByLanguage(HashMap<String, Option<Uuid>>);
 
 impl TemplatesByLanguage {
+    /// `None` when no template exists for the language: the caller reports it rather than failing
+    /// the mail it was looking one up for.
     async fn id_for(
         &mut self,
         conn: &mut PgConnection,
-        course_language_code: &str,
-    ) -> anyhow::Result<Uuid> {
-        let language = template_language(course_language_code);
-        if let Some(id) = self.0.get(&language) {
+        language: &str,
+    ) -> anyhow::Result<Option<Uuid>> {
+        if let Some(id) = self.0.get(language) {
             return Ok(*id);
         }
-        let template = get_generic_email_template_by_type_and_language(
+        let found = match get_generic_email_template_by_type_and_language(
             conn,
             EmailTemplateType::CreditRegistrationAccountLinking,
-            &language,
+            language,
         )
-        .await?;
-        self.0.insert(language, template.id);
-        Ok(template.id)
+        .await
+        {
+            Ok(template) => Some(template.id),
+            Err(error) if matches!(error.error_type(), ModelErrorType::RecordNotFound) => None,
+            Err(error) => return Err(error.into()),
+        };
+        self.0.insert(language.to_string(), found);
+        Ok(found)
     }
 }
 
-/// Templates are stored per language, courses carry a locale. There is nothing better to go on: the
-/// recipient has no account here whose language we could read.
+/// Templates are stored per language, courses carry a locale; the recipient has no account here
+/// whose language we could read instead.
 fn template_language(course_language_code: &str) -> String {
     course_language_code
         .split(['-', '_'])

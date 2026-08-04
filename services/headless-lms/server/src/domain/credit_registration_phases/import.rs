@@ -1,13 +1,8 @@
 //! The `import` phase: the one call that creates something in the study registry.
 //!
-//! The rule the whole feature rests on: a row is moved to `submitting` and **committed** before the
-//! request leaves, and no path leads from `submitting` or `submission_uncertain` back into a batch.
-//! This phase claims `checking_enrolment` rows only, so a row whose outcome is unknown is invisible
-//! to it — including one left behind by a worker that died mid-call, which the precondition
-//! recompute moves on to `submission_uncertain`.
-//!
-//! A second import for one row would put a second attainment on a real transcript, and we could
-//! neither see it nor undo it.
+//! A row is committed as `submitting` before the request leaves, and no path leads from that state
+//! or `submission_uncertain` back into a batch: a second import for one row would put a second
+//! attainment on a real transcript, and we could neither see it nor undo it.
 
 use headless_lms_models::course_module_completion_registered_to_study_registries::completion_ids_registered_by_other_registrars;
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
@@ -35,8 +30,8 @@ use super::{
     every_item_failed_transiently, request_level_failure, response_item_json, row_facts,
 };
 
-/// The only state this phase claims. Neither `submitting` nor `submission_uncertain` is here, and
-/// that absence is what makes a second import for one row unreachable.
+/// The only state this phase claims; the absence of `submitting` and `submission_uncertain` is what
+/// makes a second import for one row unreachable.
 const CLAIMED_STATES: [CreditRegistrationState; 1] = [CreditRegistrationState::CheckingEnrolment];
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
@@ -50,8 +45,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         endpoint.max_batch_size() as i64,
     )
     .await?;
-    // Every registrar but ours: a row of our own means we registered it, and a grade improvement is
-    // deliberately a second submission for the same completion.
+    // Every registrar but ours: a grade improvement is deliberately a second submission for the
+    // same completion.
     let already_registered = completion_ids_registered_by_other_registrars(
         &mut tx,
         &claimed
@@ -85,8 +80,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         }
         match request_item(&row) {
             Ok(item) => {
-                // Committed with the batch below, before the request leaves. A row found here after
-                // a restart has an unknown outcome and is never sent again.
+                // Committed before the request leaves: a row found in `submitting` after a restart
+                // has an unknown outcome and is never sent again.
                 transition(
                     &mut tx,
                     row.id,
@@ -147,13 +142,13 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
             suotar_api_call_id: response.call_id,
             request: Some(request),
             response: response_json.as_ref(),
+            sent_student_number: row.student_number.as_deref(),
             ..OutcomeEvent::default()
         };
         let facts = row_facts(row);
         let item = response.item(&row.request_item_id);
         let failed = match item {
-            // Sent and unanswered. Its attainment may or may not exist, so it is verified from here
-            // and never re-sent.
+            // Sent and unanswered: verified from here, never re-sent.
             None => {
                 apply_outcome(
                     &mut conn,
@@ -232,15 +227,15 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                                     row,
                                     &Outcome {
                                         delay_secs: Some(VERIFY_FIRST_DELAY_SECS),
-                                        ..outcome_to(CreditRegistrationState::AwaitingVerification)
+                                        ..Outcome::to(CreditRegistrationState::AwaitingVerification)
                                     },
                                     event,
                                 )
                                 .await?;
                                 false
                             }
-                            // Accepted, with nothing to verify by. Recovery is the existing
-                            // attainments of this student, never a second import.
+                            // Accepted with nothing to verify by; recovery is a lookup among the
+                            // student's existing attainments, never a second import.
                             None => {
                                 apply_outcome(
                                     &mut conn,
@@ -270,7 +265,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                         apply_outcome(
                             &mut conn,
                             row,
-                            &outcome_to(state),
+                            &Outcome::to(state),
                             OutcomeEvent {
                                 message: settled_message(state),
                                 ..event
@@ -293,17 +288,6 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         error: every_item_failed_transiently(&response)
             .then(|| "Every item of the batch came back transiently unavailable.".to_string()),
     })
-}
-
-fn outcome_to(state: CreditRegistrationState) -> Outcome {
-    Outcome {
-        to_state: state,
-        error_code: None,
-        needs_admin_attention: None,
-        delay_secs: None,
-        drop_verified_student_number: false,
-        increment_submit_retry_count: false,
-    }
 }
 
 fn settled_message(state: CreditRegistrationState) -> Option<&'static str> {
@@ -335,8 +319,8 @@ async fn record_attainment(
     Ok(())
 }
 
-/// A frozen snapshot that cannot be sent. Both cases would come back as a request-level rejection
-/// that takes the other twenty-four items of the batch with it.
+/// A frozen snapshot that cannot be sent; either would come back as a request-level rejection that
+/// takes the rest of the batch with it.
 enum Unsendable {
     Incomplete,
     UnknownGrade,
@@ -389,8 +373,8 @@ fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem,
     else {
         return Err(Unsendable::Incomplete);
     };
-    // The registry rejects an unknown scale or grade for the whole request, so a poisoned row is
-    // taken out of the batch rather than allowed to fail the rows around it.
+    // The registry rejects an unknown scale or grade for the whole request, so this row leaves the
+    // batch rather than failing the rows around it.
     if !is_known_grade(grade_scale_id, grade_id) {
         return Err(Unsendable::UnknownGrade);
     }
@@ -407,9 +391,8 @@ fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem,
     })
 }
 
-/// Rounds away the f32-to-f64 widening error before the value goes on the wire. ECTS credits are
-/// never specified finer than a hundredth, so three decimal places keeps all of the real value and
-/// none of the artifact (2.7f32 would otherwise be sent as 2.700000047683716).
+/// Rounds away the f32-to-f64 widening error before the value goes on the wire: ECTS credits are
+/// never finer than a hundredth, and 2.7f32 would otherwise be sent as 2.700000047683716.
 fn round_credits(credits: f32) -> f64 {
     (f64::from(credits) * 1000.0).round() / 1000.0
 }

@@ -51,10 +51,7 @@ const buttonsCss = css`
 const sumEcts = (consent: MyCourseCreditRegistrationConsent): number =>
   consent.modules.reduce((total, module) => total + (module.ects_credits ?? 0), 0)
 
-/**
- * Asks for permission to register this course's credits. Declining is recorded rather than ignored,
- * so it is not asked again, and it blocks nothing about the course itself.
- */
+/** A decline is recorded rather than ignored, so it is not asked again. */
 const CreditRegistrationConsentDialog: React.FC<CreditRegistrationConsentDialogProps> = ({
   consent,
   onClose,
@@ -91,7 +88,7 @@ const CreditRegistrationConsentDialog: React.FC<CreditRegistrationConsentDialogP
   return (
     <Dialog
       open={true}
-      // The student must explicitly accept or decline; there is no dismissal path.
+      // No dismissal path: the student has to accept or decline.
       onClose={() => {}}
       title={t("credit-registration-consent-title")}
       showCloseButton={false}

@@ -16,6 +16,7 @@ import type {
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Badge, Button, DescriptionList } from "@/shared-module/components"
+import { settingsCardCss } from "@/styles/sharedStyles"
 
 import OneTimeCodeForm from "./forms/OneTimeCodeForm"
 
@@ -30,16 +31,6 @@ const OUTCOME_KEYS = {
   already_verified: "message-email-is-already-verified",
   recently_sent: "message-email-verification-code-was-just-sent",
 } as const satisfies Record<RequestEmailVerificationOutcome, string>
-
-const cardCss = css`
-  background: #fff;
-  border: 1px solid var(--color-gray-100);
-  border-radius: 12px;
-  padding: 1.25rem;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.02);
-`
 
 const headerCss = css`
   display: flex;
@@ -111,7 +102,7 @@ const EmailVerificationSection: React.FC = () => {
   }
 
   return (
-    <div className={cardCss} data-testid="email-verification-section">
+    <div className={settingsCardCss} data-testid="email-verification-section">
       <div className={headerCss}>
         <div className={iconChipCss}>
           <Envelope size={16} />

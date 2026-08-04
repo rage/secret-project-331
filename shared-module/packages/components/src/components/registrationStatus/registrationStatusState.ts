@@ -5,12 +5,7 @@ import { CheckCircle, Clock, Cross, ExclamationTriangle } from "@vectopus/atlas-
 
 import type { BadgeTone } from "../Badge"
 
-/**
- * How far a multi-step registration has got, from the reader's point of view.
- *
- * `action-needed` is deliberately distinct from `failed`: one is a thing the reader can fix and the
- * other is not, and telling them apart is the difference between a useful page and a dead end.
- */
+/** `action-needed` is something the reader can fix, `failed` is not. */
 export type RegistrationStatusState = "done" | "current" | "action-needed" | "failed" | "upcoming"
 
 export const registrationStatusBadgeTone: Record<RegistrationStatusState, BadgeTone> = {
@@ -21,7 +16,7 @@ export const registrationStatusBadgeTone: Record<RegistrationStatusState, BadgeT
   upcoming: "neutral",
 }
 
-/** Shape as well as colour, so the state survives being printed or read without colour vision. */
+/** Shape as well as colour, so the state survives printing and colour blindness. */
 export const registrationStatusIcon: Record<
   RegistrationStatusState,
   ((props: { size?: number }) => React.ReactNode) | null

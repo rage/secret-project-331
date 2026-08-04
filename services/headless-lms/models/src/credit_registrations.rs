@@ -1,8 +1,8 @@
 //! The credit registration ledger.
 //!
 //! [`transition`] is the only writer of `state`, stamping `state_entered_at`, the lifecycle
-//! timestamps and the audit event in one transaction. Policy — which transition to make, how to
-//! back off, grade mapping, enrolment choice — lives in the state machine, not here.
+//! timestamps and the audit event in one transaction. Which transition to make is the state
+//! machine's decision, not this module's.
 use chrono::NaiveDate;
 use utoipa::ToSchema;
 
@@ -38,8 +38,7 @@ pub enum CreditRegistrationState {
 }
 
 impl CreditRegistrationState {
-    /// Every state, so a classification can be proven exhaustive at runtime as well as at compile
-    /// time.
+    /// Every state, so a classification can be proven exhaustive at runtime too.
     pub const ALL: [Self; 18] = [
         Self::PendingPrerequisites,
         Self::PendingConsent,
@@ -61,8 +60,8 @@ impl CreditRegistrationState {
         Self::AbandonedByConsentWithdrawal,
     ];
 
-    /// States the pipeline never leaves on its own. `terminal_at` tracks membership: stamped on
-    /// entry, cleared on exit, so an admin retry becomes visible to the stuck queries again.
+    /// States the pipeline never leaves on its own. `terminal_at` tracks membership, cleared on
+    /// exit so an admin retry becomes visible to the stuck queries again.
     pub fn is_terminal(self) -> bool {
         matches!(
             self,
@@ -119,8 +118,7 @@ pub enum CreditRegistrationErrorCode {
 }
 
 impl CreditRegistrationErrorCode {
-    /// Every code, so the retryability classification can be proven total at runtime as well as at
-    /// compile time.
+    /// Every code, so the retryability classification can be proven total at runtime too.
     pub const ALL: [Self; 22] = [
         Self::PersonNotFound,
         Self::CourseCodeNotFound,
@@ -147,13 +145,25 @@ impl CreditRegistrationErrorCode {
     ];
 }
 
-/// Suotar's per-item `code` as a ledger error code.
-///
-/// `None` where the code names no failure of ours to record: every success code, and verify's
-/// `notRegistered`, which only means Sisu has not finished yet. An unrecognised code becomes
-/// [`CreditRegistrationErrorCode::Unknown`] and keeps its raw string in `error_message`, because
-/// Suotar may add codes and a strict mapping would take the pipeline down the day they do.
+/// Suotar's per-item `code` as a ledger error code, hardened for the endpoint it arrived on.
 pub fn map_code(endpoint: SuotarEndpoint, code: &str) -> Option<CreditRegistrationErrorCode> {
+    let mapped = map_wire_code(code)?;
+    // Import's contract has no per-item transient, so one arriving there is no evidence that
+    // nothing was created; retrying it could put a second attainment on a transcript.
+    if endpoint == SuotarEndpoint::ImportAttainments
+        && mapped == CreditRegistrationErrorCode::SisuTemporarilyUnavailable
+    {
+        return Some(CreditRegistrationErrorCode::SisuTimeout);
+    }
+    Some(mapped)
+}
+
+/// The contract's own mapping of a per-item `code`, before any hardening of ours.
+///
+/// `None` where the code names no failure to record: every success code, and verify's
+/// `notRegistered`, which only means Sisu has not finished yet. An unrecognised code becomes
+/// `Unknown` rather than an error, since Suotar may add codes.
+pub fn map_wire_code(code: &str) -> Option<CreditRegistrationErrorCode> {
     use CreditRegistrationErrorCode as Code;
     let mapped = match code {
         "personFound"
@@ -179,11 +189,6 @@ pub fn map_code(endpoint: SuotarEndpoint, code: &str) -> Option<CreditRegistrati
         "misregistered" => Code::Misregistered,
         "unauthorized" => Code::Unauthorized,
         "malformedRequest" => Code::MalformedRequest,
-        // Import's contract has no per-item transient, so one arriving there is not evidence that
-        // nothing was created. Retrying it could put a second attainment on a transcript.
-        "sisuTemporarilyUnavailable" if endpoint == SuotarEndpoint::ImportAttainments => {
-            Code::SisuTimeout
-        }
         "sisuTemporarilyUnavailable" => Code::SisuTemporarilyUnavailable,
         _ => Code::Unknown,
     };
@@ -248,7 +253,7 @@ pub struct NewCreditRegistration {
 }
 
 /// The item id Suotar sees for the import and resolve calls. Deterministic, so a Suotar log line
-/// maps to exactly one ledger row without an id allocation table.
+/// maps to one ledger row without an id allocation table.
 pub fn import_request_item_id(registration_id: Uuid) -> String {
     format!("cr-{registration_id}")
 }
@@ -340,11 +345,9 @@ impl Transition {
 
 /// Moves a ledger row to a new state and appends the matching audit event, atomically.
 ///
-/// Also stamps, so callers must not: `state_entered_at` (every call, including a self-transition),
-/// `terminal_at` (set on entry to a terminal state, cleared on leaving one), `first_failed_at` (the
-/// first failure only), `registered_at`, `submitted_at`, `enrolment_checked_at` (on leaving
-/// `checking_enrolment`), and clears `enrolment_banner_dismissed_at` on entry to
-/// `no_usable_enrolment` so a fresh enrolment problem shows the banner again.
+/// Owns the lifecycle stamps, so callers must not touch them: `state_entered_at`, `terminal_at`,
+/// `first_failed_at`, `registered_at`, `submitted_at`, `enrolment_checked_at`, and
+/// `enrolment_banner_dismissed_at`, which entering `no_usable_enrolment` clears.
 pub async fn transition(
     conn: &mut PgConnection,
     id: Uuid,
@@ -439,12 +442,8 @@ RETURNING *
     Ok(after)
 }
 
-/// Which rows a phase iteration may touch.
-///
-/// Empty means every row, which is what production runs. A narrowed scope exists so a test can
-/// drive the pipeline for its own course without sweeping a shared database: it is one predicate on
-/// the same claim query rather than a query of its own, so a scoped run cannot behave differently
-/// from an unscoped one.
+/// Which rows a phase iteration may touch. Empty means every row, which is what production runs; a
+/// narrowed scope lets a test drive the pipeline for its own course on a shared database.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct RegistrationScope {
     pub course_id: Option<Uuid>,
@@ -470,9 +469,8 @@ impl RegistrationScope {
 
 /// Claims up to `limit` due rows in the given states for this worker.
 ///
-/// The `SKIP LOCKED` row locks live until the caller's transaction ends, so callers must pass a
-/// transaction. Rows on a paused course module are never claimed, enforced here so no phase can
-/// forget it.
+/// The row locks live until the caller's transaction ends, so callers must pass a transaction. Rows
+/// on a paused course module are never claimed, enforced here so no phase can forget it.
 pub async fn claim_due(
     conn: &mut PgConnection,
     states: &[CreditRegistrationState],
@@ -575,8 +573,8 @@ WHERE course_module_completion_id = $1
     Ok(res)
 }
 
-/// Every attempt for a completion, newest first. Superseded rows are included on purpose: if Sisu
-/// ended up holding both attainments the student must see both.
+/// Every attempt for a completion, newest first. Superseded rows included: if Sisu ended up holding
+/// both attainments the student must see both.
 pub async fn get_all_attempts_by_completion_id(
     conn: &mut PgConnection,
     course_module_completion_id: Uuid,
@@ -637,8 +635,8 @@ ORDER BY created_at DESC
     Ok(res)
 }
 
-/// One ledger row with the course, module and enrolment facts every student view of it needs, so a
-/// status page is one query rather than a fan-out per row.
+/// One ledger row with the course, module and enrolment facts every student view needs, so a status
+/// page is one query rather than a fan-out per row.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StudentCreditRegistration {
     pub id: Uuid,
@@ -670,8 +668,6 @@ pub struct StudentCreditRegistration {
 
 /// The user's registrations as the student surfaces show them, newest completion first. Superseded
 /// attempts are included: the student is entitled to see an earlier attempt Sisu may still hold.
-///
-/// `course_module_id` narrows it to the one module the completion status page is about.
 pub async fn get_student_facing_by_user_id(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -831,9 +827,8 @@ WHERE id = $1
 
 /// Records the attainment the study registry holds, unless another live row already claims it.
 ///
-/// Returns whether it was recorded. Two rows may legitimately be told about one attainment — a
-/// grade improvement Sisu declines names the attainment the first attempt registered — and a unique
-/// index would turn that into a failed transition rather than the terminal state it should be.
+/// Two rows may legitimately be told about one attainment — a grade improvement Sisu declines names
+/// the attainment the first attempt registered — so this returns `false` instead of failing.
 pub async fn set_sisu_attainment_if_unclaimed(
     conn: &mut PgConnection,
     id: Uuid,
@@ -867,8 +862,8 @@ RETURNING id
 
 /// Defers when the pipeline may next claim this row; the delay is the caller's policy.
 ///
-/// Does not touch `first_failed_at`, which [`transition`] owns: states that wait on a human must
-/// defer to stay out of `claim_due`'s `LIMIT`, and anchoring the retry window there would expire them.
+/// Deliberately leaves `first_failed_at` alone: a state that waits on a human defers too, and
+/// anchoring the retry window here would expire it.
 pub async fn schedule_next_attempt(
     conn: &mut PgConnection,
     id: Uuid,
@@ -889,11 +884,32 @@ WHERE id = $1
     Ok(())
 }
 
+/// Makes one row claimable again now, whatever backoff parked it.
+///
+/// Uses the database clock: an app-clock value sampled after `BEGIN` is still in the future when
+/// the same transaction compares it against `now()`.
+pub async fn make_due_now(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET next_attempt_at = now()
+WHERE id = $1
+  AND next_attempt_at > now()
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+        "#,
+        id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// Brings forward the recheck of rows parked for want of an enrolment, for students the study
 /// registry now lists as enrolled.
 ///
-/// Only the clock moves. The precondition recompute is what takes the row back to `ready_to_submit`,
-/// so the enrolment is re-resolved rather than assumed from a roster entry.
+/// Only the clock moves: the enrolment is re-resolved by the precondition recompute rather than
+/// assumed from a roster entry.
 pub async fn recheck_no_usable_enrolment_now(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -1015,10 +1031,8 @@ WHERE id = $1
     Ok(())
 }
 
-/// Live rows per state, for the dashboard funnel.
-///
-/// Superseded attempts are excluded, as they are in the per-course sibling: a course that regrades
-/// holds two rows per student and would otherwise be counted twice in every tile.
+/// Live rows per state, for the dashboard funnel. Superseded attempts are excluded, as in the
+/// per-course sibling, or a course that regrades counts every student twice.
 pub async fn count_by_state(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<(CreditRegistrationState, i64)>> {
@@ -1091,7 +1105,7 @@ GROUP BY course_module_id
 }
 
 /// One ledger row as a teacher sees it: the raw state, the student's identity and the unmasked
-/// verified student number, without the study registry's own error text.
+/// verified student number, but never the study registry's own error text.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TeacherCreditRegistration {
     pub id: Uuid,
@@ -1128,28 +1142,95 @@ pub struct TeacherCreditRegistration {
 /// The optional narrowings a teacher surface applies, all of them in SQL.
 #[derive(Debug, Clone, Default)]
 pub struct TeacherCreditRegistrationFilters<'a> {
-    /// The students-tab batch: the users of one identity-list page.
+    pub id: Option<Uuid>,
     pub user_ids: Option<&'a [Uuid]>,
     pub state: Option<CreditRegistrationState>,
-    /// Free text matched against the student's name, email or verified student number.
+    /// Matched against the student's name, email or verified student number.
     pub search: Option<&'a str>,
     pub course_instance_id: Option<Uuid>,
-    /// The completion-detail view: every attempt of one completion, that course's other completions
-    /// excluded.
+    /// Narrows to every attempt of one completion.
     pub course_module_completion_id: Option<Uuid>,
 }
 
-/// The course's ledger rows as the teacher surfaces show them, newest completion first.
-pub async fn get_teacher_facing_by_course_id(
-    conn: &mut PgConnection,
+/// A row with the page's total attached, so a page and its count can only come from one query.
+struct TeacherFacingRow {
+    id: Uuid,
+    user_id: Uuid,
+    first_name: Option<String>,
+    last_name: Option<String>,
+    email: Option<String>,
     course_id: Uuid,
+    course_module_id: Uuid,
+    course_module_name: Option<String>,
+    course_instance_id: Uuid,
+    course_module_completion_id: Uuid,
+    completion_date: DateTime<Utc>,
+    state: CreditRegistrationState,
+    state_entered_at: DateTime<Utc>,
+    error_code: Option<CreditRegistrationErrorCode>,
+    needs_admin_attention: bool,
+    next_attempt_at: DateTime<Utc>,
+    registered_at: Option<DateTime<Utc>>,
+    sisu_attainment_id: Option<String>,
+    grade_id: Option<String>,
+    credits: Option<f32>,
+    attempt_number: i32,
+    superseded_by_id: Option<Uuid>,
+    student_number: Option<String>,
+    student_number_verified_at: Option<DateTime<Utc>>,
+    student_number_verified_via: Option<StudentNumberVerificationMethod>,
+    sisu_person_id: Option<String>,
+    enrolment_realisation_name: Option<String>,
+    total_count: i64,
+}
+
+impl From<TeacherFacingRow> for TeacherCreditRegistration {
+    fn from(row: TeacherFacingRow) -> Self {
+        Self {
+            id: row.id,
+            user_id: row.user_id,
+            first_name: row.first_name,
+            last_name: row.last_name,
+            email: row.email,
+            course_id: row.course_id,
+            course_module_id: row.course_module_id,
+            course_module_name: row.course_module_name,
+            course_instance_id: row.course_instance_id,
+            course_module_completion_id: row.course_module_completion_id,
+            completion_date: row.completion_date,
+            state: row.state,
+            state_entered_at: row.state_entered_at,
+            error_code: row.error_code,
+            needs_admin_attention: row.needs_admin_attention,
+            next_attempt_at: row.next_attempt_at,
+            registered_at: row.registered_at,
+            sisu_attainment_id: row.sisu_attainment_id,
+            grade_id: row.grade_id,
+            credits: row.credits,
+            attempt_number: row.attempt_number,
+            superseded_by_id: row.superseded_by_id,
+            student_number: row.student_number,
+            student_number_verified_at: row.student_number_verified_at,
+            student_number_verified_via: row.student_number_verified_via,
+            sisu_person_id: row.sisu_person_id,
+            enrolment_realisation_name: row.enrolment_realisation_name,
+        }
+    }
+}
+
+/// The one query behind every teacher-facing read, so a filter wired into a page cannot be missed
+/// in its count. `total_count` is computed before the limit, which is why the count reads it with
+/// `limit = 1`.
+async fn teacher_facing_page(
+    conn: &mut PgConnection,
+    course_id: Option<Uuid>,
     filters: &TeacherCreditRegistrationFilters<'_>,
     limit: i64,
     offset: i64,
-) -> ModelResult<Vec<TeacherCreditRegistration>> {
+) -> ModelResult<Vec<TeacherFacingRow>> {
     let search_pattern = filters.search.map(search_pattern_of);
     let res = sqlx::query_as!(
-        TeacherCreditRegistration,
+        TeacherFacingRow,
         r#"
 SELECT cr.id,
   cr.user_id,
@@ -1177,7 +1258,8 @@ SELECT cr.id,
   vsn.verified_at AS "student_number_verified_at?",
   vsn.verified_via AS "student_number_verified_via?: StudentNumberVerificationMethod",
   vsn.sisu_person_id AS "sisu_person_id?",
-  r.label AS "enrolment_realisation_name?"
+  r.label AS "enrolment_realisation_name?",
+  COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
   JOIN course_modules cm ON cm.id = cr.course_module_id
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
@@ -1187,27 +1269,29 @@ FROM credit_registrations cr
   LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id
   AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id
   AND r.deleted_at IS NULL
-WHERE cr.course_id = $1
-  AND cr.deleted_at IS NULL
-  AND ($2::uuid [] IS NULL OR cr.user_id = ANY($2))
+WHERE cr.deleted_at IS NULL
+  AND ($1::uuid IS NULL OR cr.course_id = $1)
+  AND ($2::uuid IS NULL OR cr.id = $2)
+  AND ($3::uuid [] IS NULL OR cr.user_id = ANY($3))
   AND (
-    $3::credit_registration_state IS NULL
-    OR cr.state = $3
+    $4::credit_registration_state IS NULL
+    OR cr.state = $4
   )
   AND (
-    $4::text IS NULL
-    OR ud.name_search_helper LIKE '%' || $4 || '%' ESCAPE '\'
-    OR ud.email_search_helper LIKE '%' || $4 || '%' ESCAPE '\'
-    OR LOWER(vsn.student_number) LIKE '%' || $4 || '%' ESCAPE '\'
+    $5::text IS NULL
+    OR ud.name_search_helper LIKE '%' || $5 || '%' ESCAPE '\'
+    OR ud.email_search_helper LIKE '%' || $5 || '%' ESCAPE '\'
+    OR LOWER(vsn.student_number) LIKE '%' || $5 || '%' ESCAPE '\'
   )
-  AND ($5::uuid IS NULL OR cr.course_instance_id = $5)
-  AND ($6::uuid IS NULL OR cr.course_module_completion_id = $6)
+  AND ($6::uuid IS NULL OR cr.course_instance_id = $6)
+  AND ($7::uuid IS NULL OR cr.course_module_completion_id = $7)
 ORDER BY cmc.completion_date DESC,
   cr.attempt_number DESC,
   cr.id
-LIMIT $7 OFFSET $8
+LIMIT $8 OFFSET $9
         "#,
         course_id,
+        filters.id,
         filters.user_ids,
         filters.state as Option<CreditRegistrationState>,
         search_pattern.as_deref(),
@@ -1221,48 +1305,34 @@ LIMIT $7 OFFSET $8
     Ok(res)
 }
 
+/// The course's ledger rows as the teacher surfaces show them, newest completion first.
+pub async fn get_teacher_facing_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    filters: &TeacherCreditRegistrationFilters<'_>,
+    limit: i64,
+    offset: i64,
+) -> ModelResult<Vec<TeacherCreditRegistration>> {
+    Ok(
+        teacher_facing_page(conn, Some(course_id), filters, limit, offset)
+            .await?
+            .into_iter()
+            .map(TeacherCreditRegistration::from)
+            .collect(),
+    )
+}
+
 /// How many rows [`get_teacher_facing_by_course_id`] would return without a page limit.
 pub async fn count_teacher_facing_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
     filters: &TeacherCreditRegistrationFilters<'_>,
 ) -> ModelResult<i64> {
-    let search_pattern = filters.search.map(search_pattern_of);
-    let count = sqlx::query_scalar!(
-        r#"
-SELECT COUNT(*) AS "count!"
-FROM credit_registrations cr
-  LEFT JOIN user_details ud ON ud.user_id = cr.user_id
-  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
-  AND vsn.deleted_at IS NULL
-WHERE cr.course_id = $1
-  AND cr.deleted_at IS NULL
-  AND (
-    $2::credit_registration_state IS NULL
-    OR cr.state = $2
-  )
-  AND (
-    $3::text IS NULL
-    OR ud.name_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
-    OR ud.email_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
-    OR LOWER(vsn.student_number) LIKE '%' || $3 || '%' ESCAPE '\'
-  )
-  AND ($4::uuid IS NULL OR cr.course_instance_id = $4)
-  AND ($5::uuid IS NULL OR cr.course_module_completion_id = $5)
-        "#,
-        course_id,
-        filters.state as Option<CreditRegistrationState>,
-        search_pattern.as_deref(),
-        filters.course_instance_id,
-        filters.course_module_completion_id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(count)
+    let rows = teacher_facing_page(conn, Some(course_id), filters, 1, 0).await?;
+    Ok(rows.first().map_or(0, |row| row.total_count))
 }
 
-/// The `LIKE` pattern the search helper columns are matched against: lowercased, metacharacters
-/// escaped, so a search for `%` matches a literal one.
+/// Lowercased and with metacharacters escaped, so a search for `%` matches a literal one.
 fn search_pattern_of(search: &str) -> String {
     escape_like_pattern(&search.to_lowercase())
 }
@@ -1272,19 +1342,18 @@ pub async fn get_teacher_facing_by_id(
     conn: &mut PgConnection,
     id: Uuid,
 ) -> ModelResult<Option<TeacherCreditRegistration>> {
-    let row = get_by_id(conn, id).await?;
-    let rows = get_teacher_facing_by_course_id(
+    let rows = teacher_facing_page(
         conn,
-        row.course_id,
+        None,
         &TeacherCreditRegistrationFilters {
-            user_ids: Some(&[row.user_id]),
+            id: Some(id),
             ..TeacherCreditRegistrationFilters::default()
         },
-        i64::MAX,
+        1,
         0,
     )
     .await?;
-    Ok(rows.into_iter().find(|candidate| candidate.id == id))
+    Ok(rows.into_iter().next().map(TeacherCreditRegistration::from))
 }
 
 /// Every attempt for the same completion as `row`, that one included, newest attempt first.
@@ -1309,9 +1378,8 @@ pub async fn get_teacher_facing_attempts_for_completion(
 /// One ledger row as an admin sees it: every identifier support needs to answer "what happened to
 /// this student", across courses.
 ///
-/// The study registry's own error text is not here. It is written for an integrator, may name a
-/// person and is not translated; the error code plus the scrubbed call bodies are what an admin
-/// reads instead.
+/// Not the study registry's own error text: it is written for an integrator, may name a person and
+/// is untranslated. The error code and the scrubbed call bodies stand in for it.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AdminCreditRegistration {
     pub id: Uuid,
@@ -1369,7 +1437,7 @@ pub enum AdminCreditRegistrationSort {
 }
 
 impl AdminCreditRegistrationSort {
-    /// The value the query's `ORDER BY` branches on.
+    /// Bound into the query's `ORDER BY` as a `text` parameter.
     fn as_str(self) -> &'static str {
         match self {
             Self::LastActivity => "last_activity",
@@ -1401,8 +1469,7 @@ pub struct AdminCreditRegistrationFilters<'a> {
     pub include_superseded: bool,
 }
 
-/// [`get_admin_facing`]'s row with the page's total attached, so a page and its count can only ever
-/// come from the same query.
+/// A row with the page's total attached, so a page and its count can only come from one query.
 struct AdminFacingRow {
     id: Uuid,
     created_at: DateTime<Utc>,
@@ -1492,11 +1559,9 @@ impl From<AdminFacingRow> for AdminCreditRegistration {
     }
 }
 
-/// The one query behind both [`get_admin_facing`] and [`count_admin_facing`]: the twelve-predicate
-/// WHERE clause and the join set exist here only, so a filter wired into one cannot be missed in the
-/// other. `count_admin_facing` reads it with `limit = 1`; `total_count` is a window aggregate over
-/// every qualifying row, computed before the limit is applied, so that read is as cheap as a plain
-/// `COUNT(*)` over the same predicate.
+/// The one query behind both [`get_admin_facing`] and [`count_admin_facing`], so a filter wired
+/// into one cannot be missed in the other. `total_count` is computed before the limit, which is why
+/// `count_admin_facing` reads it with `limit = 1`.
 async fn admin_facing_page(
     conn: &mut PgConnection,
     filters: &AdminCreditRegistrationFilters<'_>,
@@ -1657,9 +1722,8 @@ pub struct CreditRegistrationErrorCodeCount {
     pub terminal_failure_count: i64,
 }
 
-/// The error-code breakdown the Overview shows.
-///
-/// A row abandoned by a consent withdrawal carries no failure of ours, so it is in neither column.
+/// The error-code breakdown the Overview shows. A row abandoned by a consent withdrawal carries no
+/// failure of ours, so it is in neither column.
 pub async fn count_by_error_code(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<CreditRegistrationErrorCodeCount>> {
@@ -1792,10 +1856,8 @@ pub struct StuckRegistrationCount {
     pub oldest_state_entered_at: Option<DateTime<Utc>>,
 }
 
-/// Rows the pipeline should have moved by now, per state.
-///
-/// Only the four states with a threshold are considered: the rest wait on a student or on a human,
-/// and alerting on those would fire on the feature working as designed.
+/// Rows the pipeline should have moved by now, per state. Only the four states with a threshold
+/// count: the rest wait on a student or a human, where an alert would fire on normal operation.
 pub async fn count_stuck(
     conn: &mut PgConnection,
     thresholds: &StuckThresholds,

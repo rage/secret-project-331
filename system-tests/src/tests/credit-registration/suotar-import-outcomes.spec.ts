@@ -1,5 +1,3 @@
-import { expect, test } from "@playwright/test"
-
 import {
   countMockCallsForStudent,
   CRS_101,
@@ -10,6 +8,8 @@ import {
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
+import { makeRegistrationDueNow } from "@/utils/creditRegistrationAdmin"
+import { expect, test } from "@/utils/fixtures"
 import { applyMockSuotarScenario, transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
 import {
   runImportSubmissionTick,
@@ -32,11 +32,12 @@ test.describe("An import the study registry never answered", () => {
 
   test("A Sisu timeout never re-imports, and recovers through verification only", async ({
     page,
+    adminApi,
   }) => {
     const scope = { userEmail: TIMEOUT_EMAIL }
 
-    // The named scenario arms the timeout after the mock has already written the submission, which is
-    // the dangerous shape: the study registry holds the attainment and we have no answer saying so.
+    // The scenario arms the timeout after the mock has already written the submission: the study
+    // registry holds the attainment and we have no answer saying so.
     await applyMockSuotarScenario(page.request, "timeout-but-landed", {
       studentNumber: TIMEOUT_STUDENT_NUMBER,
       courseCode: CRS_101,
@@ -46,11 +47,13 @@ test.describe("An import the study registry never answered", () => {
     await runMaterializeTick(page.request, scope)
     await runPreconditionsTick(page.request, scope)
     await runResolveEnrolmentsTick(page.request, scope)
-    // Unchecked: the scenario above makes this iteration fail by construction, so the tick reports a
-    // phase-level error. What it did to the row is what the assertions below are about.
+    // Unchecked: the scenario makes this iteration fail by construction, so the tick reports a
+    // phase-level error of its own.
     await runTickUnchecked(page.request, "import", scope)
 
-    await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, ["submission_uncertain"])
+    const uncertain = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+      "submission_uncertain",
+    ])
     expect(
       await countMockCallsForStudent(page.request, TIMEOUT_STUDENT_NUMBER, "import_attainments"),
     ).toBe(1)
@@ -58,9 +61,9 @@ test.describe("An import the study registry never answered", () => {
     await test.step("Further import passes send nothing", async () => {
       await runImportSubmissionTick(page.request, scope)
       await runImportSubmissionTick(page.request, scope)
-      // Only an explicit admin transition leaves `submission_uncertain`, so this negative assertion
-      // holds however many workers and specs tick in between. A second import would put a second
-      // attainment on a real transcript, invisibly.
+      // Only an explicit admin transition leaves `submission_uncertain`, so this holds however
+      // many workers tick in between. A second import would silently add a second attainment
+      // on a real transcript.
       const row = await myRegistrationOnCourse(page.request, SUOTAR_COURSE_SLUG)
       expect(row.state).toBe("submission_uncertain")
       expect(
@@ -75,6 +78,7 @@ test.describe("An import the study registry never answered", () => {
         "registered",
         CRS_101,
       )
+      await makeRegistrationDueNow(adminApi, uncertain.id)
       await runVerifyPollTick(page.request, scope)
       const registered = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
         "registered",
@@ -110,8 +114,8 @@ test.describe("A student whose modules are each broken in their own way", () => 
     )
 
     const codes = failed.map((row) => row.error_code)
-    // Distinct rather than named one by one: what matters is that four different broken shapes are not
-    // collapsed into one code, and that none of them landed on the catch-all.
+    // What matters is that four different broken shapes are not collapsed into one code,
+    // and that none of them landed on the catch-all.
     expect(new Set(codes).size).toBe(codes.length)
     expect(codes).not.toContain("unknown")
 

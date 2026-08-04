@@ -11,10 +11,9 @@ interface UseCourseCreditRegistrationConsentOptions {
   enabled?: boolean
 }
 
-/**
- * The signed-in user's credit registration consent for a course, and whether the course offers it at
- * all. Drives the course-start dialog step, so it must settle before the dialog decision is made.
- */
+const CONSENT_STALE_TIME_MS = 5 * 60 * 1000
+
+/** Gates a course-start dialog step, so it must settle before that decision is made. */
 const useCourseCreditRegistrationConsent = (
   courseId: string | null,
   options: UseCourseCreditRegistrationConsentOptions = {},
@@ -26,12 +25,15 @@ const useCourseCreditRegistrationConsent = (
       value: courseId,
       enabled: loginState.signedIn === true && enabled,
       isReady: (id): id is string => Boolean(id),
-      build: (id) =>
-        getMyCourseCreditRegistrationConsentOptions({
+      build: (id) => ({
+        ...getMyCourseCreditRegistrationConsentOptions({
           path: {
             course_id: id,
           },
         }),
+        // Read on every page load, and only the dialog's own answer changes it.
+        staleTime: CONSENT_STALE_TIME_MS,
+      }),
     }),
   )
   return query

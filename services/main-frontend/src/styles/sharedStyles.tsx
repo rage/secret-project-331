@@ -58,3 +58,16 @@ export const actionButtonStyle = css`
     background: #f1f1f1;
   }
 `
+
+export const settingsCardCss = css`
+  background: #fff;
+  border: 1px solid var(--color-gray-100);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.02);
+  ${respondToOrLarger.md} {
+    padding: 1.75rem;
+  }
+`

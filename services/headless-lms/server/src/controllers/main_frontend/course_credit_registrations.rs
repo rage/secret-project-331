@@ -1,13 +1,8 @@
 /*!
 Handlers for HTTP requests to `/api/v0/main-frontend/course-credit-registrations`.
 
-The teacher's view of one course's credit registrations. Teachers see more than students — the raw
-ledger state, the unmasked verified student number, the linking mail's retry history — and less than
-admins: the recipient address is masked to its domain, the study registry's own error text is never
-returned, and nothing here can override a rate cap.
-
-Course-scoped handlers authorize on the course in the path. The per-item read authorizes on the
-**row's own** course, so a registration id cannot be paired with a course the caller happens to teach.
+Teachers see the unmasked student number, but recipient addresses are masked to their domain, the
+study registry's own error text is never returned, and nothing here can override a rate cap.
 */
 
 use headless_lms_models::course_module_suotar_realisations::CourseModuleSuotarRealisation;
@@ -43,8 +38,7 @@ use headless_lms_utils::services::suotar::SuotarClient;
 
 use super::credit_registrations::mask_email;
 
-/// How many linking mails one teacher may set off in an hour. A fat-finger guard on top of the
-/// per-person caps, which this endpoint cannot relax.
+/// A fat-finger guard on top of the per-person caps, which this endpoint cannot relax.
 const MAX_TEACHER_RESENDS_PER_HOUR: i64 = 20;
 
 /// Marks the resend's study registry call in the call log as a manual action, not worker traffic.
@@ -69,8 +63,7 @@ pub struct CourseCreditRegistrationModuleConfigs {
     pub realisations: Vec<CourseModuleSuotarRealisation>,
 }
 
-/// What we can honestly say about a student's linking mail, for a teacher: our send status and the
-/// address's domain, which is what makes "check your university mail, not your gmail" useful.
+/// What we can honestly say about a linking mail: our send status and the address's domain.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct TeacherLinkingEmailStatus {
     pub email_send_status: EmailSendStatus,
@@ -81,7 +74,6 @@ pub struct TeacherLinkingEmailStatus {
     pub emailed_to_masked: String,
 }
 
-/// One registration as a teacher sees it.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseCreditRegistration {
     pub id: Uuid,
@@ -108,7 +100,7 @@ pub struct CourseCreditRegistration {
     pub credits: Option<f32>,
     pub attempt_number: i32,
     pub superseded: bool,
-    /// In full: a masked number cannot be compared against a student card, which is the whole use.
+    /// In full: a masked number cannot be checked against a student card.
     pub student_number: Option<String>,
     pub student_number_verified_at: Option<DateTime<Utc>>,
     /// `admin_manual` means support established the link rather than the student proving it.
@@ -118,7 +110,6 @@ pub struct CourseCreditRegistration {
     pub linking_email: Option<TeacherLinkingEmailStatus>,
 }
 
-/// One module's live rows, for the "how many of my students will not get credits, and why" tiles.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseCreditRegistrationModuleSummary {
     pub course_module_id: Uuid,
@@ -128,8 +119,7 @@ pub struct CourseCreditRegistrationModuleSummary {
     pub counts_by_state: Vec<CreditRegistrationStateCount>,
     /// `registered`, `duplicate` and `not_improved`: the credit exists in Sisu.
     pub success_count: i64,
-    /// `failed_permanent` only. A retrying row is still working and `misregistered` is not terminal,
-    /// so neither is counted as a failure.
+    /// `failed_permanent` only: a retrying row is still working and `misregistered` is not terminal.
     pub failed_permanent_count: i64,
     pub needs_admin_attention_count: i64,
 }
@@ -145,7 +135,6 @@ pub struct CourseCreditRegistrationSummary {
     pub modules: Vec<CourseCreditRegistrationModuleSummary>,
     pub blocked_students: CourseCreditRegistrationBlockedStudentCounts,
     /// Of the unlinked consented students, the ones whose linking mail we never managed to hand over.
-    /// The difference between "student ignoring our mail" and "we could not send it".
     pub linking_emails_failed_to_send_count: i64,
 }
 
@@ -171,8 +160,8 @@ pub struct GetCourseCreditRegistrationsQuery {
     course_instance_id: Option<Uuid>,
 }
 
-/// One event of the item timeline. Deliberately without the event's stored request and response
-/// bodies: those are the admin dashboard's, and the study registry's own wording is never rendered.
+/// One event of the item timeline, without the stored request and response bodies: those are the
+/// admin dashboard's, and the study registry's own wording is never rendered.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseCreditRegistrationEvent {
     pub id: Uuid,
@@ -198,8 +187,7 @@ pub struct CreditRegistrationDetails {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct ResendLinkingEmailPayload {
-    /// One of the two identifies the person. `student_number` is what a teacher can read off a
-    /// student card; `user_id` only resolves for an account we have held a number for.
+    /// One of the two names the person; `user_id` only resolves for an account that has held a number.
     pub user_id: Option<Uuid>,
     pub student_number: Option<String>,
     pub reason: Option<String>,
@@ -466,11 +454,10 @@ pub async fn get_course_credit_registrations(
         .map(str::trim)
         .filter(|search| !search.is_empty());
     let filters = TeacherCreditRegistrationFilters {
-        user_ids: None,
         state: query.state,
         search,
         course_instance_id: query.course_instance_id,
-        course_module_completion_id: None,
+        ..TeacherCreditRegistrationFilters::default()
     };
     let total = models::credit_registrations::count_teacher_facing_by_course_id(
         &mut conn, *course_id, &filters,
@@ -496,8 +483,8 @@ pub async fn get_course_credit_registrations(
 GET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One
 registration with its timeline and the other attempts for the same completion.
 
-Authorized on the row's own course, not on a course id from the caller: with a course in the path a
-teacher of one course could read another's rows by pairing their own course with a foreign id.
+Authorized on the row's own course: a course id from the caller would let a teacher of one course pair
+it with a foreign registration id.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -534,8 +521,8 @@ pub async fn get_credit_registration_details(
     let attempt_rows =
         models::credit_registrations::get_teacher_facing_attempts_for_completion(&mut conn, &row)
             .await?;
-    // `attempt_rows` already contains `row` itself, so it is picked out of `attempts` by id instead
-    // of being fetched a second time.
+    // `attempt_rows` already contains `row`, so it is picked out of `attempts` rather than fetched
+    // a second time.
     let attempts = build_teacher_registrations(&mut conn, row.course_id, attempt_rows).await?;
     let registration = attempts
         .iter()
@@ -574,10 +561,8 @@ POST
 `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off
 another account-linking mail for one person on this course.
 
-The target has to be on this course's roster in the study registry and hold no link with us, which is
-the same predicate the enrolment discovery phase claims mails under. The caps of the ordinary claim
-path apply and there is no parameter that relaxes them: a refusal comes back as a typed outcome for
-the teacher to escalate, and only an admin can override.
+The target has to be on this course's roster in the study registry and hold no link with us. The caps
+of the ordinary claim path apply and nothing here relaxes them.
 */
 #[instrument(skip(pool, payload, app_conf, suotar_client))]
 #[utoipa::path(
@@ -682,8 +667,7 @@ pub async fn resend_course_credit_registration_linking_email(
     .await
 }
 
-/// The person the body names, as a student number. `None` when the account has never held one, which
-/// is the case a teacher cannot resolve for us: the mail is addressed to a Sisu person.
+/// The person the body names, as a student number. `None` when the account has never held one.
 async fn resolve_resend_target(
     conn: &mut PgConnection,
     payload: &ResendLinkingEmailPayload,
@@ -709,8 +693,7 @@ async fn resolve_resend_target(
     )
 }
 
-/// Audits the attempt whatever it did — a refusal is a fact about a teacher's action too — and reports
-/// where the person's linking mail now stands.
+/// Audits the attempt whatever it did, and reports where the person's linking mail now stands.
 async fn finish_resend(
     conn: &mut PgConnection,
     user: &AuthUser,
@@ -801,10 +784,75 @@ fn linking_email_status_of(
     }
 }
 
-/// Enriches the ledger rows with the linking-mail status only an endpoint can supply.
-///
-/// The mail is addressed to a Sisu person, and nothing matches an account to one by email address, so
-/// a row only gets a block when the account holds — or once held — a link.
+/// The newest linking mail's send status for each row waiting for a number, by row id. A fixed number
+/// of queries whatever the page holds, because only the listed people are looked up.
+async fn linking_email_statuses(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    waiting: &[&TeacherCreditRegistration],
+) -> Result<HashMap<Uuid, TeacherLinkingEmailStatus>, ControllerError> {
+    if waiting.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let need_lookup: Vec<Uuid> = waiting
+        .iter()
+        .filter(|row| row.sisu_person_id.is_none())
+        .map(|row| row.user_id)
+        .collect();
+    let latest_links: HashMap<Uuid, String> = if need_lookup.is_empty() {
+        HashMap::new()
+    } else {
+        verified_student_numbers::get_latest_including_deleted_by_user_ids(conn, &need_lookup)
+            .await?
+            .into_iter()
+            .map(|link| (link.user_id, link.sisu_person_id))
+            .collect()
+    };
+    let per_row: Vec<(Uuid, String)> = waiting
+        .iter()
+        .filter_map(|row| {
+            let person_id = row
+                .sisu_person_id
+                .clone()
+                .or_else(|| latest_links.get(&row.user_id).cloned())?;
+            Some((row.id, person_id))
+        })
+        .collect();
+    if per_row.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let person_ids: Vec<String> = per_row
+        .iter()
+        .map(|(_, person_id)| person_id.clone())
+        .collect();
+    let mails = credit_registration_account_linking_emails::get_latest_by_course_and_persons(
+        conn,
+        course_id,
+        &person_ids,
+    )
+    .await?;
+    let matched: Vec<(Uuid, &CreditRegistrationAccountLinkingEmail)> = per_row
+        .iter()
+        .filter_map(|(row_id, person_id)| Some((*row_id, mails.get(person_id)?)))
+        .collect();
+    if matched.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let mail_ids: Vec<Uuid> = matched.iter().map(|(_, mail)| mail.id).collect();
+    let reports =
+        credit_registration_account_linking_emails::get_send_status_reports(conn, &mail_ids)
+            .await?;
+    Ok(matched
+        .into_iter()
+        .filter_map(|(row_id, mail)| {
+            let report = reports.get(&mail.id)?;
+            Some((row_id, linking_email_status_of(report, mail)))
+        })
+        .collect())
+}
+
+/// Enriches the ledger rows with the linking-mail status. A row only gets one when the account holds —
+/// or once held — a link, because the mail is addressed to a Sisu person.
 async fn build_teacher_registrations(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -814,52 +862,7 @@ async fn build_teacher_registrations(
         .iter()
         .filter(|row| row.state == CreditRegistrationState::PendingStudentNumber)
         .collect();
-    let mut statuses: HashMap<Uuid, TeacherLinkingEmailStatus> = HashMap::new();
-    if !waiting.is_empty() {
-        let mails =
-            credit_registration_account_linking_emails::get_by_course_id(conn, course_id).await?;
-        let need_lookup: Vec<Uuid> = waiting
-            .iter()
-            .filter(|row| row.sisu_person_id.is_none())
-            .map(|row| row.user_id)
-            .collect();
-        let latest_links: HashMap<Uuid, String> = if need_lookup.is_empty() {
-            HashMap::new()
-        } else {
-            verified_student_numbers::get_latest_including_deleted_by_user_ids(conn, &need_lookup)
-                .await?
-                .into_iter()
-                .map(|link| (link.user_id, link.sisu_person_id))
-                .collect()
-        };
-        // The status-report fetch below batches every matched mail into a single call.
-        let mut matched: Vec<(Uuid, &CreditRegistrationAccountLinkingEmail)> = Vec::new();
-        for row in waiting {
-            let person_id = row
-                .sisu_person_id
-                .clone()
-                .or_else(|| latest_links.get(&row.user_id).cloned());
-            let Some(person_id) = person_id else {
-                continue;
-            };
-            let Some(mail) = mails.iter().find(|mail| mail.sisu_person_id == person_id) else {
-                continue;
-            };
-            matched.push((row.id, mail));
-        }
-        if !matched.is_empty() {
-            let mail_ids: Vec<Uuid> = matched.iter().map(|(_, mail)| mail.id).collect();
-            let reports = credit_registration_account_linking_emails::get_send_status_reports(
-                conn, &mail_ids,
-            )
-            .await?;
-            for (row_id, mail) in matched {
-                if let Some(report) = reports.get(&mail.id) {
-                    statuses.insert(row_id, linking_email_status_of(report, mail));
-                }
-            }
-        }
-    }
+    let mut statuses = linking_email_statuses(conn, course_id, &waiting).await?;
 
     Ok(rows
         .into_iter()

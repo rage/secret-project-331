@@ -1,18 +1,13 @@
 /**
- * Shared vocabulary for the credit-registration specs: the seeded identifiers, the storage states the
- * setup project prepares, and reading the ledger through the same API the UI uses.
+ * Shared vocabulary for the credit-registration specs in `src/tests/credit-registration/`.
  *
- * Two facts shape every spec in `src/tests/credit-registration/`:
+ * `credit-registrar` and `suotar-syncer` tick every phase unscoped in the test deployment, so a row
+ * moves without any spec asking: assert "reaches state X", never "is still in state Y" unless only
+ * this spec can leave Y (nothing ripens a mock submission on its own).
  *
- * - **The pipeline is alive.** `credit-registrar` and `suotar-syncer` run in the test deployment and
- *   tick every phase unscoped every few seconds. A row can therefore move without any spec asking,
- *   so an assertion is always "reaches state X", never "is still in state Y" — unless Y can only be
- *   left by something the spec itself controls, such as a mock submission that nothing has ripened.
- * - **Isolation is data partitioning.** One database, one pod, N workers. Each spec file owns a
- *   combination of students and courses; nothing resets between tests. Never assert a global count.
- *
- * Which is only safe while every file's share is written down. Claim a free range here before
- * writing a spec, rather than reading sixteen file headers to find out what is taken:
+ * Isolation is data partitioning — one database, N workers, nothing resets between tests. Never
+ * assert a global count. Reading another file's rows is fine; writing to a range you do not own
+ * breaks its owner's assertions, so claim a free range here first.
  *
  * | Student numbers | File                             | Courses it writes to        |
  * | --------------- | -------------------------------- | --------------------------- |
@@ -32,9 +27,6 @@
  * | `9000014xx`     | suotar-fast-track-linking        | not written yet             |
  * | `9000015xx`     | suotar-in-course-banner          | not written yet             |
  * | `9000016xx`     | suotar-student-profile           | none (reads seeded rows)    |
- *
- * A file that only reads another's rows is welcome to, and several do. Writing to a range you do not
- * own is what breaks, since the owner asserts on the outcome.
  */
 
 import type { APIRequestContext, Page } from "@playwright/test"
@@ -54,12 +46,12 @@ export const ADMIN_COURSE_SLUG = "credit-registration-admin"
 export const IMPORT_OUTCOMES_COURSE_SLUG = "credit-registration-import-outcomes"
 export const BACKFILL_COURSE_SLUG = "credit-registration-backfill"
 
-/** The same courses by id, mirroring the `*_COURSE_ID` constants in `seed_credit_registration.rs`. */
+/** Must match the `*_COURSE_ID` constants in `seed_credit_registration.rs`. */
 export const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
 export const BACKFILL_COURSE_ID = "c5ed17ea-0003-4a5e-9e6e-c0de00000003"
 export const STATES_COURSE_ID = "c5ed17ea-0007-4a5e-9e6e-c0de00000007"
 
-/** University course codes, which is what the mock Suotar keys its world on. */
+/** University course codes: what the mock Suotar keys its world on. */
 export const CRS_101 = "CRS-101"
 export const CRS_ADMIN_101 = "CRS-ADMIN-101"
 
@@ -80,13 +72,9 @@ export const linkStudentNumberUrl = (token: string): string =>
   `${ORIGIN}/link-student-number/${token}`
 
 /**
- * The seeded students whose sessions `global.setup.spec.ts` stores. They are created by the seed
- * rather than by the setup, and the seed hashes the local part of the address as the password, so the
- * setup needs nothing from this list but the addresses.
- *
- * Only the students a spec logs in as. The rest of the fixtures — the already-registered backfill
- * student, the failed completion, the mailed-to-the-cap addresses — are read through an admin or
- * teacher view and never sign in.
+ * Seeded students whose sessions `global.setup.spec.ts` stores; only the ones some spec signs in as.
+ * The seed creates the accounts and hashes the local part of the address as the password, so the
+ * setup needs nothing but the addresses.
  */
 export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
   "credit-registration-backfill-2@example.com",
@@ -108,10 +96,8 @@ export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
 export type CreditRegistrationStudentEmail = (typeof CREDIT_REGISTRATION_STUDENT_EMAILS)[number]
 
 /**
- * The stored session for a seeded student, for `test.use({ storageState })`.
- *
- * Typed to the list above rather than to `string`: a spec naming an address the setup does not log in
- * fails at compile time instead of at run time with a missing-file error.
+ * Stored session for a seeded student, for `test.use({ storageState })`. Typed to the list above so
+ * an address the setup never logs in fails to compile rather than at run time on a missing file.
  */
 export const seededStudentStorageState = (email: CreditRegistrationStudentEmail): string =>
   `src/states/${email}.json`
@@ -120,11 +106,8 @@ const DIALOG_STATE_SELECTOR = `[data-testid="dialog-decision-state"]`
 const CONSENT_DIALOG = "credit-registration-consent"
 
 /**
- * Waits for the course-material dialog chain to settle on the consent dialog.
- *
- * The sentinel rather than the dialog itself: the gate is
- * `credit_registration_enabled_for_course && !asked`, and both halves are answered by queries that
- * may still be in flight, so looking for the buttons directly races the decision.
+ * Waits on the dialog-chain sentinel rather than the consent buttons: both halves of the gate are
+ * answered by queries that may still be in flight, so looking for the buttons races the decision.
  */
 export const waitForCreditRegistrationConsentDialog = (page: Page): Promise<void> =>
   page
@@ -160,9 +143,8 @@ export interface MyCreditRegistration {
 }
 
 /**
- * Reads JSON from an endpoint that is expected to answer, and reports the status and the body when it
- * does not. Shared with `creditRegistrationAdmin.ts`; a spec proving a refusal calls `request.get`
- * itself and asserts on the status.
+ * Throws with the status and the body on any non-2xx; a spec proving a refusal calls `request.get`
+ * itself.
  */
 export const getJson = async <T>(
   request: APIRequestContext,
@@ -176,10 +158,6 @@ export const getJson = async <T>(
   return (await response.json()) as T
 }
 
-/**
- * A percent-encoded query string, or nothing at all when every filter was left out. Keys whose value
- * is undefined are dropped, so a caller passes its filter object as it stands.
- */
 export const queryString = (
   params: Record<string, string | number | boolean | undefined>,
 ): string => {
@@ -198,11 +176,7 @@ export const myCreditRegistrations = (
 ): Promise<MyCreditRegistration[]> =>
   getJson<MyCreditRegistration[]>(request, `${CREDIT_REGISTRATIONS_API}/my`)
 
-/**
- * The one live registration the logged-in student has on `courseSlug`.
- *
- * Live meaning not superseded: a replaced attempt is history and nothing actionable happens on it.
- */
+/** The one live (not superseded) registration the logged-in student has on `courseSlug`. */
 export const myRegistrationOnCourse = async (
   request: APIRequestContext,
   courseSlug: string,
@@ -237,9 +211,8 @@ export const waitForRegistrationState = (
   )
 
 /**
- * The whole call log rather than the default window: the log holds two thousand entries and a live
- * pipeline fills it, so a short scan would let an older call fall out and turn "exactly one import"
- * into a false pass.
+ * Scans the whole log rather than the default window: a live pipeline fills it, and an older call
+ * falling out of a short scan turns "exactly one import" into a false pass.
  */
 const CALL_LOG_SCAN = 2000
 
@@ -276,7 +249,6 @@ export const countMockCallsForStudent = async (
   endpoint?: MockSuotarEndpoint,
 ): Promise<number> => (await mockCallsForStudent(request, studentNumber, endpoint)).length
 
-/** Reads the legacy pull stream as an authorized registrar would. */
 export const legacyPullStream = async (
   request: APIRequestContext,
   courseIdentifier: string,

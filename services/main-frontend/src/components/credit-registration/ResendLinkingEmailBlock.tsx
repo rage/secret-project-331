@@ -56,10 +56,7 @@ const QUEUED_TONE = "info" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const REFUSED_TONE = "warning" as const
 
-/**
- * The teacher's one linking-mail action. Every refusal is reported as it came back: the per-person
- * caps are not overridable here, and a teacher who needs one lifted has to ask an admin.
- */
+/** The per-person caps are not overridable here, so a refusal is reported as it came back. */
 const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
   const { t, i18n } = useTranslation()
   const [result, setResult] = useState<ResendLinkingEmailResult | null>(null)

@@ -69,11 +69,8 @@ RETURNING id
     Ok(res.id)
 }
 
-/// Makes the module's live realisations exactly `wanted`, soft-deleting the rest.
-///
-/// A soft delete rather than a flag flip: `active = false` means "configured but not polled now",
-/// which is not the same as a realisation the teacher removed, and the counters of a removed one
-/// should stop being read.
+/// Makes the module's live realisations exactly `wanted`, soft-deleting the rest rather than setting
+/// `active = false`, which means "configured but not polled now".
 pub async fn replace_for_course_module(
     conn: &mut PgConnection,
     course_module_id: Uuid,
@@ -148,13 +145,13 @@ ORDER BY cm.order_number,
     Ok(res)
 }
 
-/// The id `list-by-course` echoes back for one realisation. Derived rather than stored: a listing
-/// request needs no ledger row, and this keeps the realisation greppable in both call logs.
+/// The id `list-by-course` echoes back for one realisation. Derived rather than stored, so the
+/// realisation stays greppable in both call logs without a ledger row.
 pub fn listing_request_item_id(realisation_id: Uuid) -> String {
     format!("cur-{realisation_id}")
 }
 
-/// A realisation to list, with the two facts the `list-by-course` request needs.
+/// A realisation and the module facts a `list-by-course` request for it needs.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RealisationToList {
     pub id: Uuid,
@@ -167,8 +164,7 @@ pub struct RealisationToList {
 
 /// The realisations one discovery iteration takes, stalest first.
 ///
-/// Ordering only: due-ness comes from the phase's own interval, never from `last_listed_at`, so one
-/// run cannot make another run's realisation look handled.
+/// Ordering only: due-ness comes from the phase's own interval, never from `last_listed_at`.
 pub async fn get_stalest_for_listing(
     conn: &mut PgConnection,
     limit: i64,
@@ -204,10 +200,8 @@ LIMIT $1
     Ok(res)
 }
 
-/// Every active realisation of one course, unpaginated and in no particular order.
-///
-/// For a one-shot lookup that must not miss any of them, unlike [`get_stalest_for_listing`], which
-/// pages by staleness for the scheduler and is wrong for "is this person on the roster right now".
+/// Every active realisation of one course, unpaginated: unlike [`get_stalest_for_listing`], which
+/// pages by staleness for the scheduler, this one must not miss any of them.
 pub async fn get_active_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -239,10 +233,8 @@ ORDER BY cmsr.id
     Ok(res)
 }
 
-/// One active realisation's counters from its last discovery run, with the course it belongs to.
-///
-/// Point-in-time, not a windowed sum: the phase overwrites the row whole, so these numbers describe
-/// the last run and nothing else. Every surface that renders them has to say so.
+/// One active realisation's counters from its last discovery run. Point-in-time, not a windowed sum:
+/// the phase overwrites the row whole, so every surface rendering them has to say so.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RealisationDiscoveryReport {
     pub id: Uuid,
@@ -296,6 +288,24 @@ ORDER BY c.name,
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// Records that a listing was attempted for a realisation whose roster never arrived. The timestamp
+/// moves so an always-failing realisation cycles to the back of the queue; the counters are left
+/// alone because zeroing them would make a failed listing read as an empty course.
+pub async fn mark_listing_attempted(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE course_module_suotar_realisations
+SET last_listed_at = now()
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn record_listing_outcome(

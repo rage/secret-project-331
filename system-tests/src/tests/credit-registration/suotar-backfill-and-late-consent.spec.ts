@@ -16,9 +16,8 @@ import { pollUntil } from "@/utils/waitingUtils"
 
 /**
  * Owns the `credit-registration-backfill` course outright and student numbers `9000011xx`. Turning the
- * flag on is a one-way, run-wide change that materialises rows for every student on the course, so
- * this file is serial and no other spec may touch that course — dashboard assertions about the
- * resulting wave included, since a parallel worker races the flip.
+ * flag on is a one-way, run-wide change that materialises a row for every student on the course, so
+ * this file is serial and no other spec may touch that course or assert on the resulting wave.
  */
 test.describe.configure({ mode: "serial" })
 
@@ -59,9 +58,9 @@ test.describe("The teacher opts the module in", () => {
       { description: "the backfill wave to materialise" },
     )
 
-    // Three, not four: re-pushing a course's whole history is the failure this predicate exists to
-    // prevent, and a row that ends up `duplicate` is not an acceptable substitute for never
-    // existing. The failed completion is not waiting for anything either.
+    // Three, not four: re-pushing a course's whole history is what this predicate prevents,
+    // and a row that ends up `duplicate` is no substitute for never existing. The failed
+    // completion waits for nothing either.
     expect(rows.total_count).toBe(3)
     const emails = rows.data.map((row) => row.email)
     expect(emails).not.toContain(ALREADY_REGISTERED_EMAIL)

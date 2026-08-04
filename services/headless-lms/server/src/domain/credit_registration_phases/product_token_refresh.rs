@@ -1,8 +1,7 @@
 //! The `product-token-refresh` phase: keeping the open university product access tokens current.
 //!
-//! Load-bearing beyond its own counters. The token is what turns "you have no active enrolment" into
-//! a link the student can actually follow, so a stale token is kept when a refresh fails: a link
-//! built from a slightly old token beats no link at all.
+//! A stale token is kept when a refresh fails: the token turns "you have no active enrolment" into
+//! a link the student can follow, and a slightly old link beats no link at all.
 
 use headless_lms_models::course_module_suotar_configurations::get_stalest_product_ids_for_enabled_modules;
 use headless_lms_models::credit_registration_events::scrub_text;
@@ -122,8 +121,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     })
 }
 
-/// Products have no ledger row, so the id is derived from the product itself; they are distinct
-/// within a batch by construction.
+/// Products have no ledger row, so the id comes from the product itself; distinct within a batch by
+/// construction.
 fn request_item_id(open_university_product_id: &str) -> String {
     format!("oup-{open_university_product_id}")
 }

@@ -32,7 +32,7 @@ import { StudentPillCell } from "./StudentPillCell"
 
 const PLACEHOLDER = "-"
 
-/** Stable empty index so the column memo does not rebuild on every render before the fetch lands. */
+/** Stable identity so the column memo does not rebuild on every render before the fetch lands. */
 const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 
 type CompletionRow = Record<string, unknown> & {
@@ -124,8 +124,7 @@ const StatusCell: React.FC<{
 }> = ({ registered, needsReview, creditRegistration }) => {
   const { t } = useTranslation()
   const status = registered ? t("registered") : PLACEHOLDER
-  // The credit registration badge replaces the legacy yes/no: on an opted-in module the ledger knows
-  // more than "registered somewhere", including why nothing has happened yet.
+  // The ledger also says why nothing has happened yet, so its badge wins over the legacy yes/no.
   const showStatus = !creditRegistration && (registered || !needsReview)
   return (
     <div className={statusCellClass}>

@@ -1,5 +1,3 @@
-import { expect, test } from "@playwright/test"
-
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import {
@@ -16,6 +14,8 @@ import {
   waitForCreditRegistrationConsentDialog,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
+import { makeRegistrationDueNow } from "@/utils/creditRegistrationAdmin"
+import { expect, test } from "@/utils/fixtures"
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
 import {
   runImportSubmissionTick,
@@ -29,10 +29,6 @@ import {
 /**
  * Owns student numbers `9000001xx`. Doubles as the integration test of the tick endpoints and the
  * mock control API, so nothing else in this directory is trustworthy until it passes.
- *
- * The pipeline is alive in the test deployment, so every state assertion here is "reaches", except
- * where only this spec can cause the move: nothing ripens a mock submission on its own, so a row
- * cannot become registered until this spec transitions the submission.
  */
 const STUDENT_EMAIL = "credit-registration-not-consented@example.com"
 const STUDENT_NUMBER = "900000103"
@@ -42,6 +38,7 @@ test.use({ storageState: seededStudentStorageState(STUDENT_EMAIL) })
 
 test("Student consents, links student number, gets automatically registered end to end", async ({
   page,
+  adminApi,
 }) => {
   const scope = { userEmail: STUDENT_EMAIL }
 
@@ -65,19 +62,21 @@ test("Student consents, links student number, gets automatically registered end 
     ])
   })
 
-  await test.step("The completion is submitted exactly once", async () => {
+  const submitted = await test.step("The completion is submitted exactly once", async () => {
     await runResolveEnrolmentsTick(page.request, scope)
     await runImportSubmissionTick(page.request, scope)
-    const submitted = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    const row = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
       "awaiting_verification",
     ])
-    expect(submitted.student_facing_status).toBe("waiting_for_sisu")
+    expect(row.student_facing_status).toBe("waiting_for_sisu")
     expect(await countMockCallsForStudent(page.request, STUDENT_NUMBER, "import_attainments")).toBe(
       1,
     )
+    return row
   })
 
   await test.step("Polling does not report success before the study registry does", async () => {
+    await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
     const row = await myRegistrationOnCourse(page.request, SUOTAR_COURSE_SLUG)
     expect(row.state).toBe("awaiting_verification")
@@ -86,6 +85,7 @@ test("Student consents, links student number, gets automatically registered end 
 
   await test.step("Once the study registry confirms, the row is registered", async () => {
     await transitionMockSuotarSubmissionsFor(page.request, STUDENT_NUMBER, "registered", CRS_101)
+    await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
     const registered = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
       "registered",

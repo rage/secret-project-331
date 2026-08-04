@@ -16,13 +16,7 @@ const lineCss = css`
   font-size: var(--font-size-1);
 `
 
-/**
- * The one line a student is told about the linking mail, and only where they are blocked on opening
- * it. `queued` and `retrying` render nothing: a line about a mail that is a minute away buys a
- * support ticket and nothing else.
- *
- * Never claims delivery. We hand the message to a relay and cannot see an inbox.
- */
+/** Says nothing while the mail is queued or retrying, and never that it was delivered. */
 const LinkingEmailLine: React.FC<LinkingEmailLineProps> = ({ linkingEmail }) => {
   const { t, i18n } = useTranslation()
   if (!linkingEmail) {

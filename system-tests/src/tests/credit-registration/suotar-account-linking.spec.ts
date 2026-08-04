@@ -36,8 +36,8 @@ test("A preview consumes nothing, and confirming links the number to the logged-
 
   const confirm = page.getByTestId("link-student-number-confirm-button")
   await expect(confirm).toBeVisible()
-  // The three facts the confirmation page exists to show: the token carries no account, so this
-  // display is the only thing standing between a forwarded email and the wrong account.
+  // The token carries no account, so this display is all that stands between a forwarded email and
+  // the wrong account.
   await expect(page.getByText("900000201")).toBeVisible()
   await expect(page.getByText("Zzyzx Linkvalid")).toBeVisible()
   await expect(page.getByText(CLAIMER_EMAIL)).toBeVisible()

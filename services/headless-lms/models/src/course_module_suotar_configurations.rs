@@ -22,9 +22,8 @@ pub struct CourseModuleSuotarConfiguration {
     pub config_check_message: Option<String>,
 }
 
-/// The open university products whose access tokens are worth refreshing: those configured on an
-/// enabled, unpaused module, stalest first. One product can back several modules, so each appears
-/// once.
+/// The products whose access tokens are worth refreshing: those configured on an enabled, unpaused
+/// module, stalest first. One product can back several modules, so each appears once.
 pub async fn get_stalest_product_ids_for_enabled_modules(
     conn: &mut PgConnection,
     limit: i64,

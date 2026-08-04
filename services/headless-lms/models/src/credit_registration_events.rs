@@ -152,8 +152,7 @@ fn scrub_free_text(text: &str) -> String {
         .into_owned()
 }
 
-/// Best-effort removal of personal data from a message rather than a body. Same rules; the
-/// scrubber's input is JSON and an error message is a bare string.
+/// Scrubs a bare error message with the same rules as a JSON body.
 pub fn scrub_text(text: &str) -> String {
     scrub_free_text(text)
 }
@@ -272,8 +271,7 @@ RETURNING id
     Ok(res.id)
 }
 
-/// Inserts the same event on many rows in one round trip — for a bulk action (a student's own
-/// change, an admin's) that touches every registration of an account identically.
+/// Inserts the same event on many rows in one round trip.
 pub async fn insert_many(
     conn: &mut PgConnection,
     credit_registration_ids: &[Uuid],

@@ -1,11 +1,7 @@
 //! Addressed faults: what can go wrong that the world's own data cannot express.
 //!
-//! A fault names four things — the endpoint, the stage, what it matches and the effect. Predicates
-//! are AND-ed and order-independent, which is what lets the mock record *which single predicate*
-//! failed to match instead of leaving an author guessing why a fault never fired.
-//!
-//! No HTTP and no Redis: `explainFault` has to be able to run a fault against a hypothetical
-//! request with neither in the way.
+//! Predicates are AND-ed and order-independent, so a miss can name the single predicate that failed.
+//! No HTTP and no Redis: `explainFault` runs a fault against a hypothetical request with neither.
 
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
 
@@ -67,9 +63,8 @@ impl OwnerRef {
     }
 }
 
-/// An owner turned into the keys the wire actually carries, resolved once when the fault is armed.
-/// Resolving at match time is forbidden: a fault whose meaning changes because the user linked in
-/// the meantime is unassertable.
+/// An owner turned into the keys the wire carries, resolved once at arm time: a fault whose meaning
+/// changed because the user linked in the meantime would be unassertable.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResolvedOwner {
@@ -128,7 +123,7 @@ pub enum Effect {
 }
 
 impl Effect {
-    /// Derived from the effect kind, never declared: a descriptor accepting both `level: item` and
+    /// Derived from the kind, never declared: a descriptor naming both `level: item` and
     /// `kind: connectionReset` is nonsense.
     pub fn is_request_shaped(&self) -> bool {
         !matches!(self, Self::ItemLevel { .. })
@@ -217,7 +212,7 @@ pub struct FaultSpec {
     #[serde(default)]
     pub lifetime: Lifetime,
     /// Required to arm the one combination that would otherwise pin a double submission into a
-    /// green build. Named after what it proves so nobody sets it absent-mindedly.
+    /// green build.
     #[serde(default)]
     pub proves_double_submission: bool,
 }
@@ -258,8 +253,8 @@ impl Fault {
     }
 }
 
-/// The address keys one request item carries, after the working-set load has filled in whatever the
-/// wire did not.
+/// The address keys one request item carries, after the working-set load filled in what the wire
+/// did not.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ItemAddress {
     pub request_item_id: String,
@@ -272,7 +267,7 @@ pub struct ItemAddress {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FaultMatch {
     Fires,
-    /// Names the one predicate that failed, which is the whole point of the predicate-list shape.
+    /// The key of the predicate that failed.
     Missed(&'static str),
 }
 
@@ -282,8 +277,6 @@ impl FaultMatch {
     }
 }
 
-/// Matches a fault against one item. Used for item-shaped effects and for evaluating one item of a
-/// batch.
 pub fn matches_item(
     fault: &Fault,
     endpoint: SuotarEndpoint,
@@ -308,9 +301,8 @@ pub fn matches_item(
     FaultMatch::Fires
 }
 
-/// Matches a fault against a whole request. A request-shaped effect fires only when **every** item
-/// resolves to the fault's owner: on a mixed batch it would otherwise kill rows nobody armed
-/// anything for, and their imports land in the mock while their client sees a dead connection.
+/// A request-shaped effect fires only when **every** item resolves to the fault's owner: on a mixed
+/// batch it would otherwise kill rows nobody armed anything for.
 pub fn matches_request(
     fault: &Fault,
     endpoint: SuotarEndpoint,
@@ -336,9 +328,8 @@ pub fn matches_request(
     }
 }
 
-/// Each half of an owner constrains only the keys the item carries. A `{user, course}` owner is one
-/// object a spec also passes as a tick scope, so on `list-by-course` — which carries no student
-/// number — the course half alone decides.
+/// Each half constrains only the keys the item carries, so on `list-by-course` — which carries no
+/// student number — the course half alone decides.
 fn owner_matches(owner: &ResolvedOwner, item: &ItemAddress) -> bool {
     let mut constrained = false;
     if owner.user.is_some()
@@ -380,9 +371,8 @@ impl FaultProblem {
     }
 }
 
-/// Address keys an endpoint can resolve, which is not the same as the fields its body carries:
-/// verify's body holds only a submitted attainment id, and the working set reads the person behind
-/// it.
+/// What an endpoint can resolve, not what its body carries: verify's body holds only a submitted
+/// attainment id, and the working set reads the person behind it.
 pub fn resolvable_keys(endpoint: SuotarEndpoint) -> &'static [&'static str] {
     match endpoint {
         SuotarEndpoint::ResolvePersons => &["studentNumber", "owner"],
@@ -394,19 +384,16 @@ pub fn resolvable_keys(endpoint: SuotarEndpoint) -> &'static [&'static str] {
     }
 }
 
-/// The classification a client is entitled to read as "transient, retry me".
-///
-/// Read from the state machine rather than restated: a second copy of the class list would drift,
-/// and the guard below would silently stop guarding.
+/// Read from the state machine rather than restated, so this guard cannot drift from the class it
+/// guards.
 fn is_retryable_transient_code(code: &str) -> bool {
     headless_lms_models::library::credit_registration::classification::is_retryable_transient_wire_code(
         code,
     )
 }
 
-/// Whether the endpoint's contract lists a transient code among its per-item results at all.
-/// `resolve-enrolments` and `import` do not: for those two the transient failure exists only in the
-/// request-level form.
+/// Whether the endpoint's contract lists a transient code among its per-item results;
+/// `resolve-enrolments` and `import` carry it only in the request-level form.
 fn carries_item_level_transient(endpoint: SuotarEndpoint) -> bool {
     matches!(
         endpoint,
@@ -498,10 +485,8 @@ pub fn validate(
         ));
     }
 
-    // A code the endpoint cannot carry is a response Suotar could never send, so a spec arming one
-    // teaches the client to handle an impossible body and a green suite certifies it. Naming an
-    // unexpected code is otherwise allowed on purpose; only the transient class is refused, because
-    // it is the one that tells a client to retry.
+    // Naming an unexpected code is allowed on purpose; only the transient class is refused, because
+    // it is the one that would teach a client to retry a body Suotar could never have sent.
     if matches!(effect, Effect::ItemLevel { .. })
         && effect.code().is_some_and(is_retryable_transient_code)
         && !carries_item_level_transient(endpoint)
@@ -559,9 +544,6 @@ mod tests {
         }
     }
 
-    /// An import that holds the attainment and still tells the client to retry is the double
-    /// submission. Both post-commit stages have to be covered, or one word of the fault reaches the
-    /// guarded state with nothing refusing it.
     #[test]
     fn a_retryable_code_after_the_import_write_is_refused_unless_it_is_the_point() {
         for stage in [Stage::AfterWrite, Stage::Respond] {
@@ -575,9 +557,8 @@ mod tests {
         assert!(validate(&predicates(Stage::RequestGate), &transient(false), false).is_ok());
     }
 
-    /// The two endpoints whose contract has no transient item code refuse one at every stage, and
-    /// the double-submission flag does not buy a way past it: it excuses a double submission, not a
-    /// response shape Suotar cannot produce.
+    /// The double-submission flag excuses a double submission, not a response shape Suotar cannot
+    /// produce.
     #[test]
     fn an_item_level_transient_is_refused_where_the_contract_carries_none() {
         for endpoint in [

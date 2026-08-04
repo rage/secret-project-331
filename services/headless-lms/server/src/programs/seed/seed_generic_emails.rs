@@ -207,14 +207,10 @@ pub async fn seed_generic_emails(
     Ok(())
 }
 
-/// The mail that carries a student-number linking link.
-///
-/// Every placeholder is passed on the delivery row, because the recipient is addressed at the study
-/// registry's address and may have no account here at all. The "you received this because" line is
-/// not decoration: the message is unsolicited from the recipient's point of view.
-///
-/// A migration cannot insert a template row using an enum value it adds itself, so in dev and tests
-/// the `credit_registration_account_linking` templates come only from here.
+/// The mail that carries a student-number linking link. Every placeholder comes from the delivery
+/// row because the recipient may have no account here, and the "you received this because" line has
+/// to stay because the message is unsolicited. A migration cannot insert a row using an enum value
+/// it adds itself, so in dev and tests these templates come only from here.
 async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
     info!("inserting credit registration account linking emails");
 

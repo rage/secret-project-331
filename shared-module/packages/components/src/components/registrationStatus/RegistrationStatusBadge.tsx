@@ -11,12 +11,11 @@ import {
 
 export interface RegistrationStatusBadgeProps {
   state: RegistrationStatusState
-  /** The translated label; this component never invents copy. */
+  /** The translated label. */
   children: React.ReactNode
   className?: string
 }
 
-/** A registration's state as a pill, using the same shapes and tones as the stepper's markers. */
 export const RegistrationStatusBadge: React.FC<RegistrationStatusBadgeProps> = ({
   state,
   children,

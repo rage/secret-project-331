@@ -10,9 +10,5 @@ use super::{PhaseContext, PhaseScope};
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
     let mut conn = ctx.pool.acquire().await?;
     let mirrored = mirror_successes_to_legacy_ledger(&mut conn, scope, LEGACY_MIRROR_LIMIT).await?;
-    Ok(PhaseRunOutcome {
-        items_processed: mirrored.try_into().unwrap_or(i32::MAX),
-        items_failed: 0,
-        error: None,
-    })
+    Ok(PhaseRunOutcome::processed(mirrored))
 }

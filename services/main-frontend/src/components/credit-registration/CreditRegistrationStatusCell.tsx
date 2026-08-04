@@ -22,7 +22,6 @@ const triggerCss = css`
   text-align: left;
 `
 
-/** A module's registration in a table cell: the badge, and the detail behind it one click away. */
 const CreditRegistrationStatusCell: React.FC<Props> = ({ registration }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)

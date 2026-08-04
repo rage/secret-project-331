@@ -1,14 +1,9 @@
 //! Re-running the account-linking send path for one person on one course.
 //!
 //! Not a phase: no schedule, no heartbeat, no circuit-breaker bookkeeping — one manual click must not
-//! be able to trip the workers' breaker. It reuses the phase context because it makes the same
-//! `list-by-course` call the `enrolment-discovery` phase does.
-//!
-//! Two properties this exists to preserve. The addresses come from the study registry, not from the
-//! ledger, so a resend can only reach an address the pipeline itself would have reached — and it is
-//! only ever useful when the registry holds an address we have not mailed. And the claim goes through
-//! [`claim_linking_mails`], the single writer of the ledger, so both caps and the dedup guard apply
-//! exactly as they do to the worker. Nothing here can relax them.
+//! be able to trip the workers' breaker. The addresses come from the study registry rather than the
+//! ledger, and the claim goes through [`claim_linking_mails`], so the caps and dedup guard apply
+//! exactly as they do to the worker.
 
 use headless_lms_models::course_module_suotar_realisations::{
     get_active_for_course, listing_request_item_id,
@@ -23,7 +18,7 @@ use uuid::Uuid;
 
 use super::{CreditRegistrationPhase, PhaseContext, listed_person_addresses, worker_name};
 
-/// What one resend attempt did. Disjoint, and every variant is something the caller can say out loud.
+/// What one resend attempt did.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LinkingMailResendOutcome {
     /// A slot was claimed; the `link-emails` phase queues the message on its next run.
@@ -68,8 +63,7 @@ pub async fn resend_linking_mail(
         return Ok(LinkingMailResendOutcome::NotOnTheCourseRoster);
     }
 
-    // A course can hold more realisations than one `list-by-course` request may carry, so this
-    // asks in as many requests as it takes rather than silently dropping the rest of the roster.
+    // A course can hold more realisations than one `list-by-course` request may carry.
     let mut person = None;
     for chunk in items.chunks(SuotarEndpoint::ListByCourse.max_batch_size()) {
         let response = ctx

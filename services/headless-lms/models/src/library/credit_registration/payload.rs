@@ -1,7 +1,5 @@
-//! The frozen copy of what we submit.
-//!
-//! Written once, before the row leaves enrolment resolution, and never rewritten: a teacher
-//! regrading a completion afterwards must not silently change something already sent.
+//! The frozen copy of what we submit: written once before the row leaves enrolment resolution and
+//! never rewritten, so a later regrade cannot silently change something already sent.
 
 use chrono::{Datelike, NaiveDate, Weekday};
 use headless_lms_utils::services::suotar::SuotarEnrolment;
@@ -47,8 +45,7 @@ pub struct PayloadSources<'a> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct BuiltPayload {
     pub snapshot: PayloadSnapshot,
-    /// Set when the module's credits did not fit the enrolment's range. Recorded rather than
-    /// refused: a rejection over a rounding difference helps nobody.
+    /// Set when the module's credits did not fit the enrolment's range; recorded, not refused.
     pub clamped_credits_from: Option<f32>,
 }
 
@@ -56,8 +53,8 @@ pub fn build_payload_snapshot(
     completion: &CompletionFacts,
     sources: PayloadSources<'_>,
 ) -> Result<BuiltPayload, CreditRegistrationErrorCode> {
-    // The last line of defence for "never push a failure": materialize filters these out and the
-    // precondition recompute blocks a row regraded downward, but this is what goes on the wire.
+    // The last line of defence for "never push a failure", behind materialize's filter and the
+    // precondition recompute: this is what goes on the wire.
     if !completion.passed {
         return Err(CreditRegistrationErrorCode::NoGradeScaleMapping);
     }
@@ -102,8 +99,8 @@ fn clamp_credits(credits: f32, enrolment: Option<&SuotarEnrolment>) -> (f32, Opt
     let Some(range) = enrolment.map(|enrolment| &enrolment.credits) else {
         return (credits, None);
     };
-    // f64::clamp panics if min > max; select_enrolment already refuses such a range, but a wire
-    // value must never be able to crash the worker regardless of what upstream guarantees.
+    // Not f64::clamp, which panics if min > max: select_enrolment refuses such a range, but a wire
+    // value must not be able to crash the worker whatever upstream guarantees.
     let clamped = f64::from(credits).max(range.min).min(range.max) as f32;
     if clamped == credits {
         (credits, None)
@@ -122,13 +119,9 @@ fn attainment_language(completion_language: &str) -> String {
         .to_lowercase()
 }
 
-/// The attainment date as the university reckons it. A completion at 23:30 UTC on the 31st is the
-/// 1st in Helsinki, and this date lands in an official transcript.
-///
-/// Finland is UTC+2, and UTC+3 under the EU's summer-time rule: from 01:00 UTC on the last Sunday
-/// of March to 01:00 UTC on the last Sunday of October. Written out rather than read from a
-/// timezone database, which this crate does not carry; it needs revisiting only if the EU drops
-/// summer time.
+/// The attainment date as the university reckons it, which is the date an official transcript gets:
+/// a completion at 23:30 UTC on the 31st is the 1st in Helsinki. The EU summer-time rule is written
+/// out rather than read from a timezone database, which this crate does not carry.
 pub fn helsinki_date(instant: DateTime<Utc>) -> NaiveDate {
     let offset = chrono::Duration::hours(if in_eu_summer_time(instant) { 3 } else { 2 });
     (instant + offset).date_naive()
@@ -226,8 +219,6 @@ mod tests {
         );
     }
 
-    /// A rounding difference against the enrolment's range is worse to fail on than to adjust, so
-    /// the nearest bound is sent and the adjustment is recorded.
     #[test]
     fn credits_are_clamped_into_the_enrolments_range_rather_than_refused() {
         let enrolment = enrolment(1.0, 4.0);
@@ -271,8 +262,6 @@ mod tests {
         );
     }
 
-    /// Registering a failure into the study registry is something nobody asked for, and this is the
-    /// last place it could happen.
     #[test]
     fn a_failed_completion_never_becomes_a_payload() {
         assert!(build_payload_snapshot(&completion(false, Some(0)), sources(None)).is_err());
@@ -298,8 +287,6 @@ mod tests {
         assert_eq!(built.snapshot.grade_id, "4");
     }
 
-    /// The date on the transcript is the university's, not UTC's. Late-evening completions are the
-    /// whole reason this is not `date_naive()`.
     #[test]
     fn the_attainment_date_is_the_helsinki_date() {
         let winter_evening: DateTime<Utc> = "2026-01-31T23:30:00Z".parse().expect("valid instant");

@@ -15,6 +15,14 @@ import {
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
 import Sparkline from "@/components/credit-registration/admin/Sparkline"
+import { TONE } from "@/components/credit-registration/constants"
+import {
+  headingCss,
+  noteCss,
+  sectionCss,
+  sectionsCss,
+  tilesCss,
+} from "@/components/credit-registration/styles"
 import { getCreditRegistrationOverviewQueryKey } from "@/generated/api/@tanstack/react-query.generated"
 import { adminPausePhase, adminResumePhase, adminRunPhaseNow } from "@/generated/api/sdk.generated"
 import type {
@@ -31,6 +39,7 @@ import {
   Button,
   Dialog,
   Disclosure,
+  Link,
   QueryResult,
   StatTile,
   Table,
@@ -38,56 +47,18 @@ import {
 } from "@/shared-module/components"
 
 // oxlint-disable-next-line i18next/no-literal-string
-const ALERT_TONE = "alert" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const WARNING_BADGE = "warning" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const NEUTRAL_BADGE = "neutral" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const SUCCESS_BADGE = "success" as const
-/** The explorer filters the tiles and chips deep-link with. */
-// oxlint-disable-next-line i18next/no-literal-string
 const ATTENTION_QUERY = "?needs_admin_attention=true"
 // oxlint-disable-next-line i18next/no-literal-string
 const STATE_QUERY = "?state="
 // oxlint-disable-next-line i18next/no-literal-string
 const ERROR_CODE_QUERY = "?error_code="
-/** Days of the daily series the table lists; the sparkline draws the whole window. */
 const THROUGHPUT_TABLE_DAYS = 14
-/** The window whose per-endpoint numbers sit beside each endpoint's standing. */
 const HOURLY_WINDOW_SECS = 3600
 const SECONDS_PER_DAY = 86_400
 // oxlint-disable-next-line i18next/no-literal-string
 const UTC = "UTC"
 // oxlint-disable-next-line i18next/no-literal-string
 const DAY_FORMAT = "yyyy-MM-dd"
-
-const sectionsCss = css`
-  display: grid;
-  gap: 2rem;
-`
-
-const sectionCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
-const headingCss = css`
-  font-weight: 500;
-  margin: 0;
-`
-
-const noteCss = css`
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-  margin: 0;
-`
-
-const tilesCss = css`
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-`
 
 const chipsCss = css`
   display: flex;
@@ -132,14 +103,14 @@ const StateSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ over
         <>
           <div className={chipsCss}>
             {rows.map((row) => (
-              <a
+              <Link
                 key={row.state}
                 className={chipCss}
                 href={`${creditRegistrationRegistrationsRoute()}${STATE_QUERY}${row.state}`}
               >
                 <AdminStateBadge state={row.state} />
                 <span>{row.count}</span>
-              </a>
+              </Link>
             ))}
           </div>
           <p className={noteCss}>
@@ -163,12 +134,12 @@ const AttentionSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ 
           label={t("label-credit-registration-needs-attention")}
           value={overview.needs_admin_attention_count}
           href={`${creditRegistrationRegistrationsRoute()}${ATTENTION_QUERY}`}
-          {...includeIf(overview.needs_admin_attention_count > 0, { tone: ALERT_TONE })}
+          {...includeIf(overview.needs_admin_attention_count > 0, { tone: TONE.ALERT })}
         />
         <StatTile
           label={t("label-credit-registration-stuck")}
           value={stuckTotal}
-          {...includeIf(stuckTotal > 0, { tone: ALERT_TONE })}
+          {...includeIf(stuckTotal > 0, { tone: TONE.ALERT })}
         />
         <StatTile
           label={t("label-credit-registration-oldest-waiting")}
@@ -237,7 +208,7 @@ const ThroughputSection: React.FC<{ overview: CreditRegistrationOverview }> = ({
         <StatTile
           label={t("label-credit-registration-failed")}
           value={totals.failed}
-          {...includeIf(totals.failed > 0, { tone: ALERT_TONE })}
+          {...includeIf(totals.failed > 0, { tone: TONE.ALERT })}
         />
       </div>
       <Sparkline
@@ -255,8 +226,7 @@ const ThroughputSection: React.FC<{ overview: CreditRegistrationOverview }> = ({
             columns={[
               {
                 header: t("label-day"),
-                // `row.day` is a UTC DATE_TRUNC bucket; formatting it in the browser's zone would
-                // shift the date west of UTC.
+                // `row.day` is a UTC bucket; the browser's zone would shift the date.
                 cell: (row) => formatInTimeZone(row.day, UTC, DAY_FORMAT),
               },
               {
@@ -293,11 +263,11 @@ const ErrorCodeSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ 
             {
               header: t("label-error-code"),
               cell: (row) => (
-                <a
+                <Link
                   href={`${creditRegistrationRegistrationsRoute()}${ERROR_CODE_QUERY}${row.error_code}`}
                 >
                   <code>{row.error_code}</code>
-                </a>
+                </Link>
               ),
             },
             {
@@ -327,12 +297,13 @@ const StudyRegistrySection: React.FC<{
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-study-registry")}</h2>
       <div className={chipsCss}>
-        <Badge tone={breaker.open ? WARNING_BADGE : SUCCESS_BADGE}>
+        {/* Closed is neutral, not a success: this breaker says nothing about the workers' calls. */}
+        <Badge tone={breaker.open ? TONE.WARNING : TONE.NEUTRAL}>
           {breaker.open
             ? t("credit-registration-admin-breaker-open", { seconds: breaker.open_for_secs ?? 0 })
             : t("credit-registration-admin-breaker-closed")}
         </Badge>
-        <Badge tone={NEUTRAL_BADGE}>
+        <Badge tone={TONE.NEUTRAL}>
           {t("credit-registration-admin-breaker-failures", {
             failures: breaker.consecutive_failures,
             limit: breaker.trips_after_consecutive_failures,
@@ -379,16 +350,16 @@ const StudyRegistrySection: React.FC<{
 const PhaseHeartbeat: React.FC<{ phase: CreditRegistrationPhaseStatus }> = ({ phase }) => {
   const { t } = useTranslation()
   if (phase.paused_at) {
-    return <Badge tone={WARNING_BADGE}>{t("credit-registration-admin-phase-paused")}</Badge>
+    return <Badge tone={TONE.WARNING}>{t("credit-registration-admin-phase-paused")}</Badge>
   }
   if (!phase.implemented) {
-    return <Badge tone={NEUTRAL_BADGE}>{t("credit-registration-admin-phase-not-built")}</Badge>
+    return <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-phase-not-built")}</Badge>
   }
   if (!phase.last_heartbeat_at) {
-    return <Badge tone={NEUTRAL_BADGE}>{t("credit-registration-admin-phase-never-reported")}</Badge>
+    return <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-phase-never-reported")}</Badge>
   }
   return (
-    <Badge tone={phase.heartbeat_late ? WARNING_BADGE : SUCCESS_BADGE}>
+    <Badge tone={phase.heartbeat_late ? TONE.WARNING : TONE.SUCCESS}>
       <RelativeTime at={phase.last_heartbeat_at} />
     </Badge>
   )
@@ -548,7 +519,6 @@ const PhaseSection: React.FC<{ phases: CreditRegistrationPhaseStatus[] }> = ({ p
   )
 }
 
-/** Whether something is wrong, and where, without scrolling. */
 const OverviewPage: React.FC = () => {
   const overviewQuery = useCreditRegistrationOverview()
   const suotarHealthQuery = useSuotarHealth()

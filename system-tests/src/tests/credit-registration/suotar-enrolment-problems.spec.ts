@@ -93,12 +93,9 @@ test.describe("A student enrolled both as a degree student and through the Open 
       "duplicate",
     ])
 
-    // Asserted against the enrolment actually chosen rather than against the state, because both
-    // enrolments would have submitted successfully and only the chosen id says the policy ran.
-    //
-    // The mock derives enrolment ids from an opaque UUIDv5 rather than the student number
-    // (mock_suotar/ids.rs), so the expected id is read back from the mock's own world instead of
-    // recomputed here.
+    // Both enrolments would have submitted successfully, so only the chosen id says the policy ran.
+    // It is read back from the mock's world because the mock derives enrolment ids from an opaque
+    // UUIDv5 rather than from the student number.
     const world = (await getMockSuotarWorld(page.request)) as {
       enrolments: { id: string; studentNumber: string; courseCode: string; realisationId: string }[]
     }

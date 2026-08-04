@@ -77,6 +77,9 @@ const realisationRowCss = css`
   margin-bottom: 0.75rem;
 `
 
+/** `useController` puts the new value in `target.value`, never in `target.checked`. */
+const isTurningOn = (event: { target: { value?: unknown } }): boolean => Boolean(event.target.value)
+
 const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseModuleFormFields => {
   return {
     name: module.name,
@@ -136,8 +139,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
     setActive(false)
     onSubmitForm(module.id, {
       ...fields,
-      // The new Checkbox only disables the control visually: unlike `register(name, { disabled })`,
-      // it does not drop the field from the submitted values, so this reproduces that exclusion.
+      // A disabled Checkbox still submits its value, unlike `register(name, { disabled })`.
       automatic_completion_requires_exam: fields.automatic_completion
         ? fields.automatic_completion_requires_exam
         : false,
@@ -358,10 +360,9 @@ const EditCourseModuleForm: React.FC<Props> = ({
               control={control}
               label={t("label-enable-registering-completion-to-uh-open-university")}
               rules={{
-                onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-                  // The two registration paths would put the same attainment in Sisu twice, and the
-                  // backend rejects the pair; clearing the other one keeps the form savable.
-                  if (event.target.checked) {
+                onChange: (event) => {
+                  // The backend rejects both registration paths at once.
+                  if (isTurningOn(event)) {
                     setValue("credit_registration.enabled", false)
                   }
                 },
@@ -415,8 +416,8 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 label={t("label-enable-credit-registration-via-suotar")}
                 description={t("description-enable-credit-registration-via-suotar")}
                 rules={{
-                  onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-                    if (event.target.checked) {
+                  onChange: (event) => {
+                    if (isTurningOn(event)) {
                       setValue("enable_registering_completion_to_uh_open_university", false)
                     }
                   },

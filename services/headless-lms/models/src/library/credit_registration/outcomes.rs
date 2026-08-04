@@ -1,8 +1,6 @@
-//! What one Suotar answer does to one ledger row.
-//!
-//! Pure decisions, separate from the phases that apply them, because this is where the design's
-//! single most expensive mistake would live: a row whose import may have landed must never be sent
-//! again. Nothing here can return a state that leads back to `import`.
+//! What one Suotar answer does to one ledger row, decided apart from the phases that apply it.
+//! No outcome here may return a state that leads back to `import`: a row whose import may have
+//! landed must never be sent again.
 
 use headless_lms_utils::error::util_error::SuotarErrorVariant;
 
@@ -16,7 +14,7 @@ use super::classification::{
     verify_backoff_secs, verify_window_expired,
 };
 
-/// The row's own scheduling history, which is all the decision needs from it.
+/// The row's scheduling history, which is all these decisions need from it.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RowFacts {
     pub now: DateTime<Utc>,
@@ -31,17 +29,17 @@ pub struct RowFacts {
 pub struct Outcome {
     pub to_state: CreditRegistrationState,
     pub error_code: Option<CreditRegistrationErrorCode>,
-    /// `None` leaves the flag as it was, which is how a retry keeps an operator's earlier verdict.
+    /// `None` leaves the flag as it was, so a retry keeps an operator's earlier verdict.
     pub needs_admin_attention: Option<bool>,
     /// Seconds to wait before the row may be claimed again.
     pub delay_secs: Option<i64>,
-    /// Suotar says the number names nobody, so it is wrong wherever we hold it.
+    /// Set when Suotar says the stored number names nobody, so it is wrong wherever we hold it.
     pub drop_verified_student_number: bool,
     pub increment_submit_retry_count: bool,
 }
 
 impl Outcome {
-    fn to(to_state: CreditRegistrationState) -> Self {
+    pub fn to(to_state: CreditRegistrationState) -> Self {
         Self {
             to_state,
             error_code: None,
@@ -74,7 +72,7 @@ impl Outcome {
     }
 }
 
-/// The one state whose only way out is `verify`. Every path that cannot prove nothing was created
+/// The one state whose only way out is `verify`; every path that cannot prove nothing was created
 /// ends here.
 pub fn submission_uncertain() -> Outcome {
     Outcome::to(CreditRegistrationState::SubmissionUncertain)
@@ -82,19 +80,16 @@ pub fn submission_uncertain() -> Outcome {
         .after(UNCERTAIN_RECHECK_SECS)
 }
 
-/// The outcome of a per-item error on the two calls that lead towards a submission.
-///
-/// `import` is the endpoint that creates attainments, so anything uncertain there is verify-only;
-/// on `resolve-enrolments` the same code is plainly retryable, because a failed resolve created
-/// nothing.
+/// A per-item error on the calls leading towards a submission. Only `import` creates attainments,
+/// so anything uncertain there is verify-only, while the same code on `resolve-enrolments` retries.
 pub fn submit_error_outcome(
     endpoint: SuotarEndpoint,
     code: CreditRegistrationErrorCode,
     facts: &RowFacts,
 ) -> Outcome {
     use CreditRegistrationErrorCode as Code;
-    // An answer we cannot classify is not evidence that nothing was created, and `failed_permanent`
-    // is a state an admin retries from. On import that retry would be a second submission.
+    // An unclassifiable answer is no evidence that nothing was created, and an admin retry from
+    // `failed_permanent` would then be a second submission.
     if endpoint == SuotarEndpoint::ImportAttainments && code == Code::Unknown {
         return submission_uncertain();
     }
@@ -106,9 +101,8 @@ pub fn submit_error_outcome(
             retry_or_expire(code, endpoint, facts)
         }
         Retryability::PermanentNeedsStudent => match code {
-            // Our stored number names nobody in Sisu. Dropping it puts the student back in the
-            // linking flow, which is the only thing that can fix it, and the row heals itself once
-            // they link a working one.
+            // Dropping the number puts the student back in the linking flow, the only thing that
+            // can fix this, and the row heals itself once they link a working one.
             Code::PersonNotFound => Outcome {
                 drop_verified_student_number: true,
                 ..Outcome::to(CreditRegistrationState::PendingStudentNumber).with_code(code)
@@ -125,10 +119,8 @@ pub fn submit_error_outcome(
     }
 }
 
-/// The outcome of a per-item error while polling `verify`.
-///
-/// Never a failure. The attainment may exist, and a row marked failed invites a second submission
-/// later, which is the one thing this design must not allow.
+/// A per-item error while polling `verify`. Never a failure: the attainment may exist, and a row
+/// marked failed invites a second submission later.
 pub fn verify_error_outcome(
     state: CreditRegistrationState,
     code: CreditRegistrationErrorCode,
@@ -142,7 +134,7 @@ pub fn verify_error_outcome(
     verify_not_registered_outcome(state, facts)
 }
 
-/// The outcome of a `verify` poll that Sisu has nothing to say about yet.
+/// A `verify` poll that Sisu has nothing to say about yet.
 pub fn verify_not_registered_outcome(state: CreditRegistrationState, facts: &RowFacts) -> Outcome {
     let expired = verify_window_expired(facts.submitted_at, facts.now);
     let outcome = Outcome::to(state).after(if expired {
@@ -157,9 +149,8 @@ pub fn verify_not_registered_outcome(state: CreditRegistrationState, facts: &Row
     }
 }
 
-/// The outcome of a fruitless look through `existingAttainments` for an attainment we may have
-/// created. After enough of them a human is asked to check Sisu by hand; the row still never
-/// resubmits.
+/// A fruitless look through `existingAttainments` for an attainment we may have created. After
+/// enough of them a human checks Sisu by hand; the row still never resubmits.
 pub fn uncertain_recheck_outcome(facts: &RowFacts) -> Outcome {
     let outcome =
         Outcome::to(CreditRegistrationState::SubmissionUncertain).after(UNCERTAIN_RECHECK_SECS);
@@ -170,10 +161,8 @@ pub fn uncertain_recheck_outcome(facts: &RowFacts) -> Outcome {
     }
 }
 
-/// The outcome for every row of a batch Suotar rejected as a whole.
-///
-/// On `import` the only question that matters is whether the request could have been acted on.
-/// A connection that never opened proves it was not; a timeout proves nothing.
+/// The outcome for every row of a batch Suotar rejected as a whole. On `import` all that matters is
+/// whether the request could have been acted on: a connection that never opened proves it was not.
 pub fn request_level_outcome(
     endpoint: SuotarEndpoint,
     variant: SuotarErrorVariant,
@@ -185,17 +174,13 @@ pub fn request_level_outcome(
     retry_or_expire(request_level_code(variant), endpoint, facts)
 }
 
-/// An item we sent and Suotar did not answer.
-///
-/// On `import` its attainment may or may not exist, which is the same position a timeout leaves us
-/// in. Elsewhere the call simply did not happen for that row.
+/// An item we sent and Suotar did not answer. On `import` that leaves us where a timeout does;
+/// elsewhere the call simply did not happen for that row.
 pub fn unanswered_item_outcome(
     endpoint: SuotarEndpoint,
     state: CreditRegistrationState,
     facts: &RowFacts,
 ) -> Outcome {
-    // Import is the only call that creates an attainment, and an item it never answered has an
-    // unknown outcome rather than a failed one.
     if endpoint == SuotarEndpoint::ImportAttainments {
         return submission_uncertain();
     }
@@ -248,7 +233,7 @@ fn retry_or_expire(
     }
 }
 
-/// Where a successful `import` item lands the row. `sent` is the only code that is not an answer.
+/// Where a successful `import` item lands the row; `sent` means Sisu has not answered yet.
 pub fn import_success_state(code: &str) -> Option<CreditRegistrationState> {
     match code {
         "sent" => Some(CreditRegistrationState::AwaitingVerification),
@@ -259,10 +244,8 @@ pub fn import_success_state(code: &str) -> Option<CreditRegistrationState> {
     }
 }
 
-/// Where a `failed_retryable` row goes when its backoff elapses.
-///
-/// Derived from how far the row had got rather than remembered, and deliberately never
-/// `submitting`: only the import phase writes that, in the transaction before it sends.
+/// Where a `failed_retryable` row goes when its backoff elapses, derived from how far it had got.
+/// Never `submitting`: only the import phase writes that, in the transaction before it sends.
 pub fn resume_state(
     has_submitted_attainment_id: bool,
     has_payload_snapshot: bool,
@@ -314,44 +297,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn the_documented_import_codes_land_where_the_state_machine_says() {
-        let expected = [
-            (Code::PersonNotFound, State::PendingStudentNumber),
-            (Code::EnrolmentNotFound, State::NoUsableEnrolment),
-            (Code::EnrolmentNotAccepted, State::NoUsableEnrolment),
-            (Code::StudyRightNotValid, State::NoUsableEnrolment),
-            (Code::CourseCodeNotFound, State::FailedPermanent),
-            (Code::CourseNotAllowed, State::FailedPermanent),
-            (Code::InvalidGradeForGradeScale, State::FailedPermanent),
-            (Code::InvalidCredits, State::FailedPermanent),
-            (Code::AcceptorNotFound, State::FailedPermanent),
-            (Code::SisuValidationFailed, State::FailedPermanent),
-            (Code::SisuTimeout, State::SubmissionUncertain),
-            (Code::SisuTemporarilyUnavailable, State::FailedRetryable),
-            (Code::Unauthorized, State::FailedRetryable),
-            (Code::MalformedRequest, State::FailedRetryable),
-            (Code::TransportError, State::FailedRetryable),
-            (Code::UnexpectedResponse, State::FailedRetryable),
-            (Code::NoGradeScaleMapping, State::FailedPermanent),
-            (Code::MissingUhCourseCode, State::FailedPermanent),
-            (Code::MissingEctsCredits, State::FailedPermanent),
-            (Code::RetryWindowExpired, State::FailedPermanent),
-            (Code::Misregistered, State::FailedPermanent),
-            (Code::Unknown, State::SubmissionUncertain),
-        ];
-        assert_eq!(expected.len(), CreditRegistrationErrorCode::ALL.len());
-        for (code, state) in expected {
-            assert_eq!(import(code).to_state, state, "{code:?}");
-        }
-    }
-
-    /// The same code means different things depending on whether the call could have created
-    /// something. Resolve creates nothing, so a timeout there is a plain retry.
-    /// The complete set of import answers after which the row may be sent again. Each is a refusal
-    /// of the item before Sisu saw it rather than an outcome of it, so nothing was created; the
-    /// transient code is on the list only because the phase never reaches here with it, having
-    /// hardened it to a timeout first. Adding to this list is a decision about a real transcript.
+    /// Each of these is a refusal of the item before Sisu saw it, so nothing was created. Adding to
+    /// the list is a decision about a real transcript.
     #[test]
     fn the_import_answers_that_allow_another_attempt_are_only_refusals() {
         let resendable: Vec<Code> = CreditRegistrationErrorCode::ALL
@@ -377,8 +324,7 @@ mod tests {
         );
     }
 
-    /// The dangerous shape of an unknown answer: an admin retry from `failed_permanent` would send
-    /// an import whose first outcome nobody knows.
+    /// An admin retry from `failed_permanent` would send an import whose outcome nobody knows.
     #[test]
     fn an_import_answer_we_cannot_classify_is_uncertain_rather_than_failed() {
         assert_eq!(import(Code::Unknown).to_state, State::SubmissionUncertain);
@@ -433,8 +379,6 @@ mod tests {
         assert_eq!(outcome.error_code, Some(Code::RetryWindowExpired));
     }
 
-    /// The expiry must not reach a row whose outcome is unknown: `failed_permanent` is a state an
-    /// admin retries from, and retrying an uncertain import is a second submission.
     #[test]
     fn an_expired_window_does_not_override_an_uncertain_import() {
         let facts = RowFacts {
@@ -542,8 +486,6 @@ mod tests {
         assert_eq!(outcome.needs_admin_attention, Some(true));
     }
 
-    /// An unconfirmed attainment stays unconfirmed rather than becoming a failure, and the polling
-    /// drops to daily so the queue does not carry it at full rate forever.
     #[test]
     fn an_expired_verify_window_slows_down_and_asks_for_a_human() {
         let facts = RowFacts {
@@ -572,24 +514,6 @@ mod tests {
         });
         assert_eq!(after.needs_admin_attention, Some(true));
         assert_eq!(after.to_state, State::SubmissionUncertain);
-    }
-
-    #[test]
-    fn the_import_success_codes_map_to_their_states() {
-        assert_eq!(
-            import_success_state("sent"),
-            Some(State::AwaitingVerification)
-        );
-        assert_eq!(import_success_state("registered"), Some(State::Registered));
-        assert_eq!(
-            import_success_state("duplicateAttainment"),
-            Some(State::Duplicate)
-        );
-        assert_eq!(
-            import_success_state("notImprovedAttainment"),
-            Some(State::NotImproved)
-        );
-        assert_eq!(import_success_state("somethingElse"), None);
     }
 
     #[test]

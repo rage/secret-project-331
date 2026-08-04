@@ -772,9 +772,8 @@ pub fn stream_by_course_module_id<'a>(
         .clone()
         .map(|o| o.id)
         .unwrap_or(Uuid::nil());
-    // Always excluded, on top of whichever registrar is asking: the flag-based NOT EXISTS below stops
-    // firing the moment a teacher turns `enable_credit_registration_via_suotar` back off, so a
-    // completion the push path already mirrored has to stay excluded independently of that flag.
+    // The flag-based NOT EXISTS below stops firing the moment a teacher turns
+    // `enable_credit_registration_via_suotar` back off, so the push registrar is always excluded.
     let excluded_registrar_ids = [study_module_registrar_id, SUOTAR_PUSH_REGISTRAR_ID];
 
     sqlx::query_as!(
@@ -797,6 +796,15 @@ WHERE course_module_id = ANY($1)
     WHERE cm.id = course_module_completions.course_module_id
       AND cm.enable_credit_registration_via_suotar
       AND cm.deleted_at IS NULL
+  )
+  -- A completion the push path has already sent stays out for good, whatever the flag above says now:
+  -- a pull that registered it again would put a second attainment on a real transcript.
+  AND NOT EXISTS (
+    SELECT 1
+    FROM credit_registrations cr
+    WHERE cr.course_module_completion_id = course_module_completions.id
+      AND cr.submitted_at IS NOT NULL
+      AND cr.deleted_at IS NULL
   )
   AND id NOT IN (
     SELECT course_module_completion_id

@@ -1,6 +1,5 @@
 //! The control command RPC and the three inspection GETs.
 //!
-//! One tagged enum in, one result union out: adding a capability is an enum variant on each side.
 //! `execute` is a plain async function so the seed can drive the same surface from Rust.
 
 use std::collections::BTreeMap;
@@ -163,8 +162,8 @@ pub struct RealisationUpsert {
     pub activity_period: DatePeriod,
     pub grade_scale_id: String,
     pub credits: CreditRange,
-    /// Null means the realisation has no acceptor, which is how `acceptorNotFound` is reached from
-    /// data alone. Nothing is derived for it.
+    /// Never derived: null means no acceptor, which is how `acceptorNotFound` is reached from data
+    /// alone.
     pub acceptor_person_id: Option<String>,
     pub open_university_product_id: Option<String>,
 }
@@ -285,9 +284,8 @@ pub struct DefaultsPatch {
     pub include_non_enrolled_in_result: Option<bool>,
     pub realisation_id_required: Option<bool>,
     pub static_grade_error_code: Option<String>,
-    /// Clears `staticGradeErrorCode` back to `None`. Needed because the patch field and the target
-    /// field are both `Option<String>`, so an absent key and an explicit `null` are indistinguishable
-    /// otherwise, and this is the one `setDefaults` field whose target itself may be `None`.
+    /// The one target field that may itself be `None`, so an absent key and an explicit `null` are
+    /// otherwise indistinguishable.
     #[serde(default)]
     pub clear_static_grade_error_code: bool,
 }
@@ -391,7 +389,6 @@ impl MockSuotarCommand {
     }
 }
 
-/// Runs one command. Plain async so the seed can call it in process if the HTTP path ever breaks.
 pub async fn execute(
     store: &MockSuotarStore,
     pool: &PgPool,
@@ -412,8 +409,7 @@ pub async fn execute(
 }
 
 async fn run(store: &MockSuotarStore, pool: &PgPool, command: MockSuotarCommand) -> Outcome {
-    // `reset { world }` installs nothing and mints no token: the next contract request builds the
-    // world lazily.
+    // `reset { world }` installs nothing: the next contract request builds the world lazily.
     if let MockSuotarCommand::Reset {
         scope: ResetScope::World,
     } = &command
@@ -658,9 +654,8 @@ async fn run(store: &MockSuotarStore, pool: &PgPool, command: MockSuotarCommand)
     }
 }
 
-/// Builds the entity map, upserts it and reindexes, then answers with the keys under `result_key`.
-/// The shared body behind every `Upsert*` command; `key_of` reads the id off the built entity, not
-/// the wire type, so a derived id (e.g. an enrolment's) is what comes back.
+/// The shared body behind every `Upsert*` command. `key_of` reads the id off the built entity rather
+/// than the wire type, so a derived id is what comes back under `result_key`.
 async fn upsert_command<U, T: Serialize>(
     store: &MockSuotarStore,
     generation: &str,
@@ -687,8 +682,7 @@ async fn upsert_command<U, T: Serialize>(
     Ok(serde_json::Value::Object(result))
 }
 
-/// The live generation, building the world lazily first if a command arrives before any contract
-/// request has.
+/// Builds the world lazily if a command arrives before any contract request has.
 async fn current_generation(
     store: &MockSuotarStore,
     pool: &PgPool,
@@ -731,8 +725,7 @@ async fn reset(store: &MockSuotarStore, generation: &str, scope: ResetScope) -> 
     }
 }
 
-/// Destructive with no undo: the world builder knows the seed's fixtures and nothing about persons
-/// a spec upserted, so there is no per-spec copy to restore from.
+/// Destructive with no undo: nothing keeps a copy of a person a spec upserted.
 async fn delete_persons(
     store: &MockSuotarStore,
     generation: &str,
@@ -782,8 +775,8 @@ async fn delete_persons(
     }))
 }
 
-/// Draws from a range disjoint from the seed's per-spec blocks. A convenience for scenarios and dev,
-/// not an isolation primitive.
+/// Draws from a range disjoint from the seed's per-spec blocks. A convenience, not an isolation
+/// primitive.
 async fn allocate_person(
     store: &MockSuotarStore,
     generation: &str,
@@ -838,8 +831,8 @@ async fn generate_roster(
             format!("`{realisation_id}` is not a realisation of `{course_code}`."),
         )
     })?;
-    // A spec index owns a hundred numbers, so six hundred never fit in one; the allocator range is
-    // the only place they can come from.
+    // A spec index owns only a hundred numbers, so a large roster has to come from the allocator
+    // range.
     let prefix = student_number_prefix.unwrap_or("99");
     let now = Utc::now();
     let validity = DatePeriod {
@@ -1143,7 +1136,7 @@ async fn resolve_owner(
         let Some(value) = half else { continue };
         let field = format!("{prefix}:{value}");
         let Some(keys): Option<OwnerKeys> = store.owner_keys(generation, &field).await? else {
-            // Never a silently inert fault: a fault that can never match is worth an afternoon.
+            // A fault that can never match must not be armed silently.
             let known = store.known_owner_refs(generation).await?.join(", ");
             return Err(CommandError::new(
                 "unknownOwner",
@@ -1418,8 +1411,7 @@ pub struct CommandDoc {
     pub command: &'static str,
     pub arguments: &'static str,
     pub result: &'static str,
-    /// False means the command reaches data its caller does not own, which makes it a dev and
-    /// manual-debugging command.
+    /// False means the command reaches data its caller does not own: dev and manual debugging only.
     pub parallel_safe: bool,
 }
 
@@ -1708,8 +1700,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
 mod tests {
     use super::*;
 
-    /// Serde names every variant it knows in its unknown-variant error, so the listing cannot
-    /// silently fall behind the enum.
+    /// Serde names every variant it knows in its unknown-variant error, which is where the expected
+    /// list comes from.
     fn variants_serde_knows() -> Vec<String> {
         let error = serde_json::from_value::<MockSuotarCommand>(json!({ "command": "\u{1}" }))
             .expect_err("an invented command tag must not deserialize");
@@ -1723,8 +1715,7 @@ mod tests {
             .collect()
     }
 
-    /// The shapes the hand-written Playwright client sends. Nothing generates these from the Rust
-    /// side, so a rename here is only caught by parsing them.
+    /// Nothing generates the Playwright client from the Rust side, so a rename is only caught here.
     #[test]
     fn the_shapes_the_typescript_client_sends_deserialize() {
         let armed: MockSuotarCommand = serde_json::from_value(json!({

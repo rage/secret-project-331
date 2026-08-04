@@ -147,8 +147,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const shouldShowAiUsageNotice =
     aiUsageNoticeAcknowledgementQuery.isSuccess && aiUsageNoticeAcknowledgementQuery.data === false
 
-  // Asked once per course, and only where there is something to register. `asked` covers a declined
-  // answer too, so "Not now" is remembered rather than re-asked on the next page load.
+  // `asked` covers a decline too, so "Not now" is not asked again on the next page load.
   const creditRegistrationConsentQuery = useCourseCreditRegistrationConsent(courseId ?? null)
   const creditRegistrationConsent = creditRegistrationConsentQuery.data
   const shouldAskCreditRegistrationConsent =

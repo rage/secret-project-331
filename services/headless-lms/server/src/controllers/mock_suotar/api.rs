@@ -1,11 +1,9 @@
 //! The six contract endpoints, one stage boundary at a time.
 //!
-//! Order per request: the credential, the parse, the item-keyed load, then the faults at `auth`,
-//! `requestGate` and `parse` — after the load, so a fault can name the rows one spec owns, and still
-//! before anything is written — then `resolve` per item, then `afterWrite` and `respond`. The
-//! write-back is one atomic pipeline that commits *before* the response — or the deliberate absence
-//! of one — leaves the process, which is what makes a timeout that landed distinguishable from a
-//! timeout that did not.
+//! Order per request: credential, parse, item-keyed load, the `auth`/`requestGate`/`parse` faults,
+//! `resolve` per item, then `afterWrite` and `respond`. The write-back commits before the response —
+//! or its deliberate absence — leaves the process, which is what makes a timeout that landed
+//! distinguishable from one that did not.
 
 use std::collections::BTreeSet;
 
@@ -24,8 +22,6 @@ use super::store::{MockSuotarStore, Preamble};
 use super::wire::{self, ItemStatus, RequestLevelError, ResponseItem};
 use super::world::{MissedFault, RecordedCall, RecordedFaults, RecordedItem, WorkingSet};
 
-/// Bodies are logged for debugging, not stored forever: the whole log is capped and thrown away
-/// with its generation.
 const RAW_BODY_LIMIT: usize = 8 * 1024;
 
 pub async fn resolve_persons(
@@ -307,9 +303,8 @@ async fn run(
     load(store, &generation, &parsed, &mut working).await?;
     parsed.enrich_addresses(&mut addresses, &working);
 
-    // The stages a real Suotar decides before it reads the body, evaluated here — after it —
-    // because narrowing a fault to the rows one spec owns costs the parse. Nothing has been written
-    // yet, so a fault at any of them still means "the request never landed".
+    // A real Suotar decides these before reading the body; evaluated after it here because narrowing
+    // a fault to the rows one spec owns costs the parse. Nothing is written yet either way.
     for stage in [Stage::Auth, Stage::RequestGate, Stage::Parse] {
         if let Some(effect) = runner.request_stage(endpoint, stage, &addresses).await?
             && let Some(terminal) = terminal(endpoint, &effect)
@@ -330,8 +325,6 @@ async fn run(
         }
     }
 
-    // The whole per-item order, so there is one place to look when a test asks why an item
-    // failed.
     let mut items = Vec::with_capacity(addresses.len());
     for (index, address) in addresses.iter().enumerate() {
         let fault = runner.item_stage(endpoint, Stage::Resolve, address).await?;
@@ -341,9 +334,8 @@ async fn run(
         }
     }
 
-    // The two post-commit stages, decided before anything moves. A request-shaped effect
-    // here replaces the answer the items would have formed; the log keeps the items either way,
-    // which is what makes a landed-but-unanswered import visible.
+    // A request-shaped effect here replaces the answer the items formed; the log keeps the items
+    // either way, which is what makes a landed-but-unanswered import visible.
     let mut answered_by_fault: Option<Terminal> = None;
     for stage in [Stage::AfterWrite, Stage::Respond] {
         if let Some(effect) = runner.request_stage(endpoint, stage, &addresses).await? {
@@ -458,7 +450,7 @@ fn credential_accepted(header: Option<&str>, expected: &str) -> bool {
         return true;
     }
     // `reqwest`'s `basic_auth()` base64-encodes, so which way the client builds the header must not
-    // matter. The scheme word itself is ignored: the token is what is checked.
+    // matter.
     base64::engine::general_purpose::STANDARD
         .decode(credential)
         .ok()
@@ -491,9 +483,7 @@ struct FaultRunner<'a> {
 }
 
 impl FaultRunner<'_> {
-    /// The first request-shaped fault matching this stage, in arm order. Later matches are recorded
-    /// as shadowed rather than applied: precedence is arm order, and "most specific wins" is a
-    /// made-up metric.
+    /// First match in arm order wins; later matches are recorded as shadowed rather than applied.
     async fn request_stage(
         &mut self,
         endpoint: SuotarEndpoint,
@@ -549,8 +539,8 @@ impl FaultRunner<'_> {
         Ok(None)
     }
 
-    /// Records only a fault that reached this endpoint and stage and then failed on one further
-    /// predicate: a fault that missed on three is not the one the author is looking for.
+    /// Only a fault that reached this endpoint and stage and then missed on one further predicate is
+    /// worth reporting.
     fn record_miss(
         &mut self,
         fault: &Fault,
@@ -570,9 +560,8 @@ impl FaultRunner<'_> {
         }
     }
 
-    /// The budget is drawn where the fault matches, and the returned value is the decision. Reading
-    /// a counter and deciding on the read is how two concurrent requests both spend the last of one
-    /// budget.
+    /// The decision is the value the draw returns: reading a counter and deciding on the read is how
+    /// two concurrent requests both spend the last of one budget.
     async fn draw(&mut self, fault: &Fault) -> anyhow::Result<bool> {
         let Some(budget) = fault.lifetime.budget() else {
             return Ok(true);
@@ -599,8 +588,8 @@ impl FaultRunner<'_> {
     }
 }
 
-/// An item-level effect replaces one item's outcome. A disclosed id is taken from the outcome the
-/// item already had, which is what makes "timed out, but it landed" expressible.
+/// A disclosed id is taken from the outcome the item already had, which is what makes "timed out, but
+/// it landed" expressible.
 fn item_effect_response(
     endpoint: SuotarEndpoint,
     address: &ItemAddress,
@@ -872,9 +861,8 @@ fn parse(
 
     if let ParsedRequest::Import(items) = &parsed {
         // A statically unknown grade id is a request-level error, so one poisoned item rejects the
-        // whole batch. That asymmetry is the contract's, and a client has to pre-validate.
-        // Suotar has not named a code for a statically unknown grade id; this is the escape hatch
-        // for the day it does.
+        // whole batch. Suotar has not named a code for it; the default is the escape hatch for the
+        // day it does.
         let grade_code = preamble
             .defaults
             .static_grade_error_code
@@ -956,8 +944,6 @@ mod tests {
         base64::engine::general_purpose::STANDARD.encode(value)
     }
 
-    /// The day-one handshake with the client: whichever way it builds the header, the mock must
-    /// accept it, and a wrong credential must still 401.
     #[test]
     fn every_shape_of_the_configured_credential_is_accepted() {
         let expected = "mock-suotar-token";

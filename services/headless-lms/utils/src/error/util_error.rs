@@ -60,9 +60,8 @@ pub enum SuotarErrorVariant {
 }
 
 impl SuotarErrorVariant {
-    /// Whether Suotar may have acted on the request. Only the three failures that prove it did not
-    /// are safe to re-send; an import that may have landed must be verified instead, because
-    /// re-sending puts a second attainment on a real transcript.
+    /// Whether Suotar may have acted on the request. An import that may have landed must be
+    /// verified rather than re-sent, or a transcript gets a second attainment.
     pub fn outcome_may_have_landed(self) -> bool {
         !matches!(
             self,

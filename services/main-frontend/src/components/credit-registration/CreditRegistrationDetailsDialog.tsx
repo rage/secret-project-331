@@ -60,8 +60,7 @@ const sectionHeadingCss = css`
 
 // oxlint-disable-next-line i18next/no-literal-string
 const STACKED = "stacked" as const
-// A support-established link rests on judgement rather than on proof of mailbox control, so it is
-// toned apart from one the student confirmed.
+// A support-established link rests on judgement, so it is toned apart from a confirmed one.
 // oxlint-disable-next-line i18next/no-literal-string
 const SUPPORT_LINK_TONE = "warning" as const
 // oxlint-disable-next-line i18next/no-literal-string
@@ -70,10 +69,6 @@ const CONFIRMED_LINK_TONE = "neutral" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const WAITING_FOR_STUDENT_NUMBER = "needs_student_number" as const
 
-/**
- * One student's registration for one module, as a teacher needs it when the student is standing in
- * front of them: where it stands, the number we hold in full, and what we can say about the mail.
- */
 const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, onClose }) => {
   const { t, i18n } = useTranslation()
   const detailsQuery = useQuery({
@@ -172,8 +167,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
             {details.events.map((event) => (
               <li className={timelineRowCss} key={event.id}>
                 <span className={timestampCss}>{new Date(event.created_at).toLocaleString()}</span>
-                {/* The ledger state and event kind are technical identifiers, deliberately not
-                    translated: they are what a teacher quotes when escalating to support. */}
+                {/* Deliberately untranslated: this is what a teacher quotes to support. */}
                 <span className={ledgerStateCss}>{event.to_state ?? event.kind}</span>
                 {event.message && <span>{event.message}</span>}
               </li>

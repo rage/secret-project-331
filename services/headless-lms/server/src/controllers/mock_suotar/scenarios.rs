@@ -1,12 +1,10 @@
 //! Named scenarios: small compositions of the control primitives, exposed as one command.
 //!
-//! Deliberately few. Per-spec fixtures come from the seed, which is the better mechanism for
-//! parallel specs, so a scenario earns its place only by composing something data alone cannot
-//! express — an armed fault — or by being a hands-free dev demo. Everything else stays a primitive.
+//! A scenario earns its place only by composing something data alone cannot express — an armed fault
+//! — or by being a hands-free dev demo; per-spec fixtures come from the seed instead.
 //!
-//! Every scenario writes the course unit for its `courseCode` whole, realisation and course
-//! behaviour included, so its caller has to own that course code. Each returns the identifiers it
-//! minted and the scope its rows are ticked with, so a spec restates nothing.
+//! Each writes the course unit for its `courseCode` whole, so its caller has to own that course code,
+//! and returns the identifiers it minted plus the scope its rows are ticked with.
 
 use std::collections::BTreeMap;
 
@@ -135,8 +133,8 @@ async fn timeout(
 ) -> Result<serde_json::Value, CommandError> {
     let mut base = plain(store, generation, args, Ripeness::Manual).await?;
     let student_number = string_field(&base, "studentNumber")?;
-    // `sisuTimeout` after the write leaves the world indistinguishable from a successful import,
-    // which is exactly the ground truth verify has to find. At `resolve` nothing landed.
+    // After the write, `sisuTimeout` leaves the world indistinguishable from a successful import; at
+    // `resolve` nothing landed.
     let fault_id = format!("timeout-{student_number}");
     arm(
         store,
@@ -193,8 +191,8 @@ async fn post_send_death(
     Ok(base)
 }
 
-/// A five-credit pass/fail realisation with an acceptor: every scenario here wants the course to be
-/// registrable, and differs in the fault it arms rather than in its data.
+/// A five-credit pass/fail realisation with an acceptor: the scenarios differ in the fault they arm,
+/// not in their data.
 async fn ensure_course(
     store: &MockSuotarStore,
     generation: &str,

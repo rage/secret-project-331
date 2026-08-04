@@ -20,6 +20,9 @@ import type {
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Dialog, Infobox, Select, TextArea } from "@/shared-module/components"
 
+import { TONE } from "../constants"
+import { noteCss } from "../styles"
+
 interface Props {
   registration: AdminCreditRegistrationRow
 }
@@ -36,9 +39,7 @@ const CANCELLED = "cancelled" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const CLEAR_ATTENTION = "clear_needs_admin_attention" as const
 // oxlint-disable-next-line i18next/no-literal-string
-const INFO_TONE = "info" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const WARNING_TONE = "warning" as const
+const CHECK_NOW = "check_now" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const SUBMISSION_UNCERTAIN = "submission_uncertain"
 
@@ -53,24 +54,14 @@ const formCss = css`
   gap: 0.75rem;
 `
 
-const noteCss = css`
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-  margin: 0;
-`
-
-/**
- * The one action an admin can take on a row: move it, or stop it asking for a human.
- *
- * A resubmit is the escape hatch the pipeline deliberately does not have. It is refused for a student
- * who has not consented, which is the case `misregistered` creates: that state sits outside the
- * automatic machinery, so nothing upstream has checked consent for it.
- */
+/** A resubmit is refused without consent, which is the case `misregistered` creates. */
 const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [result, setResult] = useState<AdminTransitionCreditRegistrationResult | null>(null)
+  const [appliedTarget, setAppliedTarget] =
+    useState<AdminCreditRegistrationTransitionTarget | null>(null)
   const { control, handleSubmit, watch } = useForm<Fields>({
     defaultValues: { to_state: READY_TO_SUBMIT, reason: "" },
   })
@@ -84,8 +75,9 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
       }),
     { notify: false },
     {
-      onSuccess: (data) => {
+      onSuccess: (data, fields) => {
         setResult(data)
+        setAppliedTarget(fields.to_state)
         setOpen(false)
         void Promise.all([
           queryClient.invalidateQueries({
@@ -104,19 +96,27 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
     return <p className={noteCss}>{t("credit-registration-admin-superseded-no-actions")}</p>
   }
 
+  const describeResult = (finished: AdminTransitionCreditRegistrationResult): string => {
+    if (finished.outcome === "refused_without_consent") {
+      return t("credit-registration-admin-transition-refused-without-consent")
+    }
+    if (appliedTarget === CHECK_NOW) {
+      return t("credit-registration-admin-check-now-applied")
+    }
+    return t("credit-registration-admin-transition-applied", { state: finished.state })
+  }
+
   return (
     <div className={rootCss}>
       {registration.state === SUBMISSION_UNCERTAIN && (
-        <Infobox tone={WARNING_TONE}>{t("credit-registration-admin-uncertain-warning")}</Infobox>
+        <Infobox tone={TONE.WARNING}>{t("credit-registration-admin-uncertain-warning")}</Infobox>
       )}
       <Button variant="secondary" size="medium" onClick={() => setOpen(true)}>
         {t("button-text-credit-registration-transition")}
       </Button>
       {result && (
-        <Infobox tone={result.outcome === "applied" ? INFO_TONE : WARNING_TONE}>
-          {result.outcome === "refused_without_consent"
-            ? t("credit-registration-admin-transition-refused-without-consent")
-            : t("credit-registration-admin-transition-applied", { state: result.state })}
+        <Infobox tone={result.outcome === "applied" ? TONE.INFO : TONE.WARNING}>
+          {describeResult(result)}
         </Infobox>
       )}
       <Dialog
@@ -140,6 +140,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
                 value: CLEAR_ATTENTION,
                 label: t("credit-registration-admin-target-clear-attention"),
               },
+              { value: CHECK_NOW, label: t("credit-registration-admin-target-check-now") },
             ]}
           />
           <TextArea

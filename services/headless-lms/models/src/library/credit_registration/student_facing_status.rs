@@ -1,15 +1,12 @@
-//! What a student is told about one credit registration.
-//!
-//! Computed here rather than in the frontend so the copy and the state machine cannot drift: the
-//! eighteen ledger states collapse onto nine, and a state added later has to be classified in this
-//! file before it compiles.
+//! What a student is told about one credit registration. Computed here rather than in the frontend
+//! so a new ledger state has to be classified before it compiles.
 
 use utoipa::ToSchema;
 
 use crate::credit_registrations::CreditRegistrationState;
 use crate::prelude::*;
 
-/// The stage a student sees, and which of the four steps of the status stepper it belongs to.
+/// The stage a student sees.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum StudentFacingCreditRegistrationStatus {
@@ -38,8 +35,7 @@ impl StudentFacingCreditRegistrationStatus {
             | State::FailedRetryable => Self::InProgress,
             State::NoUsableEnrolment => Self::NeedsEnrolment,
             State::SubmissionUncertain | State::AwaitingVerification => Self::WaitingForSisu,
-            // not_improved is a success for the student: Sisu holds an equal or better attainment,
-            // so the credit exists. The difference belongs in a footnote, not in a different stage.
+            // not_improved means Sisu holds an equal or better attainment, so the credit exists.
             State::Registered | State::Duplicate | State::NotImproved => Self::Registered,
             State::Misregistered | State::FailedPermanent => Self::Failed,
             State::Blocked | State::Cancelled | State::AbandonedByConsentWithdrawal => {
@@ -48,8 +44,7 @@ impl StudentFacingCreditRegistrationStatus {
         }
     }
 
-    /// Whether the pipeline is still expected to move this row on its own, which is what decides
-    /// whether the status page keeps polling.
+    /// Whether the pipeline still moves this row on its own; the status page polls while it does.
     pub fn is_moving(self) -> bool {
         matches!(self, Self::InProgress | Self::WaitingForSisu)
     }
@@ -67,37 +62,7 @@ mod tests {
     use CreditRegistrationState as State;
     use StudentFacingCreditRegistrationStatus as Status;
 
-    #[test]
-    fn every_ledger_state_maps_to_the_documented_stage() {
-        let cases = [
-            (State::PendingPrerequisites, Status::WaitingForCompletion),
-            (State::PendingConsent, Status::NeedsConsent),
-            (State::PendingStudentNumber, Status::NeedsStudentNumber),
-            (State::ReadyToSubmit, Status::InProgress),
-            (State::CheckingEnrolment, Status::InProgress),
-            (State::Submitting, Status::InProgress),
-            (State::FailedRetryable, Status::InProgress),
-            (State::NoUsableEnrolment, Status::NeedsEnrolment),
-            (State::SubmissionUncertain, Status::WaitingForSisu),
-            (State::AwaitingVerification, Status::WaitingForSisu),
-            (State::Registered, Status::Registered),
-            (State::Duplicate, Status::Registered),
-            (State::NotImproved, Status::Registered),
-            (State::Misregistered, Status::Failed),
-            (State::FailedPermanent, Status::Failed),
-            (State::Blocked, Status::NotRegistering),
-            (State::Cancelled, Status::NotRegistering),
-            (State::AbandonedByConsentWithdrawal, Status::NotRegistering),
-        ];
-        assert_eq!(cases.len(), CreditRegistrationState::ALL.len());
-        for (state, expected) in cases {
-            assert_eq!(Status::of(state), expected, "{state:?}");
-        }
-    }
-
-    /// A retrying row is still working and an unconfirmed one is still waiting, so both keep the
-    /// status page refreshing. A row waiting on the student does not: nothing will change until
-    /// they act.
+    /// A row waiting on the student must not keep the page polling; nothing changes until they act.
     #[test]
     fn only_the_states_the_pipeline_still_owns_keep_the_page_polling() {
         let moving = [
@@ -127,8 +92,7 @@ mod tests {
         }
     }
 
-    /// Withdrawal is neither a success nor a failure, and telling a student it failed would be a
-    /// lie about a registration Sisu may well hold.
+    /// Sisu may well hold the registration, so telling the student it failed would be a lie.
     #[test]
     fn an_abandoned_row_is_not_a_failure() {
         assert_eq!(

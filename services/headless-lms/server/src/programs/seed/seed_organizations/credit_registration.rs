@@ -1,8 +1,5 @@
-//! An organization of its own for the credit-registration fixtures.
-//!
-//! Isolation in the system-test suite is data partitioning — each spec file owns a distinct
-//! combination of users and courses — so this feature's courses live where nothing else seeds, and
-//! a dashboard spec has an organization it can assert totals within.
+//! An organization of its own for the credit-registration fixtures, so these courses live where
+//! nothing else seeds and a dashboard spec has an organization it can assert totals within.
 
 use std::sync::Arc;
 

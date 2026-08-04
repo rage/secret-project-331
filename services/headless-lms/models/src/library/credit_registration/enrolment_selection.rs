@@ -1,7 +1,6 @@
-//! Which of a student's enrolments the attainment is registered against.
-//!
-//! Degree before open university: a degree student who also holds an open-university study right
-//! wants the credit inside their degree.
+//! Which of a student's enrolments the attainment is registered against. Degree before open
+//! university: a degree student who also holds an open-university study right wants the credit
+//! inside their degree.
 
 use chrono::NaiveDate;
 use headless_lms_utils::services::suotar::{CreditRange, ExistingAttainment, SuotarEnrolment};
@@ -14,8 +13,7 @@ pub const DEGREE_KIND: &str = "degree";
 
 use super::grade_mapping::same_grade_scale;
 
-/// Why no enrolment could carry the attainment. Each one reads differently to the student, which is
-/// the point of keeping them apart.
+/// Why no enrolment could carry the attainment; each variant reads differently to the student.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NoUsableEnrolment {
     /// The registry knows of no enrolment at all for this student on this course.
@@ -53,17 +51,14 @@ impl NoUsableEnrolment {
     }
 }
 
-/// Everything the choice depends on besides the enrolments themselves.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct EnrolmentCriteria<'a> {
     pub attainment_date: NaiveDate,
     pub credits: f32,
-    /// The realisations a teacher configured for this module. One of them being enrolled on is the
-    /// strongest signal we have that this is the right enrolment.
+    /// Being enrolled on one of these is the strongest signal we have of the right enrolment.
     pub configured_realisation_ids: &'a [String],
 }
 
-/// Picks the enrolment to register against, or says why none can be used.
 pub fn select_enrolment<'a>(
     enrolments: &'a [SuotarEnrolment],
     criteria: EnrolmentCriteria<'_>,
@@ -78,8 +73,7 @@ pub fn select_enrolment<'a>(
     if accepted.is_empty() {
         return Err(NoUsableEnrolment::NotAccepted);
     }
-    // Checked here rather than paid for as a round trip: this is what studyRightNotValid would cost
-    // us to learn.
+    // Checked here rather than paid for as a round trip that comes back studyRightNotValid.
     let valid: Vec<&SuotarEnrolment> = accepted
         .into_iter()
         .filter(|enrolment| {
@@ -120,15 +114,11 @@ pub fn select_enrolment<'a>(
         .ok_or(NoUsableEnrolment::None)
 }
 
-/// How far an f32-sourced ECTS value may drift from the wire's f64 range before it counts as a
-/// mismatch rather than a widening artifact. Real credit amounts are never specified finer than 0.1,
-/// so this is orders of magnitude below any difference that should actually reject an enrolment.
+/// Slack for the f32-to-f64 widening. Real credit amounts are never finer than 0.1.
 const CREDITS_TOLERANCE: f64 = 1e-4;
 
-/// Whether an enrolment's registry-declared credit range can carry the module's credits.
-///
-/// A range with `min > max` is the registry's own data at fault, not something to clamp into, so it
-/// is never usable.
+/// Whether an enrolment's registry-declared credit range can carry the module's credits. A range
+/// with `min > max` is the registry's own data at fault, so it is never usable.
 fn credits_fit(range: &CreditRange, credits: f32) -> bool {
     if range.min > range.max {
         return false;
@@ -137,8 +127,7 @@ fn credits_fit(range: &CreditRange, credits: f32) -> bool {
     (range.min - CREDITS_TOLERANCE..=range.max + CREDITS_TOLERANCE).contains(&credits)
 }
 
-/// An attainment the registry already holds for this course unit, which makes our import pointless
-/// and a duplicate attainment on a transcript possible.
+/// An attainment the registry already holds for this course unit: importing would duplicate it.
 pub fn attainment_for_course_unit<'a>(
     existing: &'a [ExistingAttainment],
     course_unit_id: &str,
@@ -146,25 +135,29 @@ pub fn attainment_for_course_unit<'a>(
 ) -> Option<&'a ExistingAttainment> {
     existing.iter().find(|attainment| {
         attainment.state == ATTAINED_STATE
-            && (attainment.course_unit_id == course_unit_id
-                || attainment.assessment_item_id == assessment_item_id)
+            && (same_id(&attainment.course_unit_id, course_unit_id)
+                || same_id(&attainment.assessment_item_id, assessment_item_id))
     })
 }
 
-/// An attainment the registry already holds, for when there is no enrolment left to name which
-/// course unit it belongs to. The response this is read from is scoped to one student and one course
-/// code already (that request never carried a course-unit id), so any attained entry here is a
-/// duplicate regardless.
-pub fn any_attained(existing: &[ExistingAttainment]) -> Option<&ExistingAttainment> {
-    existing
-        .iter()
-        .find(|attainment| attainment.state == ATTAINED_STATE)
+/// A blank never matches: a response that omits an id must not thereby match every attainment.
+fn same_id(left: &str, right: &str) -> bool {
+    !left.is_empty() && left == right
 }
 
-/// The attainment a submission we lost track of would have produced.
-///
-/// Matched on what we sent rather than on the course unit, because this answers a narrower
-/// question: is the thing we may have created there?
+/// Any attainment the registry holds, for when no enrolment names the course unit. The response is
+/// scoped to one student and one course code already; the person is checked because nothing else
+/// here is.
+pub fn any_attained_by_person<'a>(
+    existing: &'a [ExistingAttainment],
+    sisu_person_id: &str,
+) -> Option<&'a ExistingAttainment> {
+    existing.iter().find(|attainment| {
+        attainment.state == ATTAINED_STATE && same_id(&attainment.person_id, sisu_person_id)
+    })
+}
+
+/// The attainment a submission we lost track of would have produced, matched on what we sent.
 pub fn attainment_matching_submission<'a>(
     existing: &'a [ExistingAttainment],
     attainment_date: NaiveDate,
@@ -286,8 +279,6 @@ mod tests {
         assert_eq!(chosen.id, "degree");
     }
 
-    /// The realisation a teacher configured beats even a degree enrolment: it is the strongest
-    /// statement anyone has made about which enrolment this module's work belongs to.
     #[test]
     fn a_configured_realisation_wins_over_the_kind() {
         let candidates = [
@@ -359,8 +350,6 @@ mod tests {
         assert!(attainment_for_course_unit(&existing, "hy-CU-1", "hy-AI-1").is_none());
     }
 
-    /// The recovery for a submission whose outcome we never learned. The registry may spell the
-    /// pass/fail scale the other way round, and missing the match would leave the row unresolvable.
     #[test]
     fn a_lost_submission_is_recognised_across_both_scale_spellings() {
         let existing = [attainment("sis-hyv-hyl", "1", 22)];

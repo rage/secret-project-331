@@ -1,11 +1,8 @@
-//! Default identifier derivations for the simulated world.
+//! Default identifier derivations for the simulated world. Every control upsert may pass an id
+//! verbatim instead, and the seed does for anything a spec asserts on.
 //!
-//! Defaults only: every control upsert may pass an id verbatim, and the seed does for anything a
-//! spec asserts on.
-//!
-//! No id the mock mints contains a student number: these ids reach the audited call log and the
-//! event details, and the scrubber's free-text scan only redacts bare digit runs — a student
-//! number formatted straight into an id would slip through as a `prefixed`-shaped value instead.
+//! `derived` never formats a student number into the id: these reach the audited call log and the
+//! event details, where the scrubber's free-text scan only redacts bare digit runs.
 
 use chrono::NaiveDate;
 
@@ -13,8 +10,7 @@ use crate::prelude::*;
 
 use super::world::RealisationKind;
 
-/// Namespace for every derived id, so the same inputs reproduce the same id across restarts and CI
-/// runs.
+/// Namespaces every derived id, so the same inputs reproduce the same id across restarts and CI runs.
 const MOCK_NAMESPACE: Uuid = Uuid::from_u128(0x005c_07a2_0001_4a5e_9e6e_c0de_0000_0001);
 
 pub fn person_id(student_number: &str) -> String {
@@ -29,8 +25,8 @@ pub fn assessment_item_id(course_code: &str, kind: RealisationKind) -> String {
     format!("hy-AI-{course_code}-{}", kind.as_str())
 }
 
-/// Per (course, kind) rather than per student: a realisation is a shared teaching event, and
-/// `list-by-course` returns its roster.
+/// Per (course, kind) rather than per student: a realisation is a shared teaching event whose roster
+/// `list-by-course` returns.
 pub fn realisation_id(course_code: &str, kind: RealisationKind) -> String {
     format!(
         "hy-opt-cur-{}-{}",

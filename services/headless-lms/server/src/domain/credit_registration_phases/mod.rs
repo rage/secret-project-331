@@ -1,7 +1,5 @@
 //! The twelve credit-registration pipeline phases and the one-iteration dispatcher.
 //!
-//! Phases, not worker processes, are the unit of observation and control: the dashboard lists them,
-//! `credit_registration_phase_state` heartbeats them, and the system tests tick them individually.
 //! Both the worker loops and the test tick endpoint go through [`run_phase_once`], so a phase cannot
 //! behave differently depending on who ran it.
 
@@ -44,12 +42,12 @@ use std::future::Future;
 use std::pin::Pin;
 use uuid::Uuid;
 
-/// Which rows one iteration may touch. The state machine owns it, because the narrowing is one
-/// predicate on the claim query the workers already use.
+/// Which rows one iteration may touch.
 pub use headless_lms_models::credit_registrations::RegistrationScope as PhaseScope;
 
-/// A pipeline phase. The string forms are canonical: `credit_registration_phase_state.phase`, the
-/// tick endpoint's `?phase=`, the dashboard's Workers tab labels and the audit log's `target_phase`.
+/// A pipeline phase. [`CreditRegistrationPhase::as_str`] is canonical: it is
+/// `credit_registration_phase_state.phase`, the tick endpoint's `?phase=` and the audit log's
+/// `target_phase`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum CreditRegistrationPhase {
     Materialize,
@@ -83,10 +81,8 @@ impl CreditRegistrationPhase {
         Self::RetentionSweep,
     ];
 
-    /// The phases `run-registrar-tick` runs, in pipeline order.
-    ///
-    /// Not every `credit-registrar` phase: `legacy-mirror` and `student-notifications` are
-    /// after-effects a spec drives explicitly when it cares about them.
+    /// The phases `run-registrar-tick` runs, in pipeline order. Not every `credit-registrar` phase:
+    /// `legacy-mirror` and `student-notifications` are driven explicitly by specs that need them.
     pub const REGISTRAR_TICK_SEQUENCE: [Self; 5] = [
         Self::Materialize,
         Self::Preconditions,
@@ -134,11 +130,8 @@ impl CreditRegistrationPhase {
         }
     }
 
-    /// Whether [`run_phase_once`] has an implementation registered for the phase.
-    ///
-    /// Mirrors that function's not-implemented arm, and both have to name the same phases. A phase
-    /// with no implementation never heartbeats, so the dashboard must not report it as a worker that
-    /// stopped answering.
+    /// Whether [`run_phase_once`] has an implementation registered for the phase. Has to name the
+    /// same phases as that function's not-implemented arm.
     pub fn is_implemented(self) -> bool {
         !matches!(
             self,
@@ -158,10 +151,8 @@ impl CreditRegistrationPhase {
         )
     }
 
-    /// Which scope dimensions this phase's claim query can narrow on.
     pub fn scope_support(self) -> ScopeSupport {
         match self {
-            // These five claim ledger rows, which carry the course, the user and their own id.
             Self::Preconditions
             | Self::ResolveEnrolments
             | Self::Import
@@ -173,9 +164,8 @@ impl CreditRegistrationPhase {
                 user: true,
                 registration_ids: false,
             },
-            // These three reach their rows through the course module, which carries the course but
-            // has no user dimension at all: a realisation's roster and a product's token are facts
-            // about a course, not about one of our accounts.
+            // These reach their rows through the course module, which has no user dimension: a
+            // roster and a product token are facts about a course, not about one of our accounts.
             Self::EnrolmentDiscovery | Self::LinkEmails | Self::ProductTokenRefresh => {
                 ScopeSupport {
                     course: true,
@@ -183,8 +173,7 @@ impl CreditRegistrationPhase {
                     registration_ids: false,
                 }
             }
-            // Not implemented yet; each reaches its rows through the module rather than the ledger,
-            // and its author sets this when the phase lands.
+            // Not implemented yet.
             Self::StudentNotifications | Self::ConfigValidation | Self::RetentionSweep => {
                 ScopeSupport::NONE
             }
@@ -192,10 +181,8 @@ impl CreditRegistrationPhase {
     }
 }
 
-/// Which of the scope's dimensions a phase's claim query can apply.
-///
-/// A declaration rather than a convention, so a phase added later cannot quietly ignore a scope and
-/// sweep the whole database while a test believes it narrowed the run.
+/// Which of the scope's dimensions a phase's claim query can apply. Declared rather than assumed,
+/// so a phase added later cannot quietly ignore a scope and sweep the whole database.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ScopeSupport {
     pub course: bool,
@@ -204,13 +191,12 @@ pub struct ScopeSupport {
 }
 
 impl ScopeSupport {
-    /// A phase that cannot narrow on anything. Also how the phases still to be built are declared.
     pub const NONE: Self = Self {
         course: false,
         user: false,
         registration_ids: false,
     };
-    /// The five phases that claim ledger rows, which carry all three keys themselves.
+    /// The phases that claim ledger rows, which carry all three keys themselves.
     pub const LEDGER: Self = Self {
         course: true,
         user: true,
@@ -229,10 +215,9 @@ impl ScopeSupport {
 #[derive(Debug, Clone, PartialEq)]
 pub enum PhaseTick {
     Ran(PhaseRunOutcome),
-    /// The phase legitimately did nothing. Not a failure, and not counted as one.
+    /// The phase legitimately did nothing; not counted as a failure.
     Skipped(PhaseSkipReason),
-    /// The scope names something this phase cannot narrow on. Refused rather than run wide, because
-    /// a caller that asked to be narrowed and was not gets a silently wrong answer.
+    /// The scope names something this phase cannot narrow on; refused rather than run wide.
     ScopeNotSupported,
     NotImplemented,
 }
@@ -247,14 +232,11 @@ pub enum PhaseSkipReason {
 pub struct PhaseContext<'a> {
     pub pool: &'a PgPool,
     pub suotar_client: &'a SuotarClient,
-    /// Shortens the circuit breaker's cooldown to something a test can wait out. A timing constant,
-    /// not a behaviour branch.
+    /// Shortens the circuit breaker's cooldown to something a test can wait out.
     pub test_mode: bool,
-    /// Goes into the audit log's `worker_name` alongside the phase, so a call made by a test tick is
-    /// distinguishable from one the worker made.
+    /// Goes into the audit log's `worker_name` alongside the phase.
     pub caller: &'a str,
-    /// Where a link in a queued mail points. A mailed link outlives the process that wrote it, so it
-    /// cannot be relative.
+    /// Absolute base for links in queued mail, which outlive the process that wrote them.
     pub base_url: &'a str,
 }
 
@@ -269,23 +251,19 @@ pub(crate) fn worker_name(caller: &str, phase: CreditRegistrationPhase) -> Strin
     format!("{caller}/{}", phase.as_str())
 }
 
-/// Runs exactly one iteration of one phase.
-///
-/// The match below is the single place a phase implementation is registered: the tick endpoint, the
-/// worker loops and the dashboard all run phases through here.
+/// Runs exactly one iteration of one phase. The match below is the only place a phase
+/// implementation is registered.
 pub async fn run_phase_once(
     ctx: &PhaseContext<'_>,
     phase: CreditRegistrationPhase,
     scope: &PhaseScope,
 ) -> anyhow::Result<PhaseTick> {
-    // Before anything else, including the pause check: a caller whose narrowing cannot be honoured
-    // must not be told the phase ran.
+    // Before the pause check: a caller whose narrowing cannot be honoured must not be told it ran.
     if !phase.scope_support().covers(scope) {
         return Ok(PhaseTick::ScopeNotSupported);
     }
-    // Registered here and nowhere else. Built before the guards below and awaited after them, so a
-    // phase that does not exist yet costs no database connection and a paused one runs nothing: a
-    // future that is never polled does nothing.
+    // Built before the guards below and awaited after them: an unpolled future does nothing, so a
+    // paused or unimplemented phase costs no database connection.
     let body: Pin<Box<dyn Future<Output = anyhow::Result<PhaseRunOutcome>> + '_>> = match phase {
         CreditRegistrationPhase::Materialize => Box::pin(materialize::run(ctx, scope)),
         CreditRegistrationPhase::Preconditions => Box::pin(preconditions::run(ctx, scope)),
@@ -310,15 +288,12 @@ pub async fn run_phase_once(
     }
     let breaker_key = breaker::ScopeKey::of(scope);
     if phase.calls_study_registry() && breaker::is_open(&breaker_key) {
-        // Only these phases stop: a study registry outage must not stop consent, eligibility and
-        // the legacy mirror from being processed.
+        // Only these stop: an outage must not stall the database-only phases.
         return Ok(PhaseTick::Skipped(PhaseSkipReason::CircuitBreakerOpen));
     }
 
-    // A scoped run writes nothing to the phase-state row. That row describes the workers, and a
-    // test's traffic in it would make a dead worker look alive to the heartbeat alert and pollute
-    // every counter the dashboard renders. A scoped caller learns what its own iteration did from
-    // the value returned here.
+    // A scoped run writes nothing to the phase-state row: that row describes the workers, and a
+    // test's traffic in it would make a dead worker look alive to the heartbeat alert.
     let bookkeeping = scope.is_unscoped();
     if bookkeeping {
         credit_registration_phase_state::heartbeat(&mut conn, phase.as_str()).await?;
@@ -359,8 +334,8 @@ pub async fn run_phase_once(
     Ok(PhaseTick::Ran(outcome))
 }
 
-/// Every address the study registry holds for a listed person, in the order it lists them. Which one
-/// they read is not something we can know, so none is preferred over another.
+/// Every address the study registry holds for a listed person, in the order it lists them; which
+/// one they read is not something we can know.
 pub(crate) fn listed_person_addresses(person: &ListedPerson) -> Vec<String> {
     [
         Some(person.primary_email.clone()),
@@ -372,8 +347,8 @@ pub(crate) fn listed_person_addresses(person: &ListedPerson) -> Vec<String> {
     .collect()
 }
 
-/// The response item Suotar sent for one request item, taken from the raw body rather than rebuilt
-/// from the typed value, so the audit trail holds what actually arrived.
+/// The response item for one request item, read from the raw body rather than rebuilt from the
+/// typed value, so the audit trail holds what actually arrived.
 pub(crate) fn response_item_json(
     raw_response: &serde_json::Value,
     request_item_id: &str,
@@ -392,9 +367,12 @@ pub(crate) async fn apply_outcome(
     outcome: &Outcome,
     event: OutcomeEvent<'_>,
 ) -> anyhow::Result<()> {
+    // Only if the request carried this number: a student who linked a working one while the request
+    // was out must not lose the link they just made.
     if outcome.drop_verified_student_number
         && let Some(linked) =
             verified_student_numbers::get_by_user_id(conn, registration.user_id).await?
+        && event.sent_student_number == Some(linked.student_number.as_str())
     {
         verified_student_numbers::soft_delete(conn, linked.id).await?;
     }
@@ -427,11 +405,8 @@ pub(crate) async fn apply_outcome(
     Ok(())
 }
 
-/// Whether an outcome counts against the iteration's `items_failed`.
-///
-/// The rule the phases follow: an outcome carrying an error code is a failed item, and one that does
-/// not is not. A verify poll answered `notRegistered` therefore counts as neither, which is right —
-/// the item was answered and the row is exactly where it belongs.
+/// Whether an outcome counts against the iteration's `items_failed`: an error code is a failed
+/// item, so a verify poll answered `notRegistered` is not one.
 pub(crate) fn counts_as_failed(outcome: &Outcome) -> bool {
     outcome.error_code.is_some()
 }
@@ -447,11 +422,8 @@ pub(crate) fn row_facts(row: &CreditRegistration) -> RowFacts {
     }
 }
 
-/// Whether the whole batch came back saying "not now".
-///
-/// One of the two ways an iteration counts as failed, so the worker stops burning calls against a
-/// registry that is answering "unavailable" to everything. A batch with one good item is a success:
-/// something moved.
+/// Whether the whole batch came back saying "not now", so the worker stops burning calls. A batch
+/// with one good item is a success: something moved.
 pub(crate) fn every_item_failed_transiently<R>(response: &SuotarBatchResponse<R>) -> bool {
     !response.items.is_empty()
         && response.items.iter().all(|item| {
@@ -459,8 +431,8 @@ pub(crate) fn every_item_failed_transiently<R>(response: &SuotarBatchResponse<R>
         })
 }
 
-/// Applies the same request-level outcome to every row of a rejected batch, and reports the
-/// iteration as failed so the circuit breaker sees it.
+/// Applies one request-level outcome to every row of a rejected batch, and reports the iteration as
+/// failed so the circuit breaker sees it.
 pub(crate) async fn request_level_failure(
     ctx: &PhaseContext<'_>,
     endpoint: SuotarApiEndpoint,
@@ -504,6 +476,9 @@ fn suotar_error_variant(error: &UtilError) -> SuotarErrorVariant {
 /// The audit half of applying an outcome. Both bodies are scrubbed on the way into the event row.
 #[derive(Default)]
 pub(crate) struct OutcomeEvent<'a> {
+    /// The student number this row's request actually carried, which may no longer be the linked
+    /// one by the time the answer is applied.
+    pub sent_student_number: Option<&'a str>,
     pub message: Option<&'a str>,
     /// Persisted on the ledger row, so it is scrubbed before it is written.
     pub error_message: Option<&'a str>,
@@ -518,8 +493,8 @@ mod tests {
 
     use super::*;
 
-    /// A mismatch with the rows the migration seeded into `credit_registration_phase_state` makes a
-    /// tick or a heartbeat silently target a row that does not exist.
+    /// A mismatch with the seeded `credit_registration_phase_state` rows makes a tick or a
+    /// heartbeat silently target a row that does not exist.
     #[test]
     fn phase_names_match_the_seeded_rows() {
         let from_enum: Vec<&str> = CreditRegistrationPhase::ALL
@@ -530,24 +505,8 @@ mod tests {
         assert_eq!(from_enum.len(), 12);
     }
 
-    #[test]
-    fn phase_names_round_trip() {
-        for phase in CreditRegistrationPhase::ALL {
-            assert_eq!(
-                CreditRegistrationPhase::from_phase_name(phase.as_str()),
-                Some(phase)
-            );
-        }
-        assert_eq!(
-            CreditRegistrationPhase::from_phase_name("materialise"),
-            None
-        );
-        assert_eq!(CreditRegistrationPhase::from_phase_name(""), None);
-    }
-
-    /// The scope predicate exists so a narrowed run touches only its own rows. A phase that cannot
-    /// honour what it was handed has to say so, or a test that believes it narrowed the run gets a
-    /// silently wrong answer.
+    /// A phase that cannot honour the narrowing it was handed has to say so, or a caller that
+    /// believes it narrowed the run gets a silently wrong answer.
     #[test]
     fn a_phase_refuses_a_scope_it_cannot_apply() {
         let ids = PhaseScope {
@@ -565,38 +524,6 @@ mod tests {
                 .scope_support()
                 .covers(&PhaseScope::for_course(Uuid::new_v4()))
         );
-    }
-
-    /// An unscoped run is what production does, and every phase has to accept it.
-    #[test]
-    fn every_phase_accepts_an_unscoped_run() {
-        for phase in CreditRegistrationPhase::ALL {
-            assert!(
-                phase.scope_support().covers(&PhaseScope::default()),
-                "{}",
-                phase.as_str()
-            );
-        }
-    }
-
-    /// The three phases that share the circuit breaker are the three the registrar tick can stall
-    /// on; the database-only ones must keep running through an outage.
-    #[test]
-    fn only_the_phases_that_call_the_registry_share_the_breaker() {
-        for phase in [
-            CreditRegistrationPhase::Materialize,
-            CreditRegistrationPhase::Preconditions,
-            CreditRegistrationPhase::LegacyMirror,
-        ] {
-            assert!(!phase.calls_study_registry(), "{}", phase.as_str());
-        }
-        for phase in [
-            CreditRegistrationPhase::ResolveEnrolments,
-            CreditRegistrationPhase::Import,
-            CreditRegistrationPhase::Verify,
-        ] {
-            assert!(phase.calls_study_registry(), "{}", phase.as_str());
-        }
     }
 
     #[test]

@@ -19,14 +19,13 @@ import {
  * paused so its rows hold still: a read model needs every state present at once, and the workers in
  * the test deployment would otherwise walk them onwards.
  *
- * `teacher@example.com` is a teacher on the fixture courses and on nothing else here, which is what
- * makes the authorization cases meaningful.
+ * `teacher@example.com` teaches the fixture courses and nothing else here, which is what makes the
+ * authorization cases meaningful.
  */
 test.use({ storageState: "src/states/teacher@example.com.json" })
 
 const STATES_COMPLETIONS_URL = `${ORIGIN}/manage/courses/${STATES_COURSE_ID}/students/completions`
 
-/** The first two frozen fixtures hold a student number, one by email and one established by hand. */
 const EMAIL_LINK_STUDENT_NUMBER = "900000801"
 const ADMIN_MANUAL_STUDENT_NUMBER = "900000802"
 
@@ -85,8 +84,8 @@ test("A teacher sees the registration state and the verified student number in f
 
   const listed = await listForCourse(page.request, STATES_COURSE_ID, 100)
 
-  // One row per registration state and one per error code, so a teacher's status column has every
-  // shape to render without waiting for some other spec to produce it.
+  // The fixture holds one row per registration state and one per error code, so the status column has
+  // every shape to render without waiting for another spec to produce it.
   expect(new Set(listed.map((row) => row.state)).size).toBeGreaterThan(5)
   expect(rowWithStudentNumber(listed, EMAIL_LINK_STUDENT_NUMBER).student_number_verified_via).toBe(
     "emailed_link",
@@ -103,11 +102,10 @@ test("Teacher resend is refused by the rate cap and cannot be overridden", async
       `${COURSE_CREDIT_REGISTRATIONS_API}/courses/${ADMIN_COURSE_ID}/resend-linking-email`,
       {
         data: {
-          // Its own capped person, so this refusal cannot turn into a success because the admin
-          // dashboard spec happened to override the cap for a different one first.
+          // Its own capped person, so the admin dashboard spec overriding the cap for a different one
+          // cannot turn this refusal into a success.
           student_number: "900000804",
-          // Accepted by the schema and ignored: there is no teacher-side override at all, so a
-          // teacher who guesses the admin payload gets the same refusal as one who does not.
+          // Accepted by the schema and ignored: there is no teacher-side override at all.
           override_rate_caps: true,
           reason: "System test: a teacher may not pass the cap.",
         },
@@ -134,9 +132,8 @@ test("A teacher of another course cannot read this course's registration", async
   const own = firstListedRow(await listForCourse(page.request, STATES_COURSE_ID, 1))
 
   await test.step("Authorization follows the row, not the course id in the path", async () => {
-    // Done at the API level deliberately: the UI never offers the link, so clicking around proves
-    // nothing about the check. A teacher elsewhere in the system is refused a row on a course they do
-    // not teach, whatever they name in the path.
+    // Done at the API level: the UI never offers the link, so clicking around proves
+    // nothing about the check.
     const context = await browser.newContext({
       storageState: "src/states/language.teacher@example.com.json",
     })

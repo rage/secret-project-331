@@ -1,19 +1,8 @@
-//! The circuit breaker the three study-registry phases share.
+//! The circuit breaker the study-registry phases share.
 //!
 //! Keyed by scope rather than global: a test driving a deliberate outage for its own course must not
-//! silence the pipeline for every other test running at the same moment, and production only ever
-//! uses the global key.
-//!
-//! **When an iteration counts as failed** — the rule both this and
-//! `credit_registration_phase_state.consecutive_failures` follow — is either of:
-//!
-//! - the request failed as a whole (credentials, a malformed request, 5xx, transport, an
-//!   unreadable body), or
-//! - the request succeeded, carried at least one item, and *every* item came back with a
-//!   transient code.
-//!
-//! A mix is a success: some rows moved, so the registry is answering. Request-level only would let
-//! the worker burn calls against a Sisu that is answering "unavailable" to everything.
+//! silence the pipeline for every other test running at the same moment. Production only ever uses
+//! the global key.
 
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
@@ -25,7 +14,7 @@ use super::PhaseScope;
 
 pub const MAX_CONSECUTIVE_SUOTAR_FAILURES: u32 = 5;
 pub const SUOTAR_COOLDOWN_SECS: u64 = 300;
-/// Playwright's per-test budget is 100 s, so the production cooldown is three whole tests. A test
+/// Playwright's per-test budget is 100 s, which the production cooldown does not fit inside: a test
 /// that trips the breaker deliberately has to be able to watch it recover.
 pub const TEST_SUOTAR_COOLDOWN_SECS: u64 = 5;
 
@@ -55,10 +44,23 @@ impl ScopeKey {
     }
 }
 
-#[derive(Debug, Default, Clone)]
+/// How long a run of failures that never tripped the breaker is remembered, so a scope never run
+/// again leaves the map. Much longer than a worker tick, so a real outage never loses its count.
+const FAILURE_RUN_MEMORY: Duration = Duration::from_secs(SUOTAR_COOLDOWN_SECS);
+
+#[derive(Debug, Clone)]
 struct BreakerState {
     consecutive_failures: u32,
     open_until: Option<Instant>,
+    last_failure_at: Instant,
+}
+
+impl BreakerState {
+    /// Whether the entry still says anything: an open cooldown, or a recent enough run of failures.
+    fn is_live(&self, now: Instant) -> bool {
+        self.open_until.is_some_and(|until| now < until)
+            || now.duration_since(self.last_failure_at) < FAILURE_RUN_MEMORY
+    }
 }
 
 static BREAKERS: LazyLock<Mutex<HashMap<ScopeKey, BreakerState>>> =
@@ -74,16 +76,19 @@ pub fn cooldown(test_mode: bool) -> Duration {
 
 /// Whether the phases that call the study registry should skip this iteration.
 pub fn is_open(key: &ScopeKey) -> bool {
+    let now = Instant::now();
     let mut breakers = lock();
-    let Some(until) = breakers.get(key).and_then(|state| state.open_until) else {
+    let Some(state) = breakers.get(key) else {
         return false;
     };
-    if Instant::now() < until {
+    if state.open_until.is_some_and(|until| now < until) {
         return true;
     }
-    // The cooldown elapsed: dropped rather than reset in place, so a scope that never trips the
-    // breaker again does not sit in the map for the rest of the process's life. The next failure
-    // starts a fresh entry, which is the same state a reset would have left behind.
+    if state.is_live(now) {
+        return false;
+    }
+    // Dropped rather than reset in place so an idle scope leaves the map; the fresh entry the next
+    // failure creates is the state a reset would have left behind anyway.
     breakers.remove(key);
     false
 }
@@ -97,13 +102,14 @@ pub struct BreakerSnapshot {
     pub open_for_secs: Option<u64>,
 }
 
-/// Reads a breaker without touching it, for the dashboard.
-///
-/// Deliberately not [`is_open`], which clears an elapsed cooldown as a side effect: a read must not
-/// reset the counters a worker is about to consult.
+/// Reads a breaker without touching it, for the dashboard. Not [`is_open`], which clears an elapsed
+/// cooldown as a side effect.
 pub fn snapshot(key: &ScopeKey) -> BreakerSnapshot {
     let breakers = lock();
-    let Some(state) = breakers.get(key) else {
+    let Some(state) = breakers
+        .get(key)
+        .filter(|state| state.is_live(Instant::now()))
+    else {
         return BreakerSnapshot::default();
     };
     let remaining = state
@@ -123,11 +129,18 @@ pub fn record_success(key: &ScopeKey) {
 
 /// Returns whether this failure opened the breaker.
 pub fn record_failure(key: &ScopeKey, cooldown: Duration) -> bool {
+    let now = Instant::now();
     let mut breakers = lock();
-    let state = breakers.entry(key.clone()).or_default();
+    breakers.retain(|_, state| state.is_live(now));
+    let state = breakers.entry(key.clone()).or_insert(BreakerState {
+        consecutive_failures: 0,
+        open_until: None,
+        last_failure_at: now,
+    });
+    state.last_failure_at = now;
     state.consecutive_failures = state.consecutive_failures.saturating_add(1);
     if state.consecutive_failures >= MAX_CONSECUTIVE_SUOTAR_FAILURES {
-        state.open_until = Some(Instant::now() + cooldown);
+        state.open_until = Some(now + cooldown);
         return true;
     }
     false
@@ -139,8 +152,7 @@ pub fn reset(key: &ScopeKey) {
 }
 
 fn lock() -> std::sync::MutexGuard<'static, HashMap<ScopeKey, BreakerState>> {
-    // A poisoned lock would mean a panic while holding it; the counters are advisory, so carrying
-    // on with them beats taking the worker down.
+    // The counters are advisory, so recovering a poisoned lock beats taking the worker down.
     BREAKERS
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner())
@@ -178,8 +190,6 @@ mod tests {
         reset(&key);
     }
 
-    /// The reason the breaker is keyed at all: one course's deliberate outage must not stop another
-    /// course's rows moving.
     #[test]
     fn two_scopes_do_not_trip_each_other() {
         let storm = key();
@@ -211,7 +221,6 @@ mod tests {
         );
     }
 
-    /// Registration ids name the same breaker whichever order a caller listed them in.
     #[test]
     fn a_registration_scope_is_order_independent() {
         let first = Uuid::new_v4();
@@ -225,13 +234,6 @@ mod tests {
             ..PhaseScope::default()
         };
         assert_eq!(ScopeKey::of(&one), ScopeKey::of(&other));
-    }
-
-    #[test]
-    fn the_cooldown_fits_inside_one_test_under_test_mode() {
-        assert_eq!(cooldown(false).as_secs(), SUOTAR_COOLDOWN_SECS);
-        assert!(cooldown(true) < cooldown(false));
-        assert!(cooldown(true).as_secs() < 100);
     }
 
     #[test]

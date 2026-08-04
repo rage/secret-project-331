@@ -1,12 +1,9 @@
 /*!
 Handlers for HTTP requests to `/api/v0/main-frontend/credit-registrations`.
 
-Everything a student can see or do about their own credit registrations. Every handler filters by
-`user.id` in SQL and re-checks ownership before it writes, so a guessed row id is not enough.
-
-The stage a student is shown is [`StudentFacingCreditRegistrationStatus`], computed in the models
-crate. Nothing here re-derives it, and nothing on the wire invites the frontend to: the copy and the
-state machine have to move together.
+Every handler filters by `user.id` in SQL and re-checks ownership before it writes. The stage a
+student is shown is [`StudentFacingCreditRegistrationStatus`], computed in the models crate and never
+re-derived here.
 */
 
 use std::collections::HashMap;
@@ -35,9 +32,8 @@ use utoipa::{OpenApi, ToSchema};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
 use crate::prelude::*;
 
-/// How long after we last asked the study registry about a row's enrolment the student may ask us to
-/// look again. The pipeline's own recheck is daily, so this bounds the button without ever being the
-/// reason it is refused.
+/// How long after the last enrolment check the student may ask us to look again. The pipeline's own
+/// recheck is daily, so this only bounds the button.
 const ENROLMENT_RECHECK_MIN_INTERVAL_SECS: i64 = 60 * 60;
 
 #[derive(OpenApi)]
@@ -63,7 +59,6 @@ pub struct LinkingEmailStatus {
     pub emailed_to_masked: String,
 }
 
-/// One credit registration as its owner sees it.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyCreditRegistration {
     pub id: Uuid,
@@ -77,8 +72,7 @@ pub struct MyCreditRegistration {
     pub completion_date: DateTime<Utc>,
     pub state: CreditRegistrationState,
     pub student_facing_status: StudentFacingCreditRegistrationStatus,
-    /// Whether the pipeline is still expected to move this row on its own. Drives the status page's
-    /// polling, so a state added later cannot leave the page refreshing forever or not at all.
+    /// Whether the pipeline is still expected to move this row: drives the status page's polling.
     pub status_is_moving: bool,
     pub error_code: Option<CreditRegistrationErrorCode>,
     pub next_attempt_at: DateTime<Utc>,
@@ -92,8 +86,8 @@ pub struct MyCreditRegistration {
     pub enrolment_realisation_name: Option<String>,
     /// The open university enrolment page, for a row the study registry has no enrolment for.
     pub enrolment_link: Option<String>,
-    /// Only on a row waiting for a student number, and only when the account was linked at some
-    /// point: the mail is addressed to a Sisu person, and a never-linked account names none.
+    /// Only on a row waiting for a student number whose account was linked at some point: the mail is
+    /// addressed to a Sisu person, and a never-linked account names none.
     pub linking_email: Option<LinkingEmailStatus>,
 }
 
@@ -101,8 +95,8 @@ pub struct MyCreditRegistration {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyCreditRegistrationForCourseModule {
     pub registration: MyCreditRegistration,
-    /// The module's other rows, newest completion first. Shown rather than hidden because the study
-    /// registry may hold an earlier attempt's attainment as well as the current one's.
+    /// The module's other rows, newest completion first. Shown because the study registry may hold an
+    /// earlier attempt's attainment as well as the current one's.
     pub earlier_attempts: Vec<MyCreditRegistration>,
 }
 
@@ -113,8 +107,7 @@ pub struct RequestCreditRegistrationEnrolmentRecheckResult {
     pub next_recheck_allowed_at: Option<DateTime<Utc>>,
 }
 
-/// The account's linked student number, unmasked: it is the holder's own number, and masking a value
-/// they have to compare against their own records makes the page useless.
+/// The account's linked student number, unmasked: it is the holder's own.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyVerifiedStudentNumber {
     pub student_number: String,
@@ -146,13 +139,12 @@ pub struct StudentNumberVerificationTokenPreview {
     pub already_used: bool,
     /// So the page can say "you already used this link" rather than accusing someone else.
     pub already_used_by_this_account: bool,
-    /// A support case: moving a student number between accounts on mailbox access alone would let
-    /// anyone detach another account's link.
+    /// A support case, not something the student can resolve: moving a number between accounts on
+    /// mailbox access alone would let anyone detach another account's link.
     pub conflicts_with_other_account: bool,
     /// What this account is linked to now. Claiming replaces it.
     pub current_student_number: Option<String>,
-    /// Shown in the confirmation, because being logged in to the wrong account is the common mistake
-    /// and this is what makes it obvious before the click rather than after.
+    /// Shown in the confirmation: being signed in to the wrong account is the common mistake.
     pub target_account_email: String,
     pub claimable: bool,
 }
@@ -197,8 +189,7 @@ pub struct MyCourseCreditRegistrationConsent {
     pub consent_withdrawn_at: Option<DateTime<Utc>>,
     pub credit_registration_enabled_for_course: bool,
     pub modules: Vec<CreditRegistrationConsentModule>,
-    /// Completions already waiting on consent, so the dialog can say how many one click registers
-    /// instead of guessing.
+    /// Completions already waiting on consent, so the dialog can say how many one click registers.
     pub registrable_completion_count: i64,
 }
 
@@ -212,7 +203,6 @@ pub struct SetMyCourseCreditRegistrationConsentResult {
     pub consent_given: bool,
     pub consent_given_at: Option<DateTime<Utc>>,
     pub consent_withdrawn_at: Option<DateTime<Utc>>,
-    /// For late consent this is the whole payoff, so it must not be swallowed.
     pub newly_unblocked_registration_count: i64,
 }
 
@@ -258,9 +248,6 @@ pub async fn get_my_credit_registrations(
 GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}` - The
 signed-in account's registration for one course module, or null when the pipeline has not created one
 yet.
-
-Null rather than 404 because a completed module whose ledger row the materialize phase has not
-written yet is a normal state the status page has to explain.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -298,9 +285,6 @@ pub async fn get_my_credit_registration_for_course_module(
 /**
 POST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to
 look for an enrolment again, for a row parked because the study registry had none.
-
-Only the clock moves. The precondition recompute takes the row back to `ready_to_submit`, so the
-enrolment is resolved afresh rather than assumed.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -360,8 +344,7 @@ pub async fn request_credit_registration_enrolment_recheck(
         },
     )
     .await?;
-    models::credit_registrations::schedule_next_attempt(&mut tx, registration.id, Utc::now())
-        .await?;
+    models::credit_registrations::make_due_now(&mut tx, registration.id).await?;
     recompute_preconditions(
         &mut tx,
         &RegistrationScope {
@@ -411,8 +394,7 @@ pub async fn get_my_verified_student_number(
 DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
 from the signed-in account.
 
-Registrations that have not been sent go back to waiting for a student number. Credits already in
-Sisu are untouched; we cannot remove those.
+Registrations that have not been sent go back to waiting; credits already in Sisu are untouched.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -456,8 +438,7 @@ pub async fn unlink_my_student_number(
 GET `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}` - What the
 mailed link would link, without linking it.
 
-A session is required so the confirmation can name the account the number would land on, and the
-handler writes nothing: the link has to survive a mail scanner fetching it.
+Writes nothing: the link has to survive a mail scanner fetching it.
 */
 #[instrument(skip(pool, path))]
 #[utoipa::path(
@@ -511,8 +492,8 @@ pub async fn preview_student_number_verification_token(
 POST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends
 a mailed link and links the student number to the signed-in account.
 
-The only writer of a link. Any signed-in account may claim any valid token: holding it proves control
-of the Sisu-held mailbox, and the session says which of our accounts the person wants to use.
+Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
+and the session says which of our accounts the person wants to use.
 */
 #[instrument(skip(pool, path))]
 #[utoipa::path(
@@ -584,8 +565,8 @@ pub async fn claim_student_number_verification_token(
         }));
     }
 
-    // A student who moved between programmes has a new number; the old link is retired rather than
-    // deleted so the audit trail survives.
+    // A student who changed programmes has a new number; the old link is retired, not deleted, so the
+    // audit trail survives.
     if let Some(link) = current_link {
         verified_student_numbers::soft_delete(&mut tx, link.id).await?;
     }
@@ -658,9 +639,6 @@ pub async fn get_my_course_credit_registration_consent(
 /**
 PUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in
 account's answer and applies it to that course's registrations at once.
-
-Backs every entry point — the course-start dialog, the status page and the profile page — because a
-completion backfilled from an earlier term will never see the dialog again.
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -781,8 +759,8 @@ pub async fn get_my_credit_registration_consents(
     token.authorized_ok(web::Json(res))
 }
 
-/// Assembles the wire rows for one account, enriching the ledger with the enrolment link and the
-/// linking-mail status that only an endpoint can supply.
+/// Assembles the wire rows for one account, adding the enrolment link and the linking-mail status the
+/// ledger does not carry.
 async fn build_my_credit_registrations(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -858,8 +836,8 @@ fn to_my_credit_registration(
     }
 }
 
-/// The enrolment page for the module's open university product, cached per product because several
-/// of a student's rows can share one.
+/// The enrolment page for the module's open university product, cached per product because several of
+/// a student's rows can share one.
 async fn resolve_enrolment_link(
     conn: &mut PgConnection,
     row: &StudentCreditRegistration,
@@ -879,18 +857,15 @@ async fn resolve_enrolment_link(
     Ok(link)
 }
 
-/// An account's linking mails and their delivery status, fetched once per request rather than once
-/// per row: [`resolve_linking_email`] runs per registration, but the mails and their statuses are the
-/// same for every one of a student's rows.
+/// An account's linking mails and their send status, fetched once per request rather than once per
+/// row: they are the same for every one of a student's rows.
 struct LinkingMailCache {
     mails: Vec<CreditRegistrationAccountLinkingEmail>,
     reports: HashMap<Uuid, EmailSendStatusReport>,
 }
 
-/// The latest linking mail for this account's Sisu person on this course.
-///
-/// `None` for an account that was never linked: the mail is addressed to a Sisu person, and nothing
-/// here matches an account to one by email address.
+/// The latest linking mail for this account's Sisu person on this course. `None` for an account that
+/// was never linked: the mail is addressed to a Sisu person, not to an email address.
 async fn resolve_linking_email(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -940,9 +915,7 @@ async fn build_course_consent(
     course_id: Uuid,
 ) -> Result<MyCourseCreditRegistrationConsent, ControllerError> {
     let course = models::courses::get_course(conn, course_id).await?;
-    // The enable flag and the registration fields live on the same row here, unlike
-    // `course_modules::get_by_course_id`, so this is one query instead of an id lookup plus a
-    // fetch-everything-and-filter; a course with no Suotar module never has to fetch its modules.
+    // This query carries the enable flag, so a course with no Suotar module never fetches its modules.
     let enabled_configs: Vec<_> =
         models::course_modules::get_credit_registration_configs_by_course_id(conn, course_id)
             .await?
@@ -1015,12 +988,9 @@ async fn count_in_state(
     Ok(count)
 }
 
-/// Audits a student's own change to their linked number on every registration it can affect, then
-/// applies it.
-///
-/// Returns how many registrations changed whether they wait for a student number: the ones a claim
-/// unblocked, or the ones an unlink sent back to waiting. Narrower than how many rows the recompute
-/// moved, because a consent change in the same window moves rows too.
+/// Audits a student's change to their linked number on every registration it can affect, then applies
+/// it. Returns how many registrations changed whether they wait for a number, which is narrower than
+/// how many rows the recompute moved.
 async fn record_student_number_change(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -1112,9 +1082,8 @@ async fn course_name_of_token(
     Ok(Some(course.name))
 }
 
-/// Keeps the domain and drops the local part: enough for a student to recognise which of their
-/// mailboxes to open, and not enough to be a new disclosure of an address. Teachers get the same
-/// masking; only admins see an address in full.
+/// Keeps the domain and drops the local part: enough to recognise which mailbox to open, not a new
+/// disclosure of an address. Teachers get the same masking; only admins see an address in full.
 pub(crate) fn mask_email(email: &str) -> String {
     match email.split_once('@') {
         Some((_, domain)) => format!("...@{domain}"),

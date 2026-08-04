@@ -1,11 +1,6 @@
-//! The worker that owns the credit registration ledger.
-//!
-//! One process, several phases: creating rows, moving them along, resolving enrolments, importing,
-//! verifying and mirroring the successes. Each phase has its own interval and its own row in
-//! `credit_registration_phase_state`, because an operator reasons about phases rather than pods.
-//!
-//! Every iteration goes through the same dispatcher the test tick endpoint uses, so a phase cannot
-//! behave one way for a worker and another for a test.
+//! The worker that owns the credit registration ledger: one process, several phases, each with its
+//! own interval and its own row in `credit_registration_phase_state`. Every iteration goes through
+//! the same dispatcher the test tick endpoint uses.
 
 use std::env;
 
@@ -27,8 +22,8 @@ pub async fn main() -> anyhow::Result<()> {
     .await
 }
 
-/// The bootstrap both credit-registration binaries share: they differ only in which phases
-/// `worker_loop::run` ends up picking for `process_name` and in these three messages.
+/// The bootstrap both credit-registration binaries share; they differ only in the phases
+/// `worker_loop::run` picks for `process_name` and in these messages.
 pub async fn run_credit_registration_worker(
     process_name: &'static str,
     start_message: &str,
@@ -40,8 +35,7 @@ pub async fn run_credit_registration_worker(
     setup_tracing()?;
 
     let db_url = ProgramConfig::database_url_with_default();
-    // Fails at boot without credentials rather than idling, so a misconfigured production deploy is
-    // loud instead of silently registering nobody's credits.
+    // Fails at boot without credentials, so a misconfigured deploy is loud instead of silently idle.
     let app_configuration = ApplicationConfiguration::try_from_env()?;
     let db_pool = PgPool::connect(&db_url).await?;
 

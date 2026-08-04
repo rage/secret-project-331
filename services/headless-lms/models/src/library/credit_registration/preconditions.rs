@@ -1,8 +1,6 @@
-//! Moving a row along, or out of, the chain of things that must be true before we submit.
-//!
-//! Everything here is decided from the database alone, which is why it keeps running during a
-//! Suotar outage, and why the consent endpoint can call it in the transaction that writes the
-//! consent instead of waiting for a tick.
+//! Moving a row along, or out of, the chain of things that must be true before we submit. Decided
+//! from the database alone, so it keeps running during a Suotar outage and the consent endpoint can
+//! call it inside the transaction that writes the consent.
 
 use crate::credit_registrations::{
     CreditRegistrationErrorCode, CreditRegistrationState, RegistrationScope, Transition,
@@ -15,22 +13,18 @@ use super::outcomes::resume_state;
 /// How many rows one iteration may move.
 pub const PRECONDITIONS_LIMIT: i64 = 500;
 
-/// A row the recompute wants to move, and why.
 #[derive(Debug, Clone, PartialEq)]
 struct PendingMove {
     id: Uuid,
     state: CreditRegistrationState,
-    /// `None` for a row whose backoff has elapsed: where it resumes depends on how far it had got,
-    /// which is decided in one place, [`resume_state`].
+    /// `None` for a row whose backoff has elapsed; where it resumes is decided by [`resume_state`].
     target: Option<CreditRegistrationState>,
     consent_withdrawn: bool,
     has_submitted_attainment: bool,
     has_payload_snapshot: bool,
 }
 
-/// Recomputes preconditions for the scoped rows and applies at most `limit` moves.
-///
-/// Returns how many rows moved.
+/// Applies at most `limit` moves to the scoped rows and returns how many moved.
 pub async fn recompute_preconditions(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -55,8 +49,8 @@ pub async fn recompute_preconditions(
     Ok(moved)
 }
 
-/// The transition each edge writes. Kept apart from the query so every edge's error code, admin
-/// flag and audit message is decided in one readable place.
+/// The transition each edge writes: kept out of the query so every edge's error code, admin flag
+/// and audit message sit in one place.
 fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Transition {
     use CreditRegistrationState as State;
     let base = Transition::to(target);
@@ -71,8 +65,7 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
             ..base
         },
         State::AbandonedByConsentWithdrawal => Transition {
-            // Not an error and not a failure: nobody should be asked to look at it, and no count
-            // may treat it as either.
+            // Not a failure: no admin is asked to look, and no count may treat it as one.
             needs_admin_attention: Some(false),
             event_message: Some(
                 "Consent was withdrawn while this was in flight. Polling stopped, and whether the \
@@ -120,8 +113,8 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
     }
 }
 
-/// Returns only the rows whose facts disagree with the state they are in, so the bound cannot
-/// starve a row behind ones that need nothing.
+/// Only the rows whose facts disagree with the state they are in, so `limit` cannot be spent on
+/// rows that need nothing.
 async fn pending_moves(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -317,7 +310,7 @@ mod tests {
         )
         .await
         .unwrap();
-        // Defaults to false on the completion, and the recompute treats it as an unmet prerequisite.
+        // Defaults to false, which the recompute reads as an unmet prerequisite.
         crate::course_module_completions::update_prerequisite_modules_completed(
             conn,
             completion.id,
@@ -369,7 +362,6 @@ mod tests {
         .unwrap();
     }
 
-    /// Ages the state timestamp so the stale-`submitting` rule can be exercised without waiting.
     async fn entered_state_long_ago(conn: &mut PgConnection, id: Uuid) {
         sqlx::query(
             "UPDATE credit_registrations SET state_entered_at = now() - INTERVAL '1 hour'
@@ -381,7 +373,6 @@ mod tests {
         .unwrap();
     }
 
-    /// Ages the first failure so the retry window can expire without waiting a week.
     async fn first_failed_long_ago(conn: &mut PgConnection, id: Uuid) {
         sqlx::query(
             "UPDATE credit_registrations SET first_failed_at = now() - INTERVAL '8 days'
@@ -458,12 +449,10 @@ mod tests {
             CreditRegistrationState::ReadyToSubmit
         );
 
-        // Nothing left to change, so nothing is written and the audit trail stays readable.
+        // Nothing left to change means nothing is written, which keeps the audit trail readable.
         assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
     }
 
-    /// Declining is not the same as withdrawing: the row waits in `pending_consent` for a change of
-    /// mind rather than being blocked.
     #[tokio::test]
     async fn declining_consent_leaves_the_row_waiting_rather_than_blocked() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
@@ -502,8 +491,8 @@ mod tests {
             CreditRegistrationState::Blocked
         );
 
-        // Consenting again puts it back in the queue, which is only possible because withdrawal
-        // blocks rather than cancels.
+        // Consenting again only puts it back in the queue because withdrawal blocked rather than
+        // cancelled.
         course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
             .await
             .unwrap();
@@ -543,8 +532,6 @@ mod tests {
         assert!(!row.needs_admin_attention);
     }
 
-    /// The crash-safety half of the double-submission guard: a row left behind by a worker that
-    /// died mid-call is uncertain, never re-imported.
     #[tokio::test]
     async fn a_row_left_submitting_by_a_dead_worker_becomes_uncertain() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
@@ -572,7 +559,6 @@ mod tests {
         );
     }
 
-    /// Nothing may move an uncertain row back towards import, whatever else is true about it.
     #[tokio::test]
     async fn an_uncertain_row_is_never_moved_back_towards_import() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
@@ -784,8 +770,7 @@ mod tests {
         );
     }
 
-    /// A row queued for import keeps its place: sending it back to resolve its enrolment again
-    /// would be a loop, and its payload is already frozen.
+    /// Its payload is already frozen, so resolving the enrolment again would be a loop.
     #[tokio::test]
     async fn a_row_queued_for_import_is_left_where_it_is() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
@@ -860,9 +845,7 @@ mod tests {
         );
     }
 
-    /// The rule stated in one place and applied in another has to be proven to be the same rule.
-    /// This walks a row into every state, withdraws consent and checks the recompute against the
-    /// statement of what withdrawal does.
+    /// The query decides withdrawal itself, so it has to be checked against `withdrawal_target`.
     #[tokio::test]
     async fn withdrawal_does_what_the_rule_says_from_every_state() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);

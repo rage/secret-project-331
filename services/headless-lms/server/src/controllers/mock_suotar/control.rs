@@ -1,11 +1,9 @@
 //! The mock Suotar control surface: test-only routes that are not part of Suotar's API.
 //!
-//! A tick runs one iteration of one phase synchronously: the real loops are long-running
-//! `tokio::time::interval`s in their own Deployments, which a Playwright spec cannot wait out inside
-//! its 100 s timeout.
-//!
-//! Reachable only when `test_mode && test_suotar`, so no token. Not exported to utoipa or
-//! `bindings.ts`; Playwright uses a hand-written client (`system-tests/src/utils/suotarControl.ts`).
+//! A tick runs one iteration of one phase synchronously, because the real loops are long-running
+//! intervals in their own Deployments that a Playwright spec cannot wait out. Gated on
+//! `test_mode && test_suotar`, so no token; the client is hand-written in
+//! `system-tests/src/utils/suotarControl.ts`.
 
 use crate::domain::credit_registration_phases::{
     CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseSkipReason, PhaseTick, run_phase_once,
@@ -22,8 +20,7 @@ pub struct RunTickQuery {
     /// Optional so a missing phase answers our typed error listing the valid names, not actix's 400.
     pub phase: Option<String>,
     pub course_id: Option<Uuid>,
-    /// Resolved here rather than in the spec: the friendly form is also the fault's owner, so a
-    /// scenario hands back one object a spec passes to both.
+    /// Resolved here so a scenario's returned owner object doubles as the tick scope.
     pub course_slug: Option<String>,
     pub user_id: Option<Uuid>,
     pub user_email: Option<String>,
@@ -39,7 +36,6 @@ pub struct UnresolvedScope {
     pub value: String,
 }
 
-/// The outcome of dispatching one phase.
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase", tag = "status")]
 pub enum PhaseTickResult {
@@ -56,7 +52,6 @@ pub enum PhaseTickResult {
     Skipped { phase: String, reason: String },
     /// The scope names something this phase's claim query cannot narrow on.
     ScopeNotSupported { phase: String },
-    /// The `?phase=` value is not one of the twelve canonical names.
     UnknownPhase {
         phase: Option<String>,
         known_phases: Vec<String>,
@@ -89,23 +84,16 @@ impl PhaseTickResult {
     }
 }
 
-/// What `run-registrar-tick` returns: one entry per phase in the sequence, in the order they ran.
+/// One entry per phase in the sequence, in the order they ran.
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct RegistrarTickResult {
     pub phases: Vec<PhaseTickResult>,
 }
 
-/**
-POST `/api/v0/mock-suotar/control/run-tick?phase={phase}`
-
-Runs one iteration of one pipeline phase. 200 when the phase ran, 501 `phaseNotImplemented` when no
-implementation is registered for it, 400 `unknownPhase` for a name that is not a phase.
-
-An optional scope — `courseId`/`courseSlug`, `userId`/`userEmail`, `creditRegistrationIds` — narrows
-the rows the iteration may claim, so a spec advances only its own and a batch carries one owner.
-Absent means unscoped, which is what production does.
-*/
+/// Runs one iteration of one pipeline phase: 200 when it ran, 501 `phaseNotImplemented`, 400
+/// `unknownPhase`. An optional scope narrows the rows the iteration may claim; absent is unscoped,
+/// which is what production does.
 async fn run_tick(
     app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
@@ -147,16 +135,9 @@ async fn run_tick(
     })
 }
 
-/**
-POST `/api/v0/mock-suotar/control/run-registrar-tick`
-
-The combined form of `run-tick`: materialize, preconditions, resolve-enrolments, import and verify in
-pipeline order, for specs that want a completion walked end to end. Always 200; each phase reports
-its own status in the body.
-
-Deliberately takes no scope: a suite that only ever ticks scoped never exercises the sweep-everything
-behaviour production has.
-*/
+/// The combined form of `run-tick`, walking the sequence in pipeline order. Always 200; each phase
+/// reports its own status. Takes no scope on purpose: a suite that only ever ticks scoped never
+/// exercises the sweep-everything behaviour production has.
 async fn run_registrar_tick(
     app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
@@ -177,8 +158,7 @@ async fn run_registrar_tick(
     token.authorized_ok(HttpResponse::Ok().json(RegistrarTickResult { phases }))
 }
 
-/// A tick's calls are attributed to the tick rather than to a worker, so the audit log says which
-/// traffic a test produced.
+/// Attributed to the tick rather than to a worker, so the audit log says which traffic a test made.
 fn tick_context<'a>(
     app_conf: &'a ApplicationConfiguration,
     pool: &'a PgPool,
@@ -261,8 +241,6 @@ fn known_phase_names() -> Vec<String> {
         .collect()
 }
 
-/// The two tick routes stay routes rather than command variants: they drive the pipeline instead of
-/// manipulating the world, and they have a landed client and landed tests.
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/run-tick", web::post().to(run_tick))
         .route("/run-registrar-tick", web::post().to(run_registrar_tick))
@@ -306,8 +284,7 @@ mod tests {
     }
 
     /// Registers the real controller tree so the test sees the same gate production does. The pool is
-    /// lazy and never connected, so only phases that answer before they would need one are driven
-    /// here.
+    /// never connected, so only phases that answer before they would need one can be driven here.
     async fn call_run_tick(
         test_suotar: bool,
         query: &str,
@@ -354,8 +331,8 @@ mod tests {
         assert_eq!(res.status(), StatusCode::NOT_FOUND);
     }
 
-    /// The phases still to be built answer with a typed refusal rather than a 404 or a 500, so a
-    /// spec written against one of them fails legibly.
+    /// A typed refusal rather than a 404 or a 500, so a spec written against an unbuilt phase fails
+    /// legibly.
     #[actix_web::test]
     async fn a_phase_that_is_not_built_yet_dispatches_to_a_typed_refusal() {
         for phase in CreditRegistrationPhase::ALL
@@ -372,8 +349,8 @@ mod tests {
         }
     }
 
-    /// A caller that asked to be narrowed and cannot be must be told, not quietly run wide over
-    /// every row in a shared database.
+    /// A caller that asked to be narrowed and cannot be must be told, not quietly run wide over a
+    /// shared database.
     #[actix_web::test]
     async fn a_scope_a_phase_cannot_apply_is_refused() {
         let res = call_run_tick(

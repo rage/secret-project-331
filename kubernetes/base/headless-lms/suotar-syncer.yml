@@ -7,9 +7,8 @@ metadata:
     deploymentType: with-init-container
     needs-db: "true"
 spec:
-  # A second replica would list the same realisations and race for the same linking-mail slots. The
-  # unique index would refuse the duplicates, but the per-realisation counters would report a run
-  # neither pod made.
+  # A second replica would race for the same linking-mail slots and double-count the per-realisation
+  # counters.
   replicas: 1
   selector:
     matchLabels:

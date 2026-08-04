@@ -324,12 +324,8 @@ WHERE study_registry_registrar_id = $1
     Ok(registrations)
 }
 
-/// Of the given completions, the ones some registrar other than `excluded_registrar_id` has already
-/// registered.
-///
-/// The exclusion is deliberate: our own row means we registered the completion ourselves, and
-/// treating that as somebody else's registration would forbid the second submission a grade
-/// improvement is.
+/// Of the given completions, the ones a registrar other than `excluded_registrar_id` already
+/// registered. Excluding our own row keeps a grade improvement's second submission allowed.
 pub async fn completion_ids_registered_by_other_registrars(
     conn: &mut PgConnection,
     completion_ids: &[Uuid],

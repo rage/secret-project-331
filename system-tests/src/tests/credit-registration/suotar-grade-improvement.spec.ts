@@ -9,6 +9,5 @@ test.fixme("Raising a registered grade starts a new attempt and supersedes the o
 })
 
 test.fixme("A downward or equal regrade resubmits nothing", () => {
-  // Waiting on PR 3's grade-improvement resubmit. An implementation that resubmits on any change
-  // passes every other case here while getting this one badly wrong.
+  // Waiting on PR 3's grade-improvement resubmit.
 })

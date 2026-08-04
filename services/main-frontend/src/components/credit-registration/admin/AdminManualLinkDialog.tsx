@@ -31,6 +31,8 @@ import {
   TextField,
 } from "@/shared-module/components"
 
+import { MIDDLE_DOT, TONE } from "../constants"
+import { noteCss } from "../styles"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import RelativeTime, { ABSENT } from "./RelativeTime"
 
@@ -50,14 +52,7 @@ interface Fields {
 // oxlint-disable-next-line i18next/no-literal-string
 const LINKED = "linked"
 // oxlint-disable-next-line i18next/no-literal-string
-const INFO_TONE = "info" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const WARNING_TONE = "warning" as const
-// oxlint-disable-next-line i18next/no-literal-string
 const STACKED = "stacked" as const
-/** Separator between identifiers on one line. Not prose, so not translated. */
-// oxlint-disable-next-line i18next/no-literal-string
-const DOT = " · "
 
 const formCss = css`
   display: grid;
@@ -71,21 +66,7 @@ const rowCss = css`
   align-items: end;
 `
 
-const noteCss = css`
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-  margin: 0;
-`
-
-/**
- * Linking a student number on an admin's judgement. The last resort, and built to steer away from
- * itself.
- *
- * Two gates the API enforces as well, so a crafted request cannot skip either: the preview has to have
- * run, and the confirm echoes back the person id it returned, so a typo cannot mint a link to somebody
- * else; and a reason is required and is stored on the resulting row forever alongside
- * `verified_via = admin_manual`.
- */
+/** The API enforces the same two gates: the preview must have run, and a reason is required. */
 const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -121,8 +102,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
     {
       onSuccess: (data) => {
         setResult(data)
-        // Linking a number resolves waiting registrations synchronously, so their state and the
-        // aggregates over it can change too, not just the number itself.
+        // Linking resolves waiting registrations synchronously, so their state changes too.
         void Promise.all([
           queryClient.invalidateQueries({ queryKey: listVerifiedStudentNumbersForAdminQueryKey() }),
           queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
@@ -148,7 +128,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
       size="wide"
     >
       <div className={formCss}>
-        <Infobox tone={WARNING_TONE}>{t("credit-registration-admin-manual-link-warning")}</Infobox>
+        <Infobox tone={TONE.WARNING}>{t("credit-registration-admin-manual-link-warning")}</Infobox>
         <div className={rowCss}>
           <TextField name="student_number" control={control} label={t("label-student-number")} />
           <Button
@@ -161,7 +141,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
           </Button>
         </div>
         {preview && (
-          <Infobox tone={preview.found ? INFO_TONE : WARNING_TONE}>
+          <Infobox tone={preview.found ? TONE.INFO : TONE.WARNING}>
             {preview.study_registry_unavailable ? (
               t("credit-registration-admin-manual-link-registry-unavailable")
             ) : preview.found ? (
@@ -192,9 +172,9 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
                           {preview.linking_emails.map((mail) => (
                             <li key={mail.id}>
                               {mail.emailed_to}
-                              {DOT}
+                              {MIDDLE_DOT}
                               {sendStatusLabel(t, mail.send_status.email_send_status)}
-                              {DOT}
+                              {MIDDLE_DOT}
                               <RelativeTime at={mail.send_status.sent_at ?? mail.claimed_at} />
                             </li>
                           ))}
@@ -238,7 +218,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
           </Button>
         </form>
         {result && (
-          <Infobox tone={result.outcome === LINKED ? INFO_TONE : WARNING_TONE}>
+          <Infobox tone={result.outcome === LINKED ? TONE.INFO : TONE.WARNING}>
             <div>{manualLinkOutcomeLabel(t, result.outcome)}</div>
             {result.affected_registration_count > 0 && (
               <div>

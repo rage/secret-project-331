@@ -68,8 +68,7 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({
   function mapRegistration(
     completion: CourseModuleCompletionWithRegistrationInfo,
   ): React.ReactNode {
-    // On a module opted in to credit registration the ledger knows more than "registered somewhere",
-    // including why nothing has happened yet, so its badge replaces the legacy yes/pending.
+    // The ledger also says why nothing has happened yet, so it wins over the legacy yes/pending.
     const registration = creditRegistrations.get(
       creditRegistrationKey(user.userId, completion.course_module_id),
     )

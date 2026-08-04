@@ -12,6 +12,7 @@ import {
   adminOverview,
   adminRegistrationDetails,
   listAdminRegistrations,
+  makeRegistrationDueNow,
   pausePhase,
   postAdminManualLink,
   postAdminPhaseAction,
@@ -31,12 +32,11 @@ import {
 import { pollUntil } from "@/utils/waitingUtils"
 
 /**
- * Owns student numbers `9000009xx` and the `credit-registration-admin` course, which is the only
- * course this file ticks: discovery and the linking mails can be scoped by course alone, so ticking
- * them anywhere else would sweep another spec's students.
+ * Owns student numbers `9000009xx` and the `credit-registration-admin` course, the only course this
+ * file ticks: discovery and the linking mails scope by course alone, so ticking them anywhere else
+ * would sweep another spec's students.
  *
  * Aggregate tiles are global and run-order dependent, so nothing here asserts a dashboard total.
- * Everything is either a row this file's own fixtures produced or a shape the page must have.
  */
 test.use({ storageState: ADMIN_STORAGE_STATE })
 
@@ -92,9 +92,8 @@ test("The three shipped tabs render, and the phases report heartbeats", async ({
   await expect(page.getByRole("heading", { name: "Per course realisation" })).toBeVisible()
 })
 
-// `enrolment-discovery` is an implemented phase no other spec file ticks (grep the directory for
-// `enrolment-discovery`), so pausing it here cannot stall another spec's concurrent tick of the same,
-// globally-shared `credit_registration_phase_state` row.
+// No other spec file ticks `enrolment-discovery`, so pausing it here cannot stall a concurrent tick
+// of the globally-shared `credit_registration_phase_state` row.
 test("Pausing a phase stops a tick, and resuming it lifts that again", async ({ page }) => {
   const phase = "enrolment-discovery"
   const pauseReason = "System test: proving the pause control works."
@@ -139,9 +138,8 @@ test("Pausing a phase stops a tick, and resuming it lifts that again", async ({ 
     })
   }
 
-  // `run-tick` (the endpoint the two steps above exercise) calls `run_phase_once` directly and never
-  // consults `next_run_at`; only the real worker loop does. So this proves only that the route accepts
-  // the request and returns the phase's current status, not that the phase was made due sooner.
+  // `run-tick` calls `run_phase_once` directly and never consults `next_run_at`; only the real worker
+  // loop does. So this proves the route answers, not that the phase was made due sooner.
   await test.step("Run-now is accepted for a known phase", async () => {
     expect(await runPhaseNow(page.request, phase)).toMatchObject({ phase })
   })
@@ -181,6 +179,17 @@ test("No stored body carries a student number, a name or an email address", asyn
     "registered",
     CRS_ADMIN_101,
   )
+  const submitted = await pollUntil(
+    async () => {
+      const listed = await listAdminRegistrations(page.request, {
+        student_number: ADMIN_LINKED_STUDENT_NUMBER,
+        state: "awaiting_verification",
+      })
+      return listed.data[0] ?? null
+    },
+    { description: "the always-linked admin-course fixture to be submitted" },
+  )
+  await makeRegistrationDueNow(page.request, submitted.id)
   await runVerifyPollTick(page.request, scope)
 
   const registered = await pollUntil(
@@ -312,9 +321,8 @@ test("A global-admin action recorded against a registration shows up on its deta
 })
 
 test.fixme("A course-teacher's action, or one targeting something other than a registration, is visible somewhere", () => {
-  // Course-, Phase- and VerifiedStudentNumber/StudentNumberVerificationToken-targeted actions —
-  // including this file's own resend override above and the seeded course-teacher
-  // `ResendLinkEmail` row — are written but have no reader anywhere: no route, no page.
+  // Course-, Phase- and student-number-verification-targeted actions — this file's own resend
+  // override included — are written but have no reader anywhere: no route, no page.
 })
 
 test("A discovery run writes the per-realisation counters", async ({ page }) => {

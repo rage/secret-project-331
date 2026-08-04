@@ -6,8 +6,7 @@
 import * as z from "zod"
 
 /**
- * Hard send failures grouped by recipient domain: an undeliverable host is a pattern, not fifty
- * unrelated tickets.
+ * Hard send failures grouped by recipient domain.
  */
 export const zAccountLinkingFailureDomain = z.object({
   count: z.coerce
@@ -22,15 +21,8 @@ export const zAccountLinkingFailureDomain = z.object({
 })
 
 /**
- * The account-linking funnel.
- *
- * The first two steps come from the counters the discovery phase overwrites whole, so they describe
- * its last run rather than the window; the rest are windowed. The UI has to say which is which,
- * because there is no one denominator. There is no "matched to an account" step: the mail goes to
- * the address the registry holds and the account is chosen by the recipient at claim time.
- *
- * A "link fetched" step is missing on purpose. Nothing records a hit on the landing page, so the
- * number would have to be invented.
+ * The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites
+ * whole, the `_in_window` ones from the window: there is no single denominator.
  */
 export const zAccountLinkingFunnel = z.object({
   already_linked_last_run: z.coerce
@@ -202,13 +194,13 @@ export const zAddPlanMemberRequest = z.object({
 })
 
 /**
- * What an admin may move a row to, spelled out rather than taken from the state enum: everything
- * else is the pipeline's to decide.
+ * What an admin may move a row to; everything else is the pipeline's to decide.
  */
 export const zAdminCreditRegistrationTransitionTarget = z.enum([
   "ready_to_submit",
   "cancelled",
   "clear_needs_admin_attention",
+  "check_now",
 ])
 
 export const zAdminManualLinkOutcome = z.enum([
@@ -808,8 +800,8 @@ export const zCourseCount = z.object({
 })
 
 /**
- * Why the course's enrolled students are not going to get credits, in the two counts a teacher can
- * act on. Neither counts a student who has both consented and linked a number.
+ * Why the course's enrolled students are not going to get credits. Neither count includes a student
+ * who has both consented and linked a number.
  */
 export const zCourseCreditRegistrationBlockedStudentCounts = z.object({
   no_consent_student_count: z.coerce
@@ -1371,13 +1363,9 @@ export const zCreditRegistrationAlertThresholds = z.object({
 })
 
 /**
- * The circuit breaker as this process holds it.
- *
- * The global key only. A narrowed run gets a breaker of its own, so reporting any tripped key would
- * turn one test's deliberate outage into a banner an admin would act on. And the counters live in
- * process memory, so what a worker pod's breaker holds is genuinely a different number: this tile
- * says whether the web server would currently skip a study registry call, not whether the workers
- * would.
+ * The circuit breaker as this web process holds it. The global key only — a narrowed run gets its own
+ * — and the counters live in process memory, so this says whether this server would currently skip a
+ * study registry call, not whether the workers would.
  */
 export const zCreditRegistrationCircuitBreakerState = z.object({
   consecutive_failures: z.coerce
@@ -1474,10 +1462,8 @@ export const zCreditRegistrationEventKind = z.enum([
 ])
 
 /**
- * One pipeline phase's heartbeat.
- *
- * Written by the worker loops and by an unscoped run, and never by a narrowed one, so the row means
- * "what the loops are doing" without qualification.
+ * One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
+ * narrowed one.
  */
 export const zCreditRegistrationPhaseStatus = z.object({
   consecutive_failures: z
@@ -1542,9 +1528,6 @@ export const zCreditRegistrationState = z.enum([
   "abandoned_by_consent_withdrawal",
 ])
 
-/**
- * One timeline entry, with the exchange that produced it.
- */
 export const zAdminCreditRegistrationEvent = z.object({
   actor_user_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
@@ -1565,8 +1548,8 @@ export const zAdminTransitionCreditRegistrationResult = z.object({
 })
 
 /**
- * One event of the item timeline. Deliberately without the event's stored request and response
- * bodies: those are the admin dashboard's, and the study registry's own wording is never rendered.
+ * One event of the item timeline, without the stored request and response bodies: those are the
+ * admin dashboard's, and the study registry's own wording is never rendered.
  */
 export const zCourseCreditRegistrationEvent = z.object({
   actor_user_id: z.uuid().nullish(),
@@ -1620,9 +1603,6 @@ export const zCreditRegistrationStateCount = z.object({
   state: zCreditRegistrationState,
 })
 
-/**
- * One module's live rows, for the "how many of my students will not get credits, and why" tiles.
- */
 export const zCourseCreditRegistrationModuleSummary = z.object({
   counts_by_state: z.array(zCreditRegistrationStateCount),
   course_module_id: z.uuid(),
@@ -1955,9 +1935,6 @@ export const zEmailSendStatusReport = z.object({
   sent_at: z.iso.datetime().nullish(),
 })
 
-/**
- * One account-linking mail, with what we can honestly say about handing it over.
- */
 export const zAdminLinkingEmail = z.object({
   claimed_at: z.iso.datetime(),
   course_id: z.uuid(),
@@ -3652,7 +3629,7 @@ export const zSisuDescriptionResponse = z.object({
 })
 
 /**
- * The stage a student sees, and which of the four steps of the status stepper it belongs to.
+ * The stage a student sees.
  */
 export const zStudentFacingCreditRegistrationStatus = z.enum([
   "waiting_for_completion",
@@ -3666,9 +3643,6 @@ export const zStudentFacingCreditRegistrationStatus = z.enum([
   "not_registering",
 ])
 
-/**
- * One credit registration as its owner sees it.
- */
 export const zMyCreditRegistration = z.object({
   attempt_number: z
     .int()
@@ -3716,9 +3690,6 @@ export const zStudentNumberVerificationMethod = z.enum([
   "admin_manual",
 ])
 
-/**
- * One ledger row for the explorer and its detail page.
- */
 export const zAdminCreditRegistrationRow = z.object({
   attempt_number: z
     .int()
@@ -3788,11 +3759,8 @@ export const zAdminCreditRegistrationsPage = z.object({
 })
 
 /**
- * The preview a manual link is gated on.
- *
- * No addresses from the registry: `resolve-persons` answers with the person's name and id and no
- * contact details. The addresses we mailed are here instead, with what happened to each, which is
- * what the decision actually turns on.
+ * The preview a manual link is gated on. No addresses from the registry — `resolve-persons` answers
+ * with a name and an id only — so the addresses here are the ones we mailed.
  */
 export const zAdminResolveStudentNumberResult = z.object({
   already_linked_to_user_email: z.string().nullish(),
@@ -3849,8 +3817,7 @@ export const zAdminVerifiedStudentNumbersPage = z.object({
 })
 
 /**
- * The account's linked student number, unmasked: it is the holder's own number, and masking a value
- * they have to compare against their own records makes the page useless.
+ * The account's linked student number, unmasked: it is the holder's own.
  */
 export const zMyVerifiedStudentNumber = z.object({
   first_names: z.string().nullish(),
@@ -3913,9 +3880,6 @@ export const zSuotarEndpoint = z.enum([
   "list_by_course",
 ])
 
-/**
- * One logged call to the study registry.
- */
 export const zAdminSuotarApiCall = z.object({
   credit_registration_ids: z.array(z.uuid()),
   duration_ms: z
@@ -4140,8 +4104,7 @@ export const zTeacherGradingDecision = z.object({
 })
 
 /**
- * What we can honestly say about a student's linking mail, for a teacher: our send status and the
- * address's domain, which is what makes "check your university mail, not your gmail" useful.
+ * What we can honestly say about a linking mail: our send status and the address's domain.
  */
 export const zTeacherLinkingEmailStatus = z.object({
   email_send_status: zEmailSendStatus,
@@ -4155,9 +4118,6 @@ export const zTeacherLinkingEmailStatus = z.object({
   sent_at: z.iso.datetime().nullish(),
 })
 
-/**
- * One registration as a teacher sees it.
- */
 export const zCourseCreditRegistration = z.object({
   attempt_number: z
     .int()

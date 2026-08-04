@@ -40,8 +40,7 @@ const CompletionPage: React.FC = () => {
   return (
     <QueryResult query={userCompletionInformation}>
       {(data) => {
-        // Credit registration first: a module on the new pipeline may still carry the old flag while
-        // a course is being migrated, and the student must not be sent to a form we no longer use.
+        // A module being migrated can still carry the old flag, so the new pipeline wins.
         if (data.enable_credit_registration_via_suotar) {
           return (
             <CreditRegistrationStatus

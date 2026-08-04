@@ -5,7 +5,6 @@ import React from "react"
 
 interface Props {
   points: number[]
-  /** Read out instead of the shape, which assistive tech cannot see. */
   ariaLabel: string
 }
 
@@ -17,10 +16,7 @@ const rootCss = css`
   color: var(--color-gray-500);
 `
 
-/**
- * Shape only, next to the number that carries the value. Hand-rolled rather than a chart instance: it
- * is a polyline, and the table below it is the source of truth.
- */
+/** A bare polyline: hand-rolled rather than pulling in a chart library. */
 const Sparkline: React.FC<Props> = ({ points, ariaLabel }) => {
   if (points.length < 2) {
     return null

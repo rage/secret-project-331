@@ -1,19 +1,12 @@
-//! The `enrolment-discovery` phase: who the study registry says is on the course, and what that
-//! tells us about them.
+//! The `enrolment-discovery` phase: who the study registry says is on the course.
 //!
-//! Two things come out of one listing. A person we already have a link for may have re-enrolled,
-//! which is what unparks their registration; a person we have no link for is claimed for an
-//! account-linking mail, which the `link-emails` phase queues.
-//!
-//! Deliberately no matching of Sisu addresses against accounts here: the population the linking mail
-//! exists to reach is exactly the people whose two addresses differ.
-//!
-//! One item is one realisation, not one person. The per-person detail goes onto the realisation row's
-//! own counters, which is where a teacher or an admin reads it.
+//! One listing unparks the registrations of people we already have a link for, and claims an
+//! account-linking mail for the rest. Deliberately no matching of Sisu addresses against accounts:
+//! the population the linking mail exists to reach is the people whose two addresses differ.
 
 use headless_lms_models::course_module_suotar_realisations::{
     RealisationListingOutcome, RealisationToList, get_stalest_for_listing, listing_request_item_id,
-    record_listing_outcome,
+    mark_listing_attempted, record_listing_outcome,
 };
 use headless_lms_models::credit_registration_events::scrub_text;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
@@ -55,15 +48,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                 realisation.course_module_id
             );
             items_failed += 1;
-            // Advances `last_listed_at` even though nothing was asked, so a permanently
-            // unconfigured realisation cycles to the back of the stalest-first queue instead of
-            // blocking every other realisation on the platform forever.
-            record_listing_outcome(
-                &mut conn,
-                realisation.id,
-                &RealisationListingOutcome::default(),
-            )
-            .await?;
+            mark_listing_attempted(&mut conn, realisation.id).await?;
             continue;
         };
         items.push(ListByCourseRequestItem {
@@ -80,8 +65,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
             error: None,
         });
     }
-    // Held only for the reads and missing-course-code writes; the Suotar call below can pin it for
-    // the whole request timeout.
+    // Held only for the reads above; the Suotar call can pin it for the whole request timeout.
     drop(conn);
 
     let response = ctx
@@ -92,8 +76,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         )
         .await;
     let response = match response {
-        // No ledger row is involved, so there is nothing to move; the realisations keep their old
-        // `last_listed_at` and stay first in line for the next iteration.
+        // No ledger row to move: the realisations keep their old `last_listed_at` and stay first in
+        // line for the next iteration.
         Err(error) => return Ok(whole_request_failed(attempted, &error)),
         Ok(response) => response,
     };
@@ -101,42 +85,32 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     let mut conn = ctx.pool.acquire().await?;
     for realisation in &realisations {
         let item = response.item(&listing_request_item_id(realisation.id));
-        let people = match item {
-            Some(item) if item.status == SuotarItemStatus::Ok => item
-                .result
-                .as_ref()
-                .map(|result| result.people.as_slice())
-                .unwrap_or_default(),
+        let listed = match item {
+            Some(item) if item.status == SuotarItemStatus::Ok => Some(
+                item.result
+                    .as_ref()
+                    .map(|result| result.people.as_slice())
+                    .unwrap_or_default(),
+            ),
             Some(item) => {
                 warn!(
                     "Listing realisation {} failed with {}.",
                     realisation.course_unit_realisation_id, item.code
                 );
-                items_failed += 1;
-                // Same reason as the missing-course-code case above: a realisation that keeps
-                // failing must still cycle to the back of the queue.
-                record_listing_outcome(
-                    &mut conn,
-                    realisation.id,
-                    &RealisationListingOutcome::default(),
-                )
-                .await?;
-                continue;
+                None
             }
             None => {
                 warn!(
                     "The study registry did not answer for realisation {}.",
                     realisation.course_unit_realisation_id
                 );
-                items_failed += 1;
-                record_listing_outcome(
-                    &mut conn,
-                    realisation.id,
-                    &RealisationListingOutcome::default(),
-                )
-                .await?;
-                continue;
+                None
             }
+        };
+        let Some(people) = listed else {
+            items_failed += 1;
+            mark_listing_attempted(&mut conn, realisation.id).await?;
+            continue;
         };
         let outcome = reconcile(&mut conn, realisation, people).await?;
         record_listing_outcome(&mut conn, realisation.id, &outcome).await?;
@@ -200,8 +174,8 @@ async fn reconcile(
         }
     }
 
-    // The fast way back for a row parked without an enrolment. Without it the row waits out its own
-    // daily recheck.
+    // The fast way back for a row parked without an enrolment, which would otherwise wait out its
+    // own daily recheck.
     let linked_user_ids: Vec<_> = linked.iter().map(|row| row.user_id).collect();
     if !linked_user_ids.is_empty() {
         recheck_no_usable_enrolment_now(conn, realisation.course_id, &linked_user_ids).await?;

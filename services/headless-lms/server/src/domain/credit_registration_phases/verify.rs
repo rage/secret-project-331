@@ -1,11 +1,8 @@
 //! The `verify` phase: asking the study registry what became of a submission.
 //!
-//! The only way out of `submission_uncertain`, and never a way back to `import`. A row with an id
-//! is polled; a row without one is looked for among the student's existing attainments, which is
-//! the recovery for a submission whose answer never arrived.
-//!
-//! Nothing here ever fails a row: the attainment may exist, and a failed row is one an admin
-//! retries, which for an uncertain submission would mean sending it twice.
+//! The only way out of `submission_uncertain`, and never a way back to `import`. Nothing here ever
+//! fails a row: the attainment may exist, and a failed row is one an admin retries, which for an
+//! uncertain submission would mean sending it twice.
 
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
@@ -42,7 +39,7 @@ use super::{
 const REGISTERED_CODE: &str = "registered";
 
 /// Both states the poller owns. Withdrawal moves a row out of both, which is what stops the polling
-/// without any query having to remember withdrawal.
+/// without any query having to know about withdrawal.
 const CLAIMED_STATES: [CreditRegistrationState; 2] = [
     CreditRegistrationState::AwaitingVerification,
     CreditRegistrationState::SubmissionUncertain,
@@ -61,8 +58,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     let mut polls = Vec::new();
     let mut recoveries = Vec::new();
     for row in claimed {
-        // Counted before the call, because the count is part of the request item id: two polls of
-        // one row are distinguishable in the registry's log.
+        // Counted before the call: the count is part of the request item id, so two polls of one
+        // row are distinguishable in the registry's log.
         let attempt = increment_verify_attempt_count(&mut tx, row.id).await?;
         // Pushed out of reach before the request leaves, so a concurrent iteration cannot poll the
         // same row. The outcome overwrites this.
@@ -78,7 +75,6 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                 recoveries.push((row, attempt))
             }
             None => {
-                // Nothing to poll and nothing to recover from. Left alone rather than guessed at.
                 warn!(
                     "Credit registration {} is awaiting verification with no submitted attainment id.",
                     row.id
@@ -100,9 +96,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         items_failed += outcome.items_failed;
         error = error.or(outcome.error);
     }
-    // Claimed at `VerifyAttainments`'s batch size (100), but a recovery is sent on
-    // `resolve-enrolments`, whose limit is 50: chunked so a recovery set over that limit is not
-    // refused whole by `check_batch` before anything is sent.
+    // Recoveries go out on `resolve-enrolments`, whose batch limit is smaller than the one these
+    // rows were claimed at, so an oversized set would be refused whole before anything was sent.
     for chunk in recoveries.chunks(SuotarEndpoint::ResolveEnrolments.max_batch_size()) {
         let outcome = recover(ctx, chunk).await?;
         processed += outcome.items_processed;
@@ -195,8 +190,8 @@ async fn poll(
             .await?;
             continue;
         }
-        // Everything else keeps the row where it is: `notRegistered` is a normal polling answer and
-        // maps to no error code of ours, and any other answer is one we will not act on blindly.
+        // Everything else keeps the row where it is: `notRegistered` is a normal polling answer,
+        // and any other answer is one we will not act on blindly.
         let outcome = item
             .and_then(|item| map_code(AuditEndpoint::VerifyAttainments, &item.code))
             .map(|code| verify_error_outcome(row.state, code, &facts))
@@ -227,11 +222,9 @@ async fn poll(
 
 /// A request-level failure of the poll itself (transport, a 5xx, a malformed response, ...).
 ///
-/// Deliberately not the shared `request_level_failure`: every row here already holds a submitted
-/// attainment id, so a failure to ask about it proves nothing was or was not created. Each row is
-/// left exactly where it was claimed — the same outcome an unanswered item gets — rather than moved
-/// towards `failed_retryable`, which is a state an admin resubmits from and would send it twice.
-/// Still reported as an error so the breaker sees it.
+/// Deliberately not the shared `request_level_failure`: a failure to ask proves nothing was or was
+/// not created, and moving the row towards `failed_retryable` would let an admin resubmit it. Still
+/// reported as an error so the breaker sees it.
 async fn poll_request_failure(
     ctx: &PhaseContext<'_>,
     polls: &[(CreditRegistration, i32, String)],
@@ -264,10 +257,8 @@ async fn poll_request_failure(
     })
 }
 
-/// Looks for the attainment a submission we lost track of would have produced.
-///
-/// Diagnostic only: whatever comes back, the row stays `submission_uncertain` unless the attainment
-/// is found. It is never failed and never re-imported.
+/// Looks for the attainment a submission we lost track of would have produced. The row stays
+/// `submission_uncertain` unless it is found: never failed, never re-imported.
 async fn recover(
     ctx: &PhaseContext<'_>,
     rows: &[(CreditRegistration, i32)],
@@ -430,8 +421,8 @@ async fn recover(
     }
     Ok(PhaseRunOutcome {
         items_processed: i32::try_from(asked.len()).unwrap_or(i32::MAX),
-        // A row still waiting to be resolved is not a failed item: it carries no error code, and the
-        // signal that it needs a human is the admin flag the recheck raises after enough tries.
+        // A row still waiting to be resolved is not a failed item; the recheck raises the admin
+        // flag after enough tries instead.
         items_failed: 0,
         error: every_item_failed_transiently(&response)
             .then(|| "Every recovery lookup came back transiently unavailable.".to_string()),
@@ -442,8 +433,7 @@ async fn recover(
 mod tests {
     use super::*;
 
-    /// Nothing this phase claims can lead back to a batch, and it claims the only two states from
-    /// which a submitted row is still moving.
+    /// Nothing this phase claims can lead back to a batch.
     #[test]
     fn the_poller_owns_exactly_the_two_states_a_submission_can_still_be_in() {
         assert!(CLAIMED_STATES.contains(&CreditRegistrationState::AwaitingVerification));

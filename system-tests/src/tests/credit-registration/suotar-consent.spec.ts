@@ -22,9 +22,8 @@ const WITHDRAWN_STUDENT_NUMBER = "900000702"
 
 /**
  * The endpoints that carry one student's registration. `list-by-course` and `product_access_tokens`
- * are left out on purpose: both are keyed by course/product only (`ListByCourseItem` and
- * `ProductAccessTokenItem` carry no `studentNumber`), so a call to either says nothing about whether
- * we acted on this student.
+ * are left out because they are keyed by course and product alone, so a call to either says nothing
+ * about whether we acted on this student.
  */
 const REGISTRATION_ENDPOINTS = [
   "resolve_persons",

@@ -9,7 +9,6 @@ import type { RegistrationStatusState, RegistrationStatusStep } from "@/shared-m
 
 import { labelFrom, widenedLookup } from "./labelFrom"
 
-/** The four stages a student is shown, in order. */
 const STAGE_KEYS = [
   "credit-registration-stage-consent",
   "credit-registration-stage-student-number",
@@ -24,12 +23,7 @@ type StageStates = readonly [
   RegistrationStatusState,
 ]
 
-/**
- * How far each stage has got, per backend status. One row per status, in the same order as
- * `STAGE_KEYS`, so the stepper needs no per-status branching.
- *
- * The backend collapses eighteen ledger states onto these nine; nothing here re-derives that.
- */
+/** One row per status, each in `STAGE_KEYS` order. */
 const STAGE_STATES = {
   waiting_for_completion: ["upcoming", "upcoming", "upcoming", "upcoming"],
   needs_consent: ["action-needed", "upcoming", "upcoming", "upcoming"],
@@ -76,10 +70,7 @@ const STATUS_EXPLANATION_KEYS = {
   not_registering: "credit-registration-explanation-not-registering",
 } as const satisfies Record<StudentFacingCreditRegistrationStatus, string>
 
-/**
- * A student-facing sentence per error code. The study registry's own message is never rendered: it is
- * written for an integrator, may name a person, and is not translated.
- */
+/** The study registry's own message is never shown: it is untranslated and may name a person. */
 const ERROR_CODE_KEYS = {
   person_not_found: "credit-registration-error-person-not-found",
   course_code_not_found: "credit-registration-error-course-code-not-found",
@@ -105,7 +96,6 @@ const ERROR_CODE_KEYS = {
   unknown: "credit-registration-error-generic",
 } as const satisfies Record<CreditRegistrationErrorCode, string>
 
-/** Anything the mapping above does not cover, including a code added after this build. */
 const GENERIC_ERROR_KEY = "credit-registration-error-generic"
 
 const WITHDRAWN_WHILE_IN_FLIGHT_KEY = "credit-registration-explanation-consent-withdrawn-in-flight"
@@ -115,10 +105,8 @@ export const registrationStatusLabel = (
   status: StudentFacingCreditRegistrationStatus,
 ): string => labelFrom(t, STATUS_LABEL_KEYS, status, STATUS_LABEL_UNKNOWN_KEY)
 
-/** A status the frontend doesn't yet know reads as not-started, same as `waiting_for_completion`. */
 const UNKNOWN_STAGE_STATES: StageStates = STAGE_STATES.waiting_for_completion
 
-/** The state the badge shows: how the registration as a whole reads at a glance. */
 export const registrationStatusState = (
   status: StudentFacingCreditRegistrationStatus,
 ): RegistrationStatusState => {
@@ -143,18 +131,13 @@ export const registrationStepperSteps = (
   status: StudentFacingCreditRegistrationStatus,
 ): RegistrationStatusStep[] => {
   const stages = widenedLookup(STAGE_STATES, status) ?? UNKNOWN_STAGE_STATES
-  return [
-    { label: t(STAGE_KEYS[0]), state: stages[0], stateLabel: t(STATE_LABEL_KEYS[stages[0]]) },
-    { label: t(STAGE_KEYS[1]), state: stages[1], stateLabel: t(STATE_LABEL_KEYS[stages[1]]) },
-    { label: t(STAGE_KEYS[2]), state: stages[2], stateLabel: t(STATE_LABEL_KEYS[stages[2]]) },
-    { label: t(STAGE_KEYS[3]), state: stages[3], stateLabel: t(STATE_LABEL_KEYS[stages[3]]) },
-  ]
+  return STAGE_KEYS.map((key, index) => {
+    const state = stages[index] ?? "upcoming"
+    return { label: t(key), state, stateLabel: t(STATE_LABEL_KEYS[state]) }
+  })
 }
 
-/**
- * The sentence explaining where the registration stands. Withdrawal that caught an already-sent
- * import is the one place we admit an unknown outcome, so it does not share `not_registering`'s copy.
- */
+/** A withdrawal that caught an already-sent import has its own copy: the outcome is unknown. */
 export const registrationExplanation = (
   t: TFunction,
   status: StudentFacingCreditRegistrationStatus,

@@ -1,8 +1,7 @@
 //! The simulated Sisu world: entities, the submission lifecycle, the world-shaped behaviours, and
 //! the per-request working set the endpoints resolve over.
 //!
-//! No HTTP and no Redis. Everything here is a plain value so the resolution logic stays a pure
-//! function over an in-memory slice of the world.
+//! Plain values only, so the resolution logic stays a pure function over an in-memory slice.
 
 use std::collections::BTreeMap;
 
@@ -78,9 +77,8 @@ pub enum Ripeness {
     AtImport,
     /// Only an explicit control transition registers it. What every installed world sets.
     Manual,
-    /// Registers once more than `calls` verify calls have named it, so `calls: 1` answers
-    /// `notRegistered` to the first poll and `registered` to the second. Unsafe for a spec: every
-    /// unscoped tick's verify sweep burns the count.
+    /// Registers once more than `calls` verify calls have named it. Unsafe for a spec: every unscoped
+    /// tick's verify sweep burns the count.
     AutoAfterVerifyCalls { calls: u32 },
 }
 
@@ -108,8 +106,8 @@ pub enum SubmissionLifecycle {
 #[serde(rename_all = "camelCase")]
 pub struct PersonBehaviour {
     pub ripeness: Option<Ripeness>,
-    /// Per person rather than global: the one setting that exists to make a double submission
-    /// visible would otherwise hide real double submissions for every concurrent spec.
+    /// Per person rather than global: switching it off globally would hide real double submissions
+    /// from every concurrent spec.
     pub duplicate_detection: Option<DuplicateDetection>,
 }
 
@@ -127,8 +125,7 @@ impl Default for CourseBehaviour {
     }
 }
 
-/// The world stores the wire's own shapes for these, so a dump can be edited and pushed straight
-/// back.
+/// The wire's own shapes, so a world dump can be edited and pushed straight back.
 pub use super::wire::{CreditRange, DatePeriod, LocalizedName};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -143,7 +140,7 @@ pub struct MockPerson {
     #[serde(default)]
     pub behaviour: PersonBehaviour,
     /// The account this person belongs to, so a fault can be addressed by user rather than by raw
-    /// student number. Only the seed holds both vocabularies.
+    /// student number.
     pub owner_user_email: Option<String>,
 }
 
@@ -170,8 +167,8 @@ pub struct MockCourseUnit {
     pub realisations: Vec<MockRealisation>,
     #[serde(default)]
     pub behaviour: CourseBehaviour,
-    /// The courses.mooc.fi course this unit is a module of. A course slug spans every module, which
-    /// is the granularity a tick scope has.
+    /// The courses.mooc.fi course this unit is a module of; a slug spans every module, which is the
+    /// granularity a tick scope has.
     pub owner_course_slug: Option<String>,
 }
 
@@ -278,8 +275,8 @@ impl GradeScale {
     }
 }
 
-/// Every field defaults, so a push that gives a partial `defaults` object cannot install an empty
-/// accepted token and 401 the whole suite.
+/// Every field defaults, so a partial `defaults` push cannot install an empty accepted token and 401
+/// the whole suite.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct WorldDefaults {
@@ -290,8 +287,8 @@ pub struct WorldDefaults {
     pub call_log_capacity: usize,
     pub include_non_enrolled_in_result: bool,
     pub realisation_id_required: bool,
-    /// Suotar has not said what code a statically unknown grade id gets; set this to try the
-    /// alternative reading without a code change.
+    /// Suotar has not said what code a statically unknown grade id gets; this tries the alternative
+    /// reading without a code change.
     pub static_grade_error_code: Option<String>,
 }
 
@@ -315,8 +312,7 @@ impl WorldDefaults {
         self.grade_scales.iter().find(|scale| scale.answers_to(id))
     }
 
-    /// Whether any known scale carries the grade id, which is what makes an unknown one a
-    /// request-level rejection rather than a per-item error.
+    /// An unknown grade id is a request-level rejection rather than a per-item error.
     pub fn any_scale_has_grade(&self, grade_id: &str) -> bool {
         self.grade_scales
             .iter()
@@ -387,7 +383,7 @@ pub struct RecordedItem {
     pub code: String,
 }
 
-/// One entry of the mock's own call log. Unscrubbed fake data, capped, and never fed to the audited
+/// One entry of the mock's own call log: unscrubbed fake data, capped, never fed to the audited
 /// tables.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -405,8 +401,7 @@ pub struct RecordedCall {
     pub items: Vec<RecordedItem>,
 }
 
-/// One change the resolution logic wants persisted. Translated into a single Redis command each and
-/// sent as one pipeline.
+/// One change the resolution logic wants persisted, one Redis command each.
 #[derive(Debug, Clone, PartialEq)]
 pub enum WorldWrite {
     UpsertSubmission(String),

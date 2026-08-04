@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { useAdminCreditRegistrations } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import RelativeTime from "@/components/credit-registration/admin/RelativeTime"
+import { noteCss } from "@/components/credit-registration/styles"
 import type {
   CreditRegistrationErrorCode,
   CreditRegistrationState,
@@ -21,8 +22,7 @@ import { Button, Checkbox, QueryResult, Table, TextField } from "@/shared-module
 
 const ROWS_PER_PAGE = 50
 
-// Every filter lives in the query string, so a support person can paste a link to exactly what they
-// are looking at, and so the Overview's tiles can deep-link into it.
+// Every filter lives in the query string, so links are shareable and the Overview can deep-link in.
 // oxlint-disable-next-line i18next/no-literal-string
 const PARAM_STATE = "state"
 // oxlint-disable-next-line i18next/no-literal-string
@@ -95,22 +95,7 @@ const stackedCellCss = css`
   display: grid;
 `
 
-const secondaryCss = css`
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-`
-
-const noteCss = css`
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-`
-
-/**
- * The support workhorse: find this student, tell me what happened.
- *
- * Superseded attempts are hidden by default — a course that regrades holds two rows per student, and
- * showing both by default makes every number on the page read twice.
- */
+/** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
 const RegistrationsPage: React.FC = () => {
   const { t } = useTranslation()
   const router = useRouter()
@@ -129,12 +114,10 @@ const RegistrationsPage: React.FC = () => {
       include_superseded: param(PARAM_SUPERSEDED) === TRUE,
     },
   })
-  // The two toggles apply the moment they are pressed; the search box waits for submit so the table
-  // does not reshuffle on every keystroke.
   const attention = watch("needs_admin_attention")
   const superseded = watch("include_superseded")
   const typedSearch = watch("search")
-  // Refetching while the operator is mid-word would reshuffle the table under their cursor.
+  // Refetching mid-word would reshuffle the table under the operator's cursor.
   const searchPending = typedSearch.trim() !== (param(PARAM_SEARCH) ?? "")
 
   const applyParams = useCallback(
@@ -154,9 +137,8 @@ const RegistrationsPage: React.FC = () => {
     [router, searchParams],
   )
 
-  // Tracks what we last pushed to the URL per toggle: `searchParams` still reflects the
-  // pre-navigation URL for a render or two after `router.replace`, so comparing against it here
-  // would re-fire a stale update while the clear-filters navigation below is in flight.
+  // `searchParams` still holds the pre-navigation URL for a render or two after `router.replace`,
+  // so a toggle compared against it would re-fire while a navigation is in flight.
   const attentionSyncedRef = useRef(param(PARAM_ATTENTION) === TRUE)
   const supersededSyncedRef = useRef(param(PARAM_SUPERSEDED) === TRUE)
 
@@ -244,8 +226,8 @@ const RegistrationsPage: React.FC = () => {
             type="button"
             className={chipCss}
             onClick={() => {
-              // Marks both toggles as already synced before `reset` changes them, so the effects
-              // above see no discrepancy and this is the only navigation the clear produces.
+              // Marks the toggles synced before `reset` trips their effects, so the clear
+              // navigates only once.
               attentionSyncedRef.current = false
               supersededSyncedRef.current = false
               reset({ search: "", needs_admin_attention: false, include_superseded: false })
@@ -286,7 +268,7 @@ const RegistrationsPage: React.FC = () => {
                         <span>
                           {row.first_name} {row.last_name}
                         </span>
-                        <span className={secondaryCss}>{row.email}</span>
+                        <span className={noteCss}>{row.email}</span>
                       </span>
                     ),
                   },
@@ -302,7 +284,7 @@ const RegistrationsPage: React.FC = () => {
                     cell: (row) => (
                       <span className={stackedCellCss}>
                         <span>{row.course_name}</span>
-                        <span className={secondaryCss}>{row.course_module_name}</span>
+                        <span className={noteCss}>{row.course_module_name}</span>
                       </span>
                     ),
                   },

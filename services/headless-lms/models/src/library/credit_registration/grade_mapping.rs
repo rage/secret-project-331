@@ -1,13 +1,11 @@
-//! Our grade in the study registry's terms.
-//!
-//! Also the pre-flight the import batch depends on: a grade scale or grade the registry does not
-//! know is rejected at request level, taking the whole batch of twenty-five with it. Every pair
-//! that reaches a batch has been through [`map_grade`] or [`is_known_grade`].
+//! Our grade in the study registry's terms. A scale or grade the registry does not know is rejected
+//! at request level, taking the whole batch of twenty-five with it, so every pair that reaches a
+//! batch has been through [`map_grade`] or [`is_known_grade`].
 
 use crate::credit_registrations::CreditRegistrationErrorCode;
 
 /// TODO: Suotar has not confirmed the spelling. Both are accepted on the way in; this is the one we
-/// send, and changing it is this line.
+/// send.
 pub const PASS_FAIL_GRADE_SCALE_ID: &str = "sis-hyl-hyv";
 /// The other accepted spelling of the same scale, which our own legacy pull path sends.
 pub const PASS_FAIL_GRADE_SCALE_ID_ALT: &str = "sis-hyv-hyl";
@@ -17,7 +15,6 @@ pub const PASS_GRADE_ID: &str = "1";
 pub const FAIL_GRADE_ID: &str = "0";
 pub const MAX_NUMERIC_GRADE: i32 = 5;
 
-/// The scale families we can express a completion in.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GradeScaleFamily {
     PassFail,
@@ -59,8 +56,7 @@ pub struct GradeSource<'a> {
     pub enrolment_grade_scale_id: Option<&'a str>,
 }
 
-/// Maps a completion into the scale the registry expects, preferring what it told us over what we
-/// would have guessed.
+/// Maps a completion into the scale the registry expects, preferring what it told us to a guess.
 pub fn map_grade(source: GradeSource<'_>) -> Result<MappedGrade, CreditRegistrationErrorCode> {
     let scale_id = source
         .configured_grade_scale_id
@@ -80,8 +76,7 @@ pub fn map_grade(source: GradeSource<'_>) -> Result<MappedGrade, CreditRegistrat
         }
         .to_string(),
         GradeScaleFamily::Numeric => {
-            // A pass/fail completion carries no number, and inventing one would put a grade the
-            // teacher never gave on a transcript.
+            // Inventing a number would put a grade the teacher never gave on a transcript.
             let grade = source
                 .grade
                 .ok_or(CreditRegistrationErrorCode::NoGradeScaleMapping)?;
@@ -97,8 +92,8 @@ pub fn map_grade(source: GradeSource<'_>) -> Result<MappedGrade, CreditRegistrat
     })
 }
 
-/// Whether a frozen pair is one the registry will accept. Checked again before batching because a
-/// pair it does not know is a request-level rejection: one bad row would fail twenty-four good ones.
+/// Whether a frozen pair is one the registry will accept. Checked again before batching: an unknown
+/// pair is a request-level rejection, so one bad row would fail twenty-four good ones.
 pub fn is_known_grade(grade_scale_id: &str, grade_id: &str) -> bool {
     match grade_scale_family(grade_scale_id) {
         Some(GradeScaleFamily::PassFail) => grade_id == PASS_GRADE_ID || grade_id == FAIL_GRADE_ID,
@@ -144,8 +139,6 @@ mod tests {
         );
     }
 
-    /// The order the algorithm resolves the scale in: the module's override, then what the registry
-    /// told us the enrolment expects, then what we would have guessed.
     #[test]
     fn the_module_override_wins_over_the_enrolment_and_the_enrolment_over_the_guess() {
         let with_enrolment = GradeSource {
@@ -169,8 +162,6 @@ mod tests {
         assert_eq!(map_grade(overridden).unwrap().grade_id, "4");
     }
 
-    /// A scale nobody recognises is a configuration problem, and it must surface as one before a
-    /// batch is built rather than as a whole-batch rejection afterwards.
     #[test]
     fn an_unrecognised_scale_fails_before_anything_is_sent() {
         let source = GradeSource {
@@ -225,8 +216,6 @@ mod tests {
         assert!(!is_known_grade("sis-something-else", "1"));
     }
 
-    /// Everything `map_grade` produces has to survive the pre-flight, or a row could be frozen in a
-    /// shape that only fails once it is inside a batch.
     #[test]
     fn everything_the_mapping_produces_passes_the_pre_flight() {
         let mut mapped = vec![map_grade(source(true, None)).unwrap()];

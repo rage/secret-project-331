@@ -1,9 +1,8 @@
 //! The world installed when nothing has been pushed, and the marker that says which database it
 //! belongs to.
 //!
-//! It holds no fixtures of its own. The restore-from-template setup path replaces the database and
-//! runs no seed, so the lazily installed world is the only one the suite sees there — a different
-//! world would hand the two setup scripts different fixtures with nothing in the output saying why.
+//! It is the seed's own world rather than fixtures of its own: the restore-from-template setup path
+//! runs no seed, and a different world there would hand the two setup paths different fixtures.
 
 use sqlx::PgPool;
 
@@ -19,11 +18,9 @@ pub fn build() -> World {
     world_from_push(mock_suotar_world())
 }
 
-/// Something the database also knows, so a world installed against a *different* database is a
-/// crisp diagnostic rather than a baffling test failure. Staleness inside one restored template is
-/// invisible to it, which is what the flush on that path is for.
-///
-/// This is the whole of the mock's relationship with Postgres: one read, never a write.
+/// Something the database also knows, so a world installed against a *different* database shows up as
+/// a diagnostic. Staleness inside one restored template is invisible to it, which is what the flush on
+/// that path is for. The mock's only read of Postgres, and it never writes.
 pub async fn db_generation_marker(pool: &PgPool) -> Option<String> {
     let created_at: Option<DateTime<Utc>> =
         sqlx::query_scalar("SELECT created_at FROM courses WHERE id = $1")

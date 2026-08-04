@@ -15,6 +15,7 @@ import type { AdminResendAccountLinkingEmailResult } from "@/generated/api/types
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Checkbox, Dialog, Infobox, TextArea } from "@/shared-module/components"
 
+import { MIDDLE_DOT, TONE } from "../constants"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
 
@@ -22,7 +23,6 @@ interface Props {
   studentNumber: string
   courseId: string
   courseName: string
-  /** Whether a mail has already been handed over or failed, which is what makes a manual link honest. */
   hasMailHistory: boolean
 }
 
@@ -33,13 +33,6 @@ interface Fields {
 
 // oxlint-disable-next-line i18next/no-literal-string
 const QUEUED = "queued"
-// oxlint-disable-next-line i18next/no-literal-string
-const INFO_TONE = "info" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const WARNING_TONE = "warning" as const
-/** Separator between identifiers on one line. Not prose, so not translated. */
-// oxlint-disable-next-line i18next/no-literal-string
-const DOT = " · "
 
 const rootCss = css`
   display: grid;
@@ -67,13 +60,7 @@ const lastResortCss = css`
   }
 `
 
-/**
- * The first-line remedy, with the cap refusal reported as it came back.
- *
- * The override does not relax a cap: it retires the linking-mail rows the caps count, as its own
- * audited action, and then runs the same send path the worker runs. A reason is required for it, and
- * the endpoint refuses without one.
- */
+/** The override retires the rows the caps count rather than relaxing a cap, and needs a reason. */
 const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   studentNumber,
   courseId,
@@ -131,7 +118,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
         </button>
       )}
       {result && (
-        <Infobox tone={result.outcome === QUEUED ? INFO_TONE : WARNING_TONE}>
+        <Infobox tone={result.outcome === QUEUED ? TONE.INFO : TONE.WARNING}>
           <div>{resendOutcomeLabel(t, result.outcome)}</div>
           <div>
             {t("credit-registration-admin-resend-mails-so-far", {
@@ -149,7 +136,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
           {result.linking_emails.map((mail) => (
             <div key={mail.id}>
               {mail.emailed_to}
-              {DOT}
+              {MIDDLE_DOT}
               {sendStatusLabel(t, mail.send_status.email_send_status)}
             </div>
           ))}

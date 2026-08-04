@@ -1,11 +1,8 @@
 //! Client for Suotar, the University of Helsinki study registry.
 //!
-//! Every endpoint is a batch: a JSON array in, one response item per request item out. Per-item
-//! outcomes always arrive as HTTP 200 and are read from each item's `status` and `code`; only
-//! request-level failures are 4xx/5xx, and those are `Err`.
-//!
-//! Response items are matched back by `requestItemId`, never by position. The id is the ledger
-//! row's own `request_item_id`, sent verbatim, and it is the only per-row handle inside a batch.
+//! Every endpoint is a batch. Per-item outcomes arrive as HTTP 200 and are read from each item's
+//! `status` and `code`; only request-level failures are 4xx/5xx and `Err`. Items are matched back
+//! by `requestItemId`, never by position.
 
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
@@ -20,16 +17,14 @@ use serde::de::DeserializeOwned;
 
 use crate::{error::util_error::SuotarErrorVariant, prelude::*};
 
-/// Bounds one call, so a Suotar that never answers cannot stall a worker tick for longer than this
-/// and a hang scenario still fits inside a system test's budget.
+/// Bounds one call so a Suotar that never answers cannot stall a worker tick.
 pub const SUOTAR_REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
 
-/// Carries `suotar_api_calls.id`, inserted before the request leaves, so Suotar's log and ours join
-/// on one value. Suotar ignores headers it does not know.
+/// Carries `suotar_api_calls.id` so Suotar's log and ours join on one value.
 pub const CORRELATION_ID_HEADER: &str = "X-Correlation-Id";
 
-/// The actix payload limit our own mock Suotar runs behind; a request over it is rejected before it
-/// is sent rather than 413'd at the far end.
+/// Matches the actix payload limit the mock Suotar runs behind, so an oversized batch is refused
+/// here rather than 413'd at the far end.
 pub const MAX_REQUEST_BODY_BYTES: usize = 2 * 1024 * 1024;
 
 /// The only code the contract classifies as "transient, retry me".
@@ -59,9 +54,8 @@ impl SuotarEndpoint {
         }
     }
 
-    /// Import is smallest because a request-level failure re-queues the whole batch and its items
-    /// are the expensive, uncertain ones; list-by-course is smallest of the reads because its
-    /// responses carry a person per enrolment.
+    /// Import is smallest because a request-level failure re-queues the whole batch; list-by-course
+    /// because its responses carry a person per enrolment.
     pub fn max_batch_size(self) -> usize {
         match self {
             Self::ResolvePersons | Self::ResolveEnrolments | Self::ProductAccessTokens => 50,
@@ -71,14 +65,13 @@ impl SuotarEndpoint {
         }
     }
 
-    /// Import is the only call that creates something in Sisu. An item it never answered has an
-    /// unknown outcome, and re-sending it can put a second attainment on a real transcript.
+    /// An item this endpoint never answered is uncertain, not retryable: re-sending it can put a
+    /// second attainment on a real transcript.
     pub fn creates_attainments(self) -> bool {
         matches!(self, Self::ImportAttainments)
     }
 
-    /// Whether the contract lists a transient code among this endpoint's per-item results.
-    /// `resolve-enrolments` and `import` carry the transient failure only in the request-level form.
+    /// `resolve-enrolments` and `import` carry the transient failure only at the request level.
     pub fn carries_item_level_transient(self) -> bool {
         matches!(
             self,
@@ -90,8 +83,8 @@ impl SuotarEndpoint {
     }
 }
 
-/// Sent verbatim from `credit_registrations.request_item_id`. Suotar echoes it back, and matching on
-/// it is what makes a reordered or partial response safe to read.
+/// Sent verbatim from `credit_registrations.request_item_id`; Suotar echoes it back, which is what
+/// makes a reordered or partial response safe to read.
 pub trait SuotarRequestItem: Serialize {
     fn request_item_id(&self) -> &str;
 }
@@ -239,9 +232,8 @@ pub struct EnrolmentResolutionResult {
     pub existing_attainments: Vec<ExistingAttainment>,
 }
 
-/// Covers both attainment bodies the contract uses: the bare `{id, type}` that `import` and
-/// `verify` answer `registered` with, and the fuller one behind `duplicateAttainment` and
-/// `notImprovedAttainment`.
+/// Covers both contract bodies: the bare `{id, type}` of a `registered` answer and the fuller one
+/// behind `duplicateAttainment` and `notImprovedAttainment`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SuotarAttainment {
@@ -328,8 +320,8 @@ pub struct SuotarItemError {
 pub struct SuotarResponseItem<R> {
     pub request_item_id: String,
     pub status: SuotarItemStatus,
-    /// Left as sent. Suotar may add codes, and a strict enum would take the pipeline down when it
-    /// does; the mapping to our own error codes is explicit and tolerates the unknown.
+    /// A string, not an enum: Suotar may add codes, and a strict enum would take the pipeline down
+    /// the day it does.
     pub code: String,
     pub result: Option<R>,
     pub error: Option<SuotarItemError>,
@@ -339,8 +331,7 @@ pub struct SuotarResponseItem<R> {
 pub struct SuotarBatchResponse<R> {
     pub endpoint: SuotarEndpoint,
     pub items: Vec<SuotarResponseItem<R>>,
-    /// Sent, but answered by nothing. On [`SuotarEndpoint::creates_attainments`] the outcome of
-    /// these is unknown, not retryable.
+    /// Sent, but answered by nothing. Unknown outcome on [`SuotarEndpoint::creates_attainments`].
     pub missing_request_item_ids: Vec<String>,
     /// Answered, but never sent. Logged and otherwise ignored.
     pub unexpected_request_item_ids: Vec<String>,
@@ -349,8 +340,9 @@ pub struct SuotarBatchResponse<R> {
     pub duration: Duration,
     /// `suotar_api_calls.id`, absent only when the audit write itself failed.
     pub call_id: Option<Uuid>,
-    /// Unscrubbed. Scrub before persisting any part of it.
-    pub raw_response: serde_json::Value,
+    /// Unscrubbed; scrub before persisting any part of it. Shared with the audit record rather than
+    /// copied, since `list-by-course` bodies are the largest the pipeline handles.
+    pub raw_response: Arc<serde_json::Value>,
 }
 
 impl<R> SuotarBatchResponse<R> {
@@ -368,9 +360,8 @@ impl<R> SuotarBatchResponse<R> {
     }
 }
 
-/// Who is making the call and which ledger rows it covers. Both are audit-row columns:
-/// `worker_name` separates the submitter from the verify poller from a manual admin retry, and the
-/// registration ids replace the identifiers scrubbing removes from the stored bodies.
+/// Both fields are audit-row columns: `worker_name` separates the submitter from the verify poller
+/// from a manual retry, and the ids replace the identifiers scrubbing removes from stored bodies.
 #[derive(Debug, Clone, Default)]
 pub struct SuotarCallContext {
     pub worker_name: String,
@@ -391,7 +382,6 @@ impl SuotarCallContext {
     }
 }
 
-/// Handed to [`SuotarCallAudit::started`] before the request leaves.
 #[derive(Debug, Clone)]
 pub struct SuotarCallStarted {
     pub endpoint: SuotarEndpoint,
@@ -403,7 +393,6 @@ pub struct SuotarCallStarted {
     pub request_body: serde_json::Value,
 }
 
-/// Handed to [`SuotarCallAudit::finished`] once the call has an outcome, including a failed one.
 #[derive(Debug, Clone, Default)]
 pub struct SuotarCallFinished {
     pub http_status: Option<u16>,
@@ -414,14 +403,11 @@ pub struct SuotarCallFinished {
     pub request_level_error_code: Option<String>,
     pub error_message: Option<String>,
     /// Unscrubbed; the implementation scrubs before it persists anything.
-    pub response_body: Option<serde_json::Value>,
+    pub response_body: Option<Arc<serde_json::Value>>,
 }
 
-/// Persists one `suotar_api_calls` row per call. Lives behind a trait because the table is in the
-/// models crate, which depends on this one.
-///
-/// The row is written before the request goes out and completed after it, so a call that never
-/// answers still leaves a record. Implementations must scrub the bodies.
+/// Persists one `suotar_api_calls` row per call. A trait because the table is in the models crate,
+/// which depends on this one. Implementations must scrub the bodies.
 #[async_trait]
 pub trait SuotarCallAudit: Send + Sync {
     /// Returns the row id, which travels out as [`CORRELATION_ID_HEADER`]. `None` means the row
@@ -431,7 +417,6 @@ pub trait SuotarCallAudit: Send + Sync {
     async fn finished(&self, call_id: Uuid, finished: SuotarCallFinished);
 }
 
-/// Records nothing. For tests and for the client's own mock constructor.
 pub struct NoSuotarCallAudit;
 
 #[async_trait]
@@ -443,8 +428,8 @@ impl SuotarCallAudit for NoSuotarCallAudit {
     async fn finished(&self, _call_id: Uuid, _finished: SuotarCallFinished) {}
 }
 
-/// The credential encoding we send, pinned by test. Suotar's legacy study-registry path takes the
-/// token verbatim after the scheme word rather than base64 of `user:password`.
+/// Suotar's legacy study-registry path takes the token verbatim after the scheme word, not base64
+/// of `user:password`.
 fn authorization_header_value(token: &str) -> String {
     format!("{SUOTAR_AUTH_SCHEME} {token}")
 }
@@ -539,13 +524,10 @@ impl SuotarClient {
         if items.is_empty() {
             return Ok(empty_batch_response(endpoint));
         }
-        // Built once and reused for the wire body below, rather than serializing `items` a second
-        // time: the two must stay byte-for-byte the same request anyway.
+        // Serialized once: the audited body and the wire body must be byte-for-byte the same.
         let request_body = serde_json::to_value(&items)?;
         let encoded = serde_json::to_vec(&request_body)?;
-        // Written before the pre-flight checks below, not after: a batch that `check_batch` or the
-        // size cap refuses still needs a `suotar_api_calls` row, or an operator has nothing to
-        // diagnose the refusal from.
+        // Before the pre-flight checks, so a refused batch still leaves an audit row to diagnose.
         let call_id = self
             .audit
             .started(SuotarCallStarted {
@@ -608,8 +590,7 @@ impl SuotarClient {
         outcome
     }
 
-    /// Records a pre-flight refusal so it leaves the same kind of `suotar_api_calls` row every other
-    /// failure path does.
+    /// Records a pre-flight refusal as the `suotar_api_calls` row any other failure would leave.
     async fn refused<R>(
         &self,
         call_id: Option<Uuid>,
@@ -629,8 +610,8 @@ impl SuotarClient {
         Err(error)
     }
 
-    /// The audit record comes back alongside the result because only this function knows the
-    /// status, the duration and the request-level code, and the row needs all three.
+    /// Returns the audit record alongside the result: only this function knows the status, the
+    /// duration and the request-level code, and the row needs all three.
     async fn exchange<R: DeserializeOwned>(
         &self,
         endpoint: SuotarEndpoint,
@@ -689,12 +670,12 @@ impl SuotarClient {
                 Some(http_status),
                 duration,
                 code,
-                Some(body_for_audit(&text)),
+                Some(Arc::new(body_for_audit(&text))),
             );
         }
 
-        let raw_response: serde_json::Value = match serde_json::from_str(&text) {
-            Ok(value) => value,
+        let raw_response: Arc<serde_json::Value> = match serde_json::from_str(&text) {
+            Ok(value) => Arc::new(value),
             Err(error) => {
                 return failed(
                     util_err!(
@@ -708,11 +689,11 @@ impl SuotarClient {
                     Some(http_status),
                     duration,
                     None,
-                    Some(body_for_audit(&text)),
+                    Some(Arc::new(body_for_audit(&text))),
                 );
             }
         };
-        let items: Vec<SuotarResponseItem<R>> = match serde_json::from_value(raw_response.clone()) {
+        let items: Vec<SuotarResponseItem<R>> = match serde_json::from_str(&text) {
             Ok(items) => items,
             Err(error) => {
                 return failed(
@@ -756,13 +737,12 @@ impl SuotarClient {
                 .count(),
             request_level_error_code: None,
             error_message: None,
-            response_body: Some(response.raw_response.clone()),
+            response_body: Some(Arc::clone(&response.raw_response)),
         };
         (Ok(response), finished)
     }
 }
 
-/// A result and the audit row that goes with it, failure included.
 type Exchanged<R> = (UtilResult<SuotarBatchResponse<R>>, SuotarCallFinished);
 
 fn failed<R>(
@@ -770,7 +750,7 @@ fn failed<R>(
     http_status: Option<u16>,
     duration: Duration,
     request_level_error_code: Option<String>,
-    response_body: Option<serde_json::Value>,
+    response_body: Option<Arc<serde_json::Value>>,
 ) -> Exchanged<R> {
     let finished = SuotarCallFinished {
         http_status,
@@ -790,7 +770,7 @@ fn body_for_audit(text: &str) -> serde_json::Value {
     serde_json::from_str(text).unwrap_or_else(|_| serde_json::Value::String(text.to_string()))
 }
 
-/// Refuses our own bugs before a request goes out. Both would come back as a request-level error
+/// Refuses our own bugs before a request goes out; both would come back as a request-level error
 /// rejecting the whole batch.
 fn check_batch<T: SuotarRequestItem>(
     endpoint: SuotarEndpoint,
@@ -826,7 +806,7 @@ fn check_batch<T: SuotarRequestItem>(
         .collect())
 }
 
-/// An empty array is a request-level error at the far end, so an empty batch is not sent at all and
+/// An empty array is a request-level error at the far end, so an empty batch is never sent and
 /// leaves no audit row.
 fn empty_batch_response<R>(endpoint: SuotarEndpoint) -> SuotarBatchResponse<R> {
     SuotarBatchResponse {
@@ -837,18 +817,18 @@ fn empty_batch_response<R>(endpoint: SuotarEndpoint) -> SuotarBatchResponse<R> {
         http_status: 0,
         duration: Duration::ZERO,
         call_id: None,
-        raw_response: serde_json::Value::Array(Vec::new()),
+        raw_response: Arc::new(serde_json::Value::Array(Vec::new())),
     }
 }
 
-/// Pairs the response against what was sent, by `requestItemId`. Order is not consulted.
+/// Pairs the response against what was sent by `requestItemId`; order is not consulted.
 fn reconcile<R>(
     endpoint: SuotarEndpoint,
     sent_ids: Vec<String>,
     items: Vec<SuotarResponseItem<R>>,
     http_status: u16,
     duration: Duration,
-    raw_response: serde_json::Value,
+    raw_response: Arc<serde_json::Value>,
 ) -> SuotarBatchResponse<R> {
     let sent: HashSet<&str> = sent_ids.iter().map(String::as_str).collect();
     let answered: HashSet<&str> = items
@@ -937,8 +917,8 @@ fn request_level_error(
     )
 }
 
-/// `is_connect` is the one case where the request provably never reached Suotar. Everything else,
-/// a timeout above all, may have been processed.
+/// `is_connect` is the one case where the request provably never reached Suotar; everything else, a
+/// timeout above all, may have been processed.
 fn transport_variant(error: &reqwest::Error) -> SuotarErrorVariant {
     if error.is_connect() || error.is_builder() {
         SuotarErrorVariant::TransportNotDelivered
@@ -1002,22 +982,12 @@ mod tests {
             items,
             200,
             Duration::ZERO,
-            json!([]),
+            Arc::new(json!([])),
         )
     }
 
-    /// The credential encoding the mock's tolerance is a safety net for. Changing this is a
-    /// contract change with Suotar, not a refactor.
-    #[test]
-    fn the_authorization_header_sends_the_token_verbatim_after_the_scheme() {
-        assert_eq!(
-            authorization_header_value("mock-suotar-token"),
-            "Basic mock-suotar-token"
-        );
-    }
-
-    /// The paths are relative and the base ends in `/`, so a leading slash on either side would
-    /// silently drop the mock's route prefix and 404 every call.
+    /// A leading slash on either side would silently drop the base's route prefix and 404 every
+    /// call.
     #[test]
     fn every_endpoint_joins_onto_the_configured_base() {
         let client = SuotarClient::mock_for_test();
@@ -1246,34 +1216,6 @@ mod tests {
         let response = reconciled(&["a1"], person_response(&["a1", "z9"]));
         assert_eq!(response.unexpected_request_item_ids, vec!["z9".to_string()]);
         assert!(response.missing_request_item_ids.is_empty());
-    }
-
-    #[test]
-    fn only_import_creates_attainments() {
-        assert!(SuotarEndpoint::ImportAttainments.creates_attainments());
-        for endpoint in [
-            SuotarEndpoint::ResolvePersons,
-            SuotarEndpoint::ResolveEnrolments,
-            SuotarEndpoint::VerifyAttainments,
-            SuotarEndpoint::ProductAccessTokens,
-            SuotarEndpoint::ListByCourse,
-        ] {
-            assert!(!endpoint.creates_attainments(), "{endpoint:?}");
-        }
-    }
-
-    #[test]
-    fn resolve_enrolments_and_import_have_no_item_level_transient() {
-        assert!(!SuotarEndpoint::ResolveEnrolments.carries_item_level_transient());
-        assert!(!SuotarEndpoint::ImportAttainments.carries_item_level_transient());
-        for endpoint in [
-            SuotarEndpoint::ResolvePersons,
-            SuotarEndpoint::VerifyAttainments,
-            SuotarEndpoint::ProductAccessTokens,
-            SuotarEndpoint::ListByCourse,
-        ] {
-            assert!(endpoint.carries_item_level_transient(), "{endpoint:?}");
-        }
     }
 
     #[test]

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM student_number_verification_tokens\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT *\nFROM student_number_verification_tokens\nWHERE id = ANY($1::uuid [])\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -160,7 +160,7 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "UuidArray"
       ]
     },
     "nullable": [
@@ -180,5 +180,5 @@
       true
     ]
   },
-  "hash": "1f0b63420281325d81cd0e1d25c0ce59d8084253a566faa93e7491621dbf1398"
+  "hash": "9582c66d673cfcdebac9e8799e7eb9452544fe5893b91bd16a5434a295755090"
 }

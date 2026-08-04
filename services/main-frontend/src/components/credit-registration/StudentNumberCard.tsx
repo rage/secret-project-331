@@ -25,11 +25,7 @@ import { TONE } from "./constants"
 import LinkingEmailLine from "./LinkingEmailLine"
 import SectionCard from "./SectionCard"
 
-/**
- * How the link was proved. Worth spelling out: "our support team did this for you" is materially
- * different information from "you opened a link we mailed", and a student disputing a wrong number
- * needs to know which happened.
- */
+/** A student disputing a wrong number needs to know how the link was proved. */
 const PROVENANCE_KEYS = {
   emailed_link: "student-number-verified-via-emailed-link",
   email_match_fast_track: "student-number-verified-via-email-match",
@@ -41,8 +37,6 @@ const StudentNumberCard: React.FC = () => {
   const linkQuery = useQuery({ ...getMyVerifiedStudentNumberOptions() })
   const registrationsQuery = useQuery({ ...getMyCreditRegistrationsOptions() })
 
-  // The one place outside the completion status page that mentions the linking mail, and only in the
-  // not-linked variant: a student who has a number is not waiting for anything.
   const linkingEmail =
     registrationsQuery.data?.find(
       (registration) =>
@@ -74,8 +68,7 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber }> = ({ link }) => {
     { notify: true, method: "DELETE" },
     {
       onSuccess: async () => {
-        // The backend moves unsent registrations back to waiting for a student number, so every
-        // badge that reads the ledger is stale.
+        // Unlinking moves unsent registrations back to waiting for a student number.
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: getMyVerifiedStudentNumberQueryKey() }),
           queryClient.invalidateQueries({ queryKey: getMyCreditRegistrationsQueryKey() }),

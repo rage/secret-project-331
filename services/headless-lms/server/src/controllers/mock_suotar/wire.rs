@@ -1,7 +1,7 @@
 //! Request and response bodies for the six contract endpoints, and the canonical message strings.
 //!
-//! Every batch endpoint takes a top-level JSON array and answers with one item per request item in
-//! request order. Per-item outcomes are HTTP 200; only request-level failures are 4xx/5xx.
+//! Every endpoint takes a top-level JSON array and answers with one item per request item, in order.
+//! Per-item outcomes are HTTP 200; only request-level failures are 4xx/5xx.
 
 use chrono::NaiveDate;
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
@@ -322,8 +322,8 @@ pub struct PeopleResult {
     pub people: Vec<ListedPerson>,
 }
 
-/// The proposal words `sisuTemporarilyUnavailable` differently on each endpoint that carries it, and
-/// the mock reproduces that: a client keying off `message` instead of `code` has to break here.
+/// `sisuTemporarilyUnavailable` is worded differently per endpoint, reproduced here so a client
+/// keying off `message` instead of `code` breaks.
 pub fn canonical_message(endpoint: SuotarEndpoint, code: &str) -> String {
     if code == "sisuTemporarilyUnavailable" {
         return match endpoint {
@@ -375,7 +375,7 @@ pub fn canonical_message(endpoint: SuotarEndpoint, code: &str) -> String {
 mod tests {
     use super::*;
 
-    /// The proposal's own example bodies, which is the actual contract check.
+    /// The proposal's own example bodies, verbatim.
     #[test]
     fn the_proposals_example_request_bodies_deserialize() {
         let persons: Vec<ResolvePersonsItem> = serde_json::from_str(

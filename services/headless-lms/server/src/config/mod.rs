@@ -51,8 +51,7 @@ pub struct ServerRuntimeConfig {
     pub app_conf: ApplicationConfiguration,
     /// Redis connection URL — may contain credentials, so kept secret.
     pub redis_url: SecretString,
-    /// The mock Suotar's own Redis database, kept off the cache's index 1 so a flush touches
-    /// nothing of the cache's. Overridable for a developer who already has something on index 2.
+    /// The mock Suotar's own Redis database, off the cache's index 1 so a flush cannot reach it.
     pub mock_suotar_redis_db_index: i64,
     pub jwt_password: SecretString,
     pub private_cookie_key: SecretString,

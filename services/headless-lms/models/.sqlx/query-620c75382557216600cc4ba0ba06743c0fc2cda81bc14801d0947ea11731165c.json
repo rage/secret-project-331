@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM credit_registration_account_linking_emails\nWHERE course_id = $1\n  AND deleted_at IS NULL\nORDER BY sent_at DESC\n        ",
+  "query": "\nSELECT DISTINCT ON (sisu_person_id) *\nFROM credit_registration_account_linking_emails\nWHERE course_id = $1\n  AND sisu_person_id = ANY($2::text [])\n  AND deleted_at IS NULL\nORDER BY sisu_person_id,\n  sent_at DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -127,7 +127,8 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "TextArray"
       ]
     },
     "nullable": [
@@ -144,5 +145,5 @@
       true
     ]
   },
-  "hash": "49e64a0c9ee2ecb46fba5eec7e2756fe2eed757dc7699e92cc207ee8d3b379cf"
+  "hash": "620c75382557216600cc4ba0ba06743c0fc2cda81bc14801d0947ea11731165c"
 }

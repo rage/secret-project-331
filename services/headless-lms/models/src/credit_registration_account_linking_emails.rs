@@ -1,10 +1,9 @@
 //! Dedup ledger for account-linking mails.
 //!
 //! Keyed on the Sisu person id plus the recipient address: at send time there is no account of ours
-//! to key on, and the student number changes when a student moves between programmes.
-//!
-//! A row is written the moment the right to mail is claimed, before a delivery exists, so the claim
-//! and the queueing are two phases that cannot mail twice between them.
+//! to key on, and the student number changes when a student moves between programmes. A row is
+//! written when the right to mail is claimed, before a delivery exists, so a crash between the two
+//! phases cannot mail twice.
 use std::collections::{HashMap, HashSet};
 
 use utoipa::ToSchema;
@@ -37,10 +36,8 @@ pub struct NewAccountLinkingEmail {
     pub email_delivery_id: Option<Uuid>,
 }
 
-/// Claims the right to mail this (person, course, address) exactly once. `None` means a mail was
-/// already recorded and the caller must not send.
-///
-/// Call in the transaction that mints the token, so a refused claim leaves no usable link behind.
+/// Claims the right to mail this (person, course, address) once; `None` means the caller must not
+/// send. Call in the transaction that mints the token, so a refused claim leaves no usable link.
 pub async fn claim_send_slot(
     conn: &mut PgConnection,
     new: &NewAccountLinkingEmail,
@@ -70,39 +67,7 @@ RETURNING id
     Ok(res.map(|r| r.id))
 }
 
-/// Whether this (person, course, address) has already had its mail.
-///
-/// The unique index behind [`claim_send_slot`] is what actually prevents a second one; this answers
-/// the same question without writing, so a suppressed send can be counted as dedup rather than as a
-/// lost race.
-pub async fn already_mailed(
-    conn: &mut PgConnection,
-    sisu_person_id: &str,
-    course_id: Uuid,
-    emailed_to: &str,
-) -> ModelResult<bool> {
-    let exists = sqlx::query_scalar!(
-        r#"
-SELECT EXISTS(
-    SELECT 1
-    FROM credit_registration_account_linking_emails
-    WHERE sisu_person_id = $1
-      AND course_id = $2
-      AND LOWER(emailed_to) = LOWER($3)
-      AND deleted_at IS NULL
-  ) AS "exists!"
-        "#,
-        sisu_person_id,
-        course_id,
-        emailed_to,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(exists)
-}
-
-/// One existing mail, as much as [`claim_linking_mails`][crate::library::credit_registration::account_linking::claim_linking_mails]'s
-/// dedup guard and rate caps need to decide on a person without a query per person.
+/// As much of one existing mail as the dedup guard and the rate caps need to decide on a person.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExistingLinkingMailFact {
     pub sisu_person_id: String,
@@ -111,11 +76,8 @@ pub struct ExistingLinkingMailFact {
     pub sent_at: DateTime<Utc>,
 }
 
-/// Every live mail these people have ever been sent, any course. The batched read behind
-/// [`claim_linking_mails_batch`][crate::library::credit_registration::account_linking::claim_linking_mails_batch]:
-/// one query stands in for the quiet-period count, the per-course count and the dedup check that
-/// [`claim_linking_mails`][crate::library::credit_registration::account_linking::claim_linking_mails]
-/// otherwise runs per person.
+/// Every live mail these people have ever been sent, any course: one query stands in for the
+/// quiet-period count, the per-course count and the dedup check of a whole batch of candidates.
 pub async fn get_existing_facts_for_persons(
     conn: &mut PgConnection,
     sisu_person_ids: &[String],
@@ -138,12 +100,9 @@ WHERE sisu_person_id = ANY($1::text [])
     Ok(res)
 }
 
-/// Batched form of [`claim_send_slot`]: claims many slots in one round trip.
-///
-/// Returns the `student_number_verification_token_id` of every row actually inserted, so the caller
-/// can tell which candidates lost the race to the unique index — the same signal `claim_send_slot`
-/// gives back as `None`, keyed by token instead of one call per address. `email_delivery_id` is left
-/// at its column default (`NULL`): a claim always precedes the delivery it will carry.
+/// Batched form of [`claim_send_slot`], keyed by token: returns the
+/// `student_number_verification_token_id` of every row actually inserted, so the caller can tell
+/// which candidates lost the race to the unique index.
 pub async fn claim_send_slots(
     conn: &mut PgConnection,
     new: &[NewAccountLinkingEmail],
@@ -186,31 +145,38 @@ RETURNING student_number_verification_token_id AS "token_id!"
     Ok(claimed.into_iter().collect())
 }
 
-pub async fn get_by_course_id(
+/// This course's newest linking mail for each of these Sisu people, keyed by person id.
+pub async fn get_latest_by_course_and_persons(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<CreditRegistrationAccountLinkingEmail>> {
+    sisu_person_ids: &[String],
+) -> ModelResult<HashMap<String, CreditRegistrationAccountLinkingEmail>> {
     let res = sqlx::query_as!(
         CreditRegistrationAccountLinkingEmail,
         r#"
-SELECT *
+SELECT DISTINCT ON (sisu_person_id) *
 FROM credit_registration_account_linking_emails
 WHERE course_id = $1
+  AND sisu_person_id = ANY($2::text [])
   AND deleted_at IS NULL
-ORDER BY sent_at DESC
+ORDER BY sisu_person_id,
+  sent_at DESC
         "#,
-        course_id
+        course_id,
+        sisu_person_ids,
     )
     .fetch_all(conn)
     .await?;
-    Ok(res)
+    Ok(res
+        .into_iter()
+        .map(|row| (row.sisu_person_id.clone(), row))
+        .collect())
 }
 
 /// This course's linking mails for one student number, newest first.
 ///
-/// Addressed to whoever the study registry names, not to an account of ours, so this must not go
-/// through a verified-number lookup: the target of a linking mail is exactly the population that has
-/// none.
+/// Keyed on the number the study registry gave us, not on a verified link: the recipients of a
+/// linking mail are exactly the population that has none.
 pub async fn get_by_course_id_and_student_number(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -254,30 +220,8 @@ ORDER BY sent_at DESC
     Ok(res)
 }
 
-/// Backs the rate cap of at most one mail per Sisu person per window, across all courses.
-pub async fn count_sent_since(
-    conn: &mut PgConnection,
-    sisu_person_id: &str,
-    since: DateTime<Utc>,
-) -> ModelResult<i64> {
-    let count = sqlx::query_scalar!(
-        r#"
-SELECT COUNT(*) AS "count!"
-FROM credit_registration_account_linking_emails
-WHERE sisu_person_id = $1
-  AND sent_at >= $2
-  AND deleted_at IS NULL
-        "#,
-        sisu_person_id,
-        since,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(count)
-}
-
-/// Backs the rate cap of at most a few mails ever per (person, course), even when tokens expire
-/// unused.
+/// How many mails this person has had for this course, tokens that expired unused included. Read
+/// against the lifetime cap when an admin asks for a resend.
 pub async fn count_sent_for_person_and_course(
     conn: &mut PgConnection,
     sisu_person_id: &str,
@@ -317,8 +261,9 @@ pub struct LinkingMailToQueue {
 /// Locks them, so the caller must hold a transaction: the delivery insert is not idempotent, and two
 /// iterations claiming one slot would queue the same mail twice.
 ///
-/// Tokens that were retired or already claimed are skipped rather than mailed. Their slot stays as
-/// it is: it is still proof we may not mail that address again.
+/// A retired, used or expired token is skipped rather than mailed — a dead link spends the
+/// recipient's one mail for this course on nothing — but its slot stays, since it is still proof we
+/// may not mail that address again.
 pub async fn claim_unqueued(
     conn: &mut PgConnection,
     limit: i64,
@@ -341,6 +286,7 @@ WHERE e.email_delivery_id IS NULL
   AND e.deleted_at IS NULL
   AND t.deleted_at IS NULL
   AND t.used_at IS NULL
+  AND t.expires_at > now()
   AND ($2::uuid IS NULL OR e.course_id = $2)
 ORDER BY e.sent_at
 FOR UPDATE OF e SKIP LOCKED
@@ -375,10 +321,8 @@ WHERE id = $1
     Ok(())
 }
 
-/// What we can honestly say about each linking mail, for the student, teacher and admin surfaces.
-///
-/// A slot with no delivery yet is `queued`: the right to mail is taken and the sender has not been
-/// handed a message. Reporting anything else would claim an attempt that never happened.
+/// What we can honestly say about each linking mail. A slot with no delivery yet is `queued`:
+/// anything else would claim a send attempt that never happened.
 pub async fn get_send_status_reports(
     conn: &mut PgConnection,
     ids: &[Uuid],
@@ -413,7 +357,9 @@ WHERE id = ANY($1::uuid [])
     Ok(res)
 }
 
-fn not_handed_over_yet() -> EmailSendStatusReport {
+/// What a claimed slot with no delivery reports. Public so a caller falling back to a default says
+/// the same thing [`get_send_status_reports`] would have.
+pub fn not_handed_over_yet() -> EmailSendStatusReport {
     EmailSendStatusReport {
         email_send_status: EmailSendStatus::Queued,
         sent_at: None,
@@ -447,8 +393,8 @@ ORDER BY sent_at DESC
 }
 
 /// Every mail in a window, bucketed the way [`crate::email_deliveries::derive_email_send_status`]
-/// would bucket it. Computed here from the same facts (`sent`, `retryable`, `first_failed_at`,
-/// `retry_count`) rather than from its output, so the two cannot drift on what counts as failed.
+/// does. Computed in SQL from the same facts rather than from its output, so the two cannot drift
+/// on what counts as failed.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct LinkingMailSendStatusTotals {
     pub mails_in_window: i64,
@@ -509,7 +455,8 @@ pub struct LinkingMailFailureDomain {
     pub count: i64,
 }
 
-/// Domains behind a hard send failure in the window, worst first.
+/// Domains behind a hard send failure in the window, worst first. Same predicate as
+/// [`get_send_status_totals_since`]; change one and the tile and this table name different mails.
 pub async fn get_send_failure_domains_since(
     conn: &mut PgConnection,
     since: DateTime<Utc>,
@@ -575,9 +522,8 @@ WHERE e.course_id = $1
     Ok(count)
 }
 
-/// One person and course we have mailed to the cap without ever being claimed: the stale-address
-/// population, which is the only way to tell "the student is ignoring us" from "the address Sisu
-/// holds is dead".
+/// One person and course mailed to the cap without a single claim: the stale-address population,
+/// which is how "the student is ignoring us" is told from "the address Sisu holds is dead".
 #[derive(Debug, Clone, PartialEq)]
 pub struct StaleUnclaimedLinkingMails {
     pub student_number: String,
@@ -705,9 +651,8 @@ mod tests {
         .id
     }
 
-    /// The property the two-phase split rests on: claiming the slot and queueing the mail are
-    /// separate writes, and the second one is what takes the slot out of the queue. Without this a
-    /// restart between them would mail the same address again.
+    /// The property the two-phase split rests on: without it a restart between the claim and the
+    /// queueing would mail the same address again.
     #[tokio::test]
     async fn a_claimed_slot_leaves_the_queue_once_its_delivery_exists() {
         insert_data!(:tx, :user, :org, :course);
@@ -739,7 +684,6 @@ mod tests {
         );
     }
 
-    /// A slot whose mail has not been handed over is honestly `queued`, not an absence of status.
     #[tokio::test]
     async fn a_slot_with_no_delivery_yet_reports_as_queued() {
         insert_data!(:tx, :user, :org, :course);

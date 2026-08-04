@@ -13,16 +13,12 @@ import {
 export interface RegistrationStatusStep {
   label: React.ReactNode
   state: RegistrationStatusState
-  /**
-   * Read out after the label. Required because the marker is a shape and a colour, and neither is a
-   * sentence: "Student number, waiting for you" has to be available without seeing the icon.
-   */
+  /** Read out after the label, since the marker is only a shape and a colour. */
   stateLabel: string
 }
 
 export interface RegistrationStatusStepperProps {
   steps: RegistrationStatusStep[]
-  /** Names the sequence for assistive tech, e.g. "Credit registration progress". */
   "aria-label": string
   className?: string
 }
@@ -52,8 +48,7 @@ const markerCss = css`
   flex: none;
 `
 
-// A ring rather than nothing, so a step that has not been reached still occupies its place in the
-// sequence instead of looking like a rendering failure.
+// A ring rather than nothing, so an unreached step still holds its place in the sequence.
 const upcomingMarkerCss = css`
   width: 10px;
   height: 10px;
@@ -79,7 +74,6 @@ const connectorCss = css`
   background: var(--color-gray-200);
 `
 
-/** The stages of a registration, one line, no decoration beyond what carries the state. */
 export const RegistrationStatusStepper: React.FC<RegistrationStatusStepperProps> = ({
   steps,
   "aria-label": ariaLabel,

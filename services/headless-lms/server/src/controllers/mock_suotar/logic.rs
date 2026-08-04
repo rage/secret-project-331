@@ -1,7 +1,6 @@
-//! Per-item world-state resolution, as pure functions over the working set.
+//! Per-item world-state resolution: pure functions over the working set, with `now` passed in.
 //!
-//! No HTTP and no Redis; every `now` is passed in. Faults are resolved by the caller, ahead of this
-//! — per item the whole order is the first matching fault, then what is here.
+//! The caller resolves faults ahead of this, so per item the order is first matching fault, then here.
 
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
 
@@ -46,8 +45,7 @@ pub fn resolve_enrolments_item(
     let Some(course_unit) = working.course_units.get(&item.course_code).cloned() else {
         return ResponseItem::error(endpoint, id, "courseCodeNotFound");
     };
-    // Ripening here as well as in verify is what keeps the two from contradicting each other: a real
-    // Sisu does not show an attainment on one read and hide it on another.
+    // Ripening here as well as in verify keeps the two reads from contradicting each other.
     ripen_person_course(working, &item.student_number, &item.course_code, now);
 
     let matching: Vec<MockEnrolment> =
@@ -234,8 +232,8 @@ pub fn verify_item(
 ) -> ResponseItem {
     let endpoint = SuotarEndpoint::VerifyAttainments;
     let id = &item.request_item_id;
-    // An unknown id is the "no registration evidence found" case; answering anything else would let
-    // a client tell a typo from a not-yet, which real Sisu cannot.
+    // An unknown id is the "no registration evidence" case: anything else would let a client tell a
+    // typo from a not-yet, which real Sisu cannot.
     let Some(submission) = working.submissions.get_mut(&item.submitted_attainment_id) else {
         return ResponseItem::error(endpoint, id, "notRegistered");
     };
@@ -343,8 +341,8 @@ pub fn list_by_course_item(item: &wire::ListByCourseItem, working: &WorkingSet) 
     ok(id, "enrolmentsListed", &wire::PeopleResult { people })
 }
 
-/// Moves every submission of this person and course that has become ripe. The transition is
-/// persisted wherever it is evaluated, or the next read contradicts this one.
+/// Moves every ripe submission of this person and course. Persisted wherever it is evaluated, or the
+/// next read contradicts this one.
 pub fn ripen_person_course(
     working: &mut WorkingSet,
     student_number: &str,
@@ -383,7 +381,6 @@ pub fn ripen(working: &mut WorkingSet, submitted_attainment_id: &str, now: DateT
     true
 }
 
-/// Turns a submission into the Sisu attainment it becomes, and indexes it.
 pub fn register(working: &mut WorkingSet, submitted_attainment_id: &str, now: DateTime<Utc>) {
     let Some(submission) = working.submissions.get(submitted_attainment_id).cloned() else {
         return;
@@ -438,7 +435,6 @@ pub fn register(working: &mut WorkingSet, submitted_attainment_id: &str, now: Da
     });
 }
 
-/// Adds a submission to the working set and queues its writes.
 pub fn record_submission(working: &mut WorkingSet, submission: MockSubmission) {
     let id = submission.submitted_attainment_id.clone();
     let key = person_course_key(&submission.student_number, &submission.course_code);
@@ -726,9 +722,8 @@ mod tests {
             .to_string()
     }
 
-    /// Both post-commit stages fire on top of a world that already holds the submission. The write
-    /// is queued by the time the response exists, which is what makes "timed out, but it landed"
-    /// different from "timed out, nothing landed".
+    /// The write is queued before the response is shaped, which is what makes "timed out, but it
+    /// landed" different from "timed out, nothing landed".
     #[test]
     fn an_import_queues_its_submission_before_any_response_shaping() {
         let mut working = world(Ripeness::Manual);

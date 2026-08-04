@@ -1,8 +1,8 @@
 //! The only Redis-aware part of the mock: key layout, generations, the per-request working set,
 //! the write-back pipeline and the call log.
 //!
-//! The mock keeps its own connection rather than going through the cache wrapper, whose failures
-//! are silent no-ops. A component tests assert against has to fail loudly.
+//! Its own connection rather than the cache wrapper, whose failures are silent no-ops: a component
+//! tests assert against has to fail loudly.
 
 use std::collections::{BTreeMap, HashMap};
 use std::sync::RwLock;
@@ -70,8 +70,8 @@ const PREFIXED_KEYS: [&str; 18] = [
 /// What one `HMGET` answers with: a slot per requested field, empty where the field is absent.
 type Fields = Vec<Option<String>>;
 
-/// A whole world, as installed under one generation. Indexes are not part of it: they are derived
-/// from the entities so a caller cannot desynchronise them.
+/// A whole world, as installed under one generation. Indexes are derived from the entities rather
+/// than part of it, so a caller cannot desynchronise them.
 #[derive(Debug, Clone, Default)]
 pub struct World {
     pub defaults: WorldDefaults,
@@ -102,8 +102,7 @@ pub struct Preamble {
     pub db_generation: Option<String>,
     /// In arm order, which is precedence.
     pub faults: Vec<Fault>,
-    /// A hint that keeps a long-spent fault from costing a draw on every request. Never the
-    /// decision: the draw at the match is.
+    /// A hint that saves a draw on a long-spent fault. Never the decision: the draw at the match is.
     pub remaining: HashMap<String, i64>,
 }
 
@@ -124,8 +123,8 @@ pub struct WorldCounts {
 pub struct MockSuotarStore {
     client: redis::Client,
     connection: OnceCell<ConnectionManager>,
-    /// One server process owns this index, so the live token can be cached and re-read only when a
-    /// prefixed read comes back empty.
+    /// Cached because one server process owns the index; re-read only when a prefixed read comes back
+    /// empty.
     generation: RwLock<Option<String>>,
     install_lock: Mutex<()>,
 }
@@ -137,9 +136,8 @@ impl std::fmt::Debug for MockSuotarStore {
 }
 
 impl MockSuotarStore {
-    /// Does no I/O: it parses the url and swaps in the mock's own database index, which is kept off
-    /// the cache's so a flush touches nothing of the cache's. Connecting happens on first use, so an
-    /// unreachable Redis is a per-request error rather than a cached success.
+    /// Swaps in the mock's own database index so a flush touches nothing of the cache's. Connects on
+    /// first use, so an unreachable Redis is a per-request error rather than a cached success.
     pub fn new(redis_url: &str, db_index: i64) -> anyhow::Result<Self> {
         Ok(Self {
             client: redis::Client::open(database_url(redis_url, db_index)?)
@@ -179,8 +177,8 @@ impl MockSuotarStore {
         Ok(generation)
     }
 
-    /// Installs a world under a fresh generation and flips the pointer last, so no request ever
-    /// sees a half-installed world and a push needs nothing cleared before it.
+    /// Flips the generation pointer last, so no request sees a half-installed world and a push needs
+    /// nothing cleared before it.
     pub async fn install_world(
         &self,
         world: &World,
@@ -236,8 +234,7 @@ impl MockSuotarStore {
         Ok(generation)
     }
 
-    /// Installs `world` unless a request that got here first already did. Serialised so a burst of
-    /// first requests against an empty index does not each mint a generation.
+    /// Serialised so a burst of first requests against an empty index does not each mint a generation.
     pub async fn install_if_absent(
         &self,
         world: &World,
@@ -259,8 +256,7 @@ impl MockSuotarStore {
         Ok(present)
     }
 
-    /// `FLUSHDB` and nothing else. Safe because the index is ours; the next contract request builds
-    /// the world lazily.
+    /// Safe because the index is the mock's alone; the next contract request builds the world lazily.
     pub async fn flush(&self) -> anyhow::Result<()> {
         let mut conn = self.conn().await?;
         redis::cmd("FLUSHDB").query_async::<()>(&mut conn).await?;
@@ -322,8 +318,8 @@ impl MockSuotarStore {
         hmget_json(&mut conn, &key(generation, PRODUCT_TOKENS), product_ids).await
     }
 
-    /// One pipelined trip for the person-and-course keyed hashes, then one for the entities those
-    /// keys point at. Round trips stay independent of batch size.
+    /// Two pipelined round trips whatever the batch size: the keyed hashes, then the entities they
+    /// point at.
     pub async fn load_for_person_course(
         &self,
         generation: &str,
@@ -471,8 +467,7 @@ impl MockSuotarStore {
         })
     }
 
-    /// The one write of a request: the entities it changed plus its call-log entry, in one atomic
-    /// pipeline, committed before the response leaves the process.
+    /// The one write of a request: changed entities plus its call-log entry, in one atomic pipeline.
     pub async fn commit(
         &self,
         generation: &str,
@@ -577,8 +572,7 @@ impl MockSuotarStore {
         Ok(seq.max(0) as u64)
     }
 
-    /// Draws from a fault's remaining budget. The caller acts on the returned value, never on a
-    /// separate read.
+    /// The caller acts on the returned value, never on a separate read.
     pub async fn draw(&self, generation: &str, fault_id: &str, delta: i64) -> anyhow::Result<i64> {
         let mut conn = self.conn().await?;
         Ok(conn
@@ -811,8 +805,7 @@ impl MockSuotarStore {
         Ok(())
     }
 
-    /// Rebuilds every derived index from the entities currently stored, so an upsert cannot leave
-    /// an index behind.
+    /// Rebuilds every derived index from the stored entities, so an upsert cannot leave one behind.
     pub async fn reindex(&self, generation: &str) -> anyhow::Result<()> {
         let world = World {
             defaults: WorldDefaults::default(),
@@ -1041,8 +1034,8 @@ fn flatten<'a, I: Iterator<Item = &'a Vec<String>>>(lists: I) -> Vec<String> {
 mod tests {
     use super::*;
 
-    /// The whole "`FLUSHDB` here is safe" claim rests on the index actually being swapped, and the
-    /// deployed url carries the cache's index 1 in its path.
+    /// "`FLUSHDB` is safe" rests on the swap, and the deployed url carries the cache's index 1 in its
+    /// path.
     #[test]
     fn the_configured_url_is_moved_off_the_caches_index() {
         assert_eq!(

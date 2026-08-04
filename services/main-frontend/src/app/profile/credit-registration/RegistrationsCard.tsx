@@ -79,8 +79,7 @@ const RegistrationsTable: React.FC<{ registrations: MyCreditRegistration[] }> = 
           <Link href={completionRegistrationRoute(registration.course_module_id)}>
             {registration.course_module_name ?? registration.course_name}
           </Link>
-          {/* A replaced attempt keeps its own row: if the study registry ended up holding both
-              attainments, hiding one would misdescribe the transcript. */}
+          {/* A replaced attempt keeps its own row: the registry may hold both attainments. */}
           {registration.superseded ? (
             <div className={supersededCss}>
               {t("credit-registration-earlier-attempt", { attempt: registration.attempt_number })}
@@ -124,8 +123,6 @@ const RegistrationsTable: React.FC<{ registrations: MyCreditRegistration[] }> = 
                 module: registration.course_module_name ?? registration.course_name,
               })}
             </p>
-            {/* A working link, not an instruction to go and find one: this is the only blocking state
-                the student alone can clear. */}
             {registration.enrolment_link ? (
               <Link href={registration.enrolment_link}>
                 {t("credit-registration-action-enrol")}

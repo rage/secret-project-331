@@ -14,12 +14,11 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCourseModules } from "@/generated/api/sdk.generated"
 import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/api/types.generated"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResults } from "@/shared-module/components"
 
 import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
 import {
@@ -261,8 +260,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   })
   const initialModuleList = courseStructureQuery.data?.initialModuleList
   useEffect(() => {
-    // Waits for the configuration too, or the first staged list would claim every module has credit
-    // registration off and saving would turn it off for real.
+    // Waits for the configuration too, or the staged list would save credit registration off.
     if (!courseStructureQuery.data || !creditRegistrationConfigs) {
       return
     }
@@ -558,17 +556,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   }
 
   return (
-    <QueryResult
-      query={courseStructureQuery}
-      emptyFallback={
-        <DataLoadError
-          onRetry={() => {
-            void courseStructureQuery.refetch()
-          }}
-        />
-      }
-    >
-      {(data) => (
+    <QueryResults
+      queries={[courseStructureQuery, creditRegistrationConfigsQuery] as const}
+      treatEmptyAsData
+      renderData={([data]) => (
         <>
           <div
             className={css`
@@ -658,7 +649,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           <NewCourseModuleForm chapters={data.chapterNumbers} onSubmitForm={onSaveNewModule} />
         </>
       )}
-    </QueryResult>
+    />
   )
 }
 

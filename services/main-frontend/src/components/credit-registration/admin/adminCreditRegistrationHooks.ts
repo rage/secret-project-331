@@ -13,18 +13,12 @@ import type {
   ListVerifiedStudentNumbersForAdminData,
 } from "@/generated/api/types.generated"
 
-/** Group-bys over the ledger rather than a cheap read, so slower than the repo's k8s dashboards. */
+/** Group-bys over the ledger, so not a cheap read. */
 const OVERVIEW_REFETCH_INTERVAL_MS = 30_000
 const LIST_REFETCH_INTERVAL_MS = 60_000
-/** While a row is still moving, the detail page is worth watching. */
 const LIVE_ITEM_REFETCH_INTERVAL_MS = 5_000
 
-/**
- * The one aggregate the Overview and the alert banner share.
- *
- * The banner is on every tab and reads this: one query key means the tiles and the banner cannot
- * disagree, and a tab that only needs the banner pays for one request rather than two.
- */
+/** The alert banner shares this key with the Overview tiles, so the two cannot disagree. */
 export const useCreditRegistrationOverview = () =>
   useQuery({
     ...getCreditRegistrationOverviewOptions(),

@@ -147,11 +147,8 @@ WHERE user_id = $1
     Ok(res)
 }
 
-/// The account's most recent link, retired ones included.
-///
-/// Reporting on a linking mail needs the Sisu person the mail was addressed to, and a retired link
-/// is the only record of that an unlinked account has: the mail is keyed by Sisu person and we do
-/// not identify an account by matching its email address against Sisu's.
+/// The account's most recent link, retired ones included: a retired link is the only record an
+/// unlinked account has of the Sisu person its linking mail was addressed to.
 pub async fn get_latest_including_deleted_by_user_id(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -250,8 +247,7 @@ WHERE student_number = ANY($1::varchar [])
     Ok(res)
 }
 
-/// Batched form of [`get_latest_including_deleted_by_user_id`]: one row per named account, its most
-/// recent link, retired ones included.
+/// Batched form of [`get_latest_including_deleted_by_user_id`], one row per account.
 pub async fn get_latest_including_deleted_by_user_ids(
     conn: &mut PgConnection,
     user_ids: &[Uuid],
@@ -271,8 +267,7 @@ ORDER BY user_id, verified_at DESC
     Ok(res)
 }
 
-/// One link as an admin support view shows it: the account it belongs to, in full, and how it was
-/// established.
+/// One link as an admin support view shows it, with the account it belongs to.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AdminVerifiedStudentNumber {
     pub id: Uuid,

@@ -1,7 +1,5 @@
-//! Everything a submission needs that does not live on the ledger row yet.
-//!
-//! One query rather than a lookup per row: the phases work in batches of up to a hundred, and the
-//! per-row alternative is a hundred round trips per tick.
+//! Everything a submission needs that does not live on the ledger row yet. One query rather than a
+//! lookup per row: the phases work in batches of up to a hundred.
 
 use std::collections::HashMap;
 
@@ -13,14 +11,13 @@ use super::payload::CompletionFacts;
 #[derive(Debug, Clone, PartialEq)]
 pub struct SubmissionContext {
     pub registration_id: Uuid,
-    /// `None` once the account's number has been unlinked, which the precondition recompute reacts
-    /// to on its next iteration.
+    /// `None` once the account's number has been unlinked.
     pub student_number: Option<String>,
     pub sisu_person_id: Option<String>,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
     pub configured_grade_scale_id: Option<String>,
-    /// The realisations a teacher configured and left active, which the enrolment choice prefers.
+    /// The active realisations a teacher configured, which the enrolment choice prefers.
     pub configured_realisation_ids: Vec<String>,
     pub completion: CompletionFacts,
 }

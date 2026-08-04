@@ -226,9 +226,8 @@ impl NewCourseModule {
     }
 }
 
-/// Both paths would put the same attainment in Sisu, so a module may take at most one of them.
-/// `course_modules_one_credit_registration_path` enforces the same rule; this turns it into an error
-/// the module editor can render.
+/// Both paths would put the same attainment in Sisu. `course_modules_one_credit_registration_path`
+/// enforces this too; here it becomes an error the module editor can render.
 fn validate_one_credit_registration_path(
     enable_credit_registration_via_suotar: bool,
     enable_registering_completion_to_uh_open_university: bool,
@@ -718,8 +717,8 @@ WHERE uh_course_code IS NOT NULL
     Ok(res)
 }
 
-/// Ids of the course's modules opted in to credit registration. The flag is not on the
-/// [`CourseModule`] DTO, so a caller holding modules cannot answer this from them.
+/// Ids of the course's modules opted in to credit registration; the flag is not on the
+/// [`CourseModule`] DTO.
 pub async fn get_credit_registration_enabled_ids_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -1219,10 +1218,9 @@ WHERE id = $1
     Ok(())
 }
 
-/// Writes the module's Suotar configuration row and reconciles its realisations.
-///
-/// Rejects a grade scale the grade mapping does not know: stored as-is it would only surface as a
-/// `no_grade_scale_mapping` on every completion of the module, long after the teacher left the editor.
+/// Writes the module's Suotar configuration row and reconciles its realisations. An unknown grade
+/// scale is refused here because otherwise it surfaces as `no_grade_scale_mapping` on every
+/// completion of the module, long after the teacher left the editor.
 pub async fn set_credit_registration_config(
     conn: &mut PgConnection,
     course_module_id: Uuid,
@@ -1465,8 +1463,6 @@ mod tests {
             }
         }
 
-        /// The pair the editor must not be able to save: both paths would put the same attainment in
-        /// Sisu, and only the write path can see both flags at once.
         #[tokio::test]
         async fn a_module_cannot_take_both_registration_paths() {
             insert_data!(:tx, :user, :org, :course);
@@ -1491,7 +1487,7 @@ mod tests {
             assert_eq!(*inserted.error_type(), ModelErrorType::PreconditionFailed);
         }
 
-        /// What the editor writes lands in the two configuration tables, blanks becoming absences.
+        /// Blanks must land as absences, not empty strings.
         #[tokio::test]
         async fn the_editor_fields_land_in_the_configuration_tables() {
             insert_data!(:tx, :user, :org, :course);
@@ -1534,8 +1530,6 @@ mod tests {
             assert_eq!(realisations[0].label.as_deref(), Some("Autumn 2026"));
         }
 
-        /// A realisation the teacher removed stops being polled, and a scale the grade mapping does
-        /// not know is refused rather than stored to fail on every completion later.
         #[tokio::test]
         async fn removing_a_realisation_deletes_it_and_an_unknown_scale_is_refused() {
             insert_data!(:tx, :user, :org, :course);

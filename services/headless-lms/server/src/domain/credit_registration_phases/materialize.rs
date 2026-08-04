@@ -12,9 +12,5 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     let created =
         ensure_registration_rows_for_eligible_completions(&mut conn, scope, MATERIALIZE_LIMIT)
             .await?;
-    Ok(PhaseRunOutcome {
-        items_processed: created.try_into().unwrap_or(i32::MAX),
-        items_failed: 0,
-        error: None,
-    })
+    Ok(PhaseRunOutcome::processed(created))
 }

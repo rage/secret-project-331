@@ -8,15 +8,12 @@
  * Deployments, which a spec cannot wait out inside the 100 s per-test timeout. A tick runs one
  * iteration of one phase synchronously.
  *
- * - **A tick sweeps everything it is not scoped away from.** Pass a scope so the iteration advances
- *   only your own rows and a batch carries one owner; without one it processes every eligible row in
- *   the database. Aggregates stay global either way, so assert on your own student and course.
- * - **A tick that did not run is an error here, not five lines later.** `runTick` refuses anything but
- *   a clean run, because a paused phase, an open circuit breaker or a refused scope all move no rows
- *   and would otherwise surface as a poll timing out against the state machine, which is innocent.
- * - A phase answers `phaseNotImplemented` until its implementation is registered. That is not a
- *   failure of the deployment, but it is a spec asking for something that cannot happen, so it is
- *   refused too.
+ * - **A tick sweeps everything it is not scoped away from.** Pass a scope, or the iteration advances
+ *   every eligible row in the database. Aggregates stay global either way, so assert on your own
+ *   student and course.
+ * - `runTick` refuses anything but a clean run: a paused phase, an open circuit breaker, a refused
+ *   scope and an unimplemented phase all move no rows, and would otherwise surface as a poll timing
+ *   out against the innocent state machine.
  */
 
 import type { APIRequestContext } from "@playwright/test"
@@ -42,8 +39,8 @@ export const CREDIT_REGISTRATION_PHASES = [
 export type CreditRegistrationPhase = (typeof CREDIT_REGISTRATION_PHASES)[number]
 
 /**
- * Which rows a tick may touch. A scenario hands back the same object, so a spec passes it on to a
- * phase tick and to a fault's `owner` without restating an identifier.
+ * Which rows a tick may touch. A scenario hands back the same object, which also serves as a fault's
+ * `owner`.
  */
 export interface TickScope {
   courseId?: string
@@ -88,10 +85,8 @@ const scopeQuery = (scope?: TickScope): string => {
 }
 
 /**
- * Ticks one phase and hands back whatever the endpoint answered, refusals included.
- *
- * For the two kinds of spec that have a reason to see a refusal: one asserting that a paused phase
- * skips, and one that deliberately makes a phase fail. Everything else wants `runTick`.
+ * Hands back whatever the endpoint answered, refusals included, for the specs asserting that a paused
+ * phase skips or that a phase fails. Everything else wants `runTick`.
  */
 export const runTickUnchecked = async (
   request: APIRequestContext,
@@ -101,9 +96,8 @@ export const runTickUnchecked = async (
   const response = await request.post(
     `${CONTROL_BASE_URL}/run-tick?phase=${phase}${scopeQuery(scope)}`,
   )
-  // 501 is the "no implementation registered yet" answer, and 400 covers the unknown phase, the
-  // unsupported scope and the unresolved one; anything else (notably 404) means the mock is not
-  // enabled and the whole spec is invalid.
+  // 501 is the "no implementation registered yet" answer and 400 covers the unknown phase and the two
+  // scope refusals; anything else (notably 404) means the mock is not enabled and the spec is invalid.
   if (![200, 400, 501].includes(response.status())) {
     throw new Error(
       `Unexpected status ${response.status()} from run-tick?phase=${phase}. Is USE_MOCK_SUOTAR_ENDPOINT on? Body: ${await response.text()}`,
@@ -114,9 +108,8 @@ export const runTickUnchecked = async (
 
 /**
  * Ticks one phase and fails unless the iteration ran and the phase reported no error of its own.
- *
  * `itemsFailed` is deliberately not part of that: a row landing on an error code is the outcome half
- * these specs exist to assert, and several drive exactly that on purpose.
+ * these specs exist to assert.
  */
 export const runTick = async (
   request: APIRequestContext,
@@ -181,10 +174,8 @@ export const runProductTokenRefreshTick = (
 ): Promise<RanPhaseTick> => runTick(request, "product-token-refresh", scope)
 
 /**
- * Drives a consented completion as far as a submission, one phase per tick, in order.
- *
- * A chain rather than four calls at every call site: each phase claims what the one before it left,
- * so a spec that runs them out of order or skips one waits for a state that cannot arrive.
+ * Drives a consented completion as far as a submission, one phase per tick. Each phase claims what
+ * the one before it left, so ticking them out of order waits for a state that cannot arrive.
  */
 export const runPhasesUpToSubmission = async (
   request: APIRequestContext,

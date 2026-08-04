@@ -14,12 +14,25 @@ import { labelFrom, widenedLookup } from "./labelFrom"
 // oxlint-disable-next-line i18next/no-literal-string
 const QUERY_KEY_PREFIX = "course-credit-registrations/by-user-ids"
 
-/**
- * The live credit registrations of the listed students, keyed `userId:moduleId`.
- *
- * Superseded attempts are dropped: a table cell answers "where does this module's registration
- * stand", and that is the newest attempt.
- */
+/** The server rejects a request body over 2 MB, and a caller may list every enrolled user. */
+const USER_IDS_PER_REQUEST = 500
+
+const fetchInBatches = async (
+  courseId: string,
+  userIds: string[],
+): Promise<CourseCreditRegistration[]> => {
+  const rows: CourseCreditRegistration[] = []
+  for (let start = 0; start < userIds.length; start += USER_IDS_PER_REQUEST) {
+    const batch = await getCourseCreditRegistrationsForUsers({
+      path: { course_id: courseId },
+      body: { user_ids: userIds.slice(start, start + USER_IDS_PER_REQUEST) },
+    })
+    rows.push(...batch)
+  }
+  return rows
+}
+
+/** Keyed `userId:moduleId`, newest attempt only. */
 export const useTeacherCreditRegistrations = (courseId: string | null, userIds: string[]) =>
   useQuery(
     optionalGeneratedQueryOptions({
@@ -29,11 +42,7 @@ export const useTeacherCreditRegistrations = (courseId: string | null, userIds: 
         // oxlint-disable-next-line @tanstack/query/exhaustive-deps
         queryOptions({
           queryKey: [QUERY_KEY_PREFIX, id, ids],
-          queryFn: () =>
-            getCourseCreditRegistrationsForUsers({
-              path: { course_id: id },
-              body: { user_ids: ids },
-            }),
+          queryFn: () => fetchInBatches(id, ids),
           select: indexLiveRegistrations,
         }),
     }),
@@ -60,10 +69,6 @@ const VERIFICATION_METHOD_KEYS = {
   admin_manual: "credit-registration-student-number-via-admin-manual",
 } as const satisfies Record<StudentNumberVerificationMethod, string>
 
-/**
- * How the link was established. Rendered next to the number because a support-established link rests
- * on a judgement rather than on proof that the student controls the mailbox.
- */
 export const studentNumberVerificationLabel = (
   t: TFunction,
   method: StudentNumberVerificationMethod | null | undefined,
@@ -75,7 +80,7 @@ export const studentNumberVerificationLabel = (
   return key ? t(key) : null
 }
 
-/** Whether the link came from support rather than from the student proving mailbox control. */
+/** A support-established link rests on judgement, not on proof of mailbox control. */
 export const isAdminEstablishedLink = (
   method: StudentNumberVerificationMethod | null | undefined,
 ): boolean => method === "admin_manual"
@@ -87,10 +92,7 @@ const LINKING_EMAIL_KEYS = {
   send_failed: "credit-registration-teacher-linking-email-send-failed",
 } as const satisfies Record<EmailSendStatus, string>
 
-/**
- * What we can honestly say about the linking mail. Our send status only, never a delivery, and the
- * address only as its domain.
- */
+/** Our own send status only: no wording here may imply a delivery. */
 export const linkingEmailSentence = (
   t: TFunction,
   status: EmailSendStatus,

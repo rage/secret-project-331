@@ -1,15 +1,10 @@
 //! The alert rules the credit registration dashboard renders.
 //!
-//! Evaluated server-side and in one place, so the same verdict can later feed an external monitor
-//! without a second implementation. Every rule is a single aggregate over indexed columns, because
-//! the banner is polled.
-//!
 //! An alert carries identifiers and numbers, never prose: the study registry's own error text is
 //! written for an integrator and is not translated, so the frontend renders one key per alert id
-//! with these values interpolated. The thresholds travel with the alerts so no number is hardcoded
-//! twice.
+//! with these values interpolated. The thresholds travel with the alerts, not hardcoded twice.
 
-use headless_lms_models::credit_registrations::StuckThresholds;
+use headless_lms_models::credit_registrations::{StuckRegistrationCount, StuckThresholds};
 use headless_lms_models::{ModelResult, prelude::*};
 use headless_lms_models::{
     credit_registration_account_linking_emails, credit_registration_phase_state,
@@ -34,9 +29,7 @@ const STUCK_THRESHOLDS: StuckThresholds = StuckThresholds {
 const STUCK_CRITICAL_COUNT: i64 = 50;
 const LINKING_MAIL_WINDOW_SECS: i64 = 7 * 24 * 60 * 60;
 /// A phase is late once this many of its own intervals have passed without a heartbeat.
-///
-/// `pub(crate)`: the admin dashboard's phase rows apply this same threshold server-side, so a
-/// client's clock cannot desync the verdict from the one this module's own alert reaches.
+/// `pub(crate)` because the dashboard's phase rows apply the same threshold server-side.
 pub(crate) const PHASE_HEARTBEAT_INTERVAL_MULTIPLIER: i32 = 2;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
@@ -87,8 +80,7 @@ pub struct CreditRegistrationAlertThresholds {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationHealth {
     pub status: HealthStatus,
-    /// Critical first, and a rejected credential first of all: nothing else can register until it is
-    /// fixed.
+    /// Critical first, and a rejected credential first of all: nothing registers until it is fixed.
     pub alerts: Vec<CreditRegistrationAlert>,
     pub thresholds: CreditRegistrationAlertThresholds,
 }
@@ -112,8 +104,12 @@ pub fn stuck_thresholds() -> StuckThresholds {
     STUCK_THRESHOLDS
 }
 
-/// Runs every rule and ranks what it found.
-pub async fn evaluate(conn: &mut PgConnection) -> ModelResult<CreditRegistrationHealth> {
+/// Runs every rule and ranks what it found. `stuck` is passed in because the caller already reads
+/// that aggregate, the most expensive read in the request.
+pub async fn evaluate(
+    conn: &mut PgConnection,
+    stuck: &[StuckRegistrationCount],
+) -> ModelResult<CreditRegistrationHealth> {
     let now = Utc::now();
     let mut alerts = Vec::new();
 
@@ -147,7 +143,7 @@ pub async fn evaluate(conn: &mut PgConnection) -> ModelResult<CreditRegistration
         });
     }
 
-    if let Some(alert) = stuck_alert(conn).await? {
+    if let Some(alert) = stuck_alert(stuck) {
         alerts.push(alert);
     }
     if let Some(alert) = linking_mail_alert(conn, now).await? {
@@ -178,11 +174,10 @@ pub async fn evaluate(conn: &mut PgConnection) -> ModelResult<CreditRegistration
 
 /// Rows the pipeline should have moved on by now. `abandoned_by_consent_withdrawal` is terminal, so
 /// it is outside this by construction rather than by a filter that could be forgotten.
-async fn stuck_alert(conn: &mut PgConnection) -> ModelResult<Option<CreditRegistrationAlert>> {
-    let stuck = credit_registrations::count_stuck(conn, &STUCK_THRESHOLDS).await?;
+fn stuck_alert(stuck: &[StuckRegistrationCount]) -> Option<CreditRegistrationAlert> {
     let total: i64 = stuck.iter().map(|row| row.count).sum();
     if total == 0 {
-        return Ok(None);
+        return None;
     }
     let severe: i64 = stuck.iter().map(|row| row.severely_stuck_count).sum();
     let worst = stuck.iter().max_by_key(|row| row.count);
@@ -191,17 +186,17 @@ async fn stuck_alert(conn: &mut PgConnection) -> ModelResult<Option<CreditRegist
     } else {
         CreditRegistrationAlertSeverity::Warning
     };
-    Ok(Some(CreditRegistrationAlert {
+    Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::StuckRegistrations,
         severity,
         count: total,
         at: worst.and_then(|row| row.oldest_state_entered_at),
         subject: worst.map(|row| state_name(row.state)),
-    }))
+    })
 }
 
 /// Linking mails we could not hand over at all. The recipient domain rides along because an
-/// undeliverable host is the usual cause and the cue to expect manual-link requests.
+/// undeliverable host is the usual cause.
 async fn linking_mail_alert(
     conn: &mut PgConnection,
     now: DateTime<Utc>,
@@ -229,12 +224,9 @@ async fn linking_mail_alert(
     }))
 }
 
-/// A phase that reported and then stopped.
-///
-/// Deliberately not "has never reported": three of the twelve phases have no implementation yet and
-/// so never heartbeat, and a freshly migrated database has no heartbeats at all. Alerting on those
-/// would make the banner permanently red and worth nothing. A never-reported phase is visible as
-/// such on the Overview's phase list instead.
+/// A phase that reported and then stopped. Deliberately not "has never reported": the unimplemented
+/// phases never heartbeat and a freshly migrated database has none at all, so that would keep the
+/// banner permanently red.
 async fn phase_heartbeat_alert(
     conn: &mut PgConnection,
     now: DateTime<Utc>,
@@ -279,8 +271,7 @@ mod tests {
     use super::*;
     use headless_lms_models::credit_registrations::CreditRegistrationState;
 
-    /// The alert's `subject` is an identifier an operator pastes into a message to the registry, so
-    /// it has to be the same spelling the ledger and the filters use.
+    /// The alert's `subject` has to be the same spelling the ledger and the filters use.
     #[test]
     fn a_state_names_itself_the_way_the_wire_does() {
         assert_eq!(

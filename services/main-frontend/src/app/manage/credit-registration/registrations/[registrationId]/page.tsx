@@ -14,7 +14,14 @@ import { useAdminCreditRegistration } from "@/components/credit-registration/adm
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
+import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
 import { registrationErrorHelp } from "@/components/credit-registration/creditRegistrationCopy"
+import {
+  headingCss,
+  noteCss,
+  sectionCss,
+  sectionsCss,
+} from "@/components/credit-registration/styles"
 import type {
   AdminCreditRegistrationDetails,
   AdminCreditRegistrationRow,
@@ -33,48 +40,18 @@ import {
 } from "@/shared-module/components"
 
 // oxlint-disable-next-line i18next/no-literal-string
-const NEUTRAL_BADGE = "neutral" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const WARNING_BADGE = "warning" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const INFO_TONE = "info" as const
-// oxlint-disable-next-line i18next/no-literal-string
 const STACKED = "stacked" as const
-/** Separators between identifiers on one line. Not prose, so not translated. */
-// oxlint-disable-next-line i18next/no-literal-string
-const DOT = " · "
 // oxlint-disable-next-line i18next/no-literal-string
 const ARROW = " → "
 // oxlint-disable-next-line i18next/no-literal-string
 const SLASH = " / "
 const JSON_INDENT = 2
 
-const sectionsCss = css`
-  display: grid;
-  gap: 2rem;
-`
-
-const sectionCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
-const headingCss = css`
-  font-weight: 500;
-  margin: 0;
-`
-
 const headerRowCss = css`
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
-`
-
-const noteCss = css`
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-  margin: 0;
 `
 
 const bodyCss = css`
@@ -109,14 +86,14 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
           attemptNumber={row.attempt_number}
         />
         {row.needs_admin_attention && (
-          <Badge tone={WARNING_BADGE}>{t("label-credit-registration-needs-attention")}</Badge>
+          <Badge tone={TONE.WARNING}>{t("label-credit-registration-needs-attention")}</Badge>
         )}
         {details.consent_given === false && (
-          <Badge tone={WARNING_BADGE}>{t("credit-registration-admin-no-consent")}</Badge>
+          <Badge tone={TONE.WARNING}>{t("credit-registration-admin-no-consent")}</Badge>
         )}
       </div>
       {row.error_code && (
-        <Infobox tone={INFO_TONE} heading={<code>{row.error_code}</code>}>
+        <Infobox tone={TONE.INFO} heading={<code>{row.error_code}</code>}>
           {registrationErrorHelp(t, row.error_code)}
         </Infobox>
       )}
@@ -125,7 +102,7 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
         items={[
           {
             label: t("label-student"),
-            value: [row.first_name, row.last_name, row.email].filter(Boolean).join(DOT),
+            value: [row.first_name, row.last_name, row.email].filter(Boolean).join(MIDDLE_DOT),
           },
           {
             label: t("label-student-number"),
@@ -134,16 +111,16 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
               verificationMethodLabel(t, row.verified_student_number_via),
             ]
               .filter(Boolean)
-              .join(DOT),
+              .join(MIDDLE_DOT),
           },
           {
             label: t("label-course"),
             value: (
               <>
                 <Link href={manageCourseRoute(row.course_id)}>{row.course_name}</Link>
-                {DOT}
+                {MIDDLE_DOT}
                 {row.course_module_name ?? ABSENT}
-                {DOT}
+                {MIDDLE_DOT}
                 <code>{row.uh_course_code ?? ABSENT}</code>
               </>
             ),
@@ -153,7 +130,7 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
             value: (
               <>
                 <code>{row.course_module_completion_id}</code>
-                {DOT}
+                {MIDDLE_DOT}
                 <RelativeTime at={row.completion_date} />
               </>
             ),
@@ -162,7 +139,7 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
             label: t("label-credit-registration-grade"),
             value:
               [row.grade_scale_id ?? ABSENT, row.grade_id ?? ABSENT].join(SLASH) +
-              DOT +
+              MIDDLE_DOT +
               (row.credits ?? ABSENT),
           },
           {
@@ -360,7 +337,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
                 mail.send_status.failure_code,
               ]
                 .filter(Boolean)
-                .join(DOT),
+                .join(MIDDLE_DOT),
           },
           {
             header: t("label-credit-registration-claimed-slot"),
@@ -380,7 +357,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
               mail.token_used_at ? (
                 <RelativeTime at={mail.token_used_at} />
               ) : (
-                <Badge tone={NEUTRAL_BADGE}>{t("credit-registration-admin-token-unclaimed")}</Badge>
+                <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-token-unclaimed")}</Badge>
               ),
           },
         ]}
@@ -412,7 +389,6 @@ const AuditSection: React.FC<{ actions: CreditRegistrationAdminActionRecord[] }>
   )
 }
 
-/** The single most useful screen for support: one row, and everything that happened to it. */
 const RegistrationDetailPage: React.FC = () => {
   const { t } = useTranslation()
   const params = useParams<{ registrationId: string }>()

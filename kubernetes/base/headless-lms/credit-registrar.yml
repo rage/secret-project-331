@@ -7,9 +7,7 @@ metadata:
     deploymentType: with-init-container
     needs-db: "true"
 spec:
-  # More than one would claim the same ledger rows. FOR UPDATE SKIP LOCKED makes that safe, but the
-  # in-process circuit breaker is per pod, so a second replica would double the calls to a study
-  # registry that is already failing.
+  # The circuit breaker is per pod, so a second replica would double the calls to a failing registry.
   replicas: 1
   selector:
     matchLabels:

@@ -8,8 +8,7 @@ export type ClientOptions = {
 }
 
 /**
- * Hard send failures grouped by recipient domain: an undeliverable host is a pattern, not fifty
- * unrelated tickets.
+ * Hard send failures grouped by recipient domain.
  */
 export type AccountLinkingFailureDomain = {
   count: number
@@ -17,22 +16,15 @@ export type AccountLinkingFailureDomain = {
 }
 
 /**
- * The account-linking funnel.
- *
- * The first two steps come from the counters the discovery phase overwrites whole, so they describe
- * its last run rather than the window; the rest are windowed. The UI has to say which is which,
- * because there is no one denominator. There is no "matched to an account" step: the mail goes to
- * the address the registry holds and the account is chosen by the recipient at claim time.
- *
- * A "link fetched" step is missing on purpose. Nothing records a hit on the landing page, so the
- * number would have to be invented.
+ * The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites
+ * whole, the `_in_window` ones from the window: there is no single denominator.
  */
 export type AccountLinkingFunnel = {
   already_linked_last_run: number
   mails_claimed_in_window: number
   mails_sent_in_window: number
   /**
-   * Its own bar, never folded into the claimed one: an admin's judgement is not a claim.
+   * Never folded into the claimed count: an admin's judgement is not a claim.
    */
   manual_links_in_window: number
   no_address_in_study_registry_last_run: number
@@ -54,7 +46,7 @@ export type AccountLinkingRealisationCounters = {
   listed_person_count?: number | null
   mailed_count?: number | null
   /**
-   * The one genuinely unreachable population, and the only number nobody can fix from here.
+   * Persons the registry holds no address for: the one population no remedy here can reach.
    */
   no_address_count?: number | null
   suppressed_by_dedup_count?: number | null
@@ -118,7 +110,7 @@ export type AddPlanMemberRequest = {
 
 export type AdminCreditRegistrationDetails = {
   /**
-   * Admin and teacher actions targeting this row, so "why was it retried at 23:40" is answerable.
+   * Admin and teacher actions targeting this row.
    */
   actions: Array<CreditRegistrationAdminActionRecord>
   /**
@@ -139,9 +131,6 @@ export type AdminCreditRegistrationDetails = {
   suotar_api_calls: Array<AdminSuotarApiCall>
 }
 
-/**
- * One timeline entry, with the exchange that produced it.
- */
 export type AdminCreditRegistrationEvent = {
   actor_user_id?: string | null
   created_at: string
@@ -162,9 +151,6 @@ export type AdminCreditRegistrationEvent = {
   to_state?: null | CreditRegistrationState
 }
 
-/**
- * One ledger row for the explorer and its detail page.
- */
 export type AdminCreditRegistrationRow = {
   attempt_number: number
   completion_date: string
@@ -218,13 +204,13 @@ export type AdminCreditRegistrationRow = {
 }
 
 /**
- * What an admin may move a row to, spelled out rather than taken from the state enum: everything
- * else is the pipeline's to decide.
+ * What an admin may move a row to; everything else is the pipeline's to decide.
  */
 export type AdminCreditRegistrationTransitionTarget =
   | "ready_to_submit"
   | "cancelled"
   | "clear_needs_admin_attention"
+  | "check_now"
 
 export type AdminCreditRegistrationsPage = {
   data: Array<AdminCreditRegistrationRow>
@@ -232,9 +218,6 @@ export type AdminCreditRegistrationsPage = {
   total_pages: number
 }
 
-/**
- * One account-linking mail, with what we can honestly say about handing it over.
- */
 export type AdminLinkingEmail = {
   claimed_at: string
   course_id: string
@@ -262,8 +245,8 @@ export type AdminManualLinkOutcome =
 export type AdminManuallyLinkStudentNumberPayload = {
   reason: string
   /**
-   * From the preview. The endpoint re-resolves the number and refuses unless the registry still
-   * names this person, so a typo cannot mint a link and neither can a guess.
+   * From the preview. Re-resolved on arrival, and a mismatch is refused, so a typo cannot mint a
+   * link to somebody else.
    */
   sisu_person_id: string
   student_number: string
@@ -332,11 +315,8 @@ export type AdminResolveStudentNumberPayload = {
 }
 
 /**
- * The preview a manual link is gated on.
- *
- * No addresses from the registry: `resolve-persons` answers with the person's name and id and no
- * contact details. The addresses we mailed are here instead, with what happened to each, which is
- * what the decision actually turns on.
+ * The preview a manual link is gated on. No addresses from the registry — `resolve-persons` answers
+ * with a name and an id only — so the addresses here are the ones we mailed.
  */
 export type AdminResolveStudentNumberResult = {
   already_linked_to_user_email?: string | null
@@ -358,9 +338,6 @@ export type AdminResolveStudentNumberResult = {
   study_registry_unavailable: boolean
 }
 
-/**
- * One logged call to the study registry.
- */
 export type AdminSuotarApiCall = {
   credit_registration_ids: Array<string>
   duration_ms?: number | null
@@ -1028,9 +1005,6 @@ export type CourseCount = {
   count: number
 }
 
-/**
- * One registration as a teacher sees it.
- */
 export type CourseCreditRegistration = {
   attempt_number: number
   completion_date: string
@@ -1059,7 +1033,7 @@ export type CourseCreditRegistration = {
    */
   student_facing_status: StudentFacingCreditRegistrationStatus
   /**
-   * In full: a masked number cannot be compared against a student card, which is the whole use.
+   * In full: a masked number cannot be checked against a student card.
    */
   student_number?: string | null
   student_number_verified_at?: string | null
@@ -1069,8 +1043,8 @@ export type CourseCreditRegistration = {
 }
 
 /**
- * Why the course's enrolled students are not going to get credits, in the two counts a teacher can
- * act on. Neither counts a student who has both consented and linked a number.
+ * Why the course's enrolled students are not going to get credits. Neither count includes a student
+ * who has both consented and linked a number.
  */
 export type CourseCreditRegistrationBlockedStudentCounts = {
   /**
@@ -1078,14 +1052,14 @@ export type CourseCreditRegistrationBlockedStudentCounts = {
    */
   no_consent_student_count: number
   /**
-   * Consented, but we hold no student number for them, so nothing can be submitted.
+   * Consented, but we hold no student number for them.
    */
   unlinked_consented_student_count: number
 }
 
 /**
- * One event of the item timeline. Deliberately without the event's stored request and response
- * bodies: those are the admin dashboard's, and the study registry's own wording is never rendered.
+ * One event of the item timeline, without the stored request and response bodies: those are the
+ * admin dashboard's, and the study registry's own wording is never rendered.
  */
 export type CourseCreditRegistrationEvent = {
   actor_user_id?: string | null
@@ -1112,17 +1086,13 @@ export type CourseCreditRegistrationModuleConfigs = {
   realisations: Array<CourseModuleSuotarRealisation>
 }
 
-/**
- * One module's live rows, for the "how many of my students will not get credits, and why" tiles.
- */
 export type CourseCreditRegistrationModuleSummary = {
   counts_by_state: Array<CreditRegistrationStateCount>
   course_module_id: string
   course_module_name?: string | null
   enabled: boolean
   /**
-   * `failed_permanent` only. A retrying row is still working and `misregistered` is not terminal,
-   * so neither is counted as a failure.
+   * `failed_permanent` only: a retrying row is still working and `misregistered` is not terminal.
    */
   failed_permanent_count: number
   needs_admin_attention_count: number
@@ -1137,7 +1107,6 @@ export type CourseCreditRegistrationSummary = {
   blocked_students: CourseCreditRegistrationBlockedStudentCounts
   /**
    * Of the unlinked consented students, the ones whose linking mail we never managed to hand over.
-   * The difference between "student ignoring our mail" and "we could not send it".
    */
   linking_emails_failed_to_send_count: number
   modules: Array<CourseCreditRegistrationModuleSummary>
@@ -1744,13 +1713,9 @@ export type CreditRegistrationAlertThresholds = {
 }
 
 /**
- * The circuit breaker as this process holds it.
- *
- * The global key only. A narrowed run gets a breaker of its own, so reporting any tripped key would
- * turn one test's deliberate outage into a banner an admin would act on. And the counters live in
- * process memory, so what a worker pod's breaker holds is genuinely a different number: this tile
- * says whether the web server would currently skip a study registry call, not whether the workers
- * would.
+ * The circuit breaker as this web process holds it. The global key only — a narrowed run gets its own
+ * — and the counters live in process memory, so this says whether this server would currently skip a
+ * study registry call, not whether the workers would.
  */
 export type CreditRegistrationCircuitBreakerState = {
   consecutive_failures: number
@@ -1827,8 +1792,7 @@ export type CreditRegistrationEventKind =
 
 export type CreditRegistrationHealth = {
   /**
-   * Critical first, and a rejected credential first of all: nothing else can register until it is
-   * fixed.
+   * Critical first, and a rejected credential first of all: nothing registers until it is fixed.
    */
   alerts: Array<CreditRegistrationAlert>
   status: HealthStatus
@@ -1856,17 +1820,15 @@ export type CreditRegistrationOverview = {
 }
 
 /**
- * One pipeline phase's heartbeat.
- *
- * Written by the worker loops and by an unscoped run, and never by a narrowed one, so the row means
- * "what the loops are doing" without qualification.
+ * One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
+ * narrowed one.
  */
 export type CreditRegistrationPhaseStatus = {
   consecutive_failures: number
   expected_interval_secs: number
   /**
-   * `seconds_since_heartbeat > expected_interval_secs * health.thresholds.phase_heartbeat_interval_multiplier`,
-   * decided here for the same reason. Always `false` while paused or never heartbeated.
+   * `seconds_since_heartbeat > expected_interval_secs * health.thresholds.phase_heartbeat_interval_multiplier`.
+   * Always `false` while paused or never heartbeated.
    */
   heartbeat_late: boolean
   /**
@@ -1883,8 +1845,8 @@ export type CreditRegistrationPhaseStatus = {
   phase: string
   process_name: string
   /**
-   * Computed here rather than on the page: a page comparing its own clock against this row's
-   * server timestamp would flip every phase late (or hide a truly dead one) on a skewed client.
+   * Computed server-side: a page comparing its own clock against a server timestamp misjudges this
+   * on a skewed client.
    */
   seconds_since_heartbeat?: number | null
 }
@@ -2593,15 +2555,11 @@ export type MyCourseCreditRegistrationConsent = {
   credit_registration_enabled_for_course: boolean
   modules: Array<CreditRegistrationConsentModule>
   /**
-   * Completions already waiting on consent, so the dialog can say how many one click registers
-   * instead of guessing.
+   * Completions already waiting on consent, so the dialog can say how many one click registers.
    */
   registrable_completion_count: number
 }
 
-/**
- * One credit registration as its owner sees it.
- */
 export type MyCreditRegistration = {
   attempt_number: number
   can_request_enrolment_recheck: boolean
@@ -2627,8 +2585,7 @@ export type MyCreditRegistration = {
   sisu_attainment_id?: string | null
   state: CreditRegistrationState
   /**
-   * Whether the pipeline is still expected to move this row on its own. Drives the status page's
-   * polling, so a state added later cannot leave the page refreshing forever or not at all.
+   * Whether the pipeline is still expected to move this row: drives the status page's polling.
    */
   status_is_moving: boolean
   student_facing_status: StudentFacingCreditRegistrationStatus
@@ -2652,8 +2609,8 @@ export type MyCreditRegistrationConsent = {
  */
 export type MyCreditRegistrationForCourseModule = {
   /**
-   * The module's other rows, newest completion first. Shown rather than hidden because the study
-   * registry may hold an earlier attempt's attainment as well as the current one's.
+   * The module's other rows, newest completion first. Shown because the study registry may hold an
+   * earlier attempt's attainment as well as the current one's.
    */
   earlier_attempts: Array<MyCreditRegistration>
   registration: MyCreditRegistration
@@ -2740,8 +2697,7 @@ export type MyStudiesTotals = {
 }
 
 /**
- * The account's linked student number, unmasked: it is the holder's own number, and masking a value
- * they have to compare against their own records makes the page useless.
+ * The account's linked student number, unmasked: it is the holder's own.
  */
 export type MyVerifiedStudentNumber = {
   first_names?: string | null
@@ -3333,8 +3289,7 @@ export type ResendLinkingEmailPayload = {
   reason?: string | null
   student_number?: string | null
   /**
-   * One of the two identifies the person. `student_number` is what a teacher can read off a
-   * student card; `user_id` only resolves for an account we have held a number for.
+   * One of the two names the person; `user_id` only resolves for an account that has held a number.
    */
   user_id?: string | null
 }
@@ -3451,9 +3406,6 @@ export type SetMyCourseCreditRegistrationConsentResult = {
   consent_given: boolean
   consent_given_at?: string | null
   consent_withdrawn_at?: string | null
-  /**
-   * For late consent this is the whole payoff, so it must not be swallowed.
-   */
   newly_unblocked_registration_count: number
 }
 
@@ -3464,7 +3416,7 @@ export type SisuDescriptionResponse = {
 }
 
 /**
- * The stage a student sees, and which of the four steps of the status stepper it belongs to.
+ * The stage a student sees.
  */
 export type StudentFacingCreditRegistrationStatus =
   | "waiting_for_completion"
@@ -3497,8 +3449,8 @@ export type StudentNumberVerificationTokenPreview = {
   already_used_by_this_account: boolean
   claimable: boolean
   /**
-   * A support case: moving a student number between accounts on mailbox access alone would let
-   * anyone detach another account's link.
+   * A support case, not something the student can resolve: moving a number between accounts on
+   * mailbox access alone would let anyone detach another account's link.
    */
   conflicts_with_other_account: boolean
   course_name?: string | null
@@ -3513,8 +3465,7 @@ export type StudentNumberVerificationTokenPreview = {
   last_name?: string | null
   student_number: string
   /**
-   * Shown in the confirmation, because being logged in to the wrong account is the common mistake
-   * and this is what makes it obvious before the click rather than after.
+   * Shown in the confirmation: being signed in to the wrong account is the common mistake.
    */
   target_account_email: string
 }
@@ -3624,8 +3575,7 @@ export type TeacherGradingDecision = {
 }
 
 /**
- * What we can honestly say about a student's linking mail, for a teacher: our send status and the
- * address's domain, which is what makes "check your university mail, not your gmail" useful.
+ * What we can honestly say about a linking mail: our send status and the address's domain.
  */
 export type TeacherLinkingEmailStatus = {
   email_send_status: EmailSendStatus
@@ -3727,8 +3677,7 @@ export type UserCompletionInformation = {
   enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
   /**
-   * `None` only on a module registering through credit registration; the legacy flow cannot
-   * fetch its link without one.
+   * `None` only on a module registering through credit registration.
    */
   uh_course_code?: string | null
 }

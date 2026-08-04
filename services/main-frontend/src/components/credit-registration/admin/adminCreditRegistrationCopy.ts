@@ -13,14 +13,7 @@ import { labelFrom, widenedLookup } from "../labelFrom"
 
 export { studentNumberVerificationLabel as verificationMethodLabel } from "../teacherCreditRegistrations"
 
-/**
- * Which tone each ledger state reads as at a glance. Presentation only: the pill's text is the state
- * name itself, because that is the identifier an operator pastes into a message to the university,
- * and translating it would make it useless for that.
- *
- * `abandoned_by_consent_withdrawal` is deliberately `upcoming` rather than `failed`: it is neither a
- * failure nor a success, and colouring it red would put it in the wrong mental bucket forever.
- */
+/** `abandoned_by_consent_withdrawal` is `upcoming`, not `failed`: neither failure nor success. */
 const STATE_TONES = {
   pending_prerequisites: "upcoming",
   pending_consent: "action-needed",
@@ -45,7 +38,7 @@ const STATE_TONES = {
 export const stateTone = (state: CreditRegistrationState): RegistrationStatusState =>
   widenedLookup(STATE_TONES, state) ?? "upcoming"
 
-/** The states that mean the credit exists in the study registry, whoever put it there. */
+/** The credit exists in the study registry, whoever put it there. */
 export const isSuccessState = (state: CreditRegistrationState): boolean =>
   state === "registered" || state === "duplicate" || state === "not_improved"
 
@@ -59,10 +52,6 @@ const ALERT_KEYS = {
 
 const GENERIC_ALERT_KEY = "credit-registration-alert-generic"
 
-/**
- * The sentence one alert reads as. The backend sends identifiers and numbers only, so the wording and
- * the choice of which numbers to name live here.
- */
 export const alertSentence = (
   t: TFunction,
   id: CreditRegistrationAlertId,
@@ -79,11 +68,7 @@ const SEND_STATUS_KEYS = {
 
 const SEND_STATUS_UNKNOWN_KEY = "credit-registration-admin-send-status-unknown"
 
-/**
- * Our send status and nothing more. We hand mail to a relay; what happens after is invisible to us, so
- * no wording here may imply a delivery. An unrecognised status falls back to saying so, not to
- * `queued`: that would read as a status we have, not as the gap it is.
- */
+/** Our send status only, never a delivery; an unknown status must not read as `queued`. */
 export const sendStatusLabel = (t: TFunction, status: EmailSendStatus): string =>
   labelFrom(t, SEND_STATUS_KEYS, status, SEND_STATUS_UNKNOWN_KEY)
 

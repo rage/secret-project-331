@@ -9,8 +9,8 @@ import { ADMIN_REGISTRATIONS_URL } from "@/utils/creditRegistrationAdmin"
 
 /**
  * Owns student numbers `9000016xx` and reads two fixtures the seed writes rather than drives: the
- * already-linked student and the replaced attempt pair. This file ticks nothing at all, and every
- * other file that touches those two rows only reads them too.
+ * already-linked student and the replaced attempt pair. Ticks nothing; every other file that touches
+ * those rows only reads them too.
  */
 const LINKED_EMAIL = "credit-registration-consented-linked@example.com"
 const LINKED_STUDENT_NUMBER = "900000101"
@@ -57,8 +57,8 @@ test.describe("A student on a Suotar course and nothing else", () => {
   })
 
   test("A student cannot read another student's credit registrations", async ({ page }) => {
-    // Ownership is filtered in SQL by the session's user, so there is no path to another student's
-    // rows at all; asking for the whole collection returns only your own.
+    // Ownership is filtered in SQL by the session's user, so asking for the whole collection is the
+    // strongest attempt available: there is no path to another student's rows at all.
     const mine = await page.request.get(`${CREDIT_REGISTRATIONS_API}/my`)
     await expect(mine).toBeOK()
     expect(await mine.json()).toStrictEqual([])

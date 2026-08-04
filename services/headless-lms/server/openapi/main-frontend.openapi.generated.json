@@ -1092,7 +1092,7 @@
     "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email": {
       "post": {
         "tags": ["course-credit-registrations"],
-        "summary": "\nPOST\n`/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off\nanother account-linking mail for one person on this course.\n\nThe target has to be on this course's roster in the study registry and hold no link with us, which is\nthe same predicate the enrolment discovery phase claims mails under. The caps of the ordinary claim\npath apply and there is no parameter that relaxes them: a refusal comes back as a typed outcome for\nthe teacher to escalate, and only an admin can override.",
+        "summary": "\nPOST\n`/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off\nanother account-linking mail for one person on this course.\n\nThe target has to be on this course's roster in the study registry and hold no link with us. The caps\nof the ordinary claim path apply and nothing here relaxes them.",
         "operationId": "resendCourseCreditRegistrationLinkingEmail",
         "parameters": [
           {
@@ -1167,7 +1167,7 @@
     "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}": {
       "get": {
         "tags": ["course-credit-registrations"],
-        "summary": "\nGET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One\nregistration with its timeline and the other attempts for the same completion.\n\nAuthorized on the row's own course, not on a course id from the caller: with a course in the path a\nteacher of one course could read another's rows by pairing their own course with a foreign id.",
+        "summary": "\nGET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One\nregistration with its timeline and the other attempts for the same completion.\n\nAuthorized on the row's own course: a course id from the caller would let a teacher of one course pair\nit with a foreign registration id.",
         "operationId": "getCreditRegistrationDetails",
         "parameters": [
           {
@@ -6809,7 +6809,7 @@
     "/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link": {
       "post": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link` - Links a student\nnumber to an account on an admin's judgement.\n\nThe last resort, for the students no amount of resending can reach: some mailbox hosts will not\naccept our mail at all, and without this those people cannot get their credits. It substitutes an\nadmin's judgement for proof of mailbox control, so the row is marked `admin_manual` forever, carries\nthe reason, names the admin, and is surfaced distinctly to teachers and admins alike.\n\nTwo gates, both refusals rather than warnings. The reason is required. And the number is resolved\nagain here and has to still name the person the preview returned, so a typo cannot mint a link to\nsomebody else and a caller who never previewed cannot produce the person id to echo.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link` - Links a student\nnumber to an account on an admin's judgement.\n\nThe last resort, for a student whose mailbox host will not accept our mail at all. An admin's judgement\nstands in for proof of mailbox control, so the link is marked `admin_manual` forever, carries the\nreason and names the admin.",
         "operationId": "adminManuallyLinkStudentNumber",
         "requestBody": {
           "content": {
@@ -6841,7 +6841,7 @@
     "/api/v0/main-frontend/credit-registration-admin/account-linking/resend": {
       "post": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/resend` - Sets off another\naccount-linking mail for one person on one course.\n\nThe first-line remedy, and the one the dashboard puts in front of support: it is cheap, reversible\nand leaves the ownership proof intact, because the recipient still has to open the link while logged\nin. The mail goes to the addresses the study registry holds, which are the only addresses the\npipeline itself would reach.\n\nBoth caps live in the one writer of the linking ledger and no parameter relaxes them. An override\ntherefore does not ask for an exemption: it retires the ledger rows a cap is counting, as its own\naudited action, and then runs the ordinary path — which still refuses if something else stops it.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/resend` - Sets off another\naccount-linking mail for one person on one course.\n\nThe mail goes to the addresses the study registry holds, and the recipient still has to open the link\nwhile signed in, so the ownership proof is intact. An override does not ask a cap for an exemption: it\nretires the ledger rows the cap is counting, as its own audited action, then runs the ordinary path.",
         "operationId": "adminResendAccountLinkingEmail",
         "requestBody": {
           "content": {
@@ -6873,7 +6873,7 @@
     "/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person": {
       "post": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one\nstudent number up in the study registry without changing anything.\n\nThe preview a manual link is gated on: the admin reads the registry's name back to the student they\nare talking to before a link is created. Writes nothing but the call log row every study registry\ncall writes.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one\nstudent number up in the study registry without changing anything.\n\nThe preview a manual link is gated on. Writes nothing but the call log row every study registry call\nwrites.",
         "operationId": "adminResolveStudentNumberForLinking",
         "requestBody": {
           "content": {
@@ -6905,7 +6905,7 @@
     "/api/v0/main-frontend/credit-registration-admin/materialize": {
       "post": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible\ncompletions and recomputes preconditions, now.\n\nThe same two database-only steps the `materialize` and `preconditions` phases take, run directly\nrather than through the phase dispatcher: the phase-state row describes the worker loops, and an\nadmin pressing a button must not make a dead worker look alive.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible\ncompletions and recomputes preconditions, now.\n\nRuns the two database-only steps directly rather than through the phase dispatcher, because the\nphase-state row describes the worker loops: an admin pressing a button must not make a dead worker look\nalive.",
         "operationId": "adminMaterializeCreditRegistrations",
         "requestBody": {
           "content": {
@@ -7278,7 +7278,7 @@
     "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition": {
       "post": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`\n- Moves one row by hand.\n\nThe escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because\nre-importing could put a second attainment on a real transcript. Resubmitting re-checks consent here:\na `misregistered` row is deliberately outside the automatic machinery, so nothing upstream has\nchecked it, and without this an admin could resubmit for a student who has withdrawn.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`\n- Moves one row by hand.\n\nThe escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because\nre-importing could put a second attainment on a real transcript. Resubmitting re-checks consent, because\na `misregistered` row sits outside the automatic machinery that would otherwise have checked it.",
         "operationId": "adminTransitionCreditRegistration",
         "parameters": [
           {
@@ -7481,7 +7481,7 @@
       },
       "put": {
         "tags": ["credit-registrations"],
-        "summary": "\nPUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in\naccount's answer and applies it to that course's registrations at once.\n\nBacks every entry point — the course-start dialog, the status page and the profile page — because a\ncompletion backfilled from an earlier term will never see the dialog again.",
+        "summary": "\nPUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in\naccount's answer and applies it to that course's registrations at once.",
         "operationId": "setMyCourseCreditRegistrationConsent",
         "parameters": [
           {
@@ -7544,7 +7544,7 @@
     "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}": {
       "get": {
         "tags": ["credit-registrations"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}` - The\nsigned-in account's registration for one course module, or null when the pipeline has not created one\nyet.\n\nNull rather than 404 because a completed module whose ledger row the materialize phase has not\nwritten yet is a normal state the status page has to explain.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}` - The\nsigned-in account's registration for one course module, or null when the pipeline has not created one\nyet.",
         "operationId": "getMyCreditRegistrationForCourseModule",
         "parameters": [
           {
@@ -7628,7 +7628,7 @@
       },
       "delete": {
         "tags": ["credit-registrations"],
-        "summary": "\nDELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number\nfrom the signed-in account.\n\nRegistrations that have not been sent go back to waiting for a student number. Credits already in\nSisu are untouched; we cannot remove those.",
+        "summary": "\nDELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number\nfrom the signed-in account.\n\nRegistrations that have not been sent go back to waiting; credits already in Sisu are untouched.",
         "operationId": "unlinkMyStudentNumber",
         "responses": {
           "200": {
@@ -7647,7 +7647,7 @@
     "/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to\nlook for an enrolment again, for a row parked because the study registry had none.\n\nOnly the clock moves. The precondition recompute takes the row back to `ready_to_submit`, so the\nenrolment is resolved afresh rather than assumed.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to\nlook for an enrolment again, for a row parked because the study registry had none.",
         "operationId": "requestCreditRegistrationEnrolmentRecheck",
         "parameters": [
           {
@@ -7684,7 +7684,7 @@
     "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}": {
       "get": {
         "tags": ["credit-registrations"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}` - What the\nmailed link would link, without linking it.\n\nA session is required so the confirmation can name the account the number would land on, and the\nhandler writes nothing: the link has to survive a mail scanner fetching it.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}` - What the\nmailed link would link, without linking it.\n\nWrites nothing: the link has to survive a mail scanner fetching it.",
         "operationId": "previewStudentNumberVerificationToken",
         "parameters": [
           {
@@ -7717,7 +7717,7 @@
     "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends\na mailed link and links the student number to the signed-in account.\n\nThe only writer of a link. Any signed-in account may claim any valid token: holding it proves control\nof the Sisu-held mailbox, and the session says which of our accounts the person wants to use.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends\na mailed link and links the student number to the signed-in account.\n\nAny signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,\nand the session says which of our accounts the person wants to use.",
         "operationId": "claimStudentNumberVerificationToken",
         "parameters": [
           {
@@ -12527,7 +12527,7 @@
     "schemas": {
       "AccountLinkingFailureDomain": {
         "type": "object",
-        "description": "Hard send failures grouped by recipient domain: an undeliverable host is a pattern, not fifty\nunrelated tickets.",
+        "description": "Hard send failures grouped by recipient domain.",
         "required": ["domain", "count"],
         "properties": {
           "count": {
@@ -12541,7 +12541,7 @@
       },
       "AccountLinkingFunnel": {
         "type": "object",
-        "description": "The account-linking funnel.\n\nThe first two steps come from the counters the discovery phase overwrites whole, so they describe\nits last run rather than the window; the rest are windowed. The UI has to say which is which,\nbecause there is no one denominator. There is no \"matched to an account\" step: the mail goes to\nthe address the registry holds and the account is chosen by the recipient at claim time.\n\nA \"link fetched\" step is missing on purpose. Nothing records a hit on the landing page, so the\nnumber would have to be invented.",
+        "description": "The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites\nwhole, the `_in_window` ones from the window: there is no single denominator.",
         "required": [
           "persons_discovered_last_run",
           "already_linked_last_run",
@@ -12569,7 +12569,7 @@
           "manual_links_in_window": {
             "type": "integer",
             "format": "int64",
-            "description": "Its own bar, never folded into the claimed one: an admin's judgement is not a claim."
+            "description": "Never folded into the claimed count: an admin's judgement is not a claim."
           },
           "no_address_in_study_registry_last_run": {
             "type": "integer",
@@ -12636,7 +12636,7 @@
           "no_address_count": {
             "type": ["integer", "null"],
             "format": "int32",
-            "description": "The one genuinely unreachable population, and the only number nobody can fix from here."
+            "description": "Persons the registry holds no address for: the one population no remedy here can reach."
           },
           "suppressed_by_dedup_count": {
             "type": ["integer", "null"],
@@ -12830,7 +12830,7 @@
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAdminActionRecord"
             },
-            "description": "Admin and teacher actions targeting this row, so \"why was it retried at 23:40\" is answerable."
+            "description": "Admin and teacher actions targeting this row."
           },
           "attempts": {
             "type": "array",
@@ -12873,7 +12873,6 @@
       },
       "AdminCreditRegistrationEvent": {
         "type": "object",
-        "description": "One timeline entry, with the exchange that produced it.",
         "required": ["id", "created_at", "kind"],
         "properties": {
           "actor_user_id": {
@@ -12936,7 +12935,6 @@
       },
       "AdminCreditRegistrationRow": {
         "type": "object",
-        "description": "One ledger row for the explorer and its detail page.",
         "required": [
           "id",
           "created_at",
@@ -13120,8 +13118,8 @@
       },
       "AdminCreditRegistrationTransitionTarget": {
         "type": "string",
-        "description": "What an admin may move a row to, spelled out rather than taken from the state enum: everything\nelse is the pipeline's to decide.",
-        "enum": ["ready_to_submit", "cancelled", "clear_needs_admin_attention"]
+        "description": "What an admin may move a row to; everything else is the pipeline's to decide.",
+        "enum": ["ready_to_submit", "cancelled", "clear_needs_admin_attention", "check_now"]
       },
       "AdminCreditRegistrationsPage": {
         "type": "object",
@@ -13146,7 +13144,6 @@
       },
       "AdminLinkingEmail": {
         "type": "object",
-        "description": "One account-linking mail, with what we can honestly say about handing it over.",
         "required": [
           "id",
           "course_id",
@@ -13216,7 +13213,7 @@
           },
           "sisu_person_id": {
             "type": "string",
-            "description": "From the preview. The endpoint re-resolves the number and refuses unless the registry still\nnames this person, so a typo cannot mint a link and neither can a guess."
+            "description": "From the preview. Re-resolved on arrival, and a mismatch is refused, so a typo cannot mint a\nlink to somebody else."
           },
           "student_number": {
             "type": "string"
@@ -13366,7 +13363,7 @@
       },
       "AdminResolveStudentNumberResult": {
         "type": "object",
-        "description": "The preview a manual link is gated on.\n\nNo addresses from the registry: `resolve-persons` answers with the person's name and id and no\ncontact details. The addresses we mailed are here instead, with what happened to each, which is\nwhat the decision actually turns on.",
+        "description": "The preview a manual link is gated on. No addresses from the registry — `resolve-persons` answers\nwith a name and an id only — so the addresses here are the ones we mailed.",
         "required": ["found", "student_number", "study_registry_unavailable", "linking_emails"],
         "properties": {
           "already_linked_to_user_email": {
@@ -13419,7 +13416,6 @@
       },
       "AdminSuotarApiCall": {
         "type": "object",
-        "description": "One logged call to the study registry.",
         "required": [
           "id",
           "endpoint",
@@ -15544,7 +15540,6 @@
       },
       "CourseCreditRegistration": {
         "type": "object",
-        "description": "One registration as a teacher sees it.",
         "required": [
           "id",
           "user_id",
@@ -15660,7 +15655,7 @@
           },
           "student_number": {
             "type": ["string", "null"],
-            "description": "In full: a masked number cannot be compared against a student card, which is the whole use."
+            "description": "In full: a masked number cannot be checked against a student card."
           },
           "student_number_verified_at": {
             "type": ["string", "null"],
@@ -15688,7 +15683,7 @@
       },
       "CourseCreditRegistrationBlockedStudentCounts": {
         "type": "object",
-        "description": "Why the course's enrolled students are not going to get credits, in the two counts a teacher can\nact on. Neither counts a student who has both consented and linked a number.",
+        "description": "Why the course's enrolled students are not going to get credits. Neither count includes a student\nwho has both consented and linked a number.",
         "required": ["unlinked_consented_student_count", "no_consent_student_count"],
         "properties": {
           "no_consent_student_count": {
@@ -15699,13 +15694,13 @@
           "unlinked_consented_student_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Consented, but we hold no student number for them, so nothing can be submitted."
+            "description": "Consented, but we hold no student number for them."
           }
         }
       },
       "CourseCreditRegistrationEvent": {
         "type": "object",
-        "description": "One event of the item timeline. Deliberately without the event's stored request and response\nbodies: those are the admin dashboard's, and the study registry's own wording is never rendered.",
+        "description": "One event of the item timeline, without the stored request and response bodies: those are the\nadmin dashboard's, and the study registry's own wording is never rendered.",
         "required": ["id", "created_at", "kind"],
         "properties": {
           "actor_user_id": {
@@ -15781,7 +15776,6 @@
       },
       "CourseCreditRegistrationModuleSummary": {
         "type": "object",
-        "description": "One module's live rows, for the \"how many of my students will not get credits, and why\" tiles.",
         "required": [
           "course_module_id",
           "enabled",
@@ -15811,7 +15805,7 @@
           "failed_permanent_count": {
             "type": "integer",
             "format": "int64",
-            "description": "`failed_permanent` only. A retrying row is still working and `misregistered` is not terminal,\nso neither is counted as a failure."
+            "description": "`failed_permanent` only: a retrying row is still working and `misregistered` is not terminal."
           },
           "needs_admin_attention_count": {
             "type": "integer",
@@ -15837,7 +15831,7 @@
           "linking_emails_failed_to_send_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Of the unlinked consented students, the ones whose linking mail we never managed to hand over.\nThe difference between \"student ignoring our mail\" and \"we could not send it\"."
+            "description": "Of the unlinked consented students, the ones whose linking mail we never managed to hand over."
           },
           "modules": {
             "type": "array",
@@ -17418,7 +17412,7 @@
       },
       "CreditRegistrationCircuitBreakerState": {
         "type": "object",
-        "description": "The circuit breaker as this process holds it.\n\nThe global key only. A narrowed run gets a breaker of its own, so reporting any tripped key would\nturn one test's deliberate outage into a banner an admin would act on. And the counters live in\nprocess memory, so what a worker pod's breaker holds is genuinely a different number: this tile\nsays whether the web server would currently skip a study registry call, not whether the workers\nwould.",
+        "description": "The circuit breaker as this web process holds it. The global key only — a narrowed run gets its own\n— and the counters live in process memory, so this says whether this server would currently skip a\nstudy registry call, not whether the workers would.",
         "required": ["open", "consecutive_failures", "trips_after_consecutive_failures"],
         "properties": {
           "consecutive_failures": {
@@ -17555,7 +17549,7 @@
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAlert"
             },
-            "description": "Critical first, and a rejected credential first of all: nothing else can register until it is\nfixed."
+            "description": "Critical first, and a rejected credential first of all: nothing registers until it is fixed."
           },
           "status": {
             "$ref": "#/components/schemas/HealthStatus"
@@ -17661,7 +17655,7 @@
       },
       "CreditRegistrationPhaseStatus": {
         "type": "object",
-        "description": "One pipeline phase's heartbeat.\n\nWritten by the worker loops and by an unscoped run, and never by a narrowed one, so the row means\n\"what the loops are doing\" without qualification.",
+        "description": "One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a\nnarrowed one.",
         "required": [
           "phase",
           "process_name",
@@ -17681,7 +17675,7 @@
           },
           "heartbeat_late": {
             "type": "boolean",
-            "description": "`seconds_since_heartbeat > expected_interval_secs * health.thresholds.phase_heartbeat_interval_multiplier`,\ndecided here for the same reason. Always `false` while paused or never heartbeated."
+            "description": "`seconds_since_heartbeat > expected_interval_secs * health.thresholds.phase_heartbeat_interval_multiplier`.\nAlways `false` while paused or never heartbeated."
           },
           "implemented": {
             "type": "boolean",
@@ -17723,7 +17717,7 @@
           "seconds_since_heartbeat": {
             "type": ["integer", "null"],
             "format": "int64",
-            "description": "Computed here rather than on the page: a page comparing its own clock against this row's\nserver timestamp would flip every phase late (or hide a truly dead one) on a skewed client."
+            "description": "Computed server-side: a page comparing its own clock against a server timestamp misjudges this\non a skewed client."
           }
         }
       },
@@ -19932,13 +19926,12 @@
           "registrable_completion_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Completions already waiting on consent, so the dialog can say how many one click registers\ninstead of guessing."
+            "description": "Completions already waiting on consent, so the dialog can say how many one click registers."
           }
         }
       },
       "MyCreditRegistration": {
         "type": "object",
-        "description": "One credit registration as its owner sees it.",
         "required": [
           "id",
           "course_id",
@@ -20022,7 +20015,7 @@
               },
               {
                 "$ref": "#/components/schemas/LinkingEmailStatus",
-                "description": "Only on a row waiting for a student number, and only when the account was linked at some\npoint: the mail is addressed to a Sisu person, and a never-linked account names none."
+                "description": "Only on a row waiting for a student number whose account was linked at some point: the mail is\naddressed to a Sisu person, and a never-linked account names none."
               }
             ]
           },
@@ -20042,7 +20035,7 @@
           },
           "status_is_moving": {
             "type": "boolean",
-            "description": "Whether the pipeline is still expected to move this row on its own. Drives the status page's\npolling, so a state added later cannot leave the page refreshing forever or not at all."
+            "description": "Whether the pipeline is still expected to move this row: drives the status page's polling."
           },
           "student_facing_status": {
             "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus"
@@ -20106,7 +20099,7 @@
             "items": {
               "$ref": "#/components/schemas/MyCreditRegistration"
             },
-            "description": "The module's other rows, newest completion first. Shown rather than hidden because the study\nregistry may hold an earlier attempt's attainment as well as the current one's."
+            "description": "The module's other rows, newest completion first. Shown because the study registry may hold an\nearlier attempt's attainment as well as the current one's."
           },
           "registration": {
             "$ref": "#/components/schemas/MyCreditRegistration"
@@ -20288,7 +20281,7 @@
       },
       "MyVerifiedStudentNumber": {
         "type": "object",
-        "description": "The account's linked student number, unmasked: it is the holder's own number, and masking a value\nthey have to compare against their own records makes the page useless.",
+        "description": "The account's linked student number, unmasked: it is the holder's own.",
         "required": ["student_number", "verified_at", "verified_via"],
         "properties": {
           "first_names": {
@@ -22148,7 +22141,7 @@
           "user_id": {
             "type": ["string", "null"],
             "format": "uuid",
-            "description": "One of the two identifies the person. `student_number` is what a teacher can read off a\nstudent card; `user_id` only resolves for an account we have held a number for."
+            "description": "One of the two names the person; `user_id` only resolves for an account that has held a number."
           }
         }
       },
@@ -22475,8 +22468,7 @@
           },
           "newly_unblocked_registration_count": {
             "type": "integer",
-            "format": "int64",
-            "description": "For late consent this is the whole payoff, so it must not be swallowed."
+            "format": "int64"
           }
         }
       },
@@ -22503,7 +22495,7 @@
       },
       "StudentFacingCreditRegistrationStatus": {
         "type": "string",
-        "description": "The stage a student sees, and which of the four steps of the status stepper it belongs to.",
+        "description": "The stage a student sees.",
         "enum": [
           "waiting_for_completion",
           "needs_consent",
@@ -22548,7 +22540,7 @@
           },
           "conflicts_with_other_account": {
             "type": "boolean",
-            "description": "A support case: moving a student number between accounts on mailbox access alone would let\nanyone detach another account's link."
+            "description": "A support case, not something the student can resolve: moving a number between accounts on\nmailbox access alone would let anyone detach another account's link."
           },
           "course_name": {
             "type": ["string", "null"]
@@ -22578,7 +22570,7 @@
           },
           "target_account_email": {
             "type": "string",
-            "description": "Shown in the confirmation, because being logged in to the wrong account is the common mistake\nand this is what makes it obvious before the click rather than after."
+            "description": "Shown in the confirmation: being signed in to the wrong account is the common mistake."
           }
         }
       },
@@ -22858,7 +22850,7 @@
       },
       "TeacherLinkingEmailStatus": {
         "type": "object",
-        "description": "What we can honestly say about a student's linking mail, for a teacher: our send status and the\naddress's domain, which is what makes \"check your university mail, not your gmail\" useful.",
+        "description": "What we can honestly say about a linking mail: our send status and the address's domain.",
         "required": ["email_send_status", "retry_count", "emailed_to_masked"],
         "properties": {
           "email_send_status": {
@@ -23160,7 +23152,7 @@
           },
           "uh_course_code": {
             "type": ["string", "null"],
-            "description": "`None` only on a module registering through credit registration; the legacy flow cannot\nfetch its link without one."
+            "description": "`None` only on a module registering through credit registration."
           }
         }
       },

@@ -1,15 +1,9 @@
 /*!
 Handlers for HTTP requests to `/api/v0/main-frontend/credit-registration-admin`.
 
-The global admin's view of credit registration: every course, every ledger row, and the two support
-remedies for an account that never linked a student number. Every handler authorizes on
-`Administrate` over the global permissions, and every mutating one writes its own
-`credit_registration_admin_actions` row in the transaction that has the effect.
-
-Two things admins see that teachers do not: the recipient address in full, because a support case
-starts from the address, and the scrubbed request and response bodies we exchanged with the study
-registry. Two things nobody sees: the registry's own error text, which is written for an integrator
-and is not translated, and a product access token.
+Every mutating handler writes its `credit_registration_admin_actions` row in the transaction that has
+the effect. Admins see recipient addresses in full and the scrubbed study registry bodies; the
+registry's own error text is returned to nobody.
 */
 
 use headless_lms_models::course_credit_registration_consents;
@@ -69,8 +63,8 @@ const THROUGHPUT_DAYS: i64 = 30;
 
 const ENDPOINT_STATS_WINDOWS_SECS: [i64; 3] = [60 * 60, 24 * 60 * 60, 7 * 24 * 60 * 60];
 
-/// How long one admin waits between resends. A fat-finger guard on top of the per-person caps, which
-/// this endpoint can only override by retiring ledger rows.
+/// A fat-finger guard on top of the per-person caps, which this endpoint can only override by retiring
+/// ledger rows.
 const RESEND_QUIET_PERIOD_SECS: i64 = 60;
 
 const STALE_UNCLAIMED_LIMIT: i64 = 200;
@@ -149,13 +143,9 @@ pub struct SuotarEndpointStanding {
     pub consecutive_failures: i64,
 }
 
-/// The circuit breaker as this process holds it.
-///
-/// The global key only. A narrowed run gets a breaker of its own, so reporting any tripped key would
-/// turn one test's deliberate outage into a banner an admin would act on. And the counters live in
-/// process memory, so what a worker pod's breaker holds is genuinely a different number: this tile
-/// says whether the web server would currently skip a study registry call, not whether the workers
-/// would.
+/// The circuit breaker as this web process holds it. The global key only — a narrowed run gets its own
+/// — and the counters live in process memory, so this says whether this server would currently skip a
+/// study registry call, not whether the workers would.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationCircuitBreakerState {
     pub open: bool,
@@ -164,10 +154,8 @@ pub struct CreditRegistrationCircuitBreakerState {
     pub trips_after_consecutive_failures: i64,
 }
 
-/// One pipeline phase's heartbeat.
-///
-/// Written by the worker loops and by an unscoped run, and never by a narrowed one, so the row means
-/// "what the loops are doing" without qualification.
+/// One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
+/// narrowed one.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationPhaseStatus {
     pub phase: String,
@@ -183,11 +171,11 @@ pub struct CreditRegistrationPhaseStatus {
     pub pause_reason: Option<String>,
     /// No implementation is registered for the phase yet, so it has never reported and will not.
     pub implemented: bool,
-    /// Computed here rather than on the page: a page comparing its own clock against this row's
-    /// server timestamp would flip every phase late (or hide a truly dead one) on a skewed client.
+    /// Computed server-side: a page comparing its own clock against a server timestamp misjudges this
+    /// on a skewed client.
     pub seconds_since_heartbeat: Option<i64>,
-    /// `seconds_since_heartbeat > expected_interval_secs * health.thresholds.phase_heartbeat_interval_multiplier`,
-    /// decided here for the same reason. Always `false` while paused or never heartbeated.
+    /// `seconds_since_heartbeat > expected_interval_secs * health.thresholds.phase_heartbeat_interval_multiplier`.
+    /// Always `false` while paused or never heartbeated.
     pub heartbeat_late: bool,
 }
 
@@ -233,7 +221,6 @@ pub struct SuotarHealth {
     pub windows: Vec<SuotarHealthWindow>,
 }
 
-/// One ledger row for the explorer and its detail page.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminCreditRegistrationRow {
     pub id: Uuid,
@@ -289,7 +276,6 @@ pub struct AdminCreditRegistrationsPage {
     pub total_pages: u32,
 }
 
-/// One timeline entry, with the exchange that produced it.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminCreditRegistrationEvent {
     pub id: Uuid,
@@ -307,7 +293,6 @@ pub struct AdminCreditRegistrationEvent {
     pub details: Option<serde_json::Value>,
 }
 
-/// One logged call to the study registry.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminSuotarApiCall {
     pub id: Uuid,
@@ -327,7 +312,6 @@ pub struct AdminSuotarApiCall {
     pub credit_registration_ids: Vec<Uuid>,
 }
 
-/// One account-linking mail, with what we can honestly say about handing it over.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminLinkingEmail {
     pub id: Uuid,
@@ -351,7 +335,7 @@ pub struct AdminCreditRegistrationDetails {
     pub events: Vec<AdminCreditRegistrationEvent>,
     /// The calls the timeline refers to, newest first.
     pub suotar_api_calls: Vec<AdminSuotarApiCall>,
-    /// Admin and teacher actions targeting this row, so "why was it retried at 23:40" is answerable.
+    /// Admin and teacher actions targeting this row.
     pub actions: Vec<CreditRegistrationAdminActionRecord>,
     /// Every mail addressed to this person, on any course.
     pub linking_emails: Vec<AdminLinkingEmail>,
@@ -359,17 +343,19 @@ pub struct AdminCreditRegistrationDetails {
     pub consent_withdrawn_at: Option<DateTime<Utc>>,
 }
 
-/// What an admin may move a row to, spelled out rather than taken from the state enum: everything
-/// else is the pipeline's to decide.
+/// What an admin may move a row to; everything else is the pipeline's to decide.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum AdminCreditRegistrationTransitionTarget {
-    /// Resubmit. The escape hatch out of `submission_uncertain` once a human has checked the
-    /// registry, and the way a `misregistered` row is tried again.
+    /// Resubmit: the escape hatch out of `submission_uncertain`, and how a `misregistered` row is
+    /// tried again.
     ReadyToSubmit,
     Cancelled,
     /// Leaves the state alone and stops the row asking for a human.
     ClearNeedsAdminAttention,
+    /// Leaves the state alone and makes the row due, so the phase owning its state claims it on the
+    /// next pass instead of waiting out a backoff of up to a day.
+    CheckNow,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -382,8 +368,7 @@ pub struct AdminTransitionCreditRegistrationPayload {
 #[serde(rename_all = "snake_case")]
 pub enum AdminTransitionOutcome {
     Applied,
-    /// The student has not consented, or has withdrawn. Resubmitting would register a credit for
-    /// somebody who asked us not to.
+    /// The student has not consented, or has withdrawn.
     RefusedWithoutConsent,
     NoChange,
 }
@@ -395,15 +380,8 @@ pub struct AdminTransitionCreditRegistrationResult {
     pub needs_admin_attention: bool,
 }
 
-/// The account-linking funnel.
-///
-/// The first two steps come from the counters the discovery phase overwrites whole, so they describe
-/// its last run rather than the window; the rest are windowed. The UI has to say which is which,
-/// because there is no one denominator. There is no "matched to an account" step: the mail goes to
-/// the address the registry holds and the account is chosen by the recipient at claim time.
-///
-/// A "link fetched" step is missing on purpose. Nothing records a hit on the landing page, so the
-/// number would have to be invented.
+/// The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites
+/// whole, the `_in_window` ones from the window: there is no single denominator.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingFunnel {
     pub persons_discovered_last_run: i64,
@@ -411,7 +389,7 @@ pub struct AccountLinkingFunnel {
     pub mails_claimed_in_window: i64,
     pub mails_sent_in_window: i64,
     pub numbers_claimed_in_window: i64,
-    /// Its own bar, never folded into the claimed one: an admin's judgement is not a claim.
+    /// Never folded into the claimed count: an admin's judgement is not a claim.
     pub manual_links_in_window: i64,
     pub suppressed_by_dedup_last_run: i64,
     pub suppressed_by_rate_cap_last_run: i64,
@@ -426,8 +404,7 @@ pub struct AccountLinkingSendStatusTotals {
     pub send_failed: i64,
 }
 
-/// Hard send failures grouped by recipient domain: an undeliverable host is a pattern, not fifty
-/// unrelated tickets.
+/// Hard send failures grouped by recipient domain.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingFailureDomain {
     pub domain: String,
@@ -449,7 +426,7 @@ pub struct AccountLinkingRealisationCounters {
     pub mailed_count: Option<i32>,
     pub suppressed_by_dedup_count: Option<i32>,
     pub suppressed_by_rate_cap_count: Option<i32>,
-    /// The one genuinely unreachable population, and the only number nobody can fix from here.
+    /// Persons the registry holds no address for: the one population no remedy here can reach.
     pub no_address_count: Option<i32>,
 }
 
@@ -568,11 +545,8 @@ pub struct AdminResolveStudentNumberPayload {
     pub student_number: String,
 }
 
-/// The preview a manual link is gated on.
-///
-/// No addresses from the registry: `resolve-persons` answers with the person's name and id and no
-/// contact details. The addresses we mailed are here instead, with what happened to each, which is
-/// what the decision actually turns on.
+/// The preview a manual link is gated on. No addresses from the registry — `resolve-persons` answers
+/// with a name and an id only — so the addresses here are the ones we mailed.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminResolveStudentNumberResult {
     pub found: bool,
@@ -594,8 +568,8 @@ pub struct AdminResolveStudentNumberResult {
 pub struct AdminManuallyLinkStudentNumberPayload {
     pub user_id: Uuid,
     pub student_number: String,
-    /// From the preview. The endpoint re-resolves the number and refuses unless the registry still
-    /// names this person, so a typo cannot mint a link and neither can a guess.
+    /// From the preview. Re-resolved on arrival, and a mismatch is refused, so a typo cannot mint a
+    /// link to somebody else.
     pub sisu_person_id: String,
     pub reason: String,
 }
@@ -691,7 +665,8 @@ pub async fn get_credit_registration_overview(
     )
     .await?;
 
-    let health = evaluate(&mut conn).await?;
+    let stuck_rows = credit_registrations::count_stuck(&mut conn, &stuck_thresholds()).await?;
+    let health = evaluate(&mut conn, &stuck_rows).await?;
     let counts_by_state = credit_registrations::count_by_state(&mut conn)
         .await?
         .into_iter()
@@ -720,11 +695,7 @@ pub async fn get_credit_registration_overview(
         failed_count: row.failed_count,
     })
     .collect();
-    let stuck = credit_registrations::count_stuck(&mut conn, &stuck_thresholds())
-        .await?
-        .into_iter()
-        .map(to_stuck_total)
-        .collect();
+    let stuck = stuck_rows.into_iter().map(to_stuck_total).collect();
     let endpoints = suotar_api_calls::get_endpoint_standings(&mut conn)
         .await?
         .into_iter()
@@ -932,8 +903,8 @@ pub async fn get_credit_registration_for_admin(
         &AdminCreditRegistrationFilters {
             user_id: Some(registration.user_id),
             course_id: Some(registration.course_id),
-            // No dedicated field for this predicate, but search_id already matches it (it is also
-            // matched against cr.id and cr.user_id, which cannot collide with a completion id here).
+            // No field for this predicate; search_id already matches it (it is also matched against
+            // cr.id and cr.user_id, which cannot collide with a completion id).
             search_id: Some(registration.course_module_completion_id),
             include_superseded: true,
             ..AdminCreditRegistrationFilters::default()
@@ -1021,9 +992,8 @@ POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_regi
 - Moves one row by hand.
 
 The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
-re-importing could put a second attainment on a real transcript. Resubmitting re-checks consent here:
-a `misregistered` row is deliberately outside the automatic machinery, so nothing upstream has
-checked it, and without this an admin could resubmit for a student who has withdrawn.
+re-importing could put a second attainment on a real transcript. Resubmitting re-checks consent, because
+a `misregistered` row sits outside the automatic machinery that would otherwise have checked it.
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -1071,9 +1041,8 @@ pub async fn admin_transition_credit_registration(
             row.course_id,
         )
         .await?;
-        // consent_withdrawn_at is kept as an audit trail even after a later consent (see
-        // course_credit_registration_consents::upsert) and must not gate this: consent_given alone
-        // is what the precondition engine treats as consented.
+        // consent_withdrawn_at survives a later consent as an audit trail, so consent_given alone is
+        // what counts as consented, here and in the precondition engine.
         let consented = consent.is_some_and(|c| c.consent_given);
         if !consented {
             return token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
@@ -1106,6 +1075,26 @@ pub async fn admin_transition_credit_registration(
                 (AdminTransitionOutcome::Applied, row.state, false)
             }
         }
+        AdminCreditRegistrationTransitionTarget::CheckNow => {
+            credit_registrations::make_due_now(&mut tx, id).await?;
+            models::credit_registration_events::insert(
+                &mut tx,
+                &models::credit_registration_events::NewCreditRegistrationEvent {
+                    actor_user_id: Some(user.id),
+                    message: Some(reason.to_string()),
+                    ..models::credit_registration_events::NewCreditRegistrationEvent::new(
+                        id,
+                        CreditRegistrationEventKind::AdminAction,
+                    )
+                },
+            )
+            .await?;
+            (
+                AdminTransitionOutcome::Applied,
+                row.state,
+                row.needs_admin_attention,
+            )
+        }
         target => {
             let to_state = match target {
                 AdminCreditRegistrationTransitionTarget::ReadyToSubmit => {
@@ -1117,7 +1106,6 @@ pub async fn admin_transition_credit_registration(
                 &mut tx,
                 id,
                 &Transition {
-                    // The row stops asking for a human the moment one has acted on it.
                     needs_admin_attention: Some(false),
                     event_kind: CreditRegistrationEventKind::AdminAction,
                     event_message: Some(reason.to_string()),
@@ -1126,6 +1114,11 @@ pub async fn admin_transition_credit_registration(
                 },
             )
             .await?;
+            // Nothing else brings the row forward, so without this the resubmit sits out the backoff
+            // whatever failed last set.
+            if !after.state.is_terminal() {
+                credit_registrations::make_due_now(&mut tx, id).await?;
+            }
             (
                 AdminTransitionOutcome::Applied,
                 after.state,
@@ -1277,14 +1270,11 @@ pub async fn get_account_linking_stats(
     .await?;
     let stale_addresses = build_stale_addresses(&mut conn, stale).await?;
 
-    let waiting_for_student_number_count = credit_registrations::count_admin_facing(
-        &mut conn,
-        &AdminCreditRegistrationFilters {
-            states: Some(&[CreditRegistrationState::PendingStudentNumber]),
-            ..AdminCreditRegistrationFilters::default()
-        },
-    )
-    .await?;
+    let waiting_for_student_number_count = credit_registrations::count_by_state(&mut conn)
+        .await?
+        .into_iter()
+        .find(|(state, _)| *state == CreditRegistrationState::PendingStudentNumber)
+        .map_or(0, |(_, count)| count);
 
     let funnel = AccountLinkingFunnel {
         persons_discovered_last_run: sum(|row| row.listed_person_count),
@@ -1463,14 +1453,9 @@ pub async fn admin_unlink_student_number(
 POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resend` - Sets off another
 account-linking mail for one person on one course.
 
-The first-line remedy, and the one the dashboard puts in front of support: it is cheap, reversible
-and leaves the ownership proof intact, because the recipient still has to open the link while logged
-in. The mail goes to the addresses the study registry holds, which are the only addresses the
-pipeline itself would reach.
-
-Both caps live in the one writer of the linking ledger and no parameter relaxes them. An override
-therefore does not ask for an exemption: it retires the ledger rows a cap is counting, as its own
-audited action, and then runs the ordinary path — which still refuses if something else stops it.
+The mail goes to the addresses the study registry holds, and the recipient still has to open the link
+while signed in, so the ownership proof is intact. An override does not ask a cap for an exemption: it
+retires the ledger rows the cap is counting, as its own audited action, then runs the ordinary path.
 */
 #[instrument(skip(pool, payload, app_conf, suotar_client))]
 #[utoipa::path(
@@ -1595,9 +1580,8 @@ pub async fn admin_resend_account_linking_email(
 POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one
 student number up in the study registry without changing anything.
 
-The preview a manual link is gated on: the admin reads the registry's name back to the student they
-are talking to before a link is created. Writes nothing but the call log row every study registry
-call writes.
+The preview a manual link is gated on. Writes nothing but the call log row every study registry call
+writes.
 */
 #[instrument(skip(pool, payload, suotar_client))]
 #[utoipa::path(
@@ -1716,14 +1700,9 @@ pub async fn admin_resolve_student_number_for_linking(
 POST `/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link` - Links a student
 number to an account on an admin's judgement.
 
-The last resort, for the students no amount of resending can reach: some mailbox hosts will not
-accept our mail at all, and without this those people cannot get their credits. It substitutes an
-admin's judgement for proof of mailbox control, so the row is marked `admin_manual` forever, carries
-the reason, names the admin, and is surfaced distinctly to teachers and admins alike.
-
-Two gates, both refusals rather than warnings. The reason is required. And the number is resolved
-again here and has to still name the person the preview returned, so a typo cannot mint a link to
-somebody else and a caller who never previewed cannot produce the person id to echo.
+The last resort, for a student whose mailbox host will not accept our mail at all. An admin's judgement
+stands in for proof of mailbox control, so the link is marked `admin_manual` forever, carries the
+reason and names the admin.
 */
 #[instrument(skip(pool, payload, suotar_client))]
 #[utoipa::path(
@@ -1792,8 +1771,8 @@ pub async fn admin_manually_link_student_number(
     }
 
     let mut tx = conn.begin().await?;
-    // A student who moved between programmes has a new number; the old link is retired rather than
-    // deleted so the audit trail survives.
+    // A student who changed programmes has a new number; the old link is retired, not deleted, so the
+    // audit trail survives.
     if let Some(current) =
         verified_student_numbers::get_by_user_id(&mut tx, payload.user_id).await?
     {
@@ -1868,9 +1847,9 @@ pub async fn admin_manually_link_student_number(
 POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
 completions and recomputes preconditions, now.
 
-The same two database-only steps the `materialize` and `preconditions` phases take, run directly
-rather than through the phase dispatcher: the phase-state row describes the worker loops, and an
-admin pressing a button must not make a dead worker look alive.
+Runs the two database-only steps directly rather than through the phase dispatcher, because the
+phase-state row describes the worker loops: an admin pressing a button must not make a dead worker look
+alive.
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -2124,8 +2103,8 @@ pub async fn admin_run_phase_now(
     token.authorized_ok(web::Json(one_phase_status(&mut conn, phase).await?))
 }
 
-/// Refuses a path segment that is not one of the twelve canonical phase names, and resolves it to the
-/// spelling `credit_registration_phase_state` stores.
+/// Resolves a path segment to the spelling `credit_registration_phase_state` stores, refusing anything
+/// that is not a canonical phase name.
 fn require_known_phase(phase: &str) -> Result<&'static str, ControllerError> {
     CreditRegistrationPhase::from_phase_name(phase)
         .map(CreditRegistrationPhase::as_str)
@@ -2141,16 +2120,12 @@ fn require_known_phase(phase: &str) -> Result<&'static str, ControllerError> {
 struct ManualLinkRequest<'a> {
     reason: &'a str,
     student_number: &'a str,
-    /// From the preview. The handler re-resolves the number and refuses unless the study registry
-    /// still names this person.
     previewed_person_id: &'a str,
 }
 
 /// Refuses a manual link that skipped the preview or gave no reason, before anything is asked of the
-/// study registry.
-///
-/// The person id can only have come from the preview: it is the study registry's own identifier for a
-/// person, not something a caller could produce from the student number in front of them.
+/// study registry. The person id can only have come from the preview: it is the registry's own
+/// identifier, not something a caller could produce from the student number in front of them.
 fn manual_link_request(
     payload: &AdminManuallyLinkStudentNumberPayload,
 ) -> Result<ManualLinkRequest<'_>, ControllerError> {
@@ -2194,7 +2169,7 @@ struct ResolvedPerson {
     sisu_person_id: String,
     first_names: String,
     last_name: String,
-    /// The registry's own per-item code, kept as the identifier it is.
+    /// The registry's own per-item code, an identifier rather than prose.
     code: String,
 }
 
@@ -2227,12 +2202,9 @@ async fn resolve_person(
     }))
 }
 
-/// Retires the linking-mail rows the caps are counting for this person, so the ordinary claim path
-/// can take a slot again.
-///
-/// The override in full: there is no parameter that relaxes a cap, because the single writer of the
-/// ledger evaluates them from the rows that exist. Removing a row is visible, is audited as its own
-/// action, and leaves the row itself in place — soft-deleted, so what was mailed stays answerable.
+/// Retires the linking-mail rows the caps are counting for this person, so the ordinary claim path can
+/// take a slot again. No parameter relaxes a cap: the single writer of the ledger evaluates them from
+/// the rows that exist, so getting past one means soft-deleting rows, audited as its own action.
 async fn retire_capped_mails(
     conn: &mut PgConnection,
     actor_user_id: Uuid,
@@ -2291,16 +2263,16 @@ async fn person_id_of_mails(
     course_id: Uuid,
     student_number: &str,
 ) -> Result<Option<String>, ControllerError> {
-    let mails =
-        credit_registration_account_linking_emails::get_by_course_id(conn, course_id).await?;
-    Ok(mails
-        .into_iter()
-        .find(|mail| mail.student_number == student_number)
-        .map(|mail| mail.sisu_person_id))
+    let mails = credit_registration_account_linking_emails::get_by_course_id_and_student_number(
+        conn,
+        course_id,
+        student_number,
+    )
+    .await?;
+    Ok(mails.into_iter().next().map(|mail| mail.sisu_person_id))
 }
 
-/// Audits the resend whatever it did — a refusal is a fact about an admin's action too — and reports
-/// where this person's mails now stand.
+/// Audits the resend whatever it did, and reports where this person's mails now stand.
 async fn finish_resend(
     conn: &mut PgConnection,
     user: &AuthUser,
@@ -2334,12 +2306,12 @@ async fn finish_resend(
     )
     .await?;
 
-    let mails =
-        credit_registration_account_linking_emails::get_by_course_id(conn, payload.course_id)
-            .await?
-            .into_iter()
-            .filter(|mail| mail.student_number == student_number)
-            .collect::<Vec<_>>();
+    let mails = credit_registration_account_linking_emails::get_by_course_id_and_student_number(
+        conn,
+        payload.course_id,
+        student_number,
+    )
+    .await?;
     let mails_sent_for_this_course = mails.len() as i64;
     let linking_emails = build_linking_emails(conn, mails).await?;
 
@@ -2353,10 +2325,9 @@ async fn finish_resend(
     }))
 }
 
-/// Records a change to an account's link on every registration it can affect, then applies it.
-///
-/// Returns how many registrations changed whether they wait for a number, which is narrower than how
-/// many rows the recompute moved: a consent change in the same window moves rows too.
+/// Records a change to an account's link on every registration it can affect, then applies it. Returns
+/// how many registrations changed whether they wait for a number, which is narrower than how many rows
+/// the recompute moved.
 async fn apply_student_number_change(
     conn: &mut PgConnection,
     subject_user_id: Uuid,
@@ -2431,39 +2402,33 @@ async fn build_linking_emails(
     let ids: Vec<Uuid> = mails.iter().map(|mail| mail.id).collect();
     let reports =
         credit_registration_account_linking_emails::get_send_status_reports(conn, &ids).await?;
-    let mut res = Vec::with_capacity(mails.len());
-    for mail in mails {
-        let token = match mail.student_number_verification_token_id {
-            Some(token_id) => student_number_verification_tokens::get_by_id(conn, token_id)
-                .await
-                .ok(),
-            None => None,
-        };
-        res.push(AdminLinkingEmail {
-            send_status: reports
-                .get(&mail.id)
-                .cloned()
-                .unwrap_or(EmailSendStatusReport {
-                    email_send_status: EmailSendStatus::Queued,
-                    sent_at: None,
-                    last_attempt_at: None,
-                    retry_count: 0,
-                    next_retry_at: None,
-                    failure_code: None,
-                    failure_is_transient: None,
-                }),
-            id: mail.id,
-            course_id: mail.course_id,
-            student_number: mail.student_number,
-            sisu_person_id: mail.sisu_person_id,
-            emailed_to: mail.emailed_to,
-            claimed_at: mail.sent_at,
-            token_claimed_by_user_id: token.as_ref().and_then(|row| row.claimed_by_user_id),
-            token_used_at: token.as_ref().and_then(|row| row.used_at),
-            token_expires_at: token.as_ref().map(|row| row.expires_at),
-        });
-    }
-    Ok(res)
+    let token_ids: Vec<Uuid> = mails
+        .iter()
+        .filter_map(|mail| mail.student_number_verification_token_id)
+        .collect();
+    let tokens = student_number_verification_tokens::get_by_ids(conn, &token_ids).await?;
+    Ok(mails
+        .into_iter()
+        .map(|mail| {
+            let token = mail
+                .student_number_verification_token_id
+                .and_then(|token_id| tokens.get(&token_id));
+            AdminLinkingEmail {
+                send_status: reports.get(&mail.id).cloned().unwrap_or_else(
+                    credit_registration_account_linking_emails::not_handed_over_yet,
+                ),
+                id: mail.id,
+                course_id: mail.course_id,
+                student_number: mail.student_number,
+                sisu_person_id: mail.sisu_person_id,
+                emailed_to: mail.emailed_to,
+                claimed_at: mail.sent_at,
+                token_claimed_by_user_id: token.and_then(|row| row.claimed_by_user_id),
+                token_used_at: token.and_then(|row| row.used_at),
+                token_expires_at: token.map(|row| row.expires_at),
+            }
+        })
+        .collect())
 }
 
 async fn build_stale_addresses(
@@ -2509,8 +2474,7 @@ async fn phase_statuses(
         .collect())
 }
 
-/// One phase's status right after a pause/resume/run-now action, so the caller sees the effect
-/// without a second round trip to `/overview`.
+/// One phase's status, so a pause/resume/run-now response shows the effect without a second request.
 async fn one_phase_status(
     conn: &mut PgConnection,
     phase: &str,
@@ -2764,9 +2728,6 @@ mod tests {
         }
     }
 
-    /// The two gates a manual link cannot happen without. A link that skipped the preview would rest
-    /// on nothing but a typed number, and one with no reason would leave the audit trail unable to say
-    /// why somebody's credits were registered against this account.
     #[test]
     fn a_manual_link_is_refused_without_a_preview_and_without_a_reason() {
         assert!(
@@ -2796,9 +2757,6 @@ mod tests {
         assert_eq!(allowed.previewed_person_id, "hy-hlo-1");
     }
 
-    /// The override in full. No parameter relaxes a cap: the single writer of the linking ledger reads
-    /// the rows that exist, so getting past a cap means retiring rows, and that retirement is its own
-    /// audited action naming the admin and the reason.
     #[actix_web::test]
     async fn the_rate_cap_override_retires_the_ledger_rows_and_audits_itself() {
         insert_data!(:tx, :user, :org, :course);
@@ -2838,7 +2796,6 @@ mod tests {
         .await
         .unwrap();
         assert_eq!(retired, 1);
-        // The caps count live rows, so retiring them is what makes another send possible.
         assert_eq!(
             credit_registration_account_linking_emails::count_sent_for_person_and_course(
                 tx.as_mut(),
@@ -2868,7 +2825,6 @@ mod tests {
         assert_eq!(action.affected_row_count, Some(1));
     }
 
-    /// Nothing is retired and nothing is audited when no cap was in the way.
     #[actix_web::test]
     async fn an_override_with_nothing_to_retire_writes_nothing() {
         insert_data!(:tx, :user, :org, :course);

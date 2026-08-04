@@ -1,8 +1,7 @@
 //! The `resolve-enrolments` phase: which enrolment the attainment belongs to, and what we will send.
 //!
-//! Ends with the payload frozen and the row queued for import in `checking_enrolment`. It
-//! deliberately does not write `submitting`: that state means a request may be in flight, and the
-//! import phase writes it in the transaction before it sends.
+//! Ends with the payload frozen and the row queued for import in `checking_enrolment`, never
+//! `submitting`: that state means a request may be in flight, and is the import phase's to write.
 
 use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, suotar_exchange_details,
@@ -16,7 +15,7 @@ use headless_lms_models::library::credit_registration::classification::{
     next_attempt_at, submit_backoff_secs,
 };
 use headless_lms_models::library::credit_registration::enrolment_selection::{
-    EnrolmentCriteria, any_attained, attainment_for_course_unit, select_enrolment,
+    EnrolmentCriteria, any_attained_by_person, attainment_for_course_unit, select_enrolment,
 };
 use headless_lms_models::library::credit_registration::outcomes::{
     submit_error_outcome, unanswered_item_outcome,
@@ -58,8 +57,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     let mut items_failed = 0;
     for row in claimed {
         let Some(context) = contexts.remove(&row.id) else {
-            // Nothing to build a request from, and leaving the row due would spin the phase on it
-            // every ten seconds.
+            // Leaving the row due would spin the phase on it every tick.
             warn!(
                 "Credit registration {} has no completion or module to submit for.",
                 row.id
@@ -74,8 +72,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         };
         match preflight(&context) {
             Ok(item) => {
-                // Claimed by moving the row out of the state this phase reads, so a second tick
-                // cannot pick it up while the request is out.
+                // Moved out of the state this phase reads, so a second tick cannot pick it up while
+                // the request is out.
                 transition(
                     &mut tx,
                     row.id,
@@ -83,8 +81,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                 )
                 .await?;
                 items.push(ResolveEnrolmentRequestItem {
-                    // Verbatim from the row: this id is the only handle the registry's log, our
-                    // audit log and a per-row test fault have on one registration.
+                    // Verbatim from the row: the only handle the registry's log and our audit log
+                    // have on one registration.
                     request_item_id: row.request_item_id.clone(),
                     student_number: item.student_number,
                     course_code: item.course_code,
@@ -147,6 +145,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
             suotar_api_call_id: response.call_id,
             request: Some(request),
             response: response_json.as_ref(),
+            sent_student_number: context.student_number.as_deref(),
             ..OutcomeEvent::default()
         };
         let facts = row_facts(row);
@@ -217,13 +216,15 @@ async fn choose(
     event: OutcomeEvent<'_>,
 ) -> anyhow::Result<bool> {
     let details = suotar_exchange_details(event.request, event.response);
-    // Looked at before the enrolment is chosen, and deliberately so: if the registry already holds
-    // the attainment the credit exists, and sending the student off to re-enrol over a stale
-    // enrolment would be both wrong and unnecessary.
+    // Before the enrolment is chosen: if the registry already holds the attainment the credit
+    // exists, so sending the student off to re-enrol would be wrong as well as unnecessary.
     let already_attained = if enrolments.is_empty() {
-        // No enrolment left to name the course unit by, but the response was already scoped to this
-        // student and course code, so any attained entry here is still a genuine duplicate.
-        any_attained(existing)
+        // No enrolment to name the course unit by, but the response was scoped to this student and
+        // course code, so any attained entry of theirs is still a genuine duplicate.
+        any_attained_by_person(
+            existing,
+            context.sisu_person_id.as_deref().unwrap_or_default(),
+        )
     } else {
         enrolments.iter().find_map(|enrolment| {
             attainment_for_course_unit(
@@ -328,8 +329,8 @@ async fn choose(
             built.snapshot.credits
         )
     });
-    // A self-transition: the row stays queued for import, and the event is what records that the
-    // enrolment was resolved and when.
+    // A self-transition: the row stays queued for import, and the event is what records when the
+    // enrolment was resolved.
     transition(
         conn,
         row.id,
@@ -345,14 +346,13 @@ async fn choose(
     Ok(false)
 }
 
-/// What the row still needs before a request can be built for it.
 struct ResolveRequest {
     student_number: String,
     course_code: String,
 }
 
-/// A row that cannot even be asked about. Each of these is either the student's to fix or a
-/// teacher's, and none of them is worth a call.
+/// A row that cannot even be asked about: each of these is the student's or a teacher's to fix, and
+/// none of them is worth a call.
 enum Preflight {
     NoStudentNumber,
     Config(CreditRegistrationErrorCode),

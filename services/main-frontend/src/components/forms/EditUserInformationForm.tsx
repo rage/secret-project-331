@@ -20,6 +20,7 @@ import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { settingsCardCss } from "@/styles/sharedStyles"
 
 interface SelectUserInfoFormFields {
   email: string
@@ -130,21 +131,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
 
   if (!isEditing) {
     return (
-      <div
-        data-testid="personal-information-section"
-        className={css`
-          background: #fff;
-          border: 1px solid ${baseTheme.colors.gray[100]};
-          border-radius: 12px;
-          padding: 1.25rem;
-          box-shadow:
-            0 1px 3px rgba(0, 0, 0, 0.04),
-            0 1px 2px rgba(0, 0, 0, 0.02);
-          ${respondToOrLarger.md} {
-            padding: 1.75rem;
-          }
-        `}
-      >
+      <div data-testid="personal-information-section" className={settingsCardCss}>
         <div
           className={css`
             display: flex;
@@ -353,20 +340,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   }
 
   return (
-    <div
-      className={css`
-        background: #fff;
-        border: 1px solid ${baseTheme.colors.gray[100]};
-        border-radius: 12px;
-        padding: 1.25rem;
-        box-shadow:
-          0 1px 3px rgba(0, 0, 0, 0.04),
-          0 1px 2px rgba(0, 0, 0, 0.02);
-        ${respondToOrLarger.md} {
-          padding: 1.75rem;
-        }
-      `}
-    >
+    <div className={settingsCardCss}>
       <h3
         className={css`
           font-size: 1.0625rem;

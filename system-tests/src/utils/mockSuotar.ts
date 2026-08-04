@@ -1,17 +1,10 @@
 /**
  * Client for the mock Suotar's world and fault control (`/api/v0/mock-suotar/control/command`).
- *
  * Hand-written because the mock's DTOs are deliberately not exported to `bindings.ts`, the same way
- * `mock_sisu`'s are not. One named function per command wrapped, so call sites stay greppable by name
- * rather than by variant string. `suotarControl.ts` is the tick client and stays separate.
+ * `mock_sisu`'s are not. `suotarControl.ts` is the tick client.
  *
- * Only the commands a spec has a reason to send are wrapped; the rest of the mock's surface is listed
- * by `GET /control/commands` and reachable with curl for manual debugging. Everything below is
- * parallel-safe as long as its arguments name data your spec owns: isolation here is data
- * partitioning, not serialization, so a spec owns a distinct combination of users and courses and
- * asserts on those.
- *
- * Nothing polls on its own; compose these with `pollUntil` from `waitingUtils`.
+ * Only the commands a spec has a reason to send are wrapped; `GET /control/commands` lists the rest.
+ * A command is parallel-safe only for arguments naming data the calling spec owns.
  */
 
 import type { APIRequestContext } from "@playwright/test"
@@ -91,8 +84,8 @@ export interface MockSuotarFaultSpec {
   then: MockSuotarEffect
   lifetime?: MockSuotarLifetime
   /**
-   * Only for a spec that is proving the double submission. Arming a retryable code on `import` after
-   * the write has committed is refused without it.
+   * Required to arm a retryable code on `import` after the write has committed, which only a spec
+   * proving the double submission has a reason to do.
    */
   provesDoubleSubmission?: boolean
 }

@@ -16,6 +16,14 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminResendLinkingEmailDialog from "@/components/credit-registration/admin/AdminResendLinkingEmailDialog"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
+import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
+import {
+  headingCss,
+  noteCss,
+  sectionCss,
+  sectionsCss,
+  tilesCss,
+} from "@/components/credit-registration/styles"
 import {
   getAccountLinkingStatsQueryKey,
   getCreditRegistrationOverviewQueryKey,
@@ -40,51 +48,12 @@ import {
 
 const WINDOW_DAYS = 30
 const STUDENT_NUMBER_PAGE_SIZE = 25
-/** The explorer filter behind the "waiting for a number" tile. */
 // oxlint-disable-next-line i18next/no-literal-string
 const WAITING_QUERY = "?state=pending_student_number"
-// oxlint-disable-next-line i18next/no-literal-string
-const ALERT_TONE = "alert" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const WARNING_BADGE = "warning" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const NEUTRAL_BADGE = "neutral" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const SUCCESS_BADGE = "success" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const ADMIN_MANUAL = "admin_manual"
 // oxlint-disable-next-line i18next/no-literal-string
 const SEND_FAILED: EmailSendStatus = "send_failed"
-/** Separator between identifiers on one line. Not prose, so not translated. */
-// oxlint-disable-next-line i18next/no-literal-string
-const DOT = " · "
-
-const sectionsCss = css`
-  display: grid;
-  gap: 2rem;
-`
-
-const sectionCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
-const headingCss = css`
-  font-weight: 500;
-  margin: 0;
-`
-
-const noteCss = css`
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-  margin: 0;
-`
-
-const tilesCss = css`
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-`
 
 const funnelCss = css`
   display: grid;
@@ -123,9 +92,7 @@ const UnlinkButton: React.FC<{ verifiedStudentNumberId: string; number: string }
     {
       onSuccess: () => {
         setOpen(false)
-        // Unlinking runs apply_student_number_change -> recompute_preconditions synchronously, which
-        // can move registrations out of pending_student_number, so every aggregate over that state
-        // needs a refetch too, not just the list of linked numbers.
+        // Unlinking recomputes preconditions synchronously, so registration state moves too.
         void Promise.all([
           queryClient.invalidateQueries({ queryKey: listVerifiedStudentNumbersForAdminQueryKey() }),
           queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
@@ -232,7 +199,7 @@ const FunnelSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
           label={t("credit-registration-admin-waiting-for-number")}
           value={stats.waiting_for_student_number_count}
           href={`${creditRegistrationRegistrationsRoute()}${WAITING_QUERY}`}
-          {...includeIf(stats.waiting_for_student_number_count > 0, { tone: ALERT_TONE })}
+          {...includeIf(stats.waiting_for_student_number_count > 0, { tone: TONE.ALERT })}
         />
         <StatTile label={t("credit-registration-admin-manual-links-total")} value={manualTotal} />
       </div>
@@ -257,7 +224,7 @@ const SendStatusSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
         <StatTile
           label={t("credit-registration-admin-send-status-send-failed")}
           value={totals.send_failed}
-          {...includeIf(totals.send_failed > 0, { tone: ALERT_TONE })}
+          {...includeIf(totals.send_failed > 0, { tone: TONE.ALERT })}
         />
       </div>
       {stats.hard_failure_domains.length > 0 && (
@@ -359,8 +326,8 @@ const StaleAddressSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }
                     return (
                       <li key={address}>
                         {address}
-                        {DOT}
-                        <Badge tone={status === SEND_FAILED ? WARNING_BADGE : NEUTRAL_BADGE}>
+                        {MIDDLE_DOT}
+                        <Badge tone={status === SEND_FAILED ? TONE.WARNING : TONE.NEUTRAL}>
                           {sendStatusLabel(t, status)}
                         </Badge>
                       </li>
@@ -424,7 +391,7 @@ const RecentClaimsSection: React.FC = () => {
                 {
                   header: t("label-credit-registration-verified-via"),
                   cell: (row) => (
-                    <Badge tone={row.verified_via === ADMIN_MANUAL ? WARNING_BADGE : SUCCESS_BADGE}>
+                    <Badge tone={row.verified_via === ADMIN_MANUAL ? TONE.WARNING : TONE.SUCCESS}>
                       {verificationMethodLabel(t, row.verified_via) ?? row.verified_via}
                     </Badge>
                   ),
@@ -450,14 +417,7 @@ const RecentClaimsSection: React.FC = () => {
   )
 }
 
-/**
- * Where account linking stands, and the two support remedies.
- *
- * The mail goes to the address the study registry holds, with no attempt to match it against an
- * account here: that mismatch is the reason the flow exists. So the funnel has no "matched to an
- * account" step, and there is no per-person record of who was discovered — an unreachable person is a
- * count, by design.
- */
+/** Deliberately no "matched to an account" step: that mismatch is what this flow exists to fix. */
 const LinkingPage: React.FC = () => {
   const statsQuery = useAccountLinkingStats(WINDOW_DAYS)
 

@@ -12,7 +12,7 @@ import { login } from "../utils/login"
 const ONE_WEEK_MS = 10 * 10 * 10 * 60 * 60 * 24 * 7
 
 test("Global setup, setting up login states", async ({ page, context }) => {
-  // Each login is a form submission and a page load, and there are now a few dozen of them.
+  // A few dozen logins, each a form submission and a page load.
   test.slow()
   await createLoginStates(page, context)
 })
@@ -42,9 +42,7 @@ async function createLoginStates(page: Page, context: BrowserContext) {
       email: "langs@example.com",
       password: "langs",
     },
-    // Seeded by `seed_credit_registration.rs`, which hashes the local part of the address as the
-    // password. Their specs read the stored state rather than logging in themselves, so an address
-    // left out of the list fails them here with a missing file.
+    // Seeded by `seed_credit_registration.rs`, which hashes the address's local part as the password.
     ...CREDIT_REGISTRATION_STUDENT_EMAILS.map((email) => ({
       email,
       password: email.replace(/@.*$/, ""),

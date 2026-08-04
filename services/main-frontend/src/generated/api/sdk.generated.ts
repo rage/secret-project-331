@@ -1625,10 +1625,8 @@ export const getCourseCreditRegistrationModuleConfigs = <ThrowOnError extends bo
  * `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off
  * another account-linking mail for one person on this course.
  *
- * The target has to be on this course's roster in the study registry and hold no link with us, which is
- * the same predicate the enrolment discovery phase claims mails under. The caps of the ordinary claim
- * path apply and there is no parameter that relaxes them: a refusal comes back as a typed outcome for
- * the teacher to escalate, and only an admin can override.
+ * The target has to be on this course's roster in the study registry and hold no link with us. The caps
+ * of the ordinary claim path apply and nothing here relaxes them.
  */
 export const resendCourseCreditRegistrationLinkingEmail = <ThrowOnError extends boolean = true>(
   options: Options<ResendCourseCreditRegistrationLinkingEmailData, ThrowOnError>,
@@ -1681,8 +1679,8 @@ export const getCourseCreditRegistrationSummary = <ThrowOnError extends boolean 
  * GET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One
  * registration with its timeline and the other attempts for the same completion.
  *
- * Authorized on the row's own course, not on a course id from the caller: with a course in the path a
- * teacher of one course could read another's rows by pairing their own course with a foreign id.
+ * Authorized on the row's own course: a course id from the caller would let a teacher of one course pair
+ * it with a foreign registration id.
  */
 export const getCreditRegistrationDetails = <ThrowOnError extends boolean = true>(
   options: Options<GetCreditRegistrationDetailsData, ThrowOnError>,
@@ -4561,14 +4559,9 @@ export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link` - Links a student
  * number to an account on an admin's judgement.
  *
- * The last resort, for the students no amount of resending can reach: some mailbox hosts will not
- * accept our mail at all, and without this those people cannot get their credits. It substitutes an
- * admin's judgement for proof of mailbox control, so the row is marked `admin_manual` forever, carries
- * the reason, names the admin, and is surfaced distinctly to teachers and admins alike.
- *
- * Two gates, both refusals rather than warnings. The reason is required. And the number is resolved
- * again here and has to still name the person the preview returned, so a typo cannot mint a link to
- * somebody else and a caller who never previewed cannot produce the person id to echo.
+ * The last resort, for a student whose mailbox host will not accept our mail at all. An admin's judgement
+ * stands in for proof of mailbox control, so the link is marked `admin_manual` forever, carries the
+ * reason and names the admin.
  */
 export const adminManuallyLinkStudentNumber = <ThrowOnError extends boolean = true>(
   options: Options<AdminManuallyLinkStudentNumberData, ThrowOnError>,
@@ -4600,14 +4593,9 @@ export const adminManuallyLinkStudentNumber = <ThrowOnError extends boolean = tr
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resend` - Sets off another
  * account-linking mail for one person on one course.
  *
- * The first-line remedy, and the one the dashboard puts in front of support: it is cheap, reversible
- * and leaves the ownership proof intact, because the recipient still has to open the link while logged
- * in. The mail goes to the addresses the study registry holds, which are the only addresses the
- * pipeline itself would reach.
- *
- * Both caps live in the one writer of the linking ledger and no parameter relaxes them. An override
- * therefore does not ask for an exemption: it retires the ledger rows a cap is counting, as its own
- * audited action, and then runs the ordinary path — which still refuses if something else stops it.
+ * The mail goes to the addresses the study registry holds, and the recipient still has to open the link
+ * while signed in, so the ownership proof is intact. An override does not ask a cap for an exemption: it
+ * retires the ledger rows the cap is counting, as its own audited action, then runs the ordinary path.
  */
 export const adminResendAccountLinkingEmail = <ThrowOnError extends boolean = true>(
   options: Options<AdminResendAccountLinkingEmailData, ThrowOnError>,
@@ -4639,9 +4627,8 @@ export const adminResendAccountLinkingEmail = <ThrowOnError extends boolean = tr
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one
  * student number up in the study registry without changing anything.
  *
- * The preview a manual link is gated on: the admin reads the registry's name back to the student they
- * are talking to before a link is created. Writes nothing but the call log row every study registry
- * call writes.
+ * The preview a manual link is gated on. Writes nothing but the call log row every study registry call
+ * writes.
  */
 export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean = true>(
   options: Options<AdminResolveStudentNumberForLinkingData, ThrowOnError>,
@@ -4673,9 +4660,9 @@ export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean
  * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
  * completions and recomputes preconditions, now.
  *
- * The same two database-only steps the `materialize` and `preconditions` phases take, run directly
- * rather than through the phase dispatcher: the phase-state row describes the worker loops, and an
- * admin pressing a button must not make a dead worker look alive.
+ * Runs the two database-only steps directly rather than through the phase dispatcher, because the
+ * phase-state row describes the worker loops: an admin pressing a button must not make a dead worker look
+ * alive.
  */
 export const adminMaterializeCreditRegistrations = <ThrowOnError extends boolean = true>(
   options: Options<AdminMaterializeCreditRegistrationsData, ThrowOnError>,
@@ -4844,9 +4831,8 @@ export const getCreditRegistrationForAdmin = <ThrowOnError extends boolean = tru
  * - Moves one row by hand.
  *
  * The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
- * re-importing could put a second attainment on a real transcript. Resubmitting re-checks consent here:
- * a `misregistered` row is deliberately outside the automatic machinery, so nothing upstream has
- * checked it, and without this an admin could resubmit for a student who has withdrawn.
+ * re-importing could put a second attainment on a real transcript. Resubmitting re-checks consent, because
+ * a `misregistered` row sits outside the automatic machinery that would otherwise have checked it.
  */
 export const adminTransitionCreditRegistration = <ThrowOnError extends boolean = true>(
   options: Options<AdminTransitionCreditRegistrationData, ThrowOnError>,
@@ -4965,9 +4951,6 @@ export const getMyCourseCreditRegistrationConsent = <ThrowOnError extends boolea
  *
  * PUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in
  * account's answer and applies it to that course's registrations at once.
- *
- * Backs every entry point — the course-start dialog, the status page and the profile page — because a
- * completion backfilled from an earlier term will never see the dialog again.
  */
 export const setMyCourseCreditRegistrationConsent = <ThrowOnError extends boolean = true>(
   options: Options<SetMyCourseCreditRegistrationConsentData, ThrowOnError>,
@@ -5011,9 +4994,6 @@ export const getMyCreditRegistrations = <ThrowOnError extends boolean = true>(
  * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}` - The
  * signed-in account's registration for one course module, or null when the pipeline has not created one
  * yet.
- *
- * Null rather than 404 because a completed module whose ledger row the materialize phase has not
- * written yet is a normal state the status page has to explain.
  */
 export const getMyCreditRegistrationForCourseModule = <ThrowOnError extends boolean = true>(
   options: Options<GetMyCreditRegistrationForCourseModuleData, ThrowOnError>,
@@ -5057,8 +5037,7 @@ export const getMyCreditRegistrationConsents = <ThrowOnError extends boolean = t
  * DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
  * from the signed-in account.
  *
- * Registrations that have not been sent go back to waiting for a student number. Credits already in
- * Sisu are untouched; we cannot remove those.
+ * Registrations that have not been sent go back to waiting; credits already in Sisu are untouched.
  */
 export const unlinkMyStudentNumber = <ThrowOnError extends boolean = true>(
   options?: Options<UnlinkMyStudentNumberData, ThrowOnError>,
@@ -5096,9 +5075,6 @@ export const getMyVerifiedStudentNumber = <ThrowOnError extends boolean = true>(
  *
  * POST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to
  * look for an enrolment again, for a row parked because the study registry had none.
- *
- * Only the clock moves. The precondition recompute takes the row back to `ready_to_submit`, so the
- * enrolment is resolved afresh rather than assumed.
  */
 export const requestCreditRegistrationEnrolmentRecheck = <ThrowOnError extends boolean = true>(
   options: Options<RequestCreditRegistrationEnrolmentRecheckData, ThrowOnError>,
@@ -5126,8 +5102,7 @@ export const requestCreditRegistrationEnrolmentRecheck = <ThrowOnError extends b
  * GET `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}` - What the
  * mailed link would link, without linking it.
  *
- * A session is required so the confirmation can name the account the number would land on, and the
- * handler writes nothing: the link has to survive a mail scanner fetching it.
+ * Writes nothing: the link has to survive a mail scanner fetching it.
  */
 export const previewStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
   options: Options<PreviewStudentNumberVerificationTokenData, ThrowOnError>,
@@ -5155,8 +5130,8 @@ export const previewStudentNumberVerificationToken = <ThrowOnError extends boole
  * POST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends
  * a mailed link and links the student number to the signed-in account.
  *
- * The only writer of a link. Any signed-in account may claim any valid token: holding it proves control
- * of the Sisu-held mailbox, and the session says which of our accounts the person wants to use.
+ * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
+ * and the session says which of our accounts the person wants to use.
  */
 export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
   options: Options<ClaimStudentNumberVerificationTokenData, ThrowOnError>,

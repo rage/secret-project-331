@@ -83,10 +83,7 @@ const LinkStudentNumberPage: React.FC = () => {
   )
 }
 
-/**
- * Login and signup are offered side by side: a first-time visitor arriving from this mail has no
- * account yet, and a bare login form is where they would be lost.
- */
+/** Signup sits beside login: a first-time visitor arriving from this mail has no account yet. */
 const SignInOrSignUp: React.FC<{ token: string }> = ({ token }) => {
   const { t } = useTranslation()
   const returnTo = linkStudentNumberRoute(token)
@@ -193,8 +190,7 @@ const Confirmation: React.FC<{
         <Link href={profileCreditRegistrationRoute()}>{t("button-text-cancel")}</Link>
       </div>
       <p>
-        {/* Opening mail in a browser logged in to a shared or secondary account is the common
-            mistake, and the only fix is to switch account and come back to the same link. */}
+        {/* Opening the mail while logged in to the wrong account is the common mistake. */}
         <button type="button" className={quietActionCss} onClick={() => void logout()}>
           {t("link-student-number-wrong-account")}
         </button>

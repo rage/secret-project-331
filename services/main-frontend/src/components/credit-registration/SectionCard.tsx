@@ -3,26 +3,13 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { settingsCardCss } from "@/styles/sharedStyles"
 
 export interface SectionCardProps {
   icon: React.ReactNode
   title: string
   children: React.ReactNode
 }
-
-const cardCss = css`
-  background: #fff;
-  border: 1px solid var(--color-gray-100);
-  border-radius: 12px;
-  padding: 1.25rem;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.02);
-  ${respondToOrLarger.md} {
-    padding: 1.75rem;
-  }
-`
 
 const headerCss = css`
   display: flex;
@@ -65,9 +52,8 @@ const bodyCss = css`
   }
 `
 
-/** The settings-page card chrome, so the credit registration cards sit next to the others unchanged. */
 const SectionCard: React.FC<SectionCardProps> = ({ icon, title, children }) => (
-  <div className={cardCss}>
+  <div className={settingsCardCss}>
     <div className={headerCss}>
       <div className={iconChipCss} aria-hidden="true">
         {icon}

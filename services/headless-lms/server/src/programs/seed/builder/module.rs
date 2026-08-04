@@ -180,17 +180,16 @@ impl CompletionBuilder {
 }
 
 /// Turns `enable_credit_registration_via_suotar` on and writes the module's Suotar configuration.
-///
-/// The realisation ids have to be the ones the mock Suotar answers `list-by-course` for, so build
-/// them with the same derivation the mock uses rather than by hand.
+/// The realisation ids must be the ones the mock answers `list-by-course` for, so derive them as it
+/// does.
 #[derive(Debug, Clone, Default)]
 pub struct CreditRegistrationSeed {
     pub open_university_product_id: Option<String>,
     /// `None` derives the scale from the completion.
     pub grade_scale_id: Option<String>,
     pub active_realisation_ids: Vec<String>,
-    /// Pauses the module, which every phase's claim query skips. Fixtures a spec only reads need it:
-    /// the two worker programs run in the test deployment and would otherwise walk them onwards.
+    /// Pauses the module, which every phase's claim query skips: without it the workers running in
+    /// the test deployment walk read-only fixtures onwards.
     pub paused_reason: Option<String>,
 }
 

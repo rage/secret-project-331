@@ -55,7 +55,6 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
         key: KEY_REGISTRATIONS,
         title: t("credit-registration-tab-registrations"),
         href: creditRegistrationRegistrationsRoute(),
-        // The per-item detail pages live under this tab and must keep it selected.
         pathPrefix: creditRegistrationRegistrationsRoute(),
       },
       {

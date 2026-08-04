@@ -31,10 +31,6 @@ export interface DialogStepInputs {
  * Returns exactly one active dialog step based on the required priority:
  * 1) Missing info -> 2) Select course instance -> 3) AI-usage notice ->
  * 4) Credit registration consent -> 5) Research consent
- *
- * Instance choice comes first because it decides which modules exist, the AI notice is a legal
- * must-see, and credit registration matters more to the student than the research form, so it must
- * not sit behind a form people click through.
  */
 export default function useDialogStep({
   shouldAnswerMissingInfoForm,

@@ -7,16 +7,11 @@ import { useTranslation } from "react-i18next"
 import type { CreditRegistrationAlertSeverity } from "@/generated/api/types.generated"
 import { Infobox } from "@/shared-module/components"
 
+import { TONE } from "../constants"
 import { alertSentence } from "./adminCreditRegistrationCopy"
 import { useCreditRegistrationOverview } from "./adminCreditRegistrationHooks"
 
-/** Beyond this the strip becomes wallpaper; the rest are a count with a pointer to the Overview. */
 const MAX_SHOWN = 3
-
-// oxlint-disable-next-line i18next/no-literal-string
-const WARNING_TONE = "warning" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const INFO_TONE = "info" as const
 
 const SEVERITY_KEYS = {
   critical: "credit-registration-alert-severity-critical",
@@ -34,14 +29,6 @@ const moreCss = css`
   font-size: var(--font-size-1);
 `
 
-/**
- * The active alert rules, on every tab.
- *
- * Not Overview-only on purpose: somebody who deep-linked into a single registration during an incident
- * still has to be told that the study registry is refusing our credentials.
- *
- * Dashboard-only. Nothing here mails, pages or notifies anybody.
- */
 const CreditRegistrationAlertBanner: React.FC = () => {
   const { t } = useTranslation()
   const overviewQuery = useCreditRegistrationOverview()
@@ -57,7 +44,7 @@ const CreditRegistrationAlertBanner: React.FC = () => {
       {shown.map((alert) => (
         <Infobox
           key={alert.id}
-          tone={alert.severity === "critical" ? WARNING_TONE : INFO_TONE}
+          tone={alert.severity === "critical" ? TONE.WARNING : TONE.INFO}
           heading={t(SEVERITY_KEYS[alert.severity] ?? SEVERITY_KEYS.warning)}
         >
           {alertSentence(t, alert.id, alert.count, alert.subject)}

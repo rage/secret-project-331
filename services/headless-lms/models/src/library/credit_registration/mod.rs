@@ -1,12 +1,6 @@
-//! The credit registration state machine: the policy the ledger's primitives are driven by.
-//!
-//! `credit_registrations::transition` owns the write; this module owns the decision. The decisions
-//! that do not need a database are pure functions, because one of them — never sending an import
-//! twice for the same row — is the property the whole feature rests on.
-//!
-//! The states a row can be waiting in are only ever left in one of two ways: this module's
-//! precondition recompute, which reads the database alone, and a worker phase applying one of the
-//! outcomes here to an answer from the study registry.
+//! The credit registration state machine: `credit_registrations::transition` owns the write, this
+//! module owns the decision. A waiting row is only ever moved by the precondition recompute here or
+//! by a worker phase applying one of this module's outcomes to an answer from the study registry.
 
 pub mod account_linking;
 pub mod classification;

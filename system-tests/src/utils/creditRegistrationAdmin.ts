@@ -1,11 +1,8 @@
 /**
- * Reader for the admin credit-registration API
- * (`/api/v0/main-frontend/credit-registration-admin`), which several specs consult to see what a row
- * looks like from the other side of the pipeline.
+ * Reader for the admin credit-registration API (`/api/v0/main-frontend/credit-registration-admin`).
  *
- * Every typed function here fails on anything but a 2xx, so a spec proving that the API refuses
- * something posts or gets one of the exported URLs itself and asserts on the status. The interfaces
- * carry the subset of each DTO these specs read, the same way `MyCreditRegistration` does.
+ * Every typed function here fails on anything but a 2xx, so a spec proving a refusal uses one of the
+ * exported URLs itself. The interfaces carry only the subset of each DTO these specs read.
  */
 
 import type { APIRequestContext, APIResponse } from "@playwright/test"
@@ -90,8 +87,7 @@ export const listAdminRegistrations = (
   request: APIRequestContext,
   filter: AdminRegistrationFilter = {},
 ): Promise<AdminRegistrationsPage> =>
-  // Spread, not passed as it stands: an interface has no index signature, so it does not satisfy the
-  // query builder's record parameter until it is copied into a plain object.
+  // Spread: an interface has no index signature, so it does not satisfy `queryString`'s parameter.
   getJson<AdminRegistrationsPage>(
     request,
     `${ADMIN_REGISTRATIONS_URL}${queryString({ ...filter })}`,
@@ -108,7 +104,7 @@ export const accountLinkingStats = (request: APIRequestContext): Promise<Account
 
 export type PhaseAction = "pause" | "resume" | "run-now"
 
-/** Raw, for the specs proving that an unknown phase name or a missing reason is refused. */
+/** Raw: for the specs proving an unknown phase name or a missing reason is refused. */
 export const postAdminPhaseAction = (
   request: APIRequestContext,
   phase: string,
@@ -147,6 +143,23 @@ export const runPhaseNow = (
   request: APIRequestContext,
   phase: CreditRegistrationPhase,
 ): Promise<AdminPhaseStatus> => phaseAction(request, phase, "run-now", null)
+
+/**
+ * Un-parks one ledger row so the next tick claims it: the first verify poll is scheduled two minutes
+ * after a submission and an uncertain one fifteen, neither of which fits in a test.
+ */
+export const makeRegistrationDueNow = async (
+  request: APIRequestContext,
+  registrationId: string,
+): Promise<void> => {
+  const url = adminRegistrationTransitionUrl(registrationId)
+  const response = await request.post(url, {
+    data: { to_state: "check_now", reason: "System test: check without waiting out the backoff." },
+  })
+  if (!response.ok()) {
+    throw new Error(`POST ${url} answered ${response.status()}: ${await response.text()}`)
+  }
+}
 
 export interface ManualLinkPayload {
   user_id: string

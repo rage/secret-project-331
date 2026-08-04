@@ -13,7 +13,6 @@ import { linkingEmailSentence } from "./teacherCreditRegistrations"
 
 interface Props {
   courseId: string
-  /** The one state the list is about, so the copy and the filter cannot drift. */
   state: CreditRegistrationState
   title: string
   open: boolean
@@ -59,7 +58,6 @@ const pagerCss = css`
 // oxlint-disable-next-line i18next/no-literal-string
 const NUMBER_TONE = "neutral" as const
 
-/** The students of one course sitting in one registration state, with what we can say about them. */
 const BlockedStudentsDialog: React.FC<Props> = ({ courseId, state, title, open, onClose }) => {
   const { t, i18n } = useTranslation()
   const [page, setPage] = useState(1)

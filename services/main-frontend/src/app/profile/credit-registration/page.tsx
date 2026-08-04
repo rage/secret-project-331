@@ -23,8 +23,7 @@ const CreditRegistrationProfilePage: React.FC = () => {
 
   return (
     <div className={pageCss}>
-      {/* Each card owns its own query and error boundary: a failing consents list must not blank the
-          student number the whole flow depends on. */}
+      {/* Each card owns its query, so a failing consents list still leaves the student number. */}
       <StudentNumberCard />
       <ConsentsCard />
       <RegistrationsCard />

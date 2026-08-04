@@ -3,10 +3,7 @@ import type {
   CourseModuleCreditRegistrationEdit,
 } from "@/generated/api/types.generated"
 
-/**
- * The module editor's credit registration fields. Strings rather than nullable strings because a text
- * input has no null; the mapping back to the wire shape is {@link toCreditRegistrationEdit}.
- */
+/** Strings rather than nullable strings, since a text input has no null. */
 export interface CreditRegistrationModuleFields {
   enabled: boolean
   open_university_product_id: string
@@ -20,7 +17,7 @@ export interface RealisationFields {
   active: boolean
 }
 
-/** Must stay in step with the scale ids the backend's grade mapping accepts. */
+/** Must match the scale ids the backend's grade mapping accepts. */
 export const PASS_FAIL_GRADE_SCALE_ID = "sis-hyl-hyv"
 export const NUMERIC_GRADE_SCALE_ID = "sis-0-5"
 

@@ -1,22 +1,18 @@
-//! Mirroring our successes into the legacy study-registry ledger.
-//!
-//! One of the three things that stop a completion being registered twice. The mirror row makes the
+//! Mirroring our successes into the legacy study-registry ledger. The mirror row makes the
 //! registry's own `?exclude_already_registered=true` skip the completion, keeps the teacher views'
 //! existing `registered` flag working, and gives support the real student number.
 
 use crate::credit_registrations::RegistrationScope;
 use crate::prelude::*;
 
-/// The registrar row the push path attributes its mirror rows to, seeded by migration at a fixed id.
+/// The registrar the push path attributes its mirror rows to, seeded by migration at a fixed id.
 pub const SUOTAR_PUSH_REGISTRAR_ID: Uuid =
     Uuid::from_u128(0x9da5_a12f_0b96_4c35_a4fe_6d42_7d9c_4292);
 
 /// How many rows one iteration may mirror.
 pub const LEGACY_MIRROR_LIMIT: i64 = 500;
 
-/// Writes a legacy ledger row for every successful registration that has none.
-///
-/// Returns how many rows were written.
+/// Writes a legacy ledger row for every successful registration that has none; returns the count.
 pub async fn mirror_successes_to_legacy_ledger(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -167,8 +163,6 @@ mod tests {
         id
     }
 
-    /// The id is shared between the migration's seed and this constant, and nothing else ties them
-    /// together.
     #[tokio::test]
     async fn the_seeded_push_registrar_is_the_one_this_module_names() {
         insert_data!(:tx);

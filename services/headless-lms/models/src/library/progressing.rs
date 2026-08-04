@@ -752,8 +752,7 @@ pub async fn get_manual_completion_result_preview(
 pub struct UserCompletionInformation {
     pub course_module_completion_id: Uuid,
     pub course_name: String,
-    /// `None` only on a module registering through credit registration; the legacy flow cannot
-    /// fetch its link without one.
+    /// `None` only on a module registering through credit registration.
     pub uh_course_code: Option<String>,
     pub email: String,
     pub ects_credits: Option<f32>,
@@ -776,8 +775,8 @@ pub async fn get_user_completion_information(
     .await?;
     let credit_registration_config =
         course_modules::get_credit_registration_config(conn, course_module.id).await?;
-    // The credit registration status page is where a missing course code has to be explained to the
-    // student, so refusing to describe the completion at all would hide the one error it exists for.
+    // A Suotar module explains a missing course code on its own status page, so failing here would
+    // hide the error instead of showing it.
     if course_module.uh_course_code.is_none()
         && !credit_registration_config.enable_credit_registration_via_suotar
     {

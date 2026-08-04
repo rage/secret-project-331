@@ -38,10 +38,7 @@ const outcomeCss = css`
   color: var(--color-gray-700);
 `
 
-/**
- * Per-course permission, including courses never asked: this is the catch-up path for everyone whose
- * completion predates the course opting in, and for anyone who dismissed the dialog.
- */
+/** The catch-up path for completions predating the course's opt-in, and for a dismissed dialog. */
 const ConsentsCard: React.FC = () => {
   const { t } = useTranslation()
   const query = useQuery({ ...getMyCreditRegistrationConsentsOptions() })

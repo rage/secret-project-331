@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registrations cr\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\nWHERE cr.course_id = $1\n  AND cr.deleted_at IS NULL\n  AND (\n    $2::credit_registration_state IS NULL\n    OR cr.state = $2\n  )\n  AND (\n    $3::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $3 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $3 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $3 || '%' ESCAPE '\\'\n  )\n  AND ($4::uuid IS NULL OR cr.course_instance_id = $4)\n        ",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registrations cr\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\nWHERE cr.course_id = $1\n  AND cr.deleted_at IS NULL\n  AND (\n    $2::credit_registration_state IS NULL\n    OR cr.state = $2\n  )\n  AND (\n    $3::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $3 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $3 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $3 || '%' ESCAPE '\\'\n  )\n  AND ($4::uuid IS NULL OR cr.course_instance_id = $4)\n  AND ($5::uuid IS NULL OR cr.course_module_completion_id = $5)\n        ",
   "describe": {
     "columns": [
       {
@@ -41,6 +41,7 @@
           }
         },
         "Text",
+        "Uuid",
         "Uuid"
       ]
     },
@@ -48,5 +49,5 @@
       null
     ]
   },
-  "hash": "810c3dda32b4939206628cc9d0b6821c860fdd6c7b0d38ba25cf159a08cd691d"
+  "hash": "62b3b526f08dc61a8ffdcbbea547ebaa475f3c7590b6fe8efa7b57d7c483d189"
 }

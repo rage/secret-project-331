@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registration_account_linking_emails e\n  JOIN email_deliveries ed ON ed.id = e.email_delivery_id\nWHERE e.course_id = $1\n  AND e.deleted_at IS NULL\n  AND NOT ed.sent\n  AND (\n    NOT ed.retryable\n    OR (ed.first_failed_at IS NOT NULL AND ed.first_failed_at < $2)\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "09bde5014d70cfda64630e33f099487a62bb63caa26d38dfbd4e45b19b9d33f4"
+}

@@ -27,12 +27,21 @@ import type {
   AdminManuallyLinkStudentNumberResponses,
   AdminMaterializeCreditRegistrationsData,
   AdminMaterializeCreditRegistrationsResponses,
+  AdminPausePhaseData,
+  AdminPausePhaseErrors,
+  AdminPausePhaseResponses,
   AdminResendAccountLinkingEmailData,
   AdminResendAccountLinkingEmailErrors,
   AdminResendAccountLinkingEmailResponses,
   AdminResolveStudentNumberForLinkingData,
   AdminResolveStudentNumberForLinkingErrors,
   AdminResolveStudentNumberForLinkingResponses,
+  AdminResumePhaseData,
+  AdminResumePhaseErrors,
+  AdminResumePhaseResponses,
+  AdminRunPhaseNowData,
+  AdminRunPhaseNowErrors,
+  AdminRunPhaseNowResponses,
   AdminTransitionCreditRegistrationData,
   AdminTransitionCreditRegistrationErrors,
   AdminTransitionCreditRegistrationResponses,
@@ -728,8 +737,11 @@ import {
   zAddTeacherGradingForExamSubmissionResponse,
   zAdminManuallyLinkStudentNumberResponse,
   zAdminMaterializeCreditRegistrationsResponse,
+  zAdminPausePhaseResponse,
   zAdminResendAccountLinkingEmailResponse,
   zAdminResolveStudentNumberForLinkingResponse,
+  zAdminResumePhaseResponse,
+  zAdminRunPhaseNowResponse,
   zAdminTransitionCreditRegistrationResponse,
   zAdminUnlinkStudentNumberResponse,
   zAdvanceCourseDesignerStageResponse,
@@ -4704,6 +4716,78 @@ export const getCreditRegistrationOverview = <ThrowOnError extends boolean = tru
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/overview",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause` - Pauses one phase: the
+ * worker loop skips it on every tick until it is resumed.
+ */
+export const adminPausePhase = <ThrowOnError extends boolean = true>(
+  options: Options<AdminPausePhaseData, ThrowOnError>,
+): RequestResult<AdminPausePhaseResponses, AdminPausePhaseErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminPausePhaseResponses,
+    AdminPausePhaseErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminPausePhaseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume` - Resumes one paused
+ * phase.
+ */
+export const adminResumePhase = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResumePhaseData, ThrowOnError>,
+): RequestResult<AdminResumePhaseResponses, AdminResumePhaseErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminResumePhaseResponses,
+    AdminResumePhaseErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminResumePhaseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now` - Makes one phase due
+ * immediately: the worker loop picks it up on its next tick instead of waiting out `next_run_at`.
+ */
+export const adminRunPhaseNow = <ThrowOnError extends boolean = true>(
+  options: Options<AdminRunPhaseNowData, ThrowOnError>,
+): RequestResult<AdminRunPhaseNowResponses, AdminRunPhaseNowErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminRunPhaseNowResponses,
+    AdminRunPhaseNowErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminRunPhaseNowResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

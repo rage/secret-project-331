@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH last_success AS (\n  SELECT endpoint,\n    MAX(started_at) AS at\n  FROM suotar_api_calls\n  WHERE succeeded\n    AND deleted_at IS NULL\n  GROUP BY endpoint\n)\nSELECT c.endpoint AS \"endpoint!: SuotarEndpoint\",\n  ls.at AS \"last_success_at\",\n  MAX(c.started_at) FILTER (\n    WHERE c.duration_ms IS NOT NULL\n      AND NOT c.succeeded\n  ) AS \"last_failure_at\",\n  COUNT(*) FILTER (\n    WHERE c.duration_ms IS NOT NULL\n      AND NOT c.succeeded\n      AND (\n        ls.at IS NULL\n        OR c.started_at > ls.at\n      )\n  ) AS \"consecutive_failures!\"\nFROM suotar_api_calls c\n  LEFT JOIN last_success ls ON ls.endpoint = c.endpoint\nWHERE c.deleted_at IS NULL\nGROUP BY c.endpoint,\n  ls.at\n        ",
+  "query": "\nWITH last_success AS (\n  SELECT endpoint,\n    MAX(started_at) AS at\n  FROM suotar_api_calls\n  WHERE succeeded\n    AND started_at >= $1\n    AND deleted_at IS NULL\n  GROUP BY endpoint\n)\nSELECT c.endpoint AS \"endpoint!: SuotarEndpoint\",\n  ls.at AS \"last_success_at\",\n  MAX(c.started_at) FILTER (\n    WHERE c.duration_ms IS NOT NULL\n      AND NOT c.succeeded\n  ) AS \"last_failure_at\",\n  COUNT(*) FILTER (\n    WHERE c.duration_ms IS NOT NULL\n      AND NOT c.succeeded\n      AND (\n        ls.at IS NULL\n        OR c.started_at > ls.at\n      )\n  ) AS \"consecutive_failures!\"\nFROM suotar_api_calls c\n  LEFT JOIN last_success ls ON ls.endpoint = c.endpoint\nWHERE c.started_at >= $1\n  AND c.deleted_at IS NULL\nGROUP BY c.endpoint,\n  ls.at\n        ",
   "describe": {
     "columns": [
       {
@@ -48,7 +48,9 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Timestamptz"
+      ]
     },
     "nullable": [
       false,
@@ -57,5 +59,5 @@
       null
     ]
   },
-  "hash": "7fa2d462b147cc17389dee241c87df406f6f095f8d8cbc499c243b23c5f81e62"
+  "hash": "dfa657a5f440aefb9e61a63ae6d8288bccafe4072505f7cc3613560afb028fba"
 }

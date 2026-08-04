@@ -6,6 +6,10 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import {
+  getAccountLinkingStatsQueryKey,
+  listCreditRegistrationsForAdminQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
 import type { AdminResendAccountLinkingEmailResult } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -56,6 +60,11 @@ const lastResortCss = css`
   font-size: var(--font-size-1);
   text-decoration: underline;
   cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
 `
 
 /**
@@ -97,7 +106,11 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       onSuccess: (data) => {
         setResult(data)
         setOpen(false)
-        void queryClient.invalidateQueries()
+        // A resend only changes linking-mail state, never a registration's own lifecycle state.
+        void Promise.all([
+          queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
+          queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
+        ])
       },
     },
   )

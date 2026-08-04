@@ -6,6 +6,11 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import {
+  getCreditRegistrationForAdminQueryKey,
+  getCreditRegistrationOverviewQueryKey,
+  listCreditRegistrationsForAdminQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { adminTransitionCreditRegistration } from "@/generated/api/sdk.generated"
 import type {
   AdminCreditRegistrationRow,
@@ -82,7 +87,15 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
       onSuccess: (data) => {
         setResult(data)
         setOpen(false)
-        void queryClient.invalidateQueries()
+        void Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: getCreditRegistrationForAdminQueryKey({
+              path: { credit_registration_id: registration.id },
+            }),
+          }),
+          queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
+          queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
+        ])
       },
     },
   )

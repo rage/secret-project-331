@@ -4,7 +4,7 @@
 //! wants the credit inside their degree.
 
 use chrono::NaiveDate;
-use headless_lms_utils::services::suotar::{ExistingAttainment, SuotarEnrolment};
+use headless_lms_utils::services::suotar::{CreditRange, ExistingAttainment, SuotarEnrolment};
 
 use crate::credit_registrations::CreditRegistrationErrorCode;
 
@@ -95,7 +95,7 @@ pub fn select_enrolment<'a>(
     }
     let usable: Vec<&SuotarEnrolment> = valid
         .into_iter()
-        .filter(|enrolment| enrolment.credits.max >= f64::from(criteria.credits))
+        .filter(|enrolment| credits_fit(&enrolment.credits, criteria.credits))
         .collect();
     if usable.is_empty() {
         return Err(NoUsableEnrolment::CreditsTooSmall);
@@ -120,6 +120,23 @@ pub fn select_enrolment<'a>(
         .ok_or(NoUsableEnrolment::None)
 }
 
+/// How far an f32-sourced ECTS value may drift from the wire's f64 range before it counts as a
+/// mismatch rather than a widening artifact. Real credit amounts are never specified finer than 0.1,
+/// so this is orders of magnitude below any difference that should actually reject an enrolment.
+const CREDITS_TOLERANCE: f64 = 1e-4;
+
+/// Whether an enrolment's registry-declared credit range can carry the module's credits.
+///
+/// A range with `min > max` is the registry's own data at fault, not something to clamp into, so it
+/// is never usable.
+fn credits_fit(range: &CreditRange, credits: f32) -> bool {
+    if range.min > range.max {
+        return false;
+    }
+    let credits = f64::from(credits);
+    (range.min - CREDITS_TOLERANCE..=range.max + CREDITS_TOLERANCE).contains(&credits)
+}
+
 /// An attainment the registry already holds for this course unit, which makes our import pointless
 /// and a duplicate attainment on a transcript possible.
 pub fn attainment_for_course_unit<'a>(
@@ -132,6 +149,16 @@ pub fn attainment_for_course_unit<'a>(
             && (attainment.course_unit_id == course_unit_id
                 || attainment.assessment_item_id == assessment_item_id)
     })
+}
+
+/// An attainment the registry already holds, for when there is no enrolment left to name which
+/// course unit it belongs to. The response this is read from is scoped to one student and one course
+/// code already (that request never carried a course-unit id), so any attained entry here is a
+/// duplicate regardless.
+pub fn any_attained(existing: &[ExistingAttainment]) -> Option<&ExistingAttainment> {
+    existing
+        .iter()
+        .find(|attainment| attainment.state == ATTAINED_STATE)
 }
 
 /// The attainment a submission we lost track of would have produced.

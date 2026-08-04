@@ -263,6 +263,14 @@ export const zAdminMaterializeResult = z.object({
     }),
 })
 
+export const zAdminPausePhasePayload = z.object({
+  reason: z.string(),
+})
+
+export const zAdminPhaseActionPayload = z.object({
+  reason: z.string().nullish(),
+})
+
 export const zAdminResendAccountLinkingEmailPayload = z.object({
   course_id: z.uuid(),
   override_rate_caps: z.boolean(),
@@ -1480,6 +1488,7 @@ export const zCreditRegistrationPhaseStatus = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  heartbeat_late: z.boolean(),
   implemented: z.boolean(),
   items_failed_last_run: z
     .int()
@@ -1498,6 +1507,15 @@ export const zCreditRegistrationPhaseStatus = z.object({
   paused_at: z.iso.datetime().nullish(),
   phase: z.string(),
   process_name: z.string(),
+  seconds_since_heartbeat: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    })
+    .nullish(),
 })
 
 /**
@@ -4058,8 +4076,6 @@ export const zSuotarHealthWindow = z.object({
 })
 
 export const zSuotarHealth = z.object({
-  circuit_breaker: zCreditRegistrationCircuitBreakerState,
-  standings: z.array(zSuotarEndpointStanding),
   windows: z.array(zSuotarHealthWindow),
 })
 
@@ -6590,6 +6606,39 @@ export const zAdminMaterializeCreditRegistrationsResponse = zAdminMaterializeRes
  * Counts, throughput, phase heartbeats and the active alerts
  */
 export const zGetCreditRegistrationOverviewResponse = zCreditRegistrationOverview
+
+export const zAdminPausePhaseBody = zAdminPausePhasePayload
+
+export const zAdminPausePhasePath = z.object({
+  phase: z.string(),
+})
+
+/**
+ * The phase's status after pausing
+ */
+export const zAdminPausePhaseResponse = zCreditRegistrationPhaseStatus
+
+export const zAdminResumePhaseBody = zAdminPhaseActionPayload
+
+export const zAdminResumePhasePath = z.object({
+  phase: z.string(),
+})
+
+/**
+ * The phase's status after resuming
+ */
+export const zAdminResumePhaseResponse = zCreditRegistrationPhaseStatus
+
+export const zAdminRunPhaseNowBody = zAdminPhaseActionPayload
+
+export const zAdminRunPhaseNowPath = z.object({
+  phase: z.string(),
+})
+
+/**
+ * The phase's status after being made due
+ */
+export const zAdminRunPhaseNowResponse = zCreditRegistrationPhaseStatus
 
 export const zListCreditRegistrationsForAdminQuery = z.object({
   page: z

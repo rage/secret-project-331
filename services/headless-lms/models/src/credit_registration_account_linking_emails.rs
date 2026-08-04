@@ -5,7 +5,7 @@
 //!
 //! A row is written the moment the right to mail is claimed, before a delivery exists, so the claim
 //! and the queueing are two phases that cannot mail twice between them.
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use utoipa::ToSchema;
 
@@ -101,6 +101,91 @@ SELECT EXISTS(
     Ok(exists)
 }
 
+/// One existing mail, as much as [`claim_linking_mails`][crate::library::credit_registration::account_linking::claim_linking_mails]'s
+/// dedup guard and rate caps need to decide on a person without a query per person.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ExistingLinkingMailFact {
+    pub sisu_person_id: String,
+    pub course_id: Uuid,
+    pub emailed_to: String,
+    pub sent_at: DateTime<Utc>,
+}
+
+/// Every live mail these people have ever been sent, any course. The batched read behind
+/// [`claim_linking_mails_batch`][crate::library::credit_registration::account_linking::claim_linking_mails_batch]:
+/// one query stands in for the quiet-period count, the per-course count and the dedup check that
+/// [`claim_linking_mails`][crate::library::credit_registration::account_linking::claim_linking_mails]
+/// otherwise runs per person.
+pub async fn get_existing_facts_for_persons(
+    conn: &mut PgConnection,
+    sisu_person_ids: &[String],
+) -> ModelResult<Vec<ExistingLinkingMailFact>> {
+    let res = sqlx::query_as!(
+        ExistingLinkingMailFact,
+        r#"
+SELECT sisu_person_id,
+  course_id,
+  emailed_to,
+  sent_at
+FROM credit_registration_account_linking_emails
+WHERE sisu_person_id = ANY($1::text [])
+  AND deleted_at IS NULL
+        "#,
+        sisu_person_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Batched form of [`claim_send_slot`]: claims many slots in one round trip.
+///
+/// Returns the `student_number_verification_token_id` of every row actually inserted, so the caller
+/// can tell which candidates lost the race to the unique index — the same signal `claim_send_slot`
+/// gives back as `None`, keyed by token instead of one call per address. `email_delivery_id` is left
+/// at its column default (`NULL`): a claim always precedes the delivery it will carry.
+pub async fn claim_send_slots(
+    conn: &mut PgConnection,
+    new: &[NewAccountLinkingEmail],
+) -> ModelResult<HashSet<Uuid>> {
+    if new.is_empty() {
+        return Ok(HashSet::new());
+    }
+    let student_numbers: Vec<String> = new.iter().map(|n| n.student_number.clone()).collect();
+    let sisu_person_ids: Vec<String> = new.iter().map(|n| n.sisu_person_id.clone()).collect();
+    let course_ids: Vec<Uuid> = new.iter().map(|n| n.course_id).collect();
+    let emailed_tos: Vec<String> = new.iter().map(|n| n.emailed_to.clone()).collect();
+    let token_ids: Vec<Uuid> = new
+        .iter()
+        .map(|n| {
+            n.student_number_verification_token_id
+                .expect("a batched claim always mints its token before claiming its slot")
+        })
+        .collect();
+
+    let claimed = sqlx::query_scalar!(
+        r#"
+INSERT INTO credit_registration_account_linking_emails (
+    student_number,
+    sisu_person_id,
+    course_id,
+    emailed_to,
+    student_number_verification_token_id
+  )
+SELECT * FROM UNNEST($1::text [], $2::text [], $3::uuid [], $4::text [], $5::uuid []) ON CONFLICT DO NOTHING
+RETURNING student_number_verification_token_id AS "token_id!"
+        "#,
+        &student_numbers,
+        &sisu_person_ids,
+        &course_ids,
+        &emailed_tos,
+        &token_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(claimed.into_iter().collect())
+}
+
 pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -115,6 +200,34 @@ WHERE course_id = $1
 ORDER BY sent_at DESC
         "#,
         course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// This course's linking mails for one student number, newest first.
+///
+/// Addressed to whoever the study registry names, not to an account of ours, so this must not go
+/// through a verified-number lookup: the target of a linking mail is exactly the population that has
+/// none.
+pub async fn get_by_course_id_and_student_number(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    student_number: &str,
+) -> ModelResult<Vec<CreditRegistrationAccountLinkingEmail>> {
+    let res = sqlx::query_as!(
+        CreditRegistrationAccountLinkingEmail,
+        r#"
+SELECT *
+FROM credit_registration_account_linking_emails
+WHERE course_id = $1
+  AND student_number = $2
+  AND deleted_at IS NULL
+ORDER BY sent_at DESC
+        "#,
+        course_id,
+        student_number,
     )
     .fetch_all(conn)
     .await?;
@@ -331,6 +444,135 @@ ORDER BY sent_at DESC
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// Every mail in a window, bucketed the way [`crate::email_deliveries::derive_email_send_status`]
+/// would bucket it. Computed here from the same facts (`sent`, `retryable`, `first_failed_at`,
+/// `retry_count`) rather than from its output, so the two cannot drift on what counts as failed.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct LinkingMailSendStatusTotals {
+    pub mails_in_window: i64,
+    pub queued: i64,
+    pub retrying: i64,
+    pub sent: i64,
+    pub send_failed: i64,
+    /// `None` when nothing failed within the window.
+    pub last_send_failed_at: Option<DateTime<Utc>>,
+}
+
+pub async fn get_send_status_totals_since(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+    now: DateTime<Utc>,
+) -> ModelResult<LinkingMailSendStatusTotals> {
+    let retry_window_expired_before =
+        now - chrono::Duration::seconds(crate::email_deliveries::RETRY_WINDOW_SECS);
+    let row = sqlx::query_as!(
+        LinkingMailSendStatusTotals,
+        r#"
+WITH mails AS (
+  SELECT
+    e.sent_at,
+    CASE
+      WHEN e.email_delivery_id IS NULL THEN 'queued'
+      WHEN ed.sent THEN 'sent'
+      WHEN NOT ed.retryable
+        OR (ed.first_failed_at IS NOT NULL AND ed.first_failed_at < $2) THEN 'send_failed'
+      WHEN ed.retry_count > 0 THEN 'retrying'
+      ELSE 'queued'
+    END AS status
+  FROM credit_registration_account_linking_emails e
+    LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+  WHERE e.sent_at >= $1
+    AND e.deleted_at IS NULL
+)
+SELECT
+  COUNT(*) AS "mails_in_window!",
+  COUNT(*) FILTER (WHERE status = 'queued') AS "queued!",
+  COUNT(*) FILTER (WHERE status = 'retrying') AS "retrying!",
+  COUNT(*) FILTER (WHERE status = 'sent') AS "sent!",
+  COUNT(*) FILTER (WHERE status = 'send_failed') AS "send_failed!",
+  MAX(sent_at) FILTER (WHERE status = 'send_failed') AS "last_send_failed_at"
+FROM mails
+        "#,
+        since,
+        retry_window_expired_before,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(row)
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkingMailFailureDomain {
+    pub domain: String,
+    pub count: i64,
+}
+
+/// Domains behind a hard send failure in the window, worst first.
+pub async fn get_send_failure_domains_since(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+    now: DateTime<Utc>,
+) -> ModelResult<Vec<LinkingMailFailureDomain>> {
+    let retry_window_expired_before =
+        now - chrono::Duration::seconds(crate::email_deliveries::RETRY_WINDOW_SECS);
+    let rows = sqlx::query_as!(
+        LinkingMailFailureDomain,
+        r#"
+SELECT
+  substring(e.emailed_to FROM position('@' IN e.emailed_to) + 1) AS "domain!",
+  COUNT(*) AS "count!"
+FROM credit_registration_account_linking_emails e
+  JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+WHERE e.sent_at >= $1
+  AND e.deleted_at IS NULL
+  AND position('@' IN e.emailed_to) > 0
+  AND NOT ed.sent
+  AND (
+    NOT ed.retryable
+    OR (ed.first_failed_at IS NOT NULL AND ed.first_failed_at < $2)
+  )
+GROUP BY substring(e.emailed_to FROM position('@' IN e.emailed_to) + 1)
+ORDER BY COUNT(*) DESC,
+  substring(e.emailed_to FROM position('@' IN e.emailed_to) + 1) ASC
+        "#,
+        since,
+        retry_window_expired_before,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows)
+}
+
+/// Hard send failures for one course, all time. Same predicate as [`get_send_status_totals_since`],
+/// narrowed to a course instead of a time window.
+pub async fn count_send_failed_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    now: DateTime<Utc>,
+) -> ModelResult<i64> {
+    let retry_window_expired_before =
+        now - chrono::Duration::seconds(crate::email_deliveries::RETRY_WINDOW_SECS);
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM credit_registration_account_linking_emails e
+  JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+WHERE e.course_id = $1
+  AND e.deleted_at IS NULL
+  AND NOT ed.sent
+  AND (
+    NOT ed.retryable
+    OR (ed.first_failed_at IS NOT NULL AND ed.first_failed_at < $2)
+  )
+        "#,
+        course_id,
+        retry_window_expired_before,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
 }
 
 /// One person and course we have mailed to the cap without ever being claimed: the stale-address

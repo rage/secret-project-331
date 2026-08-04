@@ -80,6 +80,7 @@ pub struct World {
     pub course_units: BTreeMap<CourseCode, MockCourseUnit>,
     pub enrolments: BTreeMap<String, MockEnrolment>,
     pub attainments: BTreeMap<String, MockAttainment>,
+    pub submissions: BTreeMap<String, MockSubmission>,
     pub product_tokens: BTreeMap<String, MockProductAccessToken>,
 }
 
@@ -213,6 +214,7 @@ impl MockSuotarStore {
         write_entity_hash(&mut pipe, &generation, COURSE_UNITS, &world.course_units)?;
         write_entity_hash(&mut pipe, &generation, ENROLMENTS, &world.enrolments)?;
         write_entity_hash(&mut pipe, &generation, ATTAINMENTS, &world.attainments)?;
+        write_entity_hash(&mut pipe, &generation, SUBMISSIONS, &world.submissions)?;
         write_entity_hash(
             &mut pipe,
             &generation,
@@ -409,10 +411,22 @@ impl MockSuotarStore {
                 .values()
                 .map(|submission| submission.student_number.clone()),
         );
+        let person_course_keys: Vec<String> = unique(submissions.values().map(|submission| {
+            person_course_key(&submission.student_number, &submission.course_code)
+        }));
         let persons = hmget_json(&mut conn, &key(generation, PERSONS), &student_numbers).await?;
+        // `register` (reached via `ripen`) appends to this index and commits the field back whole,
+        // so leaving it unloaded here would wipe every attainment already indexed for the pair.
+        let attainments_by_person_course = hmget_json(
+            &mut conn,
+            &key(generation, IDX_ATTAINMENTS_BY_PERSON_COURSE),
+            &person_course_keys,
+        )
+        .await?;
         Ok(WorkingSet {
             persons,
             submissions,
+            attainments_by_person_course,
             ..Default::default()
         })
     }
@@ -811,10 +825,9 @@ impl MockSuotarStore {
             course_units: self.all_json(generation, EntityHash::CourseUnits).await?,
             enrolments: self.all_json(generation, EntityHash::Enrolments).await?,
             attainments: self.all_json(generation, EntityHash::Attainments).await?,
+            submissions: self.all_json(generation, EntityHash::Submissions).await?,
             product_tokens: self.all_json(generation, EntityHash::ProductTokens).await?,
         };
-        let submissions: BTreeMap<String, MockSubmission> =
-            self.all_json(generation, EntityHash::Submissions).await?;
 
         let mut conn = self.conn().await?;
         let mut pipe = redis::pipe();
@@ -829,24 +842,6 @@ impl MockSuotarStore {
             pipe.del(key(generation, name)).ignore();
         }
         write_derived_indexes(&mut pipe, generation, &world)?;
-        let mut by_person_course: BTreeMap<String, Vec<String>> = BTreeMap::new();
-        for submission in submissions.values() {
-            by_person_course
-                .entry(person_course_key(
-                    &submission.student_number,
-                    &submission.course_code,
-                ))
-                .or_default()
-                .push(submission.submitted_attainment_id.clone());
-        }
-        for (field, ids) in by_person_course {
-            pipe.hset(
-                key(generation, IDX_SUBMISSIONS_BY_PERSON_COURSE),
-                field,
-                serde_json::to_string(&ids)?,
-            )
-            .ignore();
-        }
         pipe.query_async::<()>(&mut conn).await?;
         Ok(())
     }
@@ -947,6 +942,16 @@ fn write_derived_indexes(
             .or_default()
             .push(attainment.id.clone());
     }
+    let mut submissions_by_person_course: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for submission in world.submissions.values() {
+        submissions_by_person_course
+            .entry(person_course_key(
+                &submission.student_number,
+                &submission.course_code,
+            ))
+            .or_default()
+            .push(submission.submitted_attainment_id.clone());
+    }
 
     let mut owner_keys: BTreeMap<String, OwnerKeys> = BTreeMap::new();
     for person in world.persons.values() {
@@ -976,6 +981,10 @@ fn write_derived_indexes(
         (
             IDX_ATTAINMENTS_BY_PERSON_COURSE,
             attainments_by_person_course,
+        ),
+        (
+            IDX_SUBMISSIONS_BY_PERSON_COURSE,
+            submissions_by_person_course,
         ),
     ] {
         for (field, ids) in index {

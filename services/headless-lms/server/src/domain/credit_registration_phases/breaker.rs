@@ -75,20 +75,17 @@ pub fn cooldown(test_mode: bool) -> Duration {
 /// Whether the phases that call the study registry should skip this iteration.
 pub fn is_open(key: &ScopeKey) -> bool {
     let mut breakers = lock();
-    let Some(state) = breakers.get_mut(key) else {
+    let Some(until) = breakers.get(key).and_then(|state| state.open_until) else {
         return false;
     };
-    match state.open_until {
-        Some(until) if Instant::now() < until => true,
-        Some(_) => {
-            // The cooldown elapsed. The next failure opens it again immediately, which is what
-            // makes a lasting outage cheap instead of a hot loop.
-            state.open_until = None;
-            state.consecutive_failures = 0;
-            false
-        }
-        None => false,
+    if Instant::now() < until {
+        return true;
     }
+    // The cooldown elapsed: dropped rather than reset in place, so a scope that never trips the
+    // breaker again does not sit in the map for the rest of the process's life. The next failure
+    // starts a fresh entry, which is the same state a reset would have left behind.
+    breakers.remove(key);
+    false
 }
 
 /// What one breaker holds right now, in this process.

@@ -21,7 +21,7 @@ use headless_lms_models::credit_registrations::{
     CreditRegistrationErrorCode, CreditRegistrationState, TeacherCreditRegistration,
     TeacherCreditRegistrationFilters,
 };
-use headless_lms_models::email_deliveries::EmailSendStatus;
+use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use headless_lms_models::library::credit_registration::StudentFacingCreditRegistrationStatus;
 use headless_lms_models::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
 use headless_lms_models::verified_student_numbers::StudentNumberVerificationMethod;
@@ -470,6 +470,7 @@ pub async fn get_course_credit_registrations(
         state: query.state,
         search,
         course_instance_id: query.course_instance_id,
+        course_module_completion_id: None,
     };
     let total = models::credit_registrations::count_teacher_facing_by_course_id(
         &mut conn, *course_id, &filters,
@@ -529,13 +530,17 @@ pub async fn get_credit_registration_details(
     .await?;
 
     let course = models::courses::get_course(&mut conn, row.course_id).await?;
+    let registration_id = row.id;
     let attempt_rows =
         models::credit_registrations::get_teacher_facing_attempts_for_completion(&mut conn, &row)
             .await?;
+    // `attempt_rows` already contains `row` itself, so it is picked out of `attempts` by id instead
+    // of being fetched a second time.
     let attempts = build_teacher_registrations(&mut conn, row.course_id, attempt_rows).await?;
-    let registration = build_teacher_registrations(&mut conn, row.course_id, vec![row])
-        .await?
-        .pop()
+    let registration = attempts
+        .iter()
+        .find(|attempt| attempt.id == registration_id)
+        .cloned()
         .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
     let events = models::credit_registration_events::get_by_registration_id(
         &mut conn,
@@ -760,10 +765,14 @@ async fn linking_mails_for_student_number(
     course_id: Uuid,
     student_number: &str,
 ) -> Result<Vec<CreditRegistrationAccountLinkingEmail>, ControllerError> {
-    let mut mails =
-        credit_registration_account_linking_emails::get_by_course_id(conn, course_id).await?;
-    mails.retain(|mail| mail.student_number == student_number);
-    Ok(mails)
+    Ok(
+        credit_registration_account_linking_emails::get_by_course_id_and_student_number(
+            conn,
+            course_id,
+            student_number,
+        )
+        .await?,
+    )
 }
 
 async fn latest_linking_email_status(
@@ -775,14 +784,21 @@ async fn latest_linking_email_status(
             .await?;
     Ok(reports
         .get(&mail.id)
-        .map(|report| TeacherLinkingEmailStatus {
-            email_send_status: report.email_send_status,
-            sent_at: report.sent_at,
-            last_attempt_at: report.last_attempt_at,
-            retry_count: report.retry_count,
-            next_retry_at: report.next_retry_at,
-            emailed_to_masked: mask_email(&mail.emailed_to),
-        }))
+        .map(|report| linking_email_status_of(report, mail)))
+}
+
+fn linking_email_status_of(
+    report: &EmailSendStatusReport,
+    mail: &CreditRegistrationAccountLinkingEmail,
+) -> TeacherLinkingEmailStatus {
+    TeacherLinkingEmailStatus {
+        email_send_status: report.email_send_status,
+        sent_at: report.sent_at,
+        last_attempt_at: report.last_attempt_at,
+        retry_count: report.retry_count,
+        next_retry_at: report.next_retry_at,
+        emailed_to_masked: mask_email(&mail.emailed_to),
+    }
 }
 
 /// Enriches the ledger rows with the linking-mail status only an endpoint can supply.
@@ -802,26 +818,45 @@ async fn build_teacher_registrations(
     if !waiting.is_empty() {
         let mails =
             credit_registration_account_linking_emails::get_by_course_id(conn, course_id).await?;
+        let need_lookup: Vec<Uuid> = waiting
+            .iter()
+            .filter(|row| row.sisu_person_id.is_none())
+            .map(|row| row.user_id)
+            .collect();
+        let latest_links: HashMap<Uuid, String> = if need_lookup.is_empty() {
+            HashMap::new()
+        } else {
+            verified_student_numbers::get_latest_including_deleted_by_user_ids(conn, &need_lookup)
+                .await?
+                .into_iter()
+                .map(|link| (link.user_id, link.sisu_person_id))
+                .collect()
+        };
+        // The status-report fetch below batches every matched mail into a single call.
+        let mut matched: Vec<(Uuid, &CreditRegistrationAccountLinkingEmail)> = Vec::new();
         for row in waiting {
-            let person_id = match &row.sisu_person_id {
-                Some(person_id) => person_id.clone(),
-                None => {
-                    match verified_student_numbers::get_latest_including_deleted_by_user_id(
-                        conn,
-                        row.user_id,
-                    )
-                    .await?
-                    {
-                        Some(link) => link.sisu_person_id,
-                        None => continue,
-                    }
-                }
+            let person_id = row
+                .sisu_person_id
+                .clone()
+                .or_else(|| latest_links.get(&row.user_id).cloned());
+            let Some(person_id) = person_id else {
+                continue;
             };
             let Some(mail) = mails.iter().find(|mail| mail.sisu_person_id == person_id) else {
                 continue;
             };
-            if let Some(status) = latest_linking_email_status(conn, mail).await? {
-                statuses.insert(row.id, status);
+            matched.push((row.id, mail));
+        }
+        if !matched.is_empty() {
+            let mail_ids: Vec<Uuid> = matched.iter().map(|(_, mail)| mail.id).collect();
+            let reports = credit_registration_account_linking_emails::get_send_status_reports(
+                conn, &mail_ids,
+            )
+            .await?;
+            for (row_id, mail) in matched {
+                if let Some(report) = reports.get(&mail.id) {
+                    statuses.insert(row_id, linking_email_status_of(report, mail));
+                }
             }
         }
     }
@@ -869,15 +904,14 @@ async fn count_failed_linking_emails(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> Result<i64, ControllerError> {
-    let mails =
-        credit_registration_account_linking_emails::get_by_course_id(conn, course_id).await?;
-    let ids: Vec<Uuid> = mails.iter().map(|mail| mail.id).collect();
-    let reports =
-        credit_registration_account_linking_emails::get_send_status_reports(conn, &ids).await?;
-    Ok(reports
-        .values()
-        .filter(|report| report.email_send_status == EmailSendStatus::SendFailed)
-        .count() as i64)
+    Ok(
+        credit_registration_account_linking_emails::count_send_failed_for_course(
+            conn,
+            course_id,
+            Utc::now(),
+        )
+        .await?,
+    )
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

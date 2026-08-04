@@ -19,8 +19,11 @@ import {
   addTeacherGradingForExamSubmission,
   adminManuallyLinkStudentNumber,
   adminMaterializeCreditRegistrations,
+  adminPausePhase,
   adminResendAccountLinkingEmail,
   adminResolveStudentNumberForLinking,
+  adminResumePhase,
+  adminRunPhaseNow,
   adminTransitionCreditRegistration,
   adminUnlinkStudentNumber,
   advanceCourseDesignerStage,
@@ -371,10 +374,16 @@ import type {
   AdminManuallyLinkStudentNumberResponse,
   AdminMaterializeCreditRegistrationsData,
   AdminMaterializeCreditRegistrationsResponse,
+  AdminPausePhaseData,
+  AdminPausePhaseResponse,
   AdminResendAccountLinkingEmailData,
   AdminResendAccountLinkingEmailResponse,
   AdminResolveStudentNumberForLinkingData,
   AdminResolveStudentNumberForLinkingResponse,
+  AdminResumePhaseData,
+  AdminResumePhaseResponse,
+  AdminRunPhaseNowData,
+  AdminRunPhaseNowResponse,
   AdminTransitionCreditRegistrationData,
   AdminTransitionCreditRegistrationResponse,
   AdminUnlinkStudentNumberData,
@@ -6009,6 +6018,75 @@ export const getCreditRegistrationOverviewOptions = (
       }),
     queryKey: getCreditRegistrationOverviewQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause` - Pauses one phase: the
+ * worker loop skips it on every tick until it is resumed.
+ */
+export const adminPausePhaseMutation = (
+  options?: Partial<Options<AdminPausePhaseData>>,
+): UseMutationOptions<AdminPausePhaseResponse, DefaultError, Options<AdminPausePhaseData>> => {
+  const mutationOptions: UseMutationOptions<
+    AdminPausePhaseResponse,
+    DefaultError,
+    Options<AdminPausePhaseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminPausePhase({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume` - Resumes one paused
+ * phase.
+ */
+export const adminResumePhaseMutation = (
+  options?: Partial<Options<AdminResumePhaseData>>,
+): UseMutationOptions<AdminResumePhaseResponse, DefaultError, Options<AdminResumePhaseData>> => {
+  const mutationOptions: UseMutationOptions<
+    AdminResumePhaseResponse,
+    DefaultError,
+    Options<AdminResumePhaseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminResumePhase({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now` - Makes one phase due
+ * immediately: the worker loop picks it up on its next tick instead of waiting out `next_run_at`.
+ */
+export const adminRunPhaseNowMutation = (
+  options?: Partial<Options<AdminRunPhaseNowData>>,
+): UseMutationOptions<AdminRunPhaseNowResponse, DefaultError, Options<AdminRunPhaseNowData>> => {
+  const mutationOptions: UseMutationOptions<
+    AdminRunPhaseNowResponse,
+    DefaultError,
+    Options<AdminRunPhaseNowData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminRunPhaseNow({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const listCreditRegistrationsForAdminQueryKey = (
   options?: Options<ListCreditRegistrationsForAdminData>,

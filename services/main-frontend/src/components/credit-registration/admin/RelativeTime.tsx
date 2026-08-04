@@ -9,7 +9,8 @@ interface Props {
   at: string | null | undefined
 }
 
-const ABSENT = "-"
+/** Placeholder for a value this dashboard has none of; the em dash the profile pages use for the same purpose. */
+export const ABSENT = "—"
 
 /**
  * "3 minutes ago", with the exact instant in the tooltip.

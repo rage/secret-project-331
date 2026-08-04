@@ -130,7 +130,7 @@ pub async fn apply(
     // `unknown-person` deliberately creates nothing and `reject-auth` touches no fixture at all.
     if let Some(object) = result.as_object_mut() {
         object.insert("scenario".to_string(), json!(name));
-        object.insert("parallelSafe".to_string(), json!(true));
+        object.insert("parallelSafe".to_string(), json!(is_parallel_safe(name)));
         match &args.owner {
             Some(owner) if !owner.is_empty() => {
                 object.insert(
@@ -145,6 +145,13 @@ pub async fn apply(
         }
     }
     Ok(result)
+}
+
+/// True only for a scenario whose writes stay person-scoped. Every other scenario reaches
+/// `ensure_course`, which overwrites the realisation and course behaviour for the whole course code
+/// — safe for one spec alone, but a clobber for any other spec sharing that course code.
+fn is_parallel_safe(name: &str) -> bool {
+    matches!(name, "no-enrolment" | "unknown-person" | "reject-auth")
 }
 
 async fn plain(

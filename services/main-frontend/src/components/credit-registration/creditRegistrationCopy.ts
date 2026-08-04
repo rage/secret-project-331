@@ -7,6 +7,8 @@ import type {
 } from "@/generated/api/types.generated"
 import type { RegistrationStatusState, RegistrationStatusStep } from "@/shared-module/components"
 
+import { labelFrom, widenedLookup } from "./labelFrom"
+
 /** The four stages a student is shown, in order. */
 const STAGE_KEYS = [
   "credit-registration-stage-consent",
@@ -60,6 +62,8 @@ const STATUS_LABEL_KEYS = {
   not_registering: "credit-registration-status-not-registering",
 } as const satisfies Record<StudentFacingCreditRegistrationStatus, string>
 
+const STATUS_LABEL_UNKNOWN_KEY = "credit-registration-status-unknown"
+
 const STATUS_EXPLANATION_KEYS = {
   waiting_for_completion: "credit-registration-explanation-waiting-for-completion",
   needs_consent: "credit-registration-explanation-needs-consent",
@@ -106,18 +110,19 @@ const GENERIC_ERROR_KEY = "credit-registration-error-generic"
 
 const WITHDRAWN_WHILE_IN_FLIGHT_KEY = "credit-registration-explanation-consent-withdrawn-in-flight"
 
-type ErrorHelpKey = (typeof ERROR_CODE_KEYS)[CreditRegistrationErrorCode] | typeof GENERIC_ERROR_KEY
-
 export const registrationStatusLabel = (
   t: TFunction,
   status: StudentFacingCreditRegistrationStatus,
-): string => t(STATUS_LABEL_KEYS[status])
+): string => labelFrom(t, STATUS_LABEL_KEYS, status, STATUS_LABEL_UNKNOWN_KEY)
+
+/** A status the frontend doesn't yet know reads as not-started, same as `waiting_for_completion`. */
+const UNKNOWN_STAGE_STATES: StageStates = STAGE_STATES.waiting_for_completion
 
 /** The state the badge shows: how the registration as a whole reads at a glance. */
 export const registrationStatusState = (
   status: StudentFacingCreditRegistrationStatus,
 ): RegistrationStatusState => {
-  const stages: StageStates = STAGE_STATES[status]
+  const stages = widenedLookup(STAGE_STATES, status) ?? UNKNOWN_STAGE_STATES
   if (status === "registered") {
     return "done"
   }
@@ -137,7 +142,7 @@ export const registrationStepperSteps = (
   t: TFunction,
   status: StudentFacingCreditRegistrationStatus,
 ): RegistrationStatusStep[] => {
-  const stages: StageStates = STAGE_STATES[status]
+  const stages = widenedLookup(STAGE_STATES, status) ?? UNKNOWN_STAGE_STATES
   return [
     { label: t(STAGE_KEYS[0]), state: stages[0], stateLabel: t(STATE_LABEL_KEYS[stages[0]]) },
     { label: t(STAGE_KEYS[1]), state: stages[1], stateLabel: t(STATE_LABEL_KEYS[stages[1]]) },
@@ -157,16 +162,9 @@ export const registrationExplanation = (
 ): string =>
   state === "abandoned_by_consent_withdrawal"
     ? t(WITHDRAWN_WHILE_IN_FLIGHT_KEY)
-    : t(STATUS_EXPLANATION_KEYS[status])
+    : labelFrom(t, STATUS_EXPLANATION_KEYS, status, STATUS_EXPLANATION_KEYS.waiting_for_completion)
 
 export const registrationErrorHelp = (
   t: TFunction,
   errorCode: CreditRegistrationErrorCode | null | undefined,
-): string | null => {
-  if (!errorCode) {
-    return null
-  }
-  // Widened on purpose: a code the backend gains after this build arrives as a string with no entry.
-  const mapped = (ERROR_CODE_KEYS as Record<string, ErrorHelpKey | undefined>)[errorCode]
-  return t(mapped ?? GENERIC_ERROR_KEY)
-}
+): string | null => (errorCode ? labelFrom(t, ERROR_CODE_KEYS, errorCode, GENERIC_ERROR_KEY) : null)

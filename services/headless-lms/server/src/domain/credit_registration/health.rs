@@ -10,13 +10,11 @@
 //! twice.
 
 use headless_lms_models::credit_registrations::StuckThresholds;
-use headless_lms_models::email_deliveries::EmailSendStatus;
 use headless_lms_models::{ModelResult, prelude::*};
 use headless_lms_models::{
     credit_registration_account_linking_emails, credit_registration_phase_state,
     credit_registrations, suotar_api_calls,
 };
-use std::collections::HashMap;
 use utoipa::ToSchema;
 
 use crate::domain::system_health::HealthStatus;
@@ -36,7 +34,10 @@ const STUCK_THRESHOLDS: StuckThresholds = StuckThresholds {
 const STUCK_CRITICAL_COUNT: i64 = 50;
 const LINKING_MAIL_WINDOW_SECS: i64 = 7 * 24 * 60 * 60;
 /// A phase is late once this many of its own intervals have passed without a heartbeat.
-const PHASE_HEARTBEAT_INTERVAL_MULTIPLIER: i32 = 2;
+///
+/// `pub(crate)`: the admin dashboard's phase rows apply this same threshold server-side, so a
+/// client's clock cannot desync the verdict from the one this module's own alert reaches.
+pub(crate) const PHASE_HEARTBEAT_INTERVAL_MULTIPLIER: i32 = 2;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case")]
@@ -205,43 +206,25 @@ async fn linking_mail_alert(
     conn: &mut PgConnection,
     now: DateTime<Utc>,
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
-    let mails = credit_registration_account_linking_emails::get_sent_since(
-        conn,
-        now - chrono::Duration::seconds(LINKING_MAIL_WINDOW_SECS),
+    let since = now - chrono::Duration::seconds(LINKING_MAIL_WINDOW_SECS);
+    let totals =
+        credit_registration_account_linking_emails::get_send_status_totals_since(conn, since, now)
+            .await?;
+    if totals.send_failed == 0 {
+        return Ok(None);
+    }
+    let top_domain = credit_registration_account_linking_emails::get_send_failure_domains_since(
+        conn, since, now,
     )
-    .await?;
-    if mails.is_empty() {
-        return Ok(None);
-    }
-    let ids: Vec<Uuid> = mails.iter().map(|mail| mail.id).collect();
-    let reports =
-        credit_registration_account_linking_emails::get_send_status_reports(conn, &ids).await?;
-    let failed: Vec<&_> = mails
-        .iter()
-        .filter(|mail| {
-            reports
-                .get(&mail.id)
-                .is_some_and(|report| report.email_send_status == EmailSendStatus::SendFailed)
-        })
-        .collect();
-    if failed.is_empty() {
-        return Ok(None);
-    }
-    let mut per_domain: HashMap<&str, i64> = HashMap::new();
-    for mail in &failed {
-        if let Some((_, domain)) = mail.emailed_to.split_once('@') {
-            *per_domain.entry(domain).or_default() += 1;
-        }
-    }
-    let top_domain = per_domain
-        .into_iter()
-        .max_by_key(|(_, count)| *count)
-        .map(|(domain, _)| domain.to_string());
+    .await?
+    .into_iter()
+    .next()
+    .map(|row| row.domain);
     Ok(Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::LinkingMailSendFailed,
         severity: CreditRegistrationAlertSeverity::Warning,
-        count: failed.len() as i64,
-        at: failed.iter().map(|mail| mail.sent_at).max(),
+        count: totals.send_failed,
+        at: totals.last_send_failed_at,
         subject: top_domain,
     }))
 }

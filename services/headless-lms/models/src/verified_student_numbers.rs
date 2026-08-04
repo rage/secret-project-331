@@ -250,6 +250,27 @@ WHERE student_number = ANY($1::varchar [])
     Ok(res)
 }
 
+/// Batched form of [`get_latest_including_deleted_by_user_id`]: one row per named account, its most
+/// recent link, retired ones included.
+pub async fn get_latest_including_deleted_by_user_ids(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+) -> ModelResult<Vec<VerifiedStudentNumber>> {
+    let res = sqlx::query_as!(
+        VerifiedStudentNumber,
+        r#"
+SELECT DISTINCT ON (user_id) *
+FROM verified_student_numbers
+WHERE user_id = ANY($1::uuid [])
+ORDER BY user_id, verified_at DESC
+        "#,
+        user_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// One link as an admin support view shows it: the account it belongs to, in full, and how it was
 /// established.
 #[derive(Debug, Clone, PartialEq)]

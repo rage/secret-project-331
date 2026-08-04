@@ -1134,6 +1134,9 @@ pub struct TeacherCreditRegistrationFilters<'a> {
     /// Free text matched against the student's name, email or verified student number.
     pub search: Option<&'a str>,
     pub course_instance_id: Option<Uuid>,
+    /// The completion-detail view: every attempt of one completion, that course's other completions
+    /// excluded.
+    pub course_module_completion_id: Option<Uuid>,
 }
 
 /// The course's ledger rows as the teacher surfaces show them, newest completion first.
@@ -1198,16 +1201,18 @@ WHERE cr.course_id = $1
     OR LOWER(vsn.student_number) LIKE '%' || $4 || '%' ESCAPE '\'
   )
   AND ($5::uuid IS NULL OR cr.course_instance_id = $5)
+  AND ($6::uuid IS NULL OR cr.course_module_completion_id = $6)
 ORDER BY cmc.completion_date DESC,
   cr.attempt_number DESC,
   cr.id
-LIMIT $6 OFFSET $7
+LIMIT $7 OFFSET $8
         "#,
         course_id,
         filters.user_ids,
         filters.state as Option<CreditRegistrationState>,
         search_pattern.as_deref(),
         filters.course_instance_id,
+        filters.course_module_completion_id,
         limit,
         offset,
     )
@@ -1243,11 +1248,13 @@ WHERE cr.course_id = $1
     OR LOWER(vsn.student_number) LIKE '%' || $3 || '%' ESCAPE '\'
   )
   AND ($4::uuid IS NULL OR cr.course_instance_id = $4)
+  AND ($5::uuid IS NULL OR cr.course_module_completion_id = $5)
         "#,
         course_id,
         filters.state as Option<CreditRegistrationState>,
         search_pattern.as_deref(),
         filters.course_instance_id,
+        filters.course_module_completion_id,
     )
     .fetch_one(conn)
     .await?;
@@ -1285,22 +1292,18 @@ pub async fn get_teacher_facing_attempts_for_completion(
     conn: &mut PgConnection,
     row: &TeacherCreditRegistration,
 ) -> ModelResult<Vec<TeacherCreditRegistration>> {
-    let mut rows = get_teacher_facing_by_course_id(
+    get_teacher_facing_by_course_id(
         conn,
         row.course_id,
         &TeacherCreditRegistrationFilters {
             user_ids: Some(&[row.user_id]),
+            course_module_completion_id: Some(row.course_module_completion_id),
             ..TeacherCreditRegistrationFilters::default()
         },
         i64::MAX,
         0,
     )
-    .await?;
-    rows.retain(|candidate| {
-        candidate.course_module_completion_id == row.course_module_completion_id
-    });
-    rows.sort_by_key(|row| std::cmp::Reverse(row.attempt_number));
-    Ok(rows)
+    .await
 }
 
 /// One ledger row as an admin sees it: every identifier support needs to answer "what happened to
@@ -1398,17 +1401,112 @@ pub struct AdminCreditRegistrationFilters<'a> {
     pub include_superseded: bool,
 }
 
-/// A page of the ledger for the admin explorer, cross-course.
-pub async fn get_admin_facing(
+/// [`get_admin_facing`]'s row with the page's total attached, so a page and its count can only ever
+/// come from the same query.
+struct AdminFacingRow {
+    id: Uuid,
+    created_at: DateTime<Utc>,
+    user_id: Uuid,
+    first_name: Option<String>,
+    last_name: Option<String>,
+    email: Option<String>,
+    course_id: Uuid,
+    course_name: String,
+    course_module_id: Uuid,
+    course_module_name: Option<String>,
+    course_instance_id: Uuid,
+    course_module_completion_id: Uuid,
+    completion_date: DateTime<Utc>,
+    state: CreditRegistrationState,
+    state_entered_at: DateTime<Utc>,
+    error_code: Option<CreditRegistrationErrorCode>,
+    needs_admin_attention: bool,
+    next_attempt_at: DateTime<Utc>,
+    last_attempt_at: Option<DateTime<Utc>>,
+    submitted_at: Option<DateTime<Utc>>,
+    registered_at: Option<DateTime<Utc>>,
+    terminal_at: Option<DateTime<Utc>>,
+    student_number: Option<String>,
+    sisu_person_id: Option<String>,
+    uh_course_code: Option<String>,
+    selected_enrolment_id: Option<String>,
+    grade_scale_id: Option<String>,
+    grade_id: Option<String>,
+    credits: Option<f32>,
+    request_item_id: String,
+    submitted_attainment_id: Option<String>,
+    sisu_attainment_id: Option<String>,
+    submit_retry_count: i32,
+    verify_attempt_count: i32,
+    attempt_number: i32,
+    superseded_by_id: Option<Uuid>,
+    verified_student_number: Option<String>,
+    verified_student_number_at: Option<DateTime<Utc>>,
+    verified_student_number_via: Option<StudentNumberVerificationMethod>,
+    total_count: i64,
+}
+
+impl From<AdminFacingRow> for AdminCreditRegistration {
+    fn from(row: AdminFacingRow) -> Self {
+        Self {
+            id: row.id,
+            created_at: row.created_at,
+            user_id: row.user_id,
+            first_name: row.first_name,
+            last_name: row.last_name,
+            email: row.email,
+            course_id: row.course_id,
+            course_name: row.course_name,
+            course_module_id: row.course_module_id,
+            course_module_name: row.course_module_name,
+            course_instance_id: row.course_instance_id,
+            course_module_completion_id: row.course_module_completion_id,
+            completion_date: row.completion_date,
+            state: row.state,
+            state_entered_at: row.state_entered_at,
+            error_code: row.error_code,
+            needs_admin_attention: row.needs_admin_attention,
+            next_attempt_at: row.next_attempt_at,
+            last_attempt_at: row.last_attempt_at,
+            submitted_at: row.submitted_at,
+            registered_at: row.registered_at,
+            terminal_at: row.terminal_at,
+            student_number: row.student_number,
+            sisu_person_id: row.sisu_person_id,
+            uh_course_code: row.uh_course_code,
+            selected_enrolment_id: row.selected_enrolment_id,
+            grade_scale_id: row.grade_scale_id,
+            grade_id: row.grade_id,
+            credits: row.credits,
+            request_item_id: row.request_item_id,
+            submitted_attainment_id: row.submitted_attainment_id,
+            sisu_attainment_id: row.sisu_attainment_id,
+            submit_retry_count: row.submit_retry_count,
+            verify_attempt_count: row.verify_attempt_count,
+            attempt_number: row.attempt_number,
+            superseded_by_id: row.superseded_by_id,
+            verified_student_number: row.verified_student_number,
+            verified_student_number_at: row.verified_student_number_at,
+            verified_student_number_via: row.verified_student_number_via,
+        }
+    }
+}
+
+/// The one query behind both [`get_admin_facing`] and [`count_admin_facing`]: the twelve-predicate
+/// WHERE clause and the join set exist here only, so a filter wired into one cannot be missed in the
+/// other. `count_admin_facing` reads it with `limit = 1`; `total_count` is a window aggregate over
+/// every qualifying row, computed before the limit is applied, so that read is as cheap as a plain
+/// `COUNT(*)` over the same predicate.
+async fn admin_facing_page(
     conn: &mut PgConnection,
     filters: &AdminCreditRegistrationFilters<'_>,
     sort: AdminCreditRegistrationSort,
     limit: i64,
     offset: i64,
-) -> ModelResult<Vec<AdminCreditRegistration>> {
+) -> ModelResult<Vec<AdminFacingRow>> {
     let search_pattern = filters.search.map(search_pattern_of);
     let res = sqlx::query_as!(
-        AdminCreditRegistration,
+        AdminFacingRow,
         r#"
 SELECT cr.id,
   cr.created_at,
@@ -1448,7 +1546,8 @@ SELECT cr.id,
   cr.superseded_by_id,
   vsn.student_number AS "verified_student_number?",
   vsn.verified_at AS "verified_student_number_at?",
-  vsn.verified_via AS "verified_student_number_via?: StudentNumberVerificationMethod"
+  vsn.verified_via AS "verified_student_number_via?: StudentNumberVerificationMethod",
+  COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
   JOIN course_modules cm ON cm.id = cr.course_module_id
@@ -1525,73 +1624,29 @@ LIMIT $14 OFFSET $15
     Ok(res)
 }
 
+/// A page of the ledger for the admin explorer, cross-course.
+pub async fn get_admin_facing(
+    conn: &mut PgConnection,
+    filters: &AdminCreditRegistrationFilters<'_>,
+    sort: AdminCreditRegistrationSort,
+    limit: i64,
+    offset: i64,
+) -> ModelResult<Vec<AdminCreditRegistration>> {
+    Ok(admin_facing_page(conn, filters, sort, limit, offset)
+        .await?
+        .into_iter()
+        .map(AdminCreditRegistration::from)
+        .collect())
+}
+
 /// How many rows [`get_admin_facing`] would return without a page limit.
 pub async fn count_admin_facing(
     conn: &mut PgConnection,
     filters: &AdminCreditRegistrationFilters<'_>,
 ) -> ModelResult<i64> {
-    let search_pattern = filters.search.map(search_pattern_of);
-    let count = sqlx::query_scalar!(
-        r#"
-SELECT COUNT(*) AS "count!"
-FROM credit_registrations cr
-  LEFT JOIN user_details ud ON ud.user_id = cr.user_id
-  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
-  AND vsn.deleted_at IS NULL
-WHERE cr.deleted_at IS NULL
-  AND ($1::bool OR cr.superseded_by_id IS NULL)
-  AND (
-    $2::credit_registration_state [] IS NULL
-    OR cr.state = ANY($2)
-  )
-  AND (
-    $3::credit_registration_error_code [] IS NULL
-    OR cr.error_code = ANY($3)
-  )
-  AND ($4::uuid IS NULL OR cr.course_id = $4)
-  AND ($5::uuid IS NULL OR cr.course_module_id = $5)
-  AND ($6::uuid IS NULL OR cr.user_id = $6)
-  AND (
-    $7::text IS NULL
-    OR cr.student_number = $7
-    OR vsn.student_number = $7
-  )
-  AND (NOT $8::bool OR cr.needs_admin_attention)
-  AND ($9::timestamptz IS NULL OR cr.submitted_at >= $9)
-  AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)
-  AND (
-    $11::text IS NULL
-    OR ud.name_search_helper LIKE '%' || $11 || '%' ESCAPE '\'
-    OR ud.email_search_helper LIKE '%' || $11 || '%' ESCAPE '\'
-    OR LOWER(cr.student_number) LIKE '%' || $11 || '%' ESCAPE '\'
-    OR LOWER(vsn.student_number) LIKE '%' || $11 || '%' ESCAPE '\'
-    OR LOWER(cr.submitted_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\'
-    OR LOWER(cr.sisu_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\'
-    OR LOWER(cr.error_message) LIKE '%' || $11 || '%' ESCAPE '\'
-  )
-  AND (
-    $12::uuid IS NULL
-    OR cr.id = $12
-    OR cr.user_id = $12
-    OR cr.course_module_completion_id = $12
-  )
-        "#,
-        filters.include_superseded,
-        filters.states as Option<&[CreditRegistrationState]>,
-        filters.error_codes as Option<&[CreditRegistrationErrorCode]>,
-        filters.course_id,
-        filters.course_module_id,
-        filters.user_id,
-        filters.student_number,
-        filters.needs_admin_attention,
-        filters.submitted_after,
-        filters.submitted_before,
-        search_pattern.as_deref(),
-        filters.search_id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(count)
+    let rows =
+        admin_facing_page(conn, filters, AdminCreditRegistrationSort::default(), 1, 0).await?;
+    Ok(rows.first().map_or(0, |row| row.total_count))
 }
 
 /// Live rows carrying an error code, split by whether the pipeline is still working on them.

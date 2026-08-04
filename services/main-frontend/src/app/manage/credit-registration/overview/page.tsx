@@ -1,7 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import { formatInTimeZone } from "date-fns-tz"
+import React, { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { isSuccessState } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
@@ -10,17 +13,29 @@ import {
   useSuotarHealth,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
-import RelativeTime from "@/components/credit-registration/admin/RelativeTime"
+import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
 import Sparkline from "@/components/credit-registration/admin/Sparkline"
+import { getCreditRegistrationOverviewQueryKey } from "@/generated/api/@tanstack/react-query.generated"
+import { adminPausePhase, adminResumePhase, adminRunPhaseNow } from "@/generated/api/sdk.generated"
 import type {
   CreditRegistrationOverview,
   CreditRegistrationPhaseStatus,
   SuotarHealth,
 } from "@/generated/api/types.generated"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
-import { dateToString } from "@/shared-module/common/utils/time"
-import { Badge, Disclosure, QueryResult, StatTile, Table } from "@/shared-module/components"
+import {
+  Badge,
+  Button,
+  Dialog,
+  Disclosure,
+  QueryResult,
+  StatTile,
+  Table,
+  TextArea,
+} from "@/shared-module/components"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const ALERT_TONE = "alert" as const
@@ -39,12 +54,13 @@ const STATE_QUERY = "?state="
 const ERROR_CODE_QUERY = "?error_code="
 /** Days of the daily series the table lists; the sparkline draws the whole window. */
 const THROUGHPUT_TABLE_DAYS = 14
-/** Matches the backend's own heartbeat rule, so the tile and the banner cannot disagree. */
-const PHASE_LATE_INTERVAL_MULTIPLIER = 2
 /** The window whose per-endpoint numbers sit beside each endpoint's standing. */
 const HOURLY_WINDOW_SECS = 3600
-const ABSENT = "-"
 const SECONDS_PER_DAY = 86_400
+// oxlint-disable-next-line i18next/no-literal-string
+const UTC = "UTC"
+// oxlint-disable-next-line i18next/no-literal-string
+const DAY_FORMAT = "yyyy-MM-dd"
 
 const sectionsCss = css`
   display: grid;
@@ -78,6 +94,16 @@ const chipsCss = css`
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
+`
+
+const phaseActionsCss = css`
+  display: flex;
+  gap: 0.4rem;
+`
+
+const dialogFormCss = css`
+  display: grid;
+  gap: 0.75rem;
 `
 
 const chipCss = css`
@@ -149,7 +175,10 @@ const AttentionSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ 
           value={
             oldest
               ? t("credit-registration-admin-days", {
-                  count: Math.floor(secondsSince(oldest.state_entered_at) / SECONDS_PER_DAY),
+                  count: Math.max(
+                    0,
+                    Math.trunc(secondsSince(oldest.state_entered_at) / SECONDS_PER_DAY),
+                  ),
                 })
               : ABSENT
           }
@@ -224,7 +253,12 @@ const ThroughputSection: React.FC<{ overview: CreditRegistrationOverview }> = ({
             rowKey={(row) => row.day}
             rows={recent}
             columns={[
-              { header: t("label-day"), cell: (row) => dateToString(row.day, false) },
+              {
+                header: t("label-day"),
+                // `row.day` is a UTC DATE_TRUNC bucket; formatting it in the browser's zone would
+                // shift the date west of UTC.
+                cell: (row) => formatInTimeZone(row.day, UTC, DAY_FORMAT),
+              },
               {
                 header: t("label-credit-registration-registered"),
                 cell: (row) => row.registered_count,
@@ -288,6 +322,7 @@ const StudyRegistrySection: React.FC<{
   const { t } = useTranslation()
   const breaker = overview.circuit_breaker
   const hourly = health?.windows.find((window) => window.window_secs === HOURLY_WINDOW_SECS)
+  const hourlyByEndpoint = new Map(hourly?.endpoints.map((stats) => [stats.endpoint, stats]))
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-study-registry")}</h2>
@@ -328,14 +363,11 @@ const StudyRegistrySection: React.FC<{
             },
             {
               header: t("label-credit-registration-calls-last-hour"),
-              cell: (row) =>
-                hourly?.endpoints.find((stats) => stats.endpoint === row.endpoint)?.call_count ?? 0,
+              cell: (row) => hourlyByEndpoint.get(row.endpoint)?.call_count ?? 0,
             },
             {
               header: t("label-credit-registration-p95-ms"),
-              cell: (row) =>
-                hourly?.endpoints.find((stats) => stats.endpoint === row.endpoint)
-                  ?.p95_duration_ms ?? ABSENT,
+              cell: (row) => hourlyByEndpoint.get(row.endpoint)?.p95_duration_ms ?? ABSENT,
             },
           ]}
         />
@@ -355,13 +387,119 @@ const PhaseHeartbeat: React.FC<{ phase: CreditRegistrationPhaseStatus }> = ({ ph
   if (!phase.last_heartbeat_at) {
     return <Badge tone={NEUTRAL_BADGE}>{t("credit-registration-admin-phase-never-reported")}</Badge>
   }
-  const late =
-    secondsSince(phase.last_heartbeat_at) >
-    phase.expected_interval_secs * PHASE_LATE_INTERVAL_MULTIPLIER
   return (
-    <Badge tone={late ? WARNING_BADGE : SUCCESS_BADGE}>
+    <Badge tone={phase.heartbeat_late ? WARNING_BADGE : SUCCESS_BADGE}>
       <RelativeTime at={phase.last_heartbeat_at} />
     </Badge>
+  )
+}
+
+const PhaseActions: React.FC<{ phase: CreditRegistrationPhaseStatus }> = ({ phase }) => {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const { confirm } = useDialog()
+  const [pauseOpen, setPauseOpen] = useState(false)
+  const { control, handleSubmit, watch } = useForm<{ reason: string }>({
+    defaultValues: { reason: "" },
+  })
+  const pauseReason = watch("reason")
+
+  const invalidateOverview = () =>
+    queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() })
+
+  const pauseMutation = useToastMutation(
+    (fields: { reason: string }) =>
+      adminPausePhase({ path: { phase: phase.phase }, body: { reason: fields.reason } }),
+    { notify: true, method: "POST" },
+    {
+      onSuccess: () => {
+        setPauseOpen(false)
+        void invalidateOverview()
+      },
+    },
+  )
+  const resumeMutation = useToastMutation(
+    () => adminResumePhase({ path: { phase: phase.phase }, body: { reason: null } }),
+    { notify: true, method: "POST" },
+    { onSuccess: () => void invalidateOverview() },
+  )
+  const runNowMutation = useToastMutation(
+    () => adminRunPhaseNow({ path: { phase: phase.phase }, body: { reason: null } }),
+    { notify: true, method: "POST" },
+    { onSuccess: () => void invalidateOverview() },
+  )
+
+  if (!phase.implemented) {
+    return null
+  }
+
+  return (
+    <div className={phaseActionsCss}>
+      {phase.paused_at ? (
+        <Button
+          variant="tertiary"
+          size="small"
+          isLoading={resumeMutation.isPending}
+          onClick={async () => {
+            const confirmed = await confirm(
+              t("credit-registration-admin-phase-resume-confirm", { phase: phase.phase }),
+            )
+            if (confirmed) {
+              resumeMutation.mutate()
+            }
+          }}
+        >
+          {t("button-text-credit-registration-phase-resume")}
+        </Button>
+      ) : (
+        <>
+          <Button variant="tertiary" size="small" onClick={() => setPauseOpen(true)}>
+            {t("button-text-credit-registration-phase-pause")}
+          </Button>
+          <Button
+            variant="tertiary"
+            size="small"
+            isLoading={runNowMutation.isPending}
+            onClick={async () => {
+              const confirmed = await confirm(
+                t("credit-registration-admin-phase-run-now-confirm", { phase: phase.phase }),
+              )
+              if (confirmed) {
+                runNowMutation.mutate()
+              }
+            }}
+          >
+            {t("button-text-credit-registration-phase-run-now")}
+          </Button>
+        </>
+      )}
+      <Dialog
+        open={pauseOpen}
+        onClose={() => setPauseOpen(false)}
+        title={t("credit-registration-admin-phase-pause-title", { phase: phase.phase })}
+      >
+        <form
+          className={dialogFormCss}
+          onSubmit={handleSubmit((fields) => pauseMutation.mutate(fields))}
+        >
+          <TextArea
+            name="reason"
+            control={control}
+            label={t("label-reason")}
+            description={t("credit-registration-admin-phase-pause-reason-description")}
+            rules={{ required: t("required-field") }}
+          />
+          <Button
+            variant="primary"
+            size="medium"
+            type="submit"
+            disabled={pauseMutation.isPending || pauseReason.trim() === ""}
+          >
+            {t("button-text-confirm")}
+          </Button>
+        </form>
+      </Dialog>
+    </div>
   )
 }
 
@@ -399,6 +537,10 @@ const PhaseSection: React.FC<{ phases: CreditRegistrationPhaseStatus[] }> = ({ p
           {
             header: t("label-credit-registration-consecutive-failures"),
             cell: (row) => row.consecutive_failures,
+          },
+          {
+            header: t("label-actions"),
+            cell: (row) => <PhaseActions phase={row} />,
           },
         ]}
       />

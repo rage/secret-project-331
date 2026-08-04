@@ -38,7 +38,6 @@ const NEVER_SCANNED_KEYS: &[&str] = &[
     "requestitemid",
     "code",
     "coursecode",
-    "enrolmentid",
     "gradescaleid",
     "gradeid",
     "credits",
@@ -273,6 +272,34 @@ RETURNING id
     Ok(res.id)
 }
 
+/// Inserts the same event on many rows in one round trip — for a bulk action (a student's own
+/// change, an admin's) that touches every registration of an account identically.
+pub async fn insert_many(
+    conn: &mut PgConnection,
+    credit_registration_ids: &[Uuid],
+    kind: CreditRegistrationEventKind,
+    actor_user_id: Option<Uuid>,
+    message: Option<&str>,
+) -> ModelResult<()> {
+    if credit_registration_ids.is_empty() {
+        return Ok(());
+    }
+    sqlx::query!(
+        r#"
+INSERT INTO credit_registration_events (credit_registration_id, kind, actor_user_id, message)
+SELECT id, $2, $3, $4
+FROM UNNEST($1::uuid []) AS id
+        "#,
+        credit_registration_ids,
+        kind as CreditRegistrationEventKind,
+        actor_user_id,
+        message,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// The per-item timeline, newest first.
 pub async fn get_by_registration_id(
     conn: &mut PgConnection,
@@ -415,7 +442,7 @@ mod tests {
 
     #[test]
     fn a_never_scanned_key_covers_the_ids_in_a_list_under_it() {
-        let body = json!({ "enrolmentId": ["hy-CUR-135176012", "hy-CUR-135176013"] });
+        let body = json!({ "courseUnitRealisationId": ["hy-CUR-135176012", "hy-CUR-135176013"] });
         assert_eq!(scrub_suotar_body(&body), body);
 
         // An object in that list is classified by its own keys, so the exemption stops there.

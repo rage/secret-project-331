@@ -16,7 +16,7 @@ use headless_lms_models::library::credit_registration::classification::{
     next_attempt_at, submit_backoff_secs,
 };
 use headless_lms_models::library::credit_registration::enrolment_selection::{
-    EnrolmentCriteria, attainment_for_course_unit, select_enrolment,
+    EnrolmentCriteria, any_attained, attainment_for_course_unit, select_enrolment,
 };
 use headless_lms_models::library::credit_registration::outcomes::{
     submit_error_outcome, unanswered_item_outcome,
@@ -97,11 +97,14 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
             }
         }
     }
+    let preflight_failed = items_failed;
     tx.commit().await?;
+    // Held only for the claim; the Suotar call below can pin it for the whole request timeout.
+    drop(conn);
 
     if items.is_empty() {
         return Ok(PhaseRunOutcome {
-            items_processed: items_failed,
+            items_processed: preflight_failed,
             items_failed,
             error: None,
         });
@@ -195,7 +198,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         }
     }
 
-    let processed = i32::try_from(rows.len()).unwrap_or(i32::MAX) + items_failed;
+    let processed = i32::try_from(rows.len()).unwrap_or(i32::MAX) + preflight_failed;
     Ok(PhaseRunOutcome {
         items_processed: processed,
         items_failed,
@@ -217,13 +220,19 @@ async fn choose(
     // Looked at before the enrolment is chosen, and deliberately so: if the registry already holds
     // the attainment the credit exists, and sending the student off to re-enrol over a stale
     // enrolment would be both wrong and unnecessary.
-    let already_attained = enrolments.iter().find_map(|enrolment| {
-        attainment_for_course_unit(
-            existing,
-            &enrolment.course_unit_id,
-            &enrolment.assessment_item_id,
-        )
-    });
+    let already_attained = if enrolments.is_empty() {
+        // No enrolment left to name the course unit by, but the response was already scoped to this
+        // student and course code, so any attained entry here is still a genuine duplicate.
+        any_attained(existing)
+    } else {
+        enrolments.iter().find_map(|enrolment| {
+            attainment_for_course_unit(
+                existing,
+                &enrolment.course_unit_id,
+                &enrolment.assessment_item_id,
+            )
+        })
+    };
     if let Some(attained) = already_attained {
         headless_lms_models::credit_registrations::set_sisu_attainment_if_unclaimed(
             conn,

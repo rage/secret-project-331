@@ -62,6 +62,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     )
     .await?;
 
+    let claimed_count = i32::try_from(claimed.len()).unwrap_or(i32::MAX);
     let mut items = Vec::new();
     let mut rows = Vec::new();
     let mut items_failed = 0;
@@ -102,10 +103,12 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         }
     }
     tx.commit().await?;
+    // Held only for the claim; the Suotar call below can pin it for the whole request timeout.
+    drop(conn);
 
     if items.is_empty() {
         return Ok(PhaseRunOutcome {
-            items_processed: items_failed,
+            items_processed: claimed_count,
             items_failed,
             error: None,
         });
@@ -284,9 +287,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         }
     }
 
-    let processed = i32::try_from(rows.len()).unwrap_or(i32::MAX) + items_failed;
     Ok(PhaseRunOutcome {
-        items_processed: processed,
+        items_processed: claimed_count,
         items_failed,
         error: every_item_failed_transiently(&response)
             .then(|| "Every item of the batch came back transiently unavailable.".to_string()),
@@ -401,8 +403,15 @@ fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem,
         attainment_language: attainment_language.to_string(),
         grade_scale_id: grade_scale_id.to_string(),
         grade_id: grade_id.to_string(),
-        credits: f64::from(credits),
+        credits: round_credits(credits),
     })
+}
+
+/// Rounds away the f32-to-f64 widening error before the value goes on the wire. ECTS credits are
+/// never specified finer than a hundredth, so three decimal places keeps all of the real value and
+/// none of the artifact (2.7f32 would otherwise be sent as 2.700000047683716).
+fn round_credits(credits: f32) -> f64 {
+    (f64::from(credits) * 1000.0).round() / 1000.0
 }
 
 #[cfg(test)]

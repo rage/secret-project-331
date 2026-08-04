@@ -19,7 +19,7 @@ use headless_lms_models::{
         CreditRegistrationErrorCode, CreditRegistrationState, RegistrationScope,
         StudentCreditRegistration,
     },
-    email_deliveries::EmailSendStatus,
+    email_deliveries::{EmailSendStatus, EmailSendStatusReport},
     library::credit_registration::{
         StudentFacingCreditRegistrationStatus, apply_consent_change, recompute_preconditions,
     },
@@ -796,7 +796,7 @@ async fn build_my_credit_registrations(
     .await?;
 
     let mut enrolment_links: HashMap<String, Option<String>> = HashMap::new();
-    let mut linking_mails: Option<Vec<CreditRegistrationAccountLinkingEmail>> = None;
+    let mut linking_mails: Option<LinkingMailCache> = None;
     let mut res = Vec::with_capacity(rows.len());
     for row in rows {
         let status = StudentFacingCreditRegistrationStatus::of(row.state);
@@ -879,6 +879,14 @@ async fn resolve_enrolment_link(
     Ok(link)
 }
 
+/// An account's linking mails and their delivery status, fetched once per request rather than once
+/// per row: [`resolve_linking_email`] runs per registration, but the mails and their statuses are the
+/// same for every one of a student's rows.
+struct LinkingMailCache {
+    mails: Vec<CreditRegistrationAccountLinkingEmail>,
+    reports: HashMap<Uuid, EmailSendStatusReport>,
+}
+
 /// The latest linking mail for this account's Sisu person on this course.
 ///
 /// `None` for an account that was never linked: the mail is addressed to a Sisu person, and nothing
@@ -887,7 +895,7 @@ async fn resolve_linking_email(
     conn: &mut PgConnection,
     user_id: Uuid,
     row: &StudentCreditRegistration,
-    cache: &mut Option<Vec<CreditRegistrationAccountLinkingEmail>>,
+    cache: &mut Option<LinkingMailCache>,
 ) -> Result<Option<LinkingEmailStatus>, ControllerError> {
     if cache.is_none() {
         let mails =
@@ -903,18 +911,20 @@ async fn resolve_linking_email(
                 }
                 None => Vec::new(),
             };
-        *cache = Some(mails);
+        let ids: Vec<Uuid> = mails.iter().map(|mail| mail.id).collect();
+        let reports =
+            credit_registration_account_linking_emails::get_send_status_reports(conn, &ids).await?;
+        *cache = Some(LinkingMailCache { mails, reports });
     }
+    let cache = cache.as_ref().expect("populated above");
     let Some(mail) = cache
-        .as_ref()
-        .and_then(|mails| mails.iter().find(|mail| mail.course_id == row.course_id))
+        .mails
+        .iter()
+        .find(|mail| mail.course_id == row.course_id)
     else {
         return Ok(None);
     };
-    let reports =
-        credit_registration_account_linking_emails::get_send_status_reports(conn, &[mail.id])
-            .await?;
-    let Some(report) = reports.get(&mail.id) else {
+    let Some(report) = cache.reports.get(&mail.id) else {
         return Ok(None);
     };
     Ok(Some(LinkingEmailStatus {
@@ -930,21 +940,37 @@ async fn build_course_consent(
     course_id: Uuid,
 ) -> Result<MyCourseCreditRegistrationConsent, ControllerError> {
     let course = models::courses::get_course(conn, course_id).await?;
-    let enabled_module_ids =
-        models::course_modules::get_credit_registration_enabled_ids_for_course(conn, course_id)
-            .await?;
-    let modules: Vec<CreditRegistrationConsentModule> =
-        models::course_modules::get_by_course_id(conn, course_id)
+    // The enable flag and the registration fields live on the same row here, unlike
+    // `course_modules::get_by_course_id`, so this is one query instead of an id lookup plus a
+    // fetch-everything-and-filter; a course with no Suotar module never has to fetch its modules.
+    let enabled_configs: Vec<_> =
+        models::course_modules::get_credit_registration_configs_by_course_id(conn, course_id)
             .await?
             .into_iter()
-            .filter(|module| enabled_module_ids.contains(&module.id))
-            .map(|module| CreditRegistrationConsentModule {
-                id: module.id,
-                name: module.name,
-                uh_course_code: module.uh_course_code,
-                ects_credits: module.ects_credits,
-            })
+            .filter(|config| config.enable_credit_registration_via_suotar)
             .collect();
+    let enabled_ids: Vec<Uuid> = enabled_configs
+        .iter()
+        .map(|config| config.course_module_id)
+        .collect();
+    let names: HashMap<Uuid, Option<String>> = if enabled_ids.is_empty() {
+        HashMap::new()
+    } else {
+        models::course_modules::get_by_ids(conn, &enabled_ids)
+            .await?
+            .into_iter()
+            .map(|module| (module.id, module.name))
+            .collect()
+    };
+    let modules: Vec<CreditRegistrationConsentModule> = enabled_configs
+        .into_iter()
+        .map(|config| CreditRegistrationConsentModule {
+            id: config.course_module_id,
+            name: names.get(&config.course_module_id).cloned().flatten(),
+            uh_course_code: config.uh_course_code,
+            ects_credits: config.ects_credits,
+        })
+        .collect();
     let consent =
         course_credit_registration_consents::get_by_user_and_course(conn, user_id, course_id)
             .await?;
@@ -976,14 +1002,17 @@ async fn count_in_state(
     course_id: Uuid,
     state: CreditRegistrationState,
 ) -> Result<i64, ControllerError> {
-    let count = models::credit_registrations::get_by_user_id(conn, user_id)
-        .await?
-        .into_iter()
-        .filter(|row| {
-            row.course_id == course_id && row.superseded_by_id.is_none() && row.state == state
-        })
-        .count();
-    Ok(count as i64)
+    let count = models::credit_registrations::count_admin_facing(
+        conn,
+        &models::credit_registrations::AdminCreditRegistrationFilters {
+            course_id: Some(course_id),
+            user_id: Some(user_id),
+            states: Some(&[state]),
+            ..models::credit_registrations::AdminCreditRegistrationFilters::default()
+        },
+    )
+    .await?;
+    Ok(count)
 }
 
 /// Audits a student's own change to their linked number on every registration it can affect, then
@@ -1003,17 +1032,14 @@ async fn record_student_number_change(
         .filter(|row| row.superseded_by_id.is_none() && row.terminal_at.is_none())
         .map(|row| row.id)
         .collect();
-    for id in &affected {
-        models::credit_registration_events::insert(
-            conn,
-            &NewCreditRegistrationEvent {
-                actor_user_id: Some(user_id),
-                message: Some(message.to_string()),
-                ..NewCreditRegistrationEvent::new(*id, CreditRegistrationEventKind::StudentAction)
-            },
-        )
-        .await?;
-    }
+    models::credit_registration_events::insert_many(
+        conn,
+        &affected,
+        CreditRegistrationEventKind::StudentAction,
+        Some(user_id),
+        Some(message),
+    )
+    .await?;
     let waiting_before = count_waiting_for_student_number(conn, user_id).await?;
     recompute_preconditions(
         conn,
@@ -1033,15 +1059,16 @@ async fn count_waiting_for_student_number(
     conn: &mut PgConnection,
     user_id: Uuid,
 ) -> Result<i64, ControllerError> {
-    let count = models::credit_registrations::get_by_user_id(conn, user_id)
-        .await?
-        .into_iter()
-        .filter(|row| {
-            row.superseded_by_id.is_none()
-                && row.state == CreditRegistrationState::PendingStudentNumber
-        })
-        .count();
-    Ok(count as i64)
+    let count = models::credit_registrations::count_admin_facing(
+        conn,
+        &models::credit_registrations::AdminCreditRegistrationFilters {
+            user_id: Some(user_id),
+            states: Some(&[CreditRegistrationState::PendingStudentNumber]),
+            ..models::credit_registrations::AdminCreditRegistrationFilters::default()
+        },
+    )
+    .await?;
+    Ok(count)
 }
 
 fn to_my_verified_student_number(link: VerifiedStudentNumber) -> MyVerifiedStudentNumber {

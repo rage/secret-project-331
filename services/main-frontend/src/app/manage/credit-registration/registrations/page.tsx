@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import React, { useCallback, useEffect, useMemo } from "react"
+import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -52,6 +52,8 @@ const NARROWING_PARAMS = [
   PARAM_USER_ID,
   PARAM_STUDENT_NUMBER,
 ]
+
+const CLEARABLE_PARAMS = [...NARROWING_PARAMS, PARAM_SEARCH, PARAM_ATTENTION, PARAM_SUPERSEDED]
 
 interface FilterFields {
   search: string
@@ -152,19 +154,25 @@ const RegistrationsPage: React.FC = () => {
     [router, searchParams],
   )
 
-  useEffect(() => {
-    const current = param(PARAM_ATTENTION) === TRUE
-    if (current !== attention) {
-      applyParams({ [PARAM_ATTENTION]: attention ? TRUE : undefined })
-    }
-  }, [attention, applyParams, param])
+  // Tracks what we last pushed to the URL per toggle: `searchParams` still reflects the
+  // pre-navigation URL for a render or two after `router.replace`, so comparing against it here
+  // would re-fire a stale update while the clear-filters navigation below is in flight.
+  const attentionSyncedRef = useRef(param(PARAM_ATTENTION) === TRUE)
+  const supersededSyncedRef = useRef(param(PARAM_SUPERSEDED) === TRUE)
 
   useEffect(() => {
-    const current = param(PARAM_SUPERSEDED) === TRUE
-    if (current !== superseded) {
+    if (attentionSyncedRef.current !== attention) {
+      attentionSyncedRef.current = attention
+      applyParams({ [PARAM_ATTENTION]: attention ? TRUE : undefined })
+    }
+  }, [attention, applyParams])
+
+  useEffect(() => {
+    if (supersededSyncedRef.current !== superseded) {
+      supersededSyncedRef.current = superseded
       applyParams({ [PARAM_SUPERSEDED]: superseded ? TRUE : undefined })
     }
-  }, [superseded, applyParams, param])
+  }, [superseded, applyParams])
 
   const query = useMemo(() => {
     const state = param(PARAM_STATE)
@@ -236,8 +244,12 @@ const RegistrationsPage: React.FC = () => {
             type="button"
             className={chipCss}
             onClick={() => {
+              // Marks both toggles as already synced before `reset` changes them, so the effects
+              // above see no discrepancy and this is the only navigation the clear produces.
+              attentionSyncedRef.current = false
+              supersededSyncedRef.current = false
               reset({ search: "", needs_admin_attention: false, include_superseded: false })
-              router.replace(window.location.pathname)
+              applyParams(Object.fromEntries(CLEARABLE_PARAMS.map((name) => [name, undefined])))
             }}
           >
             {t("button-text-clear-filters")}

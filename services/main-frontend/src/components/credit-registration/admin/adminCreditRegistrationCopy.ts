@@ -6,9 +6,12 @@ import type {
   CreditRegistrationAlertId,
   CreditRegistrationState,
   EmailSendStatus,
-  StudentNumberVerificationMethod,
 } from "@/generated/api/types.generated"
 import type { RegistrationStatusState } from "@/shared-module/components"
+
+import { labelFrom, widenedLookup } from "../labelFrom"
+
+export { studentNumberVerificationLabel as verificationMethodLabel } from "../teacherCreditRegistrations"
 
 /**
  * Which tone each ledger state reads as at a glance. Presentation only: the pill's text is the state
@@ -40,8 +43,7 @@ const STATE_TONES = {
 } as const satisfies Record<CreditRegistrationState, RegistrationStatusState>
 
 export const stateTone = (state: CreditRegistrationState): RegistrationStatusState =>
-  // Widened on purpose: a state the backend gains after this build arrives with no entry.
-  (STATE_TONES as Record<string, RegistrationStatusState | undefined>)[state] ?? "upcoming"
+  widenedLookup(STATE_TONES, state) ?? "upcoming"
 
 /** The states that mean the credit exists in the study registry, whoever put it there. */
 export const isSuccessState = (state: CreditRegistrationState): boolean =>
@@ -57,8 +59,6 @@ const ALERT_KEYS = {
 
 const GENERIC_ALERT_KEY = "credit-registration-alert-generic"
 
-type AlertKey = (typeof ALERT_KEYS)[CreditRegistrationAlertId] | typeof GENERIC_ALERT_KEY
-
 /**
  * The sentence one alert reads as. The backend sends identifiers and numbers only, so the wording and
  * the choice of which numbers to name live here.
@@ -68,11 +68,7 @@ export const alertSentence = (
   id: CreditRegistrationAlertId,
   count: number,
   subject: string | null | undefined,
-): string => {
-  // Widened on purpose: an alert the backend gains after this build arrives with no entry.
-  const key = (ALERT_KEYS as Record<string, AlertKey | undefined>)[id]
-  return t(key ?? GENERIC_ALERT_KEY, { count, subject: subject ?? "" })
-}
+): string => labelFrom(t, ALERT_KEYS, id, GENERIC_ALERT_KEY, { count, subject: subject ?? "" })
 
 const SEND_STATUS_KEYS = {
   queued: "credit-registration-admin-send-status-queued",
@@ -81,39 +77,15 @@ const SEND_STATUS_KEYS = {
   send_failed: "credit-registration-admin-send-status-send-failed",
 } as const satisfies Record<EmailSendStatus, string>
 
-type SendStatusKey = (typeof SEND_STATUS_KEYS)[EmailSendStatus]
+const SEND_STATUS_UNKNOWN_KEY = "credit-registration-admin-send-status-unknown"
 
 /**
  * Our send status and nothing more. We hand mail to a relay; what happens after is invisible to us, so
- * no wording here may imply a delivery.
+ * no wording here may imply a delivery. An unrecognised status falls back to saying so, not to
+ * `queued`: that would read as a status we have, not as the gap it is.
  */
 export const sendStatusLabel = (t: TFunction, status: EmailSendStatus): string =>
-  t(
-    (SEND_STATUS_KEYS as Record<string, SendStatusKey | undefined>)[status] ??
-      SEND_STATUS_KEYS.queued,
-  )
-
-const VERIFICATION_METHOD_KEYS = {
-  emailed_link: "credit-registration-student-number-via-emailed-link",
-  email_match_fast_track: "credit-registration-student-number-via-email-match",
-  admin_manual: "credit-registration-student-number-via-admin-manual",
-} as const satisfies Record<StudentNumberVerificationMethod, string>
-
-export const verificationMethodLabel = (
-  t: TFunction,
-  method: StudentNumberVerificationMethod | null | undefined,
-): string | null => {
-  if (!method) {
-    return null
-  }
-  const key = (
-    VERIFICATION_METHOD_KEYS as Record<
-      string,
-      (typeof VERIFICATION_METHOD_KEYS)[StudentNumberVerificationMethod] | undefined
-    >
-  )[method]
-  return key ? t(key) : null
-}
+  labelFrom(t, SEND_STATUS_KEYS, status, SEND_STATUS_UNKNOWN_KEY)
 
 const RESEND_OUTCOME_KEYS = {
   queued: "credit-registration-admin-resend-queued",
@@ -125,13 +97,11 @@ const RESEND_OUTCOME_KEYS = {
   study_registry_unavailable: "credit-registration-admin-resend-registry-unavailable",
 } as const satisfies Record<AdminResendOutcome, string>
 
-type ResendOutcomeKey = (typeof RESEND_OUTCOME_KEYS)[AdminResendOutcome]
+const RESEND_OUTCOME_UNKNOWN_KEY = "credit-registration-admin-resend-unknown-outcome"
 
+/** An unrecognised outcome must not fall back to `queued`: that reads as the resend having worked. */
 export const resendOutcomeLabel = (t: TFunction, outcome: AdminResendOutcome): string =>
-  t(
-    (RESEND_OUTCOME_KEYS as Record<string, ResendOutcomeKey | undefined>)[outcome] ??
-      RESEND_OUTCOME_KEYS.queued,
-  )
+  labelFrom(t, RESEND_OUTCOME_KEYS, outcome, RESEND_OUTCOME_UNKNOWN_KEY)
 
 const MANUAL_LINK_OUTCOME_KEYS = {
   linked: "credit-registration-admin-manual-link-linked",
@@ -142,10 +112,8 @@ const MANUAL_LINK_OUTCOME_KEYS = {
   study_registry_unavailable: "credit-registration-admin-manual-link-registry-unavailable",
 } as const satisfies Record<AdminManualLinkOutcome, string>
 
-type ManualLinkOutcomeKey = (typeof MANUAL_LINK_OUTCOME_KEYS)[AdminManualLinkOutcome]
+const MANUAL_LINK_OUTCOME_UNKNOWN_KEY = "credit-registration-admin-manual-link-unknown-outcome"
 
+/** An unrecognised outcome must not fall back to `linked`: that reads as the link having been made. */
 export const manualLinkOutcomeLabel = (t: TFunction, outcome: AdminManualLinkOutcome): string =>
-  t(
-    (MANUAL_LINK_OUTCOME_KEYS as Record<string, ManualLinkOutcomeKey | undefined>)[outcome] ??
-      MANUAL_LINK_OUTCOME_KEYS.linked,
-  )
+  labelFrom(t, MANUAL_LINK_OUTCOME_KEYS, outcome, MANUAL_LINK_OUTCOME_UNKNOWN_KEY)

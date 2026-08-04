@@ -60,6 +60,10 @@ export type PhaseTickResult =
       error: string | null
     }
   | { status: "phaseNotImplemented"; phase: CreditRegistrationPhase }
+  /** The phase is paused, or its circuit breaker is open. Not a failure — nothing ran this tick. */
+  | { status: "skipped"; phase: CreditRegistrationPhase; reason: "paused" | "circuitBreakerOpen" }
+  /** The scope named something this phase's claim query cannot narrow on. */
+  | { status: "scopeNotSupported"; phase: CreditRegistrationPhase }
   | { status: "unknownPhase"; phase: string | null; knownPhases: string[] }
   | { status: "unresolvedScope"; half: string; value: string }
 

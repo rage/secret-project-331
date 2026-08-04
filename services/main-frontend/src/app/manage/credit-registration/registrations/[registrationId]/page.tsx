@@ -13,7 +13,7 @@ import {
 import { useAdminCreditRegistration } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
-import RelativeTime from "@/components/credit-registration/admin/RelativeTime"
+import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
 import { registrationErrorHelp } from "@/components/credit-registration/creditRegistrationCopy"
 import type {
   AdminCreditRegistrationDetails,
@@ -40,7 +40,6 @@ const WARNING_BADGE = "warning" as const
 const INFO_TONE = "info" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const STACKED = "stacked" as const
-const ABSENT = "-"
 /** Separators between identifiers on one line. Not prose, so not translated. */
 // oxlint-disable-next-line i18next/no-literal-string
 const DOT = " · "

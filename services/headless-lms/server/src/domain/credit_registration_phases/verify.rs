@@ -25,6 +25,7 @@ use headless_lms_models::library::credit_registration::outcomes::{
 };
 use headless_lms_models::library::credit_registration::submission_context::get_submission_contexts;
 use headless_lms_models::suotar_api_calls::SuotarEndpoint as AuditEndpoint;
+use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     ResolveEnrolmentRequestItem, SuotarCallContext, SuotarEndpoint, SuotarItemStatus,
@@ -34,8 +35,7 @@ use sqlx::Connection;
 
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, apply_outcome,
-    counts_as_failed, every_item_failed_transiently, request_level_failure, response_item_json,
-    row_facts,
+    counts_as_failed, every_item_failed_transiently, response_item_json, row_facts,
 };
 
 /// The one code that means the submission became an attainment.
@@ -75,7 +75,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         match row.submitted_attainment_id.clone() {
             Some(submitted_attainment_id) => polls.push((row, attempt, submitted_attainment_id)),
             None if row.state == CreditRegistrationState::SubmissionUncertain => {
-                recoveries.push(row)
+                recoveries.push((row, attempt))
             }
             None => {
                 // Nothing to poll and nothing to recover from. Left alone rather than guessed at.
@@ -87,6 +87,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         }
     }
     tx.commit().await?;
+    // Held only for the claim; `poll` and `recover` re-acquire around their own Suotar calls.
+    drop(conn);
 
     let mut processed = 0;
     let mut items_failed = 0;
@@ -98,8 +100,11 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         items_failed += outcome.items_failed;
         error = error.or(outcome.error);
     }
-    if !recoveries.is_empty() {
-        let outcome = recover(ctx, &recoveries).await?;
+    // Claimed at `VerifyAttainments`'s batch size (100), but a recovery is sent on
+    // `resolve-enrolments`, whose limit is 50: chunked so a recovery set over that limit is not
+    // refused whole by `check_batch` before anything is sent.
+    for chunk in recoveries.chunks(SuotarEndpoint::ResolveEnrolments.max_batch_size()) {
+        let outcome = recover(ctx, chunk).await?;
         processed += outcome.items_processed;
         items_failed += outcome.items_failed;
         error = error.or(outcome.error);
@@ -129,27 +134,17 @@ async fn poll(
         .iter()
         .map(|item| serde_json::to_value(item).unwrap_or_default())
         .collect();
-    let rows: Vec<CreditRegistration> = polls.iter().map(|(row, _, _)| row.clone()).collect();
     let response = ctx
         .suotar_client
         .verify_attainments(
             SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::Verify))
-                .for_registrations(rows.iter().map(|row| row.id).collect()),
+                .for_registrations(polls.iter().map(|(row, _, _)| row.id).collect()),
             items,
         )
         .await;
     let response = match response {
         Ok(response) => response,
-        Err(error) => {
-            return request_level_failure(
-                ctx,
-                AuditEndpoint::VerifyAttainments,
-                &error,
-                &rows,
-                &requests,
-            )
-            .await;
-        }
+        Err(error) => return poll_request_failure(ctx, polls, &requests, &error).await,
     };
 
     let mut conn = ctx.pool.acquire().await?;
@@ -230,23 +225,62 @@ async fn poll(
     })
 }
 
+/// A request-level failure of the poll itself (transport, a 5xx, a malformed response, ...).
+///
+/// Deliberately not the shared `request_level_failure`: every row here already holds a submitted
+/// attainment id, so a failure to ask about it proves nothing was or was not created. Each row is
+/// left exactly where it was claimed — the same outcome an unanswered item gets — rather than moved
+/// towards `failed_retryable`, which is a state an admin resubmits from and would send it twice.
+/// Still reported as an error so the breaker sees it.
+async fn poll_request_failure(
+    ctx: &PhaseContext<'_>,
+    polls: &[(CreditRegistration, i32, String)],
+    requests: &[serde_json::Value],
+    error: &UtilError,
+) -> anyhow::Result<PhaseRunOutcome> {
+    let mut conn = ctx.pool.acquire().await?;
+    for ((row, attempt, _), request) in polls.iter().zip(requests.iter()) {
+        let facts = RowFacts {
+            verify_attempt_count: *attempt,
+            ..row_facts(row)
+        };
+        apply_outcome(
+            &mut conn,
+            row,
+            &verify_not_registered_outcome(row.state, &facts),
+            OutcomeEvent {
+                message: Some("Could not verify this submission this time."),
+                error_message: Some(error.message()),
+                request: Some(request),
+                ..OutcomeEvent::default()
+            },
+        )
+        .await?;
+    }
+    Ok(PhaseRunOutcome {
+        items_processed: i32::try_from(polls.len()).unwrap_or(i32::MAX),
+        items_failed: 0,
+        error: Some(error.message().to_string()),
+    })
+}
+
 /// Looks for the attainment a submission we lost track of would have produced.
 ///
 /// Diagnostic only: whatever comes back, the row stays `submission_uncertain` unless the attainment
 /// is found. It is never failed and never re-imported.
 async fn recover(
     ctx: &PhaseContext<'_>,
-    rows: &[CreditRegistration],
+    rows: &[(CreditRegistration, i32)],
 ) -> anyhow::Result<PhaseRunOutcome> {
     let mut conn = ctx.pool.acquire().await?;
     let contexts = get_submission_contexts(
         &mut conn,
-        &rows.iter().map(|row| row.id).collect::<Vec<_>>(),
+        &rows.iter().map(|(row, _)| row.id).collect::<Vec<_>>(),
     )
     .await?;
     let mut items = Vec::new();
     let mut asked = Vec::new();
-    for row in rows {
+    for (row, attempt) in rows {
         let Some(context) = contexts.get(&row.id) else {
             continue;
         };
@@ -265,8 +299,11 @@ async fn recover(
             student_number,
             course_code,
         });
-        asked.push(row.clone());
+        asked.push((row.clone(), *attempt));
     }
+    // Held only for `get_submission_contexts` above; the Suotar call below can take up to the
+    // request timeout.
+    drop(conn);
     if items.is_empty() {
         return Ok(PhaseRunOutcome::default());
     }
@@ -279,7 +316,7 @@ async fn recover(
         .suotar_client
         .resolve_enrolments(
             SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::Verify))
-                .for_registrations(asked.iter().map(|row| row.id).collect()),
+                .for_registrations(asked.iter().map(|(row, _)| row.id).collect()),
             items,
         )
         .await;
@@ -288,11 +325,15 @@ async fn recover(
         Err(error) => {
             // Not `request_level_failure`: these rows must stay uncertain whatever the call did.
             let mut conn = ctx.pool.acquire().await?;
-            for (row, request) in asked.iter().zip(requests.iter()) {
+            for ((row, attempt), request) in asked.iter().zip(requests.iter()) {
+                let facts = RowFacts {
+                    verify_attempt_count: *attempt,
+                    ..row_facts(row)
+                };
                 apply_outcome(
                     &mut conn,
                     row,
-                    &uncertain_recheck_outcome(&row_facts(row)),
+                    &uncertain_recheck_outcome(&facts),
                     OutcomeEvent {
                         message: Some("Could not look for the attainment this time."),
                         error_message: Some(error.message()),
@@ -311,7 +352,7 @@ async fn recover(
     };
 
     let mut conn = ctx.pool.acquire().await?;
-    for (row, request) in asked.iter().zip(requests.iter()) {
+    for ((row, attempt), request) in asked.iter().zip(requests.iter()) {
         let response_json = response_item_json(&response.raw_response, &row.request_item_id);
         let event = OutcomeEvent {
             suotar_api_call_id: response.call_id,
@@ -367,10 +408,14 @@ async fn recover(
                 .await?;
             }
             None => {
+                let facts = RowFacts {
+                    verify_attempt_count: *attempt,
+                    ..row_facts(row)
+                };
                 apply_outcome(
                     &mut conn,
                     row,
-                    &uncertain_recheck_outcome(&row_facts(row)),
+                    &uncertain_recheck_outcome(&facts),
                     OutcomeEvent {
                         message: Some(
                             "No matching attainment yet, so whether the submission landed is still \

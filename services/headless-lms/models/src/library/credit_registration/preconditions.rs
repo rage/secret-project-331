@@ -108,6 +108,14 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
             event_message: Some("No verified student number is linked to the account.".to_string()),
             ..base
         },
+        State::ReadyToSubmit if pending.state == State::CheckingEnrolment => Transition {
+            event_message: Some(
+                "The linked student number changed after this row's payload was frozen, so the \
+                 enrolment is resolved again against the current one."
+                    .to_string(),
+            ),
+            ..base
+        },
         _ => base,
     }
 }
@@ -147,7 +155,18 @@ WITH facts AS (
       consent.consent_given IS FALSE
       AND consent.consent_given_at IS NOT NULL
     ) AS consent_withdrawn,
-    vsn.id IS NOT NULL AS has_student_number
+    vsn.id IS NOT NULL AS has_student_number,
+    -- True once the account has relinked to a different verified student number since this row's
+    -- payload was frozen for import: vsn is the current link, cr.student_number/sisu_person_id are
+    -- what was frozen. A relink soft-deletes and re-inserts in the same transaction, so
+    -- has_student_number stays true throughout and would otherwise never catch this.
+    (
+      cr.student_number IS NOT NULL
+      AND (
+        vsn.student_number IS DISTINCT FROM cr.student_number
+        OR vsn.sisu_person_id IS DISTINCT FROM cr.sisu_person_id
+      )
+    ) AS frozen_identity_stale
   FROM credit_registrations cr
     JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
     LEFT JOIN course_credit_registration_consents consent ON consent.user_id = cr.user_id
@@ -209,6 +228,10 @@ targets AS (
       -- The periodic look for an enrolment that may have appeared since.
       WHEN facts.state = 'no_usable_enrolment'
       AND facts.next_attempt_at > now() THEN facts.state
+      -- A relink after the payload was frozen must not let the row import against the account's
+      -- previous number: send it back to resolve a fresh payload against the current one.
+      WHEN facts.state = 'checking_enrolment'
+      AND facts.frozen_identity_stale THEN 'ready_to_submit'
       -- Already queued for import with its payload frozen; sending it back would resolve again
       -- forever.
       WHEN facts.state = 'checking_enrolment' THEN facts.state

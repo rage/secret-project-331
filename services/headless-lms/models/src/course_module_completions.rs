@@ -3,7 +3,10 @@ use std::collections::HashMap;
 use futures::Stream;
 use utoipa::ToSchema;
 
-use crate::{prelude::*, study_registry_registrars::StudyRegistryRegistrar};
+use crate::{
+    library::credit_registration::SUOTAR_PUSH_REGISTRAR_ID, prelude::*,
+    study_registry_registrars::StudyRegistryRegistrar,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema)]
 
@@ -769,6 +772,10 @@ pub fn stream_by_course_module_id<'a>(
         .clone()
         .map(|o| o.id)
         .unwrap_or(Uuid::nil());
+    // Always excluded, on top of whichever registrar is asking: the flag-based NOT EXISTS below stops
+    // firing the moment a teacher turns `enable_credit_registration_via_suotar` back off, so a
+    // completion the push path already mirrored has to stay excluded independently of that flag.
+    let excluded_registrar_ids = [study_module_registrar_id, SUOTAR_PUSH_REGISTRAR_ID];
 
     sqlx::query_as!(
         CourseModuleCompletion,
@@ -795,12 +802,12 @@ WHERE course_module_id = ANY($1)
     SELECT course_module_completion_id
     FROM course_module_completion_registered_to_study_registries
     WHERE course_module_id = ANY($1)
-      AND study_registry_registrar_id = $2
+      AND study_registry_registrar_id = ANY($2::uuid [])
       AND deleted_at IS NULL
   )
         "#,
         course_module_ids,
-        study_module_registrar_id,
+        &excluded_registrar_ids as &[Uuid],
     )
     .map(StudyRegistryCompletion::from)
     .fetch(conn)

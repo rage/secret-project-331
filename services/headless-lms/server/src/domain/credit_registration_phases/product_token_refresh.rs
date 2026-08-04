@@ -39,6 +39,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
             open_university_product_id: product_id.clone(),
         })
         .collect();
+    // Held only for the read; the Suotar call below can pin it for the whole request timeout.
+    drop(conn);
     let response = ctx
         .suotar_client
         .resolve_product_access_tokens(
@@ -49,6 +51,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     let response = match response {
         Ok(response) => response,
         Err(error) => {
+            let mut conn = ctx.pool.acquire().await?;
             let message = scrub_text(error.message());
             for product_id in &products {
                 record_refresh_failure(&mut conn, product_id, &message).await?;
@@ -61,6 +64,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         }
     };
 
+    let mut conn = ctx.pool.acquire().await?;
     let mut items_failed = 0;
     for product_id in &products {
         let item = response.item(&request_item_id(product_id));

@@ -46,6 +46,9 @@ pub async fn run(
         .collect();
 
     let mut interval = tokio::time::interval(Duration::from_secs(TICK_INTERVAL_SECS));
+    // No backlog to catch up on: a slow iteration should push later ticks out, not fire them
+    // back to back (tokio's default `Burst`), which would also bunch up the still-running log.
+    interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
     let mut ticks = 0;
     loop {
         interval.tick().await;

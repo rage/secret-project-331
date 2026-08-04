@@ -61,7 +61,7 @@ const REFUSED_TONE = "warning" as const
  * caps are not overridable here, and a teacher who needs one lifted has to ask an admin.
  */
 const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [result, setResult] = useState<ResendLinkingEmailResult | null>(null)
   const { control, handleSubmit } = useForm<Fields>({
     defaultValues: { student_number: registration.student_number ?? "" },
@@ -107,6 +107,7 @@ const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
                 result.linking_email.email_send_status,
                 result.linking_email.sent_at,
                 result.linking_email.emailed_to_masked,
+                i18n.language,
               )}
             </div>
           )}

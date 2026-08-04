@@ -254,17 +254,18 @@ impl ServerConfigBuilder {
         let cache = Cache::new(self.redis_url.expose_secret())?;
         let cache = Data::new(cache);
 
-        // Registered unconditionally like every other entry: it only parses a url, and the routes
-        // that use it are absent unless the mock is on.
-        if app_conf.test_suotar {
+        // Only the mock's own routes need this, and they exist only under the same flag.
+        let mock_suotar_store = if app_conf.test_suotar {
             warn!(
                 "MOCK SUOTAR ENABLED - credit registrations are simulated and are NOT recorded in Sisu"
             );
-        }
-        let mock_suotar_store = Data::new(MockSuotarStore::new(
-            self.redis_url.expose_secret(),
-            self.mock_suotar_redis_db_index,
-        )?);
+            Some(Data::new(MockSuotarStore::new(
+                self.redis_url.expose_secret(),
+                self.mock_suotar_redis_db_index,
+            )?))
+        } else {
+            None
+        };
 
         let jwt_key = JwtKey::new(&self.jwt_password)?;
         let jwt_key = Data::new(jwt_key);
@@ -314,7 +315,7 @@ pub struct ServerConfig {
     pub tmc_client: Data<TmcClient>,
     pub sisu_client: Data<SisuClient>,
     pub suotar_client: Data<SuotarClient>,
-    pub mock_suotar_store: Data<MockSuotarStore>,
+    pub mock_suotar_store: Option<Data<MockSuotarStore>>,
 }
 
 /// Common configuration that is used by both production and testing.
@@ -339,6 +340,9 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
     // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
     // Not using Data::new for file_store to avoid double wrapping it in a arc
     let file_store = Data::from(file_store as Arc<dyn FileStore>);
+    if let Some(mock_suotar_store) = mock_suotar_store {
+        config.app_data(mock_suotar_store);
+    }
     config
         .app_data(payload_config)
         .app_data(json_config)
@@ -353,7 +357,6 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(tmc_client)
         .app_data(sisu_client)
         .app_data(suotar_client)
-        .app_data(mock_suotar_store)
         .service(
             web::scope("/api/v0")
                 .wrap(RateLimit::new(api_rate_limit_config))

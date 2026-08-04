@@ -133,6 +133,8 @@ pub struct WorldPush {
     #[serde(default)]
     pub attainments: Vec<AttainmentUpsert>,
     #[serde(default)]
+    pub submissions: Vec<MockSubmission>,
+    #[serde(default)]
     pub product_tokens: Vec<ProductAccessTokenUpsert>,
 }
 
@@ -283,6 +285,11 @@ pub struct DefaultsPatch {
     pub include_non_enrolled_in_result: Option<bool>,
     pub realisation_id_required: Option<bool>,
     pub static_grade_error_code: Option<String>,
+    /// Clears `staticGradeErrorCode` back to `None`. Needed because the patch field and the target
+    /// field are both `Option<String>`, so an absent key and an explicit `null` are indistinguishable
+    /// otherwise, and this is the one `setDefaults` field whose target itself may be `None`.
+    #[serde(default)]
+    pub clear_static_grade_error_code: bool,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -423,6 +430,7 @@ async fn run(store: &MockSuotarStore, pool: &PgPool, command: MockSuotarCommand)
             "courseUnits": world.course_units.len(),
             "enrolments": world.enrolments.len(),
             "attainments": world.attainments.len(),
+            "submissions": world.submissions.len(),
             "productTokens": world.product_tokens.len(),
         });
         let generation = store.install_world(&world, marker.as_deref()).await?;
@@ -434,74 +442,64 @@ async fn run(store: &MockSuotarStore, pool: &PgPool, command: MockSuotarCommand)
         MockSuotarCommand::Reset { scope } => reset(store, &generation, scope).await,
         MockSuotarCommand::PushWorld(_) => unreachable!("handled above"),
         MockSuotarCommand::UpsertPersons { persons } => {
-            let entries: BTreeMap<String, MockPerson> = persons
-                .into_iter()
-                .map(|person| (person.student_number.clone(), person_from(person)))
-                .collect();
-            let ids: Vec<&String> = entries.keys().collect();
-            let result = json!({ "studentNumbers": ids });
-            store
-                .upsert_json(&generation, EntityHash::Persons, &entries)
-                .await?;
-            store.reindex(&generation).await?;
-            Ok(result)
+            upsert_command(
+                store,
+                &generation,
+                EntityHash::Persons,
+                "studentNumbers",
+                persons,
+                person_from,
+                |person| person.student_number.clone(),
+            )
+            .await
         }
         MockSuotarCommand::UpsertCourseUnits { course_units } => {
-            let entries: BTreeMap<String, MockCourseUnit> = course_units
-                .into_iter()
-                .map(|unit| (unit.course_code.clone(), course_unit_from(unit)))
-                .collect();
-            let result = json!({ "courseCodes": entries.keys().collect::<Vec<_>>() });
-            store
-                .upsert_json(&generation, EntityHash::CourseUnits, &entries)
-                .await?;
-            store.reindex(&generation).await?;
-            Ok(result)
+            upsert_command(
+                store,
+                &generation,
+                EntityHash::CourseUnits,
+                "courseCodes",
+                course_units,
+                course_unit_from,
+                |unit| unit.course_code.clone(),
+            )
+            .await
         }
         MockSuotarCommand::UpsertEnrolments { enrolments } => {
-            let entries: BTreeMap<String, MockEnrolment> = enrolments
-                .into_iter()
-                .map(|enrolment| {
-                    let enrolment = enrolment_from(enrolment);
-                    (enrolment.id.clone(), enrolment)
-                })
-                .collect();
-            let result = json!({ "enrolmentIds": entries.keys().collect::<Vec<_>>() });
-            store
-                .upsert_json(&generation, EntityHash::Enrolments, &entries)
-                .await?;
-            store.reindex(&generation).await?;
-            Ok(result)
+            upsert_command(
+                store,
+                &generation,
+                EntityHash::Enrolments,
+                "enrolmentIds",
+                enrolments,
+                enrolment_from,
+                |enrolment| enrolment.id.clone(),
+            )
+            .await
         }
         MockSuotarCommand::UpsertAttainments { attainments } => {
-            let entries: BTreeMap<String, MockAttainment> = attainments
-                .into_iter()
-                .map(|attainment| {
-                    let attainment = attainment_from(attainment);
-                    (attainment.id.clone(), attainment)
-                })
-                .collect();
-            let result = json!({ "attainmentIds": entries.keys().collect::<Vec<_>>() });
-            store
-                .upsert_json(&generation, EntityHash::Attainments, &entries)
-                .await?;
-            store.reindex(&generation).await?;
-            Ok(result)
+            upsert_command(
+                store,
+                &generation,
+                EntityHash::Attainments,
+                "attainmentIds",
+                attainments,
+                attainment_from,
+                |attainment| attainment.id.clone(),
+            )
+            .await
         }
         MockSuotarCommand::UpsertProductAccessTokens { tokens } => {
-            let entries: BTreeMap<String, MockProductAccessToken> = tokens
-                .into_iter()
-                .map(|token| {
-                    let token = product_token_from(token);
-                    (token.open_university_product_id.clone(), token)
-                })
-                .collect();
-            let result = json!({ "productIds": entries.keys().collect::<Vec<_>>() });
-            store
-                .upsert_json(&generation, EntityHash::ProductTokens, &entries)
-                .await?;
-            store.reindex(&generation).await?;
-            Ok(result)
+            upsert_command(
+                store,
+                &generation,
+                EntityHash::ProductTokens,
+                "productIds",
+                tokens,
+                product_token_from,
+                |token| token.open_university_product_id.clone(),
+            )
+            .await
         }
         MockSuotarCommand::DeletePersons { student_numbers } => {
             delete_persons(store, &generation, &student_numbers).await
@@ -659,6 +657,35 @@ async fn run(store: &MockSuotarStore, pool: &PgPool, command: MockSuotarCommand)
         }
         MockSuotarCommand::ListCalls(filter) => list_calls(store, &generation, filter).await,
     }
+}
+
+/// Builds the entity map, upserts it and reindexes, then answers with the keys under `result_key`.
+/// The shared body behind every `Upsert*` command; `key_of` reads the id off the built entity, not
+/// the wire type, so a derived id (e.g. an enrolment's) is what comes back.
+async fn upsert_command<U, T: Serialize>(
+    store: &MockSuotarStore,
+    generation: &str,
+    hash: EntityHash,
+    result_key: &'static str,
+    items: Vec<U>,
+    build: impl Fn(U) -> T,
+    key_of: impl Fn(&T) -> String,
+) -> Outcome {
+    let entries: BTreeMap<String, T> = items
+        .into_iter()
+        .map(|item| {
+            let entity = build(item);
+            (key_of(&entity), entity)
+        })
+        .collect();
+    let mut result = serde_json::Map::new();
+    result.insert(
+        result_key.to_string(),
+        json!(entries.keys().collect::<Vec<_>>()),
+    );
+    store.upsert_json(generation, hash, &entries).await?;
+    store.reindex(generation).await?;
+    Ok(serde_json::Value::Object(result))
 }
 
 /// The live generation, building the world lazily first if a command arrives before any contract
@@ -1215,6 +1242,8 @@ fn apply_defaults_patch(defaults: &mut WorldDefaults, patch: DefaultsPatch) {
     }
     if let Some(value) = patch.static_grade_error_code {
         defaults.static_grade_error_code = Some(value);
+    } else if patch.clear_static_grade_error_code {
+        defaults.static_grade_error_code = None;
     }
 }
 
@@ -1246,6 +1275,11 @@ pub fn world_from_push(push: WorldPush) -> World {
                 let attainment = attainment_from(attainment);
                 (attainment.id.clone(), attainment)
             })
+            .collect(),
+        submissions: push
+            .submissions
+            .into_iter()
+            .map(|submission| (submission.submitted_attainment_id.clone(), submission))
             .collect(),
         product_tokens: push
             .product_tokens
@@ -1406,7 +1440,7 @@ pub const COMMANDS: [CommandDoc; 23] = [
     },
     CommandDoc {
         command: "pushWorld",
-        arguments: "{ defaults?, persons[], courseUnits[], enrolments[], attainments[], productTokens[] }",
+        arguments: "{ defaults?, persons[], courseUnits[], enrolments[], attainments[], submissions[], productTokens[] }",
         result: "{ generation, counts }",
         parallel_safe: false,
     },
@@ -1520,7 +1554,7 @@ pub const COMMANDS: [CommandDoc; 23] = [
     },
     CommandDoc {
         command: "setDefaults",
-        arguments: "{ patch: { acceptedToken?, ripeness?, duplicateDetection?, gradeScales?, callLogCapacity?, includeNonEnrolledInResult?, realisationIdRequired?, staticGradeErrorCode? } }",
+        arguments: "{ patch: { acceptedToken?, ripeness?, duplicateDetection?, gradeScales?, callLogCapacity?, includeNonEnrolledInResult?, realisationIdRequired?, staticGradeErrorCode?, clearStaticGradeErrorCode? } }",
         result: "the whole defaults object",
         parallel_safe: false,
     },

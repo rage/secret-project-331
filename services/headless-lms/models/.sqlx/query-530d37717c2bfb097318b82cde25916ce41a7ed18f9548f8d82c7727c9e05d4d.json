@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.course_instance_id,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state AS \"state: CreditRegistrationState\",\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?: CreditRegistrationErrorCode\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.grade_id,\n  cr.credits,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  vsn.student_number AS \"student_number?\",\n  vsn.verified_at AS \"student_number_verified_at?\",\n  vsn.verified_via AS \"student_number_verified_via?: StudentNumberVerificationMethod\",\n  vsn.sisu_person_id AS \"sisu_person_id?\",\n  r.label AS \"enrolment_realisation_name?\"\nFROM credit_registrations cr\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\n  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id\n  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id\n  AND r.deleted_at IS NULL\nWHERE cr.course_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid [] IS NULL OR cr.user_id = ANY($2))\n  AND (\n    $3::credit_registration_state IS NULL\n    OR cr.state = $3\n  )\n  AND (\n    $4::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $4 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $4 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $4 || '%' ESCAPE '\\'\n  )\n  AND ($5::uuid IS NULL OR cr.course_instance_id = $5)\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC,\n  cr.id\nLIMIT $6 OFFSET $7\n        ",
+  "query": "\nSELECT cr.id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.course_instance_id,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state AS \"state: CreditRegistrationState\",\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?: CreditRegistrationErrorCode\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.grade_id,\n  cr.credits,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  vsn.student_number AS \"student_number?\",\n  vsn.verified_at AS \"student_number_verified_at?\",\n  vsn.verified_via AS \"student_number_verified_via?: StudentNumberVerificationMethod\",\n  vsn.sisu_person_id AS \"sisu_person_id?\",\n  r.label AS \"enrolment_realisation_name?\"\nFROM credit_registrations cr\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\n  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id\n  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id\n  AND r.deleted_at IS NULL\nWHERE cr.course_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid [] IS NULL OR cr.user_id = ANY($2))\n  AND (\n    $3::credit_registration_state IS NULL\n    OR cr.state = $3\n  )\n  AND (\n    $4::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $4 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $4 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $4 || '%' ESCAPE '\\'\n  )\n  AND ($5::uuid IS NULL OR cr.course_instance_id = $5)\n  AND ($6::uuid IS NULL OR cr.course_module_completion_id = $6)\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC,\n  cr.id\nLIMIT $7 OFFSET $8\n        ",
   "describe": {
     "columns": [
       {
@@ -401,6 +401,7 @@
         },
         "Text",
         "Uuid",
+        "Uuid",
         "Int8",
         "Int8"
       ]
@@ -435,5 +436,5 @@
       true
     ]
   },
-  "hash": "49ed2f6a19b161fa76c2984d022e868d249a5a1f3f08b608950e7bf1728e0d7c"
+  "hash": "530d37717c2bfb097318b82cde25916ce41a7ed18f9548f8d82c7727c9e05d4d"
 }

@@ -38,7 +38,8 @@ use headless_lms_models::library::credit_registration::preconditions::{
 };
 use headless_lms_models::library::students_view::escape_like_pattern;
 use headless_lms_models::suotar_api_calls::{
-    SuotarEndpoint, SuotarEndpointStanding as SuotarEndpointStandingRow, SuotarEndpointStats,
+    SuotarEndpoint, SuotarEndpointStanding as SuotarEndpointStandingRow,
+    SuotarEndpointStatsForWindow,
 };
 use headless_lms_models::verified_student_numbers::{
     AdminVerifiedStudentNumber, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
@@ -51,7 +52,7 @@ use std::collections::HashMap;
 use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::credit_registration::health::{
-    CreditRegistrationHealth, evaluate, stuck_thresholds,
+    CreditRegistrationHealth, PHASE_HEARTBEAT_INTERVAL_MULTIPLIER, evaluate, stuck_thresholds,
 };
 use crate::domain::credit_registration_phases::breaker::{
     MAX_CONSECUTIVE_SUOTAR_FAILURES, ScopeKey, snapshot,
@@ -93,7 +94,10 @@ const GLOBAL_ADMIN_ROLE: &str = "global_admin";
     admin_resend_account_linking_email,
     admin_resolve_student_number_for_linking,
     admin_manually_link_student_number,
-    admin_materialize_credit_registrations
+    admin_materialize_credit_registrations,
+    admin_pause_phase,
+    admin_resume_phase,
+    admin_run_phase_now
 ))]
 pub(crate) struct MainFrontendCreditRegistrationAdminApiDoc;
 
@@ -179,6 +183,12 @@ pub struct CreditRegistrationPhaseStatus {
     pub pause_reason: Option<String>,
     /// No implementation is registered for the phase yet, so it has never reported and will not.
     pub implemented: bool,
+    /// Computed here rather than on the page: a page comparing its own clock against this row's
+    /// server timestamp would flip every phase late (or hide a truly dead one) on a skewed client.
+    pub seconds_since_heartbeat: Option<i64>,
+    /// `seconds_since_heartbeat > expected_interval_secs * health.thresholds.phase_heartbeat_interval_multiplier`,
+    /// decided here for the same reason. Always `false` while paused or never heartbeated.
+    pub heartbeat_late: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -221,8 +231,6 @@ pub struct SuotarHealthWindow {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct SuotarHealth {
     pub windows: Vec<SuotarHealthWindow>,
-    pub standings: Vec<SuotarEndpointStanding>,
-    pub circuit_breaker: CreditRegistrationCircuitBreakerState,
 }
 
 /// One ledger row for the explorer and its detail page.
@@ -766,33 +774,25 @@ pub async fn get_suotar_health(
     )
     .await?;
 
-    let now = Utc::now();
-    let mut windows = Vec::new();
-    for window_secs in ENDPOINT_STATS_WINDOWS_SECS {
-        let endpoints = suotar_api_calls::get_endpoint_stats(
-            &mut conn,
-            now - chrono::Duration::seconds(window_secs),
-        )
-        .await?
-        .into_iter()
-        .map(to_endpoint_window_stats)
-        .collect();
-        windows.push(SuotarHealthWindow {
-            window_secs,
-            endpoints,
-        });
+    let mut by_window: HashMap<i64, Vec<SuotarEndpointWindowStats>> = HashMap::new();
+    for row in
+        suotar_api_calls::get_endpoint_stats_for_windows(&mut conn, &ENDPOINT_STATS_WINDOWS_SECS)
+            .await?
+    {
+        by_window
+            .entry(row.window_secs)
+            .or_default()
+            .push(to_endpoint_window_stats_for_window(row));
     }
-    let standings = suotar_api_calls::get_endpoint_standings(&mut conn)
-        .await?
+    let windows = ENDPOINT_STATS_WINDOWS_SECS
         .into_iter()
-        .map(to_endpoint_standing)
+        .map(|window_secs| SuotarHealthWindow {
+            window_secs,
+            endpoints: by_window.remove(&window_secs).unwrap_or_default(),
+        })
         .collect();
 
-    token.authorized_ok(web::Json(SuotarHealth {
-        windows,
-        standings,
-        circuit_breaker: circuit_breaker_state(),
-    }))
+    token.authorized_ok(web::Json(SuotarHealth { windows }))
 }
 
 /**
@@ -932,11 +932,14 @@ pub async fn get_credit_registration_for_admin(
         &AdminCreditRegistrationFilters {
             user_id: Some(registration.user_id),
             course_id: Some(registration.course_id),
+            // No dedicated field for this predicate, but search_id already matches it (it is also
+            // matched against cr.id and cr.user_id, which cannot collide with a completion id here).
+            search_id: Some(registration.course_module_completion_id),
             include_superseded: true,
             ..AdminCreditRegistrationFilters::default()
         },
         AdminCreditRegistrationSort::Created,
-        i64::MAX,
+        i64::from(u8::MAX),
         0,
     )
     .await?
@@ -1068,8 +1071,10 @@ pub async fn admin_transition_credit_registration(
             row.course_id,
         )
         .await?;
-        let consented =
-            consent.is_some_and(|c| c.consent_given && c.consent_withdrawn_at.is_none());
+        // consent_withdrawn_at is kept as an audit trail even after a later consent (see
+        // course_credit_registration_consents::upsert) and must not gate this: consent_given alone
+        // is what the precondition engine treats as consented.
+        let consented = consent.is_some_and(|c| c.consent_given);
         if !consented {
             return token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
                 outcome: AdminTransitionOutcome::RefusedWithoutConsent,
@@ -1216,40 +1221,28 @@ pub async fn get_account_linking_stats(
             .sum::<i64>()
     };
 
-    let mails =
-        credit_registration_account_linking_emails::get_sent_since(&mut conn, since).await?;
-    let mail_ids: Vec<Uuid> = mails.iter().map(|mail| mail.id).collect();
-    let reports =
-        credit_registration_account_linking_emails::get_send_status_reports(&mut conn, &mail_ids)
-            .await?;
-    let mut send_status_totals = AccountLinkingSendStatusTotals {
-        queued: 0,
-        retrying: 0,
-        sent: 0,
-        send_failed: 0,
+    let now = Utc::now();
+    let totals = credit_registration_account_linking_emails::get_send_status_totals_since(
+        &mut conn, since, now,
+    )
+    .await?;
+    let send_status_totals = AccountLinkingSendStatusTotals {
+        queued: totals.queued,
+        retrying: totals.retrying,
+        sent: totals.sent,
+        send_failed: totals.send_failed,
     };
-    let mut per_domain: HashMap<String, i64> = HashMap::new();
-    for mail in &mails {
-        let Some(report) = reports.get(&mail.id) else {
-            continue;
-        };
-        match report.email_send_status {
-            EmailSendStatus::Queued => send_status_totals.queued += 1,
-            EmailSendStatus::Retrying => send_status_totals.retrying += 1,
-            EmailSendStatus::Sent => send_status_totals.sent += 1,
-            EmailSendStatus::SendFailed => {
-                send_status_totals.send_failed += 1;
-                if let Some((_, domain)) = mail.emailed_to.split_once('@') {
-                    *per_domain.entry(domain.to_string()).or_default() += 1;
-                }
-            }
-        }
-    }
-    let mut hard_failure_domains: Vec<AccountLinkingFailureDomain> = per_domain
+    let hard_failure_domains: Vec<AccountLinkingFailureDomain> =
+        credit_registration_account_linking_emails::get_send_failure_domains_since(
+            &mut conn, since, now,
+        )
+        .await?
         .into_iter()
-        .map(|(domain, count)| AccountLinkingFailureDomain { domain, count })
+        .map(|row| AccountLinkingFailureDomain {
+            domain: row.domain,
+            count: row.count,
+        })
         .collect();
-    hard_failure_domains.sort_by(|a, b| b.count.cmp(&a.count).then(a.domain.cmp(&b.domain)));
 
     let links_total_by_method = verified_student_numbers::count_by_method_since(&mut conn, None)
         .await?
@@ -1296,7 +1289,7 @@ pub async fn get_account_linking_stats(
     let funnel = AccountLinkingFunnel {
         persons_discovered_last_run: sum(|row| row.listed_person_count),
         already_linked_last_run: sum(|row| row.already_linked_count),
-        mails_claimed_in_window: mails.len() as i64,
+        mails_claimed_in_window: totals.mails_in_window,
         mails_sent_in_window: send_status_totals.sent,
         numbers_claimed_in_window: in_window(StudentNumberVerificationMethod::EmailedLink),
         manual_links_in_window: in_window(StudentNumberVerificationMethod::AdminManual),
@@ -1943,6 +1936,207 @@ pub async fn admin_materialize_credit_registrations(
     }))
 }
 
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct AdminPausePhasePayload {
+    pub reason: String,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct AdminPhaseActionPayload {
+    pub reason: Option<String>,
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause` - Pauses one phase: the
+worker loop skips it on every tick until it is resumed.
+*/
+#[instrument(skip(pool, payload))]
+#[utoipa::path(
+    post,
+    path = "/phases/{phase}/pause",
+    operation_id = "adminPausePhase",
+    tag = "credit-registration-admin",
+    params(("phase" = String, Path, description = "One of the twelve canonical phase names")),
+    request_body = AdminPausePhasePayload,
+    responses(
+        (status = 200, description = "The phase's status after pausing", body = CreditRegistrationPhaseStatus),
+        (status = 400, description = "No reason given, or not one of the canonical phase names")
+    )
+)]
+pub async fn admin_pause_phase(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    phase: web::Path<String>,
+    payload: web::Json<AdminPausePhasePayload>,
+) -> ControllerResult<web::Json<CreditRegistrationPhaseStatus>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Administrate,
+        Some(user.id),
+        Res::GlobalPermissions,
+    )
+    .await?;
+
+    let phase = require_known_phase(&phase)?;
+    let reason = required_reason(&payload.reason)?;
+
+    let mut tx = conn.begin().await?;
+    credit_registration_phase_state::pause(&mut tx, phase, user.id, Some(reason)).await?;
+    models::credit_registration_admin_actions::record(
+        &mut tx,
+        &NewCreditRegistrationAdminAction {
+            action: CreditRegistrationAdminAction::PausePhase,
+            target_kind: CreditRegistrationAdminActionTarget::Phase,
+            target_id: None,
+            target_phase: Some(phase.to_string()),
+            actor_user_id: user.id,
+            actor_role: GLOBAL_ADMIN_ROLE.to_string(),
+            actor_course_id: None,
+            reason: Some(reason.to_string()),
+            before_state: None,
+            after_state: None,
+            details: None,
+            affected_row_count: None,
+        },
+    )
+    .await?;
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(one_phase_status(&mut conn, phase).await?))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume` - Resumes one paused
+phase.
+*/
+#[instrument(skip(pool, payload))]
+#[utoipa::path(
+    post,
+    path = "/phases/{phase}/resume",
+    operation_id = "adminResumePhase",
+    tag = "credit-registration-admin",
+    params(("phase" = String, Path, description = "One of the twelve canonical phase names")),
+    request_body = AdminPhaseActionPayload,
+    responses(
+        (status = 200, description = "The phase's status after resuming", body = CreditRegistrationPhaseStatus),
+        (status = 400, description = "Not one of the canonical phase names")
+    )
+)]
+pub async fn admin_resume_phase(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    phase: web::Path<String>,
+    payload: web::Json<AdminPhaseActionPayload>,
+) -> ControllerResult<web::Json<CreditRegistrationPhaseStatus>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Administrate,
+        Some(user.id),
+        Res::GlobalPermissions,
+    )
+    .await?;
+
+    let phase = require_known_phase(&phase)?;
+
+    let mut tx = conn.begin().await?;
+    credit_registration_phase_state::resume(&mut tx, phase).await?;
+    models::credit_registration_admin_actions::record(
+        &mut tx,
+        &NewCreditRegistrationAdminAction {
+            action: CreditRegistrationAdminAction::ResumePhase,
+            target_kind: CreditRegistrationAdminActionTarget::Phase,
+            target_id: None,
+            target_phase: Some(phase.to_string()),
+            actor_user_id: user.id,
+            actor_role: GLOBAL_ADMIN_ROLE.to_string(),
+            actor_course_id: None,
+            reason: payload.reason.clone(),
+            before_state: None,
+            after_state: None,
+            details: None,
+            affected_row_count: None,
+        },
+    )
+    .await?;
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(one_phase_status(&mut conn, phase).await?))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now` - Makes one phase due
+immediately: the worker loop picks it up on its next tick instead of waiting out `next_run_at`.
+*/
+#[instrument(skip(pool, payload))]
+#[utoipa::path(
+    post,
+    path = "/phases/{phase}/run-now",
+    operation_id = "adminRunPhaseNow",
+    tag = "credit-registration-admin",
+    params(("phase" = String, Path, description = "One of the twelve canonical phase names")),
+    request_body = AdminPhaseActionPayload,
+    responses(
+        (status = 200, description = "The phase's status after being made due", body = CreditRegistrationPhaseStatus),
+        (status = 400, description = "Not one of the canonical phase names")
+    )
+)]
+pub async fn admin_run_phase_now(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    phase: web::Path<String>,
+    payload: web::Json<AdminPhaseActionPayload>,
+) -> ControllerResult<web::Json<CreditRegistrationPhaseStatus>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Administrate,
+        Some(user.id),
+        Res::GlobalPermissions,
+    )
+    .await?;
+
+    let phase = require_known_phase(&phase)?;
+
+    let mut tx = conn.begin().await?;
+    credit_registration_phase_state::run_now(&mut tx, phase).await?;
+    models::credit_registration_admin_actions::record(
+        &mut tx,
+        &NewCreditRegistrationAdminAction {
+            action: CreditRegistrationAdminAction::RunPhaseNow,
+            target_kind: CreditRegistrationAdminActionTarget::Phase,
+            target_id: None,
+            target_phase: Some(phase.to_string()),
+            actor_user_id: user.id,
+            actor_role: GLOBAL_ADMIN_ROLE.to_string(),
+            actor_course_id: None,
+            reason: payload.reason.clone(),
+            before_state: None,
+            after_state: None,
+            details: None,
+            affected_row_count: None,
+        },
+    )
+    .await?;
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(one_phase_status(&mut conn, phase).await?))
+}
+
+/// Refuses a path segment that is not one of the twelve canonical phase names, and resolves it to the
+/// spelling `credit_registration_phase_state` stores.
+fn require_known_phase(phase: &str) -> Result<&'static str, ControllerError> {
+    CreditRegistrationPhase::from_phase_name(phase)
+        .map(CreditRegistrationPhase::as_str)
+        .ok_or_else(|| {
+            controller_err!(
+                BadRequest,
+                "Not one of the canonical phase names.".to_string()
+            )
+        })
+}
+
 /// The three values a manual link may not be attempted without.
 struct ManualLinkRequest<'a> {
     reason: &'a str,
@@ -2175,20 +2369,14 @@ async fn apply_student_number_change(
         .filter(|row| row.superseded_by_id.is_none() && row.terminal_at.is_none())
         .map(|row| row.id)
         .collect();
-    for id in &affected {
-        models::credit_registration_events::insert(
-            conn,
-            &models::credit_registration_events::NewCreditRegistrationEvent {
-                actor_user_id: Some(actor_user_id),
-                message: Some(message.to_string()),
-                ..models::credit_registration_events::NewCreditRegistrationEvent::new(
-                    *id,
-                    CreditRegistrationEventKind::AdminAction,
-                )
-            },
-        )
-        .await?;
-    }
+    models::credit_registration_events::insert_many(
+        conn,
+        &affected,
+        CreditRegistrationEventKind::AdminAction,
+        Some(actor_user_id),
+        Some(message),
+    )
+    .await?;
     let scope = credit_registrations::RegistrationScope {
         user_id: Some(subject_user_id),
         ..credit_registrations::RegistrationScope::default()
@@ -2203,15 +2391,16 @@ async fn count_waiting_for_student_number(
     conn: &mut PgConnection,
     user_id: Uuid,
 ) -> Result<i64, ControllerError> {
-    let count = credit_registrations::get_by_user_id(conn, user_id)
-        .await?
-        .into_iter()
-        .filter(|row| {
-            row.superseded_by_id.is_none()
-                && row.state == CreditRegistrationState::PendingStudentNumber
-        })
-        .count();
-    Ok(count as i64)
+    let count = credit_registrations::count_admin_facing(
+        conn,
+        &AdminCreditRegistrationFilters {
+            user_id: Some(user_id),
+            states: Some(&[CreditRegistrationState::PendingStudentNumber]),
+            ..AdminCreditRegistrationFilters::default()
+        },
+    )
+    .await?;
+    Ok(count)
 }
 
 async fn one_admin_row(
@@ -2312,25 +2501,51 @@ async fn build_stale_addresses(
 async fn phase_statuses(
     conn: &mut PgConnection,
 ) -> Result<Vec<CreditRegistrationPhaseStatus>, ControllerError> {
+    let now = Utc::now();
     Ok(credit_registration_phase_state::get_all(conn)
         .await?
         .into_iter()
-        .map(|row| CreditRegistrationPhaseStatus {
-            implemented: CreditRegistrationPhase::from_phase_name(&row.phase)
-                .is_some_and(CreditRegistrationPhase::is_implemented),
-            phase: row.phase,
-            process_name: row.process_name,
-            expected_interval_secs: row.expected_interval_secs,
-            last_heartbeat_at: row.last_heartbeat_at,
-            last_success_at: row.last_success_at,
-            last_run_finished_at: row.last_run_finished_at,
-            items_processed_last_run: row.items_processed_last_run,
-            items_failed_last_run: row.items_failed_last_run,
-            consecutive_failures: row.consecutive_failures,
-            paused_at: row.paused_at,
-            pause_reason: row.pause_reason,
-        })
+        .map(|row| to_phase_status(row, now))
         .collect())
+}
+
+/// One phase's status right after a pause/resume/run-now action, so the caller sees the effect
+/// without a second round trip to `/overview`.
+async fn one_phase_status(
+    conn: &mut PgConnection,
+    phase: &str,
+) -> Result<CreditRegistrationPhaseStatus, ControllerError> {
+    let row = credit_registration_phase_state::get_by_phase(conn, phase).await?;
+    Ok(to_phase_status(row, Utc::now()))
+}
+
+fn to_phase_status(
+    row: credit_registration_phase_state::CreditRegistrationPhaseState,
+    now: DateTime<Utc>,
+) -> CreditRegistrationPhaseStatus {
+    let seconds_since_heartbeat = row.last_heartbeat_at.map(|at| (now - at).num_seconds());
+    let heartbeat_late = row.paused_at.is_none()
+        && seconds_since_heartbeat.is_some_and(|secs| {
+            secs > i64::from(row.expected_interval_secs)
+                * i64::from(PHASE_HEARTBEAT_INTERVAL_MULTIPLIER)
+        });
+    CreditRegistrationPhaseStatus {
+        implemented: CreditRegistrationPhase::from_phase_name(&row.phase)
+            .is_some_and(CreditRegistrationPhase::is_implemented),
+        phase: row.phase,
+        process_name: row.process_name,
+        expected_interval_secs: row.expected_interval_secs,
+        last_heartbeat_at: row.last_heartbeat_at,
+        last_success_at: row.last_success_at,
+        last_run_finished_at: row.last_run_finished_at,
+        items_processed_last_run: row.items_processed_last_run,
+        items_failed_last_run: row.items_failed_last_run,
+        consecutive_failures: row.consecutive_failures,
+        paused_at: row.paused_at,
+        pause_reason: row.pause_reason,
+        seconds_since_heartbeat,
+        heartbeat_late,
+    }
 }
 
 fn circuit_breaker_state() -> CreditRegistrationCircuitBreakerState {
@@ -2379,7 +2594,9 @@ fn to_endpoint_standing(row: SuotarEndpointStandingRow) -> SuotarEndpointStandin
     }
 }
 
-fn to_endpoint_window_stats(row: SuotarEndpointStats) -> SuotarEndpointWindowStats {
+fn to_endpoint_window_stats_for_window(
+    row: SuotarEndpointStatsForWindow,
+) -> SuotarEndpointWindowStats {
     SuotarEndpointWindowStats {
         endpoint: row.endpoint,
         call_count: row.call_count,
@@ -2517,6 +2734,12 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/materialize",
             web::post().to(admin_materialize_credit_registrations),
+        )
+        .route("/phases/{phase}/pause", web::post().to(admin_pause_phase))
+        .route("/phases/{phase}/resume", web::post().to(admin_resume_phase))
+        .route(
+            "/phases/{phase}/run-now",
+            web::post().to(admin_run_phase_now),
         );
 }
 

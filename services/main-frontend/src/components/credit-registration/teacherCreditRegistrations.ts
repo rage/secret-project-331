@@ -9,6 +9,8 @@ import type {
 } from "@/generated/api/types.generated"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
+import { labelFrom, widenedLookup } from "./labelFrom"
+
 // oxlint-disable-next-line i18next/no-literal-string
 const QUERY_KEY_PREFIX = "course-credit-registrations/by-user-ids"
 
@@ -58,8 +60,6 @@ const VERIFICATION_METHOD_KEYS = {
   admin_manual: "credit-registration-student-number-via-admin-manual",
 } as const satisfies Record<StudentNumberVerificationMethod, string>
 
-type VerificationMethodKey = (typeof VERIFICATION_METHOD_KEYS)[StudentNumberVerificationMethod]
-
 /**
  * How the link was established. Rendered next to the number because a support-established link rests
  * on a judgement rather than on proof that the student controls the mailbox.
@@ -71,10 +71,7 @@ export const studentNumberVerificationLabel = (
   if (!method) {
     return null
   }
-  // Widened on purpose: a method the backend gains after this build arrives with no entry.
-  const key = (VERIFICATION_METHOD_KEYS as Record<string, VerificationMethodKey | undefined>)[
-    method
-  ]
+  const key = widenedLookup(VERIFICATION_METHOD_KEYS, method)
   return key ? t(key) : null
 }
 
@@ -90,8 +87,6 @@ const LINKING_EMAIL_KEYS = {
   send_failed: "credit-registration-teacher-linking-email-send-failed",
 } as const satisfies Record<EmailSendStatus, string>
 
-type LinkingEmailKey = (typeof LINKING_EMAIL_KEYS)[EmailSendStatus]
-
 /**
  * What we can honestly say about the linking mail. Our send status only, never a delivery, and the
  * address only as its domain.
@@ -101,10 +96,9 @@ export const linkingEmailSentence = (
   status: EmailSendStatus,
   sentAt: string | null | undefined,
   maskedAddress: string,
-): string => {
-  const key = (LINKING_EMAIL_KEYS as Record<string, LinkingEmailKey | undefined>)[status]
-  return t(key ?? LINKING_EMAIL_KEYS.queued, {
+  locale: string,
+): string =>
+  labelFrom(t, LINKING_EMAIL_KEYS, status, LINKING_EMAIL_KEYS.queued, {
     address: maskedAddress,
-    date: sentAt ? new Date(sentAt).toLocaleDateString() : "",
+    date: sentAt ? new Date(sentAt).toLocaleDateString(locale) : "",
   })
-}

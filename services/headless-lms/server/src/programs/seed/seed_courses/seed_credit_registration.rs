@@ -1723,6 +1723,7 @@ pub fn mock_suotar_world() -> WorldPush {
         course_units,
         enrolments,
         attainments: Vec::new(),
+        submissions: Vec::new(),
         product_tokens: vec![
             product_token(CRS_101),
             product_token(CRS_OLD_101),

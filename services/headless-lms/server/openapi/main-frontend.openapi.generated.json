@@ -6950,6 +6950,135 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause` - Pauses one phase: the\nworker loop skips it on every tick until it is resumed.",
+        "operationId": "adminPausePhase",
+        "parameters": [
+          {
+            "name": "phase",
+            "in": "path",
+            "description": "One of the twelve canonical phase names",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPausePhasePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The phase's status after pausing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditRegistrationPhaseStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No reason given, or not one of the canonical phase names"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume` - Resumes one paused\nphase.",
+        "operationId": "adminResumePhase",
+        "parameters": [
+          {
+            "name": "phase",
+            "in": "path",
+            "description": "One of the twelve canonical phase names",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPhaseActionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The phase's status after resuming",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditRegistrationPhaseStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not one of the canonical phase names"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now` - Makes one phase due\nimmediately: the worker loop picks it up on its next tick instead of waiting out `next_run_at`.",
+        "operationId": "adminRunPhaseNow",
+        "parameters": [
+          {
+            "name": "phase",
+            "in": "path",
+            "description": "One of the twelve canonical phase names",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPhaseActionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The phase's status after being made due",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditRegistrationPhaseStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not one of the canonical phase names"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/registrations": {
       "get": {
         "tags": ["credit-registration-admin"],
@@ -13138,6 +13267,23 @@
           }
         }
       },
+      "AdminPausePhasePayload": {
+        "type": "object",
+        "required": ["reason"],
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminPhaseActionPayload": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": ["string", "null"]
+          }
+        }
+      },
       "AdminResendAccountLinkingEmailPayload": {
         "type": "object",
         "required": ["student_number", "course_id", "override_rate_caps"],
@@ -17521,7 +17667,8 @@
           "process_name",
           "expected_interval_secs",
           "consecutive_failures",
-          "implemented"
+          "implemented",
+          "heartbeat_late"
         ],
         "properties": {
           "consecutive_failures": {
@@ -17531,6 +17678,10 @@
           "expected_interval_secs": {
             "type": "integer",
             "format": "int32"
+          },
+          "heartbeat_late": {
+            "type": "boolean",
+            "description": "`seconds_since_heartbeat > expected_interval_secs * health.thresholds.phase_heartbeat_interval_multiplier`,\ndecided here for the same reason. Always `false` while paused or never heartbeated."
           },
           "implemented": {
             "type": "boolean",
@@ -17568,6 +17719,11 @@
           },
           "process_name": {
             "type": "string"
+          },
+          "seconds_since_heartbeat": {
+            "type": ["integer", "null"],
+            "format": "int64",
+            "description": "Computed here rather than on the page: a page comparing its own clock against this row's\nserver timestamp would flip every phase late (or hide a truly dead one) on a skewed client."
           }
         }
       },
@@ -22548,17 +22704,8 @@
       },
       "SuotarHealth": {
         "type": "object",
-        "required": ["windows", "standings", "circuit_breaker"],
+        "required": ["windows"],
         "properties": {
-          "circuit_breaker": {
-            "$ref": "#/components/schemas/CreditRegistrationCircuitBreakerState"
-          },
-          "standings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SuotarEndpointStanding"
-            }
-          },
           "windows": {
             "type": "array",
             "items": {

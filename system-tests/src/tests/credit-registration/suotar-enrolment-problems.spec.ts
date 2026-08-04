@@ -8,7 +8,7 @@ import {
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
-import { upsertMockSuotarEnrolments } from "@/utils/mockSuotar"
+import { getMockSuotarWorld, upsertMockSuotarEnrolments } from "@/utils/mockSuotar"
 import {
   runImportSubmissionTick,
   runMaterializeTick,
@@ -94,6 +94,21 @@ test("Enrolment selection prefers the degree enrolment over the open university 
 
   // Asserted against the enrolment actually chosen rather than against the state, because both
   // enrolments would have submitted successfully and only the chosen id says the policy ran.
+  //
+  // The mock derives enrolment ids from an opaque UUIDv5 rather than the student number
+  // (mock_suotar/ids.rs), so the expected id is read back from the mock's own world instead of
+  // recomputed here.
+  const world = (await getMockSuotarWorld(page.request)) as {
+    enrolments: { id: string; studentNumber: string; courseCode: string; realisationId: string }[]
+  }
+  const degreeEnrolment = world.enrolments.find(
+    (enrolment) =>
+      enrolment.studentNumber === TWO_ENROLMENTS_STUDENT_NUMBER &&
+      enrolment.courseCode === CRS_101 &&
+      enrolment.realisationId.endsWith("-degree"),
+  )
+  expect(degreeEnrolment, "the degree enrolment is missing from the mock's world").toBeDefined()
+
   const context = await browser.newContext({ storageState: ADMIN_STORAGE_STATE })
   try {
     const response = await context.request.get(
@@ -104,7 +119,7 @@ test("Enrolment selection prefers the degree enrolment over the open university 
       data: { selected_enrolment_id: string | null }[]
     }
     expect(page1.data).toHaveLength(1)
-    expect(page1.data[0]?.selected_enrolment_id).toBe(`otm-${TWO_ENROLMENTS_STUDENT_NUMBER}-degree`)
+    expect(page1.data[0]?.selected_enrolment_id).toBe(degreeEnrolment?.id)
   } finally {
     await context.close()
   }

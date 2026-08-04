@@ -8,9 +8,12 @@
 //! The token is created bound to no account. The recipient's Sisu address is routinely not the
 //! address on their account here, so the click while logged in is what creates the binding.
 
+use std::collections::HashMap;
+
 use crate::credit_registration_account_linking_emails::{
-    NewAccountLinkingEmail, already_mailed, claim_send_slot, count_sent_for_person_and_course,
-    count_sent_since,
+    ExistingLinkingMailFact, NewAccountLinkingEmail, already_mailed, claim_send_slot,
+    claim_send_slots, count_sent_for_person_and_course, count_sent_since,
+    get_existing_facts_for_persons,
 };
 use crate::prelude::*;
 use crate::student_number_verification_tokens::{
@@ -94,6 +97,172 @@ pub async fn claim_linking_mails(
         }
     }
     Ok(outcome)
+}
+
+/// Batched form of [`claim_linking_mails`]: the same guard and caps, applied to many people with one
+/// read and one write instead of a handful of round trips per person.
+///
+/// [`get_existing_facts_for_persons`] replaces the quiet-period count, the per-course count and the
+/// dedup check `claim_linking_mails` runs per person; [`claim_send_slots`] replaces one
+/// `INSERT ... ON CONFLICT` per address with one for the whole batch. The per-person, per-address
+/// decision order — dedup before rate cap, allowance spent left to right — is unchanged, so the
+/// three counters keep meaning exactly what they mean in the single-person path.
+///
+/// Returns one [`ClaimedLinkingMails`] per input, in the same order.
+pub async fn claim_linking_mails_batch(
+    conn: &mut PgConnection,
+    people: &[DiscoveredPerson],
+) -> ModelResult<Vec<ClaimedLinkingMails>> {
+    let mut outcomes = vec![ClaimedLinkingMails::default(); people.len()];
+    let per_person_addresses: Vec<Vec<String>> = people
+        .iter()
+        .map(|person| distinct_addresses(&person.addresses))
+        .collect();
+
+    let sisu_person_ids: Vec<String> = people
+        .iter()
+        .enumerate()
+        .filter(|(i, _)| !per_person_addresses[*i].is_empty())
+        .map(|(_, person)| person.sisu_person_id.clone())
+        .collect();
+    if sisu_person_ids.is_empty() {
+        return Ok(outcomes);
+    }
+    let facts = get_existing_facts_for_persons(conn, &sisu_person_ids).await?;
+    let mut by_person: HashMap<&str, Vec<&ExistingLinkingMailFact>> = HashMap::new();
+    for fact in &facts {
+        by_person
+            .entry(fact.sisu_person_id.as_str())
+            .or_default()
+            .push(fact);
+    }
+    let quiet_since = Utc::now() - chrono::Duration::seconds(LINKING_MAIL_QUIET_PERIOD_SECS);
+
+    let mut to_claim: Vec<(usize, String)> = Vec::new();
+    for (i, person) in people.iter().enumerate() {
+        if per_person_addresses[i].is_empty() {
+            continue;
+        }
+        let person_facts = by_person
+            .get(person.sisu_person_id.as_str())
+            .map(Vec::as_slice)
+            .unwrap_or(&[]);
+        let mut allowance = remaining_allowance_from_facts(person, person_facts, quiet_since);
+        for address in &per_person_addresses[i] {
+            if already_mailed_from_facts(person_facts, person.course_id, address) {
+                outcomes[i].suppressed_by_dedup += 1;
+                continue;
+            }
+            if allowance == 0 {
+                outcomes[i].suppressed_by_rate_cap += 1;
+                continue;
+            }
+            allowance -= 1;
+            to_claim.push((i, address.clone()));
+        }
+    }
+    if to_claim.is_empty() {
+        return Ok(outcomes);
+    }
+
+    // Each candidate mints its own token first, same as the single-person path: the token has to
+    // exist before anything can be mailed, and its random value cannot be produced in SQL.
+    let mut new_slots = Vec::with_capacity(to_claim.len());
+    let mut token_owner: HashMap<Uuid, usize> = HashMap::new();
+    for (person_index, address) in &to_claim {
+        let person = &people[*person_index];
+        let token_id = Uuid::new_v4();
+        insert_token(
+            conn,
+            PKeyPolicy::Fixed(token_id),
+            &NewStudentNumberVerificationToken {
+                student_number: person.student_number.clone(),
+                sisu_person_id: person.sisu_person_id.clone(),
+                first_names: person.first_names.clone(),
+                last_name: person.last_name.clone(),
+                emailed_to: address.clone(),
+                course_id: Some(person.course_id),
+            },
+        )
+        .await?;
+        token_owner.insert(token_id, *person_index);
+        new_slots.push(NewAccountLinkingEmail {
+            student_number: person.student_number.clone(),
+            sisu_person_id: person.sisu_person_id.clone(),
+            course_id: person.course_id,
+            emailed_to: address.clone(),
+            student_number_verification_token_id: Some(token_id),
+            email_delivery_id: None,
+        });
+    }
+
+    let claimed_token_ids = claim_send_slots(conn, &new_slots).await?;
+    let lost_token_ids: Vec<Uuid> = token_owner
+        .keys()
+        .filter(|id| !claimed_token_ids.contains(id))
+        .copied()
+        .collect();
+    // Same invariant `claim_one` keeps for one address: a refused claim leaves no usable token
+    // behind, so a race lost to the unique index cannot mint a link nobody will ever send.
+    void_tokens(conn, &lost_token_ids).await?;
+    for (token_id, person_index) in &token_owner {
+        if claimed_token_ids.contains(token_id) {
+            outcomes[*person_index].claimed += 1;
+        } else {
+            // Same reclassification `claim_one` falls back to: the prefetched facts said the slot
+            // was free and another writer got there first, so the recipient sees the same outcome.
+            outcomes[*person_index].suppressed_by_dedup += 1;
+        }
+    }
+    Ok(outcomes)
+}
+
+/// [`remaining_allowance`], read from a prefetched [`ExistingLinkingMailFact`] slice instead of a
+/// query.
+fn remaining_allowance_from_facts(
+    person: &DiscoveredPerson,
+    facts: &[&ExistingLinkingMailFact],
+    quiet_since: DateTime<Utc>,
+) -> i64 {
+    if facts.iter().any(|fact| fact.sent_at >= quiet_since) {
+        return 0;
+    }
+    let already_sent = facts
+        .iter()
+        .filter(|fact| fact.course_id == person.course_id)
+        .count() as i64;
+    (MAX_LINKING_MAILS_PER_PERSON_AND_COURSE - already_sent).max(0)
+}
+
+/// [`already_mailed`], read from a prefetched [`ExistingLinkingMailFact`] slice instead of a query.
+fn already_mailed_from_facts(
+    facts: &[&ExistingLinkingMailFact],
+    course_id: Uuid,
+    address: &str,
+) -> bool {
+    facts
+        .iter()
+        .any(|fact| fact.course_id == course_id && fact.emailed_to.eq_ignore_ascii_case(address))
+}
+
+/// Voids a token whose slot lost the race to another writer, keeping the invariant `claim_one` keeps
+/// for the single-person path.
+async fn void_tokens(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
+    if ids.is_empty() {
+        return Ok(());
+    }
+    sqlx::query!(
+        r#"
+UPDATE student_number_verification_tokens
+SET deleted_at = now()
+WHERE id = ANY($1::uuid [])
+  AND deleted_at IS NULL
+        "#,
+        ids,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 /// How many mails the caps still allow this person for this course, right now.

@@ -15,7 +15,13 @@ import {
   useAdminVerifiedStudentNumbers,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminResendLinkingEmailDialog from "@/components/credit-registration/admin/AdminResendLinkingEmailDialog"
-import RelativeTime from "@/components/credit-registration/admin/RelativeTime"
+import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
+import {
+  getAccountLinkingStatsQueryKey,
+  getCreditRegistrationOverviewQueryKey,
+  listCreditRegistrationsForAdminQueryKey,
+  listVerifiedStudentNumbersForAdminQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { adminUnlinkStudentNumber } from "@/generated/api/sdk.generated"
 import type { AccountLinkingStats, EmailSendStatus } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -52,7 +58,6 @@ const SEND_FAILED: EmailSendStatus = "send_failed"
 /** Separator between identifiers on one line. Not prose, so not translated. */
 // oxlint-disable-next-line i18next/no-literal-string
 const DOT = " · "
-const ABSENT = "-"
 
 const sectionsCss = css`
   display: grid;
@@ -118,7 +123,15 @@ const UnlinkButton: React.FC<{ verifiedStudentNumberId: string; number: string }
     {
       onSuccess: () => {
         setOpen(false)
-        void queryClient.invalidateQueries()
+        // Unlinking runs apply_student_number_change -> recompute_preconditions synchronously, which
+        // can move registrations out of pending_student_number, so every aggregate over that state
+        // needs a refetch too, not just the list of linked numbers.
+        void Promise.all([
+          queryClient.invalidateQueries({ queryKey: listVerifiedStudentNumbersForAdminQueryKey() }),
+          queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
+          queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
+          queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
+        ])
       },
     },
   )

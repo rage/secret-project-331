@@ -75,7 +75,7 @@ const WAITING_FOR_STUDENT_NUMBER = "needs_student_number" as const
  * front of them: where it stands, the number we hold in full, and what we can say about the mail.
  */
 const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, onClose }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const detailsQuery = useQuery({
     ...getCreditRegistrationDetailsOptions({
       path: { credit_registration_id: registration.id },
@@ -149,6 +149,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
         registration.linking_email.email_send_status,
         registration.linking_email.sent_at,
         registration.linking_email.emailed_to_masked,
+        i18n.language,
       ),
     })
   }

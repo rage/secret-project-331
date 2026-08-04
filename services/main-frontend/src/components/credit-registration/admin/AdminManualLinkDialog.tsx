@@ -7,6 +7,12 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
+  getAccountLinkingStatsQueryKey,
+  getCreditRegistrationOverviewQueryKey,
+  listCreditRegistrationsForAdminQueryKey,
+  listVerifiedStudentNumbersForAdminQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
   adminManuallyLinkStudentNumber,
   adminResolveStudentNumberForLinking,
 } from "@/generated/api/sdk.generated"
@@ -26,7 +32,7 @@ import {
 } from "@/shared-module/components"
 
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
-import RelativeTime from "./RelativeTime"
+import RelativeTime, { ABSENT } from "./RelativeTime"
 
 interface Props {
   open: boolean
@@ -52,7 +58,6 @@ const STACKED = "stacked" as const
 /** Separator between identifiers on one line. Not prose, so not translated. */
 // oxlint-disable-next-line i18next/no-literal-string
 const DOT = " · "
-const ABSENT = "-"
 
 const formCss = css`
   display: grid;
@@ -116,7 +121,14 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
     {
       onSuccess: (data) => {
         setResult(data)
-        void queryClient.invalidateQueries()
+        // Linking a number resolves waiting registrations synchronously, so their state and the
+        // aggregates over it can change too, not just the number itself.
+        void Promise.all([
+          queryClient.invalidateQueries({ queryKey: listVerifiedStudentNumbersForAdminQueryKey() }),
+          queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
+          queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
+          queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
+        ])
       },
     },
   )

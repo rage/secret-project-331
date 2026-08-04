@@ -102,7 +102,9 @@ fn clamp_credits(credits: f32, enrolment: Option<&SuotarEnrolment>) -> (f32, Opt
     let Some(range) = enrolment.map(|enrolment| &enrolment.credits) else {
         return (credits, None);
     };
-    let clamped = f64::from(credits).clamp(range.min, range.max) as f32;
+    // f64::clamp panics if min > max; select_enrolment already refuses such a range, but a wire
+    // value must never be able to crash the worker regardless of what upstream guarantees.
+    let clamped = f64::from(credits).max(range.min).min(range.max) as f32;
     if clamped == credits {
         (credits, None)
     } else {

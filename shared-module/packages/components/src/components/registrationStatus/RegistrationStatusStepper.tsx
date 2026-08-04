@@ -3,6 +3,7 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 
+import { srOnlyCss } from "../primitives/buttonStyles"
 import {
   registrationStatusColorCss,
   registrationStatusIcon,
@@ -102,22 +103,10 @@ export const RegistrationStatusStepper: React.FC<RegistrationStatusStepperProps>
           <span className={cx(labelCss, step.state === "current" ? currentLabelCss : undefined)}>
             {step.label}
           </span>
-          <span className={visuallyHiddenCss}>{step.stateLabel}</span>
+          <span className={srOnlyCss}>{step.stateLabel}</span>
           {index < steps.length - 1 ? <span className={connectorCss} aria-hidden="true" /> : null}
         </li>
       )
     })}
   </ol>
 )
-
-const visuallyHiddenCss = css`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-`

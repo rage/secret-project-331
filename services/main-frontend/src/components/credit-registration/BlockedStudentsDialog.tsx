@@ -61,7 +61,7 @@ const NUMBER_TONE = "neutral" as const
 
 /** The students of one course sitting in one registration state, with what we can say about them. */
 const BlockedStudentsDialog: React.FC<Props> = ({ courseId, state, title, open, onClose }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [page, setPage] = useState(1)
   const listQuery = useQuery({
     ...getCourseCreditRegistrationsOptions({
@@ -93,6 +93,7 @@ const BlockedStudentsDialog: React.FC<Props> = ({ courseId, state, title, open, 
                         row.linking_email.email_send_status,
                         row.linking_email.sent_at,
                         row.linking_email.emailed_to_masked,
+                        i18n.language,
                       )}
                     </div>
                   )}

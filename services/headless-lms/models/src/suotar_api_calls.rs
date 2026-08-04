@@ -467,19 +467,104 @@ GROUP BY endpoint
     Ok(rows)
 }
 
-/// Where one endpoint stands right now, over all time rather than a window.
+/// [`SuotarEndpointStats`] for one of several windows at once, so the overview's multi-window health
+/// tab does not run the same percentile aggregate over the table once per window.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SuotarEndpointStatsForWindow {
+    pub window_secs: i64,
+    pub endpoint: SuotarEndpoint,
+    pub call_count: i64,
+    pub failed_call_count: i64,
+    pub in_flight_count: i64,
+    pub ok_item_count: i64,
+    pub error_item_count: i64,
+    pub p50_duration_ms: Option<i32>,
+    pub p95_duration_ms: Option<i32>,
+    pub last_success_at: Option<DateTime<Utc>>,
+    pub last_failure_at: Option<DateTime<Utc>>,
+    pub last_request_level_error_code: Option<String>,
+}
+
+/// Batched form of [`get_endpoint_stats`]: one scan of the table joined against the window list,
+/// instead of one full pass per window.
+pub async fn get_endpoint_stats_for_windows(
+    conn: &mut PgConnection,
+    window_secs: &[i64],
+) -> ModelResult<Vec<SuotarEndpointStatsForWindow>> {
+    let now = Utc::now();
+    let window_secs = window_secs.to_vec();
+    let since: Vec<DateTime<Utc>> = window_secs
+        .iter()
+        .map(|secs| now - chrono::Duration::seconds(*secs))
+        .collect();
+    let rows = sqlx::query_as!(
+        SuotarEndpointStatsForWindow,
+        r#"
+WITH windows AS (
+  SELECT * FROM UNNEST($1::bigint [], $2::timestamptz []) AS w(window_secs, since)
+)
+SELECT w.window_secs AS "window_secs!",
+  c.endpoint AS "endpoint!: SuotarEndpoint",
+  COUNT(*) FILTER (WHERE c.duration_ms IS NOT NULL) AS "call_count!",
+  COUNT(*) FILTER (
+    WHERE c.duration_ms IS NOT NULL
+      AND NOT c.succeeded
+  ) AS "failed_call_count!",
+  COUNT(*) FILTER (WHERE c.duration_ms IS NULL) AS "in_flight_count!",
+  COALESCE(SUM(c.ok_item_count), 0) AS "ok_item_count!",
+  COALESCE(SUM(c.error_item_count), 0) AS "error_item_count!",
+  PERCENTILE_DISC(0.5) WITHIN GROUP (
+    ORDER BY c.duration_ms
+  ) AS "p50_duration_ms",
+  PERCENTILE_DISC(0.95) WITHIN GROUP (
+    ORDER BY c.duration_ms
+  ) AS "p95_duration_ms",
+  MAX(c.started_at) FILTER (WHERE c.succeeded) AS "last_success_at",
+  MAX(c.started_at) FILTER (
+    WHERE c.duration_ms IS NOT NULL
+      AND NOT c.succeeded
+  ) AS "last_failure_at",
+  (
+    ARRAY_AGG(
+      c.request_level_error_code
+      ORDER BY c.started_at DESC
+    ) FILTER (
+      WHERE c.duration_ms IS NOT NULL
+        AND NOT c.succeeded
+        AND c.request_level_error_code IS NOT NULL
+    )
+  ) [1] AS "last_request_level_error_code"
+FROM windows w
+  JOIN suotar_api_calls c ON c.started_at >= w.since
+  AND c.deleted_at IS NULL
+GROUP BY w.window_secs,
+  c.endpoint
+        "#,
+        &window_secs,
+        &since,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows)
+}
+
+/// Where one endpoint stands right now, bounded to [`RETENTION_DAYS`] rather than every row ever
+/// written.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SuotarEndpointStanding {
     pub endpoint: SuotarEndpoint,
     pub last_success_at: Option<DateTime<Utc>>,
     pub last_failure_at: Option<DateTime<Utc>>,
-    /// Finished failures since the last success.
+    /// Finished failures since the last success, within the retention window.
     pub consecutive_failures: i64,
 }
 
+/// Bounded to the last [`RETENTION_DAYS`]: the audit table grows one row per Suotar batch call
+/// forever, and the Overview page and the health tab each poll this every 30 seconds.
 pub async fn get_endpoint_standings(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<SuotarEndpointStanding>> {
+    let since = Utc::now() - chrono::Duration::days(RETENTION_DAYS);
     let rows = sqlx::query_as!(
         SuotarEndpointStanding,
         r#"
@@ -488,6 +573,7 @@ WITH last_success AS (
     MAX(started_at) AS at
   FROM suotar_api_calls
   WHERE succeeded
+    AND started_at >= $1
     AND deleted_at IS NULL
   GROUP BY endpoint
 )
@@ -507,10 +593,12 @@ SELECT c.endpoint AS "endpoint!: SuotarEndpoint",
   ) AS "consecutive_failures!"
 FROM suotar_api_calls c
   LEFT JOIN last_success ls ON ls.endpoint = c.endpoint
-WHERE c.deleted_at IS NULL
+WHERE c.started_at >= $1
+  AND c.deleted_at IS NULL
 GROUP BY c.endpoint,
   ls.at
         "#,
+        since,
     )
     .fetch_all(conn)
     .await?;

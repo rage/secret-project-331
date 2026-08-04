@@ -6,19 +6,12 @@ import React, { useEffect, useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
-import Checkbox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import {
-  Button as NewButton,
-  Checkbox as NewCheckbox,
-  Select as NewSelect,
-  TextField as NewTextField,
-} from "@/shared-module/components"
+import { Button, Checkbox, Select, TextField as NewTextField } from "@/shared-module/components"
 
 import type { ModuleView } from "./CourseModules"
 import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
@@ -141,7 +134,14 @@ const EditCourseModuleForm: React.FC<Props> = ({
 
   const onSubmitFormWrapper = (fields: EditCourseModuleFormFields) => {
     setActive(false)
-    onSubmitForm(module.id, fields)
+    onSubmitForm(module.id, {
+      ...fields,
+      // The new Checkbox only disables the control visually: unlike `register(name, { disabled })`,
+      // it does not drop the field from the submitted values, so this reproduces that exclusion.
+      automatic_completion_requires_exam: fields.automatic_completion
+        ? fields.automatic_completion_requires_exam
+        : false,
+    })
   }
 
   const isChecked = watch("automatic_completion")
@@ -266,8 +266,9 @@ const EditCourseModuleForm: React.FC<Props> = ({
             </div>
 
             <Checkbox
+              name="automatic_completion"
+              control={control}
               label={t("enable-automatic-completion")}
-              {...register("automatic_completion")}
             />
             <div
               className={css`
@@ -313,10 +314,10 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   `}
                 >
                   <Checkbox
+                    name="automatic_completion_requires_exam"
+                    control={control}
                     label={t("automatic-completion-requires-exam")}
-                    {...register("automatic_completion_requires_exam", {
-                      disabled: !isChecked,
-                    })}
+                    isDisabled={!isChecked}
                     className={css`
                       margin-bottom: 0;
                       position: relative;
@@ -333,8 +334,9 @@ const EditCourseModuleForm: React.FC<Props> = ({
               `}
             >
               <Checkbox
+                name="override_completion_link"
+                control={control}
                 label={t("override-completion-registration-link")}
-                {...register("override_completion_link")}
               />
               <TextField
                 label={t("completion-registration-link")}
@@ -352,8 +354,10 @@ const EditCourseModuleForm: React.FC<Props> = ({
               />
             </div>
             <Checkbox
+              name="enable_registering_completion_to_uh_open_university"
+              control={control}
               label={t("label-enable-registering-completion-to-uh-open-university")}
-              {...register("enable_registering_completion_to_uh_open_university", {
+              rules={{
                 onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
                   // The two registration paths would put the same attainment in Sisu twice, and the
                   // backend rejects the pair; clearing the other one keeps the form savable.
@@ -361,7 +365,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                     setValue("credit_registration.enabled", false)
                   }
                 },
-              })}
+              }}
             />
             <div
               className={css`
@@ -405,7 +409,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               />
             </div>
             <div className={creditRegistrationSectionCss}>
-              <NewCheckbox
+              <Checkbox
                 name="credit_registration.enabled"
                 control={control}
                 label={t("label-enable-credit-registration-via-suotar")}
@@ -426,7 +430,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                     label={t("label-open-university-product-id")}
                     description={t("description-open-university-product-id")}
                   />
-                  <NewSelect
+                  <Select
                     name="credit_registration.grade_scale_id"
                     control={control}
                     label={t("label-credit-registration-grade-scale")}
@@ -459,27 +463,27 @@ const EditCourseModuleForm: React.FC<Props> = ({
                           control={control}
                           label={t("label-realisation-name-shown-to-students")}
                         />
-                        <NewCheckbox
+                        <Checkbox
                           name={`credit_registration.realisations.${index}.active`}
                           control={control}
                           label={t("label-realisation-active")}
                         />
-                        <NewButton
+                        <Button
                           variant="secondary"
                           size="small"
                           onPress={() => realisations.remove(index)}
                         >
                           {t("button-text-remove")}
-                        </NewButton>
+                        </Button>
                       </div>
                     ))}
-                    <NewButton
+                    <Button
                       variant="secondary"
                       size="small"
                       onPress={() => realisations.append(EMPTY_REALISATION)}
                     >
                       {t("button-text-add-realisation")}
-                    </NewButton>
+                    </Button>
                   </div>
                 </div>
               )}

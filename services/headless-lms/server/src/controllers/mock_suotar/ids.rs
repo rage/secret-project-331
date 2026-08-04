@@ -3,10 +3,9 @@
 //! Defaults only: every control upsert may pass an id verbatim, and the seed does for anything a
 //! spec asserts on.
 //!
-//! No id the mock mints contains a student number. These ids reach the audited call log and the
-//! event details, where the scrubber passes attainment and enrolment id fields through untouched
-//! and only redacts bare digit runs in free text — a student number hyphen-joined to a word would
-//! survive both.
+//! No id the mock mints contains a student number: these ids reach the audited call log and the
+//! event details, and the scrubber's free-text scan only redacts bare digit runs — a student
+//! number formatted straight into an id would slip through as a `prefixed`-shaped value instead.
 
 use chrono::NaiveDate;
 
@@ -41,7 +40,10 @@ pub fn realisation_id(course_code: &str, kind: RealisationKind) -> String {
 }
 
 pub fn enrolment_id(student_number: &str, kind: RealisationKind) -> String {
-    format!("otm-{student_number}-{}", kind.as_str())
+    derived(
+        "otm",
+        &format!("enrolment|{student_number}|{}", kind.as_str()),
+    )
 }
 
 pub fn study_right_id(student_number: &str, kind: RealisationKind) -> String {

@@ -25,11 +25,13 @@ const WITHDRAWN_STUDENT_NUMBER = "900000702"
 const ADMIN_STORAGE_STATE = "src/states/admin@example.com.json"
 
 /**
- * The endpoints that carry one student's registration. `list-by-course` is left out on purpose: it is
- * a roster listing that names everyone the study registry has on the course, so it says nothing about
- * whether we acted on this student.
+ * The endpoints that carry one student's registration. `list-by-course` and `product_access_tokens`
+ * are left out on purpose: both are keyed by course/product only (`ListByCourseItem` and
+ * `ProductAccessTokenItem` carry no `studentNumber`), so a call to either says nothing about whether
+ * we acted on this student.
  */
 const REGISTRATION_ENDPOINTS = [
+  "resolve_persons",
   "resolve_enrolments",
   "import_attainments",
   "verify_attainments",

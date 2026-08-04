@@ -536,34 +536,24 @@ impl SuotarClient {
         context: SuotarCallContext,
         items: Vec<T>,
     ) -> UtilResult<SuotarBatchResponse<R>> {
-        let sent_ids = check_batch(endpoint, &items)?;
-        if sent_ids.is_empty() {
+        if items.is_empty() {
             return Ok(empty_batch_response(endpoint));
         }
+        // Built once and reused for the wire body below, rather than serializing `items` a second
+        // time: the two must stay byte-for-byte the same request anyway.
         let request_body = serde_json::to_value(&items)?;
-        let encoded = serde_json::to_vec(&items)?;
-        if encoded.len() > MAX_REQUEST_BODY_BYTES {
-            return Err(util_err!(
-                SuotarClientError(SuotarErrorVariant::MalformedRequest),
-                format!(
-                    "A {} request of {} items encodes to {} bytes, over the {MAX_REQUEST_BODY_BYTES} byte limit.",
-                    endpoint.path(),
-                    sent_ids.len(),
-                    encoded.len()
-                )
-            ));
-        }
-
-        let url = self.api_base_url.join(endpoint.path())?;
-        let started_at = Utc::now();
+        let encoded = serde_json::to_vec(&request_body)?;
+        // Written before the pre-flight checks below, not after: a batch that `check_batch` or the
+        // size cap refuses still needs a `suotar_api_calls` row, or an operator has nothing to
+        // diagnose the refusal from.
         let call_id = self
             .audit
             .started(SuotarCallStarted {
                 endpoint,
-                request_item_count: sent_ids.len(),
+                request_item_count: items.len(),
                 worker_name: context.worker_name,
                 credit_registration_ids: context.credit_registration_ids,
-                started_at,
+                started_at: Utc::now(),
                 request_body,
             })
             .await;
@@ -574,6 +564,28 @@ impl SuotarClient {
             );
         }
 
+        let sent_ids = match check_batch(endpoint, &items) {
+            Ok(sent_ids) => sent_ids,
+            Err(error) => return self.refused(call_id, error).await,
+        };
+        if encoded.len() > MAX_REQUEST_BODY_BYTES {
+            return self
+                .refused(
+                    call_id,
+                    util_err!(
+                        SuotarClientError(SuotarErrorVariant::MalformedRequest),
+                        format!(
+                            "A {} request of {} items encodes to {} bytes, over the {MAX_REQUEST_BODY_BYTES} byte limit.",
+                            endpoint.path(),
+                            sent_ids.len(),
+                            encoded.len()
+                        )
+                    ),
+                )
+                .await;
+        }
+
+        let url = self.api_base_url.join(endpoint.path())?;
         let clock = Instant::now();
         let mut request = REQWEST_CLIENT
             .post(url)
@@ -594,6 +606,27 @@ impl SuotarClient {
             self.audit.finished(call_id, finished).await;
         }
         outcome
+    }
+
+    /// Records a pre-flight refusal so it leaves the same kind of `suotar_api_calls` row every other
+    /// failure path does.
+    async fn refused<R>(
+        &self,
+        call_id: Option<Uuid>,
+        error: UtilError,
+    ) -> UtilResult<SuotarBatchResponse<R>> {
+        if let Some(call_id) = call_id {
+            self.audit
+                .finished(
+                    call_id,
+                    SuotarCallFinished {
+                        error_message: Some(error.message().to_string()),
+                        ..SuotarCallFinished::default()
+                    },
+                )
+                .await;
+        }
+        Err(error)
     }
 
     /// The audit record comes back alongside the result because only this function knows the

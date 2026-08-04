@@ -204,6 +204,41 @@ LIMIT $1
     Ok(res)
 }
 
+/// Every active realisation of one course, unpaginated and in no particular order.
+///
+/// For a one-shot lookup that must not miss any of them, unlike [`get_stalest_for_listing`], which
+/// pages by staleness for the scheduler and is wrong for "is this person on the roster right now".
+pub async fn get_active_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<RealisationToList>> {
+    let res = sqlx::query_as!(
+        RealisationToList,
+        r#"
+SELECT cmsr.id AS "id!",
+  cmsr.course_module_id AS "course_module_id!",
+  cm.course_id AS "course_id!",
+  cmsr.course_unit_realisation_id AS "course_unit_realisation_id!",
+  cm.uh_course_code AS "uh_course_code?"
+FROM course_module_suotar_realisations cmsr
+  JOIN course_modules cm ON cm.id = cmsr.course_module_id
+  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
+  AND c.deleted_at IS NULL
+WHERE cmsr.active
+  AND cmsr.deleted_at IS NULL
+  AND cm.enable_credit_registration_via_suotar
+  AND c.paused_at IS NULL
+  AND cm.deleted_at IS NULL
+  AND cm.course_id = $1
+ORDER BY cmsr.id
+        "#,
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// One active realisation's counters from its last discovery run, with the course it belongs to.
 ///
 /// Point-in-time, not a windowed sum: the phase overwrites the row whole, so these numbers describe

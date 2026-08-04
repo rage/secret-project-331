@@ -54,6 +54,13 @@ export interface CongratulationsLinksProps {
   module: UserModuleCompletionStatus
 }
 
+/** Whether this module has any path to a credit or completion registration, Suotar or the old one. */
+export const moduleOffersCreditOrCompletionRegistration = (
+  module: UserModuleCompletionStatus,
+): boolean =>
+  module.enable_credit_registration_via_suotar ||
+  module.enable_registering_completion_to_uh_open_university
+
 const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLinksProps>> = ({
   certificateConfigurationId,
   module,
@@ -74,8 +81,7 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
     >
       {/* Same page for both flows, different label: on the new one the student does no registering,
           so "Register" would promise them work that is not theirs. */}
-      {(module.enable_credit_registration_via_suotar ||
-        module.enable_registering_completion_to_uh_open_university) && (
+      {moduleOffersCreditOrCompletionRegistration(module) && (
         <Cta
           href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}
           label={

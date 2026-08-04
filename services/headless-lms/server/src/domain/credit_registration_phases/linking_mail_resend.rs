@@ -11,7 +11,7 @@
 //! exactly as they do to the worker. Nothing here can relax them.
 
 use headless_lms_models::course_module_suotar_realisations::{
-    get_stalest_for_listing, listing_request_item_id,
+    get_active_for_course, listing_request_item_id,
 };
 use headless_lms_models::library::credit_registration::account_linking::{
     ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails,
@@ -46,12 +46,7 @@ pub async fn resend_linking_mail(
     student_number: &str,
 ) -> anyhow::Result<LinkingMailResendOutcome> {
     let mut conn = ctx.pool.acquire().await?;
-    let realisations = get_stalest_for_listing(
-        &mut conn,
-        SuotarEndpoint::ListByCourse.max_batch_size() as i64,
-        Some(course_id),
-    )
-    .await?;
+    let realisations = get_active_for_course(&mut conn, course_id).await?;
 
     let mut items = Vec::new();
     for realisation in &realisations {
@@ -73,28 +68,36 @@ pub async fn resend_linking_mail(
         return Ok(LinkingMailResendOutcome::NotOnTheCourseRoster);
     }
 
-    let response = ctx
-        .suotar_client
-        .list_enrolments_by_course(
-            SuotarCallContext::new(worker_name(
-                ctx.caller,
-                CreditRegistrationPhase::EnrolmentDiscovery,
-            )),
-            items,
-        )
-        .await;
-    let Ok(response) = response else {
-        return Ok(LinkingMailResendOutcome::StudyRegistryUnavailable);
-    };
-
-    let Some(person) = response
-        .items
-        .iter()
-        .filter(|item| item.status == SuotarItemStatus::Ok)
-        .filter_map(|item| item.result.as_ref())
-        .flat_map(|result| result.people.iter())
-        .find(|person| person.student_number == student_number)
-    else {
+    // A course can hold more realisations than one `list-by-course` request may carry, so this
+    // asks in as many requests as it takes rather than silently dropping the rest of the roster.
+    let mut person = None;
+    for chunk in items.chunks(SuotarEndpoint::ListByCourse.max_batch_size()) {
+        let response = ctx
+            .suotar_client
+            .list_enrolments_by_course(
+                SuotarCallContext::new(worker_name(
+                    ctx.caller,
+                    CreditRegistrationPhase::EnrolmentDiscovery,
+                )),
+                chunk.to_vec(),
+            )
+            .await;
+        let Ok(response) = response else {
+            return Ok(LinkingMailResendOutcome::StudyRegistryUnavailable);
+        };
+        person = response
+            .items
+            .iter()
+            .filter(|item| item.status == SuotarItemStatus::Ok)
+            .filter_map(|item| item.result.as_ref())
+            .flat_map(|result| result.people.iter())
+            .find(|candidate| candidate.student_number == student_number)
+            .cloned();
+        if person.is_some() {
+            break;
+        }
+    }
+    let Some(person) = person else {
         return Ok(LinkingMailResendOutcome::NotOnTheCourseRoster);
     };
 
@@ -104,7 +107,7 @@ pub async fn resend_linking_mail(
         first_names: Some(person.first_names.clone()),
         last_name: Some(person.last_name.clone()),
         course_id,
-        addresses: listed_person_addresses(person),
+        addresses: listed_person_addresses(&person),
     };
     if discovered.addresses.is_empty() {
         return Ok(LinkingMailResendOutcome::NoAddressInStudyRegistry);

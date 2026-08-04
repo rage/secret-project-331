@@ -4,9 +4,19 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   ADMIN_COURSE_SLUG,
   CREDIT_REGISTRATION_ADMIN_API,
+  CRS_ADMIN_101,
   ORIGIN,
 } from "@/utils/creditRegistration"
-import { runEnrolmentDiscoveryTick, runLinkEmailsTick } from "@/utils/suotarControl"
+import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import {
+  runEnrolmentDiscoveryTick,
+  runImportSubmissionTick,
+  runLinkEmailsTick,
+  runMaterializeTick,
+  runPreconditionsTick,
+  runResolveEnrolmentsTick,
+  runVerifyPollTick,
+} from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
 
 /**
@@ -28,13 +38,16 @@ const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
 const SUPERSEDED_ATTEMPT_1_ID = "c5ed17ea-0901-4a5e-9e6e-c0de00000901"
 const SUPERSEDED_ATTEMPT_2_ID = "c5ed17ea-0902-4a5e-9e6e-c0de00000902"
 
-/** Distinctive by design, so their absence from a stored body is a meaningful assertion. */
 const SUPERSEDED_STUDENT_NUMBER = "900000901"
-const SUPERSEDED_LAST_NAME = "Regraded"
-const SUPERSEDED_SISU_EMAIL = "zzyzx.regraded@helsinki.example"
 
 const STALE_STUDENT_NUMBER = "900000903"
 const STALE_ADDRESS = "zzyzx.deadaddress@helsinki.example"
+
+/** Consented and linked from seed time, so it is the one row on this course a tick can register. */
+const ADMIN_LINKED_EMAIL = "credit-registration-admin-linked@example.com"
+const ADMIN_LINKED_STUDENT_NUMBER = "900000904"
+const ADMIN_LINKED_LAST_NAME = "Alreadylinked"
+const ADMIN_LINKED_SISU_EMAIL = "zzyzx.alreadylinked@helsinki.example"
 
 test("The three shipped tabs render, and the phases report heartbeats", async ({ page }) => {
   await page.goto(OVERVIEW_URL)
@@ -73,6 +86,88 @@ test("The three shipped tabs render, and the phases report heartbeats", async ({
   await expect(page.getByRole("heading", { name: "Per course realisation" })).toBeVisible()
 })
 
+// `enrolment-discovery` is an implemented phase no other spec file ticks (grep the directory for
+// `runEnrolmentDiscoveryTick`), so pausing it here cannot stall another spec's concurrent tick of the
+// same, globally-shared `credit_registration_phase_state` row.
+test("Pausing a phase stops a tick, and resuming it lifts that again", async ({ page }) => {
+  const phase = "enrolment-discovery"
+  const pauseReason = "System test: proving the pause control works."
+
+  await test.step("An unknown phase name is refused by all three actions", async () => {
+    for (const action of ["pause", "resume", "run-now"]) {
+      const response = await page.request.post(
+        `${CREDIT_REGISTRATION_ADMIN_API}/phases/not-a-real-phase/${action}`,
+        { data: { reason: pauseReason } },
+      )
+      expect(response.status(), `${action} accepted an unknown phase name`).toBe(400)
+    }
+  })
+
+  await test.step("Pausing without a reason is refused", async () => {
+    const response = await page.request.post(
+      `${CREDIT_REGISTRATION_ADMIN_API}/phases/${phase}/pause`,
+      { data: { reason: "   " } },
+    )
+    expect(response.status()).toBe(400)
+  })
+
+  try {
+    await test.step("Pausing takes effect immediately, and the overview reflects it", async () => {
+      const paused = await page.request.post(
+        `${CREDIT_REGISTRATION_ADMIN_API}/phases/${phase}/pause`,
+        { data: { reason: pauseReason } },
+      )
+      expect(paused.ok()).toBe(true)
+      const pausedBody = (await paused.json()) as {
+        paused_at: string | null
+        pause_reason: string | null
+      }
+      expect(pausedBody.paused_at).not.toBeNull()
+      expect(pausedBody.pause_reason).toBe(pauseReason)
+
+      const overview = await page.request.get(`${CREDIT_REGISTRATION_ADMIN_API}/overview`)
+      const overviewBody = (await overview.json()) as {
+        phases: { phase: string; paused_at: string | null }[]
+      }
+      const row = overviewBody.phases.find((candidate) => candidate.phase === phase)
+      expect(row?.paused_at).not.toBeNull()
+    })
+
+    await test.step("A tick against the paused phase is skipped, not run", async () => {
+      const result = await runEnrolmentDiscoveryTick(page.request, {
+        courseSlug: ADMIN_COURSE_SLUG,
+      })
+      expect(result).toMatchObject({ status: "skipped", reason: "paused" })
+    })
+  } finally {
+    await test.step("Resuming lifts the pause", async () => {
+      const resumed = await page.request.post(
+        `${CREDIT_REGISTRATION_ADMIN_API}/phases/${phase}/resume`,
+        { data: { reason: null } },
+      )
+      expect(resumed.ok()).toBe(true)
+      const resumedBody = (await resumed.json()) as {
+        paused_at: string | null
+        pause_reason: string | null
+      }
+      expect(resumedBody.paused_at).toBeNull()
+      expect(resumedBody.pause_reason).toBeNull()
+    })
+  }
+
+  // `run-tick` (the endpoint the two steps above exercise) calls `run_phase_once` directly and never
+  // consults `next_run_at`; only the real worker loop does. So this proves only that the route accepts
+  // the request and returns the phase's current status, not that the phase was made due sooner.
+  await test.step("Run-now is accepted for a known phase", async () => {
+    const response = await page.request.post(
+      `${CREDIT_REGISTRATION_ADMIN_API}/phases/${phase}/run-now`,
+      { data: { reason: null } },
+    )
+    expect(response.ok()).toBe(true)
+    expect(await response.json()).toMatchObject({ phase })
+  })
+})
+
 test("The explorer filters, and the attempt chain hides the replaced attempt by default", async ({
   page,
 }) => {
@@ -98,27 +193,65 @@ test("The explorer filters, and the attempt chain hides the replaced attempt by 
 })
 
 test("No stored body carries a student number, a name or an email address", async ({ page }) => {
+  const scope = { userEmail: ADMIN_LINKED_EMAIL }
+  await runMaterializeTick(page.request, scope)
+  await runPreconditionsTick(page.request, scope)
+  await runResolveEnrolmentsTick(page.request, scope)
+  await runImportSubmissionTick(page.request, scope)
+  // The mock's default ripeness is `manual`: nothing registers a submission without this.
+  await transitionMockSuotarSubmissionsFor(
+    page.request,
+    ADMIN_LINKED_STUDENT_NUMBER,
+    "registered",
+    CRS_ADMIN_101,
+  )
+  await runVerifyPollTick(page.request, scope)
+
+  const registered = await pollUntil(
+    async () => {
+      const response = await page.request.get(
+        `${CREDIT_REGISTRATION_ADMIN_API}/registrations?student_number=${ADMIN_LINKED_STUDENT_NUMBER}&state=registered`,
+      )
+      if (!response.ok()) {
+        return null
+      }
+      const body = (await response.json()) as { data: { id: string }[] }
+      return body.data[0] ?? null
+    },
+    { description: "the always-linked admin-course fixture to register" },
+  )
+
   const response = await page.request.get(
-    `${CREDIT_REGISTRATION_ADMIN_API}/registrations/${SUPERSEDED_ATTEMPT_2_ID}`,
+    `${CREDIT_REGISTRATION_ADMIN_API}/registrations/${registered.id}`,
   )
   expect(response.ok()).toBe(true)
   const details = (await response.json()) as {
     events: { details: unknown }[]
     suotar_api_calls: { request_body_sample: unknown; response_body_sample: unknown }[]
   }
+  expect(
+    details.suotar_api_calls.length,
+    "no Suotar calls were logged for this registration",
+  ).toBeGreaterThan(0)
 
   const stored = JSON.stringify([
     details.events.map((event) => event.details),
     details.suotar_api_calls.map((call) => [call.request_body_sample, call.response_body_sample]),
   ])
-  for (const secret of [SUPERSEDED_STUDENT_NUMBER, SUPERSEDED_LAST_NAME, SUPERSEDED_SISU_EMAIL]) {
+  // resolve-enrolments and import send only the bare student number; a name or an email would only
+  // ever reach a stored body through resolve-persons, which this pipeline never calls.
+  for (const secret of [
+    ADMIN_LINKED_STUDENT_NUMBER,
+    ADMIN_LINKED_LAST_NAME,
+    ADMIN_LINKED_SISU_EMAIL,
+  ]) {
     expect(stored, `a stored body carries ${secret}`).not.toContain(secret)
   }
 
   await test.step("The unredacted half is still there, so the panel is worth reading", async () => {
     // The scrubbing note is what tells an admin the gaps are deliberate; without it, an empty panel
     // and a redacted one look the same.
-    await page.goto(`${ORIGIN}/manage/credit-registration/registrations/${SUPERSEDED_ATTEMPT_2_ID}`)
+    await page.goto(`${ORIGIN}/manage/credit-registration/registrations/${registered.id}`)
     await expect(page.getByRole("heading", { name: "What happened" })).toBeVisible()
     await expect(
       page.getByText("Names, student numbers and email addresses are redacted"),
@@ -186,7 +319,7 @@ test("Manual link is refused without a preview and without a reason", async ({ p
   })
 })
 
-test("Admin resend can pass the rate cap with a reason, and it is audited", async ({ page }) => {
+test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
   await page.goto(LINKING_URL)
   const staleRow = page
     .getByRole("table", { name: "People mailed to the cap without a claim" })
@@ -212,6 +345,37 @@ test("Admin resend can pass the rate cap with a reason, and it is audited", asyn
     await expect(dialog.getByText("A mail is owed")).toBeVisible()
     await expect(dialog.getByText("earlier mails were retired")).toBeVisible()
   })
+})
+
+test("A global-admin action recorded against a registration shows up on its detail page", async ({
+  page,
+}) => {
+  const response = await page.request.get(
+    `${CREDIT_REGISTRATION_ADMIN_API}/registrations/${SUPERSEDED_ATTEMPT_1_ID}`,
+  )
+  expect(response.ok()).toBe(true)
+  const details = (await response.json()) as {
+    actions: {
+      action: string
+      actor_role: string
+      reason: string | null
+      before_state: string | null
+      after_state: string | null
+    }[]
+  }
+  const seeded = details.actions.find((action) => action.action === "transition_item")
+  expect(seeded).toMatchObject({
+    actor_role: "global_admin",
+    reason: "Seeded fixture: checked Sisu by hand and requeued",
+    before_state: "submission_uncertain",
+    after_state: "registered",
+  })
+})
+
+test.fixme("A course-teacher's action, or one targeting something other than a registration, is visible somewhere", () => {
+  // Course-, Phase- and VerifiedStudentNumber/StudentNumberVerificationToken-targeted actions —
+  // including this file's own resend override above and the seeded course-teacher
+  // `ResendLinkEmail` row — are written but have no reader anywhere: no route, no page.
 })
 
 test("A discovery run writes the per-realisation counters", async ({ page }) => {

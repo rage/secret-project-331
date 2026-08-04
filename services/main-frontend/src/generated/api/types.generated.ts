@@ -288,6 +288,14 @@ export type AdminMaterializeResult = {
   moved_registration_count: number
 }
 
+export type AdminPausePhasePayload = {
+  reason: string
+}
+
+export type AdminPhaseActionPayload = {
+  reason?: string | null
+}
+
 export type AdminResendAccountLinkingEmailPayload = {
   course_id: string
   /**
@@ -1857,6 +1865,11 @@ export type CreditRegistrationPhaseStatus = {
   consecutive_failures: number
   expected_interval_secs: number
   /**
+   * `seconds_since_heartbeat > expected_interval_secs * health.thresholds.phase_heartbeat_interval_multiplier`,
+   * decided here for the same reason. Always `false` while paused or never heartbeated.
+   */
+  heartbeat_late: boolean
+  /**
    * No implementation is registered for the phase yet, so it has never reported and will not.
    */
   implemented: boolean
@@ -1869,6 +1882,11 @@ export type CreditRegistrationPhaseStatus = {
   paused_at?: string | null
   phase: string
   process_name: string
+  /**
+   * Computed here rather than on the page: a page comparing its own clock against this row's
+   * server timestamp would flip every phase late (or hide a truly dead one) on a skewed client.
+   */
+  seconds_since_heartbeat?: number | null
 }
 
 /**
@@ -3550,8 +3568,6 @@ export type SuotarEndpointWindowStats = {
 }
 
 export type SuotarHealth = {
-  circuit_breaker: CreditRegistrationCircuitBreakerState
-  standings: Array<SuotarEndpointStanding>
   windows: Array<SuotarHealthWindow>
 }
 
@@ -8139,6 +8155,90 @@ export type GetCreditRegistrationOverviewResponses = {
 
 export type GetCreditRegistrationOverviewResponse =
   GetCreditRegistrationOverviewResponses[keyof GetCreditRegistrationOverviewResponses]
+
+export type AdminPausePhaseData = {
+  body: AdminPausePhasePayload
+  path: {
+    /**
+     * One of the twelve canonical phase names
+     */
+    phase: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause"
+}
+
+export type AdminPausePhaseErrors = {
+  /**
+   * No reason given, or not one of the canonical phase names
+   */
+  400: unknown
+}
+
+export type AdminPausePhaseResponses = {
+  /**
+   * The phase's status after pausing
+   */
+  200: CreditRegistrationPhaseStatus
+}
+
+export type AdminPausePhaseResponse = AdminPausePhaseResponses[keyof AdminPausePhaseResponses]
+
+export type AdminResumePhaseData = {
+  body: AdminPhaseActionPayload
+  path: {
+    /**
+     * One of the twelve canonical phase names
+     */
+    phase: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume"
+}
+
+export type AdminResumePhaseErrors = {
+  /**
+   * Not one of the canonical phase names
+   */
+  400: unknown
+}
+
+export type AdminResumePhaseResponses = {
+  /**
+   * The phase's status after resuming
+   */
+  200: CreditRegistrationPhaseStatus
+}
+
+export type AdminResumePhaseResponse = AdminResumePhaseResponses[keyof AdminResumePhaseResponses]
+
+export type AdminRunPhaseNowData = {
+  body: AdminPhaseActionPayload
+  path: {
+    /**
+     * One of the twelve canonical phase names
+     */
+    phase: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now"
+}
+
+export type AdminRunPhaseNowErrors = {
+  /**
+   * Not one of the canonical phase names
+   */
+  400: unknown
+}
+
+export type AdminRunPhaseNowResponses = {
+  /**
+   * The phase's status after being made due
+   */
+  200: CreditRegistrationPhaseStatus
+}
+
+export type AdminRunPhaseNowResponse = AdminRunPhaseNowResponses[keyof AdminRunPhaseNowResponses]
 
 export type ListCreditRegistrationsForAdminData = {
   body?: never

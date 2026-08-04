@@ -19,6 +19,21 @@ use headless_lms_base::config::ApplicationConfiguration;
 const PROCESS_NAME: &str = "credit-registrar";
 
 pub async fn main() -> anyhow::Result<()> {
+    run_credit_registration_worker(
+        PROCESS_NAME,
+        "Starting the credit registrar.",
+        "Still registering credits.",
+    )
+    .await
+}
+
+/// The bootstrap both credit-registration binaries share: they differ only in which phases
+/// `worker_loop::run` ends up picking for `process_name` and in these three messages.
+pub async fn run_credit_registration_worker(
+    process_name: &'static str,
+    start_message: &str,
+    still_running_message: &str,
+) -> anyhow::Result<()> {
     // TODO: Audit that the environment access only happens in single-threaded code.
     unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenvy::dotenv().ok();
@@ -30,12 +45,12 @@ pub async fn main() -> anyhow::Result<()> {
     let app_configuration = ApplicationConfiguration::try_from_env()?;
     let db_pool = PgPool::connect(&db_url).await?;
 
-    info!("Starting the credit registrar.");
+    info!("{start_message}");
     worker_loop::run(
-        PROCESS_NAME,
+        process_name,
         db_pool,
         app_configuration,
-        "Still registering credits.",
+        still_running_message,
     )
     .await
 }

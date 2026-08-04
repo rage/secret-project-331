@@ -15,11 +15,10 @@ import type {
   MyCourseCreditRegistrationConsent,
   SetMyCourseCreditRegistrationConsentResult,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button, Dialog } from "@/shared-module/components"
 
 export interface CreditRegistrationConsentDialogProps {
   consent: MyCourseCreditRegistrationConsent
@@ -90,12 +89,12 @@ const CreditRegistrationConsentDialog: React.FC<CreditRegistrationConsentDialogP
   )
 
   return (
-    <StandardDialog
+    <Dialog
       open={true}
+      // The student must explicitly accept or decline; there is no dismissal path.
+      onClose={() => {}}
       title={t("credit-registration-consent-title")}
-      leftAlignTitle={true}
       showCloseButton={false}
-      closeable={false}
     >
       <div className={bodyCss}>
         {answer.isError && <ErrorBanner variant={"readOnly"} error={answer.error} />}
@@ -132,7 +131,7 @@ const CreditRegistrationConsentDialog: React.FC<CreditRegistrationConsentDialogP
           </Button>
         </div>
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

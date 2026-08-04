@@ -34,6 +34,9 @@ WITH unmirrored AS (
   WHERE cr.deleted_at IS NULL
     AND cr.state IN ('registered', 'duplicate', 'not_improved')
     AND cr.student_number IS NOT NULL
+    -- A regrade keeps the superseded attempt's success state; only the live attempt may still mirror,
+    -- or a completion with both gets two ledger rows and the teacher's completions list shows it twice.
+    AND cr.superseded_by_id IS NULL
     AND NOT EXISTS (
       SELECT 1
       FROM course_module_completion_registered_to_study_registries r
@@ -66,6 +69,9 @@ inserted AS (
     user_id,
     student_number
   FROM unmirrored
+  -- The literal is SUOTAR_PUSH_REGISTRAR_ID and must match the partial index's predicate. It cannot be
+  -- $2: sqlx's compile-time check substitutes NULL for parameters, and no arbiter predicate matches that.
+  ON CONFLICT (course_module_completion_id) WHERE deleted_at IS NULL AND study_registry_registrar_id = '9da5a12f-0b96-4c35-a4fe-6d427d9c4292' DO NOTHING
   RETURNING id
 )
 SELECT COUNT(*) AS "mirrored!"

@@ -2,6 +2,13 @@
   "name": "material-editor",
   "version": "0.1.0",
   "private": true,
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
+  },
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --turbopack",
@@ -106,12 +113,5 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.22.4",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
-  },
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
   }
 }

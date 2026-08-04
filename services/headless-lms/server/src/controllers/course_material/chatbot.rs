@@ -17,7 +17,10 @@ use headless_lms_models::{chatbot_configurations, courses};
 use rand::seq::IndexedRandom;
 use utoipa::OpenApi;
 
-use crate::{domain::authorization::authorize_access_to_chatbot, prelude::*};
+use crate::{
+    domain::authorization::{authorize_access_to_chatbot, handle_anonymous_token},
+    prelude::*,
+};
 use rand::distr::{Alphanumeric, SampleString};
 
 #[derive(OpenApi)]
@@ -118,16 +121,7 @@ async fn send_message(
 
     let conversation = chatbot_conversations::get_by_id(&mut conn, conversation_id).await?;
 
-    let anonymous_token_req = req
-        .headers()
-        .get("anonymous-token")
-        .and_then(|anonymous_token| anonymous_token.to_str().ok());
-
-    let anonymous_token = if let (Some(anonymous_token), None) = (anonymous_token_req, user) {
-        Some(anonymous_token.to_owned())
-    } else {
-        None
-    };
+    let anonymous_token = handle_anonymous_token(req, user).await;
 
     if conversation.user_id != user.map(|u| u.id)
         || conversation.chatbot_configuration_id != chatbot_configuration_id
@@ -284,16 +278,7 @@ async fn current_conversation_info(
     )
     .await?;
 
-    let anonymous_token_req = req
-        .headers()
-        .get("anonymous-token")
-        .and_then(|anonymous_token| anonymous_token.to_str().ok());
-
-    let anonymous_token = if let (Some(anonymous_token), None) = (anonymous_token_req, user) {
-        Some(anonymous_token.to_owned())
-    } else {
-        None
-    };
+    let anonymous_token = handle_anonymous_token(req, user).await;
 
     let res = chatbot_conversations::get_current_conversation_info(
         &mut conn,

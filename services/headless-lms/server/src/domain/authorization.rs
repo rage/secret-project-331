@@ -325,7 +325,7 @@ pub async fn authorize_access_to_chatbot(
 }
 
 /** Extracts anonymous token from request headers and returns it appropriately */
-pub async fn handle_anonymous_token(req: HttpRequest, user: Option<AuthUser>) -> Option<String> {
+pub fn handle_anonymous_token(req: HttpRequest, user: Option<AuthUser>) -> Option<String> {
     let anonymous_token_value = req
         .headers()
         .get("anonymous-token")

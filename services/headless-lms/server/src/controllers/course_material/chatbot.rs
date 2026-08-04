@@ -121,7 +121,7 @@ async fn send_message(
 
     let conversation = chatbot_conversations::get_by_id(&mut conn, conversation_id).await?;
 
-    let anonymous_token = handle_anonymous_token(req, user).await;
+    let anonymous_token = handle_anonymous_token(req, user);
 
     if conversation.user_id != user.map(|u| u.id)
         || conversation.chatbot_configuration_id != chatbot_configuration_id
@@ -278,7 +278,7 @@ async fn current_conversation_info(
     )
     .await?;
 
-    let anonymous_token = handle_anonymous_token(req, user).await;
+    let anonymous_token = handle_anonymous_token(req, user);
 
     let res = chatbot_conversations::get_current_conversation_info(
         &mut conn,

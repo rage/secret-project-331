@@ -49,9 +49,9 @@ const messageStyle = css`
     /*the pre element corresponds to md raw text, this property
     will force long strings in it to wrap and not overflow */
     white-space: pre-wrap;
+    ${preStyles(defaultFontSizePx, false)}
     padding: 0;
     border-radius: 0.4rem;
-    ${preStyles(defaultFontSizePx, false)}
   }
   code {
     ${codeBlockStyles}

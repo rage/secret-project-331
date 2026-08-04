@@ -24,6 +24,7 @@ struct CourseModulesSchema {
     ects_credits: Option<f32>,
     enable_registering_completion_to_uh_open_university: bool,
     certification_enabled: bool,
+    enable_credit_registration_via_suotar: bool,
 }
 /**
  * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
@@ -46,6 +47,7 @@ pub struct CourseModule {
     pub ects_credits: Option<f32>,
     pub enable_registering_completion_to_uh_open_university: bool,
     pub certification_enabled: bool,
+    pub enable_credit_registration_via_suotar: bool,
 }
 
 impl CourseModule {
@@ -65,6 +67,7 @@ impl CourseModule {
             ects_credits: None,
             enable_registering_completion_to_uh_open_university: false,
             certification_enabled: false,
+            enable_credit_registration_via_suotar: false,
         }
     }
     pub fn set_timestamps(
@@ -97,12 +100,14 @@ impl CourseModule {
         ects_credits: Option<f32>,
         completion_registration_link_override: Option<String>,
         enable_registering_completion_to_uh_open_university: bool,
+        enable_credit_registration_via_suotar: bool,
     ) -> Self {
         self.uh_course_code = uh_course_code;
         self.ects_credits = ects_credits;
         self.completion_registration_link_override = completion_registration_link_override;
         self.enable_registering_completion_to_uh_open_university =
             enable_registering_completion_to_uh_open_university;
+        self.enable_credit_registration_via_suotar = enable_credit_registration_via_suotar;
         self
     }
 
@@ -145,6 +150,7 @@ impl From<CourseModulesSchema> for CourseModule {
             enable_registering_completion_to_uh_open_university: schema
                 .enable_registering_completion_to_uh_open_university,
             certification_enabled: schema.certification_enabled,
+            enable_credit_registration_via_suotar: schema.enable_credit_registration_via_suotar,
         }
     }
 }
@@ -253,7 +259,8 @@ RETURNING id,
   completion_registration_link_override,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
-  certification_enabled
+  certification_enabled,
+  enable_credit_registration_via_suotar
         ",
         pkey_policy.into_uuid(),
         new_course_module.course_id,
@@ -317,7 +324,24 @@ pub async fn get_all_modules(conn: &mut PgConnection) -> ModelResult<Vec<CourseM
     let res = sqlx::query_as!(
         CourseModulesSchema,
         "
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled,
+  enable_credit_registration_via_suotar
 FROM course_modules
 WHERE deleted_at IS NULL
         ",
@@ -348,7 +372,8 @@ SELECT id,
   completion_registration_link_override,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
-  certification_enabled
+  certification_enabled,
+  enable_credit_registration_via_suotar
 FROM course_modules
 WHERE id = $1
   AND deleted_at IS NULL
@@ -380,7 +405,8 @@ SELECT id,
   completion_registration_link_override,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
-  certification_enabled
+  certification_enabled,
+  enable_credit_registration_via_suotar
 FROM course_modules
 WHERE id = ANY($1)
   AND deleted_at IS NULL
@@ -416,7 +442,8 @@ SELECT id,
   completion_registration_link_override,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
-  certification_enabled
+  certification_enabled,
+  enable_credit_registration_via_suotar
 FROM course_modules
 WHERE course_id = $1
 AND deleted_at IS NULL
@@ -454,7 +481,8 @@ SELECT id,
   completion_registration_link_override,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
-  certification_enabled
+  certification_enabled,
+  enable_credit_registration_via_suotar
 FROM course_modules
 WHERE course_id = ANY($1)
 AND deleted_at IS NULL
@@ -490,7 +518,8 @@ SELECT cm.id,
   cm.completion_registration_link_override,
   cm.ects_credits,
   cm.enable_registering_completion_to_uh_open_university,
-  cm.certification_enabled
+  cm.certification_enabled,
+  enable_credit_registration_via_suotar
 FROM course_modules as cm
 WHERE EXISTS (
   SELECT 1
@@ -519,30 +548,30 @@ pub async fn get_by_exercise_id(
     let res = sqlx::query_as!(
         CourseModulesSchema,
         r#"
-SELECT
-    course_modules.id AS "id!",
-    course_modules.created_at AS "created_at!",
-    course_modules.updated_at AS "updated_at!",
-    course_modules.deleted_at,
-    course_modules.name,
-    course_modules.course_id AS "course_id!",
-    course_modules.order_number AS "order_number!",
-    course_modules.copied_from,
-    course_modules.uh_course_code,
-    course_modules.automatic_completion AS "automatic_completion!",
-    course_modules.automatic_completion_number_of_exercises_attempted_treshold,
-    course_modules.automatic_completion_number_of_points_treshold,
-    course_modules.automatic_completion_requires_exam AS "automatic_completion_requires_exam!",
-    course_modules.completion_registration_link_override,
-    course_modules.ects_credits,
-    course_modules.enable_registering_completion_to_uh_open_university AS "enable_registering_completion_to_uh_open_university!",
-    course_modules.certification_enabled AS "certification_enabled!"
+SELECT course_modules.id AS "id!",
+  course_modules.created_at AS "created_at!",
+  course_modules.updated_at AS "updated_at!",
+  course_modules.deleted_at,
+  course_modules.name,
+  course_modules.course_id AS "course_id!",
+  course_modules.order_number AS "order_number!",
+  course_modules.copied_from,
+  course_modules.uh_course_code,
+  course_modules.automatic_completion AS "automatic_completion!",
+  course_modules.automatic_completion_number_of_exercises_attempted_treshold,
+  course_modules.automatic_completion_number_of_points_treshold,
+  course_modules.automatic_completion_requires_exam AS "automatic_completion_requires_exam!",
+  course_modules.completion_registration_link_override,
+  course_modules.ects_credits,
+  course_modules.enable_registering_completion_to_uh_open_university AS "enable_registering_completion_to_uh_open_university!",
+  course_modules.certification_enabled AS "certification_enabled!",
+  course_modules.enable_credit_registration_via_suotar AS "enable_credit_registration_via_suotar!"
 FROM exercises
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
   LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
 WHERE exercises.id = $1
-AND chapters.deleted_at IS NULL
-AND course_modules.deleted_at IS NULL
+  AND chapters.deleted_at IS NULL
+  AND course_modules.deleted_at IS NULL
         "#,
         exercise_id,
     )
@@ -622,7 +651,8 @@ SELECT id,
   completion_registration_link_override,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
-  certification_enabled
+  certification_enabled,
+  enable_credit_registration_via_suotar
 FROM course_modules
 WHERE course_id = $1
   AND name IS NULL
@@ -888,7 +918,8 @@ RETURNING id,
   completion_registration_link_override,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
-  certification_enabled
+  certification_enabled,
+  enable_credit_registration_via_suotar
         ",
         automatic_completion,
         exercises_treshold,
@@ -929,7 +960,8 @@ RETURNING id,
   completion_registration_link_override,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
-  certification_enabled
+  certification_enabled,
+  enable_credit_registration_via_suotar
         ",
         uh_course_code,
         id,
@@ -967,7 +999,8 @@ RETURNING id,
   completion_registration_link_override,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
-  certification_enabled
+  certification_enabled,
+  enable_credit_registration_via_suotar
         ",
         enable_registering_completion_to_uh_open_university,
         id,

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.id,\n  cm.created_at,\n  cm.updated_at,\n  cm.deleted_at,\n  cm.name,\n  cm.course_id,\n  cm.order_number,\n  cm.copied_from,\n  cm.uh_course_code,\n  cm.automatic_completion,\n  cm.automatic_completion_number_of_exercises_attempted_treshold,\n  cm.automatic_completion_number_of_points_treshold,\n  cm.automatic_completion_requires_exam,\n  cm.completion_registration_link_override,\n  cm.ects_credits,\n  cm.enable_registering_completion_to_uh_open_university,\n  cm.certification_enabled\nFROM course_modules as cm\nWHERE EXISTS (\n  SELECT 1\n  FROM chapters as ch\n  WHERE ch.course_module_id = cm.id\n    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)\n    AND ch.deleted_at IS NULL\n)\n  AND cm.course_id = $1\n  AND cm.deleted_at IS NULL\n",
+  "query": "\nUPDATE course_modules\nSET enable_registering_completion_to_uh_open_university = $1\nWHERE id = $2\n  AND deleted_at IS NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled,\n  enable_credit_registration_via_suotar\n        ",
   "describe": {
     "columns": [
       {
@@ -189,10 +189,22 @@
             "name": "certification_enabled"
           }
         }
+      },
+      {
+        "ordinal": 17,
+        "name": "enable_credit_registration_via_suotar",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "enable_credit_registration_via_suotar"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
+        "Bool",
         "Uuid"
       ]
     },
@@ -213,8 +225,9 @@
       true,
       true,
       false,
+      false,
       false
     ]
   },
-  "hash": "7b418fcc1b9df0a272ffa87cbef7cfc21c6823a3f4f7b973f70708378959cc6b"
+  "hash": "93a01c287fe4da99e6b4792cf102cc596a6aadde93133a1e708785abce56eecb"
 }

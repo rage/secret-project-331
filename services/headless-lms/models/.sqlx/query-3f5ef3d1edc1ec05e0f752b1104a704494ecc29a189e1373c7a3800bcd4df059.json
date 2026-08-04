@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM course_modules\nWHERE deleted_at IS NULL\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled,\n  enable_credit_registration_via_suotar\nFROM course_modules\nWHERE course_id = $1\n  AND name IS NULL\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -49,23 +49,23 @@
       },
       {
         "ordinal": 4,
-        "name": "course_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "course_modules",
-            "name": "course_id"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
         "name": "name",
         "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "course_modules",
             "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "course_id"
           }
         }
       },
@@ -137,12 +137,12 @@
       },
       {
         "ordinal": 12,
-        "name": "ects_credits",
-        "type_info": "Float4",
+        "name": "automatic_completion_requires_exam",
+        "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "course_modules",
-            "name": "ects_credits"
+            "name": "automatic_completion_requires_exam"
           }
         }
       },
@@ -159,12 +159,12 @@
       },
       {
         "ordinal": 14,
-        "name": "automatic_completion_requires_exam",
-        "type_info": "Bool",
+        "name": "ects_credits",
+        "type_info": "Float4",
         "origin": {
           "Table": {
             "table": "course_modules",
-            "name": "automatic_completion_requires_exam"
+            "name": "ects_credits"
           }
         }
       },
@@ -189,24 +189,38 @@
             "name": "certification_enabled"
           }
         }
+      },
+      {
+        "ordinal": 17,
+        "name": "enable_credit_registration_via_suotar",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "enable_credit_registration_via_suotar"
+          }
+        }
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
       false,
       false,
       true,
-      false,
       true,
       false,
-      true,
-      true,
       false,
       true,
       true,
+      false,
+      true,
+      true,
+      false,
       true,
       true,
       false,
@@ -214,5 +228,5 @@
       false
     ]
   },
-  "hash": "a0d4bb9a411ad2e97d3be9cc573f2118a890e375c8fe23c61e294d0fae9aef18"
+  "hash": "3f5ef3d1edc1ec05e0f752b1104a704494ecc29a189e1373c7a3800bcd4df059"
 }

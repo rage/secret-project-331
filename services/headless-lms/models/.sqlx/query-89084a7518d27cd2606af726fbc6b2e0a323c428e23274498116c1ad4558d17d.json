@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled\nFROM course_modules\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled,\n  enable_credit_registration_via_suotar\nFROM course_modules\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -189,6 +189,17 @@
             "name": "certification_enabled"
           }
         }
+      },
+      {
+        "ordinal": 17,
+        "name": "enable_credit_registration_via_suotar",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "enable_credit_registration_via_suotar"
+          }
+        }
       }
     ],
     "parameters": {
@@ -213,8 +224,9 @@
       true,
       true,
       false,
+      false,
       false
     ]
   },
-  "hash": "6beab9d8ac4d1a87e512375d8996e94a1889db75f50fd2d4cc580ba9bbd5d379"
+  "hash": "89084a7518d27cd2606af726fbc6b2e0a323c428e23274498116c1ad4558d17d"
 }

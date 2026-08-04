@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE course_modules\nSET automatic_completion = $1,\n  automatic_completion_number_of_exercises_attempted_treshold = $2,\n  automatic_completion_number_of_points_treshold = $3,\n  automatic_completion_requires_exam = $4\nWHERE id = $5\n  AND deleted_at IS NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled\n        ",
+  "query": "\nSELECT course_modules.id AS \"id!\",\n  course_modules.created_at AS \"created_at!\",\n  course_modules.updated_at AS \"updated_at!\",\n  course_modules.deleted_at,\n  course_modules.name,\n  course_modules.course_id AS \"course_id!\",\n  course_modules.order_number AS \"order_number!\",\n  course_modules.copied_from,\n  course_modules.uh_course_code,\n  course_modules.automatic_completion AS \"automatic_completion!\",\n  course_modules.automatic_completion_number_of_exercises_attempted_treshold,\n  course_modules.automatic_completion_number_of_points_treshold,\n  course_modules.automatic_completion_requires_exam AS \"automatic_completion_requires_exam!\",\n  course_modules.completion_registration_link_override,\n  course_modules.ects_credits,\n  course_modules.enable_registering_completion_to_uh_open_university AS \"enable_registering_completion_to_uh_open_university!\",\n  course_modules.certification_enabled AS \"certification_enabled!\",\n  course_modules.enable_credit_registration_via_suotar AS \"enable_credit_registration_via_suotar!\"\nFROM exercises\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\n  LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)\nWHERE exercises.id = $1\n  AND chapters.deleted_at IS NULL\n  AND course_modules.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
+        "name": "id!",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -16,7 +16,7 @@
       },
       {
         "ordinal": 1,
-        "name": "created_at",
+        "name": "created_at!",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
@@ -27,7 +27,7 @@
       },
       {
         "ordinal": 2,
-        "name": "updated_at",
+        "name": "updated_at!",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
@@ -60,7 +60,7 @@
       },
       {
         "ordinal": 5,
-        "name": "course_id",
+        "name": "course_id!",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -71,7 +71,7 @@
       },
       {
         "ordinal": 6,
-        "name": "order_number",
+        "name": "order_number!",
         "type_info": "Int4",
         "origin": {
           "Table": {
@@ -104,7 +104,7 @@
       },
       {
         "ordinal": 9,
-        "name": "automatic_completion",
+        "name": "automatic_completion!",
         "type_info": "Bool",
         "origin": {
           "Table": {
@@ -137,7 +137,7 @@
       },
       {
         "ordinal": 12,
-        "name": "automatic_completion_requires_exam",
+        "name": "automatic_completion_requires_exam!",
         "type_info": "Bool",
         "origin": {
           "Table": {
@@ -170,7 +170,7 @@
       },
       {
         "ordinal": 15,
-        "name": "enable_registering_completion_to_uh_open_university",
+        "name": "enable_registering_completion_to_uh_open_university!",
         "type_info": "Bool",
         "origin": {
           "Table": {
@@ -181,7 +181,7 @@
       },
       {
         "ordinal": 16,
-        "name": "certification_enabled",
+        "name": "certification_enabled!",
         "type_info": "Bool",
         "origin": {
           "Table": {
@@ -189,36 +189,44 @@
             "name": "certification_enabled"
           }
         }
+      },
+      {
+        "ordinal": 17,
+        "name": "enable_credit_registration_via_suotar!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "enable_credit_registration_via_suotar"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Bool",
-        "Int4",
-        "Int4",
-        "Bool",
         "Uuid"
       ]
     },
     "nullable": [
-      false,
-      false,
-      false,
       true,
       true,
-      false,
-      false,
       true,
       true,
-      false,
       true,
       true,
-      false,
       true,
       true,
-      false,
-      false
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
     ]
   },
-  "hash": "10943d5ff4f2b7cb8127b869c362b5063145c252230e0ee4995690b26980eb35"
+  "hash": "9c217b0fdf8fe117029892077b6cbfbd5dc13cb9055cb755d2a5c49aba060a8c"
 }

@@ -11,7 +11,7 @@ pub struct CoursePrerequisite {
     pub deleted_at: Option<DateTime<Utc>>,
     pub course_id: Uuid,
     pub prerequisite: String,
-    #[schema(value_type = Vec<f32>)]
+    #[schema(value_type = Option<Vec<f32>>)]
     pub embedding: Option<Vector>,
 }
 
@@ -115,6 +115,7 @@ RETURNING
 pub async fn get_course_ids_by_prerequisite_vector(
     conn: &mut PgConnection,
     prerequisite_vec: Vec<f32>,
+    prerequisite_keyword: String,
 ) -> ModelResult<Vec<Uuid>> {
     let vector = Vector::from(prerequisite_vec);
     let res = sqlx::query_scalar(
@@ -123,15 +124,21 @@ SELECT course_id
 FROM (
     SELECT
         course_id,
-        MIN(embedding <=> $1::vector) AS distance
+        MIN(embedding <#> $1::vector) AS distance
     FROM course_prerequisites
     GROUP BY course_id
+    ORDER BY distance ASC
+    LIMIT 5
 ) t
-ORDER BY distance
-LIMIT 5
+UNION ALL
+SELECT course_id
+FROM course_prerequisites
+WHERE to_tsvector('english', prerequisite)
+@@ websearch_to_tsquery('english', $2)
         "#,
     )
     .bind(vector)
+    .bind(prerequisite_keyword)
     .fetch_all(conn)
     .await?;
     Ok(res)

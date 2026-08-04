@@ -13074,7 +13074,7 @@
       },
       "CourseAudience": {
         "type": "object",
-        "required": ["id", "created_at", "updated_at", "course_id", "audience", "embedding"],
+        "required": ["id", "created_at", "updated_at", "course_id", "audience"],
         "properties": {
           "audience": {
             "type": "string"
@@ -13092,7 +13092,7 @@
             "format": "date-time"
           },
           "embedding": {
-            "type": "array",
+            "type": ["array", "null"],
             "items": {
               "type": "number",
               "format": "float"
@@ -14150,7 +14150,7 @@
       },
       "CoursePrerequisite": {
         "type": "object",
-        "required": ["id", "created_at", "updated_at", "course_id", "prerequisite", "embedding"],
+        "required": ["id", "created_at", "updated_at", "course_id", "prerequisite"],
         "properties": {
           "course_id": {
             "type": "string",
@@ -14165,7 +14165,7 @@
             "format": "date-time"
           },
           "embedding": {
-            "type": "array",
+            "type": ["array", "null"],
             "items": {
               "type": "number",
               "format": "float"

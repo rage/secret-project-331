@@ -11,7 +11,7 @@ pub struct CourseAudience {
     pub deleted_at: Option<DateTime<Utc>>,
     pub course_id: Uuid,
     pub audience: String,
-    #[schema(value_type = Vec<f32>)]
+    #[schema(value_type = Option<Vec<f32>>)]
     pub embedding: Option<Vector>,
 }
 
@@ -115,6 +115,7 @@ RETURNING
 pub async fn get_course_ids_by_audience_vector(
     conn: &mut PgConnection,
     audience_vec: Vec<f32>,
+    audience_keyword: String,
 ) -> ModelResult<Vec<Uuid>> {
     let vector = Vector::from(audience_vec);
     let res = sqlx::query_scalar(
@@ -123,15 +124,21 @@ SELECT course_id
 FROM (
     SELECT
         course_id,
-        MIN(embedding <=> $1) AS distance
+        MIN(embedding <#> $1) AS distance
     FROM course_audiences
     GROUP BY course_id
+    ORDER BY distance ASC
+    LIMIT 5
 ) t
-ORDER BY distance
-LIMIT 5
+UNION ALL
+SELECT course_id
+FROM course_audiences
+WHERE to_tsvector('english', audience)
+@@ websearch_to_tsquery('english', $2)
         "#,
     )
     .bind(vector)
+    .bind(audience_keyword)
     .fetch_all(conn)
     .await?;
     Ok(res)

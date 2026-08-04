@@ -1300,7 +1300,6 @@ pub struct CourseMetadata {
 
 pub async fn set_metadata(
     conn: &mut PgConnection,
-    app_conf: &ApplicationConfiguration,
     course_id: Uuid,
     course_metadata: CourseMetadataUpdate,
 ) -> ModelResult<CourseMetadata> {
@@ -1330,14 +1329,18 @@ pub async fn set_metadata(
 
     crate::course_prerequisites::delete_batch(conn, prerequisites_to_delete).await?;
 
-    let prerequisite_embeddings = create_embeddings(prerequisites_to_add.clone()).await?;
-    let prerequisites = insert_course_prerequisites(
-        conn,
-        course_id,
-        prerequisites_to_add,
-        prerequisite_embeddings,
-    )
-    .await?;
+    let prerequisites = if !prerequisites_to_add.is_empty() {
+        let prerequisite_embeddings = create_embeddings(prerequisites_to_add.clone()).await?;
+        insert_course_prerequisites(
+            conn,
+            course_id,
+            prerequisites_to_add,
+            prerequisite_embeddings,
+        )
+        .await?
+    } else {
+        vec![]
+    };
 
     let old_audiences: Vec<CourseAudience> =
         crate::course_audiences::get_by_course_id(conn, course_id).await?;
@@ -1365,14 +1368,18 @@ pub async fn set_metadata(
 
     crate::course_audiences::delete_batch(conn, audiences_to_delete).await?;
 
-    let audience_embeddings = create_embeddings(audiences_to_add.clone()).await?;
-    let audiences = crate::course_audiences::insert_course_audiences(
-        conn,
-        course_id,
-        audiences_to_add,
-        audience_embeddings,
-    )
-    .await?;
+    let audiences = if !audiences_to_add.is_empty() {
+        let audience_embeddings = create_embeddings(audiences_to_add.clone()).await?;
+        crate::course_audiences::insert_course_audiences(
+            conn,
+            course_id,
+            audiences_to_add,
+            audience_embeddings,
+        )
+        .await?
+    } else {
+        vec![]
+    };
 
     let course = get_course(conn, course_id).await?;
 
@@ -1470,6 +1477,7 @@ WHERE id = $2
 pub async fn get_by_description_vector(
     conn: &mut PgConnection,
     description_vec: Vec<f32>,
+    description_keyword: String,
 ) -> ModelResult<Vec<Uuid>> {
     let vector = Vector::from(description_vec);
     let courses = sqlx::query_scalar(
@@ -1478,15 +1486,21 @@ SELECT id
 FROM (
     SELECT
         id,
-        MIN(embedding <=> $1) AS distance
+        MIN(embedding <#> $1) AS distance
     FROM courses
     GROUP BY id
+    ORDER BY distance ASC
+    LIMIT 5
 ) t
-ORDER BY distance
-LIMIT 5
+UNION ALL
+SELECT id
+FROM courses
+WHERE to_tsvector('english', description)
+@@ websearch_to_tsquery('english', $2)
         "#,
     )
     .bind(vector)
+    .bind(description_keyword)
     .fetch_all(conn)
     .await?;
     Ok(courses)

@@ -1,14 +1,15 @@
 use std::collections::HashMap;
 
 use crate::{
-    azure_chatbot::{ChatbotUserContext, JSONType, JsonItem, SchemaPropertyType},
+    azure_chatbot::{
+        ArrayItem, ArrayProperty, ChatbotUserContext, JSONType, JsonItem, SchemaPropertyType,
+    },
     chatbot_tools::{
         AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
         ToolProperties,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
 };
-//use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     course_audiences::get_course_ids_by_audience_vector,
     course_prerequisites::get_course_ids_by_prerequisite_vector,
@@ -17,6 +18,7 @@ use headless_lms_models::{
 use headless_lms_utils::azure_embedding::create_embeddings;
 use serde::{Deserialize, Deserializer, Serialize};
 use sqlx::PgConnection;
+use uuid::Uuid;
 
 pub type CourseFinderTool = ToolProperties<CourseFinderState, CourseFinderArguments>;
 
@@ -43,44 +45,96 @@ impl ChatbotTool for CourseFinderTool {
         arguments: Self::Arguments,
         _user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
-        println!("{:#?}", arguments);
         let audience_courses = if let Some(audiences) = &arguments.audiences {
-            let audience_embedding = create_embeddings(vec![audiences.clone()])
-                .await?
-                .first()
-                .expect("Embedding returned nothing")
-                .to_owned();
-            get_course_ids_by_audience_vector(conn, audience_embedding).await?
+            let audience_embeddings = create_embeddings(audiences.clone()).await?.to_owned();
+
+            let mut audience_courses = vec![];
+
+            for index in 0..audience_embeddings.len() {
+                audience_courses.extend(
+                    get_course_ids_by_audience_vector(
+                        conn,
+                        audience_embeddings[index].clone(),
+                        audiences[index].clone(),
+                    )
+                    .await?,
+                );
+            }
+            audience_courses
         } else {
             vec![]
         };
 
         let prerequisite_courses = if let Some(prerequisites) = &arguments.prerequisites {
-            let prerequisite_embedding = create_embeddings(vec![prerequisites.clone()])
-                .await?
-                .first()
-                .expect("Embedding returned nothing")
-                .to_owned();
-            get_course_ids_by_prerequisite_vector(conn, prerequisite_embedding).await?
+            let prerequisite_embeddings =
+                create_embeddings(prerequisites.clone()).await?.to_owned();
+
+            let mut prerequisite_courses = vec![];
+
+            for index in 0..prerequisite_embeddings.len() {
+                prerequisite_courses.extend(
+                    get_course_ids_by_prerequisite_vector(
+                        conn,
+                        prerequisite_embeddings[index].clone(),
+                        prerequisites[index].clone(),
+                    )
+                    .await?,
+                );
+            }
+            prerequisite_courses
         } else {
             vec![]
         };
 
         let description_courses = if let Some(description) = &arguments.description {
-            let description_embedding = create_embeddings(vec![description.clone()])
-                .await?
-                .first()
-                .expect("Embedding returned nothing")
-                .to_owned();
-            get_by_description_vector(conn, description_embedding).await?
+            let description_embeddings = create_embeddings(description.clone()).await?.to_owned();
+
+            let mut description_courses = vec![];
+
+            for index in 0..description_embeddings.len() {
+                description_courses.extend(
+                    get_by_description_vector(
+                        conn,
+                        description_embeddings[index].clone(),
+                        description[index].clone(),
+                    )
+                    .await?,
+                );
+            }
+            description_courses
         } else {
             vec![]
         };
 
         let course_ids = [description_courses, audience_courses, prerequisite_courses].concat();
+        println!("COURSE IDS: {:#?}", course_ids);
+
+        let mut counts: HashMap<Uuid, usize> = HashMap::new();
+
+        for id in &course_ids {
+            *counts.entry(*id).or_insert(0) += 1;
+        }
+
         let courses = courses::get_by_ids(conn, &course_ids).await?;
+
+        let course_occurrences: HashMap<Uuid, CourseOccurrences> = courses
+            .into_iter()
+            .map(|course| {
+                let count = counts[&course.id];
+                (
+                    course.id,
+                    CourseOccurrences {
+                        course,
+                        occurrences: count,
+                    },
+                )
+            })
+            .collect();
+        println!("OUTPUT: {:#?}", course_occurrences);
         Ok(CourseFinderTool {
-            state: CourseFinderState { courses },
+            state: CourseFinderState {
+                courses: course_occurrences,
+            },
             arguments,
         })
     }
@@ -91,37 +145,46 @@ impl ChatbotTool for CourseFinderTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some("Do not return the JSON of the courses to the user. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
+        Some("You get a JSON with course id as a key and course info and course occurrences as values.. The value tuple will have the course info as one value and the amount how many times the course matched with the user query. When answering the user, present the course with most occurrences first, because this means that it matched better with the user query. Do not return the JSON of the courses to the user. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
     }
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
             name: "course_finder".to_string(),
-            description: "Find suitable courses for the user if they want to find available courses for their conditions. The arguments should be created based on the terms with which the user wants to filter the courses. The needed arguments should therefore be parsed from the user message. The arguments are natural-language descriptions for the parameters the user is using to search the courses. At least one of the three arguments is required. This tool is useful to find any courses if the user wants recommendations for courses they can take.".to_string(),
+            description: "Find suitable courses for the user if they want to find available courses for their conditions. The arguments should be created based on the terms with which the user wants to filter the courses. The needed arguments should therefore be parsed from the user message. The arguments are arrays of keywords for the parameters the user is using to search the courses. At least one of the three arguments is required. This tool is useful to find any courses if the user wants recommendations for courses they can take.".to_string(),
             parameters: LLMToolParams {
                 tool_type: LLMToolParamType::Object,
                 properties: HashMap::from([
                     (
                         "description".to_string(),
-                        SchemaPropertyType::Item(JsonItem {
-                                type_field: JSONType::String,
-                            description: Some("A natural-language description of what the user wants to learn.".to_string()),
-
-                        }),
-                    ),
+                         SchemaPropertyType::ArrayProperty(ArrayProperty {
+                                type_field: JSONType::Array,
+                            description: Some("List of keywords used to search course descriptions based on if the user tries to find courses based on what they contain or teach.".to_string()),
+                            items: ArrayItem::JsonItem(JsonItem {
+                                    type_field: JSONType::String,
+                                    description: None,
+                                }),
+            })),
                     (
                         "prerequisites".to_string(),
-                        SchemaPropertyType::Item(JsonItem {
-                                type_field: JSONType::String,
-                            description:Some("A natural-language description of the knowledge or experience the user already has.".to_string()),
-                        }),
+                        SchemaPropertyType::ArrayProperty(ArrayProperty {
+                                type_field: JSONType::Array,
+                            description: Some("List of keywords of preliminary knowledge possessed to be suitable for a course.".to_string()),
+                            items: ArrayItem::JsonItem(JsonItem {
+                                    type_field: JSONType::String,
+                                    description: None,
+                                }),})
                     ),
                     (
                         "audiences".to_string(),
-                        SchemaPropertyType::Item(JsonItem {
-                                type_field: JSONType::String,
-                            description: Some("A natural-language description of the type of learner the user is, if relevant.".to_string()),
+                        SchemaPropertyType::ArrayProperty(ArrayProperty {
+                                type_field: JSONType::Array,
+                            description: Some("List of keywords of audience types that a course is suitable for.".to_string()),
+                            items: ArrayItem::JsonItem(JsonItem {
+                                    type_field: JSONType::String,
+                                    description: None,
+                                }),
                         }),
                     ),
                 ]),
@@ -133,32 +196,40 @@ impl ChatbotTool for CourseFinderTool {
     }
 }
 
+#[derive(Debug)]
 pub struct CourseFinderState {
-    courses: Vec<Course>,
+    courses: HashMap<Uuid, CourseOccurrences>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CourseFinderArguments {
-    #[serde(deserialize_with = "empty_string_as_none")]
-    description: Option<String>,
-    #[serde(deserialize_with = "empty_string_as_none")]
-    prerequisites: Option<String>,
-    #[serde(deserialize_with = "empty_string_as_none")]
-    audiences: Option<String>,
+    #[serde(deserialize_with = "empty_vec_as_none")]
+    description: Option<Vec<String>>,
+    #[serde(deserialize_with = "empty_vec_as_none")]
+    prerequisites: Option<Vec<String>>,
+    #[serde(deserialize_with = "empty_vec_as_none")]
+    audiences: Option<Vec<String>>,
+}
+#[derive(Serialize, Deserialize, Clone, Debug)]
+
+pub struct CourseOccurrences {
+    course: Course,
+    occurrences: usize,
 }
 
-fn empty_string_as_none<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+fn empty_vec_as_none<'de, D>(deserializer: D) -> Result<Option<Vec<String>>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let opt = Option::<String>::deserialize(deserializer)?;
+    let opt = Option::<Vec<String>>::deserialize(deserializer)?;
 
-    Ok(opt.and_then(|s| {
-        let s = s.trim();
-        if s.is_empty() {
-            None
-        } else {
-            Some(s.to_owned())
-        }
+    Ok(opt.and_then(|vec| {
+        let vec: Vec<String> = vec
+            .into_iter()
+            .map(|s| s.trim().to_owned())
+            .filter(|s| !s.is_empty())
+            .collect();
+
+        if vec.is_empty() { None } else { Some(vec) }
     }))
 }

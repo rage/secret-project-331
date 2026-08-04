@@ -9,9 +9,9 @@ import {
   courseFrontPageUrl,
   CRS_101,
   legacyPullStream,
-  loginAsSeededStudent,
   myRegistrationOnCourse,
   PROFILE_CREDIT_REGISTRATION_URL,
+  seededStudentStorageState,
   SUOTAR_COURSE_SLUG,
   waitForCreditRegistrationConsentDialog,
   waitForRegistrationState,
@@ -38,10 +38,11 @@ const STUDENT_EMAIL = "credit-registration-not-consented@example.com"
 const STUDENT_NUMBER = "900000103"
 const PAGE_URL = `${courseFrontPageUrl(SUOTAR_COURSE_SLUG)}/chapter-1/page-1`
 
+test.use({ storageState: seededStudentStorageState(STUDENT_EMAIL) })
+
 test("Student consents, links student number, gets automatically registered end to end", async ({
   page,
 }) => {
-  await loginAsSeededStudent(page, STUDENT_EMAIL)
   const scope = { userEmail: STUDENT_EMAIL }
 
   await test.step("The consent dialog is part of the course-start chain", async () => {
@@ -49,7 +50,7 @@ test("Student consents, links student number, gets automatically registered end 
     await selectCourseInstanceIfPrompted(page)
     await waitForCreditRegistrationConsentDialog(page)
     await expect(page.getByText("Registering your credits in Sisu")).toBeVisible()
-    await accessibilityCheck(page, "Credit registration consent dialog", [])
+    await accessibilityCheck(page, "Credit registration consent dialog")
     await answerCreditRegistrationConsent(page, "accept")
   })
 
@@ -101,7 +102,7 @@ test("Student consents, links student number, gets automatically registered end 
     await page.goto(completionRegistrationUrl(row.course_module_id))
     await expect(page.getByRole("list", { name: "Credit registration progress" })).toBeVisible()
     await expect(page.getByText("Registered in Sisu").first()).toBeVisible()
-    await accessibilityCheck(page, "Credit registration status page", [])
+    await accessibilityCheck(page, "Credit registration status page")
 
     await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
     await expect(
@@ -110,14 +111,14 @@ test("Student consents, links student number, gets automatically registered end 
     await expect(
       page.getByRole("table", { name: "My credit registrations" }).getByText("Registered in Sisu"),
     ).toBeVisible()
-    await accessibilityCheck(page, "Profile credit registration tab", [])
+    await accessibilityCheck(page, "Profile credit registration tab")
   })
 
   await test.step("The success is mirrored into the legacy ledger exactly once", async () => {
     const first = await runLegacyMirrorTick(page.request, scope)
-    expect(first).toMatchObject({ status: "ran", itemsProcessed: 1 })
+    expect(first.itemsProcessed).toBe(1)
     const second = await runLegacyMirrorTick(page.request, scope)
-    expect(second).toMatchObject({ status: "ran", itemsProcessed: 0 })
+    expect(second.itemsProcessed).toBe(0)
   })
 
   await test.step("A Suotar-enabled module has left the legacy pull stream", async () => {

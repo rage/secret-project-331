@@ -24,6 +24,10 @@ There is nothing to do. The first request to a contract endpoint installs the sa
 pushes. For a hands-free demo where a submission registers itself after one verify poll, apply the
 `happy-path-auto` scenario.
 
+The whole catalogue is `happy-path`, `happy-path-auto`, `timeout-but-landed`,
+`timeout-nothing-landed` and `post-send-death`. Anything else is composed from the primitives: a spec
+seeds its own fixtures, which is what lets specs run in parallel.
+
 ## Contract endpoints
 
 All `POST`, all batch endpoints taking a JSON array and answering with one item per request item in
@@ -86,9 +90,18 @@ curl -sX POST http://project-331.local/api/v0/mock-suotar/control/command \
 
 ### Breaking Sisu on purpose
 
-A fault names four things: the endpoint, the stage, what it matches and the effect. The stage is
-required and there is no default, because a fault after the write has committed means something
+A fault is: which endpoint, at which stage, for whose data, which error, how many times. The stage
+is required and there is no default, because a fault after the write has committed means something
 entirely different from the same fault before it.
+
+| Part       | Values                                                                          |
+| ---------- | ------------------------------------------------------------------------------- |
+| `when`     | `endpoint`, `stage`, `studentNumber`, `courseCode`, `owner: { user?, course? }` |
+| `then`     | `itemLevel`, `requestLevel`, `connectionReset`                                  |
+| `lifetime` | `matchingCalls`, `matchingItems`; omitted means until disarmed                  |
+
+`endpoint` and `stage` are required; the rest narrow the fault to data one spec owns, and a fault
+without any of them hits every request to that endpoint.
 
 ```bash
 curl -sX POST http://project-331.local/api/v0/mock-suotar/control/command \

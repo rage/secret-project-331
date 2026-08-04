@@ -1,15 +1,17 @@
 //! The six contract endpoints, one stage boundary at a time.
 //!
-//! Order per request: `auth`, `requestGate`, `parse`, the item-keyed load, `resolve` per item, then
-//! `afterWrite` and `respond`. The write-back is one atomic pipeline that commits *before* the
-//! response — or the deliberate absence of one — leaves the process, which is what makes a timeout
-//! that landed distinguishable from a timeout that did not.
+//! Order per request: the credential, the parse, the item-keyed load, then the faults at `auth`,
+//! `requestGate` and `parse` — after the load, so a fault can name the rows one spec owns, and still
+//! before anything is written — then `resolve` per item, then `afterWrite` and `respond`. The
+//! write-back is one atomic pipeline that commits *before* the response — or the deliberate absence
+//! of one — leaves the process, which is what makes a timeout that landed distinguishable from a
+//! timeout that did not.
 
 use std::collections::BTreeSet;
-use std::time::Duration;
 
 use base64::Engine;
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use itertools::Itertools;
 use serde::de::DeserializeOwned;
 use sqlx::PgPool;
 
@@ -18,15 +20,13 @@ use crate::prelude::*;
 use super::default_world;
 use super::faults::{Effect, Fault, FaultMatch, ItemAddress, Stage, matches_item, matches_request};
 use super::logic;
-use super::store::{CounterHash, MockSuotarStore, Preamble};
+use super::store::{MockSuotarStore, Preamble};
 use super::wire::{self, ItemStatus, RequestLevelError, ResponseItem};
 use super::world::{MissedFault, RecordedCall, RecordedFaults, RecordedItem, WorkingSet};
 
 /// Bodies are logged for debugging, not stored forever: the whole log is capped and thrown away
 /// with its generation.
 const RAW_BODY_LIMIT: usize = 8 * 1024;
-
-const DEFAULT_GARBAGE_BODY: &str = "{\"items\":[{\"requestItemId\":\"";
 
 pub async fn resolve_persons(
     app_conf: web::Data<ApplicationConfiguration>,
@@ -146,8 +146,8 @@ async fn endpoint(
 ) -> ControllerResult<HttpResponse> {
     super::assert_enabled(&app_conf);
     let token = skip_authorize();
-    let outcome = match run(endpoint, &store, &pool, &req, &body).await {
-        Ok(outcome) => outcome,
+    let delivery = match run(endpoint, &store, &pool, &req, &body).await {
+        Ok(delivery) => delivery,
         Err(error) => {
             // A store failure is loud: silent degradation is wrong for something tests assert against.
             error!("mock Suotar failed to serve a request: {error:?}");
@@ -156,23 +156,16 @@ async fn endpoint(
             ));
         }
     };
-    if outcome.delay_ms > 0 {
-        tokio::time::sleep(Duration::from_millis(outcome.delay_ms)).await;
-    }
-    token.authorized_ok(deliver(outcome.delivery))
+    token.authorized_ok(deliver(delivery))
 }
 
 fn deliver(delivery: Delivery) -> HttpResponse {
     match delivery {
-        Delivery::Json {
-            status,
-            body,
-            content_type,
-        } => HttpResponse::build(
+        Delivery::Json { status, body } => HttpResponse::build(
             actix_web::http::StatusCode::from_u16(status)
                 .unwrap_or(actix_web::http::StatusCode::OK),
         )
-        .content_type(content_type)
+        .content_type("application/json")
         .body(body),
         Delivery::ConnectionReset => {
             let stream = futures::stream::once(async {
@@ -186,11 +179,7 @@ fn deliver(delivery: Delivery) -> HttpResponse {
 }
 
 enum Delivery {
-    Json {
-        status: u16,
-        content_type: String,
-        body: String,
-    },
+    Json { status: u16, body: String },
     ConnectionReset,
 }
 
@@ -198,30 +187,47 @@ impl Delivery {
     fn json<T: Serialize>(status: u16, value: &T) -> Self {
         Self::Json {
             status,
-            content_type: "application/json".to_string(),
             body: serde_json::to_string(value).unwrap_or_else(|_| "null".to_string()),
         }
     }
 }
 
-struct Outcome {
+/// What a request-shaped effect answers with instead of the per-item array.
+struct Terminal {
     delivery: Delivery,
-    delay_ms: u64,
+    status: u16,
+    request_level_code: Option<String>,
+    effect: String,
 }
 
-/// What a stage's effects did to the response being built.
-#[derive(Default)]
-struct Shaped {
-    delay_ms: u64,
-    terminal: Option<Delivery>,
-    content_type_override: Option<String>,
-    dropped: BTreeSet<String>,
-    drop_first: usize,
-    reorder: Option<Vec<String>>,
-    reverse: bool,
-    status_override: Option<u16>,
-    request_level_code: Option<String>,
-    effect: Option<String>,
+/// `None` for an item-level effect, which shapes one item rather than the whole answer.
+fn terminal(endpoint: SuotarEndpoint, effect: &Effect) -> Option<Terminal> {
+    let kind = effect.kind().to_string();
+    match effect {
+        Effect::ConnectionReset => Some(Terminal {
+            delivery: Delivery::ConnectionReset,
+            status: 200,
+            request_level_code: None,
+            effect: kind,
+        }),
+        Effect::RequestLevel {
+            status,
+            code,
+            message,
+        } => {
+            let error = match message {
+                Some(message) => RequestLevelError::with_message(code, message.clone()),
+                None => RequestLevelError::new(endpoint, code),
+            };
+            Some(Terminal {
+                delivery: Delivery::json(*status, &error),
+                status: *status,
+                request_level_code: Some(code.clone()),
+                effect: kind,
+            })
+        }
+        Effect::ItemLevel { .. } => None,
+    }
 }
 
 async fn run(
@@ -230,7 +236,7 @@ async fn run(
     pool: &PgPool,
     req: &HttpRequest,
     body: &[u8],
-) -> anyhow::Result<Outcome> {
+) -> anyhow::Result<Delivery> {
     let now = Utc::now();
     let (generation, preamble) = resolve_world(store, pool).await?;
     let mut runner = FaultRunner {
@@ -240,7 +246,6 @@ async fn run(
         preamble: &preamble,
         log: RecordedFaults::default(),
     };
-    let mut shaped = Shaped::default();
     let mut call = RecordedCall {
         seq: store.next_call_seq(&generation).await?,
         received_at: now,
@@ -254,7 +259,6 @@ async fn run(
         http_status: 200,
         request_level_code: None,
         effect: None,
-        latency_ms: 0,
         raw_body_truncated: truncate(body),
         faults: RecordedFaults::default(),
         items: Vec::new(),
@@ -264,53 +268,19 @@ async fn run(
         ..Default::default()
     };
 
-    // Steps 1-3: the stages that are decided before the body is read. Owner-narrowed faults at any
-    // of them are deferred to after the load, because narrowing costs a parse.
-    let mut short_circuit: Option<(Stage, Effect)> = None;
-    for stage in [Stage::Auth, Stage::RequestGate, Stage::Parse] {
-        if let Some(effect) = runner
-            .request_stage(endpoint, stage, &[], NarrowMode::UnnarrowedOnly)
-            .await?
-        {
-            if matches!(effect, Effect::Latency { .. } | Effect::Hang { .. }) {
-                apply_request_effect(&mut shaped, endpoint, &effect);
-                continue;
-            }
-            short_circuit = Some((stage, effect));
-            break;
-        }
-        if stage == Stage::Auth && !authorized(req, &preamble) {
-            call.authorized = false;
-            return finish(
-                store,
-                &generation,
-                &working,
-                call,
-                runner.log,
-                shaped,
-                Delivery::json(401, &RequestLevelError::new(endpoint, "unauthorized")),
-                Some("unauthorized".to_string()),
-                401,
-            )
-            .await;
-        }
-    }
-
-    if let Some((stage, effect)) = short_circuit {
-        call.authorized = stage != Stage::Auth;
-        let delivery = terminal_delivery(endpoint, &effect, Vec::new(), &mut shaped);
-        let status = shaped.status_override.unwrap_or(200);
-        let code = shaped.request_level_code.clone();
+    // The real credential, which no fault takes part in.
+    if !authorized(req, &preamble) {
+        call.authorized = false;
         return finish(
             store,
             &generation,
             &working,
             call,
             runner.log,
-            shaped,
-            delivery,
-            code,
-            status,
+            Delivery::json(401, &RequestLevelError::new(endpoint, "unauthorized")),
+            401,
+            Some("unauthorized".to_string()),
+            None,
         )
         .await;
     }
@@ -324,10 +294,10 @@ async fn run(
                 &working,
                 call,
                 runner.log,
-                shaped,
                 Delivery::json(400, &RequestLevelError::with_message(&code, message)),
-                Some(code),
                 400,
+                Some(code),
+                None,
             )
             .await;
         }
@@ -337,39 +307,31 @@ async fn run(
     load(store, &generation, &parsed, &mut working).await?;
     parsed.enrich_addresses(&mut addresses, &working);
 
+    // The stages a real Suotar decides before it reads the body, evaluated here — after it —
+    // because narrowing a fault to the rows one spec owns costs the parse. Nothing has been written
+    // yet, so a fault at any of them still means "the request never landed".
     for stage in [Stage::Auth, Stage::RequestGate, Stage::Parse] {
-        let Some(effect) = runner
-            .request_stage(endpoint, stage, &addresses, NarrowMode::NarrowedOnly)
-            .await?
-        else {
-            continue;
-        };
-        if matches!(effect, Effect::Latency { .. } | Effect::Hang { .. }) {
-            apply_request_effect(&mut shaped, endpoint, &effect);
-            continue;
+        if let Some(effect) = runner.request_stage(endpoint, stage, &addresses).await?
+            && let Some(terminal) = terminal(endpoint, &effect)
+        {
+            call.authorized = stage != Stage::Auth;
+            return finish(
+                store,
+                &generation,
+                &working,
+                call,
+                runner.log,
+                terminal.delivery,
+                terminal.status,
+                terminal.request_level_code,
+                Some(terminal.effect),
+            )
+            .await;
         }
-        call.authorized = stage != Stage::Auth;
-        // The response is the one the fault's own stage would have produced, even though deciding
-        // it needed the parse the real auth path never does.
-        let delivery = terminal_delivery(endpoint, &effect, Vec::new(), &mut shaped);
-        let status = shaped.status_override.unwrap_or(200);
-        let code = shaped.request_level_code.clone();
-        return finish(
-            store,
-            &generation,
-            &working,
-            call,
-            runner.log,
-            shaped,
-            delivery,
-            code,
-            status,
-        )
-        .await;
     }
 
-    // Step 5: the whole per-item order, so there is one place to look when a test asks why an
-    // item failed.
+    // The whole per-item order, so there is one place to look when a test asks why an item
+    // failed.
     let mut items = Vec::with_capacity(addresses.len());
     for (index, address) in addresses.iter().enumerate() {
         let fault = runner.item_stage(endpoint, Stage::Resolve, address).await?;
@@ -379,13 +341,13 @@ async fn run(
         }
     }
 
-    // Step 6: the two post-commit stages, decided before anything moves.
+    // The two post-commit stages, decided before anything moves. A request-shaped effect
+    // here replaces the answer the items would have formed; the log keeps the items either way,
+    // which is what makes a landed-but-unanswered import visible.
+    let mut answered_by_fault: Option<Terminal> = None;
     for stage in [Stage::AfterWrite, Stage::Respond] {
-        if let Some(effect) = runner
-            .request_stage(endpoint, stage, &addresses, NarrowMode::All)
-            .await?
-        {
-            apply_request_effect(&mut shaped, endpoint, &effect);
+        if let Some(effect) = runner.request_stage(endpoint, stage, &addresses).await? {
+            answered_by_fault = terminal(endpoint, &effect);
         }
         for (index, address) in addresses.iter().enumerate() {
             if let Some(effect) = runner.item_stage(endpoint, stage, address).await?
@@ -413,24 +375,30 @@ async fn run(
         })
         .collect();
 
-    let delivery = shape_items(items, &mut shaped);
-    let status = shaped.status_override.unwrap_or(200);
-    let code = shaped.request_level_code.clone();
+    let (delivery, status, code, effect) = match answered_by_fault {
+        Some(terminal) => (
+            terminal.delivery,
+            terminal.status,
+            terminal.request_level_code,
+            Some(terminal.effect),
+        ),
+        None => (Delivery::json(200, &items), 200, None, None),
+    };
     finish(
         store,
         &generation,
         &working,
         call,
         runner.log,
-        shaped,
         delivery,
-        code,
         status,
+        code,
+        effect,
     )
     .await
 }
 
-/// Steps 7 and 8: commit, then hand back what to send and how long to wait first.
+/// Commits, then hands back what to send.
 #[allow(clippy::too_many_arguments)]
 async fn finish(
     store: &MockSuotarStore,
@@ -438,22 +406,18 @@ async fn finish(
     working: &WorkingSet,
     mut call: RecordedCall,
     log: RecordedFaults,
-    shaped: Shaped,
     delivery: Delivery,
-    request_level_code: Option<String>,
     status: u16,
-) -> anyhow::Result<Outcome> {
+    request_level_code: Option<String>,
+    effect: Option<String>,
+) -> anyhow::Result<Delivery> {
     call.faults = log;
-    call.effect = shaped.effect;
-    call.latency_ms = shaped.delay_ms;
+    call.effect = effect;
     call.http_status = status;
     call.request_level_code = request_level_code;
     let capacity = working.defaults.call_log_capacity.max(1);
     store.commit(generation, working, &call, capacity).await?;
-    Ok(Outcome {
-        delivery,
-        delay_ms: shaped.delay_ms,
-    })
+    Ok(delivery)
 }
 
 async fn resolve_world(
@@ -518,13 +482,6 @@ fn truncate(body: &[u8]) -> String {
     text[..cut].to_string()
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum NarrowMode {
-    UnnarrowedOnly,
-    NarrowedOnly,
-    All,
-}
-
 struct FaultRunner<'a> {
     store: &'a MockSuotarStore,
     generation: &'a str,
@@ -542,11 +499,10 @@ impl FaultRunner<'_> {
         endpoint: SuotarEndpoint,
         stage: Stage,
         items: &[ItemAddress],
-        mode: NarrowMode,
     ) -> anyhow::Result<Option<Effect>> {
         let mut winner = None;
         for fault in self.faults {
-            if !self.in_mode(fault, mode) || !fault.then.is_request_shaped() {
+            if !fault.then.is_request_shaped() {
                 continue;
             }
             match matches_request(fault, endpoint, stage, items) {
@@ -593,14 +549,6 @@ impl FaultRunner<'_> {
         Ok(None)
     }
 
-    fn in_mode(&self, fault: &Fault, mode: NarrowMode) -> bool {
-        match mode {
-            NarrowMode::All => true,
-            NarrowMode::UnnarrowedOnly => !fault.has_owner_key(),
-            NarrowMode::NarrowedOnly => fault.has_owner_key(),
-        }
-    }
-
     /// Records only a fault that reached this endpoint and stage and then failed on one further
     /// predicate: a fault that missed on three is not the one the author is looking for.
     fn record_miss(
@@ -626,11 +574,10 @@ impl FaultRunner<'_> {
     /// a counter and deciding on the read is how two concurrent requests both spend the last of one
     /// budget.
     async fn draw(&mut self, fault: &Fault) -> anyhow::Result<bool> {
-        if !fault.needs_counter_draw() {
+        let Some(budget) = fault.lifetime.budget() else {
             return Ok(true);
-        }
-        if let Some(budget) = fault.lifetime.budget()
-            && budget > 0
+        };
+        if budget > 0
             && self
                 .preamble
                 .remaining
@@ -639,135 +586,16 @@ impl FaultRunner<'_> {
         {
             return Ok(false);
         }
-        if fault.call_ordinal().is_some() || fault.lifetime.skip > 0 {
-            let ordinal = self
-                .store
-                .draw(self.generation, CounterHash::Ordinal, &fault.id, 1)
-                .await?;
-            if let Some(required) = fault.call_ordinal()
-                && ordinal != i64::from(required)
-            {
-                self.log.missed.push(MissedFault {
-                    fault_id: fault.id.clone(),
-                    predicate: "callOrdinal".to_string(),
-                });
-                return Ok(false);
-            }
-            if ordinal <= i64::from(fault.lifetime.skip) {
-                return Ok(false);
-            }
-        }
-        if fault.lifetime.budget().is_some() {
-            let left = self
-                .store
-                .draw(self.generation, CounterHash::Remaining, &fault.id, -1)
-                .await?;
-            if left < 0 {
-                self.store
-                    .draw(self.generation, CounterHash::Remaining, &fault.id, 1)
-                    .await?;
-                self.log.missed.push(MissedFault {
-                    fault_id: fault.id.clone(),
-                    predicate: "lifetime".to_string(),
-                });
-                return Ok(false);
-            }
+        let left = self.store.draw(self.generation, &fault.id, -1).await?;
+        if left < 0 {
+            self.store.draw(self.generation, &fault.id, 1).await?;
+            self.log.missed.push(MissedFault {
+                fault_id: fault.id.clone(),
+                predicate: "lifetime".to_string(),
+            });
+            return Ok(false);
         }
         Ok(true)
-    }
-}
-
-fn apply_request_effect(shaped: &mut Shaped, endpoint: SuotarEndpoint, effect: &Effect) {
-    shaped.effect = Some(effect.kind().to_string());
-    match effect {
-        Effect::Latency { ms } | Effect::Hang { ms } => shaped.delay_ms += ms,
-        Effect::ConnectionReset => shaped.terminal = Some(Delivery::ConnectionReset),
-        Effect::GarbageBody { status, body } => {
-            let status = status.unwrap_or(200);
-            shaped.status_override = Some(status);
-            shaped.terminal = Some(Delivery::Json {
-                status,
-                content_type: "application/json".to_string(),
-                body: body
-                    .clone()
-                    .unwrap_or_else(|| DEFAULT_GARBAGE_BODY.to_string()),
-            });
-        }
-        Effect::WrongContentType { content_type } => {
-            shaped.content_type_override = Some(
-                content_type
-                    .clone()
-                    .unwrap_or_else(|| "text/html; charset=utf-8".to_string()),
-            );
-        }
-        Effect::RequestLevel {
-            status,
-            code,
-            message,
-        } => {
-            shaped.status_override = Some(*status);
-            shaped.request_level_code = Some(code.clone());
-            let error = match message {
-                Some(message) => RequestLevelError::with_message(code, message.clone()),
-                None => RequestLevelError::new(endpoint, code),
-            };
-            shaped.terminal = Some(Delivery::json(*status, &error));
-        }
-        Effect::DropItems {
-            count,
-            request_item_ids,
-        } => {
-            if let Some(ids) = request_item_ids {
-                shaped.dropped.extend(ids.iter().cloned());
-            }
-            shaped.drop_first += count.unwrap_or(0);
-        }
-        Effect::ReorderItems { order } => match order {
-            Some(order) => shaped.reorder = Some(order.clone()),
-            None => shaped.reverse = true,
-        },
-        Effect::ItemLevel { .. } => {}
-    }
-}
-
-/// Builds the response a pre-load effect stands in for: no response was ever built, so the
-/// item-shaping effects collapse to an empty array.
-fn terminal_delivery(
-    endpoint: SuotarEndpoint,
-    effect: &Effect,
-    items: Vec<ResponseItem>,
-    shaped: &mut Shaped,
-) -> Delivery {
-    apply_request_effect(shaped, endpoint, effect);
-    shape_items(items, shaped)
-}
-
-fn shape_items(items: Vec<ResponseItem>, shaped: &mut Shaped) -> Delivery {
-    if let Some(terminal) = shaped.terminal.take() {
-        return terminal;
-    }
-    let mut items = items;
-    items.retain(|item| !shaped.dropped.contains(&item.request_item_id));
-    if shaped.drop_first > 0 {
-        items.drain(..shaped.drop_first.min(items.len()));
-    }
-    if let Some(order) = &shaped.reorder {
-        items.sort_by_key(|item| {
-            order
-                .iter()
-                .position(|id| id == &item.request_item_id)
-                .unwrap_or(usize::MAX)
-        });
-    } else if shaped.reverse {
-        items.reverse();
-    }
-    Delivery::Json {
-        status: shaped.status_override.unwrap_or(200),
-        content_type: shaped
-            .content_type_override
-            .clone()
-            .unwrap_or_else(|| "application/json".to_string()),
-        body: serde_json::to_string(&items).unwrap_or_else(|_| "[]".to_string()),
     }
 }
 
@@ -918,7 +746,11 @@ async fn load(
             let persons = store
                 .load_persons(
                     generation,
-                    &unique(items.iter().map(|i| i.student_number.clone())),
+                    &items
+                        .iter()
+                        .map(|i| i.student_number.clone())
+                        .unique()
+                        .collect::<Vec<_>>(),
                 )
                 .await?;
             WorkingSet {
@@ -930,8 +762,16 @@ async fn load(
             store
                 .load_for_person_course(
                     generation,
-                    &unique(items.iter().map(|i| i.student_number.clone())),
-                    &unique(items.iter().map(|i| i.course_code.clone())),
+                    &items
+                        .iter()
+                        .map(|i| i.student_number.clone())
+                        .unique()
+                        .collect::<Vec<_>>(),
+                    &items
+                        .iter()
+                        .map(|i| i.course_code.clone())
+                        .unique()
+                        .collect::<Vec<_>>(),
                 )
                 .await?
         }
@@ -939,8 +779,16 @@ async fn load(
             store
                 .load_for_person_course(
                     generation,
-                    &unique(items.iter().map(|i| i.student_number.clone())),
-                    &unique(items.iter().map(|i| i.course_code.clone())),
+                    &items
+                        .iter()
+                        .map(|i| i.student_number.clone())
+                        .unique()
+                        .collect::<Vec<_>>(),
+                    &items
+                        .iter()
+                        .map(|i| i.course_code.clone())
+                        .unique()
+                        .collect::<Vec<_>>(),
                 )
                 .await?
         }
@@ -948,7 +796,11 @@ async fn load(
             store
                 .load_for_verify(
                     generation,
-                    &unique(items.iter().map(|i| i.submitted_attainment_id.clone())),
+                    &items
+                        .iter()
+                        .map(|i| i.submitted_attainment_id.clone())
+                        .unique()
+                        .collect::<Vec<_>>(),
                 )
                 .await?
         }
@@ -956,7 +808,11 @@ async fn load(
             let product_tokens = store
                 .load_product_tokens(
                     generation,
-                    &unique(items.iter().map(|i| i.open_university_product_id.clone())),
+                    &items
+                        .iter()
+                        .map(|i| i.open_university_product_id.clone())
+                        .unique()
+                        .collect::<Vec<_>>(),
                 )
                 .await?;
             WorkingSet {
@@ -968,7 +824,11 @@ async fn load(
             store
                 .load_for_list_by_course(
                     generation,
-                    &unique(items.iter().map(|i| i.course_code.clone())),
+                    &items
+                        .iter()
+                        .map(|i| i.course_code.clone())
+                        .unique()
+                        .collect::<Vec<_>>(),
                 )
                 .await?
         }
@@ -1086,13 +946,6 @@ fn parse_items<T: DeserializeOwned>(body: &[u8]) -> Result<Vec<T>, ParseFailure>
 
 fn malformed(message: String) -> ParseFailure {
     ("malformedRequest".to_string(), message)
-}
-
-fn unique<I: Iterator<Item = String>>(values: I) -> Vec<String> {
-    let mut out: Vec<String> = values.collect();
-    out.sort();
-    out.dedup();
-    out
 }
 
 #[cfg(test)]

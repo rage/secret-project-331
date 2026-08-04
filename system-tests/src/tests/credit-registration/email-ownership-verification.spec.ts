@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { AccountTab } from "@/utils/components/UserSettings/AccountTab"
+import { ORIGIN } from "@/utils/creditRegistration"
 import { signUp } from "@/utils/flows/signup.flow"
 
 /**
@@ -13,7 +14,6 @@ import { signUp } from "@/utils/flows/signup.flow"
  * and a seeded user's address is a login credential other specs depend on.
  */
 
-const ORIGIN = "http://project-331.local"
 const ACCOUNT_URL = `${ORIGIN}/user-settings/account`
 const TEST_MODE_CODE_URL = `${ORIGIN}/api/v0/main-frontend/email-verification/test-mode-code`
 const VERIFY_URL = `${ORIGIN}/api/v0/main-frontend/email-verification/verify`
@@ -24,7 +24,7 @@ const PASSWORD = "email-ownership"
 
 async function pendingVerificationCode(page: Page): Promise<string> {
   const response = await page.request.get(TEST_MODE_CODE_URL)
-  expect(response.ok()).toBe(true)
+  await expect(response).toBeOK()
   const code: string = await response.json()
   expect(code).toMatch(/^[0-9]{6}$/)
   return code
@@ -97,7 +97,7 @@ test("Email ownership verification: the emailed code proves the address and an e
 
   await test.step("The spent code cannot be submitted again", async () => {
     const response = await page.request.post(VERIFY_URL, { data: { code: spentCode } })
-    expect(response.ok()).toBe(true)
+    await expect(response).toBeOK()
     expect(await response.json()).toBe("already_verified")
   })
 

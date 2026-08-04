@@ -2,19 +2,30 @@ import { expect, test } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
+  ADMIN_COURSE_ID,
   ADMIN_COURSE_SLUG,
-  CREDIT_REGISTRATION_ADMIN_API,
   CRS_ADMIN_101,
   ORIGIN,
 } from "@/utils/creditRegistration"
+import {
+  accountLinkingStats,
+  adminOverview,
+  adminRegistrationDetails,
+  listAdminRegistrations,
+  pausePhase,
+  postAdminManualLink,
+  postAdminPhaseAction,
+  resumePhase,
+  runPhaseNow,
+} from "@/utils/creditRegistrationAdmin"
+import { ADMIN_STORAGE_STATE } from "@/utils/fixtures"
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
 import {
+  CREDIT_REGISTRATION_PHASES,
   runEnrolmentDiscoveryTick,
-  runImportSubmissionTick,
   runLinkEmailsTick,
-  runMaterializeTick,
-  runPreconditionsTick,
-  runResolveEnrolmentsTick,
+  runPhasesUpToSubmission,
+  runTickUnchecked,
   runVerifyPollTick,
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
@@ -27,12 +38,11 @@ import { pollUntil } from "@/utils/waitingUtils"
  * Aggregate tiles are global and run-order dependent, so nothing here asserts a dashboard total.
  * Everything is either a row this file's own fixtures produced or a shape the page must have.
  */
-test.use({ storageState: "src/states/admin@example.com.json" })
+test.use({ storageState: ADMIN_STORAGE_STATE })
 
 const OVERVIEW_URL = `${ORIGIN}/manage/credit-registration/overview`
 const REGISTRATIONS_URL = `${ORIGIN}/manage/credit-registration/registrations`
 const LINKING_URL = `${ORIGIN}/manage/credit-registration/linking`
-const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
 
 /** The seeded attempt chain: a registered grade 3 replaced by a registered grade 4. */
 const SUPERSEDED_ATTEMPT_1_ID = "c5ed17ea-0901-4a5e-9e6e-c0de00000901"
@@ -58,15 +68,11 @@ test("The three shipped tabs render, and the phases report heartbeats", async ({
   await expect(page.getByRole("heading", { name: "Where registrations stand" })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Pipeline phases" })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Study registry" })).toBeVisible()
-  await accessibilityCheck(page, "Credit registration admin overview", [])
+  await accessibilityCheck(page, "Credit registration admin overview")
 
   await test.step("Both worker programs are alive and stamping their phases", async () => {
-    const response = await page.request.get(`${CREDIT_REGISTRATION_ADMIN_API}/overview`)
-    expect(response.ok()).toBe(true)
-    const overview = (await response.json()) as {
-      phases: { phase: string; process_name: string; last_heartbeat_at: string | null }[]
-    }
-    expect(overview.phases).toHaveLength(12)
+    const overview = await adminOverview(page.request)
+    expect(overview.phases).toHaveLength(CREDIT_REGISTRATION_PHASES.length)
     for (const processName of ["credit-registrar", "suotar-syncer"]) {
       const owned = overview.phases.filter((phase) => phase.process_name === processName)
       expect(owned.length, `${processName} owns no phases`).toBeGreaterThan(0)
@@ -87,71 +93,49 @@ test("The three shipped tabs render, and the phases report heartbeats", async ({
 })
 
 // `enrolment-discovery` is an implemented phase no other spec file ticks (grep the directory for
-// `runEnrolmentDiscoveryTick`), so pausing it here cannot stall another spec's concurrent tick of the
-// same, globally-shared `credit_registration_phase_state` row.
+// `enrolment-discovery`), so pausing it here cannot stall another spec's concurrent tick of the same,
+// globally-shared `credit_registration_phase_state` row.
 test("Pausing a phase stops a tick, and resuming it lifts that again", async ({ page }) => {
   const phase = "enrolment-discovery"
   const pauseReason = "System test: proving the pause control works."
 
   await test.step("An unknown phase name is refused by all three actions", async () => {
-    for (const action of ["pause", "resume", "run-now"]) {
-      const response = await page.request.post(
-        `${CREDIT_REGISTRATION_ADMIN_API}/phases/not-a-real-phase/${action}`,
-        { data: { reason: pauseReason } },
+    for (const action of ["pause", "resume", "run-now"] as const) {
+      const response = await postAdminPhaseAction(
+        page.request,
+        "not-a-real-phase",
+        action,
+        pauseReason,
       )
       expect(response.status(), `${action} accepted an unknown phase name`).toBe(400)
     }
   })
 
   await test.step("Pausing without a reason is refused", async () => {
-    const response = await page.request.post(
-      `${CREDIT_REGISTRATION_ADMIN_API}/phases/${phase}/pause`,
-      { data: { reason: "   " } },
-    )
+    const response = await postAdminPhaseAction(page.request, phase, "pause", "   ")
     expect(response.status()).toBe(400)
   })
 
   try {
     await test.step("Pausing takes effect immediately, and the overview reflects it", async () => {
-      const paused = await page.request.post(
-        `${CREDIT_REGISTRATION_ADMIN_API}/phases/${phase}/pause`,
-        { data: { reason: pauseReason } },
-      )
-      expect(paused.ok()).toBe(true)
-      const pausedBody = (await paused.json()) as {
-        paused_at: string | null
-        pause_reason: string | null
-      }
-      expect(pausedBody.paused_at).not.toBeNull()
-      expect(pausedBody.pause_reason).toBe(pauseReason)
+      const paused = await pausePhase(page.request, phase, pauseReason)
+      expect(paused.paused_at).not.toBeNull()
+      expect(paused.pause_reason).toBe(pauseReason)
 
-      const overview = await page.request.get(`${CREDIT_REGISTRATION_ADMIN_API}/overview`)
-      const overviewBody = (await overview.json()) as {
-        phases: { phase: string; paused_at: string | null }[]
-      }
-      const row = overviewBody.phases.find((candidate) => candidate.phase === phase)
+      const overview = await adminOverview(page.request)
+      const row = overview.phases.find((candidate) => candidate.phase === phase)
       expect(row?.paused_at).not.toBeNull()
     })
 
     await test.step("A tick against the paused phase is skipped, not run", async () => {
-      const result = await runEnrolmentDiscoveryTick(page.request, {
-        courseSlug: ADMIN_COURSE_SLUG,
-      })
+      const result = await runTickUnchecked(page.request, phase, { courseSlug: ADMIN_COURSE_SLUG })
       expect(result).toMatchObject({ status: "skipped", reason: "paused" })
     })
   } finally {
     await test.step("Resuming lifts the pause", async () => {
-      const resumed = await page.request.post(
-        `${CREDIT_REGISTRATION_ADMIN_API}/phases/${phase}/resume`,
-        { data: { reason: null } },
-      )
-      expect(resumed.ok()).toBe(true)
-      const resumedBody = (await resumed.json()) as {
-        paused_at: string | null
-        pause_reason: string | null
-      }
-      expect(resumedBody.paused_at).toBeNull()
-      expect(resumedBody.pause_reason).toBeNull()
+      const resumed = await resumePhase(page.request, phase)
+      expect(resumed.paused_at).toBeNull()
+      expect(resumed.pause_reason).toBeNull()
     })
   }
 
@@ -159,12 +143,7 @@ test("Pausing a phase stops a tick, and resuming it lifts that again", async ({ 
   // consults `next_run_at`; only the real worker loop does. So this proves only that the route accepts
   // the request and returns the phase's current status, not that the phase was made due sooner.
   await test.step("Run-now is accepted for a known phase", async () => {
-    const response = await page.request.post(
-      `${CREDIT_REGISTRATION_ADMIN_API}/phases/${phase}/run-now`,
-      { data: { reason: null } },
-    )
-    expect(response.ok()).toBe(true)
-    expect(await response.json()).toMatchObject({ phase })
+    expect(await runPhaseNow(page.request, phase)).toMatchObject({ phase })
   })
 })
 
@@ -178,15 +157,15 @@ test("The explorer filters, and the attempt chain hides the replaced attempt by 
   await page.getByLabel("Show replaced attempts").check()
   await expect(table.getByRole("row")).toHaveCount(3)
 
-  await page.goto(`${ORIGIN}/manage/credit-registration/registrations/${SUPERSEDED_ATTEMPT_2_ID}`)
+  await page.goto(`${REGISTRATIONS_URL}/${SUPERSEDED_ATTEMPT_2_ID}`)
   await expect(page.getByRole("heading", { name: "Attempts for this completion" })).toBeVisible()
   await expect(
     page.getByText("A replaced attempt is shown for history only.", { exact: false }),
   ).toBeVisible()
-  await accessibilityCheck(page, "Credit registration admin item detail", [])
+  await accessibilityCheck(page, "Credit registration admin item detail")
 
   await test.step("A replaced attempt offers no actions", async () => {
-    await page.goto(`${ORIGIN}/manage/credit-registration/registrations/${SUPERSEDED_ATTEMPT_1_ID}`)
+    await page.goto(`${REGISTRATIONS_URL}/${SUPERSEDED_ATTEMPT_1_ID}`)
     await expect(page.getByText("This attempt has been replaced by a later one.")).toBeVisible()
     await expect(page.getByRole("button", { name: "Move this registration" })).toHaveCount(0)
   })
@@ -194,10 +173,7 @@ test("The explorer filters, and the attempt chain hides the replaced attempt by 
 
 test("No stored body carries a student number, a name or an email address", async ({ page }) => {
   const scope = { userEmail: ADMIN_LINKED_EMAIL }
-  await runMaterializeTick(page.request, scope)
-  await runPreconditionsTick(page.request, scope)
-  await runResolveEnrolmentsTick(page.request, scope)
-  await runImportSubmissionTick(page.request, scope)
+  await runPhasesUpToSubmission(page.request, scope)
   // The mock's default ripeness is `manual`: nothing registers a submission without this.
   await transitionMockSuotarSubmissionsFor(
     page.request,
@@ -209,26 +185,16 @@ test("No stored body carries a student number, a name or an email address", asyn
 
   const registered = await pollUntil(
     async () => {
-      const response = await page.request.get(
-        `${CREDIT_REGISTRATION_ADMIN_API}/registrations?student_number=${ADMIN_LINKED_STUDENT_NUMBER}&state=registered`,
-      )
-      if (!response.ok()) {
-        return null
-      }
-      const body = (await response.json()) as { data: { id: string }[] }
-      return body.data[0] ?? null
+      const listed = await listAdminRegistrations(page.request, {
+        student_number: ADMIN_LINKED_STUDENT_NUMBER,
+        state: "registered",
+      })
+      return listed.data[0] ?? null
     },
     { description: "the always-linked admin-course fixture to register" },
   )
 
-  const response = await page.request.get(
-    `${CREDIT_REGISTRATION_ADMIN_API}/registrations/${registered.id}`,
-  )
-  expect(response.ok()).toBe(true)
-  const details = (await response.json()) as {
-    events: { details: unknown }[]
-    suotar_api_calls: { request_body_sample: unknown; response_body_sample: unknown }[]
-  }
+  const details = await adminRegistrationDetails(page.request, registered.id)
   expect(
     details.suotar_api_calls.length,
     "no Suotar calls were logged for this registration",
@@ -251,7 +217,7 @@ test("No stored body carries a student number, a name or an email address", asyn
   await test.step("The unredacted half is still there, so the panel is worth reading", async () => {
     // The scrubbing note is what tells an admin the gaps are deliberate; without it, an empty panel
     // and a redacted one look the same.
-    await page.goto(`${ORIGIN}/manage/credit-registration/registrations/${registered.id}`)
+    await page.goto(`${REGISTRATIONS_URL}/${registered.id}`)
     await expect(page.getByRole("heading", { name: "What happened" })).toBeVisible()
     await expect(
       page.getByText("Names, student numbers and email addresses are redacted"),
@@ -275,46 +241,31 @@ test("Manual link is refused without a preview and without a reason", async ({ p
   await expect(confirm).toBeDisabled()
 
   await test.step("The API refuses the same two ways", async () => {
-    const withoutPreview = await page.request.post(
-      `${CREDIT_REGISTRATION_ADMIN_API}/account-linking/manual-link`,
-      {
-        data: {
-          user_id: "00000000-0000-0000-0000-000000000000",
-          student_number: STALE_STUDENT_NUMBER,
-          sisu_person_id: "",
-          reason: "System test",
-        },
-      },
-    )
+    const withoutPreview = await postAdminManualLink(page.request, {
+      user_id: "00000000-0000-0000-0000-000000000000",
+      student_number: STALE_STUDENT_NUMBER,
+      sisu_person_id: "",
+      reason: "System test",
+    })
     expect(withoutPreview.status()).toBe(422)
 
-    const withoutReason = await page.request.post(
-      `${CREDIT_REGISTRATION_ADMIN_API}/account-linking/manual-link`,
-      {
-        data: {
-          user_id: "00000000-0000-0000-0000-000000000000",
-          student_number: STALE_STUDENT_NUMBER,
-          sisu_person_id: `hy-hlo-${STALE_STUDENT_NUMBER}`,
-          reason: "   ",
-        },
-      },
-    )
+    const withoutReason = await postAdminManualLink(page.request, {
+      user_id: "00000000-0000-0000-0000-000000000000",
+      student_number: STALE_STUDENT_NUMBER,
+      sisu_person_id: `hy-hlo-${STALE_STUDENT_NUMBER}`,
+      reason: "   ",
+    })
     expect(withoutReason.status()).toBe(422)
   })
 
   await test.step("A preview naming a different person is refused as a mismatch", async () => {
-    const mismatched = await page.request.post(
-      `${CREDIT_REGISTRATION_ADMIN_API}/account-linking/manual-link`,
-      {
-        data: {
-          user_id: "00000000-0000-0000-0000-000000000000",
-          student_number: STALE_STUDENT_NUMBER,
-          sisu_person_id: "hy-hlo-somebody-else",
-          reason: "System test: the preview named somebody else.",
-        },
-      },
-    )
-    expect(mismatched.ok()).toBe(true)
+    const mismatched = await postAdminManualLink(page.request, {
+      user_id: "00000000-0000-0000-0000-000000000000",
+      student_number: STALE_STUDENT_NUMBER,
+      sisu_person_id: "hy-hlo-somebody-else",
+      reason: "System test: the preview named somebody else.",
+    })
+    await expect(mismatched).toBeOK()
     expect(await mismatched.json()).toMatchObject({ outcome: "preview_mismatch" })
   })
 })
@@ -350,19 +301,7 @@ test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
 test("A global-admin action recorded against a registration shows up on its detail page", async ({
   page,
 }) => {
-  const response = await page.request.get(
-    `${CREDIT_REGISTRATION_ADMIN_API}/registrations/${SUPERSEDED_ATTEMPT_1_ID}`,
-  )
-  expect(response.ok()).toBe(true)
-  const details = (await response.json()) as {
-    actions: {
-      action: string
-      actor_role: string
-      reason: string | null
-      before_state: string | null
-      after_state: string | null
-    }[]
-  }
+  const details = await adminRegistrationDetails(page.request, SUPERSEDED_ATTEMPT_1_ID)
   const seeded = details.actions.find((action) => action.action === "transition_item")
   expect(seeded).toMatchObject({
     actor_role: "global_admin",
@@ -384,17 +323,7 @@ test("A discovery run writes the per-realisation counters", async ({ page }) => 
 
   const counters = await pollUntil(
     async () => {
-      const response = await page.request.get(`${CREDIT_REGISTRATION_ADMIN_API}/account-linking`)
-      if (!response.ok()) {
-        return null
-      }
-      const stats = (await response.json()) as {
-        realisations: {
-          course_id: string
-          last_listed_at: string | null
-          listed_person_count: number | null
-        }[]
-      }
+      const stats = await accountLinkingStats(page.request)
       const mine = stats.realisations.find((row) => row.course_id === ADMIN_COURSE_ID)
       return mine?.last_listed_at ? mine : null
     },

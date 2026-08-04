@@ -400,7 +400,6 @@ pub struct RecordedCall {
     pub http_status: u16,
     pub request_level_code: Option<String>,
     pub effect: Option<String>,
-    pub latency_ms: u64,
     pub raw_body_truncated: String,
     pub faults: RecordedFaults,
     pub items: Vec<RecordedItem>,

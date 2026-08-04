@@ -87,11 +87,7 @@ pub enum Predicate {
     Stage(Stage),
     StudentNumber(String),
     CourseCode(String),
-    ProductId(String),
-    RequestItemId(String),
-    SubmittedAttainmentId(String),
     Owner(OwnerRef),
-    CallOrdinal(u32),
 }
 
 impl Predicate {
@@ -101,24 +97,15 @@ impl Predicate {
             Self::Stage(_) => "stage",
             Self::StudentNumber(_) => "studentNumber",
             Self::CourseCode(_) => "courseCode",
-            Self::ProductId(_) => "productId",
-            Self::RequestItemId(_) => "requestItemId",
-            Self::SubmittedAttainmentId(_) => "submittedAttainmentId",
             Self::Owner(_) => "owner",
-            Self::CallOrdinal(_) => "callOrdinal",
         }
     }
 
-    /// Names data one spec owns. `callOrdinal` counts; it owns nothing.
+    /// Names data one spec owns, which is what keeps a fault inside its own traffic.
     fn is_owner_key(&self) -> bool {
         matches!(
             self,
-            Self::StudentNumber(_)
-                | Self::CourseCode(_)
-                | Self::ProductId(_)
-                | Self::RequestItemId(_)
-                | Self::SubmittedAttainmentId(_)
-                | Self::Owner(_)
+            Self::StudentNumber(_) | Self::CourseCode(_) | Self::Owner(_)
         )
     }
 }
@@ -137,32 +124,12 @@ pub enum Effect {
         code: String,
         message: Option<String>,
     },
-    Latency {
-        ms: u64,
-    },
-    Hang {
-        ms: u64,
-    },
     ConnectionReset,
-    GarbageBody {
-        status: Option<u16>,
-        body: Option<String>,
-    },
-    WrongContentType {
-        content_type: Option<String>,
-    },
-    DropItems {
-        count: Option<usize>,
-        request_item_ids: Option<Vec<String>>,
-    },
-    ReorderItems {
-        order: Option<Vec<String>>,
-    },
 }
 
 impl Effect {
     /// Derived from the effect kind, never declared: a descriptor accepting both `level: item` and
-    /// `kind: hang` is nonsense.
+    /// `kind: connectionReset` is nonsense.
     pub fn is_request_shaped(&self) -> bool {
         !matches!(self, Self::ItemLevel { .. })
     }
@@ -170,7 +137,7 @@ impl Effect {
     pub fn code(&self) -> Option<&str> {
         match self {
             Self::ItemLevel { code, .. } | Self::RequestLevel { code, .. } => Some(code),
-            _ => None,
+            Self::ConnectionReset => None,
         }
     }
 
@@ -178,13 +145,7 @@ impl Effect {
         match self {
             Self::ItemLevel { .. } => "itemLevel",
             Self::RequestLevel { .. } => "requestLevel",
-            Self::Latency { .. } => "latency",
-            Self::Hang { .. } => "hang",
             Self::ConnectionReset => "connectionReset",
-            Self::GarbageBody { .. } => "garbageBody",
-            Self::WrongContentType { .. } => "wrongContentType",
-            Self::DropItems { .. } => "dropItems",
-            Self::ReorderItems { .. } => "reorderItems",
         }
     }
 }
@@ -194,9 +155,6 @@ impl Effect {
 pub struct Lifetime {
     pub matching_calls: Option<u32>,
     pub matching_items: Option<u32>,
-    /// Matches to let past before the fault starts firing.
-    #[serde(default)]
-    pub skip: u32,
 }
 
 impl Lifetime {
@@ -212,11 +170,7 @@ pub struct FlatWhen {
     pub stage: Option<Stage>,
     pub student_number: Option<String>,
     pub course_code: Option<String>,
-    pub product_id: Option<String>,
-    pub request_item_id: Option<String>,
-    pub submitted_attainment_id: Option<String>,
     pub owner: Option<OwnerRef>,
-    pub call_ordinal: Option<u32>,
 }
 
 /// A flat literal is sugar and desugars into the predicate list.
@@ -245,20 +199,8 @@ impl WhenSpec {
                 if let Some(value) = flat.course_code {
                     predicates.push(Predicate::CourseCode(value));
                 }
-                if let Some(value) = flat.product_id {
-                    predicates.push(Predicate::ProductId(value));
-                }
-                if let Some(value) = flat.request_item_id {
-                    predicates.push(Predicate::RequestItemId(value));
-                }
-                if let Some(value) = flat.submitted_attainment_id {
-                    predicates.push(Predicate::SubmittedAttainmentId(value));
-                }
                 if let Some(value) = flat.owner {
                     predicates.push(Predicate::Owner(value));
-                }
-                if let Some(value) = flat.call_ordinal {
-                    predicates.push(Predicate::CallOrdinal(value));
                 }
                 predicates
             }
@@ -311,20 +253,8 @@ impl Fault {
         })
     }
 
-    pub fn call_ordinal(&self) -> Option<u32> {
-        self.when.iter().find_map(|predicate| match predicate {
-            Predicate::CallOrdinal(ordinal) => Some(*ordinal),
-            _ => None,
-        })
-    }
-
     pub fn has_owner_key(&self) -> bool {
         self.when.iter().any(Predicate::is_owner_key)
-    }
-
-    /// A budget or a skip has to be drawn from Redis before the fault may fire.
-    pub fn needs_counter_draw(&self) -> bool {
-        self.call_ordinal().is_some() || self.lifetime.skip > 0 || self.lifetime.budget().is_some()
     }
 }
 
@@ -364,14 +294,8 @@ pub fn matches_item(
         let satisfied = match predicate {
             Predicate::Endpoint(wanted) => *wanted == endpoint,
             Predicate::Stage(wanted) => *wanted == stage,
-            Predicate::CallOrdinal(_) => true,
-            Predicate::RequestItemId(wanted) => *wanted == item.request_item_id,
             Predicate::StudentNumber(wanted) => item.student_number.as_deref() == Some(wanted),
             Predicate::CourseCode(wanted) => item.course_code.as_deref() == Some(wanted),
-            Predicate::ProductId(wanted) => item.product_id.as_deref() == Some(wanted),
-            Predicate::SubmittedAttainmentId(wanted) => {
-                item.submitted_attainment_id.as_deref() == Some(wanted)
-            }
             Predicate::Owner(_) => fault
                 .owner
                 .as_ref()
@@ -461,19 +385,12 @@ impl FaultProblem {
 /// it.
 pub fn resolvable_keys(endpoint: SuotarEndpoint) -> &'static [&'static str] {
     match endpoint {
-        SuotarEndpoint::ResolvePersons => &["requestItemId", "studentNumber", "owner"],
-        SuotarEndpoint::ResolveEnrolments | SuotarEndpoint::ImportAttainments => {
-            &["requestItemId", "studentNumber", "courseCode", "owner"]
-        }
-        SuotarEndpoint::VerifyAttainments => &[
-            "requestItemId",
-            "submittedAttainmentId",
-            "studentNumber",
-            "courseCode",
-            "owner",
-        ],
-        SuotarEndpoint::ProductAccessTokens => &["requestItemId", "productId", "owner"],
-        SuotarEndpoint::ListByCourse => &["requestItemId", "courseCode", "owner"],
+        SuotarEndpoint::ResolvePersons => &["studentNumber", "owner"],
+        SuotarEndpoint::ResolveEnrolments
+        | SuotarEndpoint::ImportAttainments
+        | SuotarEndpoint::VerifyAttainments => &["studentNumber", "courseCode", "owner"],
+        SuotarEndpoint::ProductAccessTokens => &["owner"],
+        SuotarEndpoint::ListByCourse => &["courseCode", "owner"],
     }
 }
 
@@ -546,7 +463,7 @@ pub fn validate(
     let resolvable = resolvable_keys(endpoint);
     for predicate in predicates {
         let key = predicate.key();
-        if matches!(key, "endpoint" | "stage" | "callOrdinal") {
+        if matches!(key, "endpoint" | "stage") {
             continue;
         }
         if !resolvable.contains(&key) {
@@ -560,10 +477,9 @@ pub fn validate(
         }
     }
 
-    if let Predicate::Owner(owner) = predicates
+    if let Some(Predicate::Owner(owner)) = predicates
         .iter()
         .find(|predicate| matches!(predicate, Predicate::Owner(_)))
-        .unwrap_or(&Predicate::CallOrdinal(0))
         && owner.is_empty()
     {
         return Err(FaultProblem::new(

@@ -1,11 +1,18 @@
+import type { APIRequestContext } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
+  ADMIN_COURSE_ID,
   COURSE_CREDIT_REGISTRATIONS_API,
-  CREDIT_REGISTRATION_ADMIN_API,
+  getJson,
   ORIGIN,
+  STATES_COURSE_ID,
 } from "@/utils/creditRegistration"
+import {
+  adminRegistrationTransitionUrl,
+  adminRegistrationUrl,
+} from "@/utils/creditRegistrationAdmin"
 
 /**
  * Owns student numbers `9000008xx` and reads the `credit-registration-states` course, whose module is
@@ -17,13 +24,56 @@ import {
  */
 test.use({ storageState: "src/states/teacher@example.com.json" })
 
-const STATES_COURSE_ID = "c5ed17ea-0007-4a5e-9e6e-c0de00000007"
-const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
 const STATES_COMPLETIONS_URL = `${ORIGIN}/manage/courses/${STATES_COURSE_ID}/students/completions`
 
 /** The first two frozen fixtures hold a student number, one by email and one established by hand. */
 const EMAIL_LINK_STUDENT_NUMBER = "900000801"
 const ADMIN_MANUAL_STUDENT_NUMBER = "900000802"
+
+/** The subset of the teacher's per-course row these tests read. */
+interface TeacherRegistrationRow {
+  id: string
+  state: string
+  student_number: string | null
+  student_number_verified_via: string | null
+  error_code: string | null
+}
+
+const listForCourse = async (
+  request: APIRequestContext,
+  courseId: string,
+  limit: number,
+): Promise<TeacherRegistrationRow[]> => {
+  const page = await getJson<{ data: TeacherRegistrationRow[] }>(
+    request,
+    `${COURSE_CREDIT_REGISTRATIONS_API}/courses/${courseId}/list?limit=${limit}`,
+  )
+  return page.data
+}
+
+/** Both lookups fail here rather than as an `undefined` in an assertion that then blames the API. */
+const rowWithStudentNumber = (
+  rows: TeacherRegistrationRow[],
+  studentNumber: string,
+): TeacherRegistrationRow => {
+  const row = rows.find((candidate) => candidate.student_number === studentNumber)
+  if (row === undefined) {
+    throw new Error(
+      `No row for ${studentNumber} among the ${rows.length} the course listed. Is the fixture still seeded?`,
+    )
+  }
+  return row
+}
+
+const firstListedRow = (rows: TeacherRegistrationRow[]): TeacherRegistrationRow => {
+  const [first] = rows
+  if (first === undefined) {
+    throw new Error(
+      "The course listed no registrations at all. Is the states fixture still seeded?",
+    )
+  }
+  return first
+}
 
 test("A teacher sees the registration state and the verified student number in full", async ({
   page,
@@ -31,32 +81,19 @@ test("A teacher sees the registration state and the verified student number in f
   await page.goto(STATES_COMPLETIONS_URL)
   await expect(page.getByRole("heading", { name: "Credit registration" }).first()).toBeVisible()
   await expect(page.getByRole("columnheader", { name: "Student" })).toBeVisible()
-  await accessibilityCheck(page, "Teacher credit registration summary", [])
+  await accessibilityCheck(page, "Teacher credit registration summary")
 
-  const response = await page.request.get(
-    `${COURSE_CREDIT_REGISTRATIONS_API}/courses/${STATES_COURSE_ID}/list?limit=100`,
-  )
-  expect(response.ok()).toBe(true)
-  const listed = (await response.json()) as {
-    data: {
-      state: string
-      student_number: string | null
-      student_number_verified_via: string | null
-      error_code: string | null
-    }[]
-  }
+  const listed = await listForCourse(page.request, STATES_COURSE_ID, 100)
 
   // One row per registration state and one per error code, so a teacher's status column has every
   // shape to render without waiting for some other spec to produce it.
-  expect(new Set(listed.data.map((row) => row.state)).size).toBeGreaterThan(5)
-  expect(
-    listed.data.find((row) => row.student_number === EMAIL_LINK_STUDENT_NUMBER)
-      ?.student_number_verified_via,
-  ).toBe("emailed_link")
+  expect(new Set(listed.map((row) => row.state)).size).toBeGreaterThan(5)
+  expect(rowWithStudentNumber(listed, EMAIL_LINK_STUDENT_NUMBER).student_number_verified_via).toBe(
+    "emailed_link",
+  )
   // Support established this one by hand, which is what the teacher needs to know when it goes wrong.
   expect(
-    listed.data.find((row) => row.student_number === ADMIN_MANUAL_STUDENT_NUMBER)
-      ?.student_number_verified_via,
+    rowWithStudentNumber(listed, ADMIN_MANUAL_STUDENT_NUMBER).student_number_verified_via,
   ).toBe("admin_manual")
 })
 
@@ -78,7 +115,7 @@ test("Teacher resend is refused by the rate cap and cannot be overridden", async
     )
 
   const first = await resend()
-  expect(first.ok()).toBe(true)
+  await expect(first).toBeOK()
   expect(await first.json()).toMatchObject({ outcome: "refused_by_rate_cap" })
 
   await test.step("The teacher UI offers no override anywhere", async () => {
@@ -94,14 +131,7 @@ test("A teacher of another course cannot read this course's registration", async
   browser,
   page,
 }) => {
-  const own = await page.request.get(
-    `${COURSE_CREDIT_REGISTRATIONS_API}/courses/${STATES_COURSE_ID}/list?limit=1`,
-  )
-  expect(own.ok()).toBe(true)
-  const listed = (await own.json()) as { data: { id: string; state: string }[] }
-  const registrationId = listed.data[0]?.id
-  const stateBefore = listed.data[0]?.state
-  expect(registrationId).toBeDefined()
+  const own = firstListedRow(await listForCourse(page.request, STATES_COURSE_ID, 1))
 
   await test.step("Authorization follows the row, not the course id in the path", async () => {
     // Done at the API level deliberately: the UI never offers the link, so clicking around proves
@@ -112,7 +142,7 @@ test("A teacher of another course cannot read this course's registration", async
     })
     try {
       const foreign = await context.request.get(
-        `${COURSE_CREDIT_REGISTRATIONS_API}/registrations/${registrationId}`,
+        `${COURSE_CREDIT_REGISTRATIONS_API}/registrations/${own.id}`,
       )
       expect(foreign.status()).toBe(403)
 
@@ -126,24 +156,17 @@ test("A teacher of another course cannot read this course's registration", async
   })
 
   await test.step("A teacher is not an admin either, and the row is unchanged", async () => {
-    const asAdmin = await page.request.get(
-      `${CREDIT_REGISTRATION_ADMIN_API}/registrations/${registrationId}`,
-    )
+    const asAdmin = await page.request.get(adminRegistrationUrl(own.id))
     expect(asAdmin.status()).toBe(403)
 
-    const transition = await page.request.post(
-      `${CREDIT_REGISTRATION_ADMIN_API}/registrations/${registrationId}/transition`,
-      { data: { to_state: "cancelled", reason: "System test: a teacher is not an admin." } },
-    )
+    const transition = await page.request.post(adminRegistrationTransitionUrl(own.id), {
+      data: { to_state: "cancelled", reason: "System test: a teacher is not an admin." },
+    })
     expect(transition.status()).toBe(403)
 
-    const after = await page.request.get(
-      `${COURSE_CREDIT_REGISTRATIONS_API}/courses/${STATES_COURSE_ID}/list?limit=1`,
-    )
-    expect(after.ok()).toBe(true)
-    const reread = (await after.json()) as { data: { id: string; state: string }[] }
-    expect(reread.data[0]?.id).toBe(registrationId)
-    expect(reread.data[0]?.state).toBe(stateBefore)
+    const reread = firstListedRow(await listForCourse(page.request, STATES_COURSE_ID, 1))
+    expect(reread.id).toBe(own.id)
+    expect(reread.state).toBe(own.state)
   })
 })
 

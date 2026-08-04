@@ -4,7 +4,7 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   CREDIT_REGISTRATIONS_API,
   linkStudentNumberUrl,
-  loginAsSeededStudent,
+  seededStudentStorageState,
 } from "@/utils/creditRegistration"
 
 /**
@@ -14,6 +14,8 @@ import {
  * what makes the conflict case below a conflict.
  */
 const CLAIMER_EMAIL = "credit-registration-link-claimer@example.com"
+
+test.use({ storageState: seededStudentStorageState(CLAIMER_EMAIL) })
 
 const repeated = (uuid: string) => uuid.repeat(4)
 const TOKEN_VALID = repeated("11111111-1111-1111-1111-111111111111")
@@ -30,7 +32,6 @@ test.describe.configure({ mode: "serial" })
 test("A preview consumes nothing, and confirming links the number to the logged-in account", async ({
   page,
 }) => {
-  await loginAsSeededStudent(page, CLAIMER_EMAIL)
   await page.goto(linkStudentNumberUrl(TOKEN_VALID))
 
   const confirm = page.getByTestId("link-student-number-confirm-button")
@@ -40,7 +41,7 @@ test("A preview consumes nothing, and confirming links the number to the logged-
   await expect(page.getByText("900000201")).toBeVisible()
   await expect(page.getByText("Zzyzx Linkvalid")).toBeVisible()
   await expect(page.getByText(CLAIMER_EMAIL)).toBeVisible()
-  await accessibilityCheck(page, "Student number linking confirmation", [])
+  await accessibilityCheck(page, "Student number linking confirmation")
 
   // A mail scanner following the link must not spend the token, so only the POST may claim it.
   await page.reload()
@@ -50,7 +51,7 @@ test("A preview consumes nothing, and confirming links the number to the logged-
   await expect(page.getByText("Student number linked")).toBeVisible()
 
   const response = await page.request.get(`${CREDIT_REGISTRATIONS_API}/my/student-number`)
-  expect(response.ok()).toBe(true)
+  await expect(response).toBeOK()
   expect(await response.json()).toMatchObject({
     student_number: "900000201",
     verified_via: "emailed_link",
@@ -58,8 +59,6 @@ test("A preview consumes nothing, and confirming links the number to the logged-
 })
 
 test("An expired link and an already-used link say different things", async ({ page }) => {
-  await loginAsSeededStudent(page, CLAIMER_EMAIL)
-
   await page.goto(linkStudentNumberUrl(TOKEN_EXPIRED))
   await expect(page.getByText(EXPIRED_COPY)).toBeVisible()
   await expect(page.getByTestId("link-student-number-confirm-button")).toHaveCount(0)
@@ -72,8 +71,6 @@ test("An expired link and an already-used link say different things", async ({ p
 test("A number already live on another account is refused, and the token survives", async ({
   page,
 }) => {
-  await loginAsSeededStudent(page, CLAIMER_EMAIL)
-
   await page.goto(linkStudentNumberUrl(TOKEN_CONFLICT))
   await expect(page.getByText(CONFLICT_COPY)).toBeVisible()
   await expect(page.getByTestId("link-student-number-confirm-button")).toHaveCount(0)
@@ -82,7 +79,7 @@ test("A number already live on another account is refused, and the token survive
   const preview = await page.request.get(
     `${CREDIT_REGISTRATIONS_API}/student-number-verifications/${TOKEN_CONFLICT}`,
   )
-  expect(preview.ok()).toBe(true)
+  await expect(preview).toBeOK()
   expect(await preview.json()).toMatchObject({
     already_used: false,
     conflicts_with_other_account: true,

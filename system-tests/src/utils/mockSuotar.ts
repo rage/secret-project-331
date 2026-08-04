@@ -2,12 +2,14 @@
  * Client for the mock Suotar's world and fault control (`/api/v0/mock-suotar/control/command`).
  *
  * Hand-written because the mock's DTOs are deliberately not exported to `bindings.ts`, the same way
- * `mock_sisu`'s are not. One named function per command, so call sites stay greppable by name rather
- * than by variant string. `suotarControl.ts` is the tick client and stays separate.
+ * `mock_sisu`'s are not. One named function per command wrapped, so call sites stay greppable by name
+ * rather than by variant string. `suotarControl.ts` is the tick client and stays separate.
  *
- * Isolation here is data partitioning, not serialization: different spec files run concurrently, so
- * a spec owns a distinct combination of users and courses and asserts on those. Commands marked
- * unsafe below reach data your spec does not own — `GET /control/commands` lists which.
+ * Only the commands a spec has a reason to send are wrapped; the rest of the mock's surface is listed
+ * by `GET /control/commands` and reachable with curl for manual debugging. Everything below is
+ * parallel-safe as long as its arguments name data your spec owns: isolation here is data
+ * partitioning, not serialization, so a spec owns a distinct combination of users and courses and
+ * asserts on those.
  *
  * Nothing polls on its own; compose these with `pollUntil` from `waitingUtils`.
  */
@@ -33,8 +35,6 @@ export type MockSuotarStage =
   | "afterWrite"
   | "respond"
 
-export type MockSuotarRipeness = "atImport" | "manual" | { autoAfterVerifyCalls: { calls: number } }
-
 export type MockSuotarEnrolmentState = "ENROLLED" | "PROCESSING" | "REJECTED" | "ABORTED"
 
 export type MockSuotarRealisationKind = "degree" | "openUniversity"
@@ -49,45 +49,6 @@ export interface MockSuotarDatePeriod {
   endDate: string
 }
 
-export interface MockSuotarLocalizedName {
-  fi: string
-  sv: string
-  en: string
-}
-
-export interface MockSuotarPersonUpsert {
-  studentNumber: string
-  personId?: string
-  firstNames: string
-  lastName: string
-  primaryEmail: string
-  secondaryEmail?: string
-  behaviour?: { ripeness?: MockSuotarRipeness; duplicateDetection?: "detect" | "allowDoubles" }
-  ownerUserEmail?: string
-}
-
-export interface MockSuotarRealisationUpsert {
-  id?: string
-  name?: MockSuotarLocalizedName
-  assessmentItemId?: string
-  kind?: MockSuotarRealisationKind
-  activityPeriod: MockSuotarDatePeriod
-  gradeScaleId: string
-  credits: { min: number; max: number }
-  /** Null is how `acceptorNotFound` is reached from data alone; nothing is derived for it. */
-  acceptorPersonId?: string | null
-  openUniversityProductId?: string | null
-}
-
-export interface MockSuotarCourseUnitUpsert {
-  courseCode: string
-  courseUnitId?: string
-  name?: MockSuotarLocalizedName
-  realisations?: MockSuotarRealisationUpsert[]
-  behaviour?: { importAllowed: boolean }
-  ownerCourseSlug?: string
-}
-
 export interface MockSuotarEnrolmentUpsert {
   id?: string
   studentNumber: string
@@ -100,48 +61,12 @@ export interface MockSuotarEnrolmentUpsert {
   enrolmentDateTime?: string
 }
 
-export interface MockSuotarAttainmentUpsert {
-  id?: string
-  studentNumber: string
-  courseCode: string
-  personId?: string
-  kind?: MockSuotarRealisationKind
-  attainmentType?: string
-  state?: "ATTAINED" | "MISREGISTERED" | "FAILED"
-  attainmentDate: string
-  registrationDate?: string
-  gradeScaleId: string
-  gradeId: string
-  passed?: boolean
-}
-
-export interface MockSuotarProductAccessTokenUpsert {
-  openUniversityProductId: string
-  id?: string
-  accessToken?: string
-  state?: "ENABLED" | "DISABLED"
-  documentState?: "ACTIVE" | "DRAFT" | "DELETED"
-}
-
-export interface MockSuotarWorldPush {
-  defaults?: Record<string, unknown>
-  persons?: MockSuotarPersonUpsert[]
-  courseUnits?: MockSuotarCourseUnitUpsert[]
-  enrolments?: MockSuotarEnrolmentUpsert[]
-  attainments?: MockSuotarAttainmentUpsert[]
-  productTokens?: MockSuotarProductAccessTokenUpsert[]
-}
-
 export type MockSuotarPredicate =
   | { endpoint: MockSuotarEndpoint }
   | { stage: MockSuotarStage }
   | { studentNumber: string }
   | { courseCode: string }
-  | { productId: string }
-  | { requestItemId: string }
-  | { submittedAttainmentId: string }
   | { owner: MockSuotarOwnerRef }
-  | { callOrdinal: number }
 
 export type MockSuotarEffect =
   | {
@@ -151,19 +76,12 @@ export type MockSuotarEffect =
       discloseSubmittedAttainmentId?: boolean
     }
   | { kind: "requestLevel"; status: number; code: string; message?: string }
-  | { kind: "latency"; ms: number }
-  | { kind: "hang"; ms: number }
   | { kind: "connectionReset" }
-  | { kind: "garbageBody"; status?: number; body?: string }
-  | { kind: "wrongContentType"; contentType?: string }
-  | { kind: "dropItems"; count?: number; requestItemIds?: string[] }
-  | { kind: "reorderItems"; order?: string[] }
 
 /** Omitted means until disarmed. */
 export interface MockSuotarLifetime {
   matchingCalls?: number
   matchingItems?: number
-  skip?: number
 }
 
 export interface MockSuotarFaultSpec {
@@ -177,18 +95,6 @@ export interface MockSuotarFaultSpec {
    * the write has committed is refused without it.
    */
   provesDoubleSubmission?: boolean
-}
-
-export interface MockSuotarHypotheticalRequest {
-  endpoint: MockSuotarEndpoint
-  callOrdinal?: number
-  items: {
-    requestItemId: string
-    studentNumber?: string
-    courseCode?: string
-    submittedAttainmentId?: string
-    productId?: string
-  }[]
 }
 
 export interface MockSuotarCallFilter {
@@ -245,101 +151,10 @@ const get = async (request: APIRequestContext, path: string): Promise<Record<str
   return (await response.json()) as Record<string, unknown>
 }
 
-/** Throws the whole world away. The next contract request rebuilds the seed's world lazily. */
-export const resetMockSuotarWorld = (request: APIRequestContext) =>
-  sendCommand(request, { command: "reset", scope: "world" })
-
-export const resetMockSuotarFaults = (request: APIRequestContext) =>
-  sendCommand(request, { command: "reset", scope: "faults" })
-
-export const resetMockSuotarCalls = (request: APIRequestContext) =>
-  sendCommand(request, { command: "reset", scope: "calls" })
-
-/**
- * Destructive and without an undo: the persons, their submissions and the attainments those created
- * simply stop existing. Reset in `afterAll`, not in `beforeAll` — on master a retried spec would
- * otherwise run against a world its own first attempt emptied.
- */
-export const resetMockSuotarPersons = (
-  request: APIRequestContext,
-  scope: { studentNumbers?: string[]; owner?: MockSuotarOwnerRef },
-) => sendCommand(request, { command: "reset", scope: { persons: scope } })
-
-/** Replaces the whole world including its global defaults, so not for the automated suite. */
-export const pushMockSuotarWorld = (request: APIRequestContext, world: MockSuotarWorldPush) =>
-  sendCommand(request, { command: "pushWorld", ...world })
-
-export const upsertMockSuotarPersons = (
-  request: APIRequestContext,
-  persons: MockSuotarPersonUpsert[],
-) => sendCommand(request, { command: "upsertPersons", persons })
-
-export const upsertMockSuotarCourseUnits = (
-  request: APIRequestContext,
-  courseUnits: MockSuotarCourseUnitUpsert[],
-) => sendCommand(request, { command: "upsertCourseUnits", courseUnits })
-
 export const upsertMockSuotarEnrolments = (
   request: APIRequestContext,
   enrolments: MockSuotarEnrolmentUpsert[],
 ) => sendCommand(request, { command: "upsertEnrolments", enrolments })
-
-export const upsertMockSuotarAttainments = (
-  request: APIRequestContext,
-  attainments: MockSuotarAttainmentUpsert[],
-) => sendCommand(request, { command: "upsertAttainments", attainments })
-
-export const upsertMockSuotarProductAccessTokens = (
-  request: APIRequestContext,
-  tokens: MockSuotarProductAccessTokenUpsert[],
-) => sendCommand(request, { command: "upsertProductAccessTokens", tokens })
-
-export const deleteMockSuotarPersons = (request: APIRequestContext, studentNumbers: string[]) =>
-  sendCommand(request, { command: "deletePersons", studentNumbers })
-
-export const allocateMockSuotarPerson = (
-  request: APIRequestContext,
-  person: {
-    firstNames?: string
-    lastName?: string
-    primaryEmail?: string
-    secondaryEmail?: string
-    ownerUserEmail?: string
-  } = {},
-) => sendCommand(request, { command: "allocatePerson", ...person })
-
-export const generateMockSuotarRoster = (
-  request: APIRequestContext,
-  roster: {
-    courseCode: string
-    realisationId: string
-    count: number
-    studentNumberPrefix?: string
-  },
-) => sendCommand(request, { command: "generateRoster", ...roster })
-
-export const setMockSuotarPersonBehaviour = (
-  request: APIRequestContext,
-  studentNumber: string,
-  patch: {
-    ripeness?: MockSuotarRipeness
-    duplicateDetection?: "detect" | "allowDoubles"
-    primaryEmail?: string
-    secondaryEmail?: string
-  },
-) => sendCommand(request, { command: "setPersonBehaviour", studentNumber, patch })
-
-export const setMockSuotarCourseBehaviour = (
-  request: APIRequestContext,
-  courseCode: string,
-  patch: { importAllowed?: boolean },
-) => sendCommand(request, { command: "setCourseBehaviour", courseCode, patch })
-
-export const transitionMockSuotarSubmission = (
-  request: APIRequestContext,
-  submittedAttainmentId: string,
-  to: MockSuotarSubmissionTarget,
-) => sendCommand(request, { command: "transitionSubmission", submittedAttainmentId, to })
 
 /** A spec owns a student number, not the mock-side `hy-kur-…` id the client holds in the database. */
 export const transitionMockSuotarSubmissionsFor = (
@@ -355,39 +170,11 @@ export const transitionMockSuotarSubmissionsFor = (
     to,
   })
 
-export const listMockSuotarSubmissions = (
-  request: APIRequestContext,
-  filter: { studentNumber?: string; courseCode?: string } = {},
-) => sendCommand(request, { command: "listSubmissions", ...filter })
-
 export const armMockSuotarFault = (request: APIRequestContext, fault: MockSuotarFaultSpec) =>
   sendCommand(request, { command: "armFault", ...fault })
 
 export const disarmMockSuotarFault = (request: APIRequestContext, id: string) =>
   sendCommand(request, { command: "disarmFault", id })
-
-/** The parallel-safe cleanup an `afterAll` needs. */
-export const disarmMockSuotarFaults = (request: APIRequestContext, owner: MockSuotarOwnerRef) =>
-  sendCommand(request, { command: "disarmFaults", owner })
-
-export const listMockSuotarFaults = (
-  request: APIRequestContext,
-  filter: { id?: string; owner?: MockSuotarOwnerRef } = {},
-) => sendCommand(request, { command: "listFaults", ...filter })
-
-/**
- * Validates a fault without arming it, and with `against` says per stage whether it would fire and
- * which predicate failed. Paste a logged call straight back in: the item shape is the same.
- */
-export const explainMockSuotarFault = (
-  request: APIRequestContext,
-  fault: MockSuotarFaultSpec,
-  against?: MockSuotarHypotheticalRequest,
-) => sendCommand(request, { command: "explainFault", fault, against })
-
-/** Global, so a dev and manual-debugging command rather than the suite's. */
-export const setMockSuotarDefaults = (request: APIRequestContext, patch: Record<string, unknown>) =>
-  sendCommand(request, { command: "setDefaults", patch })
 
 export const applyMockSuotarScenario = (
   request: APIRequestContext,
@@ -409,7 +196,5 @@ export const listMockSuotarCalls = (
   request: APIRequestContext,
   filter: MockSuotarCallFilter = {},
 ) => sendCommand(request, { command: "listCalls", ...filter })
-
-export const getMockSuotarHealth = (request: APIRequestContext) => get(request, "health")
 
 export const getMockSuotarWorld = (request: APIRequestContext) => get(request, "world")

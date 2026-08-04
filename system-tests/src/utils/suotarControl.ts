@@ -11,10 +11,12 @@
  * - **A tick sweeps everything it is not scoped away from.** Pass a scope so the iteration advances
  *   only your own rows and a batch carries one owner; without one it processes every eligible row in
  *   the database. Aggregates stay global either way, so assert on your own student and course.
- * - `runRegistrarTick` deliberately takes no scope: a suite that only ever ticks scoped never
- *   exercises the sweep-everything behaviour production has.
+ * - **A tick that did not run is an error here, not five lines later.** `runTick` refuses anything but
+ *   a clean run, because a paused phase, an open circuit breaker or a refused scope all move no rows
+ *   and would otherwise surface as a poll timing out against the state machine, which is innocent.
  * - A phase answers `phaseNotImplemented` until its implementation is registered. That is not a
- *   failure.
+ *   failure of the deployment, but it is a spec asking for something that cannot happen, so it is
+ *   refused too.
  */
 
 import type { APIRequestContext } from "@playwright/test"
@@ -40,8 +42,8 @@ export const CREDIT_REGISTRATION_PHASES = [
 export type CreditRegistrationPhase = (typeof CREDIT_REGISTRATION_PHASES)[number]
 
 /**
- * Which rows a tick may touch. A scenario hands back the same object, so a spec passes it on to
- * `runTick` and to a fault's `owner` without restating an identifier.
+ * Which rows a tick may touch. A scenario hands back the same object, so a spec passes it on to a
+ * phase tick and to a fault's `owner` without restating an identifier.
  */
 export interface TickScope {
   courseId?: string
@@ -51,25 +53,24 @@ export interface TickScope {
   creditRegistrationIds?: string[]
 }
 
+/** One iteration that happened. `error` is the phase's own failure, not a row landing on an error code. */
+export interface RanPhaseTick {
+  status: "ran"
+  phase: CreditRegistrationPhase
+  itemsProcessed: number
+  itemsFailed: number
+  error: string | null
+}
+
 export type PhaseTickResult =
-  | {
-      status: "ran"
-      phase: CreditRegistrationPhase
-      itemsProcessed: number
-      itemsFailed: number
-      error: string | null
-    }
+  | RanPhaseTick
   | { status: "phaseNotImplemented"; phase: CreditRegistrationPhase }
-  /** The phase is paused, or its circuit breaker is open. Not a failure — nothing ran this tick. */
+  /** The phase is paused, or its circuit breaker is open. Nothing ran this tick. */
   | { status: "skipped"; phase: CreditRegistrationPhase; reason: "paused" | "circuitBreakerOpen" }
   /** The scope named something this phase's claim query cannot narrow on. */
   | { status: "scopeNotSupported"; phase: CreditRegistrationPhase }
   | { status: "unknownPhase"; phase: string | null; knownPhases: string[] }
   | { status: "unresolvedScope"; half: string; value: string }
-
-export interface RegistrarTickResult {
-  phases: PhaseTickResult[]
-}
 
 const scopeQuery = (scope?: TickScope): string => {
   if (!scope) {
@@ -86,7 +87,13 @@ const scopeQuery = (scope?: TickScope): string => {
   return query === "" ? "" : `&${query}`
 }
 
-export const runTick = async (
+/**
+ * Ticks one phase and hands back whatever the endpoint answered, refusals included.
+ *
+ * For the two kinds of spec that have a reason to see a refusal: one asserting that a paused phase
+ * skips, and one that deliberately makes a phase fail. Everything else wants `runTick`.
+ */
+export const runTickUnchecked = async (
   request: APIRequestContext,
   phase: CreditRegistrationPhase,
   scope?: TickScope,
@@ -94,8 +101,9 @@ export const runTick = async (
   const response = await request.post(
     `${CONTROL_BASE_URL}/run-tick?phase=${phase}${scopeQuery(scope)}`,
   )
-  // 501 is the "no implementation registered yet" answer and 400 the unknown-phase one; anything
-  // else (notably 404) means the mock is not enabled and the whole spec is invalid.
+  // 501 is the "no implementation registered yet" answer, and 400 covers the unknown phase, the
+  // unsupported scope and the unresolved one; anything else (notably 404) means the mock is not
+  // enabled and the whole spec is invalid.
   if (![200, 400, 501].includes(response.status())) {
     throw new Error(
       `Unexpected status ${response.status()} from run-tick?phase=${phase}. Is USE_MOCK_SUOTAR_ENDPOINT on? Body: ${await response.text()}`,
@@ -105,68 +113,58 @@ export const runTick = async (
 }
 
 /**
- * Runs materialize, preconditions, resolve-enrolments, import and verify in pipeline order.
+ * Ticks one phase and fails unless the iteration ran and the phase reported no error of its own.
  *
- * Use the single-phase ticks whenever the spec depends on a phase *not* running — verify polling
- * twice without re-importing, for instance.
+ * `itemsFailed` is deliberately not part of that: a row landing on an error code is the outcome half
+ * these specs exist to assert, and several drive exactly that on purpose.
  */
-export const runRegistrarTick = async (
+export const runTick = async (
   request: APIRequestContext,
-): Promise<RegistrarTickResult> => {
-  const response = await request.post(`${CONTROL_BASE_URL}/run-registrar-tick`)
-  if (!response.ok()) {
-    throw new Error(
-      `Unexpected status ${response.status()} from run-registrar-tick. Is USE_MOCK_SUOTAR_ENDPOINT on? Body: ${await response.text()}`,
-    )
+  phase: CreditRegistrationPhase,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => {
+  const result = await runTickUnchecked(request, phase, scope)
+  if (result.status !== "ran" || result.error !== null) {
+    const scoped = scope ? ` scoped to ${JSON.stringify(scope)}` : " unscoped"
+    throw new Error(`Ticking ${phase}${scoped} did not run cleanly: ${JSON.stringify(result)}`)
   }
-  return (await response.json()) as RegistrarTickResult
+  return result
 }
 
 export const runMaterializeTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "materialize", scope)
+): Promise<RanPhaseTick> => runTick(request, "materialize", scope)
 
 export const runPreconditionsTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "preconditions", scope)
+): Promise<RanPhaseTick> => runTick(request, "preconditions", scope)
 
 export const runResolveEnrolmentsTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "resolve-enrolments", scope)
+): Promise<RanPhaseTick> => runTick(request, "resolve-enrolments", scope)
 
 export const runImportSubmissionTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "import", scope)
+): Promise<RanPhaseTick> => runTick(request, "import", scope)
 
 export const runVerifyPollTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "verify", scope)
-
-/** Outage recovery is the verify phase doing its job; aliased because the test plan names it. */
-export const runOutageRecoveryTick = (
-  request: APIRequestContext,
-  scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "verify", scope)
+): Promise<RanPhaseTick> => runTick(request, "verify", scope)
 
 export const runLegacyMirrorTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "legacy-mirror", scope)
-
-export const runStudentNotificationsTick = (
-  request: APIRequestContext,
-  scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "student-notifications", scope)
+): Promise<RanPhaseTick> => runTick(request, "legacy-mirror", scope)
 
 export const runEnrolmentDiscoveryTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "enrolment-discovery", scope)
+): Promise<RanPhaseTick> => runTick(request, "enrolment-discovery", scope)
 
 /**
  * Separate from enrolment discovery because the fast-track specs assert that **no** linking
@@ -175,19 +173,24 @@ export const runEnrolmentDiscoveryTick = (
 export const runLinkEmailsTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "link-emails", scope)
+): Promise<RanPhaseTick> => runTick(request, "link-emails", scope)
 
 export const runProductTokenRefreshTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "product-token-refresh", scope)
+): Promise<RanPhaseTick> => runTick(request, "product-token-refresh", scope)
 
-export const runConfigValidationTick = (
+/**
+ * Drives a consented completion as far as a submission, one phase per tick, in order.
+ *
+ * A chain rather than four calls at every call site: each phase claims what the one before it left,
+ * so a spec that runs them out of order or skips one waits for a state that cannot arrive.
+ */
+export const runPhasesUpToSubmission = async (
   request: APIRequestContext,
-  scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "config-validation", scope)
-
-export const runRetentionSweepTick = (
-  request: APIRequestContext,
-  scope?: TickScope,
-): Promise<PhaseTickResult> => runTick(request, "retention-sweep", scope)
+  scope: TickScope,
+): Promise<void> => {
+  for (const phase of ["materialize", "preconditions", "resolve-enrolments", "import"] as const) {
+    await runTick(request, phase, scope)
+  }
+}

@@ -308,7 +308,6 @@ pub struct CallFilter {
 #[serde(rename_all = "camelCase")]
 pub struct HypotheticalRequest {
     pub endpoint: SuotarEndpoint,
-    pub call_ordinal: Option<u32>,
     #[serde(default)]
     pub items: Vec<HypotheticalItem>,
 }
@@ -1051,12 +1050,7 @@ async fn build_fault(
     let parallel_safe = predicates.iter().any(|predicate| {
         matches!(
             predicate,
-            Predicate::Owner(_)
-                | Predicate::StudentNumber(_)
-                | Predicate::CourseCode(_)
-                | Predicate::ProductId(_)
-                | Predicate::RequestItemId(_)
-                | Predicate::SubmittedAttainmentId(_)
+            Predicate::Owner(_) | Predicate::StudentNumber(_) | Predicate::CourseCode(_)
         )
     });
     let seq = store.next_fault_seq(generation).await?;
@@ -1548,7 +1542,7 @@ pub const COMMANDS: [CommandDoc; 23] = [
     },
     CommandDoc {
         command: "explainFault",
-        arguments: "{ fault, against?: { endpoint, callOrdinal?, items[] } }",
+        arguments: "{ fault, against?: { endpoint, items[] } }",
         result: "{ valid, endpoint, stage, parallelSafe, owner, resolvableKeys, against? }",
         parallel_safe: true,
     },
@@ -1561,7 +1555,7 @@ pub const COMMANDS: [CommandDoc; 23] = [
     CommandDoc {
         command: "applyScenario",
         arguments: "{ name, args: { studentNumber?, courseCode, realisationKind?, owner?, primaryEmail?, secondaryEmail?, firstNames?, lastName? } }",
-        result: "{ scenario, parallelSafe, scope, ...minted identifiers }",
+        result: "{ scenario, scope, ...minted identifiers }",
         parallel_safe: true,
     },
     CommandDoc {
@@ -1739,8 +1733,7 @@ mod tests {
             "when": [
                 { "endpoint": "import_attainments" },
                 { "stage": "requestGate" },
-                { "owner": { "user": "someone@example.com", "course": "crs-401" } },
-                { "callOrdinal": 2 }
+                { "owner": { "user": "someone@example.com", "course": "crs-401" } }
             ],
             "then": { "kind": "requestLevel", "status": 503, "code": "sisuTemporarilyUnavailable" },
             "lifetime": { "matchingCalls": 1 }

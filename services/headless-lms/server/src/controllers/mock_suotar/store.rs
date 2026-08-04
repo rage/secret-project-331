@@ -8,6 +8,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::sync::RwLock;
 
 use anyhow::{Context, anyhow};
+use itertools::Itertools;
 use redis::{AsyncCommands, aio::ConnectionManager};
 use serde::de::DeserializeOwned;
 use tokio::sync::{Mutex, OnceCell};
@@ -38,7 +39,6 @@ const IDX_SUBMISSIONS_BY_PERSON_COURSE: &str = "idx:submissionsByPersonCourse";
 const IDX_OWNER_KEYS: &str = "idx:ownerKeys";
 const FAULTS: &str = "faults";
 const FAULTS_REMAINING: &str = "faults:remaining";
-const FAULTS_ORDINAL: &str = "faults:ordinal";
 const CALLS: &str = "calls";
 const SEQ_CALL: &str = "seq:call";
 const SEQ_PERSON: &str = "seq:person";
@@ -46,7 +46,7 @@ const SEQ_FAULT: &str = "seq:fault";
 
 /// Closed by design: cleaning up a superseded generation is one `DEL` over these names, never a
 /// keyspace scan.
-const PREFIXED_KEYS: [&str; 19] = [
+const PREFIXED_KEYS: [&str; 18] = [
     META,
     PERSONS,
     COURSE_UNITS,
@@ -61,7 +61,6 @@ const PREFIXED_KEYS: [&str; 19] = [
     IDX_OWNER_KEYS,
     FAULTS,
     FAULTS_REMAINING,
-    FAULTS_ORDINAL,
     CALLS,
     SEQ_CALL,
     SEQ_PERSON,
@@ -406,14 +405,18 @@ impl MockSuotarStore {
             submitted_attainment_ids,
         )
         .await?;
-        let student_numbers: Vec<String> = unique(
-            submissions
-                .values()
-                .map(|submission| submission.student_number.clone()),
-        );
-        let person_course_keys: Vec<String> = unique(submissions.values().map(|submission| {
-            person_course_key(&submission.student_number, &submission.course_code)
-        }));
+        let student_numbers: Vec<String> = submissions
+            .values()
+            .map(|submission| submission.student_number.clone())
+            .unique()
+            .collect();
+        let person_course_keys: Vec<String> = submissions
+            .values()
+            .map(|submission| {
+                person_course_key(&submission.student_number, &submission.course_code)
+            })
+            .unique()
+            .collect();
         let persons = hmget_json(&mut conn, &key(generation, PERSONS), &student_numbers).await?;
         // `register` (reached via `ripen`) appends to this index and commits the field back whole,
         // so leaving it unloaded here would wipe every attainment already indexed for the pair.
@@ -439,11 +442,11 @@ impl MockSuotarStore {
         let mut conn = self.conn().await?;
         let course_units: BTreeMap<String, MockCourseUnit> =
             hmget_json(&mut conn, &key(generation, COURSE_UNITS), course_codes).await?;
-        let realisation_ids: Vec<String> = unique(
-            course_units
-                .values()
-                .flat_map(|unit| unit.realisations.iter().map(|r| r.id.clone())),
-        );
+        let realisation_ids: Vec<String> = course_units
+            .values()
+            .flat_map(|unit| unit.realisations.iter().map(|r| r.id.clone()))
+            .unique()
+            .collect();
         let enrolments_by_realisation: BTreeMap<String, Vec<String>> = hmget_json(
             &mut conn,
             &key(generation, IDX_ENROLMENTS_BY_REALISATION),
@@ -453,11 +456,11 @@ impl MockSuotarStore {
         let enrolment_ids = flatten(enrolments_by_realisation.values());
         let enrolments: BTreeMap<String, MockEnrolment> =
             hmget_json(&mut conn, &key(generation, ENROLMENTS), &enrolment_ids).await?;
-        let student_numbers: Vec<String> = unique(
-            enrolments
-                .values()
-                .map(|enrolment| enrolment.student_number.clone()),
-        );
+        let student_numbers: Vec<String> = enrolments
+            .values()
+            .map(|enrolment| enrolment.student_number.clone())
+            .unique()
+            .collect();
         let persons = hmget_json(&mut conn, &key(generation, PERSONS), &student_numbers).await?;
         Ok(WorkingSet {
             persons,
@@ -574,17 +577,12 @@ impl MockSuotarStore {
         Ok(seq.max(0) as u64)
     }
 
-    /// The caller acts on the returned value, never on a separate read.
-    pub async fn draw(
-        &self,
-        generation: &str,
-        hash: CounterHash,
-        fault_id: &str,
-        delta: i64,
-    ) -> anyhow::Result<i64> {
+    /// Draws from a fault's remaining budget. The caller acts on the returned value, never on a
+    /// separate read.
+    pub async fn draw(&self, generation: &str, fault_id: &str, delta: i64) -> anyhow::Result<i64> {
         let mut conn = self.conn().await?;
         Ok(conn
-            .hincr(key(generation, hash.name()), fault_id, delta)
+            .hincr(key(generation, FAULTS_REMAINING), fault_id, delta)
             .await?)
     }
 
@@ -702,8 +700,6 @@ impl MockSuotarStore {
             fault.lifetime.budget().unwrap_or(0) as i64,
         )
         .ignore();
-        pipe.hset(key(generation, FAULTS_ORDINAL), &fault.id, 0)
-            .ignore();
         pipe.query_async::<()>(&mut conn).await?;
         Ok(())
     }
@@ -717,7 +713,6 @@ impl MockSuotarStore {
         pipe.atomic();
         pipe.hdel(key(generation, FAULTS), ids).ignore();
         pipe.hdel(key(generation, FAULTS_REMAINING), ids).ignore();
-        pipe.hdel(key(generation, FAULTS_ORDINAL), ids).ignore();
         pipe.query_async::<()>(&mut conn).await?;
         Ok(())
     }
@@ -809,7 +804,7 @@ impl MockSuotarStore {
         let mut conn = self.conn().await?;
         let mut pipe = redis::pipe();
         pipe.atomic();
-        for name in [FAULTS, FAULTS_REMAINING, FAULTS_ORDINAL] {
+        for name in [FAULTS, FAULTS_REMAINING] {
             pipe.del(key(generation, name)).ignore();
         }
         pipe.query_async::<()>(&mut conn).await?;
@@ -873,21 +868,6 @@ impl EntityHash {
             Self::Faults => FAULTS,
             Self::OwnerKeys => IDX_OWNER_KEYS,
             Self::Calls => CALLS,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CounterHash {
-    Remaining,
-    Ordinal,
-}
-
-impl CounterHash {
-    fn name(self) -> &'static str {
-        match self {
-            Self::Remaining => FAULTS_REMAINING,
-            Self::Ordinal => FAULTS_ORDINAL,
         }
     }
 }
@@ -1051,14 +1031,10 @@ fn zip_json<T: DeserializeOwned>(
 }
 
 fn flatten<'a, I: Iterator<Item = &'a Vec<String>>>(lists: I) -> Vec<String> {
-    unique(lists.flat_map(|list| list.iter().cloned()))
-}
-
-fn unique<I: Iterator<Item = String>>(values: I) -> Vec<String> {
-    let mut out: Vec<String> = values.collect();
-    out.sort();
-    out.dedup();
-    out
+    lists
+        .flat_map(|list| list.iter().cloned())
+        .unique()
+        .collect()
 }
 
 #[cfg(test)]

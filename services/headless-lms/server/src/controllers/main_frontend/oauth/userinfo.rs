@@ -186,6 +186,7 @@ pub async fn user_info(
         first_name: None,
         last_name: None,
         email: None,
+        email_verified: None,
     };
 
     if scopes.contains("profile") {
@@ -194,6 +195,7 @@ pub async fn user_info(
     }
     if scopes.contains("email") {
         res.email = Some(user.email.clone());
+        res.email_verified = Some(user.email_verified_at.is_some());
     }
 
     // Best practice: prevent caching

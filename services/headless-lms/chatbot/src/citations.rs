@@ -23,6 +23,29 @@ pub struct CourseMaterialDocument {
     pub filepath: String,
 }
 
+pub struct DocumentProperties {
+    pub page_id: Uuid,
+}
+
+/// Parse the filepath of a document from the Azure search index and return the page_id of
+/// the document. The page id is the same as the id of the page in our DB.
+pub fn parse_document_filepath(filepath: &str) -> ChatbotResult<DocumentProperties> {
+    let mut page_path = PathBuf::from(filepath);
+    page_path.set_extension("");
+    let page_id_str = page_path.file_name().ok_or(chatbot_err!(
+        ToolUseError,
+        "Failed to parse document filepath"
+    ))?;
+    let page_id = Uuid::parse_str(page_id_str.to_string_lossy().as_ref()).map_err(|_| {
+        chatbot_err!(
+            ToolUseError,
+            format!("Failed to parse document page id: {:?}", page_id_str)
+        )
+    })?;
+
+    Ok(DocumentProperties { page_id })
+}
+
 impl CourseMaterialDocument {
     /// Converts the document to citation. Returns also the page_id of the cited document
     /// so we can get the correct chapter_number later.
@@ -46,12 +69,9 @@ impl CourseMaterialDocument {
         let decoded_url = url_decode(&self.url)?;
 
         // Get the page id
-        let mut page_path = PathBuf::from(&self.filepath);
-        page_path.set_extension("");
-        let page_id_str = page_path.file_name();
-        let page_id =
-            page_id_str.and_then(|id_str| Uuid::parse_str(id_str.to_string_lossy().as_ref()).ok());
-
+        let page_id = parse_document_filepath(&self.filepath)
+            .ok()
+            .map(|x| x.page_id);
         Ok((
             ChatbotConversationMessageCitation {
                 conversation_message_id,
@@ -80,7 +100,7 @@ pub async fn chatbot_cited_documents_to_citations(
     let mut documents: Vec<(CourseMaterialDocument, i32)> = vec![];
     for (idx, url) in document_urls.iter_mut().enumerate() {
         let document = get_course_material_document(url, api_key).await?;
-        let citation_number = (idx + 1) as i32;
+        let citation_number = idx as i32;
         documents.push((document, citation_number));
     }
     let res = save_documents(

@@ -79,6 +79,8 @@ export interface BrowserUserAnswer {
 
 export interface EditorUserAnswer {
   type: "editor"
+  /** Opaque id assigned by the host when it stored the archive. */
+  archive_file_id?: string
   archive_download_url: string
 }
 

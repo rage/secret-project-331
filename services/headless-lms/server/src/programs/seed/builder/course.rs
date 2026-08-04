@@ -270,7 +270,7 @@ impl CourseBuilder {
                 &mut tx,
                 PKeyPolicy::Fixed(chatbotconf_id),
                 NewChatbotConf {
-                    course_id,
+                    course_id: Some(course_id),
                     ..chatbot_conf
                 },
             )

@@ -828,6 +828,8 @@ export const zDailySubmissionCount = z.object({
  */
 export const zCourseModuleInfo = z.object({
   daily_submissions: z.array(zDailySubmissionCount),
+  ects_credits: z.number().nullish(),
+  enable_credit_registration_via_suotar: z.boolean(),
   exercise_count: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -839,6 +841,7 @@ export const zCourseModuleInfo = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  uh_course_code: z.string().nullish(),
 })
 
 export const zDatabaseChapter = z.object({
@@ -1022,6 +1025,11 @@ export const zEmailTemplateType = z.enum([
   "delete_user_email",
   "confirm_email_code",
   "generic",
+  "credit_registration_account_linking",
+  "verify_email_address",
+  "credit_registration_action_needed",
+  "credit_registration_registered",
+  "credit_registration_student_number_linked",
 ])
 
 export const zEmailTemplate = z.object({
@@ -1051,6 +1059,33 @@ export const zEmailTemplateNew = z.object({
   language: z.string().nullish(),
   subject: z.string().nullish(),
   template_type: zEmailTemplateType,
+})
+
+/**
+ * What we last mailed about the address the account holds now. Never a delivery confirmation: we
+ * hand messages to an SMTP relay and cannot see an inbox.
+ */
+export const zEmailVerificationEmailInfo = z.object({
+  expires_at: z.iso.datetime(),
+  sent_at: z.iso.datetime(),
+})
+
+/**
+ * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
+ */
+export const zEmailVerificationMethod = z.enum([
+  "emailed_code",
+  "password_reset_backfill",
+  "tmc_confirmed",
+  "admin_asserted",
+])
+
+export const zEmailVerificationStatus = z.object({
+  email: z.string(),
+  email_verified_at: z.iso.datetime().nullish(),
+  email_verified_method: zEmailVerificationMethod.nullish(),
+  latest_verification_email: zEmailVerificationEmailInfo.nullish(),
+  verification_enabled: z.boolean(),
 })
 
 export const zEventInfo = z.object({
@@ -1220,6 +1255,11 @@ export const zExerciseServiceNewOrUpdate = z.object({
   name: z.string(),
   public_url: z.string(),
   slug: z.string(),
+})
+
+export const zExerciseServiceUploadResultEntry = z.object({
+  id: z.string(),
+  url: z.string(),
 })
 
 export const zExerciseServiceWithError = z.object({
@@ -1620,6 +1660,80 @@ export const zModule = z.object({
   course_code: z.string(),
   description: z.string(),
   prerequisites: z.array(z.string()),
+})
+
+export const zMyCourse = zCourse.and(
+  z.object({
+    can_hide: z.boolean(),
+  }),
+)
+
+/**
+ * A completion as the student may see it. `needs_to_be_reviewed` ones are excluded so a student
+ * cannot infer that they are under suspicion.
+ */
+export const zMyStudiesCompletion = z.object({
+  completion_date: z.iso.datetime(),
+  course_module_completion_id: z.uuid(),
+  grade: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  passed: z.boolean(),
+  prerequisite_modules_completed: z.boolean(),
+})
+
+/**
+ * A course module as the student's own profile shows it, with their best visible completion.
+ */
+export const zMyStudiesCourseModule = z.object({
+  completion: zMyStudiesCompletion.nullish(),
+  course_module_id: z.uuid(),
+  ects_credits: z.number().nullish(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  supports_credit_registration: z.boolean(),
+  uh_course_code: z.string().nullish(),
+})
+
+export const zMyStudiesCourse = z.object({
+  course_id: z.uuid(),
+  course_name: z.string(),
+  course_slug: z.string(),
+  current_course_instance_id: z.uuid().nullish(),
+  current_course_instance_name: z.string().nullish(),
+  first_enrolled_at: z.iso.datetime(),
+  hidden: z.boolean(),
+  is_current: z.boolean(),
+  language_code: z.string(),
+  modules: z.array(zMyStudiesCourseModule),
+  organization_slug: z.string(),
+  supports_credit_registration: z.boolean(),
+})
+
+/**
+ * Summarises the courses the profile lists, i.e. the non-hidden ones.
+ */
+export const zMyStudiesTotals = z.object({
+  completions: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  courses: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  ects: z.number(),
+})
+
+export const zMyStudies = z.object({
+  any_module_supports_credit_registration: z.boolean(),
+  courses: z.array(zMyStudiesCourse),
+  totals: zMyStudiesTotals,
 })
 
 export const zNewChapter = z.object({
@@ -2337,6 +2451,16 @@ export const zAnswersRequiringAttention = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
+export const zRequestEmailVerificationOutcome = z.enum([
+  "queued",
+  "already_verified",
+  "recently_sent",
+])
+
+export const zRequestEmailVerificationPayload = z.object({
+  language: z.string(),
+})
+
 export const zResearchFormQuestionAnswer = z.object({
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
@@ -2670,6 +2794,7 @@ export const zUserCourseSettings = z.object({
   current_course_id: z.uuid(),
   current_course_instance_id: z.uuid(),
   deleted_at: z.iso.datetime().nullish(),
+  hidden: z.boolean(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
@@ -2708,6 +2833,8 @@ export const zUserDetail = z.object({
   created_at: z.iso.datetime(),
   email: z.string(),
   email_communication_consent: z.boolean().nullish(),
+  email_verified_at: z.iso.datetime().nullish(),
+  email_verified_method: zEmailVerificationMethod.nullish(),
   first_name: z.string().nullish(),
   last_name: z.string().nullish(),
   search_helper: z.string().nullish(),
@@ -2944,7 +3071,7 @@ export const zVerbosityLevel = z.enum(["low", "medium", "high"])
 
 export const zChatbotConfiguration = z.object({
   chatbot_name: z.string(),
-  course_id: z.uuid(),
+  course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   daily_tokens_per_user: z
     .int()
@@ -2984,7 +3111,7 @@ export const zChatbotConfiguration = z.object({
 export const zNewChatbotConf = z.object({
   chatbot_name: z.string(),
   chatbotconf_id: z.uuid().nullish(),
-  course_id: z.uuid(),
+  course_id: z.uuid().nullish(),
   daily_tokens_per_user: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -3017,7 +3144,17 @@ export const zNewChatbotConf = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
-export const zUploadFilesFromExerciseServiceBody = z.string()
+export const zVerifyEmailOwnershipPayload = z.object({
+  code: z.string(),
+})
+
+/**
+ * Outcome of submitting a code. Wrong, expired, superseded and spent are one value: they are
+ * indistinguishable to someone typing digits, and telling them apart only helps a guesser.
+ */
+export const zVerifyEmailOwnershipResult = z.enum(["verified", "already_verified", "invalid"])
+
+export const zUploadFilesFromExerciseServiceBody = z.record(z.string(), z.string())
 
 export const zUploadFilesFromExerciseServicePath = z.object({
   exercise_service_slug: z.string(),
@@ -3026,7 +3163,7 @@ export const zUploadFilesFromExerciseServicePath = z.object({
 /**
  * Uploaded files
  */
-export const zUploadFilesFromExerciseServiceResponse = z.record(z.string(), z.string())
+export const zUploadFilesFromExerciseServiceResponse = z.array(zExerciseServiceUploadResultEntry)
 
 export const zUpdateCertificateConfigurationBody = z.object({
   file: z.array(z.string()),
@@ -4723,6 +4860,30 @@ export const zDeleteEmailTemplatePath = z.object({
  */
 export const zDeleteEmailTemplateResponse = zEmailTemplate
 
+export const zRequestEmailVerificationCodeBody = zRequestEmailVerificationPayload
+
+/**
+ * What the request did
+ */
+export const zRequestEmailVerificationCodeResponse = zRequestEmailVerificationOutcome
+
+/**
+ * Email verification status of the signed-in user
+ */
+export const zGetMyEmailVerificationStatusResponse = zEmailVerificationStatus
+
+/**
+ * The caller's pending verification code
+ */
+export const zGetEmailVerificationCodeForTestModeResponse = z.string()
+
+export const zVerifyEmailOwnershipBody = zVerifyEmailOwnershipPayload
+
+/**
+ * Outcome of submitting the code
+ */
+export const zVerifyEmailOwnershipResponse = zVerifyEmailOwnershipResult
+
 export const zGetExamExercisesPath = z.object({
   exam_id: z.uuid(),
 })
@@ -5861,7 +6022,20 @@ export const zGetUserResearchConsentResponse = zUserResearchConsent
 /**
  * Courses for authenticated user
  */
-export const zGetMyCoursesResponse = z.array(zCourse)
+export const zGetMyCoursesResponse = z.array(zMyCourse)
+
+export const zHideCourseFromMyCoursesPath = z.object({
+  course_id: z.uuid(),
+})
+
+export const zUnhideCourseFromMyCoursesPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The authenticated user's study record
+ */
+export const zGetMyStudiesResponse = zMyStudies
 
 export const zResetUserPasswordBody = zResetPasswordData
 

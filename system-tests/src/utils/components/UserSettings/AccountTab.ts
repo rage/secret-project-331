@@ -36,7 +36,8 @@ export class AccountTab {
       await this.page.getByLabel("Last name").fill(options.lastName)
     }
     if (options.email !== undefined) {
-      await this.page.getByLabel("Email").fill(options.email)
+      // Role-scoped: the consent checkbox's label also contains "email".
+      await this.page.getByRole("textbox", { name: "Email" }).fill(options.email)
     }
     if (options.country !== undefined) {
       await this.page.getByLabel("Where do you live?").click()

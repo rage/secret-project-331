@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id\nFROM user_email_codes\nWHERE user_id = $1\n  AND purpose = $2\n  AND code = $3\n  AND deleted_at IS NULL\n  AND used_at IS NULL\n  AND expires_at > $4\n       ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_email_codes",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "user_email_code_purpose",
+            "kind": {
+              "Enum": [
+                "admin_login",
+                "account_deletion",
+                "email_ownership_verification"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e9bbb516bce1866c6369241d8ea95f0ef1058341fbf0d66a7e4419a898ecaf9b"
+}

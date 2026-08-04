@@ -1426,4 +1426,155 @@ describe("MessageChannelIFrame", () => {
       })
     })
   })
+
+  // The iframe can ask the parent to open a link or download a file, because its sandbox blocks both.
+  // Nothing may happen without the user agreeing to it first.
+  describe("open-link and download-file requests", () => {
+    interface TestDialog {
+      alert: jest.Mock
+      confirm: jest.Mock
+    }
+
+    const renderWithDialog = (confirms: boolean) => {
+      const mockChannel = createMockMessageChannel()
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        return mockChannel
+      })
+      const dialog: TestDialog = {
+        alert: jest.fn(() => Promise.resolve()),
+        confirm: jest.fn(() => Promise.resolve(confirms)),
+      }
+      render(
+        <I18nextProvider i18n={i18nTest}>
+          <MessageChannelIFrame
+            dialog={dialog}
+            url="http://example.com/test"
+            postThisStateToIFrame={null}
+            onMessageFromIframe={jest.fn()}
+            title="test"
+          />
+        </I18nextProvider>,
+      )
+      return {
+        dialog,
+        sendFromIframe: (data: unknown) => {
+          act(() => {
+            mockChannel.port1.onmessage?.({ data } as MessageEvent)
+          })
+        },
+      }
+    }
+
+    let openSpy: jest.SpyInstance
+    let clickSpy: jest.SpyInstance
+    let clickedAnchors: { href: string; download: string; target: string }[]
+
+    beforeEach(() => {
+      openSpy = jest.spyOn(window, "open").mockReturnValue({} as Window)
+      clickedAnchors = []
+      clickSpy = jest
+        .spyOn(HTMLAnchorElement.prototype, "click")
+        .mockImplementation(function (this: HTMLAnchorElement) {
+          clickedAnchors.push({
+            href: this.href,
+            download: this.download,
+            target: this.target,
+          })
+        })
+    })
+
+    afterEach(() => {
+      openSpy.mockRestore()
+      clickSpy.mockRestore()
+    })
+
+    it("opens a link only after the user confirms it", async () => {
+      const { dialog, sendFromIframe } = renderWithDialog(true)
+
+      sendFromIframe({ message: "open-link", data: "https://example.com/docs" })
+
+      await waitFor(() => {
+        expect(openSpy).toHaveBeenCalledWith(
+          "https://example.com/docs",
+          "_blank",
+          "noopener,noreferrer",
+        )
+      })
+      expect(dialog.confirm).toHaveBeenCalledWith(
+        expect.anything(),
+        "exercise-wants-to-open-a-link-title",
+        expect.objectContaining({ yesButtonLabel: "open-link-confirm-button" }),
+      )
+    })
+
+    it("does not open the link when the user cancels", async () => {
+      const { dialog, sendFromIframe } = renderWithDialog(false)
+
+      sendFromIframe({ message: "open-link", data: "https://example.com/docs" })
+
+      await waitFor(() => {
+        expect(dialog.confirm).toHaveBeenCalled()
+      })
+      expect(openSpy).not.toHaveBeenCalled()
+    })
+
+    it("says so when the browser blocks the new tab, instead of failing silently", async () => {
+      openSpy.mockReturnValue(null)
+      const { dialog, sendFromIframe } = renderWithDialog(true)
+
+      sendFromIframe({ message: "open-link", data: "https://example.com/docs" })
+
+      await waitFor(() => {
+        expect(dialog.alert).toHaveBeenCalledWith(
+          "opening-the-link-was-blocked-explanation",
+          "opening-the-link-was-blocked-title",
+        )
+      })
+    })
+
+    it("refuses a non-http(s) URL without even asking the user", async () => {
+      const { dialog, sendFromIframe } = renderWithDialog(true)
+
+      sendFromIframe({ message: "open-link", data: "javascript:alert(1)" })
+      sendFromIframe({ message: "download-file", url: "data:text/html,hi", filename: "x.html" })
+
+      await waitFor(() => {
+        expect(dialog.confirm).not.toHaveBeenCalled()
+      })
+      expect(openSpy).not.toHaveBeenCalled()
+      expect(clickedAnchors).toEqual([])
+    })
+
+    it("downloads a file only after the user confirms it, keeping the suggested name", async () => {
+      const { dialog, sendFromIframe } = renderWithDialog(true)
+
+      sendFromIframe({
+        message: "download-file",
+        url: "https://files.example/a",
+        filename: "answer.pdf",
+      })
+
+      await waitFor(() => {
+        expect(clickedAnchors).toEqual([
+          { href: "https://files.example/a", download: "answer.pdf", target: "_blank" },
+        ])
+      })
+      expect(dialog.confirm).toHaveBeenCalledWith(
+        expect.anything(),
+        "exercise-wants-to-download-a-file-title",
+        expect.objectContaining({ yesButtonLabel: "download-file-confirm-button" }),
+      )
+    })
+
+    it("does not download when the user cancels", async () => {
+      const { dialog, sendFromIframe } = renderWithDialog(false)
+
+      sendFromIframe({ message: "download-file", url: "https://files.example/a", filename: null })
+
+      await waitFor(() => {
+        expect(dialog.confirm).toHaveBeenCalled()
+      })
+      expect(clickedAnchors).toEqual([])
+    })
+  })
 })

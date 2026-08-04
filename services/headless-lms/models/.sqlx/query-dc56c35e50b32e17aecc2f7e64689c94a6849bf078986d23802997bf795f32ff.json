@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_module_suotar_configurations (\n    id,\n    course_module_id,\n    open_university_product_id,\n    grade_scale_id\n  )\nSELECT uuid_generate_v5($1, cmsc.id::text),\n  uuid_generate_v5($1, cmsc.course_module_id::text),\n  cmsc.open_university_product_id,\n  cmsc.grade_scale_id\nFROM course_module_suotar_configurations cmsc\n  JOIN course_modules cm ON cm.id = cmsc.course_module_id\nWHERE cm.course_id = $2\n  AND cmsc.deleted_at IS NULL\n  AND cm.deleted_at IS NULL\n  AND (\n    cmsc.open_university_product_id IS NOT NULL\n    OR cmsc.grade_scale_id IS NOT NULL\n  );\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "dc56c35e50b32e17aecc2f7e64689c94a6849bf078986d23802997bf795f32ff"
+}

@@ -64,13 +64,17 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
         {title && <h1>{title}</h1>}
         <p>{message}</p>
 
-        <OtpField
-          name="code"
-          control={control}
-          label={t("verification-code-label")}
-          length={codeLength}
-          autoComplete="one-time-code"
-        />
+        {/* Wrapper carries the test id: OtpField renders one input per character and exposes no
+            handle of its own. */}
+        <div data-testid="one-time-code-field">
+          <OtpField
+            name="code"
+            control={control}
+            label={t("verification-code-label")}
+            length={codeLength}
+            autoComplete="one-time-code"
+          />
+        </div>
 
         {/* Live region stays in the DOM so assistive tech registers it before the error text is
             inserted; otherwise the announcement can be missed. */}

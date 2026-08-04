@@ -79,6 +79,17 @@
             "name": "current_course_instance_id"
           }
         }
+      },
+      {
+        "ordinal": 7,
+        "name": "hidden",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "user_course_settings",
+            "name": "hidden"
+          }
+        }
       }
     ],
     "parameters": {
@@ -93,6 +104,7 @@
       false,
       false,
       true,
+      false,
       false,
       false
     ]

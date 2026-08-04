@@ -180,6 +180,11 @@ export const zEmailTemplateType = z.enum([
   "delete_user_email",
   "confirm_email_code",
   "generic",
+  "credit_registration_account_linking",
+  "verify_email_address",
+  "credit_registration_action_needed",
+  "credit_registration_registered",
+  "credit_registration_student_number_linked",
 ])
 
 export const zEmailTemplate = z.object({
@@ -521,7 +526,7 @@ export const zVerbosityLevel = z.enum(["low", "medium", "high"])
 
 export const zChatbotConfiguration = z.object({
   chatbot_name: z.string(),
-  course_id: z.uuid(),
+  course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   daily_tokens_per_user: z
     .int()

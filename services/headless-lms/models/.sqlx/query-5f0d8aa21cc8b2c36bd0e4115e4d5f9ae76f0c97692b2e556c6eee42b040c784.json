@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET submitted_attainment_id = $2,\n  submitted_attainment_type = $3\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5f0d8aa21cc8b2c36bd0e4115e4d5f9ae76f0c97692b2e556c6eee42b040c784"
+}

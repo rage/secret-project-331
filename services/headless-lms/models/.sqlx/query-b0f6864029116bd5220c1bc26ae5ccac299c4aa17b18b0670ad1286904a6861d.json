@@ -1,0 +1,146 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_conversation_message_tool_calls AS ccmtc\nSET deleted_at = NOW()\nWHERE ccmtc.chatbot_conversation_message_id IN (\n    SELECT id\n    FROM chatbot_conversation_messages\n    WHERE conversation_id = $1\n      AND deleted_at IS NULL\n  )\n  AND ccmtc.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT id\n    FROM chatbot_conversation_message_tool_outputs\n    WHERE tool_call_id = ccmtc.tool_call_id\n      AND deleted_at IS NULL\n  )\nRETURNING ccmtc.id,\n  ccmtc.created_at,\n  ccmtc.updated_at,\n  ccmtc.deleted_at,\n  ccmtc.chatbot_conversation_message_id,\n  ccmtc.tool_name,\n  ccmtc.tool_arguments,\n  ccmtc.tool_call_id,\n  ccmtc.tool_kind AS \"tool_kind: ToolKind\",\n  ccmtc.response_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "chatbot_conversation_message_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "chatbot_conversation_message_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "tool_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "tool_name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "tool_arguments",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "tool_arguments"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "tool_call_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "tool_call_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "tool_kind: ToolKind",
+        "type_info": {
+          "Custom": {
+            "name": "tool_kind",
+            "kind": {
+              "Enum": [
+                "function",
+                "azure-ai-search"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "tool_kind"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "response_id",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "response_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b0f6864029116bd5220c1bc26ae5ccac299c4aa17b18b0670ad1286904a6861d"
+}

@@ -44,10 +44,14 @@ export { Dialog } from "./components/Dialog"
 export type { DialogProps, DialogSize } from "./components/Dialog"
 export { Disclosure } from "./components/Disclosure"
 export type { DisclosureProps } from "./components/Disclosure"
+export { Infobox } from "./components/Infobox"
+export type { InfoboxProps, InfoboxTone } from "./components/Infobox"
 export { Meter } from "./components/Meter"
 export type { MeterProps, MeterTone } from "./components/Meter"
 export { StatTile } from "./components/StatTile"
 export type { StatTileProps, StatTileTone } from "./components/StatTile"
+export { Table } from "./components/Table"
+export type { TableAlign, TableColumn, TableProps } from "./components/Table"
 export type ButtonRef = HTMLButtonElement
 export type LinkRef = HTMLAnchorElement
 export type RadioRef = HTMLInputElement

@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE user_course_settings ucs\nSET hidden = $3\nFROM courses c\nWHERE c.id = $1\n  AND ucs.course_language_group_id = c.course_language_group_id\n  AND ucs.user_id = $2\n  AND ucs.deleted_at IS NULL\n  AND c.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6e7927fca50801cdb0db812812aaa71f1c86ad8f426ef6fd1cc9a57466ed1e18"
+}

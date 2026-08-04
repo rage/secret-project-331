@@ -267,6 +267,9 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           }
           return null
         })}
+        {newMessageMutation.isPending && messageState.messages.length === 0 && (
+          <MessageBubble message={""} citations={undefined} isFromChatbot={true} isPending={true} />
+        )}
         <li
           className={css`
             display: flex;

@@ -1,14 +1,16 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
     chatbot_error::chatbot_err,
     chatbot_tools::{
-        custom_tools::course_progress::CourseProgressTool,
+        custom_tools::{
+            course_progress::CourseProgressTool, course_structure::CourseStructureTool,
+            document_lookup::DocumentLookupTool,
+        },
         provider_tools::azure_ai_search::AzureAISearchToolDefinition,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
@@ -135,21 +137,42 @@ pub enum LLMToolType {
 
 /// Get a vec of AzureLLMToolDefinitions for all available chatbot tools
 pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
-    vec![AzureLLMToolDefinition::Function(
-        CourseProgressTool::get_tool_definition(),
-    )]
+    vec![
+        AzureLLMToolDefinition::Function(CourseProgressTool::get_tool_definition()),
+        AzureLLMToolDefinition::Function(DocumentLookupTool::get_tool_definition()),
+        AzureLLMToolDefinition::Function(CourseStructureTool::get_tool_definition()),
+    ]
 }
 
-/// Create a chatbot tool with LLM-provided arguments by matching the tool call
+pub struct ChatbotToolCallResult {
+    pub arguments: String,
+    pub output: String,
+}
+
+/// Call a chatbot tool with LLM-provided arguments by matching the tool call
 /// made by the LLM. User context and db connection are needed for some tools.
-pub async fn get_chatbot_tool(
+pub async fn call_chatbot_tool(
     conn: &mut PgConnection,
     fn_name: &str,
-    _fn_args: &Value, // used in the future in other tool
+    fn_args: String,
     user_context: &ChatbotUserContext,
-) -> ChatbotResult<impl ChatbotTool> {
-    let tool = match fn_name {
-        "course_progress" => CourseProgressTool::new(conn, "".to_string(), user_context).await?,
+) -> ChatbotResult<ChatbotToolCallResult> {
+    let (arguments, output) = match fn_name {
+        "course_progress" => {
+            let tool = CourseProgressTool::new(conn, "".to_string(), user_context).await?;
+            let args = tool.get_arguments();
+            (serde_json::to_string(args)?, tool.output())
+        }
+        "document_lookup" => {
+            let tool = DocumentLookupTool::new(conn, fn_args, user_context).await?;
+            let args = tool.get_arguments();
+            (serde_json::to_string(args)?, tool.output())
+        }
+        "course_structure" => {
+            let tool = CourseStructureTool::new(conn, fn_args, user_context).await?;
+            let args = tool.get_arguments();
+            (serde_json::to_string(args)?, tool.output())
+        }
         _ => {
             return Err(chatbot_err!(
                 InvalidToolName,
@@ -157,5 +180,5 @@ pub async fn get_chatbot_tool(
             ));
         }
     };
-    Result::Ok(tool)
+    Ok(ChatbotToolCallResult { arguments, output })
 }

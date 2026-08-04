@@ -364,6 +364,44 @@ fn validate_unique_client_ids_inner(
     Ok(input)
 }
 
+/// Get the content of each block and of all its inner blocks as a String.
+fn get_blocks_content_recursive(blocks: Vec<GutenbergBlock>) -> Result<String, serde_json::Error> {
+    let content = blocks
+        .iter()
+        .map(|b| {
+            let c = b.attributes.get("content");
+            let c2 = if let Some(v) = c {
+                serde_json::to_string(v)?
+            } else {
+                "".to_string()
+            };
+            let inner = b.inner_blocks.to_owned();
+            let c3 = get_blocks_content_recursive(inner)?;
+            Ok(c2 + &c3)
+        })
+        .collect::<Result<Vec<String>, serde_json::Error>>()?;
+
+    Ok(content.join(""))
+}
+
+/// Get learning objectives from a vec of Gutenberg blocks. Works recursively and
+/// inspects the inner blocks. Returns an empty string if no objectives are found.
+/// Returns the objectives of the whole Vec argument, joined together into a String.
+pub fn get_learning_objectives(blocks: Vec<GutenbergBlock>) -> Result<String, serde_json::Error> {
+    let objectives = blocks
+        .iter()
+        .map(|x| {
+            if x.name == "moocfi/learning-objectives" || x.name == "moocfi/course-objective-section"
+            {
+                get_blocks_content_recursive(vec![x.to_owned()])
+            } else {
+                get_learning_objectives(x.inner_blocks.to_owned())
+            }
+        })
+        .collect::<Result<Vec<String>, serde_json::Error>>()?;
+    Ok(objectives.join(""))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,0 +1,51 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO verified_student_numbers (\n    id,\n    user_id,\n    student_number,\n    sisu_person_id,\n    first_names,\n    last_name,\n    verified_via,\n    verified_via_email,\n    verified_via_email_match_field,\n    account_email_verified_at,\n    linked_by_user_id,\n    link_reason,\n    verified_from_course_id\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13\n  )\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "student_number_verification_method",
+            "kind": {
+              "Enum": [
+                "emailed_link",
+                "email_match_fast_track",
+                "admin_manual"
+              ]
+            }
+          }
+        },
+        "Varchar",
+        "Varchar",
+        "Timestamptz",
+        "Uuid",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "917e25e65b4c26644a33f72793d7e1ceb5f2f561b64537bf5a2b050a72e21abe"
+}

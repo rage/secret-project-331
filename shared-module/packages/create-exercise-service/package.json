@@ -1,6 +1,6 @@
 {
   "name": "@moocfi/create-exercise-service",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "Scaffolding CLI for creating new moocfi exercise services",
   "keywords": [
     "create",

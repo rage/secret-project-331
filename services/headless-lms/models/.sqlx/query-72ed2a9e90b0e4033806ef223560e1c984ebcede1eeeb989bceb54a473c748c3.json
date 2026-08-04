@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE user_email_codes\nSET attempt_count = attempt_count + 1,\n  deleted_at = CASE\n    WHEN attempt_count + 1 >= $3 THEN NOW()\n    ELSE deleted_at\n  END\nWHERE user_id = $1\n  AND purpose = $2\n  AND deleted_at IS NULL\n  AND used_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "user_email_code_purpose",
+            "kind": {
+              "Enum": [
+                "admin_login",
+                "account_deletion",
+                "email_ownership_verification"
+              ]
+            }
+          }
+        },
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "72ed2a9e90b0e4033806ef223560e1c984ebcede1eeeb989bceb54a473c748c3"
+}

@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT pages.content AS json_content,\n  pages.title,\n  pages.id AS page_id,\n  cpmc.markdown_content,\n  cps.course_id\nFROM pages\n  JOIN page_history AS ph ON pages.id = ph.page_id\n  JOIN chatbot_page_sync_statuses AS cps ON pages.id = cps.page_id\n  JOIN course_page_markdown_content AS cpmc ON cps.converted_markdown_content_id = cpmc.id\nWHERE ph.id IN (\n    SELECT synced_page_revision_id\n    FROM chatbot_page_sync_statuses\n    WHERE page_id = $1\n      AND deleted_at IS NULL\n    ORDER BY updated_at DESC\n    LIMIT 1\n  )\n  AND pages.id = $1\n  AND pages.deleted_at IS NULL\n  AND ph.deleted_at IS NULL\n  AND cps.deleted_at IS NULL\n  AND cpmc.deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "json_content",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "content"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "title"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "markdown_content",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_page_markdown_content",
+            "name": "markdown_content"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_page_sync_statuses",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3d2765dc65f1546057920348fac1221445e5c7d9814c55cc4fea6f0784257634"
+}

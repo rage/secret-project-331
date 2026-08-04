@@ -256,6 +256,7 @@ pub async fn generate_paragraph_suggestions(
         max_output_tokens,
         tools: vec![],
         tool_choice: None,
+        parallel_tool_calls: None,
         params,
         text: Some(RequestTextOptions {
             verbosity: None,

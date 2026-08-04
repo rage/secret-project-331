@@ -135,6 +135,23 @@ Then, commit the updated snapshots. If you accidentally overwrite snapshots, res
 bin/git-restore-screenshots-from-origin-master
 ```
 
+<details>
+<summary>Running screenshot tests on macOS</summary>
+
+Reference snapshots are generated in CI on Ubuntu (x86_64) and committed as a single,
+shared set of Linux CI references. On macOS the OS text renderer differs, so screenshot comparisons
+fail on tiny antialiasing differences (typically a fraction of a percent of pixels) even
+when the UI is correct — expect many `toHaveScreenshot` failures locally on a Mac. The
+non-screenshot assertions in each test still run and are meaningful; **rely on CI for
+screenshot validation**.
+
+> **⚠️ Warning:** Do **not** run `bin/system-tests-update-snapshots` and commit the
+> result from macOS. That replaces the CI-correct references with macOS-rendered ones
+> and breaks the screenshots for everyone. Update snapshots only in an environment
+> matching CI (Linux/x86_64), or let CI regenerate them.
+
+</details>
+
 ### Example Usage of `expectScreenshotsToMatchSnapshots`
 
 ```javascript

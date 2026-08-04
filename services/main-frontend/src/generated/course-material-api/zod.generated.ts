@@ -66,7 +66,7 @@ export const zChapterWithStatus = z.object({
 
 export const zChatbotConversation = z.object({
   chatbot_configuration_id: z.uuid(),
-  course_id: z.uuid(),
+  course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
@@ -363,6 +363,16 @@ export const zCustomViewExerciseTasks = z.object({
   task_gradings: z.array(zCustomViewExerciseTaskGrading),
   task_submissions: z.array(zCustomViewExerciseTaskSubmission),
 })
+
+/**
+ * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
+ */
+export const zEmailVerificationMethod = z.enum([
+  "emailed_code",
+  "password_reset_backfill",
+  "tmc_confirmed",
+  "admin_asserted",
+])
 
 export const zExamEnrollment = z.object({
   created_at: z.iso.datetime(),
@@ -1105,7 +1115,7 @@ export const zChatbotConversationMessage = z.object({
  */
 export const zChatbotConversationInfo = z.object({
   chatbot_name: z.string(),
-  course_name: z.string(),
+  course_name: z.string().nullish(),
   current_conversation: zChatbotConversation.nullish(),
   current_conversation_message_citations: z.array(zChatbotConversationMessageCitation).nullish(),
   current_conversation_messages: z.array(zChatbotConversationMessage).nullish(),
@@ -1227,6 +1237,7 @@ export const zUserCourseSettings = z.object({
   current_course_id: z.uuid(),
   current_course_instance_id: z.uuid(),
   deleted_at: z.iso.datetime().nullish(),
+  hidden: z.boolean(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
@@ -1247,6 +1258,8 @@ export const zUserDetail = z.object({
   created_at: z.iso.datetime(),
   email: z.string(),
   email_communication_consent: z.boolean().nullish(),
+  email_verified_at: z.iso.datetime().nullish(),
+  email_verified_method: zEmailVerificationMethod.nullish(),
   first_name: z.string().nullish(),
   last_name: z.string().nullish(),
   search_helper: z.string().nullish(),

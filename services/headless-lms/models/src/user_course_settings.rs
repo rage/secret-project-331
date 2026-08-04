@@ -11,6 +11,9 @@ pub struct UserCourseSettings {
     pub deleted_at: Option<DateTime<Utc>>,
     pub current_course_id: Uuid,
     pub current_course_instance_id: Uuid,
+    /// Whether the user has hidden this course from their personal "My courses" list. Does not
+    /// affect course progress.
+    pub hidden: bool,
 }
 
 /// Creates new user course settings based on the enrollment or updates an existing one.
@@ -109,6 +112,39 @@ WHERE c.id = $1
     .fetch_optional(conn)
     .await?;
     Ok(user_course_settings)
+}
+
+/// Sets whether the given course is hidden from the user's personal "My courses" list. The course
+/// is matched by its language group, so any language version of the course resolves to the same
+/// settings row.
+///
+/// Returns the number of settings rows updated. This is 0 when the user has no settings for the
+/// course (e.g. they only hold a role in it and never enrolled), in which case the course cannot be
+/// hidden.
+pub async fn set_hidden(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    hidden: bool,
+) -> ModelResult<u64> {
+    let res = sqlx::query!(
+        "
+UPDATE user_course_settings ucs
+SET hidden = $3
+FROM courses c
+WHERE c.id = $1
+  AND ucs.course_language_group_id = c.course_language_group_id
+  AND ucs.user_id = $2
+  AND ucs.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+        ",
+        course_id,
+        user_id,
+        hidden,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected())
 }
 
 /// Gets all of the user's course settings that have their current course id included in the provided
@@ -252,5 +288,69 @@ mod test {
             settings_2.current_course_instance_id,
             enrollment_2.course_instance_id
         );
+    }
+
+    #[tokio::test]
+    async fn settings_default_to_not_hidden() {
+        insert_data!(:tx, :user, :org, :course, :instance);
+        course_instance_enrollments::insert_enrollment_and_set_as_current(
+            tx.as_mut(),
+            NewCourseInstanceEnrollment {
+                course_id: course,
+                course_instance_id: instance.id,
+                user_id: user,
+            },
+        )
+        .await
+        .unwrap();
+
+        let settings = get_user_course_settings_by_course_id(tx.as_mut(), user, course)
+            .await
+            .unwrap()
+            .unwrap();
+        assert!(!settings.hidden);
+    }
+
+    #[tokio::test]
+    async fn set_hidden_toggles_the_flag() {
+        insert_data!(:tx, :user, :org, :course, :instance);
+        course_instance_enrollments::insert_enrollment_and_set_as_current(
+            tx.as_mut(),
+            NewCourseInstanceEnrollment {
+                course_id: course,
+                course_instance_id: instance.id,
+                user_id: user,
+            },
+        )
+        .await
+        .unwrap();
+
+        let updated = set_hidden(tx.as_mut(), user, course, true).await.unwrap();
+        assert_eq!(updated, 1);
+        assert!(
+            get_user_course_settings_by_course_id(tx.as_mut(), user, course)
+                .await
+                .unwrap()
+                .unwrap()
+                .hidden
+        );
+
+        set_hidden(tx.as_mut(), user, course, false).await.unwrap();
+        assert!(
+            !get_user_course_settings_by_course_id(tx.as_mut(), user, course)
+                .await
+                .unwrap()
+                .unwrap()
+                .hidden
+        );
+    }
+
+    #[tokio::test]
+    async fn set_hidden_without_settings_updates_nothing() {
+        insert_data!(:tx, :user, :org, :course);
+
+        // The user only exists, has never enrolled, so there is no settings row to hide.
+        let updated = set_hidden(tx.as_mut(), user, course, true).await.unwrap();
+        assert_eq!(updated, 0);
     }
 }

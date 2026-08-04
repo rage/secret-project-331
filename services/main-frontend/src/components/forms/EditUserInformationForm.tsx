@@ -7,6 +7,7 @@ import React, { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { refetchEmailVerificationStatusForUser } from "@/components/EmailVerificationSection"
 import { updateUserInfo } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { refetchUserDetailsForUser } from "@/hooks/useUserDetailsForUserQuery"
@@ -103,6 +104,8 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       onSuccess: async () => {
         setIsEditing(false)
         await refetchUserDetailsForUser(queryClient)
+        // Backend clears email_verified_at on an address change, so the card needs a refetch.
+        await refetchEmailVerificationStatusForUser(queryClient)
       },
     },
   )

@@ -5,6 +5,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { FormProvider, useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
 
 import type {
   Course,
@@ -75,9 +76,13 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
     defaultValues: {
       course_description: sisuData.course_description,
       course_audiences: sisuData.audience.map((audience) => ({
+        id: v4(),
+        course_id: course.id,
         audience,
       })),
       course_prerequisites: sisuData.modules[0].prerequisites.map((prerequisite) => ({
+        id: v4(),
+        course_id: course.id,
         prerequisite,
       })),
       useSuggestedDescription: true,
@@ -184,6 +189,15 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
                   key={idx}
                   className={css`
                     list-style-type: none;
+                    padding: 0.2rem 0;
+                    padding-left: 1.25rem;
+                    position: relative;
+
+                    ::before {
+                    content: "•";
+                    position: absolute;
+                    left: 0;
+                    color: ${baseTheme.colors.green[600]};
                   `}
                 >
                   {preq.prerequisite}
@@ -213,17 +227,24 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
               key={item.id}
               className={css`
                 display: flex;
-                flex-flow: row nowrap;
+                flex-flow: row wrap;
               `}
             >
-              <TextField
+              <div
                 className={css`
-                  flex-grow: 1;
+                  flex: 1 1 400px;
                 `}
-                control={control}
-                name={`course_prerequisites.${idx}.prerequisite`}
-                label={t("text-field-label-prerequisites", { index: idx + 1 })}
-              />
+              >
+                <TextField
+                  className={css`
+                    flex-grow: 1;
+                  `}
+                  control={control}
+                  name={`course_prerequisites.${idx}.prerequisite`}
+                  label={t("text-field-label-prerequisites", { index: idx + 1 })}
+                />
+              </div>
+
               <Button
                 className={css`
                   height: fit-content;
@@ -252,7 +273,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
               size="medium"
               type="button"
               variant="secondary"
-              onClick={() => appendPrereq({ prerequisite: "" })}
+              onClick={() => appendPrereq({ id: v4(), course_id: course.id, prerequisite: "" })}
             >
               {t("add-new-prerequisite")}
             </Button>
@@ -287,6 +308,15 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
                   key={idx}
                   className={css`
                     list-style-type: none;
+                    padding: 0.2rem 0;
+                    padding-left: 1.25rem;
+                    position: relative;
+
+                    ::before {
+                    content: "•";
+                    position: absolute;
+                    left: 0;
+                    color: ${baseTheme.colors.green[600]};
                   `}
                 >
                   {audience.audience}
@@ -316,17 +346,24 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
               key={item.id}
               className={css`
                 display: flex;
-                flex-flow: row nowrap;
+                flex-flow: row wrap;
               `}
             >
-              <TextField
+              <div
                 className={css`
-                  flex-grow: 1;
+                  flex: 1 1 400px;
                 `}
-                control={control}
-                name={`course_audiences.${idx}.audience`}
-                label={t("text-field-label-audiences", { index: idx + 1 })}
-              />
+              >
+                <TextField
+                  className={css`
+                    flex-grow: 1;
+                  `}
+                  control={control}
+                  name={`course_audiences.${idx}.audience`}
+                  label={t("text-field-label-audiences", { index: idx + 1 })}
+                />
+              </div>
+
               <Button
                 className={css`
                   height: fit-content;
@@ -350,7 +387,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
             size="medium"
             type="button"
             variant="secondary"
-            onClick={() => appendAudience({ audience: "" })}
+            onClick={() => appendAudience({ id: v4(), course_id: course.id, audience: "" })}
           >
             {t("add-new-audience")}
           </Button>

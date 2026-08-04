@@ -7,6 +7,7 @@ import { parseISO } from "date-fns"
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { useDebounce } from "use-debounce"
 
 import { getCoursesForAuditingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseAuditingData } from "@/generated/api/types.generated"
@@ -42,7 +43,7 @@ const CourseAuditing = () => {
     defaultValues: {
       search_course: "",
       empty_uh_course_code: false,
-      not_closed: false,
+      not_closed: true,
       short_description: false,
     },
   })
@@ -56,17 +57,24 @@ const CourseAuditing = () => {
     "short_description",
   ])
 
+  const [debouncedSearchCourse] = useDebounce(searchCourse, 300)
+
   const filteredCourses = useMemo(
     () =>
       [...(courseData ?? [])]
         .filter((course: CourseAuditingData) => {
           if (
-            !course.name.toLocaleLowerCase().includes(searchCourse?.toLocaleLowerCase()) &&
-            !course.description?.toLocaleLowerCase().includes(searchCourse?.toLocaleLowerCase())
+            !course.name.toLocaleLowerCase().includes(debouncedSearchCourse?.toLocaleLowerCase()) &&
+            !course.description
+              ?.toLocaleLowerCase()
+              .includes(debouncedSearchCourse?.toLocaleLowerCase())
           ) {
             return false
           }
-          if (emptyUhCourseCode && course.uh_course_code !== null) {
+          if (
+            emptyUhCourseCode &&
+            course.modules.find((m) => m.order_number === 0)?.uh_course_code !== null
+          ) {
             return false
           }
           if (
@@ -87,7 +95,7 @@ const CourseAuditing = () => {
           return true
         })
         .sort((a, b) => a.name.localeCompare(b.name)),
-    [courseData, searchCourse, emptyUhCourseCode, notClosed, shortDescription],
+    [courseData, debouncedSearchCourse, emptyUhCourseCode, notClosed, shortDescription],
   )
 
   return (

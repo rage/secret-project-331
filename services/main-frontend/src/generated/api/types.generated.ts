@@ -571,7 +571,7 @@ export type CourseAudience = {
 }
 
 export type CourseAuditingData = {
-  audiences: Array<UpsertCourseAudience>
+  audiences: Array<EditCourseAudience>
   closed_additional_message?: string | null
   closed_at?: string | null
   closed_course_successor_id?: string | null
@@ -583,19 +583,19 @@ export type CourseAuditingData = {
   organization_id: string
   organization_name: string
   organization_slug: string
-  prerequisites: Array<UpsertCoursePrerequisite>
+  prerequisites: Array<EditCoursePrerequisite>
   slug: string
   updated_at: string
 }
 
 export type CourseAuditingDataUpdate = {
-  audiences: Array<UpsertCourseAudience>
+  audiences: Array<EditCourseAudience>
   closed_additional_message?: string | null
   closed_at?: string | null
   closed_course_successor_id?: string | null
   description?: string | null
   modules: Array<ModifiedModule>
-  prerequisites: Array<UpsertCoursePrerequisite>
+  prerequisites: Array<EditCoursePrerequisite>
 }
 
 export type CourseBreadcrumbInfo = {
@@ -823,12 +823,13 @@ export type CourseMetadata = {
   course_audiences: Array<CourseAudience>
   course_description?: string | null
   course_prerequisites: Array<CoursePrerequisite>
+  course_updated_at: string
 }
 
 export type CourseMetadataUpdate = {
-  course_audiences: Array<NewCourseAudience>
+  course_audiences: Array<EditCourseAudience>
   course_description?: string | null
-  course_prerequisites: Array<NewCoursePrerequisite>
+  course_prerequisites: Array<EditCoursePrerequisite>
 }
 
 /**
@@ -1107,6 +1108,18 @@ export type DomainCompletionStats = {
   unique_users: number
   users_with_some_registered_completions: number
   users_with_some_unregistered_completions: number
+}
+
+export type EditCourseAudience = {
+  audience: string
+  course_id: string
+  id: string
+}
+
+export type EditCoursePrerequisite = {
+  course_id: string
+  id: string
+  prerequisite: string
 }
 
 export type EditProposalInfo = {
@@ -1683,14 +1696,6 @@ export type NewCourse = {
    * Name of the teacher who is responsible for the course. Must be a valid name.
    */
   teacher_in_charge_name: string
-}
-
-export type NewCourseAudience = {
-  audience: string
-}
-
-export type NewCoursePrerequisite = {
-  prerequisite: string
 }
 
 export type NewExam = {
@@ -2358,18 +2363,6 @@ export type UpdateCourseDesignerStageTaskRequest = {
  */
 export type UploadResult = {
   url: string
-}
-
-export type UpsertCourseAudience = {
-  audience: string
-  course_id: string
-  id: string
-}
-
-export type UpsertCoursePrerequisite = {
-  course_id: string
-  id: string
-  prerequisite: string
 }
 
 export type User = {

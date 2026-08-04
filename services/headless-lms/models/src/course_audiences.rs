@@ -13,12 +13,7 @@ pub struct CourseAudience {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
-pub struct NewCourseAudience {
-    pub audience: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
-pub struct UpsertCourseAudience {
+pub struct EditCourseAudience {
     pub id: Uuid,
     pub course_id: Uuid,
     pub audience: String,
@@ -48,9 +43,9 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn get_all_audiences(conn: &mut PgConnection) -> ModelResult<Vec<UpsertCourseAudience>> {
+pub async fn get_all_audiences(conn: &mut PgConnection) -> ModelResult<Vec<EditCourseAudience>> {
     let res = sqlx::query_as!(
-        UpsertCourseAudience,
+        EditCourseAudience,
         "
 SELECT id,
 audience,
@@ -67,9 +62,9 @@ WHERE deleted_at IS NULL
 pub async fn get_audiences_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<UpsertCourseAudience>> {
+) -> ModelResult<Vec<EditCourseAudience>> {
     let res = sqlx::query_as!(
-        UpsertCourseAudience,
+        EditCourseAudience,
         "
 SELECT id,
 audience,
@@ -104,10 +99,58 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
+pub async fn upsert_course_audiences(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    course_audiences: &[EditCourseAudience],
+) -> ModelResult<Vec<CourseAudience>> {
+    let audience_ids: Vec<Uuid> = course_audiences.iter().map(|a| a.id).collect();
+
+    //TODO: verify ids
+
+    let updated_audiences: Vec<String> = course_audiences
+        .iter()
+        .map(|a| a.audience.to_owned())
+        .collect();
+
+    let res = sqlx::query_as!(
+        CourseAudience,
+        "
+INSERT INTO course_audiences (course_id, id, audience)
+SELECT $1,
+  course_audience.id,
+  course_audience.audience
+FROM UNNEST ($2::UUID [], $3::TEXT []) AS course_audience(id, audience) ON CONFLICT (id) DO
+UPDATE
+SET audience = EXCLUDED.audience
+WHERE EXCLUDED.deleted_at IS NULL
+RETURNING *
+",
+        &course_id,
+        &audience_ids,
+        &updated_audiences
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
 pub async fn delete_batch(
     conn: &mut PgConnection,
-    ids_to_delete: Vec<Uuid>,
+    course_id: Uuid,
+    course_audiences: &[EditCourseAudience],
 ) -> ModelResult<Vec<CourseAudience>> {
+    let audience_ids: Vec<Uuid> = course_audiences.iter().map(|a| a.id).collect();
+
+    let old_audiences: Vec<CourseAudience> = get_by_course_id(conn, course_id).await?;
+
+    let audiences_to_delete: Vec<Uuid> = old_audiences
+        .iter()
+        .filter(|a| !audience_ids.contains(&a.id))
+        .map(|a| a.id.to_owned())
+        .collect();
+
     let res = sqlx::query_as!(
         CourseAudience,
         "
@@ -117,7 +160,7 @@ WHERE id = ANY($1::UUID [])
 AND deleted_at IS NULL
 RETURNING *
 ",
-        &ids_to_delete
+        &audiences_to_delete
     )
     .fetch_all(conn)
     .await?;

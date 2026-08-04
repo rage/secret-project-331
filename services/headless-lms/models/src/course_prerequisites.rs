@@ -13,12 +13,7 @@ pub struct CoursePrerequisite {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
-pub struct NewCoursePrerequisite {
-    pub prerequisite: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
-pub struct UpsertCoursePrerequisite {
+pub struct EditCoursePrerequisite {
     pub id: Uuid,
     pub course_id: Uuid,
     pub prerequisite: String,
@@ -48,11 +43,11 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn get_all_prerequisites(
+pub async fn get_all_course_prerequisites(
     conn: &mut PgConnection,
-) -> ModelResult<Vec<UpsertCoursePrerequisite>> {
+) -> ModelResult<Vec<EditCoursePrerequisite>> {
     let res = sqlx::query_as!(
-        UpsertCoursePrerequisite,
+        EditCoursePrerequisite,
         "
 SELECT id,
 prerequisite,
@@ -69,9 +64,9 @@ WHERE deleted_at IS NULL
 pub async fn get_prerequisites_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<UpsertCoursePrerequisite>> {
+) -> ModelResult<Vec<EditCoursePrerequisite>> {
     let res = sqlx::query_as!(
-        UpsertCoursePrerequisite,
+        EditCoursePrerequisite,
         "
 SELECT id,
 prerequisite,
@@ -106,10 +101,58 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
+pub async fn upsert_course_prerequisites(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    course_prerequisites: &[EditCoursePrerequisite],
+) -> ModelResult<Vec<CoursePrerequisite>> {
+    let prerequisite_ids: Vec<Uuid> = course_prerequisites.iter().map(|p| p.id).collect();
+
+    //TODO: verify ids
+
+    let updated_prerequisites: Vec<String> = course_prerequisites
+        .iter()
+        .map(|p| p.prerequisite.to_owned())
+        .collect();
+
+    let res = sqlx::query_as!(
+        CoursePrerequisite,
+        "
+INSERT INTO course_prerequisites (course_id, id, prerequisite)
+SELECT $1,
+  course_prerequisite.id,
+  course_prerequisite.prerequisite
+FROM UNNEST ($2::UUID [], $3::TEXT []) AS course_prerequisite(id, prerequisite) ON CONFLICT (id) DO
+UPDATE
+SET prerequisite = EXCLUDED.prerequisite
+WHERE EXCLUDED.deleted_at IS NULL
+RETURNING *
+",
+        &course_id,
+        &prerequisite_ids,
+        &updated_prerequisites
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
 pub async fn delete_batch(
     conn: &mut PgConnection,
-    ids_to_delete: Vec<Uuid>,
+    course_id: Uuid,
+    course_prerequisites: &[EditCoursePrerequisite],
 ) -> ModelResult<Vec<CoursePrerequisite>> {
+    let prerequisite_ids: Vec<Uuid> = course_prerequisites.iter().map(|p| p.id).collect();
+
+    let old_prerequisites: Vec<CoursePrerequisite> = get_by_course_id(conn, course_id).await?;
+
+    let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
+        .iter()
+        .filter(|p| !prerequisite_ids.contains(&p.id))
+        .map(|p| p.id.to_owned())
+        .collect();
+
     let res = sqlx::query_as!(
         CoursePrerequisite,
         "
@@ -119,7 +162,7 @@ WHERE id = ANY($1::UUID [])
 AND deleted_at IS NULL
 RETURNING *
 ",
-        &ids_to_delete
+        &prerequisites_to_delete
     )
     .fetch_all(conn)
     .await?;

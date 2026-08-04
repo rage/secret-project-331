@@ -12,11 +12,10 @@ import {
 } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
 import { useState } from "react"
-import { FormProvider, useFieldArray, useForm } from "react-hook-form"
+import { FormProvider, useFieldArray, useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import CourseMetadata from "@/components/CourseMetadata/CourseMetadata"
 import {
   getCoursesForAuditingQueryKey,
   updateCourseAuditingDataMutation,
@@ -26,6 +25,7 @@ import type {
   CourseAuditingDataUpdate,
   ModifiedModule,
 } from "@/generated/api/types.generated"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -37,6 +37,7 @@ import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/t
 import { Button, Link, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
 
 import ContentDisplayBox from "./ContentDisplayBox"
+import CourseMetadata from "./CourseMetadata"
 import ClosedSectionFields from "./EditClosedFields"
 import EditModuleFields from "./EditModuleFields"
 import { contentRowStyles } from "./page"
@@ -54,6 +55,11 @@ const FieldSet = styled.fieldset`
 const Legend = styled.legend`
   font-weight: 600;
   padding: 0 0.25rem;
+`
+
+const linkStyles = css`
+  color: ${baseTheme.colors.green[700]};
+  text-decoration: underline;
 `
 
 interface CourseAuditingCardProps {
@@ -77,7 +83,7 @@ export interface EditCourseAuditingData extends CourseAuditingDataUpdate {
   modules: EditModuleData[]
 }
 
-const initDefaultValues = (data: CourseAuditingData) => {
+export const initDefaultValues = (data: CourseAuditingData) => {
   return {
     ...data,
     closed_at: data.closed_at ? (formatDateForDateTimeLocalInputs(data.closed_at) ?? null) : null,
@@ -94,6 +100,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
   courseAuditingData,
   refetch,
 }) => {
+  const { confirm } = useDialog()
   const { t } = useTranslation()
 
   const [editing, setEditing] = useState<boolean>(false)
@@ -107,7 +114,12 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
     initDefaultValues(courseAuditingData),
   )
 
+  const defaultModuleUhCourseCode = readOnly.modules.find(
+    (module) => module.order_number === 0,
+  )?.uh_course_code
+
   const { control, handleSubmit, reset, getValues } = methods
+  const { isDirty } = useFormState({ control })
 
   // oxlint-disable-next-line i18next/no-literal-string
   const { fields: moduleFields } = useFieldArray({ control, name: "modules" })
@@ -131,13 +143,23 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
     setEditing(!editing)
   }
 
-  const cancelEdit = () => {
-    reset()
-    setEditing(!editing)
+  const cancelEdit = async () => {
+    if (isDirty) {
+      const confirmed = await confirm(
+        t("course-auditing-edit-unsaved-dialog-message"),
+        t("course-auditing-edit-unsaved-dialog-title"),
+      )
+      if (confirmed) {
+        reset()
+        setEditing(!editing)
+      }
+    } else {
+      reset()
+      setEditing(!editing)
+    }
   }
 
   const onSubmit = handleSubmit((data: EditCourseAuditingData) => {
-    console.log(data)
     updateMutation.mutateAsync({
       body: {
         ...data,
@@ -195,11 +217,6 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
       },
     },
   )
-
-  const linkStyles = css`
-    color: ${baseTheme.colors.green[700]};
-    text-decoration: underline;
-  `
 
   return (
     <FormProvider {...methods}>
@@ -313,14 +330,21 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                     key={prerequisite.id}
                     className={css`
                       display: flex;
-                      flex-flow: row;
+                      flex-flow: row wrap;
                     `}
                   >
-                    <TextField
-                      control={control}
-                      label={t("text-field-label-prerequisites", { index: idx + 1 })}
-                      name={`prerequisites.${idx}.prerequisite`}
-                    />
+                    <div
+                      className={css`
+                        flex: 1 1 400px;
+                      `}
+                    >
+                      <TextField
+                        control={control}
+                        label={t("text-field-label-prerequisites", { index: idx + 1 })}
+                        name={`prerequisites.${idx}.prerequisite`}
+                      />
+                    </div>
+
                     <Button
                       className={css`
                         height: fit-content;
@@ -364,15 +388,22 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                     key={audience.id}
                     className={css`
                       display: flex;
-                      flex-flow: row;
+                      flex-flow: row wrap;
                     `}
                   >
-                    <TextField
-                      key={audience.id}
-                      control={control}
-                      label={t("text-field-label-audiences", { index: idx + 1 })}
-                      name={`audiences.${idx}.audience`}
-                    />
+                    <div
+                      className={css`
+                        flex: 1 1 400px;
+                      `}
+                    >
+                      <TextField
+                        key={audience.id}
+                        control={control}
+                        label={t("text-field-label-audiences", { index: idx + 1 })}
+                        name={`audiences.${idx}.audience`}
+                      />
+                    </div>
+
                     <Button
                       className={css`
                         height: fit-content;
@@ -427,7 +458,14 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                 content={readOnly.description}
               />
 
-              {/* <CourseMetadata courseId={courseAuditingData.id} /> */}
+              <CourseMetadata
+                courseId={courseAuditingData.id}
+                defaultModuleUhCourseCode={defaultModuleUhCourseCode}
+                reset={reset}
+                readOnly={readOnly}
+                setReadOnly={setReadOnly}
+                queryClient={queryClient}
+              />
               {readOnly.closed_at ? (
                 <div
                   className={css`
@@ -527,7 +565,6 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                   }
                 />
               </div>
-
               {readOnly.modules.map((module) => (
                 <div
                   key={module.id}

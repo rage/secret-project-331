@@ -758,6 +758,7 @@ export const zCourseMetadata = z.object({
   course_audiences: z.array(zCourseAudience),
   course_description: z.string().nullish(),
   course_prerequisites: z.array(zCoursePrerequisite),
+  course_updated_at: z.iso.datetime(),
 })
 
 /**
@@ -967,6 +968,42 @@ export const zDomainCompletionStats = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+})
+
+export const zEditCourseAudience = z.object({
+  audience: z.string(),
+  course_id: z.uuid(),
+  id: z.uuid(),
+})
+
+export const zEditCoursePrerequisite = z.object({
+  course_id: z.uuid(),
+  id: z.uuid(),
+  prerequisite: z.string(),
+})
+
+export const zCourseAuditingData = z.object({
+  audiences: z.array(zEditCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  description: z.string().nullish(),
+  id: z.uuid(),
+  modules: z.array(zCourseModule),
+  name: z.string(),
+  organization_id: z.uuid(),
+  organization_name: z.string(),
+  organization_slug: z.string(),
+  prerequisites: z.array(zEditCoursePrerequisite),
+  slug: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCourseMetadataUpdate = z.object({
+  course_audiences: z.array(zEditCourseAudience),
+  course_description: z.string().nullish(),
+  course_prerequisites: z.array(zEditCoursePrerequisite),
 })
 
 export const zEditProposalInfo = z.object({
@@ -1569,6 +1606,16 @@ export const zModifiedModule = z.object({
   uh_course_code: z.string().nullish(),
 })
 
+export const zCourseAuditingDataUpdate = z.object({
+  audiences: z.array(zEditCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  description: z.string().nullish(),
+  modules: z.array(zModifiedModule),
+  prerequisites: z.array(zEditCoursePrerequisite),
+})
+
 export const zModule = z.object({
   course_code: z.string(),
   description: z.string(),
@@ -1627,20 +1674,6 @@ export const zCopyCourseRequest = zNewCourse.and(
     mode: zCopyCourseMode,
   }),
 )
-
-export const zNewCourseAudience = z.object({
-  audience: z.string(),
-})
-
-export const zNewCoursePrerequisite = z.object({
-  prerequisite: z.string(),
-})
-
-export const zCourseMetadataUpdate = z.object({
-  course_audiences: z.array(zNewCourseAudience),
-  course_description: z.string().nullish(),
-  course_prerequisites: z.array(zNewCoursePrerequisite),
-})
 
 export const zNewExam = z.object({
   ends_at: z.iso.datetime().nullish(),
@@ -2534,46 +2567,6 @@ export const zUpdateCourseDesignerStageTaskRequest = z.object({
  */
 export const zUploadResult = z.object({
   url: z.string(),
-})
-
-export const zUpsertCourseAudience = z.object({
-  audience: z.string(),
-  course_id: z.uuid(),
-  id: z.uuid(),
-})
-
-export const zUpsertCoursePrerequisite = z.object({
-  course_id: z.uuid(),
-  id: z.uuid(),
-  prerequisite: z.string(),
-})
-
-export const zCourseAuditingData = z.object({
-  audiences: z.array(zUpsertCourseAudience),
-  closed_additional_message: z.string().nullish(),
-  closed_at: z.iso.datetime().nullish(),
-  closed_course_successor_id: z.uuid().nullish(),
-  created_at: z.iso.datetime(),
-  description: z.string().nullish(),
-  id: z.uuid(),
-  modules: z.array(zCourseModule),
-  name: z.string(),
-  organization_id: z.uuid(),
-  organization_name: z.string(),
-  organization_slug: z.string(),
-  prerequisites: z.array(zUpsertCoursePrerequisite),
-  slug: z.string(),
-  updated_at: z.iso.datetime(),
-})
-
-export const zCourseAuditingDataUpdate = z.object({
-  audiences: z.array(zUpsertCourseAudience),
-  closed_additional_message: z.string().nullish(),
-  closed_at: z.iso.datetime().nullish(),
-  closed_course_successor_id: z.uuid().nullish(),
-  description: z.string().nullish(),
-  modules: z.array(zModifiedModule),
-  prerequisites: z.array(zUpsertCoursePrerequisite),
 })
 
 export const zUser = z.object({

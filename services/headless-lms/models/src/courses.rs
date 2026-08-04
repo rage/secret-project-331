@@ -2,13 +2,10 @@ use std::collections::HashMap;
 
 use crate::{
     chapters::{Chapter, course_chapters},
-    course_audiences::{CourseAudience, NewCourseAudience, UpsertCourseAudience},
+    course_audiences::{CourseAudience, EditCourseAudience},
     course_instances::CourseInstance,
     course_modules::{CourseModule, ModifiedModule},
-    course_prerequisites::{
-        CoursePrerequisite, NewCoursePrerequisite, UpsertCoursePrerequisite,
-        insert_course_prerequisites,
-    },
+    course_prerequisites::{CoursePrerequisite, EditCoursePrerequisite},
     organizations::DatabaseOrganization,
     pages::{Page, PageVisibility, get_all_by_course_id_and_visibility},
     prelude::*,
@@ -233,8 +230,8 @@ pub struct CourseAuditingData {
     pub organization_name: String,
     pub organization_slug: String,
     pub modules: Vec<CourseModule>,
-    pub prerequisites: Vec<UpsertCoursePrerequisite>,
-    pub audiences: Vec<UpsertCourseAudience>,
+    pub prerequisites: Vec<EditCoursePrerequisite>,
+    pub audiences: Vec<EditCourseAudience>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -245,8 +242,8 @@ pub struct CourseAuditingDataUpdate {
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
     pub modules: Vec<ModifiedModule>,
-    pub prerequisites: Vec<UpsertCoursePrerequisite>,
-    pub audiences: Vec<UpsertCourseAudience>,
+    pub prerequisites: Vec<EditCoursePrerequisite>,
+    pub audiences: Vec<EditCourseAudience>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -398,7 +395,8 @@ GROUP BY c.id,
 
     let modules_data = crate::course_modules::get_all_modules(conn).await?;
 
-    let prerequisites_data = crate::course_prerequisites::get_all_prerequisites(conn).await?;
+    let prerequisites_data =
+        crate::course_prerequisites::get_all_course_prerequisites(conn).await?;
 
     let audiences_data = crate::course_audiences::get_all_audiences(conn).await?;
 
@@ -414,8 +412,7 @@ GROUP BY c.id,
         course_modules.sort_by_key(|c| c.order_number);
     }
 
-    let mut prerequisites_by_course_id: HashMap<Uuid, Vec<UpsertCoursePrerequisite>> =
-        HashMap::new();
+    let mut prerequisites_by_course_id: HashMap<Uuid, Vec<EditCoursePrerequisite>> = HashMap::new();
     for prerequisite in prerequisites_data {
         prerequisites_by_course_id
             .entry(prerequisite.course_id)
@@ -423,7 +420,7 @@ GROUP BY c.id,
             .push(prerequisite);
     }
 
-    let mut audiences_by_course_id: HashMap<Uuid, Vec<UpsertCourseAudience>> = HashMap::new();
+    let mut audiences_by_course_id: HashMap<Uuid, Vec<EditCourseAudience>> = HashMap::new();
     for audience in audiences_data {
         audiences_by_course_id
             .entry(audience.course_id)
@@ -603,77 +600,20 @@ WHERE cm.id = v.id
     .execute(&mut *tx)
     .await?;
 
-    let prerequisite_ids: Vec<Uuid> = data_update.prerequisites.iter().map(|p| p.id).collect();
-
-    let updated_prerequisites: Vec<String> = data_update
-        .prerequisites
-        .iter()
-        .map(|p| p.prerequisite.clone())
-        .collect();
-
-    let old_prerequisites: Vec<CoursePrerequisite> =
-        crate::course_prerequisites::get_by_course_id(&mut tx, course_id).await?;
-
-    let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
-        .iter()
-        .filter(|p| !updated_prerequisites.contains(&p.prerequisite))
-        .map(|p| p.id.clone())
-        .collect();
-
-    crate::course_prerequisites::delete_batch(&mut tx, prerequisites_to_delete).await?;
-
-    sqlx::query!(
-        r#"
-INSERT INTO course_prerequisites (course_id, id, prerequisite)
-SELECT $1,
-  prerequisite_data.id,
-  prerequisite_data.prerequisite
-FROM UNNEST ($2::UUID [], $3::TEXT []) AS prerequisite_data(id, prerequisite) ON CONFLICT (id) DO
-UPDATE
-SET prerequisite = EXCLUDED.prerequisite
-"#,
-        &course_id,
-        &prerequisite_ids[..],
-        &updated_prerequisites[..]
+    crate::course_prerequisites::upsert_course_prerequisites(
+        &mut tx,
+        course_id,
+        &data_update.prerequisites,
     )
-    .execute(&mut *tx)
     .await?;
 
-    let audience_ids: Vec<Uuid> = data_update.audiences.iter().map(|a| a.id).collect();
+    crate::course_prerequisites::delete_batch(&mut tx, course_id, &data_update.prerequisites)
+        .await?;
 
-    let updated_audiences: Vec<String> = data_update
-        .audiences
-        .iter()
-        .map(|a| a.audience.clone())
-        .collect();
+    crate::course_audiences::upsert_course_audiences(&mut tx, course_id, &data_update.audiences)
+        .await?;
 
-    let old_audiences: Vec<CourseAudience> =
-        crate::course_audiences::get_by_course_id(&mut tx, course_id).await?;
-
-    let audiences_to_delete: Vec<Uuid> = old_audiences
-        .iter()
-        .filter(|a| !updated_audiences.contains(&a.audience))
-        .map(|a| a.id.clone())
-        .collect();
-
-    crate::course_audiences::delete_batch(&mut tx, audiences_to_delete).await?;
-
-    sqlx::query!(
-        r#"
-INSERT INTO course_audiences (course_id, id, audience)
-SELECT $1,
-  audience_data.id,
-  audience_data.audience
-FROM UNNEST ($2::UUID [], $3::TEXT []) AS audience_data(id, audience) ON CONFLICT (id) DO
-UPDATE
-SET audience = EXCLUDED.audience
-"#,
-        &course_id,
-        &audience_ids[..],
-        &updated_audiences[..]
-    )
-    .execute(&mut *tx)
-    .await?;
+    crate::course_audiences::delete_batch(&mut tx, course_id, &data_update.audiences).await?;
 
     tx.commit().await?;
     Ok(())
@@ -1809,8 +1749,8 @@ mod test {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 pub struct CourseMetadataUpdate {
     course_description: Option<String>,
-    course_audiences: Vec<NewCourseAudience>,
-    course_prerequisites: Vec<NewCoursePrerequisite>,
+    course_audiences: Vec<EditCourseAudience>,
+    course_prerequisites: Vec<EditCoursePrerequisite>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
@@ -1818,6 +1758,7 @@ pub struct CourseMetadata {
     course_description: Option<String>,
     course_audiences: Vec<CourseAudience>,
     course_prerequisites: Vec<CoursePrerequisite>,
+    course_updated_at: DateTime<Utc>,
 }
 
 pub async fn set_metadata(
@@ -1825,61 +1766,31 @@ pub async fn set_metadata(
     course_id: Uuid,
     course_metadata: CourseMetadataUpdate,
 ) -> ModelResult<CourseMetadata> {
-    let old_prerequisites: Vec<CoursePrerequisite> =
-        crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
-    let new_prerequisites: Vec<String> = course_metadata
-        .course_prerequisites
-        .iter()
-        .map(|x| x.prerequisite.to_owned())
-        .collect();
+    //switch to atomic?
 
-    let prerequisite_old_strings: Vec<String> = old_prerequisites
-        .iter()
-        .map(|x| x.prerequisite.to_owned())
-        .collect();
+    let prerequisites = crate::course_prerequisites::upsert_course_prerequisites(
+        conn,
+        course_id,
+        &course_metadata.course_prerequisites,
+    )
+    .await?;
 
-    let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
-        .iter()
-        .filter(|x| !new_prerequisites.contains(&x.prerequisite))
-        .map(|x| x.id.to_owned())
-        .collect();
+    crate::course_prerequisites::delete_batch(
+        conn,
+        course_id,
+        &course_metadata.course_prerequisites,
+    )
+    .await?;
 
-    let prerequisites_to_add: Vec<String> = new_prerequisites
-        .into_iter()
-        .filter(|x| !prerequisite_old_strings.contains(x))
-        .collect();
+    let audiences = crate::course_audiences::upsert_course_audiences(
+        conn,
+        course_id,
+        &course_metadata.course_audiences,
+    )
+    .await?;
 
-    crate::course_prerequisites::delete_batch(conn, prerequisites_to_delete).await?;
-
-    let prerequisites = insert_course_prerequisites(conn, course_id, prerequisites_to_add).await?;
-
-    let old_audiences: Vec<CourseAudience> =
-        crate::course_audiences::get_by_course_id(conn, course_id).await?;
-    let new_audiences: Vec<String> = course_metadata
-        .course_audiences
-        .iter()
-        .map(|x| x.audience.to_owned())
-        .collect();
-
-    let audience_old_strings: Vec<String> = old_audiences
-        .iter()
-        .map(|x| x.audience.to_owned())
-        .collect();
-
-    let audiences_to_delete: Vec<Uuid> = old_audiences
-        .iter()
-        .filter(|x| !new_audiences.contains(&x.audience))
-        .map(|x| x.id.to_owned())
-        .collect();
-
-    let audiences_to_add: Vec<String> = new_audiences
-        .into_iter()
-        .filter(|x| !audience_old_strings.contains(x))
-        .collect();
-
-    crate::course_audiences::delete_batch(conn, audiences_to_delete).await?;
-    let audiences =
-        crate::course_audiences::insert_course_audiences(conn, course_id, audiences_to_add).await?;
+    crate::course_audiences::delete_batch(conn, course_id, &course_metadata.course_audiences)
+        .await?;
 
     let course = get_course(conn, course_id).await?;
 
@@ -1908,6 +1819,7 @@ pub async fn set_metadata(
         course_description: updated_course.description,
         course_audiences: audiences,
         course_prerequisites: prerequisites,
+        course_updated_at: updated_course.updated_at,
     };
     Ok(res)
 }

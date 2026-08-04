@@ -8,13 +8,15 @@ import {
   getCourseAudiencesOptions,
   getCoursePrerequisitesOptions,
   getSisuCourseLlmDescriptionsOptions,
+  updateMetadataMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateMetadata } from "@/generated/api/sdk.generated"
-import type { CourseMetadataUpdate } from "@/generated/api/types.generated"
+import type { Course, CourseMetadata, CourseMetadataUpdate } from "@/generated/api/types.generated"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { QueryResults } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
@@ -22,7 +24,7 @@ import AIMetadataFormFields from "./AIMetadataFormFields"
 
 interface EditCourseFormProps {
   courseId: string
-  onSubmitForm: () => void
+  onSubmitForm: (data: CourseMetadata) => void
   open: boolean
   onClose: () => void
 }
@@ -35,7 +37,7 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
 }) => {
   const { t } = useTranslation()
 
-  const courseQuery = useCourseQuery(courseId)
+  const courseQuery = useCourseQuery(courseId, open)
 
   const sisuQuery = useQuery(
     optionalGeneratedQueryOptions({
@@ -81,20 +83,15 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
   const hasPrerequisites =
     prerequisitesQuery.data !== undefined && prerequisitesQuery.data?.length > 0
 
-  const updateCourseMetadataMutation = useToastMutation(
-    async (data: CourseMetadataUpdate) => {
-      await updateMetadata({
-        body: {
-          ...data,
-        },
-        path: {
-          course_id: courseId,
-        },
-      })
-      onSubmitForm()
-      onClose()
-    },
+  const updateCourseMetadataMutation = useToastMutationOptions(
+    updateMetadataMutation(),
     { method: "POST", notify: true },
+    {
+      onSuccess: (data) => {
+        onSubmitForm(data)
+        onClose()
+      },
+    },
   )
 
   return (
@@ -133,7 +130,16 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
                 audiences={audiencesData}
                 hasPrerequisites={hasPrerequisites}
                 hasAudiences={hasAudiences}
-                onSubmit={(data) => updateCourseMetadataMutation.mutate(data)}
+                onSubmit={(data) =>
+                  updateCourseMetadataMutation.mutate({
+                    body: {
+                      ...data,
+                    },
+                    path: {
+                      course_id: courseId,
+                    },
+                  })
+                }
               />
             )
           }}

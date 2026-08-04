@@ -13001,7 +13001,7 @@
           "audiences": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UpsertCourseAudience"
+              "$ref": "#/components/schemas/EditCourseAudience"
             }
           },
           "closed_additional_message": {
@@ -13048,7 +13048,7 @@
           "prerequisites": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UpsertCoursePrerequisite"
+              "$ref": "#/components/schemas/EditCoursePrerequisite"
             }
           },
           "slug": {
@@ -13067,7 +13067,7 @@
           "audiences": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UpsertCourseAudience"
+              "$ref": "#/components/schemas/EditCourseAudience"
             }
           },
           "closed_additional_message": {
@@ -13093,7 +13093,7 @@
           "prerequisites": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UpsertCoursePrerequisite"
+              "$ref": "#/components/schemas/EditCoursePrerequisite"
             }
           }
         }
@@ -13810,7 +13810,7 @@
       },
       "CourseMetadata": {
         "type": "object",
-        "required": ["course_audiences", "course_prerequisites"],
+        "required": ["course_audiences", "course_prerequisites", "course_updated_at"],
         "properties": {
           "course_audiences": {
             "type": "array",
@@ -13826,6 +13826,10 @@
             "items": {
               "$ref": "#/components/schemas/CoursePrerequisite"
             }
+          },
+          "course_updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -13836,7 +13840,7 @@
           "course_audiences": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/NewCourseAudience"
+              "$ref": "#/components/schemas/EditCourseAudience"
             }
           },
           "course_description": {
@@ -13845,7 +13849,7 @@
           "course_prerequisites": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/NewCoursePrerequisite"
+              "$ref": "#/components/schemas/EditCoursePrerequisite"
             }
           }
         }
@@ -14549,6 +14553,40 @@
           "users_with_some_unregistered_completions": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "EditCourseAudience": {
+        "type": "object",
+        "required": ["id", "course_id", "audience"],
+        "properties": {
+          "audience": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "EditCoursePrerequisite": {
+        "type": "object",
+        "required": ["id", "course_id", "prerequisite"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "prerequisite": {
+            "type": "string"
           }
         }
       },
@@ -16489,24 +16527,6 @@
           "teacher_in_charge_name": {
             "type": "string",
             "description": "Name of the teacher who is responsible for the course. Must be a valid name."
-          }
-        }
-      },
-      "NewCourseAudience": {
-        "type": "object",
-        "required": ["audience"],
-        "properties": {
-          "audience": {
-            "type": "string"
-          }
-        }
-      },
-      "NewCoursePrerequisite": {
-        "type": "object",
-        "required": ["prerequisite"],
-        "properties": {
-          "prerequisite": {
-            "type": "string"
           }
         }
       },
@@ -18585,40 +18605,6 @@
         "required": ["url"],
         "properties": {
           "url": {
-            "type": "string"
-          }
-        }
-      },
-      "UpsertCourseAudience": {
-        "type": "object",
-        "required": ["id", "course_id", "audience"],
-        "properties": {
-          "audience": {
-            "type": "string"
-          },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
-      "UpsertCoursePrerequisite": {
-        "type": "object",
-        "required": ["id", "course_id", "prerequisite"],
-        "properties": {
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "prerequisite": {
             "type": "string"
           }
         }

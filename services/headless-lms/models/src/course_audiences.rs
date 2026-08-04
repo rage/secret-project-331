@@ -27,7 +27,8 @@ pub async fn insert_course_audiences(
     embeddings: Vec<Vec<f32>>,
 ) -> ModelResult<Vec<CourseAudience>> {
     let embed_vecs: Vec<Vector> = embeddings.into_iter().map(Vector::from).collect();
-    let res = sqlx::query_as::<_, CourseAudience>(
+    let res = sqlx::query_as!(
+        CourseAudience,
         r#"
 INSERT INTO course_audiences (
     course_id,
@@ -48,12 +49,12 @@ RETURNING
         deleted_at,
         course_id,
         audience,
-        embedding
+        embedding as "embedding: Vector"
     "#,
+        course_id,
+        &audiences,
+        &embed_vecs as _
     )
-    .bind(course_id)
-    .bind(&audiences)
-    .bind(&embed_vecs)
     .fetch_all(conn)
     .await?;
     Ok(res)
@@ -118,13 +119,13 @@ pub async fn get_course_ids_by_audience_vector(
     audience_keyword: String,
 ) -> ModelResult<Vec<Uuid>> {
     let vector = Vector::from(audience_vec);
-    let res = sqlx::query_scalar(
+    let res = sqlx::query_scalar!(
         r#"
 SELECT course_id
 FROM (
     SELECT
         course_id,
-        MIN(embedding <#> $1) AS distance
+        MIN(embedding <#> $1::vector) AS distance
     FROM course_audiences
     GROUP BY course_id
     ORDER BY distance ASC
@@ -136,10 +137,10 @@ FROM course_audiences
 WHERE to_tsvector('english', audience)
 @@ websearch_to_tsquery('english', $2)
         "#,
+        vector,
+        audience_keyword
     )
-    .bind(vector)
-    .bind(audience_keyword)
     .fetch_all(conn)
     .await?;
-    Ok(res)
+    Ok(res.into_iter().flatten().collect())
 }

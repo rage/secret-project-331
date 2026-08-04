@@ -44,7 +44,7 @@ pub async fn create_embeddings(input: Vec<String>) -> UtilResult<Vec<Vec<f32>>> 
             "Azure search configuration is missing from the Azure configuration"
         )
     })?;
-    println!("INPUT: {}", input.first().expect("EMPTY"));
+
     let api_endpoint = chatbot_config.embeddings_endpoint()?;
     let response = REQWEST_CLIENT
         .post(api_endpoint)
@@ -61,13 +61,13 @@ pub async fn create_embeddings(input: Vec<String>) -> UtilResult<Vec<Vec<f32>>> 
         let embeddings: Vec<Vec<f32>> = json.data.iter().map(|e| e.embedding.to_owned()).collect();
         Ok(embeddings)
     } else {
-        return Err(util_err!(
+        Err(util_err!(
             EmbeddingRequestBuildError,
             format!(
                 "Embedding API failed: {} - {}",
                 response.status(),
                 response.text().await?
             )
-        ));
+        ))
     }
 }

@@ -107,7 +107,6 @@ impl ChatbotTool for CourseFinderTool {
         };
 
         let course_ids = [description_courses, audience_courses, prerequisite_courses].concat();
-        println!("COURSE IDS: {:#?}", course_ids);
 
         let mut counts: HashMap<Uuid, usize> = HashMap::new();
 
@@ -126,7 +125,7 @@ impl ChatbotTool for CourseFinderTool {
             .collect();
 
         course_occurrences.sort_by(|a, b| b.occurrences.cmp(&a.occurrences));
-        println!("OUTPUT: {:#?}", course_occurrences);
+
         Ok(CourseFinderTool {
             state: CourseFinderState {
                 courses: course_occurrences,

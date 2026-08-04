@@ -931,7 +931,7 @@ RETURNING id,
     .fetch_one(&mut *conn)
     .await?;
     if let Some(description) = &res.description {
-        update_embedding_vector(&mut *conn, res.id, &description).await?;
+        update_embedding_vector(&mut *conn, res.id, description).await?;
     }
     Ok(res)
 }
@@ -1460,15 +1460,15 @@ pub async fn update_embedding_vector(
         .expect("Embedding returned nothing")
         .to_owned();
     let vector = Vector::from(embedding);
-    let res = sqlx::query(
+    let _res = sqlx::query!(
         r#"
 UPDATE courses
-SET embedding = $1
+SET embedding = $1::vector
 WHERE id = $2
     "#,
+        vector,
+        course_id
     )
-    .bind(vector)
-    .bind(course_id)
     .execute(conn)
     .await?;
     Ok(())
@@ -1480,13 +1480,13 @@ pub async fn get_by_description_vector(
     description_keyword: String,
 ) -> ModelResult<Vec<Uuid>> {
     let vector = Vector::from(description_vec);
-    let courses = sqlx::query_scalar(
+    let res = sqlx::query_scalar!(
         r#"
 SELECT id
 FROM (
     SELECT
         id,
-        MIN(embedding <#> $1) AS distance
+        MIN(embedding <#> $1::vector) AS distance
     FROM courses
     GROUP BY id
     ORDER BY distance ASC
@@ -1498,12 +1498,12 @@ FROM courses
 WHERE to_tsvector('english', description)
 @@ websearch_to_tsquery('english', $2)
         "#,
+        vector,
+        description_keyword
     )
-    .bind(vector)
-    .bind(description_keyword)
     .fetch_all(conn)
     .await?;
-    Ok(courses)
+    Ok(res.into_iter().flatten().collect())
 }
 
 #[cfg(test)]

@@ -27,7 +27,8 @@ pub async fn insert_course_prerequisites(
     embeddings: Vec<Vec<f32>>,
 ) -> ModelResult<Vec<CoursePrerequisite>> {
     let embed_vecs: Vec<Vector> = embeddings.into_iter().map(Vector::from).collect();
-    let res = sqlx::query_as::<_, CoursePrerequisite>(
+    let res = sqlx::query_as!(
+        CoursePrerequisite,
         r#"
 INSERT INTO course_prerequisites (
     course_id,
@@ -48,12 +49,12 @@ RETURNING
         deleted_at,
         course_id,
         prerequisite,
-        embedding
+        embedding as "embedding: Vector"
     "#,
+        course_id,
+        &new_prerequisites,
+        &embed_vecs as _
     )
-    .bind(course_id)
-    .bind(&new_prerequisites)
-    .bind(&embed_vecs)
     .fetch_all(conn)
     .await?;
     Ok(res)
@@ -118,13 +119,13 @@ pub async fn get_course_ids_by_prerequisite_vector(
     prerequisite_keyword: String,
 ) -> ModelResult<Vec<Uuid>> {
     let vector = Vector::from(prerequisite_vec);
-    let res = sqlx::query_scalar(
+    let res = sqlx::query_scalar!(
         r#"
 SELECT course_id
 FROM (
     SELECT
         course_id,
-        MIN(embedding <#> $1::vector) AS distance
+        MIN(embedding <#> $1) AS distance
     FROM course_prerequisites
     GROUP BY course_id
     ORDER BY distance ASC
@@ -136,10 +137,10 @@ FROM course_prerequisites
 WHERE to_tsvector('english', prerequisite)
 @@ websearch_to_tsquery('english', $2)
         "#,
+        vector,
+        prerequisite_keyword
     )
-    .bind(vector)
-    .bind(prerequisite_keyword)
     .fetch_all(conn)
     .await?;
-    Ok(res)
+    Ok(res.into_iter().flatten().collect())
 }

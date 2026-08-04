@@ -12,13 +12,13 @@ chrono = { version = "0.4.45", features = ["serde"] }
 # An extensible, strongly-typed implementation of OAuth2
 oauth2 = "5.0.0"
 # A generic serialization/deserialization framework
-serde = { version = "1.0.228", features = ["derive"] }
+serde = { version = "1.0.229", features = ["derive"] }
 # A JSON serialization file format
-serde_json = "1.0.150"
+serde_json = "1.0.151"
 # derive(Error)
-thiserror = "2.0.18"
+thiserror = "2.0.19"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.23.4", features = ["serde"] }
+uuid = { version = "1.24.0", features = ["serde"] }
 
 [lints.clippy]
 unwrap_used = "deny"

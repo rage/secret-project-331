@@ -79,6 +79,10 @@
       "message": "This chapter is not open yet.",
       "title": "Chapter is closed"
     },
+    "course_slug_already_taken": {
+      "message": "Another course is already using this slug. Please choose a different one.",
+      "title": "Slug is already in use"
+    },
     "forbidden": {
       "message": "You do not have permission for this action.",
       "title": "Forbidden"
